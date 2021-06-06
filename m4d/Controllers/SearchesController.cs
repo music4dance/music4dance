@@ -11,19 +11,21 @@ namespace m4d.Controllers
 {
     public class SearchesController : DanceMusicController
     {
-        public SearchesController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, IConfiguration configuration) :
+        public SearchesController(DanceMusicContext context,
+            UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
+            ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+            IConfiguration configuration) :
             base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
         {
             HelpPage = "song-list";
         }
 
         // GET: Searches
-        public IActionResult Index(string user, string sort=null, SongFilter filter=null, bool showDetails=false)
+        public IActionResult Index(string user, string sort = null, SongFilter filter = null,
+            bool showDetails = false)
         {
-            if (string.IsNullOrWhiteSpace(user) || user.Equals(UserQuery.AnonymousUser, StringComparison.OrdinalIgnoreCase))
-            {
-                user = null;
-            }
+            if (string.IsNullOrWhiteSpace(user) || user.Equals(UserQuery.AnonymousUser,
+                StringComparison.OrdinalIgnoreCase)) user = null;
 
             user ??= User.Identity.Name;
             IQueryable<Search> searches = Database.Searches.Include(s => s.ApplicationUser);
@@ -31,12 +33,13 @@ namespace m4d.Controllers
             {
                 var appUser = Database.FindUser(user);
                 if (appUser != null)
-                {
                     searches = searches.Where(s => s.ApplicationUserId == appUser.Id);
-                }
             }
 
-            searches = (string.Equals(sort, "recent") ? searches.OrderByDescending(s => s.Modified) : searches.OrderByDescending(s => s.Count)).Take(100);
+            searches =
+                (string.Equals(sort, "recent")
+                    ? searches.OrderByDescending(s => s.Modified)
+                    : searches.OrderByDescending(s => s.Count)).Take(100);
             ViewBag.Sort = sort;
             ViewBag.ShowDetails = showDetails;
             ViewBag.SongFilter = filter;
@@ -46,15 +49,9 @@ namespace m4d.Controllers
         // GET: Searches/Details/5
         public IActionResult Details(long? id)
         {
-            if (id == null)
-            {
-                return StatusCode((int) HttpStatusCode.BadRequest);
-            }
+            if (id == null) return StatusCode((int) HttpStatusCode.BadRequest);
             var search = Database.Searches.Find(id);
-            if (search == null)
-            {
-                return StatusCode((int)HttpStatusCode.NotFound);
-            }
+            if (search == null) return StatusCode((int) HttpStatusCode.NotFound);
             return View(search);
         }
     }

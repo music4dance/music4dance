@@ -15,6 +15,7 @@ namespace m4d.ViewModels
             CreateMap<TagGroup, TagModel>();
         }
     }
+
     public class SearchModel
     {
         public SongFilterSparse Filter { get; set; }

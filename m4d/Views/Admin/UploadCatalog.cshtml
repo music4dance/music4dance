@@ -5,9 +5,10 @@
 }
 
 <h2>Upload Catalog</h2>
-@using (Html.BeginForm("UploadCatalog", "Admin", FormMethod.Post, new { @class="form", enctype = "multipart/form-data" }))
-{ 
-    @Html.AntiForgeryToken();
+@using (Html.BeginForm("UploadCatalog", "Admin", FormMethod.Post, new {@class = "form", enctype = "multipart/form-data"}))
+{
+    @Html.AntiForgeryToken()
+    ;
     var separator = " - ";
     var header = "";
     var user = "";
@@ -47,7 +48,7 @@
 
     <div class="form-group">
         <span class="control-label">User:</span>
-        <input type="text" name="user" value="@user" />
+        <input type="text" name="user" value="@user"/>
     </div>
     <div class="form-group">
         <span class="control-label">Dances:</span>
@@ -55,23 +56,23 @@
     </div>
     <div class="form-group">
         <span class="control-label">Artist:</span>
-        <input type="text" name="artist" value="@artist" />
+        <input type="text" name="artist" value="@artist"/>
     </div>
     <div class="form-group">
         <span class="control-label">Album:</span>
-        <input type="text" name="album" value="@album" />
+        <input type="text" name="album" value="@album"/>
     </div>
     <div class="form-group">
         <span class="control-label">Tags:</span>
-        <input type="text" name="tags" value="@tags" />
+        <input type="text" name="tags" value="@tags"/>
     </div>
     <div class="form-group">
         <span class="control-label">Separator:</span>
-        <input type="text" name="separator" value="@separator" />
+        <input type="text" name="separator" value="@separator"/>
     </div>
     <div class="form-group">
         <span class="control-label">Header:</span>
-        <input type="text" name="headers" value="@header" />
+        <input type="text" name="headers" value="@header"/>
     </div>
     <div class="form-group">
         <span class="control-label">Table:</span>
@@ -79,8 +80,8 @@
     </div>
     <div class="form-group">
         <span class="control-label">File:</span>
-        <input type="file" name="FileUpload" />
+        <input type="file" name="FileUpload"/>
     </div>
 
-    <input type="submit" name="UploadCatalog" id="Submit" value="Upload" />
+    <input type="submit" name="UploadCatalog" id="Submit" value="Upload"/>
 }

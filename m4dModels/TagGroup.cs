@@ -10,25 +10,23 @@ namespace m4dModels
     public class TagGroup
     {
         #region Properties
-        [JsonProperty]
-        public string Key { get; set; }
+
+        [JsonProperty] public string Key { get; set; }
+
         // The user visible tag
         public string Value => Key.Substring(0, Key.IndexOf(':'));
 
-        [JsonProperty]
-        public DateTime Modified { get; set; }
+        [JsonProperty] public DateTime Modified { get; set; }
 
         // A single tag category/namespace
-        public string Category => Key.Substring(Key.IndexOf(':')+1);
+        public string Category => Key.Substring(Key.IndexOf(':') + 1);
 
         // The total number of references to this tag
-        [JsonProperty]
-        public int Count { get; set; }
+        [JsonProperty] public int Count { get; set; }
 
         // For tag rings, point to the 'primary' variation of the tag
-        [JsonProperty]
-        public string PrimaryId { get; set; }
-        public virtual TagGroup Primary {get; set;}
+        [JsonProperty] public string PrimaryId { get; set; }
+        public virtual TagGroup Primary { get; set; }
         public virtual IList<TagGroup> Children { get; set; }
 
         public string EncodedKey => TagEncode(Key);
@@ -38,7 +36,10 @@ namespace m4dModels
         #endregion
 
         #region Constructors
-        public TagGroup() { }
+
+        public TagGroup()
+        {
+        }
 
         public TagGroup(string tag)
         {
@@ -62,7 +63,7 @@ namespace m4dModels
         // TODO: Think TagGroup should be derived from tagcount?
         public static implicit operator TagCount(TagGroup tt)
         {
-            return new TagCount(tt.Key,tt.Count);
+            return new TagCount(tt.Key, tt.Count);
         }
 
         public static IEnumerable<TagCount> ToTagCounts(IEnumerable<TagGroup> ttl)
@@ -73,9 +74,10 @@ namespace m4dModels
                 var p = tt.GetPrimary();
                 if (!d.TryGetValue(p.Key, out var tc))
                 {
-                    tc = new TagCount(p.Key,0);
+                    tc = new TagCount(p.Key, 0);
                     d[p.Key] = tc;
                 }
+
                 tc.Count += tt.Count;
             }
 
@@ -94,12 +96,10 @@ namespace m4dModels
         public TagGroup GetPrimary()
         {
             var p = this;
-            while (p.Primary != null)
-            {
-                p = p.Primary;
-            }
+            while (p.Primary != null) p = p.Primary;
             return p;
         }
+
         public static string BuildKey(string value, string category)
         {
             return $"{value}:{category}";
@@ -110,58 +110,49 @@ namespace m4dModels
             var sb = new StringBuilder();
 
             foreach (var c in tag)
-            {
                 if (char.IsLetterOrDigit(c))
-                {
                     sb.Append(c);
-                }
-                else switch (c)
-                {
-                    case '-':
-                        sb.Append("--");
-                        break;
-                    case ':':
-                        sb.Append("-p"); //seParator
-                        break;
-                    case '&':
-                        sb.Append("-m"); //aMpersand
-                        break;
-                    case '/':
-                        sb.Append("-s"); //Slash
-                        break;
-                    case ' ':
-                        sb.Append("-w"); //whitespace
-                        break;
-                    default:
-                        int i = c;
-                        if (i > 256) 
-                        {
-                            throw new ArgumentOutOfRangeException($"Invalid tag character: {c}");
-                        }
-                        else
-                        {
-                            sb.AppendFormat("-{0:x2}",i);
-                        }
-                        break;
-                }
-            }
+                else
+                    switch (c)
+                    {
+                        case '-':
+                            sb.Append("--");
+                            break;
+                        case ':':
+                            sb.Append("-p"); //seParator
+                            break;
+                        case '&':
+                            sb.Append("-m"); //aMpersand
+                            break;
+                        case '/':
+                            sb.Append("-s"); //Slash
+                            break;
+                        case ' ':
+                            sb.Append("-w"); //whitespace
+                            break;
+                        default:
+                            int i = c;
+                            if (i > 256)
+                                throw new ArgumentOutOfRangeException(
+                                    $"Invalid tag character: {c}");
+                            else
+                                sb.AppendFormat("-{0:x2}", i);
+                            break;
+                    }
 
             return sb.ToString();
         }
 
         private static bool IsHexDigit(char c)
         {
-            if (char.IsDigit(c))
-            {
-                return true;
-            }
+            if (char.IsDigit(c)) return true;
             c = char.ToLower(c);
             return c >= 'a' && c <= 'f';
         }
 
         private static int ConvertHexDigit(char c)
         {
-            return char.IsDigit(c) ? c - '0' : (char.ToLower(c) - 'a') + 10;
+            return char.IsDigit(c) ? c - '0' : char.ToLower(c) - 'a' + 10;
         }
 
         public static string TagDecode(string tag)
@@ -176,9 +167,8 @@ namespace m4dModels
                 {
                     ich += 1;
                     if (ich == cch)
-                    {
-                        throw new ArgumentOutOfRangeException($"Invalid tags: ends with escape: '{tag}'");
-                    }
+                        throw new ArgumentOutOfRangeException(
+                            $"Invalid tags: ends with escape: '{tag}'");
 
                     var c1 = tag[ich];
                     switch (c1)
@@ -204,26 +194,24 @@ namespace m4dModels
                                 var i = ConvertHexDigit(c1) * 16;
                                 ich += 1;
                                 if (ich == cch)
-                                {
                                     throw new ArgumentOutOfRangeException(
                                         $"Invalid tags: ends with escape + single digit: '{tag}'");
-                                }
 
                                 var c2 = tag[ich];
                                 if (!IsHexDigit(c2))
-                                {
                                     throw new ArgumentOutOfRangeException(
                                         $"Invalid tags: invalid escape at {ich}: '{tag}'");
-                                }
 
                                 i += ConvertHexDigit(c2);
 
-                                sb.Append((char)i);
+                                sb.Append((char) i);
                             }
                             else
                             {
-                                throw new ArgumentOutOfRangeException($"Invalid tags: invalid escape at {ich}: '{tag}'");
+                                throw new ArgumentOutOfRangeException(
+                                    $"Invalid tags: invalid escape at {ich}: '{tag}'");
                             }
+
                             break;
                     }
                 }
@@ -251,8 +239,10 @@ namespace m4dModels
                     name = "genre";
                     break;
             }
+
             return name;
         }
+
         #endregion
 
         public void AddChild(TagGroup tagGroup)

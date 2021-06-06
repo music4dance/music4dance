@@ -13,7 +13,10 @@ namespace m4d.APIControllers
     [Route("api/[controller]")]
     public class MusicServiceController : DanceMusicApiController
     {
-        public MusicServiceController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, IConfiguration configuration) :
+        public MusicServiceController(DanceMusicContext context,
+            UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
+            ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+            IConfiguration configuration) :
             base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
         {
         }
@@ -29,18 +32,13 @@ namespace m4d.APIControllers
                 title = song.Title;
             }
 
-            var key = $"{id}|{service??"A"}|{artist??""}|{title??""}";
+            var key = $"{id}|{service ?? "A"}|{artist ?? ""}|{title ?? ""}";
 
 
             if (!s_cache.TryGetValue(key, out var tracks))
-            {
                 tracks = InternalGetServiceTracks(song, service, title, artist, album);
-            }
 
-            if (tracks == null || tracks.Count == 0)
-            {
-                return NotFound();
-            }
+            if (tracks == null || tracks.Count == 0) return NotFound();
 
             s_cache[key] = tracks;
 
@@ -53,7 +51,8 @@ namespace m4d.APIControllers
             IList<ServiceTrack> tracks = null;
 
             var service = string.IsNullOrWhiteSpace(serviceId)
-                ? null : MusicService.GetService(serviceId[0]);
+                ? null
+                : MusicService.GetService(serviceId[0]);
 
             try
             {
@@ -66,16 +65,14 @@ namespace m4d.APIControllers
                     $"GetServiceTracks Failed: {e.Message}");
 
                 if (e.Message.Contains("Unauthorized"))
-                {
                     Trace.WriteLineIf(TraceLevels.General.TraceError,
                         "!!!!!AUTHORIZATION FAILED!!!!!");
-                }
             }
 
             return tracks;
         }
 
         // ReSharper disable once InconsistentNaming
-        private static readonly Dictionary<string, IList<ServiceTrack>> s_cache = new Dictionary<string, IList<ServiceTrack>>();
+        private static readonly Dictionary<string, IList<ServiceTrack>> s_cache = new();
     }
 }

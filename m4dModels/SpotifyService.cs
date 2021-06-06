@@ -10,17 +10,17 @@ using Exception = System.Exception;
 
 namespace m4dModels
 {
-    class SpotifyService : MusicService
+    internal class SpotifyService : MusicService
     {
         public SpotifyService() :
             base(ServiceType.Spotify,
-            'S', 
-            "Spotify", 
-            "spotify_client", 
-            "listen on spotify",
-            "http://open.spotify.com/track/{0}", 
-            "https://api.spotify.com/v1/search?q={0}&type=track",
-            "https://api.spotify.com/v1/tracks/{0}")
+                'S',
+                "Spotify",
+                "spotify_client",
+                "listen on spotify",
+                "http://open.spotify.com/track/{0}",
+                "https://api.spotify.com/v1/search?q={0}&type=track",
+                "https://api.spotify.com/v1/tracks/{0}")
         {
         }
 
@@ -30,14 +30,14 @@ namespace m4dModels
         {
             if (url.Contains("/album/"))
             {
-                var id = url.Substring(url.LastIndexOf('/')+1);
+                var id = url.Substring(url.LastIndexOf('/') + 1);
 
                 return $"https://api.spotify.com/v1/albums/{id}";
             }
 
             if (url.Contains("/playlist/"))
             {
-                var rg = url.Split(new[] {'/'},StringSplitOptions.RemoveEmptyEntries);
+                var rg = url.Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries);
 
                 if (rg.Length != 6)
                     return null;
@@ -60,7 +60,7 @@ namespace m4dModels
         {
             try
             {
-                return results.tracks??results;
+                return results.tracks ?? results;
             }
             catch (RuntimeBinderException)
             {
@@ -96,9 +96,7 @@ namespace m4dModels
 
                 string trackId = trackT.id;
                 if (trackId != null && !excludeMap.Contains(trackId))
-                {
                     ret.Add(ParseTrackResults(trackT, getResult));
-                }
             }
 
             try
@@ -109,10 +107,7 @@ namespace m4dModels
                 if (a != null)
                 {
                     var name = results.name;
-                    foreach (var t in ret)
-                    {
-                        t.Album = name;
-                    }
+                    foreach (var t in ret) t.Album = name;
                 }
             }
             catch (Exception)
@@ -123,16 +118,15 @@ namespace m4dModels
             return ret;
         }
 
-        public override ServiceTrack ParseTrackResults(dynamic track, Func<string, dynamic> getResult)
+        public override ServiceTrack ParseTrackResults(dynamic track,
+            Func<string, dynamic> getResult)
         {
-            var artist = (track.artists.Count > 0) ? track.artists[0] : null;
+            var artist = track.artists.Count > 0 ? track.artists[0] : null;
             var album = track.album;
 
             int trackNum = track.track_number;
             if (track.disc_number > 1)
-            {
-                trackNum = new TrackNumber(trackNum, (int)track.disc_number, null);
-            }
+                trackNum = new TrackNumber(trackNum, (int) track.disc_number, null);
 
             bool? isPlayable = null;
             try
@@ -142,6 +136,7 @@ namespace m4dModels
             catch (RuntimeBinderException)
             {
             }
+
             string sample = null;
             try
             {
@@ -198,22 +193,15 @@ namespace m4dModels
             genres.UnionWith(GenresFromReference(track.album, getResult));
 
             if (track?.artists.Count > 0)
-            {
                 foreach (var a in track.artists)
-                {
                     genres.UnionWith(GenresFromReference(a, getResult));
-                }
-            }
 
             return genres.Count > 0 ? genres.ToArray() : null;
         }
 
         private List<string> GenresFromReference(dynamic field, Func<string, dynamic> getResult)
         {
-            if (field?.href == null)
-            {
-                return new List<string>();
-            }
+            if (field?.href == null) return new List<string>();
 
             var t = GetResults(field.href.ToString(), getResult);
             return t != null ? (List<string>) GenresFromObject(t) : new List<string>();
@@ -224,34 +212,23 @@ namespace m4dModels
             var list = new List<string>();
             try
             {
-                if (obj?.genres == null || obj.genres.Count == 0)
-                {
-                    return list;
-                }
+                if (obj?.genres == null || obj.genres.Count == 0) return list;
 
-                foreach (var genre in obj.genres)
-                {
-                    list.Add(CleanupGenre(genre.ToString()));
-                }
+                foreach (var genre in obj.genres) list.Add(CleanupGenre(genre.ToString()));
             }
             catch (Exception e)
             {
                 Debug.WriteLine(e.Message);
             }
+
             return list;
         }
 
         private dynamic GetResults(string url, Func<string, dynamic> getResult)
         {
-            if (s_results.TryGetValue(url, out var result))
-            {
-                return result;
-            }
+            if (s_results.TryGetValue(url, out var result)) return result;
 
-            if (getResult == null)
-            {
-                return null;
-            }
+            if (getResult == null) return null;
 
             try
             {
@@ -259,7 +236,8 @@ namespace m4dModels
             }
             catch (Exception e)
             {
-                Trace.WriteLineIf(TraceLevels.General.TraceError, $"Error attempting to call Spotify: {e.Message}");
+                Trace.WriteLineIf(TraceLevels.General.TraceError,
+                    $"Error attempting to call Spotify: {e.Message}");
                 return null;
             }
         }
@@ -271,7 +249,9 @@ namespace m4dModels
                 .Replace(" Or ", " or ");
         }
 
-        private static readonly Dictionary<string, dynamic> s_results = new Dictionary<string, dynamic>();
+        private static readonly Dictionary<string, dynamic> s_results =
+            new Dictionary<string, dynamic>();
+
         private static readonly TextInfo s_textInfo = CultureInfo.CurrentCulture.TextInfo;
     }
 }

@@ -7,8 +7,7 @@ namespace m4d.ViewModels
 {
     public class ArtistViewModel : SongListModel
     {
-        [Key]
-        public string Artist { get; set; }
+        [Key] public string Artist { get; set; }
 
         public static ArtistViewModel Create(
             string name, string user,

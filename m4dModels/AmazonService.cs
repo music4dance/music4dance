@@ -1,6 +1,6 @@
 ﻿namespace m4dModels
 {
-    class AmazonService : MusicService
+    internal class AmazonService : MusicService
     {
         public AmazonService() :
             base(ServiceType.Amazon,
@@ -25,22 +25,16 @@
 
         public override string NormalizeId(string id)
         {
-            if (id.IndexOf(':') == -1)
-            {
-                id = "D:" + id;
-            }
+            if (id.IndexOf(':') == -1) id = "D:" + id;
             return id;
         }
 
-        static string Strip(string info)
+        private static string Strip(string info)
         {
             if (info != null && (info.StartsWith("A:") || info.StartsWith("D:")))
-            {
                 info = info.Substring(2);
-            }
 
             return info;
         }
-
     }
 }

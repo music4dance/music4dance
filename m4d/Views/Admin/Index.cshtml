@@ -4,7 +4,7 @@
     ViewBag.BreadCrumbs = new List<BreadCrumbItem>
     {
         BreadCrumbItem.HomeItem,
-        new BreadCrumbItem { Title = ViewBag.Title, Active = true }
+        new() {Title = ViewBag.Title, Active = true}
     };
 }
 
@@ -38,5 +38,5 @@
 {
     <div>
         <h3>@Html.ActionLink("Uploads and Backups", "UploadBackup")</h3>
-    </div>   
+    </div>
 }

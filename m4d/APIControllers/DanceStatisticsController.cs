@@ -10,7 +10,11 @@ namespace m4d.APIControllers
     public class DancesStatisticsController : DanceMusicApiController
     {
         private readonly DanceStatsInstance _statistics;
-        public DancesStatisticsController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, IConfiguration configuration) :
+
+        public DancesStatisticsController(DanceMusicContext context,
+            UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
+            ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+            IConfiguration configuration) :
             base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
         {
             _statistics = DanceStatsManager.Instance;
@@ -23,7 +27,6 @@ namespace m4d.APIControllers
         }
 
         [HttpGet("{id}")]
-
         public IActionResult Get(string id)
         {
             return JsonCamelCase(_statistics.FromId(id));

@@ -6,7 +6,7 @@
     ViewBag.Canonical = "https://www.music4dance.net";
     ViewBag.Description = "music4dance.net is an online music catalog, tool and educational resource to help Ballroom, Salsa, Swing, Tango and other dancers find fun and exciting music.";
 
-    var converterModel = new ObjectConverterModel { Name = "model", Model = Model };
+    var converterModel = new ObjectConverterModel {Name = "model", Model = Model};
 }
 
 <div id="fb-root"></div>
@@ -17,7 +17,7 @@
 <div id="app"></div>
 
 @section Scripts {
-    <partial name="_jsonCamelCase" model="@converterModel" />
+    <partial name="_jsonCamelCase" model="@converterModel"/>
     <script src="/client/js/chunk-vendors.js"></script>
     <script src="/client/js/chunk-common.js"></script>
     <script src="/client/js/home.js"></script>

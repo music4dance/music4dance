@@ -11,21 +11,28 @@ namespace m4dModels
         {
             CreateMap<Song, SongSparse>()
                 .ForMember(dest => dest.Tags,
-            opt => opt.MapFrom(src => src.TagSummary.Tags))
+                    opt => opt.MapFrom(src => src.TagSummary.Tags))
                 .ForMember(dest => dest.CurrentUserTags,
-                    opt => opt.MapFrom(src => src.CurrentUserTags.Tags.Select(t => new TagCount(t, 1))))
+                    opt => opt.MapFrom(src =>
+                        src.CurrentUserTags.Tags.Select(t => new TagCount(t, 1))))
                 .ForMember(dest => dest.Danceability,
-                    opt => opt.MapFrom(y => y.Danceability == null || float.IsNaN(y.Danceability.Value) ? null : y.Danceability))
+                    opt => opt.MapFrom(y =>
+                        y.Danceability == null || float.IsNaN(y.Danceability.Value)
+                            ? null
+                            : y.Danceability))
                 .ForMember(dest => dest.Valence,
-                    opt => opt.MapFrom(y => y.Valence == null || float.IsNaN(y.Valence.Value) ? null : y.Valence))
+                    opt => opt.MapFrom(y =>
+                        y.Valence == null || float.IsNaN(y.Valence.Value) ? null : y.Valence))
                 .ForMember(dest => dest.Energy,
-                opt => opt.MapFrom(y => y.Energy == null || float.IsNaN(y.Energy.Value) ? null : y.Energy));
+                    opt => opt.MapFrom(y =>
+                        y.Energy == null || float.IsNaN(y.Energy.Value) ? null : y.Energy));
 
             CreateMap<DanceRating, DanceRatingSparse>()
                 .ForMember(dest => dest.Tags,
                     opt => opt.MapFrom(src => src.TagSummary.Tags))
                 .ForMember(dest => dest.CurrentUserTags,
-                    opt => opt.MapFrom(src => src.CurrentUserTags.Tags.Select(t => new TagCount(t, 1))));
+                    opt => opt.MapFrom(src =>
+                        src.CurrentUserTags.Tags.Select(t => new TagCount(t, 1))));
             CreateMap<AlbumDetails, AlbumDetailsSparse>();
         }
     }
@@ -45,7 +52,7 @@ namespace m4dModels
         public DateTime Modified { get; set; }
         public List<TagModel> Tags { get; set; }
         public List<TagModel> CurrentUserTags { get; set; }
-        public List<DanceRatingSparse> DanceRatings { get;set; }
+        public List<DanceRatingSparse> DanceRatings { get; set; }
         public List<ModifiedRecord> ModifiedBy { get; set; }
         public List<AlbumDetailsSparse> Albums { get; set; }
     }

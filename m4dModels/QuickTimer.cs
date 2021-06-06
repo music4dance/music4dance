@@ -17,10 +17,7 @@ namespace m4dModels
             _lastTime = next;
 
             TimeSpan total;
-            if (_totals.TryGetValue(label, out total))
-            {
-                delta += total;
-            }
+            if (_totals.TryGetValue(label, out total)) delta += total;
             _totals[label] = delta;
         }
 
@@ -29,13 +26,11 @@ namespace m4dModels
             if (!_active) return;
 
             Trace.WriteLine("-------TOTALS------");
-            foreach (var pair in _totals)
-            {
-                Trace.WriteLine($"{pair.Key}- {pair.Value.TotalMinutes}");
-            }
+            foreach (var pair in _totals) Trace.WriteLine($"{pair.Key}- {pair.Value.TotalMinutes}");
         }
+
         private DateTime _lastTime = DateTime.Now;
         private readonly bool _active = TraceLevels.General.TraceVerbose;
-        private readonly Dictionary<string,TimeSpan> _totals = new Dictionary<string, TimeSpan>();
+        private readonly Dictionary<string, TimeSpan> _totals = new Dictionary<string, TimeSpan>();
     }
 }

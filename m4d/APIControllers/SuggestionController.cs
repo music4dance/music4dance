@@ -10,7 +10,10 @@ namespace m4d.APIControllers
     [Route("api/[controller]")]
     public class SuggestionController : DanceMusicApiController
     {
-        public SuggestionController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, IConfiguration configuration) :
+        public SuggestionController(DanceMusicContext context,
+            UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
+            ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+            IConfiguration configuration) :
             base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
         {
         }
@@ -19,10 +22,7 @@ namespace m4d.APIControllers
         public async Task<IActionResult> Get(string id)
         {
             var suggestions = await Database.AzureSuggestions(id);
-            if (suggestions != null)
-            {
-                return Ok(suggestions);
-            }
+            if (suggestions != null) return Ok(suggestions);
             return NotFound();
         }
     }

@@ -8,6 +8,7 @@ namespace m4dModels
     public class MusicService
     {
         #region Properties
+
         public ServiceType Id { get; }
         public char CID { get; }
         public string Name { get; }
@@ -16,8 +17,8 @@ namespace m4dModels
 
         public string User => $"batch-{CID.ToString().ToLower()}";
 
-        public ApplicationUser ApplicationUser => 
-            new ApplicationUser(User, pseudo: true);
+        public ApplicationUser ApplicationUser =>
+            new ApplicationUser(User, true);
 
         // This is pretty kludgy but until I implement
         // a second service that requires a key I don't
@@ -30,9 +31,11 @@ namespace m4dModels
         protected string AssociateLink { get; set; }
         protected string SearchRequest { get; set; }
         protected string TrackRequest { get; set; }
+
         #endregion
 
         #region Methods
+
         public PurchaseLink GetPurchaseLink(PurchaseType pt, string album, string song)
         {
             PurchaseLink ret = null;
@@ -40,7 +43,6 @@ namespace m4dModels
             var link = BuildPurchaseLink(pt, album, id);
 
             if (link != null)
-            {
                 ret = new PurchaseLink
                 {
                     ServiceType = Id,
@@ -53,33 +55,35 @@ namespace m4dModels
                     AltText = Description,
                     AvailableMarkets = regions
                 };
-            }
 
             return ret;
         }
+
         public string BuildPurchaseKey(PurchaseType pt)
         {
             var sb = new StringBuilder(3);
             sb.Append(CID);
-            sb.Append(PurchaseTypes[(int)pt]);
+            sb.Append(PurchaseTypes[(int) pt]);
             return sb.ToString();
         }
 
         #endregion
 
         #region Overrides
+
         protected virtual string BuildPurchaseLink(PurchaseType pt, string album, string song)
         {
             if (string.IsNullOrWhiteSpace(AssociateLink)) return null;
 
-            var info = (pt == PurchaseType.Song) ? song : album;
+            var info = pt == PurchaseType.Song ? song : album;
 
             return info != null ? string.Format(AssociateLink, info) : null;
         }
 
         public virtual string BuildSearchRequest(string artist, string title)
         {
-            return BuildRequest(SearchRequest,(artist ?? string.Empty) + " " + (title ?? string.Empty));
+            return BuildRequest(SearchRequest,
+                (artist ?? string.Empty) + " " + (title ?? string.Empty));
         }
 
         public virtual string BuildLookupRequest(string url)
@@ -102,13 +106,10 @@ namespace m4dModels
             return null;
         }
 
-        public string BuildTrackRequest(string id, string region=null)
+        public string BuildTrackRequest(string id, string region = null)
         {
             var ret = BuildRequest(TrackRequest, id);
-            if (!string.IsNullOrWhiteSpace(region))
-            {
-                ret += "?market=" + region;
-            }
+            if (!string.IsNullOrWhiteSpace(region)) ret += "?market=" + region;
             return ret;
         }
 
@@ -129,7 +130,8 @@ namespace m4dModels
             throw new NotImplementedException();
         }
 
-        public virtual ServiceTrack ParseTrackResults(dynamic results, Func<string, dynamic> getResult)
+        public virtual ServiceTrack ParseTrackResults(dynamic results,
+            Func<string, dynamic> getResult)
         {
             throw new NotImplementedException();
         }
@@ -140,7 +142,8 @@ namespace m4dModels
 
         protected MusicService(
             ServiceType id, char cid,
-            string name, string target, string description, string link, string searchRequest, string trackRequest=null)
+            string name, string target, string description, string link, string searchRequest,
+            string trackRequest = null)
         {
             Id = id;
             CID = cid;
@@ -151,26 +154,27 @@ namespace m4dModels
             SearchRequest = searchRequest;
             TrackRequest = trackRequest;
         }
-        
+
         #endregion
 
         #region Static Helpers
+
         public static string ExpandPurchaseType(string abbrv)
         {
             PurchaseType pt;
             ServiceType ms;
 
             if (!TryParsePurchaseType(abbrv, out pt, out ms))
-            {
                 throw new ArgumentOutOfRangeException(nameof(abbrv));
-            }
 
             var service = IdMap[ms].Name;
-            var type = PurchaseTypesEx[(int)pt];
+            var type = PurchaseTypesEx[(int) pt];
 
             return service + " " + type;
         }
-        public static bool TryParsePurchaseInfo(string pi, out PurchaseType pt, out ServiceType ms, out string id)
+
+        public static bool TryParsePurchaseInfo(string pi, out PurchaseType pt, out ServiceType ms,
+            out string id)
         {
             pt = PurchaseType.None;
             ms = ServiceType.None;
@@ -186,26 +190,19 @@ namespace m4dModels
 
             return true;
         }
-        public static bool TryParsePurchaseType(string abbrv, out PurchaseType pt, out ServiceType ms)
+
+        public static bool TryParsePurchaseType(string abbrv, out PurchaseType pt,
+            out ServiceType ms)
         {
-            if (abbrv == null)
-            {
-                throw new ArgumentNullException(nameof(abbrv));
-            }
+            if (abbrv == null) throw new ArgumentNullException(nameof(abbrv));
 
             ms = ServiceType.None;
             pt = PurchaseType.None;
 
-            if (abbrv.Length != 2)
-            {
-                return false;
-            }
+            if (abbrv.Length != 2) return false;
 
             var service = CidMap[abbrv[0]];
-            if (service == null)
-            {
-                throw new ArgumentOutOfRangeException(nameof(abbrv));
-            }
+            if (service == null) throw new ArgumentOutOfRangeException(nameof(abbrv));
             ms = service.Id;
 
             // ReSharper disable once SwitchStatementMissingSomeCases
@@ -228,13 +225,20 @@ namespace m4dModels
             if (string.IsNullOrWhiteSpace(pf))
                 return null;
 
-            var services = (from c in pf where CidMap.ContainsKey(c) select CidMap[c] into service select service.Name).ToList();
+            var services =
+                (from c in pf
+                    where CidMap.ContainsKey(c)
+                    select CidMap[c]
+                    into service
+                    select service.Name).ToList();
 
             return services.Count == 0 ? null : string.Join(separator, services);
         }
+
         #endregion
 
         #region Services
+
         public static IEnumerable<MusicService> GetServices()
         {
             return IdMap.Values;
@@ -263,10 +267,7 @@ namespace m4dModels
 
         public static MusicService GetService(string type)
         {
-            if (string.IsNullOrEmpty(type))
-            {
-                throw new ArgumentNullException(nameof(type));
-            }
+            if (string.IsNullOrEmpty(type)) throw new ArgumentNullException(nameof(type));
 
             return GetService(type[0]);
         }
@@ -281,7 +282,7 @@ namespace m4dModels
             AddService(new SpotifyService());
             AddService(new MusicServiceStub(ServiceType.Emusic, 'E', "EMusic"));
             AddService(new MusicServiceStub(ServiceType.Pandora, 'P', "Pandora"));
-            AddService(new MusicServiceStub(ServiceType.AMG,'M',"American Music Group",false));
+            AddService(new MusicServiceStub(ServiceType.AMG, 'M', "American Music Group", false));
         }
 
         private static void AddService(MusicService service)
@@ -289,14 +290,17 @@ namespace m4dModels
             IdMap.Add(service.Id, service);
             CidMap.Add(service.CID, service);
         }
+
         private static readonly Dictionary<ServiceType, MusicService> IdMap;
         private static readonly Dictionary<char, MusicService> CidMap;
-        
+
         #endregion
 
         #region PurchaseType
-        private static readonly char[] PurchaseTypes = { '#', 'A', 'S' };
-        private static readonly string[] PurchaseTypesEx = { "None", "Album", "Song" }; 
+
+        private static readonly char[] PurchaseTypes = {'#', 'A', 'S'};
+        private static readonly string[] PurchaseTypesEx = {"None", "Album", "Song"};
+
         #endregion
     }
 }

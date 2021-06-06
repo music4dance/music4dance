@@ -14,22 +14,30 @@
 
 @if (ViewData.ContainsKey("UserName"))
 {
-    <h3><b>UserName:</b> @ViewBag.UserName</h3>
+    <h3>
+        <b>UserName:</b> @ViewBag.UserName
+    </h3>
 }
 
 @if (ViewData.ContainsKey("Dances"))
 {
-    <h3><b>Dances:</b> @ViewBag.Dances</h3>
+    <h3>
+        <b>Dances:</b> @ViewBag.Dances
+    </h3>
 }
 
 @if (ViewData.ContainsKey("Tags"))
 {
-    <h3><b>Tags:</b> @ViewBag.Tags</h3>
+    <h3>
+        <b>Tags:</b> @ViewBag.Tags
+    </h3>
 }
 
 @if (ViewData.ContainsKey("Headers"))
 {
-    <h3><b>Headers:</b> @ViewBag.Headers</h3>
+    <h3>
+        <b>Headers:</b> @ViewBag.Headers
+    </h3>
 }
 
 
@@ -58,24 +66,24 @@
         </th>
     </tr>
 
-    @foreach (var item in Model) 
+    @foreach (var item in Model)
     {
         <tr>
             <td>
-                @{
-                    string color;
-                    if (item.Conflict)
-                    {
-                        color = "red";
-                        conflicts += 1;
-                    }
-                    else
-                    {
-                        color = "green";
-                        matches += 1;
-                    }
+            @{
+                string color;
+                if (item.Conflict)
+                {
+                    color = "red";
+                    conflicts += 1;
                 }
-                <span style="color:@color">@item.MatchType.ToString()</span>
+                else
+                {
+                    color = "green";
+                    matches += 1;
+                }
+            }
+            <span style="color: @color">@item.MatchType.ToString()</span>
             <td>
                 @Html.DisplayFor(modelItem => item.Left.Title)
             </td>
@@ -103,7 +111,7 @@
             @if (item.Right != null)
             {
                 <td>
-                    @Html.ActionLink(item.Right.SongId.ToString(), "Details", "Song", new { id = item.Right.SongId }, new { target="_blank"})
+                    @Html.ActionLink(item.Right.SongId.ToString(), "Details", "Song", new {id = item.Right.SongId}, new {target = "_blank"})
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Right.Title)
@@ -129,14 +137,14 @@
                 <td>&nbsp;</td>
             }
             @if (item.Right != null)
-                {
+            {
                 <td>
                     @Html.DisplayFor(modelItem => item.Right.Tempo)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Right.Length)
                 </td>
-                }
+            }
             else
             {
                 <td>&nbsp;</td>
@@ -149,7 +157,7 @@
 <h3>Matches = @matches</h3>
 <h3>Conflicts = @conflicts</h3>
 
-@using (Html.BeginForm((string)ViewBag.Action,"Admin",new {fileId=ViewBag.FileId, danceIds=ViewBag.Dances, userName=ViewBag.UserName, headers=ViewBag.Headers, separator=ViewBag.Separator}))
+@using (Html.BeginForm((string) ViewBag.Action, "Admin", new {fileId = ViewBag.FileId, danceIds = ViewBag.Dances, userName = ViewBag.UserName, headers = ViewBag.Headers, separator = ViewBag.Separator}))
 {
     @Html.AntiForgeryToken()
     <p>

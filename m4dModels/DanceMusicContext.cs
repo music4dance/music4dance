@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 
 namespace m4dModels
 {
-
     public class DanceMusicContext : IdentityDbContext<ApplicationUser>
     {
         public DanceMusicContext(DbContextOptions<DanceMusicContext> options)
@@ -20,9 +19,7 @@ namespace m4dModels
         public DanceMusicContext CreateTransientContext()
         {
             if (ConnectionString == null)
-            {
                 throw new Exception("Cannot create a new dbcontext from a test context");
-            }
 
             var builder = new DbContextOptionsBuilder<DanceMusicContext>();
             builder.UseSqlServer(ConnectionString);
@@ -65,11 +62,13 @@ namespace m4dModels
         }
 
         #region Properties
+
         public DbSet<Dance> Dances { get; set; }
         public DbSet<DanceLink> DanceLinks { get; set; }
         public DbSet<TagGroup> TagGroups { get; set; }
         public DbSet<Search> Searches { get; set; }
         public DbSet<PlayList> PlayLists { get; set; }
+
         #endregion
 
 
@@ -83,7 +82,8 @@ namespace m4dModels
             catch (Exception e) /* DbEntityValidationException */
             {
                 // CORETODO: Figure out if we can get to better error handling
-                Trace.WriteLineIf(TraceLevels.General.TraceError,$"Failed on SaveChanges {e.Message}" );
+                Trace.WriteLineIf(TraceLevels.General.TraceError,
+                    $"Failed on SaveChanges {e.Message}");
 
                 //foreach (var err in e.EntityValidationErrors)
                 //{
@@ -105,6 +105,7 @@ namespace m4dModels
             get => ChangeTracker.AutoDetectChangesEnabled;
             set => ChangeTracker.AutoDetectChangesEnabled = value;
         }
+
         public List<Dance> LoadDances()
         {
             var dances = Dances.Include(d => d.DanceLinks);

@@ -31,12 +31,13 @@ namespace m4d.Utilities
 
         public override string Namespace => "http://security.amazonaws.com/doc/2007-01-01/";
 
-        protected override void OnWriteHeaderContents(XmlDictionaryWriter xmlDictionaryWriter, MessageVersion messageVersion)
+        protected override void OnWriteHeaderContents(XmlDictionaryWriter xmlDictionaryWriter,
+            MessageVersion messageVersion)
         {
             xmlDictionaryWriter.WriteString(_value);
         }
     }
- 
+
 
     public class AmazonSigningMessageInspector : IClientMessageInspector
     {
@@ -76,9 +77,8 @@ namespace m4d.Utilities
         public void AfterReceiveReply(ref Message reply, object correlationState)
         {
         }
-
     }
- 
+
 
     public class AmazonSigningEndpointBehavior : IEndpointBehavior
     {
@@ -92,12 +92,16 @@ namespace m4d.Utilities
         }
 
         #region IEndpointBehavior Members
-        public void ApplyClientBehavior(ServiceEndpoint serviceEndpoint, ClientRuntime clientRuntime)
+
+        public void ApplyClientBehavior(ServiceEndpoint serviceEndpoint,
+            ClientRuntime clientRuntime)
         {
-            clientRuntime.ClientMessageInspectors.Add(new AmazonSigningMessageInspector(_accessKeyId, _secretKey));
+            clientRuntime.ClientMessageInspectors.Add(
+                new AmazonSigningMessageInspector(_accessKeyId, _secretKey));
         }
 
-        public void ApplyDispatchBehavior(ServiceEndpoint serviceEndpoint, EndpointDispatcher endpointDispatcher)
+        public void ApplyDispatchBehavior(ServiceEndpoint serviceEndpoint,
+            EndpointDispatcher endpointDispatcher)
         {
         }
 
@@ -105,9 +109,11 @@ namespace m4d.Utilities
         {
         }
 
-        public void AddBindingParameters(ServiceEndpoint serviceEndpoint, BindingParameterCollection bindingParameters)
+        public void AddBindingParameters(ServiceEndpoint serviceEndpoint,
+            BindingParameterCollection bindingParameters)
         {
         }
+
         #endregion
     }
 
@@ -117,19 +123,24 @@ namespace m4d.Utilities
     {
         protected override string Client => "amazon";
         private const string AssociateTag = "ms4dc-20";
-        private const string EndPointAddress = "https://webservices.amazon.com/onca/soap?Service=AWSECommerceService";
+
+        private const string EndPointAddress =
+            "https://webservices.amazon.com/onca/soap?Service=AWSECommerceService";
         //"https://webservices.amazon.fr/onca/soap?Service=AWSECommerceService"
 
-        readonly AWSECommerceServicePortTypeClient _client;
+        private readonly AWSECommerceServicePortTypeClient _client;
 
-        public AWSFetcher(IConfiguration configuration) :  base(configuration)
+        public AWSFetcher(IConfiguration configuration) : base(configuration)
         {
             // create a WCF Amazon ECS client
-            var binding = new BasicHttpBinding(BasicHttpSecurityMode.Transport) {MaxReceivedMessageSize = int.MaxValue};
-            _client = new AWSECommerceServicePortTypeClient(binding, new EndpointAddress(EndPointAddress));
+            var binding = new BasicHttpBinding(BasicHttpSecurityMode.Transport)
+                {MaxReceivedMessageSize = int.MaxValue};
+            _client = new AWSECommerceServicePortTypeClient(binding,
+                new EndpointAddress(EndPointAddress));
 
             // add authentication to the ECS client
-            _client.ChannelFactory.Endpoint.EndpointBehaviors.Add(new AmazonSigningEndpointBehavior(ClientId, ClientSecret));
+            _client.ChannelFactory.Endpoint.EndpointBehaviors.Add(
+                new AmazonSigningEndpointBehavior(ClientId, ClientSecret));
         }
 
         public IList<ServiceTrack> FetchTracks(string title, string artist)
@@ -160,30 +171,23 @@ namespace m4d.Utilities
             }
 
             if (response.Items[0].Item.Length != 0)
-            {
                 return BuildServiceTrack(response.Items[0].Item[0]);
-            }
 
             Trace.WriteLine(asin + ": No Tracks Returned");
             return null;
         }
 
-        private IList<ServiceTrack> DoFetchTracks(Song song, bool clean = false, string title = null, string artist = null)
+        private IList<ServiceTrack> DoFetchTracks(Song song, bool clean = false,
+            string title = null, string artist = null)
         {
             var tracks = new List<ServiceTrack>();
 
-            try {
-
+            try
+            {
                 if (song != null)
                 {
-                    if (title == null)
-                    {
-                        title = song.Title;
-                    }
-                    if (artist == null)
-                    {
-                        artist = song.Artist;
-                    }
+                    if (title == null) title = song.Title;
+                    if (artist == null) artist = song.Artist;
 
                     if (clean)
                     {
@@ -216,10 +220,7 @@ namespace m4d.Utilities
                         tracks.Add(track);
 
                         // If we have an exact match break...
-                        if (song?.FindAlbum(track.Album) != null)
-                        {
-                            break;
-                        }
+                        if (song?.FindAlbum(track.Album) != null) break;
                     }
                 }
 
@@ -238,35 +239,28 @@ namespace m4d.Utilities
             var title = item.ItemAttributes.Title;
 
             if (item.ItemAttributes.Creator != null && item.ItemAttributes.Creator.Length > 0)
-            {
                 artist = item.ItemAttributes.Creator[0].Value;
-            }
 
             int trackNum;
             int? ntrackNum = null;
 
-            if (int.TryParse(item.ItemAttributes.TrackSequence, out trackNum))
-            {
-                ntrackNum = trackNum;
-            }
+            if (int.TryParse(item.ItemAttributes.TrackSequence, out trackNum)) ntrackNum = trackNum;
 
             int? duration = null;
-            if (item.ItemAttributes.RunningTime != null && 
-                string.Equals(item.ItemAttributes.RunningTime.Units,"seconds",StringComparison.InvariantCultureIgnoreCase))
-            {
+            if (item.ItemAttributes.RunningTime != null &&
+                string.Equals(item.ItemAttributes.RunningTime.Units, "seconds",
+                    StringComparison.InvariantCultureIgnoreCase))
                 duration = (int) decimal.Round(item.ItemAttributes.RunningTime.Value);
-            }
 
             string collectionId = null;
             string albumTitle = null;
             if (item.RelatedItems != null && item.RelatedItems.Length > 0 &&
-                item.RelatedItems[0].RelatedItem != null && item.RelatedItems[0].RelatedItem.Length > 0)
+                item.RelatedItems[0].RelatedItem != null &&
+                item.RelatedItems[0].RelatedItem.Length > 0)
             {
                 collectionId = item.RelatedItems[0].RelatedItem[0].Item.ASIN;
                 if (item.RelatedItems[0].RelatedItem[0].Item.ItemAttributes != null)
-                {
                     albumTitle = item.RelatedItems[0].RelatedItem[0].Item.ItemAttributes.Title;
-                }
             }
 
             var genre = item.ItemAttributes.Genre;
@@ -274,11 +268,8 @@ namespace m4d.Utilities
             var gidx = -1;
             if (genre != null) gidx = genre.IndexOf("-music", StringComparison.OrdinalIgnoreCase);
 
-            if (gidx != -1)
-            {
-                genre = genre?.Remove(gidx);
-            }
-            var track = new ServiceTrack 
+            if (gidx != -1) genre = genre?.Remove(gidx);
+            var track = new ServiceTrack
             {
                 Service = ServiceType.Amazon,
                 TrackId = "D:" + item.ASIN,
@@ -287,7 +278,7 @@ namespace m4d.Utilities
                 TrackNumber = ntrackNum,
                 Duration = duration,
                 ReleaseDate = item.ItemAttributes.ReleaseDate,
-                Genres = new [] { genre },
+                Genres = new[] {genre},
                 CollectionId = "D:" + collectionId,
                 Album = albumTitle
             };
@@ -322,15 +313,16 @@ namespace m4d.Utilities
             //  mode and stop using them for a while?
             //while (r == null)
             //{
-                try
-                {
-                    r = _client.ItemSearch(itemSearch);
-                }
-                catch (ServerTooBusyException e)
-                {
-                    Trace.WriteLine("FindTrack: " + e.Message);
-                    Thread.Sleep(5000);
-                }
+            try
+            {
+                r = _client.ItemSearch(itemSearch);
+            }
+            catch (ServerTooBusyException e)
+            {
+                Trace.WriteLine("FindTrack: " + e.Message);
+                Thread.Sleep(5000);
+            }
+
             //}
             return r;
         }
@@ -353,7 +345,6 @@ namespace m4d.Utilities
 
             ItemLookupResponse r = null;
             while (r == null)
-            {
                 try
                 {
                     r = _client.ItemLookup(itemLookup);
@@ -363,7 +354,7 @@ namespace m4d.Utilities
                     Trace.WriteLine("LookupTrack: " + e.Message);
                     Thread.Sleep(5000);
                 }
-            }
+
             return r;
         }
 
@@ -380,17 +371,13 @@ namespace m4d.AWSReference
     {
         public static implicit operator ImageSet[](ImageSet i)
         {
-            return new[] { i };
+            return new[] {i};
         }
 
         public static implicit operator ImageSet(ImageSet[] i)
         {
-            if (i != null && i.Length >= 1)
-            {
-                return i[0];
-            }
+            if (i != null && i.Length >= 1) return i[0];
             return new ImageSet();
         }
     }
-
 }

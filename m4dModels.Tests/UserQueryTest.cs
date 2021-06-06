@@ -34,7 +34,7 @@ namespace m4dModels.Tests
             Assert.IsTrue(b.IsHate);
             Assert.IsFalse(b.IsInclude);
             Assert.IsTrue(b.IsExclude);
-            Assert.AreEqual("dwgray",b.UserName);
+            Assert.AreEqual("dwgray", b.UserName);
 
             var c = new UserQuery("dwgray");
             Assert.IsFalse(c.IsEmpty);
@@ -44,7 +44,6 @@ namespace m4dModels.Tests
             Assert.IsTrue(c.IsInclude);
             Assert.IsFalse(c.IsExclude);
             Assert.AreEqual("dwgray", c.UserName);
-
         }
     }
 }

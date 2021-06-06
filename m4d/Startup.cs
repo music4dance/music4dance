@@ -85,7 +85,8 @@ namespace m4d
             services.Configure<PasswordHasherOptions>(option =>
                 option.CompatibilityMode = PasswordHasherCompatibilityMode.IdentityV2);
 
-            var builder = services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            var builder = services.AddMvc()
+                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
 #if DEBUG
             builder.AddRazorRuntimeCompilation();
@@ -160,14 +161,15 @@ namespace m4d
             services.AddSingleton(new RecomputeMarkerService(appData));
 
             services.AddControllers().AddNewtonsoftJson()
-                .AddNewtonsoftJson(options => {
+                .AddNewtonsoftJson(options =>
+                {
                     options.SerializerSettings.ContractResolver =
                         new DefaultContractResolver();
                 });
 
             services.AddAutoMapper(
                 typeof(SongProfile),
-                typeof(SongFilterProfile), 
+                typeof(SongFilterProfile),
                 typeof(SongPropertyProfile),
                 typeof(TagProfile));
         }
@@ -177,10 +179,7 @@ namespace m4d
             DanceMusicContext context, UserManager<ApplicationUser> userManager,
             ISearchServiceManager searchService, IDanceStatsManager stats)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
+            if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
 
             var options = new RewriteOptions();
             options.AddRedirectToHttps();
@@ -195,7 +194,7 @@ namespace m4d
             app.Use(async (cxt, next) =>
             {
                 var url = cxt.Request.Path.Value;
-                string blog = "/blog";
+                var blog = "/blog";
                 if (url != null)
                 {
                     var idx = url.IndexOf(blog);
@@ -214,19 +213,19 @@ namespace m4d
             {
                 endpoints.MapControllerRoute(
                     "Dances",
-                    pattern: "dances/{group}/{dance}",
-                    defaults: new { controller = "dance", action = "GroupRedirect" });
+                    "dances/{group}/{dance}",
+                    new {controller = "dance", action = "GroupRedirect"});
                 endpoints.MapControllerRoute(
                     "DanceEdit",
-                    pattern: "dances/edit",
-                    defaults: new { controller = "dance", action = "edit" });
+                    "dances/edit",
+                    new {controller = "dance", action = "edit"});
                 endpoints.MapControllerRoute(
                     "DanceGroup",
-                    pattern: "dances/{dance?}",
-                    defaults: new { controller = "dance", action = "index" });
+                    "dances/{dance?}",
+                    new {controller = "dance", action = "index"});
                 endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    "default",
+                    "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
             });
 

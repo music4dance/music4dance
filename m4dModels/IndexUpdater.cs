@@ -34,14 +34,14 @@ namespace m4dModels
                 if (_task == null || _task.IsFaulted)
                 {
                     Trace.WriteLine("Setting up task");
-                    _task = Task.Delay(100*60).ContinueWith(_ => DoUpdate(dms));
+                    _task = Task.Delay(100 * 60).ContinueWith(_ => DoUpdate(dms));
                 }
                 else if (_task.Status == TaskStatus.Running)
                 {
                     _continue = true;
                 }
-
             }
+
             Trace.WriteLine("Exiting Enqueue");
         }
 
@@ -66,6 +66,7 @@ namespace m4dModels
                     dms.Dispose();
                 }
             }
+
             Trace.WriteLine("Exiting DoUpdate");
         }
 
@@ -74,6 +75,7 @@ namespace m4dModels
         private readonly object _lock = new object();
         private bool _continue;
 
-        private static readonly Dictionary<string,IndexUpdater> s_updaters = new Dictionary<string,IndexUpdater>();
+        private static readonly Dictionary<string, IndexUpdater> s_updaters =
+            new Dictionary<string, IndexUpdater>();
     }
 }

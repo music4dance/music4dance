@@ -17,7 +17,8 @@ namespace DanceTests
             _dances = Dances.Instance;
         }
 
-        readonly string[] _51HAll = {
+        private readonly string[] _51HAll =
+        {
             "QuickStep: Style=(International Standard), Delta=()",
             "Salsa: Style=(Social), Delta=()",
             "Charleston: Style=(Social), Delta=()",
@@ -25,24 +26,27 @@ namespace DanceTests
             "Balboa: Style=(Social), Delta=()",
             "Mambo: Style=(American Rhythm), Delta=(+0.50MPM)",
             "Collegiate Shag: Style=(Social), Delta=(+1.50MPM)",
-            "Milonga: Style=(Social), Delta=(+1.50MPM)",
+            "Milonga: Style=(Social), Delta=(+1.50MPM)"
         };
 
-        readonly string[] _51HNR = {
+        private readonly string[] _51HNR =
+        {
             "QuickStep: Style=(International Standard), Delta=()",
             "Salsa: Style=(Social), Delta=()",
             "Charleston: Style=(Social), Delta=()",
             "Jump Swing: Style=(Social), Delta=()",
             "Balboa: Style=(Social), Delta=()",
             "Collegiate Shag: Style=(Social), Delta=(+1.50MPM)",
-            "Milonga: Style=(Social), Delta=(+1.50MPM)",
+            "Milonga: Style=(Social), Delta=(+1.50MPM)"
         };
 
-        readonly string[] _51HJR = {
+        private readonly string[] _51HJR =
+        {
             "Mambo: Style=(American Rhythm), Delta=(+0.50MPM)"
         };
 
-        readonly string[] _31HDS = {
+        private readonly string[] _31HDS =
+        {
             "Slow Foxtrot: Style=(American Smooth, International Standard), Delta=()",
             "Tango (Ballroom): Style=(American Smooth, International Standard), Delta=()",
             "Rumba: Style=(American Rhythm, International Latin), Delta=()",
@@ -62,7 +66,8 @@ namespace DanceTests
             "Balboa: Style=(Social), Delta=(-8.50MPM)"
         };
 
-        readonly string[] _31HNDCA = {
+        private readonly string[] _31HNDCA =
+        {
             "Slow Foxtrot: Style=(American Smooth, International Standard), Delta=()",
             "Tango (Ballroom): Style=(American Smooth, International Standard), Delta=()",
             "Cha Cha: Style=(American Rhythm, International Latin), Delta=()",
@@ -83,7 +88,8 @@ namespace DanceTests
         };
 
 
-        readonly string[] _Bronze = {
+        private readonly string[] _Bronze =
+        {
             "Slow Foxtrot: Style=(American Smooth, International Standard), Delta=()",
             "Tango (Ballroom): Style=(American Smooth, International Standard), Delta=()",
             "Cha Cha: Style=(American Rhythm, International Latin), Delta=()",
@@ -100,46 +106,42 @@ namespace DanceTests
         };
 
 
-        readonly string[] _Waltz = {
+        private readonly string[] _Waltz =
+        {
             "Slow Waltz: Style=(American Smooth, International Standard), Delta=()",
             "Cross-step Waltz: Style=(Social), Delta=(-4.50MPM)"
         };
 
-        readonly string[] _NullDances = { };
+        private readonly string[] _NullDances = { };
 
         private void CompareDances(Meter meter, decimal rate, decimal epsilon, string[] expected)
         {
-            bool succeeded = true;
+            var succeeded = true;
 
-            Tempo tempo = new Tempo(rate, new TempoType(TempoKind.MPM, meter));
-            IEnumerable<DanceSample> dances = _dances.DancesFiltered(tempo,epsilon);
+            var tempo = new Tempo(rate, new TempoType(TempoKind.MPM, meter));
+            var dances = _dances.DancesFiltered(tempo, epsilon);
 
-            int i = 0;
-            foreach (DanceSample dance in dances)
+            var i = 0;
+            foreach (var dance in dances)
             {
-                string s = dance.ToString();
+                var s = dance.ToString();
 
                 if (expected != null)
-                {
                     if (i < expected.Length)
                     {
-                        bool match = string.Equals(s, expected[i]);
-                        if (!match)
-                        {
-                            Debug.Write("*");
-                        }
+                        var match = string.Equals(s, expected[i]);
+                        if (!match) Debug.Write("*");
                         succeeded &= match;
                     }
-                }
+
                 Debug.WriteLine("\"" + s + "\",");
 
                 i += 1;
             }
 
             if (expected != null)
-            {
-                Assert.AreEqual<int>(i, expected.Length, "Less than the expected number of matches");
-            }
+                Assert.AreEqual<int>(i, expected.Length,
+                    "Less than the expected number of matches");
 
             Debug.WriteLine("------");
 
@@ -187,7 +189,6 @@ namespace DanceTests
             FilterObject.SetValue("Level", "Silver", false);
             FilterObject.SetValue("Level", "Gold", false);
             CompareDances(new Meter(4, 4), 31.5M, 10, _Bronze); //_Bronze
-
         }
 
         [TestMethod]
@@ -213,13 +214,13 @@ namespace DanceTests
         {
             // NDCA
             FilterObject.SetAll(true);
-            CompareDances(new Meter(3, 4), 31.5M, 20, _Waltz); 
+            CompareDances(new Meter(3, 4), 31.5M, 20, _Waltz);
         }
 
         [TestMethod]
         public void DumpJSON()
         {
-            string json = _dances.GetJSON();
+            var json = _dances.GetJSON();
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(json));
         }

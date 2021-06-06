@@ -24,18 +24,13 @@ namespace m4d.APIControllers
 
         [Authorize]
         [HttpPatch("{id}")]
-        public IActionResult Patch([FromServices]IMapper mapper, Guid id, [FromBody] SongHistory history)
+        public IActionResult Patch([FromServices] IMapper mapper, Guid id,
+            [FromBody] SongHistory history)
         {
             Trace.WriteLine($"Enter Patch: SongId = {id}, User = {User.Identity.Name}");
-            if (!User.Identity.IsAuthenticated)
-            {
-                return StatusCode((int)HttpStatusCode.Forbidden);
-            }
+            if (!User.Identity.IsAuthenticated) return StatusCode((int) HttpStatusCode.Forbidden);
 
-            if (id != history.Id)
-            {
-                return StatusCode((int) HttpStatusCode.NotFound);
-            }
+            if (id != history.Id) return StatusCode((int) HttpStatusCode.NotFound);
 
             return Database.AppendHistory(history, mapper)
                 ? Ok()
@@ -44,22 +39,17 @@ namespace m4d.APIControllers
 
         [Authorize]
         [HttpPut("{id}")]
-        public IActionResult Put([FromServices] IMapper mapper, Guid id, [FromBody] SongHistory history)
+        public IActionResult Put([FromServices] IMapper mapper, Guid id,
+            [FromBody] SongHistory history)
         {
             Trace.WriteLine($"Enter Patch: SongId = {id}, User = {User.Identity.Name}");
-            if (!User.Identity.IsAuthenticated)
-            {
-                return StatusCode((int)HttpStatusCode.Forbidden);
-            }
+            if (!User.Identity.IsAuthenticated) return StatusCode((int) HttpStatusCode.Forbidden);
 
-            if (id != history.Id)
-            {
-                return StatusCode((int)HttpStatusCode.NotFound);
-            }
+            if (id != history.Id) return StatusCode((int) HttpStatusCode.NotFound);
 
             return Database.AdminEditSong(history, mapper)
                 ? Ok()
-                : StatusCode((int)HttpStatusCode.BadRequest);
+                : StatusCode((int) HttpStatusCode.BadRequest);
         }
 
         [Authorize]
@@ -67,15 +57,12 @@ namespace m4d.APIControllers
         public IActionResult Post([FromServices] IMapper mapper, [FromBody] SongHistory history)
         {
             Trace.WriteLine($"Enter Post: User = {User.Identity.Name}");
-            if (!User.Identity.IsAuthenticated)
-            {
-                return StatusCode((int)HttpStatusCode.Forbidden);
-            }
+            if (!User.Identity.IsAuthenticated) return StatusCode((int) HttpStatusCode.Forbidden);
 
             return Database.CreateSong(
-                    history.Properties.Select(mapper.Map<SongProperty>).ToList())
+                history.Properties.Select(mapper.Map<SongProperty>).ToList())
                 ? Ok()
-                : StatusCode((int)HttpStatusCode.BadRequest);
+                : StatusCode((int) HttpStatusCode.BadRequest);
         }
     }
 }

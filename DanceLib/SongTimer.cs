@@ -7,9 +7,9 @@ namespace DanceLibrary
     {
         public void DoClick()
         {
-            long currentTicks = DateTime.Now.Ticks;
+            var currentTicks = DateTime.Now.Ticks;
 
-            long deltaTicks = currentTicks - _lastTicks;
+            var deltaTicks = currentTicks - _lastTicks;
             _lastTicks = currentTicks;
 
             // First click or reset
@@ -24,18 +24,21 @@ namespace DanceLibrary
                 _totalCount++;
 
                 // this may be a bug in the emulator (or the phone) - looks like ms = rand so just use ticks
-                long totalTicks = _totalWaitTicks;
-                decimal averageWait = this.AverageWait;
-                _maxWaitTicks = (long)(averageWait * 2);
+                var totalTicks = _totalWaitTicks;
+                var averageWait = AverageWait;
+                _maxWaitTicks = (long) (averageWait * 2);
 
                 //System.Diagnostics.Debug.WriteLine(sb.ToString());
-                System.Diagnostics.Debug.WriteLine(string.Format("Click: time = {0}, ms = {1}, tck = {4}, avg = {2}, a = {3}", currentTicks, ConvertTicksToMilliSeconds(totalTicks), averageWait, _totalWaitTicks, totalTicks));
+                System.Diagnostics.Debug.WriteLine(string.Format(
+                    "Click: time = {0}, ms = {1}, tck = {4}, avg = {2}, a = {3}", currentTicks,
+                    ConvertTicksToMilliSeconds(totalTicks), averageWait, _totalWaitTicks,
+                    totalTicks));
             }
         }
 
         public void Reset()
         {
-            this.Reset(DateTime.Now.Ticks);
+            Reset(DateTime.Now.Ticks);
         }
 
         public void Reset(long currentTicks)
@@ -47,15 +50,12 @@ namespace DanceLibrary
         }
 
         // This is tempo in x per seconds
-        public Decimal Rate
+        public decimal Rate
         {
-            get 
+            get
             {
-                decimal rate = this.AverageWait;
-                if (rate != 0)
-                {
-                    rate = (decimal)1000 / rate;
-                }
+                var rate = AverageWait;
+                if (rate != 0) rate = (decimal) 1000 / rate;
                 System.Diagnostics.Debug.WriteLine("Tempo = {0}", rate);
                 return rate;
             }
@@ -65,23 +65,17 @@ namespace DanceLibrary
         {
             get
             {
-                if (_totalWaitTicks == 0)
-                {
-                    return 0;
-                }
+                if (_totalWaitTicks == 0) return 0;
 
                 return ConvertTicksToMilliSeconds(_totalWaitTicks / _totalCount);
             }
         }
 
-        public bool IsClear
-        {
-            get { return _totalCount == 0; }
-        }
+        public bool IsClear => _totalCount == 0;
 
         private decimal ConvertTicksToMilliSeconds(long ticks)
         {
-            return ConvertTicksToMilliSeconds((decimal)ticks);
+            return ConvertTicksToMilliSeconds((decimal) ticks);
         }
 
         private decimal ConvertTicksToMilliSeconds(decimal ticks)

@@ -7,13 +7,13 @@
 }
 
 <h1>@ViewBag.Title</h1>
-<hr />
+<hr/>
 
 <div>
     <partial name="_playlistDetails" model="@Model"/>
 </div>
 <p></p>
 <p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Edit", "Edit", new {id = Model.Id}) |
     @Html.ActionLink("Back to List", "Index")
 </p>

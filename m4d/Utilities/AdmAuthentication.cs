@@ -19,12 +19,9 @@ namespace m4d.Utilities
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     public class AccessToken
     {
-        [DataMember]
-        public string access_token { get; set; }
-        [DataMember]
-        public string token_type { get; set; }
-        [DataMember]
-        public int expires_in { get; set; }
+        [DataMember] public string access_token { get; set; }
+        [DataMember] public string token_type { get; set; }
+        [DataMember] public int expires_in { get; set; }
 
         public virtual TimeSpan ExpiresIn => TimeSpan.FromSeconds(expires_in - 60);
     }
@@ -44,7 +41,9 @@ namespace m4d.Utilities
 
     public abstract class AdmAuthentication : CoreAuthentication, IDisposable
     {
-        protected AdmAuthentication(IConfiguration configuration) : base(configuration) { }
+        protected AdmAuthentication(IConfiguration configuration) : base(configuration)
+        {
+        }
 
         protected abstract string RequestFormat { get; }
         protected virtual string RequestExtra => string.Empty;
@@ -56,12 +55,13 @@ namespace m4d.Utilities
         {
             lock (this)
             {
-                if (Token != null) 
+                if (Token != null)
                     return Token;
 
                 Token = CreateToken();
                 if (AccessTokenRenewer == null)
-                    AccessTokenRenewer = new Timer(OnTokenExpiredCallback, this, Token.ExpiresIn, Token.ExpiresIn);
+                    AccessTokenRenewer = new Timer(OnTokenExpiredCallback, this, Token.ExpiresIn,
+                        Token.ExpiresIn);
 
                 return Token;
             }
@@ -88,22 +88,25 @@ namespace m4d.Utilities
             webRequest.ContentType = "application/x-www-form-urlencoded";
             webRequest.Method = "POST";
 
-            var svcCredentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(ClientId + ":" + ClientSecret));
+            var svcCredentials =
+                Convert.ToBase64String(Encoding.ASCII.GetBytes(ClientId + ":" + ClientSecret));
             webRequest.Headers.Add("Authorization", "Basic " + svcCredentials);
 
-            var request = _request ?? (_request = string.Format(RequestFormat, Uri.EscapeDataString(ClientId), Uri.EscapeDataString(ClientSecret))) + RequestExtra;
+            var request = _request ?? (_request = string.Format(RequestFormat,
+                Uri.EscapeDataString(ClientId), Uri.EscapeDataString(ClientSecret))) + RequestExtra;
             var bytes = Encoding.ASCII.GetBytes(request);
             webRequest.ContentLength = bytes.Length;
             using (var outputStream = webRequest.GetRequestStream())
             {
                 outputStream.Write(bytes, 0, bytes.Length);
             }
+
             try
             {
                 using var webResponse = webRequest.GetResponse();
-                var serializer = new DataContractJsonSerializer(typeof (AccessToken));
+                var serializer = new DataContractJsonSerializer(typeof(AccessToken));
                 //Get deserialized object from JSON stream
-                return (AccessToken)serializer.ReadObject(webResponse.GetResponseStream());
+                return (AccessToken) serializer.ReadObject(webResponse.GetResponseStream());
             }
             catch (Exception e)
             {
@@ -122,12 +125,17 @@ namespace m4d.Utilities
             AccessTokenRenewer.Dispose();
         }
 
-        public static string GetServiceAuthorization(IConfiguration configuration, ServiceType serviceType, IPrincipal principal = null, AuthenticateResult authResult = null)
+        public static string GetServiceAuthorization(IConfiguration configuration,
+            ServiceType serviceType, IPrincipal principal = null,
+            AuthenticateResult authResult = null)
         {
-            return SetupService(configuration, serviceType, principal, authResult)?.GetAccessString();
+            return SetupService(configuration, serviceType, principal, authResult)
+                ?.GetAccessString();
         }
 
-        private static AdmAuthentication SetupService(IConfiguration configuration, ServiceType serviceType, IPrincipal principal = null, AuthenticateResult authResult = null)
+        private static AdmAuthentication SetupService(IConfiguration configuration,
+            ServiceType serviceType, IPrincipal principal = null,
+            AuthenticateResult authResult = null)
         {
             AdmAuthentication auth = null;
 
@@ -135,10 +143,7 @@ namespace m4d.Utilities
                 !string.IsNullOrWhiteSpace(principal.Identity.Name))
             {
                 var userName = principal.Identity.Name;
-                if (s_users.TryGetValue(userName, out auth))
-                {
-                    return auth;
-                }
+                if (s_users.TryGetValue(userName, out auth)) return auth;
 
                 if (authResult?.Properties != null)
                 {
@@ -161,7 +166,8 @@ namespace m4d.Utilities
             return auth;
         }
 
-        public static AdmAuthentication TryCreate(IConfiguration configuration, ServiceType serviceType, AuthenticateResult authResult)
+        public static AdmAuthentication TryCreate(IConfiguration configuration,
+            ServiceType serviceType, AuthenticateResult authResult)
         {
             var accessToken = authResult.Properties.GetTokenValue("access_token");
             var now = DateTime.Now;
@@ -171,7 +177,7 @@ namespace m4d.Utilities
             var token = new AccessToken
             {
                 access_token = accessToken,
-                expires_in = (int)expiresIn.TotalSeconds
+                expires_in = (int) expiresIn.TotalSeconds
             };
 
             var refreshToken = authResult.Properties.GetTokenValue("refresh_token");
@@ -180,17 +186,13 @@ namespace m4d.Utilities
                 return null;
 
             AdmAuthentication auth = null;
-            if  (serviceType == ServiceType.Spotify)
-            {
+            if (serviceType == ServiceType.Spotify)
                 auth = new SpotUserAuthentication(configuration)
                 {
-                    RefreshToken = refreshToken,
+                    RefreshToken = refreshToken
                 };
-            }
             else
-            {
                 return null;
-            }
 
             // TODO: Figure out if there is a way to get the expiresPeriod programmatically
             var expirePeriod = new TimeSpan(0, 59, 0);
@@ -200,7 +202,9 @@ namespace m4d.Utilities
                 expiresIn = new TimeSpan(0);
                 auth.Token = null;
             }
-            auth.AccessTokenRenewer = new Timer(auth.OnTokenExpiredCallback, auth, expiresIn, expirePeriod);
+
+            auth.AccessTokenRenewer =
+                new Timer(auth.OnTokenExpiredCallback, auth, expiresIn, expirePeriod);
 
             return auth;
         }
@@ -210,6 +214,6 @@ namespace m4d.Utilities
 
         private static AdmAuthentication s_spotify;
 
-        private static readonly Dictionary<string, AdmAuthentication> s_users = new Dictionary<string, AdmAuthentication>();
+        private static readonly Dictionary<string, AdmAuthentication> s_users = new();
     }
 }

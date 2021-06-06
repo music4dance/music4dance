@@ -10,17 +10,19 @@ namespace m4dModels.Tests
     [TestClass]
     public class RegionTests
     {
-        private static readonly string[] Verbose = {
-                "7HbgRyO1uUqkBhYXsGHGyb",
-                null,
-                "5QbgRyO1uUqkBhYXsGHGyb[AD,AE,AR,AT,AU,BE,BG,BH,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,DZ,EC,EE,EG,ES,FI,FR,GB,GR,GT,HK,HN,HU,ID,IE,IL,IS,IT,JO,JP,KW,LB,LI,LT,LU,LV,MA,MC,MT,MX,MY,NI,NL,NO,NZ,OM,PA,PE,PH,PL,PS,PT,PY,QA,RO,SA,SE,SG,SI,SK,SV,TH,TN,TR,TW,US,UY,VN,ZA]",
-                "4FjkmQ9JYaIeh1NxeLEO80[,AD,AE,AR,AT,AU,BE,BG,BH,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,DZ,EC,EE,EG,ES,FI,FR,GB,GR,GT,HK,HN,HU,ID,IE,IL,IS,IT,JO,JP,KW,LB,LI,LT,LU,LV,MA,MC,MT,MX,MY,NI,NL,NO,NZ,OM,PA,PE,PH,PL,PS,PT,PY,QA,RO,SA,SE,SG,SI,SK,SV,TH,TN,TR,TW,US,UY,VN,ZA]",
-                "3tVkq0eSCvfVAE3OVZHnrK[AD,AT,BE,BG,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GR,GT,HK,HN,HU,IS,IT,LI,LT,LU,LV,MC,MT,MX,MY,NI,NL,NO,NZ,PA,PE,PH,PL,PT,RO,SE,SG,SI,SK,SV,TR,TW,US]",
-                "6h8W9kvyEOhyoRYocyH7lf[AT,CA,CH,DE,MX,US]",
-                "0SBqz12IrQJFYLmXAWsrFt[AD,AR,AT,AU,BE,BG,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GB,GR,GT,HK,HN,HU,IE,IS,IT,LI,LT,LU,LV,MC,MT,MX,MY,NI,NL,NO,NZ,PA,PE,PH,PL,PT,PY,RO,SE,SG,SI,SK,SV,TW,US,UY]"
-            };
+        private static readonly string[] Verbose =
+        {
+            "7HbgRyO1uUqkBhYXsGHGyb",
+            null,
+            "5QbgRyO1uUqkBhYXsGHGyb[AD,AE,AR,AT,AU,BE,BG,BH,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,DZ,EC,EE,EG,ES,FI,FR,GB,GR,GT,HK,HN,HU,ID,IE,IL,IS,IT,JO,JP,KW,LB,LI,LT,LU,LV,MA,MC,MT,MX,MY,NI,NL,NO,NZ,OM,PA,PE,PH,PL,PS,PT,PY,QA,RO,SA,SE,SG,SI,SK,SV,TH,TN,TR,TW,US,UY,VN,ZA]",
+            "4FjkmQ9JYaIeh1NxeLEO80[,AD,AE,AR,AT,AU,BE,BG,BH,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,DZ,EC,EE,EG,ES,FI,FR,GB,GR,GT,HK,HN,HU,ID,IE,IL,IS,IT,JO,JP,KW,LB,LI,LT,LU,LV,MA,MC,MT,MX,MY,NI,NL,NO,NZ,OM,PA,PE,PH,PL,PS,PT,PY,QA,RO,SA,SE,SG,SI,SK,SV,TH,TN,TR,TW,US,UY,VN,ZA]",
+            "3tVkq0eSCvfVAE3OVZHnrK[AD,AT,BE,BG,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GR,GT,HK,HN,HU,IS,IT,LI,LT,LU,LV,MC,MT,MX,MY,NI,NL,NO,NZ,PA,PE,PH,PL,PT,RO,SE,SG,SI,SK,SV,TR,TW,US]",
+            "6h8W9kvyEOhyoRYocyH7lf[AT,CA,CH,DE,MX,US]",
+            "0SBqz12IrQJFYLmXAWsrFt[AD,AR,AT,AU,BE,BG,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GB,GR,GT,HK,HN,HU,IE,IS,IT,LI,LT,LU,LV,MC,MT,MX,MY,NI,NL,NO,NZ,PA,PE,PH,PL,PT,PY,RO,SE,SG,SI,SK,SV,TW,US,UY]"
+        };
 
-        private static readonly string[] Compact = {
+        private static readonly string[] Compact =
+        {
             "7HbgRyO1uUqkBhYXsGHGyb",
             null,
             "5QbgRyO1uUqkBhYXsGHGyb[0]",
@@ -56,6 +58,7 @@ namespace m4dModels.Tests
         //}
 
         #region Additional test attributes
+
         //
         // You can use the following additional attributes as you write your tests:
         //
@@ -75,6 +78,7 @@ namespace m4dModels.Tests
         // [TestCleanup()]
         // public void MyTestCleanup() { }
         //
+
         #endregion
 
         [TestMethod]
@@ -88,7 +92,7 @@ namespace m4dModels.Tests
 
                 //Trace.WriteLine(act);
 
-                Assert.AreEqual(Compact[index],act,"Compression");
+                Assert.AreEqual(Compact[index], act, "Compression");
             }
         }
 
@@ -106,8 +110,9 @@ namespace m4dModels.Tests
                 }
                 else
                 {
-                    Trace.WriteLine(string.Join(",",vrb));
-                    Assert.AreEqual(string.Join(",", vrb.Where(e => !string.IsNullOrWhiteSpace(e))), string.Join(",", cmp));
+                    Trace.WriteLine(string.Join(",", vrb));
+                    Assert.AreEqual(string.Join(",", vrb.Where(e => !string.IsNullOrWhiteSpace(e))),
+                        string.Join(",", cmp));
                 }
             }
         }

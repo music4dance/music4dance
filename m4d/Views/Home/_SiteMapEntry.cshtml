@@ -18,7 +18,9 @@
         <ul>
             @foreach (var child in entry.Children)
             {
-                <li><partial name="_SiteMapEntry" model="new Tuple<SiteMapEntry,string>(child,type)"/></li>
+                <li>
+                    <partial name="_SiteMapEntry" model="new Tuple<SiteMapEntry, string>(child, type)"/>
+                </li>
             }
         </ul>
     }

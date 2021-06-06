@@ -14,11 +14,12 @@ namespace m4dModels.Tests
         [TestMethod]
         public void TitleArtistMatch()
         {
-            var sd1 = new Song { Title = "A Song (With a subtitle)", Artist = "Crazy Artist" };
-            var sd2 = new Song { Title = "Moliendo Café", Artist = "The Who" };
-            var sd3 = new Song { Title = "If the song or not", Artist = "Señor Bolero" };
+            var sd1 = new Song {Title = "A Song (With a subtitle)", Artist = "Crazy Artist"};
+            var sd2 = new Song {Title = "Moliendo Café", Artist = "The Who"};
+            var sd3 = new Song {Title = "If the song or not", Artist = "Señor Bolero"};
 
-            Assert.IsTrue(sd1.TitleArtistMatch("A Song (With a subtitle)","Crazy Artist"),"SD1: Exact");
+            Assert.IsTrue(sd1.TitleArtistMatch("A Song (With a subtitle)", "Crazy Artist"),
+                "SD1: Exact");
             Assert.IsTrue(sd1.TitleArtistMatch("Song", "Crazy Artist"), "SD1: Weak");
             Assert.IsFalse(sd1.TitleArtistMatch("Song", "Crazy Artiste"), "SD1: No Match");
 
@@ -28,7 +29,8 @@ namespace m4dModels.Tests
 
             Assert.IsTrue(sd3.TitleArtistMatch("If the song or not", "Señor Bolero"), "SD3: Exact");
             Assert.IsTrue(sd3.TitleArtistMatch("If  Song and  NOT", "Senor Bolero "), "SD3: Weak");
-            Assert.IsFalse(sd3.TitleArtistMatch("If the song with not", "Señor Bolero"), "SD3: No Match");
+            Assert.IsFalse(sd3.TitleArtistMatch("If the song with not", "Señor Bolero"),
+                "SD3: No Match");
         }
 
         //TODO: Get create/Modified working correctly in reload case and make sure that doesn't re-break the loadcatalog case.
@@ -61,7 +63,6 @@ namespace m4dModels.Tests
             if (!string.Equals(org, str))
             {
                 if (org.Length == str.Length)
-                {
                     for (var ich = 0; ich < str.Length; ich++)
                     {
                         if (org[ich] == str[ich]) continue;
@@ -69,17 +70,13 @@ namespace m4dModels.Tests
                         Trace.WriteLine($"Results differ starting at {ich}");
                         break;
                     }
-                }
                 else if (org.Length < str.Length)
-                {
                     Trace.WriteLine("Org shorter than result");
-                }
                 else
-                {
                     Trace.WriteLine("Result shorter than org");
-                }
             }
-            Assert.AreEqual(org,str, $"{id.ToString("B")} failed to save.");
+
+            Assert.AreEqual(org, str, $"{id.ToString("B")} failed to save.");
         }
 
         [TestMethod]
@@ -97,7 +94,8 @@ namespace m4dModels.Tests
         [TestMethod]
         public void LoadingDwtsRowDetails()
         {
-            ValidateLoadingRowDetails(WHeader, StarsRows, StarsRowsProps, 0, "Season 19:Other|Episode 1:Other");
+            ValidateLoadingRowDetails(WHeader, StarsRows, StarsRowsProps, 0,
+                "Season 19:Other|Episode 1:Other");
         }
 
         [TestMethod]
@@ -213,7 +211,8 @@ namespace m4dModels.Tests
             Assert.IsFalse(map.ContainsKey("dwgray"));
         }
 
-        private static void ValidateLoadingRowDetails(string header, string[] rows, string[] expected, int dups = 0, string tags=null)
+        private static void ValidateLoadingRowDetails(string header, string[] rows,
+            string[] expected, int dups = 0, string tags = null)
         {
             if (expected == null) throw new ArgumentNullException(nameof(expected));
 
@@ -222,11 +221,8 @@ namespace m4dModels.Tests
             for (var i = 0; i < expected.Length; i++)
             {
                 var song = songs[i];
-                if (tags != null)
-                {
-                    song.AddTags(tags, "dwgray", Stats, song);
-                }
-                var r = DanceMusicTester.ReplaceTime(song.Serialize(new[] { Song.NoSongId }));
+                if (tags != null) song.AddTags(tags, "dwgray", Stats, song);
+                var r = DanceMusicTester.ReplaceTime(song.Serialize(new[] {Song.NoSongId}));
                 Trace.WriteLine(r);
                 Assert.AreEqual(expected[i], r);
             }
@@ -250,12 +246,12 @@ namespace m4dModels.Tests
         //    return ids;
         //}
 
-        static IList<Song> Load()
+        private static IList<Song> Load()
         {
-            return SongData.Select(str => new Song(str,Service)).ToList();
+            return SongData.Select(str => new Song(str, Service)).ToList();
         }
 
-        static IList<Song> LoadRows(string header, IReadOnlyCollection<string> rows,
+        private static IList<Song> LoadRows(string header, IReadOnlyCollection<string> rows,
             DanceMusicCoreService dms, int dups = 0)
         {
             if (rows == null) throw new ArgumentNullException(nameof(rows));
@@ -264,22 +260,22 @@ namespace m4dModels.Tests
             var ret = Song.CreateFromRows(
                 new ApplicationUser("dwgray", "me@hotmail.com"), "\t", headers, rows, dms, 5);
 
-            Assert.AreEqual(rows.Count, ret.Count+dups);
+            Assert.AreEqual(rows.Count, ret.Count + dups);
             return ret;
         }
 
-        static readonly string[] SongData =
+        private static readonly string[] SongData =
         {
             @"SongId={70b993fa-f821-44c7-bf5d-6076f4fe8f17}	User=batch|P	Time=3/19/2014 5:03:17 PM	Title=Crazy Little Thing Called Love	Artist=Queen	Tempo=154.0	Album:0=Greatest Hits	Album:1=The Game	Album:2=Queen - Greatest Hits	User=HunterZ|P	User=EthanH|P	User=ChaseP|P	DanceRating=LHP+10	DanceRating=ECS+5	DanceRating=WCS+10	User=batch|P	Time=5/7/2014 11:30:58 AM	Length=163	Genre=Rock	Track:1=5	Purchase:1:XS=music.F9021900-0100-11DB-89CA-0019B92A3933	User=batch|P	Time=5/7/2014 3:32:13 PM	Album:2=Queen: Greatest Hits	Track:2=9	Purchase:2:IS=27243763	Purchase:2:IA=27243728	User=batch|P	Time=5/20/2014 3:46:15 PM	Track:0=9	Purchase:0:AS=D:B00138K9CM	Purchase:0:AA=D:B00138F72E	User=JuliaS|P	Time=6/5/2014 8:46:10 PM	DanceRating=ECS+5	User=JuliaS|P	Time=6/9/2014 8:13:17 PM	DanceRating=JIV+6	User=LincolnA|P	Time=6/23/2014 1:56:23 PM	DanceRating=SWG+6	User=HunterZ|P	Time=9/4/2014 8:06:37 PM	Tag=Lindy Hop	Tag=East Coast Swing	Tag=West Coast Swing	User=EthanH|P	Time=9/4/2014 8:06:37 PM	Tag=Lindy Hop	Tag=East Coast Swing	Tag=West Coast Swing	User=ChaseP|P	Time=9/4/2014 8:06:37 PM	Tag=Lindy Hop	Tag=East Coast Swing	Tag=West Coast Swing	User=JuliaS|P	Time=9/4/2014 8:06:37 PM	Tag=East Coast Swing	Tag=Jive	User=LincolnA|P	Time=9/4/2014 8:06:37 PM	Tag=Swing	User=batch|P	Time=9/4/2014 8:06:37 PM	Tag=Rock	User=HunterZ|P	Time=9/4/2014 8:11:39 PM	Tag=Lindy Hop	Tag=East Coast Swing	Tag=West Coast Swing	User=EthanH|P	Time=9/4/2014 8:11:39 PM	Tag=Lindy Hop	Tag=East Coast Swing	Tag=West Coast Swing	User=ChaseP|P	Time=9/4/2014 8:11:39 PM	Tag=Lindy Hop	Tag=East Coast Swing	Tag=West Coast Swing	User=JuliaS|P	Time=9/4/2014 8:11:39 PM	Tag=East Coast Swing	Tag=Jive	User=LincolnA|P	Time=9/4/2014 8:11:39 PM	Tag=Swing	User=batch|P	Time=9/4/2014 8:11:39 PM	Tag=Rock",
             @"SongId={ea55fcea-35f5-4d0d-81b5-a5264395945d}	Purchase:1:IA=554530	User=batch|P	Time=5/21/2014 9:15:26 PM	Length=155	Purchase:1:AS=D:B000W0CTAW	Purchase:1:AA=D:B000W0B00W	Purchase:1:IS=554314	Genre=Jazz	Length=156	Time=5/21/2014 7:16:49 PM	User=batch|P	PromoteAlbum:1=	Purchase:1:XS=music.B76B0F00-0100-11DB-89CA-0019B92A3933	Track:1=5	Album:1=Sings Great American Songwriters	Genre=Pop	Length=155	Time=5/21/2014 2:04:51 PM	User=batch|P	DanceRating=FXT+5	Album:0=The Ultimate Ballroom Album 12	Tempo=116.0	Artist=Carmen McRae	Title=Blue Moon	Time=3/17/2014 5:43:50 PM	User=HunterZ|P",
             @"SongId={7471bb23-cf92-468f-9fb6-e6031571f29a}	User=dwgray	Time=3/17/2014 5:45:32 PM	Title=Blue Moon	Artist=Carmen Mccrae	Tempo=112.0	DanceRating=ECS+5	User=batch|P	Time=7/11/2014 9:49:28 PM	Artist=Carmen McRae	Length=158	Genre=Jazz	Album:00=Greatest Hits	Track:00=19	Purchase:00:XS=music.18D74B06-0100-11DB-89CA-0019B92A3933	PromoteAlbum:00=	User=batch|P	Time=7/11/2014 9:50:07 PM	Length=156	Album:01=Sings Great American Songwriters	Track:01=5	Purchase:01:IS=554314	Purchase:01:IA=554530	PromoteAlbum:01=	User=batch|P	Time=7/11/2014 9:50:35 PM	Length=155	Purchase:01:AS=D:B000W0CTAW	Purchase:01:AA=D:B000W0B00W",
             @"SongId={0b1e4225-d782-41d1-9f16-b105e7bd0efa}	User=dwgray	Time=6/10/2014 3:11:03 PM	Title=Lady Marmalade	Artist=Christina Aguilera	DanceRating=CHA+5	User=batch|P	Time=6/10/2014 3:26:26 PM	Length=264	Genre=Pop	Album:00=Moulin Rouge	Track:00=2	Purchase:00:XS=music.9F480F00-0100-11DB-89CA-0019B92A3933	PromoteAlbum:00=",
-            @"SongId={52cb6e8c-6f0f-469e-ac83-d353cbab6c96}	User=batch|P	Time=6/9/2014 8:54:43 PM	Title=Lady Marmalade	Artist=Christina Aguilera, Mya, Pink,  & Lil Kim	DanceRating=HST+5	User=batch|P	Time=7/4/2014 9:54:35 PM	Artist=Christina Aguilera	Length=264	Genre=Pop	Album:00=Moulin Rouge	Track:00=2	Purchase:00:XS=music.9F480F00-0100-11DB-89CA-0019B92A3933	PromoteAlbum:00=	User=batch|P	Time=7/4/2014 9:55:04 PM	Length=265	Album:00=Moulin Rouge (Soundtrack from the Motion Picture)	Purchase:00:IS=3577756	Purchase:00:IA=3579609	User=batch|P	Time=7/4/2014 9:55:49 PM	Album:01=Music From Nicole Kidman Movies	Track:01=3	Purchase:01:AS=D:B004XOHIH2	Purchase:01:AA=D:B004XOHHXM	PromoteAlbum:01=",
+            @"SongId={52cb6e8c-6f0f-469e-ac83-d353cbab6c96}	User=batch|P	Time=6/9/2014 8:54:43 PM	Title=Lady Marmalade	Artist=Christina Aguilera, Mya, Pink,  & Lil Kim	DanceRating=HST+5	User=batch|P	Time=7/4/2014 9:54:35 PM	Artist=Christina Aguilera	Length=264	Genre=Pop	Album:00=Moulin Rouge	Track:00=2	Purchase:00:XS=music.9F480F00-0100-11DB-89CA-0019B92A3933	PromoteAlbum:00=	User=batch|P	Time=7/4/2014 9:55:04 PM	Length=265	Album:00=Moulin Rouge (Soundtrack from the Motion Picture)	Purchase:00:IS=3577756	Purchase:00:IA=3579609	User=batch|P	Time=7/4/2014 9:55:49 PM	Album:01=Music From Nicole Kidman Movies	Track:01=3	Purchase:01:AS=D:B004XOHIH2	Purchase:01:AA=D:B004XOHHXM	PromoteAlbum:01="
         };
 
         private const string SHeader = @"Title	Artist	BPM	Dance	Album	AMAZONTRACK	ITUNES";
 
-        static readonly string[] SongRows =
+        private static readonly string[] SongRows =
         {
             @"Black Sheep	Gin Wigmore	120	WCS	Gravel & Wine [+digital booklet]	B00BYKXC82	",
             @"The L Train	Gabriel Yared	72	SWZ	Shall We Dance?	B001NYTZJY	",
@@ -288,10 +284,10 @@ namespace m4dModels.Tests
             @"Des Croissants de Soleil	Emilie-Claire Barlow	96	BOL,RMBI	Des croissants de soleil	B009CW0JFS	",
             @"Private Eyes	Brazilian Love Affair	124	RMBA	Brazilian Lounge - Les Mysteres De Rio	B007UK5L52	",
             @"Glam	Dimie Cat	200	QST	Glam!	B0042D1W6C	",
-            @"All For You	Imelda May	120	SFT	More Mayhem	B008VSKRAQ	",
+            @"All For You	Imelda May	120	SFT	More Mayhem	B008VSKRAQ	"
         };
 
-        static readonly string[] RowProps =
+        private static readonly string[] RowProps =
         {
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Black Sheep	Artist=Gin Wigmore	Tempo=120.0	Tag+=West Coast Swing:Dance	DanceRating=WCS+5	Album:00=Gravel & Wine [+digital booklet]	Purchase:00:AS=D:B00BYKXC82	DanceRating=SWG+1	DanceRating=CSG+1	DanceRating=HST+1	DanceRating=WCS+1	DanceRating=LHP+1",
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=The L Train	Artist=Gabriel Yared	Tempo=72.0	Tag+=Slow Waltz:Dance	DanceRating=SWZ+5	Album:00=Shall We Dance?	Purchase:00:AS=D:B001NYTZJY	DanceRating=WLZ+1",
@@ -300,7 +296,7 @@ namespace m4dModels.Tests
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Des Croissants de Soleil	Artist=Emilie-Claire Barlow	Tempo=96.0	Tag+=Bolero:Dance|International Rumba:Dance	DanceRating=BOL+5	DanceRating=RMBI+5	Album:00=Des croissants de soleil	Purchase:00:AS=D:B009CW0JFS	DanceRating=LTN+1",
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Private Eyes	Artist=Brazilian Love Affair	Tempo=124.0	Tag+=American Rumba:Dance	DanceRating=RMBA+5	Album:00=Brazilian Lounge - Les Mysteres De Rio	Purchase:00:AS=D:B007UK5L52",
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Glam	Artist=Dimie Cat	Tempo=200.0	Tag+=QuickStep:Dance	DanceRating=QST+5	Album:00=Glam!	Purchase:00:AS=D:B0042D1W6C	DanceRating=FXT+1	DanceRating=QST+1",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=All For You	Artist=Imelda May	Tempo=120.0	Tag+=Slow Foxtrot:Dance	DanceRating=SFT+5	Album:00=More Mayhem	Purchase:00:AS=D:B008VSKRAQ	DanceRating=FXT+1	DanceRating=SFT+1",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=All For You	Artist=Imelda May	Tempo=120.0	Tag+=Slow Foxtrot:Dance	DanceRating=SFT+5	Album:00=More Mayhem	Purchase:00:AS=D:B008VSKRAQ	DanceRating=FXT+1	DanceRating=SFT+1"
         };
 
         //private static readonly string[] RowPopsCreate =
@@ -315,7 +311,8 @@ namespace m4dModels.Tests
         //    @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=All For You	Artist=Imelda May	Tempo=120.0	Tag+=Slow Foxtrot:Dance	DanceRating=SFT+6	DanceRating=FXT+1	Album:00=More Mayhem	Purchase:00:AS=D:B008VSKRAQ",
         //};
 
-        private const string NHeader = @"Dance	Rating	Title	BPM	Time	Artist	Comment	DanceTags:Other	SongTags:Music";
+        private const string NHeader =
+            @"Dance	Rating	Title	BPM	Time	Artist	Comment	DanceTags:Other	SongTags:Music";
 
         private static readonly string[] TaggedRows =
         {
@@ -360,13 +357,13 @@ namespace m4dModels.Tests
         private static readonly string[] StarsRows =
         {
             @"Antonio & Cheryl	Cha-cha-cha	""Tonight (I'm Lovin' You)""—Enrique Iglesias feat. Ludacris & DJ Frank E",
-            @"Lea & Artem	Foxtrot	""This Will Be (An Everlasting Love)""—Natalie Cole",
+            @"Lea & Artem	Foxtrot	""This Will Be (An Everlasting Love)""—Natalie Cole"
         };
 
         private static readonly string[] StarsRowsProps =
         {
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Cha Cha:Dance	DanceRating=CHA+5	Tag+:CHA=Antonio:Other|Cheryl:Other	Title=Tonight (I'm Lovin' You)	Artist=Enrique Iglesias feat. Ludacris & DJ Frank E	DanceRating=LTN+1	Tag+=Episode 1:Other|Season 19:Other",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Foxtrot:Dance	DanceRating=FXT+5	Tag+:FXT=Artem:Other|Lea:Other	Title=This Will Be (An Everlasting Love)	Artist=Natalie Cole	Tag+=Episode 1:Other|Season 19:Other",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Foxtrot:Dance	DanceRating=FXT+5	Tag+:FXT=Artem:Other|Lea:Other	Title=This Will Be (An Everlasting Love)	Artist=Natalie Cole	Tag+=Episode 1:Other|Season 19:Other"
         };
 
         private const string RHeader = @"Title	Artist	Album	Track	Length	SongTags	MultiDance";
@@ -382,13 +379,15 @@ namespace m4dModels.Tests
         {
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=(I've Had) The Time of My Life	Artist=Bill Medley & Jennifer Warnes	Album:00=Dirty Dancing Soundtrack	Track:00=1	Length=290	Tag+=Mambo:Dance|Salsa:Dance|Merengue:Dance|Hustle:Dance	DanceRating=MBO+1	DanceRating=SLS+1	DanceRating=MRG+1	DanceRating=HST+1	DanceRating=SWG+1	DanceRating=LTN+3",
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=A Namorada	Album:00=Phoenix 2001 Cha#1	Track:00=18	Length=287	Tag+=Cha Cha:Dance|Male Vocal:Other	DanceRating=CHA+1	Tag+:CHA=International:Style	DanceRating=LTN+1",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Ain't That A Kick In The Head	Artist=Dean Martin	Album:00=Ultra-Lounge 'Wild, Cool & Swingin' Vol. 1	Track:00=1	Length=145	Tag+=Slow Foxtrot:Dance|Mambo:Dance|Cha Cha:Dance	DanceRating=SFT+1	DanceRating=MBO+1	DanceRating=CHA+1	Tag+:SFT=International:Style	DanceRating=LTN+2	DanceRating=FXT+1",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Ain't That A Kick In The Head	Artist=Dean Martin	Album:00=Ultra-Lounge 'Wild, Cool & Swingin' Vol. 1	Track:00=1	Length=145	Tag+=Slow Foxtrot:Dance|Mambo:Dance|Cha Cha:Dance	DanceRating=SFT+1	DanceRating=MBO+1	DanceRating=CHA+1	Tag+:SFT=International:Style	DanceRating=LTN+2	DanceRating=FXT+1"
         };
 
-        private const string SQuuen = @"SongId={70b993fa-f821-44c7-bf5d-6076f4fe8f17}	User=batch	Time=3/19/2014 5:03:17 PM	Title=Crazy Little Thing Called Love	Artist=Queen	Tempo=154.0	Album:0=Greatest Hits	Album:1=The Game	Album:2=Queen - Greatest Hits	User=HunterZ	User=EthanH	User=ChaseP	DanceRating=LHP+10	DanceRating=ECS+5	DanceRating=WCS+10	User=batch	Time=5/7/2014 11:30:58 AM	Length=163	Genre=Rock	Track:1=5	Purchase:1:XS=music.F9021900-0100-11DB-89CA-0019B92A3933	User=batch	Time=5/7/2014 3:32:13 PM	Album:2=Queen: Greatest Hits	Track:2=9	Purchase:2:IS=27243763	Purchase:2:IA=27243728	User=batch	Time=5/20/2014 3:46:15 PM	Track:0=9	Purchase:0:AS=D:B00138K9CM	Purchase:0:AA=D:B00138F72E	User=JuliaS	Time=6/5/2014 8:46:10 PM	DanceRating=ECS+5	User=JuliaS	Time=6/9/2014 8:13:17 PM	DanceRating=JIV+6	User=LincolnA	Time=6/23/2014 1:56:23 PM	DanceRating=SWG+6";
+        private const string SQuuen =
+            @"SongId={70b993fa-f821-44c7-bf5d-6076f4fe8f17}	User=batch	Time=3/19/2014 5:03:17 PM	Title=Crazy Little Thing Called Love	Artist=Queen	Tempo=154.0	Album:0=Greatest Hits	Album:1=The Game	Album:2=Queen - Greatest Hits	User=HunterZ	User=EthanH	User=ChaseP	DanceRating=LHP+10	DanceRating=ECS+5	DanceRating=WCS+10	User=batch	Time=5/7/2014 11:30:58 AM	Length=163	Genre=Rock	Track:1=5	Purchase:1:XS=music.F9021900-0100-11DB-89CA-0019B92A3933	User=batch	Time=5/7/2014 3:32:13 PM	Album:2=Queen: Greatest Hits	Track:2=9	Purchase:2:IS=27243763	Purchase:2:IA=27243728	User=batch	Time=5/20/2014 3:46:15 PM	Track:0=9	Purchase:0:AS=D:B00138K9CM	Purchase:0:AA=D:B00138F72E	User=JuliaS	Time=6/5/2014 8:46:10 PM	DanceRating=ECS+5	User=JuliaS	Time=6/9/2014 8:13:17 PM	DanceRating=JIV+6	User=LincolnA	Time=6/23/2014 1:56:23 PM	DanceRating=SWG+6";
 
         private static readonly DanceMusicCoreService Service
             = DanceMusicTester.CreateServiceWithUsers("Song");
+
         private static DanceStatsInstance Stats => Service.DanceStats;
     }
 }

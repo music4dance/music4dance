@@ -38,33 +38,25 @@ namespace m4dModels
             Debug.Assert(danceId == DanceObject.Id && danceName == DanceObject.Name);
         }
 
-        [JsonProperty]
-        public string DanceId => DanceObject?.Id??"All";
-        [JsonProperty]
-        public string DanceName => DanceObject?.Name??"All Dances";
-        [JsonProperty]
-        public string BlogTag => DanceObject?.BlogTag;
+        [JsonProperty] public string DanceId => DanceObject?.Id ?? "All";
+        [JsonProperty] public string DanceName => DanceObject?.Name ?? "All Dances";
+        [JsonProperty] public string BlogTag => DanceObject?.BlogTag;
 
         // Properties mirrored from the database Dance object
-        [JsonProperty]
-        public string Description { get; set; }
-        [JsonProperty]
-        public long SongCount { get; set; }
-        [JsonProperty]
-        public long SongCountExplicit { get; set; }
-        [JsonProperty]
-        public long SongCountImplicit { get; set; }
-        [JsonProperty]
-        public int MaxWeight { get; set; }
-        [JsonProperty]
-        public TagSummary SongTags { get; set; }
-        [JsonProperty]
-        public string SpotifyPlaylist { get; set; }
-        public TagSummary AggregateSongTags => Children == null ? 
-            SongTags :
-            TagAccumulator.MergeSummaries(Children.Select(c => c.SongTags).Concat(Enumerable.Repeat(SongTags,1)));
-        [JsonProperty]
-        public List<DanceLink> DanceLinks { get; set; }
+        [JsonProperty] public string Description { get; set; }
+        [JsonProperty] public long SongCount { get; set; }
+        [JsonProperty] public long SongCountExplicit { get; set; }
+        [JsonProperty] public long SongCountImplicit { get; set; }
+        [JsonProperty] public int MaxWeight { get; set; }
+        [JsonProperty] public TagSummary SongTags { get; set; }
+        [JsonProperty] public string SpotifyPlaylist { get; set; }
+
+        public TagSummary AggregateSongTags => Children == null
+            ? SongTags
+            : TagAccumulator.MergeSummaries(Children.Select(c => c.SongTags)
+                .Concat(Enumerable.Repeat(SongTags, 1)));
+
+        [JsonProperty] public List<DanceLink> DanceLinks { get; set; }
 
         [JsonProperty] public IEnumerable<Song> TopSongs => _topSongs;
         private List<Song> _topSongs;
@@ -82,25 +74,21 @@ namespace m4dModels
 
         // Structural properties
         public DanceStats Parent { get; set; }
-        [JsonProperty]
-        public List<DanceStats> Children { get; set; }
-        [JsonProperty]
-        public string SeoName => DanceObject.SeoFriendly(DanceName);
+        [JsonProperty] public List<DanceStats> Children { get; set; }
+        [JsonProperty] public string SeoName => DanceObject.SeoFriendly(DanceName);
 
         // Dance Metadata
-        public DanceObject DanceObject {get; set;}
+        public DanceObject DanceObject { get; set; }
 
-        [JsonProperty]
-        public DanceType DanceType => DanceObject as DanceType;
+        [JsonProperty] public DanceType DanceType => DanceObject as DanceType;
 
-        [JsonProperty]
-        public DanceGroup DanceGroup => DanceObject as DanceGroup;
+        [JsonProperty] public DanceGroup DanceGroup => DanceObject as DanceGroup;
 
         public Dance Dance => new Dance
         {
             Id = DanceId,
             Description = Description,
-            DanceLinks = DanceLinks,
+            DanceLinks = DanceLinks
         };
 
         public IEnumerable<DanceInstance> CompetitionDances { get; private set; }
@@ -120,7 +108,8 @@ namespace m4dModels
             var dt = DanceObject as DanceType;
             if (dt == null) return;
 
-            var competition = dt.Instances.Where(di => !string.IsNullOrWhiteSpace(di.CompetitionGroup)).ToList();
+            var competition = dt.Instances
+                .Where(di => !string.IsNullOrWhiteSpace(di.CompetitionGroup)).ToList();
             if (competition.Any()) CompetitionDances = competition;
         }
 
@@ -139,12 +128,13 @@ namespace m4dModels
             SetTopSongs(TopSongs?.Select(s => new Song(s.Serialize(null), dms)).ToList());
         }
 
-        public void AggregateSongCounts(IReadOnlyDictionary<string, long> tags, IReadOnlyDictionary<string, long> inferred)
+        public void AggregateSongCounts(IReadOnlyDictionary<string, long> tags,
+            IReadOnlyDictionary<string, long> inferred)
         {
             // SongCount
 
             SongCountExplicit = tags.TryGetValue(DanceId, out var expl) ? expl : 0;
-            SongCountImplicit = inferred.TryGetValue(DanceId, out long impl) ? impl : 0;
+            SongCountImplicit = inferred.TryGetValue(DanceId, out var impl) ? impl : 0;
             SongCount = SongCountImplicit + SongCountExplicit;
         }
 
@@ -170,7 +160,8 @@ namespace m4dModels
 
         public List<Song> TopSongsForUser(string userName, DanceMusicCoreService dms)
         {
-            return TopSongs?.Select(s => new Song(s.SongId, s.Serialize(null), dms, userName)).ToList();
+            return TopSongs?.Select(s => new Song(s.SongId, s.Serialize(null), dms, userName))
+                .ToList();
         }
     }
 }

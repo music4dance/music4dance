@@ -19,8 +19,10 @@ namespace m4d.Controllers
 {
     public class HomeController : DanceMusicController
     {
-        public HomeController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, IConfiguration configuration) : 
-            base (context, userManager, roleManager, searchService, danceStatsManager, configuration)
+        public HomeController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
+            IDanceStatsManager danceStatsManager, IConfiguration configuration) :
+            base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
         {
         }
 
@@ -91,15 +93,9 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public IActionResult Counter(int? numerator = null, decimal? tempo = null)
         {
-            if (numerator.HasValue && numerator != 0)
-            {
-                ViewBag.paramNumerator = numerator.Value;
-            }
+            if (numerator.HasValue && numerator != 0) ViewBag.paramNumerator = numerator.Value;
 
-            if (tempo.HasValue)
-            {
-                ViewBag.paramTempo = tempo.Value;
-            }
+            if (tempo.HasValue) ViewBag.paramTempo = tempo.Value;
 
             HelpPage = "tempo-counter";
             UseVue = true;
@@ -107,7 +103,8 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
-        public IActionResult Tempi(List<string> styles, List<string> types, List<string> organizations, List<string> meters)
+        public IActionResult Tempi(List<string> styles, List<string> types,
+            List<string> organizations, List<string> meters)
         {
             ViewBag.Styles = ConvertParameter(styles);
             ViewBag.Types = ConvertParameter(types);
@@ -121,8 +118,9 @@ namespace m4d.Controllers
 
         private static string ConvertParameter(List<string> parameter)
         {
-            return (parameter != null && parameter.Count > 0) ? 
-                JsonConvert.SerializeObject(parameter, CamelCaseSerializerSettings) : null;
+            return parameter != null && parameter.Count > 0
+                ? JsonConvert.SerializeObject(parameter, CamelCaseSerializerSettings)
+                : null;
         }
 
         [AllowAnonymous]
@@ -139,7 +137,8 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
-        public async Task<IActionResult> Purchase([FromServices] IConfiguration configuration, decimal amount, PurchaseKind kind)
+        public async Task<IActionResult> Purchase([FromServices] IConfiguration configuration,
+            decimal amount, PurchaseKind kind)
         {
             HelpPage = "subscriptions";
 
@@ -167,7 +166,10 @@ namespace m4d.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AllowAnonymous]
-        public async Task<ActionResult> ConfirmPurchase([FromServices]SignInManager<ApplicationUser> signInManager, [FromServices] IConfiguration configuration, string stripeToken, string stripeEmail, PurchaseKind kind, decimal amount)
+        public async Task<ActionResult> ConfirmPurchase(
+            [FromServices] SignInManager<ApplicationUser> signInManager,
+            [FromServices] IConfiguration configuration, string stripeToken, string stripeEmail,
+            PurchaseKind kind, decimal amount)
         {
             HelpPage = "subscriptions";
 
@@ -187,18 +189,16 @@ namespace m4d.Controllers
             {
                 // TODO: Can this be done once per session?
                 StripeConfiguration.ApiKey = configuration["Authentication:Stripe:SecretKey"];
-                
 
-                var metaData = new Dictionary<string, string> { { "confirmation-code", conf } };
-                if (userName != null)
-                {
-                    metaData.Add("user-id", userName);
-                }
+
+                var metaData = new Dictionary<string, string> {{"confirmation-code", conf}};
+                if (userName != null) metaData.Add("user-id", userName);
 
                 ApplicationUser user = null;
                 if (kind == PurchaseKind.Purchase && userName != null)
                 {
-                    user = await UserManager.GetUserAsync(User); ;
+                    user = await UserManager.GetUserAsync(User);
+                    ;
                 }
 
                 var options = new ChargeCreateOptions
@@ -219,9 +219,7 @@ namespace m4d.Controllers
                     {
                         DateTime? start = DateTime.Now;
                         if (user.SubscriptionEnd != null && user.SubscriptionEnd < start)
-                        {
                             start = user.SubscriptionEnd;
-                        }
                         user.SubscriptionStart = start;
                         user.SubscriptionEnd = start.Value.AddYears(1);
                         user.SubscriptionLevel = SubscriptionLevel.Silver;
@@ -249,6 +247,7 @@ namespace m4d.Controllers
                     ErrorMessage = e.StripeError.Message
                 };
             }
+
             return View("PurchaseError", purchase);
         }
 

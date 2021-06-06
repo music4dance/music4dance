@@ -5,7 +5,8 @@ namespace m4dModels
 {
     public sealed class Search
     {
-        public void Update(ApplicationUser user, string name, string query, bool favorite, int count, DateTime created,
+        public void Update(ApplicationUser user, string name, string query, bool favorite,
+            int count, DateTime created,
             DateTime modified)
         {
             ApplicationUser = user;
@@ -28,7 +29,6 @@ namespace m4dModels
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
 
-        [NotMapped]
-        public SongFilter Filter => new SongFilter(Query);
+        [NotMapped] public SongFilter Filter => new SongFilter(Query);
     }
 }

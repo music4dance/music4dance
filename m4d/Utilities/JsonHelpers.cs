@@ -5,15 +5,14 @@ namespace m4d.Utilities
 {
     public static class JsonHelpers
     {
-        public static readonly DefaultContractResolver ContractResolver = new DefaultContractResolver
+        public static readonly DefaultContractResolver ContractResolver = new()
         {
             NamingStrategy = new CamelCaseNamingStrategy()
         };
 
-        public static readonly JsonSerializerSettings CamelCaseSerializer = new JsonSerializerSettings
+        public static readonly JsonSerializerSettings CamelCaseSerializer = new()
         {
             ContractResolver = ContractResolver
         };
-
     }
 }

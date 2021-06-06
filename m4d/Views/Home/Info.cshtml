@@ -4,7 +4,7 @@
     ViewBag.BreadCrumbs = new List<BreadCrumbItem>
     {
         BreadCrumbItem.HomeItem,
-        new BreadCrumbItem {Title = ViewBag.Title, Active = true}
+        new() {Title = ViewBag.Title, Active = true}
     };
 }
 
@@ -12,11 +12,17 @@
 
 <ul>
     <li>@Html.ActionLink("Contribute", "contribute", "Home")</li>
-    <li><a href="https://music4dance.blog/music4dance-help/">Help</a></li>
-    <li><a href="https://music4dance.blog/">Blog</a></li>
+    <li>
+        <a href="https://music4dance.blog/music4dance-help/">Help</a>
+    </li>
+    <li>
+        <a href="https://music4dance.blog/">Blog</a>
+    </li>
     <li>@Html.ActionLink("FAQ", "FAQ", "Home")</li>
     <li>@Html.ActionLink("About Us", "About", "Home")</li>
-    <li><a href="https://music4dance.blog/reading-list/">Reading List</a></li>
+    <li>
+        <a href="https://music4dance.blog/reading-list/">Reading List</a>
+    </li>
     <li>@Html.ActionLink("Site Map", "sitemap", "Home")</li>
     <li>@Html.ActionLink("Privacy Policy", "privacypolicy", "Home")</li>
     <li>@Html.ActionLink("Credits", "credits", "Home")</li>

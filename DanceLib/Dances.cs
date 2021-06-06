@@ -25,7 +25,13 @@ namespace DanceLibrary
     {
         public string Name { get; set; } // NDCA or DanceSport
         public string Category { get; set; } // Level or Competitor or NULL
-        public string Qualifier { get; set; } // Level = Bronze or Silter,Gold; Competitor = Professional,Amateur or ProAm
+
+        public string
+            Qualifier
+        {
+            get;
+            set;
+        } // Level = Bronze or Silter,Gold; Competitor = Professional,Amateur or ProAm
 
         public string Title
         {
@@ -35,11 +41,9 @@ namespace DanceLibrary
                 if (Name != "All")
                 {
                     title = Name;
-                    if (Category != null)
-                    {
-                        title += " (" + Qualifier + ")";
-                    }
+                    if (Category != null) title += " (" + Qualifier + ")";
                 }
+
                 return title;
             }
         }
@@ -48,16 +52,11 @@ namespace DanceLibrary
     [JsonObject(MemberSerialization.OptIn)]
     public class DanceObject
     {
-        [JsonProperty]
-        public virtual string Id { get; set; }
-        [JsonProperty]
-        public virtual string Name { get; set; }
-        [JsonProperty]
-        public virtual Meter Meter { get; set; }
-        [JsonProperty]
-        public virtual TempoRange TempoRange { get; set; }
-        [JsonProperty]
-        public virtual string BlogTag { get; set; }
+        [JsonProperty] public virtual string Id { get; set; }
+        [JsonProperty] public virtual string Name { get; set; }
+        [JsonProperty] public virtual Meter Meter { get; set; }
+        [JsonProperty] public virtual TempoRange TempoRange { get; set; }
+        [JsonProperty] public virtual string BlogTag { get; set; }
 
         public string CleanName => SeoFriendly(Name);
 
@@ -74,35 +73,28 @@ namespace DanceLibrary
     [JsonObject(MemberSerialization.OptIn)]
     public class DanceType : DanceObject
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors"), JsonConstructor]
-        public DanceType(string name,  Meter meter, string[] organizations, DanceInstance[] instances) 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage",
+            "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        [JsonConstructor]
+        public DanceType(string name, Meter meter, string[] organizations,
+            DanceInstance[] instances)
         {
             Name = name;
             Meter = meter;
             Instances = new List<DanceInstance>(instances);
 
-            if (organizations != null)
-            {
-                Organizations = new List<string>(organizations);
-            }
+            if (organizations != null) Organizations = new List<string>(organizations);
 
             if (instances != null)
-            {
                 foreach (var instance in instances)
-                {
                     instance.DanceType = this;
-                }
-            }
         }
 
-        [JsonProperty]
-        public override string Id { get; set; }
+        [JsonProperty] public override string Id { get; set; }
 
-        [JsonProperty]
-        public sealed override string Name {get; set;}
+        [JsonProperty] public sealed override string Name { get; set; }
 
-        [JsonProperty]
-        public sealed override Meter Meter {get; set;}
+        [JsonProperty] public sealed override Meter Meter { get; set; }
 
         public override TempoRange TempoRange
         {
@@ -110,10 +102,7 @@ namespace DanceLibrary
             {
                 Debug.Assert(Instances.Count > 0);
                 var tr = Instances[0].TempoRange;
-                for (var i = 1; i < Instances.Count; i++)
-                {
-                    tr = tr.Include(Instances[i].TempoRange);
-                }
+                for (var i = 1; i < Instances.Count; i++) tr = tr.Include(Instances[i].TempoRange);
                 return tr;
             }
             set
@@ -122,16 +111,13 @@ namespace DanceLibrary
             }
         }
 
-        [JsonProperty]
-        public List<string> Organizations { get; set; }
-        [JsonProperty]
-        public List<DanceInstance> Instances { get; set; }
+        [JsonProperty] public List<string> Organizations { get; set; }
+        [JsonProperty] public List<DanceInstance> Instances { get; set; }
 
-        [JsonProperty]
-        public string GroupName { get; set; }
+        [JsonProperty] public string GroupName { get; set; }
         public string GroupId { get; set; }
 
-        public Uri Link {get;set;}
+        public Uri Link { get; set; }
 
         public string ShortName => Name.Replace(" ", "");
 
@@ -145,29 +131,26 @@ namespace DanceLibrary
         {
             return Name.GetHashCode();
         }
-
     }
 
     [JsonObject(MemberSerialization.OptIn)]
     public class DanceInstance : DanceObject
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors"), JsonConstructor]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage",
+            "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        [JsonConstructor]
         public DanceInstance(string style, TempoRange tempoRange, DanceException[] exceptions)
         {
             Style = style;
             TempoRange = tempoRange;
             Exceptions = new List<DanceException>(exceptions);
 
-            foreach (var exception in exceptions)
-            {
-                exception.DanceInstance = this;
-            }
+            foreach (var exception in exceptions) exception.DanceInstance = this;
         }
 
-        public DanceType DanceType { get; internal set;}
+        public DanceType DanceType { get; internal set; }
 
-        [JsonProperty]
-        public sealed override TempoRange TempoRange { get; set; }
+        [JsonProperty] public sealed override TempoRange TempoRange { get; set; }
 
         public TempoRange DanceSportTempo
         {
@@ -177,9 +160,7 @@ namespace DanceLibrary
                     return TempoRange;
 
                 foreach (var ex in Exceptions.Where(ex => ex.Organization == "DanceSport"))
-                {
                     return ex.TempoRange;
-                }
                 return TempoRange;
             }
         }
@@ -192,36 +173,30 @@ namespace DanceLibrary
                     return TempoRange;
 
                 foreach (var ex in Exceptions)
-                {
                     if (ex.Organization == "NDCA" &&
-                        ((Id[3] == 'A' && (ex.Level == "All" || ex.Level == "Silver,Gold")) ||
-                         (Id[3] == 'I' && (ex.Competitor == "All" || ex.Competitor == "Professional,Amateur"))))
-                    {
+                        (Id[3] == 'A' && (ex.Level == "All" || ex.Level == "Silver,Gold") ||
+                            Id[3] == 'I' && (ex.Competitor == "All" ||
+                                ex.Competitor == "Professional,Amateur")))
                         return ex.TempoRange;
-                    }
-                }
                 return TempoRange;
             }
         }
 
-        public TempoRange NDCATempoB {
+        public TempoRange NDCATempoB
+        {
             get
             {
                 if (Exceptions == null)
                     return TempoRange;
 
                 foreach (var ex in Exceptions)
-                {
                     if (ex.Organization == "NDCA" &&
-                        ((Id[3] == 'A' && (ex.Level == "All" || ex.Level == "Bronze")) ||
-                         (Id[3] == 'I' && (ex.Competitor == "All" || ex.Competitor == "ProAm"))))
-                    {
+                        (Id[3] == 'A' && (ex.Level == "All" || ex.Level == "Bronze") ||
+                            Id[3] == 'I' && (ex.Competitor == "All" || ex.Competitor == "ProAm")))
                         return ex.TempoRange;
-                    }
-                }
                 return TempoRange;
             }
-         }
+        }
 
         public override string Id => DanceType.Id + StyleId;
 
@@ -229,45 +204,38 @@ namespace DanceLibrary
 
         public override string Name => ShortStyle + ' ' + DanceType.Name;
 
-        [JsonProperty]
-        public string Style {get; set;}
+        [JsonProperty] public string Style { get; set; }
 
-        [JsonProperty]
-        public string CompetitionGroup { get; set; }
+        [JsonProperty] public string CompetitionGroup { get; set; }
 
-        [JsonProperty]
-        [DefaultValue(0)]
-        public int CompetitionOrder { get; set; }
+        [JsonProperty] [DefaultValue(0)] public int CompetitionOrder { get; set; }
 
-        [JsonProperty]
-        public List<DanceException> Exceptions { get; set; }
+        [JsonProperty] public List<DanceException> Exceptions { get; set; }
 
         public TempoRange FilteredTempo
         {
-            get 
+            get
             {
                 var exceptions = GetFilteredExceptions();
 
                 // Include the general tempo iff the exceptions don't fully cover the
                 //  selected filters for the instance in question
                 TempoRange tempoRange = null;
-                if (IncludeGeneral(exceptions))
-                {
-                    tempoRange = TempoRange;
-                }
+                if (IncludeGeneral(exceptions)) tempoRange = TempoRange;
 
                 // Now include all of the tempos in the exceptions that are covered by
                 //  the selected filter
 
-                return exceptions.Aggregate(tempoRange, (current, de) => de.TempoRange.Include(current));
+                return exceptions.Aggregate(tempoRange,
+                    (current, de) => de.TempoRange.Include(current));
             }
         }
 
         public string ShortStyle
         {
-            get 
+            get
             {
-                var words = Style.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                var words = Style.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
                 Debug.Assert(words.Length > 0);
                 return words[0];
             }
@@ -288,17 +256,10 @@ namespace DanceLibrary
             var ret = oldInc;
 
             if (newInc == Tags.All)
-            {
                 ret = Tags.All;
-            }
             else if (string.IsNullOrEmpty(oldInc))
-            {
                 ret = newInc;
-            }
-            else if (!string.Equals(oldInc,newInc))
-            {
-                ret =  oldInc + "," + newInc;
-            }
+            else if (!string.Equals(oldInc, newInc)) ret = oldInc + "," + newInc;
 
             return ret;
         }
@@ -329,37 +290,33 @@ namespace DanceLibrary
 
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var de in Exceptions)
-            {
                 if (FilterObject.GetValue(Tags.Competitor, de.Competitor) &&
                     FilterObject.GetValue(Tags.Level, de.Level) &&
                     FilterObject.GetValue(Tags.Organization, de.Organization))
-                {
                     exceptions.Add(de);
-                }
-            }
 
             return new ReadOnlyCollection<DanceException>(exceptions);
         }
 
-        public bool CalculateTempoMatch(decimal tempo, decimal epsilon, out decimal delta, out decimal deltaPercent, out decimal median)
+        public bool CalculateTempoMatch(decimal tempo, decimal epsilon, out decimal delta,
+            out decimal deltaPercent, out decimal median)
         {
-            var ret = false; 
+            var ret = false;
             var filteredTempo = FilteredTempo;
             delta = filteredTempo.CalculateDelta(tempo);
             median = (filteredTempo.Min + filteredTempo.Max) / 2;
-            deltaPercent = (delta * 100) / median;
+            deltaPercent = delta * 100 / median;
 
             // First check to see if the instance in general matches
             if (Math.Abs(deltaPercent) < epsilon)
-            {
                 // Then see if any of the exception filters fire
                 ret = true;
-            }
 
             return ret;
         }
 
-        public bool CalculateBeatMatch(decimal tempo, decimal epsilon, out decimal delta, out decimal deltaPercent, out decimal median)
+        public bool CalculateBeatMatch(decimal tempo, decimal epsilon, out decimal delta,
+            out decimal deltaPercent, out decimal median)
         {
             var b = new Tempo(tempo, new TempoType(TempoKind.BPM)); // Tempo in beats per minute
             var t = b.Convert(new TempoType(TempoKind.MPM, Meter));
@@ -391,10 +348,9 @@ namespace DanceLibrary
 
             // If NDCA only is checked and either Level or Competitor empty we can't match
             if (!FilterObject.GetValue(Tags.Organization, "DanceSport"))
-            {
-                if (!FilterObject.GetValue(Tags.Competitor, Tags.All) || !FilterObject.GetValue(Tags.Level, Tags.All))
+                if (!FilterObject.GetValue(Tags.Competitor, Tags.All) ||
+                    !FilterObject.GetValue(Tags.Level, Tags.All))
                     return false;
-            }
 
             return true;
         }
@@ -409,17 +365,12 @@ namespace DanceLibrary
     public class DanceException
     {
         [JsonConstructor]
-        public DanceException(string organization, TempoRange tempoRange, string competitor, string level)
+        public DanceException(string organization, TempoRange tempoRange, string competitor,
+            string level)
         {
             // Not sure why default value isn't handling these cases, but don't care that much
-            if (string.IsNullOrEmpty(competitor))
-            {
-                competitor = "All";
-            }
-            if (string.IsNullOrEmpty(level))
-            {
-                level = "All";
-            }
+            if (string.IsNullOrEmpty(competitor)) competitor = "All";
+            if (string.IsNullOrEmpty(level)) level = "All";
 
             Organization = organization;
             TempoRange = tempoRange;
@@ -427,19 +378,13 @@ namespace DanceLibrary
             Level = level;
         }
 
-        [JsonProperty]
-        public string Organization {get; set; }
+        [JsonProperty] public string Organization { get; set; }
 
-        [JsonProperty]
-        public TempoRange TempoRange {get; set; }
+        [JsonProperty] public TempoRange TempoRange { get; set; }
 
-        [JsonProperty]
-        [DefaultValue("All")]
-        public string Competitor {get; set; }
+        [JsonProperty] [DefaultValue("All")] public string Competitor { get; set; }
 
-        [JsonProperty]
-        [DefaultValue("All")]
-        public string Level {get; set; }
+        [JsonProperty] [DefaultValue("All")] public string Level { get; set; }
 
         public DanceInstance DanceInstance { get; internal set; }
     }
@@ -447,7 +392,9 @@ namespace DanceLibrary
     [JsonObject(MemberSerialization.OptIn)]
     public sealed class DanceGroup : DanceObject
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors"), JsonConstructor]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage",
+            "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        [JsonConstructor]
         public DanceGroup(string name, string id, string[] danceIds)
         {
             Name = name;
@@ -456,14 +403,12 @@ namespace DanceLibrary
             Debug.Assert(danceIds != null);
             DanceIds = danceIds.ToList();
         }
-        
-        [JsonProperty]
-        public override string Id { get; set; }
 
-        [JsonProperty]
-        public override string Name { get; set; }
+        [JsonProperty] public override string Id { get; set; }
 
-        public override Meter Meter 
+        [JsonProperty] public override string Name { get; set; }
+
+        public override Meter Meter
         {
             get
             {
@@ -485,9 +430,7 @@ namespace DanceLibrary
                 var range = Members[0].TempoRange;
 
                 for (var i = 1; i < Members.Count; i++)
-                {
                     range = range.Include(Members[i].TempoRange);
-                }
 
                 return range;
             }
@@ -497,8 +440,7 @@ namespace DanceLibrary
             }
         }
 
-        [JsonProperty]
-        public List<string> DanceIds { get; set; }
+        [JsonProperty] public List<string> DanceIds { get; set; }
 
         public IList<DanceObject> Members => Dances.Instance.FromIds(DanceIds);
     }
@@ -520,15 +462,16 @@ namespace DanceLibrary
 
         public string Style
         {
-            get 
-            { 
+            get
+            {
                 var sb = new StringBuilder();
                 foreach (var di in _rgdi)
                 {
                     sb.Append(di.Style);
                     sb.Append(", ");
                 }
-                sb.Remove(sb.Length-2,2);
+
+                sb.Remove(sb.Length - 2, 2);
                 return sb.ToString();
             }
         }
@@ -553,7 +496,9 @@ namespace DanceLibrary
             {
                 if (Math.Abs(TempoDeltaPercent) < .01M)
                     return "Exact";
-                return TempoDeltaPercent < 0 ? $"{TempoDeltaPercent:F1}%" : $"+{TempoDeltaPercent:F1}%";
+                return TempoDeltaPercent < 0
+                    ? $"{TempoDeltaPercent:F1}%"
+                    : $"+{TempoDeltaPercent:F1}%";
             }
         }
 
@@ -562,7 +507,8 @@ namespace DanceLibrary
             return Math.Abs(TempoDelta).CompareTo(Math.Abs(other.TempoDelta));
         }
 
-        public ReadOnlyCollection<DanceInstance> Instances => new ReadOnlyCollection<DanceInstance>(_rgdi);
+        public ReadOnlyCollection<DanceInstance> Instances =>
+            new ReadOnlyCollection<DanceInstance>(_rgdi);
 
         public override string ToString()
         {
@@ -611,8 +557,9 @@ namespace DanceLibrary
             var category = GetCategory(name);
             if (category == null)
             {
-                var group = (List<CompetitionCategory>)GetCategoryList(dance.CompetitionGroup);
-                category = new CompetitionCategory {Name=dance.Style,Group=dance.CompetitionGroup};
+                var group = (List<CompetitionCategory>) GetCategoryList(dance.CompetitionGroup);
+                category = new CompetitionCategory
+                    {Name = dance.Style, Group = dance.CompetitionGroup};
                 group.Add(category);
                 s_mapCategories[name] = category;
             }
@@ -620,7 +567,8 @@ namespace DanceLibrary
             if (dance.CompetitionOrder > 0)
             {
                 category._round.Add(dance);
-                category._round.Sort((c1, c2) => c1.CompetitionOrder.CompareTo(c2.CompetitionOrder));
+                category._round.Sort((c1, c2) =>
+                    c1.CompetitionOrder.CompareTo(c2.CompetitionOrder));
             }
             else
             {
@@ -645,16 +593,25 @@ namespace DanceLibrary
 
         public static CompetitionCategory GetCategory(string name)
         {
-            return (s_mapCategories.TryGetValue(BuildCanonicalName(name), out var category)) ? category : null;
+            return s_mapCategories.TryGetValue(BuildCanonicalName(name), out var category)
+                ? category
+                : null;
         }
 
-        private static readonly Dictionary<string, List<CompetitionCategory>> s_mapGroups = new Dictionary<string, List<CompetitionCategory>>();
-        private static readonly Dictionary<string, CompetitionCategory> s_mapCategories = new Dictionary<string, CompetitionCategory>();
+        private static readonly Dictionary<string, List<CompetitionCategory>> s_mapGroups =
+            new Dictionary<string, List<CompetitionCategory>>();
+
+        private static readonly Dictionary<string, CompetitionCategory> s_mapCategories =
+            new Dictionary<string, CompetitionCategory>();
 
         public string Name { get; private set; }
         public string Group { get; private set; }
+
         [JsonConverter(typeof(StringEnumConverter))]
-        public DanceCategoryType CategoryType => Name.StartsWith("International") ? DanceCategoryType.International : DanceCategoryType.American;
+        public DanceCategoryType CategoryType => Name.StartsWith("International")
+            ? DanceCategoryType.International
+            : DanceCategoryType.American;
+
         public string CanonicalName => BuildCanonicalName(Name);
         public string FullRoundName => $"{Name} {(Round.Count == 4 ? "four" : "five")} dance round";
 
@@ -679,19 +636,13 @@ namespace DanceLibrary
         private void LoadDances(List<DanceType> danceTypes)
         {
             _allDanceTypes = danceTypes;
-            foreach (var dt in _allDanceTypes)
-            {
-                _allDanceInstances.AddRange(dt.Instances);
-            }
+            foreach (var dt in _allDanceTypes) _allDanceInstances.AddRange(dt.Instances);
 
             foreach (var dt in _allDanceTypes)
             {
                 _allDanceObjects.Add(dt);
                 _danceDictionary.Add(dt.Id, dt);
-                if (dt.Instances.All(di => di.StyleId != 'P'))
-                {
-                    _npDanceTypes.Add(dt);
-                }
+                if (dt.Instances.All(di => di.StyleId != 'P')) _npDanceTypes.Add(dt);
             }
 
             CompetitionCategory.Reset();
@@ -735,7 +686,8 @@ namespace DanceLibrary
         {
             if (string.IsNullOrEmpty(name)) return null;
 
-            return _allDanceObjects.FirstOrDefault(d => string.Equals(d.Name,name,StringComparison.OrdinalIgnoreCase));
+            return _allDanceObjects.FirstOrDefault(d =>
+                string.Equals(d.Name, name, StringComparison.OrdinalIgnoreCase));
         }
 
         public DanceObject DanceFromId(string id)
@@ -745,23 +697,26 @@ namespace DanceLibrary
             return _danceDictionary.TryGetValue(id.ToUpper(), out var ret) ? ret : null;
         }
 
-        public OrgSpec[] Organizations = {
-            new OrgSpec { Name = "All"},
-            new OrgSpec { Name = "DanceSport"},
-            new OrgSpec { Name = "NDCA"},
-            new OrgSpec { Name = "NDCA", Category="Level", Qualifier="Silver,Gold"},
-            new OrgSpec { Name = "NDCA", Category="Level", Qualifier="Bronze"},
-            new OrgSpec { Name = "NDCA", Category="Competitor", Qualifier="Professional,Amateur"},
-            new OrgSpec { Name = "NDCA", Category="Competitor", Qualifier="ProAm"},
+        public OrgSpec[] Organizations =
+        {
+            new OrgSpec {Name = "All"},
+            new OrgSpec {Name = "DanceSport"},
+            new OrgSpec {Name = "NDCA"},
+            new OrgSpec {Name = "NDCA", Category = "Level", Qualifier = "Silver,Gold"},
+            new OrgSpec {Name = "NDCA", Category = "Level", Qualifier = "Bronze"},
+            new OrgSpec
+                {Name = "NDCA", Category = "Competitor", Qualifier = "Professional,Amateur"},
+            new OrgSpec {Name = "NDCA", Category = "Competitor", Qualifier = "ProAm"}
         };
 
-        public KeyValuePair<string, string>[] Styles = {
-            new KeyValuePair<string,string>("all","All Styles"),
-            new KeyValuePair<string,string>("is","International Standard"),
-            new KeyValuePair<string,string>("il","International Latin"),
-            new KeyValuePair<string,string>("as","American Smooth"),
-            new KeyValuePair<string,string>("ar","American Rhythm"),
-            new KeyValuePair<string,string>("s","Social"),
+        public KeyValuePair<string, string>[] Styles =
+        {
+            new KeyValuePair<string, string>("all", "All Styles"),
+            new KeyValuePair<string, string>("is", "International Standard"),
+            new KeyValuePair<string, string>("il", "International Latin"),
+            new KeyValuePair<string, string>("as", "American Smooth"),
+            new KeyValuePair<string, string>("ar", "American Rhythm"),
+            new KeyValuePair<string, string>("s", "Social")
             /*new KeyValuePair<string,string>("p","Performance"), Add this back in if we do the work to make performance styles 1st class citazens*/
         };
 
@@ -782,7 +737,10 @@ namespace DanceLibrary
         private readonly List<DanceInstance> _allDanceInstances = new List<DanceInstance>();
         private List<DanceGroup> _allDanceGroups = new List<DanceGroup>();
         private readonly List<DanceObject> _allDanceObjects = new List<DanceObject>();
-        private readonly Dictionary<string, DanceObject> _danceDictionary = new Dictionary<string, DanceObject>();
+
+        private readonly Dictionary<string, DanceObject> _danceDictionary =
+            new Dictionary<string, DanceObject>();
+
         private readonly List<DanceType> _npDanceTypes = new List<DanceType>();
 
         private static decimal SignedMin(decimal a, decimal b)
@@ -798,18 +756,20 @@ namespace DanceLibrary
             var rate = tempo.Rate;
 
             // Cut a fairly wide swath on what we include in the list
-            var dances = new Dictionary<string,DanceSample>();
-            foreach (var di in _allDanceInstances.Where(di => di.StyleId != 'P').Where(di => meter == null || di.CanMatch(meter)))
+            var dances = new Dictionary<string, DanceSample>();
+            foreach (var di in _allDanceInstances.Where(di => di.StyleId != 'P')
+                .Where(di => meter == null || di.CanMatch(meter)))
             {
                 decimal delta;
                 decimal deltaPercent;
                 decimal median;
                 bool match;
 
-                match = meter == null ? 
-                    di.CalculateBeatMatch(rate, epsilon, out delta, out deltaPercent, out median) : 
-                    di.CalculateTempoMatch(rate, epsilon, out delta, out deltaPercent, out median);
-                    
+                match = meter == null
+                    ? di.CalculateBeatMatch(rate, epsilon, out delta, out deltaPercent, out median)
+                    : di.CalculateTempoMatch(rate, epsilon, out delta, out deltaPercent,
+                        out median);
+
                 // This tempo and style matches the dance instance
                 if (match)
                 {
@@ -818,7 +778,7 @@ namespace DanceLibrary
                     {
                         ds = dances[di.DanceType.Name];
                         ds.TempoDelta = SignedMin(ds.TempoDelta, delta);
-                        ds.TempoDeltaPercent = SignedMin(ds.TempoDeltaPercent,deltaPercent);
+                        ds.TempoDeltaPercent = SignedMin(ds.TempoDeltaPercent, deltaPercent);
                         ds.Add(di);
                     }
                     else
@@ -844,12 +804,8 @@ namespace DanceLibrary
             var set = new Dictionary<string, string>();
 
             if (initialList != null)
-            {
                 foreach (var dance in initialList)
-                {
                     DoExpand(dance, set);
-                }
-            }
 
             return set.Keys.ToList();
         }
@@ -861,12 +817,10 @@ namespace DanceLibrary
             // Would use hashset, but looks like not available on phone?
             var set = new Dictionary<string, string>();
             foreach (var dance in dances)
-            {
                 if (string.Equals(dance, "MSC", StringComparison.OrdinalIgnoreCase))
                     DoExpand(dance, set);
                 else
                     set[dance] = dance;
-            }
 
             return set.Keys.ToList();
         }
@@ -885,15 +839,12 @@ namespace DanceLibrary
             foreach (var s in dances)
             {
                 DanceObject d;
-                if (_danceDictionary.TryGetValue(s.ToUpper(), out d))
-                {
-                    dos.Add(d);
-                }
-
+                if (_danceDictionary.TryGetValue(s.ToUpper(), out d)) dos.Add(d);
             }
 
-            return dos;            
+            return dos;
         }
+
         public IList<DanceObject> FromIds(string dances)
         {
             dances = dances?.ToUpper();
@@ -907,7 +858,10 @@ namespace DanceLibrary
             var dos = new List<DanceObject>();
             if (dances == null) return dos;
 
-            dos.AddRange(dances.Select(s => AllDances.FirstOrDefault(d => string.Equals(s, d.Name, StringComparison.OrdinalIgnoreCase))).Where(dobj => dobj != null));
+            dos.AddRange(dances
+                .Select(s => AllDances.FirstOrDefault(d =>
+                    string.Equals(s, d.Name, StringComparison.OrdinalIgnoreCase)))
+                .Where(dobj => dobj != null));
 
             return dos;
         }
@@ -923,20 +877,18 @@ namespace DanceLibrary
             IEnumerable<string> ret = null;
             if (!string.IsNullOrWhiteSpace(dances))
             {
-                var a = dances.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                if (a.Length > 0)
-                {
-                    ret = a;
-                }
+                var a = dances.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries);
+                if (a.Length > 0) ret = a;
             }
 
             return ret;
         }
 
-        private void DoExpand(string dance, Dictionary<string,string> set)
+        private void DoExpand(string dance, Dictionary<string, string> set)
         {
             DanceObject dobj;
-            if (set.ContainsKey(dance) || !_danceDictionary.TryGetValue(dance.ToUpper(), out dobj)) return;
+            if (set.ContainsKey(dance) ||
+                !_danceDictionary.TryGetValue(dance.ToUpper(), out dobj)) return;
 
             set.Add(dance, dance);
 
@@ -947,22 +899,17 @@ namespace DanceLibrary
                 var dt = type;
                 if (dt.Instances == null) return;
 
-                foreach (var child in dt.Instances)
-                {
-                    DoExpand(child.Id, set);
-                }
+                foreach (var child in dt.Instances) DoExpand(child.Id, set);
             }
             else if (dobj is DanceGroup)
             {
                 var dg = (DanceGroup) dobj;
-                foreach  (var id in dg.DanceIds)
-                {
-                    DoExpand(id, set);
-                }
+                foreach (var id in dg.DanceIds) DoExpand(id, set);
             }
         }
 
-        public static Dances Load(List<DanceType> danceTypes = null,List<DanceGroup> danceGroups = null)
+        public static Dances Load(List<DanceType> danceTypes = null,
+            List<DanceGroup> danceGroups = null)
         {
             var dances = new Dances();
 
@@ -972,15 +919,18 @@ namespace DanceLibrary
                 DefaultValueHandling = DefaultValueHandling.Ignore
             };
 
-            dances.LoadDances(danceTypes??JsonConvert.DeserializeObject<List<DanceType>>(DanceLibrary.JsonDances, settings));
-            dances.LoadGroups(danceGroups?? JsonConvert.DeserializeObject<List<DanceGroup>>(DanceLibrary.DanceGroups, settings));
+            dances.LoadDances(danceTypes ??
+                JsonConvert.DeserializeObject<List<DanceType>>(DanceLibrary.JsonDances, settings));
+            dances.LoadGroups(danceGroups ??
+                JsonConvert.DeserializeObject<List<DanceGroup>>(DanceLibrary.DanceGroups,
+                    settings));
 
             return dances;
         }
 
-        public static Dances Reset(Dances instance=null)
+        public static Dances Reset(Dances instance = null)
         {
-            return s_instance = instance??Load();
+            return s_instance = instance ?? Load();
         }
 
         public static Dances Instance => s_instance ?? (s_instance = Load());

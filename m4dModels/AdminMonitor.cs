@@ -39,7 +39,8 @@ namespace m4dModels
                 _iteration = iteration;
             }
         }
-        public static void CompleteTask(bool completed, string message, Exception exception=null)
+
+        public static void CompleteTask(bool completed, string message, Exception exception = null)
         {
             lock (Lock)
             {
@@ -75,14 +76,18 @@ namespace m4dModels
                     if (Name != null)
                     {
                         var e = _stopwatch.ElapsedMilliseconds;
-                        message = $"AdminMonitor: Task = {Name}; Phase = {_phase}, Iteration = {_iteration}, Duration = {e/1000}.{e%1000}";
+                        message =
+                            $"AdminMonitor: Task = {Name}; Phase = {_phase}, Iteration = {_iteration}, Duration = {e / 1000}.{e % 1000}";
                     }
                     else
                     {
-                        message = _lastTaskName != null ?
-                            string.Format(_lastTaskCompleted ? "AdminMonitor: TaskCompleted - {0} \"{1}\"" :
-                                "AdminMonitor: TaskFailed - {0} \"{1}\"", _lastTaskName, _lastTaskMessage) :
-                                "AdminMonitor: No task running or completed.";
+                        message = _lastTaskName != null
+                            ? string.Format(
+                                _lastTaskCompleted
+                                    ? "AdminMonitor: TaskCompleted - {0} \"{1}\""
+                                    : "AdminMonitor: TaskFailed - {0} \"{1}\"", _lastTaskName,
+                                _lastTaskMessage)
+                            : "AdminMonitor: No task running or completed.";
                     }
 
                     return new AdminStatus
@@ -122,6 +127,5 @@ namespace m4dModels
         {
             return Status;
         }
-
     }
 }

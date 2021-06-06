@@ -12,7 +12,7 @@
 <p>Start Time = <b>@SpiderManager.StartTime.ToString(CultureInfo.CurrentCulture)</b></p>
 <p>Up Time = <b>@SpiderManager.UpTime.ToString()</b></p>
 
-<hr />
+<hr/>
 <h3>Tracing (Current Level = @TraceLevels.General.Level.ToString())</h3>
 <ul>
     <li>@Html.ActionLink("Turn Tracing Off", "SetTraceLevel", "Admin", new {level = 0}, null)</li>
@@ -22,43 +22,45 @@
     <li>@Html.ActionLink("Trace Verbose", "SetTraceLevel", "Admin", new {level = 4}, null)</li>
     <li>@Html.ActionLink("Test Trace", "TestTrace", "Admin", new {message = "Nothing Special"}, null)</li>
 </ul>
-<hr />
+<hr/>
 <h3>History</h3>
 <ul>
     <li>@Html.ActionLink("Songs sorted by Modified date", "sort", "song", new {sortOrder = "Modified_desc"}, null)</li>
-    <li>@Html.ActionLink("Songs sorted by Created date", "sort", "song", new { sortOrder = "Created_desc" }, null)</li>
-    <li>@Html.ActionLink("All Songs", "filtersearch", "Song", new { filter = "Advanced----------3" })</li>
+    <li>@Html.ActionLink("Songs sorted by Created date", "sort", "song", new {sortOrder = "Created_desc"}, null)</li>
+    <li>@Html.ActionLink("All Songs", "filtersearch", "Song", new {filter = "Advanced----------3"})</li>
 </ul>
 
-<hr />
+<hr/>
 <h3>Status</h3>
 <ul>
     <li>@Html.ActionLink("Show Status", "AdminStatus", "Admin")</li>
     <li>@Html.ActionLink("Reset Admin", "ResetAdmin", "Admin")</li>
 </ul>
 
-<hr />
+<hr/>
 <h3>Search Index: @ViewBag.SearchIdx</h3>
 <p>Source = @ViewBag.StatsUpdateSource, Time=@ViewBag.StatsUpdateTime</p>
 <ul>
     @foreach (var id in SearchService.GetAvailableIds())
     {
-        if (SearchService.DefaultId == id) { continue; }
-        <li>@Html.ActionLink(id, "SetSearchIdx", "Admin", new { id }, null)</li>
+        if (SearchService.DefaultId == id)
+        {
+            continue;
+        }
+        <li>@Html.ActionLink(id, "SetSearchIdx", "Admin", new {id}, null)</li>
     }
     <li>Enviroment: @SearchService.RawEnvironment</li>
 </ul>
 
 
-<hr />
+<hr/>
 <h3>Songs Modified By</h3>
 @using (Html.BeginForm("FilterUser", "Song", FormMethod.Get))
 {
-    <input type="text" name="user" />
-    <input type="submit" id="Submit" value="Search" />
+    <input type="text" name="user"/>
+    <input type="submit" id="Submit" value="Search"/>
 }
 
-<hr />
+<hr/>
 <h3>Bot Stats</h3>
-<partial name="_botreport" model="ViewBag.BotReport" />
-
+<partial name="_botreport" model="ViewBag.BotReport"/>

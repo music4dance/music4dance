@@ -17,12 +17,13 @@ namespace m4dModels.Tests
             Service.FindOrCreateTagGroup("Salsa", "Dance");
             Service.FindOrCreateTagGroup("Pop", "Music");
             var tt = Service.FindOrCreateTagGroup("Foxtrot", "Dance");
-            var tt1 = Service.FindOrCreateTagGroup("fox-trot", "Dance","FoxTrot");
+            var tt1 = Service.FindOrCreateTagGroup("fox-trot", "Dance", "FoxTrot");
             var tt2 = Service.FindOrCreateTagGroup("Fox Trot", "Dance", "FoxTrot");
 
             tt1.Primary = tt;
             tt2.Primary = tt;
         }
+
         #region TagGroup
 
         [TestMethod]
@@ -42,16 +43,19 @@ namespace m4dModels.Tests
         [TestMethod]
         public void TagAccTest()
         {
-            var ts1 = new TagSummary("Blues:Music:3|Pop:Music:5|Salsa:Music:7|Swing:Dance:11|Swing:Music:1");
+            var ts1 = new TagSummary(
+                "Blues:Music:3|Pop:Music:5|Salsa:Music:7|Swing:Dance:11|Swing:Music:1");
             var ts2 = new TagSummary("Pop:Music:3|Salsa:Music:5|Swing:Music:7|Waltz:Dance:3");
 
             var ta = new TagAccumulator(ts1.Summary);
             var ts3 = ta.TagSummary();
-            Assert.AreEqual(ts1.Summary,ts3.Summary);
+            Assert.AreEqual(ts1.Summary, ts3.Summary);
 
             ta.AddTags(ts2.Summary);
             Trace.WriteLine(ta);
-            Assert.AreEqual("Blues:Music:3|Pop:Music:8|Salsa:Music:12|Swing:Dance:11|Swing:Music:8|Waltz:Dance:3",ta.ToString());
+            Assert.AreEqual(
+                "Blues:Music:3|Pop:Music:8|Salsa:Music:12|Swing:Dance:11|Swing:Music:8|Waltz:Dance:3",
+                ta.ToString());
 
             var ts4 = ta.TagSummary();
             Assert.IsTrue(ts4.HasTag("Blues:Music"));
@@ -63,6 +67,7 @@ namespace m4dModels.Tests
         #endregion
 
         #region NewTests
+
         [TestMethod]
         public void TagTestSummary()
         {
@@ -86,7 +91,7 @@ namespace m4dModels.Tests
         public void TagTestList()
         {
             var l = new TagList(SimpleList);
-            Assert.AreEqual(4,l.Tags.Count);
+            Assert.AreEqual(4, l.Tags.Count);
             var s = l.ToString();
             Assert.AreEqual(SimpleList, s);
         }
@@ -117,7 +122,7 @@ namespace m4dModels.Tests
             var l = new TagList(QualifiedList);
 
             var d = l.Filter("Dance");
-            Assert.AreEqual(2,d.Tags.Count);
+            Assert.AreEqual(2, d.Tags.Count);
         }
 
         [TestMethod]
@@ -137,7 +142,7 @@ namespace m4dModels.Tests
             var l = new TagList(QualifiedList);
 
             var add = l.ExtractAdd().ToString();
-            Assert.AreEqual("Bolero:Dance|Latin:Music|Nontraditional:Tempo",add);
+            Assert.AreEqual("Bolero:Dance|Latin:Music|Nontraditional:Tempo", add);
 
             var rem = l.ExtractRemove().ToString();
             Assert.AreEqual("Pop:Music|Rumba:Dance", rem);
@@ -323,7 +328,7 @@ namespace m4dModels.Tests
         //    dmt.Dms.RebuildUserTags("batch",true);
 
         //    var nts = dmt.Dms.Tags.ToList();
-            
+
         //    Assert.AreEqual(ots.Count,nts.Count);
         //    for (var i = 0; i < ots.Count; i++)
         //    {
@@ -340,13 +345,9 @@ namespace m4dModels.Tests
                 var init = VerifiesInit[index];
                 var res = song.VerifyTags(init, false);
                 if (index < 3)
-                {
                     Assert.IsNotNull(res);
-                }
                 else
-                {
                     Assert.IsNull(res);
-                }
             }
         }
 
@@ -383,21 +384,23 @@ namespace m4dModels.Tests
         //    Assert.IsTrue(mr.Like.Value);
         //}
 
-        private static readonly string[] VerifiesInit = {
+        private static readonly string[] VerifiesInit =
+        {
             "",
             "Blues:dance|Pop:music",
             "4/4:tempo|fast:tempo",
-            "Crazy|Christmas:Christmas",
+            "Crazy|Christmas:Christmas"
         };
 
-        private static readonly string[] VerifiesResult = {
+        private static readonly string[] VerifiesResult =
+        {
             "",
             "Blues:Dance|Pop:Music",
             "4/4:Tempo|fast:Tempo",
-            "Christmas:Other|Crazy:Other",
+            "Christmas:Other|Crazy:Other"
         };
 
-        static readonly DanceMusicService Service;
+        private static readonly DanceMusicService Service;
 
         private const string SimpleSummary = "Rumba|Bolero|Latin|Blues";
         private const string SimpleList = "Blues|Bolero|Latin|Rumba";
@@ -407,7 +410,8 @@ namespace m4dModels.Tests
         private const string SimpleExpanded = "Blues:1|Bolero:1|Latin:1|Rumba:1";
         private const string ComplexSummary = "Blues:23|Bolero:11|Latin:19|Rumba:67";
 
-        private const string QualifiedList = "+Bolero:Dance|+Latin:Music|+Nontraditional:Tempo|-Rumba:Dance|-Pop:Music";
+        private const string QualifiedList =
+            "+Bolero:Dance|+Latin:Music|+Nontraditional:Tempo|-Rumba:Dance|-Pop:Music";
 
         #endregion
     }

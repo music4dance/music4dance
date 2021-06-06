@@ -24,14 +24,18 @@
 
         <li class="@dropDownClass">
             <a href="#" class="@dropDownToggle" data-toggle="dropdown">
-                @(UserManager.GetUserName(User) + modifier) <img src="~/images/swing-ui.png" alt="User Icon" height="30" width="30" />
+                @(UserManager.GetUserName(User) + modifier) <img src="~/images/swing-ui.png" alt="User Icon" height="30" width="30"/>
                 &nbsp;&nbsp;&nbsp;&nbsp;
             </a>
             <ul class="dropdown-menu" role="menu">
-                <li><a id="manage" class="@dropDownItem" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">My Profile</a></li>
-                <li>@Html.ActionLink("My Songs", "FilterUser", "Song", new { user = UserManager.GetUserName(User) }, new { @class = @dropDownItem})</li>
-                <li>@Html.ActionLink("My Searches", "Index", "Searches", new { user = UserManager.GetUserName(User) }, new { @class = @dropDownItem})</li>
-                <li><a href="javascript:document.getElementById('logoutForm').submit()" class="@dropDownItem">Log out</a></li>
+                <li>
+                    <a id="manage" class="@dropDownItem" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">My Profile</a>
+                </li>
+                <li>@Html.ActionLink("My Songs", "FilterUser", "Song", new {user = UserManager.GetUserName(User)}, new {@class = @dropDownItem})</li>
+                <li>@Html.ActionLink("My Searches", "Index", "Searches", new {user = UserManager.GetUserName(User)}, new {@class = @dropDownItem})</li>
+                <li>
+                    <a href="javascript:document.getElementById('logoutForm').submit()" class="@dropDownItem">Log out</a>
+                </li>
             </ul>
         </li>
     }
@@ -39,10 +43,10 @@
     {
         <li>
             <a class="@itemClass" id="register" asp-area="Identity" asp-page="/Account/Register">Register</a>
-         </li>
-         <li>
-             <a class="@itemClass" id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
-         </li>
+        </li>
+        <li>
+            <a class="@itemClass" id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
+        </li>
     }
 </ul>
 

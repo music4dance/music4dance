@@ -15,11 +15,15 @@ namespace m4dModels
 
                 int? bpMeas = response.time_signature;
                 decimal? bpMin = response.tempo;
-                float? danceability = (float)response.danceability;
-                float? energy = (float)response.energy;
-                float? valence = (float)response.valence;
+                float? danceability = (float) response.danceability;
+                float? energy = (float) response.energy;
+                float? valence = (float) response.valence;
 
-                return new EchoTrack {BeatsPerMeasure = bpMeas, BeatsPerMinute = bpMin, Danceability = danceability, Energy = energy, Valence = valence};
+                return new EchoTrack
+                {
+                    BeatsPerMeasure = bpMeas, BeatsPerMinute = bpMin, Danceability = danceability,
+                    Energy = energy, Valence = valence
+                };
             }
             catch (Exception)
             {

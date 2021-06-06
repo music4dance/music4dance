@@ -26,26 +26,53 @@ namespace DanceLibrary
             Value = true;
         }
 
-        public string Name { get; private set; }
-        public string LongName { get; private set; }
-        public bool Value 
-        { 
-            get {return _value;} 
-            set {_value=value;} 
-        }
-        private bool _value;
+        public string Name { get; }
+        public string LongName { get; }
+
+        public bool Value { get; set; }
     }
 
     public class FilterObject
     {
+        private static readonly Dictionary<string, FilterObject> _filters =
+            new Dictionary<string, FilterObject>();
+
+        private readonly List<FilterItem> _sortedValues = new List<FilterItem>();
+
+        private readonly string _type;
+
+        private readonly Dictionary<string, FilterItem> _values =
+            new Dictionary<string, FilterItem>();
+
+        static FilterObject()
+        {
+            _filters[Tags.Style] = new FilterObject(Tags.Style,
+                new[]
+                {
+                    "International Standard", "International Latin", "American Smooth",
+                    "American Rhythm", "Social", "Performance"
+                }, new string[] {null, null, null, null, null, null});
+            _filters[Tags.Organization] = new FilterObject(Tags.Organization,
+                new[] {"NDCA", "DanceSport", "Ad-Hoc"},
+                new[]
+                {
+                    "National Dance Council of America (NDCA)",
+                    "International DanceSport Federation (IDSF)", "No Offical Organization"
+                });
+            _filters[Tags.Competitor] = new FilterObject(Tags.Competitor,
+                new[] {"Professional", "Amateur", "ProAm"},
+                new[] {null, null, "Pro/Am"});
+            _filters[Tags.Level] = new FilterObject(Tags.Level,
+                new[] {"Bronze", "Silver", "Gold"}, new string[] {null, null, null});
+        }
 
         public FilterObject(string type, string[] names, string[] longNames)
         {
             _type = type;
 
-            for (int i = 0; i < names.Length; i++)
+            for (var i = 0; i < names.Length; i++)
             {
-                FilterItem fi = new FilterItem(names[i], longNames[i]);
+                var fi = new FilterItem(names[i], longNames[i]);
                 _values[names[i]] = fi;
                 _sortedValues.Add(fi);
             }
@@ -63,44 +90,35 @@ namespace DanceLibrary
 
         private void SetTypeValues(bool value)
         {
-            foreach (FilterItem fi in _sortedValues)
-            {
-                fi.Value = value;
-            }
+            foreach (var fi in _sortedValues) fi.Value = value;
         }
 
         public static void SetValue(string type, string name, bool value)
         {
-            FilterObject fo = _filters[type];
+            var fo = _filters[type];
             fo.SetValue(name, value);
         }
 
         public static bool GetValue(string type, string name)
         {
-            FilterObject fo = _filters[type];
+            var fo = _filters[type];
             if (name == Tags.All)
             {
-                bool ret = false;
-                foreach (FilterItem item in fo._sortedValues)
-                {
-                    ret |= item.Value;
-                }
+                var ret = false;
+                foreach (var item in fo._sortedValues) ret |= item.Value;
                 return ret;
             }
             else
             {
-                bool ret = false;
-                string[] a = name.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string n in a)
-                {
-                    ret |= fo.GetValue(n);
-                }
+                var ret = false;
+                var a = name.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var n in a) ret |= fo.GetValue(n);
                 return ret;
             }
         }
 
         /// <summary>
-        /// Return true if all of the true filters in filter type "name" is covered by the values in "values"
+        ///     Return true if all of the true filters in filter type "name" is covered by the values in "values"
         /// </summary>
         /// <param name="name"></param>
         /// <param name="values"></param>
@@ -110,21 +128,17 @@ namespace DanceLibrary
             if (values == Tags.All)
                 return true;
 
-            FilterObject fo = _filters[name];
-            foreach (FilterItem fi in fo._sortedValues)
-            {
-                if (fi.Value == true && !values.Contains(fi.Name))
-                {
+            var fo = _filters[name];
+            foreach (var fi in fo._sortedValues)
+                if (fi.Value && !values.Contains(fi.Name))
                     return false;
-                }
-            }
 
             return true;
         }
 
         /// <summary>
-        /// This is a bit more hard-coded than I'd like, in a future pass see if there
-        ///   is a reasonable way to build this as an arbitrary hierarchy
+        ///     This is a bit more hard-coded than I'd like, in a future pass see if there
+        ///     is a reasonable way to build this as an arbitrary hierarchy
         /// </summary>
         /// <param name="orgs"></param>
         /// <param name="competitors"></param>
@@ -132,12 +146,10 @@ namespace DanceLibrary
         /// <returns></returns>
         public static bool IsCovered(string orgs, string competitors, string levels)
         {
-            bool ret = IsCovered(Tags.Organization, orgs);
+            var ret = IsCovered(Tags.Organization, orgs);
 
             if (ret && string.Equals(orgs, "NDCA"))
-            {
                 ret = IsCovered(Tags.Level, levels) && IsCovered(Tags.Competitor, competitors);
-            }
 
             return ret;
         }
@@ -150,89 +162,82 @@ namespace DanceLibrary
         public static void ReadState(TextReader t)
         {
             // TODO: Make this robust against old state
-            foreach (FilterObject fo in _filters.Values)
+            foreach (var fo in _filters.Values)
             {
-                string s = t.ReadLine();
+                var s = t.ReadLine();
                 fo.TryParse(s);
             }
         }
 
         public static void SetState(string s)
         {
-            StringReader sr = new StringReader(s);
+            var sr = new StringReader(s);
             ReadState(sr);
         }
 
         /// <summary>
-        /// This just resets all of the values to a uniform value
+        ///     This just resets all of the values to a uniform value
         /// </summary>
         /// <param name="value">The direction to set all of the values</param>
         public static void SetAll(bool value)
         {
-            foreach (FilterObject fo in _filters.Values)
-            {
-                fo.SetTypeValues(value);
-            }
+            foreach (var fo in _filters.Values) fo.SetTypeValues(value);
         }
 
         /// <summary>
-        /// This just resets all of the values for a particular type to a uniform value
+        ///     This just resets all of the values for a particular type to a uniform value
         /// </summary>
         /// <param name="value">The direction to set all of the values</param>
         public static void SetAll(string type, bool value)
         {
-            FilterObject fo = _filters[type];
+            var fo = _filters[type];
             fo.SetTypeValues(value);
         }
 
         public void TryParse(string s)
         {
-            bool valid = true;
-            string[] a = s.Split(new char[] { ',', ':' },StringSplitOptions.RemoveEmptyEntries);
+            var valid = true;
+            var a = s.Split(new[] {',', ':'}, StringSplitOptions.RemoveEmptyEntries);
 
             if (!a[0].Equals(_type) || a.Length - 1 != _sortedValues.Count)
             {
                 // If something funky goes on here, just set the valid state to false which will turn everything (back) on
-                Debug.WriteLine(string.Format("FilterObject: Unable to parse '{0}'", s));
+                Debug.WriteLine($"FilterObject: Unable to parse '{s}'");
                 valid = false;
             }
 
-            for (int i = 0; i < _sortedValues.Count; i++)
+            for (var i = 0; i < _sortedValues.Count; i++)
             {
-                bool temp = true;
+                var temp = true;
                 if (valid && bool.TryParse(a[i + 1], out temp))
-                {
                     _sortedValues[i].Value = temp;
-                }
                 else
-                {
                     _sortedValues[i].Value = true;
-                }
             }
         }
 
         public static void WriteState(TextWriter t)
         {
-            foreach (FilterObject fo in _filters.Values)
+            foreach (var fo in _filters.Values)
             {
-                string s = fo.ToString();
+                var s = fo.ToString();
                 t.WriteLine(s);
             }
         }
 
         public static string GetState()
         {
-            StringWriter sw = new StringWriter();
+            var sw = new StringWriter();
             WriteState(sw);
-            string s = sw.GetStringBuilder().ToString();
+            var s = sw.GetStringBuilder().ToString();
             return s;
         }
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             sb.Append(_type + ": ");
-            foreach (FilterItem fi in _sortedValues)
+            foreach (var fi in _sortedValues)
             {
                 sb.Append(fi.Value.ToString());
                 sb.Append(",");
@@ -240,19 +245,5 @@ namespace DanceLibrary
 
             return sb.ToString();
         }
-
-        static FilterObject()
-        {
-            _filters[Tags.Style] = new FilterObject(Tags.Style, new string[] { "International Standard", "International Latin", "American Smooth", "American Rhythm", "Social", "Performance"}, new string[] { null, null, null, null, null, null });
-            _filters[Tags.Organization] = new FilterObject(Tags.Organization, new string[] { "NDCA", "DanceSport", "Ad-Hoc" }, new string[] { "National Dance Council of America (NDCA)", "International DanceSport Federation (IDSF)", "No Offical Organization" });
-            _filters[Tags.Competitor] = new FilterObject(Tags.Competitor, new string[] { "Professional","Amateur","ProAm" }, new string[] { null, null,"Pro/Am" });
-            _filters[Tags.Level] = new FilterObject(Tags.Level, new string[] { "Bronze", "Silver", "Gold" }, new string[] { null, null, null });
-        }
-
-        private string _type;
-        private Dictionary<string, FilterItem> _values = new Dictionary<string,FilterItem>();
-        private List<FilterItem> _sortedValues = new List<FilterItem>();
-
-        static private Dictionary<string, FilterObject> _filters = new Dictionary<string,FilterObject>();
     }
 }

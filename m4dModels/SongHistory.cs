@@ -12,6 +12,7 @@ namespace m4dModels
             CreateMap<SongPropertySparse, SongProperty>();
         }
     }
+
     public class SongPropertySparse
     {
         public string Name { get; set; }

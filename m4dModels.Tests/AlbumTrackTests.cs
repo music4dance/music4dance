@@ -10,6 +10,7 @@ namespace m4dModels.Tests
         {
             AlbumAndTrack("My Album");
         }
+
         [TestMethod]
         public void ComplexAlbumAndTrack()
         {
@@ -21,13 +22,13 @@ namespace m4dModels.Tests
         {
             var t = "Testing |00:a:03";
             var at = new AlbumTrack(t);
-            Assert.AreEqual(t,at.ToString());
+            Assert.AreEqual(t, at.ToString());
         }
 
         public void AlbumAndTrack(string name)
         {
             var at0 = new AlbumTrack(name, new TrackNumber(5, 4, 3));
-            var at1 = new AlbumTrack(name, new TrackNumber(83,null,null));
+            var at1 = new AlbumTrack(name, new TrackNumber(83, null, null));
             var at2 = new AlbumTrack(name, null);
 
             var at0Ex = name + "|003:004:005";
@@ -49,7 +50,5 @@ namespace m4dModels.Tests
             Assert.IsTrue(at0 == at0S, "Album 0 ==");
             Assert.IsFalse(at2 == at1S, "Not equal");
         }
-
-
     }
 }

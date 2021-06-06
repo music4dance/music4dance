@@ -41,24 +41,28 @@
         <li class="big-text">If all else fails please Contact us at <a href="mailto:info@music4dance.net">info@music4dance.net</a> or through our <a href="https://music4dance.blog/feedback/">feedback form</a> and let us know what went wrong.</li>
     </ul>
     <h3>Would you like a reward for finding a bug?</h3>
-    <p>We have established a bug bounty.  If you've found a bug and would like a reward, please see <a href="https://music4dance.blog/bug-report/">here</a> for details.</p>
+    <p>We have established a bug bounty. If you've found a bug and would like a reward, please see <a href="https://music4dance.blog/bug-report/">here</a> for details.</p>
 </div>
 
 
 @if ((TraceLevels.General.TraceVerbose || User.IsInRole("showDiagnostics")) && Model?.Exception != null)
 {
-    string hresult = "0x" + Model.Exception.HResult.ToString("X8");
+    var hresult = "0x" + Model.Exception.HResult.ToString("X8");
     <p><b>Exception:</b>@Model.Exception.Message (@hresult)</p>
     if (Model.Exception.InnerException != null)
     {
-        <p><b>Inner Exception:</b>@Model.Exception.InnerException.Message</p>
+        <p>
+            <b>Inner Exception:</b>@Model.Exception.InnerException.Message
+        </p>
     }
-    <p><b>Target Site:</b>@Model.Exception.TargetSite</p>
+    <p>
+        <b>Target Site:</b>@Model.Exception.TargetSite
+    </p>
 
     <h3>Stack Trace:</h3>
-    string[] frames = Model.Exception.StackTrace.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+    var frames = Model.Exception.StackTrace.Split(new[] {'\n'}, StringSplitOptions.RemoveEmptyEntries);
     <ul>
-        @foreach (string s in frames)
+        @foreach (var s in frames)
         {
             <li>@s</li>
         }

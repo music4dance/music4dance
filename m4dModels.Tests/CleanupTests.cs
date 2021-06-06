@@ -17,7 +17,7 @@ namespace m4dModels.Tests
         private const string SongC =
             @"SongId={05178359-eaae-4463-8de1-4c79c403adb4}	.Merge=467220be-feac-4184-af47-1b15213bbc9b;0e288e64-6158-43fa-95b2-43dad1d085bf	User=batch	Time=06/12/2015 11:36:15	.Edit=	User=batch	Time=6/12/2015 11:36:15 AM	Title=I Get a Kick out of You	Tempo=102.5	Album:00=The Very Good Years	Track:00=3	Album:01=Sinatra and Swingin' Brass	Track:01=6	Purchase:01:AS=D:B00FAXDMWU	Purchase:01:AA=D:B00FAXDD7Y	Purchase:01:IS=923098168	Purchase:01:IA=923094701	Album:02=X-Mas, Vol. 5 (Let It Snow! Let It Snow! Let It Snow!)	Track:02=10	Purchase:02:IS=487823078	Purchase:02:IA=487822808	Album:03=In French or English - 3	Track:03=9	Purchase:03:IS=656991553	Purchase:03:IA=656991512	Album:04=In French or English ? 2	Track:04=17	Purchase:04:IS=656625882	Purchase:04:IA=656625397	Album:05=Jukebox Favourites - Best of Swing	Track:05=59	Purchase:05:IS=814204173	Purchase:05:IA=814204056	Album:06=Song Shop - Song Doubles	Track:06=6	Purchase:06:IS=663133012	Purchase:06:IA=663132879	Album:07=Song Doubles Volume One	Track:07=18	Purchase:07:IS=943867362	Purchase:07:IA=943867288	Album:08=Your Birthday Present - Song Doubles	Track:08=18	Purchase:08:IS=660024227	Purchase:08:IA=660024148	Album:09=Frank Sinatra & Sextet: In Paris - Live	Track:09=15	Purchase:09:SS=3tMZgBzebiTyQTP788GQM9	Purchase:09:SA=0U0dbAPfsrCn3P1ewtyJj0	.Create=	User=dwgray	OwnerHash=-984185430	Time=1/12/2015 12:58:27 PM	Title=I Get A Kick Out Of You	Artist=Frank Sinatra	Tempo=102.5	Length=194	.Edit=	User=AdamT	Time=4/16/2015 8:26:04 AM	Tag+=QuickStep:Dance	DanceRating=QST+4	DanceRating=FXT+1	Tag+:QST=Traditional:Style	.Edit=	User=batch-a	Time=4/16/2015 8:29:28 AM	Tag+=big-band-swing:Music	.Edit=	User=batch-i	Time=4/16/2015 8:29:29 AM	Title=I Get a Kick Out of You	Length=189	Tag+=Jazz:Music|Pop:Music|Swing:Music|Vocal Jazz:Music	.Edit=	User=batch-s	Time=4/16/2015 8:29:29 AM	Title=I Get a Kick out of You	Length=186	.Create=	User=TaylorZ	Time=05/07/2015 15:36:09	Title=I Get A Kick Out of You	Artist=Frank Sinatra	Tempo=144.0	Tag+=East Coast Swing:Dance|First Dance:Other|Foxtrot:Dance|Wedding:Other	DanceRating=FXT+3	DanceRating=ECS+4	DanceRating=SWG+1	DanceRating=LHP+1	.Edit=	User=TaylorZ	Time=5/7/2015 3:45:21 PM	Tag+=Father Daughter:Other|Slow Foxtrot:Dance	DanceRating=SFT+3	DanceRating=ECS+4	DanceRating=SWG+1	DanceRating=FXT+1	DanceRating=LHP+1	.Edit=	User=TaylorZ	Time=5/7/2015 3:46:18 PM	Tag+=Mother Son:Other	DanceRating=SFT+3	DanceRating=ECS+4	DanceRating=SWG+1	DanceRating=FXT+1	DanceRating=LHP+1	.Edit=	User=batch-x	Time=01/13/2016 21:54:27	Purchase:07:XS=music.0A82AA08-0100-11DB-89CA-0019B92A3933	Tag+=Pop:Music	.FailedLookup=-:0	.Edit=	User=batch-s	Time=02/08/2016 22:22:14	Sample=.	.Edit=	User=batch-e	Time=02/09/2016 19:31:22	Tempo=140.1	Danceability=0.5725134	Energy=0.3595052	Valence=0.4253719	Tag+=4/4:Tempo	.Edit=	User=batch-s	Time=02/17/2016 16:27:27	Sample=.";
 
-        private const string SongD = 
+        private const string SongD =
             @"SongId={9e8317e8-a965-4cd5-8091-b1d08b1cdef2}	.Create=	User=HunterZ	Time=3/17/2014 5:43:50 PM	Title=Bye Bye Blackbird	Artist=Sammy Davis Jr	Tempo=116.0	Time=9/4/2014 8:12:02 PM	User=batch	Time=9/4/2014 8:12:02 PM	User=batch	Time=10/9/2014 12:09:30 PM	DanceRating=SFT+4	User=HunterZ	Time=11/20/2014 11:32:39 AM	Tag+=Foxtrot:Dance	User=batch	Time=11/20/2014 11:32:39 AM	Tag+=Jazz:Music	User=HunterZ	Time=9/4/2014 8:06:58 PM	User=batch	OrderAlbums=1,0	Time=9/4/2014 8:06:58 PM	User=HunterZ	Artist=Sammy Davis Jr	Time=6/16/2014 12:41:48 PM	User=batch	PromoteAlbum:1=	Purchase:1:XS=music.086DC007-0100-11DB-89CA-0019B92A3933	Track:1=36	Album:1=The Great American Song Book	Length=171	Artist=Bye Bye Blackbird	Time=5/21/2014 2:05:46 PM	User=batch	DanceRating=FXT+5	Album:0=The Ultimate Ballroom Album 10	.FailedLookup=-:0";
 
         private const string SongE =
@@ -38,11 +38,11 @@ namespace m4dModels.Tests
         private const string SongBadCategoryTags =
             @"SongId={a8cace40-03bc-47bf-b781-47a817a7602d}	.Create=	User=HunterZ	Time=3/17/2014 5:46:07 PM	Title=Test Track	Tag+=Christmas: Pop	User=FlowZ	Time=3/17/2014 5:46:08 PM	Tag+=Christmas: Other";
 
-        private TraceSwitch General { get;  }
+        private TraceSwitch General { get; }
 
         public CleanupTests()
         {
-            General = new TraceSwitch("General","All Tests");
+            General = new TraceSwitch("General", "All Tests");
         }
 
         [TestMethod]
@@ -52,23 +52,26 @@ namespace m4dModels.Tests
 
             var songs = new List<Song>
             {
-                new Song(SongA, dms),
-                new Song(SongD, dms)
+                new(SongA, dms),
+                new(SongD, dms)
             };
 
-            var deltas = new List<int> { 13, 4 };
+            var deltas = new List<int> {13, 4};
 
             for (var index = 0; index < songs.Count; index++)
             {
                 var song = songs[index];
-                Trace.WriteLineIf(General.TraceInfo, $"---------------Predump for Song {song.SongId}");
+                Trace.WriteLineIf(General.TraceInfo,
+                    $"---------------Predump for Song {song.SongId}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
                 var c = song.SongProperties.Count;
                 Assert.IsTrue(song.RemoveEmptyEdits());
-                Trace.WriteLineIf(General.TraceInfo, $"{song.SongId}:{song.SongProperties.Count - c}");
+                Trace.WriteLineIf(General.TraceInfo,
+                    $"{song.SongId}:{song.SongProperties.Count - c}");
                 Assert.AreEqual(c - deltas[index], song.SongProperties.Count);
 
-                Trace.WriteLineIf(General.TraceInfo, $"---------------Postdump for Song {song.SongId}");
+                Trace.WriteLineIf(General.TraceInfo,
+                    $"---------------Postdump for Song {song.SongId}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
             }
         }
@@ -80,9 +83,9 @@ namespace m4dModels.Tests
 
             var songs = new List<Song>
             {
-                new Song(SongB, dms),
-                new Song(SongC, dms),
-                new Song(SongE, dms)
+                new(SongB, dms),
+                new(SongC, dms),
+                new(SongE, dms)
             };
 
             var deltas = new List<int> {17, 11, 3};
@@ -90,15 +93,17 @@ namespace m4dModels.Tests
             for (var index = 0; index < songs.Count; index++)
             {
                 var song = songs[index];
-                Trace.WriteLineIf(General.TraceInfo, $"---------------Predump for Song {song.SongId}");
+                Trace.WriteLineIf(General.TraceInfo,
+                    $"---------------Predump for Song {song.SongId}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
                 var c = song.SongProperties.Count;
                 Assert.IsTrue(song.NormalizeRatings());
-                Trace.WriteLineIf(General.TraceInfo, $"{song.SongId}:{song.SongProperties.Count - c}");
+                Trace.WriteLineIf(General.TraceInfo,
+                    $"{song.SongId}:{song.SongProperties.Count - c}");
                 Assert.AreEqual(c - deltas[index], song.SongProperties.Count);
 
                 var sd = new Song(song.SongId, song.SongProperties, dms);
-                Assert.AreEqual(song.DanceRatings.Count,sd.DanceRatings.Count);
+                Assert.AreEqual(song.DanceRatings.Count, sd.DanceRatings.Count);
                 foreach (var dr in song.DanceRatings)
                 {
                     var drT = sd.DanceRatings.FirstOrDefault(r => r.DanceId == dr.DanceId);
@@ -106,7 +111,8 @@ namespace m4dModels.Tests
                     Assert.AreEqual(dr.Weight, drT.Weight);
                 }
 
-                Trace.WriteLineIf(General.TraceInfo, $"---------------Postdump for Song {song.SongId}");
+                Trace.WriteLineIf(General.TraceInfo,
+                    $"---------------Postdump for Song {song.SongId}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
             }
         }
@@ -118,8 +124,8 @@ namespace m4dModels.Tests
 
             var songs = new List<Song>
             {
-                new Song(SongB, dms),
-                new Song(SongC, dms)
+                new(SongB, dms),
+                new(SongC, dms)
             };
 
             var deltas = new List<int> {17, 2};
@@ -127,15 +133,18 @@ namespace m4dModels.Tests
             for (var index = 0; index < songs.Count; index++)
             {
                 var song = songs[index];
-                Trace.WriteLineIf(General.TraceInfo, $"---------------Predump for Song {song.SongId}");
+                Trace.WriteLineIf(General.TraceInfo,
+                    $"---------------Predump for Song {song.SongId}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
                 var c = song.SongProperties.Count;
                 Assert.IsTrue(song.RemoveDuplicateDurations());
-                Trace.WriteLineIf(General.TraceInfo,$"{song.SongId}:{song.SongProperties.Count - c}");
+                Trace.WriteLineIf(General.TraceInfo,
+                    $"{song.SongId}:{song.SongProperties.Count - c}");
                 Assert.AreEqual(c - deltas[index], song.SongProperties.Count);
 
-                Trace.WriteLineIf(General.TraceInfo, $"---------------Postdump for Song {song.SongId}");
-                DanceMusicTester.DumpSongProperties(song,General.TraceInfo);
+                Trace.WriteLineIf(General.TraceInfo,
+                    $"---------------Postdump for Song {song.SongId}");
+                DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
             }
         }
 
@@ -166,46 +175,52 @@ namespace m4dModels.Tests
 
             var songs = new List<Song>
             {
-                new Song(SongA, dms),
-                new Song(SongB, dms),
-                new Song(SongC, dms),
-                new Song(SongD, dms),
-                new Song(SongE, dms),
+                new(SongA, dms),
+                new(SongB, dms),
+                new(SongC, dms),
+                new(SongD, dms),
+                new(SongE, dms)
             };
 
             var deltas = new List<List<int>>
             {
-                new List<int> {1,4,5,23},
-                new List<int> {17,135,152,197},
-                new List<int> {2,2,13,18},
-                new List<int> {0,2,2,8},
-                new List<int> {4,8,11,22},
+                new() {1, 4, 5, 23},
+                new() {17, 135, 152, 197},
+                new() {2, 2, 13, 18},
+                new() {0, 2, 2, 8},
+                new() {4, 8, 11, 22}
             };
 
             for (var index = 0; index < songs.Count; index++)
             {
                 var song = songs[index];
                 var delta = deltas[index];
-                Trace.WriteLineIf(General.TraceInfo, $"---------------Predump for Song {song.SongId}");
+                Trace.WriteLineIf(General.TraceInfo,
+                    $"---------------Predump for Song {song.SongId}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
                 var c = song.SongProperties.Count;
                 song.RemoveDuplicateDurations();
-                Trace.WriteLineIf(General.TraceVerbose,$"++++After Durations: {song.SongId}:{song.SongProperties.Count - c}");
+                Trace.WriteLineIf(General.TraceVerbose,
+                    $"++++After Durations: {song.SongId}:{song.SongProperties.Count - c}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceVerbose);
-                Assert.AreEqual(delta[0],c - song.SongProperties.Count);
+                Assert.AreEqual(delta[0], c - song.SongProperties.Count);
                 song.CleanupAlbums();
-                Trace.WriteLineIf(General.TraceVerbose, $"++++After Albums: {song.SongId}:{song.SongProperties.Count - c}");
+                Trace.WriteLineIf(General.TraceVerbose,
+                    $"++++After Albums: {song.SongId}:{song.SongProperties.Count - c}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceVerbose);
                 Assert.AreEqual(delta[1], c - song.SongProperties.Count);
                 song.NormalizeRatings();
-                Trace.WriteLineIf(General.TraceVerbose, $"++++After Ratings: {song.SongId}:{song.SongProperties.Count - c}");
+                Trace.WriteLineIf(General.TraceVerbose,
+                    $"++++After Ratings: {song.SongId}:{song.SongProperties.Count - c}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceVerbose);
                 Assert.AreEqual(delta[2], c - song.SongProperties.Count);
                 song.RemoveEmptyEdits();
-                Trace.WriteLineIf(General.TraceVerbose, $"++++After Empty: {song.SongId}:{song.SongProperties.Count - c}");
+                Trace.WriteLineIf(General.TraceVerbose,
+                    $"++++After Empty: {song.SongId}:{song.SongProperties.Count - c}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceVerbose);
                 Assert.AreEqual(delta[3], c - song.SongProperties.Count);
-                Trace.WriteLineIf(General.TraceInfo, $"---------------Postdump for Song {song.SongId}");
+                Trace.WriteLineIf(General.TraceInfo,
+                    $"---------------Postdump for Song {song.SongId}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
 
                 // May be worth doing some verification on this, but for now just want to make sure it loads...
@@ -272,7 +287,7 @@ namespace m4dModels.Tests
             Assert.IsTrue(song.RemoveObsoletePurchases());
             Trace.WriteLineIf(General.TraceInfo, $"{song.SongId}:{song.SongProperties.Count - c}");
 
-            Assert.AreEqual(c-1, song.SongProperties.Count);
+            Assert.AreEqual(c - 1, song.SongProperties.Count);
 
             Trace.WriteLineIf(General.TraceInfo, $"---------------Postdump for Song {song.SongId}");
             DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
@@ -294,8 +309,8 @@ namespace m4dModels.Tests
 
             Assert.AreEqual(c, song.SongProperties.Count);
             Assert.AreEqual(
-                "International:Style|Pop:Music|Zoom:Other", 
-                song.SongProperties[c-2].Value);
+                "International:Style|Pop:Music|Zoom:Other",
+                song.SongProperties[c - 2].Value);
             Assert.AreEqual(
                 "International:Style|Soundtrack:Music|Zoom:Other",
                 song.SongProperties[c - 1].Value);

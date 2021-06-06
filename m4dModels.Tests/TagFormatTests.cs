@@ -9,7 +9,7 @@ namespace m4dModels.Tests
         [TestMethod]
         public void EncodeTags()
         {
-            for (var i = 0; i < Decoded.Length; i++ )
+            for (var i = 0; i < Decoded.Length; i++)
             {
                 var d = Decoded[i];
                 var e = TagGroup.TagEncode(d);
@@ -30,21 +30,20 @@ namespace m4dModels.Tests
         }
 
 
-        static readonly string[] Decoded = new string[]
+        private static readonly string[] Decoded = new string[]
         {
             "Thé!üt + (Avíañ):Ñúgg--t",
             "Blues / Folk:Music",
             "Christian & Gospel:Music",
-            "contemporary-rhythm-and-blues:Music",
+            "contemporary-rhythm-and-blues:Music"
         };
 
-        static readonly string[] Encoded = new string[]
+        private static readonly string[] Encoded = new string[]
         {
             "Thé-21üt-w-2b-w-28Avíañ-29-pÑúgg----t",
             "Blues-w-s-wFolk-pMusic",
             "Christian-w-m-wGospel-pMusic",
-            "contemporary--rhythm--and--blues-pMusic",
+            "contemporary--rhythm--and--blues-pMusic"
         };
-
     }
 }

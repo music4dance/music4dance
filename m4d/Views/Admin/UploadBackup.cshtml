@@ -13,94 +13,101 @@
 
     <h2>Uploads</h2>
 
-    <li>@Html.ActionLink("Upload Catalog", "UploadCatalog", new { headers = "TITLE,ARTIST" })</li>
-    <li>@Html.ActionLink("Upload Catalog (Empty)", "UploadCatalog", new { separator = @"\t", headers = "" })</li>
-    <li>@Html.ActionLink("Upload Catalog (Ithaca)", "UploadCatalog", new { separator = "ITC", headers = "TEMPO,TITLE,ARTIST", user = "olivial" })</li>
-    <li>@Html.ActionLink("Upload Catalog (DWTS)", "UploadCatalog", new { separator = @"\t", headers = "DANCERS,DANCE,TITLE+ARTIST", user = "dwts", tags = "Episode 5:Other|Season 20:Other|United States:Other|DWTS:Other" })</li>
-    <li>@Html.ActionLink("Upload Catalog (Paul)", "UploadCatalog", new { separator = @"\t", headers = "Dance,Rating,Title,BPM,Length,Artist,Comment", user = "paul" })</li>
-    <li>@Html.ActionLink("Upload Catalog (Rhett)", "UploadCatalog", new { separator = @"\t", headers = "Title,Artist,Album,Track,Length,SongTags,MultiDance", user = "rhettbot" })</li>
-    <li>@Html.ActionLink("Upload Album", "UploadCatalog", new { headers = "Title", separator = @"\t" })</li>
+    <li>@Html.ActionLink("Upload Catalog", "UploadCatalog", new {headers = "TITLE,ARTIST"})</li>
+    <li>@Html.ActionLink("Upload Catalog (Empty)", "UploadCatalog", new {separator = @"\t", headers = ""})</li>
+    <li>@Html.ActionLink("Upload Catalog (Ithaca)", "UploadCatalog", new {separator = "ITC", headers = "TEMPO,TITLE,ARTIST", user = "olivial"})</li>
+    <li>@Html.ActionLink("Upload Catalog (DWTS)", "UploadCatalog", new {separator = @"\t", headers = "DANCERS,DANCE,TITLE+ARTIST", user = "dwts", tags = "Episode 5:Other|Season 20:Other|United States:Other|DWTS:Other"})</li>
+    <li>@Html.ActionLink("Upload Catalog (Paul)", "UploadCatalog", new {separator = @"\t", headers = "Dance,Rating,Title,BPM,Length,Artist,Comment", user = "paul"})</li>
+    <li>@Html.ActionLink("Upload Catalog (Rhett)", "UploadCatalog", new {separator = @"\t", headers = "Title,Artist,Album,Track,Length,SongTags,MultiDance", user = "rhettbot"})</li>
+    <li>@Html.ActionLink("Upload Album", "UploadCatalog", new {headers = "Title", separator = @"\t"})</li>
 
-    <hr />
+    <hr/>
 
     <h3>Reload the Database</h3>
-    using (Html.BeginForm("ReloadDatabase", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    using (Html.BeginForm("ReloadDatabase", "Admin", FormMethod.Post, new {enctype = "multipart/form-data"}))
     {
-        @Html.AntiForgeryToken();
-        <input type="file" name="FileUpload" />
-        <br />
-        <input type="submit" name="reloadDatabase" id="Reload" value="Reload" />
-        <input type="submit" name="reloadDatabase" id="Update" value="Update" />
-        <input type="submit" name="reloadDatabase" id="Admin" value="Admin" />
+        @Html.AntiForgeryToken()
+        ;
+        <input type="file" name="FileUpload"/>
+        <br/>
+        <input type="submit" name="reloadDatabase" id="Reload" value="Reload"/>
+        <input type="submit" name="reloadDatabase" id="Update" value="Update"/>
+        <input type="submit" name="reloadDatabase" id="Admin" value="Admin"/>
     }
 
     <h3>Reload the Index</h3>
-    using (Html.BeginForm("LoadIdx", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    using (Html.BeginForm("LoadIdx", "Admin", FormMethod.Post, new {enctype = "multipart/form-data"}))
     {
-        @Html.AntiForgeryToken();
-        <input type="file" name="FileUpload" />
-        <br />
-        <input type="submit" name="idxName" id="basica" value="basica" />
-        <input type="submit" name="idxName" id="basicb" value="basicb" />
-        <input type="submit" name="idxName" id="basicc" value="basicc" />
-        <input type="submit" name="idxName" id="backup" value="backup" />
+        @Html.AntiForgeryToken()
+        ;
+        <input type="file" name="FileUpload"/>
+        <br/>
+        <input type="submit" name="idxName" id="basica" value="basica"/>
+        <input type="submit" name="idxName" id="basicb" value="basicb"/>
+        <input type="submit" name="idxName" id="basicc" value="basicc"/>
+        <input type="submit" name="idxName" id="backup" value="backup"/>
     }
 
     <h3>Update the Index</h3>
-    using (Html.BeginForm("LoadIdx", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    using (Html.BeginForm("LoadIdx", "Admin", FormMethod.Post, new {enctype = "multipart/form-data"}))
     {
-        @Html.AntiForgeryToken();
-        <input type="file" name="FileUpload" />
-        <input type="hidden" name="reset" id="reset" value="false" />
-        <br />
-        <input type="submit" name="idxName" id="basica" value="basica" />
-        <input type="submit" name="idxName" id="basicb" value="basicb" />
-        <input type="submit" name="idxName" id="basicc" value="basicc" />
-        <input type="submit" name="idxName" id="backup" value="backup" />
+        @Html.AntiForgeryToken()
+        ;
+        <input type="file" name="FileUpload"/>
+        <input type="hidden" name="reset" id="reset" value="false"/>
+        <br/>
+        <input type="submit" name="idxName" id="basica" value="basica"/>
+        <input type="submit" name="idxName" id="basicb" value="basicb"/>
+        <input type="submit" name="idxName" id="basicc" value="basicc"/>
+        <input type="submit" name="idxName" id="backup" value="backup"/>
     }
 
-    <hr />
+    <hr/>
     <h3>Clone the Index</h3>
     <ul>
         @foreach (var id in SearchService.GetAvailableIds())
         {
-            if (SearchService.DefaultId == id) { continue; }
-            <li>@Html.ActionLink(id, "CloneIdx", "Admin", new { id }, null)</li>
+            if (SearchService.DefaultId == id)
+            {
+                continue;
+            }
+            <li>@Html.ActionLink(id, "CloneIdx", "Admin", new {id}, null)</li>
         }
         <li>Enviroment: @SearchService.RawEnvironment</li>
     </ul>
 
-    <hr />
+    <hr/>
     <h2>Backup Database</h2>
-    <li>@Html.ActionLink("Backup the Database", "BackupDatabase"), @Html.ActionLink("Users", "BackupDatabase", new { tags = false, dances = false, songs = false, searches = false, playlists = false }), @Html.ActionLink("Dances", "BackupDatabase", new { tags = false, users = false, songs = false, searches = false, playlists = false }), @Html.ActionLink("Tags", "BackupDatabase", new { dances = false, users = false, searches = false, songs = false, playlists = false }), @Html.ActionLink("Playlists", "BackupDatabase", new { dances = false, users = false, tags = false, searches = false, songs = false }), @Html.ActionLink("Searches", "BackupDatabase", new { tags = false, dances = false, users = false, songs = false, playlists = false })</li>
-    <li>@Html.ActionLink("Backup - No Songs", "BackupDatabase", new { songs = false })</li>
-    <li>@Html.ActionLink("Backup the Database (with lookup history)", "BackupDatabase", new { useLookupHistory = "true" })</li>
-    <li>@Html.ActionLink("Backup tail", "BackupTail", new { count = 150 })</li>
-    <li>@Html.ActionLink("Backup tail (500)", "BackupTail", new { count = 500 })</li>
-    <li>@Html.ActionLink("Backup tail (today)", "BackupTail", new { from = DateTime.Now.ToShortDateString(), count = 5000 })</li>
-    <li>@Html.ActionLink("Backup tail (yesterday & today)", "BackupTail", new { from = (DateTime.Now - new TimeSpan(1, 0, 0, 0)).ToShortDateString(), count = 5000 })</li>
+    <li>@Html.ActionLink("Backup the Database", "BackupDatabase"), @Html.ActionLink("Users", "BackupDatabase", new {tags = false, dances = false, songs = false, searches = false, playlists = false}), @Html.ActionLink("Dances", "BackupDatabase", new {tags = false, users = false, songs = false, searches = false, playlists = false}), @Html.ActionLink("Tags", "BackupDatabase", new {dances = false, users = false, searches = false, songs = false, playlists = false}), @Html.ActionLink("Playlists", "BackupDatabase", new {dances = false, users = false, tags = false, searches = false, songs = false}), @Html.ActionLink("Searches", "BackupDatabase", new {tags = false, dances = false, users = false, songs = false, playlists = false})</li>
+    <li>@Html.ActionLink("Backup - No Songs", "BackupDatabase", new {songs = false})</li>
+    <li>@Html.ActionLink("Backup the Database (with lookup history)", "BackupDatabase", new {useLookupHistory = "true"})</li>
+    <li>@Html.ActionLink("Backup tail", "BackupTail", new {count = 150})</li>
+    <li>@Html.ActionLink("Backup tail (500)", "BackupTail", new {count = 500})</li>
+    <li>@Html.ActionLink("Backup tail (today)", "BackupTail", new {from = DateTime.Now.ToShortDateString(), count = 5000})</li>
+    <li>@Html.ActionLink("Backup tail (yesterday & today)", "BackupTail", new {from = (DateTime.Now - new TimeSpan(1, 0, 0, 0)).ToShortDateString(), count = 5000})</li>
 
     <h2>Backup Index</h2>
     <li>@Html.ActionLink("Backup", "IndexBackup")</li>
-    <li>@Html.ActionLink("Backup tail", "IndexBackup", new { count = 150 })</li>
-    <li>@Html.ActionLink("Backup tail (yesterday & today)", "IndexBackup", new { from = (DateTime.Now - new TimeSpan(1, 0, 0, 0)).ToShortDateString() })</li>
+    <li>@Html.ActionLink("Backup tail", "IndexBackup", new {count = 150})</li>
+    <li>@Html.ActionLink("Backup tail (yesterday & today)", "IndexBackup", new {from = (DateTime.Now - new TimeSpan(1, 0, 0, 0)).ToShortDateString()})</li>
 
     <h2>JSON Backup</h2>
     <li>
         @Html.ActionLink("File", "DanceStatistics")
-        (@Html.ActionLink("JS Friendly", "DanceStatistics", new { jsFriendly = true, save = false }, null), @Html.ActionLink("JSF No Songs", "DanceStatistics", new { jsFriendly = true, noSongs = true, save = false }, null))
+        (@Html.ActionLink("JS Friendly", "DanceStatistics", new {jsFriendly = true, save = false}, null), @Html.ActionLink("JSF No Songs", "DanceStatistics", new {jsFriendly = true, noSongs = true, save = false}, null))
     </li>
-    <li>@Html.ActionLink("BasicA", "DanceStatistics", new { source = "basica", save = false }, null) (@Html.ActionLink("Save", "DanceStatistics", new { source = "basica", save = true }, null)) (@Html.ActionLink("TagsOnly", "DanceStatistics", new { source = "basica", save = true, noDances = true }, null))</li>
-    <li>@Html.ActionLink("BasicB", "DanceStatistics", new { source = "basicb", save = false }, null) (@Html.ActionLink("Save", "DanceStatistics", new { source = "basicb", save = true }, null)) (@Html.ActionLink("TagsOnly", "DanceStatistics", new { source = "basicb", save = true, noDances = true }, null))</li>
-    <li>@Html.ActionLink("BasicC", "DanceStatistics", new { source = "basicc", save = false }, null) (@Html.ActionLink("Save", "DanceStatistics", new { source = "basicc", save = true }, null)) (@Html.ActionLink("TagsOnly", "DanceStatistics", new { source = "basicc", save = true, noDances = true }, null))</li>
+    <li>@Html.ActionLink("BasicA", "DanceStatistics", new {source = "basica", save = false}, null) (@Html.ActionLink("Save", "DanceStatistics", new {source = "basica", save = true}, null)) (@Html.ActionLink("TagsOnly", "DanceStatistics", new {source = "basica", save = true, noDances = true}, null))</li>
+    <li>@Html.ActionLink("BasicB", "DanceStatistics", new {source = "basicb", save = false}, null) (@Html.ActionLink("Save", "DanceStatistics", new {source = "basicb", save = true}, null)) (@Html.ActionLink("TagsOnly", "DanceStatistics", new {source = "basicb", save = true, noDances = true}, null))</li>
+    <li>@Html.ActionLink("BasicC", "DanceStatistics", new {source = "basicc", save = false}, null) (@Html.ActionLink("Save", "DanceStatistics", new {source = "basicc", save = true}, null)) (@Html.ActionLink("TagsOnly", "DanceStatistics", new {source = "basicc", save = true, noDances = true}, null))</li>
 
 
     <h3>Backup Delta</h3>
-    using (Html.BeginForm("BackupDelta", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    using (Html.BeginForm("BackupDelta", "Admin", FormMethod.Post, new {enctype = "multipart/form-data"}))
     {
-        @Html.AntiForgeryToken();
-        <input type="file" name="FileUpload" />
-        <br />
-        <input type="submit" name="UploadTempi" value="Upload" />
+        @Html.AntiForgeryToken()
+        ;
+        <input type="file" name="FileUpload"/>
+        <br/>
+        <input type="submit" name="UploadTempi" value="Upload"/>
     }
 }

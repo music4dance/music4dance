@@ -8,18 +8,22 @@ namespace m4dModels.Tests
         [TestMethod]
         public void GetPurchaseLink()
         {
-            CheckLink('A', "D:B003CJ88U0", "D:B003CJ0MXQ",@"http://www.amazon.com/gp/product/B003CJ0MXQ/ref=as_li_ss_tl?ie=UTF8&camp=1789&creative=390957&creativeASIN=B003CJ0MXQ&linkCode=as2&tag=msc4dnc-20");
-            CheckLink('I', "201509007", "201509785",@"http://itunes.apple.com/album/id201509007?i=201509785&uo=4&at=11lwtf");
-            CheckLink('S', "7kIi4z3UO8ZqH3GVX18p7h", "5gfPJ45gpn3ThswDyeW0Qc[EN,CA]", @"http://open.spotify.com/track/5gfPJ45gpn3ThswDyeW0Qc",new []{"EN","CA"});
+            CheckLink('A', "D:B003CJ88U0", "D:B003CJ0MXQ",
+                @"http://www.amazon.com/gp/product/B003CJ0MXQ/ref=as_li_ss_tl?ie=UTF8&camp=1789&creative=390957&creativeASIN=B003CJ0MXQ&linkCode=as2&tag=msc4dnc-20");
+            CheckLink('I', "201509007", "201509785",
+                @"http://itunes.apple.com/album/id201509007?i=201509785&uo=4&at=11lwtf");
+            CheckLink('S', "7kIi4z3UO8ZqH3GVX18p7h", "5gfPJ45gpn3ThswDyeW0Qc[EN,CA]",
+                @"http://open.spotify.com/track/5gfPJ45gpn3ThswDyeW0Qc", new[] {"EN", "CA"});
         }
 
-        private static void CheckLink(char cid, string album, string song, string expected, string[] regions = null)
+        private static void CheckLink(char cid, string album, string song, string expected,
+            string[] regions = null)
         {
             var link = MusicService.GetService(cid).GetPurchaseLink(PurchaseType.Song, album, song);
 
             //Trace.WriteLine(link.Link);
 
-            Assert.AreEqual(expected,link.Link);
+            Assert.AreEqual(expected, link.Link);
             if (regions == null)
             {
                 Assert.IsNull(link.AvailableMarkets);
@@ -29,9 +33,7 @@ namespace m4dModels.Tests
                 Assert.IsNotNull(link.AvailableMarkets);
                 Assert.AreEqual(regions.Length, link.AvailableMarkets.Length);
                 for (var i = 0; i < regions.Length; i++)
-                {
                     Assert.AreEqual(regions[i], link.AvailableMarkets[i]);
-                }
             }
         }
 
@@ -40,14 +42,8 @@ namespace m4dModels.Tests
         {
             Assert.IsNull(MusicService.FormatPurchaseFilter(""));
             Assert.IsNull(MusicService.FormatPurchaseFilter("BZY"));
-            Assert.AreEqual("Amazon, Spotify",MusicService.FormatPurchaseFilter("AS"));
-            Assert.AreEqual("ITunes", MusicService.FormatPurchaseFilter("I","; "));
+            Assert.AreEqual("Amazon, Spotify", MusicService.FormatPurchaseFilter("AS"));
+            Assert.AreEqual("ITunes", MusicService.FormatPurchaseFilter("I", "; "));
         }
     }
 }
-
-
-
-
-
-

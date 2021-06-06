@@ -14,8 +14,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace m4dModels.Tests
 {
-
-    class UserLogger : ILogger<UserManager<ApplicationUser>>
+    internal class UserLogger : ILogger<UserManager<ApplicationUser>>
     {
         public IDisposable BeginScope<TState>(TState state)
         {
@@ -27,13 +26,14 @@ namespace m4dModels.Tests
             return logLevel == LogLevel.Trace;
         }
 
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state,
+            Exception exception, Func<TState, Exception, string> formatter)
         {
             Console.WriteLine($@"Log: {logLevel}; exception = {exception}; ");
         }
     }
 
-    class RoleLogger : ILogger<RoleManager<IdentityRole>>
+    internal class RoleLogger : ILogger<RoleManager<IdentityRole>>
     {
         public IDisposable BeginScope<TState>(TState state)
         {
@@ -45,7 +45,8 @@ namespace m4dModels.Tests
             return logLevel == LogLevel.Trace;
         }
 
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state,
+            Exception exception, Func<TState, Exception, string> formatter)
         {
             Console.WriteLine($@"Log: {logLevel}; exception = {exception}; ");
         }
@@ -55,10 +56,7 @@ namespace m4dModels.Tests
     {
         public static string ReplaceTime(string s)
         {
-            if (string.IsNullOrWhiteSpace(s))
-            {
-                return null;
-            }
+            if (string.IsNullOrWhiteSpace(s)) return null;
 
             var r = new Regex("\tTime=[^\t]*");
             return r.Replace(s, "\tTime=00/00/0000 0:00:00 PM");
@@ -84,10 +82,7 @@ namespace m4dModels.Tests
         {
             if (!verbose) return;
 
-            foreach (var prop in song.SongProperties)
-            {
-                Trace.WriteLine(prop.ToString());
-            }
+            foreach (var prop in song.SongProperties) Trace.WriteLine(prop.ToString());
         }
 
         private static DanceStatsInstance GetDanceStats(DanceStatsManager manager = null)
@@ -104,8 +99,9 @@ namespace m4dModels.Tests
                 json = reader.ReadToEnd();
             }
 
-            var instance = manager == null ? 
-                DanceStatsInstance.LoadFromJson(json, null) : manager.LoadFromJson(json, null);
+            var instance = manager == null
+                ? DanceStatsInstance.LoadFromJson(json, null)
+                : manager.LoadFromJson(json, null);
             Assert.IsNotNull(instance);
 
             return instance;
@@ -114,7 +110,7 @@ namespace m4dModels.Tests
         public static DanceMusicService CreateService(string name)
         {
             var contextOptions = new DbContextOptionsBuilder<DanceMusicContext>()
-                .UseInMemoryDatabase(databaseName: name).Options;
+                .UseInMemoryDatabase(name).Options;
 
             var context = new DanceMusicContext(contextOptions);
 
@@ -132,7 +128,7 @@ namespace m4dModels.Tests
 
             var pwdValidators = new List<PasswordValidator<ApplicationUser>>
             {
-                new PasswordValidator<ApplicationUser>()
+                new()
             };
 
             var identityErrorDescriber = new IdentityErrorDescriber();
@@ -175,7 +171,7 @@ namespace m4dModels.Tests
         {
             var service = CreateService(name);
 
-            AddUser(service,"dwgray", false);
+            AddUser(service, "dwgray", false);
             AddUser(service, "batch", true);
             AddUser(service, "batch-a", true);
             AddUser(service, "batch-e", true);
@@ -226,20 +222,18 @@ namespace m4dModels.Tests
             using (var stream = assembly.GetManifestResourceStream(resourceName))
             using (var reader = new StreamReader(stream))
             {
-                return reader.ReadToEnd().Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
+                return reader.ReadToEnd().Split(Environment.NewLine.ToCharArray(),
+                    StringSplitOptions.RemoveEmptyEntries).ToList();
             }
         }
 
         private static void SeedRoles(RoleManager<IdentityRole> roleManager)
         {
-            foreach (var roleName in DanceMusicService.Roles)
-            {
+            foreach (var roleName in DanceMusicCoreService.Roles)
                 if (!roleManager.RoleExistsAsync(roleName).Result)
                 {
-                    var result = roleManager.CreateAsync(new IdentityRole { Name = roleName }).Result;
+                    var result = roleManager.CreateAsync(new IdentityRole {Name = roleName}).Result;
                 }
-            }
         }
-
     }
 }

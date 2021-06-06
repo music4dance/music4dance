@@ -10,18 +10,18 @@ namespace DanceTests
         [TestMethod]
         public void TempoSerialization()
         {
-            TryTempo(new TempoType(TempoKind.BPM,null));
-            TryTempo(new TempoType(TempoKind.BPS,null));
-            TryTempo(new TempoType(TempoKind.MPM,new Meter(3, 4)));
-            TryTempo(new TempoType(TempoKind.MPM,new Meter(4, 4)));
-            TryTempo(new TempoType(TempoKind.MPM,new Meter(6, 8)));
-            TryTempo(new TempoType(TempoKind.MPM,new Meter(5, 4)));
+            TryTempo(new TempoType(TempoKind.BPM, null));
+            TryTempo(new TempoType(TempoKind.BPS, null));
+            TryTempo(new TempoType(TempoKind.MPM, new Meter(3, 4)));
+            TryTempo(new TempoType(TempoKind.MPM, new Meter(4, 4)));
+            TryTempo(new TempoType(TempoKind.MPM, new Meter(6, 8)));
+            TryTempo(new TempoType(TempoKind.MPM, new Meter(5, 4)));
         }
 
         private void TryTempo(TempoType t)
         {
-            string s = Conversands.GetSerialization(t);
-            TempoType r = Conversands.Deserialize(s) as TempoType;
+            var s = Conversands.GetSerialization(t);
+            var r = Conversands.Deserialize(s) as TempoType;
 
             Assert.AreEqual<TempoType>(t, r);
         }
@@ -37,8 +37,8 @@ namespace DanceTests
 
         private void TryDuration(DurationType d)
         {
-            string s = Conversands.GetSerialization(d);
-            DurationType r = Conversands.Deserialize(s) as DurationType;
+            var s = Conversands.GetSerialization(d);
+            var r = Conversands.Deserialize(s) as DurationType;
 
             Assert.AreEqual<DurationType>(d, r);
         }

@@ -28,15 +28,13 @@ namespace m4d.Utilities
         private IConfiguration Configuration { get; }
 
         #region Search
+
         public IList<ServiceTrack> FindMusicServiceSong(Song song,
             MusicService service, string title = null, string artist = null,
             string album = null)
         {
             IList<ServiceTrack> list;
-            if (title == null)
-            {
-                artist ??= song.Artist;
-            }
+            if (title == null) artist ??= song.Artist;
             title ??= song.Title;
 
             if (service != null)
@@ -75,17 +73,11 @@ namespace m4d.Utilities
 
         public ServiceTrack GetMusicServiceTrack(string id, MusicService service)
         {
-            int extra = id.IndexOf('[');
-            if (extra != -1)
-            {
-                id = id.Substring(0, extra);
-            }
+            var extra = id.IndexOf('[');
+            if (extra != -1) id = id.Substring(0, extra);
 
             var sid = $"\"{service.CID}:{id}\"";
-            if (s_trackCache.TryGetValue(sid, out var ret))
-            {
-                return ret;
-            }
+            if (s_trackCache.TryGetValue(sid, out var ret)) return ret;
 
             if (service.Id != ServiceType.Amazon)
             {
@@ -96,10 +88,7 @@ namespace m4d.Utilities
                     (Func<string, dynamic>) (req => GetMusicServiceResults(req, service)));
             }
 
-            if (s_trackCache.Count > 10000)
-            {
-                s_trackCache.Clear();
-            }
+            if (s_trackCache.Count > 10000) s_trackCache.Clear();
             s_trackCache[sid] = ret;
             return ret;
         }
@@ -109,10 +98,7 @@ namespace m4d.Utilities
         {
             var track = GetMusicServiceTrack(id, service);
 
-            if (track == null)
-            {
-                return null;
-            }
+            if (track == null) return null;
 
             var song = Song.UserCreateFromTrack(dms, user, track);
             var found = false;
@@ -125,32 +111,30 @@ namespace m4d.Utilities
             }
 
             UpdateSongAndServices(dms, song);
-            UpdateFromTracks(dms, song, new List<ServiceTrack> { track });
+            UpdateFromTracks(dms, song, new List<ServiceTrack> {track});
 
-            if (found)
-            {
-                dms.SaveSong(song);
-            }
+            if (found) dms.SaveSong(song);
             return song;
         }
 
-        private static readonly Dictionary<string, ServiceTrack> s_trackCache = new Dictionary<string, ServiceTrack>();
+        private static readonly Dictionary<string, ServiceTrack> s_trackCache = new();
 
         public GenericPlaylist LookupPlaylist(MusicService service, string url,
             IEnumerable<string> oldTrackList, IPrincipal principal = null)
         {
-            var results = GetMusicServiceResults(service.BuildLookupRequest(url), service, principal);
+            var results =
+                GetMusicServiceResults(service.BuildLookupRequest(url), service, principal);
             var name = results.name;
             var description = results.description;
 
             IList<ServiceTrack> tracks = service.ParseSearchResults(results,
-                (Func<string, dynamic>)(req => GetMusicServiceResults(req, service)),
+                (Func<string, dynamic>) (req => GetMusicServiceResults(req, service)),
                 oldTrackList);
             while ((results = NextMusicServiceResults(results, service, principal)) != null)
             {
-                var t = (tracks as List<ServiceTrack>) ?? tracks.ToList();
+                var t = tracks as List<ServiceTrack> ?? tracks.ToList();
                 t.AddRange(service.ParseSearchResults(results,
-                    (Func<string, dynamic>)(req => GetMusicServiceResults(req, service)),
+                    (Func<string, dynamic>) (req => GetMusicServiceResults(req, service)),
                     oldTrackList));
                 tracks = t;
             }
@@ -170,15 +154,16 @@ namespace m4d.Utilities
         // TODO: Handle services other than spotify
         public List<PlaylistMetadata> GetPlaylists(MusicService service, IPrincipal principal)
         {
-            if (service.Id != ServiceType.Spotify) throw new ArgumentOutOfRangeException(nameof(service), "GetPlaylists currently only supports Spotify");
+            if (service.Id != ServiceType.Spotify)
+                throw new ArgumentOutOfRangeException(nameof(service),
+                    "GetPlaylists currently only supports Spotify");
 
-            var results = GetMusicServiceResults("https://api.spotify.com/v1/me/playlists", service, principal);
+            var results = GetMusicServiceResults("https://api.spotify.com/v1/me/playlists", service,
+                principal);
 
             var playlists = ParsePlaylistResults(results);
             while ((results = NextMusicServiceResults(results, service, principal)) != null)
-            {
                 playlists.AddRange(ParsePlaylistResults(results));
-            }
 
             return playlists;
         }
@@ -190,34 +175,36 @@ namespace m4d.Utilities
             var ret = new List<PlaylistMetadata>();
 
             foreach (var playlist in results.items)
-            {
                 ret.Add(new PlaylistMetadata
                 {
                     Id = playlist.id,
                     Name = playlist.name
                 });
-            }
 
             return ret;
         }
 
         public virtual EchoTrack LookupEchoTrack(string id, MusicService service)
         {
-            string request = $"https://api.spotify.com/v1/audio-features/{id}"; //$"http://developer.echonest.com/api/v4/track/profile?api_key=B0SEV0FNKNEOHGFB0&format=json&id=spotify:track:{id}&bucket=audio_summary";
+            var request =
+                $"https://api.spotify.com/v1/audio-features/{id}"; //$"http://developer.echonest.com/api/v4/track/profile?api_key=B0SEV0FNKNEOHGFB0&format=json&id=spotify:track:{id}&bucket=audio_summary";
             try
             {
-                dynamic results = GetMusicServiceResults(request, service);
+                var results = GetMusicServiceResults(request, service);
                 return EchoTrack.BuildEchoTrack(results);
             }
             catch (WebException e)
             {
-                Trace.WriteLineIf(TraceLevels.General.TraceError,$"Error looking up echo track {id}: {e.Message}");
+                Trace.WriteLineIf(TraceLevels.General.TraceError,
+                    $"Error looking up echo track {id}: {e.Message}");
                 return null;
             }
         }
+
         #endregion
 
         #region Update
+
         public bool GetEchoData(DanceMusicCoreService dms, Song song)
         {
             var service = MusicService.GetService(ServiceType.Spotify);
@@ -240,39 +227,21 @@ namespace m4d.Utilities
                 return dms.EditSong(user, song, edit);
             }
 
-            if (track.BeatsPerMinute != null)
-            {
-                edit.Tempo = track.BeatsPerMinute;
-            }
-            if (track.Danceability != null)
-            {
-                edit.Danceability = track.Danceability;
-            }
-            if (track.Energy != null)
-            {
-                edit.Energy = track.Energy;
-            }
-            if (track.Valence != null)
-            {
-                edit.Valence = track.Valence;
-            }
+            if (track.BeatsPerMinute != null) edit.Tempo = track.BeatsPerMinute;
+            if (track.Danceability != null) edit.Danceability = track.Danceability;
+            if (track.Energy != null) edit.Energy = track.Energy;
+            if (track.Valence != null) edit.Valence = track.Valence;
             var tags = edit.GetUserTags(user.UserName);
             var meter = track.Meter;
-            if (meter != null)
-            {
-                tags = tags.Add($"{meter}:Tempo");
-            }
+            if (meter != null) tags = tags.Add($"{meter}:Tempo");
 
             if (!dms.EditSong(user, song, edit, new[]
             {
-                new UserTag { Id = string.Empty, Tags = tags }
+                new UserTag {Id = string.Empty, Tags = tags}
             }))
                 return false;
 
-            if (track.BeatsPerMeasure != null)
-            {
-                edit.InferFromGroups();
-            }
+            if (track.BeatsPerMeasure != null) edit.InferFromGroups();
             return true;
         }
 
@@ -289,10 +258,7 @@ namespace m4d.Utilities
             {
                 var idt = PurchaseRegion.ParseId(id);
                 track = GetMusicServiceTrack(idt, spotify);
-                if (track?.SampleUrl != null)
-                {
-                    break;
-                }
+                if (track?.SampleUrl != null) break;
             }
 
             if (track == null)
@@ -314,20 +280,25 @@ namespace m4d.Utilities
             edit.Sample = track?.SampleUrl ?? @".";
             return dms.EditSong(user, song, edit);
         }
+
         #endregion
 
         #region Edit
-        // TODO: Handle services other than spotify
-        public PlaylistMetadata CreatePlaylist(MusicService service, IPrincipal principal, string name, string description, IFileProvider fileProvider)
-        {
 
+        // TODO: Handle services other than spotify
+        public PlaylistMetadata CreatePlaylist(MusicService service, IPrincipal principal,
+            string name, string description, IFileProvider fileProvider)
+        {
             dynamic obj = new {name = name, description = description};
             var inputs = JsonConvert.SerializeObject(obj);
-            var response = MusicServiceAction("https://api.spotify.com/v1/me/playlists", inputs, WebRequestMethods.Http.Post, service, principal );
+            var response = MusicServiceAction("https://api.spotify.com/v1/me/playlists", inputs,
+                WebRequestMethods.Http.Post, service, principal);
 
             if (response == null) return null;
 
-            MusicServiceAction($"https://api.spotify.com/v1/playlists/{response.id}/images", GetEncodedImage(fileProvider, "/wwwroot/images/icons/color-logo.jpg"), WebRequestMethods.Http.Put, service, principal, "image/jpeg");
+            MusicServiceAction($"https://api.spotify.com/v1/playlists/{response.id}/images",
+                GetEncodedImage(fileProvider, "/wwwroot/images/icons/color-logo.jpg"),
+                WebRequestMethods.Http.Put, service, principal, "image/jpeg");
 
             return new PlaylistMetadata
             {
@@ -338,9 +309,9 @@ namespace m4d.Utilities
 
         private string GetEncodedImage(IFileProvider fileProvider, string path)
         {
-            var fullPath =  fileProvider.GetFileInfo(path).PhysicalPath;
+            var fullPath = fileProvider.GetFileInfo(path).PhysicalPath;
 
-            using Image image = Image.FromFile(fullPath);
+            using var image = Image.FromFile(fullPath);
             using var m = new MemoryStream();
             image.Save(m, image.RawFormat);
             var imageBytes = m.ToArray();
@@ -353,34 +324,38 @@ namespace m4d.Utilities
         public bool SetPlaylistTracks(MusicService service, IPrincipal principal, string id,
             IEnumerable<string> tracks)
         {
-            var tracklist = string.Join(",", tracks.Where(t => t != null).Select(t => $"\"spotify:track:{t}\""));
+            var tracklist = string.Join(",",
+                tracks.Where(t => t != null).Select(t => $"\"spotify:track:{t}\""));
             var response = MusicServiceAction($"https://api.spotify.com/v1/playlists/{id}/tracks",
                 $"{{\"uris\":[{tracklist}]}}", WebRequestMethods.Http.Put, service, principal);
 
             return response != null && response.snapshot_id != null;
         }
 
-
         #endregion
 
         #region Utilities
+
         private static IList<ServiceTrack> FilterKaraoke(IList<ServiceTrack> list)
         {
-            return list.Where(track => !ContainsKaraoke(track.Name) && !ContainsKaraoke(track.Album)).ToList();
+            return list
+                .Where(track => !ContainsKaraoke(track.Name) && !ContainsKaraoke(track.Album))
+                .ToList();
         }
 
         private static bool ContainsKaraoke(string name)
         {
             if (string.IsNullOrWhiteSpace(name)) return false;
 
-            var exclude = new[] { "karaoke", "in the style of", "a tribute to" };
-            return exclude.Any(s => name.IndexOf(s, StringComparison.InvariantCultureIgnoreCase) != -1);
+            var exclude = new[] {"karaoke", "in the style of", "a tribute to"};
+            return exclude.Any(s =>
+                name.IndexOf(s, StringComparison.InvariantCultureIgnoreCase) != -1);
         }
 
         private IList<ServiceTrack> DoFindMusicServiceSong(MusicService service,
             string title = null, string artist = null)
         {
-            var tracks = FindMSSongGeneral(service,title, artist);
+            var tracks = FindMSSongGeneral(service, title, artist);
 
             if (tracks == null) return null;
 
@@ -389,22 +364,28 @@ namespace m4d.Utilities
             return tracks;
         }
 
-        private void ComputeTrackPurchaseInfo(MusicService service, IEnumerable<ServiceTrack> tracks)
+        private void ComputeTrackPurchaseInfo(MusicService service,
+            IEnumerable<ServiceTrack> tracks)
         {
             foreach (var track in tracks)
             {
-                track.AlbumLink = service.GetPurchaseLink(PurchaseType.Album, track.CollectionId, track.TrackId);
-                track.SongLink = service.GetPurchaseLink(PurchaseType.Song, track.CollectionId, track.TrackId);
-                track.PurchaseInfo = AlbumDetails.BuildPurchaseInfo(service.Id, track.CollectionId, track.TrackId);
+                track.AlbumLink = service.GetPurchaseLink(PurchaseType.Album, track.CollectionId,
+                    track.TrackId);
+                track.SongLink = service.GetPurchaseLink(PurchaseType.Song, track.CollectionId,
+                    track.TrackId);
+                track.PurchaseInfo =
+                    AlbumDetails.BuildPurchaseInfo(service.Id, track.CollectionId, track.TrackId);
             }
         }
 
         // ReSharper disable once InconsistentNaming
-        private IList<ServiceTrack> FindMSSongGeneral(MusicService service, string title = null, string artist = null)
+        private IList<ServiceTrack> FindMSSongGeneral(MusicService service, string title = null,
+            string artist = null)
         {
-            dynamic results = GetMusicServiceResults(service.BuildSearchRequest(artist, title), service);
+            var results =
+                GetMusicServiceResults(service.BuildSearchRequest(artist, title), service);
             return service.ParseSearchResults(results,
-                (Func<string, dynamic>)(req => GetMusicServiceResults(req, service, null)), null);
+                (Func<string, dynamic>) (req => GetMusicServiceResults(req, service, null)), null);
         }
 
         private static int GetRateInfo(WebHeaderCollection headers, string type)
@@ -426,25 +407,18 @@ namespace m4d.Utilities
             {
                 string responseString = null;
 
-                if (request == null)
-                {
-                    return null;
-                }
+                if (request == null) return null;
 
-                var req = (HttpWebRequest)WebRequest.Create(request);
+                var req = (HttpWebRequest) WebRequest.Create(request);
                 req.Method = WebRequestMethods.Http.Get;
                 req.Accept = "application/json";
 
                 string auth = null;
                 if (service != null)
-                {
-                    auth = AdmAuthentication.GetServiceAuthorization(Configuration, service.Id, principal);
-                }
+                    auth = AdmAuthentication.GetServiceAuthorization(Configuration, service.Id,
+                        principal);
 
-                if (auth != null)
-                {
-                    req.Headers.Add("Authorization", auth);
-                }
+                if (auth != null) req.Headers.Add("Authorization", auth);
 
                 try
                 {
@@ -469,14 +443,13 @@ namespace m4d.Utilities
                     else if ((int) response.StatusCode == 429 /*HttpStatusCode.TooManyRequests*/)
                     {
                         // Wait algorithm failed, pause for 15 seconds
-                        Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Excedeed EchoNest Limits: Caught");
+                        Trace.WriteLineIf(TraceLevels.General.TraceInfo,
+                            "Excedeed EchoNest Limits: Caught");
                         Thread.Sleep(15 * 1000);
                         continue;
                     }
-                    if (responseString == null)
-                    {
-                        throw new WebException(response.StatusDescription);
-                    }
+
+                    if (responseString == null) throw new WebException(response.StatusDescription);
                 }
                 catch (WebException we)
                 {
@@ -485,7 +458,8 @@ namespace m4d.Utilities
                         var statusCode = (int) r.StatusCode;
                         if (statusCode == 429)
                         {
-                            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Excedeed EchoNest Limits: Caught");
+                            Trace.WriteLineIf(TraceLevels.General.TraceInfo,
+                                "Excedeed EchoNest Limits: Caught");
                             Thread.Sleep(15 * 1000);
                             continue;
                         }
@@ -494,21 +468,21 @@ namespace m4d.Utilities
                         {
                             if (retries-- > 0)
                             {
-                                Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Excedeed Itunes Limits: {2-retries} {req.Address}");
+                                Trace.WriteLineIf(TraceLevels.General.TraceInfo,
+                                    $"Excedeed Itunes Limits: {2 - retries} {req.Address}");
                                 Thread.Sleep(15 * 1000);
                                 continue;
                             }
-                            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Excedeed Itunes Limits: Giving Up {req.Address}");
+
+                            Trace.WriteLineIf(TraceLevels.General.TraceInfo,
+                                $"Excedeed Itunes Limits: Giving Up {req.Address}");
                         }
                     }
 
                     throw;
                 }
 
-                if (service != null)
-                {
-                    responseString = service.PreprocessResponse(responseString);
-                }
+                if (service != null) responseString = service.PreprocessResponse(responseString);
 
                 return JsonConvert.DeserializeObject(responseString);
             }
@@ -521,17 +495,15 @@ namespace m4d.Utilities
         {
             string responseString = null;
 
-            if (request == null)
-            {
-                return null;
-            }
+            if (request == null) return null;
 
-            var req = (HttpWebRequest)WebRequest.Create(request);
+            var req = (HttpWebRequest) WebRequest.Create(request);
             req.Method = method;
             req.Accept = "application/json";
             req.ContentType = contentType;
 
-            req.Headers.Add("Authorization", AdmAuthentication.GetServiceAuthorization(Configuration, service.Id, principal));
+            req.Headers.Add("Authorization",
+                AdmAuthentication.GetServiceAuthorization(Configuration, service.Id, principal));
 
             try
             {
@@ -542,17 +514,16 @@ namespace m4d.Utilities
                     body.Close();
                 }
 
-                using var response = (HttpWebResponse)req.GetResponse();
-                if (response.StatusCode == HttpStatusCode.Created || response.StatusCode == HttpStatusCode.Accepted)
+                using var response = (HttpWebResponse) req.GetResponse();
+                if (response.StatusCode == HttpStatusCode.Created ||
+                    response.StatusCode == HttpStatusCode.Accepted)
                 {
                     var stream = response.GetResponseStream();
                     using var sr = new StreamReader(stream);
                     responseString = sr.ReadToEnd();
                 }
-                if (responseString == null)
-                {
-                    throw new WebException(response.StatusDescription);
-                }
+
+                if (responseString == null) throw new WebException(response.StatusDescription);
             }
             catch (WebException we)
             {
@@ -564,11 +535,13 @@ namespace m4d.Utilities
         }
 
 
-        private dynamic NextMusicServiceResults(dynamic last, MusicService service, IPrincipal principal = null)
+        private dynamic NextMusicServiceResults(dynamic last, MusicService service,
+            IPrincipal principal = null)
         {
             var request = service.GetNextRequest(last);
             return request == null ? null : GetMusicServiceResults(request, service, principal);
         }
+
         #endregion
 
         public bool UpdateSongAndServices(DanceMusicCoreService dms, Song sd,
@@ -578,10 +551,7 @@ namespace m4d.Utilities
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var service in MusicService.GetSearchableServices())
             {
-                if (crossRetry && sd.Purchase != null && sd.Purchase.Contains(service.CID))
-                {
-                    break;
-                }
+                if (crossRetry && sd.Purchase != null && sd.Purchase.Contains(service.CID)) break;
                 if (UpdateSongAndService(dms, sd, service))
                 {
                     if (service.Id == ServiceType.Spotify)
@@ -589,9 +559,11 @@ namespace m4d.Utilities
                         GetEchoData(dms, sd);
                         GetSampleData(dms, sd);
                     }
+
                     changed = true;
                 }
             }
+
             return changed;
         }
 
@@ -613,17 +585,13 @@ namespace m4d.Utilities
 
             var tags = new TagList();
             foreach (var foundTrack in tracks)
-            {
                 UpdateMusicServiceFromTrack(dms, edit, foundTrack, ref tags);
-            }
 
             user ??= MusicService.GetService(tracks[0].Service).ApplicationUser;
-            if (user != null)
-            {
-                tags = tags.Add(sd.GetUserTags(user.UserName));
-            }
+            if (user != null) tags = tags.Add(sd.GetUserTags(user.UserName));
 
-            return dms.EditSong(user, sd, edit, new[] { new UserTag { Id = string.Empty, Tags = tags } });
+            return dms.EditSong(user, sd, edit,
+                new[] {new UserTag {Id = string.Empty, Tags = tags}});
         }
 
         public IList<ServiceTrack> MatchSongAndService(Song sd, MusicService service)
@@ -632,11 +600,10 @@ namespace m4d.Utilities
             var tracks = FindMusicServiceSong(sd, service);
 
             // First try the full title/artist
-            if ((tracks == null || tracks.Count == 0) && !string.Equals(DefaultServiceSearch(sd, true), DefaultServiceSearch(sd, false)))
-            {
+            if ((tracks == null || tracks.Count == 0) &&
+                    !string.Equals(DefaultServiceSearch(sd, true), DefaultServiceSearch(sd, false)))
                 // Now try cleaned up title/artist (remove punctuation and stuff in parens/brackets)
                 tracks = FindMusicServiceSong(sd, service);
-            }
 
             if (tracks == null || tracks.Count <= 0) return found;
 
@@ -646,36 +613,31 @@ namespace m4d.Utilities
 
             // Then check for exact album match if we don't have a tempo
             if (!sd.Length.HasValue)
-            {
-                foreach (var track in tracks.Where(track => sd.FindAlbum(track.Album, track.TrackNumber) != null))
+                foreach (var track in tracks.Where(track =>
+                    sd.FindAlbum(track.Album, track.TrackNumber) != null))
                 {
                     found.Add(track);
                     break;
                 }
-            }
             // If not exact album match and the song has a length, choose all albums with the same tempo (delta a few seconds)
             else
-            {
                 found = sd.DurationFilter(tracks, 6);
-            }
 
             // If no album name or length match, choose the 'dominant' version of the title/artist match by clustering lengths
             //  Note that this degenerates to choosing a single album if that is what is available
             if (found.Count == 0 && !sd.HasRealAblums)
             {
                 var track = Song.FindDominantTrack(tracks);
-                if (track.Duration != null) found = Song.DurationFilter(tracks, track.Duration.Value, 6);
+                if (track.Duration != null)
+                    found = Song.DurationFilter(tracks, track.Duration.Value, 6);
             }
 
             // Add back in any existing tracks for this service
             var existingIds = sd.GetPurchaseIds(service);
             foreach (var track in existingIds.Where(id => found.All(f => f.TrackId != id)))
             {
-                var t = this.GetMusicServiceTrack(track, service);
-                if (t != null)
-                {
-                    found.Add(t);
-                }
+                var t = GetMusicServiceTrack(track, service);
+                if (t != null) found.Add(t);
             }
 
             return found;
@@ -689,16 +651,16 @@ namespace m4d.Utilities
                 track.Name, track.Album, track.Artist, trackId, track.CollectionId,
                 track.AltId, track.Duration.ToString(), track.TrackNumber);
             if (track.Genres != null)
-            {
                 tags = tags.Add(new TagList(
                     dms.NormalizeTags(string.Join("|", track.Genres),
                         "Music", true)));
-            }
 
             return ret;
         }
 
-        public static Song UpdateMusicService(Song song, MusicService service, string name, string album, string artist, string trackId, string collectionId, string alternateId, string duration, int? trackNum)
+        public static Song UpdateMusicService(Song song, MusicService service, string name,
+            string album, string artist, string trackId, string collectionId, string alternateId,
+            string duration, int? trackNum)
         {
             // This is a very transitory object to hold the old values for a semi-automated edit
             var alt = new Song();
@@ -722,7 +684,6 @@ namespace m4d.Utilities
                 var aidxM = song.Albums.IndexOf(ad);
 
                 for (var aidx = 0; aidx < song.Albums.Count; aidx++)
-                {
                     if (aidx == aidxM)
                     {
                         var adA = new AlbumDetails(ad);
@@ -737,39 +698,34 @@ namespace m4d.Utilities
                             adA.Track = ad.Track;
                             ad.Track = trackNum;
                         }
+
                         alt.Albums.Add(adA);
                     }
                     else
                     {
                         alt.Albums.Add(new AlbumDetails());
                     }
-                }
             }
             else
             {
                 // Otherwise just add an album
-                ad = new AlbumDetails { Name = album, Track = trackNum, Index = song.GetNextAlbumIndex() };
+                ad = new AlbumDetails
+                    {Name = album, Track = trackNum, Index = song.GetNextAlbumIndex()};
                 //song.Albums.Insert(0, ad);
                 song.Albums.Add(ad);
             }
 
             UpdateMusicServicePurchase(ad, service, PurchaseType.Song, trackId, alternateId);
             if (collectionId != null)
-            {
                 UpdateMusicServicePurchase(ad, service, PurchaseType.Album, collectionId);
-            }
 
             if ((!song.Length.HasValue || song.Length == 0) && !string.IsNullOrWhiteSpace(duration))
-            {
                 try
                 {
                     var sd = new SongDuration(duration);
 
                     var length = decimal.ToInt32(sd.Length);
-                    if (length > 9999)
-                    {
-                        length = 9999;
-                    }
+                    if (length > 9999) length = 9999;
 
                     if (length != song.Length)
                     {
@@ -779,30 +735,24 @@ namespace m4d.Utilities
                 }
                 catch (ArgumentOutOfRangeException)
                 {
-
                 }
-            }
 
             return alt;
         }
 
-        private static void UpdateMusicServicePurchase(AlbumDetails ad, MusicService service, PurchaseType pt, string trackId, string alternateId = null)
+        private static void UpdateMusicServicePurchase(AlbumDetails ad, MusicService service,
+            PurchaseType pt, string trackId, string alternateId = null)
         {
             // Don't update if there is alread a trackId
             var old = ad.GetPurchaseIdentifier(service.Id, pt);
-            if (old != null && old.StartsWith(trackId))
-            {
-                return;
-            }
+            if (old != null && old.StartsWith(trackId)) return;
 
             ad.SetPurchaseInfo(pt, service.Id, trackId);
             if (!string.IsNullOrWhiteSpace(alternateId))
-            {
                 ad.SetPurchaseInfo(pt, ServiceType.AMG, alternateId);
-            }
         }
 
-        public IList<ServiceTrack> FindMusicServiceSong(Song song, MusicService service, 
+        public IList<ServiceTrack> FindMusicServiceSong(Song song, MusicService service,
             bool clean, string title, string artist)
         {
             IList<ServiceTrack> tracks = null;
@@ -813,7 +763,8 @@ namespace m4d.Utilities
             }
             catch (WebException we)
             {
-                Trace.WriteLineIf(TraceLevels.General.TraceError, $"Failed '{we.Message}' on Song '{song}");
+                Trace.WriteLineIf(TraceLevels.General.TraceError,
+                    $"Failed '{we.Message}' on Song '{song}");
             }
 
             return tracks;

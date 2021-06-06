@@ -8,7 +8,9 @@ namespace m4d.Utilities
 {
     public class SpotAuthentication : AdmAuthentication
     {
-        public SpotAuthentication(IConfiguration configuration) : base(configuration) { }
+        public SpotAuthentication(IConfiguration configuration) : base(configuration)
+        {
+        }
 
         protected override string Client => "spotify";
 
@@ -27,8 +29,13 @@ namespace m4d.Utilities
 
     public class SpotUserAuthentication : SpotAuthentication
     {
-        public SpotUserAuthentication(IConfiguration configuration) : base(configuration) { }
-        protected override string RequestExtra => "&refresh_token=" + HttpUtility.UrlEncode(RefreshToken);
+        public SpotUserAuthentication(IConfiguration configuration) : base(configuration)
+        {
+        }
+
+        protected override string RequestExtra =>
+            "&refresh_token=" + HttpUtility.UrlEncode(RefreshToken);
+
         protected override string RequestFormat => "grant_type=refresh_token";
     }
 }

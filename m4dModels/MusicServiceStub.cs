@@ -2,7 +2,8 @@ namespace m4dModels
 {
     public class MusicServiceStub : MusicService
     {
-        public MusicServiceStub(ServiceType id, char cid, string name, bool showInProfile=true) :base(id,cid,name,null,null,null,null)
+        public MusicServiceStub(ServiceType id, char cid, string name, bool showInProfile = true) :
+            base(id, cid, name, null, null, null, null)
         {
             ShowInProfile = showInProfile;
         }

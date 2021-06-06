@@ -16,6 +16,7 @@ namespace m4dModels
         // Not implementing this yet, but for artist might allow artist type after the colon
 
         #region Constructors
+
         public SongProperty()
         {
         }
@@ -25,57 +26,47 @@ namespace m4dModels
             Name = prop.Name;
             Value = prop.Value;
         }
+
         public SongProperty(string name, string value)
         {
             Name = name;
 
             if (!string.IsNullOrWhiteSpace(value))
             {
-                if (value.Contains("\\t"))
-                {
-                    value = value.Replace("\\t", "\t");
-                }
-                if (value.Contains("\\<EQ>\\"))
-                {
-                    value = value.Replace("\\<EQ>\\", "=");
-                }
-                if (string.Equals(name, Song.TempoField))
-                {
-                    value = FormatTempo(value);
-                }
+                if (value.Contains("\\t")) value = value.Replace("\\t", "\t");
+                if (value.Contains("\\<EQ>\\")) value = value.Replace("\\<EQ>\\", "=");
+                if (string.Equals(name, Song.TempoField)) value = FormatTempo(value);
             }
 
             Value = value;
         }
-        public SongProperty(string baseName, string value = null, int index = -1, string qual = null)
+
+        public SongProperty(string baseName, string value = null, int index = -1,
+            string qual = null)
         {
             var name = baseName;
 
-            if (index >= 0)
-            {
-                name = $"{name}:{index:D2}";
-            }
+            if (index >= 0) name = $"{name}:{index:D2}";
 
-            if (qual != null)
-            {
-                name = name + ":" + qual;
-            }
+            if (qual != null) name = name + ":" + qual;
 
             Name = name;
             Value = value;
         }
 
-        public static SongProperty Create(string baseName, string value = null, int index = -1, string qual = null)
+        public static SongProperty Create(string baseName, string value = null, int index = -1,
+            string qual = null)
         {
-            return new SongProperty(baseName,value,index,qual);
+            return new SongProperty(baseName, value, index, qual);
         }
-
 
         #endregion
 
         #region Properties
+
         public string Name { get; set; }
         public string Value { get; set; }
+
         public object ObjectValue
         {
             get
@@ -85,12 +76,8 @@ namespace m4dModels
                 {
                     case Song.SongIdField:
                         if (!string.IsNullOrEmpty(Value))
-                        {
                             if (Guid.TryParse(Value, out var id))
-                            {
                                 ret = id;
-                            }
-                        }
                         break;
                     case Song.TempoField:
                         // decimal
@@ -99,6 +86,7 @@ namespace m4dModels
                             decimal.TryParse(Value, out var v);
                             ret = v;
                         }
+
                         break;
                     case Song.DanceabilityField:
                     case Song.ValenceField:
@@ -109,6 +97,7 @@ namespace m4dModels
                             float.TryParse(Value, out var v);
                             ret = v;
                         }
+
                         break;
                     case Song.LengthField:
                     case Song.TrackField:
@@ -119,28 +108,24 @@ namespace m4dModels
                             int.TryParse(Value, out var v);
                             ret = v;
                         }
+
                         break;
                     case Song.TimeField:
-                        {
-                            DateTime.TryParse(Value, out var v);
-                            ret = v;
-                        }
+                    {
+                        DateTime.TryParse(Value, out var v);
+                        ret = v;
+                    }
                         break;
                     case Song.OwnerHash:
-                        {
-                            if (int.TryParse(Value, NumberStyles.HexNumber, CultureInfo.CurrentCulture, out var hash))
-                            {
-                                ret = hash;
-                            }
-                        }
+                    {
+                        if (int.TryParse(Value, NumberStyles.HexNumber, CultureInfo.CurrentCulture,
+                            out var hash)) ret = hash;
+                    }
                         break;
                     case Song.LikeTag:
-                        {
-                            if (bool.TryParse(Value, out var like))
-                            {
-                                ret = like;
-                            }
-                        }
+                    {
+                        if (bool.TryParse(Value, out var like)) ret = like;
+                    }
                         break;
                     default:
                         ret = Value;
@@ -150,6 +135,7 @@ namespace m4dModels
                 return ret;
             }
         }
+
         public bool IsComplex => IsComplexName(Name);
         public bool IsAction => IsActionName(Name);
 
@@ -159,6 +145,7 @@ namespace m4dModels
         {
             return name.Contains(":");
         }
+
         public static bool IsActionName(string name)
         {
             return name.StartsWith(".");
@@ -170,10 +157,12 @@ namespace m4dModels
 
         public string Qualifier => ParseQualifier(Name);
 
-        public string DanceQualifier => ParsePart(Name,1);
+        public string DanceQualifier => ParsePart(Name, 1);
+
         #endregion
 
         #region Overrides
+
         public override string ToString()
         {
             var value = Value;
@@ -187,23 +176,18 @@ namespace m4dModels
             }
             else
             {
-                if (value.Contains('='))
-                {
-                    value = value.Replace("=", "\\<EQ>\\");
-                }
+                if (value.Contains('=')) value = value.Replace("=", "\\<EQ>\\");
 
-                if (value.Contains('\t'))
-                {
-                    value = value.Replace("\t", "\\t");
-                }
+                if (value.Contains('\t')) value = value.Replace("\t", "\\t");
             }
 
             return $"{Name}={value}";
         }
-        
+
         #endregion
 
         #region Serialization
+
         public static string Serialize(IEnumerable<SongProperty> properties, string[] actions)
         {
             var sb = new StringBuilder();
@@ -232,13 +216,10 @@ namespace m4dModels
                 var values = cell.Split('=');
 
                 if (values.Length == 2)
-                {
                     properties.Add(new SongProperty(values[0], values[1]));
-                }
                 else
-                {
-                    Trace.WriteLineIf(TraceLevels.General.TraceError,"Bad SongProperty: {0}", cell);
-                }
+                    Trace.WriteLineIf(TraceLevels.General.TraceError, "Bad SongProperty: {0}",
+                        cell);
             }
         }
 
@@ -253,17 +234,14 @@ namespace m4dModels
 
         private static string FormatTempo(string value)
         {
-            if (decimal.TryParse(value, out var v))
-            {
-                value = v.ToString("F1");
-            }
+            if (decimal.TryParse(value, out var v)) value = v.ToString("F1");
             return value;
         }
 
         public static string ParsePart(string name, int idx)
         {
             var parts = name.Split(':');
-            return (parts.Length > idx) ? parts[idx] : null;
+            return parts.Length > idx ? parts[idx] : null;
         }
 
         public static string ParseBaseName(string name)
@@ -282,12 +260,8 @@ namespace m4dModels
 
             var part = ParsePart(name, 1);
             if (part != null)
-            {
                 if (int.TryParse(part, out var val))
-                {
                     idx = val;
-                }
-            }
 
             return idx;
         }
@@ -296,23 +270,17 @@ namespace m4dModels
         {
             var name = baseName;
 
-            if (idx.HasValue)
-            {
-                name += ":" + idx.Value.ToString("D2");
-            }
+            if (idx.HasValue) name += ":" + idx.Value.ToString("D2");
 
             if (qualifier != null)
             {
-                if (!idx.HasValue)
-                {
-                    name += ":";
-                }
+                if (!idx.HasValue) name += ":";
                 name += ":" + qualifier;
             }
 
             return name;
         }
-        
+
         #endregion
     }
 }

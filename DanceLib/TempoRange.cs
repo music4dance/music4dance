@@ -37,7 +37,9 @@ namespace DanceLibrary
             Validate();
         }
 
-        public static readonly string PositiveDecimal = "must be a positive decimal number less than 250";
+        public static readonly string PositiveDecimal =
+            "must be a positive decimal number less than 250";
+
         public static readonly string RangeOrder = "Min must be less than or equal to Max";
 
         private void Validate()
@@ -56,11 +58,9 @@ namespace DanceLibrary
                 throw new ArgumentException("_minTempo", RangeOrder);
         }
 
-        [JsonProperty]
-        public decimal Min => _minTempo;
+        [JsonProperty] public decimal Min => _minTempo;
 
-        [JsonProperty]
-        public decimal Max => _maxTempo;
+        [JsonProperty] public decimal Max => _maxTempo;
 
         public decimal Average => _minTempo + (_maxTempo - _minTempo) / 2;
 
@@ -81,21 +81,17 @@ namespace DanceLibrary
         {
             decimal delta = 0;
             if (tempo > Max)
-            {
                 delta = tempo - Max;
-            }
-            else if (tempo < Min)
-            {
-                delta = tempo - Min;
-            }
+            else if (tempo < Min) delta = tempo - Min;
             return delta;
         }
 
         public TempoRange Include(TempoRange other)
         {
-            return other == null ? 
-                new TempoRange(this) : 
-                new TempoRange(Math.Min(_minTempo, other._minTempo), Math.Max(_maxTempo, other._maxTempo));
+            return other == null
+                ? new TempoRange(this)
+                : new TempoRange(Math.Min(_minTempo, other._minTempo),
+                    Math.Max(_maxTempo, other._maxTempo));
         }
 
         public TempoRange ToBpm(Meter meter)
@@ -127,16 +123,12 @@ namespace DanceLibrary
         {
             var i = Math.Round(d);
             if (Math.Abs(i - d) < .01M)
-            {
                 return i.ToString("F0");
-            }
             else
-            {
                 return d.ToString("F2");
-            }
         }
 
-        readonly decimal _minTempo;
-        readonly decimal _maxTempo;
+        private readonly decimal _minTempo;
+        private readonly decimal _maxTempo;
     }
 }

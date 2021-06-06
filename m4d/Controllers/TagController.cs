@@ -14,11 +14,14 @@ namespace m4d.Controllers
 {
     public class TagController : DanceMusicController
     {
-        public TagController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, IConfiguration configuration) :
+        public TagController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
+            IDanceStatsManager danceStatsManager, IConfiguration configuration) :
             base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
         {
             HelpPage = "tag-cloud";
         }
+
         // GET: Tag
         [AllowAnonymous]
         public IActionResult Index([FromServices] IMapper mapper)
@@ -37,10 +40,7 @@ namespace m4d.Controllers
         public IActionResult Details(string id)
         {
             var code = GetTag(id, out var tagGroup);
-            if (HttpStatusCode.OK != code)
-            {
-                return StatusCode((int)code);
-            }
+            if (HttpStatusCode.OK != code) return StatusCode((int) code);
             return View(tagGroup);
         }
 
@@ -88,10 +88,7 @@ namespace m4d.Controllers
         public IActionResult Edit(string id)
         {
             var code = GetTag(id, out var tagGroup);
-            if (HttpStatusCode.OK != code)
-            {
-                return StatusCode((int)code);
-            }
+            if (HttpStatusCode.OK != code) return StatusCode((int) code);
 
             var pid = tagGroup.PrimaryId ?? tagGroup.Key;
 
@@ -117,14 +114,11 @@ namespace m4d.Controllers
             }
 
             var oldTag = Database.TagGroups.Find(tagGroup.Key);
-            if (oldTag == null)
-            {
-                throw new ArgumentOutOfRangeException(nameof(newKey));
-            }
+            if (oldTag == null) throw new ArgumentOutOfRangeException(nameof(newKey));
 
-            return Database.UpdateTag(oldTag, newKey, tagGroup.PrimaryId) ?
-                RedirectToAction("List") as ActionResult :            
-                View(tagGroup);
+            return Database.UpdateTag(oldTag, newKey, tagGroup.PrimaryId)
+                ? RedirectToAction("List") as ActionResult
+                : View(tagGroup);
         }
 
 
@@ -132,16 +126,14 @@ namespace m4d.Controllers
         public ActionResult Delete(string id)
         {
             var code = GetTag(id, out var tagGroup);
-            if (HttpStatusCode.OK != code)
-            {
-                return StatusCode((int)code);
-            }
+            if (HttpStatusCode.OK != code) return StatusCode((int) code);
 
             return View(tagGroup);
         }
 
         // POST: Tag/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
+        [ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(string id)
         {
@@ -151,7 +143,7 @@ namespace m4d.Controllers
             Database.TagGroups.Remove(tagGroup);
             Database.SaveChanges();
 
-            DanceMusicService.BlowTagCache();
+            DanceMusicCoreService.BlowTagCache();
 
             return RedirectToAction("List");
         }
@@ -160,15 +152,9 @@ namespace m4d.Controllers
         {
             tag = null;
 
-            if (id == null)
-            {
-                return HttpStatusCode.BadRequest;
-            }
+            if (id == null) return HttpStatusCode.BadRequest;
             tag = Database.TagGroups.Find(TagGroup.TagDecode(id));
-            if (tag == null)
-            {
-                return HttpStatusCode.NotFound;
-            }
+            if (tag == null) return HttpStatusCode.NotFound;
 
             return HttpStatusCode.OK;
         }

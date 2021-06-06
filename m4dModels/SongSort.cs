@@ -7,23 +7,32 @@ namespace m4dModels
 {
     public class SongSort
     {
-        private static readonly string[] s_directional = { Song.TitleField, Song.ArtistField,
+        private static readonly string[] s_directional =
+        {
+            Song.TitleField, Song.ArtistField,
             Song.TempoField, Song.ModifiedField, Song.CreatedField, Song.EditedField,
-            Song.EnergyField,Song.MoodField,Song.BeatField };
-        private static readonly string[] s_numerical = { Song.TempoField, Song.MoodField, Song.CreatedField };
-        private static readonly string[] s_intrinsic = {Song.EnergyField, Song.MoodField, Song.BeatField};
+            Song.EnergyField, Song.MoodField, Song.BeatField
+        };
+
+        private static readonly string[] s_numerical =
+            {Song.TempoField, Song.MoodField, Song.CreatedField};
+
+        private static readonly string[] s_intrinsic =
+            {Song.EnergyField, Song.MoodField, Song.BeatField};
 
         private const string SortAsc = "<span class='glyphicon glyphicon-sort-by-alphabet'></span>";
-        private const string SortDsc = "<span class='glyphicon glyphicon-sort-by-alphabet-alt'></span>";
+
+        private const string SortDsc =
+            "<span class='glyphicon glyphicon-sort-by-alphabet-alt'></span>";
+
         private const string SortNAsc = "<span class='glyphicon glyphicon-sort-by-order'></span>";
-        private const string SortNDsc = "<span class='glyphicon glyphicon-sort-by-order-alt'></span>";
+
+        private const string SortNDsc =
+            "<span class='glyphicon glyphicon-sort-by-order-alt'></span>";
 
         public SongSort(string sort)
         {
-            if (string.IsNullOrWhiteSpace(sort))
-            {
-                return;
-            }
+            if (string.IsNullOrWhiteSpace(sort)) return;
             var list = sort.Split('_').ToList();
             var count = -1;
 
@@ -32,9 +41,10 @@ namespace m4dModels
 
             if (!string.IsNullOrEmpty(Id))
             {
-                Id = $"{char.ToUpper(Id[0])}{Id.Substring(1).ToLower()}"; 
+                Id = $"{char.ToUpper(Id[0])}{Id.Substring(1).ToLower()}";
 
-                if (!(s_directional.Contains(Id) || s_intrinsic.Contains(Id) || s_numerical.Contains(Id) || string.Equals(Id,"Dances")))
+                if (!(s_directional.Contains(Id) || s_intrinsic.Contains(Id) ||
+                    s_numerical.Contains(Id) || string.Equals(Id, "Dances")))
                 {
                     Id = null;
                     return;
@@ -43,7 +53,7 @@ namespace m4dModels
 
             if (list.Count > 0)
             {
-                if (string.Equals(list[0],"desc",StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(list[0], "desc", StringComparison.OrdinalIgnoreCase))
                 {
                     Descending = true;
                     list.RemoveAt(0);
@@ -55,12 +65,8 @@ namespace m4dModels
             }
 
             if (list.Count > 0)
-            {
                 if (!int.TryParse(list[0], out count))
-                {
-                    Trace.WriteLineIf(TraceLevels.General.TraceError,$"Bad Sort: {sort}");
-                }
-            }
+                    Trace.WriteLineIf(TraceLevels.General.TraceError, $"Bad Sort: {sort}");
             Count = count;
         }
 
@@ -75,7 +81,8 @@ namespace m4dModels
         {
             get
             {
-                switch (Id) {
+                switch (Id)
+                {
                     case "Dances":
                         return "Dance Rating";
                     case "Modified":
@@ -101,10 +108,7 @@ namespace m4dModels
 
                 if (Id == "Dances") return null;
                 var desc = Descending;
-                if (Id == "Modified" || Id == "Created" || Id == "Edited")
-                {
-                    desc = !desc;
-                }
+                if (Id == "Modified" || Id == "Created" || Id == "Edited") desc = !desc;
                 var order = desc ? "desc" : "asc";
                 return new List<string> {$"{Id} {order}"};
             }
@@ -114,15 +118,11 @@ namespace m4dModels
         {
             get
             {
-                if (string.IsNullOrWhiteSpace(Id))
-                {
-                    return string.Empty;
-                }
+                if (string.IsNullOrWhiteSpace(Id)) return string.Empty;
                 var ret = new System.Text.StringBuilder();
                 ret.AppendFormat(" Sorted by {0} from ", FriendlyName);
-            
+
                 if (!Descending)
-                {
                     switch (Id)
                     {
                         case Song.TempoField:
@@ -148,8 +148,7 @@ namespace m4dModels
                             ret.Append("A to Z");
                             break;
                     }
-                }
-                else {
+                else
                     switch (Id)
                     {
                         case Song.TempoField:
@@ -175,32 +174,29 @@ namespace m4dModels
                             ret.Append("Z to A");
                             break;
                     }
-                }
+
                 ret.Append(".");
                 return ret.ToString();
             }
         }
 
-        public string GetSortGlyph(string column) 
+        public string GetSortGlyph(string column)
         {
             var ret = string.Empty;
             if (column == Id && !s_intrinsic.Contains(Id))
             {
                 if (s_numerical.Contains(Id))
-                {
                     ret = Descending ? SortNDsc : SortNAsc;
-                }
                 else
-                {
                     ret = Descending ? SortDsc : SortAsc;
-                }
             }
+
             return ret;
         }
 
         public string GetDirectionString(string column)
         {
-            return (column == Id) ? (Descending ? "desc" : "asc") : "10";
+            return column == Id ? Descending ? "desc" : "asc" : "10";
         }
 
         public void Resort(string newOrder)
@@ -215,6 +211,7 @@ namespace m4dModels
                 Descending = false;
             }
         }
+
         public override string ToString()
         {
             return $"{Id}{(Descending ? "_desc" : string.Empty)}";
@@ -232,6 +229,7 @@ namespace m4dModels
             {
                 ss = new SongSort(newOrder);
             }
+
             return ss.ToString();
         }
     }

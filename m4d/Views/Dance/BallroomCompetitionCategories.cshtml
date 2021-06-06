@@ -4,13 +4,13 @@
 @{
     ViewBag.Title = "Ballroom Competition Categories";
     ViewBag.Description = "An overview of competitive ballroom categories along with tempo ranges and song lists.";
-    var converterModel = new ObjectConverterModel { Name = "model", Model = Model };
+    var converterModel = new ObjectConverterModel {Name = "model", Model = Model};
 }
 
 <div id="app"></div>
 
 @section Scripts {
-    <partial name="_jsonCamelCase" model="@converterModel" />
+    <partial name="_jsonCamelCase" model="@converterModel"/>
     <script src="/client/js/chunk-vendors.js"></script>
     <script src="/client/js/chunk-common.js"></script>
     <script src="/client/js/ballroom-index.js"></script>

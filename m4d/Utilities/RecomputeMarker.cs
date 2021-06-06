@@ -10,7 +10,7 @@ namespace m4d.Utilities
             _appData = appData;
         }
 
-        private static readonly Dictionary<string, RecomputeMarker> Markers = new Dictionary<string, RecomputeMarker>();
+        private static readonly Dictionary<string, RecomputeMarker> Markers = new();
 
         private readonly string _appData;
 
@@ -40,13 +40,9 @@ namespace m4d.Utilities
         {
             var marker = CreateMarker(name);
             if (time.HasValue)
-            {
                 marker.SetTime(time.Value);
-            }
             else
-            {
                 marker.SetTime();
-            }
         }
 
         public void SetMarker(string name, Guid guid)
@@ -57,10 +53,7 @@ namespace m4d.Utilities
 
         public void ResetMarker(string name)
         {
-            if (Markers.ContainsKey(name))
-            {
-                Markers.Remove(name);
-            }
+            if (Markers.ContainsKey(name)) Markers.Remove(name);
             System.IO.File.Delete(ComputePath(name));
         }
 
@@ -82,7 +75,7 @@ namespace m4d.Utilities
             _dir = dir;
         }
 
-        private readonly string  _name;
+        private readonly string _name;
         private readonly string _dir;
 
         public DateTime GetTime()
@@ -90,7 +83,9 @@ namespace m4d.Utilities
             if (!System.IO.File.Exists(Path)) return DateTime.MinValue;
 
             var s = System.IO.File.ReadAllText(Path);
-            return DateTime.TryParse(s, out var time) ? time : System.IO.File.GetLastWriteTime(Path);
+            return DateTime.TryParse(s, out var time)
+                ? time
+                : System.IO.File.GetLastWriteTime(Path);
         }
 
         public Guid GetGuid()
@@ -101,7 +96,7 @@ namespace m4d.Utilities
 
         public void SetTime()
         {
-            System.IO.File.WriteAllText(Path,@"Semaphore");
+            System.IO.File.WriteAllText(Path, @"Semaphore");
         }
 
         public void SetTime(DateTime time)
@@ -115,6 +110,5 @@ namespace m4d.Utilities
         }
 
         private string Path => RecomputeMarkerService.ComputePath(_dir, _name);
-
     }
 }

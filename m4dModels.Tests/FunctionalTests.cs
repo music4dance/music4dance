@@ -16,7 +16,7 @@ namespace m4dModels.Tests
 
             var users = (from u in service.Context.Users select u)
                 .ToList();
-            Assert.AreEqual(69, users.Count(),"Count of Users");
+            Assert.AreEqual(69, users.Count(), "Count of Users");
             var dances = from d in service.Context.Dances select d;
             Assert.AreEqual(107, dances.Count(), "Count of Dances");
             var tts = from tt in service.Context.TagGroups select tt;
@@ -165,7 +165,8 @@ namespace m4dModels.Tests
         [TestMethod]
         public void PrettyLinkTest()
         {
-            const string initial = "*East Coast Swing* is a standardized dance in [American Rhythm] style competition dancing as well as a social partner dance.  It is one of a number of different swing dances that developed concurrently with the swing style of jazz music in the mid twentieth century.  This group of dances also includes [Lindy Hop],  [Carolina Shag], [Balboa], [West Coast Swing], and [Jive].  \r\n\r\nThis dance may also be referred to as Eastern Swing, Triple Swing, Triple Step Swing, American Swing, or just Swing.\r\n\r\nThe *East Coast Swing* is generally danced as the first dance of [American Rhythm] competitions.\r\n\r\nHustle is traditionally danced to [disco music](https://www.music4dance.net/song/addtags?tags=%2BDisco:Music)[Blues]";
+            const string initial =
+                "*East Coast Swing* is a standardized dance in [American Rhythm] style competition dancing as well as a social partner dance.  It is one of a number of different swing dances that developed concurrently with the swing style of jazz music in the mid twentieth century.  This group of dances also includes [Lindy Hop],  [Carolina Shag], [Balboa], [West Coast Swing], and [Jive].  \r\n\r\nThis dance may also be referred to as Eastern Swing, Triple Swing, Triple Step Swing, American Swing, or just Swing.\r\n\r\nThe *East Coast Swing* is generally danced as the first dance of [American Rhythm] competitions.\r\n\r\nHustle is traditionally danced to [disco music](https://www.music4dance.net/song/addtags?tags=%2BDisco:Music)[Blues]";
             const string expected =
                 @"*East Coast Swing* is a standardized dance in <a href='/dances/american-rhythm'>American Rhythm</a> style competition dancing as well as a social partner dance.  It is one of a number of different swing dances that developed concurrently with the swing style of jazz music in the mid twentieth century.  This group of dances also includes <a href='/dances/lindy-hop'>Lindy Hop</a>,  <a href='/dances/carolina-shag'>Carolina Shag</a>, <a href='/dances/balboa'>Balboa</a>, <a href='/dances/west-coast-swing'>West Coast Swing</a>, and <a href='/dances/jive'>Jive</a>.  
 
@@ -294,19 +295,20 @@ Hustle is traditionally danced to [disco music](https://www.music4dance.net/song
         //    "S:45890911a6d84aa08afb0a40d06a3ab5:1e4f07cb-9bfd-4098-bef1-acad112e26b3:\"Night Club Two Step:Dance\""
         //};
 
-        private static void ValidateTagSummary(IEnumerable<TagCount> tags, int expectedCount, string first, string last, string name)
+        private static void ValidateTagSummary(IEnumerable<TagCount> tags, int expectedCount,
+            string first, string last, string name)
         {
             var list = tags.ToList();
             Trace.WriteLine("All tags=" + list.Count);
             Assert.AreEqual(expectedCount, list.Count, name + " length");
 
             Trace.WriteLine("First:" + list[0]);
-            Assert.AreEqual(first,list[0].Serialize(),name + " first");
-            Trace.WriteLine("Last:" + list[list.Count-1]);
+            Assert.AreEqual(first, list[0].Serialize(), name + " first");
+            Trace.WriteLine("Last:" + list[list.Count - 1]);
             Assert.AreEqual(last, list[list.Count - 1].Serialize(), name + " last");
         }
 
-        static bool ListEquivalent(IEnumerable<string> expected, IList<string> actual)
+        private static bool ListEquivalent(IEnumerable<string> expected, IList<string> actual)
         {
             var expectedExtra = new List<string>();
 
@@ -314,30 +316,21 @@ Hustle is traditionally danced to [disco music](https://www.music4dance.net/song
             {
                 var i = actual.IndexOf(e);
                 if (i == -1)
-                {
                     expectedExtra.Add(e);
-                }
                 else
-                {
                     actual.RemoveAt(i);
-                }
             }
 
             if (expectedExtra.Count > 0)
             {
                 Trace.WriteLine("Expected Extra:\r\n");
-                foreach (var s in expectedExtra)
-                {
-                    Trace.WriteLine(s);
-                }
+                foreach (var s in expectedExtra) Trace.WriteLine(s);
             }
+
             if (actual.Count <= 0) return actual.Count == 0 && expectedExtra.Count == 0;
 
             Trace.WriteLine("Actual Extra:\r\n");
-            foreach (var s in actual)
-            {
-                Trace.WriteLine(s);
-            }
+            foreach (var s in actual) Trace.WriteLine(s);
 
             return actual.Count == 0 && expectedExtra.Count == 0;
         }

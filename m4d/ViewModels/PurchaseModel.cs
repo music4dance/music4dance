@@ -16,12 +16,12 @@
         public string Email { get; set; }
         public string Confirmation { get; set; }
 
-        public string Description => Kind == PurchaseKind.Purchase ? "Premium Subscription" : "Donation";
+        public string Description =>
+            Kind == PurchaseKind.Purchase ? "Premium Subscription" : "Donation";
 
-        public int Pennies => (int) (Amount* 100);
+        public int Pennies => (int) (Amount * 100);
 
         public PurchaseError Error { get; set; }
-
     }
 
     public class PurchaseError

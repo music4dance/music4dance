@@ -6,19 +6,19 @@
     ViewBag.BreadCrumbs = new List<BreadCrumbItem>
     {
         BreadCrumbItem.HomeItem,
-        new BreadCrumbItem { Title = "Contribute", Link = "/Home/Contribute" },
-        new BreadCrumbItem { Title = ViewBag.Title, Active = true }
+        new() {Title = "Contribute", Link = "/Home/Contribute"},
+        new() {Title = ViewBag.Title, Active = true}
     };
 }
 
 <h1>@ViewBag.Title</h1>
 
-@if (Model.Kind == m4d.ViewModels.PurchaseKind.Purchase)
+@if (Model.Kind == PurchaseKind.Purchase)
 {
-    <p class="big-text">Thank you for purchasing an annual subscription to music4dance.net.  This entitles you to a one year subscription with an ad free experience.  Remember that you must log in as @Model.User in order to turn off the advertisements.</p>
+    <p class="big-text">Thank you for purchasing an annual subscription to music4dance.net. This entitles you to a one year subscription with an ad free experience. Remember that you must log in as @Model.User in order to turn off the advertisements.</p>
     if (Model.Amount > 10)
     {
-        <p class="big-text">Also, thank you for the generous additional donation of $@((Model.Amount-10).ToString("F2"))</p>
+        <p class="big-text">Also, thank you for the generous additional donation of $@((Model.Amount - 10).ToString("F2"))</p>
     }
 }
 else
@@ -28,12 +28,11 @@ else
 
 <p class="big-text">Your confirmation code is <b>@Model.Confirmation</b></p>
 
-@if (Model.Kind == m4d.ViewModels.PurchaseKind.Donation || Model.Amount > 10)
+@if (Model.Kind == PurchaseKind.Donation || Model.Amount > 10)
 {
     <p class="big-text">Your donation will help us continue to improve the web site and catalog.</p>
 }
 
-<p class="big-text">Any questions about how subscriptions or donations work, how transactions are processed securely or anything else related to this transaction?  Please check out our <a href="https://music4dance.blog/music4dance-help/subscriptions/" target="_blank">help page.</a></p>
+<p class="big-text">Any questions about how subscriptions or donations work, how transactions are processed securely or anything else related to this transaction? Please check out our <a href="https://music4dance.blog/music4dance-help/subscriptions/" target="_blank">help page.</a></p>
 
 <p class="big-text">Please feel free to <a href="https://music4dance.blog/feedback/">contact us</a> if you have suggestions for improvements to the site or would like to contribute to the catalog.</p>
-

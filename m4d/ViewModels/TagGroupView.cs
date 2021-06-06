@@ -7,10 +7,12 @@ namespace m4d.ViewModels
         public TagGroupView()
         {
         }
+
         public TagGroupView(TagGroup tt) : base(tt)
         {
             NewKey = tt.Key;
         }
+
         public string NewKey { get; set; }
     }
 }

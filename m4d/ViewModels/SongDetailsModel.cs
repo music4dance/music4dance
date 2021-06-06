@@ -6,7 +6,9 @@ namespace m4d.ViewModels
     {
         public bool Created { get; set; }
         public SongHistory SongHistory { get; set; }
+
         public SongFilterSparse Filter { get; set; }
+
         // TODO: Should be able to get rid of this in favor of general menucontext
         public string UserName { get; set; }
 

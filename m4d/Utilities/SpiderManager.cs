@@ -12,7 +12,7 @@ namespace m4d.Utilities
 
         public static bool CheckAnySpiders(string userAgent)
         {
-            return CheckSpiders(userAgent,false);
+            return CheckSpiders(userAgent, false);
         }
 
         public static bool CheckBadSpiders(string userAgent)
@@ -34,10 +34,7 @@ namespace m4d.Utilities
 
             lock (s_botHits)
             {
-                if (!s_botHits.TryGetValue(agent, out var count))
-                {
-                    count = 0;
-                }
+                if (!s_botHits.TryGetValue(agent, out var count)) count = 0;
                 s_botHits[agent] = count + 1;
             }
 
@@ -52,11 +49,10 @@ namespace m4d.Utilities
             }
         }
 
-        private static readonly Dictionary<string, long> s_botHits = new Dictionary<string, long>();
+        private static readonly Dictionary<string, long> s_botHits = new();
 
         public static int EmptyAgents { get; set; }
 
-        private static readonly HashSet<string> s_badBots = new HashSet<string> { "baiduspider" };
-
+        private static readonly HashSet<string> s_badBots = new() {"baiduspider"};
     }
 }

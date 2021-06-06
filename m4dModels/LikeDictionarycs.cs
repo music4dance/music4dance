@@ -3,5 +3,7 @@ using System.Collections.Generic;
 
 namespace m4dModels
 {
-    public class LikeDictionary : Dictionary<Guid,bool?> {}
+    public class LikeDictionary : Dictionary<Guid, bool?>
+    {
+    }
 }

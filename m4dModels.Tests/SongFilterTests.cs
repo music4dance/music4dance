@@ -28,13 +28,16 @@ namespace m4dModels.Tests
         public void FilterDescription()
         {
             var f1 = new SongFilter(@"Index-FXT-.-.-I-.-100-120-1-+Instrumental:Music");
-            var f2 = new SongFilter(@"Index-ALL-Dances-Funk-.-.-.-.-.-+Rock & Roll:Music|\-Jazz:Music|\-Pop:Music");
+            var f2 = new SongFilter(
+                @"Index-ALL-Dances-Funk-.-.-.-.-.-+Rock & Roll:Music|\-Jazz:Music|\-Pop:Music");
             var f3 = new SongFilter(@"Index-ALL-.-.--.-100-.-1");
             var f4 = new SongFilter(@"Index-ALL-Title-.--.-.-150-1");
             var f5 = new SongFilter(@"Advanced-.-.-.-.-+charlie|L-.-.-1");
             var f6 = new SongFilter(@"Advanced-.-.-.-.-\-charlie|");
-            var f7 = new SongFilter(@"Advanced-.-.-.-.-null-.-.-1-+R&B / Soul:Music|+Rhythm and Blues:Music|+Blues:Music|");
-            var f8 = new SongFilter(@"Advanced-SLS-.-.-S-null-.-.-1-|\-Christian / Gospel:Music|\-TV Theme Song:Music|\-Doo Wop:Music");
+            var f7 = new SongFilter(
+                @"Advanced-.-.-.-.-null-.-.-1-+R&B / Soul:Music|+Rhythm and Blues:Music|+Blues:Music|");
+            var f8 = new SongFilter(
+                @"Advanced-SLS-.-.-S-null-.-.-1-|\-Christian / Gospel:Music|\-TV Theme Song:Music|\-Doo Wop:Music");
             var f9 = new SongFilter(@"Advanced-MBO,RMB,SMB-.-.-.-null-.-.-1-|");
             var f10 = new SongFilter(@"Advanced-AND,ECS,FXT,TGO-.-.-A-null-.-.-1-|");
             var f11 = new SongFilter(@"Advanced-RMB-Tempo-.-A-null-.-.-1-|");
@@ -53,18 +56,35 @@ namespace m4dModels.Tests
             Trace.WriteLine(f11.Description);
             Trace.WriteLine(f12.Description);
 
-            Assert.AreEqual(@"All Foxtrot songs available on ITunes, including tag Instrumental, having tempo between 100 and 120 beats per minute.", f1.Description);
-            Assert.AreEqual(@"All songs containing the text ""Funk"", including tag Rock & Roll, excluding tags Jazz or Pop. Sorted by Dance Rating from most popular to least popular.", f2.Description);
-            Assert.AreEqual(@"All songs having tempo greater than 100 beats per minute.", f3.Description);
-            Assert.AreEqual(@"All songs having tempo less than 150 beats per minute. Sorted by Title from A to Z.", f4.Description);
+            Assert.AreEqual(
+                @"All Foxtrot songs available on ITunes, including tag Instrumental, having tempo between 100 and 120 beats per minute.",
+                f1.Description);
+            Assert.AreEqual(
+                @"All songs containing the text ""Funk"", including tag Rock & Roll, excluding tags Jazz or Pop. Sorted by Dance Rating from most popular to least popular.",
+                f2.Description);
+            Assert.AreEqual(@"All songs having tempo greater than 100 beats per minute.",
+                f3.Description);
+            Assert.AreEqual(
+                @"All songs having tempo less than 150 beats per minute. Sorted by Title from A to Z.",
+                f4.Description);
             Assert.AreEqual(@"All songs liked by charlie.", f5.Description);
             Assert.AreEqual(@"All songs not edited by charlie.", f6.Description);
-            Assert.AreEqual(@"All songs including tags Blues, R&B / Soul and Rhythm and Blues.", f7.Description);
-            Assert.AreEqual(@"All Salsa songs available on Spotify, excluding tags Christian / Gospel, Doo Wop or TV Theme Song.", f8.Description);
-            Assert.AreEqual(@"All songs danceable to any of Mambo, Rumba or Samba.", f9.Description);
-            Assert.AreEqual(@"All songs danceable to all of East Coast Swing, Foxtrot and Tango (Ballroom) available on Amazon.", f10.Description);
-            Assert.AreEqual(@"All Rumba songs available on Amazon. Sorted by Tempo from slowest to fastest.", f11.Description);
-            Assert.AreEqual(@"All songs danceable to all of Rumba and Bachata having tempo less than 180 beats per minute. Sorted by When Added from oldest to newest.",f12.Description);
+            Assert.AreEqual(@"All songs including tags Blues, R&B / Soul and Rhythm and Blues.",
+                f7.Description);
+            Assert.AreEqual(
+                @"All Salsa songs available on Spotify, excluding tags Christian / Gospel, Doo Wop or TV Theme Song.",
+                f8.Description);
+            Assert.AreEqual(@"All songs danceable to any of Mambo, Rumba or Samba.",
+                f9.Description);
+            Assert.AreEqual(
+                @"All songs danceable to all of East Coast Swing, Foxtrot and Tango (Ballroom) available on Amazon.",
+                f10.Description);
+            Assert.AreEqual(
+                @"All Rumba songs available on Amazon. Sorted by Tempo from slowest to fastest.",
+                f11.Description);
+            Assert.AreEqual(
+                @"All songs danceable to all of Rumba and Bachata having tempo less than 180 beats per minute. Sorted by When Added from oldest to newest.",
+                f12.Description);
         }
 
         [TestMethod]
@@ -92,7 +112,8 @@ namespace m4dModels.Tests
         }
 
 
-        private static string RoundTrip(string fi, string f0, string message, int n, bool withEncoding)
+        private static string RoundTrip(string fi, string f0, string message, int n,
+            bool withEncoding)
         {
             var f = new SongFilter(fi);
             var s = f.ToString();
@@ -103,11 +124,13 @@ namespace m4dModels.Tests
                 var enc = HttpUtility.HtmlEncode(s);
                 s = HttpUtility.HtmlDecode(enc);
             }
-            Assert.AreEqual(f0, s, string.Format(message,withEncoding?"Encoded ":string.Empty,n));
+
+            Assert.AreEqual(f0, s,
+                string.Format(message, withEncoding ? "Encoded " : string.Empty, n));
             return s;
         }
 
-        const string F1 = @".-SWG-Album-Goodman-X-.-50-150-1-%2BPop%3AMusic";
-        const string F2 = @".-SWG-\\--\\-\\--X";
+        private const string F1 = @".-SWG-Album-Goodman-X-.-50-150-1-%2BPop%3AMusic";
+        private const string F2 = @".-SWG-\\--\\-\\--X";
     }
 }

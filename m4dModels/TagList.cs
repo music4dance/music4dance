@@ -12,8 +12,10 @@ namespace m4dModels
     public class TagList
     {
         #region Properties
+
         public string Summary { get; set; }
         public List<string> Tags => Parse(Summary);
+
         #endregion
 
         #region Constructors
@@ -35,13 +37,15 @@ namespace m4dModels
             Summary = Serialize(list);
         }
 
-        public bool IsQualified => string.IsNullOrWhiteSpace(Summary) || Summary[0] == '+' || Summary[0] == '-';
+        public bool IsQualified => string.IsNullOrWhiteSpace(Summary) || Summary[0] == '+' ||
+            Summary[0] == '-';
 
         public bool IsEmpty => string.IsNullOrWhiteSpace(Summary);
 
         #endregion
 
         #region Operators
+
         public override string ToString()
         {
             return Summary;
@@ -52,10 +56,7 @@ namespace m4dModels
         public TagList Subtract(TagList other)
         {
             IList<string> trg = new List<string>();
-            if (other != null)
-            {
-                trg = other.IsQualified ? other.StripQualifier() : other.Tags;
-            }
+            if (other != null) trg = other.IsQualified ? other.StripQualifier() : other.Tags;
 
             return new TagList(Tags.Where(s => !trg.Contains(TrimQualifier(s))).ToList());
         }
@@ -63,10 +64,7 @@ namespace m4dModels
         public TagList Add(TagList other)
         {
             var ret = Tags;
-            foreach (var tag in other.Tags.Where(tag => !ret.Contains(tag)))
-            {
-                ret.Add(tag);
-            }
+            foreach (var tag in other.Tags.Where(tag => !ret.Contains(tag))) ret.Add(tag);
 
             return new TagList(ret);
         }
@@ -95,16 +93,17 @@ namespace m4dModels
 
         public TagList ExtractPrefixed(char c)
         {
-            return string.IsNullOrWhiteSpace(Summary) ?
-                new TagList() :
-                new TagList(Tags.Where(tag => tag[0] == c).Select(tag => tag.Substring(1)).ToList());
+            return string.IsNullOrWhiteSpace(Summary)
+                ? new TagList()
+                : new TagList(Tags.Where(tag => tag[0] == c).Select(tag => tag.Substring(1))
+                    .ToList());
         }
 
         public TagList ExtractNotPrefixed(char c)
         {
-            return string.IsNullOrWhiteSpace(Summary) ?
-                new TagList() :
-                new TagList(Tags.Where(tag => tag[0] != c).ToList());
+            return string.IsNullOrWhiteSpace(Summary)
+                ? new TagList()
+                : new TagList(Tags.Where(tag => tag[0] != c).ToList());
         }
 
         private TagList Extract(char c)
@@ -130,14 +129,14 @@ namespace m4dModels
 
         public IList<string> Strip()
         {
-            return Summary != null && Summary.Contains(':') 
-                ? Tags.Select(tag => TrimQualifier(tag.Substring(0, tag.IndexOf(':')))).ToList() 
+            return Summary != null && Summary.Contains(':')
+                ? Tags.Select(tag => TrimQualifier(tag.Substring(0, tag.IndexOf(':')))).ToList()
                 : new List<string>();
         }
 
         public TagList AddQualifier(char q)
         {
-            var qual = new string(q,1);
+            var qual = new string(q, 1);
 
             return new TagList(Tags.Select(tag => qual + TrimQualifier(tag)).ToList());
         }
@@ -154,10 +153,7 @@ namespace m4dModels
             {
                 var fields = tag.Split(':');
                 var fullTag = tag;
-                if (fields.Length == 1)
-                {
-                    fullTag = fields[0] + ":" + category;
-                }
+                if (fields.Length == 1) fullTag = fields[0] + ":" + category;
 
                 result.Add(fullTag);
             }
@@ -173,19 +169,15 @@ namespace m4dModels
         public TagList RemoveDuplicates(DanceMusicCoreService dms)
         {
             var tags = Tags;
-            var seen = new Dictionary<string,List<string>>(StringComparer.OrdinalIgnoreCase);
+            var seen = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var tag in tags)
             {
                 var tt = dms.GetTagRing(tag);
                 if (seen.TryGetValue(tt.Key, out var others))
-                {
                     others.Add(tag);
-                }
                 else
-                {
                     seen.Add(tt.Key, new List<string> {tag});
-                }
             }
 
             var remove = new List<string>();
@@ -197,20 +189,17 @@ namespace m4dModels
                 remove.AddRange(dups);
             }
 
-            foreach (var tag in remove)
-            {
-                tags.Remove(tag);
-            }
+            foreach (var tag in remove) tags.Remove(tag);
 
             return new TagList(tags);
         }
 
-        private static readonly HashSet<string> s_validClasses = 
-            new HashSet<string> { "dance","music","style","tempo","other" };
+        private static readonly HashSet<string> s_validClasses =
+            new HashSet<string> {"dance", "music", "style", "tempo", "other"};
 
         public TagList FixBadCategory()
         {
-            var tags = Parse(Summary, trim: false);
+            var tags = Parse(Summary, false);
 
             var list = new TagList();
             foreach (var tag in tags)
@@ -221,7 +210,7 @@ namespace m4dModels
                     continue;
                 }
 
-                if (string.Equals(tag,"hoiday:other"))
+                if (string.Equals(tag, "hoiday:other"))
                 {
                     list = list.Add("Holiday:Other");
                     continue;
@@ -268,21 +257,19 @@ namespace m4dModels
         public static string Concatenate(string tags1, string tags2)
         {
             return string.IsNullOrWhiteSpace(tags1) ? tags2 :
-                string.IsNullOrWhiteSpace(tags2) ? tags1 : 
-                    new TagList($"{tags1}|{tags2}").ToString();
+                string.IsNullOrWhiteSpace(tags2) ? tags1 :
+                new TagList($"{tags1}|{tags2}").ToString();
         }
 
         #endregion
 
         #region Implementation
+
         private static List<string> Parse(string serialized, bool trim = true)
         {
             var tags = new List<string>();
 
-            if (string.IsNullOrWhiteSpace(serialized))
-            {
-                return tags;
-            }
+            if (string.IsNullOrWhiteSpace(serialized)) return tags;
 
             tags.AddRange(serialized
                 .Split(new[] {'|'}, StringSplitOptions.RemoveEmptyEntries)
@@ -302,7 +289,7 @@ namespace m4dModels
         {
             if (string.IsNullOrWhiteSpace(tag)) return tag;
 
-            return (tag[0] == '+' || tag[0] == '-') ? tag.Substring(1) : tag;
+            return tag[0] == '+' || tag[0] == '-' ? tag.Substring(1) : tag;
         }
 
         private static readonly TextInfo s_ti = new CultureInfo("en-US", false).TextInfo;

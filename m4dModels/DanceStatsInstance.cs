@@ -11,7 +11,8 @@ namespace m4dModels
     [JsonObject(MemberSerialization.OptIn)]
     public class DanceStatsInstance
     {
-        public DanceStatsInstance(TagManager tagManager, IEnumerable<DanceStats> tree, DanceMusicCoreService dms, string source)
+        public DanceStatsInstance(TagManager tagManager, IEnumerable<DanceStats> tree,
+            DanceMusicCoreService dms, string source)
         {
             TagManager = tagManager;
             Tree = (tree as List<DanceStats>)?.ToList();
@@ -25,16 +26,14 @@ namespace m4dModels
             Tree = tree.ToList();
         }
 
-        public void FixupStats(DanceMusicCoreService dms, bool reloadSongs, string source = "default")
+        public void FixupStats(DanceMusicCoreService dms, bool reloadSongs,
+            string source = "default")
         {
             dms.SetStatsInstance(this);
-            foreach (var d in Tree)
-            {
-                d.SetParents();
-            }
+            foreach (var d in Tree) d.SetParents();
             Map = List.ToDictionary(ds => ds.DanceId);
 
-            Dictionary<string, PlaylistMetadata> playlists = 
+            var playlists =
                 dms.PlayLists.Where(p => p.Type == PlayListType.SpotifyFromSearch)
                     .Where(p => p.Name != null)
                     .Select(p => new PlaylistMetadata {Id = p.Id, Name = p.Name})
@@ -42,14 +41,14 @@ namespace m4dModels
 
             var newDances = new List<string>();
             foreach (var ds in List)
-            {
                 if (ds.SongCount > 0)
                 {
                     if (reloadSongs)
                     {
                         // TopN and MaxWeight
                         var filter =
-                            dms.AzureParmsFromFilter(new SongFilter { Dances = ds.DanceId, SortOrder = "Dances" }, 10);
+                            dms.AzureParmsFromFilter(
+                                new SongFilter {Dances = ds.DanceId, SortOrder = "Dances"}, 10);
                         DanceMusicCoreService.AddAzureCategories(
                             filter, "GenreTags,StyleTags,TempoTags,OtherTags", 100);
                         var results = dms.AzureSearch(
@@ -71,15 +70,18 @@ namespace m4dModels
                     }
 
                     if (playlists.TryGetValue(ds.DanceName, out var metadata))
-                    {
                         ds.SpotifyPlaylist = metadata.Id;
-                    }
                 }
                 else
                 {
                     if (ds.Dance.Description == null)
                     {
-                        dms.Dances.Add(new Dance {Id = ds.DanceId, Description = "We're busy doing research and pulling together a general description for this dance style. Please check back later for more info."});
+                        dms.Dances.Add(new Dance
+                        {
+                            Id = ds.DanceId,
+                            Description =
+                                "We're busy doing research and pulling together a general description for this dance style. Please check back later for more info."
+                        });
                         dms.SaveChanges();
                     }
 
@@ -87,15 +89,13 @@ namespace m4dModels
                     ds.SetTopSongs(new List<Song>());
                     ds.SongTags = new TagSummary();
                 }
-            }
 
             dms.UpdateIndex(newDances);
         }
 
-        [JsonProperty]
-        public List<DanceStats> Tree { get; set; }
+        [JsonProperty] public List<DanceStats> Tree { get; set; }
 
-        [JsonProperty(PropertyName="tagGroups")]
+        [JsonProperty(PropertyName = "tagGroups")]
         public List<TagGroup> TagGroups => TagManager.TagGroups;
 
         public TagManager TagManager { get; set; }
@@ -109,10 +109,11 @@ namespace m4dModels
             if (sc == null) return 0;
 
             float max = sc.MaxWeight;
-            var ret = (int)(Math.Ceiling(weight * scale / max));
+            var ret = (int) Math.Ceiling(weight * scale / max);
 
             return Math.Max(0, Math.Min(ret, scale));
         }
+
         public string GetRatingBadge(string danceId, int weight)
         {
             var scaled = GetScaledRating(danceId, weight);
@@ -133,7 +134,7 @@ namespace m4dModels
             Trace.WriteLineIf(TraceLevels.General.TraceError, $"Failed to find danceId {danceId}");
             // Clear out the cache to force a reload: workaround for possible cache corruption.
             // TODO: Put in the infrastructure to send app insights events when this happens
-            Trace.WriteLineIf(TraceLevels.General.TraceError,"Attempting to rebuild cache");
+            Trace.WriteLineIf(TraceLevels.General.TraceError, "Attempting to rebuild cache");
 
             //DanceStatsManager.ClearCache(null, true);
             return null;
@@ -155,17 +156,11 @@ namespace m4dModels
             };
 
             var instance = JsonConvert.DeserializeObject<DanceStatsInstance>(json, settings);
-            if (database != null)
-            {
-                instance.FixupStats(database, false);
-            }
+            if (database != null) instance.FixupStats(database, false);
 
             Dances.Reset(Dances.Load(instance.GetDanceTypes(), instance.GetDanceGroups()));
 
-            foreach (var dance in instance.List)
-            {
-                dance.UpdateCompetitionDances();
-            }
+            foreach (var dance in instance.List) dance.UpdateCompetitionDances();
 
             return instance;
         }
@@ -195,24 +190,16 @@ namespace m4dModels
                 if (!TopSongs.ContainsKey(song.SongId))
                 {
                     if (song.IsNull)
-                    {
                         _otherSongs.Remove(song.SongId);
-                    }
                     else
-                    {
                         _otherSongs[song.SongId] = song;
-                    }
                     return;
                 }
 
                 if (song.IsNull)
-                {
                     TopSongs.Remove(song.SongId);
-                }
                 else
-                {
                     TopSongs[song.SongId] = song;
-                }
 
                 foreach (var d in List)
                 {
@@ -242,7 +229,7 @@ namespace m4dModels
         {
             var sd = TopSongs.GetValueOrDefault(songId) ?? _otherSongs.GetValueOrDefault(songId);
             if (sd == null) return null;
-            return (userName == null) ? sd : new Song(sd, dms, userName);
+            return userName == null ? sd : new Song(sd, dms, userName);
         }
 
         internal List<DanceType> GetDanceTypes()
@@ -261,10 +248,7 @@ namespace m4dModels
 
             flat.AddRange(Tree);
 
-            foreach (var children in Tree.Select(ds => ds.Children))
-            {
-                flat.AddRange(children);
-            }
+            foreach (var children in Tree.Select(ds => ds.Children)) flat.AddRange(children);
 
             var all = new DanceStats
             {
@@ -277,7 +261,10 @@ namespace m4dModels
             return flat;
         }
 
-        private Dictionary<Guid, Song> TopSongs => _topSongs ?? (_topSongs = new Dictionary<Guid, Song>(List.SelectMany(d => d.TopSongs ?? new List<Song>()).DistinctBy(s => s.SongId).ToDictionary(s => s.SongId)));
+        private Dictionary<Guid, Song> TopSongs => _topSongs ?? (_topSongs =
+            new Dictionary<Guid, Song>(List.SelectMany(d => d.TopSongs ?? new List<Song>())
+                .DistinctBy(s => s.SongId).ToDictionary(s => s.SongId)));
+
         private readonly Dictionary<Guid, Song> _otherSongs = new Dictionary<Guid, Song>();
         private readonly Dictionary<Guid, Song> _queuedSongs = new Dictionary<Guid, Song>();
 

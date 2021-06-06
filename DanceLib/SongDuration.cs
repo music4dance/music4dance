@@ -4,35 +4,36 @@ using System.Diagnostics;
 
 namespace DanceLibrary
 {
-    public enum DurationFormat { Short, Long };
+    public enum DurationFormat
+    {
+        Short,
+        Long
+    }
 
     /// <summary>
-    /// Representation of the duration of a song 
-    /// 
-    /// This is really just a wrapper around a decimal number of seconds
-    /// that allows easy formatting and storage
-    /// 
-    /// This is an immutable structure
-    /// 
-    /// TODO: Figure out what I was thinking about with durations of beats and measures, did
+    ///     Representation of the duration of a song
+    ///     This is really just a wrapper around a decimal number of seconds
+    ///     that allows easy formatting and storage
+    ///     This is an immutable structure
+    ///     TODO: Figure out what I was thinking about with durations of beats and measures, did
     ///     this get solved in another way (in which case I should clean up this class)
     /// </summary>
     public struct SongDuration : IComparable<SongDuration>
     {
+        #region Constructors
 
-#region Constructors
         /// <summary>
-        /// Create a song duration with a number of seconds
+        ///     Create a song duration with a number of seconds
         /// </summary>
         /// <param name="length">number of seconds</param>
         public SongDuration(decimal length) : this()
         {
-            this.Length = length;
+            Length = length;
             Validate();
         }
 
         /// <summary>
-        /// Create a song with any arbitrary tempo
+        ///     Create a song with any arbitrary tempo
         /// </summary>
         /// <param name="length">minutes, seconds, beats or measures depending on type</param>
         /// <param name="type">any duration type</param>
@@ -56,7 +57,7 @@ namespace DanceLibrary
                     if (tempo == null) throw new ArgumentNullException("tempo");
                     Length = length * tempo.SecondsPerMeasure;
                     break;
-                default: 
+                default:
                     Debug.Assert(false);
                     break;
             }
@@ -70,25 +71,24 @@ namespace DanceLibrary
         }
 
         /// <summary>
-        /// Create a song duration from a string (currently only parsing 'short' version of syntax
-        /// 
-        /// MmSs
+        ///     Create a song duration from a string (currently only parsing 'short' version of syntax
+        ///     MmSs
         /// </summary>
         public SongDuration(string s)
             : this()
         {
-            int imin = s.IndexOf('m');
-            int isec = s.IndexOf('s');
+            var imin = s.IndexOf('m');
+            var isec = s.IndexOf('s');
 
-            string shour = string.Empty;
-            string smin = string.Empty;
-            string ssec = string.Empty;
+            var shour = string.Empty;
+            var smin = string.Empty;
+            var ssec = string.Empty;
 
             if (imin < 0 && isec < 0)
             {
                 if (s.IndexOf(':') >= 0)
                 {
-                    string[] parts = s.Split(new char[] { ':' },StringSplitOptions.RemoveEmptyEntries);
+                    var parts = s.Split(new[] {':'}, StringSplitOptions.RemoveEmptyEntries);
 
                     if (parts.Length >= 3)
                     {
@@ -129,69 +129,48 @@ namespace DanceLibrary
             }
 
             decimal seconds = 0;
-            decimal dmin = 0m;
-            decimal dsec = 0m;
+            var dmin = 0m;
+            var dsec = 0m;
             if (!string.IsNullOrEmpty(smin) && decimal.TryParse(smin, out dmin))
-            {
                 seconds = 60 * dmin;
-            }
-            if (!string.IsNullOrEmpty(ssec) && decimal.TryParse(ssec, out dsec))
-            {
-                seconds += dsec;
-            }
+            if (!string.IsNullOrEmpty(ssec) && decimal.TryParse(ssec, out dsec)) seconds += dsec;
 
             Length = seconds;
 
             Validate();
         }
 
-        void Validate()
+        private void Validate()
         {
             if (Length < 0)
                 throw new ArgumentOutOfRangeException("length", "length must be non-negative");
         }
-#endregion
 
-#region Properties
+        #endregion
+
+        #region Properties
 
         // This is a read only property
-        public decimal Length { get; private set; }
+        public decimal Length { get; }
 
-        public int Minutes
-        {
-            get
-            {
-                return (int) (Length / 60);
-            }
-        }
+        public int Minutes => (int) (Length / 60);
 
-        public int Seconds
-        {
-            get
-            {
-                return (int) (Length - 60 * Minutes);
-            }
-        }
+        public int Seconds => (int) (Length - 60 * Minutes);
 
-        public string Name
-        {
-            get { return Format(DurationFormat.Long); }
-        }
+        public string Name => Format(DurationFormat.Long);
 
-        public string ShortName
-        {
-            get { return Format(DurationFormat.Short); }
-        }
+        public string ShortName => Format(DurationFormat.Short);
 
-#endregion
+        #endregion
 
-#region operators
-        static public implicit operator decimal(SongDuration sd)
+        #region operators
+
+        public static implicit operator decimal(SongDuration sd)
         {
             return sd.Length;
         }
 
-        static public implicit operator SongDuration(decimal d)
+        public static implicit operator SongDuration(decimal d)
         {
             return new SongDuration(d);
         }
@@ -206,13 +185,11 @@ namespace DanceLibrary
         {
             if (obj is SongDuration)
             {
-                SongDuration other = (SongDuration)obj;
+                var other = (SongDuration) obj;
                 return CompareTo(other) == 0;
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         public override int GetHashCode()
@@ -245,7 +222,7 @@ namespace DanceLibrary
                     if (tempo == null) throw new ArgumentNullException("tempo");
                     return Length / tempo.SecondsPerMeasure;
                 default:
-                    Debug.Assert(false); 
+                    Debug.Assert(false);
                     return 0M;
             }
         }
@@ -256,24 +233,21 @@ namespace DanceLibrary
 
         public override string ToString()
         {
-            string ret = Format(DurationFormat.Short);
+            var ret = Format(DurationFormat.Short);
             return ret;
         }
 
         public string ToString(string format)
         {
-            char c = 'M';
+            var c = 'M';
 
-            if (format.Length > 0)
-            {
-                c = format[0];
-            }
+            if (format.Length > 0) c = format[0];
 
             switch (c)
             {
                 default:
                 case 'M':
-                    return string.Format("{0}:{1:D2}", Minutes, Seconds);
+                    return $"{Minutes}:{Seconds:D2}";
                 case 'S':
                     return Format(DurationFormat.Short);
                 case 'L':
@@ -283,45 +257,38 @@ namespace DanceLibrary
 
         public string Format(DurationFormat f)
         {
-            string[] rgs = { "{0:N0}s", "{0}m", "{0}m{1}s" };
-            string[] rgl = { "{0:N0} second(s)", "{0} minute(s)", "{0} minutes, {1} seconds" };
-            string[] rg = rgl;
+            string[] rgs = {"{0:N0}s", "{0}m", "{0}m{1}s"};
+            string[] rgl = {"{0:N0} second(s)", "{0} minute(s)", "{0} minutes, {1} seconds"};
+            var rg = rgl;
 
-            bool exact = false;
-            if (Length / 60 == Minutes)
-            {
-                exact = true;
-            }
+            var exact = false;
+            if (Length / 60 == Minutes) exact = true;
 
-            if (f == DurationFormat.Short)
-            {
-                rg = rgs;
-            }
+            if (f == DurationFormat.Short) rg = rgs;
 
             if (Length < 100)
-            {
                 return string.Format(rg[0], Length);
-            }
-            else if (exact)
-            {
+            if (exact)
                 return string.Format(rg[1], Minutes);
-            }
-            else
-            {
-                return string.Format(rg[2], Minutes, Seconds);
-            }
+            return string.Format(rg[2], Minutes, Seconds);
         }
 
-#endregion
+        #endregion
 
-#region Standard Durations
+        #region Standard Durations
+
         public static IEnumerable<SongDuration> GetStandarDurations()
         {
             return _durations;
         }
 
-        private static SongDuration[] _durations = { new SongDuration(30M), new SongDuration(60M), new SongDuration(90M), new SongDuration(120M), new SongDuration(150M), new SongDuration(180M), new SongDuration(240M), new SongDuration(300M) };
+        private static readonly SongDuration[] _durations =
+        {
+            new SongDuration(30M), new SongDuration(60M), new SongDuration(90M),
+            new SongDuration(120M), new SongDuration(150M), new SongDuration(180M),
+            new SongDuration(240M), new SongDuration(300M)
+        };
 
-#endregion
+        #endregion
     }
 }

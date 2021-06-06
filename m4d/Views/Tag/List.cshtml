@@ -36,7 +36,7 @@
             var item1 = item;
             <tr>
                 <td>
-                    @Html.ActionLink(item.Key, "tags", "song", new { tags = item.Key }, null)
+                    @Html.ActionLink(item.Key, "tags", "song", new {tags = item.Key}, null)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item1.Count)
@@ -58,9 +58,9 @@
                 </td>
 
                 <td>
-                    @Html.ActionLink("Edit", "Edit", new { id = item.EncodedKey }) |
-                    @Html.ActionLink("Details", "Details", new { id = item.EncodedKey }) |
-                    @Html.ActionLink("Delete", "Delete", new { id = item.EncodedKey })
+                    @Html.ActionLink("Edit", "Edit", new {id = item.EncodedKey}) |
+                    @Html.ActionLink("Details", "Details", new {id = item.EncodedKey}) |
+                    @Html.ActionLink("Delete", "Delete", new {id = item.EncodedKey})
                 </td>
             </tr>
         }
@@ -72,10 +72,9 @@
     @{
         var scripts = new ScriptModel
         {
-            DevelopmentFiles = new[] { "musicservice" }
+            DevelopmentFiles = new[] {"musicservice"}
         };
     }
 
-    <partial name="_scriptInclude" model="@scripts" />
+    <partial name="_scriptInclude" model="@scripts"/>
 }
-

@@ -8,10 +8,7 @@ namespace m4dModels
         public static TagSummary MergeSummaries(IEnumerable<TagSummary> summaries)
         {
             var acc = new TagAccumulator();
-            foreach (var summary in summaries)
-            {
-                acc.AddTags(summary);
-            }
+            foreach (var summary in summaries) acc.AddTags(summary);
             return acc.TagSummary();
         }
 
@@ -19,6 +16,7 @@ namespace m4dModels
         {
             Tags = new Dictionary<string, int>();
         }
+
         public TagAccumulator(string summary) : this()
         {
             AddTags(summary);
@@ -44,16 +42,10 @@ namespace m4dModels
 
             var ts = new TagSummary(tags);
             foreach (var tc in ts.Tags)
-            {
                 if (Tags.TryGetValue(tc.Value, out _))
-                {
                     Tags[tc.Value] += tc.Count;
-                }
                 else
-                {
                     Tags[tc.Value] = tc.Count;
-                }
-            }
         }
 
         public TagSummary TagSummary()

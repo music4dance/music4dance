@@ -19,7 +19,8 @@ namespace m4d.Controllers
             RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
             IDanceStatsManager danceStatsManager, IConfiguration configuration)
         {
-            Database = new DanceMusicService(context, userManager, searchService, danceStatsManager);
+            Database =
+                new DanceMusicService(context, userManager, searchService, danceStatsManager);
             SearchService = searchService;
             DanceStatsManager = danceStatsManager;
             Configuration = configuration;
@@ -28,7 +29,8 @@ namespace m4d.Controllers
         protected bool UseVue { get; set; } = false;
         public DanceMusicService Database { get; set; }
 
-        protected MusicServiceManager MusicServiceManager => _musicServiceManager ??= new MusicServiceManager(Configuration);
+        protected MusicServiceManager MusicServiceManager =>
+            _musicServiceManager ??= new MusicServiceManager(Configuration);
 
         private MusicServiceManager _musicServiceManager;
         protected IConfiguration Configuration { get; }
@@ -43,11 +45,14 @@ namespace m4d.Controllers
 
         public string HelpPage { get; set; }
 
-        public ActionResult ReturnError(HttpStatusCode statusCode = HttpStatusCode.InternalServerError, string message = null, Exception exception = null)
+        public ActionResult ReturnError(
+            HttpStatusCode statusCode = HttpStatusCode.InternalServerError, string message = null,
+            Exception exception = null)
         {
-            var model = new ErrorModel { HttpStatusCode = (int)statusCode, Message = message, Exception = exception };
+            var model = new ErrorModel
+                {HttpStatusCode = (int) statusCode, Message = message, Exception = exception};
 
-            Response.StatusCode = (int)statusCode;
+            Response.StatusCode = (int) statusCode;
             // Response.TrySkipIisCustomErrors = true;
 
             return View("HttpError", model);
@@ -62,12 +67,14 @@ namespace m4d.Controllers
         {
             ViewBag.Help = HelpPage;
             ViewBag.UseView = UseVue;
-            return base.View(viewName,  model);
+            return base.View(viewName, model);
         }
 
         public ActionResult CheckSpiders()
         {
-            return SpiderManager.CheckBadSpiders(Request.Headers[HeaderNames.UserAgent]) ? View("BotWarning") : null;
+            return SpiderManager.CheckBadSpiders(Request.Headers[HeaderNames.UserAgent])
+                ? View("BotWarning")
+                : null;
         }
 
         protected void SaveSong(Song song)
@@ -75,7 +82,7 @@ namespace m4d.Controllers
             Database.SaveSong(song);
         }
 
-        protected static readonly JsonSerializerSettings CamelCaseSerializerSettings = new JsonSerializerSettings
+        protected static readonly JsonSerializerSettings CamelCaseSerializerSettings = new()
         {
             NullValueHandling = NullValueHandling.Ignore,
             DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate,
@@ -89,13 +96,13 @@ namespace m4d.Controllers
         }
 
         #region AdminTaskHelpers
+
         protected void StartAdminTask(string name)
         {
             ViewBag.Name = name;
             if (!AdminMonitor.StartTask(name))
-            {
-                throw new AdminTaskException(name + "failed to start because there is already an admin task running");
-            }
+                throw new AdminTaskException(name +
+                    "failed to start because there is already an admin task running");
         }
 
         protected ActionResult CompleteAdminTask(bool completed, string message)
@@ -112,10 +119,7 @@ namespace m4d.Controllers
             ViewBag.Success = false;
             ViewBag.Message = message;
 
-            if (!(e is AdminTaskException))
-            {
-                AdminMonitor.CompleteTask(false, message, e);
-            }
+            if (!(e is AdminTaskException)) AdminMonitor.CompleteTask(false, message, e);
 
             return View("Results");
         }
@@ -123,10 +127,12 @@ namespace m4d.Controllers
         protected ActionResult RestoreBatch()
         {
             ViewBag.Success = false;
-            ViewBag.Message = "This functionality hasn't been re-implemented after the azure-search migration - do we really need it?";
+            ViewBag.Message =
+                "This functionality hasn't been re-implemented after the azure-search migration - do we really need it?";
 
             return View("Results");
         }
+
         #endregion
 
         protected int CommitCatalog(DanceMusicCoreService dms, Review review,
@@ -134,9 +140,7 @@ namespace m4d.Controllers
         {
             List<string> dances = null;
             if (!string.IsNullOrWhiteSpace(danceIds))
-            {
                 dances = new List<string>(danceIds.Split(';'));
-            }
 
             if (review.Merge.Count <= 0) return 0;
 
@@ -147,16 +151,14 @@ namespace m4d.Controllers
             foreach (var song in modified)
             {
                 AdminMonitor.UpdateTask("UpdateService", i);
-                MusicServiceManager.UpdateSongAndServices(dms, song, crossRetry:true);
+                MusicServiceManager.UpdateSongAndServices(dms, song, true);
                 i += 1;
             }
 
             dms.SaveSongs(modified);
 
             if (!string.IsNullOrEmpty(review.PlayList))
-            {
                 dms.UpdatePlayList(review.PlayList, review.Merge.Select(m => m.Left));
-            }
 
             return modified.Count;
         }

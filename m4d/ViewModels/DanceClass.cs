@@ -17,11 +17,11 @@ namespace m4d.ViewModels
 
         public virtual string Controller => "dances";
 
-        [JsonIgnore]
-        public virtual string Parameters => null;
+        [JsonIgnore] public virtual string Parameters => null;
 
         public string QueryString => Parameters == null ? null : $"filter={Parameters}";
     }
+
     public class DanceClass
     {
         public string Title;
@@ -45,7 +45,7 @@ namespace m4d.ViewModels
             _tag = tag;
         }
 
-        public override string Title => (_tag.Contains("Dance") ? _tag : _tag.Replace(' ', '/'));
+        public override string Title => _tag.Contains("Dance") ? _tag : _tag.Replace(' ', '/');
 
         public override string Name => "index";
         public override string Controller => "song";

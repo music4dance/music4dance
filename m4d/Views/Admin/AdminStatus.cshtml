@@ -6,11 +6,13 @@
     ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
 }
 
-<h1>@ViewBag.Title: @(Model.IsRunning ? "Running" : (Model.Succeeded ? "Succeeded" : "Failed"))</h1>
+<h1>@ViewBag.Title: @(Model.IsRunning ? "Running" : Model.Succeeded ? "Succeeded" : "Failed")</h1>
 
 <p>@Html.Raw(Model.Status)</p>
 
-<p><a href="/admin/adminstatus">REFRESH</a></p>
+<p>
+    <a href="/admin/adminstatus">REFRESH</a>
+</p>
 
 @if (!Model.IsRunning && Model.Exception != null)
 {
@@ -23,7 +25,7 @@
     if (!string.IsNullOrEmpty(Model.Exception.StackTrace))
     {
         <h3>Stack Trace:</h3>
-        var frames = Model.Exception.StackTrace.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+        var frames = Model.Exception.StackTrace.Split(new[] {'\n'}, StringSplitOptions.RemoveEmptyEntries);
         <ul>
             @foreach (var s in frames)
             {
@@ -32,5 +34,3 @@
         </ul>
     }
 }
-
-

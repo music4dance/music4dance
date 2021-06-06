@@ -11,9 +11,9 @@ namespace DanceTests
     {
         private SongTimer PrimeTimer(int delay = 100)
         {
-            SongTimer st = new SongTimer();
+            var st = new SongTimer();
 
-            for (int i = 0; i < 6; i++)
+            for (var i = 0; i < 6; i++)
             {
                 st.DoClick();
                 System.Threading.Thread.Sleep(delay);
@@ -27,10 +27,10 @@ namespace DanceTests
         //[TestMethod]
         public void Timer()
         {
-            SongTimer st = PrimeTimer();
+            var st = PrimeTimer();
 
-            decimal rate = st.Rate;
-            decimal delta = Math.Abs(10M - st.Rate);
+            var rate = st.Rate;
+            var delta = Math.Abs(10M - st.Rate);
 
             Assert.IsTrue(delta < .1M);
         }
@@ -38,7 +38,7 @@ namespace DanceTests
         [TestMethod]
         public void TimerAutoReset()
         {
-            SongTimer st = PrimeTimer();
+            var st = PrimeTimer();
 
             System.Threading.Thread.Sleep(110);
             st.DoClick();
@@ -49,7 +49,7 @@ namespace DanceTests
         [TestMethod]
         public void TimerManualReset()
         {
-            SongTimer st = PrimeTimer();
+            var st = PrimeTimer();
 
             st.Reset();
 
@@ -59,22 +59,21 @@ namespace DanceTests
         //[TestMethod]
         public void TimerAndTiming()
         {
-            SongTimer st = PrimeTimer(1875);
+            var st = PrimeTimer(1875);
 
-            decimal rate = st.Rate;
-            decimal delta = Math.Abs(.533M - st.Rate);
+            var rate = st.Rate;
+            var delta = Math.Abs(.533M - st.Rate);
 
             Assert.IsTrue(delta < .1M);
 
-            Tempo baseTempo = new Tempo(32M, new TempoType(TempoKind.MPM, new Meter(4, 4)));
-            SongTiming timing = new SongTiming(baseTempo, 64M, DurationKind.Measure);
+            var baseTempo = new Tempo(32M, new TempoType(TempoKind.MPM, new Meter(4, 4)));
+            var timing = new SongTiming(baseTempo, 64M, DurationKind.Measure);
             timing.SetRate(rate);
 
-            Tempo measuredTempo = timing.Tempo;
+            var measuredTempo = timing.Tempo;
             delta = Math.Abs(baseTempo.Rate - measuredTempo.Rate);
 
             Assert.IsTrue(delta < .1M);
         }
-
     }
 }

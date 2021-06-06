@@ -11,13 +11,11 @@ namespace m4d.Areas.Identity
         public Task<IdentityResult> ValidateAsync(UserManager<TUser> manager, TUser user)
         {
             if (user.UserName.Any(x => _exclude.Contains(x)))
-            {
                 return Task.FromResult(IdentityResult.Failed(new IdentityError
                 {
                     Code = "InvalidCharactersUsername",
                     Description = "Username can not contain '@', ':', ';', ',' or '|'"
                 }));
-            }
             return Task.FromResult(IdentityResult.Success);
         }
 

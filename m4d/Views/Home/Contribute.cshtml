@@ -28,21 +28,22 @@
         We appreciate any amount that you're willing to contribute to the music4dance effort.
         Anyone who contributes ten dollars or more receives a year of our
         <a href="https://music4dance.blog/music4dance-help/subscriptions/"></a>premium subscription,
-        which always gives you an ad-free experience.  We will also be experimenting with specific
-        premium features such as <a href="https://music4dance.blog/music4dance-help/bonus-content/">
+        which always gives you an ad-free experience. We will also be experimenting with specific
+        premium features such as
+        <a href="https://music4dance.blog/music4dance-help/bonus-content/">
             bonus content.
         </a>
     </p>
 
     if (User.Identity.IsAuthenticated)
     {
-        using (Html.BeginForm("Purchase", "Home", FormMethod.Post, new { id = "purchase", @class = "form-inline" }))
+        using (Html.BeginForm("Purchase", "Home", FormMethod.Post, new {id = "purchase", @class = "form-inline"}))
         {
             @Html.AntiForgeryToken()
-            <input type="hidden" name="kind" value="Purchase" />
+            <input type="hidden" name="kind" value="Purchase"/>
             <div class="form-group">
                 <label for="purchase-amount">Amount:</label>
-                $<input type="number" name="amount" min="10" max="9999" step="0.01" value="10.00" class="form-control" id="purchase-amount" />
+                $<input type="number" name="amount" min="10" max="9999" step="0.01" value="10.00" class="form-control" id="purchase-amount"/>
                 <button type="submit" class="btn btn-primary">Purchase Subscription</button>
             </div>
         }
@@ -58,19 +59,19 @@
     }
 
     <h2>Donate</h2>
-    using (Html.BeginForm("Purchase", "Home", FormMethod.Post, new { id = "contribute", @class = "form-inline" }))
+    using (Html.BeginForm("Purchase", "Home", FormMethod.Post, new {id = "contribute", @class = "form-inline"}))
     {
         @Html.AntiForgeryToken()
 
-        <input type="hidden" name="kind" value="Donation" />
+        <input type="hidden" name="kind" value="Donation"/>
         <div class="form-group">
             <label for="purchase-amount">Amount:</label>
-            $<input type="text" name="amount" min="0" max="9999" step="0.01" value="5.00" class="form-control" id="donate-amount" />
+            $<input type="text" name="amount" min="0" max="9999" step="0.01" value="5.00" class="form-control" id="donate-amount"/>
             <button type="submit" class="btn btn-primary">Donate</button>
         </div>
     }
 
-    <p class="big-text">Any questions about how subscriptions or donations work, how transactions are processed securely or anything else related to this transaction?  Please check out our <a href="https://music4dance.blog/music4dance-help/subscriptions/" target="_blank">help page.</a></p>
+    <p class="big-text">Any questions about how subscriptions or donations work, how transactions are processed securely or anything else related to this transaction? Please check out our <a href="https://music4dance.blog/music4dance-help/subscriptions/" target="_blank">help page.</a></p>
 
     <h2>Other ways to help</h2>
 
@@ -78,15 +79,17 @@
 }
 else
 {
-    <p class="big-text">We're currently working on implementing both a premium subscription and donation.  In the meantime, there are many other ways that you can support music4dance.net</p>
+    <p class="big-text">We're currently working on implementing both a premium subscription and donation. In the meantime, there are many other ways that you can support music4dance.net</p>
 }
 
 <ul class="big-text">
     <li>Tell your friends!</li>
     <li>Vote on the <a href="https://music4dance.blog/music4dance-help/dance-tags/">dancability of songs</a> and <a href="https://music4dance.blog/music4dance-help/tag-editing/">tag songs</a></li>
     <li>
-        Follow music4dance on Spotify<iframe src="https://open.spotify.com/follow/1/?uri=spotify:user:ebo1rk39vp51kkyjps45eobph&size=basic&theme=light" width="200" height="25" scrolling="no" frameborder="0" style="border:none; overflow:hidden;" allowtransparency="true"></iframe>.
-        <ul><li> You can also <a href="https://music4dance.blog/playing-songs-from-music4dance/">follow specific playlists</a> on Spotify.</li></ul>
+        Follow music4dance on Spotify<iframe src="https://open.spotify.com/follow/1/?uri=spotify:user:ebo1rk39vp51kkyjps45eobph&size=basic&theme=light" width="200" height="25" scrolling="no" frameborder="0" style="border: none; overflow: hidden;" allowtransparency="true"></iframe>.
+        <ul>
+            <li> You can also <a href="https://music4dance.blog/playing-songs-from-music4dance/">follow specific playlists</a> on Spotify.</li>
+        </ul>
     </li>
     <li>
         Like music4dance on Facebook:
@@ -100,9 +103,9 @@ else
     <li>Give us <a href="https://music4dance.blog/feedback/">feedback</a></li>
     <li><a href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/">Purchase music</a> in <a href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/itunes/">iTunes</a> or on <a href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/amazon/">Amazon</a> via our referal links.</li>
     <li>
-        Read the <a href="https://music4dance.blog/">music4dance blog</a> and:
-        <ul>
-            <li>Contribute to the conversation by commenting on a post </li>
-            <li>Or <a href="https://music4dance.blog/feedback/">contact us</a> if you would like to suggest a topic for a post or are interested in writing a guest post</li>
-        </ul>
+    Read the <a href="https://music4dance.blog/">music4dance blog</a> and:
+    <ul>
+        <li>Contribute to the conversation by commenting on a post </li>
+        <li>Or <a href="https://music4dance.blog/feedback/">contact us</a> if you would like to suggest a topic for a post or are interested in writing a guest post</li>
+    </ul>
 </ul>

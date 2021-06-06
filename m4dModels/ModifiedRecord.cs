@@ -39,7 +39,7 @@ namespace m4dModels
         [NotMapped]
         [JsonIgnore]
         public string DecoratedName =>
-            ApplicationUser.BuildDecoratedName(UserName,IsPseudo);
+            ApplicationUser.BuildDecoratedName(UserName, IsPseudo);
 
         [NotMapped]
         [JsonIgnore]
@@ -48,7 +48,8 @@ namespace m4dModels
 
         [NotMapped]
         [JsonIgnore]
-        public string LikeString {
+        public string LikeString
+        {
             get => Like?.ToString() ?? "null";
             set => ParseLike(value);
         }

@@ -17,11 +17,9 @@ namespace m4dModels
             TagSummary = new TagSummary();
         }
 
-        [DataMember]
-        public TagSummary TagSummary { get; set; }
+        [DataMember] public TagSummary TagSummary { get; set; }
 
-        [DataMember]
-        public TagList CurrentUserTags { get; protected set; }
+        [DataMember] public TagList CurrentUserTags { get; protected set; }
 
         public void SetCurrentUserTags(string user, Song song)
         {
@@ -29,7 +27,8 @@ namespace m4dModels
         }
 
         // Override this to register changed tags per user for your class (for instance song would push in song properties)
-        public virtual void RegisterChangedTags(TagList added, TagList removed, string user, object data)
+        public virtual void RegisterChangedTags(TagList added, TagList removed, string user,
+            object data)
         {
             //Trace.WriteLineIf(TraceLevels.General.TraceVerbose, string.Format("{0}:{1} - added={2};removed={3}", 
             //    user.UserName, TagId, added == null ? "(null)" : added.ToString(), removed == null ? "removed" : removed.ToString()));
@@ -37,7 +36,8 @@ namespace m4dModels
 
         // Add any tags from tags that haven't already been added by the user and return a list of
         // the actually added tags in canonical form
-        public virtual TagList AddTags(string tags, string user, DanceStatsInstance stats, object data = null, bool updateTypes = true)
+        public virtual TagList AddTags(string tags, string user, DanceStatsInstance stats,
+            object data = null, bool updateTypes = true)
         {
             var added = VerifyTags(tags);
             return added == null ? null : AddTags(added, user, stats, data, updateTypes);
@@ -63,7 +63,7 @@ namespace m4dModels
         public TagList RemoveTags(TagList tags, DanceStatsInstance stats)
         {
             var ring = stats == null ? tags : ConvertToRing(tags, stats);
-            TagSummary.ChangeTags(null,ring);
+            TagSummary.ChangeTags(null, ring);
             return ring;
         }
 
@@ -72,12 +72,10 @@ namespace m4dModels
             TagSummary.DeleteTag(tag);
         }
 
-        public virtual TagList AddTags(TagList tags, string user, DanceStatsInstance stats, object data = null, bool updateTypes = true)
+        public virtual TagList AddTags(TagList tags, string user, DanceStatsInstance stats,
+            object data = null, bool updateTypes = true)
         {
-            if (user == null)
-            {
-                return null;
-            }
+            if (user == null) return null;
 
             var ut = GetUserTags(user, data as Song);
 
@@ -109,14 +107,16 @@ namespace m4dModels
                 else
                 {
                     var cls = tag.Substring(i + 1).ToLower();
-                    var val = tag.Substring(0,i);
+                    var val = tag.Substring(0, i);
                     if (cls.Length < 2 || !validClasses.Contains(cls))
                     {
                         if (!fix) return null;
                         cls = "other";
                     }
+
                     one = $"{val}:{char.ToUpper(cls[0])}{cls.Substring(1).ToLower()}";
                 }
+
                 result.Add(one);
             }
 
@@ -131,7 +131,8 @@ namespace m4dModels
         //  of the actually removed tags in canonical form
         // TODO: Currently if removeTags gets rid of everything, an add tags in the same session with be a no-op,
         //  working around this by always doing an add before a remove, but that sucks long term
-        public TagList RemoveTags(string tags, string user, DanceStatsInstance stats, object data = null, bool updateTypes=true)
+        public TagList RemoveTags(string tags, string user, DanceStatsInstance stats,
+            object data = null, bool updateTypes = true)
         {
             // If there were no pre-existing user tags, removal is a no-op
             var ut = GetUserTags(user);
@@ -153,12 +154,14 @@ namespace m4dModels
 
         // Change the user's set of tags for this object to reflect the tags parameter
         //  return true if tags have actually changed
-        public bool ChangeTags(string tags, string user, DanceStatsInstance stats, object data = null, bool updateTypes = true)
+        public bool ChangeTags(string tags, string user, DanceStatsInstance stats,
+            object data = null, bool updateTypes = true)
         {
             return ChangeTags(new TagList(tags), user, stats, data, updateTypes);
         }
 
-        public bool ChangeTags(TagList newTags, string user, DanceStatsInstance stats, object data = null, bool updateTypes = true)
+        public bool ChangeTags(TagList newTags, string user, DanceStatsInstance stats,
+            object data = null, bool updateTypes = true)
         {
             // Short-circuit if both old and new are empty
             var ut = GetUserTags(user, data as Song);
@@ -175,11 +178,12 @@ namespace m4dModels
             return true;
         }
 
-        private void DoUpdate(TagList added, TagList removed, string user, DanceStatsInstance stats, object data, bool updateTypes=true)
+        private void DoUpdate(TagList added, TagList removed, string user, DanceStatsInstance stats,
+            object data, bool updateTypes = true)
         {
             TagSummary ??= new TagSummary();
 
-            var addRing = ConvertToRing(added,stats);
+            var addRing = ConvertToRing(added, stats);
             var delRing = ConvertToRing(removed, stats);
             TagSummary.ChangeTags(addRing, delRing);
             if (updateTypes && stats != null)
@@ -187,34 +191,31 @@ namespace m4dModels
             RegisterChangedTags(added, removed, user, data);
         }
 
-        private static void UpdateTagGroups(TagList added, TagList removed, DanceStatsInstance stats)
+        private static void UpdateTagGroups(TagList added, TagList removed,
+            DanceStatsInstance stats)
         {
             if (stats == null)
                 return;
 
             if (added != null)
-            {
                 foreach (var tag in added.Tags)
                 {
                     // Create a transitory tag type to parse the tag string
                     var tt = stats.TagManager.FindOrCreateTagGroup(tag);
                     tt.Count += 1;
                 }
-            }
 
             if (removed == null) return;
 
             foreach (var tt in removed.Tags.Select(stats.TagManager.FindOrCreateTagGroup))
-            {
                 tt.Count -= 1;
-                // TODO: We should consider a service that occasionally sweeps TagGroups and removes the ones that
-                //  aren't used, but we can't proactively delete them this way since when we're doing a full load
-                //  of the database this causes inconsistencies.
-                //if (tt.Count <= 0)
-                //{
-                //    dms.TagGroups.Remove(tt);
-                //}
-            }
+            // TODO: We should consider a service that occasionally sweeps TagGroups and removes the ones that
+            //  aren't used, but we can't proactively delete them this way since when we're doing a full load
+            //  of the database this causes inconsistencies.
+            //if (tt.Count <= 0)
+            //{
+            //    dms.TagGroups.Remove(tt);
+            //}
         }
 
         public bool UpdateTagSummary(TagSummary newSummary)
@@ -240,7 +241,6 @@ namespace m4dModels
 
             string cu = null;
             foreach (var prop in song.SongProperties)
-            {
                 // ReSharper disable once SwitchStatementMissingSomeCases
                 switch (prop.BaseName)
                 {
@@ -255,14 +255,11 @@ namespace m4dModels
                         var ring = stats == null ? tags : ConvertToRing(tags, stats);
 
                         if (userName.Equals(cu) && prop.DanceQualifier == danceId)
-                        {
-                            acc = prop.BaseName == Song.AddedTags 
-                                ? acc.Add(ring) 
+                            acc = prop.BaseName == Song.AddedTags
+                                ? acc.Add(ring)
                                 : acc.Subtract(ring);
-                        }
                         break;
                 }
-            }
 
             return acc;
         }
@@ -270,8 +267,12 @@ namespace m4dModels
         private static TagList ConvertToRing(TagList tags, DanceStatsInstance stats)
         {
             var tagMap = stats.TagManager.TagMap;
-            return tags == null ? null : 
-                new TagList(tags.Tags.Select(t => (tagMap.GetValueOrDefault(t.ToLower()) ?? new TagGroup { Key = t }).GetPrimary()).Select(tt => tt.Key).Distinct().ToList());
+            return tags == null
+                ? null
+                : new TagList(tags.Tags
+                    .Select(t =>
+                        (tagMap.GetValueOrDefault(t.ToLower()) ?? new TagGroup {Key = t})
+                        .GetPrimary()).Select(tt => tt.Key).Distinct().ToList());
         }
     }
 }

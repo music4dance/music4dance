@@ -26,8 +26,10 @@ namespace m4d
                     //using var context = scope.ServiceProvider.GetRequiredService<DanceMusicContext>();
                     //context.Database.Migrate();
 
-                    var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-                    var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                    var userManager =
+                        serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+                    var roleManager =
+                        serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
                     IdentityHostingStartup.SeedData(userManager, roleManager);
                 }
                 catch (Exception ex)
@@ -35,34 +37,38 @@ namespace m4d
                     Debug.WriteLine(ex.Message);
                 }
             }
+
             host.Run();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
+        public static IHostBuilder CreateHostBuilder(string[] args)
+        {
+            return Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder => webBuilder
-                .ConfigureAppConfiguration((hostingContext, config) =>
-                {
-                    var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-                    var isDevelopment = environment == Environments.Development;
-
-                    if (!isDevelopment) 
+                    .ConfigureAppConfiguration((hostingContext, config) =>
                     {
-                        var settings = config.Build();
-                        var credentials = new ManagedIdentityCredential();
+                        var environment =
+                            Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+                        var isDevelopment = environment == Environments.Development;
 
-                        config.AddAzureAppConfiguration(options =>
-                            options.Connect(new Uri(settings["AppConfig:Endpoint"]), credentials)
-                                .ConfigureKeyVault(kv => { kv.SetCredential(credentials); }));
-                    }
+                        if (!isDevelopment)
+                        {
+                            var settings = config.Build();
+                            var credentials = new ManagedIdentityCredential();
 
-                    // Working version of app config/keyvault for dev environment 
-                    //var settings = config.Build();
-                    //config.AddAzureAppConfiguration(options =>
-                    //    options.Connect(settings["ConnectionStrings:AppConfig"])
-                    //        .ConfigureKeyVault(kv => { kv.SetCredential(new DefaultAzureCredential()); }));
+                            config.AddAzureAppConfiguration(options =>
+                                options.Connect(new Uri(settings["AppConfig:Endpoint"]),
+                                        credentials)
+                                    .ConfigureKeyVault(kv => { kv.SetCredential(credentials); }));
+                        }
 
-                })
-                .UseStartup<Startup>());
+                        // Working version of app config/keyvault for dev environment 
+                        //var settings = config.Build();
+                        //config.AddAzureAppConfiguration(options =>
+                        //    options.Connect(settings["ConnectionStrings:AppConfig"])
+                        //        .ConfigureKeyVault(kv => { kv.SetCredential(new DefaultAzureCredential()); }));
+                    })
+                    .UseStartup<Startup>());
+        }
     }
 }

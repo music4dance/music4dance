@@ -13,7 +13,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AutoMapper;
-using FacetResults = System.Collections.Generic.IDictionary<string, System.Collections.Generic.IList<Microsoft.Azure.Search.Models.FacetResult>>;
+using FacetResults =
+    System.Collections.Generic.IDictionary<string, System.Collections.Generic.IList<
+        Microsoft.Azure.Search.Models.FacetResult>>;
 
 namespace m4dModels
 {
@@ -32,10 +34,12 @@ namespace m4dModels
 
         public DanceMusicCoreService GetTransientService()
         {
-            return new DanceMusicCoreService(Context.CreateTransientContext(), SearchService, DanceStatsManager);
+            return new DanceMusicCoreService(Context.CreateTransientContext(), SearchService,
+                DanceStatsManager);
         }
 
-        public DanceMusicCoreService(DanceMusicContext context, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager)
+        public DanceMusicCoreService(DanceMusicContext context, ISearchServiceManager searchService,
+            IDanceStatsManager danceStatsManager)
         {
             Context = context;
             SearchService = searchService;
@@ -48,13 +52,14 @@ namespace m4dModels
             Context = null;
             temp?.Dispose();
         }
+
         #endregion
 
         #region Properties
 
         public DanceMusicContext Context { get; private set; }
 
-        protected ISearchServiceManager SearchService { get;  }
+        protected ISearchServiceManager SearchService { get; }
 
         protected IDanceStatsManager DanceStatsManager { get; }
 
@@ -70,7 +75,7 @@ namespace m4dModels
 
         public void SaveSong(Song song, string id = "default")
         {
-            SaveSongs(new [] {song}, id);
+            SaveSongs(new[] {song}, id);
         }
 
         [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
@@ -80,10 +85,7 @@ namespace m4dModels
 
             // DBKill: we probably need to keep a DSI for each index (built on demand of course) so that we can do live swaps
             var stats = DanceStats;
-            foreach (var song in songs)
-            {
-                stats.UpdateSong(song, this);
-            }
+            foreach (var song in songs) stats.UpdateSong(song, this);
 
             UpdateAzureIndex(id);
         }
@@ -94,10 +96,7 @@ namespace m4dModels
             if (songs == null || !songs.Any()) return;
 
             var stats = DanceStats;
-            foreach (var song in songs)
-            {
-                stats.UpdateSong(song, this);
-            }
+            foreach (var song in songs) stats.UpdateSong(song, this);
 
             IndexUpdater.Enqueue(this, SearchService.GetInfo(id));
         }
@@ -111,36 +110,37 @@ namespace m4dModels
         public static readonly string BetaRole = "beta";
         public static readonly string TrialRole = "trial";
 
-        public static readonly string[] Roles = { DiagRole, EditRole, DbaRole, TagRole, PremiumRole, TrialRole, BetaRole };
+        public static readonly string[] Roles =
+            {DiagRole, EditRole, DbaRole, TagRole, PremiumRole, TrialRole, BetaRole};
 
         public static IEnumerable<string> UserRoles(ClaimsPrincipal user)
         {
             return Roles.Where(r => user.IsInRole(r));
         }
+
         #endregion
 
         #region Edit
+
         protected static Song CreateSong(Guid? guid = null)
         {
-            return new Song {SongId =  (guid == null || guid == Guid.Empty) ? Guid.NewGuid() : guid.Value};
+            return new Song
+                {SongId = guid == null || guid == Guid.Empty ? Guid.NewGuid() : guid.Value};
         }
 
-        public Song CreateSong(ApplicationUser user, Song sd=null,  IEnumerable<UserTag> tags = null, string command = Song.CreateCommand, string value = null)
+        public Song CreateSong(ApplicationUser user, Song sd = null,
+            IEnumerable<UserTag> tags = null, string command = Song.CreateCommand,
+            string value = null)
         {
             if (sd != null)
-            {
-                Trace.WriteLineIf(string.Equals(sd.Title, sd.Artist), $"Title and Artist are the same ({sd.Title})");
-            }
+                Trace.WriteLineIf(string.Equals(sd.Title, sd.Artist),
+                    $"Title and Artist are the same ({sd.Title})");
 
             var song = CreateSong(sd?.SongId);
             if (sd == null)
-            {
                 song.Create(user, command, value, true);
-            }
             else
-            {
                 song.Create(sd, tags, user, command, value, DanceStats);
-            }
 
             return new Song(song, this, user.UserName);
         }
@@ -156,12 +156,14 @@ namespace m4dModels
             var song = FindSong(edit.SongId);
 
             // TODO: Figure out if we need to rebuild the song after edit in all cases or if there is a cleaner way to do this
-            return !song.Edit(user, edit, tags, DanceStats) 
-                ? null : new Song(song.SongId, song.SongProperties, this);
+            return !song.Edit(user, edit, tags, DanceStats)
+                ? null
+                : new Song(song.SongId, song.SongProperties, this);
         }
 
         // Returns true if changed
-        public bool EditSong(ApplicationUser user, Song song, Song edit, IEnumerable<UserTag> tags = null)
+        public bool EditSong(ApplicationUser user, Song song, Song edit,
+            IEnumerable<UserTag> tags = null)
         {
             var changed = song.Edit(user, edit, tags, DanceStats);
             if (!changed) return false;
@@ -222,10 +224,7 @@ namespace m4dModels
         public bool AppendHistory(SongHistory history, IMapper mapper)
         {
             var song = FindSong(history.Id);
-            if (song == null)
-            {
-                return false;
-            }
+            if (song == null) return false;
 
             song.AppendHistory(history, mapper, this);
             SaveSong(song);
@@ -242,7 +241,8 @@ namespace m4dModels
         // This is an additive merge - only add new things if they don't conflict with the old
         //  TODO: I'm pretty sure I can clean up this and all the other editing stuff by pushing
         //  the diffing part down into Song (which will also let me unit test it more easily)
-        public bool AdditiveMerge(ApplicationUser user, Song initial, Song edit, List<string> addDances)
+        public bool AdditiveMerge(ApplicationUser user, Song initial, Song edit,
+            List<string> addDances)
         {
             return initial.AdditiveMerge(user, edit, addDances, DanceStats);
         }
@@ -253,28 +253,24 @@ namespace m4dModels
             if (albums.Count == song.Albums.Count) return 0;
 
             var delta = song.Albums.Count - albums.Count;
-            Trace.WriteLineIf(TraceLevels.General.TraceVerbose, $"{delta}: {song.Title} {song.Artist}");
+            Trace.WriteLineIf(TraceLevels.General.TraceVerbose,
+                $"{delta}: {song.Title} {song.Artist}");
             song.Albums = albums.ToList();
             EditSong(user, song);
             return delta;
         }
 
-        private static IList<AlbumDetails> MergeAlbums(IEnumerable<Song> songs, string def, ICollection<string> keys, string artist)
+        private static IList<AlbumDetails> MergeAlbums(IEnumerable<Song> songs, string def,
+            ICollection<string> keys, string artist)
         {
-            var details = (songs as IList<Song>)??songs.ToList();
+            var details = songs as IList<Song> ?? songs.ToList();
             var albumsIn = new List<AlbumDetails>();
             var albumsOut = new List<AlbumDetails>();
 
-            foreach (var sd in details)
-            {
-                albumsIn.AddRange(sd.Albums);
-            }
+            foreach (var sd in details) albumsIn.AddRange(sd.Albums);
 
             var defIdx = -1;
-            if (!string.IsNullOrWhiteSpace(def))
-            {
-                int.TryParse(def, out defIdx);
-            }
+            if (!string.IsNullOrWhiteSpace(def)) int.TryParse(def, out defIdx);
 
             var idx = 0;
             if (defIdx >= 0 && albumsIn.Count > defIdx)
@@ -299,27 +295,26 @@ namespace m4dModels
                 idx += 1;
             }
 
-            return AlbumDetails.MergeAlbums(albumsOut,artist,false);
+            return AlbumDetails.MergeAlbums(albumsOut, artist, false);
         }
 
-        public Song MergeSongs(ApplicationUser user, List<Song> songs, string title, string artist, decimal? tempo, int? length, IList<AlbumDetails> albums)
+        public Song MergeSongs(ApplicationUser user, List<Song> songs, string title, string artist,
+            decimal? tempo, int? length, IList<AlbumDetails> albums)
         {
             var songIds = songs.Select(s => s.SongId).ToList();
             var stringIds = string.Join(";", songIds.Select(id => id.ToString()));
 
-            if (songs.Any(s => s.SongProperties == null))
-            {
-                songs = FindSongs(songIds).ToList();
-            }
+            if (songs.Any(s => s.SongProperties == null)) songs = FindSongs(songIds).ToList();
 
-            var song = CreateSong(user, null,null, Song.MergeCommand, stringIds);
+            var song = CreateSong(user, null, null, Song.MergeCommand, stringIds);
 
             // Add in the properties for all of the songs and then delete them
             foreach (var from in songs)
             {
                 song.UpdateProperties(from.SongProperties, this, new[]
                 {
-                    Song.FailedLookup, Song.AlbumField, Song.TrackField, Song.PublisherField, Song.PurchaseField, Song.AlbumListField, Song.AlbumOrder, Song.AlbumPromote
+                    Song.FailedLookup, Song.AlbumField, Song.TrackField, Song.PublisherField,
+                    Song.PurchaseField, Song.AlbumListField, Song.AlbumOrder, Song.AlbumPromote
                 });
                 DeleteSong(user, from);
             }
@@ -336,7 +331,7 @@ namespace m4dModels
 
             song.CreateAlbums(albums);
 
-            song =  new Song(song.SongId,song.SongProperties,this);
+            song = new Song(song.SongId, song.SongProperties, this);
             song.CleanupProperties(this);
 
             SaveSong(song);
@@ -344,9 +339,11 @@ namespace m4dModels
             return song;
         }
 
-        public Song MergeSongs(ApplicationUser user, List<Song> songs, string title, string artist, decimal? tempo, int? length, string defAlbums, HashSet<string> keys)
+        public Song MergeSongs(ApplicationUser user, List<Song> songs, string title, string artist,
+            decimal? tempo, int? length, string defAlbums, HashSet<string> keys)
         {
-            return MergeSongs(user,songs,title,artist,tempo,length,MergeAlbums(songs,defAlbums,keys,artist));
+            return MergeSongs(user, songs, title, artist, tempo, length,
+                MergeAlbums(songs, defAlbums, keys, artist));
         }
 
         public void DeleteSong(ApplicationUser user, Song song)
@@ -385,10 +382,7 @@ namespace m4dModels
                 }
                 else
                 {
-                    if (init - final != 0)
-                    {
-                        Trace.WriteLine($"Failed ({init - final}): {song}");
-                    }
+                    if (init - final != 0) Trace.WriteLine($"Failed ({init - final}): {song}");
                     Trace.WriteLine($"Skipped: {song}");
                     failed.Add(song);
                 }
@@ -397,10 +391,7 @@ namespace m4dModels
 
                 AdminMonitor.UpdateTask("CleanProperty", succeeded.Count + failed.Count);
 
-                if (succeeded.Count + failed.Count >= max)
-                {
-                    break;
-                }
+                if (succeeded.Count + failed.Count >= max) break;
             }
 
             ret.LastTime = lastTouched;
@@ -408,10 +399,7 @@ namespace m4dModels
             ret.Failed = failed.Count;
 
             ret.Message = $"Cleaned up {cummulative} properties.";
-            if (ret.Succeeded > 0)
-            {
-                SaveChanges();
-            }
+            if (ret.Succeeded > 0) SaveChanges();
 
             if (ret.Succeeded + ret.Failed >= max) return ret;
 
@@ -421,10 +409,11 @@ namespace m4dModels
             return ret;
         }
 
-        public IList<Song> SongsFromTracks(ApplicationUser user, IEnumerable<ServiceTrack> tracks, string multiDance, string songTags)
+        public IList<Song> SongsFromTracks(ApplicationUser user, IEnumerable<ServiceTrack> tracks,
+            string multiDance, string songTags)
         {
             return tracks.Where(
-                track => !string.IsNullOrEmpty(track.Artist))
+                    track => !string.IsNullOrEmpty(track.Artist))
                 .Select(track => Song.CreateFromTrack(user, track, multiDance, songTags, this))
                 .ToList();
         }
@@ -433,19 +422,12 @@ namespace m4dModels
         {
             var context = Context;
             var dance = context.Dances.Find(core.Id);
-            if (dance == null)
-            {
-                return null;
-            }
-            if (!dance.Description.Equals(core.Description))
-            {
-                dance.Description = core.Description;
-            }
+            if (dance == null) return null;
+            if (!dance.Description.Equals(core.Description)) dance.Description = core.Description;
 
             var newIds = new List<Guid>();
 
             if (core.DanceLinks != null)
-            {
                 foreach (var link in core.DanceLinks)
                 {
                     link.DanceId = core.Id;
@@ -456,15 +438,12 @@ namespace m4dModels
                         newIds.Add(guid);
                     }
                 }
-            }
 
             var danceLinks = core.DanceLinks ?? new List<DanceLink>();
 
             // Change new state to added
             foreach (var link in danceLinks.Where(d => newIds.Contains(d.Id)))
-            {
                 context.Entry(link).State = EntityState.Added;
-            }
 
             // Find the deleted links (if any)
             var oldLinks = context.DanceLinks.Where(dl => dl.DanceId == core.Id).ToList();
@@ -510,32 +489,24 @@ namespace m4dModels
             foreach (var prop in song.SongProperties)
             {
                 if (prop.Name == Song.UserField)
-                {
-                    collect = string.Equals(prop.Value, user.UserName, StringComparison.OrdinalIgnoreCase);
-                }
-                else if (!collect && prop.IsAction)
-                {
-                    lastCommand = prop;
-                }
+                    collect = string.Equals(prop.Value, user.UserName,
+                        StringComparison.OrdinalIgnoreCase);
+                else if (!collect && prop.IsAction) lastCommand = prop;
 
                 if (!collect) continue;
 
-                if (lastCommand != null)
-                {
-                    props.Add(lastCommand);
-                }
+                if (lastCommand != null) props.Add(lastCommand);
                 props.Add(prop);
                 lastCommand = null;
             }
-            foreach (var prop in props)
-            {
-                song.SongProperties.Remove(prop);
-            }
+
+            foreach (var prop in props) song.SongProperties.Remove(prop);
 
             AdminEditSong(song, song.Serialize(null));
 
             SaveSong(song);
         }
+
         #endregion
 
         #region Song Lookup
@@ -546,7 +517,8 @@ namespace m4dModels
 
             var info = SearchService.GetInfo();
 
-            using var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey));
+            using var serviceClient =
+                new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey));
             using var indexClient = serviceClient.Indexes.GetClient(info.Index);
             return InternalFindSong(id, userName, indexClient);
         }
@@ -556,7 +528,8 @@ namespace m4dModels
             // TODO: Can we do a more efficient Azure Seach (look at comment SongsFromIds)
             var info = SearchService.GetInfo();
 
-            using var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey));
+            using var serviceClient =
+                new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey));
             using var indexClient = serviceClient.Indexes.GetClient(info.Index);
             return ids.Select(id => InternalFindSong(id, userName, indexClient)).ToList();
         }
@@ -568,7 +541,7 @@ namespace m4dModels
 
             try
             {
-                var doc = client.Documents.Get(id.ToString(), new[] { Song.PropertiesField });
+                var doc = client.Documents.Get(id.ToString(), new[] {Song.PropertiesField});
                 if (doc == null) return null;
 
                 var details = new Song(id, doc[Song.PropertiesField] as string, this, userName);
@@ -581,12 +554,14 @@ namespace m4dModels
             }
         }
 
-        protected IEnumerable<Song> SongsFromAzureResult(DocumentSearchResult<Document> result, string user = null)
+        protected IEnumerable<Song> SongsFromAzureResult(DocumentSearchResult<Document> result,
+            string user = null)
         {
             return result.Results.Select(d => new Song(d.Document, this, user));
         }
 
-        protected IEnumerable<Song> FindUserSongs(string user, bool includeHate=false, string id = "default")
+        protected IEnumerable<Song> FindUserSongs(string user, bool includeHate = false,
+            string id = "default")
         {
             const int max = 10000;
 
@@ -601,11 +576,12 @@ namespace m4dModels
 
             var info = SearchService.GetInfo(id);
 
-            using var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey));
+            using var serviceClient =
+                new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey));
             using var indexClient = serviceClient.Indexes.GetClient(info.Index);
             var response = DoAzureSearch(null, afilter, CruftFilter.AllCruft, indexClient);
 
-            results.AddRange(SongsFromAzureResult(response,user));
+            results.AddRange(SongsFromAzureResult(response, user));
 
             if (response.ContinuationToken == null) return results;
 
@@ -614,27 +590,34 @@ namespace m4dModels
                 while (response.ContinuationToken != null && results.Count < max)
                 {
                     response = indexClient.Documents.ContinueSearch(response.ContinuationToken);
-                    results.AddRange(response.Results.Select(d => new Song(d.Document, this, user)));
+                    results.AddRange(
+                        response.Results.Select(d => new Song(d.Document, this, user)));
                 }
             }
             catch (CloudException e)
             {
                 Trace.WriteLineIf(TraceLevels.General.TraceVerbose, e.Message);
             }
+
             return results;
         }
 
         public Song FindMergedSong(Guid id, string userName, ISearchIndexClient client = null)
         {
-            return DoAzureSearch(null, 
-                new SearchParameters {Filter = $"(AlternateIds/any(t: t eq '{id}'))"}, CruftFilter.AllCruft, client)
+            return DoAzureSearch(null,
+                    new SearchParameters {Filter = $"(AlternateIds/any(t: t eq '{id}'))"},
+                    CruftFilter.AllCruft, client)
                 .Results.Select(
                     r => new Song(r.Document, this, userName)).FirstOrDefault(s => !s.IsNull);
         }
 
         public DateTimeOffset GetLastModified(ISearchIndexClient client = null)
         {
-            var ret = DoAzureSearch(null, new SearchParameters {OrderBy=new [] { "Modified desc" }, Top=1,Select=new[] {Song.ModifiedField} }, CruftFilter.AllCruft, client);
+            var ret = DoAzureSearch(null,
+                new SearchParameters
+                {
+                    OrderBy = new[] {"Modified desc"}, Top = 1, Select = new[] {Song.ModifiedField}
+                }, CruftFilter.AllCruft, client);
             if (ret.Results.Count == 0) return DateTime.MinValue;
 
             var d = ret.Results[0].Document[Song.ModifiedField];
@@ -652,14 +635,12 @@ namespace m4dModels
                 if (!Guid.TryParse(t, out idx)) continue;
 
                 var s = FindSong(idx);
-                if (s != null)
-                {
-                    songs.Add(s);
-                }
+                if (s != null) songs.Add(s);
             }
 
             return songs;
         }
+
         #endregion
 
         #region Searching
@@ -669,7 +650,7 @@ namespace m4dModels
         {
             NoCruft = 0x00,
             NoPublishers = 0x01,
-            NoDances =0x02,
+            NoDances = 0x02,
             AllCruft = 0x03
         };
 
@@ -681,15 +662,14 @@ namespace m4dModels
             foreach (var s in songs)
             {
                 var mod = s.ModifiedBy.FirstOrDefault(m => m.UserName == userName);
-                if (mod != null)
-                {
-                    likes.Add(s.SongId, mod.Like);
-                }
+                if (mod != null) likes.Add(s.SongId, mod.Like);
             }
+
             return likes;
         }
 
-        public LikeDictionary UserDanceLikes(IEnumerable<Song> songs, string danceId, string userName)
+        public LikeDictionary UserDanceLikes(IEnumerable<Song> songs, string danceId,
+            string userName)
         {
             if (string.IsNullOrWhiteSpace(userName)) return null;
 
@@ -701,6 +681,7 @@ namespace m4dModels
                 if (level > 0) likes.Add(s.SongId, true);
                 else if (level < 0) likes.Add(s.SongId, false);
             }
+
             return likes;
         }
 
@@ -717,10 +698,10 @@ namespace m4dModels
                     f.Action = null;
                 var userId = user?.Id;
                 var q = f.ToString();
-                var search = Searches.FirstOrDefault(s => s.ApplicationUserId == userId && s.Query == q);
+                var search =
+                    Searches.FirstOrDefault(s => s.ApplicationUserId == userId && s.Query == q);
                 var now = DateTime.Now;
                 if (search == null)
-                {
                     Searches.Add(new Search
                     {
                         ApplicationUserId = userId,
@@ -729,7 +710,6 @@ namespace m4dModels
                         Count = 0,
                         Name = null
                     });
-                }
 
                 if (search != null)
                 {
@@ -741,11 +721,17 @@ namespace m4dModels
             }
             catch (Exception e)
             {
-                Trace.WriteLineIf(TraceLevels.General.TraceWarning, $"UpdateSearches: Failed with {e.Message}");
+                Trace.WriteLineIf(TraceLevels.General.TraceWarning,
+                    $"UpdateSearches: Failed with {e.Message}");
             }
         }
 
-        public enum MatchMethod { None, Tempo, Merge };
+        public enum MatchMethod
+        {
+            None,
+            Tempo,
+            Merge
+        };
 
         public Song FindMatchingSong(Song song)
         {
@@ -759,18 +745,20 @@ namespace m4dModels
         private IEnumerable<Song> SongsFromTitle(string title, ISearchIndexClient client = null)
         {
             return DoAzureSearch(title, new SearchParameters(), CruftFilter.AllCruft, client)
-                    .Results.Select(
-                        r => new Song(r.Document, this));
+                .Results.Select(
+                    r => new Song(r.Document, this));
         }
 
         private LocalMerger MergeFromTitle(Song song, ISearchIndexClient client = null)
         {
             var songs = SongsFromTitle(song.Title, client);
 
-            var candidates = (from s in songs where song.TitleArtistEquivalent(s) select s).ToList();
+            var candidates =
+                (from s in songs where song.TitleArtistEquivalent(s) select s).ToList();
 
             if (candidates.Count <= 0)
-                return new LocalMerger {Left = song, Right = null, MatchType = MatchType.None, Conflict = false};
+                return new LocalMerger
+                    {Left = song, Right = null, MatchType = MatchType.None, Conflict = false};
 
             Song match = null;
             var type = MatchType.None;
@@ -793,8 +781,9 @@ namespace m4dModels
             {
                 var songD = song;
                 foreach (var s in candidates
-                    .Where(s => songD.Length != null &&
-                        (s.Length.HasValue && Math.Abs(s.Length.Value - songD.Length.Value) < 5)))
+                    .Where(s =>
+                        songD.Length != null && s.Length.HasValue &&
+                        Math.Abs(s.Length.Value - songD.Length.Value) < 5))
                 {
                     match = s;
                     type = MatchType.Length;
@@ -812,7 +801,7 @@ namespace m4dModels
                 match = candidates[0];
             }
 
-            return new LocalMerger { Left = song, Right = match, MatchType = type, Conflict = false };
+            return new LocalMerger {Left = song, Right = match, MatchType = type, Conflict = false};
         }
 
         private LocalMerger MergeFromPurchaseInfo(Song song, ISearchIndexClient client)
@@ -826,26 +815,31 @@ namespace m4dModels
                 {
                     var match = GetSongFromService(service, id, null, client);
                     if (match != null)
-                    {
-                        return new LocalMerger { Left = song, Right = match, MatchType = MatchType.Exact, Conflict = false };
-                    }
-
+                        return new LocalMerger
+                        {
+                            Left = song, Right = match, MatchType = MatchType.Exact,
+                            Conflict = false
+                        };
                 }
             }
+
             return null;
         }
 
-        public IList<LocalMerger> MatchSongs(IList<Song> newSongs, MatchMethod method, string id = "default")
+        public IList<LocalMerger> MatchSongs(IList<Song> newSongs, MatchMethod method,
+            string id = "default")
         {
             newSongs = RemoveDuplicateSongs(newSongs);
             var merge = new List<LocalMerger>();
 
             var info = SearchService.GetInfo(id);
-            using var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey));
+            using var serviceClient =
+                new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey));
             using var indexClient = serviceClient.Indexes.GetClient(info.Index);
             foreach (var song in newSongs)
             {
-                var m = MergeFromPurchaseInfo(song, indexClient) ?? MergeFromTitle(song, indexClient);
+                var m = MergeFromPurchaseInfo(song, indexClient) ??
+                    MergeFromTitle(song, indexClient);
 
                 switch (method)
                 {
@@ -882,23 +876,24 @@ namespace m4dModels
             return ret;
         }
 
-        public IEnumerable<Song> MergeCatalog(ApplicationUser user, IList<LocalMerger> merges, IEnumerable<string> dances = null)
+        public IEnumerable<Song> MergeCatalog(ApplicationUser user, IList<LocalMerger> merges,
+            IEnumerable<string> dances = null)
         {
             var songs = new List<Song>();
 
             var dancesL = dances?.ToList() ?? new List<string>();
 
             foreach (var m in merges)
-            {
-
                 // Matchtype of none indicates a new (to us) song, so just add it
                 if (m.MatchType == MatchType.None)
                 {
                     if (dancesL.Any())
                     {
-                        m.Left.UpdateDanceRatingsAndTags(user.UserName, dancesL, Song.DanceRatingInitial,DanceStats);
+                        m.Left.UpdateDanceRatingsAndTags(user.UserName, dancesL,
+                            Song.DanceRatingInitial, DanceStats);
                         m.Left.InferDances(user.UserName);
                     }
+
                     songs.Add(m.Left);
                 }
                 // Any other matchtype should result in a merge, which for now is just adding the dance(s) from
@@ -909,11 +904,12 @@ namespace m4dModels
                     if (AdditiveMerge(user, m.Right, m.Left, dancesL))
                         songs.Add(m.Right);
                 }
-            }
 
             return songs;
         }
-        public static ICollection<ICollection<PurchaseLink>> GetPurchaseLinks(ServiceType serviceType, IEnumerable<Song> songs, string region = null)
+
+        public static ICollection<ICollection<PurchaseLink>> GetPurchaseLinks(
+            ServiceType serviceType, IEnumerable<Song> songs, string region = null)
         {
             if (songs == null) return null;
 
@@ -926,7 +922,7 @@ namespace m4dModels
             {
                 if (song.Purchase == null || !song.Purchase.Contains(cid)) continue;
 
-                var l = song.GetPurchaseLinks(sid,region);
+                var l = song.GetPurchaseLinks(sid, region);
                 if (l != null)
                     links.Add(l);
             }
@@ -934,45 +930,58 @@ namespace m4dModels
             return links;
         }
 
-        public ICollection<ICollection<PurchaseLink>> GetPurchaseLinks(ServiceType serviceType, IEnumerable<Guid> songIds, string region = null)
+        public ICollection<ICollection<PurchaseLink>> GetPurchaseLinks(ServiceType serviceType,
+            IEnumerable<Guid> songIds, string region = null)
         {
             return GetPurchaseLinks(serviceType, FindSongs(songIds), region);
         }
 
-        public string GetPurchaseInfo(ServiceType serviceType, IEnumerable<Song> songs, string region)
+        public string GetPurchaseInfo(ServiceType serviceType, IEnumerable<Song> songs,
+            string region)
         {
             var songLinks = GetPurchaseLinks(serviceType, songs, region);
             return PurchaseLinksToInfo(songLinks, region);
         }
 
-        public string GetPurchaseInfo(ServiceType serviceType, IEnumerable<Guid> songIds, string region)
+        public string GetPurchaseInfo(ServiceType serviceType, IEnumerable<Guid> songIds,
+            string region)
         {
             var songLinks = GetPurchaseLinks(serviceType, songIds, region);
             return PurchaseLinksToInfo(songLinks, region);
         }
 
-        public static string PurchaseLinksToInfo(ICollection<ICollection<PurchaseLink>> songLinks, string region)
+        public static string PurchaseLinksToInfo(ICollection<ICollection<PurchaseLink>> songLinks,
+            string region)
         {
-            var results = (from links in songLinks select links.SingleOrDefault(l => l.AvailableMarkets == null || l.AvailableMarkets.Contains(region)) into link where link != null select link.SongId).ToList();
-            return string.Join(",",results);
+            var results = (from links in songLinks
+                select links.SingleOrDefault(l =>
+                    l.AvailableMarkets == null || l.AvailableMarkets.Contains(region))
+                into link
+                where link != null
+                select link.SongId).ToList();
+            return string.Join(",", results);
         }
 
-        public Song GetSongFromService(MusicService service, string id, string userName=null, ISearchIndexClient client = null)
+        public Song GetSongFromService(MusicService service, string id, string userName = null,
+            ISearchIndexClient client = null)
         {
             if (string.IsNullOrWhiteSpace(id)) return null;
 
             var sid = $"\"{service.CID}:{id}\"";
-            var parameters = new SearchParameters {SearchFields = new [] {Song.ServiceIds} };
+            var parameters = new SearchParameters {SearchFields = new[] {Song.ServiceIds}};
             var results = DoAzureSearch(sid, parameters,
                 CruftFilter.AllCruft, client);
-            return (results.Results.Count > 0) ? 
-                new Song(results.Results[0].Document, this, userName) : null;
+            return results.Results.Count > 0
+                ? new Song(results.Results[0].Document, this, userName)
+                : null;
         }
 
         #endregion
 
         #region Tags
-        public IReadOnlyDictionary<string, TagGroup> TagMap => DanceStatsManager.Instance.TagManager.TagMap;
+
+        public IReadOnlyDictionary<string, TagGroup> TagMap =>
+            DanceStatsManager.Instance.TagManager.TagMap;
 
         public DanceStatsInstance DanceStats => _stats ?? DanceStatsManager.Instance;
 
@@ -980,16 +989,18 @@ namespace m4dModels
         {
             _stats = stats;
         }
+
         private DanceStatsInstance _stats;
 
         public TagGroup FindOrCreateTagGroup(string value, string category, string primary = null)
         {
-            return TagGroups.Find(TagGroup.BuildKey(value, category)) ?? CreateTagGroup(value, category);
+            return TagGroups.Find(TagGroup.BuildKey(value, category)) ??
+                CreateTagGroup(value, category);
         }
 
         // Add in category for tags that don't already have one + create
         //  tagtype if necessary
-        public string NormalizeTags(string tags, string category, bool useGroup=false)
+        public string NormalizeTags(string tags, string category, bool useGroup = false)
         {
             var old = new TagList(tags);
             var result = new List<string>();
@@ -1011,7 +1022,7 @@ namespace m4dModels
 
                 var group = FindOrCreateTagGroup(tempTag, tempCat);
 
-                result.Add(useGroup? group.Key : fullTag);
+                result.Add(useGroup ? group.Key : fullTag);
             }
 
             return new TagList(result).ToString();
@@ -1031,16 +1042,14 @@ namespace m4dModels
             //  potentially affected songs
             var filter = FilterFromTag(tagGroup.Key);
             if (string.IsNullOrWhiteSpace(filter))
-            {
-                throw new ArgumentOutOfRangeException(nameof(tagGroup), $"Attempted to UpdateTag {tagGroup.Key}");
-            }
+                throw new ArgumentOutOfRangeException(nameof(tagGroup),
+                    $"Attempted to UpdateTag {tagGroup.Key}");
 
 
             // Nothing Changed, just return
-            if (string.Equals(tagGroup.Key, newKey) && (string.Equals(tagGroup.PrimaryId, newPrimaryKey) || tagGroup.PrimaryId == null && newPrimaryKey == newKey))
-            {
-                return false;
-            }
+            if (string.Equals(tagGroup.Key, newKey) &&
+                (string.Equals(tagGroup.PrimaryId, newPrimaryKey) ||
+                    tagGroup.PrimaryId == null && newPrimaryKey == newKey)) return false;
 
             var existing = TagGroups.Find(newKey);
             if (existing != null)
@@ -1079,7 +1088,7 @@ namespace m4dModels
 
             DanceStats.TagManager.UpdateTagRing(tagGroup.Key, tagGroup.PrimaryId);
 
-            var parameters = new SearchParameters { Filter = filter };
+            var parameters = new SearchParameters {Filter = filter};
 
             SearchContinuationToken tok = null;
             do
@@ -1113,10 +1122,7 @@ namespace m4dModels
             foreach (var tag in tags.Tags)
             {
                 var tt = GetTagRing(tag);
-                if (!map.ContainsKey(tt.Key))
-                {
-                    map.Add(tt.Key, tt);
-                }
+                if (!map.ContainsKey(tt.Key)) map.Add(tt.Key, tt);
             }
 
             return map.Values;
@@ -1125,8 +1131,8 @@ namespace m4dModels
         public TagGroup GetTagRing(string tag)
         {
             return TagMap.TryGetValue(tag.ToLower(), out var tt)
-                ? tt.GetPrimary() :
-                new TagGroup(tag);
+                ? tt.GetPrimary()
+                : new TagGroup(tag);
         }
 
         private void AddTagType(TagGroup tagGroup)
@@ -1139,11 +1145,11 @@ namespace m4dModels
                 PrimaryId = tagGroup.PrimaryId,
                 Count = tagGroup.Count,
                 Modified = DateTime.Now
-
             });
         }
 
-        protected TagGroup CreateTagGroup(string value, string category, bool updateTagManager = true) 
+        protected TagGroup CreateTagGroup(string value, string category,
+            bool updateTagManager = true)
         {
             var type = new TagGroup();
             type.Key = TagGroup.BuildKey(value, category);
@@ -1163,6 +1169,7 @@ namespace m4dModels
                 if (updateTagManager)
                     DanceStats.TagManager.AddTagGroup(type);
             }
+
             return type;
         }
 
@@ -1175,21 +1182,22 @@ namespace m4dModels
             }
         }
 
-        private static readonly Dictionary<string, IOrderedEnumerable<TagCount>> s_sugMap = new Dictionary<string, IOrderedEnumerable<TagCount>>();
-        private static readonly Dictionary<string, IOrderedEnumerable<TagCount>> s_usMap = new Dictionary<string, IOrderedEnumerable<TagCount>>();
+        private static readonly Dictionary<string, IOrderedEnumerable<TagCount>> s_sugMap =
+            new Dictionary<string, IOrderedEnumerable<TagCount>>();
+
+        private static readonly Dictionary<string, IOrderedEnumerable<TagCount>> s_usMap =
+            new Dictionary<string, IOrderedEnumerable<TagCount>>();
 
         #endregion
 
         #region Search
+
         public bool ResetIndex(string id = "default")
         {
             var info = SearchService.GetInfo(id);
             using var serviceClient = new SearchServiceClient(info.Name,
                 new SearchCredentials(info.AdminKey));
-            if (serviceClient.Indexes.Exists(info.Index))
-            {
-                serviceClient.Indexes.Delete(info.Index);
-            }
+            if (serviceClient.Indexes.Exists(info.Index)) serviceClient.Indexes.Delete(info.Index);
 
             var index = Song.GetIndex(this, DanceStatsManager);
             index.Name = info.Index;
@@ -1201,21 +1209,17 @@ namespace m4dModels
 
         public bool UpdateIndex(IEnumerable<string> dances, string id = "default")
         {
-            if (SearchService == null)
-            {
-                return false;
-            }
+            if (SearchService == null) return false;
             var info = SearchService.GetInfo(id);
-            using var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey));
+            using var serviceClient =
+                new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey));
             var index = serviceClient.Indexes.Get(info.Index);
             foreach (var dance in dances)
             {
                 var field = Song.IndexFieldFromDanceId(dance);
-                if (index.Fields.All(f => f.Name != field.Name))
-                {
-                    index.Fields.Add(field);
-                }
+                if (index.Fields.All(f => f.Name != field.Name)) index.Fields.Add(field);
             }
+
             serviceClient.Indexes.CreateOrUpdate(index);
             return true;
         }
@@ -1238,7 +1242,8 @@ namespace m4dModels
             var stats = DanceStats;
             var added = 0;
 
-            using var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey));
+            using var serviceClient =
+                new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey));
             using var indexClient = serviceClient.Indexes.GetClient(info.Index);
             var delete = new List<string>();
 
@@ -1246,17 +1251,15 @@ namespace m4dModels
             {
                 AdminMonitor.UpdateTask("AddSongs", added);
                 var chunk = new List<Song>();
-                for (; i < lines.Count && i < (page+1)*chunkSize; i++)
+                for (; i < lines.Count && i < (page + 1) * chunkSize; i++)
                 {
                     var song = new Song(lines[i], this);
                     chunk.Add(song);
-                    if (trackDeleted)
-                    {
-                        delete.AddRange(song.GetAltids());
-                    }
+                    if (trackDeleted) delete.AddRange(song.GetAltids());
                 }
 
-                var songs = (from song in chunk where !song.IsNull select song.GetIndexDocument()).ToList();
+                var songs = (from song in chunk where !song.IsNull select song.GetIndexDocument())
+                    .ToList();
 
                 if (songs.Count <= 0) continue;
 
@@ -1271,6 +1274,7 @@ namespace m4dModels
                     Trace.WriteLine($"IndexBatchException: ex.Message");
                     added += ex.IndexingResults.Count;
                 }
+
                 Trace.WriteLine($"Upload Index: {added} songs added.");
             }
 
@@ -1297,20 +1301,23 @@ namespace m4dModels
                 AddTagType(tag);
                 changed = true;
             }
+
             if (changed)
             {
                 SaveChanges();
                 // TODO: Consider doing a lighter version of this
                 BlowTagCache();
             }
+
             if (songs == null) return 0;
 
             try
             {
-                using var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey));
+                using var serviceClient =
+                    new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey));
                 using var indexClient = serviceClient.Indexes.GetClient(info.Index);
                 var processed = 0;
-                var list = (songs as List<Song>) ?? songs.ToList();
+                var list = songs as List<Song> ?? songs.ToList();
 
                 while (list.Count > 0)
                 {
@@ -1321,17 +1328,10 @@ namespace m4dModels
                     foreach (var song in list)
                     {
                         if (!song.IsNull)
-                        {
                             added.Add(song.GetIndexDocument());
-                        }
                         else
-                        {
                             deleted.Add(song.GetIndexDocument());
-                        }
-                        if (added.Count > 990 || deleted.Count > 990)
-                        {
-                            break;
-                        }
+                        if (added.Count > 990 || deleted.Count > 990) break;
                     }
 
                     if (added.Count > 0)
@@ -1339,6 +1339,7 @@ namespace m4dModels
                         var batch = IndexBatch.Upload(added);
                         indexClient.Documents.Index(batch);
                     }
+
                     if (deleted.Count > 0)
                     {
                         var delete = IndexBatch.Delete(deleted);
@@ -1359,13 +1360,11 @@ namespace m4dModels
         }
 
         public SearchResults AzureSearch(
-            SongFilter filter, int? pageSize = null, CruftFilter cruft = CruftFilter.NoCruft, string id = "default")
+            SongFilter filter, int? pageSize = null, CruftFilter cruft = CruftFilter.NoCruft,
+            string id = "default")
         {
-            if (filter.CruftFilter != CruftFilter.NoCruft)
-            {
-                cruft = filter.CruftFilter;
-            }
-            return AzureSearch(filter.SearchString, AzureParmsFromFilter(filter, pageSize), 
+            if (filter.CruftFilter != CruftFilter.NoCruft) cruft = filter.CruftFilter;
+            return AzureSearch(filter.SearchString, AzureParmsFromFilter(filter, pageSize),
                 cruft, null, id);
         }
 
@@ -1376,9 +1375,10 @@ namespace m4dModels
             var response = await DoAzureSearchAsync(search, parameters, cruft, id);
             var songs = response.Results.Select(d => new Song(d.Document, this, userName)).ToList();
             var pageSize = parameters.Top ?? 25;
-            var page = ((parameters.Skip ?? 0) / pageSize) + 1;
+            var page = (parameters.Skip ?? 0) / pageSize + 1;
             var facets = response.Facets;
-            return new SearchResults(search, songs.Count, response.Count ?? -1, page, pageSize, songs, facets);
+            return new SearchResults(search, songs.Count, response.Count ?? -1, page, pageSize,
+                songs, facets);
         }
 
         public SearchResults AzureSearch(
@@ -1388,86 +1388,95 @@ namespace m4dModels
             var response = DoAzureSearch(search, parameters, cruft, id);
             var songs = response.Results.Select(d => new Song(d.Document, this, userName)).ToList();
             var pageSize = parameters.Top ?? 25;
-            var page = ((parameters.Skip ?? 0) / pageSize) + 1;
+            var page = (parameters.Skip ?? 0) / pageSize + 1;
             var facets = response.Facets;
-            return new SearchResults(search, songs.Count, response.Count ?? -1, page, pageSize, songs, facets);
+            return new SearchResults(search, songs.Count, response.Count ?? -1, page, pageSize,
+                songs, facets);
         }
 
         public FacetResults GetTagFacets(string categories, int count, string id = "default")
         {
             var parameters = AzureParmsFromFilter(new SongFilter(), 1);
-            AddAzureCategories(parameters,categories,count);
+            AddAzureCategories(parameters, categories, count);
 
             return DoAzureSearch(null, parameters, CruftFilter.NoCruft, id).Facets;
         }
 
-        public static void AddAzureCategories(SearchParameters parameters, string categories, int count)
+        public static void AddAzureCategories(SearchParameters parameters, string categories,
+            int count)
         {
             parameters.Facets = categories.Split(',').Select(c => $"{c},count:{count}").ToList();
         }
 
-        public IEnumerable<Song> FindAlbum(string name, CruftFilter cruft = CruftFilter.NoCruft, string id = "default")
+        public IEnumerable<Song> FindAlbum(string name, CruftFilter cruft = CruftFilter.NoCruft,
+            string id = "default")
         {
-            return SongsFromAzureResult(DoAzureSearch($"\"{name}\"",new SearchParameters {SearchFields=new [] {Song.AlbumsField}},cruft, id));
+            return SongsFromAzureResult(DoAzureSearch($"\"{name}\"",
+                new SearchParameters {SearchFields = new[] {Song.AlbumsField}}, cruft, id));
         }
 
-        public IEnumerable<Song> FindArtist(string name, CruftFilter cruft = CruftFilter.NoCruft, string id = "default")
+        public IEnumerable<Song> FindArtist(string name, CruftFilter cruft = CruftFilter.NoCruft,
+            string id = "default")
         {
-            return SongsFromAzureResult(DoAzureSearch($"\"{name}\"", new SearchParameters { SearchFields = new[] { Song.ArtistField } }, cruft, id));
+            return SongsFromAzureResult(DoAzureSearch($"\"{name}\"",
+                new SearchParameters {SearchFields = new[] {Song.ArtistField}}, cruft, id));
         }
 
-        public IEnumerable<Song> TakeTail(SongFilter filter, int max, DateTime? from = null, CruftFilter cruft = CruftFilter.NoCruft, string id = "default")
+        public IEnumerable<Song> TakeTail(SongFilter filter, int max, DateTime? from = null,
+            CruftFilter cruft = CruftFilter.NoCruft, string id = "default")
         {
             var parameters = AddCruftInfo(AzureParmsFromFilter(filter), cruft);
 
-            return TakeTail(parameters,max,from,id);
+            return TakeTail(parameters, max, from, id);
         }
 
-        public IEnumerable<Song> TakePage(SearchParameters parameters, int pageSize, ref SearchContinuationToken token, string id = "default")
+        public IEnumerable<Song> TakePage(SearchParameters parameters, int pageSize,
+            ref SearchContinuationToken token, string id = "default")
         {
             // Note: if pageSize is not a multiple of 50 we'll potentially return pageSize % 50 additional results
             parameters.IncludeTotalResultCount = false;
             parameters.Top = null;
 
             var info = SearchService.GetInfo(id);
-            using var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey));
+            using var serviceClient =
+                new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey));
             using var indexClient = serviceClient.Indexes.GetClient(info.Index);
             var results = new List<Song>();
             do
             {
-                var response = (token == null)
+                var response = token == null
                     ? indexClient.Documents.Search(null, parameters)
                     : indexClient.Documents.ContinueSearch(token);
 
-                foreach (var doc in response.Results)
-                {
-                    results.Add(new Song(doc.Document, this));
-                }
+                foreach (var doc in response.Results) results.Add(new Song(doc.Document, this));
                 token = response.ContinuationToken;
             } while (token != null && results.Count < pageSize);
 
             return results;
         }
 
-        public IEnumerable<Song> TakeTail(SearchParameters parameters, int max, DateTime? from = null, string id = "default")
+        public IEnumerable<Song> TakeTail(SearchParameters parameters, int max,
+            DateTime? from = null, string id = "default")
         {
             return TakeTail(null, parameters, max, from, id);
         }
 
-        public IEnumerable<Song> TakeTail(string search, SearchParameters parameters, int max, DateTime? from = null, string id = "default")
+        public IEnumerable<Song> TakeTail(string search, SearchParameters parameters, int max,
+            DateTime? from = null, string id = "default")
         {
-            parameters.OrderBy = new[] { "Modified desc" };
+            parameters.OrderBy = new[] {"Modified desc"};
             parameters.IncludeTotalResultCount = false;
             parameters.Top = null;
 
             var info = SearchService.GetInfo(id);
-            using var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey));
+            using var serviceClient =
+                new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey));
             using var indexClient = serviceClient.Indexes.GetClient(info.Index);
             SearchContinuationToken token = null;
             var results = new List<Song>();
             do
             {
-                var response = (token == null)
+                var response = token == null
                     ? indexClient.Documents.Search(search, parameters)
                     : indexClient.Documents.ContinueSearch(token);
 
@@ -1475,7 +1484,7 @@ namespace m4dModels
                 foreach (var doc in response.Results)
                 {
                     var m = doc.Document["Modified"];
-                    var modified = (DateTimeOffset)m;
+                    var modified = (DateTimeOffset) m;
                     if (@from != null && modified < @from)
                     {
                         token = null;
@@ -1497,18 +1506,23 @@ namespace m4dModels
             {
                 QueryType = QueryType.Simple,
                 Top = int.MaxValue,
-                Select = new[] { Song.SongIdField, Song.TitleField, Song.ArtistField, Song.LengthField, Song.TempoField }
+                Select = new[]
+                {
+                    Song.SongIdField, Song.TitleField, Song.ArtistField, Song.LengthField,
+                    Song.TempoField
+                }
             };
 
             var info = SearchService.GetInfo(id);
-            using var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey));
+            using var serviceClient =
+                new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey));
             using var indexClient = serviceClient.Indexes.GetClient(info.Index);
             SearchContinuationToken token = null;
 
             var results = new List<Song>();
             do
             {
-                var response = (token == null)
+                var response = token == null
                     ? indexClient.Documents.Search(null, parameters)
                     : indexClient.Documents.ContinueSearch(token);
 
@@ -1516,11 +1530,9 @@ namespace m4dModels
                 foreach (var res in response.Results)
                 {
                     var song = Song.CreateLightSong(res.Document);
-                    if (song != null)
-                    {
-                        results.Add(song);
-                    }
+                    if (song != null) results.Add(song);
                 }
+
                 token = response.ContinuationToken;
             } while (token != null);
 
@@ -1528,50 +1540,51 @@ namespace m4dModels
         }
 
         private async Task<DocumentSearchResult<Document>> DoAzureSearchAsync(
-            string search, SearchParameters parameters, 
+            string search, SearchParameters parameters,
             CruftFilter cruft = CruftFilter.NoCruft, ISearchIndexClient client = null)
         {
             if (client == null)
                 return DoAzureSearch(search, parameters, cruft, "default");
 
             parameters = AddCruftInfo(parameters, cruft);
-            if (string.IsNullOrWhiteSpace(search))
-            {
-                search = "*";
-            }
+            if (string.IsNullOrWhiteSpace(search)) search = "*";
 
             return await client.Documents.SearchAsync(search, parameters);
         }
 
         private async Task<DocumentSearchResult<Document>> DoAzureSearchAsync(
-            string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft, string id = "default")
+            string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft,
+            string id = "default")
         {
             var info = SearchService.GetInfo(id);
 
-            using var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey));
+            using var serviceClient =
+                new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey));
             using var indexClient = serviceClient.Indexes.GetClient(info.Index);
             return await DoAzureSearchAsync(search, parameters, cruft, indexClient);
         }
 
-        private DocumentSearchResult<Document> DoAzureSearch(string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft, ISearchIndexClient client = null)
+        private DocumentSearchResult<Document> DoAzureSearch(string search,
+            SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft,
+            ISearchIndexClient client = null)
         {
             if (client == null)
-                return DoAzureSearch(search, parameters, cruft,"default");
+                return DoAzureSearch(search, parameters, cruft, "default");
 
             parameters = AddCruftInfo(parameters, cruft);
-            if (string.IsNullOrWhiteSpace(search))
-            {
-                search = "*";
-            }
+            if (string.IsNullOrWhiteSpace(search)) search = "*";
 
             return client.Documents.Search(search, parameters);
         }
 
-        private DocumentSearchResult<Document> DoAzureSearch(string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft, string id = "default")
+        private DocumentSearchResult<Document> DoAzureSearch(string search,
+            SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft,
+            string id = "default")
         {
             var info = SearchService.GetInfo(id);
 
-            using var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey));
+            using var serviceClient =
+                new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey));
             using var indexClient = serviceClient.Indexes.GetClient(info.Index);
             return DoAzureSearch(search, parameters, cruft, indexClient);
         }
@@ -1580,20 +1593,18 @@ namespace m4dModels
         {
             if (!pageSize.HasValue) pageSize = 25;
 
-            if (filter.IsRaw)
-            {
-                return new RawSearch(filter).GetAzureSearchParams(pageSize);
-            }
+            if (filter.IsRaw) return new RawSearch(filter).GetAzureSearchParams(pageSize);
             var order = filter.ODataSort;
             var odataFilter = filter.GetOdataFilter(this);
 
             return new SearchParameters
             {
-                QueryType = QueryType.Simple, // filter.IsSimple ? QueryType.Simple : QueryType.Full,
+                QueryType =
+                    QueryType.Simple, // filter.IsSimple ? QueryType.Simple : QueryType.Full,
                 Filter = odataFilter,
                 IncludeTotalResultCount = true,
                 Top = pageSize,
-                Skip = ((filter.Page??1) - 1) * pageSize,
+                Skip = ((filter.Page ?? 1) - 1) * pageSize,
                 OrderBy = order
             };
         }
@@ -1604,9 +1615,7 @@ namespace m4dModels
 
             var extra = new StringBuilder();
             if ((cruft & CruftFilter.NoPublishers) != CruftFilter.NoPublishers)
-            {
                 extra.Append("Purchase/any()");
-            }
 
             if ((cruft & CruftFilter.NoDances) != CruftFilter.NoDances)
             {
@@ -1623,6 +1632,7 @@ namespace m4dModels
                 extra.AppendFormat(" and {0}", parameters.Filter);
                 parameters.Filter = extra.ToString();
             }
+
             return parameters;
         }
 
@@ -1632,11 +1642,12 @@ namespace m4dModels
 
             try
             {
-                using var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey));
+                using var serviceClient =
+                    new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey));
                 using var indexClient = serviceClient.Indexes.GetClient(info.Index);
                 var sp = new SuggestParameters {Top = 50};
 
-                if (query.Length > 100) query = query.Substring(0,100);
+                if (query.Length > 100) query = query.Substring(0, 100);
 
                 var response = await indexClient.Documents.SuggestAsync(query, "songs", sp);
 
@@ -1656,8 +1667,8 @@ namespace m4dModels
             }
             catch (Exception e)
             {
-
-                Trace.WriteLineIf(TraceLevels.General.TraceWarning, $"Azure Search Suggestion Failed on '{query}' with '{e.Message}'");
+                Trace.WriteLineIf(TraceLevels.General.TraceWarning,
+                    $"Azure Search Suggestion Failed on '{query}' with '{e.Message}'");
                 return null;
             }
         }
@@ -1672,20 +1683,17 @@ namespace m4dModels
 
             foreach (var facet in facets)
             {
-                var value = (string)facet.Value;
+                var value = (string) facet.Value;
                 if (value == null || !facet.Count.HasValue) continue;
 
                 var fields = value.Split('|');
 
                 var userId = fields[0];
 
-                if (userId.StartsWith("batch-") || userId == "batch")
-                {
-                    continue;
-                }
+                if (userId.StartsWith("batch-") || userId == "batch") continue;
 
                 var user = users.GetValueOrDefault(userId);
-                var count = (int)facet.Count.Value;
+                var count = (int) facet.Count.Value;
 
                 if (user == null)
                 {
@@ -1700,18 +1708,11 @@ namespace m4dModels
                 else if (fields.Length == 2)
                 {
                     if (fields[1] == "l")
-                    {
                         user.Likes = count;
-                    }
                     else if (fields[1] == "h")
-                    {
                         user.Hates = count;
-                    }
                     else
-                    {
                         Trace.WriteLine($"User {userId} has invalid modifier '{fields[1]}'");
-
-                    }
                 }
                 else
                 {
@@ -1722,7 +1723,8 @@ namespace m4dModels
             return users.Values.ToList();
         }
 
-        public IEnumerable<string> BackupIndex(string name = "default", int count = -1, DateTime? from = null, SongFilter filter = null)
+        public IEnumerable<string> BackupIndex(string name = "default", int count = -1,
+            DateTime? from = null, SongFilter filter = null)
         {
             var info = SearchService.GetInfo(name);
             if (filter == null) filter = new SongFilter();
@@ -1730,18 +1732,21 @@ namespace m4dModels
             var parameters = AzureParmsFromFilter(filter);
             parameters.IncludeTotalResultCount = false;
             parameters.Skip = null;
-            parameters.Top = (count == -1) ? (int?) null : count;
-            parameters.OrderBy = new [] {"Modified desc"};
+            parameters.Top = count == -1 ? (int?) null : count;
+            parameters.OrderBy = new[] {"Modified desc"};
             parameters.Select = new[] {Song.SongIdField, Song.ModifiedField, Song.PropertiesField};
 
-            using var serviceClient = new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey));
+            using var serviceClient =
+                new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey));
             using var indexClient = serviceClient.Indexes.GetClient(info.Index);
             SearchContinuationToken token = null;
-            var searchString = string.IsNullOrWhiteSpace(filter.SearchString) ? null : filter.SearchString;
+            var searchString = string.IsNullOrWhiteSpace(filter.SearchString)
+                ? null
+                : filter.SearchString;
             var results = new List<string>();
             do
             {
-                var response = (token == null)
+                var response = token == null
                     ? indexClient.Documents.Search(searchString, parameters)
                     : indexClient.Documents.ContinueSearch(token);
 
@@ -1749,14 +1754,15 @@ namespace m4dModels
                 foreach (var doc in response.Results)
                 {
                     var m = doc.Document["Modified"];
-                    var modified = (DateTimeOffset)m;
+                    var modified = (DateTimeOffset) m;
                     if (@from != null && modified < @from)
                     {
                         token = null;
                         break;
                     }
 
-                    results.Add(Song.Serialize(doc.Document[Song.SongIdField] as string, doc.Document[Song.PropertiesField] as string));
+                    results.Add(Song.Serialize(doc.Document[Song.SongIdField] as string,
+                        doc.Document[Song.PropertiesField] as string));
                     AdminMonitor.UpdateTask("readSongs", results.Count);
                 }
             } while (token != null);
@@ -1767,6 +1773,7 @@ namespace m4dModels
         #endregion
 
         #region Merging
+
         public IReadOnlyCollection<Song> FindMergeCandidates(int n, int level)
         {
             return MergeCluster.GetMergeCandidates(this, n, level);
@@ -1774,10 +1781,7 @@ namespace m4dModels
 
         public void RemoveMergeCandidates(IEnumerable<Song> songs)
         {
-            foreach (var song in songs)
-            {
-                MergeCluster.RemoveMergeCandidate(song);
-            }
+            foreach (var song in songs) MergeCluster.RemoveMergeCandidate(song);
         }
 
         public void ClearMergeCandidates()
@@ -1788,7 +1792,8 @@ namespace m4dModels
         public void UpdatePlayList(string id, IEnumerable<Song> songs)
         {
             var playlist = PlayLists.Find(id);
-            if (playlist == null || playlist.Type != PlayListType.SongsFromSpotify) throw new ArgumentOutOfRangeException(nameof(id));
+            if (playlist == null || playlist.Type != PlayListType.SongsFromSpotify)
+                throw new ArgumentOutOfRangeException(nameof(id));
 
 
             var service = MusicService.GetService(ServiceType.Spotify);
@@ -1799,6 +1804,7 @@ namespace m4dModels
 
             SaveChanges();
         }
+
         #endregion
 
         #region User
@@ -1810,28 +1816,26 @@ namespace m4dModels
 
         public ApplicationUser FindUser(string name)
         {
-            if (UserCache.TryGetValue(name, out var user))
-            {
-                return user;
-            }
+            if (UserCache.TryGetValue(name, out var user)) return user;
 
             user = CoreFindUser(name);
-            if (user != null)
-            {
-                UserCache[name] = user;
-            }
+            if (user != null) UserCache[name] = user;
 
             return user;
         }
 
-        protected readonly Dictionary<string, ApplicationUser> UserCache = new Dictionary<string, ApplicationUser>();
+        protected readonly Dictionary<string, ApplicationUser> UserCache =
+            new Dictionary<string, ApplicationUser>();
+
         #endregion
     }
 
     public class DanceMusicService : DanceMusicCoreService
     {
-        public DanceMusicService(DanceMusicContext context, UserManager<ApplicationUser> userManager,
-            ISearchServiceManager searchService, IDanceStatsManager danceStatsManager) : base(context, searchService, danceStatsManager)
+        public DanceMusicService(DanceMusicContext context,
+            UserManager<ApplicationUser> userManager,
+            ISearchServiceManager searchService, IDanceStatsManager danceStatsManager) : base(
+            context, searchService, danceStatsManager)
         {
             UserManager = userManager;
         }
@@ -1845,28 +1849,35 @@ namespace m4dModels
         private const string SearchBreak = "+++++SEARCHES+++++";
         private const string DanceBreak = "+++++DANCES+++++";
         private const string PlaylistBreak = "+++++PLAYLISTS+++++";
-        private const string UserHeader = "UserId\tUserName\tRoles\tPWHash\tSecStamp\tLockout\tProviders\tEmail\tEmailConfirmed\tStartDate\tRegion\tPrivacy\tCanContact\tServicePreference\tLastActive\tRowCount\tColumns\tSubscriptionLevel\tSubscriptionStart\tSubscriptionEnd";
+
+        private const string UserHeader =
+            "UserId\tUserName\tRoles\tPWHash\tSecStamp\tLockout\tProviders\tEmail\tEmailConfirmed\tStartDate\tRegion\tPrivacy\tCanContact\tServicePreference\tLastActive\tRowCount\tColumns\tSubscriptionLevel\tSubscriptionStart\tSubscriptionEnd";
 
         public static bool IsSongBreak(string line)
         {
             return IsBreak(line, SongBreak);
         }
+
         public static bool IsTagBreak(string line)
         {
             return IsBreak(line, TagBreak);
         }
+
         public static bool IsPlaylistBreak(string line)
         {
             return IsBreak(line, PlaylistBreak);
         }
+
         public static bool IsUserBreak(string line)
         {
             return UserHeader.StartsWith(line.Trim());
         }
+
         public static bool IsDanceBreak(string line)
         {
             return IsBreak(line, DanceBreak);
         }
+
         public static bool IsSearchBreak(string line)
         {
             return IsBreak(line, SearchBreak);
@@ -1880,10 +1891,8 @@ namespace m4dModels
         private static void LogIdentityResult(ApplicationUser user, IdentityResult identityResult)
         {
             if (!identityResult.Succeeded)
-            {
-                Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Failed to create {user.UserName}.  {string.Join(',', identityResult.Errors.Select(ir => ir.Description))}");
-            }
-
+                Trace.WriteLineIf(TraceLevels.General.TraceInfo,
+                    $"Failed to create {user.UserName}.  {string.Join(',', identityResult.Errors.Select(ir => ir.Description))}");
         }
 
         public void LoadUsers(IList<string> lines)
@@ -1891,9 +1900,7 @@ namespace m4dModels
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Entering LoadUsers");
             var exclude = ":;,|@".ToHashSet();
             if (lines == null || lines.Count < 1 || !IsUserBreak(lines[0]))
-            {
                 throw new ArgumentOutOfRangeException();
-            }
 
             var fieldCount = lines[0].Split('\t').Length;
             var i = 1;
@@ -1903,10 +1910,7 @@ namespace m4dModels
                 var s = lines[i];
                 i += 1;
 
-                if (string.Equals(s, TagBreak, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    break;
-                }
+                if (string.Equals(s, TagBreak, StringComparison.InvariantCultureIgnoreCase)) break;
 
                 var cells = s.Split('\t');
                 if (cells.Length != fieldCount) continue;
@@ -1928,7 +1932,7 @@ namespace m4dModels
                 var active = new DateTime();
                 int? rc = null;
                 string col = null;
-                SubscriptionLevel subscriptionLevel = SubscriptionLevel.None;
+                var subscriptionLevel = SubscriptionLevel.None;
                 DateTime? subscriptionStart = null;
                 DateTime? subscriptionEnd = null;
 
@@ -1941,17 +1945,12 @@ namespace m4dModels
                     region = cells[10];
                     byte.TryParse(cells[11], out privacy);
                     byte.TryParse(cells[12], out var canContactT);
-                    canContact = (ContactStatus)canContactT;
+                    canContact = (ContactStatus) canContactT;
                     servicePreference = cells[13];
                     DateTime.TryParse(cells[14], out active);
-                    if (!string.IsNullOrWhiteSpace(cells[15]) && int.TryParse(cells[15], out var rcT))
-                    {
-                        rc = rcT;
-                    }
-                    if (!string.IsNullOrWhiteSpace(cells[16]))
-                    {
-                        col = cells[16];
-                    }
+                    if (!string.IsNullOrWhiteSpace(cells[15]) &&
+                        int.TryParse(cells[15], out var rcT)) rc = rcT;
+                    if (!string.IsNullOrWhiteSpace(cells[16])) col = cells[16];
                 }
 
                 if (userName.Any(x => exclude.Contains(x)))
@@ -1960,13 +1959,15 @@ namespace m4dModels
                     break;
                 }
 
-                if (cells.Length >= 20 && Enum.TryParse(cells[17], out subscriptionLevel) && subscriptionLevel != SubscriptionLevel.None)
+                if (cells.Length >= 20 && Enum.TryParse(cells[17], out subscriptionLevel) &&
+                    subscriptionLevel != SubscriptionLevel.None)
                 {
                     if (DateTime.TryParse(cells[18], out var start)) subscriptionStart = start;
                     if (DateTime.TryParse(cells[18], out var end)) subscriptionEnd = end;
                 }
 
-                var user = UserManager.FindByIdAsync(userId).Result ?? UserManager.FindByNameAsync(userName).Result;
+                var user = UserManager.FindByIdAsync(userId).Result ??
+                    UserManager.FindByNameAsync(userName).Result;
 
                 var create = user == null;
 
@@ -1979,7 +1980,8 @@ namespace m4dModels
                         NormalizedUserName = userName.ToUpperInvariant(),
                         PasswordHash = hash,
                         SecurityStamp = stamp,
-                        LockoutEnabled = string.Equals(lockout, "TRUE", StringComparison.InvariantCultureIgnoreCase),
+                        LockoutEnabled = string.Equals(lockout, "TRUE",
+                            StringComparison.InvariantCultureIgnoreCase),
                         ConcurrencyStamp = Guid.NewGuid().ToString()
                     };
 
@@ -2005,26 +2007,28 @@ namespace m4dModels
                         user.EmailConfirmed = emailConfirmed;
                         user.NormalizedEmail = email.ToUpperInvariant();
                     }
-                    if (string.IsNullOrWhiteSpace(user.Region) && !string.IsNullOrWhiteSpace(region))
+
+                    if (string.IsNullOrWhiteSpace(user.Region) &&
+                        !string.IsNullOrWhiteSpace(region))
                     {
                         user.Region = region;
                         user.Privacy = privacy;
                         user.CanContact = canContact;
                         user.ServicePreference = servicePreference;
                     }
+
                     user.ConcurrencyStamp = Guid.NewGuid().ToString();
 
                     var logins = UserManager.GetLoginsAsync(user).Result;
                     foreach (var login in logins)
                     {
-                        var t = UserManager.RemoveLoginAsync(user, login.LoginProvider, login.ProviderKey).Result;
+                        var t = UserManager
+                            .RemoveLoginAsync(user, login.LoginProvider, login.ProviderKey).Result;
                     }
 
                     var rolesT = UserManager.GetRolesAsync(user).Result;
                     foreach (var role in rolesT)
-                    {
                         LogIdentityResult(user, UserManager.RemoveFromRoleAsync(user, role).Result);
-                    }
                 }
 
                 user.LastActive = active;
@@ -2036,7 +2040,8 @@ namespace m4dModels
 
                 if (!string.IsNullOrWhiteSpace(providers))
                 {
-                    var entries = providers.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                    var entries =
+                        providers.Split(new[] {'|'}, StringSplitOptions.RemoveEmptyEntries);
                     for (var j = 0; j < entries.Length; j += 2)
                     {
                         var login = new UserLoginInfo(entries[j], entries[j + 1], entries[j]);
@@ -2046,11 +2051,9 @@ namespace m4dModels
 
                 if (!string.IsNullOrWhiteSpace(roles))
                 {
-                    var roleNames = roles.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                    var roleNames = roles.Split(new[] {'|'}, StringSplitOptions.RemoveEmptyEntries);
                     foreach (var roleName in roleNames)
-                    {
                         LogIdentityResult(user, UserManager.AddToRoleAsync(user, roleName).Result);
-                    }
                 }
             }
 
@@ -2063,26 +2066,16 @@ namespace m4dModels
         {
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Entering LoadSearches");
 
-            if (lines == null || lines.Count < 1)
-            {
-                throw new ArgumentOutOfRangeException();
-            }
+            if (lines == null || lines.Count < 1) throw new ArgumentOutOfRangeException();
 
-            if (lines.Count > 0 && IsSearchBreak(lines[0]))
-            {
-                lines.RemoveAt(0);
-            }
+            if (lines.Count > 0 && IsSearchBreak(lines[0])) lines.RemoveAt(0);
 
             if (lines.Count > 0)
             {
                 if (reload)
-                {
                     LoadSearchesBulk(lines);
-                }
                 else
-                {
                     LoadSearchesIncremental(lines);
-                }
             }
 
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving Changes");
@@ -2098,21 +2091,17 @@ namespace m4dModels
                 AdminMonitor.UpdateTask("LoadSearches", i);
                 var s = lines[i];
 
-                if (string.Equals(s, TagBreak, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    break;
-                }
+                if (string.Equals(s, TagBreak, StringComparison.InvariantCultureIgnoreCase)) break;
 
-                if (!ParseSearchEntry(s, fieldCount, out var user, out string name, out var query,
+                if (!ParseSearchEntry(s, fieldCount, out var user, out var name, out var query,
                     out var favorite, out var count, out var created, out var modified))
-                {
                     continue;
-                }
 
                 var search = user == null
-                        ? Searches.FirstOrDefault(x => x.ApplicationUser == null && x.Query == query)
-                        : Searches.FirstOrDefault(x =>
-                            x.ApplicationUser != null && x.ApplicationUser.Id == user.Id && x.Query == query);
+                    ? Searches.FirstOrDefault(x => x.ApplicationUser == null && x.Query == query)
+                    : Searches.FirstOrDefault(x =>
+                        x.ApplicationUser != null && x.ApplicationUser.Id == user.Id &&
+                        x.Query == query);
 
                 if (search == null)
                 {
@@ -2137,15 +2126,11 @@ namespace m4dModels
                     var s = lines[i];
 
                     if (string.Equals(s, TagBreak, StringComparison.InvariantCultureIgnoreCase))
-                    {
                         break;
-                    }
 
-                    if (!ParseSearchEntry(s, fieldCount, out var user, out string name, out var query,
+                    if (!ParseSearchEntry(s, fieldCount, out var user, out var name, out var query,
                         out var favorite, out var count, out var created, out var modified))
-                    {
                         continue;
-                    }
 
                     var search = new Search();
                     Searches.Add(search);
@@ -2161,7 +2146,8 @@ namespace m4dModels
 
 
         private bool ParseSearchEntry(
-            string line, int fieldCount, out ApplicationUser user, out string name, out string query,
+            string line, int fieldCount, out ApplicationUser user, out string name,
+            out string query,
             out bool favorite, out int count, out DateTime created, out DateTime modified)
         {
             user = null;
@@ -2192,10 +2178,7 @@ namespace m4dModels
         {
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Entering Dances");
 
-            if (lines.Count > 0 && IsDanceBreak(lines[0]))
-            {
-                lines.RemoveAt(0);
-            }
+            if (lines.Count > 0 && IsDanceBreak(lines[0])) lines.RemoveAt(0);
 
             AdminMonitor.UpdateTask("LoadDances");
             LoadDances();
@@ -2220,7 +2203,6 @@ namespace m4dModels
 
                 cells.RemoveAt(0);
                 modified |= d.Update(cells);
-
             }
 
             if (modified)
@@ -2252,47 +2234,32 @@ namespace m4dModels
                     var ttOld = TagGroups.Find(key) ?? TagMap.GetValueOrDefault(key);
 
                     if (ttOld != null)
-                    {
                         if (ttOld.Key != key)
                         {
                             TagGroups.Remove(ttOld);
                             ttOld = null;
                         }
-                    }
 
-                    if (ttOld == null)
-                    {
-                        tt = CreateTagGroup(value, category, false);
-                    }
+                    if (ttOld == null) tt = CreateTagGroup(value, category, false);
                 }
 
                 if (tt != null && cells.Length >= 3 && !string.IsNullOrWhiteSpace(cells[2]))
-                {
                     tt.PrimaryId = cells[2];
-                }
 
                 if (tt != null)
                 {
                     if (cells.Length >= 4 &&
                         !string.IsNullOrWhiteSpace(cells[3]) &&
                         DateTime.TryParse(cells[3], out var modified))
-                    {
                         tt.Modified = modified;
-                    }
                     else
-                    {
                         tt.Modified = DateTime.MinValue;
-                    }
                 }
             }
 
-            foreach (var tt in TagGroups)
-            {
-                tt.Children = null;
-            }
+            foreach (var tt in TagGroups) tt.Children = null;
 
             foreach (var tt in TagGroups)
-            {
                 if (string.IsNullOrEmpty(tt.PrimaryId))
                 {
                     tt.Primary = null;
@@ -2303,7 +2270,7 @@ namespace m4dModels
                     if (tt.Primary.Children == null)
                         tt.Primary.AddChild(tt);
                 }
-            }
+
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving Changes");
             SaveChanges();
 
@@ -2344,10 +2311,11 @@ namespace m4dModels
 
 
                 // This is a special case for SongFromSpotify [m4did,DanceTags,url]
-                if ((cells.Length == 3 || cells.Length == 4) && 
+                if ((cells.Length == 3 || cells.Length == 4) &&
                     type == PlayListType.SongsFromSpotify)
                 {
-                    var r = new Regex(@"https://open.spotify.com/(user/(?<user>[a-z0-9-]*)/)?playlist/(?<id>[a-z0-9]*)",
+                    var r = new Regex(
+                        @"https://open.spotify.com/(user/(?<user>[a-z0-9-]*)/)?playlist/(?<id>[a-z0-9]*)",
                         RegexOptions.IgnoreCase, TimeSpan.FromSeconds(5));
                     var m = r.Match(cells[2]);
                     if (!m.Success) continue;
@@ -2364,10 +2332,7 @@ namespace m4dModels
 
                     // Type
                     // TODO: Once this is published to the server, we can get rid of this check for legacy type "Spotify"
-                    if (!string.Equals(cells[1], "Spotify"))
-                    {
-                        Enum.TryParse(cells[1], out type);
-                    }
+                    if (!string.Equals(cells[1], "Spotify")) Enum.TryParse(cells[1], out type);
 
                     // Dance/tags
                     data1 = cells[2];
@@ -2376,7 +2341,8 @@ namespace m4dModels
                     id = cells[3];
 
                     DateTime.TryParse(cells[4], out created);
-                    if (cells.Length > 5 && DateTime.TryParse(cells[5], out var mod)) modified = mod;
+                    if (cells.Length > 5 && DateTime.TryParse(cells[5], out var mod))
+                        modified = mod;
                     if (cells.Length > 6) bool.TryParse(cells[6], out deleted);
                     if (cells.Length > 7) data2 = cells[7];
                     if (cells.Length > 8) name = cells[8];
@@ -2400,6 +2366,7 @@ namespace m4dModels
 
                 if (isNew) PlayLists.Add(playlist);
             }
+
             SaveChanges();
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting LoadPlaylists");
         }
@@ -2414,16 +2381,14 @@ namespace m4dModels
             {
                 AdminMonitor.UpdateTask("LoadSongs", c);
                 var time = DateTime.Now;
-                var song = new Song { Created = time, Modified = time };
+                var song = new Song {Created = time, Modified = time};
 
                 song.Load(line, this);
 
                 c += 1;
 
                 if (c % 100 == 0)
-                {
                     Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving next 100 songs");
-                }
             }
         }
 
@@ -2437,10 +2402,7 @@ namespace m4dModels
 
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Loading Songs");
 
-            if (lines.Count > 0 && IsSongBreak(lines[0]))
-            {
-                lines.RemoveAt(0);
-            }
+            if (lines.Count > 0 && IsSongBreak(lines[0])) lines.RemoveAt(0);
 
             var c = 0;
             foreach (var line in lines.Where(line => !line.StartsWith("//")))
@@ -2459,13 +2421,11 @@ namespace m4dModels
                     UpdateSong(user, song, sd);
 
                     // This was a merge so delete the input songs
-                    if (sd.SongProperties.Count > 0 && sd.SongProperties[0].Name == Song.MergeCommand)
+                    if (sd.SongProperties.Count > 0 &&
+                        sd.SongProperties[0].Name == Song.MergeCommand)
                     {
                         var list = SongsFromList(sd.SongProperties[0].Value);
-                        foreach (var s in list)
-                        {
-                            DeleteSong(user, s);
-                        }
+                        foreach (var s in list) DeleteSong(user, s);
                     }
                 }
                 else
@@ -2473,20 +2433,14 @@ namespace m4dModels
                     var up = sd.LastProperty(Song.UserField);
                     var user = FindOrAddUser(up != null ? up.Value : "batch", EditRole);
                     if (sd.IsNull)
-                    {
                         DeleteSong(user, song);
-                    }
                     else
-                    {
                         UpdateSong(user, song, sd);
-                    }
                 }
 
                 c += 1;
                 if (c % 100 == 0)
-                {
                     Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"{c} songs updated");
-                }
             }
 
             if (clearCache)
@@ -2494,6 +2448,7 @@ namespace m4dModels
                 Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Clearing Song Cache");
                 DanceStatsManager.ClearCache(this, true);
             }
+
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting UpdateSongs");
         }
 
@@ -2507,10 +2462,7 @@ namespace m4dModels
 
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Loading Songs");
 
-            if (lines.Count > 0 && IsSongBreak(lines[0]))
-            {
-                lines.RemoveAt(0);
-            }
+            if (lines.Count > 0 && IsSongBreak(lines[0])) lines.RemoveAt(0);
 
             var c = 0;
             foreach (var line in lines)
@@ -2524,9 +2476,7 @@ namespace m4dModels
 
                 c += 1;
                 if (c % 100 == 0)
-                {
                     Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"{c} songs updated");
-                }
             }
 
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Clearing Song Cache");
@@ -2538,18 +2488,17 @@ namespace m4dModels
         private static Guid s_guidError = new Guid("25053e8c-5f1e-441e-bd54-afdab5b1b638");
 
 
-
         public void SeedDances()
         {
             var dances = DanceLibrary.Dances.Instance;
-            foreach (var dance in from d in dances.AllDanceGroups let dance = Context.Dances.Find(d.Id) where dance == null select new Dance { Id = d.Id })
-            {
-                Context.Dances.Add(dance);
-            }
-            foreach (var dance in from d in dances.AllDanceTypes let dance = Context.Dances.Find(d.Id) where dance == null select new Dance { Id = d.Id })
-            {
-                Context.Dances.Add(dance);
-            }
+            foreach (var dance in from d in dances.AllDanceGroups
+                let dance = Context.Dances.Find(d.Id)
+                where dance == null
+                select new Dance {Id = d.Id}) Context.Dances.Add(dance);
+            foreach (var dance in from d in dances.AllDanceTypes
+                let dance = Context.Dances.Find(d.Id)
+                where dance == null
+                select new Dance {Id = d.Id}) Context.Dances.Add(dance);
         }
 
         private void LoadDances()
@@ -2560,6 +2509,7 @@ namespace m4dModels
         #endregion
 
         #region Save
+
         public IList<string> SerializeUsers(bool withHeader = true, DateTime? from = null)
         {
             var users = new List<string>();
@@ -2567,7 +2517,9 @@ namespace m4dModels
             if (!from.HasValue) from = new DateTime(1, 1, 1);
 
             // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var user in UserManager.Users.Where(u => u.LastActive >= from.Value).OrderByDescending(u => u.LastActive > u.StartDate ? u.LastActive : u.StartDate).ToList())
+            foreach (var user in UserManager.Users.Where(u => u.LastActive >= from.Value)
+                .OrderByDescending(u => u.LastActive > u.StartDate ? u.LastActive : u.StartDate)
+                .ToList())
             {
                 var userId = user.Id;
                 var username = user.UserName;
@@ -2575,13 +2527,15 @@ namespace m4dModels
                 var hash = user.PasswordHash;
                 var stamp = user.SecurityStamp;
                 var lockout = user.LockoutEnabled.ToString();
-                var providers = string.Join("|", UserManager.GetLoginsAsync(user).Result.Select(l => l.LoginProvider + "|" + l.ProviderKey));
+                var providers = string.Join("|",
+                    UserManager.GetLoginsAsync(user).Result
+                        .Select(l => l.LoginProvider + "|" + l.ProviderKey));
                 var email = user.Email;
                 var emailConfirmed = user.EmailConfirmed;
                 var time = user.StartDate.ToString("g");
                 var region = user.Region;
                 var privacy = user.Privacy.ToString();
-                var canContact = ((byte)user.CanContact).ToString();
+                var canContact = ((byte) user.CanContact).ToString();
                 var servicePreference = user.ServicePreference;
                 var lastActive = user.LastActive.ToString("g");
                 var rc = user.RowCountDefault;
@@ -2594,10 +2548,7 @@ namespace m4dModels
                     $"{userId}\t{username}\t{roles}\t{hash}\t{stamp}\t{lockout}\t{providers}\t{email}\t{emailConfirmed}\t{time}\t{region}\t{privacy}\t{canContact}\t{servicePreference}\t{lastActive}\t{rc}\t{col}\t{sl}\t{ss}\t{se}");
             }
 
-            if (withHeader && users.Count > 0)
-            {
-                users.Insert(0, UserHeader);
-            }
+            if (withHeader && users.Count > 0) users.Insert(0, UserHeader);
 
             return users;
         }
@@ -2609,15 +2560,11 @@ namespace m4dModels
             if (!from.HasValue) from = new DateTime(1, 1, 1);
 
             // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var tt in TagGroups.Where(t => t.Modified >= from.Value).OrderBy(t => t.Modified))
-            {
+            foreach (var tt in TagGroups.Where(t => t.Modified >= from.Value)
+                .OrderBy(t => t.Modified))
                 tags.Add($"{tt.Category}\t{tt.Value}\t{tt.PrimaryId}\t{tt.Modified.ToString("g")}");
-            }
 
-            if (withHeader && tags.Count > 0)
-            {
-                tags.Insert(0, TagBreak);
-            }
+            if (withHeader && tags.Count > 0) tags.Insert(0, TagBreak);
 
             return tags;
         }
@@ -2629,28 +2576,28 @@ namespace m4dModels
             if (!from.HasValue) from = new DateTime(1, 1, 1);
 
             // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var search in Searches.Include(s => s.ApplicationUser).Where(s => s.Modified >= from.Value).OrderBy(s => s.Modified))
+            foreach (var search in Searches.Include(s => s.ApplicationUser)
+                .Where(s => s.Modified >= from.Value).OrderBy(s => s.Modified))
             {
-                var userName = (search.ApplicationUser != null) ? search.ApplicationUser.UserName : string.Empty;
-                searches.Add($"{userName}\t{search.Name}\t{search.Query}\t{search.Favorite}\t{search.Count}\t{search.Created.ToString("g")}\t{search.Modified.ToString("g")}");
+                var userName = search.ApplicationUser != null
+                    ? search.ApplicationUser.UserName
+                    : string.Empty;
+                searches.Add(
+                    $"{userName}\t{search.Name}\t{search.Query}\t{search.Favorite}\t{search.Count}\t{search.Created.ToString("g")}\t{search.Modified.ToString("g")}");
             }
 
-            if (withHeader && searches.Count > 0)
-            {
-                searches.Insert(0, SearchBreak);
-            }
+            if (withHeader && searches.Count > 0) searches.Insert(0, SearchBreak);
 
             return searches;
         }
 
-        public IList<string> SerializeSongs(bool withHeader = true, bool withHistory = true, int max = -1, DateTime? from = null, SongFilter filter = null, HashSet<Guid> exclusions = null)
+        public IList<string> SerializeSongs(bool withHeader = true, bool withHistory = true,
+            int max = -1, DateTime? from = null, SongFilter filter = null,
+            HashSet<Guid> exclusions = null)
         {
             var songs = new List<string>();
 
-            if (withHeader)
-            {
-                songs.Add(SongBreak);
-            }
+            if (withHeader) songs.Add(SongBreak);
 
             songs.AddRange(BackupIndex("default", max, from, filter));
 
@@ -2662,18 +2609,17 @@ namespace m4dModels
         {
             if (!from.HasValue) from = new DateTime(1, 1, 1);
 
-            var playlists = PlayLists.Where(d => (d.Updated.HasValue && d.Updated >= from.Value) || d.Created >= from.Value).OrderBy(d => d.Updated).ThenBy(d => d.Created);
+            var playlists = PlayLists
+                .Where(d =>
+                    d.Updated.HasValue && d.Updated >= @from.Value || d.Created >= from.Value)
+                .OrderBy(d => d.Updated).ThenBy(d => d.Created);
 
             var lines = new List<string>();
             foreach (var p in playlists)
-            {
-                lines.Add($"{p.User}\t{p.Type}\t{p.Data1}\t{p.Id}\t{p.Created}\t{p.Updated}\t{p.Deleted}\t{p.Data2}\t{p.Name}\t{p.Description}");
-            }
+                lines.Add(
+                    $"{p.User}\t{p.Type}\t{p.Data1}\t{p.Id}\t{p.Created}\t{p.Updated}\t{p.Deleted}\t{p.Data2}\t{p.Name}\t{p.Description}");
 
-            if (withHeader && lines.Count > 0)
-            {
-                lines.Insert(0, PlaylistBreak);
-            }
+            if (withHeader && lines.Count > 0) lines.Insert(0, PlaylistBreak);
             return lines;
         }
 
@@ -2683,21 +2629,16 @@ namespace m4dModels
 
             if (!from.HasValue) from = new DateTime(1, 1, 1);
 
-            var dancelist = Dances.Where(d => d.Modified >= from.Value).Include(dance => dance.DanceLinks).OrderBy(d => d.Modified).ToList();
+            var dancelist = Dances.Where(d => d.Modified >= from.Value)
+                .Include(dance => dance.DanceLinks).OrderBy(d => d.Modified).ToList();
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var dance in dancelist)
             {
                 var line = dance.Serialize();
-                if (!string.IsNullOrWhiteSpace(line))
-                {
-                    dances.Add(line);
-                }
+                if (!string.IsNullOrWhiteSpace(line)) dances.Add(line);
             }
 
-            if (withHeader && dances.Count > 0)
-            {
-                dances.Insert(0, DanceBreak);
-            }
+            if (withHeader && dances.Count > 0) dances.Insert(0, DanceBreak);
 
             return dances;
         }
@@ -2705,6 +2646,7 @@ namespace m4dModels
         #endregion
 
         #region User
+
         protected override ApplicationUser CoreFindUser(string name)
         {
             return UserManager.FindByNameAsync(name).Result;
@@ -2716,11 +2658,11 @@ namespace m4dModels
 
             if (user == null)
             {
-                if (email == null)
+                if (email == null) email = name + "@music4dance.net";
+                user = new ApplicationUser
                 {
-                    email = name + "@music4dance.net";
-                }
-                user = new ApplicationUser { UserName = name, Email = email, EmailConfirmed = true, StartDate = DateTime.Now };
+                    UserName = name, Email = email, EmailConfirmed = true, StartDate = DateTime.Now
+                };
 
                 // ASYNCTODO: I should really propagate the aync all the way to the controller
                 var res = UserManager.CreateAsync(user, "_This_Is_@_placeh0lder_").Result;
@@ -2729,32 +2671,26 @@ namespace m4dModels
                     var user2 = FindUser(name);
                     Trace.WriteLine($"{user2.UserName}:{user2.Id}");
                 }
-
             }
 
             if (string.Equals(role, PseudoRole))
-            {
                 user.LockoutEnabled = true;
-            }
             else
-            {
                 AddRole(user.Id, role);
-            }
             return user;
         }
 
         public void ChangeUserName(string oldUserName, string userName)
         {
-            var songs = FindUserSongs(oldUserName, includeHate: true).ToList();
+            var songs = FindUserSongs(oldUserName, true).ToList();
 
             foreach (var song in songs)
             {
                 var props = new List<SongProperty>(song.SongProperties);
                 foreach (var prop in props.Where(p =>
-                    (p.Name == Song.UserField || p.Name == Song.UserProxy) && p.Value == oldUserName))
-                {
+                    (p.Name == Song.UserField || p.Name == Song.UserProxy) &&
+                    p.Value == oldUserName))
                     prop.Value = userName;
-                }
 
                 song.AdminEdit(props, this);
             }
@@ -2773,9 +2709,7 @@ namespace m4dModels
 
             var user = UserManager.FindByIdAsync(id).Result;
             if (!UserManager.IsInRoleAsync(user, role).Result)
-            {
                 UserManager.AddToRoleAsync(user, role).Wait();
-            }
 
             _roleCache.Add(key);
         }
@@ -2783,6 +2717,5 @@ namespace m4dModels
         private readonly HashSet<string> _roleCache = new HashSet<string>();
 
         #endregion
-
     }
 }

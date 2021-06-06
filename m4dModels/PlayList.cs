@@ -14,6 +14,7 @@ namespace m4dModels
         SongsFromSpotify,
         SpotifyFromSearch
     }
+
     public class PlayList
     {
         public string User { get; set; }
@@ -68,7 +69,7 @@ namespace m4dModels
 
         public IEnumerable<string> SongIdList => string.IsNullOrEmpty(SongIds)
             ? null
-            : SongIds.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+            : SongIds.Split(new[] {'|'}, StringSplitOptions.RemoveEmptyEntries);
 
         public bool AddSongs(IEnumerable<string> songIds)
         {
@@ -77,10 +78,7 @@ namespace m4dModels
                 : new HashSet<string>(SongIdList);
 
             var initial = existing.Count;
-            foreach (var id in songIds.Where(id => !existing.Contains(id)))
-            {
-                existing.Add(id);
-            }
+            foreach (var id in songIds.Where(id => !existing.Contains(id))) existing.Add(id);
 
             if (initial == existing.Count) return false;
 
@@ -123,12 +121,15 @@ namespace m4dModels
     {
         [Required(ErrorMessage = "Title is Required")]
         public string Title { get; set; }
+
         public string DescriptionPrefix { get; set; }
+
         [StringLength(225, ErrorMessage = "Description must be less than 225 characters.")]
         public string Description { get; set; }
+
         public string Filter { get; set; }
 
-        [Range(5,50, ErrorMessage = "A playlist may have between 5 and 50 songs")]
+        [Range(5, 50, ErrorMessage = "A playlist may have between 5 and 50 songs")]
         [Description("Number of Songs")]
         public int Count { get; set; }
 

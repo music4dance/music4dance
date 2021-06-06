@@ -34,9 +34,7 @@ namespace m4dModels
             var fields = value.Split('[');
 
             if (fields.Length > 1)
-            {
                 regions = ParseRegionInfo(fields[1].Substring(0, fields[1].Length - 1));
-            }
 
             return fields[0];
         }
@@ -52,7 +50,7 @@ namespace m4dModels
 
         public static string FixRegionInfo(string value)
         {
-            return value.Contains('[')?value.Substring(0, value.LastIndexOf('[')) : null;
+            return value.Contains('[') ? value.Substring(0, value.LastIndexOf('[')) : null;
         }
 
         private static string[] ParseRegionInfo(string value)
@@ -63,15 +61,9 @@ namespace m4dModels
             if (char.IsLetter(value[0]) || value[0] == ',')
                 return value.Split(',');
 
-            if (value.StartsWith("0-"))
-            {
-                return ExpandBaseDelta(value.Substring(2));
-            }
+            if (value.StartsWith("0-")) return ExpandBaseDelta(value.Substring(2));
             int idx;
-            if (int.TryParse(value, out idx))
-            {
-                return s_commonRegions[idx].Split(',');
-            }
+            if (int.TryParse(value, out idx)) return s_commonRegions[idx].Split(',');
 
             Debug.Assert(false);
             return null;
@@ -81,10 +73,7 @@ namespace m4dModels
         {
             if (regions == null) return id;
 
-            if (id != null && id.EndsWith("]"))
-            {
-                id = id.Substring(0, id.LastIndexOf('['));
-            }
+            if (id != null && id.EndsWith("]")) id = id.Substring(0, id.LastIndexOf('['));
 
             return id + FormatRegionInfo(regions);
         }
@@ -103,10 +92,7 @@ namespace m4dModels
             else
             {
                 var delta = ComputeBaseDelta(bare);
-                if (delta.Length < bare.Length)
-                {
-                    bare = delta;
-                }
+                if (delta.Length < bare.Length) bare = delta;
             }
 
             return $"[{bare}]";
@@ -143,11 +129,11 @@ namespace m4dModels
             "AD,AR,AU,BE,BG,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DK,DO,EC,EE,ES,FI,FR,GB,GR,GT,HK,HN,HU,IE,IS,IT,LI,LT,LU,LV,MC,MT,MX,MY,NI,NL,NO,NZ,PA,PE,PH,PL,PT,PY,RO,SE,SG,SI,SK,SV,TR,TW,US,UY",
             "AR,BO,BR,CA,CL,CO,CR,DO,EC,GT,HK,HN,MX,MY,NI,PA,PE,PH,PY,SG,SV,TW,US,UY",
             "AD,AR,AT,AU,BE,BG,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GB,GR,GT,HN,HU,IE,IS,IT,LI,LT,LU,LV,MC,MT,MX,NI,NL,NO,NZ,PA,PE,PL,PT,PY,RO,SE,SI,SK,SV,TR,US,UY",
-            "AD,AR,AT,BE,BG,BO,BR,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GB,GR,GT,HK,HN,HU,IE,IS,IT,LI,LT,LU,LV,MC,MT,MX,MY,NI,NL,NO,PA,PE,PH,PL,PT,PY,RO,SE,SG,SI,SK,SV,TR,TW,US,UY",
+            "AD,AR,AT,BE,BG,BO,BR,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GB,GR,GT,HK,HN,HU,IE,IS,IT,LI,LT,LU,LV,MC,MT,MX,MY,NI,NL,NO,PA,PE,PH,PL,PT,PY,RO,SE,SG,SI,SK,SV,TR,TW,US,UY"
         };
 
         // Common Region
-        private static readonly Dictionary<string,int> s_commonRegionsMap;
+        private static readonly Dictionary<string, int> s_commonRegionsMap;
 
         private static readonly string[] s_baseRegions;
 
@@ -164,7 +150,7 @@ namespace m4dModels
                 return value;
 
             rem.Sort();
-            return "0-" + string.Join(",",rem);
+            return "0-" + string.Join(",", rem);
         }
 
         private static string[] ExpandBaseDelta(string value)
@@ -176,9 +162,7 @@ namespace m4dModels
         {
             s_commonRegionsMap = new Dictionary<string, int>();
             for (var i = 0; i < s_commonRegions.Length; i++)
-            {
                 s_commonRegionsMap.Add(s_commonRegions[i], i);
-            }
 
             s_baseRegions = s_commonRegions[0].Split(',');
             //    new HashSet<string>();

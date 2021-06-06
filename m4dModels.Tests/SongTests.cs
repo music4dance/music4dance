@@ -78,8 +78,8 @@ namespace m4dModels.Tests
             var song = new Song();
             song.Load(@"User=batch	Title=Test	Artist=Me	Tempo=30.0", Service);
 
-            song.UpdateDanceRatings(new[] { "RMB", "CHA" }, 5);
-            song.UpdateDanceRatings(new[] { "FXT" }, 7);
+            song.UpdateDanceRatings(new[] {"RMB", "CHA"}, 5);
+            song.UpdateDanceRatings(new[] {"FXT"}, 7);
 
             // TESTTODO: Figure out if we need to do the user part of this
             //Create an test an initial small list of dance ratings
@@ -88,12 +88,12 @@ namespace m4dModels.Tests
 
             // Now mix it up a bit
 
-            song.UpdateDanceRatings(new[] { "RMB", "FXT" }, 3);
+            song.UpdateDanceRatings(new[] {"RMB", "FXT"}, 3);
             Assert.IsTrue(song.DanceRatings.Count == 3);
             var drT = song.FindRating("RMB");
             Assert.IsTrue(drT.Weight == 8);
 
-            song.UpdateDanceRatings(new[] { "CHA", "FXT" }, -5);
+            song.UpdateDanceRatings(new[] {"CHA", "FXT"}, -5);
             Assert.IsTrue(song.DanceRatings.Count == 2);
             drT = song.FindRating("FXT");
             Assert.IsTrue(drT.Weight == 5);
@@ -106,7 +106,9 @@ namespace m4dModels.Tests
             var user2 = Service.FindUser("dwgray");
 
             var song = new Song();
-            song.Load(@"User=batch	Title=Test	Artist=Me	Tempo=30.0	Tag+=Slow Foxtrot:Dance	DanceRating=SFT+5", Service);
+            song.Load(
+                @"User=batch	Title=Test	Artist=Me	Tempo=30.0	Tag+=Slow Foxtrot:Dance	DanceRating=SFT+5",
+                Service);
 
             var drT = song.FindRating("SFT");
             Assert.AreEqual(5, drT.Weight);
@@ -308,7 +310,7 @@ namespace m4dModels.Tests
                 Name = "Wouldn't It Be Nice",
                 Service = ServiceType.Spotify,
                 TrackId = "6VojZJpMyuKClbwyilWlQj",
-                TrackNumber = 4,
+                TrackNumber = 4
             };
 
             var song = Song.CreateFromTrack(
@@ -317,17 +319,19 @@ namespace m4dModels.Tests
                 track, "WCS", "Testing:Other|Crazy:Music",
                 "Dances:Style|Mellow:Tempo");
 
-            var actual = DanceMusicTester.ReplaceTime(song.Serialize(new[] { Song.NoSongId }));
+            var actual = DanceMusicTester.ReplaceTime(song.Serialize(new[] {Song.NoSongId}));
             //Trace.WriteLine(actual);
 
-            const string expected = @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Wouldn't It Be Nice	Artist=The Beach Boys	Length=154	Album:00=Greatest Hits	Track:00=4	Tag+=Crazy:Music|Testing:Other|West Coast Swing:Dance	DanceRating=WCS+1	Tag+:WCS=Dances:Style|Mellow:Tempo	Purchase:00:SA=2ninxvLuYGCb6H92qTaSFZ	Purchase:00:SS=6VojZJpMyuKClbwyilWlQj	DanceRating=SWG+1";
+            const string expected =
+                @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Wouldn't It Be Nice	Artist=The Beach Boys	Length=154	Album:00=Greatest Hits	Track:00=4	Tag+=Crazy:Music|Testing:Other|West Coast Swing:Dance	DanceRating=WCS+1	Tag+:WCS=Dances:Style|Mellow:Tempo	Purchase:00:SA=2ninxvLuYGCb6H92qTaSFZ	Purchase:00:SS=6VojZJpMyuKClbwyilWlQj	DanceRating=SWG+1";
             Assert.AreEqual(expected, actual);
         }
 
         [TestMethod]
         public void AdminModifyMga()
         {
-            const string init = @".Create=	User=dwgray	Time=06/11/2017 17:17:51	Title=El distinguido ciudadano (The Distinguished Citizen) [1940]	Artist=Edgardo Donato & his orchestra	Length=149	Album:00=The best of Argentine Tango Vol. 2 / 78 rpm recordings 1927 - 1957	Track:00=17	Tag+=Argentine Tango:Dance	DanceRating=ATN+2	Purchase:00:SS=0ns4CpHDRcexy62FEQP0Fh	DanceRating=TNG+1	.Edit=	User=batch-a	Time=06/11/2017 17:23:40	Purchase:00:AS=D:B001VL341Y	Purchase:00:AA=D:B001VL4RKQ	Tag+=Latin:Music	.Edit=	User=batch-i	Time=06/11/2017 17:23:40	Album:01=The Best of Argentine Tango, Vol. 2 - 78 Rpm Recordings 1927-1957	Track:01=17	Purchase:01:IS=307599641	Purchase:01:IA=307599529	Tag+=Raíces:Music	.Edit=	User=batch-s	Time=06/11/2017 17:23:40	Purchase:00:SS=0ns4CpHDRcexy62FEQP0Fh[AD,AT,AU,BE,BG,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GB,GR,GT,HK,HN,HU,ID,IE,IS,IT,JP,LI,LT,LU,LV,MC,MT,MX,MY,NI,NL,NO,NZ,PA,PE,PH,PL,PT,PY,SE,SG,SK,SV,TR,TW,US,UY]	Purchase:00:SA=1MCPFcQJSIrQ45lTjfxkYn	.Edit=	User=batch	Time=06/11/2017 17:28:52	Tempo=134.4	Danceability=0.717	Energy=0.378	Valence=0.693	Tag+=4/4:Tempo	.Edit=	User=batch-s	Time=06/11/2017 17:29:13	Sample=https://p.scdn.co/mp3-preview/92d2fe46e92d1040da43258f03f971225a7330ee?cid\<EQ>\***REMOVED***	.Edit=	User=batch	Time=07/23/2017 16:43:48	DanceRating=MGA+1";
+            const string init =
+                @".Create=	User=dwgray	Time=06/11/2017 17:17:51	Title=El distinguido ciudadano (The Distinguished Citizen) [1940]	Artist=Edgardo Donato & his orchestra	Length=149	Album:00=The best of Argentine Tango Vol. 2 / 78 rpm recordings 1927 - 1957	Track:00=17	Tag+=Argentine Tango:Dance	DanceRating=ATN+2	Purchase:00:SS=0ns4CpHDRcexy62FEQP0Fh	DanceRating=TNG+1	.Edit=	User=batch-a	Time=06/11/2017 17:23:40	Purchase:00:AS=D:B001VL341Y	Purchase:00:AA=D:B001VL4RKQ	Tag+=Latin:Music	.Edit=	User=batch-i	Time=06/11/2017 17:23:40	Album:01=The Best of Argentine Tango, Vol. 2 - 78 Rpm Recordings 1927-1957	Track:01=17	Purchase:01:IS=307599641	Purchase:01:IA=307599529	Tag+=Raíces:Music	.Edit=	User=batch-s	Time=06/11/2017 17:23:40	Purchase:00:SS=0ns4CpHDRcexy62FEQP0Fh[AD,AT,AU,BE,BG,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GB,GR,GT,HK,HN,HU,ID,IE,IS,IT,JP,LI,LT,LU,LV,MC,MT,MX,MY,NI,NL,NO,NZ,PA,PE,PH,PL,PT,PY,SE,SG,SK,SV,TR,TW,US,UY]	Purchase:00:SA=1MCPFcQJSIrQ45lTjfxkYn	.Edit=	User=batch	Time=06/11/2017 17:28:52	Tempo=134.4	Danceability=0.717	Energy=0.378	Valence=0.693	Tag+=4/4:Tempo	.Edit=	User=batch-s	Time=06/11/2017 17:29:13	Sample=https://p.scdn.co/mp3-preview/92d2fe46e92d1040da43258f03f971225a7330ee?cid\<EQ>\***REMOVED***	.Edit=	User=batch	Time=07/23/2017 16:43:48	DanceRating=MGA+1";
             var song = new Song();
             song.Load(init, Service);
             song.AdminModify(
@@ -337,13 +341,15 @@ namespace m4dModels.Tests
             Assert.AreEqual(2, song.DanceRatings.Count);
             Assert.AreEqual(1, song.DanceRatings.Count(dr => dr.DanceId == "MGA"));
             Assert.AreEqual(0, song.DanceRatings.Count(dr => dr.DanceId == "ATN"));
-            Assert.AreEqual("4/4:Tempo:1|Latin:Music:1|Milonga:Dance:1|Raíces:Music:1", song.TagSummary.ToString());
+            Assert.AreEqual("4/4:Tempo:1|Latin:Music:1|Milonga:Dance:1|Raíces:Music:1",
+                song.TagSummary.ToString());
         }
 
         [TestMethod]
         public void AdminModifyVals()
         {
-            const string init = @".Create=	User=11101224127	Time=01/05/2018 02:39:33	Title=Pajaro Herido	Artist=Rodolfo Biagi	Length=136	Album:00=Tango Best	Track:00=17	Tag+=Argentine Tango:Dance	DanceRating=ATN+2	Purchase:00:SA=0OysrEZzotITS0fQ22yMne	Purchase:00:SS=7AddIMmrMNrAvfeVLggbdj	DanceRating=TNG+1	.Edit=	User=batch-a	Time=01/05/2018 02:41:52	Album:01=Rodolfo Biagi Con Sus Cantores: 1939-1947	Track:01=10	Purchase:01:AS=D:B075V5L1WH	Purchase:01:AA=D:B075V711N7	Album:02=The Essence of Tango: Rodolfo Biagi, Vol. 1	Track:02=3	Purchase:02:AS=D:B019EPP092	Purchase:02:AA=D:B019EPQLDQ	Album:03=Tango Classics 076: Cuatro palabras	Track:03=6	Purchase:03:AS=D:B004UPEU52	Purchase:03:AA=D:B004UPE43K	Album:04=A la luz del candil (1941 - 1943)	Track:04=12	Purchase:04:AS=D:B071DNT826	Purchase:04:AA=D:B0713R81XC	Tag+=International:Music|Latin:Music	.Edit=	User=batch-i	Time=01/05/2018 02:41:52	Purchase:04:IS=1231281699	Purchase:04:IA=1231281637	Album:05=Cuatro Palabras	Track:05=6	Purchase:05:IS=429503329	Purchase:05:IA=429503294	Tag+=Latino:Music|World:Music	.Edit=	User=batch-e	Time=01/05/2018 02:41:52	Tempo=107.1	Danceability=0.517	Energy=0.31	Valence=0.692	Tag+=3/4:Tempo";
+            const string init =
+                @".Create=	User=11101224127	Time=01/05/2018 02:39:33	Title=Pajaro Herido	Artist=Rodolfo Biagi	Length=136	Album:00=Tango Best	Track:00=17	Tag+=Argentine Tango:Dance	DanceRating=ATN+2	Purchase:00:SA=0OysrEZzotITS0fQ22yMne	Purchase:00:SS=7AddIMmrMNrAvfeVLggbdj	DanceRating=TNG+1	.Edit=	User=batch-a	Time=01/05/2018 02:41:52	Album:01=Rodolfo Biagi Con Sus Cantores: 1939-1947	Track:01=10	Purchase:01:AS=D:B075V5L1WH	Purchase:01:AA=D:B075V711N7	Album:02=The Essence of Tango: Rodolfo Biagi, Vol. 1	Track:02=3	Purchase:02:AS=D:B019EPP092	Purchase:02:AA=D:B019EPQLDQ	Album:03=Tango Classics 076: Cuatro palabras	Track:03=6	Purchase:03:AS=D:B004UPEU52	Purchase:03:AA=D:B004UPE43K	Album:04=A la luz del candil (1941 - 1943)	Track:04=12	Purchase:04:AS=D:B071DNT826	Purchase:04:AA=D:B0713R81XC	Tag+=International:Music|Latin:Music	.Edit=	User=batch-i	Time=01/05/2018 02:41:52	Purchase:04:IS=1231281699	Purchase:04:IA=1231281637	Album:05=Cuatro Palabras	Track:05=6	Purchase:05:IS=429503329	Purchase:05:IA=429503294	Tag+=Latino:Music|World:Music	.Edit=	User=batch-e	Time=01/05/2018 02:41:52	Tempo=107.1	Danceability=0.517	Energy=0.31	Valence=0.692	Tag+=3/4:Tempo";
             var song = new Song();
             song.Load(init, Service);
             song.AdminModify(
@@ -354,13 +360,16 @@ namespace m4dModels.Tests
             Assert.AreEqual(1, song.DanceRatings.Count(dr => dr.DanceId == "TGV"));
             Assert.AreEqual(0, song.DanceRatings.Count(dr => dr.DanceId == "TNG"));
             Assert.AreEqual(0, song.DanceRatings.Count(dr => dr.DanceId == "ATN"));
-            Assert.AreEqual("3/4:Tempo:1|International:Music:1|Latin:Music:2|Tango Vals:Dance:1|World:Music:1", song.TagSummary.ToString());
+            Assert.AreEqual(
+                "3/4:Tempo:1|International:Music:1|Latin:Music:2|Tango Vals:Dance:1|World:Music:1",
+                song.TagSummary.ToString());
         }
 
         [TestMethod]
         public void AdminModifyExcludeUser()
         {
-            const string init = @".Create=	User=11101224127	Time=01/05/2018 02:39:33	Title=Pajaro Herido	Artist=Rodolfo Biagi	Length=136	Album:00=Tango Best	Track:00=17	Tag+=Argentine Tango:Dance	DanceRating=ATN+2	Purchase:00:SA=0OysrEZzotITS0fQ22yMne	Purchase:00:SS=7AddIMmrMNrAvfeVLggbdj	DanceRating=TNG+1	.Edit=	User=DWTS	Time=05/13/2015 14:09:23	Tag+=Argentine Tango:Dance|DWTS:Other|Episode 9:Other|Season 20:Other|United States:Other	DanceRating=ATN+2	DanceRating=TNG+1	Tag+:ATN=Allison:Other|Riker:Other	.Edit=	User=batch-a	Time=01/05/2018 02:41:52	Album:01=Rodolfo Biagi Con Sus Cantores: 1939-1947	Track:01=10	Purchase:01:AS=D:B075V5L1WH	Purchase:01:AA=D:B075V711N7	Album:02=The Essence of Tango: Rodolfo Biagi, Vol. 1	Track:02=3	Purchase:02:AS=D:B019EPP092	Purchase:02:AA=D:B019EPQLDQ	Album:03=Tango Classics 076: Cuatro palabras	Track:03=6	Purchase:03:AS=D:B004UPEU52	Purchase:03:AA=D:B004UPE43K	Album:04=A la luz del candil (1941 - 1943)	Track:04=12	Purchase:04:AS=D:B071DNT826	Purchase:04:AA=D:B0713R81XC	Tag+=International:Music|Latin:Music	.Edit=	User=batch-i	Time=01/05/2018 02:41:52	Purchase:04:IS=1231281699	Purchase:04:IA=1231281637	Album:05=Cuatro Palabras	Track:05=6	Purchase:05:IS=429503329	Purchase:05:IA=429503294	Tag+=Latino:Music|World:Music	.Edit=	User=batch-e	Time=01/05/2018 02:41:52	Tempo=107.1	Danceability=0.517	Energy=0.31	Valence=0.692	Tag+=3/4:Tempo";
+            const string init =
+                @".Create=	User=11101224127	Time=01/05/2018 02:39:33	Title=Pajaro Herido	Artist=Rodolfo Biagi	Length=136	Album:00=Tango Best	Track:00=17	Tag+=Argentine Tango:Dance	DanceRating=ATN+2	Purchase:00:SA=0OysrEZzotITS0fQ22yMne	Purchase:00:SS=7AddIMmrMNrAvfeVLggbdj	DanceRating=TNG+1	.Edit=	User=DWTS	Time=05/13/2015 14:09:23	Tag+=Argentine Tango:Dance|DWTS:Other|Episode 9:Other|Season 20:Other|United States:Other	DanceRating=ATN+2	DanceRating=TNG+1	Tag+:ATN=Allison:Other|Riker:Other	.Edit=	User=batch-a	Time=01/05/2018 02:41:52	Album:01=Rodolfo Biagi Con Sus Cantores: 1939-1947	Track:01=10	Purchase:01:AS=D:B075V5L1WH	Purchase:01:AA=D:B075V711N7	Album:02=The Essence of Tango: Rodolfo Biagi, Vol. 1	Track:02=3	Purchase:02:AS=D:B019EPP092	Purchase:02:AA=D:B019EPQLDQ	Album:03=Tango Classics 076: Cuatro palabras	Track:03=6	Purchase:03:AS=D:B004UPEU52	Purchase:03:AA=D:B004UPE43K	Album:04=A la luz del candil (1941 - 1943)	Track:04=12	Purchase:04:AS=D:B071DNT826	Purchase:04:AA=D:B0713R81XC	Tag+=International:Music|Latin:Music	.Edit=	User=batch-i	Time=01/05/2018 02:41:52	Purchase:04:IS=1231281699	Purchase:04:IA=1231281637	Album:05=Cuatro Palabras	Track:05=6	Purchase:05:IS=429503329	Purchase:05:IA=429503294	Tag+=Latino:Music|World:Music	.Edit=	User=batch-e	Time=01/05/2018 02:41:52	Tempo=107.1	Danceability=0.517	Energy=0.31	Valence=0.692	Tag+=3/4:Tempo";
             var song = new Song();
             song.Load(init, Service);
             song.AdminModify(
@@ -371,18 +380,22 @@ namespace m4dModels.Tests
             Assert.AreEqual(1, song.DanceRatings.Count(dr => dr.DanceId == "TGV"));
             Assert.AreEqual(1, song.DanceRatings.Count(dr => dr.DanceId == "TNG"));
             Assert.AreEqual(1, song.DanceRatings.Count(dr => dr.DanceId == "ATN"));
-            Assert.AreEqual("3/4:Tempo:1|Argentine Tango:Dance:1|DWTS:Other:1|Episode 9:Other:1|International:Music:1|Latin:Music:2|Season 20:Other:1|Tango Vals:Dance:1|United States:Other:1|World:Music:1", song.TagSummary.ToString());
+            Assert.AreEqual(
+                "3/4:Tempo:1|Argentine Tango:Dance:1|DWTS:Other:1|Episode 9:Other:1|International:Music:1|Latin:Music:2|Season 20:Other:1|Tango Vals:Dance:1|United States:Other:1|World:Music:1",
+                song.TagSummary.ToString());
         }
 
         [TestMethod]
         public void TagDeleteTest()
         {
-            const string init = @".Create=	User=LizaMay|P	Time=12/18/2020 12:53:42	Title=Something Sweet	Artist=Madison Beer	Length=196	Album:00=Something Sweet	Track:00=1	Tag+=West Coast Swing:Dance	DanceRating=WCS+1	Purchase:00:SA=2oIUFdMdCZB6KSxcByEbDT	Purchase:00:SS=3PlM3biKS6ZUIHojCJmElE	DanceRating=SWG+1	.Edit=	User=batch-i|P	Time=12/18/2020 13:22:21	Purchase:00:IS=1068336005	Purchase:00:IA=1068336001	Tag+=Pop:Music	.Edit=	User=batch-s|P	Time=12/18/2020 13:22:21	Tag+=Dance Pop:Music|Electropop:Music|Pop Dance:Music|Pop:Music|Post Teen Pop:Music	.Edit=	User=batch-e|P	Time=12/18/2020 13:22:21	Tempo=100.0	Danceability=0.622	Energy=0.791	Valence=0.647	Tag+=4/4:Tempo	.Edit=	Time=12/18/2020 13:22:21	Sample=https://p.scdn.co/mp3-preview/8e1b328376bb18bb1b5d27649a59f2f1e175f199?cid=***REMOVED***	.Edit=	User=StephanieLienPham|P	Time=05/09/2021 09:11:30	Tag+=West Coast Swing:Dance	DanceRating=WCS+1	DanceRating=SWG+1	.Edit=	User=dwgray	Time=23-May-2021 02:32:40 PM	DeleteTag=Swing:Dance	DeleteTag=West Coast Swing:Dance	.Edit=	User=dwgray	Time=23-May-2021 03:09:31 PM	DeleteTag=Dance Pop:Music	DeleteTag=Pop Dance:Music";
+            const string init =
+                @".Create=	User=LizaMay|P	Time=12/18/2020 12:53:42	Title=Something Sweet	Artist=Madison Beer	Length=196	Album:00=Something Sweet	Track:00=1	Tag+=West Coast Swing:Dance	DanceRating=WCS+1	Purchase:00:SA=2oIUFdMdCZB6KSxcByEbDT	Purchase:00:SS=3PlM3biKS6ZUIHojCJmElE	DanceRating=SWG+1	.Edit=	User=batch-i|P	Time=12/18/2020 13:22:21	Purchase:00:IS=1068336005	Purchase:00:IA=1068336001	Tag+=Pop:Music	.Edit=	User=batch-s|P	Time=12/18/2020 13:22:21	Tag+=Dance Pop:Music|Electropop:Music|Pop Dance:Music|Pop:Music|Post Teen Pop:Music	.Edit=	User=batch-e|P	Time=12/18/2020 13:22:21	Tempo=100.0	Danceability=0.622	Energy=0.791	Valence=0.647	Tag+=4/4:Tempo	.Edit=	Time=12/18/2020 13:22:21	Sample=https://p.scdn.co/mp3-preview/8e1b328376bb18bb1b5d27649a59f2f1e175f199?cid=***REMOVED***	.Edit=	User=StephanieLienPham|P	Time=05/09/2021 09:11:30	Tag+=West Coast Swing:Dance	DanceRating=WCS+1	DanceRating=SWG+1	.Edit=	User=dwgray	Time=23-May-2021 02:32:40 PM	DeleteTag=Swing:Dance	DeleteTag=West Coast Swing:Dance	.Edit=	User=dwgray	Time=23-May-2021 03:09:31 PM	DeleteTag=Dance Pop:Music	DeleteTag=Pop Dance:Music";
             var song = new Song();
             song.Load(init, Service);
 
             Assert.AreEqual(0, song.DanceRatings.Count);
-            Assert.AreEqual("4/4:Tempo:1|Electropop:Music:1|Pop:Music:2|Post Teen Pop:Music:1", song.TagSummary.ToString());
+            Assert.AreEqual("4/4:Tempo:1|Electropop:Music:1|Pop:Music:2|Post Teen Pop:Music:1",
+                song.TagSummary.ToString());
         }
 
         //
@@ -431,7 +444,8 @@ namespace m4dModels.Tests
         //}
 
 
-        static readonly string[] Titles = {
+        private static readonly string[] Titles =
+        {
             "ñ-é á",
             "Señor  Bolero",
             "Viaje Tiemp  Atrás",
@@ -450,7 +464,8 @@ namespace m4dModels.Tests
             "Can't [get] [no (satisfaction)] for's real"
         };
 
-        static readonly string[] Normal = {
+        private static readonly string[] Normal =
+        {
             "NE",
             "SENORBOLERO",
             "VIAJETIEMPATRAS",
@@ -469,7 +484,8 @@ namespace m4dModels.Tests
             "CANTFORSREAL"
         };
 
-        static readonly string[] Clean = {
+        private static readonly string[] Clean =
+        {
             "ñ é á",
             "Señor Bolero",
             "Viaje Tiemp Atrás",
@@ -488,7 +504,8 @@ namespace m4dModels.Tests
             "Can't for's real"
         };
 
-        static readonly int[] Hashes = {
+        private static readonly int[] Hashes =
+        {
             2068167486,
             -71943789,
             -325959402,
@@ -506,7 +523,7 @@ namespace m4dModels.Tests
 
         private static readonly DanceMusicCoreService Service
             = DanceMusicTester.CreateServiceWithUsers("Song");
+
         private static DanceStatsInstance Stats => Service.DanceStats;
     }
-
 }

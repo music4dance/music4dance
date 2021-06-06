@@ -29,10 +29,13 @@ namespace m4dModels
 
         // Two character country code based on ISO 3166-1 alpha-2 country codes.
         public string Region { get; set; }
+
         // Privacy level 0-255 (initial states are only 0 & 255)
         public byte Privacy { get; set; }
+
         // Contact bitfield
         public ContactStatus CanContact { get; set; }
+
         // Services in order of preference?
         // Or actively use, interested, not interested
         // Or just actively use?
@@ -50,7 +53,8 @@ namespace m4dModels
         // Everything below here are computed properties
         public string RegionName => CountryCodes.TranslateCode(Region);
 
-        public string PrivacyDescription => string.Format(PrivacyMessage, (Privacy == 0) ? "Don't" : "Do");
+        public string PrivacyDescription =>
+            string.Format(PrivacyMessage, Privacy == 0 ? "Don't" : "Do");
 
         public IEnumerable<string> ContactDescription
         {
@@ -59,15 +63,13 @@ namespace m4dModels
                 var ret = new List<string>();
                 var i = 0;
                 byte mask = 1;
-                while (mask != (byte)ContactStatus.Max)
+                while (mask != (byte) ContactStatus.Max)
                 {
-                    if ((mask & (byte)CanContact) == mask)
-                    {
-                        ret.Add(ContactStrings[i]);
-                    }
-                    mask = (byte)(mask << 1);
+                    if ((mask & (byte) CanContact) == mask) ret.Add(ContactStrings[i]);
+                    mask = (byte) (mask << 1);
                     i += 1;
                 }
+
                 return ret;
             }
         }
@@ -79,9 +81,8 @@ namespace m4dModels
                 var ret = new List<string>();
 
                 if (!string.IsNullOrEmpty(ServicePreference))
-                {
-                    ret.AddRange(ServicePreference.Select(MusicService.GetService).Where(s => s != null).Select(s => s.Name));
-                }
+                    ret.AddRange(ServicePreference.Select(MusicService.GetService)
+                        .Where(s => s != null).Select(s => s.Name));
                 return ret;
             }
         }
@@ -90,15 +91,16 @@ namespace m4dModels
         {
             get
             {
-                var ret = new List<KeyValuePair<byte,string>>();
+                var ret = new List<KeyValuePair<byte, string>>();
                 var i = 0;
                 byte mask = 1;
-                while (mask != (byte)ContactStatus.Max)
+                while (mask != (byte) ContactStatus.Max)
                 {
-                    ret.Add(new KeyValuePair<byte, string>(mask,ContactStrings[i]));
-                    mask = (byte)(mask << 1);
+                    ret.Add(new KeyValuePair<byte, string>(mask, ContactStrings[i]));
+                    mask = (byte) (mask << 1);
                     i += 1;
                 }
+
                 return ret;
             }
         }
@@ -109,18 +111,18 @@ namespace m4dModels
             {
                 var ret = new List<byte>();
                 byte mask = 1;
-                while (mask != (byte)ContactStatus.Max)
+                while (mask != (byte) ContactStatus.Max)
                 {
-                    if ((mask & (byte)CanContact) == mask)
-                    {
-                        ret.Add(mask);
-                    }
-                    mask = (byte)(mask << 1);
+                    if ((mask & (byte) CanContact) == mask) ret.Add(mask);
+                    mask = (byte) (mask << 1);
                 }
-                return ret;                
+
+                return ret;
             }
         }
-        public static string[] ContactStrings { get; } = {
+
+        public static string[] ContactStrings { get; } =
+        {
             @"I would be interested in participating in email or surveys to help improve music4dance",
             @"I am interested in occassional promotional emails from music4dance partners",
             @"I am interested in occassional promotional emails from music4dance"
@@ -138,13 +140,10 @@ namespace m4dModels
         public ApplicationUser(string userName, bool pseudo = false) : this()
         {
             UserName = userName;
-            if (pseudo)
-            {
-                Email = $"{userName}@music4dance.net";
-            }
+            if (pseudo) Email = $"{userName}@music4dance.net";
         }
 
-        public ApplicationUser(string userName, string email): this()
+        public ApplicationUser(string userName, string email) : this()
         {
             UserName = userName;
             Email = email;
@@ -152,8 +151,9 @@ namespace m4dModels
 
         public bool IsPlaceholder => StartDate == DateTime.MinValue;
 
-        public bool IsPseudo => Email.EndsWith("@music4dance.net", StringComparison.OrdinalIgnoreCase) ||
-                                 Email.EndsWith("@spotify.com", StringComparison.OrdinalIgnoreCase);
+        public bool IsPseudo =>
+            Email.EndsWith("@music4dance.net", StringComparison.OrdinalIgnoreCase) ||
+            Email.EndsWith("@spotify.com", StringComparison.OrdinalIgnoreCase);
 
         public bool IsConfirmed => EmailConfirmed && !IsPseudo;
 
@@ -175,7 +175,8 @@ namespace m4dModels
                 sb.Append($"{sp}{name}|{key}");
                 sp = "|";
             }
-            return sb.ToString();            
+
+            return sb.ToString();
         }
 
         public override string ToString()

@@ -6,22 +6,25 @@
     var playUrl = "https://open.spotify.com/embed/playlist/" + Model.Id;
 }
 
-<div class="row"><h1 class="col-sm-12">@ViewBag.Title</h1></div>
+<div class="row">
+    <h1 class="col-sm-12">@ViewBag.Title</h1>
+</div>
 
-<div class="row"><p class="col-sm-12">You've created a spotify playlist based on your search.  You can find it in your public play lists as "@Model.Name"</p></div>
+<div class="row">
+    <p class="col-sm-12">You've created a spotify playlist based on your search. You can find it in your public play lists as "@Model.Name"</p>
+</div>
 
 
 <div class="row">
-    <div class="col-sm-auto"><iframe src="@playUrl" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe></div>
+    <div class="col-sm-auto">
+        <iframe src="@playUrl" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+    </div>
     <div class="col-sm-auto">
         <p>Follow music4dance on Spotify<iframe src="https://open.spotify.com/follow/1/?uri=spotify:user:ebo1rk39vp51kkyjps45eobph&size=basic&theme=light" width="200" height="25" scrolling="no" frameborder="0" style="border: none; overflow: hidden;" allowtransparency="true"></iframe></p>
-        <p>@Html.ActionLink("Back to Search Results", ((SongFilter)ViewBag.SongFilter).TargetAction, new { filter = ViewBag.SongFilter }, new { @class = "btn btn-small btn-primary", role = "button" })</p>
+        <p>@Html.ActionLink("Back to Search Results", ((SongFilter) ViewBag.SongFilter).TargetAction, new {filter = ViewBag.SongFilter}, new {@class = "btn btn-small btn-primary", role = "button"})</p>
     </div>
 </div>
 
-<div class="row"><p class="col-sm-12">Please be considerate and keep the text reading "This playlist was created with information from music4dance.net" in the playlist description.  This will help spread the word and build the music4dance community.</p></div>
-
-
-
-
-
+<div class="row">
+    <p class="col-sm-12">Please be considerate and keep the text reading "This playlist was created with information from music4dance.net" in the playlist description. This will help spread the word and build the music4dance community.</p>
+</div>

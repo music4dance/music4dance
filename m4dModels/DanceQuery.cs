@@ -10,19 +10,19 @@ namespace m4dModels
     {
         private const string AllRef = "ALL"; // Special 'All dances' value
         private const string And = "AND"; // Exclusive + Explicit
+
         private const string AndX = "ADX"; // Exclusive + Inferred
+
         //private const string OneOf = ""; // Inclusive + Explicit
         private const string OneOfX = "OOX"; // Inclusive + Inferred
 
-        private readonly string[] _modifiers = {And,AndX,OneOfX};
+        private readonly string[] _modifiers = {And, AndX, OneOfX};
 
-        public DanceQuery(string query=null)
+        public DanceQuery(string query = null)
         {
             Query = query ?? string.Empty;
             if (string.Equals(AllRef, Query, StringComparison.InvariantCultureIgnoreCase))
-            {
                 Query = string.Empty;
-            }
         }
 
         public string Query { get; }
@@ -33,7 +33,7 @@ namespace m4dModels
         {
             get
             {
-                var ret = Query.Split(new[] {','},StringSplitOptions.RemoveEmptyEntries);
+                var ret = Query.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries);
                 if (ret.Length == 0 || !_modifiers.Contains(ret[0].ToUpper()))
                     return ret;
 
@@ -43,13 +43,16 @@ namespace m4dModels
                 return ret;
             }
         }
+
         public IEnumerable<DanceObject> Dances => DanceLibrary.Dances.Instance.FromIds(DanceIds);
 
         public bool Advanced => DanceIds.Count() > 1;
 
         public IEnumerable<string> ExpandedIds => DanceLibrary.Dances.Instance.ExpandMsc(DanceIds);
 
-        public bool IsExclusive => (StartsWith(And) || StartsWith(AndX)) && Query.IndexOf(",", 4, StringComparison.Ordinal) != -1;
+        public bool IsExclusive => (StartsWith(And) || StartsWith(AndX)) &&
+            Query.IndexOf(",", 4, StringComparison.Ordinal) != -1;
+
         public bool IncludeInferred => StartsWith(AndX) || StartsWith(OneOfX);
 
         public bool HasDance(string id)
@@ -73,23 +76,34 @@ namespace m4dModels
 
         public DanceQuery MakeInclusive()
         {
-            return IsExclusive ? new DanceQuery((StartsWith(AndX) ? (OneOfX + ",") : string.Empty) + RemoveQualifier()) : this;
+            return IsExclusive
+                ? new DanceQuery((StartsWith(AndX) ? OneOfX + "," : string.Empty) +
+                    RemoveQualifier())
+                : this;
         }
 
         public DanceQuery MakeExclusive()
         {
-            return (IsExclusive && DanceIds.Count() > 1) ? 
-                this : new DanceQuery((IncludeInferred ? AndX : And) + "," + (StartsWith(OneOfX) ? RemoveQualifier() : Query));
+            return IsExclusive && DanceIds.Count() > 1
+                ? this
+                : new DanceQuery((IncludeInferred ? AndX : And) + "," +
+                    (StartsWith(OneOfX) ? RemoveQualifier() : Query));
         }
 
         public DanceQuery MakeInferred()
         {
-            return IncludeInferred ? this : new DanceQuery(IsExclusive ? AndX + "," + RemoveQualifier() : OneOfX + "," + Query);
+            return IncludeInferred
+                ? this
+                : new DanceQuery(
+                    IsExclusive ? AndX + "," + RemoveQualifier() : OneOfX + "," + Query);
         }
 
         public DanceQuery MakeExplicit()
         {
-            return !IncludeInferred ? this : new DanceQuery((IsExclusive ? And + "," : string.Empty) + "," + RemoveQualifier());
+            return !IncludeInferred
+                ? this
+                : new DanceQuery((IsExclusive ? And + "," : string.Empty) + "," +
+                    RemoveQualifier());
         }
 
         public string ODataFilter
@@ -102,8 +116,10 @@ namespace m4dModels
                     case 0:
                         return null;
                     case 1:
-                        return $"(DanceTags/any(t: t eq '{dances[0].Name.ToLower()}')" + 
-                            (IncludeInferred ? $" or  DanceTagsInferred/any(t: t eq '{dances[0].Name.ToLower()}')" : "") + ")";
+                        return $"(DanceTags/any(t: t eq '{dances[0].Name.ToLower()}')" +
+                            (IncludeInferred
+                                ? $" or  DanceTagsInferred/any(t: t eq '{dances[0].Name.ToLower()}')"
+                                : "") + ")";
                 }
 
                 var sb = new StringBuilder();
@@ -114,9 +130,8 @@ namespace m4dModels
                     if (sb.Length > 0) sb.Append($" {con} ");
                     sb.AppendFormat("(DanceTags/any(t: t eq '{0}')", d.Name.ToLower());
                     if (IncludeInferred)
-                    {
-                        sb.AppendFormat(" or DanceTagsInferred/any(t: t eq '{0}')", d.Name.ToLower());
-                    }
+                        sb.AppendFormat(" or DanceTagsInferred/any(t: t eq '{0}')",
+                            d.Name.ToLower());
                     sb.Append(")");
                 }
 
@@ -135,11 +150,9 @@ namespace m4dModels
                 prefix = "all";
                 connector = "and";
             }
+
             var suffix = string.Empty;
-            if (IncludeInferred)
-            {
-                suffix = " (including inferred by tempo)";
-            }
+            if (IncludeInferred) suffix = " (including inferred by tempo)";
             switch (count)
             {
                 case 0:
@@ -147,11 +160,13 @@ namespace m4dModels
                 case 1:
                     return $"{dances[0]} songs{suffix}";
                 case 2:
-                    return $"songs danceable to {prefix} of {dances[0]} {connector} {dances[1]}{suffix}";
+                    return
+                        $"songs danceable to {prefix} of {dances[0]} {connector} {dances[1]}{suffix}";
                 default:
                     var last = dances[count - 1];
                     dances.RemoveAt(count - 1);
-                    return $"songs danceable to {prefix} of {string.Join(", ", dances)} {connector} {last}{suffix}";
+                    return
+                        $"songs danceable to {prefix} of {string.Join(", ", dances)} {connector} {last}{suffix}";
             }
         }
 

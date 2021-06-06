@@ -25,18 +25,22 @@
 
 @if ((TraceLevels.General.TraceVerbose || User.IsInRole("showDiagnostics")) && exception != null)
 {
-    string hresult = "0x" + exception.HResult.ToString("X8");
+    var hresult = "0x" + exception.HResult.ToString("X8");
     <p><b>Exception:</b>@exception.Message (@hresult)</p>
     if (exception.InnerException != null)
     {
-        <p><b>Inner Exception:</b>@exception.InnerException.Message</p>
+        <p>
+            <b>Inner Exception:</b>@exception.InnerException.Message
+        </p>
     }
-    <p><b>Target Site:</b>@exception.TargetSite</p>
-    
+    <p>
+        <b>Target Site:</b>@exception.TargetSite
+    </p>
+
     <h3>Stack Trace:</h3>
-    string[] frames = exception.StackTrace.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+    var frames = exception.StackTrace.Split(new[] {'\n'}, StringSplitOptions.RemoveEmptyEntries);
     <ul>
-        @foreach (string s in frames)
+        @foreach (var s in frames)
         {
             <li>@s</li>
         }

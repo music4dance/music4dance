@@ -12,9 +12,9 @@
 {
     <p class="big-text">Strip says: @Model.Error.ErrorMessage</p>
 
-    <p class="big-text">Please @Html.ActionLink("click here", "Purchase", new { amount = Model.Amount, kind = Model.Kind }, null) to try again.</p>
+    <p class="big-text">Please @Html.ActionLink("click here", "Purchase", new {amount = Model.Amount, kind = Model.Kind}, null) to try again.</p>
 }
 else
 {
-    <p class="big-text">This appears to be a technical issue.  Please try again later. If the the issue persists, please contact us at <a href="mailto:info@music4dance.net">info@music4dance.net</a></p>
+    <p class="big-text">This appears to be a technical issue. Please try again later. If the the issue persists, please contact us at <a href="mailto:info@music4dance.net">info@music4dance.net</a></p>
 }

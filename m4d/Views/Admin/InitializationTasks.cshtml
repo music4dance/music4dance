@@ -10,18 +10,19 @@
 <h3>Search Indexing</h3>
 <ul>
     <li>Default: @Html.ActionLink("Reset", "ResetSearchIdx")</li>
-    <li>BasicA: @Html.ActionLink("Reset", "ResetSearchIdx", new { id = "basica" }, null)</li>
-    <li>BasicB: @Html.ActionLink("Reset", "ResetSearchIdx", new { id = "basicb" }, null)</li>
-    <li>BasicC: @Html.ActionLink("Reset", "ResetSearchIdx", new { id = "basicc" }, null)</li>
-    <li>Backup: @Html.ActionLink("Reset", "ResetSearchIdx", new { id = "backup" }, null)</li>
+    <li>BasicA: @Html.ActionLink("Reset", "ResetSearchIdx", new {id = "basica"}, null)</li>
+    <li>BasicB: @Html.ActionLink("Reset", "ResetSearchIdx", new {id = "basicb"}, null)</li>
+    <li>BasicC: @Html.ActionLink("Reset", "ResetSearchIdx", new {id = "basicc"}, null)</li>
+    <li>Backup: @Html.ActionLink("Reset", "ResetSearchIdx", new {id = "backup"}, null)</li>
 </ul>
 
 <h3> Initializiation Tasks</h3>
 <ul>
-    <li>Reload Song Stats
+    <li>
+        Reload Song Stats
         <ul>
             <li>@Html.ActionLink("From Store", "ClearSongCache")</li>
-            <li>@Html.ActionLink("From File", "ClearSongCache", new { reloadFromStore = false }, null)</li>
+            <li>@Html.ActionLink("From File", "ClearSongCache", new {reloadFromStore = false}, null)</li>
         </ul>
     </li>
     <li>@Html.ActionLink("Update Sitemap", "UpdateSitemap")</li>
@@ -29,20 +30,20 @@
 
 <h3>Clean Up</h3>
 <ul>
-    <li>@Html.ActionLink("Cleanup Properties", "CleanupProperties", new { count = 100 }, null)</li>
+    <li>@Html.ActionLink("Cleanup Properties", "CleanupProperties", new {count = 100}, null)</li>
     <li>@Html.ActionLink("Clean up Tags", "CleanTags")</li>
     <li>@Html.ActionLink("Update Albums", "UpdateAlbums")</li>
-    <li>Infer Dance Types: @Html.ActionLink("Foxtrot", "InferDanceTypes", new { group = "FXT" }, null), @Html.ActionLink("Swing", "InferDanceTypes", new { group = "SWG" }, null), @Html.ActionLink("Tango", "InferDanceTypes", new { group = "TNG" }, null), @Html.ActionLink("Waltz", "InferDanceTypes", new { group = "WLZ" }, null)</li>
+    <li>Infer Dance Types: @Html.ActionLink("Foxtrot", "InferDanceTypes", new {group = "FXT"}, null), @Html.ActionLink("Swing", "InferDanceTypes", new {group = "SWG"}, null), @Html.ActionLink("Tango", "InferDanceTypes", new {group = "TNG"}, null), @Html.ActionLink("Waltz", "InferDanceTypes", new {group = "WLZ"}, null)</li>
 </ul>
 
 <h3>Merging</h3>
 <ul>
-    <li>@Html.ActionLink("Merge Candidates - Similar Title", "MergeCandidates", "Song", new { level = 2 }, null)</li>
-    <li>@Html.ActionLink("Merge Candidates - Similar (Title + Artist) + All else equal", "MergeCandidates", "Song", new { level = 1 }, null)</li>
-    <li>@Html.ActionLink("Merge Candidates - Similar (Title + Artist + Length) + All else equal", "MergeCandidates", "Song", new { level = 3 }, null)</li>
-    <li>@Html.ActionLink("Merge Candidates - Similar Title + All else equal", "MergeCandidates", "Song", new { level = 0 }, null)</li>
+    <li>@Html.ActionLink("Merge Candidates - Similar Title", "MergeCandidates", "Song", new {level = 2}, null)</li>
+    <li>@Html.ActionLink("Merge Candidates - Similar (Title + Artist) + All else equal", "MergeCandidates", "Song", new {level = 1}, null)</li>
+    <li>@Html.ActionLink("Merge Candidates - Similar (Title + Artist + Length) + All else equal", "MergeCandidates", "Song", new {level = 3}, null)</li>
+    <li>@Html.ActionLink("Merge Candidates - Similar Title + All else equal", "MergeCandidates", "Song", new {level = 0}, null)</li>
     <li>@Html.ActionLink("Finish Merge Session", "ClearMergeCache", "Song")</li>
-    <li>@Html.ActionLink("AutoMerge", "MergeCandidates", "Song", new { level = 3, autocommit = true }, null)</li>
+    <li>@Html.ActionLink("AutoMerge", "MergeCandidates", "Song", new {level = 3, autocommit = true}, null)</li>
 </ul>
 
 <h3>Old Tasks</h3>

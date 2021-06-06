@@ -32,13 +32,13 @@ namespace m4dModels.Tests
         {
             var q = new DanceQuery();
             q = q.AddDance("BOL");
-            Assert.AreEqual("BOL",q.Query);
+            Assert.AreEqual("BOL", q.Query);
 
             q = q.AddDance("RUM");
-            Assert.AreEqual("BOL,RUM",q.Query);
+            Assert.AreEqual("BOL,RUM", q.Query);
 
             var qX = q.MakeExclusive();
-            Assert.AreEqual("AND,BOL,RUM",qX.Query);
+            Assert.AreEqual("AND,BOL,RUM", qX.Query);
 
             q = qX.MakeInclusive();
             Assert.AreEqual("BOL,RUM", q.Query);

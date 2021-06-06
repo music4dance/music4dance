@@ -21,7 +21,7 @@ namespace m4d.ViewModels
         }
 
         public static BreadCrumbItem SongLibraryItem =>
-            new() { Title = "Song Library", Link = "/home/song" };
+            new() {Title = "Song Library", Link = "/home/song"};
 
         public static List<BreadCrumbItem> BuildSongLibraryTrail(string title)
         {
@@ -29,7 +29,7 @@ namespace m4d.ViewModels
         }
 
         public static BreadCrumbItem AdminItem =>
-            new() { Title = "Administration", Link = "/admin" };
+            new() {Title = "Administration", Link = "/admin"};
 
         public static List<BreadCrumbItem> BuildAdminTrail(string title)
         {
@@ -37,12 +37,13 @@ namespace m4d.ViewModels
         }
 
         public static BreadCrumbItem DanceItem =>
-            new() { Title = "Dances", Link = "/dances" };
+            new() {Title = "Dances", Link = "/dances"};
 
         public static List<BreadCrumbItem> BuildDanceTrail(string title)
         {
             return BuildTrail(title, HomeItem, DanceItem);
         }
+
         public static BreadCrumbItem ContributeItem =>
             new() {Title = "Contribute", Link = "/Home/Contribute"};
 
@@ -52,7 +53,7 @@ namespace m4d.ViewModels
         }
 
         public static BreadCrumbItem UsersItem =>
-            new() { Title = "Users", Link = "/ApplicationUsers" };
+            new() {Title = "Users", Link = "/ApplicationUsers"};
 
         public static List<BreadCrumbItem> BuildUsersTrail(string title)
         {
@@ -60,7 +61,7 @@ namespace m4d.ViewModels
         }
 
         public static BreadCrumbItem PlaylistItem =>
-            new() { Title = "Users", Link = "/Playlist" };
+            new() {Title = "Users", Link = "/Playlist"};
 
         public static List<BreadCrumbItem> BuildPlaylistTrail(string title)
         {
@@ -69,8 +70,7 @@ namespace m4d.ViewModels
 
         private static List<BreadCrumbItem> BuildTrail(string title, params BreadCrumbItem[] items)
         {
-            return items.Append(new BreadCrumbItem { Title = title, Active = true}).ToList();
+            return items.Append(new BreadCrumbItem {Title = title, Active = true}).ToList();
         }
     }
 }
-

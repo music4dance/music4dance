@@ -1,4 +1,4 @@
-﻿@using  m4d.ViewModels;
+﻿@using m4d.ViewModels;
 @model PurchaseModel
 
 @{
@@ -21,12 +21,12 @@ else
 
 <p class="big-text">Please click the button below to complete your transaction using <a href="https://stripe.com/" target="_blank">STRIPE</a></p>
 
-@using (Html.BeginForm("ConfirmPurchase", "Home", FormMethod.Post, new { id = "confirm" }))
+@using (Html.BeginForm("ConfirmPurchase", "Home", FormMethod.Post, new {id = "confirm"}))
 {
     @Html.AntiForgeryToken()
 
-    <input type="hidden" name="amount" value="@Model.Amount" />
-    <input type="hidden" name="kind" value="@Model.Kind" />
+    <input type="hidden" name="amount" value="@Model.Amount"/>
+    <input type="hidden" name="kind" value="@Model.Kind"/>
 
     <script src="https://checkout.stripe.com/checkout.js" class="stripe-button"
             data-key="@Model.Key"
@@ -40,5 +40,4 @@ else
     </script>
 }
 
-<p class="big-text">Any questions about how subscriptions or donations work, how transactions are processed securely or anything else related to this transaction?  Please check out our <a href="https://music4dance.blog/music4dance-help/subscriptions/" target="_blank">help page.</a></p>
-
+<p class="big-text">Any questions about how subscriptions or donations work, how transactions are processed securely or anything else related to this transaction? Please check out our <a href="https://music4dance.blog/music4dance-help/subscriptions/" target="_blank">help page.</a></p>

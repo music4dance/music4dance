@@ -22,9 +22,7 @@ namespace m4dModels
         {
             // TODO: itunes would need a different kind of link for album only lookup...
             if (pt == PurchaseType.Song && album != null && song != null)
-            {
                 return string.Format(AssociateLink, song, album);
-            }
             return null;
         }
 
@@ -45,7 +43,8 @@ namespace m4dModels
             return ret;
         }
 
-        public override ServiceTrack ParseTrackResults(dynamic results, Func<string, dynamic> getResult)
+        public override ServiceTrack ParseTrackResults(dynamic results,
+            Func<string, dynamic> getResult)
         {
             var tracks = results.results;
             return tracks.Count > 0 ? InternalParseTrackResults(tracks[0]) : null;
@@ -53,13 +52,11 @@ namespace m4dModels
 
         private ServiceTrack InternalParseTrackResults(dynamic track)
         {
-            if (!string.Equals("song", (string)track.kind)) return null;
+            if (!string.Equals("song", (string) track.kind)) return null;
 
             int? duration = null;
             if (track.trackTimeMillis != null)
-            {
                 duration = ((int) track.trackTimeMillis + 500) / 1000;
-            }
 
             return new ServiceTrack
             {
@@ -73,9 +70,9 @@ namespace m4dModels
                 //                        Link = track.trackViewUrl,
                 ReleaseDate = track.releaseDate,
                 Duration = duration,
-                Genres = new string[] { track.primaryGenreName },
+                Genres = new string[] {track.primaryGenreName},
                 TrackNumber = track.trackNumber,
-                SampleUrl = track.PreviewUrl,
+                SampleUrl = track.PreviewUrl
             };
         }
     }

@@ -8,8 +8,7 @@ namespace m4dModels
         public Guid Id { get; set; }
         public string DanceId { get; set; }
 
-        [DataType(DataType.MultilineText)]
-        public string Description { get; set; }
+        [DataType(DataType.MultilineText)] public string Description { get; set; }
         public string Link { get; set; }
     }
 }

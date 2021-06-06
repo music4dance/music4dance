@@ -11,15 +11,21 @@ namespace m4d.APIControllers
     // ReSharper disable once InconsistentNaming
     public class DanceMusicApiController : ControllerBase
     {
-        public DanceMusicApiController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, IConfiguration configuration)
+        public DanceMusicApiController(DanceMusicContext context,
+            UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
+            ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+            IConfiguration configuration)
         {
-            Database = new DanceMusicService(context, userManager, searchService, danceStatsManager);
+            Database =
+                new DanceMusicService(context, userManager, searchService, danceStatsManager);
             DanceStatsManager = danceStatsManager;
             _configuration = configuration;
         }
 
         protected readonly DanceMusicService Database;
-        protected MusicServiceManager MusicServiceManager => _musicServiceManager ??= new MusicServiceManager(_configuration);
+
+        protected MusicServiceManager MusicServiceManager =>
+            _musicServiceManager ??= new MusicServiceManager(_configuration);
 
         private MusicServiceManager _musicServiceManager;
         private IConfiguration _configuration;

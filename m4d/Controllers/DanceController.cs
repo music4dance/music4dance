@@ -22,10 +22,7 @@ namespace m4d.Controllers
         {
             var g = CompetitionGroup.Get(group);
             var cat = g.Categories.FirstOrDefault(c => string.Equals(c.CanonicalName, category));
-            if (cat == null)
-            {
-                return null;
-            }
+            if (cat == null) return null;
 
             return new CompetitionGroupModel
             {
@@ -59,11 +56,10 @@ namespace m4d.Controllers
             }
 
             var stats = DanceStatsManager.Instance;
-            if (string.Equals(dance, "ballroom-competition-categories", StringComparison.OrdinalIgnoreCase))
-            {
-                return View("BallroomCompetitionCategories", 
+            if (string.Equals(dance, "ballroom-competition-categories",
+                StringComparison.OrdinalIgnoreCase))
+                return View("BallroomCompetitionCategories",
                     CompetitionGroup.Get(CompetitionCategory.Ballroom));
-            }
 
             if (string.Equals(dance, "wedding-music", StringComparison.OrdinalIgnoreCase))
             {
@@ -73,9 +69,7 @@ namespace m4d.Controllers
             }
 
             if (string.Equals(dance, "holiday-music", StringComparison.OrdinalIgnoreCase))
-            {
                 return RedirectToActionPermanent("HolidayMusic", "Song");
-            }
 
             var category = CompetitionGroupModel.Get(CompetitionCategory.Ballroom, dance);
             if (category != null)
@@ -90,9 +84,11 @@ namespace m4d.Controllers
             var ds = stats.FromName(dance);
             var dbDance = Database.Dances.FirstOrDefault(d => d.Id == ds.DanceId);
 
-            if (dbDance == null) return ReturnError(HttpStatusCode.NotFound, $"The dance with the name = {dance} isn't defined.");
+            if (dbDance == null)
+                return ReturnError(HttpStatusCode.NotFound,
+                    $"The dance with the name = {dance} isn't defined.");
 
-            
+
             if (ds.SongCount == 0)
             {
                 UseVue = false;
@@ -113,10 +109,10 @@ namespace m4d.Controllers
         {
             var columns = new List<TagColumn>
             {
-                new TagColumn {Title = "Wedding", Tag = "Wedding:Other"},
-                new TagColumn {Title = "First Dance", Tag = "First Dance:Other"},
-                new TagColumn {Title = "Mother/Son", Tag = "Mother Son:Other"},
-                new TagColumn {Title = "Father/Daughter", Tag = "Father Daughter:Other"},
+                new() {Title = "Wedding", Tag = "Wedding:Other"},
+                new() {Title = "First Dance", Tag = "First Dance:Other"},
+                new() {Title = "Mother/Son", Tag = "Mother Son:Other"},
+                new() {Title = "Father/Daughter", Tag = "Father Daughter:Other"}
             };
             var rows = new List<TagRowGroup>();
 
@@ -128,7 +124,7 @@ namespace m4d.Controllers
                     var groupRow = new TagRowGroup
                     {
                         Dance = row.Dance,
-                        Counts = row.Counts,
+                        Counts = row.Counts
                     };
                     rows.Add(groupRow);
 
@@ -136,10 +132,7 @@ namespace m4d.Controllers
                     foreach (var dance in group.Children)
                     {
                         row = BuildTagRow(columns, dance);
-                        if (row != null)
-                        {
-                            rowsT.Add(row);
-                        }
+                        if (row != null) rowsT.Add(row);
                     }
 
                     groupRow.Children = rowsT;
@@ -153,12 +146,11 @@ namespace m4d.Controllers
         {
             var counts = new List<int>();
             foreach (var column in columns)
-            {
                 counts.Add(dance.AggregateSongTags?.TagCount(column.Tag) ?? 0);
-            }
 
-            return counts.Any(c => c > 0) ? 
-                new TagRow{Dance = dance.DanceObject, Counts = counts}: null;
+            return counts.Any(c => c > 0)
+                ? new TagRow {Dance = dance.DanceObject, Counts = counts}
+                : null;
         }
     }
 }

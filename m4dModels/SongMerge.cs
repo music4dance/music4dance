@@ -6,14 +6,15 @@ namespace m4dModels
 {
     public class SongMerge
     {
-        public string Name {get;set;}
-        public List<Song> Songs {get; set;}
+        public string Name { get; set; }
+        public List<Song> Songs { get; set; }
         public List<DanceMerge> Ratings { get; set; }
         public string Tags { get; set; }
-        public List<SongPropertyMerge> Properties {get; set;}
-        public string SongIds 
+        public List<SongPropertyMerge> Properties { get; set; }
+
+        public string SongIds
         {
-            get {return string.Join(",",Songs.Select(s => s.SongId));}
+            get { return string.Join(",", Songs.Select(s => s.SongId)); }
         }
 
         public SongMerge(List<Song> songs, DanceStatsInstance stats)
@@ -31,7 +32,8 @@ namespace m4dModels
                 // Slightly kdlugy, but for now we're allowing alternates only for album so do a direct compare
                 var allowAlternates = field.EndsWith("List");
 
-                var spm = new SongPropertyMerge { Name = field, AllowAlternates = allowAlternates, Values = new List<object>() };
+                var spm = new SongPropertyMerge
+                    {Name = field, AllowAlternates = allowAlternates, Values = new List<object>()};
 
                 var defaultIdx = -1;
                 string fsCur = null;
@@ -70,19 +72,15 @@ namespace m4dModels
                 if (cTotal == cMatch)
                 {
                     if (allowAlternates)
-                    {
                         spm.Selection = 0;
-                    }
                     else
-                    {
                         spm.Selection = -1;
-                    }
                 }
                 else
                 {
                     spm.Selection = defaultIdx;
                 }
-                    
+
 
                 Properties.Add(spm);
             }
@@ -108,17 +106,18 @@ namespace m4dModels
 
                     Ratings.Add(dm);
                 }
+
                 idx += 1;
             }
         }
 
-        static readonly string[] MergeFields = { 
-            Song.TitleField, 
-            Song.ArtistField, 
-            Song.AlbumListField, 
-            Song.TempoField, 
-            Song.LengthField 
+        private static readonly string[] MergeFields =
+        {
+            Song.TitleField,
+            Song.ArtistField,
+            Song.AlbumListField,
+            Song.TempoField,
+            Song.LengthField
         };
-
     }
 }

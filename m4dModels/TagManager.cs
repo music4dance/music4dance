@@ -25,7 +25,8 @@ namespace m4dModels
 
             foreach (var facet in facets)
             {
-                var id = SongFilter.TagClassFromName(facet.Key.Substring(0, facet.Key.Length - 4)).ToLower();
+                var id = SongFilter.TagClassFromName(facet.Key.Substring(0, facet.Key.Length - 4))
+                    .ToLower();
                 IndexFacet(facet.Value, id);
             }
         }
@@ -50,7 +51,8 @@ namespace m4dModels
         {
             lock (_queuedTags)
             {
-                var tt = TagMap.GetValueOrDefault(tag.ToLower()) ?? _queuedTags.GetValueOrDefault(tag.ToLower());
+                var tt = TagMap.GetValueOrDefault(tag.ToLower()) ??
+                    _queuedTags.GetValueOrDefault(tag.ToLower());
                 if (tt != null) return tt;
 
                 var t = TagList.NormalizeTag(tag);
@@ -69,7 +71,8 @@ namespace m4dModels
             {
                 TagMap[tt.Key.ToLower()] = tt;
                 var index = TagGroups.BinarySearch(tt,
-                    Comparer<TagGroup>.Create((a, b) => string.Compare(a.Key, b.Key, StringComparison.OrdinalIgnoreCase)));
+                    Comparer<TagGroup>.Create((a, b) =>
+                        string.Compare(a.Key, b.Key, StringComparison.OrdinalIgnoreCase)));
                 if (index < 0) index = ~index;
                 TagGroups.Insert(index, tt);
             }
@@ -85,7 +88,8 @@ namespace m4dModels
                 if (!TagMap.Remove(key)) return;
                 tt.Primary?.Children.Remove(tt);
                 var index = TagGroups.BinarySearch(tt,
-                    Comparer<TagGroup>.Create((a, b) => string.Compare(a.Key, b.Key, StringComparison.OrdinalIgnoreCase)));
+                    Comparer<TagGroup>.Create((a, b) =>
+                        string.Compare(a.Key, b.Key, StringComparison.OrdinalIgnoreCase)));
                 if (index < 0) return;
                 TagGroups.RemoveAt(index);
             }
@@ -110,7 +114,6 @@ namespace m4dModels
                     tagGroup.Primary = TagMap.GetValueOrDefault(primaryId.ToLower());
                     tagGroup.Primary.AddChild(tagGroup);
                 }
-
             }
         }
 
@@ -147,11 +150,11 @@ namespace m4dModels
                 var key = $"{facet.Value}:{category}";
                 var tt = FindOrCreateTagGroup(key);
 
-                tt.Count = (int)facet.Count.Value;
+                tt.Count = (int) facet.Count.Value;
             }
         }
 
-        private readonly Dictionary<string, TagGroup> _queuedTags = new Dictionary<string, TagGroup>();
-
+        private readonly Dictionary<string, TagGroup> _queuedTags =
+            new Dictionary<string, TagGroup>();
     }
 }

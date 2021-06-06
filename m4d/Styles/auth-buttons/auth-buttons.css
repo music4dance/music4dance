@@ -36,7 +36,7 @@
     /* iOS */
     -webkit-appearance: none; /* 1 */
     /* IE6/7 hacks */
-    *overflow: visible;  /* 2 */
+    *overflow: visible; /* 2 */
     *display: inline; /* 3 */
     *zoom: 1; /* 3 */
 }
@@ -123,9 +123,7 @@
     background-position: 0 0;
 }
 
-.btn-facebook.large:before {
-    background-position: 0 -22px;
-}
+.btn-facebook.large:before { background-position: 0 -22px; }
 
 
 /* GitHub
@@ -181,19 +179,13 @@
 
 .btn-github:hover:before,
 .btn-github:focus:before,
-.btn-github:active:before {
-    background-position: -66px 0;
-}
+.btn-github:active:before { background-position: -66px 0; }
 
-.btn-github.large:before {
-    background-position: -72px -22px;
-}
+.btn-github.large:before { background-position: -72px -22px; }
 
 .btn-github.large:hover:before,
 .btn-github.large:focus:before,
-.btn-github.large:active:before {
-    background-position: -108px -22px;
-}
+.btn-github.large:active:before { background-position: -108px -22px; }
 
 
 /* Google
@@ -203,8 +195,7 @@
 .btn-google:visited,
 .btn-google:hover,
 .btn-google:focus,
-.btn-google:active
- {
+.btn-google:active {
     border-color: #3079ed;
     color: #fff;
     background: #4285f4;
@@ -231,9 +222,7 @@
     background-color: #e6e6e6;
 }
 
-.btn-google.large:before {
-    background-position: -144px -22px;
-}
+.btn-google.large:before { background-position: -144px -22px; }
 
 
 /* Open ID
@@ -245,9 +234,7 @@
     background: #fcfcfc;
 }
 
-.btn-openid:active {
-    background: #f5f5f5;
-}
+.btn-openid:active { background: #f5f5f5; }
 
 /*
  * Icon
@@ -258,9 +245,7 @@
     background-position: -154px 0;
 }
 
-.btn-openid.large:before {
-    background-position: -252px -22px;
-}
+.btn-openid.large:before { background-position: -252px -22px; }
 
 
 /* Twitter
@@ -305,9 +290,7 @@
     background-position: -22px 0;
 }
 
-.btn-twitter.large:before {
-    background-position: -36px -22px;
-}
+.btn-twitter.large:before { background-position: -36px -22px; }
 
 
 /* Windows Live ID
@@ -319,9 +302,7 @@
     background: #fcfcfc;
 }
 
-.btn-microsoft:active {
-    background: #f5f5f5;
-}
+.btn-microsoft:active { background: #f5f5f5; }
 
 /*
  * Icon
@@ -332,9 +313,7 @@
     background-position: -110px 0;
 }
 
-.btn-microsoft.large:before {
-    background-position: -180px -22px;
-}
+.btn-microsoft.large:before { background-position: -180px -22px; }
 
 
 /* Yahoo!
@@ -353,9 +332,7 @@
 }
 
 .btn-yahoo:hover,
-.btn-yahoo:focus {
-    background-color: #fabf20;
-}
+.btn-yahoo:focus { background-color: #fabf20; }
 
 .btn-yahoo:active {
     border-color: #f09700;
@@ -373,9 +350,7 @@
     background-position: -132px 0;
 }
 
-.btn-yahoo.large:before {
-    background-position: -216px -22px;
-}
+.btn-yahoo.large:before { background-position: -216px -22px; }
 
 
 /* Spotify
@@ -405,6 +380,4 @@
     background-position: -176px 0;
 }
 
-.btn-spotify.large:before {
-    background-position: -288px -22px;
-}
+.btn-spotify.large:before { background-position: -288px -22px; }

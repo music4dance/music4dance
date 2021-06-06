@@ -19,19 +19,17 @@ namespace m4dModels
         public AlbumTrack(string title, TrackNumber track)
         {
             var sb = new StringBuilder(title);
-            if (track != null)
-            {
-                sb.AppendFormat("|{0}", track);
-            }
+            if (track != null) sb.AppendFormat("|{0}", track);
             _val = sb.ToString();
         }
 
         public string Album => Split()[0];
 
-        static readonly Regex Validaor = new Regex(@"^([\d]{1,3})(:[\d]{1,3}){0,2}$");
+        private static readonly Regex Validaor = new Regex(@"^([\d]{1,3})(:[\d]{1,3}){0,2}$");
+
         private string[] Split()
         {
-            var ret = new string[] {null,null};
+            var ret = new string[] {null, null};
 
             if (_val == null) return ret;
 
@@ -39,10 +37,7 @@ namespace m4dModels
             var idx = val.LastIndexOf('|');
             if (idx == -1 || !Validaor.IsMatch(_val.Substring(idx + 1)))
             {
-                if (idx==val.Length-1)
-                {
-                    val = val.Substring(0,idx);
-                }
+                if (idx == val.Length - 1) val = val.Substring(0, idx);
                 ret[0] = val;
             }
             else
@@ -53,9 +48,11 @@ namespace m4dModels
 
             return ret;
         }
+
         public TrackNumber Track => new TrackNumber(Split()[1]);
 
         #region Operators
+
         public static implicit operator string(AlbumTrack at)
         {
             return at._val;
@@ -70,7 +67,7 @@ namespace m4dModels
         {
             var track = other as AlbumTrack;
             if (track != null)
-                return string.Compare(_val,track._val,StringComparison.OrdinalIgnoreCase);
+                return string.Compare(_val, track._val, StringComparison.OrdinalIgnoreCase);
             return -1;
         }
 
@@ -83,13 +80,10 @@ namespace m4dModels
         {
             return _val.GetHashCode();
         }
-        
+
         public static bool operator ==(AlbumTrack a, AlbumTrack b)
         {
-            if ((object)a == null || (object)b == null)
-            {
-                return (object)a == (object)b;
-            }
+            if ((object) a == null || (object) b == null) return (object) a == (object) b;
             return a.Equals(b);
         }
 
@@ -97,10 +91,12 @@ namespace m4dModels
         {
             return !(a == b);
         }
+
         public override string ToString()
         {
             return _val;
         }
+
         #endregion
 
         private readonly string _val;

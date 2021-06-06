@@ -16,11 +16,13 @@ namespace m4d.ViewModels
             TempoRange = d.TempoRange;
             SeoName = d.CleanName;
         }
+
         [SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public DanceJson(DanceSample d) : this(d.DanceType)
         {
             TempoDelta = d.TempoDelta;
         }
+
         public string Id { get; set; }
         public string Name { get; set; }
         public Meter Meter { get; set; }
@@ -28,7 +30,9 @@ namespace m4d.ViewModels
         public decimal TempoDelta { get; set; }
         public string SeoName { get; set; }
 
-        public static IEnumerable<DanceJson> Convert(IEnumerable<DanceType> dances) =>
-            dances.Select(x => new DanceJson(x));
+        public static IEnumerable<DanceJson> Convert(IEnumerable<DanceType> dances)
+        {
+            return dances.Select(x => new DanceJson(x));
+        }
     }
 }

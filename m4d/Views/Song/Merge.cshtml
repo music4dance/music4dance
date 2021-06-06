@@ -15,21 +15,21 @@
     <table class="table table-striped">
         <tr>
             <th></th>
-            @{int i = 0;}
+            @{ var i = 0; }
             @foreach (var item in Model.Songs)
             {
                 <th>Candidate # @(i + 1)</th>
                 i = i + 1;
             }
         </tr>
-        @foreach (SongPropertyMerge spm in Model.Properties)
+        @foreach (var spm in Model.Properties)
         {
             <tr>
                 <th>@spm.Name</th>
-                @{i = 0;}
+                @{ i = 0; }
                 @foreach (var value in spm.Values)
                 {
-                    string primaryClick = string.Empty;
+                    var primaryClick = string.Empty;
                     if (spm.AllowAlternates)
                     {
                         primaryClick = "onclick=\"PrimaryChanged(" + i.ToString() + ")\"";
@@ -37,12 +37,12 @@
                     <td>
                         @if (spm.Selection != -1)
                         {
-                            string Checked = "";
+                            var Checked = "";
                             if (spm.Selection == i)
                             {
                                 Checked = "Checked";
                             }
-                            <input type="radio" style="width:auto;background-color:inherit" name="@spm.Name" value="@i" @Html.Raw(primaryClick) @Checked />
+                            <input type="radio" style="width: auto; background-color: inherit" name="@spm.Name" value="@i" @Html.Raw(primaryClick) @Checked/>
                         }
 
                         @if (value == null)
@@ -51,24 +51,25 @@
                         }
                         else if (!spm.AllowAlternates)
                         {
-                            @value.ToString();
+                            @value.ToString()
+                            ;
                         }
                         else
                         {
-                            string[] alternates = (value as string).Split('|');
-                            bool first = true;
-                            foreach (string alternate in alternates)
+                            var alternates = (value as string).Split('|');
+                            var first = true;
+                            foreach (var alternate in alternates)
                             {
                                 if (!first)
                                 {
-                                    <br />
-                                    <input type="radio" style="width:auto;background-color:inherit" name="@spm.Name" value="@i" @Html.Raw(primaryClick) />
+                                    <br/>
+                                    <input type="radio" style="width: auto; background-color: inherit" name="@spm.Name" value="@i" @Html.Raw(primaryClick)/>
                                 }
                                 @alternate
                                 if (spm.Selection != -1)
                                 {
-                                    string name = spm.Name + "_" + i.ToString();
-                                    string Checked = "";
+                                    var name = spm.Name + "_" + i.ToString();
+                                    var Checked = "";
                                     if (spm.Selection != i)
                                     {
                                         Checked = "Checked";
@@ -90,18 +91,17 @@
                     }
                 }
             </tr>
-
         }
         <tr>
             <th>Dances</th>
             <td>
                 @{
-                    int idx = 0;
-                    foreach (DanceMerge dm in Model.Ratings)
+                    var idx = 0;
+                    foreach (var dm in Model.Ratings)
                     {
-                        string label = dm.DanceName + " (" + dm.Weight.ToString() + ")";
-                        string name = "Dance-" + dm.DanceId + "-" + dm.Weight;
-                        string isChecked = "";
+                        var label = dm.DanceName + " (" + dm.Weight.ToString() + ")";
+                        var name = "Dance-" + dm.DanceId + "-" + dm.Weight;
+                        var isChecked = "";
                         if (dm.Keep)
                         {
                             isChecked = "checked";
@@ -110,9 +110,9 @@
                         if (dm.SongIdx > idx)
                         {
                             idx += 1;
-                        @:</td><td>
+                            @:</td><td>
                         }
-                        <input id="@name" name="@name" type="checkbox" @isChecked />
+                        <input id="@name" name="@name" type="checkbox" @isChecked/>
                         @label
                     }
                 }
@@ -123,24 +123,26 @@
         {
             <tr>
                 <th>Log</th>
-                @{i = 0;}
+                @{ i = 0; }
                 @foreach (var item in Model.Songs)
                 {
-                    <td><partial name="SongItems" model="item.SongProperties" /></td>
+                    <td>
+                        <partial name="SongItems" model="item.SongProperties"/>
+                    </td>
                     i = i + 1;
                 }
             </tr>
         }
     </table>
 
-    <hr />
+    <hr/>
     @Html.Hidden("SongIds", Model.SongIds)
 
-    <input type="hidden" name="filter" value="@ViewBag.SongFilter" />
-    <input name="Commit" type="submit" value="Okay" class="btn btn-small btn-primary" />
-    <input name="Commit" type="submit" value="Cancel" class="btn btn-small btn-primary" />
+    <input type="hidden" name="filter" value="@ViewBag.SongFilter"/>
+    <input name="Commit" type="submit" value="Okay" class="btn btn-small btn-primary"/>
+    <input name="Commit" type="submit" value="Cancel" class="btn btn-small btn-primary"/>
 
-    @Html.ActionLink("Back to Search Results", ((SongFilter)ViewBag.SongFilter).TargetAction, new { filter = ViewBag.SongFilter }, new { @class = "btn btn-small btn-primary", role = "button" })
+    @Html.ActionLink("Back to Search Results", ((SongFilter) ViewBag.SongFilter).TargetAction, new {filter = ViewBag.SongFilter}, new {@class = "btn btn-small btn-primary", role = "button"})
 }
 
 @section Scripts
@@ -148,9 +150,9 @@
     @{
         var scripts = new ScriptModel
         {
-            DevelopmentFiles = new[] { "merge" }
+            DevelopmentFiles = new[] {"merge"}
         };
     }
 
-    <partial name="_scriptInclude" model="@scripts" />
+    <partial name="_scriptInclude" model="@scripts"/>
 }

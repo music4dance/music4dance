@@ -18,7 +18,10 @@ namespace m4d.APIControllers
     [Route("api/[controller]")]
     public class RecomputeController : DanceMusicApiController
     {
-        public RecomputeController(DanceMusicContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, RecomputeMarkerService recomputeMarkerService, IConfiguration configuration) :
+        public RecomputeController(DanceMusicContext context,
+            UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
+            ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+            RecomputeMarkerService recomputeMarkerService, IConfiguration configuration) :
             base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
         {
             _markerService = recomputeMarkerService;
@@ -28,28 +31,21 @@ namespace m4d.APIControllers
 
         // id should be the type to update - currently songstats, propertycleanup
         [HttpGet("{id}")]
-        public IActionResult Get([FromServices] IConfiguration configuration, string id, bool force = false, bool sync = false)
+        public IActionResult Get([FromServices] IConfiguration configuration, string id,
+            bool force = false, bool sync = false)
         {
-            if (!TokenRequirement.Authorize(Request, configuration))
-            {
-                return Unauthorized();
-            }
+            if (!TokenRequirement.Authorize(Request, configuration)) return Unauthorized();
 
             if (!force && !HasChanged(id))
             {
-                Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"RecomputeController: id = {id}, changed = false");
+                Trace.WriteLineIf(TraceLevels.General.TraceInfo,
+                    $"RecomputeController: id = {id}, changed = false");
                 return Ok(new {changed = false, message = "No updates."});
             }
 
-            if (!AdminMonitor.StartTask(id))
-            {
-                return Conflict();
-            }
+            if (!AdminMonitor.StartTask(id)) return Conflict();
 
-            if (force)
-            {
-                _markerService.ResetMarker(id);
-            }
+            if (force) _markerService.ResetMarker(id);
 
             string message;
             DoHandleRecompute recompute;
@@ -59,7 +55,7 @@ namespace m4d.APIControllers
             switch (rgid[0])
             {
                 case "songstats":
-                    recompute= DoHandleSongStats;
+                    recompute = DoHandleSongStats;
                     message = "Updated song stats.";
                     break;
                 case "propertycleanup":
@@ -73,15 +69,12 @@ namespace m4d.APIControllers
 
 
             if (sync)
-            {
                 HandleSyncRecompute(recompute, id, message, force);
-            }
             else
-            {
                 HandleRecompute(recompute, id, message, force);
-            }
 
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo,$"RecomputeController: id = {id}, changed = true, message = {message}");
+            Trace.WriteLineIf(TraceLevels.General.TraceInfo,
+                $"RecomputeController: id = {id}, changed = true, message = {message}");
             return Ok(new {changed = true, message});
         }
 
@@ -92,30 +85,37 @@ namespace m4d.APIControllers
             return changed > updated;
         }
 
-        private delegate bool DoHandleRecompute(RecomputeMarkerService markerService, DanceMusicCoreService dms, IDanceStatsManager dsm, string id, string message, int iteration, bool force);
+        private delegate bool DoHandleRecompute(RecomputeMarkerService markerService,
+            DanceMusicCoreService dms, IDanceStatsManager dsm, string id, string message,
+            int iteration, bool force);
 
-        private void HandleRecompute(DoHandleRecompute recompute, string id, string message, bool force)
+        private void HandleRecompute(DoHandleRecompute recompute, string id, string message,
+            bool force)
         {
             var dms = Database.GetTransientService();
-            Task.Run(() => recompute.Invoke(_markerService, dms, DanceStatsManager, id, message, 0, force));
+            Task.Run(() =>
+                recompute.Invoke(_markerService, dms, DanceStatsManager, id, message, 0, force));
         }
 
-        private void HandleSyncRecompute(DoHandleRecompute recompute,string id, string message, bool force)
+        private void HandleSyncRecompute(DoHandleRecompute recompute, string id, string message,
+            bool force)
         {
             var dms = Database.GetTransientService();
             int[] i = {0};
-            while (!Task.Run(() => recompute.Invoke(_markerService, dms, DanceStatsManager, id,message,i[0],force)).Result)
+            while (!Task.Run(() =>
+                    recompute.Invoke(_markerService, dms, DanceStatsManager, id, message, i[0],
+                        force))
+                .Result)
             {
-                if (!AdminMonitor.StartTask(id))
-                {
-                    return;
-                }
+                if (!AdminMonitor.StartTask(id)) return;
 
                 i[0] += 1;
             }
         }
 
-        private static bool DoHandleSongStats(RecomputeMarkerService markerService, DanceMusicCoreService dms, IDanceStatsManager dsm, string id, string message, int iteration, bool force)
+        private static bool DoHandleSongStats(RecomputeMarkerService markerService,
+            DanceMusicCoreService dms, IDanceStatsManager dsm, string id, string message,
+            int iteration, bool force)
         {
             try
             {
@@ -126,10 +126,13 @@ namespace m4d.APIControllers
             {
                 Fail(e);
             }
+
             return true;
         }
 
-        private static bool DoHandlePropertyCleanup(RecomputeMarkerService markerService, DanceMusicCoreService dms, IDanceStatsManager dsm, string id, string message, int iteration, bool force)
+        private static bool DoHandlePropertyCleanup(RecomputeMarkerService markerService,
+            DanceMusicCoreService dms, IDanceStatsManager dsm, string id, string message,
+            int iteration, bool force)
         {
             try
             {
@@ -138,18 +141,12 @@ namespace m4d.APIControllers
                 var info = dms.CleanupProperties(250, from, new SongFilter());
 
                 if (info.Succeeded > 0 || info.Failed > 0)
-                {
                     markerService.SetMarker(id, info.LastTime);
-                }
 
                 if (info.Complete)
-                {
                     Complete(markerService, id, message);
-                }
                 else
-                {
                     AdminMonitor.CompleteTask(true, message);
-                }
                 return info.Complete;
             }
             catch (Exception e)
@@ -160,11 +157,11 @@ namespace m4d.APIControllers
         }
 
 
-        private static void Complete(RecomputeMarkerService markerService, string id, string message)
+        private static void Complete(RecomputeMarkerService markerService, string id,
+            string message)
         {
             markerService.SetMarker(id);
             AdminMonitor.CompleteTask(true, message);
-
         }
 
         private static void Fail(Exception e)

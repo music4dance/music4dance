@@ -8,8 +8,6 @@ using Microsoft.Extensions.Configuration;
 
 namespace m4d.APIControllers
 {
-
-
     [ApiController]
     [Route("api/[controller]")]
     public class DancesController : DanceMusicApiController
@@ -22,50 +20,36 @@ namespace m4d.APIControllers
         }
 
         [HttpGet]
-        public IActionResult GetDances(bool details=false)
+        public IActionResult GetDances(bool details = false)
         {
             // This should eventually take a filter (or multiple filter) parameter
             var dances = Dance.DanceLibrary.NonPerformanceDanceTypes;
-            if (details)
-            {
-                return Ok(dances);
-            }
+            if (details) return Ok(dances);
             var jsonDances = DanceJson.Convert(dances);
 
             return JsonCamelCase(jsonDances);
         }
 
         [HttpGet("{id}")]
-
         public IActionResult GetDance(string id)
         {
             var o = Dance.DanceLibrary.DanceFromId(id);
-            if (o != null)
-            {
-                return JsonCamelCase(new DanceJson(o));
-            }
+            if (o != null) return JsonCamelCase(new DanceJson(o));
             return NotFound();
         }
 
         [Authorize]
         [HttpPatch("{id}")]
-
         public IActionResult Patch(string id, [FromBody] DanceCore dance)
         {
             if (!User.Identity.IsAuthenticated || !User.IsInRole("dbAdmin"))
-            {
-                return StatusCode((int)HttpStatusCode.Forbidden);
-            }
+                return StatusCode((int) HttpStatusCode.Forbidden);
 
-            if (id != dance.Id)
-            {
-                return StatusCode((int)HttpStatusCode.BadRequest);
-            }
+            if (id != dance.Id) return StatusCode((int) HttpStatusCode.BadRequest);
 
             return StatusCode((int) (Database.EditDance(dance) == null
                 ? HttpStatusCode.NotFound
                 : HttpStatusCode.OK));
         }
-
     }
 }

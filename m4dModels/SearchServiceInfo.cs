@@ -23,20 +23,24 @@ namespace m4dModels
             {
                 {
                     "basica",
-                    new SearchServiceInfo("basica", "msc4dnc", "songs-a", basicAuth.AdminKey, basicAuth.QueryKey)
+                    new SearchServiceInfo("basica", "msc4dnc", "songs-a", basicAuth.AdminKey,
+                        basicAuth.QueryKey)
                 },
                 {
                     "basicb",
-                    new SearchServiceInfo("basicb", "msc4dnc", "songs-b", basicAuth.AdminKey, basicAuth.QueryKey)
+                    new SearchServiceInfo("basicb", "msc4dnc", "songs-b", basicAuth.AdminKey,
+                        basicAuth.QueryKey)
                 },
                 {
                     "basicc",
-                    new SearchServiceInfo("basicc", "msc4dnc", "songs-c", basicAuth.AdminKey, basicAuth.QueryKey)
+                    new SearchServiceInfo("basicc", "msc4dnc", "songs-c", basicAuth.AdminKey,
+                        basicAuth.QueryKey)
                 },
                 {
                     "backup",
-                    new SearchServiceInfo("backup", "m4d-backup", "songs", backupAuth.AdminKey, backupAuth.QueryKey)
-                },
+                    new SearchServiceInfo("backup", "m4d-backup", "songs", backupAuth.AdminKey,
+                        backupAuth.QueryKey)
+                }
             };
 
             var env = configuration["SEARCHINDEX"];
@@ -53,10 +57,7 @@ namespace m4dModels
 
         public SearchServiceInfo GetInfo(string id = null)
         {
-            if (id == null || id == "default")
-            {
-                id = DefaultId;
-            }
+            if (id == null || id == "default") id = DefaultId;
 
             return _info[id];
         }
@@ -112,7 +113,8 @@ namespace m4dModels
         public string AdminKey { get; }
         public string QueryKey { get; }
 
-        public SearchServiceInfo(string id, string name, string index, string adminKey, string queryKey)
+        public SearchServiceInfo(string id, string name, string index, string adminKey,
+            string queryKey)
         {
             Id = id;
             Name = name;

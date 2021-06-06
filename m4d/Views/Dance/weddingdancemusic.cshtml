@@ -5,13 +5,13 @@
     ViewBag.Title = "Wedding Dance Music";
     ViewBag.Description = "Help finding wedding dance music: First Dance, Mother/Son, Father/Daughter - Foxtrot, Waltz, Swing and others.";
 
-    var converterModel = new ObjectConverterModel { Name = "model", Model = Model };
+    var converterModel = new ObjectConverterModel {Name = "model", Model = Model};
 }
 
 <div id="app"></div>
 
 @section Scripts {
-    <partial name="_jsonCamelCase" model="@converterModel" />
+    <partial name="_jsonCamelCase" model="@converterModel"/>
     <script src="/client/js/chunk-vendors.js"></script>
     <script src="/client/js/chunk-common.js"></script>
     <script src="/client/js/wedding-dance-music.js"></script>
