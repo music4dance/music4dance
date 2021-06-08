@@ -16,7 +16,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
@@ -619,6 +618,21 @@ namespace m4d.Controllers
         {
             HelpPage = "add-songs";
             return View();
+        }
+
+        //
+        // GET: /Song/UpdateSongAndServices
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult UpdateSongAndServices(Guid id, SongFilter filter)
+        {
+            var song = Database.FindSong(id);
+            if (song == null)
+                ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.");
+
+            MusicServiceManager.UpdateSongAndServices(Database, song);
+
+            HelpPage = "song-details";
+            return View("Details", GetSongDetails(song, filter));
         }
 
         //
@@ -1420,22 +1434,6 @@ namespace m4d.Controllers
         {
             return Redirect(
                 $"/Identity/Account/Login/?ReturnUrl=/song/advancedsearchform?filter={filter}");
-        }
-
-        private IEnumerable<SelectListItem> GetDancesSingle(bool includeEmpty = false)
-        {
-            var counts = DanceStatsManager.FlatDanceStats;
-
-            var dances = new List<SelectListItem>(counts.Count)
-            {
-                new() {Value = string.Empty, Text = string.Empty, Selected = true}
-            };
-
-            // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var cnt in counts.Where(c => includeEmpty || c.SongCount > 0))
-                dances.Add(new SelectListItem
-                    {Value = cnt.DanceId, Text = cnt.DanceName, Selected = false});
-            return dances;
         }
 
         private ActionResult Delete(IEnumerable<Song> songs, SongFilter filter)

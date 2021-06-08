@@ -15,7 +15,7 @@
               :value="song.title"
               :editing="editing"
               :isCreator="isCreator"
-              role="isAdmin"
+              role="dbAdmin"
               @update-field="updateField($event)"
             ></field-editor
           ></i>
@@ -30,7 +30,7 @@
             :value="song.artist"
             :editing="editing"
             :isCreator="isCreator"
-            role="isAdmin"
+            role="dbAdmin"
             @update-field="updateField($event)"
           >
             <span v-if="song.artist" style="font-size: 0.75em"
@@ -173,6 +173,7 @@
           <b-form-textarea
             id="admin-edit"
             v-model="adminProperties"
+            :readonly="!edit"
             rows="3"
             max-rows="6"
           ></b-form-textarea>
@@ -194,6 +195,10 @@
             <input type="hidden" name="userName" :value="modified.userName" />
             <b-button type="submit">{{ modified.userName }}</b-button>
           </b-form>
+          <h3>Admin Actions</h3>
+          <b-button variant="outline-primary" :href="updateServices"
+            >Update Services</b-button
+          >
         </div>
       </b-col>
       <b-col v-if="isAdmin && model.songHistory"
@@ -528,6 +533,10 @@ export default class SongCore extends Mixins(AdminTools) {
 
   private get deleteLink(): string {
     return `/song/delete?id=${this.song.songId}`;
+  }
+
+  private get updateServices(): string {
+    return `/song/UpdateSongAndServices?id=${this.song.songId}&filter=${this.model.filter.query}`;
   }
 
   private get saveText(): string {

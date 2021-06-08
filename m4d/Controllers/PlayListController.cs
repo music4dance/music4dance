@@ -6,7 +6,6 @@ using System.Linq;
 using System.Net;
 using System.Security.Principal;
 using System.Threading.Tasks;
-using AmazonCommerce;
 using m4d.Utilities;
 using m4dModels;
 using Microsoft.AspNetCore.Authentication;
@@ -699,12 +698,12 @@ namespace m4d.Controllers
         }
 
         public abstract string Name { get; }
-        public abstract SongFilter BuildSongFilter(string input);
-        public abstract string BuildDescription(string input, int count);
         public virtual bool CanCreate => true;
         public virtual int Count => -1;
 
         protected DanceStats Stats { get; }
+        public abstract SongFilter BuildSongFilter(string input);
+        public abstract string BuildDescription(string input, int count);
     }
 
     //public class PlayListTopN : PlayListFlavor
