@@ -56,21 +56,24 @@ namespace m4dModels.Tests
                 new(SongD, dms)
             };
 
-            var deltas = new List<int> {13, 4};
+            var deltas = new List<int> { 13, 4 };
 
             for (var index = 0; index < songs.Count; index++)
             {
                 var song = songs[index];
-                Trace.WriteLineIf(General.TraceInfo,
+                Trace.WriteLineIf(
+                    General.TraceInfo,
                     $"---------------Predump for Song {song.SongId}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
                 var c = song.SongProperties.Count;
                 Assert.IsTrue(song.RemoveEmptyEdits());
-                Trace.WriteLineIf(General.TraceInfo,
+                Trace.WriteLineIf(
+                    General.TraceInfo,
                     $"{song.SongId}:{song.SongProperties.Count - c}");
                 Assert.AreEqual(c - deltas[index], song.SongProperties.Count);
 
-                Trace.WriteLineIf(General.TraceInfo,
+                Trace.WriteLineIf(
+                    General.TraceInfo,
                     $"---------------Postdump for Song {song.SongId}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
             }
@@ -88,17 +91,19 @@ namespace m4dModels.Tests
                 new(SongE, dms)
             };
 
-            var deltas = new List<int> {17, 11, 3};
+            var deltas = new List<int> { 17, 11, 3 };
 
             for (var index = 0; index < songs.Count; index++)
             {
                 var song = songs[index];
-                Trace.WriteLineIf(General.TraceInfo,
+                Trace.WriteLineIf(
+                    General.TraceInfo,
                     $"---------------Predump for Song {song.SongId}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
                 var c = song.SongProperties.Count;
                 Assert.IsTrue(song.NormalizeRatings());
-                Trace.WriteLineIf(General.TraceInfo,
+                Trace.WriteLineIf(
+                    General.TraceInfo,
                     $"{song.SongId}:{song.SongProperties.Count - c}");
                 Assert.AreEqual(c - deltas[index], song.SongProperties.Count);
 
@@ -111,7 +116,8 @@ namespace m4dModels.Tests
                     Assert.AreEqual(dr.Weight, drT.Weight);
                 }
 
-                Trace.WriteLineIf(General.TraceInfo,
+                Trace.WriteLineIf(
+                    General.TraceInfo,
                     $"---------------Postdump for Song {song.SongId}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
             }
@@ -128,21 +134,24 @@ namespace m4dModels.Tests
                 new(SongC, dms)
             };
 
-            var deltas = new List<int> {17, 2};
+            var deltas = new List<int> { 17, 2 };
 
             for (var index = 0; index < songs.Count; index++)
             {
                 var song = songs[index];
-                Trace.WriteLineIf(General.TraceInfo,
+                Trace.WriteLineIf(
+                    General.TraceInfo,
                     $"---------------Predump for Song {song.SongId}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
                 var c = song.SongProperties.Count;
                 Assert.IsTrue(song.RemoveDuplicateDurations());
-                Trace.WriteLineIf(General.TraceInfo,
+                Trace.WriteLineIf(
+                    General.TraceInfo,
                     $"{song.SongId}:{song.SongProperties.Count - c}");
                 Assert.AreEqual(c - deltas[index], song.SongProperties.Count);
 
-                Trace.WriteLineIf(General.TraceInfo,
+                Trace.WriteLineIf(
+                    General.TraceInfo,
                     $"---------------Postdump for Song {song.SongId}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
             }
@@ -184,42 +193,48 @@ namespace m4dModels.Tests
 
             var deltas = new List<List<int>>
             {
-                new() {1, 4, 5, 23},
-                new() {17, 135, 152, 197},
-                new() {2, 2, 13, 18},
-                new() {0, 2, 2, 8},
-                new() {4, 8, 11, 22}
+                new() { 1, 4, 5, 23 },
+                new() { 17, 135, 152, 197 },
+                new() { 2, 2, 13, 18 },
+                new() { 0, 2, 2, 8 },
+                new() { 4, 8, 11, 22 }
             };
 
             for (var index = 0; index < songs.Count; index++)
             {
                 var song = songs[index];
                 var delta = deltas[index];
-                Trace.WriteLineIf(General.TraceInfo,
+                Trace.WriteLineIf(
+                    General.TraceInfo,
                     $"---------------Predump for Song {song.SongId}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
                 var c = song.SongProperties.Count;
                 song.RemoveDuplicateDurations();
-                Trace.WriteLineIf(General.TraceVerbose,
+                Trace.WriteLineIf(
+                    General.TraceVerbose,
                     $"++++After Durations: {song.SongId}:{song.SongProperties.Count - c}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceVerbose);
                 Assert.AreEqual(delta[0], c - song.SongProperties.Count);
                 song.CleanupAlbums();
-                Trace.WriteLineIf(General.TraceVerbose,
+                Trace.WriteLineIf(
+                    General.TraceVerbose,
                     $"++++After Albums: {song.SongId}:{song.SongProperties.Count - c}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceVerbose);
                 Assert.AreEqual(delta[1], c - song.SongProperties.Count);
                 song.NormalizeRatings();
-                Trace.WriteLineIf(General.TraceVerbose,
+                Trace.WriteLineIf(
+                    General.TraceVerbose,
                     $"++++After Ratings: {song.SongId}:{song.SongProperties.Count - c}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceVerbose);
                 Assert.AreEqual(delta[2], c - song.SongProperties.Count);
                 song.RemoveEmptyEdits();
-                Trace.WriteLineIf(General.TraceVerbose,
+                Trace.WriteLineIf(
+                    General.TraceVerbose,
                     $"++++After Empty: {song.SongId}:{song.SongProperties.Count - c}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceVerbose);
                 Assert.AreEqual(delta[3], c - song.SongProperties.Count);
-                Trace.WriteLineIf(General.TraceInfo,
+                Trace.WriteLineIf(
+                    General.TraceInfo,
                     $"---------------Postdump for Song {song.SongId}");
                 DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
 

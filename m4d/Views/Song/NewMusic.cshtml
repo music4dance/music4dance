@@ -4,7 +4,11 @@
 @{
     ViewBag.Title = "New Music for Dancing";
     ViewBag.Description = "music4dance catalog: " + ViewBag.SongFilter.Description;
-    var converterModel = new ObjectConverterModel {Name = "model", Model = Model};
+    var converterModel = new ObjectConverterModel
+    {
+        Name = "model",
+        Model = Model
+    };
 }
 
 <div id="app"></div>

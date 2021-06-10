@@ -30,7 +30,10 @@ namespace m4d.APIControllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(string id)
         {
-            if (string.IsNullOrWhiteSpace(id) || id.Length < 2) return BadRequest("Invalid Id");
+            if (string.IsNullOrWhiteSpace(id) || id.Length < 2)
+            {
+                return BadRequest("Invalid Id");
+            }
 
             var service = MusicService.GetService(id[0]);
             id = service.NormalizeId(id.Substring(1));
@@ -44,15 +47,21 @@ namespace m4d.APIControllers
             if (song == null)
             {
                 song = MusicServiceManager.CreateSong(Database, user, id, service);
-                if (song != null) created = Database.FindSong(song.SongId) == null;
+                if (song != null)
+                {
+                    created = Database.FindSong(song.SongId) == null;
+                }
             }
 
             if (song != null)
-                return JsonCamelCase(new SongDetailsModel
-                {
-                    Created = created,
-                    SongHistory = song.GetHistory(_mapper)
-                });
+            {
+                return JsonCamelCase(
+                    new SongDetailsModel
+                    {
+                        Created = created,
+                        SongHistory = song.GetHistory(_mapper)
+                    });
+            }
 
             // If that fails, the ID is bad.
 

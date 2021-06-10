@@ -26,13 +26,14 @@ namespace DanceLibrary
                 // this may be a bug in the emulator (or the phone) - looks like ms = rand so just use ticks
                 var totalTicks = _totalWaitTicks;
                 var averageWait = AverageWait;
-                _maxWaitTicks = (long) (averageWait * 2);
+                _maxWaitTicks = (long)(averageWait * 2);
 
                 //System.Diagnostics.Debug.WriteLine(sb.ToString());
-                System.Diagnostics.Debug.WriteLine(string.Format(
-                    "Click: time = {0}, ms = {1}, tck = {4}, avg = {2}, a = {3}", currentTicks,
-                    ConvertTicksToMilliSeconds(totalTicks), averageWait, _totalWaitTicks,
-                    totalTicks));
+                System.Diagnostics.Debug.WriteLine(
+                    string.Format(
+                        "Click: time = {0}, ms = {1}, tck = {4}, avg = {2}, a = {3}", currentTicks,
+                        ConvertTicksToMilliSeconds(totalTicks), averageWait, _totalWaitTicks,
+                        totalTicks));
             }
         }
 
@@ -55,7 +56,11 @@ namespace DanceLibrary
             get
             {
                 var rate = AverageWait;
-                if (rate != 0) rate = (decimal) 1000 / rate;
+                if (rate != 0)
+                {
+                    rate = (decimal)1000 / rate;
+                }
+
                 System.Diagnostics.Debug.WriteLine("Tempo = {0}", rate);
                 return rate;
             }
@@ -65,7 +70,10 @@ namespace DanceLibrary
         {
             get
             {
-                if (_totalWaitTicks == 0) return 0;
+                if (_totalWaitTicks == 0)
+                {
+                    return 0;
+                }
 
                 return ConvertTicksToMilliSeconds(_totalWaitTicks / _totalCount);
             }
@@ -75,7 +83,7 @@ namespace DanceLibrary
 
         private decimal ConvertTicksToMilliSeconds(long ticks)
         {
-            return ConvertTicksToMilliSeconds((decimal) ticks);
+            return ConvertTicksToMilliSeconds((decimal)ticks);
         }
 
         private decimal ConvertTicksToMilliSeconds(decimal ticks)

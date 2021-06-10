@@ -44,31 +44,36 @@ namespace m4d
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
             return Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder => webBuilder
-                    .ConfigureAppConfiguration((hostingContext, config) =>
-                    {
-                        var environment =
-                            Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-                        var isDevelopment = environment == Environments.Development;
+                .ConfigureWebHostDefaults(
+                    webBuilder => webBuilder
+                        .ConfigureAppConfiguration(
+                            (hostingContext, config) =>
+                            {
+                                var environment =
+                                    Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+                                var isDevelopment = environment == Environments.Development;
 
-                        if (!isDevelopment)
-                        {
-                            var settings = config.Build();
-                            var credentials = new ManagedIdentityCredential();
+                                if (!isDevelopment)
+                                {
+                                    var settings = config.Build();
+                                    var credentials = new ManagedIdentityCredential();
 
-                            config.AddAzureAppConfiguration(options =>
-                                options.Connect(new Uri(settings["AppConfig:Endpoint"]),
-                                        credentials)
-                                    .ConfigureKeyVault(kv => { kv.SetCredential(credentials); }));
-                        }
+                                    config.AddAzureAppConfiguration(
+                                        options =>
+                                            options.Connect(
+                                                    new Uri(settings["AppConfig:Endpoint"]),
+                                                    credentials)
+                                                .ConfigureKeyVault(
+                                                    kv => { kv.SetCredential(credentials); }));
+                                }
 
-                        // Working version of app config/keyvault for dev environment 
-                        //var settings = config.Build();
-                        //config.AddAzureAppConfiguration(options =>
-                        //    options.Connect(settings["ConnectionStrings:AppConfig"])
-                        //        .ConfigureKeyVault(kv => { kv.SetCredential(new DefaultAzureCredential()); }));
-                    })
-                    .UseStartup<Startup>());
+                                // Working version of app config/keyvault for dev environment 
+                                //var settings = config.Build();
+                                //config.AddAzureAppConfiguration(options =>
+                                //    options.Connect(settings["ConnectionStrings:AppConfig"])
+                                //        .ConfigureKeyVault(kv => { kv.SetCredential(new DefaultAzureCredential()); }));
+                            })
+                        .UseStartup<Startup>());
         }
     }
 }

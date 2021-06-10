@@ -29,19 +29,27 @@ namespace m4dModels
         {
             regions = null;
 
-            if (value == null || !value.EndsWith("]")) return value;
+            if (value == null || !value.EndsWith("]"))
+            {
+                return value;
+            }
 
             var fields = value.Split('[');
 
             if (fields.Length > 1)
+            {
                 regions = ParseRegionInfo(fields[1].Substring(0, fields[1].Length - 1));
+            }
 
             return fields[0];
         }
 
         public static string ParseId(string value)
         {
-            if (value == null || !value.EndsWith("]")) return value;
+            if (value == null || !value.EndsWith("]"))
+            {
+                return value;
+            }
 
             var fields = value.Split('[');
 
@@ -56,14 +64,25 @@ namespace m4dModels
         private static string[] ParseRegionInfo(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
+            {
                 return null;
+            }
 
             if (char.IsLetter(value[0]) || value[0] == ',')
+            {
                 return value.Split(',');
+            }
 
-            if (value.StartsWith("0-")) return ExpandBaseDelta(value.Substring(2));
+            if (value.StartsWith("0-"))
+            {
+                return ExpandBaseDelta(value.Substring(2));
+            }
+
             int idx;
-            if (int.TryParse(value, out idx)) return s_commonRegions[idx].Split(',');
+            if (int.TryParse(value, out idx))
+            {
+                return s_commonRegions[idx].Split(',');
+            }
 
             Debug.Assert(false);
             return null;
@@ -71,9 +90,15 @@ namespace m4dModels
 
         public static string FormatIdAndRegionInfo(string id, string[] regions)
         {
-            if (regions == null) return id;
+            if (regions == null)
+            {
+                return id;
+            }
 
-            if (id != null && id.EndsWith("]")) id = id.Substring(0, id.LastIndexOf('['));
+            if (id != null && id.EndsWith("]"))
+            {
+                id = id.Substring(0, id.LastIndexOf('['));
+            }
 
             return id + FormatRegionInfo(regions);
         }
@@ -92,7 +117,10 @@ namespace m4dModels
             else
             {
                 var delta = ComputeBaseDelta(bare);
-                if (delta.Length < bare.Length) bare = delta;
+                if (delta.Length < bare.Length)
+                {
+                    bare = delta;
+                }
             }
 
             return $"[{bare}]";
@@ -100,9 +128,16 @@ namespace m4dModels
 
         public static string[] MergeRegions(string[] a, string[] b)
         {
-            if (b == null) return a;
+            if (b == null)
+            {
+                return a;
+            }
+
             // ReSharper disable once ConvertIfStatementToReturnStatement
-            if (a == null) return b;
+            if (a == null)
+            {
+                return b;
+            }
 
             return new List<string>(a).Concat(b).Distinct().OrderBy(x => x).ToArray();
         }
@@ -147,7 +182,9 @@ namespace m4dModels
 
             // TOOD: If we start getting more than our core list of contries in our regions list, revisit this
             if (add.Count > 0 || rem.Count == 0)
+            {
                 return value;
+            }
 
             rem.Sort();
             return "0-" + string.Join(",", rem);
@@ -162,7 +199,9 @@ namespace m4dModels
         {
             s_commonRegionsMap = new Dictionary<string, int>();
             for (var i = 0; i < s_commonRegions.Length; i++)
+            {
                 s_commonRegionsMap.Add(s_commonRegions[i], i);
+            }
 
             s_baseRegions = s_commonRegions[0].Split(',');
             //    new HashSet<string>();

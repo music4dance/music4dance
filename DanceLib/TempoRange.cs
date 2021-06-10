@@ -46,28 +46,38 @@ namespace DanceLibrary
         {
             if (_minTempo <= 0M || _minTempo > 1000)
                 // ReSharper disable once NotResolvedInText
+            {
                 throw new ArgumentOutOfRangeException("_minTempo", PositiveDecimal);
+            }
 
             if (_maxTempo <= 0M || _maxTempo > 1000)
                 // ReSharper disable once NotResolvedInText
+            {
                 throw new ArgumentOutOfRangeException("_maxTempo", PositiveDecimal);
+            }
 
             if (_maxTempo < _minTempo)
                 // ReSharper disable once NotResolvedInText
                 // ReSharper disable once LocalizableElement
+            {
                 throw new ArgumentException("_minTempo", RangeOrder);
+            }
         }
 
-        [JsonProperty] public decimal Min => _minTempo;
+        [JsonProperty]
+        public decimal Min => _minTempo;
 
-        [JsonProperty] public decimal Max => _maxTempo;
+        [JsonProperty]
+        public decimal Max => _maxTempo;
 
         public decimal Average => _minTempo + (_maxTempo - _minTempo) / 2;
 
         public override bool Equals(object obj)
         {
             if (!(obj is TempoRange other))
+            {
                 return false;
+            }
 
             return other.Min == Min && other.Max == Max;
         }
@@ -81,8 +91,14 @@ namespace DanceLibrary
         {
             decimal delta = 0;
             if (tempo > Max)
+            {
                 delta = tempo - Max;
-            else if (tempo < Min) delta = tempo - Min;
+            }
+            else if (tempo < Min)
+            {
+                delta = tempo - Min;
+            }
+
             return delta;
         }
 
@@ -90,7 +106,8 @@ namespace DanceLibrary
         {
             return other == null
                 ? new TempoRange(this)
-                : new TempoRange(Math.Min(_minTempo, other._minTempo),
+                : new TempoRange(
+                    Math.Min(_minTempo, other._minTempo),
                     Math.Max(_maxTempo, other._maxTempo));
         }
 
@@ -123,9 +140,13 @@ namespace DanceLibrary
         {
             var i = Math.Round(d);
             if (Math.Abs(i - d) < .01M)
+            {
                 return i.ToString("F0");
+            }
             else
+            {
                 return d.ToString("F2");
+            }
         }
 
         private readonly decimal _minTempo;

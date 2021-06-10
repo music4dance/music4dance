@@ -5,7 +5,11 @@
 }
 
 <h2>Upload Catalog</h2>
-@using (Html.BeginForm("UploadCatalog", "Admin", FormMethod.Post, new {@class = "form", enctype = "multipart/form-data"}))
+@using (Html.BeginForm("UploadCatalog", "Admin", FormMethod.Post, new
+{
+    @class = "form",
+    enctype = "multipart/form-data"
+}))
 {
     @Html.AntiForgeryToken()
     ;

@@ -111,7 +111,13 @@
             @if (item.Right != null)
             {
                 <td>
-                    @Html.ActionLink(item.Right.SongId.ToString(), "Details", "Song", new {id = item.Right.SongId}, new {target = "_blank"})
+                    @Html.ActionLink(item.Right.SongId.ToString(), "Details", "Song", new
+                    {
+                        id = item.Right.SongId
+                    }, new
+                    {
+                        target = "_blank"
+                    })
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Right.Title)
@@ -157,7 +163,14 @@
 <h3>Matches = @matches</h3>
 <h3>Conflicts = @conflicts</h3>
 
-@using (Html.BeginForm((string) ViewBag.Action, "Admin", new {fileId = ViewBag.FileId, danceIds = ViewBag.Dances, userName = ViewBag.UserName, headers = ViewBag.Headers, separator = ViewBag.Separator}))
+@using (Html.BeginForm((string)ViewBag.Action, "Admin", new
+{
+    fileId = ViewBag.FileId,
+    danceIds = ViewBag.Dances,
+    userName = ViewBag.UserName,
+    headers = ViewBag.Headers,
+    separator = ViewBag.Separator
+}))
 {
     @Html.AntiForgeryToken()
     <p>

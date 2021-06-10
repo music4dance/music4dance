@@ -40,9 +40,13 @@ namespace m4d.Utilities
         {
             var marker = CreateMarker(name);
             if (time.HasValue)
+            {
                 marker.SetTime(time.Value);
+            }
             else
+            {
                 marker.SetTime();
+            }
         }
 
         public void SetMarker(string name, Guid guid)
@@ -53,13 +57,20 @@ namespace m4d.Utilities
 
         public void ResetMarker(string name)
         {
-            if (Markers.ContainsKey(name)) Markers.Remove(name);
+            if (Markers.ContainsKey(name))
+            {
+                Markers.Remove(name);
+            }
+
             System.IO.File.Delete(ComputePath(name));
         }
 
         private RecomputeMarker CreateMarker(string name)
         {
-            if (Markers.TryGetValue(name, out var marker)) return marker;
+            if (Markers.TryGetValue(name, out var marker))
+            {
+                return marker;
+            }
 
             marker = new RecomputeMarker(_appData, name);
             Markers[name] = marker;
@@ -80,7 +91,10 @@ namespace m4d.Utilities
 
         public DateTime GetTime()
         {
-            if (!System.IO.File.Exists(Path)) return DateTime.MinValue;
+            if (!System.IO.File.Exists(Path))
+            {
+                return DateTime.MinValue;
+            }
 
             var s = System.IO.File.ReadAllText(Path);
             return DateTime.TryParse(s, out var time)

@@ -56,7 +56,10 @@ namespace m4dModels.Tests
     {
         public static string ReplaceTime(string s)
         {
-            if (string.IsNullOrWhiteSpace(s)) return null;
+            if (string.IsNullOrWhiteSpace(s))
+            {
+                return null;
+            }
 
             var r = new Regex("\tTime=[^\t]*");
             return r.Replace(s, "\tTime=00/00/0000 0:00:00 PM");
@@ -67,22 +70,34 @@ namespace m4dModels.Tests
             var length = Math.Min(a.Length, b.Length);
             for (var i = 0; i < length; i++)
             {
-                if (a[i] == b[i]) continue;
+                if (a[i] == b[i])
+                {
+                    continue;
+                }
 
                 Trace.WriteLine("Failed at " + i + "[" + a.Substring(0, i) + "]");
                 return false;
             }
 
-            if (a.Length <= b.Length) return b.Length <= a.Length;
+            if (a.Length <= b.Length)
+            {
+                return b.Length <= a.Length;
+            }
 
             return false;
         }
 
         public static void DumpSongProperties(Song song, bool verbose = true)
         {
-            if (!verbose) return;
+            if (!verbose)
+            {
+                return;
+            }
 
-            foreach (var prop in song.SongProperties) Trace.WriteLine(prop.ToString());
+            foreach (var prop in song.SongProperties)
+            {
+                Trace.WriteLine(prop.ToString());
+            }
         }
 
         private static DanceStatsInstance GetDanceStats(DanceStatsManager manager = null)
@@ -191,7 +206,8 @@ namespace m4dModels.Tests
 
         private static void AddUser(DanceMusicService service, string name, bool pseudo)
         {
-            service.FindOrAddUser(name,
+            service.FindOrAddUser(
+                name,
                 pseudo ? DanceMusicCoreService.PseudoRole : DanceMusicCoreService.EditRole,
                 pseudo ? null : $"{name}@hotmail.com");
         }
@@ -222,7 +238,8 @@ namespace m4dModels.Tests
             using (var stream = assembly.GetManifestResourceStream(resourceName))
             using (var reader = new StreamReader(stream))
             {
-                return reader.ReadToEnd().Split(Environment.NewLine.ToCharArray(),
+                return reader.ReadToEnd().Split(
+                    Environment.NewLine.ToCharArray(),
                     StringSplitOptions.RemoveEmptyEntries).ToList();
             }
         }
@@ -230,10 +247,13 @@ namespace m4dModels.Tests
         private static void SeedRoles(RoleManager<IdentityRole> roleManager)
         {
             foreach (var roleName in DanceMusicCoreService.Roles)
+            {
                 if (!roleManager.RoleExistsAsync(roleName).Result)
                 {
-                    var result = roleManager.CreateAsync(new IdentityRole {Name = roleName}).Result;
+                    var result = roleManager.CreateAsync(new IdentityRole { Name = roleName })
+                        .Result;
                 }
+            }
         }
     }
 }

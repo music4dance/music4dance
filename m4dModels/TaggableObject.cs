@@ -17,9 +17,11 @@ namespace m4dModels
             TagSummary = new TagSummary();
         }
 
-        [DataMember] public TagSummary TagSummary { get; set; }
+        [DataMember]
+        public TagSummary TagSummary { get; set; }
 
-        [DataMember] public TagList CurrentUserTags { get; protected set; }
+        [DataMember]
+        public TagList CurrentUserTags { get; protected set; }
 
         public void SetCurrentUserTags(string user, Song song)
         {
@@ -75,7 +77,10 @@ namespace m4dModels
         public virtual TagList AddTags(TagList tags, string user, DanceStatsInstance stats,
             object data = null, bool updateTypes = true)
         {
-            if (user == null) return null;
+            if (user == null)
+            {
+                return null;
+            }
 
             var ut = GetUserTags(user, data as Song);
 
@@ -101,7 +106,11 @@ namespace m4dModels
                 var i = tag.LastIndexOf(':');
                 if (i == -1)
                 {
-                    if (!fix) return null;
+                    if (!fix)
+                    {
+                        return null;
+                    }
+
                     one = $"{tag}:Other";
                 }
                 else
@@ -110,7 +119,11 @@ namespace m4dModels
                     var val = tag.Substring(0, i);
                     if (cls.Length < 2 || !validClasses.Contains(cls))
                     {
-                        if (!fix) return null;
+                        if (!fix)
+                        {
+                            return null;
+                        }
+
                         cls = "other";
                     }
 
@@ -125,7 +138,7 @@ namespace m4dModels
 
         protected virtual HashSet<string> ValidClasses => s_validClasses;
 
-        private static readonly HashSet<string> s_validClasses = new HashSet<string> {"other"};
+        private static readonly HashSet<string> s_validClasses = new HashSet<string> { "other" };
 
         // Remove any tags from tags that have previously been added by the user and return a list
         //  of the actually removed tags in canonical form
@@ -137,7 +150,9 @@ namespace m4dModels
             // If there were no pre-existing user tags, removal is a no-op
             var ut = GetUserTags(user);
             if (ut == null || ut.IsEmpty)
+            {
                 return new TagList();
+            }
 
             var removed = new TagList(tags);
 
@@ -145,7 +160,9 @@ namespace m4dModels
             var oldTags = removed.Subtract(badTags);
 
             if (oldTags.IsEmpty)
+            {
                 return oldTags;
+            }
 
             DoUpdate(null, oldTags, user, stats, data, updateTypes);
 
@@ -166,12 +183,17 @@ namespace m4dModels
             // Short-circuit if both old and new are empty
             var ut = GetUserTags(user, data as Song);
             if (newTags.IsEmpty && ut.IsEmpty)
+            {
                 return false;
+            }
 
             var added = newTags.Subtract(ut);
             var removed = ut.Subtract(newTags);
 
-            if (added.Tags.Count <= 0 && removed.Tags.Count <= 0) return false;
+            if (added.Tags.Count <= 0 && removed.Tags.Count <= 0)
+            {
+                return false;
+            }
 
             DoUpdate(added, removed, user, stats, data, updateTypes);
 
@@ -187,7 +209,10 @@ namespace m4dModels
             var delRing = ConvertToRing(removed, stats);
             TagSummary.ChangeTags(addRing, delRing);
             if (updateTypes && stats != null)
+            {
                 UpdateTagGroups(added, removed, stats);
+            }
+
             RegisterChangedTags(added, removed, user, data);
         }
 
@@ -195,20 +220,29 @@ namespace m4dModels
             DanceStatsInstance stats)
         {
             if (stats == null)
+            {
                 return;
+            }
 
             if (added != null)
+            {
                 foreach (var tag in added.Tags)
                 {
                     // Create a transitory tag type to parse the tag string
                     var tt = stats.TagManager.FindOrCreateTagGroup(tag);
                     tt.Count += 1;
                 }
+            }
 
-            if (removed == null) return;
+            if (removed == null)
+            {
+                return;
+            }
 
             foreach (var tt in removed.Tags.Select(stats.TagManager.FindOrCreateTagGroup))
+            {
                 tt.Count -= 1;
+            }
             // TODO: We should consider a service that occasionally sweeps TagGroups and removes the ones that
             //  aren't used, but we can't proactively delete them this way since when we're doing a full load
             //  of the database this causes inconsistencies.
@@ -220,7 +254,10 @@ namespace m4dModels
 
         public bool UpdateTagSummary(TagSummary newSummary)
         {
-            if (newSummary.Summary == TagSummary.Summary) return false;
+            if (newSummary.Summary == TagSummary.Summary)
+            {
+                return false;
+            }
 
             TagSummary = newSummary;
 
@@ -237,16 +274,24 @@ namespace m4dModels
 
             // Build the tags from the properties
             var acc = new TagList();
-            if (string.IsNullOrEmpty(userName)) return acc;
+            if (string.IsNullOrEmpty(userName))
+            {
+                return acc;
+            }
 
             string cu = null;
             foreach (var prop in song.SongProperties)
                 // ReSharper disable once SwitchStatementMissingSomeCases
+            {
                 switch (prop.BaseName)
                 {
                     case Song.UserField:
                     case Song.UserProxy:
-                        if (recent) acc = new TagList();
+                        if (recent)
+                        {
+                            acc = new TagList();
+                        }
+
                         cu = new ModifiedRecord(prop.Value).UserName;
                         break;
                     case Song.AddedTags:
@@ -255,11 +300,15 @@ namespace m4dModels
                         var ring = stats == null ? tags : ConvertToRing(tags, stats);
 
                         if (userName.Equals(cu) && prop.DanceQualifier == danceId)
+                        {
                             acc = prop.BaseName == Song.AddedTags
                                 ? acc.Add(ring)
                                 : acc.Subtract(ring);
+                        }
+
                         break;
                 }
+            }
 
             return acc;
         }
@@ -269,10 +318,12 @@ namespace m4dModels
             var tagMap = stats.TagManager.TagMap;
             return tags == null
                 ? null
-                : new TagList(tags.Tags
-                    .Select(t =>
-                        (tagMap.GetValueOrDefault(t.ToLower()) ?? new TagGroup {Key = t})
-                        .GetPrimary()).Select(tt => tt.Key).Distinct().ToList());
+                : new TagList(
+                    tags.Tags
+                        .Select(
+                            t =>
+                                (tagMap.GetValueOrDefault(t.ToLower()) ?? new TagGroup { Key = t })
+                                .GetPrimary()).Select(tt => tt.Key).Distinct().ToList());
         }
     }
 }

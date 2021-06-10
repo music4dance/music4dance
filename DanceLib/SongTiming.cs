@@ -14,7 +14,7 @@ namespace DanceLibrary
         public override string ToString()
         {
             var d = Duration.ToString();
-            var dk = ((DurationType) DurationKind).ToString();
+            var dk = ((DurationType)DurationKind).ToString();
             var t = Tempo.ToString();
 
             return $"{d},{dk},{t}";
@@ -28,7 +28,10 @@ namespace DanceLibrary
         {
             var perUnit = rate;
 
-            if (Tempo.TempoType.TempoKind != TempoKind.BPS) perUnit *= 60;
+            if (Tempo.TempoType.TempoKind != TempoKind.BPS)
+            {
+                perUnit *= 60;
+            }
 
             SetDenormalizedRate(perUnit);
         }
@@ -88,7 +91,9 @@ namespace DanceLibrary
         {
             var st = obj as SongTiming;
             if (st == null)
+            {
                 return false;
+            }
 
             return Duration == st.Duration && Tempo == st.Tempo && DurationKind == st.DurationKind;
         }
@@ -116,7 +121,7 @@ namespace DanceLibrary
 
         public SongTiming(string s) : this()
         {
-            var rgs = s.Split(new[] {','});
+            var rgs = s.Split(new[] { ',' });
             if (rgs.Length == 3)
             {
                 Duration = new SongDuration(rgs[0].Trim());

@@ -15,7 +15,7 @@ namespace m4d.Controllers
             // If it's not an AJAX request that triggered this action then just retun the view
             if (!isAjaxRequest)
             {
-                var model = new ErrorModel {HttpStatusCode = statusCode, Exception = exception};
+                var model = new ErrorModel { HttpStatusCode = statusCode, Exception = exception };
 
                 Response.StatusCode = statusCode;
 
@@ -25,7 +25,7 @@ namespace m4d.Controllers
             {
                 // Otherwise, if it was an AJAX request, return an anon type with the message from the exception
                 var errorObject = new
-                    {message = exception == null ? "Really Bad Error" : exception.Message};
+                    { message = exception == null ? "Really Bad Error" : exception.Message };
                 return Json(errorObject);
             }
         }

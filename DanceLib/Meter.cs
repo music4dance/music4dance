@@ -55,17 +55,27 @@ namespace DanceLibrary
         /// <param name="s"></param>
         public Meter(string s)
         {
-            if (string.IsNullOrEmpty(s)) throw new ArgumentNullException();
+            if (string.IsNullOrEmpty(s))
+            {
+                throw new ArgumentNullException();
+            }
 
             var strings = s.Split('/', ' ');
 
-            if (strings.Length != 2) throw new ArgumentOutOfRangeException(MeterSyntaxError);
+            if (strings.Length != 2)
+            {
+                throw new ArgumentOutOfRangeException(MeterSyntaxError);
+            }
 
             if (!int.TryParse(strings[0], out _numerator))
+            {
                 throw new ArgumentOutOfRangeException(IntegerNumerator);
+            }
 
             if (!int.TryParse(strings[1], out _denominator))
+            {
                 throw new ArgumentOutOfRangeException(IntegerDenominator);
+            }
 
             Validate();
         }
@@ -85,10 +95,14 @@ namespace DanceLibrary
         private void Validate()
         {
             if (_numerator <= 0 || _numerator >= 1000)
+            {
                 throw new ArgumentOutOfRangeException("numerator", PositiveIntegerNumerator);
+            }
 
             if (_denominator <= 0 || _denominator >= 1000)
+            {
                 throw new ArgumentOutOfRangeException("denominator", PositiveIntegerDenominator);
+            }
 
             //if (_denominator != 4)
             //    throw new ArgumentOutOfRangeException("denominator", DenominatorLimit);
@@ -104,17 +118,26 @@ namespace DanceLibrary
         {
             var m = obj as Meter;
             if (m == null)
+            {
                 return false;
+            }
+
             return _numerator == m._numerator && _denominator == m._denominator;
         }
 
         public static bool operator ==(Meter a, Meter b)
         {
             // If both are null, or both are same instance, return true.
-            if (ReferenceEquals(a, b)) return true;
+            if (ReferenceEquals(a, b))
+            {
+                return true;
+            }
 
             // Handle a is null case☺.
-            if ((object) a == null) return (object) b == null;
+            if ((object)a == null)
+            {
+                return (object)b == null;
+            }
 
             return a.Equals(b);
         }

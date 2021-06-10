@@ -12,9 +12,9 @@ namespace m4dModels.Tests
             var t5 = new TrackNumber(5, null, null);
             var tx = new TrackNumber(999, null, null);
 
-            Assert.AreEqual(0, (int) t0, "Create Null");
-            Assert.AreEqual(5, (int) t5, "Create 5");
-            Assert.AreEqual(999, (int) tx, "Create 999");
+            Assert.AreEqual(0, (int)t0, "Create Null");
+            Assert.AreEqual(5, (int)t5, "Create 5");
+            Assert.AreEqual(999, (int)tx, "Create 999");
 
             var t0Ex = string.Empty;
             const string t5Ex = "005";
@@ -49,9 +49,9 @@ namespace m4dModels.Tests
             var t5 = new TrackNumber(5, 2, null);
             var tx = new TrackNumber(999, 999, null);
 
-            Assert.AreEqual(0, (int) t0, "Create Null");
-            Assert.AreEqual(2005, (int) t5, "Create 5");
-            Assert.AreEqual(999999, (int) tx, "Create 999");
+            Assert.AreEqual(0, (int)t0, "Create Null");
+            Assert.AreEqual(2005, (int)t5, "Create 5");
+            Assert.AreEqual(999999, (int)tx, "Create 999");
 
             var t0Ex = string.Empty;
             const string t5Ex = "002:005";
@@ -86,9 +86,9 @@ namespace m4dModels.Tests
             var t5 = new TrackNumber(5, 2, 3);
             var tx = new TrackNumber(999, 999, 999);
 
-            Assert.AreEqual(0, (int) t0, "Create Null");
-            Assert.AreEqual(3002005, (int) t5, "Create 5");
-            Assert.AreEqual(999999999, (int) tx, "Create 999");
+            Assert.AreEqual(0, (int)t0, "Create Null");
+            Assert.AreEqual(3002005, (int)t5, "Create 5");
+            Assert.AreEqual(999999999, (int)tx, "Create 999");
 
             var t0Ex = string.Empty;
             const string t5Ex = "003:002:005";

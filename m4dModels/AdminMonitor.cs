@@ -9,7 +9,10 @@ namespace m4dModels
         {
             lock (Lock)
             {
-                if (Name != null) return false;
+                if (Name != null)
+                {
+                    return false;
+                }
 
                 _stopwatch = Stopwatch.StartNew();
 
@@ -33,7 +36,10 @@ namespace m4dModels
         {
             lock (Lock)
             {
-                if (Name == null) return;
+                if (Name == null)
+                {
+                    return;
+                }
 
                 _phase = phase;
                 _iteration = iteration;

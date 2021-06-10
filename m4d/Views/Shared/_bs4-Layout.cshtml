@@ -94,94 +94,239 @@
 
 <body style="padding-top: 50px">
 <nav class="navbar navbar-expand-md navbar-dark bg-primary fixed-top" role="navigation" style="padding: 0rem 1rem">
-    <a href="/" class="navbar-brand">
-        <img src="/images/header-logo.png" height="40" title="music4dance"/>
-    </a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
+<a href="/" class="navbar-brand">
+    <img src="/images/header-logo.png" height="40" title="music4dance"/>
+</a>
+<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+</button>
 
-    <div class="navbar-collapse collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-            <li class="nav-item dropdown">
-                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Music<span class="caret"></span></a>
-                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <li>
-                        @Html.ActionLink("Dances", "index", "dances", null, new {@class = "dropdown-item"})
-                        <ul style="list-style-type: none" role="menu">
-                            <li>@Html.ActionLink("Ballroom", "ballroom-competition-categories", "dances", null, new {@class = "dropdown-item"})</li>
-                            <li>@Html.ActionLink("Latin", "latin", "dances", null, new {@class = "dropdown-item"})</li>
-                            <li>@Html.ActionLink("Swing", "swing", "dances", null, new {@class = "dropdown-item"})</li>
-                            <li>@Html.ActionLink("Tango", "tango", "dances", null, new {@class = "dropdown-item"})</li>
-                        </ul>
-                    </li>
-                    <li>
-                        @Html.ActionLink("Song Library", "index", "song", null, new {@class = "dropdown-item"})
-                        <ul style="list-style-type: none" role="menu">
-                            <li>@Html.ActionLink("Advanced Search", "advancedsearchform", "song", null, new {@class = "dropdown-item"})</li>
-                        </ul>
-                        <ul style="list-style-type: none" role="menu">
-                            <li>@Html.ActionLink("Add Song", "augment", "song", null, new {@class = "dropdown-item"})</li>
-                        </ul>
-                        <ul style="list-style-type: none" role="menu">
-                            @Html.ActionLink("New Music", "newmusic", "song", new {type = "Created"}, new {@class = "dropdown-item"})
-                        </ul>
-                    </li>
-                    <li>@Html.ActionLink("Wedding", "wedding-music", "dances", null, new {@class = "dropdown-item"})</li>
-                    <li>@Html.ActionLink("Holiday", "holidaymusic", "song", null, new {@class = "dropdown-item"})</li>
-                    <li>@Html.ActionLink("Halloween", "addTags", "song", new {tags = "+Halloween:Other"}, new {@class = "dropdown-item"})</li>
-                    <li>@Html.ActionLink("Tags", "index", "tag", null, new {@class = "dropdown-item"})</li>
-                </ul>
-            </li>
-            <li class="nav-item dropdown">
-                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Tools<span class="caret"></span></a>
-                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <li>@Html.ActionLink("Tempo Counter", "counter", "Home", null, new {@class = "dropdown-item"})</li>
-                    <li>@Html.ActionLink("Tempi (Tempos)", "tempi", "Home", null, new {@class = "dropdown-item"})</li>
-                </ul>
-            </li>
-            <li class="nav-item dropdown">
-                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Info<span class="caret"></span></a>
-                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <li>
-                        <a href="@help" class="dropdown-item">Help</a>
-                    </li>
-                    <li>
-                        <a href="https://music4dance.blog" class="dropdown-item">Blog</a>
-                    </li>
-                    <li>@Html.ActionLink("FAQ", "FAQ", "Home", null, new {@class = "dropdown-item"})</li>
-                    <li>@Html.ActionLink("About Us", "About", "Home", null, new {@class = "dropdown-item"})</li>
-                    <li>
-                        <a href="https://music4dance.blog/reading-list/" class="dropdown-item">Reading List</a>
-                    </li>
-                    <li>@Html.ActionLink("Site Map", "sitemap", "Home", null, new {@class = "dropdown-item"})</li>
-                    <li>@Html.ActionLink("Privacy Policy", "privacypolicy", "Home", null, new {@class = "dropdown-item"})</li>
-                    <li>@Html.ActionLink("Credits", "credits", "Home", null, new {@class = "dropdown-item"})</li>
-                </ul>
-            </li>
-            <li class="nav-item">@Html.ActionLink("Contribute", "Contribute", "Home", null, new {@class = "nav-link"})</li>
-            @if (User.IsInRole("showDiagnostics"))
-            {
-                <li class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Admin<span class="caret"></span></a>
-                    <ul class="dropdown-menu" role="menu">
-                        <li>@Html.ActionLink("Index", "Index", "Admin", null, new {@class = "dropdown-item"})</li>
-                        <li>@Html.ActionLink("Users", "Index", "ApplicationUsers", null, new {@class = "dropdown-item"})</li>
-                        <li>@Html.ActionLink("Tags", "Tags", "Admin", null, new {@class = "dropdown-item"})</li>
-                        <li>@Html.ActionLink("Diagnostics", "Diagnostics", "Admin", null, new {@class = "dropdown-item"})</li>
-                        <li>@Html.ActionLink("Initialization and Cleanup", "InitializationTasks", "Admin", null, new {@class = "dropdown-item"})</li>
-                        <li>@Html.ActionLink("Song Scrapers", "Scraping", "Admin", null, new {@class = "dropdown-item"})</li>
-                        <li>@Html.ActionLink("PlayLists", "Index", "PlayList", null, new {@class = "dropdown-item"})</li>
-                        @if (User.IsInRole("dbAdmin"))
-                        {
-                            <li>@Html.ActionLink("Uploads and Backups", "UploadBackup", "Admin", null, new {@class = "dropdown-item"})</li>
-                        }
+<div class="navbar-collapse collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+        <li class="nav-item dropdown">
+            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Music<span class="caret"></span></a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <li>
+                    @Html.ActionLink("Dances", "index", "dances", null, new
+                    {
+                        @class = "dropdown-item"
+                    })
+                    <ul style="list-style-type: none" role="menu">
+                        <li>
+                            @Html.ActionLink("Ballroom", "ballroom-competition-categories", "dances", null, new
+                            {
+                                @class = "dropdown-item"
+                            })
+                        </li>
+                        <li>
+                            @Html.ActionLink("Latin", "latin", "dances", null, new
+                            {
+                                @class = "dropdown-item"
+                            })
+                        </li>
+                        <li>
+                            @Html.ActionLink("Swing", "swing", "dances", null, new
+                            {
+                                @class = "dropdown-item"
+                            })
+                        </li>
+                        <li>
+                            @Html.ActionLink("Tango", "tango", "dances", null, new
+                            {
+                                @class = "dropdown-item"
+                            })
+                        </li>
                     </ul>
                 </li>
-            }
+                <li>
+                    @Html.ActionLink("Song Library", "index", "song", null, new
+                    {
+                        @class = "dropdown-item"
+                    })
+                    <ul style="list-style-type: none" role="menu">
+                        <li>
+                            @Html.ActionLink("Advanced Search", "advancedsearchform", "song", null, new
+                            {
+                                @class = "dropdown-item"
+                            })
+                        </li>
+                    </ul>
+                    <ul style="list-style-type: none" role="menu">
+                        <li>
+                            @Html.ActionLink("Add Song", "augment", "song", null, new
+                            {
+                                @class = "dropdown-item"
+                            })
+                        </li>
+                    </ul>
+                    <ul style="list-style-type: none" role="menu">
+                        @Html.ActionLink("New Music", "newmusic", "song", new
+                        {
+                            type = "Created"
+                        }, new
+                        {
+                            @class = "dropdown-item"
+                        })
+                    </ul>
+                </li>
+                <li>
+                    @Html.ActionLink("Wedding", "wedding-music", "dances", null, new
+                    {
+                        @class = "dropdown-item"
+                    })
+                </li>
+                <li>
+                    @Html.ActionLink("Holiday", "holidaymusic", "song", null, new
+                    {
+                        @class = "dropdown-item"
+                    })
+                </li>
+                <li>
+                    @Html.ActionLink("Halloween", "addTags", "song", new
+                    {
+                        tags = "+Halloween:Other"
+                    }, new
+                    {
+                        @class = "dropdown-item"
+                    })
+                </li>
+                <li>
+                    @Html.ActionLink("Tags", "index", "tag", null, new
+                    {
+                        @class = "dropdown-item"
+                    })
+                </li>
+            </ul>
+    </li>
+    <li class="nav-item dropdown">
+        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Tools<span class="caret"></span></a>
+        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li>
+                @Html.ActionLink("Tempo Counter", "counter", "Home", null, new
+                {
+                    @class = "dropdown-item"
+                })
+            </li>
+            <li>
+                @Html.ActionLink("Tempi (Tempos)", "tempi", "Home", null, new
+                {
+                    @class = "dropdown-item"
+                })
+            </li>
         </ul>
-        <partial name="_LoginPartial"/>
-    </div>
+    </li>
+    <li class="nav-item dropdown">
+        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Info<span class="caret"></span></a>
+        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li>
+                <a href="@help" class="dropdown-item">Help</a>
+            </li>
+            <li>
+                <a href="https://music4dance.blog" class="dropdown-item">Blog</a>
+            </li>
+            <li>
+                @Html.ActionLink("FAQ", "FAQ", "Home", null, new
+                {
+                    @class = "dropdown-item"
+                })
+            </li>
+            <li>
+                @Html.ActionLink("About Us", "About", "Home", null, new
+                {
+                    @class = "dropdown-item"
+                })
+            </li>
+            <li>
+                <a href="https://music4dance.blog/reading-list/" class="dropdown-item">Reading List</a>
+            </li>
+            <li>
+                @Html.ActionLink("Site Map", "sitemap", "Home", null, new
+                {
+                    @class = "dropdown-item"
+                })
+            </li>
+            <li>
+                @Html.ActionLink("Privacy Policy", "privacypolicy", "Home", null, new
+                {
+                    @class = "dropdown-item"
+                })
+            </li>
+            <li>
+                @Html.ActionLink("Credits", "credits", "Home", null, new
+                {
+                    @class = "dropdown-item"
+                })
+            </li>
+        </ul>
+    </li>
+    <li class="nav-item">
+        @Html.ActionLink("Contribute", "Contribute", "Home", null, new
+        {
+            @class = "nav-link"
+        })
+    </li>
+    @if (User.IsInRole("showDiagnostics"))
+    {
+        <li class="nav-item dropdown">
+            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Admin<span class="caret"></span></a>
+            <ul class="dropdown-menu" role="menu">
+                <li>
+                    @Html.ActionLink("Index", "Index", "Admin", null, new
+                    {
+                        @class = "dropdown-item"
+                    })
+                </li>
+                <li>
+                    @Html.ActionLink("Users", "Index", "ApplicationUsers", null, new
+                    {
+                        @class = "dropdown-item"
+                    })
+                </li>
+                <li>
+                    @Html.ActionLink("Tags", "Tags", "Admin", null, new
+                    {
+                        @class = "dropdown-item"
+                    })
+                </li>
+                <li>
+                    @Html.ActionLink("Diagnostics", "Diagnostics", "Admin", null, new
+                    {
+                        @class = "dropdown-item"
+                    })
+                </li>
+                <li>
+                    @Html.ActionLink("Initialization and Cleanup", "InitializationTasks", "Admin", null, new
+                    {
+                        @class = "dropdown-item"
+                    })
+                </li>
+                <li>
+                    @Html.ActionLink("Song Scrapers", "Scraping", "Admin", null, new
+                    {
+                        @class = "dropdown-item"
+                    })
+                </li>
+                <li>
+                    @Html.ActionLink("PlayLists", "Index", "PlayList", null, new
+                    {
+                        @class = "dropdown-item"
+                    })
+                </li>
+                @if (User.IsInRole("dbAdmin"))
+                {
+                    <li>
+                        @Html.ActionLink("Uploads and Backups", "UploadBackup", "Admin", null, new
+                        {
+                            @class = "dropdown-item"
+                        })
+                    </li>
+                }
+            </ul>
+        </li>
+    }
+</ul>
+<partial name="_LoginPartial"/>
+</div>
 </nav>
 
 @if (ViewBag.BreadCrumbs != null)

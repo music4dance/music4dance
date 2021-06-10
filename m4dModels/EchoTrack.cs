@@ -11,13 +11,15 @@ namespace m4dModels
             try
             {
                 if (response == null)
+                {
                     return null;
+                }
 
                 int? bpMeas = response.time_signature;
                 decimal? bpMin = response.tempo;
-                float? danceability = (float) response.danceability;
-                float? energy = (float) response.energy;
-                float? valence = (float) response.valence;
+                float? danceability = (float)response.danceability;
+                float? energy = (float)response.energy;
+                float? valence = (float)response.valence;
 
                 return new EchoTrack
                 {
@@ -31,17 +33,30 @@ namespace m4dModels
             }
         }
 
-        [DataMember] public int? BeatsPerMeasure;
-        [DataMember] public decimal? BeatsPerMinute;
-        [DataMember] public float? Danceability;
-        [DataMember] public float? Energy;
-        [DataMember] public float? Valence;
+        [DataMember]
+        public int? BeatsPerMeasure;
+
+        [DataMember]
+        public decimal? BeatsPerMinute;
+
+        [DataMember]
+        public float? Danceability;
+
+        [DataMember]
+        public float? Energy;
+
+        [DataMember]
+        public float? Valence;
 
         public string Meter
         {
             get
             {
-                if (!BeatsPerMeasure.HasValue) return null;
+                if (!BeatsPerMeasure.HasValue)
+                {
+                    return null;
+                }
+
                 switch (BeatsPerMeasure)
                 {
                     case 2:

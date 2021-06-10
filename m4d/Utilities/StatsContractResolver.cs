@@ -9,7 +9,10 @@ namespace m4d.Utilities
     {
         public StatsContractResolver(bool camelCase, bool hideSongs)
         {
-            if (camelCase) NamingStrategy = new CamelCaseNamingStrategy();
+            if (camelCase)
+            {
+                NamingStrategy = new CamelCaseNamingStrategy();
+            }
 
             _hideSongs = hideSongs;
         }
@@ -20,7 +23,9 @@ namespace m4d.Utilities
             var property = base.CreateProperty(member, memberSerialization);
 
             if (property.DeclaringType == typeof(DanceStats) && property.PropertyName == "topSongs")
+            {
                 property.ShouldSerialize = instance => !_hideSongs;
+            }
 
             return property;
         }

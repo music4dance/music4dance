@@ -10,19 +10,24 @@ namespace m4dModels
     [DataContract]
     public class JTag
     {
-        [DataMember] public string Id { get; set; }
-        [DataMember] public string Tags { get; set; }
+        [DataMember]
+        public string Id { get; set; }
+
+        [DataMember]
+        public string Tags { get; set; }
     }
 
     [DataContract]
     public class JTags
     {
-        [DataMember] public IEnumerable<JTag> Tags { get; set; }
+        [DataMember]
+        public IEnumerable<JTag> Tags { get; set; }
 
         public IList<UserTag> ToUserTags()
         {
-            return Tags.Select(jtag => new UserTag
-                {Id = jtag.Id ?? string.Empty, Tags = new TagList(jtag.Tags)}).ToList();
+            return Tags.Select(
+                jtag => new UserTag
+                    { Id = jtag.Id ?? string.Empty, Tags = new TagList(jtag.Tags) }).ToList();
         }
 
         public static JTags FromJson(string json)
@@ -31,7 +36,7 @@ namespace m4dModels
             var ser = new DataContractJsonSerializer(typeof(JTags));
             var stream = new MemoryStream(bytes);
 
-            var jt = (JTags) ser.ReadObject(stream);
+            var jt = (JTags)ser.ReadObject(stream);
             return jt;
         }
     };
@@ -40,7 +45,10 @@ namespace m4dModels
     public class UserTag
     {
         // This is a danceId or null for the song tags
-        [DataMember] public string Id { get; set; }
-        [DataMember] public TagList Tags { get; set; }
+        [DataMember]
+        public string Id { get; set; }
+
+        [DataMember]
+        public TagList Tags { get; set; }
     }
 }

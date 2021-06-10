@@ -134,8 +134,9 @@ namespace m4d.Utilities
         {
             // create a WCF Amazon ECS client
             var binding = new BasicHttpBinding(BasicHttpSecurityMode.Transport)
-                {MaxReceivedMessageSize = int.MaxValue};
-            _client = new AWSECommerceServicePortTypeClient(binding,
+                { MaxReceivedMessageSize = int.MaxValue };
+            _client = new AWSECommerceServicePortTypeClient(
+                binding,
                 new EndpointAddress(EndPointAddress));
 
             // add authentication to the ECS client
@@ -155,7 +156,11 @@ namespace m4d.Utilities
 
         public ServiceTrack LookupTrack(string asin)
         {
-            if (asin.StartsWith("D:")) asin = asin.Substring(2);
+            if (asin.StartsWith("D:"))
+            {
+                asin = asin.Substring(2);
+            }
+
             var response = DoLookupTrack(asin);
 
             if (response == null)
@@ -171,7 +176,9 @@ namespace m4d.Utilities
             }
 
             if (response.Items[0].Item.Length != 0)
+            {
                 return BuildServiceTrack(response.Items[0].Item[0]);
+            }
 
             Trace.WriteLine(asin + ": No Tracks Returned");
             return null;
@@ -186,8 +193,15 @@ namespace m4d.Utilities
             {
                 if (song != null)
                 {
-                    if (title == null) title = song.Title;
-                    if (artist == null) artist = song.Artist;
+                    if (title == null)
+                    {
+                        title = song.Title;
+                    }
+
+                    if (artist == null)
+                    {
+                        artist = song.Artist;
+                    }
 
                     if (clean)
                     {
@@ -220,7 +234,10 @@ namespace m4d.Utilities
                         tracks.Add(track);
 
                         // If we have an exact match break...
-                        if (song?.FindAlbum(track.Album) != null) break;
+                        if (song?.FindAlbum(track.Album) != null)
+                        {
+                            break;
+                        }
                     }
                 }
 
@@ -239,18 +256,26 @@ namespace m4d.Utilities
             var title = item.ItemAttributes.Title;
 
             if (item.ItemAttributes.Creator != null && item.ItemAttributes.Creator.Length > 0)
+            {
                 artist = item.ItemAttributes.Creator[0].Value;
+            }
 
             int trackNum;
             int? ntrackNum = null;
 
-            if (int.TryParse(item.ItemAttributes.TrackSequence, out trackNum)) ntrackNum = trackNum;
+            if (int.TryParse(item.ItemAttributes.TrackSequence, out trackNum))
+            {
+                ntrackNum = trackNum;
+            }
 
             int? duration = null;
             if (item.ItemAttributes.RunningTime != null &&
-                string.Equals(item.ItemAttributes.RunningTime.Units, "seconds",
+                string.Equals(
+                    item.ItemAttributes.RunningTime.Units, "seconds",
                     StringComparison.InvariantCultureIgnoreCase))
-                duration = (int) decimal.Round(item.ItemAttributes.RunningTime.Value);
+            {
+                duration = (int)decimal.Round(item.ItemAttributes.RunningTime.Value);
+            }
 
             string collectionId = null;
             string albumTitle = null;
@@ -260,15 +285,24 @@ namespace m4d.Utilities
             {
                 collectionId = item.RelatedItems[0].RelatedItem[0].Item.ASIN;
                 if (item.RelatedItems[0].RelatedItem[0].Item.ItemAttributes != null)
+                {
                     albumTitle = item.RelatedItems[0].RelatedItem[0].Item.ItemAttributes.Title;
+                }
             }
 
             var genre = item.ItemAttributes.Genre;
 
             var gidx = -1;
-            if (genre != null) gidx = genre.IndexOf("-music", StringComparison.OrdinalIgnoreCase);
+            if (genre != null)
+            {
+                gidx = genre.IndexOf("-music", StringComparison.OrdinalIgnoreCase);
+            }
 
-            if (gidx != -1) genre = genre?.Remove(gidx);
+            if (gidx != -1)
+            {
+                genre = genre?.Remove(gidx);
+            }
+
             var track = new ServiceTrack
             {
                 Service = ServiceType.Amazon,
@@ -278,7 +312,7 @@ namespace m4d.Utilities
                 TrackNumber = ntrackNum,
                 Duration = duration,
                 ReleaseDate = item.ItemAttributes.ReleaseDate,
-                Genres = new[] {genre},
+                Genres = new[] { genre },
                 CollectionId = "D:" + collectionId,
                 Album = albumTitle
             };
@@ -296,15 +330,15 @@ namespace m4d.Utilities
                 SearchIndex = "DigitalMusic",
                 Title = title,
                 Keywords = string.IsNullOrEmpty(artist) ? title : artist,
-                RelationshipType = new[] {"Tracks"},
-                ResponseGroup = new[] {"ItemAttributes", "RelatedItems"}
+                RelationshipType = new[] { "Tracks" },
+                ResponseGroup = new[] { "ItemAttributes", "RelatedItems" }
             };
 
             var itemSearch = new ItemSearch
             {
                 AssociateTag = AssociateTag,
                 AWSAccessKeyId = ClientId,
-                Request = new[] {request}
+                Request = new[] { request }
             };
 
             ItemSearchResponse r = null;
@@ -331,20 +365,21 @@ namespace m4d.Utilities
         {
             var request = new ItemLookupRequest
             {
-                ItemId = new[] {asin},
-                RelationshipType = new[] {"Tracks"},
-                ResponseGroup = new[] {"ItemAttributes", "RelatedItems"}
+                ItemId = new[] { asin },
+                RelationshipType = new[] { "Tracks" },
+                ResponseGroup = new[] { "ItemAttributes", "RelatedItems" }
             };
 
             var itemLookup = new ItemLookup
             {
                 AssociateTag = AssociateTag,
                 AWSAccessKeyId = ClientId,
-                Request = new[] {request}
+                Request = new[] { request }
             };
 
             ItemLookupResponse r = null;
             while (r == null)
+            {
                 try
                 {
                     r = _client.ItemLookup(itemLookup);
@@ -354,6 +389,7 @@ namespace m4d.Utilities
                     Trace.WriteLine("LookupTrack: " + e.Message);
                     Thread.Sleep(5000);
                 }
+            }
 
             return r;
         }
@@ -371,12 +407,16 @@ namespace m4d.AWSReference
     {
         public static implicit operator ImageSet[](ImageSet i)
         {
-            return new[] {i};
+            return new[] { i };
         }
 
         public static implicit operator ImageSet(ImageSet[] i)
         {
-            if (i != null && i.Length >= 1) return i[0];
+            if (i != null && i.Length >= 1)
+            {
+                return i[0];
+            }
+
             return new ImageSet();
         }
     }

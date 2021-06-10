@@ -31,21 +31,31 @@ namespace m4d.APIControllers
 
         // id should be the type to update - currently songstats, propertycleanup
         [HttpGet("{id}")]
-        public IActionResult Get([FromServices] IConfiguration configuration, string id,
+        public IActionResult Get([FromServices]IConfiguration configuration, string id,
             bool force = false, bool sync = false)
         {
-            if (!TokenRequirement.Authorize(Request, configuration)) return Unauthorized();
+            if (!TokenRequirement.Authorize(Request, configuration))
+            {
+                return Unauthorized();
+            }
 
             if (!force && !HasChanged(id))
             {
-                Trace.WriteLineIf(TraceLevels.General.TraceInfo,
+                Trace.WriteLineIf(
+                    TraceLevels.General.TraceInfo,
                     $"RecomputeController: id = {id}, changed = false");
-                return Ok(new {changed = false, message = "No updates."});
+                return Ok(new { changed = false, message = "No updates." });
             }
 
-            if (!AdminMonitor.StartTask(id)) return Conflict();
+            if (!AdminMonitor.StartTask(id))
+            {
+                return Conflict();
+            }
 
-            if (force) _markerService.ResetMarker(id);
+            if (force)
+            {
+                _markerService.ResetMarker(id);
+            }
 
             string message;
             DoHandleRecompute recompute;
@@ -69,13 +79,18 @@ namespace m4d.APIControllers
 
 
             if (sync)
+            {
                 HandleSyncRecompute(recompute, id, message, force);
+            }
             else
+            {
                 HandleRecompute(recompute, id, message, force);
+            }
 
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo,
+            Trace.WriteLineIf(
+                TraceLevels.General.TraceInfo,
                 $"RecomputeController: id = {id}, changed = true, message = {message}");
-            return Ok(new {changed = true, message});
+            return Ok(new { changed = true, message });
         }
 
         private bool HasChanged(string id)
@@ -93,21 +108,28 @@ namespace m4d.APIControllers
             bool force)
         {
             var dms = Database.GetTransientService();
-            Task.Run(() =>
-                recompute.Invoke(_markerService, dms, DanceStatsManager, id, message, 0, force));
+            Task.Run(
+                () =>
+                    recompute.Invoke(
+                        _markerService, dms, DanceStatsManager, id, message, 0, force));
         }
 
         private void HandleSyncRecompute(DoHandleRecompute recompute, string id, string message,
             bool force)
         {
             var dms = Database.GetTransientService();
-            int[] i = {0};
-            while (!Task.Run(() =>
-                    recompute.Invoke(_markerService, dms, DanceStatsManager, id, message, i[0],
-                        force))
+            int[] i = { 0 };
+            while (!Task.Run(
+                    () =>
+                        recompute.Invoke(
+                            _markerService, dms, DanceStatsManager, id, message, i[0],
+                            force))
                 .Result)
             {
-                if (!AdminMonitor.StartTask(id)) return;
+                if (!AdminMonitor.StartTask(id))
+                {
+                    return;
+                }
 
                 i[0] += 1;
             }
@@ -141,12 +163,19 @@ namespace m4d.APIControllers
                 var info = dms.CleanupProperties(250, from, new SongFilter());
 
                 if (info.Succeeded > 0 || info.Failed > 0)
+                {
                     markerService.SetMarker(id, info.LastTime);
+                }
 
                 if (info.Complete)
+                {
                     Complete(markerService, id, message);
+                }
                 else
+                {
                     AdminMonitor.CompleteTask(true, message);
+                }
+
                 return info.Complete;
             }
             catch (Exception e)

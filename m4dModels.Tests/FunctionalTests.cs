@@ -316,21 +316,34 @@ Hustle is traditionally danced to [disco music](https://www.music4dance.net/song
             {
                 var i = actual.IndexOf(e);
                 if (i == -1)
+                {
                     expectedExtra.Add(e);
+                }
                 else
+                {
                     actual.RemoveAt(i);
+                }
             }
 
             if (expectedExtra.Count > 0)
             {
                 Trace.WriteLine("Expected Extra:\r\n");
-                foreach (var s in expectedExtra) Trace.WriteLine(s);
+                foreach (var s in expectedExtra)
+                {
+                    Trace.WriteLine(s);
+                }
             }
 
-            if (actual.Count <= 0) return actual.Count == 0 && expectedExtra.Count == 0;
+            if (actual.Count <= 0)
+            {
+                return actual.Count == 0 && expectedExtra.Count == 0;
+            }
 
             Trace.WriteLine("Actual Extra:\r\n");
-            foreach (var s in actual) Trace.WriteLine(s);
+            foreach (var s in actual)
+            {
+                Trace.WriteLine(s);
+            }
 
             return actual.Count == 0 && expectedExtra.Count == 0;
         }

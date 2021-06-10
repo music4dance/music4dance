@@ -64,26 +64,29 @@ namespace m4d
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<CookiePolicyOptions>(options =>
-            {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.None;
-            });
+            services.Configure<CookiePolicyOptions>(
+                options =>
+                {
+                    // This lambda determines whether user consent for non-essential cookies is needed for a given request.
+                    options.CheckConsentNeeded = context => true;
+                    options.MinimumSameSitePolicy = SameSiteMode.None;
+                });
 
-            services.ConfigureApplicationCookie(options =>
-            {
-                options.AccessDeniedPath = "/Identity/Account/AccessDenied";
-                options.Cookie.Name = "music4dance";
-                options.Cookie.HttpOnly = true;
-                options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
-                options.LoginPath = "/Identity/Account/Login";
-                options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
-                options.SlidingExpiration = true;
-            });
+            services.ConfigureApplicationCookie(
+                options =>
+                {
+                    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+                    options.Cookie.Name = "music4dance";
+                    options.Cookie.HttpOnly = true;
+                    options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+                    options.LoginPath = "/Identity/Account/Login";
+                    options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
+                    options.SlidingExpiration = true;
+                });
 
-            services.Configure<PasswordHasherOptions>(option =>
-                option.CompatibilityMode = PasswordHasherCompatibilityMode.IdentityV2);
+            services.Configure<PasswordHasherOptions>(
+                option =>
+                    option.CompatibilityMode = PasswordHasherCompatibilityMode.IdentityV2);
 
             var builder = services.AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
@@ -101,57 +104,63 @@ namespace m4d
             var sendGrid = Configuration.GetSection("Authentication:SendGrid");
             services.Configure<AuthMessageSenderOptions>(options => sendGrid.Bind(options));
 
-            services.Configure<AuthorizationOptions>(options =>
-            {
-                options.AddPolicy("TokenAuthorization",
-                    policy => policy.AddRequirements(new TokenRequirement(Configuration)));
-            });
-
-            services.AddAuthentication()
-                .AddGoogle(options =>
+            services.Configure<AuthorizationOptions>(
+                options =>
                 {
-                    var googleAuthNSection =
-                        Configuration.GetSection("Authentication:Google");
-
-                    options.ClientId = googleAuthNSection["ClientId"];
-                    options.ClientSecret = googleAuthNSection["ClientSecret"];
-                })
-                .AddFacebook(options =>
-                {
-                    options.AppId = Configuration["Authentication:Facebook:ClientId"];
-                    options.AppSecret = Configuration["Authentication:Facebook:ClientSecret"];
-                    options.Scope.Add("email");
-                    options.Fields.Add("name");
-                    options.Fields.Add("email");
-                })
-                .AddSpotify(options =>
-                {
-                    options.ClientId = Configuration["Authentication:Spotify:ClientId"];
-                    options.ClientSecret = Configuration["Authentication:Spotify:ClientSecret"];
-
-                    options.Scope.Add("user-read-email");
-                    options.Scope.Add("playlist-modify-public");
-                    options.Scope.Add("ugc-image-upload");
-
-                    //options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
-                    //options.ClaimActions.MapJsonKey("urn:google:locale", "locale", "string");
-
-                    options.SaveTokens = true;
-
-                    options.Events.OnCreatingTicket = cxt =>
-                    {
-                        var tokens = cxt.Properties.GetTokens().ToList();
-                        cxt.Properties.StoreTokens(tokens);
-
-                        return Task.CompletedTask;
-                    };
+                    options.AddPolicy(
+                        "TokenAuthorization",
+                        policy => policy.AddRequirements(new TokenRequirement(Configuration)));
                 });
 
-            services.AddreCAPTCHAV2(x =>
-            {
-                x.SiteKey = Configuration["Authentication:reCAPTCHA:SiteKey"];
-                x.SiteSecret = Configuration["Authentication:reCAPTCHA:SecretKey"];
-            });
+            services.AddAuthentication()
+                .AddGoogle(
+                    options =>
+                    {
+                        var googleAuthNSection =
+                            Configuration.GetSection("Authentication:Google");
+
+                        options.ClientId = googleAuthNSection["ClientId"];
+                        options.ClientSecret = googleAuthNSection["ClientSecret"];
+                    })
+                .AddFacebook(
+                    options =>
+                    {
+                        options.AppId = Configuration["Authentication:Facebook:ClientId"];
+                        options.AppSecret = Configuration["Authentication:Facebook:ClientSecret"];
+                        options.Scope.Add("email");
+                        options.Fields.Add("name");
+                        options.Fields.Add("email");
+                    })
+                .AddSpotify(
+                    options =>
+                    {
+                        options.ClientId = Configuration["Authentication:Spotify:ClientId"];
+                        options.ClientSecret = Configuration["Authentication:Spotify:ClientSecret"];
+
+                        options.Scope.Add("user-read-email");
+                        options.Scope.Add("playlist-modify-public");
+                        options.Scope.Add("ugc-image-upload");
+
+                        //options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
+                        //options.ClaimActions.MapJsonKey("urn:google:locale", "locale", "string");
+
+                        options.SaveTokens = true;
+
+                        options.Events.OnCreatingTicket = cxt =>
+                        {
+                            var tokens = cxt.Properties.GetTokens().ToList();
+                            cxt.Properties.StoreTokens(tokens);
+
+                            return Task.CompletedTask;
+                        };
+                    });
+
+            services.AddreCAPTCHAV2(
+                x =>
+                {
+                    x.SiteKey = Configuration["Authentication:reCAPTCHA:SiteKey"];
+                    x.SiteSecret = Configuration["Authentication:reCAPTCHA:SecretKey"];
+                });
 
             var appData = Path.Combine(Environment.WebRootPath, "AppData");
 
@@ -161,11 +170,12 @@ namespace m4d
             services.AddSingleton(new RecomputeMarkerService(appData));
 
             services.AddControllers().AddNewtonsoftJson()
-                .AddNewtonsoftJson(options =>
-                {
-                    options.SerializerSettings.ContractResolver =
-                        new DefaultContractResolver();
-                });
+                .AddNewtonsoftJson(
+                    options =>
+                    {
+                        options.SerializerSettings.ContractResolver =
+                            new DefaultContractResolver();
+                    });
 
             services.AddAutoMapper(
                 typeof(SongProfile),
@@ -179,7 +189,10 @@ namespace m4d
             DanceMusicContext context, UserManager<ApplicationUser> userManager,
             ISearchServiceManager searchService, IDanceStatsManager stats)
         {
-            if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
 
             var options = new RewriteOptions();
             options.AddRedirectToHttps();
@@ -191,43 +204,45 @@ namespace m4d
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.Use(async (cxt, next) =>
-            {
-                var url = cxt.Request.Path.Value;
-                var blog = "/blog";
-                if (url != null)
+            app.Use(
+                async (cxt, next) =>
                 {
-                    var idx = url.IndexOf(blog);
-                    if (idx != -1)
+                    var url = cxt.Request.Path.Value;
+                    var blog = "/blog";
+                    if (url != null)
                     {
-                        var path = url.Substring(idx + blog.Length);
-                        cxt.Response.Redirect($"https://music4dance.blog{path}");
-                        return;
+                        var idx = url.IndexOf(blog);
+                        if (idx != -1)
+                        {
+                            var path = url.Substring(idx + blog.Length);
+                            cxt.Response.Redirect($"https://music4dance.blog{path}");
+                            return;
+                        }
                     }
-                }
 
-                await next();
-            });
+                    await next();
+                });
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllerRoute(
-                    "Dances",
-                    "dances/{group}/{dance}",
-                    new {controller = "dance", action = "GroupRedirect"});
-                endpoints.MapControllerRoute(
-                    "DanceEdit",
-                    "dances/edit",
-                    new {controller = "dance", action = "edit"});
-                endpoints.MapControllerRoute(
-                    "DanceGroup",
-                    "dances/{dance?}",
-                    new {controller = "dance", action = "index"});
-                endpoints.MapControllerRoute(
-                    "default",
-                    "{controller=Home}/{action=Index}/{id?}");
-                endpoints.MapRazorPages();
-            });
+            app.UseEndpoints(
+                endpoints =>
+                {
+                    endpoints.MapControllerRoute(
+                        "Dances",
+                        "dances/{group}/{dance}",
+                        new { controller = "dance", action = "GroupRedirect" });
+                    endpoints.MapControllerRoute(
+                        "DanceEdit",
+                        "dances/edit",
+                        new { controller = "dance", action = "edit" });
+                    endpoints.MapControllerRoute(
+                        "DanceGroup",
+                        "dances/{dance?}",
+                        new { controller = "dance", action = "index" });
+                    endpoints.MapControllerRoute(
+                        "default",
+                        "{controller=Home}/{action=Index}/{id?}");
+                    endpoints.MapRazorPages();
+                });
 
             var dms = new DanceMusicService(context, userManager, searchService, stats);
             stats.Initialize(dms);

@@ -11,21 +11,26 @@ namespace m4dModels
     {
         #region Properties
 
-        [JsonProperty] public string Key { get; set; }
+        [JsonProperty]
+        public string Key { get; set; }
 
         // The user visible tag
         public string Value => Key.Substring(0, Key.IndexOf(':'));
 
-        [JsonProperty] public DateTime Modified { get; set; }
+        [JsonProperty]
+        public DateTime Modified { get; set; }
 
         // A single tag category/namespace
         public string Category => Key.Substring(Key.IndexOf(':') + 1);
 
         // The total number of references to this tag
-        [JsonProperty] public int Count { get; set; }
+        [JsonProperty]
+        public int Count { get; set; }
 
         // For tag rings, point to the 'primary' variation of the tag
-        [JsonProperty] public string PrimaryId { get; set; }
+        [JsonProperty]
+        public string PrimaryId { get; set; }
+
         public virtual TagGroup Primary { get; set; }
         public virtual IList<TagGroup> Children { get; set; }
 
@@ -96,7 +101,11 @@ namespace m4dModels
         public TagGroup GetPrimary()
         {
             var p = this;
-            while (p.Primary != null) p = p.Primary;
+            while (p.Primary != null)
+            {
+                p = p.Primary;
+            }
+
             return p;
         }
 
@@ -110,9 +119,13 @@ namespace m4dModels
             var sb = new StringBuilder();
 
             foreach (var c in tag)
+            {
                 if (char.IsLetterOrDigit(c))
+                {
                     sb.Append(c);
+                }
                 else
+                {
                     switch (c)
                     {
                         case '-':
@@ -133,19 +146,30 @@ namespace m4dModels
                         default:
                             int i = c;
                             if (i > 256)
+                            {
                                 throw new ArgumentOutOfRangeException(
                                     $"Invalid tag character: {c}");
+                            }
                             else
+                            {
                                 sb.AppendFormat("-{0:x2}", i);
+                            }
+
                             break;
                     }
+                }
+            }
 
             return sb.ToString();
         }
 
         private static bool IsHexDigit(char c)
         {
-            if (char.IsDigit(c)) return true;
+            if (char.IsDigit(c))
+            {
+                return true;
+            }
+
             c = char.ToLower(c);
             return c >= 'a' && c <= 'f';
         }
@@ -167,8 +191,10 @@ namespace m4dModels
                 {
                     ich += 1;
                     if (ich == cch)
+                    {
                         throw new ArgumentOutOfRangeException(
                             $"Invalid tags: ends with escape: '{tag}'");
+                    }
 
                     var c1 = tag[ich];
                     switch (c1)
@@ -194,17 +220,21 @@ namespace m4dModels
                                 var i = ConvertHexDigit(c1) * 16;
                                 ich += 1;
                                 if (ich == cch)
+                                {
                                     throw new ArgumentOutOfRangeException(
                                         $"Invalid tags: ends with escape + single digit: '{tag}'");
+                                }
 
                                 var c2 = tag[ich];
                                 if (!IsHexDigit(c2))
+                                {
                                     throw new ArgumentOutOfRangeException(
                                         $"Invalid tags: invalid escape at {ich}: '{tag}'");
+                                }
 
                                 i += ConvertHexDigit(c2);
 
-                                sb.Append((char) i);
+                                sb.Append((char)i);
                             }
                             else
                             {
@@ -247,7 +277,11 @@ namespace m4dModels
 
         public void AddChild(TagGroup tagGroup)
         {
-            if (Children == null) Children = new List<TagGroup>();
+            if (Children == null)
+            {
+                Children = new List<TagGroup>();
+            }
+
             Children.Add(tagGroup);
         }
     }

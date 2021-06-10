@@ -7,7 +7,8 @@ namespace m4d.ViewModels
 {
     public class ArtistViewModel : SongListModel
     {
-        [Key] public string Artist { get; set; }
+        [Key]
+        public string Artist { get; set; }
 
         public static ArtistViewModel Create(
             string name, string user,
@@ -20,7 +21,7 @@ namespace m4d.ViewModels
             {
                 Artist = name,
                 UserName = user,
-                Filter = mapper.Map<SongFilterSparse>(new SongFilter {Action = "Artist"}),
+                Filter = mapper.Map<SongFilterSparse>(new SongFilter { Action = "Artist" }),
                 Songs = list.Select(mapper.Map<SongSparse>).ToList(),
                 Histories = list.Select(s => s.GetHistory(mapper)).ToList()
             };

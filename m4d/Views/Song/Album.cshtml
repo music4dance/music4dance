@@ -4,7 +4,11 @@
 @{
     ViewBag.Title = $"Artist: {Model.Title}";
     ViewBag.Description = $"Songs for dancing on {Model.Title}";
-    var converterModel = new ObjectConverterModel {Name = "model", Model = Model};
+    var converterModel = new ObjectConverterModel
+    {
+        Name = "model",
+        Model = Model
+    };
 }
 
 <div id="app"></div>

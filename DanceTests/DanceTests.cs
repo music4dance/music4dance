@@ -127,12 +127,18 @@ namespace DanceTests
                 var s = dance.ToString();
 
                 if (expected != null)
+                {
                     if (i < expected.Length)
                     {
                         var match = string.Equals(s, expected[i]);
-                        if (!match) Debug.Write("*");
+                        if (!match)
+                        {
+                            Debug.Write("*");
+                        }
+
                         succeeded &= match;
                     }
+                }
 
                 Debug.WriteLine("\"" + s + "\",");
 
@@ -140,8 +146,11 @@ namespace DanceTests
             }
 
             if (expected != null)
-                Assert.AreEqual<int>(i, expected.Length,
+            {
+                Assert.AreEqual<int>(
+                    i, expected.Length,
                     "Less than the expected number of matches");
+            }
 
             Debug.WriteLine("------");
 

@@ -20,9 +20,14 @@ namespace DanceLibrary
         {
             Name = name;
             if (longName == null)
+            {
                 LongName = Name;
+            }
             else
+            {
                 LongName = longName;
+            }
+
             Value = true;
         }
 
@@ -46,24 +51,28 @@ namespace DanceLibrary
 
         static FilterObject()
         {
-            _filters[Tags.Style] = new FilterObject(Tags.Style,
+            _filters[Tags.Style] = new FilterObject(
+                Tags.Style,
                 new[]
                 {
                     "International Standard", "International Latin", "American Smooth",
                     "American Rhythm", "Social", "Performance"
-                }, new string[] {null, null, null, null, null, null});
-            _filters[Tags.Organization] = new FilterObject(Tags.Organization,
-                new[] {"NDCA", "DanceSport", "Ad-Hoc"},
+                }, new string[] { null, null, null, null, null, null });
+            _filters[Tags.Organization] = new FilterObject(
+                Tags.Organization,
+                new[] { "NDCA", "DanceSport", "Ad-Hoc" },
                 new[]
                 {
                     "National Dance Council of America (NDCA)",
                     "International DanceSport Federation (IDSF)", "No Offical Organization"
                 });
-            _filters[Tags.Competitor] = new FilterObject(Tags.Competitor,
-                new[] {"Professional", "Amateur", "ProAm"},
-                new[] {null, null, "Pro/Am"});
-            _filters[Tags.Level] = new FilterObject(Tags.Level,
-                new[] {"Bronze", "Silver", "Gold"}, new string[] {null, null, null});
+            _filters[Tags.Competitor] = new FilterObject(
+                Tags.Competitor,
+                new[] { "Professional", "Amateur", "ProAm" },
+                new[] { null, null, "Pro/Am" });
+            _filters[Tags.Level] = new FilterObject(
+                Tags.Level,
+                new[] { "Bronze", "Silver", "Gold" }, new string[] { null, null, null });
         }
 
         public FilterObject(string type, string[] names, string[] longNames)
@@ -90,7 +99,10 @@ namespace DanceLibrary
 
         private void SetTypeValues(bool value)
         {
-            foreach (var fi in _sortedValues) fi.Value = value;
+            foreach (var fi in _sortedValues)
+            {
+                fi.Value = value;
+            }
         }
 
         public static void SetValue(string type, string name, bool value)
@@ -105,14 +117,22 @@ namespace DanceLibrary
             if (name == Tags.All)
             {
                 var ret = false;
-                foreach (var item in fo._sortedValues) ret |= item.Value;
+                foreach (var item in fo._sortedValues)
+                {
+                    ret |= item.Value;
+                }
+
                 return ret;
             }
             else
             {
                 var ret = false;
-                var a = name.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries);
-                foreach (var n in a) ret |= fo.GetValue(n);
+                var a = name.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var n in a)
+                {
+                    ret |= fo.GetValue(n);
+                }
+
                 return ret;
             }
         }
@@ -126,12 +146,18 @@ namespace DanceLibrary
         public static bool IsCovered(string name, string values)
         {
             if (values == Tags.All)
+            {
                 return true;
+            }
 
             var fo = _filters[name];
             foreach (var fi in fo._sortedValues)
+            {
                 if (fi.Value && !values.Contains(fi.Name))
+                {
                     return false;
+                }
+            }
 
             return true;
         }
@@ -149,7 +175,9 @@ namespace DanceLibrary
             var ret = IsCovered(Tags.Organization, orgs);
 
             if (ret && string.Equals(orgs, "NDCA"))
+            {
                 ret = IsCovered(Tags.Level, levels) && IsCovered(Tags.Competitor, competitors);
+            }
 
             return ret;
         }
@@ -181,7 +209,10 @@ namespace DanceLibrary
         /// <param name="value">The direction to set all of the values</param>
         public static void SetAll(bool value)
         {
-            foreach (var fo in _filters.Values) fo.SetTypeValues(value);
+            foreach (var fo in _filters.Values)
+            {
+                fo.SetTypeValues(value);
+            }
         }
 
         /// <summary>
@@ -197,7 +228,7 @@ namespace DanceLibrary
         public void TryParse(string s)
         {
             var valid = true;
-            var a = s.Split(new[] {',', ':'}, StringSplitOptions.RemoveEmptyEntries);
+            var a = s.Split(new[] { ',', ':' }, StringSplitOptions.RemoveEmptyEntries);
 
             if (!a[0].Equals(_type) || a.Length - 1 != _sortedValues.Count)
             {
@@ -210,9 +241,13 @@ namespace DanceLibrary
             {
                 var temp = true;
                 if (valid && bool.TryParse(a[i + 1], out temp))
+                {
                     _sortedValues[i].Value = temp;
+                }
                 else
+                {
                     _sortedValues[i].Value = true;
+                }
             }
         }
 

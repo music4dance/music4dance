@@ -17,7 +17,8 @@ namespace m4d.ViewModels
 
         public virtual string Controller => "dances";
 
-        [JsonIgnore] public virtual string Parameters => null;
+        [JsonIgnore]
+        public virtual string Parameters => null;
 
         public string QueryString => Parameters == null ? null : $"filter={Parameters}";
     }

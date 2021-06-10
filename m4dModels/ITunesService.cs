@@ -7,7 +7,8 @@ namespace m4dModels
     public class ITunesService : MusicService
     {
         public ITunesService() :
-            base(ServiceType.ITunes,
+            base(
+                ServiceType.ITunes,
                 'I',
                 "ITunes",
                 "itunes_store",
@@ -22,7 +23,10 @@ namespace m4dModels
         {
             // TODO: itunes would need a different kind of link for album only lookup...
             if (pt == PurchaseType.Song && album != null && song != null)
+            {
                 return string.Format(AssociateLink, song, album);
+            }
+
             return null;
         }
 
@@ -37,7 +41,10 @@ namespace m4dModels
             foreach (var track in tracks)
             {
                 var st = InternalParseTrackResults(track);
-                if (st != null) ret.Add(st);
+                if (st != null)
+                {
+                    ret.Add(st);
+                }
             }
 
             return ret;
@@ -52,11 +59,16 @@ namespace m4dModels
 
         private ServiceTrack InternalParseTrackResults(dynamic track)
         {
-            if (!string.Equals("song", (string) track.kind)) return null;
+            if (!string.Equals("song", (string)track.kind))
+            {
+                return null;
+            }
 
             int? duration = null;
             if (track.trackTimeMillis != null)
-                duration = ((int) track.trackTimeMillis + 500) / 1000;
+            {
+                duration = ((int)track.trackTimeMillis + 500) / 1000;
+            }
 
             return new ServiceTrack
             {
@@ -70,7 +82,7 @@ namespace m4dModels
                 //                        Link = track.trackViewUrl,
                 ReleaseDate = track.releaseDate,
                 Duration = duration,
-                Genres = new string[] {track.primaryGenreName},
+                Genres = new string[] { track.primaryGenreName },
                 TrackNumber = track.trackNumber,
                 SampleUrl = track.PreviewUrl
             };

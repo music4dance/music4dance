@@ -23,22 +23,26 @@ namespace m4dModels
             {
                 {
                     "basica",
-                    new SearchServiceInfo("basica", "msc4dnc", "songs-a", basicAuth.AdminKey,
+                    new SearchServiceInfo(
+                        "basica", "msc4dnc", "songs-a", basicAuth.AdminKey,
                         basicAuth.QueryKey)
                 },
                 {
                     "basicb",
-                    new SearchServiceInfo("basicb", "msc4dnc", "songs-b", basicAuth.AdminKey,
+                    new SearchServiceInfo(
+                        "basicb", "msc4dnc", "songs-b", basicAuth.AdminKey,
                         basicAuth.QueryKey)
                 },
                 {
                     "basicc",
-                    new SearchServiceInfo("basicc", "msc4dnc", "songs-c", basicAuth.AdminKey,
+                    new SearchServiceInfo(
+                        "basicc", "msc4dnc", "songs-c", basicAuth.AdminKey,
                         basicAuth.QueryKey)
                 },
                 {
                     "backup",
-                    new SearchServiceInfo("backup", "m4d-backup", "songs", backupAuth.AdminKey,
+                    new SearchServiceInfo(
+                        "backup", "m4d-backup", "songs", backupAuth.AdminKey,
                         backupAuth.QueryKey)
                 }
             };
@@ -57,7 +61,10 @@ namespace m4dModels
 
         public SearchServiceInfo GetInfo(string id = null)
         {
-            if (id == null || id == "default") id = DefaultId;
+            if (id == null || id == "default")
+            {
+                id = DefaultId;
+            }
 
             return _info[id];
         }

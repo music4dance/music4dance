@@ -21,22 +21,65 @@
     ViewData["BreadCrumbs"] = new List<BreadCrumbItem>
     {
         BreadCrumbItem.HomeItem,
-        new() {Title = userName, Link = "/Identity/Account/Manage"},
-        new() {Title = ViewBag.Title, Active = true}
+        new()
+        {
+            Title = userName,
+            Link = "/Identity/Account/Manage"
+        },
+        new()
+        {
+            Title = ViewBag.Title,
+            Active = true
+        }
     };
 }
 
 <h1>@ViewBag.Title</h1>
 
 <div class="row">
-    <p class="col-sm"> @Html.ActionLink("Basic Search", "index", "song", new {user = userName}, new {id = "saved-search"})</p>
-    <p class="col-sm" style="text-align: right; padding-right: 20px">@Html.ActionLink("Advanced Search", "advancedsearchform", "song", new {filter}, new {id = "advanced-search"})</p>
+    <p class="col-sm">
+        @Html.ActionLink("Basic Search", "index", "song", new
+        {
+            user = userName
+        }, new
+        {
+            id = "saved-search"
+        })
+    </p>
+    <p class="col-sm" style="text-align: right; padding-right: 20px">
+        @Html.ActionLink("Advanced Search", "advancedsearchform", "song", new
+        {
+            filter
+        }, new
+        {
+            id = "advanced-search"
+        })
+    </p>
 </div>
 
 <div class="row" style="margin-bottom: 10px">
     <div class="btn-group btn-group-justified col-sm" role="group" aria-label="...">
-        @Html.ActionLink("Most Popular", "Index", "Searches", new {showDetails, user = userName, filter}, new {role = "button", @class = "btn btn-default " + recentActive})
-        @Html.ActionLink("Most Recent", "Index", "Searches", new {showDetails, user = userName, sort = "recent", filter}, new {role = "button", @class = "btn btn-default " + popularActive})
+        @Html.ActionLink("Most Popular", "Index", "Searches", new
+        {
+            showDetails,
+            user = userName,
+            filter
+        }, new
+        {
+            role = "button",
+            @class = "btn btn-default " + recentActive
+        })
+        @Html.ActionLink("Most Recent", "Index", "Searches", new
+        {
+            showDetails,
+            user = userName,
+            sort = "recent",
+            filter
+        }, new
+        {
+            role = "button",
+            @class = "btn btn-default " + popularActive
+        })
     </div>
 </div>
 
@@ -76,7 +119,10 @@
 
             <tr>
                 <td>
-                    @Html.ActionLink(@t.Description, "Index", "Song", new {filter = t}, null)
+                    @Html.ActionLink(@t.Description, "Index", "Song", new
+                    {
+                        filter = t
+                    }, null)
                 </td>
                 @if (showDetails)
                 {
@@ -103,5 +149,10 @@
 
 @if (admin)
 {
-    @Html.ActionLink("Toggle Details", "Index", "Searches", new {showDetails = !showDetails, user = userName, sort}, null)
+    @Html.ActionLink("Toggle Details", "Index", "Searches", new
+    {
+        showDetails = !showDetails,
+        user = userName,
+        sort
+    }, null)
 }

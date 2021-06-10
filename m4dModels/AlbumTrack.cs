@@ -19,7 +19,11 @@ namespace m4dModels
         public AlbumTrack(string title, TrackNumber track)
         {
             var sb = new StringBuilder(title);
-            if (track != null) sb.AppendFormat("|{0}", track);
+            if (track != null)
+            {
+                sb.AppendFormat("|{0}", track);
+            }
+
             _val = sb.ToString();
         }
 
@@ -29,15 +33,22 @@ namespace m4dModels
 
         private string[] Split()
         {
-            var ret = new string[] {null, null};
+            var ret = new string[] { null, null };
 
-            if (_val == null) return ret;
+            if (_val == null)
+            {
+                return ret;
+            }
 
             var val = _val;
             var idx = val.LastIndexOf('|');
             if (idx == -1 || !Validaor.IsMatch(_val.Substring(idx + 1)))
             {
-                if (idx == val.Length - 1) val = val.Substring(0, idx);
+                if (idx == val.Length - 1)
+                {
+                    val = val.Substring(0, idx);
+                }
+
                 ret[0] = val;
             }
             else
@@ -67,7 +78,10 @@ namespace m4dModels
         {
             var track = other as AlbumTrack;
             if (track != null)
+            {
                 return string.Compare(_val, track._val, StringComparison.OrdinalIgnoreCase);
+            }
+
             return -1;
         }
 
@@ -83,7 +97,11 @@ namespace m4dModels
 
         public static bool operator ==(AlbumTrack a, AlbumTrack b)
         {
-            if ((object) a == null || (object) b == null) return (object) a == (object) b;
+            if ((object)a == null || (object)b == null)
+            {
+                return (object)a == (object)b;
+            }
+
             return a.Equals(b);
         }
 

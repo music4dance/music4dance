@@ -19,9 +19,14 @@ namespace m4d.Utilities
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     public class AccessToken
     {
-        [DataMember] public string access_token { get; set; }
-        [DataMember] public string token_type { get; set; }
-        [DataMember] public int expires_in { get; set; }
+        [DataMember]
+        public string access_token { get; set; }
+
+        [DataMember]
+        public string token_type { get; set; }
+
+        [DataMember]
+        public int expires_in { get; set; }
 
         public virtual TimeSpan ExpiresIn => TimeSpan.FromSeconds(expires_in - 60);
     }
@@ -56,12 +61,17 @@ namespace m4d.Utilities
             lock (this)
             {
                 if (Token != null)
+                {
                     return Token;
+                }
 
                 Token = CreateToken();
                 if (AccessTokenRenewer == null)
-                    AccessTokenRenewer = new Timer(OnTokenExpiredCallback, this, Token.ExpiresIn,
+                {
+                    AccessTokenRenewer = new Timer(
+                        OnTokenExpiredCallback, this, Token.ExpiresIn,
                         Token.ExpiresIn);
+                }
 
                 return Token;
             }
@@ -92,7 +102,8 @@ namespace m4d.Utilities
                 Convert.ToBase64String(Encoding.ASCII.GetBytes(ClientId + ":" + ClientSecret));
             webRequest.Headers.Add("Authorization", "Basic " + svcCredentials);
 
-            var request = _request ?? (_request = string.Format(RequestFormat,
+            var request = _request ?? (_request = string.Format(
+                RequestFormat,
                 Uri.EscapeDataString(ClientId), Uri.EscapeDataString(ClientSecret))) + RequestExtra;
             var bytes = Encoding.ASCII.GetBytes(request);
             webRequest.ContentLength = bytes.Length;
@@ -106,7 +117,7 @@ namespace m4d.Utilities
                 using var webResponse = webRequest.GetResponse();
                 var serializer = new DataContractJsonSerializer(typeof(AccessToken));
                 //Get deserialized object from JSON stream
-                return (AccessToken) serializer.ReadObject(webResponse.GetResponseStream());
+                return (AccessToken)serializer.ReadObject(webResponse.GetResponseStream());
             }
             catch (Exception e)
             {
@@ -143,7 +154,10 @@ namespace m4d.Utilities
                 !string.IsNullOrWhiteSpace(principal.Identity.Name))
             {
                 var userName = principal.Identity.Name;
-                if (s_users.TryGetValue(userName, out auth)) return auth;
+                if (s_users.TryGetValue(userName, out auth))
+                {
+                    return auth;
+                }
 
                 if (authResult?.Properties != null)
                 {
@@ -177,22 +191,28 @@ namespace m4d.Utilities
             var token = new AccessToken
             {
                 access_token = accessToken,
-                expires_in = (int) expiresIn.TotalSeconds
+                expires_in = (int)expiresIn.TotalSeconds
             };
 
             var refreshToken = authResult.Properties.GetTokenValue("refresh_token");
 
             if (refreshToken == null)
+            {
                 return null;
+            }
 
             AdmAuthentication auth = null;
             if (serviceType == ServiceType.Spotify)
+            {
                 auth = new SpotUserAuthentication(configuration)
                 {
                     RefreshToken = refreshToken
                 };
+            }
             else
+            {
                 return null;
+            }
 
             // TODO: Figure out if there is a way to get the expiresPeriod programmatically
             var expirePeriod = new TimeSpan(0, 59, 0);

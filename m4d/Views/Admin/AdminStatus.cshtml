@@ -25,7 +25,10 @@
     if (!string.IsNullOrEmpty(Model.Exception.StackTrace))
     {
         <h3>Stack Trace:</h3>
-        var frames = Model.Exception.StackTrace.Split(new[] {'\n'}, StringSplitOptions.RemoveEmptyEntries);
+        var frames = Model.Exception.StackTrace.Split(new[]
+        {
+            '\n'
+        }, StringSplitOptions.RemoveEmptyEntries);
         <ul>
             @foreach (var s in frames)
             {

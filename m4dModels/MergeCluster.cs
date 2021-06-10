@@ -27,7 +27,10 @@ namespace m4dModels
             int level)
         {
             if (level == s_mergeCandidateLevel && s_mergeCandidateCache != null)
+            {
                 return s_mergeCandidateCache;
+            }
+
             var clusters = new Dictionary<int, MergeCluster>();
 
             // ReSharper disable once LoopCanBePartlyConvertedToQuery
@@ -35,7 +38,10 @@ namespace m4dModels
             foreach (var song in dms.LoadLightSongs())
             {
                 var hash = song.TitleHash;
-                if (level != 2) hash = Song.CreateTitleHash(song.Title + song.Artist);
+                if (level != 2)
+                {
+                    hash = Song.CreateTitleHash(song.Title + song.Artist);
+                }
 
                 if (!clusters.TryGetValue(hash, out var mc))
                 {
@@ -53,6 +59,7 @@ namespace m4dModels
                     .TakeWhile(cluster => ret.Count + cluster.Songs.Count <= n)
                     .Where(cluster => cluster.Songs.Count > 1))
                 // Level 2 is all songs with a similar title
+            {
                 if (level == 2)
                 {
                     ret.AddRange(cluster.Songs);
@@ -67,14 +74,20 @@ namespace m4dModels
                         var added = false;
                         foreach (var lump in lumps)
                         {
-                            if (!s.Equivalent(lump.Songs[0])) continue;
+                            if (!s.Equivalent(lump.Songs[0]))
+                            {
+                                continue;
+                            }
 
                             lump.Songs.Add(s);
                             added = true;
                             break;
                         }
 
-                        if (added) continue;
+                        if (added)
+                        {
+                            continue;
+                        }
 
                         var mc = new MergeCluster(0);
                         mc.Songs.Add(s);
@@ -83,9 +96,15 @@ namespace m4dModels
 
                     foreach (var l in lumps)
                     {
-                        if (ret.Count + l.Songs.Count > n) break;
+                        if (ret.Count + l.Songs.Count > n)
+                        {
+                            break;
+                        }
 
-                        if (l.Songs.Count > 1) ret.AddRange(l.Songs);
+                        if (l.Songs.Count > 1)
+                        {
+                            ret.AddRange(l.Songs);
+                        }
                     }
                 }
 
@@ -115,18 +134,32 @@ namespace m4dModels
 
                     if (emptyArtist)
                         // Add all of the songs in the cluster
+                    {
                         ret.AddRange(cluster.Songs);
+                    }
                     else
+                    {
                         foreach (var l in lumps.Values)
                         {
                             // Level 3 == level but filter out lumps with lengths that are too divergents (epsilon > 20?)
-                            if (level == 3) l.Songs = FilterLength(l.Songs);
+                            if (level == 3)
+                            {
+                                l.Songs = FilterLength(l.Songs);
+                            }
 
-                            if (ret.Count + l.Songs.Count > n) break;
+                            if (ret.Count + l.Songs.Count > n)
+                            {
+                                break;
+                            }
 
-                            if (l.Songs.Count > 1) ret.AddRange(l.Songs);
+                            if (l.Songs.Count > 1)
+                            {
+                                ret.AddRange(l.Songs);
+                            }
                         }
+                    }
                 }
+            }
 
             s_mergeCandidateCache = ret;
             s_mergeCandidateLevel = level;
@@ -136,17 +169,26 @@ namespace m4dModels
 
         public static void RemoveMergeCandidate(Song song)
         {
-            if (s_mergeCandidateCache == null) return;
+            if (s_mergeCandidateCache == null)
+            {
+                return;
+            }
 
             var idx = s_mergeCandidateCache.FindIndex(s => s.SongId == song.SongId);
-            if (idx == -1) return;
+            if (idx == -1)
+            {
+                return;
+            }
 
             s_mergeCandidateCache.RemoveAt(idx);
         }
 
         private static List<Song> FilterLength(List<Song> lump)
         {
-            if (lump.Count < 2) return lump;
+            if (lump.Count < 2)
+            {
+                return lump;
+            }
 
             var total = 0;
             var count = 0;
@@ -158,12 +200,19 @@ namespace m4dModels
             }
 
             // No songs have length, so this filter makes no sense
-            if (count == 0) return lump;
+            if (count == 0)
+            {
+                return lump;
+            }
 
             var avg = total / count;
             var ret = new List<Song>();
-            foreach (var song in lump.Where(song =>
-                !song.Length.HasValue || Math.Abs(song.Length.Value - avg) < 20)) ret.Add(song);
+            foreach (var song in lump.Where(
+                song =>
+                    !song.Length.HasValue || Math.Abs(song.Length.Value - avg) < 20))
+            {
+                ret.Add(song);
+            }
 
             return ret;
         }

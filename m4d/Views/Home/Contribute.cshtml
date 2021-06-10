@@ -37,7 +37,11 @@
 
     if (User.Identity.IsAuthenticated)
     {
-        using (Html.BeginForm("Purchase", "Home", FormMethod.Post, new {id = "purchase", @class = "form-inline"}))
+        using (Html.BeginForm("Purchase", "Home", FormMethod.Post, new
+        {
+            id = "purchase",
+            @class = "form-inline"
+        }))
         {
             @Html.AntiForgeryToken()
             <input type="hidden" name="kind" value="Purchase"/>
@@ -59,7 +63,11 @@
     }
 
     <h2>Donate</h2>
-    using (Html.BeginForm("Purchase", "Home", FormMethod.Post, new {id = "contribute", @class = "form-inline"}))
+    using (Html.BeginForm("Purchase", "Home", FormMethod.Post, new
+    {
+        id = "contribute",
+        @class = "form-inline"
+    }))
     {
         @Html.AntiForgeryToken()
 

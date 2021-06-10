@@ -12,8 +12,11 @@ namespace m4dModels
     {
         #region Properties
 
-        [DataMember] public string Value { get; set; }
-        [DataMember] public int Count { get; set; }
+        [DataMember]
+        public string Value { get; set; }
+
+        [DataMember]
+        public int Count { get; set; }
 
         public string TagValue => Value.Split(':')[0];
 
@@ -34,7 +37,11 @@ namespace m4dModels
         {
             if (Parse(serialized))
             {
-                if (count.HasValue) Count = count.Value;
+                if (count.HasValue)
+                {
+                    Count = count.Value;
+                }
+
                 return;
             }
 
@@ -65,10 +72,16 @@ namespace m4dModels
         public static bool operator ==(TagCount a, TagCount b)
         {
             // If both are null, or both are same instance, return true.
-            if (ReferenceEquals(a, b)) return true;
+            if (ReferenceEquals(a, b))
+            {
+                return true;
+            }
 
             // Handle a is null case.
-            if ((object) a == null) return (object) b == null;
+            if ((object)a == null)
+            {
+                return (object)b == null;
+            }
 
             return a.Equals(b);
         }
@@ -83,15 +96,26 @@ namespace m4dModels
         private bool Parse(string s)
         {
             var ret = true;
-            var list = s.Split(new[] {':'}, StringSplitOptions.RemoveEmptyEntries).ToList();
+            var list = s.Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries).ToList();
             var c = 1;
 
-            if (list.Count < 1 || list.Count > 3) return false;
+            if (list.Count < 1 || list.Count > 3)
+            {
+                return false;
+            }
 
-            if (list.Count > 1) ret = int.TryParse(list[^1], out c);
+            if (list.Count > 1)
+            {
+                ret = int.TryParse(list[^1], out c);
+            }
+
             Count = c;
             Value = list[0].Trim();
-            if (list.Count > 2 || ret == false) Value += ":" + list[1];
+            if (list.Count > 2 || ret == false)
+            {
+                Value += ":" + list[1];
+            }
+
             return true;
         }
 

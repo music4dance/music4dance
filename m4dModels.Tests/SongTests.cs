@@ -78,8 +78,8 @@ namespace m4dModels.Tests
             var song = new Song();
             song.Load(@"User=batch	Title=Test	Artist=Me	Tempo=30.0", Service);
 
-            song.UpdateDanceRatings(new[] {"RMB", "CHA"}, 5);
-            song.UpdateDanceRatings(new[] {"FXT"}, 7);
+            song.UpdateDanceRatings(new[] { "RMB", "CHA" }, 5);
+            song.UpdateDanceRatings(new[] { "FXT" }, 7);
 
             // TESTTODO: Figure out if we need to do the user part of this
             //Create an test an initial small list of dance ratings
@@ -88,12 +88,12 @@ namespace m4dModels.Tests
 
             // Now mix it up a bit
 
-            song.UpdateDanceRatings(new[] {"RMB", "FXT"}, 3);
+            song.UpdateDanceRatings(new[] { "RMB", "FXT" }, 3);
             Assert.IsTrue(song.DanceRatings.Count == 3);
             var drT = song.FindRating("RMB");
             Assert.IsTrue(drT.Weight == 8);
 
-            song.UpdateDanceRatings(new[] {"CHA", "FXT"}, -5);
+            song.UpdateDanceRatings(new[] { "CHA", "FXT" }, -5);
             Assert.IsTrue(song.DanceRatings.Count == 2);
             drT = song.FindRating("FXT");
             Assert.IsTrue(drT.Weight == 5);
@@ -319,7 +319,7 @@ namespace m4dModels.Tests
                 track, "WCS", "Testing:Other|Crazy:Music",
                 "Dances:Style|Mellow:Tempo");
 
-            var actual = DanceMusicTester.ReplaceTime(song.Serialize(new[] {Song.NoSongId}));
+            var actual = DanceMusicTester.ReplaceTime(song.Serialize(new[] { Song.NoSongId }));
             //Trace.WriteLine(actual);
 
             const string expected =
@@ -341,7 +341,8 @@ namespace m4dModels.Tests
             Assert.AreEqual(2, song.DanceRatings.Count);
             Assert.AreEqual(1, song.DanceRatings.Count(dr => dr.DanceId == "MGA"));
             Assert.AreEqual(0, song.DanceRatings.Count(dr => dr.DanceId == "ATN"));
-            Assert.AreEqual("4/4:Tempo:1|Latin:Music:1|Milonga:Dance:1|Raíces:Music:1",
+            Assert.AreEqual(
+                "4/4:Tempo:1|Latin:Music:1|Milonga:Dance:1|Raíces:Music:1",
                 song.TagSummary.ToString());
         }
 
@@ -394,7 +395,8 @@ namespace m4dModels.Tests
             song.Load(init, Service);
 
             Assert.AreEqual(0, song.DanceRatings.Count);
-            Assert.AreEqual("4/4:Tempo:1|Electropop:Music:1|Pop:Music:2|Post Teen Pop:Music:1",
+            Assert.AreEqual(
+                "4/4:Tempo:1|Electropop:Music:1|Pop:Music:2|Post Teen Pop:Music:1",
                 song.TagSummary.ToString());
         }
 

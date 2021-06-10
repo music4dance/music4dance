@@ -24,8 +24,9 @@ namespace m4dModels
 
         public int TagCount(string name)
         {
-            var tc = Tags.FirstOrDefault(t =>
-                string.Equals(t.Value, name, StringComparison.InvariantCultureIgnoreCase));
+            var tc = Tags.FirstOrDefault(
+                t =>
+                    string.Equals(t.Value, name, StringComparison.InvariantCultureIgnoreCase));
             return tc?.Count ?? 0;
         }
 
@@ -37,7 +38,10 @@ namespace m4dModels
             {
                 var rg = tag.Value.Split(':');
 
-                if (rg[1] == type) tags.Add(rg[0].ToLower());
+                if (rg[1] == type)
+                {
+                    tags.Add(rg[0].ToLower());
+                }
             }
 
             return tags;
@@ -62,10 +66,16 @@ namespace m4dModels
 
         public TagSummary(FacetResults facets, IReadOnlyDictionary<string, TagGroup> tagMap)
         {
-            Summary = Serialize(Parse(string.Join("|",
-                facets.Keys.Select(key => string.Join("|",
-                    facets[key].Select(f => MassageTag(f.Value as string, key, f.Count, tagMap))
-                        .ToList())))));
+            Summary = Serialize(
+                Parse(
+                    string.Join(
+                        "|",
+                        facets.Keys.Select(
+                            key => string.Join(
+                                "|",
+                                facets[key].Select(
+                                        f => MassageTag(f.Value as string, key, f.Count, tagMap))
+                                    .ToList())))));
         }
 
         private static string MassageTag(string tvalue, string ttype, long? count,
@@ -74,7 +84,10 @@ namespace m4dModels
             var key =
                 $"{tvalue}:{SongFilter.TagClassFromName(ttype.Substring(0, ttype.Length - 4))}";
             TagGroup tt;
-            if (tagMap.TryGetValue(key.ToLower(), out tt)) key = tt.Key;
+            if (tagMap.TryGetValue(key.ToLower(), out tt))
+            {
+                key = tt.Key;
+            }
 
             return $"{key}:{count}";
         }
@@ -101,7 +114,11 @@ namespace m4dModels
         public bool HasTag(string tag)
         {
             var idx = Summary.IndexOf(tag, StringComparison.OrdinalIgnoreCase);
-            if (idx == -1) return false;
+            if (idx == -1)
+            {
+                return false;
+            }
+
             var tl = tag.Length;
             return (idx == 0 || Summary[idx - 1] == '|') &&
                 (Summary[idx + tl] == ':' || idx == Summary.Length - tl ||
@@ -113,10 +130,12 @@ namespace m4dModels
             var tags = Tags;
 
             if (added != null)
+            {
                 foreach (var s in added.Tags)
                 {
-                    var tc = tags.FirstOrDefault(t =>
-                        string.Equals(t.Value, s, StringComparison.InvariantCultureIgnoreCase));
+                    var tc = tags.FirstOrDefault(
+                        t =>
+                            string.Equals(t.Value, s, StringComparison.InvariantCultureIgnoreCase));
                     if (tc == null)
                     {
                         tc = new TagCount(s, 0);
@@ -126,16 +145,24 @@ namespace m4dModels
 
                     tc.Count += 1;
                 }
+            }
 
             if (removed != null)
-                foreach (var tc in removed.Tags.Select(s => tags.FirstOrDefault(
-                        t => string.Equals(t.Value, s,
-                            StringComparison.InvariantCultureIgnoreCase)))
+            {
+                foreach (var tc in removed.Tags.Select(
+                        s => tags.FirstOrDefault(
+                            t => string.Equals(
+                                t.Value, s,
+                                StringComparison.InvariantCultureIgnoreCase)))
                     .Where(tc => tc != null))
                 {
                     tc.Count -= 1;
-                    if (tc.Count <= 0) tags.Remove(tc);
+                    if (tc.Count <= 0)
+                    {
+                        tags.Remove(tc);
+                    }
                 }
+            }
 
             Summary = Serialize(tags);
         }
@@ -144,7 +171,10 @@ namespace m4dModels
         {
             var tags = Tags;
             var old = Tags.FirstOrDefault(t => t.Value == tag.Value);
-            if (old == null) return;
+            if (old == null)
+            {
+                return;
+            }
 
             tags.Remove(old);
             Summary = Serialize(tags);
@@ -158,9 +188,12 @@ namespace m4dModels
         {
             var tags = new List<TagCount>();
 
-            if (string.IsNullOrWhiteSpace(serialized)) return tags;
+            if (string.IsNullOrWhiteSpace(serialized))
+            {
+                return tags;
+            }
 
-            var rg = serialized.Split(new[] {'|'}, StringSplitOptions.RemoveEmptyEntries);
+            var rg = serialized.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
 
             tags.AddRange(rg.Select(s => new TagCount(s)));
 

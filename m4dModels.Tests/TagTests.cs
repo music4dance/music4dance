@@ -345,9 +345,13 @@ namespace m4dModels.Tests
                 var init = VerifiesInit[index];
                 var res = song.VerifyTags(init, false);
                 if (index < 3)
+                {
                     Assert.IsNotNull(res);
+                }
                 else
+                {
                     Assert.IsNull(res);
+                }
             }
         }
 

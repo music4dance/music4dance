@@ -30,11 +30,18 @@ namespace m4d.Utilities
 
             var agent = userAgent.ToLower();
 
-            if (!agent.Contains("spider") && !agent.Contains("bot")) return false;
+            if (!agent.Contains("spider") && !agent.Contains("bot"))
+            {
+                return false;
+            }
 
             lock (s_botHits)
             {
-                if (!s_botHits.TryGetValue(agent, out var count)) count = 0;
+                if (!s_botHits.TryGetValue(agent, out var count))
+                {
+                    count = 0;
+                }
+
                 s_botHits[agent] = count + 1;
             }
 
@@ -53,6 +60,6 @@ namespace m4d.Utilities
 
         public static int EmptyAgents { get; set; }
 
-        private static readonly HashSet<string> s_badBots = new() {"baiduspider"};
+        private static readonly HashSet<string> s_badBots = new() { "baiduspider" };
     }
 }

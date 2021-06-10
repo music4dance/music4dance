@@ -19,7 +19,9 @@ namespace m4dModels
         public DanceMusicContext CreateTransientContext()
         {
             if (ConnectionString == null)
+            {
                 throw new Exception("Cannot create a new dbcontext from a test context");
+            }
 
             var builder = new DbContextOptionsBuilder<DanceMusicContext>();
             builder.UseSqlServer(ConnectionString);
@@ -82,7 +84,8 @@ namespace m4dModels
             catch (Exception e) /* DbEntityValidationException */
             {
                 // CORETODO: Figure out if we can get to better error handling
-                Trace.WriteLineIf(TraceLevels.General.TraceError,
+                Trace.WriteLineIf(
+                    TraceLevels.General.TraceError,
                     $"Failed on SaveChanges {e.Message}");
 
                 //foreach (var err in e.EntityValidationErrors)

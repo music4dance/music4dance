@@ -13,7 +13,8 @@ namespace m4dModels
     internal class SpotifyService : MusicService
     {
         public SpotifyService() :
-            base(ServiceType.Spotify,
+            base(
+                ServiceType.Spotify,
                 'S',
                 "Spotify",
                 "spotify_client",
@@ -37,10 +38,12 @@ namespace m4dModels
 
             if (url.Contains("/playlist/"))
             {
-                var rg = url.Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries);
+                var rg = url.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
 
                 if (rg.Length != 6)
+                {
                     return null;
+                }
 
                 var user = rg[3];
                 var id = rg[5];
@@ -75,7 +78,10 @@ namespace m4dModels
         {
             var excludeMap = new HashSet<string>(excludeTracks ?? new List<string>());
 
-            if (results == null) return null;
+            if (results == null)
+            {
+                return null;
+            }
 
             var ret = new List<ServiceTrack>();
 
@@ -87,7 +93,9 @@ namespace m4dModels
                 try
                 {
                     if (track.track != null)
+                    {
                         trackT = track.track;
+                    }
                 }
                 catch (Exception)
                 {
@@ -96,7 +104,9 @@ namespace m4dModels
 
                 string trackId = trackT.id;
                 if (trackId != null && !excludeMap.Contains(trackId))
+                {
                     ret.Add(ParseTrackResults(trackT, getResult));
+                }
             }
 
             try
@@ -107,7 +117,10 @@ namespace m4dModels
                 if (a != null)
                 {
                     var name = results.name;
-                    foreach (var t in ret) t.Album = name;
+                    foreach (var t in ret)
+                    {
+                        t.Album = name;
+                    }
                 }
             }
             catch (Exception)
@@ -126,7 +139,9 @@ namespace m4dModels
 
             int trackNum = track.track_number;
             if (track.disc_number > 1)
-                trackNum = new TrackNumber(trackNum, (int) track.disc_number, null);
+            {
+                trackNum = new TrackNumber(trackNum, (int)track.disc_number, null);
+            }
 
             bool? isPlayable = null;
             try
@@ -152,7 +167,10 @@ namespace m4dModels
                 var width = int.MaxValue;
                 foreach (var image in album.images)
                 {
-                    if (image.width >= width) continue;
+                    if (image.width >= width)
+                    {
+                        continue;
+                    }
 
                     imageUrl = image.url;
                     width = image.width;
@@ -193,18 +211,25 @@ namespace m4dModels
             genres.UnionWith(GenresFromReference(track.album, getResult));
 
             if (track?.artists.Count > 0)
+            {
                 foreach (var a in track.artists)
+                {
                     genres.UnionWith(GenresFromReference(a, getResult));
+                }
+            }
 
             return genres.Count > 0 ? genres.ToArray() : null;
         }
 
         private List<string> GenresFromReference(dynamic field, Func<string, dynamic> getResult)
         {
-            if (field?.href == null) return new List<string>();
+            if (field?.href == null)
+            {
+                return new List<string>();
+            }
 
             var t = GetResults(field.href.ToString(), getResult);
-            return t != null ? (List<string>) GenresFromObject(t) : new List<string>();
+            return t != null ? (List<string>)GenresFromObject(t) : new List<string>();
         }
 
         private List<string> GenresFromObject(dynamic obj)
@@ -212,9 +237,15 @@ namespace m4dModels
             var list = new List<string>();
             try
             {
-                if (obj?.genres == null || obj.genres.Count == 0) return list;
+                if (obj?.genres == null || obj.genres.Count == 0)
+                {
+                    return list;
+                }
 
-                foreach (var genre in obj.genres) list.Add(CleanupGenre(genre.ToString()));
+                foreach (var genre in obj.genres)
+                {
+                    list.Add(CleanupGenre(genre.ToString()));
+                }
             }
             catch (Exception e)
             {
@@ -226,9 +257,15 @@ namespace m4dModels
 
         private dynamic GetResults(string url, Func<string, dynamic> getResult)
         {
-            if (s_results.TryGetValue(url, out var result)) return result;
+            if (s_results.TryGetValue(url, out var result))
+            {
+                return result;
+            }
 
-            if (getResult == null) return null;
+            if (getResult == null)
+            {
+                return null;
+            }
 
             try
             {
@@ -236,7 +273,8 @@ namespace m4dModels
             }
             catch (Exception e)
             {
-                Trace.WriteLineIf(TraceLevels.General.TraceError,
+                Trace.WriteLineIf(
+                    TraceLevels.General.TraceError,
                     $"Error attempting to call Spotify: {e.Message}");
                 return null;
             }

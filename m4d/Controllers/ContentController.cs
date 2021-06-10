@@ -22,9 +22,15 @@ namespace m4d.Controllers
             var userName = user?.UserName;
             var list = songs.ToList();
             var likes = Database.UserLikes(list, userName);
-            if (likes != null) ViewBag.Likes = likes;
+            if (likes != null)
+            {
+                ViewBag.Likes = likes;
+            }
 
-            if (danceId == null) return;
+            if (danceId == null)
+            {
+                return;
+            }
 
             var danceLikes = Database.UserDanceLikes(list, danceId, userName);
             if (danceLikes != null)

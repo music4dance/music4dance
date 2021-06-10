@@ -28,11 +28,21 @@ namespace m4dModels
             var work = 0;
 
             var cells = new string[] { };
-            if (s != null) cells = s.Split(':');
+            if (s != null)
+            {
+                cells = s.Split(':');
+            }
+
             if (cells.Length > 0 && int.TryParse(cells[cells.Length - 1], out track))
+            {
                 if (cells.Length > 1 && int.TryParse(cells[cells.Length - 2], out volume))
+                {
                     if (cells.Length > 2)
+                    {
                         int.TryParse(cells[cells.Length - 3], out work);
+                    }
+                }
+            }
 
             Initialize(track, volume, work);
         }
@@ -43,11 +53,20 @@ namespace m4dModels
             var a = 0;
             var w = 0;
 
-            if (track.HasValue) t = track.Value;
+            if (track.HasValue)
+            {
+                t = track.Value;
+            }
 
-            if (volume.HasValue) a = volume.Value;
+            if (volume.HasValue)
+            {
+                a = volume.Value;
+            }
 
-            if (work.HasValue) w = work.Value;
+            if (work.HasValue)
+            {
+                w = work.Value;
+            }
 
             _val = t + a * 1000 + w * 1000000;
         }
@@ -61,7 +80,11 @@ namespace m4dModels
             get
             {
                 int? track = _val % 1000;
-                if (track.Value == 0) track = null;
+                if (track.Value == 0)
+                {
+                    track = null;
+                }
+
                 return track;
             }
             set => Initialize(value, Volume, Work);
@@ -72,7 +95,11 @@ namespace m4dModels
             get
             {
                 int? volume = _val / 1000 % 1000;
-                if (volume.Value == 0) volume = null;
+                if (volume.Value == 0)
+                {
+                    volume = null;
+                }
+
                 return volume;
             }
             set => Initialize(Track, value, Work);
@@ -83,7 +110,11 @@ namespace m4dModels
             get
             {
                 int? work = _val / 1000000 % 1000000;
-                if (work.Value == 0) work = null;
+                if (work.Value == 0)
+                {
+                    work = null;
+                }
+
                 return work;
             }
             set => Initialize(Track, value, Work);
@@ -106,9 +137,13 @@ namespace m4dModels
         public int CompareTo(object other)
         {
             if (other is TrackNumber)
-                return _val.CompareTo(((TrackNumber) other)._val);
+            {
+                return _val.CompareTo(((TrackNumber)other)._val);
+            }
             else
+            {
                 return -1;
+            }
         }
 
         public override bool Equals(object obj)
@@ -123,10 +158,14 @@ namespace m4dModels
 
         public static bool operator ==(TrackNumber a, TrackNumber b)
         {
-            if ((object) a == null || (object) b == null)
-                return (object) a == (object) b;
+            if ((object)a == null || (object)b == null)
+            {
+                return (object)a == (object)b;
+            }
             else
+            {
                 return a.Equals(b);
+            }
         }
 
         public static bool operator !=(TrackNumber a, TrackNumber b)
@@ -140,10 +179,10 @@ namespace m4dModels
         }
 
         private static readonly string[] s_invariantFormat = new string[]
-            {"{0:D3}:", "{0:D3}:", "{0:D3}"};
+            { "{0:D3}:", "{0:D3}:", "{0:D3}" };
 
         private static readonly string[] s_friendlyFormat = new string[]
-            {"Work {0}, ", "Disk {0}, ", "Track {0}"};
+            { "Work {0}, ", "Disk {0}, ", "Track {0}" };
 
         public string Format(string specifier = null)
         {
@@ -156,9 +195,20 @@ namespace m4dModels
                 ? s_invariantFormat
                 : s_friendlyFormat;
 
-            if (work.HasValue) sb.AppendFormat(format[0], work.Value);
-            if (volume.HasValue) sb.AppendFormat(format[1], volume.Value);
-            if (track.HasValue) sb.AppendFormat(format[2], track.Value);
+            if (work.HasValue)
+            {
+                sb.AppendFormat(format[0], work.Value);
+            }
+
+            if (volume.HasValue)
+            {
+                sb.AppendFormat(format[1], volume.Value);
+            }
+
+            if (track.HasValue)
+            {
+                sb.AppendFormat(format[2], track.Value);
+            }
 
             return sb.ToString();
         }

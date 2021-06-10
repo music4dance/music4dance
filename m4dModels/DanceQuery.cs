@@ -16,13 +16,15 @@ namespace m4dModels
         //private const string OneOf = ""; // Inclusive + Explicit
         private const string OneOfX = "OOX"; // Inclusive + Inferred
 
-        private readonly string[] _modifiers = {And, AndX, OneOfX};
+        private readonly string[] _modifiers = { And, AndX, OneOfX };
 
         public DanceQuery(string query = null)
         {
             Query = query ?? string.Empty;
             if (string.Equals(AllRef, Query, StringComparison.InvariantCultureIgnoreCase))
+            {
                 Query = string.Empty;
+            }
         }
 
         public string Query { get; }
@@ -33,9 +35,11 @@ namespace m4dModels
         {
             get
             {
-                var ret = Query.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries);
+                var ret = Query.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 if (ret.Length == 0 || !_modifiers.Contains(ret[0].ToUpper()))
+                {
                     return ret;
+                }
 
                 var list = ret.ToList();
                 list.RemoveAt(0);
@@ -77,7 +81,8 @@ namespace m4dModels
         public DanceQuery MakeInclusive()
         {
             return IsExclusive
-                ? new DanceQuery((StartsWith(AndX) ? OneOfX + "," : string.Empty) +
+                ? new DanceQuery(
+                    (StartsWith(AndX) ? OneOfX + "," : string.Empty) +
                     RemoveQualifier())
                 : this;
         }
@@ -86,7 +91,8 @@ namespace m4dModels
         {
             return IsExclusive && DanceIds.Count() > 1
                 ? this
-                : new DanceQuery((IncludeInferred ? AndX : And) + "," +
+                : new DanceQuery(
+                    (IncludeInferred ? AndX : And) + "," +
                     (StartsWith(OneOfX) ? RemoveQualifier() : Query));
         }
 
@@ -102,7 +108,8 @@ namespace m4dModels
         {
             return !IncludeInferred
                 ? this
-                : new DanceQuery((IsExclusive ? And + "," : string.Empty) + "," +
+                : new DanceQuery(
+                    (IsExclusive ? And + "," : string.Empty) + "," +
                     RemoveQualifier());
         }
 
@@ -127,11 +134,19 @@ namespace m4dModels
 
                 foreach (var d in dances)
                 {
-                    if (sb.Length > 0) sb.Append($" {con} ");
+                    if (sb.Length > 0)
+                    {
+                        sb.Append($" {con} ");
+                    }
+
                     sb.AppendFormat("(DanceTags/any(t: t eq '{0}')", d.Name.ToLower());
                     if (IncludeInferred)
-                        sb.AppendFormat(" or DanceTagsInferred/any(t: t eq '{0}')",
+                    {
+                        sb.AppendFormat(
+                            " or DanceTagsInferred/any(t: t eq '{0}')",
                             d.Name.ToLower());
+                    }
+
                     sb.Append(")");
                 }
 
@@ -152,7 +167,11 @@ namespace m4dModels
             }
 
             var suffix = string.Empty;
-            if (IncludeInferred) suffix = " (including inferred by tempo)";
+            if (IncludeInferred)
+            {
+                suffix = " (including inferred by tempo)";
+            }
+
             switch (count)
             {
                 case 0:

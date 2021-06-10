@@ -12,26 +12,41 @@
 <div class="row">
     <div class="col-sm-3">
         <p>
-            @Html.ActionLink("Create New", "Create", new {Model.Type})
+            @Html.ActionLink("Create New", "Create", new
+            {
+                Model.Type
+            })
         </p>
         <p>
-            @Html.ActionLink("Restore All", "RestoreAll", new {Model.Type})
+            @Html.ActionLink("Restore All", "RestoreAll", new
+            {
+                Model.Type
+            })
         </p>
         <p>
-            @Html.ActionLink("Update All", "UpdateAll", new {Model.Type})
+            @Html.ActionLink("Update All", "UpdateAll", new
+            {
+                Model.Type
+            })
         </p>
     </div>
     <div class="col-sm-3">
         @if (Model.Type != PlayListType.SongsFromSpotify)
         {
             <p>
-                @Html.ActionLink("SongsFromSpotify", "Index", new {Type = PlayListType.SongsFromSpotify})
+                @Html.ActionLink("SongsFromSpotify", "Index", new
+                {
+                    Type = PlayListType.SongsFromSpotify
+                })
             </p>
         }
         @if (Model.Type != PlayListType.SpotifyFromSearch)
         {
             <p>
-                @Html.ActionLink("SpotifyFromSearch", "Index", new {Type = PlayListType.SpotifyFromSearch})
+                @Html.ActionLink("SpotifyFromSearch", "Index", new
+                {
+                    Type = PlayListType.SpotifyFromSearch
+                })
             </p>
         }
     </div>
@@ -39,10 +54,18 @@
         @if (Model.Type == PlayListType.SpotifyFromSearch)
         {
             <p>
-                @Html.ActionLink("Create Dance Playlists", "BulkCreate", new {Type = PlayListType.SpotifyFromSearch, Flavor = "TopN"})
+                @Html.ActionLink("Create Dance Playlists", "BulkCreate", new
+                {
+                    Type = PlayListType.SpotifyFromSearch,
+                    Flavor = "TopN"
+                })
             </p>
             <p>
-                @Html.ActionLink("Create Holiday Playlists", "BulkCreate", new {Type = PlayListType.SpotifyFromSearch, Flavor = "Holiday"})
+                @Html.ActionLink("Create Holiday Playlists", "BulkCreate", new
+                {
+                    Type = PlayListType.SpotifyFromSearch,
+                    Flavor = "Holiday"
+                })
             </p>
         }
     </div>
@@ -73,7 +96,10 @@
     {
         <tr>
             <td>
-                @Html.ActionLink(item.Id, "Details", new {id = item.Id})
+                @Html.ActionLink(item.Id, "Details", new
+                {
+                    id = item.Id
+                })
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.User)
@@ -109,14 +135,29 @@
                 @Html.DisplayFor(modelItem => item.Deleted)
             </td>
             <td>
-                @Html.ActionLink("Update", "Update", new {id = item.Id}) |
-                @Html.ActionLink("Edit", "Edit", new {id = item.Id}) |
-                @Html.ActionLink("Details", "Details", new {id = item.Id}) |
-                @Html.ActionLink("Delete", "Delete", new {id = item.Id})
+                @Html.ActionLink("Update", "Update", new
+                {
+                    id = item.Id
+                }) |
+                @Html.ActionLink("Edit", "Edit", new
+                {
+                    id = item.Id
+                }) |
+                @Html.ActionLink("Details", "Details", new
+                {
+                    id = item.Id
+                }) |
+                @Html.ActionLink("Delete", "Delete", new
+                {
+                    id = item.Id
+                })
                 @if (item.Updated.HasValue && string.IsNullOrWhiteSpace(item.Data2))
                 {
                     <span> | </span>
-                    @Html.ActionLink("Restore", "Restore", new {id = item.Id})
+                    @Html.ActionLink("Restore", "Restore", new
+                    {
+                        id = item.Id
+                    })
                 }
             </td>
         </tr>

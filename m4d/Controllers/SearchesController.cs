@@ -24,8 +24,12 @@ namespace m4d.Controllers
         public IActionResult Index(string user, string sort = null, SongFilter filter = null,
             bool showDetails = false)
         {
-            if (string.IsNullOrWhiteSpace(user) || user.Equals(UserQuery.AnonymousUser,
-                StringComparison.OrdinalIgnoreCase)) user = null;
+            if (string.IsNullOrWhiteSpace(user) || user.Equals(
+                UserQuery.AnonymousUser,
+                StringComparison.OrdinalIgnoreCase))
+            {
+                user = null;
+            }
 
             user ??= User.Identity.Name;
             IQueryable<Search> searches = Database.Searches.Include(s => s.ApplicationUser);
@@ -33,7 +37,9 @@ namespace m4d.Controllers
             {
                 var appUser = Database.FindUser(user);
                 if (appUser != null)
+                {
                     searches = searches.Where(s => s.ApplicationUserId == appUser.Id);
+                }
             }
 
             searches =
@@ -49,9 +55,17 @@ namespace m4d.Controllers
         // GET: Searches/Details/5
         public IActionResult Details(long? id)
         {
-            if (id == null) return StatusCode((int) HttpStatusCode.BadRequest);
+            if (id == null)
+            {
+                return StatusCode((int)HttpStatusCode.BadRequest);
+            }
+
             var search = Database.Searches.Find(id);
-            if (search == null) return StatusCode((int) HttpStatusCode.NotFound);
+            if (search == null)
+            {
+                return StatusCode((int)HttpStatusCode.NotFound);
+            }
+
             return View(search);
         }
     }

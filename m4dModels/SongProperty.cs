@@ -33,9 +33,20 @@ namespace m4dModels
 
             if (!string.IsNullOrWhiteSpace(value))
             {
-                if (value.Contains("\\t")) value = value.Replace("\\t", "\t");
-                if (value.Contains("\\<EQ>\\")) value = value.Replace("\\<EQ>\\", "=");
-                if (string.Equals(name, Song.TempoField)) value = FormatTempo(value);
+                if (value.Contains("\\t"))
+                {
+                    value = value.Replace("\\t", "\t");
+                }
+
+                if (value.Contains("\\<EQ>\\"))
+                {
+                    value = value.Replace("\\<EQ>\\", "=");
+                }
+
+                if (string.Equals(name, Song.TempoField))
+                {
+                    value = FormatTempo(value);
+                }
             }
 
             Value = value;
@@ -46,9 +57,15 @@ namespace m4dModels
         {
             var name = baseName;
 
-            if (index >= 0) name = $"{name}:{index:D2}";
+            if (index >= 0)
+            {
+                name = $"{name}:{index:D2}";
+            }
 
-            if (qual != null) name = name + ":" + qual;
+            if (qual != null)
+            {
+                name = name + ":" + qual;
+            }
 
             Name = name;
             Value = value;
@@ -76,8 +93,13 @@ namespace m4dModels
                 {
                     case Song.SongIdField:
                         if (!string.IsNullOrEmpty(Value))
+                        {
                             if (Guid.TryParse(Value, out var id))
+                            {
                                 ret = id;
+                            }
+                        }
+
                         break;
                     case Song.TempoField:
                         // decimal
@@ -118,13 +140,20 @@ namespace m4dModels
                         break;
                     case Song.OwnerHash:
                     {
-                        if (int.TryParse(Value, NumberStyles.HexNumber, CultureInfo.CurrentCulture,
-                            out var hash)) ret = hash;
+                        if (int.TryParse(
+                            Value, NumberStyles.HexNumber, CultureInfo.CurrentCulture,
+                            out var hash))
+                        {
+                            ret = hash;
+                        }
                     }
                         break;
                     case Song.LikeTag:
                     {
-                        if (bool.TryParse(Value, out var like)) ret = like;
+                        if (bool.TryParse(Value, out var like))
+                        {
+                            ret = like;
+                        }
                     }
                         break;
                     default:
@@ -176,9 +205,15 @@ namespace m4dModels
             }
             else
             {
-                if (value.Contains('=')) value = value.Replace("=", "\\<EQ>\\");
+                if (value.Contains('='))
+                {
+                    value = value.Replace("=", "\\<EQ>\\");
+                }
 
-                if (value.Contains('\t')) value = value.Replace("\t", "\\t");
+                if (value.Contains('\t'))
+                {
+                    value = value.Replace("\t", "\\t");
+                }
             }
 
             return $"{Name}={value}";
@@ -195,7 +230,10 @@ namespace m4dModels
             var sep = string.Empty;
             foreach (var sp in properties)
             {
-                if (actions != null && actions.Contains(sp.Name)) continue;
+                if (actions != null && actions.Contains(sp.Name))
+                {
+                    continue;
+                }
 
                 var p = sp.ToString();
 
@@ -216,10 +254,15 @@ namespace m4dModels
                 var values = cell.Split('=');
 
                 if (values.Length == 2)
+                {
                     properties.Add(new SongProperty(values[0], values[1]));
+                }
                 else
-                    Trace.WriteLineIf(TraceLevels.General.TraceError, "Bad SongProperty: {0}",
+                {
+                    Trace.WriteLineIf(
+                        TraceLevels.General.TraceError, "Bad SongProperty: {0}",
                         cell);
+                }
             }
         }
 
@@ -234,7 +277,11 @@ namespace m4dModels
 
         private static string FormatTempo(string value)
         {
-            if (decimal.TryParse(value, out var v)) value = v.ToString("F1");
+            if (decimal.TryParse(value, out var v))
+            {
+                value = v.ToString("F1");
+            }
+
             return value;
         }
 
@@ -260,8 +307,12 @@ namespace m4dModels
 
             var part = ParsePart(name, 1);
             if (part != null)
+            {
                 if (int.TryParse(part, out var val))
+                {
                     idx = val;
+                }
+            }
 
             return idx;
         }
@@ -270,11 +321,18 @@ namespace m4dModels
         {
             var name = baseName;
 
-            if (idx.HasValue) name += ":" + idx.Value.ToString("D2");
+            if (idx.HasValue)
+            {
+                name += ":" + idx.Value.ToString("D2");
+            }
 
             if (qualifier != null)
             {
-                if (!idx.HasValue) name += ":";
+                if (!idx.HasValue)
+                {
+                    name += ":";
+                }
+
                 name += ":" + qualifier;
             }
 

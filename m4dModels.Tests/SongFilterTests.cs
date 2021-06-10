@@ -62,19 +62,22 @@ namespace m4dModels.Tests
             Assert.AreEqual(
                 @"All songs containing the text ""Funk"", including tag Rock & Roll, excluding tags Jazz or Pop. Sorted by Dance Rating from most popular to least popular.",
                 f2.Description);
-            Assert.AreEqual(@"All songs having tempo greater than 100 beats per minute.",
+            Assert.AreEqual(
+                @"All songs having tempo greater than 100 beats per minute.",
                 f3.Description);
             Assert.AreEqual(
                 @"All songs having tempo less than 150 beats per minute. Sorted by Title from A to Z.",
                 f4.Description);
             Assert.AreEqual(@"All songs liked by charlie.", f5.Description);
             Assert.AreEqual(@"All songs not edited by charlie.", f6.Description);
-            Assert.AreEqual(@"All songs including tags Blues, R&B / Soul and Rhythm and Blues.",
+            Assert.AreEqual(
+                @"All songs including tags Blues, R&B / Soul and Rhythm and Blues.",
                 f7.Description);
             Assert.AreEqual(
                 @"All Salsa songs available on Spotify, excluding tags Christian / Gospel, Doo Wop or TV Theme Song.",
                 f8.Description);
-            Assert.AreEqual(@"All songs danceable to any of Mambo, Rumba or Samba.",
+            Assert.AreEqual(
+                @"All songs danceable to any of Mambo, Rumba or Samba.",
                 f9.Description);
             Assert.AreEqual(
                 @"All songs danceable to all of East Coast Swing, Foxtrot and Tango (Ballroom) available on Amazon.",
@@ -125,7 +128,8 @@ namespace m4dModels.Tests
                 s = HttpUtility.HtmlDecode(enc);
             }
 
-            Assert.AreEqual(f0, s,
+            Assert.AreEqual(
+                f0, s,
                 string.Format(message, withEncoding ? "Encoded " : string.Empty, n));
             return s;
         }

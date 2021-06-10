@@ -69,7 +69,7 @@ namespace m4dModels
 
         public IEnumerable<string> SongIdList => string.IsNullOrEmpty(SongIds)
             ? null
-            : SongIds.Split(new[] {'|'}, StringSplitOptions.RemoveEmptyEntries);
+            : SongIds.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
 
         public bool AddSongs(IEnumerable<string> songIds)
         {
@@ -78,9 +78,15 @@ namespace m4dModels
                 : new HashSet<string>(SongIdList);
 
             var initial = existing.Count;
-            foreach (var id in songIds.Where(id => !existing.Contains(id))) existing.Add(id);
+            foreach (var id in songIds.Where(id => !existing.Contains(id)))
+            {
+                existing.Add(id);
+            }
 
-            if (initial == existing.Count) return false;
+            if (initial == existing.Count)
+            {
+                return false;
+            }
 
             SongIds = string.Join("|", existing);
             Updated = DateTime.Now;

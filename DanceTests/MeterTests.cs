@@ -13,17 +13,20 @@ namespace DanceTests
         {
             var m1 = new Meter("3/4");
             Assert.AreEqual<int>(3, m1.Numerator, "Numerator wasn't set correctly in constructor");
-            Assert.AreEqual<int>(4, m1.Denominator,
+            Assert.AreEqual<int>(
+                4, m1.Denominator,
                 "Denominator wasn't set correctly in constructor");
 
             var m2 = new Meter("4/4");
             Assert.AreEqual<int>(4, m2.Numerator, "Numerator wasn't set correctly in constructor");
-            Assert.AreEqual<int>(4, m2.Denominator,
+            Assert.AreEqual<int>(
+                4, m2.Denominator,
                 "Denominator wasn't set correctly in constructor");
 
             var m3 = new Meter("2/4");
             Assert.AreEqual<int>(2, m3.Numerator, "Numerator wasn't set correctly in constructor");
-            Assert.AreEqual<int>(4, m3.Denominator,
+            Assert.AreEqual<int>(
+                4, m3.Denominator,
                 "Denominator wasn't set correctly in constructor");
         }
 
@@ -84,17 +87,20 @@ namespace DanceTests
         {
             var m1 = new Meter(3, 4);
             Assert.AreEqual<int>(3, m1.Numerator, "Numerator wasn't set correctly in constructor");
-            Assert.AreEqual<int>(4, m1.Denominator,
+            Assert.AreEqual<int>(
+                4, m1.Denominator,
                 "Denominator wasn't set correctly in constructor");
 
             var m2 = new Meter(4, 4);
             Assert.AreEqual<int>(4, m2.Numerator, "Numerator wasn't set correctly in constructor");
-            Assert.AreEqual<int>(4, m2.Denominator,
+            Assert.AreEqual<int>(
+                4, m2.Denominator,
                 "Denominator wasn't set correctly in constructor");
 
             var m3 = new Meter(2, 4);
             Assert.AreEqual<int>(2, m3.Numerator, "Numerator wasn't set correctly in constructor");
-            Assert.AreEqual<int>(4, m3.Denominator,
+            Assert.AreEqual<int>(
+                4, m3.Denominator,
                 "Denominator wasn't set correctly in constructor");
         }
 

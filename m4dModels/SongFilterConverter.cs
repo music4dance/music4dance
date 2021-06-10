@@ -14,7 +14,11 @@ namespace m4dModels
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture,
             object value)
         {
-            if (value is string s) return new SongFilter(s);
+            if (value is string s)
+            {
+                return new SongFilter(s);
+            }
+
             return base.ConvertFrom(context, culture, value);
         }
     }

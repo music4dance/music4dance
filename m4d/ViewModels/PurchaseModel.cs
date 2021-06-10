@@ -19,7 +19,7 @@
         public string Description =>
             Kind == PurchaseKind.Purchase ? "Premium Subscription" : "Donation";
 
-        public int Pennies => (int) (Amount * 100);
+        public int Pennies => (int)(Amount * 100);
 
         public PurchaseError Error { get; set; }
     }

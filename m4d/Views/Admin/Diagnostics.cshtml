@@ -15,19 +15,64 @@
 <hr/>
 <h3>Tracing (Current Level = @TraceLevels.General.Level.ToString())</h3>
 <ul>
-    <li>@Html.ActionLink("Turn Tracing Off", "SetTraceLevel", "Admin", new {level = 0}, null)</li>
-    <li>@Html.ActionLink("Trace Error", "SetTraceLevel", "Admin", new {level = 1}, null)</li>
-    <li>@Html.ActionLink("Trace Warning", "SetTraceLevel", "Admin", new {level = 2}, null)</li>
-    <li>@Html.ActionLink("Trace Info", "SetTraceLevel", "Admin", new {level = 3}, null)</li>
-    <li>@Html.ActionLink("Trace Verbose", "SetTraceLevel", "Admin", new {level = 4}, null)</li>
-    <li>@Html.ActionLink("Test Trace", "TestTrace", "Admin", new {message = "Nothing Special"}, null)</li>
+    <li>
+        @Html.ActionLink("Turn Tracing Off", "SetTraceLevel", "Admin", new
+        {
+            level = 0
+        }, null)
+    </li>
+    <li>
+        @Html.ActionLink("Trace Error", "SetTraceLevel", "Admin", new
+        {
+            level = 1
+        }, null)
+    </li>
+    <li>
+        @Html.ActionLink("Trace Warning", "SetTraceLevel", "Admin", new
+        {
+            level = 2
+        }, null)
+    </li>
+    <li>
+        @Html.ActionLink("Trace Info", "SetTraceLevel", "Admin", new
+        {
+            level = 3
+        }, null)
+    </li>
+    <li>
+        @Html.ActionLink("Trace Verbose", "SetTraceLevel", "Admin", new
+        {
+            level = 4
+        }, null)
+    </li>
+    <li>
+        @Html.ActionLink("Test Trace", "TestTrace", "Admin", new
+        {
+            message = "Nothing Special"
+        }, null)
+    </li>
 </ul>
 <hr/>
 <h3>History</h3>
 <ul>
-    <li>@Html.ActionLink("Songs sorted by Modified date", "sort", "song", new {sortOrder = "Modified_desc"}, null)</li>
-    <li>@Html.ActionLink("Songs sorted by Created date", "sort", "song", new {sortOrder = "Created_desc"}, null)</li>
-    <li>@Html.ActionLink("All Songs", "filtersearch", "Song", new {filter = "Advanced----------3"})</li>
+    <li>
+        @Html.ActionLink("Songs sorted by Modified date", "sort", "song", new
+        {
+            sortOrder = "Modified_desc"
+        }, null)
+    </li>
+    <li>
+        @Html.ActionLink("Songs sorted by Created date", "sort", "song", new
+        {
+            sortOrder = "Created_desc"
+        }, null)
+    </li>
+    <li>
+        @Html.ActionLink("All Songs", "filtersearch", "Song", new
+        {
+            filter = "Advanced----------3"
+        })
+    </li>
 </ul>
 
 <hr/>
@@ -47,7 +92,12 @@
         {
             continue;
         }
-        <li>@Html.ActionLink(id, "SetSearchIdx", "Admin", new {id}, null)</li>
+        <li>
+            @Html.ActionLink(id, "SetSearchIdx", "Admin", new
+            {
+                id
+            }, null)
+        </li>
     }
     <li>Enviroment: @SearchService.RawEnvironment</li>
 </ul>

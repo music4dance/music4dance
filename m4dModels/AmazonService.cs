@@ -3,7 +3,8 @@
     internal class AmazonService : MusicService
     {
         public AmazonService() :
-            base(ServiceType.Amazon,
+            base(
+                ServiceType.Amazon,
                 'A',
                 "Amazon",
                 "amazon_store",
@@ -25,14 +26,20 @@
 
         public override string NormalizeId(string id)
         {
-            if (id.IndexOf(':') == -1) id = "D:" + id;
+            if (id.IndexOf(':') == -1)
+            {
+                id = "D:" + id;
+            }
+
             return id;
         }
 
         private static string Strip(string info)
         {
             if (info != null && (info.StartsWith("A:") || info.StartsWith("D:")))
+            {
                 info = info.Substring(2);
+            }
 
             return info;
         }

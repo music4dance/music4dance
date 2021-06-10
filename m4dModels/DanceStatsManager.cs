@@ -53,7 +53,9 @@ namespace m4dModels
         public void Initialize(DanceMusicCoreService dms)
         {
             if (Instance != null)
+            {
                 throw new Exception("Should only Initialize DanceStatsManager once");
+            }
 
             Instance = LoadFromAppData(dms) ?? LoadFromAzure(dms, "default", true);
         }
@@ -88,8 +90,12 @@ namespace m4dModels
         public void ReloadDances(DanceMusicCoreService dms)
         {
             foreach (var dance in dms.Context.LoadDances())
+            {
                 if (Instance.Map.TryGetValue(dance.Id, out var danceStats))
+                {
                     danceStats.CopyDanceInfo(dance, false, dms);
+                }
+            }
 
             LastUpdate = DateTime.Now;
             Source = Source + " + reload";
@@ -97,10 +103,16 @@ namespace m4dModels
 
         private DanceStatsInstance LoadFromAppData(DanceMusicCoreService dms)
         {
-            if (AppData == null) return null;
+            if (AppData == null)
+            {
+                return null;
+            }
 
             var path = Path.Combine(AppData, "dance-tag-stats.json");
-            if (!File.Exists(path)) return null;
+            if (!File.Exists(path))
+            {
+                return null;
+            }
 
             LastUpdate = DateTime.Now;
             Source = "AppData";
@@ -125,12 +137,19 @@ namespace m4dModels
             bool tagsOnly = false)
         {
             var copy = tagsOnly && Instance != null;
-            if (save && !copy) Dances.Reset();
+            if (save && !copy)
+            {
+                Dances.Reset();
+            }
+
             var instance = new DanceStatsInstance(
                 new TagManager(dms, source),
                 copy ? Instance.Tree : AzureDanceStats(dms, source),
                 copy ? null : dms, source);
-            if (!save) return instance;
+            if (!save)
+            {
+                return instance;
+            }
 
             LastUpdate = DateTime.Now;
             Source = "Azure";
@@ -145,7 +164,10 @@ namespace m4dModels
 
         private void SaveToAppData(DanceStatsInstance instance)
         {
-            if (AppData == null) return;
+            if (AppData == null)
+            {
+                return;
+            }
 
             var json = instance.SaveToJson();
             var path = Path.Combine(AppData, "dance-tag-stats.json");
@@ -184,7 +206,9 @@ namespace m4dModels
 
             // Then handle ungrouped types
             foreach (var dt in Dances.Instance.AllDanceTypes.Where(dt => !used.Contains(dt.Id)))
+            {
                 Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Ungrouped Dance: {0}", dt.Id);
+            }
 
             return stats.OrderByDescending(x => x.Children.Count).ToList();
         }
@@ -196,8 +220,11 @@ namespace m4dModels
 
             foreach (var facet in facets)
             {
-                var d = Dances.Instance.DanceFromName((string) facet.Value);
-                if (d == null || !facet.Count.HasValue) continue;
+                var d = Dances.Instance.DanceFromName((string)facet.Value);
+                if (d == null || !facet.Count.HasValue)
+                {
+                    continue;
+                }
 
                 ret[d.Id] = facet.Count.Value;
             }
@@ -219,13 +246,18 @@ namespace m4dModels
             // Only add children to MSC, for other groups they're already built in
 
             if (scGroup.DanceId == "MSC" || scGroup.DanceId == "PRF")
+            {
                 scGroup.SongCount += scType.SongCount;
+            }
         }
 
         private DanceStats InfoFromDance(DanceMusicCoreService dms, bool includeStats,
             DanceObject d)
         {
-            if (d == null) throw new ArgumentNullException(nameof(d));
+            if (d == null)
+            {
+                throw new ArgumentNullException(nameof(d));
+            }
 
             var danceStats = new DanceStats
             {
@@ -233,7 +265,8 @@ namespace m4dModels
                 Children = null
             };
 
-            danceStats.CopyDanceInfo(dms.Dances.FirstOrDefault(t => t.Id == d.Id), includeStats,
+            danceStats.CopyDanceInfo(
+                dms.Dances.FirstOrDefault(t => t.Id == d.Id), includeStats,
                 dms);
             return danceStats;
         }

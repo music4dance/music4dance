@@ -50,9 +50,9 @@ namespace m4d.Controllers
             Exception exception = null)
         {
             var model = new ErrorModel
-                {HttpStatusCode = (int) statusCode, Message = message, Exception = exception};
+                { HttpStatusCode = (int)statusCode, Message = message, Exception = exception };
 
-            Response.StatusCode = (int) statusCode;
+            Response.StatusCode = (int)statusCode;
             // Response.TrySkipIisCustomErrors = true;
 
             return View("HttpError", model);
@@ -101,8 +101,11 @@ namespace m4d.Controllers
         {
             ViewBag.Name = name;
             if (!AdminMonitor.StartTask(name))
-                throw new AdminTaskException(name +
+            {
+                throw new AdminTaskException(
+                    name +
                     "failed to start because there is already an admin task running");
+            }
         }
 
         protected ActionResult CompleteAdminTask(bool completed, string message)
@@ -119,7 +122,10 @@ namespace m4d.Controllers
             ViewBag.Success = false;
             ViewBag.Message = message;
 
-            if (!(e is AdminTaskException)) AdminMonitor.CompleteTask(false, message, e);
+            if (!(e is AdminTaskException))
+            {
+                AdminMonitor.CompleteTask(false, message, e);
+            }
 
             return View("Results");
         }
@@ -140,9 +146,14 @@ namespace m4d.Controllers
         {
             List<string> dances = null;
             if (!string.IsNullOrWhiteSpace(danceIds))
+            {
                 dances = new List<string>(danceIds.Split(';'));
+            }
 
-            if (review.Merge.Count <= 0) return 0;
+            if (review.Merge.Count <= 0)
+            {
+                return 0;
+            }
 
             var modified = dms.MergeCatalog(user, review.Merge, dances).ToList();
 
@@ -158,7 +169,9 @@ namespace m4d.Controllers
             dms.SaveSongs(modified);
 
             if (!string.IsNullOrEmpty(review.PlayList))
+            {
                 dms.UpdatePlayList(review.PlayList, review.Merge.Select(m => m.Left));
+            }
 
             return modified.Count;
         }

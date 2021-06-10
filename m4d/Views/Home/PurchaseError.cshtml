@@ -12,7 +12,13 @@
 {
     <p class="big-text">Strip says: @Model.Error.ErrorMessage</p>
 
-    <p class="big-text">Please @Html.ActionLink("click here", "Purchase", new {amount = Model.Amount, kind = Model.Kind}, null) to try again.</p>
+    <p class="big-text">
+        Please @Html.ActionLink("click here", "Purchase", new
+               {
+                   amount = Model.Amount,
+                   kind = Model.Kind
+               }, null) to try again.
+    </p>
 }
 else
 {

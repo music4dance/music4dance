@@ -14,11 +14,12 @@ namespace m4dModels.Tests
         [TestMethod]
         public void TitleArtistMatch()
         {
-            var sd1 = new Song {Title = "A Song (With a subtitle)", Artist = "Crazy Artist"};
-            var sd2 = new Song {Title = "Moliendo Café", Artist = "The Who"};
-            var sd3 = new Song {Title = "If the song or not", Artist = "Señor Bolero"};
+            var sd1 = new Song { Title = "A Song (With a subtitle)", Artist = "Crazy Artist" };
+            var sd2 = new Song { Title = "Moliendo Café", Artist = "The Who" };
+            var sd3 = new Song { Title = "If the song or not", Artist = "Señor Bolero" };
 
-            Assert.IsTrue(sd1.TitleArtistMatch("A Song (With a subtitle)", "Crazy Artist"),
+            Assert.IsTrue(
+                sd1.TitleArtistMatch("A Song (With a subtitle)", "Crazy Artist"),
                 "SD1: Exact");
             Assert.IsTrue(sd1.TitleArtistMatch("Song", "Crazy Artist"), "SD1: Weak");
             Assert.IsFalse(sd1.TitleArtistMatch("Song", "Crazy Artiste"), "SD1: No Match");
@@ -29,7 +30,8 @@ namespace m4dModels.Tests
 
             Assert.IsTrue(sd3.TitleArtistMatch("If the song or not", "Señor Bolero"), "SD3: Exact");
             Assert.IsTrue(sd3.TitleArtistMatch("If  Song and  NOT", "Senor Bolero "), "SD3: Weak");
-            Assert.IsFalse(sd3.TitleArtistMatch("If the song with not", "Señor Bolero"),
+            Assert.IsFalse(
+                sd3.TitleArtistMatch("If the song with not", "Señor Bolero"),
                 "SD3: No Match");
         }
 
@@ -63,17 +65,26 @@ namespace m4dModels.Tests
             if (!string.Equals(org, str))
             {
                 if (org.Length == str.Length)
+                {
                     for (var ich = 0; ich < str.Length; ich++)
                     {
-                        if (org[ich] == str[ich]) continue;
+                        if (org[ich] == str[ich])
+                        {
+                            continue;
+                        }
 
                         Trace.WriteLine($"Results differ starting at {ich}");
                         break;
                     }
+                }
                 else if (org.Length < str.Length)
+                {
                     Trace.WriteLine("Org shorter than result");
+                }
                 else
+                {
                     Trace.WriteLine("Result shorter than org");
+                }
             }
 
             Assert.AreEqual(org, str, $"{id.ToString("B")} failed to save.");
@@ -94,7 +105,8 @@ namespace m4dModels.Tests
         [TestMethod]
         public void LoadingDwtsRowDetails()
         {
-            ValidateLoadingRowDetails(WHeader, StarsRows, StarsRowsProps, 0,
+            ValidateLoadingRowDetails(
+                WHeader, StarsRows, StarsRowsProps, 0,
                 "Season 19:Other|Episode 1:Other");
         }
 
@@ -214,15 +226,22 @@ namespace m4dModels.Tests
         private static void ValidateLoadingRowDetails(string header, string[] rows,
             string[] expected, int dups = 0, string tags = null)
         {
-            if (expected == null) throw new ArgumentNullException(nameof(expected));
+            if (expected == null)
+            {
+                throw new ArgumentNullException(nameof(expected));
+            }
 
             var songs = LoadRows(header, rows, Service, dups);
 
             for (var i = 0; i < expected.Length; i++)
             {
                 var song = songs[i];
-                if (tags != null) song.AddTags(tags, "dwgray", Stats, song);
-                var r = DanceMusicTester.ReplaceTime(song.Serialize(new[] {Song.NoSongId}));
+                if (tags != null)
+                {
+                    song.AddTags(tags, "dwgray", Stats, song);
+                }
+
+                var r = DanceMusicTester.ReplaceTime(song.Serialize(new[] { Song.NoSongId }));
                 Trace.WriteLine(r);
                 Assert.AreEqual(expected[i], r);
             }
@@ -254,7 +273,10 @@ namespace m4dModels.Tests
         private static IList<Song> LoadRows(string header, IReadOnlyCollection<string> rows,
             DanceMusicCoreService dms, int dups = 0)
         {
-            if (rows == null) throw new ArgumentNullException(nameof(rows));
+            if (rows == null)
+            {
+                throw new ArgumentNullException(nameof(rows));
+            }
 
             IList<string> headers = Song.BuildHeaderMap(header);
             var ret = Song.CreateFromRows(

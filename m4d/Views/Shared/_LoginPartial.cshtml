@@ -31,8 +31,24 @@
                 <li>
                     <a id="manage" class="@dropDownItem" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">My Profile</a>
                 </li>
-                <li>@Html.ActionLink("My Songs", "FilterUser", "Song", new {user = UserManager.GetUserName(User)}, new {@class = @dropDownItem})</li>
-                <li>@Html.ActionLink("My Searches", "Index", "Searches", new {user = UserManager.GetUserName(User)}, new {@class = @dropDownItem})</li>
+                <li>
+                    @Html.ActionLink("My Songs", "FilterUser", "Song", new
+                    {
+                        user = UserManager.GetUserName(User)
+                    }, new
+                    {
+                        @class = @dropDownItem
+                    })
+                </li>
+                <li>
+                    @Html.ActionLink("My Searches", "Index", "Searches", new
+                    {
+                        user = UserManager.GetUserName(User)
+                    }, new
+                    {
+                        @class = @dropDownItem
+                    })
+                </li>
                 <li>
                     <a href="javascript:document.getElementById('logoutForm').submit()" class="@dropDownItem">Log out</a>
                 </li>

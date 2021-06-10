@@ -6,7 +6,11 @@
     ViewBag.Title = Model.CurrentCategoryName;
     ViewBag.Description = "A description of the competition dance category " +
         Model.CurrentCategoryName + " along with tempo ranges and song lists.";
-    var converterModel = new ObjectConverterModel {Name = "model", Model = Model};
+    var converterModel = new ObjectConverterModel
+    {
+        Name = "model",
+        Model = Model
+    };
 }
 
 <div id="app"></div>

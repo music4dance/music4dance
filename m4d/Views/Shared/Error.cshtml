@@ -38,7 +38,10 @@
     </p>
 
     <h3>Stack Trace:</h3>
-    var frames = exception.StackTrace.Split(new[] {'\n'}, StringSplitOptions.RemoveEmptyEntries);
+    var frames = exception.StackTrace.Split(new[]
+    {
+        '\n'
+    }, StringSplitOptions.RemoveEmptyEntries);
     <ul>
         @foreach (var s in frames)
         {

@@ -24,7 +24,7 @@ namespace m4d.Controllers
 
         // GET: Tag
         [AllowAnonymous]
-        public IActionResult Index([FromServices] IMapper mapper)
+        public IActionResult Index([FromServices]IMapper mapper)
         {
             UseVue = true;
             return View();
@@ -40,7 +40,11 @@ namespace m4d.Controllers
         public IActionResult Details(string id)
         {
             var code = GetTag(id, out var tagGroup);
-            if (HttpStatusCode.OK != code) return StatusCode((int) code);
+            if (HttpStatusCode.OK != code)
+            {
+                return StatusCode((int)code);
+            }
+
             return View(tagGroup);
         }
 
@@ -56,7 +60,7 @@ namespace m4d.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create([Bind("Key,PrimaryId")] TagGroup tagGroup)
+        public IActionResult Create([Bind("Key,PrimaryId")]TagGroup tagGroup)
         {
             if (ModelState.IsValid)
             {
@@ -88,7 +92,10 @@ namespace m4d.Controllers
         public IActionResult Edit(string id)
         {
             var code = GetTag(id, out var tagGroup);
-            if (HttpStatusCode.OK != code) return StatusCode((int) code);
+            if (HttpStatusCode.OK != code)
+            {
+                return StatusCode((int)code);
+            }
 
             var pid = tagGroup.PrimaryId ?? tagGroup.Key;
 
@@ -101,7 +108,7 @@ namespace m4d.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind("Key,PrimaryId")] TagGroup tagGroup, string newKey)
+        public ActionResult Edit([Bind("Key,PrimaryId")]TagGroup tagGroup, string newKey)
         {
             // The tagGroup coming in is the original tagGroup with a possibly edited Primary Key
             //  newKey is the key typed into the key field
@@ -114,7 +121,10 @@ namespace m4d.Controllers
             }
 
             var oldTag = Database.TagGroups.Find(tagGroup.Key);
-            if (oldTag == null) throw new ArgumentOutOfRangeException(nameof(newKey));
+            if (oldTag == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(newKey));
+            }
 
             return Database.UpdateTag(oldTag, newKey, tagGroup.PrimaryId)
                 ? RedirectToAction("List") as ActionResult
@@ -126,7 +136,10 @@ namespace m4d.Controllers
         public ActionResult Delete(string id)
         {
             var code = GetTag(id, out var tagGroup);
-            if (HttpStatusCode.OK != code) return StatusCode((int) code);
+            if (HttpStatusCode.OK != code)
+            {
+                return StatusCode((int)code);
+            }
 
             return View(tagGroup);
         }
@@ -152,9 +165,16 @@ namespace m4d.Controllers
         {
             tag = null;
 
-            if (id == null) return HttpStatusCode.BadRequest;
+            if (id == null)
+            {
+                return HttpStatusCode.BadRequest;
+            }
+
             tag = Database.TagGroups.Find(TagGroup.TagDecode(id));
-            if (tag == null) return HttpStatusCode.NotFound;
+            if (tag == null)
+            {
+                return HttpStatusCode.NotFound;
+            }
 
             return HttpStatusCode.OK;
         }

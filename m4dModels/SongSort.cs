@@ -15,10 +15,10 @@ namespace m4dModels
         };
 
         private static readonly string[] s_numerical =
-            {Song.TempoField, Song.MoodField, Song.CreatedField};
+            { Song.TempoField, Song.MoodField, Song.CreatedField };
 
         private static readonly string[] s_intrinsic =
-            {Song.EnergyField, Song.MoodField, Song.BeatField};
+            { Song.EnergyField, Song.MoodField, Song.BeatField };
 
         private const string SortAsc = "<span class='glyphicon glyphicon-sort-by-alphabet'></span>";
 
@@ -32,7 +32,11 @@ namespace m4dModels
 
         public SongSort(string sort)
         {
-            if (string.IsNullOrWhiteSpace(sort)) return;
+            if (string.IsNullOrWhiteSpace(sort))
+            {
+                return;
+            }
+
             var list = sort.Split('_').ToList();
             var count = -1;
 
@@ -65,8 +69,13 @@ namespace m4dModels
             }
 
             if (list.Count > 0)
+            {
                 if (!int.TryParse(list[0], out count))
+                {
                     Trace.WriteLineIf(TraceLevels.General.TraceError, $"Bad Sort: {sort}");
+                }
+            }
+
             Count = count;
         }
 
@@ -104,13 +113,24 @@ namespace m4dModels
         {
             get
             {
-                if (string.IsNullOrWhiteSpace(Id)) return null;
+                if (string.IsNullOrWhiteSpace(Id))
+                {
+                    return null;
+                }
 
-                if (Id == "Dances") return null;
+                if (Id == "Dances")
+                {
+                    return null;
+                }
+
                 var desc = Descending;
-                if (Id == "Modified" || Id == "Created" || Id == "Edited") desc = !desc;
+                if (Id == "Modified" || Id == "Created" || Id == "Edited")
+                {
+                    desc = !desc;
+                }
+
                 var order = desc ? "desc" : "asc";
-                return new List<string> {$"{Id} {order}"};
+                return new List<string> { $"{Id} {order}" };
             }
         }
 
@@ -118,11 +138,16 @@ namespace m4dModels
         {
             get
             {
-                if (string.IsNullOrWhiteSpace(Id)) return string.Empty;
+                if (string.IsNullOrWhiteSpace(Id))
+                {
+                    return string.Empty;
+                }
+
                 var ret = new System.Text.StringBuilder();
                 ret.AppendFormat(" Sorted by {0} from ", FriendlyName);
 
                 if (!Descending)
+                {
                     switch (Id)
                     {
                         case Song.TempoField:
@@ -148,7 +173,9 @@ namespace m4dModels
                             ret.Append("A to Z");
                             break;
                     }
+                }
                 else
+                {
                     switch (Id)
                     {
                         case Song.TempoField:
@@ -174,6 +201,7 @@ namespace m4dModels
                             ret.Append("Z to A");
                             break;
                     }
+                }
 
                 ret.Append(".");
                 return ret.ToString();
@@ -186,9 +214,13 @@ namespace m4dModels
             if (column == Id && !s_intrinsic.Contains(Id))
             {
                 if (s_numerical.Contains(Id))
+                {
                     ret = Descending ? SortNDsc : SortNAsc;
+                }
                 else
+                {
                     ret = Descending ? SortDsc : SortAsc;
+                }
             }
 
             return ret;

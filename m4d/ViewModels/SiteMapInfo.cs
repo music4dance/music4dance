@@ -20,10 +20,21 @@ namespace m4d.ViewModels
         protected string MakeFullPath(string rel)
         {
             const string blogPrefix = "blog/";
-            if (rel == null) return string.Empty;
-            if (rel == "blog") return "https://music4dance.blog/";
+            if (rel == null)
+            {
+                return string.Empty;
+            }
+
+            if (rel == "blog")
+            {
+                return "https://music4dance.blog/";
+            }
+
             if (rel.StartsWith(blogPrefix))
+            {
                 return $"https://music4dance.blog/{rel.Substring(blogPrefix.Length)}";
+            }
+
             return $"https://www.music4dance.net/{rel}";
         }
     }
@@ -67,7 +78,10 @@ namespace m4d.ViewModels
                     curdepth += 1;
                 }
 
-                if (Math.Abs(curdepth - depth) > 1) continue;
+                if (Math.Abs(curdepth - depth) > 1)
+                {
+                    continue;
+                }
 
                 if (curdepth > depth)
                 {
@@ -79,13 +93,14 @@ namespace m4d.ViewModels
                     family.Peek()[family.Peek().Count - 1].Children = t;
                 }
 
-                family.Peek().Add(new SiteMapEntry
-                {
-                    Title = parts[0],
-                    Reference = parts.Count > 1 ? parts[1] : null,
-                    Description = parts.Count > 2 ? parts[2] : null,
-                    OneTime = parts.Count > 3 && parts[3] == "OneTime"
-                });
+                family.Peek().Add(
+                    new SiteMapEntry
+                    {
+                        Title = parts[0],
+                        Reference = parts.Count > 1 ? parts[1] : null,
+                        Description = parts.Count > 2 ? parts[2] : null,
+                        OneTime = parts.Count > 3 && parts[3] == "OneTime"
+                    });
             }
 
             Children = family.Pop();
@@ -142,12 +157,12 @@ namespace m4d.ViewModels
                                 {
                                     Title = "Advanced Search", Reference = "song/advancedsearchform"
                                 },
-                                new() {Title = "Add Songs", Reference = "song/augment"},
-                                new() {Title = "New Music", Reference = "song/newmusic"},
-                                new() {Title = "Saved Searches", Reference = "searches/index"}
+                                new() { Title = "Add Songs", Reference = "song/augment" },
+                                new() { Title = "New Music", Reference = "song/newmusic" },
+                                new() { Title = "Saved Searches", Reference = "searches/index" }
                             }
                         },
-                        new() {Title = "Dance Index", Reference = "dances"},
+                        new() { Title = "Dance Index", Reference = "dances" },
                         new()
                         {
                             Title = "Ballroom Competition Categories",
@@ -174,8 +189,8 @@ namespace m4d.ViewModels
                                 }
                             }
                         },
-                        new() {Title = "Wedding Music", Reference = "dances/wedding-music"},
-                        new() {Title = "Holiday Music", Reference = "song/holidaymusic"},
+                        new() { Title = "Wedding Music", Reference = "dances/wedding-music" },
+                        new() { Title = "Holiday Music", Reference = "song/holidaymusic" },
                         new()
                         {
                             Title = "Halloween Music",
@@ -190,18 +205,18 @@ namespace m4d.ViewModels
                     Type = "info",
                     Entries = new List<SiteMapEntry>
                     {
-                        new() {Title = "Home Page", Reference = ""},
-                        new() {Title = "Contribute", Reference = "home/contribute"},
-                        new() {Title = "About Us", Reference = "home/about"},
-                        new() {Title = "FAQ", Reference = "home/faq"},
-                        new() {Title = "Privacy Policy", Reference = "home/privacypolicy"},
-                        new() {Title = "Terms of Service", Reference = "home/termsofservice"},
-                        new() {Title = "Credits", Reference = "home/credits"},
-                        new() {Title = "Reading List", Reference = "blog/reading-list"},
+                        new() { Title = "Home Page", Reference = "" },
+                        new() { Title = "Contribute", Reference = "home/contribute" },
+                        new() { Title = "About Us", Reference = "home/about" },
+                        new() { Title = "FAQ", Reference = "home/faq" },
+                        new() { Title = "Privacy Policy", Reference = "home/privacypolicy" },
+                        new() { Title = "Terms of Service", Reference = "home/termsofservice" },
+                        new() { Title = "Credits", Reference = "home/credits" },
+                        new() { Title = "Reading List", Reference = "blog/reading-list" },
                         new SiteMapFile("blogmap", fileProvider)
-                            {Title = "Blog", Reference = "blog"},
+                            { Title = "Blog", Reference = "blog" },
                         new SiteMapFile("helpmap", fileProvider)
-                            {Title = "Help", Reference = "blog/music4dance-help"}
+                            { Title = "Help", Reference = "blog/music4dance-help" }
                     }
                 },
                 new()
@@ -230,9 +245,9 @@ namespace m4d.ViewModels
                     Type = "tools",
                     Entries = new List<SiteMapEntry>
                     {
-                        new() {Title = "Profile", Reference = "identity/Account/Manage"},
-                        new() {Title = "Log In", Reference = "identity/account/login"},
-                        new() {Title = "Register", Reference = "identity/account/register"}
+                        new() { Title = "Profile", Reference = "identity/Account/Manage" },
+                        new() { Title = "Log In", Reference = "identity/account/login" },
+                        new() { Title = "Register", Reference = "identity/account/register" }
                     }
                 }
             };

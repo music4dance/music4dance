@@ -21,7 +21,10 @@ else
 
 <p class="big-text">Please click the button below to complete your transaction using <a href="https://stripe.com/" target="_blank">STRIPE</a></p>
 
-@using (Html.BeginForm("ConfirmPurchase", "Home", FormMethod.Post, new {id = "confirm"}))
+@using (Html.BeginForm("ConfirmPurchase", "Home", FormMethod.Post, new
+{
+    id = "confirm"
+}))
 {
     @Html.AntiForgeryToken()
 

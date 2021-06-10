@@ -63,10 +63,14 @@ namespace m4dModels
                 var ret = new List<string>();
                 var i = 0;
                 byte mask = 1;
-                while (mask != (byte) ContactStatus.Max)
+                while (mask != (byte)ContactStatus.Max)
                 {
-                    if ((mask & (byte) CanContact) == mask) ret.Add(ContactStrings[i]);
-                    mask = (byte) (mask << 1);
+                    if ((mask & (byte)CanContact) == mask)
+                    {
+                        ret.Add(ContactStrings[i]);
+                    }
+
+                    mask = (byte)(mask << 1);
                     i += 1;
                 }
 
@@ -81,8 +85,12 @@ namespace m4dModels
                 var ret = new List<string>();
 
                 if (!string.IsNullOrEmpty(ServicePreference))
-                    ret.AddRange(ServicePreference.Select(MusicService.GetService)
-                        .Where(s => s != null).Select(s => s.Name));
+                {
+                    ret.AddRange(
+                        ServicePreference.Select(MusicService.GetService)
+                            .Where(s => s != null).Select(s => s.Name));
+                }
+
                 return ret;
             }
         }
@@ -94,10 +102,10 @@ namespace m4dModels
                 var ret = new List<KeyValuePair<byte, string>>();
                 var i = 0;
                 byte mask = 1;
-                while (mask != (byte) ContactStatus.Max)
+                while (mask != (byte)ContactStatus.Max)
                 {
                     ret.Add(new KeyValuePair<byte, string>(mask, ContactStrings[i]));
-                    mask = (byte) (mask << 1);
+                    mask = (byte)(mask << 1);
                     i += 1;
                 }
 
@@ -111,10 +119,14 @@ namespace m4dModels
             {
                 var ret = new List<byte>();
                 byte mask = 1;
-                while (mask != (byte) ContactStatus.Max)
+                while (mask != (byte)ContactStatus.Max)
                 {
-                    if ((mask & (byte) CanContact) == mask) ret.Add(mask);
-                    mask = (byte) (mask << 1);
+                    if ((mask & (byte)CanContact) == mask)
+                    {
+                        ret.Add(mask);
+                    }
+
+                    mask = (byte)(mask << 1);
                 }
 
                 return ret;
@@ -140,7 +152,10 @@ namespace m4dModels
         public ApplicationUser(string userName, bool pseudo = false) : this()
         {
             UserName = userName;
-            if (pseudo) Email = $"{userName}@music4dance.net";
+            if (pseudo)
+            {
+                Email = $"{userName}@music4dance.net";
+            }
         }
 
         public ApplicationUser(string userName, string email) : this()

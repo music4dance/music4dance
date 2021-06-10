@@ -142,7 +142,14 @@
     <input name="Commit" type="submit" value="Okay" class="btn btn-small btn-primary"/>
     <input name="Commit" type="submit" value="Cancel" class="btn btn-small btn-primary"/>
 
-    @Html.ActionLink("Back to Search Results", ((SongFilter) ViewBag.SongFilter).TargetAction, new {filter = ViewBag.SongFilter}, new {@class = "btn btn-small btn-primary", role = "button"})
+    @Html.ActionLink("Back to Search Results", ((SongFilter)ViewBag.SongFilter).TargetAction, new
+    {
+        filter = ViewBag.SongFilter
+    }, new
+    {
+        @class = "btn btn-small btn-primary",
+        role = "button"
+    })
 }
 
 @section Scripts
@@ -150,7 +157,10 @@
     @{
         var scripts = new ScriptModel
         {
-            DevelopmentFiles = new[] {"merge"}
+            DevelopmentFiles = new[]
+            {
+                "merge"
+            }
         };
     }
 

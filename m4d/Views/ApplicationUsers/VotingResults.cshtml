@@ -36,11 +36,19 @@
                 }
                 else if (item.User.IsPseudo)
                 {
-                    <i>@Html.ActionLink(item.UserId, "FilterUser", "Song", new {user = item.UserId}, null)</i>
+                    <i>
+                        @Html.ActionLink(item.UserId, "FilterUser", "Song", new
+                        {
+                            user = item.UserId
+                        }, null)
+                    </i>
                 }
                 else
                 {
-                    @Html.ActionLink(item.UserId, "FilterUser", "Song", new {user = item.UserId}, null)
+                    @Html.ActionLink(item.UserId, "FilterUser", "Song", new
+                    {
+                        user = item.UserId
+                    }, null)
                 }
             </td>
             <td>

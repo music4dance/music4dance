@@ -33,7 +33,9 @@ namespace m4dModels
                 var allowAlternates = field.EndsWith("List");
 
                 var spm = new SongPropertyMerge
-                    {Name = field, AllowAlternates = allowAlternates, Values = new List<object>()};
+                {
+                    Name = field, AllowAlternates = allowAlternates, Values = new List<object>()
+                };
 
                 var defaultIdx = -1;
                 string fsCur = null;
@@ -52,7 +54,9 @@ namespace m4dModels
                     {
                         fs = fo.ToString();
                         if (string.IsNullOrWhiteSpace(fs))
+                        {
                             fs = null;
+                        }
                     }
 
                     if (fsCur == null && fs != null)
@@ -72,9 +76,13 @@ namespace m4dModels
                 if (cTotal == cMatch)
                 {
                     if (allowAlternates)
+                    {
                         spm.Selection = 0;
+                    }
                     else
+                    {
                         spm.Selection = -1;
+                    }
                 }
                 else
                 {

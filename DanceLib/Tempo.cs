@@ -26,7 +26,10 @@ namespace DanceLibrary
         /// <param name="s"></param>
         public Tempo(string s)
         {
-            if (string.IsNullOrEmpty(s)) throw new ArgumentNullException();
+            if (string.IsNullOrEmpty(s))
+            {
+                throw new ArgumentNullException();
+            }
 
             s = s.Trim();
 
@@ -41,7 +44,9 @@ namespace DanceLibrary
 
             decimal rate;
             if (!decimal.TryParse(rateString, out rate))
+            {
                 throw new ArgumentOutOfRangeException(PositiveDecimalRate);
+            }
 
             Rate = rate;
             TempoType = new TempoType(typeString);
@@ -65,7 +70,10 @@ namespace DanceLibrary
             {
                 var spb = SecondsPerBeat;
                 if (TempoType.TempoKind == TempoKind.MPM)
+                {
                     return spb * TempoType.Meter.Numerator;
+                }
+
                 return spb;
             }
         }
@@ -76,7 +84,9 @@ namespace DanceLibrary
         public Tempo Convert(TempoType tempoType)
         {
             if (tempoType == TempoType)
+            {
                 return this;
+            }
 
             var normalized = Normalize();
 
@@ -114,7 +124,10 @@ namespace DanceLibrary
         {
             var tempo = obj as Tempo;
             if (tempo == null)
+            {
                 return false;
+            }
+
             return TempoType == tempo.TempoType && Rate == tempo.Rate;
         }
 
@@ -126,10 +139,16 @@ namespace DanceLibrary
         public static bool operator ==(Tempo a, Tempo b)
         {
             // If both are null, or both are same instance, return true.
-            if (ReferenceEquals(a, b)) return true;
+            if (ReferenceEquals(a, b))
+            {
+                return true;
+            }
 
             // Handle a is null case☺.
-            if ((object) a == null) return (object) b == null;
+            if ((object)a == null)
+            {
+                return (object)b == null;
+            }
 
             return a.Equals(b);
         }

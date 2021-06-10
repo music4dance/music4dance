@@ -22,7 +22,11 @@ namespace m4d.APIControllers
         public async Task<IActionResult> Get(string id)
         {
             var suggestions = await Database.AzureSuggestions(id);
-            if (suggestions != null) return Ok(suggestions);
+            if (suggestions != null)
+            {
+                return Ok(suggestions);
+            }
+
             return NotFound();
         }
     }

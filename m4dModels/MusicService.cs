@@ -43,6 +43,7 @@ namespace m4dModels
             var link = BuildPurchaseLink(pt, album, id);
 
             if (link != null)
+            {
                 ret = new PurchaseLink
                 {
                     ServiceType = Id,
@@ -55,6 +56,7 @@ namespace m4dModels
                     AltText = Description,
                     AvailableMarkets = regions
                 };
+            }
 
             return ret;
         }
@@ -63,7 +65,7 @@ namespace m4dModels
         {
             var sb = new StringBuilder(3);
             sb.Append(CID);
-            sb.Append(PurchaseTypes[(int) pt]);
+            sb.Append(PurchaseTypes[(int)pt]);
             return sb.ToString();
         }
 
@@ -73,7 +75,10 @@ namespace m4dModels
 
         protected virtual string BuildPurchaseLink(PurchaseType pt, string album, string song)
         {
-            if (string.IsNullOrWhiteSpace(AssociateLink)) return null;
+            if (string.IsNullOrWhiteSpace(AssociateLink))
+            {
+                return null;
+            }
 
             var info = pt == PurchaseType.Song ? song : album;
 
@@ -82,7 +87,8 @@ namespace m4dModels
 
         public virtual string BuildSearchRequest(string artist, string title)
         {
-            return BuildRequest(SearchRequest,
+            return BuildRequest(
+                SearchRequest,
                 (artist ?? string.Empty) + " " + (title ?? string.Empty));
         }
 
@@ -109,7 +115,11 @@ namespace m4dModels
         public string BuildTrackRequest(string id, string region = null)
         {
             var ret = BuildRequest(TrackRequest, id);
-            if (!string.IsNullOrWhiteSpace(region)) ret += "?market=" + region;
+            if (!string.IsNullOrWhiteSpace(region))
+            {
+                ret += "?market=" + region;
+            }
+
             return ret;
         }
 
@@ -165,10 +175,12 @@ namespace m4dModels
             ServiceType ms;
 
             if (!TryParsePurchaseType(abbrv, out pt, out ms))
+            {
                 throw new ArgumentOutOfRangeException(nameof(abbrv));
+            }
 
             var service = IdMap[ms].Name;
-            var type = PurchaseTypesEx[(int) pt];
+            var type = PurchaseTypesEx[(int)pt];
 
             return service + " " + type;
         }
@@ -180,11 +192,17 @@ namespace m4dModels
             ms = ServiceType.None;
             id = null;
 
-            if (string.IsNullOrWhiteSpace(pi)) return false;
+            if (string.IsNullOrWhiteSpace(pi))
+            {
+                return false;
+            }
 
             var parts = pi.Split('=');
 
-            if (parts.Length != 2 || !TryParsePurchaseType(parts[0], out pt, out ms)) return false;
+            if (parts.Length != 2 || !TryParsePurchaseType(parts[0], out pt, out ms))
+            {
+                return false;
+            }
 
             id = parts[1];
 
@@ -194,15 +212,25 @@ namespace m4dModels
         public static bool TryParsePurchaseType(string abbrv, out PurchaseType pt,
             out ServiceType ms)
         {
-            if (abbrv == null) throw new ArgumentNullException(nameof(abbrv));
+            if (abbrv == null)
+            {
+                throw new ArgumentNullException(nameof(abbrv));
+            }
 
             ms = ServiceType.None;
             pt = PurchaseType.None;
 
-            if (abbrv.Length != 2) return false;
+            if (abbrv.Length != 2)
+            {
+                return false;
+            }
 
             var service = CidMap[abbrv[0]];
-            if (service == null) throw new ArgumentOutOfRangeException(nameof(abbrv));
+            if (service == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(abbrv));
+            }
+
             ms = service.Id;
 
             // ReSharper disable once SwitchStatementMissingSomeCases
@@ -223,7 +251,9 @@ namespace m4dModels
         public static string FormatPurchaseFilter(string pf, string separator = ", ")
         {
             if (string.IsNullOrWhiteSpace(pf))
+            {
                 return null;
+            }
 
             var services =
                 (from c in pf
@@ -267,7 +297,10 @@ namespace m4dModels
 
         public static MusicService GetService(string type)
         {
-            if (string.IsNullOrEmpty(type)) throw new ArgumentNullException(nameof(type));
+            if (string.IsNullOrEmpty(type))
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
 
             return GetService(type[0]);
         }
@@ -298,8 +331,8 @@ namespace m4dModels
 
         #region PurchaseType
 
-        private static readonly char[] PurchaseTypes = {'#', 'A', 'S'};
-        private static readonly string[] PurchaseTypesEx = {"None", "Album", "Song"};
+        private static readonly char[] PurchaseTypes = { '#', 'A', 'S' };
+        private static readonly string[] PurchaseTypesEx = { "None", "Album", "Song" };
 
         #endregion
     }

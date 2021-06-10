@@ -14,7 +14,10 @@
 <h1>@ViewBag.Title</h1>
 
 <div class="row">
-    @foreach (var type in new[] {"music", "info", "tools"})
+    @foreach (var type in new[]
+    {
+        "music", "info", "tools"
+    })
     {
         <div class="@type col-sm-4">
             @foreach (var category in Model.Where(c => c.Type == type))

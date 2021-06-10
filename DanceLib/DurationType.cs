@@ -24,7 +24,7 @@ namespace DanceLibrary
 
         public static DurationType FromKind(DurationKind dk)
         {
-            return s_commonDurations[(int) dk];
+            return s_commonDurations[(int)dk];
         }
 
         #region Constructors
@@ -37,15 +37,25 @@ namespace DanceLibrary
         public DurationType(string s)
         {
             if (s.Equals("Beat"))
+            {
                 _dk = DurationKind.Beat;
+            }
             else if (s.Equals("Measure"))
+            {
                 _dk = DurationKind.Measure;
+            }
             else if (s.Equals("Second"))
+            {
                 _dk = DurationKind.Second;
+            }
             else if (s.Equals("Minute"))
+            {
                 _dk = DurationKind.Minute;
+            }
             else
+            {
                 System.Diagnostics.Debug.Assert(false);
+            }
         }
 
         #endregion
@@ -80,16 +90,20 @@ namespace DanceLibrary
 
         public static implicit operator DurationType(DurationKind dk)
         {
-            return s_commonDurations[(int) dk];
+            return s_commonDurations[(int)dk];
         }
 
         public override bool Equals(object obj)
         {
             var duration = obj as DurationType;
             if (duration == null)
+            {
                 return false;
+            }
             else
+            {
                 return _dk == duration._dk;
+            }
         }
 
         public override int GetHashCode()

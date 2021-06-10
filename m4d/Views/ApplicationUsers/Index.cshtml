@@ -51,33 +51,97 @@
     </div>
 
     <div class="col-md-3">
-        @foreach (var logIn in new List<string> {"Microsoft", "Spotify", "Facebook", "Google"})
+        @foreach (var logIn in new List<string>
+        {
+            "Microsoft",
+            "Spotify",
+            "Facebook",
+            "Google"
+        })
         {
             <p><b>@logIn</b>: @users.Count(u => u.Logins.Any(l => l == logIn))</p>
         }
     </div>
 
     <div class="col-md-3">
-        <p>@Html.ActionLink("New Pseudo User", "Create", "ApplicationUsers", null, new {@class = "btn btn-primary", role = "button"})</p>
+        <p>
+            @Html.ActionLink("New Pseudo User", "Create", "ApplicationUsers", null, new
+            {
+                @class = "btn btn-primary",
+                role = "button"
+            })
+        </p>
         @if (ViewBag.ShowUnconfirmed)
         {
-            <p>@Html.ActionLink("Hide Unconfirmed", "Index", new {showUnconfirmed = false, showPseudo = showPseudo}, new {@class = "btn btn-primary", role = "button"})</p>
+            <p>
+                @Html.ActionLink("Hide Unconfirmed", "Index", new
+                {
+                    showUnconfirmed = false,
+                    showPseudo = showPseudo
+                }, new
+                {
+                    @class = "btn btn-primary",
+                    role = "button"
+                })
+            </p>
         }
         else
         {
-            <p>@Html.ActionLink("Show Unconfirmed", "Index", new {showUnconfirmed = true, showPseudo = showPseudo}, new {@class = "btn btn-primary", role = "button"})</p>
+            <p>
+                @Html.ActionLink("Show Unconfirmed", "Index", new
+                {
+                    showUnconfirmed = true,
+                    showPseudo = showPseudo
+                }, new
+                {
+                    @class = "btn btn-primary",
+                    role = "button"
+                })
+            </p>
         }
         @if (ViewBag.ShowPseudo)
         {
-            <p>@Html.ActionLink("Hide Pseudo", "Index", new {showPseudo = false, showUnconfirmed = showUnconfirmed}, new {@class = "btn btn-primary", role = "button"})</p>
+            <p>
+                @Html.ActionLink("Hide Pseudo", "Index", new
+                {
+                    showPseudo = false,
+                    showUnconfirmed = showUnconfirmed
+                }, new
+                {
+                    @class = "btn btn-primary",
+                    role = "button"
+                })
+            </p>
         }
         else
         {
-            <p>@Html.ActionLink("Show Pseudo", "Index", new {showPseudo = true, showUnconfirmed = showUnconfirmed}, new {@class = "btn btn-primary", role = "button"})</p>
+            <p>
+                @Html.ActionLink("Show Pseudo", "Index", new
+                {
+                    showPseudo = true,
+                    showUnconfirmed = showUnconfirmed
+                }, new
+                {
+                    @class = "btn btn-primary",
+                    role = "button"
+                })
+            </p>
         }
 
-        <p>@Html.ActionLink("Clear Cache", "ClearCache", "ApplicationUsers", null, new {@class = "btn btn-secondary", role = "button"})</p>
-        <p>@Html.ActionLink("Voting Results", "VotingResults", "ApplicationUsers", null, new {@class = "btn btn-primary", role = "button"})</p>
+        <p>
+            @Html.ActionLink("Clear Cache", "ClearCache", "ApplicationUsers", null, new
+            {
+                @class = "btn btn-secondary",
+                role = "button"
+            })
+        </p>
+        <p>
+            @Html.ActionLink("Voting Results", "VotingResults", "ApplicationUsers", null, new
+            {
+                @class = "btn btn-primary",
+                role = "button"
+            })
+        </p>
     </div>
 
 </div>
@@ -96,11 +160,11 @@
         }
 
         <tr>
-            <td>@service.Name</td><td>@c</td><td>@(((double) c / registeredUsers).ToString("0.##%"))</td><td>@(((double) c / hasServicePreference).ToString("0.##%"))</td>
+            <td>@service.Name</td><td>@c</td><td>@(((double)c / registeredUsers).ToString("0.##%"))</td><td>@(((double)c / hasServicePreference).ToString("0.##%"))</td>
         </tr>
     }
     <tr>
-        <td>none</td><td>@(registeredUsers - hasServicePreference)</td><td>@(((double) (registeredUsers - hasServicePreference) / registeredUsers).ToString("0.##%"))</td>
+        <td>none</td><td>@(registeredUsers - hasServicePreference)</td><td>@(((double)(registeredUsers - hasServicePreference) / registeredUsers).ToString("0.##%"))</td>
     </tr>
 </table>
 
@@ -172,7 +236,13 @@
                 @Html.DisplayFor(modelItem => item.User.EmailConfirmed)
             </td>
             <td>
-                @Html.ActionLink(item.User.UserName, "Details", new {id = item.User.Id}, new {style = fontStyle})
+                @Html.ActionLink(item.User.UserName, "Details", new
+                {
+                    id = item.User.Id
+                }, new
+                {
+                    style = fontStyle
+                })
                 <br/>
                 @Html.DisplayFor(modelItem => item.User.Email)
             </td>
@@ -198,11 +268,28 @@
             <td>@Html.Raw(string.Join("<br />", item.Roles))</td>
             <td>@Html.Raw(string.Join("<br />", item.Logins))</td>
             <td>
-                @Html.ActionLink("List Songs", "FilterUser", "Song", new {user = item.User.UserName}, null),
-                @Html.ActionLink("List Searches", "Index", "Searches", new {user = item.User.UserName, showDetails = true, sort = "recent"}, null) <br/>
-                @Html.ActionLink("Change Roles", "ChangeRoles", new {id = item.User.Id}) <br/>
-                @Html.ActionLink("Delete", "Delete", new {id = item.User.Id}),
-                @Html.ActionLink("Edit", "Edit", new {id = item.User.Id})
+                @Html.ActionLink("List Songs", "FilterUser", "Song", new
+                {
+                    user = item.User.UserName
+                }, null),
+                @Html.ActionLink("List Searches", "Index", "Searches", new
+                {
+                    user = item.User.UserName,
+                    showDetails = true,
+                    sort = "recent"
+                }, null) <br/>
+                @Html.ActionLink("Change Roles", "ChangeRoles", new
+                {
+                    id = item.User.Id
+                }) <br/>
+                @Html.ActionLink("Delete", "Delete", new
+                {
+                    id = item.User.Id
+                }),
+                @Html.ActionLink("Edit", "Edit", new
+                {
+                    id = item.User.Id
+                })
 
                 @*
             @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |

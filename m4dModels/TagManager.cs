@@ -42,7 +42,11 @@ namespace m4dModels
             foreach (var tt in TagGroups.Where(tt => !string.IsNullOrEmpty(tt.PrimaryId)))
             {
                 tt.Primary = TagMap[tt.PrimaryId.ToLower()];
-                if (tt.Primary.Children == null) tt.Primary.Children = new List<TagGroup>();
+                if (tt.Primary.Children == null)
+                {
+                    tt.Primary.Children = new List<TagGroup>();
+                }
+
                 tt.Primary.Children.Add(tt);
             }
         }
@@ -53,7 +57,10 @@ namespace m4dModels
             {
                 var tt = TagMap.GetValueOrDefault(tag.ToLower()) ??
                     _queuedTags.GetValueOrDefault(tag.ToLower());
-                if (tt != null) return tt;
+                if (tt != null)
+                {
+                    return tt;
+                }
 
                 var t = TagList.NormalizeTag(tag);
 
@@ -70,10 +77,16 @@ namespace m4dModels
             lock (_queuedTags)
             {
                 TagMap[tt.Key.ToLower()] = tt;
-                var index = TagGroups.BinarySearch(tt,
-                    Comparer<TagGroup>.Create((a, b) =>
-                        string.Compare(a.Key, b.Key, StringComparison.OrdinalIgnoreCase)));
-                if (index < 0) index = ~index;
+                var index = TagGroups.BinarySearch(
+                    tt,
+                    Comparer<TagGroup>.Create(
+                        (a, b) =>
+                            string.Compare(a.Key, b.Key, StringComparison.OrdinalIgnoreCase)));
+                if (index < 0)
+                {
+                    index = ~index;
+                }
+
                 TagGroups.Insert(index, tt);
             }
         }
@@ -84,13 +97,27 @@ namespace m4dModels
             {
                 key = key.ToLower();
                 var tt = TagMap.GetValueOrDefault(key);
-                if (tt == null) return;
-                if (!TagMap.Remove(key)) return;
+                if (tt == null)
+                {
+                    return;
+                }
+
+                if (!TagMap.Remove(key))
+                {
+                    return;
+                }
+
                 tt.Primary?.Children.Remove(tt);
-                var index = TagGroups.BinarySearch(tt,
-                    Comparer<TagGroup>.Create((a, b) =>
-                        string.Compare(a.Key, b.Key, StringComparison.OrdinalIgnoreCase)));
-                if (index < 0) return;
+                var index = TagGroups.BinarySearch(
+                    tt,
+                    Comparer<TagGroup>.Create(
+                        (a, b) =>
+                            string.Compare(a.Key, b.Key, StringComparison.OrdinalIgnoreCase)));
+                if (index < 0)
+                {
+                    return;
+                }
+
                 TagGroups.RemoveAt(index);
             }
         }
@@ -100,7 +127,10 @@ namespace m4dModels
             lock (_queuedTags)
             {
                 var tagGroup = TagMap.GetValueOrDefault(key.ToLower());
-                if (tagGroup == null) return;
+                if (tagGroup == null)
+                {
+                    return;
+                }
 
                 if (string.IsNullOrEmpty(primaryId))
                 {
@@ -122,7 +152,10 @@ namespace m4dModels
             lock (_queuedTags)
             {
                 var tag = TagMap.GetValueOrDefault(oldKey.ToLower());
-                if (tag == null) return;
+                if (tag == null)
+                {
+                    return;
+                }
 
                 DeleteTagGroup(oldKey);
 
@@ -145,12 +178,15 @@ namespace m4dModels
         {
             foreach (var facet in facets)
             {
-                if (!facet.Count.HasValue) continue;
+                if (!facet.Count.HasValue)
+                {
+                    continue;
+                }
 
                 var key = $"{facet.Value}:{category}";
                 var tt = FindOrCreateTagGroup(key);
 
-                tt.Count = (int) facet.Count.Value;
+                tt.Count = (int)facet.Count.Value;
             }
         }
 

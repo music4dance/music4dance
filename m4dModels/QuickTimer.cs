@@ -9,7 +9,10 @@ namespace m4dModels
         public void ReportTime(string label)
         {
             // TODO: Cleanup the formatting
-            if (!_active) return;
+            if (!_active)
+            {
+                return;
+            }
 
             var next = DateTime.Now;
             var delta = next - _lastTime;
@@ -17,16 +20,26 @@ namespace m4dModels
             _lastTime = next;
 
             TimeSpan total;
-            if (_totals.TryGetValue(label, out total)) delta += total;
+            if (_totals.TryGetValue(label, out total))
+            {
+                delta += total;
+            }
+
             _totals[label] = delta;
         }
 
         public void ReportTotals()
         {
-            if (!_active) return;
+            if (!_active)
+            {
+                return;
+            }
 
             Trace.WriteLine("-------TOTALS------");
-            foreach (var pair in _totals) Trace.WriteLine($"{pair.Key}- {pair.Value.TotalMinutes}");
+            foreach (var pair in _totals)
+            {
+                Trace.WriteLine($"{pair.Key}- {pair.Value.TotalMinutes}");
+            }
         }
 
         private DateTime _lastTime = DateTime.Now;

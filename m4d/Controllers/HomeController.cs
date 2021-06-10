@@ -27,7 +27,7 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
-        public IActionResult Index([FromServices] IFileProvider fileProvider)
+        public IActionResult Index([FromServices]IFileProvider fileProvider)
         {
             UseVue = true;
             return View(new HomeModel(SiteMapInfo.GetCategories(fileProvider)));
@@ -59,7 +59,7 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
-        public IActionResult SiteMap([FromServices] IFileProvider fileProvider)
+        public IActionResult SiteMap([FromServices]IFileProvider fileProvider)
         {
             return View(SiteMapInfo.GetCategories(fileProvider));
         }
@@ -93,9 +93,15 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public IActionResult Counter(int? numerator = null, decimal? tempo = null)
         {
-            if (numerator.HasValue && numerator != 0) ViewBag.paramNumerator = numerator.Value;
+            if (numerator.HasValue && numerator != 0)
+            {
+                ViewBag.paramNumerator = numerator.Value;
+            }
 
-            if (tempo.HasValue) ViewBag.paramTempo = tempo.Value;
+            if (tempo.HasValue)
+            {
+                ViewBag.paramTempo = tempo.Value;
+            }
 
             HelpPage = "tempo-counter";
             UseVue = true;
@@ -137,7 +143,7 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
-        public async Task<IActionResult> Purchase([FromServices] IConfiguration configuration,
+        public async Task<IActionResult> Purchase([FromServices]IConfiguration configuration,
             decimal amount, PurchaseKind kind)
         {
             HelpPage = "subscriptions";
@@ -167,8 +173,8 @@ namespace m4d.Controllers
         [ValidateAntiForgeryToken]
         [AllowAnonymous]
         public async Task<ActionResult> ConfirmPurchase(
-            [FromServices] SignInManager<ApplicationUser> signInManager,
-            [FromServices] IConfiguration configuration, string stripeToken, string stripeEmail,
+            [FromServices]SignInManager<ApplicationUser> signInManager,
+            [FromServices]IConfiguration configuration, string stripeToken, string stripeEmail,
             PurchaseKind kind, decimal amount)
         {
             HelpPage = "subscriptions";
@@ -191,8 +197,11 @@ namespace m4d.Controllers
                 StripeConfiguration.ApiKey = configuration["Authentication:Stripe:SecretKey"];
 
 
-                var metaData = new Dictionary<string, string> {{"confirmation-code", conf}};
-                if (userName != null) metaData.Add("user-id", userName);
+                var metaData = new Dictionary<string, string> { { "confirmation-code", conf } };
+                if (userName != null)
+                {
+                    metaData.Add("user-id", userName);
+                }
 
                 ApplicationUser user = null;
                 if (kind == PurchaseKind.Purchase && userName != null)
@@ -219,7 +228,10 @@ namespace m4d.Controllers
                     {
                         DateTime? start = DateTime.Now;
                         if (user.SubscriptionEnd != null && user.SubscriptionEnd < start)
+                        {
                             start = user.SubscriptionEnd;
+                        }
+
                         user.SubscriptionStart = start;
                         user.SubscriptionEnd = start.Value.AddYears(1);
                         user.SubscriptionLevel = SubscriptionLevel.Silver;

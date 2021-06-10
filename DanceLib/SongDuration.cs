@@ -50,11 +50,19 @@ namespace DanceLibrary
                     Length = length * 60;
                     break;
                 case DurationKind.Beat:
-                    if (tempo == null) throw new ArgumentNullException("tempo");
+                    if (tempo == null)
+                    {
+                        throw new ArgumentNullException("tempo");
+                    }
+
                     Length = length * tempo.SecondsPerBeat;
                     break;
                 case DurationKind.Measure:
-                    if (tempo == null) throw new ArgumentNullException("tempo");
+                    if (tempo == null)
+                    {
+                        throw new ArgumentNullException("tempo");
+                    }
+
                     Length = length * tempo.SecondsPerMeasure;
                     break;
                 default:
@@ -88,7 +96,7 @@ namespace DanceLibrary
             {
                 if (s.IndexOf(':') >= 0)
                 {
-                    var parts = s.Split(new[] {':'}, StringSplitOptions.RemoveEmptyEntries);
+                    var parts = s.Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
 
                     if (parts.Length >= 3)
                     {
@@ -132,8 +140,14 @@ namespace DanceLibrary
             var dmin = 0m;
             var dsec = 0m;
             if (!string.IsNullOrEmpty(smin) && decimal.TryParse(smin, out dmin))
+            {
                 seconds = 60 * dmin;
-            if (!string.IsNullOrEmpty(ssec) && decimal.TryParse(ssec, out dsec)) seconds += dsec;
+            }
+
+            if (!string.IsNullOrEmpty(ssec) && decimal.TryParse(ssec, out dsec))
+            {
+                seconds += dsec;
+            }
 
             Length = seconds;
 
@@ -143,7 +157,9 @@ namespace DanceLibrary
         private void Validate()
         {
             if (Length < 0)
+            {
                 throw new ArgumentOutOfRangeException("length", "length must be non-negative");
+            }
         }
 
         #endregion
@@ -153,9 +169,9 @@ namespace DanceLibrary
         // This is a read only property
         public decimal Length { get; }
 
-        public int Minutes => (int) (Length / 60);
+        public int Minutes => (int)(Length / 60);
 
-        public int Seconds => (int) (Length - 60 * Minutes);
+        public int Seconds => (int)(Length - 60 * Minutes);
 
         public string Name => Format(DurationFormat.Long);
 
@@ -185,7 +201,7 @@ namespace DanceLibrary
         {
             if (obj is SongDuration)
             {
-                var other = (SongDuration) obj;
+                var other = (SongDuration)obj;
                 return CompareTo(other) == 0;
             }
 
@@ -216,10 +232,18 @@ namespace DanceLibrary
                 case DurationKind.Minute:
                     return Length / 60;
                 case DurationKind.Beat:
-                    if (tempo == null) throw new ArgumentNullException("tempo");
+                    if (tempo == null)
+                    {
+                        throw new ArgumentNullException("tempo");
+                    }
+
                     return Length / tempo.SecondsPerBeat;
                 case DurationKind.Measure:
-                    if (tempo == null) throw new ArgumentNullException("tempo");
+                    if (tempo == null)
+                    {
+                        throw new ArgumentNullException("tempo");
+                    }
+
                     return Length / tempo.SecondsPerMeasure;
                 default:
                     Debug.Assert(false);
@@ -241,7 +265,10 @@ namespace DanceLibrary
         {
             var c = 'M';
 
-            if (format.Length > 0) c = format[0];
+            if (format.Length > 0)
+            {
+                c = format[0];
+            }
 
             switch (c)
             {
@@ -257,19 +284,31 @@ namespace DanceLibrary
 
         public string Format(DurationFormat f)
         {
-            string[] rgs = {"{0:N0}s", "{0}m", "{0}m{1}s"};
-            string[] rgl = {"{0:N0} second(s)", "{0} minute(s)", "{0} minutes, {1} seconds"};
+            string[] rgs = { "{0:N0}s", "{0}m", "{0}m{1}s" };
+            string[] rgl = { "{0:N0} second(s)", "{0} minute(s)", "{0} minutes, {1} seconds" };
             var rg = rgl;
 
             var exact = false;
-            if (Length / 60 == Minutes) exact = true;
+            if (Length / 60 == Minutes)
+            {
+                exact = true;
+            }
 
-            if (f == DurationFormat.Short) rg = rgs;
+            if (f == DurationFormat.Short)
+            {
+                rg = rgs;
+            }
 
             if (Length < 100)
+            {
                 return string.Format(rg[0], Length);
+            }
+
             if (exact)
+            {
                 return string.Format(rg[1], Minutes);
+            }
+
             return string.Format(rg[2], Minutes, Seconds);
         }
 

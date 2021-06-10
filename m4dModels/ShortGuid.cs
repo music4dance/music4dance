@@ -10,7 +10,10 @@ namespace m4dModels
         /// <summary>Create a 22-character case-sensitive short GUID.</summary>
         public ShortGuid(Guid guid)
         {
-            if (guid == null) throw new ArgumentNullException(nameof(guid));
+            if (guid == null)
+            {
+                throw new ArgumentNullException(nameof(guid));
+            }
 
             _guid = guid;
             _value = Convert.ToBase64String(guid.ToByteArray())
@@ -36,12 +39,20 @@ namespace m4dModels
         /// <exception cref="System.FormatException"></exception>
         public static ShortGuid Parse(string shortGuid)
         {
-            if (shortGuid == null) throw new ArgumentNullException(nameof(shortGuid));
-            if (shortGuid.Length != 22)
-                throw new FormatException("Input string was not in a correct format.");
+            if (shortGuid == null)
+            {
+                throw new ArgumentNullException(nameof(shortGuid));
+            }
 
-            return new ShortGuid(new Guid(Convert.FromBase64String
-                (shortGuid.Replace("_", "/").Replace("-", "+") + "==")));
+            if (shortGuid.Length != 22)
+            {
+                throw new FormatException("Input string was not in a correct format.");
+            }
+
+            return new ShortGuid(
+                new Guid(
+                    Convert.FromBase64String
+                        (shortGuid.Replace("_", "/").Replace("-", "+") + "==")));
         }
 
         public static implicit operator string(ShortGuid guid)

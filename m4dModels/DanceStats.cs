@@ -38,27 +38,49 @@ namespace m4dModels
             Debug.Assert(danceId == DanceObject.Id && danceName == DanceObject.Name);
         }
 
-        [JsonProperty] public string DanceId => DanceObject?.Id ?? "All";
-        [JsonProperty] public string DanceName => DanceObject?.Name ?? "All Dances";
-        [JsonProperty] public string BlogTag => DanceObject?.BlogTag;
+        [JsonProperty]
+        public string DanceId => DanceObject?.Id ?? "All";
+
+        [JsonProperty]
+        public string DanceName => DanceObject?.Name ?? "All Dances";
+
+        [JsonProperty]
+        public string BlogTag => DanceObject?.BlogTag;
 
         // Properties mirrored from the database Dance object
-        [JsonProperty] public string Description { get; set; }
-        [JsonProperty] public long SongCount { get; set; }
-        [JsonProperty] public long SongCountExplicit { get; set; }
-        [JsonProperty] public long SongCountImplicit { get; set; }
-        [JsonProperty] public int MaxWeight { get; set; }
-        [JsonProperty] public TagSummary SongTags { get; set; }
-        [JsonProperty] public string SpotifyPlaylist { get; set; }
+        [JsonProperty]
+        public string Description { get; set; }
+
+        [JsonProperty]
+        public long SongCount { get; set; }
+
+        [JsonProperty]
+        public long SongCountExplicit { get; set; }
+
+        [JsonProperty]
+        public long SongCountImplicit { get; set; }
+
+        [JsonProperty]
+        public int MaxWeight { get; set; }
+
+        [JsonProperty]
+        public TagSummary SongTags { get; set; }
+
+        [JsonProperty]
+        public string SpotifyPlaylist { get; set; }
 
         public TagSummary AggregateSongTags => Children == null
             ? SongTags
-            : TagAccumulator.MergeSummaries(Children.Select(c => c.SongTags)
-                .Concat(Enumerable.Repeat(SongTags, 1)));
+            : TagAccumulator.MergeSummaries(
+                Children.Select(c => c.SongTags)
+                    .Concat(Enumerable.Repeat(SongTags, 1)));
 
-        [JsonProperty] public List<DanceLink> DanceLinks { get; set; }
+        [JsonProperty]
+        public List<DanceLink> DanceLinks { get; set; }
 
-        [JsonProperty] public IEnumerable<Song> TopSongs => _topSongs;
+        [JsonProperty]
+        public IEnumerable<Song> TopSongs => _topSongs;
+
         private List<Song> _topSongs;
         private readonly List<string> _songStrings;
 
@@ -74,15 +96,21 @@ namespace m4dModels
 
         // Structural properties
         public DanceStats Parent { get; set; }
-        [JsonProperty] public List<DanceStats> Children { get; set; }
-        [JsonProperty] public string SeoName => DanceObject.SeoFriendly(DanceName);
+
+        [JsonProperty]
+        public List<DanceStats> Children { get; set; }
+
+        [JsonProperty]
+        public string SeoName => DanceObject.SeoFriendly(DanceName);
 
         // Dance Metadata
         public DanceObject DanceObject { get; set; }
 
-        [JsonProperty] public DanceType DanceType => DanceObject as DanceType;
+        [JsonProperty]
+        public DanceType DanceType => DanceObject as DanceType;
 
-        [JsonProperty] public DanceGroup DanceGroup => DanceObject as DanceGroup;
+        [JsonProperty]
+        public DanceGroup DanceGroup => DanceObject as DanceGroup;
 
         public Dance Dance => new Dance
         {
@@ -95,7 +123,10 @@ namespace m4dModels
 
         public void CopyDanceInfo(Dance dance, bool includeStats, DanceMusicCoreService dms)
         {
-            if (dance == null) return;
+            if (dance == null)
+            {
+                return;
+            }
 
             Description = dance.Description;
             DanceLinks = dance.DanceLinks;
@@ -106,16 +137,26 @@ namespace m4dModels
         public void UpdateCompetitionDances()
         {
             var dt = DanceObject as DanceType;
-            if (dt == null) return;
+            if (dt == null)
+            {
+                return;
+            }
 
             var competition = dt.Instances
                 .Where(di => !string.IsNullOrWhiteSpace(di.CompetitionGroup)).ToList();
-            if (competition.Any()) CompetitionDances = competition;
+            if (competition.Any())
+            {
+                CompetitionDances = competition;
+            }
         }
 
         public void SetParents()
         {
-            if (Children == null) return;
+            if (Children == null)
+            {
+                return;
+            }
+
             foreach (var c in Children)
             {
                 c.Parent = this;

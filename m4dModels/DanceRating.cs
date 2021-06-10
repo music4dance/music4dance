@@ -35,20 +35,30 @@ namespace m4dModels
             CurrentUserTags = userTags;
         }
 
-        [DataMember] public string DanceId { get; set; }
+        [DataMember]
+        public string DanceId { get; set; }
 
-        [DataMember] public string DanceName { get; set; }
-        [DataMember] public int Max { get; set; }
-        [DataMember] public string Badge { get; set; }
+        [DataMember]
+        public string DanceName { get; set; }
 
-        [DataMember] public int Weight { get; set; }
+        [DataMember]
+        public int Max { get; set; }
+
+        [DataMember]
+        public string Badge { get; set; }
+
+        [DataMember]
+        public int Weight { get; set; }
 
         public override void RegisterChangedTags(TagList added, TagList removed, string user,
             object data)
         {
             base.RegisterChangedTags(added, removed, user, data);
 
-            if (data == null) return;
+            if (data == null)
+            {
+                return;
+            }
 
             if (!(data is Song song))
             {
@@ -63,27 +73,38 @@ namespace m4dModels
         protected override HashSet<string> ValidClasses => s_validClasses;
 
         private static readonly HashSet<string> s_validClasses = new HashSet<string>
-            {"style", "tempo", "other"};
+            { "style", "tempo", "other" };
 
         public static IEnumerable<DanceRatingDelta> BuildDeltas(string dances, int delta)
         {
             var drds = new List<DanceRatingDelta>();
 
-            var dl = dances.Split(new[] {',', '/'}, StringSplitOptions.RemoveEmptyEntries);
+            var dl = dances.Split(new[] { ',', '/' }, StringSplitOptions.RemoveEmptyEntries);
 
             foreach (var ds in dl)
             {
                 string list;
                 string[] ids = null;
                 if (DanceMap.TryGetValue(Song.CleanDanceName(ds), out list))
-                    ids = list.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries);
-                else if (Dances.Instance.DanceFromId(ds) != null) ids = new[] {ds};
+                {
+                    ids = list.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                }
+                else if (Dances.Instance.DanceFromId(ds) != null)
+                {
+                    ids = new[] { ds };
+                }
 
                 if (ids != null)
-                    drds.AddRange(ids.Select(id => new DanceRatingDelta
-                        {DanceId = id, Delta = delta}));
+                {
+                    drds.AddRange(
+                        ids.Select(
+                            id => new DanceRatingDelta
+                                { DanceId = id, Delta = delta }));
+                }
                 else
+                {
                     Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Unknown Dance(s): {dances}");
+                }
             }
 
             return drds;
@@ -95,11 +116,20 @@ namespace m4dModels
             {
                 lock (InitialDanceMap)
                 {
-                    if (s_builtDanceMap) return InitialDanceMap;
+                    if (s_builtDanceMap)
+                    {
+                        return InitialDanceMap;
+                    }
 
-                    foreach (var d in Dance.DanceLibrary.AllDanceGroups) AddDanceToMap(d);
+                    foreach (var d in Dance.DanceLibrary.AllDanceGroups)
+                    {
+                        AddDanceToMap(d);
+                    }
 
-                    foreach (var d in Dance.DanceLibrary.AllDanceTypes) AddDanceToMap(d);
+                    foreach (var d in Dance.DanceLibrary.AllDanceTypes)
+                    {
+                        AddDanceToMap(d);
+                    }
 
                     s_builtDanceMap = true;
                 }
@@ -119,41 +149,41 @@ namespace m4dModels
         private static readonly Dictionary<string, string> InitialDanceMap =
             new Dictionary<string, string>()
             {
-                {"SLOWANDCROSSSTEPWALTZ", "CSW,SWZ"},
-                {"SOCIALTANGO", "TNG"},
-                {"VIENNESE", "VWZ"}, {"MODERATETOFASTWALTZ", "VWZ"},
-                {"SLOWDANCEFOXTROT", "SFT"},
-                {"FOXTROTSLOWDANCE", "SFT"},
-                {"FOXTROTSANDTRIPLESWING", "SFT,ECS"},
-                {"FOXTROTTRIPLESWING", "SFT,ECS"},
-                {"TRIPLESWINGFOXTROT", "SFT,ECS"},
-                {"TRIPLESWING", "ECS"},
-                {"SWINGEC", "ECS"},
-                {"SWINGJIVE", "JIV"},
-                {"SWINGWC", "WCS"},
-                {"WCSWING", "WCS"},
-                {"SINGLESWING", "SWG"},
-                {"SINGLETIMESWING", "SWG"},
-                {"STREETSWING", "HST"},
-                {"DISCOFOX", "HST"},
-                {"HUSTLESTREETSWING", "HST"},
-                {"HUSTLECHACHA", "HST,CHA"},
-                {"CHACHAHUSTLE", "HST,CHA"},
-                {"CHACHACHA", "CHA"},
-                {"CLUBTWOSTEP", "NC2"}, {"NIGHTCLUB2STEP", "NC2"},
-                {"TANGOARGENTINO", "ATN"},
-                {"MERENGUETECHNOMERENGUE", "MRG"},
-                {"RUMBABOLERO", "RMB,BOL"},
-                {"RUMBATWOSTEP", "RMB,NC2"},
-                {"SLOWDANCERUMBA", "RMB"},
-                {"RUMBASLOWDANCE", "RMB"},
-                {"SWINGSEASTANDWESTCOASTLINDYHOPANDJIVE", "SWG"},
-                {"TRIPLESWINGTWOSTEP", "SWG,NC2"},
-                {"TWOSTEPFOXTROTSINGLESWING", "SWG,FXT,NC2"},
-                {"SWINGANDLINDYHOP", "ECS,LHP"},
-                {"POLKATECHNOPOLKA", "PLK"},
-                {"SALSAMAMBO", "SLS,MBO"},
-                {"LINDY", "LHP"}
+                { "SLOWANDCROSSSTEPWALTZ", "CSW,SWZ" },
+                { "SOCIALTANGO", "TNG" },
+                { "VIENNESE", "VWZ" }, { "MODERATETOFASTWALTZ", "VWZ" },
+                { "SLOWDANCEFOXTROT", "SFT" },
+                { "FOXTROTSLOWDANCE", "SFT" },
+                { "FOXTROTSANDTRIPLESWING", "SFT,ECS" },
+                { "FOXTROTTRIPLESWING", "SFT,ECS" },
+                { "TRIPLESWINGFOXTROT", "SFT,ECS" },
+                { "TRIPLESWING", "ECS" },
+                { "SWINGEC", "ECS" },
+                { "SWINGJIVE", "JIV" },
+                { "SWINGWC", "WCS" },
+                { "WCSWING", "WCS" },
+                { "SINGLESWING", "SWG" },
+                { "SINGLETIMESWING", "SWG" },
+                { "STREETSWING", "HST" },
+                { "DISCOFOX", "HST" },
+                { "HUSTLESTREETSWING", "HST" },
+                { "HUSTLECHACHA", "HST,CHA" },
+                { "CHACHAHUSTLE", "HST,CHA" },
+                { "CHACHACHA", "CHA" },
+                { "CLUBTWOSTEP", "NC2" }, { "NIGHTCLUB2STEP", "NC2" },
+                { "TANGOARGENTINO", "ATN" },
+                { "MERENGUETECHNOMERENGUE", "MRG" },
+                { "RUMBABOLERO", "RMB,BOL" },
+                { "RUMBATWOSTEP", "RMB,NC2" },
+                { "SLOWDANCERUMBA", "RMB" },
+                { "RUMBASLOWDANCE", "RMB" },
+                { "SWINGSEASTANDWESTCOASTLINDYHOPANDJIVE", "SWG" },
+                { "TRIPLESWINGTWOSTEP", "SWG,NC2" },
+                { "TWOSTEPFOXTROTSINGLESWING", "SWG,FXT,NC2" },
+                { "SWINGANDLINDYHOP", "ECS,LHP" },
+                { "POLKATECHNOPOLKA", "PLK" },
+                { "SALSAMAMBO", "SLS,MBO" },
+                { "LINDY", "LHP" }
             };
     }
 

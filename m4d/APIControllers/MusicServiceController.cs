@@ -36,9 +36,14 @@ namespace m4d.APIControllers
 
 
             if (!s_cache.TryGetValue(key, out var tracks))
+            {
                 tracks = InternalGetServiceTracks(song, service, title, artist, album);
+            }
 
-            if (tracks == null || tracks.Count == 0) return NotFound();
+            if (tracks == null || tracks.Count == 0)
+            {
+                return NotFound();
+            }
 
             s_cache[key] = tracks;
 
@@ -61,12 +66,16 @@ namespace m4d.APIControllers
             }
             catch (WebException e)
             {
-                Trace.WriteLineIf(TraceLevels.General.TraceError,
+                Trace.WriteLineIf(
+                    TraceLevels.General.TraceError,
                     $"GetServiceTracks Failed: {e.Message}");
 
                 if (e.Message.Contains("Unauthorized"))
-                    Trace.WriteLineIf(TraceLevels.General.TraceError,
+                {
+                    Trace.WriteLineIf(
+                        TraceLevels.General.TraceError,
                         "!!!!!AUTHORIZATION FAILED!!!!!");
+                }
             }
 
             return tracks;

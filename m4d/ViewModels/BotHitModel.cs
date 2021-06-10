@@ -15,9 +15,13 @@ namespace m4d.ViewModels
         {
             var bhs = new List<BotHitModel>();
             var seconds = upTime.TotalSeconds;
-            if (emptyAgentCount > 0) bhs.Add(CreateOne("<null>", emptyAgentCount, seconds));
+            if (emptyAgentCount > 0)
+            {
+                bhs.Add(CreateOne("<null>", emptyAgentCount, seconds));
+            }
 
-            bhs.AddRange(from entry in bots
+            bhs.AddRange(
+                from entry in bots
                 where entry.Value > 0
                 select CreateOne(entry.Key, entry.Value, seconds));
 
@@ -26,7 +30,7 @@ namespace m4d.ViewModels
 
         private static BotHitModel CreateOne(string agent, long count, double upTime)
         {
-            return new() {Agent = agent, Hits = count, Rate = Math.Round(count / upTime, 4)};
+            return new() { Agent = agent, Hits = count, Rate = Math.Round(count / upTime, 4) };
         }
     }
 }

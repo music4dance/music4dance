@@ -19,7 +19,10 @@ namespace m4d.Utilities
 
         protected override string GetServiceId(IPrincipal principal)
         {
-            if (!(principal is ClaimsPrincipal claimsPrincipal)) return null;
+            if (!(principal is ClaimsPrincipal claimsPrincipal))
+            {
+                return null;
+            }
 
             var idClaim = claimsPrincipal.Claims.FirstOrDefault(c => c.Type == "urn:spotify:id");
 

@@ -111,7 +111,8 @@ namespace m4dModels.Tests
                 else
                 {
                     Trace.WriteLine(string.Join(",", vrb));
-                    Assert.AreEqual(string.Join(",", vrb.Where(e => !string.IsNullOrWhiteSpace(e))),
+                    Assert.AreEqual(
+                        string.Join(",", vrb.Where(e => !string.IsNullOrWhiteSpace(e))),
                         string.Join(",", cmp));
                 }
             }

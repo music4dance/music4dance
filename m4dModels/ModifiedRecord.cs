@@ -57,7 +57,10 @@ namespace m4dModels
         public static bool? ParseLike(string likeString)
         {
             if (bool.TryParse(likeString, out var like))
+            {
                 return like;
+            }
+
             return null;
         }
     }
