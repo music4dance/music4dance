@@ -33,7 +33,8 @@
         <measures-per-minute
           :measuresPerMinute="measuresPerMinute"
           :beatsPerMeasure="beatsPerMeasure"
-          @change-tempo="changeBeatsPerMeasure"
+          @change-tempo="changeMeasuresPerMintue"
+          @change-meter="changeBeatsPerMeasure"
         />
       </div>
       <div class="col-sm">

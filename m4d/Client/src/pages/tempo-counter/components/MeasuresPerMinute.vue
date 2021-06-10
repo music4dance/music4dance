@@ -8,17 +8,17 @@
       >
         <b-dropdown-item
           v-show="beatsPerMeasure !== 2"
-          @click="$emit('change-tempo', 2)"
+          @click="$emit('change-meter', 2)"
           >MPM 2/4</b-dropdown-item
         >
         <b-dropdown-item
           v-show="beatsPerMeasure !== 3"
-          @click="$emit('change-tempo', 3)"
+          @click="$emit('change-meter', 3)"
           >MPM 3/4</b-dropdown-item
         >
         <b-dropdown-item
           v-show="beatsPerMeasure !== 4"
-          @click="$emit('change-tempo', 4)"
+          @click="$emit('change-meter', 4)"
           >MPM 4/4</b-dropdown-item
         >
       </b-dropdown>
