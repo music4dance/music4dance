@@ -15,7 +15,7 @@
       <b-list-group-item
         :href="includeDance"
         variant="warning"
-        v-if="hasFilter"
+        v-if="hasFilter && !isFiltered"
       >
         Filter the list to include only songs tagged as <em>{{ danceName }}</em>
       </b-list-group-item>
@@ -133,11 +133,17 @@ export default class DanceModal extends TagModalBase {
     }
     return (
       !!filter &&
-      filter.isDefaultDance(
+      !filter.isDefaultDance(
         this.danceHandler.danceRating.id,
         this.danceHandler.user
       )
     );
+  }
+
+  private get isFiltered(): boolean {
+    const filter = this.danceHandler.filter;
+    const id = this.danceHandler.danceRating.id;
+    return !!filter && !!filter.danceQuery.danceList.find((d) => d === id);
   }
 }
 </script>

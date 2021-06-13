@@ -114,16 +114,21 @@
           </b-form-group>
         </b-form-group>
 
-        <b-form-group
-          id="activity-group"
-          label="My Activity:"
-          label-for="activity"
-        >
-          <b-form-select
-            id="activity"
-            v-model="activity"
-            :options="activities"
-          ></b-form-select>
+        <b-form-group id="activity-group" label="By User:" label-for="activity">
+          <div class="d-flex">
+            <b-form-input
+              id="user"
+              placeholder="UserName"
+              v-model="user"
+              style="width: 10rem"
+              class="mr-2"
+            ></b-form-input>
+            <b-form-select
+              id="activity"
+              v-model="computedActivity"
+              :options="activities"
+            ></b-form-select>
+          </div>
         </b-form-group>
 
         <b-form-group
@@ -213,18 +218,19 @@ filter = {{ songFilter }}
 
 <script lang="ts">
 import "reflect-metadata";
-import { Component, Vue } from "vue-property-decorator";
-import Page from "@/components/Page.vue";
+import { Component, Mixins } from "vue-property-decorator";
 import { SongFilter } from "@/model/SongFilter";
 import { DanceQuery } from "@/model/DanceQuery";
 import { UserQuery } from "@/model/UserQuery";
 import { SongSort, SortOrder } from "@/model/SongSort";
 import { SearchModel } from "./searchModel";
-import DanceSelector from "@/components/DanceSelector.vue";
-import TagCategorySelector from "@/components/TagCategorySelector.vue";
 import { TypedJSON } from "typedjson";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
 import { Tag } from "@/model/Tag";
+import AdminTools from "@/mix-ins/AdminTools";
+import DanceSelector from "@/components/DanceSelector.vue";
+import Page from "@/components/Page.vue";
+import TagCategorySelector from "@/components/TagCategorySelector.vue";
 
 declare const model: SearchModel;
 
@@ -235,7 +241,7 @@ declare const model: SearchModel;
     TagCategorySelector,
   },
 })
-export default class App extends Vue {
+export default class App extends Mixins(AdminTools) {
   private showDiagnostics = false;
   private keyWords = "";
 
@@ -255,17 +261,40 @@ export default class App extends Vue {
   private tempoMin = 0;
   private tempoMax = 250;
 
-  private activity = "NT";
+  private user: string;
 
-  private activities = [
-    { text: "Don't filter on my activity", value: "NT" },
-    { text: "Include all songs I've marked LIKE", value: "IL" },
-    { text: "Exclude all songs I've marked LIKE", value: "XL" },
-    { text: "Include all songs I've tagged", value: "IT" },
-    { text: "Exclude all songs I've tagged", value: "XT" },
-    { text: "Include all songs I've marked DON'T LIKE", value: "IH" },
-    { text: "Exclude all songs I've marked DON'T LIKE", value: "XH" },
-  ];
+  private activity = "NT";
+  private get computedActivity(): string {
+    return this.user ? this.activity : "NT";
+  }
+  private set computedActivity(value: string) {
+    if (this.user) {
+      this.activity = value;
+    }
+  }
+
+  private get activities() {
+    const user = this.user;
+    const empty = { text: "Don't filter on user activity", value: "NT" };
+
+    return user
+      ? [
+          empty,
+          { text: `Include all songs ${user} has marked LIKE`, value: "IL" },
+          { text: `Exclude all songs ${user} has marked LIKE`, value: "XL" },
+          { text: `Include all songs ${user} has tagged`, value: "IT" },
+          { text: `Exclude all songs ${user} has tagged`, value: "XT" },
+          {
+            text: `Include all songs ${user} has marked DON'T LIKE`,
+            value: "IH",
+          },
+          {
+            text: `Exclude all songs ${user} has marked DON'T LIKE`,
+            value: "XH",
+          },
+        ]
+      : [empty];
+  }
 
   private services: string[] = [];
 
@@ -291,10 +320,7 @@ export default class App extends Vue {
     super();
 
     this.model = TypedJSON.parse(model, SearchModel)!;
-    let filter = this.getQueryFilter();
-    if (!filter) {
-      filter = this.model.filter;
-    }
+    const filter = this.getSourceFilter(model);
     const danceQuery = new DanceQuery(filter.dances);
 
     this.keyWords = filter.searchString ?? "";
@@ -309,7 +335,9 @@ export default class App extends Vue {
 
     this.services = filter.purchase ? filter.purchase.trim().split("") : [];
 
-    this.activity = new UserQuery(filter.user).parts;
+    // Real initialization of user defered to after environment is loaded
+    this.activity = "NT";
+    this.user = "";
 
     this.tempoMin = filter.tempoMin ?? 0;
     this.tempoMax = filter.tempoMax ?? 250;
@@ -337,7 +365,8 @@ export default class App extends Vue {
       this.danceInferred
     );
     const userQuery = UserQuery.fromParts(
-      this.activity ? this.activity : undefined
+      this.computedActivity ? this.computedActivity : undefined,
+      this.user
     );
     const filter = new SongFilter();
     let level = 0;
@@ -372,6 +401,12 @@ export default class App extends Vue {
     return filterString ? SongFilter.buildFilter(filterString) : undefined;
   }
 
+  private getSourceFilter(model?: SearchModel): SongFilter {
+    const queryFilter = this.getQueryFilter();
+    model = model ? model : this.model;
+    return queryFilter ? queryFilter : model.filter;
+  }
+
   private onSubmit(evt: Event) {
     evt.preventDefault();
     evt.stopPropagation(); // Do we need this?
@@ -396,6 +431,7 @@ export default class App extends Vue {
 
   private onReset(evt: Event) {
     evt.preventDefault();
+    const userName = this.userName;
 
     this.keyWords = "";
     this.dances.splice(0);
@@ -405,7 +441,13 @@ export default class App extends Vue {
     this.excludeTags.splice(0);
     this.tempoMin = 0;
     this.tempoMax = 250;
-    this.activity = "NT";
+    if (userName) {
+      this.user = userName;
+      this.activity = "IH";
+    } else {
+      this.user = "";
+      this.activity = "NT";
+    }
     this.services.splice(0);
     this.sort = "Dances";
     this.order = "asc";
@@ -450,6 +492,11 @@ export default class App extends Vue {
     environment: DanceEnvironment
   ): Promise<void> {
     this.environment = environment;
+
+    const filter = this.getSourceFilter();
+    const userQuery = new UserQuery(filter.user);
+    this.activity = userQuery.parts;
+    this.user = userQuery.userName ?? this.userName ?? "";
 
     await this.$nextTick();
     ((this.$refs.keywords as Vue).$el as HTMLElement).focus();
