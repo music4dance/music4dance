@@ -195,19 +195,24 @@
             <input type="hidden" name="userName" :value="modified.userName" />
             <b-button type="submit">{{ modified.userName }}</b-button>
           </b-form>
-          <h3>Admin Actions</h3>
-          <b-button variant="outline-primary" :href="updateServices"
-            >Update Services</b-button
+          <div class="mb-2">
+            <h3>Admin Actions</h3>
+            <b-button variant="outline-primary" :href="updateServices"
+              >Update Services</b-button
+            >
+          </div>
+          <song-history-log
+            v-if="model.songHistory"
+            :history="history"
+            :editing="editing"
+            @delete-property="onDeleteProperty($event)"
           >
+          </song-history-log>
         </div>
       </b-col>
-      <b-col v-if="isAdmin && model.songHistory"
-        ><song-history-viewer
-          :history="history"
-          :editing="editing"
-          @delete-property="onDeleteProperty($event)"
-        ></song-history-viewer
-      ></b-col>
+      <b-col v-if="model.songHistory">
+        <song-history-viewer :history="history"> </song-history-viewer>
+      </b-col>
     </b-row>
     <dance-chooser
       @chooseDance="addDance"
@@ -227,7 +232,8 @@ import DanceChooser from "@/components/DanceChooser.vue";
 import DanceList from "./DanceList.vue";
 import FieldEditor from "./FieldEditor.vue";
 import PurchaseSection from "./PurchaseSection.vue";
-import SongHistoryViewer from "./SongHistory.vue";
+import SongHistoryLog from "./SongHistoryLog.vue";
+import SongHistoryViewer from "./SongHistoryViewer.vue";
 import SongLikeButton from "@/components/SongLikeButton.vue";
 import SongStats from "./SongStats.vue";
 import TagButton from "@/components/TagButton.vue";
@@ -253,6 +259,7 @@ import { SongHistory } from "@/model/SongHistory";
     DanceList,
     FieldEditor,
     PurchaseSection,
+    SongHistoryLog,
     SongHistoryViewer,
     SongLikeButton,
     SongStats,

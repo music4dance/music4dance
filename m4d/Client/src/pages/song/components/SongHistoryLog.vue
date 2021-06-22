@@ -1,6 +1,6 @@
 <template>
   <b-card
-    header="Song History"
+    header="History Log"
     header-text-variant="primary"
     no-body
     border-variant="primary"
@@ -27,7 +27,7 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 import { SongHistory } from "@/model/SongHistory";
 
 @Component
-export default class SongHistoryComponent extends Vue {
+export default class SongHistoryLog extends Vue {
   @Prop() private readonly history!: SongHistory;
   @Prop() private readonly editing!: boolean;
 

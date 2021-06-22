@@ -37,7 +37,7 @@
       >
       </tag-button>
     </div>
-    <div>
+    <div v-if="danceHandler.parent">
       <dance-vote
         :song="danceHandler.parent"
         :danceRating="danceHandler.danceRating"
