@@ -17,7 +17,7 @@ describe("tag database", () => {
     const dp = tagDatabase.getPrimary("Dance Pop:Music");
     expect(dp?.key).toEqual("Dance Pop:Music");
     const dp2 = tagDatabase.getPrimary("dance-pop:Music");
-    expect(dp?.key).toEqual("Dance Pop:Music");
+    expect(dp2?.key).toEqual("Dance Pop:Music");
     const fb = tagDatabase.getPrimary("foo-bar:Music");
     expect(fb).toBeUndefined();
   });

@@ -25,7 +25,8 @@ import { Editor } from "@/model/Editor";
 @Component
 export default class MarkDownEditor
   extends Mixins(EnvironmentManager)
-  implements Editor {
+  implements Editor
+{
   @Model("input") readonly value!: string;
   @Prop() private readonly editing!: boolean;
   private initialDescription: string;

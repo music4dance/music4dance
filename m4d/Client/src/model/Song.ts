@@ -116,8 +116,7 @@ export class Song extends TaggableObject {
     }
   }
 
-  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-  JSONstringifyOrder(obj: any) {
+  JSONstringifyOrder(obj: unknown): string {
     const allKeys: (string | number)[] | null | undefined = [];
     JSON.stringify(obj, function (key, value) {
       allKeys.push(key);
@@ -149,7 +148,7 @@ export class Song extends TaggableObject {
   }
 
   public findDanceRatingById(id: string): DanceRating | undefined {
-    return this.danceRatings?.find((r) => r.danceId === id)!;
+    return this.danceRatings?.find((r) => r.danceId === id);
   }
 
   public findDanceRatingByName(name: string): DanceRating | undefined {

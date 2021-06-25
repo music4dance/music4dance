@@ -33,11 +33,11 @@
           @click-like="onClickLike(data.item)"
           :scale="1.75"
         ></song-like-button>
-        &nbsp;
         <a
           href="#"
           @click.prevent="showPlayModal(data.item.song)"
           role="button"
+          class="ml-1"
         >
           <b-iconstack font-scale="1.75">
             <b-icon stacked icon="circle"></b-icon>

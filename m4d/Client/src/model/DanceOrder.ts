@@ -30,7 +30,7 @@ export class DanceOrder {
     return this.rangeMpm.toString() + " MPM (" + this.numerator + "/4)";
   }
 
-  public get rangeBpmFormatted() {
+  public get rangeBpmFormatted(): string {
     return this.rangeBpm.toString() + " BPM";
   }
 

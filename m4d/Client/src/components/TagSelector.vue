@@ -102,14 +102,10 @@ export default class TagSelector extends Vue {
   @Prop() private showInitialList?: boolean;
   @Prop() private readonly addCategories?: string[];
 
-  private search: string;
-  private mapText: Map<string, string>;
+  private search = "";
 
-  constructor() {
-    super();
-
-    this.search = "";
-    this.mapText = new Map(this.options.map((opt) => [opt.value, opt.text]));
+  private get mapText(): Map<string, string> {
+    return new Map(this.options.map((opt) => [opt.value, opt.text]));
   }
 
   private get selectedInternal(): string[] {

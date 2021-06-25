@@ -41,7 +41,8 @@ import { Editor } from "@/model/Editor";
 })
 export default class DanceDescription
   extends Mixins(EnvironmentManager)
-  implements Editor {
+  implements Editor
+{
   @Prop() private readonly description!: string;
   @Prop() private readonly danceId!: string;
   @Prop() private readonly editing!: boolean;
@@ -55,7 +56,7 @@ export default class DanceDescription
   }
 
   private get editor(): Editor {
-    return (this.$refs.description as unknown) as Editor;
+    return this.$refs.description as unknown as Editor;
   }
 
   private get dance(): DanceStats | undefined {
@@ -101,7 +102,7 @@ export default class DanceDescription
 
   private get mpmText(): string {
     const tempo = this.tempoRange;
-    const numerator = this.dance?.dance.meter.numerator!;
+    const numerator = this.dance?.dance.meter.numerator ?? 0;
     return `${tempo ? tempo.mpm(numerator, " and ") : ""} measures per minute`;
   }
 }

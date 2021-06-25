@@ -13,7 +13,10 @@ describe("Dance Order", () => {
 
   it("should filter tempos", () => {
     const mock = getEnvironmentMock();
-    const hundred = DanceOrder.dancesForTempo(mock?.stats!, 100, 4);
+    if (!mock || !mock.stats) {
+      throw new Error("Mock not created");
+    }
+    const hundred = DanceOrder.dancesForTempo(mock.stats, 100, 4);
 
     expect(hundred).toBeDefined();
     expect(hundred.length).toBeDefined();

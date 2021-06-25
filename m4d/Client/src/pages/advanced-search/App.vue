@@ -218,7 +218,7 @@ filter = {{ songFilter }}
 
 <script lang="ts">
 import "reflect-metadata";
-import { Component, Mixins } from "vue-property-decorator";
+import { Component, Mixins, Vue } from "vue-property-decorator";
 import { SongFilter } from "@/model/SongFilter";
 import { DanceQuery } from "@/model/DanceQuery";
 import { UserQuery } from "@/model/UserQuery";

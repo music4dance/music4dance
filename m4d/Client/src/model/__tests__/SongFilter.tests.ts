@@ -1,5 +1,4 @@
 import "reflect-metadata";
-import { getEnvironmentMock } from "@/helpers/MockEnvironmentManager";
 import { SongFilter } from "../SongFilter";
 
 const simple = "Advanced--Modified";

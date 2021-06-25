@@ -22,7 +22,6 @@ import { Tag, TagCategory } from "@/model/Tag";
 import { TagList } from "@/model/TagList";
 import AdminTools from "@/mix-ins/AdminTools";
 
-// TODONEXT: Add dance to dance tags
 @Component({ components: { DanceViewer, TagViewer } })
 export default class SongPropertyViewer extends Mixins(AdminTools) {
   @Prop() private readonly property!: SongProperty;

@@ -260,11 +260,12 @@ export default class SongFooter extends Mixins(AdminTools) {
   constructor() {
     super();
     this.pageNumber = this.filter.page ?? 1;
-    this.adminEdit = { user: this.model.userName, properties: "" };
+    this.adminEdit = { user: this.userName!, properties: "" };
   }
 
   private get filter(): SongFilter {
-    return this.model.filter;
+    const model = this.model;
+    return model ? model.filter : new SongFilter();
   }
 
   private get pageCount(): number {
@@ -322,7 +323,7 @@ export default class SongFooter extends Mixins(AdminTools) {
   ): string {
     const typeParam = type ? `type=${type}&` : "";
     const optionsParam = options ? `options=${options}` : "";
-    return `/song/${name}?${typeParam}${optionsParam}&count=${count}&filter=${this.model.filter.encodedQuery}`;
+    return `/song/${name}?${typeParam}${optionsParam}&count=${count}&filter=${this.filter.encodedQuery}`;
   }
 
   private onBulkEdit(type: string): void {

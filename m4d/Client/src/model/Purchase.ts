@@ -15,7 +15,11 @@ export enum ServiceObjectType {
 
 @jsonObject
 export class PurchaseInfo {
-  public static Build(service: ServiceType, albumId?: string, songId?: string) {
+  public static Build(
+    service: ServiceType,
+    albumId?: string,
+    songId?: string
+  ): SpotifyPurchaseInfo {
     const info = { albumId, songId };
     switch (service.toLowerCase()) {
       case ServiceType.Amazon:
@@ -24,6 +28,8 @@ export class PurchaseInfo {
         return new ItunesPurchaseInfo(info);
       case ServiceType.Spotify:
         return new SpotifyPurchaseInfo(info);
+      default:
+        throw new Error(`Invalid Purchase type ${service}`);
     }
   }
 

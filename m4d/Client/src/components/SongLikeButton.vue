@@ -14,11 +14,6 @@ import LikeButton from "@/components/LikeButton.vue";
 import { Component, Prop, Vue } from "vue-property-decorator";
 import { Song } from "@/model/Song";
 
-interface LikeModel {
-  dance?: string;
-  like?: boolean;
-}
-
 @Component({ components: { LikeButton } })
 export default class SongLikeButton extends Vue {
   @Prop() private readonly song!: Song;

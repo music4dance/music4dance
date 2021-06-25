@@ -33,7 +33,7 @@ export class TrackModel {
   @jsonArrayMember(String) public availableMarkets?: string[];
   @jsonMember public sampleUrl?: string;
 
-  public get serviceType() {
+  public get serviceType(): ServiceType {
     return this.service[0].toLowerCase() as ServiceType;
   }
 }

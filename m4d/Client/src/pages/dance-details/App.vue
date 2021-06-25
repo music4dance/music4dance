@@ -199,11 +199,11 @@ export default class App extends Mixins(AdminTools) {
   }
 
   private get descriptionEditor(): Editor {
-    return (this.$refs.danceDescription as unknown) as Editor;
+    return this.$refs.danceDescription as unknown as Editor;
   }
 
   private get linkEditor(): Editor {
-    return (this.$refs.danceLinks as unknown) as Editor;
+    return this.$refs.danceLinks as unknown as Editor;
   }
 
   private updateDescription(value: string): void {

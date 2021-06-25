@@ -256,7 +256,7 @@ export class SongEditor {
     return property;
   }
 
-  public setupEdit(user?: string) {
+  public setupEdit(user?: string): void {
     const properties = this.properties;
     if (properties.length > this.initialCount) {
       return;

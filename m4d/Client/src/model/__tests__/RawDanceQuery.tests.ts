@@ -1,5 +1,4 @@
 import "reflect-metadata";
-import { getEnvironmentMock } from "@/helpers/MockEnvironmentManager";
 import { RawDanceQuery } from "../RawDanceQuery";
 
 describe("raw dance query", () => {

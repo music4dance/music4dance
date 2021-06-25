@@ -47,7 +47,7 @@ export default class MeasuresPerMinute extends Vue {
   @Prop() private measuresPerMinute!: number;
   @Prop() private beatsPerMeasure!: number;
 
-  get meterDescription() {
+  get meterDescription(): string {
     return "MPM (" + this.beatsPerMeasure + "/4)";
   }
 }

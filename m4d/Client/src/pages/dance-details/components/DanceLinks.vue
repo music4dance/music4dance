@@ -34,7 +34,8 @@ import { jsonCompare } from "@/helpers/ObjectHelpers";
 })
 export default class DanceLinks
   extends Mixins(EnvironmentManager)
-  implements Editor {
+  implements Editor
+{
   @Model("update") readonly links!: DanceLink[];
   @Prop() private readonly danceId!: string;
   @Prop() private readonly editing!: boolean;

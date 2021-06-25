@@ -126,7 +126,7 @@ export default class TagCloud extends Vue {
   }
 
   private tagHandler(tag: Tag): TagHandler {
-    return new TagHandler(tag, this.user, this.songFilter);
+    return new TagHandler(tag, this.user, this.songFilter, undefined, true);
   }
 }
 </script>

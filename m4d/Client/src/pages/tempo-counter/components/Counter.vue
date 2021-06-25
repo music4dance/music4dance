@@ -109,7 +109,7 @@ export default class Counter extends Vue {
   }
 
   // Methods
-  public countClicked() {
+  public countClicked(): void {
     const current = new Date().getTime();
     if (this.timeout) {
       clearTimeout(this.timeout);
