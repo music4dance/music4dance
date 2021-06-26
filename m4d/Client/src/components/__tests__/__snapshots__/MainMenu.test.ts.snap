@@ -59,7 +59,7 @@ exports[`MainMenu.vue renders the main menu with admin options 1`] = `
           <ul tabindex="-1" class="dropdown-menu">
             <li role="presentation"><a right="" role="menuitem" href="/identity/account/manage" target="_self" class="dropdown-item">My Profile</a></li>
             <li role="presentation"><a right="" role="menuitem" href="/song/filteruser/?user=dwgray" target="_self" class="dropdown-item">My Songs</a></li>
-            <li role="presentation"><a right="" role="menuitem" href="/song/searches/?user=dwgray" target="_self" class="dropdown-item">My Searches</a></li>
+            <li role="presentation"><a right="" role="menuitem" href="/searches/?user=dwgray" target="_self" class="dropdown-item">My Searches</a></li>
             <li role="presentation"><a right="" role="menuitem" href="javascript:document.getElementById('logoutForm').submit()" target="_self" class="dropdown-item">Log out</a></li>
           </ul>
         </li>

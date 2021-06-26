@@ -5,14 +5,14 @@
     @environment-loaded="onEnvironmentLoaded"
   >
     <song-library-header
-      v-if="model.filter.isSimple(model.user)"
+      v-if="model.filter.isSimple(model.userName)"
       :filter="model.filter"
-      :user="model.user"
+      :user="model.userName"
     ></song-library-header>
     <search-header
       v-else
       :filter="model.filter"
-      :user="model.user"
+      :user="model.userName"
     ></search-header>
     <song-table
       :histories="model.histories"

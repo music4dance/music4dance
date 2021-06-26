@@ -10,8 +10,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
 using Stripe;
-using PurchaseKind = m4d.ViewModels.PurchaseKind;
-using PurchaseModel = m4d.ViewModels.PurchaseModel;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -81,14 +79,6 @@ namespace m4d.Controllers
         {
             return View();
         }
-
-
-        [AllowAnonymous]
-        public IActionResult Contact()
-        {
-            return View();
-        }
-
 
         [AllowAnonymous]
         public IActionResult Counter(int? numerator = null, decimal? tempo = null)

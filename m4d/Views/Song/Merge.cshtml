@@ -118,21 +118,6 @@
                 }
             </td>
         </tr>
-
-        @if (User.IsInRole("showDiagnostics"))
-        {
-            <tr>
-                <th>Log</th>
-                @{ i = 0; }
-                @foreach (var item in Model.Songs)
-                {
-                    <td>
-                        <partial name="SongItems" model="item.SongProperties"/>
-                    </td>
-                    i = i + 1;
-                }
-            </tr>
-        }
     </table>
 
     <hr/>

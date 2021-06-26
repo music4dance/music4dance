@@ -49,7 +49,8 @@ namespace m4d.Controllers
             ViewBag.Sort = sort;
             ViewBag.ShowDetails = showDetails;
             ViewBag.SongFilter = filter;
-            return View(searches.ToList());
+            var list = searches.ToList();
+            return View(list);
         }
 
         // GET: Searches/Details/5

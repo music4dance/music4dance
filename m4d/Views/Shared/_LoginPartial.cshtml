@@ -25,7 +25,6 @@
         <li class="@dropDownClass">
             <a href="#" class="@dropDownToggle" data-toggle="dropdown">
                 @(UserManager.GetUserName(User) + modifier) <img src="~/images/swing-ui.png" alt="User Icon" height="30" width="30"/>
-                &nbsp;&nbsp;&nbsp;&nbsp;
             </a>
             <ul class="dropdown-menu" role="menu">
                 <li>
@@ -66,6 +65,6 @@
     }
 </ul>
 
-<form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new {area = ""})">
-    <button style="visibility: hidden" id="logout" type="submit" class="btn btn-link"></button>
+<form id="logoutForm" style="width: 0" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new {area = ""})">
+    <button style="visibility: hidden" id="logout" type="submit"></button>
 </form>

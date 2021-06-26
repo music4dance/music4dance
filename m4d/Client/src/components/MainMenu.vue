@@ -130,7 +130,7 @@ export default class MainMenu extends Vue {
   }
 
   private get searchLink(): string {
-    return `/song/searches/?user=${this.context.userName}`;
+    return `/searches/?user=${this.context.userName}`;
   }
 }
 </script>
