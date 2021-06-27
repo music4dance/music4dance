@@ -97,6 +97,12 @@ export class SongFilter {
     return this.trimEnd(ret, ".-");
   }
 
+  public getPlayListRef(user?: string): string | undefined {
+    return !this.isDefaultDance(undefined, user)
+      ? `/song/createspotify?filter=${this.encodedQuery}`
+      : undefined;
+  }
+
   public get isRaw(): boolean {
     const action = this.action ?? "".toLowerCase().replace(" ", "+");
     return action.startsWith("azure+raw") || action === "holidaymusic";

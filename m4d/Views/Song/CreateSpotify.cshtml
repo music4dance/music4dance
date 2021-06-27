@@ -57,7 +57,7 @@
                     associated a Spotify account
                 </a>
                 with your music4dance account
-                @if (Model.IsPremium)
+                @if (Model.CanSpotify)
                 {
                     <span class="fas fa-check-circle mx-2"></span>
                 }
@@ -88,8 +88,8 @@
     using (Html.BeginForm())
     {
         @Html.AntiForgeryToken()
-        <input type="hidden" name="filter" id="filter" value="@Model.Filter"/>
-        <input type="hidden" name="DescriptionPrefix" id="DescriptionPrefix" value="@Model.DescriptionPrefix"/>
+        <input type="hidden" name="filter" id="filter" value="@Model.Filter" />
+        <input type="hidden" name="DescriptionPrefix" id="DescriptionPrefix" value="@Model.DescriptionPrefix" />
 
         <div class="form-group row">
             @Html.LabelFor(model => model.Title, new
@@ -153,7 +153,7 @@
 
         <div class="form-group row">
             <div class="offset-md-1 col-md-10">
-                <input type="submit" value="Create" class="btn btn-primary"/>
+                <input type="submit" value="Create" class="btn btn-primary" />
             </div>
         </div>
     }

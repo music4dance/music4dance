@@ -27,10 +27,7 @@ export default class SearchHeader extends Vue {
   }
 
   private get playListRef(): string | undefined {
-    const filter = this.filter;
-    return !filter.isDefaultDance(undefined, this.user)
-      ? `/song/createspotify?filter=${filter.encodedQuery}`
-      : undefined;
+    return this.filter.getPlayListRef(this.user);
   }
 }
 </script>

@@ -1036,7 +1036,7 @@ namespace m4d.Controllers
         //
         // Get: //DanceStatistics
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult DanceStatistics(string source = null, bool save = true,
+        public async Task<ActionResult> DanceStatistics(string source = null, bool save = true,
             bool noDances = false, bool noSongs = false, bool jsFriendly = true)
         {
             DanceStatsInstance instance;
@@ -1044,7 +1044,8 @@ namespace m4d.Controllers
             switch (source)
             {
                 default:
-                    instance = DanceStatsManager.LoadFromAzure(Database, source, save, !noDances);
+                    instance = await DanceStatsManager.LoadFromAzure(
+                        Database, source, save, !noDances);
                     break;
                 case null:
                     instance = DanceStatsManager.Instance;
@@ -1466,7 +1467,7 @@ namespace m4d.Controllers
             [FromServices]RoleManager<IdentityRole> roleManager, string targetMigration = null,
             bool delete = false)
         {
-            var context = Database.Context as DanceMusicContext;
+            var context = Database.Context;
             var migrator = context.Database.GetService<IMigrator>();
 
             if (delete)

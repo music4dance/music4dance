@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -100,7 +101,8 @@ namespace m4dModels.Tests
             }
         }
 
-        private static DanceStatsInstance GetDanceStats(DanceStatsManager manager = null)
+        private static async Task<DanceStatsInstance> GetDanceStats(
+            DanceStatsManager manager = null)
         {
             var assembly = Assembly.GetExecutingAssembly();
             var resourceName = assembly.GetManifestResourceNames()
@@ -115,8 +117,8 @@ namespace m4dModels.Tests
             }
 
             var instance = manager == null
-                ? DanceStatsInstance.LoadFromJson(json, null)
-                : manager.LoadFromJson(json, null);
+                ? await DanceStatsInstance.LoadFromJson(json, null)
+                : await manager.LoadFromJson(json, null);
             Assert.IsNotNull(instance);
 
             return instance;
@@ -171,10 +173,10 @@ namespace m4dModels.Tests
             );
 
             var manager = new DanceStatsManager(null);
-            GetDanceStats(manager);
+            GetDanceStats(manager).Wait();
 
             var service = new DanceMusicService(context, userManager, null, manager);
-            manager.Instance.FixupStats(service, false);
+            manager.Instance.FixupStats(service, false).Wait();
 
             SeedRoles(roleManager);
 

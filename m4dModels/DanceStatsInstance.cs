@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using DanceLibrary;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -11,22 +12,49 @@ namespace m4dModels
     [JsonObject(MemberSerialization.OptIn)]
     public class DanceStatsInstance
     {
-        public DanceStatsInstance(TagManager tagManager, IEnumerable<DanceStats> tree,
-            DanceMusicCoreService dms, string source)
-        {
-            TagManager = tagManager;
-            Tree = (tree as List<DanceStats>)?.ToList();
-            FixupStats(dms, true, source);
-        }
+        private readonly Dictionary<Guid, Song> _otherSongs = new Dictionary<Guid, Song>();
+        private readonly Dictionary<Guid, Song> _queuedSongs = new Dictionary<Guid, Song>();
+
+        private List<DanceStats> _flat;
+        private Dictionary<Guid, Song> _topSongs;
 
         [JsonConstructor]
-        public DanceStatsInstance(IEnumerable<DanceStats> tree, IEnumerable<TagGroup> tagGroups)
+        public DanceStatsInstance(IEnumerable<DanceStats> tree, IEnumerable<TagGroup> tagGroups) :
+            this(tree, new TagManager(tagGroups))
         {
-            TagManager = new TagManager(tagGroups);
+        }
+
+        public DanceStatsInstance(IEnumerable<DanceStats> tree, TagManager tagManager)
+        {
+            TagManager = tagManager;
             Tree = tree.ToList();
         }
 
-        public void FixupStats(DanceMusicCoreService dms, bool reloadSongs,
+        [JsonProperty]
+        public List<DanceStats> Tree { get; set; }
+
+        [JsonProperty(PropertyName = "tagGroups")]
+        public List<TagGroup> TagGroups => TagManager.TagGroups;
+
+        public TagManager TagManager { get; set; }
+
+        public List<DanceStats> List => _flat ??= Flatten();
+        public Dictionary<string, DanceStats> Map { get; private set; }
+
+        private Dictionary<Guid, Song> TopSongs => _topSongs ??= new Dictionary<Guid, Song>(
+            List.SelectMany(d => d.TopSongs ?? new List<Song>())
+                .DistinctBy(s => s.SongId).ToDictionary(s => s.SongId));
+
+        public static async Task<DanceStatsInstance> BuildInstance(TagManager tagManager,
+            IEnumerable<DanceStats> tree,
+            DanceMusicCoreService dms, string source)
+        {
+            var instance = new DanceStatsInstance(tree, tagManager);
+            await instance.FixupStats(dms, true, source);
+            return instance;
+        }
+
+        public async Task FixupStats(DanceMusicCoreService dms, bool reloadSongs,
             string source = "default")
         {
             dms.SetStatsInstance(this);
@@ -56,7 +84,7 @@ namespace m4dModels
                                 new SongFilter { Dances = ds.DanceId, SortOrder = "Dances" }, 10);
                         DanceMusicCoreService.AddAzureCategories(
                             filter, "GenreTags,StyleTags,TempoTags,OtherTags", 100);
-                        var results = dms.AzureSearch(
+                        var results = await dms.AzureSearchAsync(
                             null, filter, DanceMusicCoreService.CruftFilter.NoCruft, null, source);
                         ds.SetTopSongs(results.Songs);
                         var song = ds.TopSongs.FirstOrDefault();
@@ -104,17 +132,6 @@ namespace m4dModels
 
             dms.UpdateIndex(newDances);
         }
-
-        [JsonProperty]
-        public List<DanceStats> Tree { get; set; }
-
-        [JsonProperty(PropertyName = "tagGroups")]
-        public List<TagGroup> TagGroups => TagManager.TagGroups;
-
-        public TagManager TagManager { get; set; }
-
-        public List<DanceStats> List => _flat ??= Flatten();
-        public Dictionary<string, DanceStats> Map { get; private set; }
 
         public int GetScaledRating(string danceId, int weight, int scale = 5)
         {
@@ -172,7 +189,8 @@ namespace m4dModels
             return stats;
         }
 
-        public static DanceStatsInstance LoadFromJson(string json, DanceMusicCoreService database)
+        public static async Task<DanceStatsInstance> LoadFromJson(string json,
+            DanceMusicCoreService database)
         {
             var settings = new JsonSerializerSettings
             {
@@ -183,7 +201,7 @@ namespace m4dModels
             var instance = JsonConvert.DeserializeObject<DanceStatsInstance>(json, settings);
             if (database != null)
             {
-                instance.FixupStats(database, false);
+                await instance.FixupStats(database, false);
             }
 
             Dances.Reset(Dances.Load(instance.GetDanceTypes(), instance.GetDanceGroups()));
@@ -320,16 +338,5 @@ namespace m4dModels
 
             return flat;
         }
-
-        private Dictionary<Guid, Song> TopSongs => _topSongs ?? (_topSongs =
-            new Dictionary<Guid, Song>(
-                List.SelectMany(d => d.TopSongs ?? new List<Song>())
-                    .DistinctBy(s => s.SongId).ToDictionary(s => s.SongId)));
-
-        private readonly Dictionary<Guid, Song> _otherSongs = new Dictionary<Guid, Song>();
-        private readonly Dictionary<Guid, Song> _queuedSongs = new Dictionary<Guid, Song>();
-
-        private List<DanceStats> _flat;
-        private Dictionary<Guid, Song> _topSongs;
     }
 }

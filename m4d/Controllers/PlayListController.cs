@@ -162,12 +162,12 @@ namespace m4d.Controllers
                 SearchService, DanceStatsManager);
 
             // Match songs & update
-            Task.Run(
-                () =>
+            await Task.Run(
+                async () =>
                 {
                     try
                     {
-                        var result = DoUpdate(id, email, dms, principal);
+                        var result = await DoUpdate(id, email, dms, principal);
                         AdminMonitor.CompleteTask(
                             result != null && result.IndexOf("Succeeded") != -1,
                             result);
@@ -257,7 +257,7 @@ namespace m4d.Controllers
 
             var dms = Database.GetTransientService();
             Task.Run(
-                () =>
+                async () =>
                 {
                     try
                     {
@@ -270,7 +270,7 @@ namespace m4d.Controllers
                             var id = playlist.Id;
                             if (emailMap.TryGetValue(playlist.User, out var email))
                             {
-                                var result = DoUpdate(id, email, dms, user);
+                                var result = await DoUpdate(id, email, dms, user);
                                 AdminMonitor.UpdateTask($"Playlist {id}", i);
                                 results.Add(result);
                             }
@@ -470,7 +470,7 @@ namespace m4d.Controllers
         }
 
 
-        private string DoUpdate(string id, string email, DanceMusicCoreService dms,
+        private async Task<string> DoUpdate(string id, string email, DanceMusicCoreService dms,
             IPrincipal principal)
         {
             var playlist = SafeLoadPlaylist(id, dms);
@@ -479,7 +479,7 @@ namespace m4d.Controllers
                 case PlayListType.SongsFromSpotify:
                     return UpdateSongsFromSpotify(playlist, email, dms);
                 case PlayListType.SpotifyFromSearch:
-                    return UpdateSpotifyFromSearch(playlist, dms, principal);
+                    return await UpdateSpotifyFromSearch(playlist, dms, principal);
                 default:
                     return $"Playlist {id} unsupported type - {playlist.Type}";
             }
@@ -531,7 +531,8 @@ namespace m4d.Controllers
             }
         }
 
-        private string UpdateSpotifyFromSearch(PlayList playlist, DanceMusicCoreService dms,
+        private async Task<string> UpdateSpotifyFromSearch(PlayList playlist,
+            DanceMusicCoreService dms,
             IPrincipal principal)
         {
             try
@@ -541,7 +542,8 @@ namespace m4d.Controllers
                 {
                     Purchase = spotify.CID.ToString()
                 };
-                var sr = dms.AzureSearch(filter, playlist.Count == -1 ? 100 : playlist.Count);
+                var sr = await dms.AzureSearchAsync(
+                    filter, playlist.Count == -1 ? 100 : playlist.Count);
                 if (sr.Count == 0)
                 {
                     return $"UpdateSpotifyFromSearch {playlist.Id}: Empty Playlist";

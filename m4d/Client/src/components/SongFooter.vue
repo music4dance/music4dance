@@ -15,7 +15,12 @@
         >Page {{ pageNumber }} of {{ pageCount }} ({{ model.count }} songs
         found)</b-col
       >
-      <b-col md="2"><a :href="newSearch">New Search</a></b-col>
+      <b-col md="2"
+        ><div><a :href="newSearch">New Search</a></div>
+        <div v-if="playListRef">
+          <a :href="playListRef">Create Spotify Playlist</a>
+        </div></b-col
+      >
     </b-row>
     <b-row v-if="showExplicitMessage">
       <b-col>
@@ -41,29 +46,6 @@
               >Cleanup Albums</b-dropdown-item
             >
           </b-dropdown>
-          <b-dropdown right text="Batch Lookup" class="mx-1 mb-1">
-            <b-dropdown-item :href="batchUrl('batchmusicservice', 50, 'A')"
-              >Amazon</b-dropdown-item
-            >
-            <b-dropdown-item :href="batchUrl('batchechonest', 1000)"
-              >Echo</b-dropdown-item
-            >
-            <b-dropdown-item :href="batchUrl('batchmusicservice', 50, 'I')"
-              >iTunes</b-dropdown-item
-            >
-            <b-dropdown-item :href="batchUrl('batchmusicservice', 50, 'S')"
-              >Spotify</b-dropdown-item
-            >
-            <b-dropdown-item :href="batchUrl('batchsamples', 1000)"
-              >Sample</b-dropdown-item
-            >
-            <b-dropdown-item :href="batchUrl('batchmusicservice', 50, '-', 'S')"
-              >Canonical Spotify</b-dropdown-item
-            >
-            <b-dropdown-item :href="batchUrl('batchmusicservice', 50, '-', 'R')"
-              >Canonical (R)</b-dropdown-item
-            >
-          </b-dropdown>
           <b-dropdown right text="Clean" class="mx-1 mb-1">
             <b-dropdown-item :href="batchUrl('batchcleanservice', -1)"
               >Services</b-dropdown-item
@@ -76,9 +58,6 @@
             >
             <b-dropdown-item :href="batchUrl('batchreloadsongs', -1)"
               >Reload</b-dropdown-item
-            >
-            <b-dropdown-item :href="batchUrl('batchclearupdate', -1)"
-              >Update Flag</b-dropdown-item
             >
           </b-dropdown>
           <b-dropdown right text="Download" class="mx-1 mb-1">
@@ -307,6 +286,10 @@ export default class SongFooter extends Mixins(AdminTools) {
     return href
       ? this.pagedUrl(href, pageNum)
       : this.pagedUrl(this.filter.url, pageNum);
+  }
+
+  private get playListRef(): string | undefined {
+    return this.filter.getPlayListRef(this.userName);
   }
 
   private pagedUrl(url: string, pageNum: number): string {

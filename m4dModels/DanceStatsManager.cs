@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using DanceLibrary;
 using Microsoft.Azure.Search.Models;
 
@@ -14,29 +15,24 @@ namespace m4dModels
         DateTime LastUpdate { get; }
         string Source { get; }
 
-        void ClearCache(DanceMusicCoreService dms, bool fromStore);
-        void ReloadDances(DanceMusicCoreService dms);
-
-        DanceStatsInstance LoadFromAzure(DanceMusicCoreService dms, string source = "default",
-            bool save = false, bool tagsOnly = false);
-
         DanceStatsInstance Instance { get; }
 
         IList<DanceStats> DanceStats { get; }
 
         IList<DanceStats> FlatDanceStats { get; }
 
-        void Initialize(DanceMusicCoreService dms);
+        Task ClearCache(DanceMusicCoreService dms, bool fromStore);
+        void ReloadDances(DanceMusicCoreService dms);
+
+        Task<DanceStatsInstance> LoadFromAzure(DanceMusicCoreService dms, string source = "default",
+            bool save = false, bool tagsOnly = false);
+
+        Task Initialize(DanceMusicCoreService dms);
     }
 
 
     public class DanceStatsManager : IDanceStatsManager
     {
-        public DateTime LastUpdate { get; private set; }
-        public string Source { get; private set; }
-
-        private string AppData { get; }
-
         public DanceStatsManager()
         {
         }
@@ -46,18 +42,22 @@ namespace m4dModels
             AppData = appData;
         }
 
+        private string AppData { get; }
+        public DateTime LastUpdate { get; private set; }
+        public string Source { get; private set; }
+
         #region Access
 
         public DanceStatsInstance Instance { get; private set; }
 
-        public void Initialize(DanceMusicCoreService dms)
+        public async Task Initialize(DanceMusicCoreService dms)
         {
             if (Instance != null)
             {
                 throw new Exception("Should only Initialize DanceStatsManager once");
             }
 
-            Instance = LoadFromAppData(dms) ?? LoadFromAzure(dms, "default", true);
+            Instance = await LoadFromAppData(dms) ?? await LoadFromAzure(dms, "default", true);
         }
 
         public IList<DanceStats> FlatDanceStats => Instance.List;
@@ -68,11 +68,11 @@ namespace m4dModels
 
         #region Building
 
-        public void ClearCache(DanceMusicCoreService dms, bool fromStore)
+        public async Task ClearCache(DanceMusicCoreService dms, bool fromStore)
         {
             var instance = fromStore
-                ? LoadFromAzure(dms, "default", true)
-                : LoadFromAppData(dms);
+                ? await LoadFromAzure(dms, "default", true)
+                : await LoadFromAppData(dms);
 
             if (instance != null)
             {
@@ -101,7 +101,7 @@ namespace m4dModels
             Source = Source + " + reload";
         }
 
-        private DanceStatsInstance LoadFromAppData(DanceMusicCoreService dms)
+        private async Task<DanceStatsInstance> LoadFromAppData(DanceMusicCoreService dms)
         {
             if (AppData == null)
             {
@@ -116,23 +116,18 @@ namespace m4dModels
 
             LastUpdate = DateTime.Now;
             Source = "AppData";
-            Instance = DanceStatsInstance.LoadFromJson(File.ReadAllText(path), dms);
+            Instance = await DanceStatsInstance.LoadFromJson(File.ReadAllText(path), dms);
             return Instance;
         }
 
-        private DanceStatsInstance LoadFromStore(DanceMusicCoreService dms, bool save)
-        {
-            return LoadFromAzure(dms, "default", save);
-        }
-
-        public DanceStatsInstance LoadFromJson(string json, DanceMusicCoreService dms)
+        public async Task<DanceStatsInstance> LoadFromJson(string json, DanceMusicCoreService dms)
         {
             Source = "Json";
-            Instance = DanceStatsInstance.LoadFromJson(json, dms);
+            Instance = await DanceStatsInstance.LoadFromJson(json, dms);
             return Instance;
         }
 
-        public DanceStatsInstance LoadFromAzure(
+        public async Task<DanceStatsInstance> LoadFromAzure(
             DanceMusicCoreService dms, string source = "default", bool save = false,
             bool tagsOnly = false)
         {
@@ -142,7 +137,7 @@ namespace m4dModels
                 Dances.Reset();
             }
 
-            var instance = new DanceStatsInstance(
+            var instance = await DanceStatsInstance.BuildInstance(
                 new TagManager(dms, source),
                 copy ? Instance.Tree : AzureDanceStats(dms, source),
                 copy ? null : dms, source);
