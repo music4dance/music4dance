@@ -169,7 +169,8 @@ namespace m4d.Controllers
                     {
                         var result = await DoUpdate(id, email, dms, principal);
                         AdminMonitor.CompleteTask(
-                            result != null && result.IndexOf("Succeeded") != -1,
+                            result != null && result.IndexOf(
+                                "Succeeded", StringComparison.OrdinalIgnoreCase) != -1,
                             result);
                     }
                     catch (Exception e)
@@ -521,7 +522,7 @@ namespace m4d.Controllers
                 AdminMonitor.UpdateTask("Starting Merge");
                 var results = await dms.MatchSongs(
                     newSongs, DanceMusicCoreService.MatchMethod.Merge);
-                var succeeded = CommitCatalog(
+                var succeeded = await CommitCatalog(
                     dms,
                     new Review { PlayList = playlist.Id, Merge = results },
                     await Database.FindUser(playlist.User));

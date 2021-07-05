@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
@@ -15,6 +17,14 @@ namespace m4dModels
         {
             ConnectionString = options.FindExtension<SqlServerOptionsExtension>()?.ConnectionString;
         }
+
+        public bool AutoDetectChangesEnabled
+        {
+            get => ChangeTracker.AutoDetectChangesEnabled;
+            set => ChangeTracker.AutoDetectChangesEnabled = value;
+        }
+
+        private string ConnectionString { get; }
 
         public DanceMusicContext CreateTransientContext()
         {
@@ -63,23 +73,14 @@ namespace m4dModels
             // Add your customizations after calling base.OnModelCreating(builder);
         }
 
-        #region Properties
 
-        public DbSet<Dance> Dances { get; set; }
-        public DbSet<DanceLink> DanceLinks { get; set; }
-        public DbSet<TagGroup> TagGroups { get; set; }
-        public DbSet<Search> Searches { get; set; }
-        public DbSet<PlayList> PlayLists { get; set; }
-
-        #endregion
-
-
-        public override int SaveChanges()
+        public override async Task<int> SaveChangesAsync(
+            CancellationToken cancellationToken = default)
         {
             int ret;
             try
             {
-                ret = base.SaveChanges();
+                ret = await base.SaveChangesAsync(cancellationToken);
             }
             catch (Exception e) /* DbEntityValidationException */
             {
@@ -103,12 +104,6 @@ namespace m4dModels
             return ret;
         }
 
-        public bool AutoDetectChangesEnabled
-        {
-            get => ChangeTracker.AutoDetectChangesEnabled;
-            set => ChangeTracker.AutoDetectChangesEnabled = value;
-        }
-
         public List<Dance> LoadDances()
         {
             var dances = Dances.Include(d => d.DanceLinks);
@@ -116,6 +111,14 @@ namespace m4dModels
             return dances.ToList();
         }
 
-        private string ConnectionString { get; }
+        #region Properties
+
+        public DbSet<Dance> Dances { get; set; }
+        public DbSet<DanceLink> DanceLinks { get; set; }
+        public DbSet<TagGroup> TagGroups { get; set; }
+        public DbSet<Search> Searches { get; set; }
+        public DbSet<PlayList> PlayLists { get; set; }
+
+        #endregion
     }
 }

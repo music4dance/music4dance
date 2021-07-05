@@ -367,7 +367,7 @@ namespace m4d.Utilities
                 var cleanTitle = Song.CleanString(title);
                 return cleanArtist == artist && cleanTitle == title
                     ? null
-                    : FindMusicServiceSong(song, service, title, artist, album);
+                    : FindMusicServiceSong(song, service, cleanTitle, cleanArtist, album);
             }
 
             list = FilterKaraoke(list);

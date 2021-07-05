@@ -82,7 +82,7 @@ namespace m4d.Controllers
             user.Email = applicationUser.Email;
             user.EmailConfirmed = true;
             user.Privacy = 255;
-            Context.SaveChanges();
+            await Context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
 
@@ -140,7 +140,7 @@ namespace m4d.Controllers
                         applicationUser.Id, oldSubscriptionLevel,
                         applicationUser.SubscriptionLevel);
 
-                    Context.SaveChanges();
+                    await Context.SaveChangesAsync();
                 }
                 catch (Exception ex)
                 {
@@ -274,7 +274,7 @@ namespace m4d.Controllers
             }
 
             Context.Users.Remove(applicationUser);
-            Context.SaveChanges();
+            await Context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
 
