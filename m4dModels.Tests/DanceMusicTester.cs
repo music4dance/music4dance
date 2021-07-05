@@ -113,7 +113,7 @@ namespace m4dModels.Tests
             {
                 Assert.IsNotNull(stream);
                 using var reader = new StreamReader(stream);
-                json = reader.ReadToEnd();
+                json = await reader.ReadToEndAsync();
             }
 
             var instance = manager == null
@@ -124,7 +124,7 @@ namespace m4dModels.Tests
             return instance;
         }
 
-        public static DanceMusicService CreateService(string name)
+        public static async Task<DanceMusicService> CreateService(string name)
         {
             var contextOptions = new DbContextOptionsBuilder<DanceMusicContext>()
                 .UseInMemoryDatabase(name).Options;
@@ -178,55 +178,55 @@ namespace m4dModels.Tests
             var service = new DanceMusicService(context, userManager, null, manager);
             manager.Instance.FixupStats(service, false).Wait();
 
-            SeedRoles(roleManager);
+            await SeedRoles(roleManager);
 
             return service;
         }
 
 
-        public static DanceMusicService CreateServiceWithUsers(string name)
+        public static async Task<DanceMusicService> CreateServiceWithUsers(string name)
         {
-            var service = CreateService(name);
+            var service = await CreateService(name);
 
-            AddUser(service, "dwgray", false);
-            AddUser(service, "batch", true);
-            AddUser(service, "batch-a", true);
-            AddUser(service, "batch-e", true);
-            AddUser(service, "batch-i", true);
-            AddUser(service, "batch-s", true);
-            AddUser(service, "batch-x", true);
-            AddUser(service, "DWTS", true);
-            AddUser(service, "Charlie", false);
-            AddUser(service, "ohdwg", false);
-            AddUser(service, "HunterZ", true);
-            AddUser(service, "EthanH", true);
-            AddUser(service, "ChaseP", true);
-            AddUser(service, "JuliaS", true);
-            AddUser(service, "LincolnA", true);
+            await AddUser(service, "dwgray", false);
+            await AddUser(service, "batch", true);
+            await AddUser(service, "batch-a", true);
+            await AddUser(service, "batch-e", true);
+            await AddUser(service, "batch-i", true);
+            await AddUser(service, "batch-s", true);
+            await AddUser(service, "batch-x", true);
+            await AddUser(service, "DWTS", true);
+            await AddUser(service, "Charlie", false);
+            await AddUser(service, "ohdwg", false);
+            await AddUser(service, "HunterZ", true);
+            await AddUser(service, "EthanH", true);
+            await AddUser(service, "ChaseP", true);
+            await AddUser(service, "JuliaS", true);
+            await AddUser(service, "LincolnA", true);
             return service;
         }
 
-        private static void AddUser(DanceMusicService service, string name, bool pseudo)
+        private static async Task AddUser(DanceMusicService service, string name, bool pseudo)
         {
-            service.FindOrAddUser(
+            await service.FindOrAddUser(
                 name,
                 pseudo ? DanceMusicCoreService.PseudoRole : DanceMusicCoreService.EditRole,
                 pseudo ? null : $"{name}@hotmail.com");
         }
 
-        public static DanceMusicService CreatePopulatedService(string name)
+        public static async Task<DanceMusicService> CreatePopulatedService(string name)
         {
-            var service = CreateService(name);
+            var service = await CreateService(name);
 
             var users = ReadResource("test-users.txt");
             var dances = ReadResource(@"test-dances.txt");
             var tags = ReadResource(@"test-tags.txt");
             var searches = ReadResource(@"test-searches.txt");
 
-            service.LoadUsers(users);
-            service.LoadDances(dances);
-            service.LoadTags(tags);
-            service.LoadSearches(searches);
+            await service.LoadUsers(users);
+            await service.LoadDances(dances);
+            await service.LoadTags(tags);
+            await service.LoadSearches(searches);
 
             return service;
         }
@@ -237,23 +237,21 @@ namespace m4dModels.Tests
             var resourceName = assembly.GetManifestResourceNames()
                 .Single(str => str.EndsWith(name));
 
-            using (var stream = assembly.GetManifestResourceStream(resourceName))
-            using (var reader = new StreamReader(stream))
-            {
-                return reader.ReadToEnd().Split(
-                    Environment.NewLine.ToCharArray(),
-                    StringSplitOptions.RemoveEmptyEntries).ToList();
-            }
+            using var stream = assembly.GetManifestResourceStream(resourceName);
+            using var reader = new StreamReader(stream);
+            return reader.ReadToEnd().Split(
+                Environment.NewLine.ToCharArray(),
+                StringSplitOptions.RemoveEmptyEntries).ToList();
         }
 
-        private static void SeedRoles(RoleManager<IdentityRole> roleManager)
+        private static async Task SeedRoles(RoleManager<IdentityRole> roleManager)
         {
             foreach (var roleName in DanceMusicCoreService.Roles)
             {
                 if (!roleManager.RoleExistsAsync(roleName).Result)
                 {
-                    var result = roleManager.CreateAsync(new IdentityRole { Name = roleName })
-                        .Result;
+                    var result =
+                        await roleManager.CreateAsync(new IdentityRole { Name = roleName });
                 }
             }
         }

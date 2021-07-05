@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading.Tasks;
 using AutoMapper;
 using m4dModels;
 
@@ -10,12 +11,12 @@ namespace m4d.ViewModels
         [Key]
         public string Artist { get; set; }
 
-        public static ArtistViewModel Create(
+        public static async Task<ArtistViewModel> Create(
             string name, string user,
             IMapper mapper,
             DanceMusicCoreService.CruftFilter cruft, DanceMusicService dms)
         {
-            var list = dms.FindArtist(name, cruft).Take(500);
+            var list = (await dms.FindArtist(name, cruft)).Take(500);
 
             return new ArtistViewModel
             {

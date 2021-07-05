@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
-using DanceLibrary;
 using m4d.Areas.Identity;
 using m4d.Scrapers;
 using m4d.Utilities;
@@ -19,7 +17,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.Azure.Search.Models;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
@@ -176,278 +173,15 @@ namespace m4d.Controllers
             return View("Results");
         }
 
-        //
-        // Get: //UpdateAlbums
-        [Authorize(Roles = "dbAdmin")]
-        public ActionResult UpdateAlbums()
-        {
-            // DBKILL: Restore Cleanup when Necessary
-            return RestoreBatch();
-
-            //try
-            //{
-            //    StartAdminTask("UpdateAlbums");
-            //    AdminMonitor.UpdateTask("UpdateAblums");
-
-            //    ViewBag.Name = "UpdateAlbums";
-            //    var changed = 0;
-            //    var scanned = 0;
-
-            //    Context.TrackChanges(false);
-            //    var user = Database.FindUser(User.Identity.Name);
-            //    var songs = from s in Database.Songs where s.Title != null select s;
-            //    foreach (var song in songs)
-            //    {
-            //        changed += Database.CleanupAlbums(user, song);
-            //        scanned += 1;
-
-            //        if (scanned%100 == 0)
-            //        {
-            //            AdminMonitor.UpdateTask("UpdateAlbums", scanned);
-            //            Trace.WriteLineIf(TraceLevels.General.TraceInfo,
-            //                $"Scanned == {scanned}; Changed={changed}");
-            //        }
-
-            //        if (scanned%1000 == 0)
-            //        {
-            //            Context.CheckpointSongs();
-            //        }
-            //    }
-            //    Context.TrackChanges(true);
-
-            //    return CompleteAdminTask(true, $"{scanned} songs scanned, {changed} almubs were merged.");
-            //}
-            //catch (Exception e)
-            //{
-            //    return FailAdminTask($"UpdateAlbums: {e.Message}", e);
-            //}
-        }
-
-        //
-        // Get: //UpdateTagSummaries
-        [Authorize(Roles = "dbAdmin")]
-        public ActionResult UpdateTagSummaries(SongFilter filter = null)
-        {
-            // DBKILL: Restore Cleanup when Necessary
-            return RestoreBatch();
-            //if (filter == null) filter = SongFilter.Default;
-
-            //try
-            //{
-            //    StartAdminTask("UpdateTagSummaries");
-            //    Context.TrackChanges(false);
-
-            //    // Do the actual update
-            //    var sumChanged = 0;
-            //    var i = 0;
-            //    // ReSharper disable once LoopCanBePartlyConvertedToQuery
-            //    foreach (var s in Database.BuildSongList(filter,DanceMusicService.CruftFilter.AllCruft))
-            //    {
-            //        AdminMonitor.UpdateTask("Update Song Tags", i++);
-            //        if (!s.UpdateTagSummaries(Database)) continue;
-
-            //        s.Modified = DateTime.Now;
-
-            //        sumChanged += 1;
-            //    }
-
-            //    Context.TrackChanges(true);
-            //    return CompleteAdminTask(true, $" Songs/DanceRatings were fixed as tags({sumChanged})");
-            //}
-            //catch (Exception e)
-            //{
-            //    return FailAdminTask("Tag summaries failed to rebuild", e);
-            //}
-        }
-
-        //
-        // Get: //AddDanceGroups
-        [Authorize(Roles = "dbAdmin")]
-        public ActionResult AddDanceGroups()
-        {
-            // DBKILL: Restore Cleanup when Necessary
-            return RestoreBatch();
-            //ViewBag.Name = "AddDanceGroups";
-
-            //var count = 0;
-            //Context.TrackChanges(false);
-
-            //var batch = Database.FindUser("batch");
-            //foreach (var song in Database.Songs)
-            //{
-            //    var ngs = new Dictionary<string, DanceRatingDelta>();
-            //    foreach (var dr in song.DanceRatings)
-            //    {
-            //        var d = Dances.Instance.DanceFromId(dr.DanceId);
-            //        var dt = d as DanceType;
-            //        if (dt != null)
-            //        {
-            //            var g = dt.GroupId;
-            //            if (g != "MSC")
-            //            {
-            //                DanceRatingDelta drd;
-            //                if (ngs.TryGetValue(g, out drd))
-            //                {
-            //                    drd.Delta += 2;
-            //                }
-            //                else
-            //                {
-            //                    drd = new DanceRatingDelta(g, 3);
-            //                    ngs.Add(g, drd);
-            //                }
-            //            }
-            //            count += 1;
-            //        }
-            //        else
-            //        {
-            //            var di = d as DanceInstance;
-            //            if (di != null)
-            //            {
-            //                Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Dance Instance: {song.Title}");
-            //            }
-            //        }
-            //    }
-
-            //    if (ngs.Count > 0)
-            //    {
-            //        Database.UpdateDances(batch, song, ngs.Values);
-            //    }
-            //}
-
-            //Context.TrackChanges(true);
-
-            //ViewBag.Success = true;
-            //ViewBag.Message = $"Dance groups were added ({count})";
-
-            //return View("Results");
-        }
-
-        //
-        // Get: //InferDanceTypes
-        [Authorize(Roles = "dbAdmin")]
-        public ActionResult InferDanceTypes(string group, int pageSize = 1000)
-        {
-            if (string.IsNullOrEmpty(group))
-            {
-                return View("Error");
-            }
-
-            var dnc = Dances.Instance.DanceFromId(group) ?? Dances.Instance.DanceFromName(group);
-            if (!(dnc is DanceGroup))
-            {
-                return View("Error");
-            }
-
-            try
-            {
-                StartAdminTask("InferDanceTypes");
-                AdminMonitor.UpdateTask("InferDanceTypes");
-                var tried = 0;
-                var skipped = 0;
-
-                var failed = new List<Guid>();
-                var succeeded = new List<Guid>();
-
-                var page = 0;
-                var done = false;
-
-                var user = Database.FindUser("batch");
-
-                var name = dnc.Name.ToLower();
-                var parameters = new SearchParameters
-                {
-                    QueryType = QueryType.Simple,
-                    //(DanceTags/any(t: t eq 'tango') or DanceTagsInferred/any(t: t eq 'tango')) and (Tempo ne null)
-                    Filter =
-                        $"(DanceTags/any(t: t eq '{name}') or DanceTagsInferred/any(t: t eq '{name}')) and (Tempo ne null)"
-                };
-
-                var dms = Database.GetTransientService();
-                Task.Run(
-                    () =>
-                    {
-                        try
-                        {
-                            SearchContinuationToken token = null;
-                            while (!done)
-                            {
-                                AdminMonitor.UpdateTask("BuildPage", page);
-
-                                var songs = dms.TakePage(parameters, pageSize, ref token);
-                                var processed = 0;
-
-                                var stemp = new List<Song>();
-                                var ftemp = new List<Song>();
-                                foreach (var song in songs)
-                                {
-                                    AdminMonitor.UpdateTask(
-                                        $"Processing ({succeeded.Count})",
-                                        processed);
-
-                                    tried += 1;
-                                    processed += 1;
-
-                                    if (song.InferFromGroup(dnc.Id, user))
-                                    {
-                                        stemp.Add(song);
-                                    }
-                                    else
-                                    {
-                                        ftemp.Add(song);
-                                    }
-
-                                    if ((tried + 1) % 100 != 0)
-                                    {
-                                        continue;
-                                    }
-
-                                    Trace.WriteLineIf(
-                                        TraceLevels.General.TraceInfo,
-                                        $"{tried} songs tried.");
-                                }
-
-                                succeeded.AddRange(stemp.Select(s => s.SongId));
-                                failed.AddRange(ftemp.Select(s => s.SongId));
-                                dms.UpdateAzureIndex(stemp);
-
-                                page += 1;
-                                if (processed < pageSize)
-                                {
-                                    done = true;
-                                }
-                            }
-
-                            AdminMonitor.CompleteTask(
-                                true,
-                                $"InferDanceTypes: Completed=true, Succeeded={succeeded.Count} - ({string.Join(",", succeeded)}), Failed={failed.Count} - ({string.Join(",", failed)}), Skipped={skipped}");
-                        }
-                        catch (Exception e)
-                        {
-                            FailAdminTask($"InferDanceTypes: {e.Message}", e);
-                        }
-                        finally
-                        {
-                            dms.Dispose();
-                        }
-                    });
-
-                return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
-            }
-            catch (Exception e)
-            {
-                return FailAdminTask($"InferDanceTypes: {e.Message}", e);
-            }
-        }
-
 
         //
         // Get: //ClearSongCache
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult ClearSongCache(bool reloadFromStore = true)
+        public async Task<ActionResult> ClearSongCache(bool reloadFromStore = true)
         {
             ViewBag.Name = "ClearSongCache";
 
-            DanceStatsManager.ClearCache(Database, reloadFromStore);
+            await DanceStatsManager.ClearCache(Database, reloadFromStore);
 
             ViewBag.Success = true;
             ViewBag.Message = "Cache was cleared";
@@ -503,13 +237,13 @@ namespace m4d.Controllers
         //
         // Get: //AzureFacets
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult AzureFacets(string categories, int count)
+        public async Task<ActionResult> AzureFacets(string categories, int count)
         {
             try
             {
                 StartAdminTask("BuildFacets");
 
-                var facets = Database.GetTagFacets(categories, count);
+                var facets = await Database.GetTagFacets(categories, count);
 
                 foreach (var facet in facets)
                 {
@@ -533,7 +267,8 @@ namespace m4d.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult LoadIdx(IFormFile file, string idxName = "default", bool reset = true)
+        public async Task<ActionResult> LoadIdx(IFormFile file, string idxName = "default",
+            bool reset = true)
         {
             try
             {
@@ -546,14 +281,14 @@ namespace m4d.Controllers
 
                 if (reset)
                 {
-                    Database.ResetIndex(idxName);
+                    await Database.ResetIndex(idxName);
                 }
 
                 var c = Database.UploadIndex(lines, !reset, idxName);
 
                 if (SearchService.GetInfo(idxName).Id == SearchService.GetInfo("default").Id)
                 {
-                    DanceStatsManager.LoadFromAzure(Database, idxName, true);
+                    await DanceStatsManager.LoadFromAzure(Database, idxName, true);
                 }
 
                 return CompleteAdminTask(true, $"Index {idxName} loaded with {c} songs");
@@ -568,7 +303,7 @@ namespace m4d.Controllers
         // Get: //CloneIdx
         [HttpGet]
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult CloneIdx(string id)
+        public async Task<ActionResult> CloneIdx(string id)
         {
             try
             {
@@ -576,7 +311,7 @@ namespace m4d.Controllers
 
                 AdminMonitor.UpdateTask("LoadIndex");
 
-                Database.CloneIndex(id);
+                await Database.CloneIndex(id);
 
                 return CompleteAdminTask(true, $"Default index cloned to {id}");
             }
@@ -591,7 +326,7 @@ namespace m4d.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult ReloadDatabase(
+        public async Task<ActionResult> ReloadDatabase(
             [FromServices]UserManager<ApplicationUser> userManager,
             [FromServices]RoleManager<IdentityRole> roleManager,
             IFormFile fileUpload, string reloadDatabase, bool? batch)
@@ -632,45 +367,45 @@ namespace m4d.Controllers
 
                     if (users != null)
                     {
-                        Database.LoadUsers(users);
+                        await Database.LoadUsers(users);
                     }
 
                     if (dances != null)
                     {
-                        Database.LoadDances(dances);
+                        await Database.LoadDances(dances);
                     }
 
                     if (tags != null)
                     {
-                        Database.LoadTags(tags);
+                        await Database.LoadTags(tags);
                     }
 
                     if (playlists != null)
                     {
-                        Database.LoadPlaylists(playlists);
+                        await Database.LoadPlaylists(playlists);
                     }
 
                     if (searches != null)
                     {
-                        Database.LoadSearches(searches, reload);
+                        await Database.LoadSearches(searches, reload);
                     }
 
                     if (songs != null)
                     {
                         if (reload)
                         {
-                            Database.LoadSongs(songs);
+                            await Database.LoadSongs(songs);
                         }
                         else if (admin)
                         {
-                            Database.AdminUpdate(songs);
+                            await Database.AdminUpdate(songs);
                         }
                         else
                         {
-                            Database.UpdateSongs(songs);
+                            await Database.UpdateSongs(songs);
                         }
 
-                        DanceStatsManager.ClearCache(Database, true);
+                        await DanceStatsManager.ClearCache(Database, true);
                     }
 
                     return CompleteAdminTask(true, "Database restored");
@@ -837,7 +572,8 @@ namespace m4d.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult UploadCatalog(IFormFile file, string songs, string separator,
+        public async Task<ActionResult> UploadCatalog(IFormFile file, string songs,
+            string separator,
             string headers, string user, string dances, string artist, string album, string tags)
         {
             ViewBag.Name = "Upload Catalog";
@@ -864,7 +600,7 @@ namespace m4d.Controllers
                 }
             }
 
-            var appuser = Database.FindUser(user);
+            var appuser = await Database.FindUser(user);
 
             lines ??= FileToLines(songs);
 
@@ -872,7 +608,7 @@ namespace m4d.Controllers
                 ? Song.BuildHeaderMap(headers, ',')
                 : HeaderFromList(CleanSeparator(separator), lines);
 
-            var newSongs = Song.CreateFromRows(
+            var newSongs = await Song.CreateFromRows(
                 appuser, separator, headerList, lines, Database,
                 Song.DanceRatingCreate);
 
@@ -938,7 +674,7 @@ namespace m4d.Controllers
             if (newSongs.Count > 0)
             {
                 var results =
-                    Database.MatchSongs(newSongs, DanceMusicCoreService.MatchMethod.Merge);
+                    await Database.MatchSongs(newSongs, DanceMusicCoreService.MatchMethod.Merge);
                 var review = new Review { Merge = results };
                 ViewBag.FileId = CacheReview(review);
                 return View("ReviewBatch", review.Merge);
@@ -953,7 +689,8 @@ namespace m4d.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult CommitUploadCatalog(int fileId, string userName, string danceIds,
+        public async Task<ActionResult> CommitUploadCatalog(int fileId, string userName,
+            string danceIds,
             string headers, string separator)
         {
             var initial = GetReviewById(fileId);
@@ -971,9 +708,9 @@ namespace m4d.Controllers
             }
 
             return View(
-                CommitCatalog(
+                await CommitCatalog(
                     Database, initial,
-                    Database.FindUser(userName), danceIds) == 0
+                    await Database.FindUser(userName), danceIds) == 0
                     ? "Error"
                     : "UploadCatalog");
         }
@@ -1303,89 +1040,6 @@ namespace m4d.Controllers
             return View("Results");
         }
 
-        //
-        // Get: //CleanTags
-        [Authorize(Roles = "dbAdmin")]
-        public ActionResult CleanTags()
-        {
-            StartAdminTask("CleanTags");
-            AdminMonitor.UpdateTask("CleanTags");
-
-            var ti = CultureInfo.CurrentCulture.TextInfo;
-            var tagMap = Database.DanceStats.TagManager.TagMap;
-
-            var dms = Database.GetTransientService();
-            Task.Run(
-                () =>
-                {
-                    try
-                    {
-                        var tagList = dms.TagGroups.ToList();
-                        var changes = new List<string>();
-
-                        foreach (var tg in tagList)
-                        {
-                            if (tg.PrimaryId != null)
-                            {
-                                continue;
-                            }
-
-                            var key = tg.Key;
-                            if (key.Contains('!') || !key.Contains('-') &&
-                                !key.Any(c => char.IsLetterOrDigit(c)))
-                            {
-                                continue;
-                            }
-
-                            var tag = new TagCount(key);
-                            if (!string.Equals(
-                                tag.TagClass, "Music",
-                                StringComparison.CurrentCultureIgnoreCase))
-                            {
-                                continue;
-                            }
-
-                            var newValue = ti.ToTitleCase(tag.TagValue.Replace('-', ' '))
-                                .Replace(" And ", " and ")
-                                .Replace(" Or ", " or ");
-
-                            if (string.Equals(
-                                newValue, tag.TagValue,
-                                StringComparison.OrdinalIgnoreCase))
-                            {
-                                continue;
-                            }
-
-                            var newKey = $"{newValue}:{tag.TagClass}";
-
-                            var isNew = !tagMap.ContainsKey(newKey.ToLower());
-                            var type = isNew ? "New" : "Existing";
-                            var message = $"{type}\t{key}\t{newKey}";
-                            Trace.WriteLine(message);
-                            changes.Add(message);
-
-                            AdminMonitor.UpdateTask(message, changes.Count);
-
-                            dms.UpdateTag(tg, newKey, newKey);
-                        }
-
-                        AdminMonitor.CompleteTask(
-                            true,
-                            $"InferDanceTypes: Completed=true, Changed={changes.Count} - {string.Join(",", changes)}");
-                    }
-                    catch (Exception e)
-                    {
-                        FailAdminTask($"CleanTags: {e.Message}", e);
-                    }
-                    finally
-                    {
-                        dms.Dispose();
-                    }
-                });
-
-            return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
-        }
-
         #endregion
 
         #region Search
@@ -1393,14 +1047,14 @@ namespace m4d.Controllers
         //
         // Get: //ResetSearchIdx
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult ResetSearchIdx(
+        public async Task<ActionResult> ResetSearchIdx(
             [FromServices]RecomputeMarkerService recomputeMarkerService, string id = "default")
         {
             try
             {
                 StartAdminTask("ResetIndex");
 
-                var success = Database.ResetIndex(id);
+                var success = await Database.ResetIndex(id);
 
                 if (success)
                 {
@@ -1422,7 +1076,8 @@ namespace m4d.Controllers
         //
         // Get: //CleanupProperties
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult CleanupProperties([FromServices]RecomputeMarkerService markerService,
+        public async Task<ActionResult> CleanupProperties(
+            [FromServices]RecomputeMarkerService markerService,
             int count = 100, string filter = null)
         {
             try
@@ -1437,7 +1092,7 @@ namespace m4d.Controllers
 
                 var from = markerService.GetMarker("propertycleanup");
 
-                var info = Database.CleanupProperties(count, from, songFilter);
+                var info = await Database.CleanupProperties(count, from, songFilter);
 
                 if (info.Succeeded > 0)
                 {

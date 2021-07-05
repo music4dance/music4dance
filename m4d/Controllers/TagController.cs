@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using AutoMapper;
 using m4d.ViewModels;
 using m4dModels;
@@ -60,7 +61,7 @@ namespace m4d.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create([Bind("Key,PrimaryId")]TagGroup tagGroup)
+        public async Task<IActionResult> Create([Bind("Key,PrimaryId")]TagGroup tagGroup)
         {
             if (ModelState.IsValid)
             {
@@ -71,7 +72,7 @@ namespace m4d.Controllers
                     tt.Primary = Database.DanceStats.TagManager.TagMap[tt.PrimaryId];
                 }
 
-                Database.UpdateAzureIndex(null);
+                await Database.UpdateAzureIndex(null);
 
                 return RedirectToAction("List");
             }
@@ -108,7 +109,8 @@ namespace m4d.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind("Key,PrimaryId")]TagGroup tagGroup, string newKey)
+        public async Task<ActionResult> Edit([Bind("Key,PrimaryId")]TagGroup tagGroup,
+            string newKey)
         {
             // The tagGroup coming in is the original tagGroup with a possibly edited Primary Key
             //  newKey is the key typed into the key field
@@ -120,14 +122,14 @@ namespace m4d.Controllers
                 return View(tagGroup);
             }
 
-            var oldTag = Database.TagGroups.Find(tagGroup.Key);
+            var oldTag = await Database.TagGroups.FindAsync(tagGroup.Key);
             if (oldTag == null)
             {
                 throw new ArgumentOutOfRangeException(nameof(newKey));
             }
 
-            return Database.UpdateTag(oldTag, newKey, tagGroup.PrimaryId)
-                ? RedirectToAction("List") as ActionResult
+            return await Database.UpdateTag(oldTag, newKey, tagGroup.PrimaryId)
+                ? RedirectToAction("List")
                 : View(tagGroup);
         }
 
@@ -148,15 +150,13 @@ namespace m4d.Controllers
         [HttpPost]
         [ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(string id)
+        public async Task<ActionResult> DeleteConfirmed(string id)
         {
             // TODO: Should we consider guarding this?  If the tagtype is being used we may screw ourselves
-            var tagGroup = Database.TagGroups.Find(TagGroup.TagDecode(id));
+            var tagGroup = await Database.TagGroups.FindAsync(TagGroup.TagDecode(id));
             Database.DanceStats.TagManager.DeleteTagGroup(tagGroup.Key);
             Database.TagGroups.Remove(tagGroup);
-            Database.SaveChanges();
-
-            DanceMusicCoreService.BlowTagCache();
+            await Database.SaveChanges();
 
             return RedirectToAction("List");
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using m4d.Utilities;
 using m4dModels;
 using Microsoft.AspNetCore.Identity;
@@ -14,6 +15,15 @@ namespace m4d.Controllers
 {
     public class DanceMusicController : Controller
     {
+        protected static readonly JsonSerializerSettings CamelCaseSerializerSettings = new()
+        {
+            NullValueHandling = NullValueHandling.Ignore,
+            DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate,
+            ContractResolver = new StatsContractResolver(true, true)
+        };
+
+        private MusicServiceManager _musicServiceManager;
+
         public DanceMusicController(
             DanceMusicContext context, UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
@@ -32,7 +42,6 @@ namespace m4d.Controllers
         protected MusicServiceManager MusicServiceManager =>
             _musicServiceManager ??= new MusicServiceManager(Configuration);
 
-        private MusicServiceManager _musicServiceManager;
         protected IConfiguration Configuration { get; }
 
         public ISearchServiceManager SearchService { get; }
@@ -77,22 +86,45 @@ namespace m4d.Controllers
                 : null;
         }
 
-        protected void SaveSong(Song song)
+        protected async Task SaveSong(Song song)
         {
-            Database.SaveSong(song);
+            await Database.SaveSong(song);
         }
 
-        protected static readonly JsonSerializerSettings CamelCaseSerializerSettings = new()
-        {
-            NullValueHandling = NullValueHandling.Ignore,
-            DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate,
-            ContractResolver = new StatsContractResolver(true, true)
-        };
 
-
-        protected void SaveSongs(IEnumerable<Song> songs = null)
+        protected async Task<int> CommitCatalog(DanceMusicCoreService dms, Review review,
+            ApplicationUser user, string danceIds = null)
         {
-            Database.SaveSongs(songs);
+            List<string> dances = null;
+            if (!string.IsNullOrWhiteSpace(danceIds))
+            {
+                dances = new List<string>(danceIds.Split(';'));
+            }
+
+            if (review.Merge.Count <= 0)
+            {
+                return 0;
+            }
+
+            var modified = dms.MergeCatalog(user, review.Merge, dances).ToList();
+
+            var i = 0;
+
+            foreach (var song in modified)
+            {
+                AdminMonitor.UpdateTask("UpdateService", i);
+                await MusicServiceManager.UpdateSongAndServices(dms, song, true);
+                i += 1;
+            }
+
+            await dms.SaveSongs(modified);
+
+            if (!string.IsNullOrEmpty(review.PlayList))
+            {
+                await dms.UpdatePlayList(review.PlayList, review.Merge.Select(m => m.Left));
+            }
+
+            return modified.Count;
         }
 
         #region AdminTaskHelpers
@@ -140,40 +172,5 @@ namespace m4d.Controllers
         }
 
         #endregion
-
-        protected int CommitCatalog(DanceMusicCoreService dms, Review review,
-            ApplicationUser user, string danceIds = null)
-        {
-            List<string> dances = null;
-            if (!string.IsNullOrWhiteSpace(danceIds))
-            {
-                dances = new List<string>(danceIds.Split(';'));
-            }
-
-            if (review.Merge.Count <= 0)
-            {
-                return 0;
-            }
-
-            var modified = dms.MergeCatalog(user, review.Merge, dances).ToList();
-
-            var i = 0;
-
-            foreach (var song in modified)
-            {
-                AdminMonitor.UpdateTask("UpdateService", i);
-                MusicServiceManager.UpdateSongAndServices(dms, song, true);
-                i += 1;
-            }
-
-            dms.SaveSongs(modified);
-
-            if (!string.IsNullOrEmpty(review.PlayList))
-            {
-                dms.UpdatePlayList(review.PlayList, review.Merge.Select(m => m.Left));
-            }
-
-            return modified.Count;
-        }
     }
 }

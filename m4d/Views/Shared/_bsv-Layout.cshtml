@@ -62,7 +62,7 @@
     <link rel="shortcut icon" href="~/images/favicon.png"/>
 
     <link rel="stylesheet" href="/css/site.css"/>
-    @RenderSection("styles", false)
+    @await RenderSectionAsync("styles", false)
     <script>
         (function(i, s, o, g, r, a, m) {
             i['GoogleAnalyticsObject'] = r;
@@ -122,6 +122,6 @@
 <body>
 @RenderBody()
 
-@RenderSection("scripts", false)
+@await RenderSectionAsync("scripts", false)
 </body>
 </html>

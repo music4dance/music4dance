@@ -16,6 +16,9 @@ namespace m4d.Controllers
     //[RequireHttps]
     public class ApplicationUsersController : DanceMusicController
     {
+        private static readonly Dictionary<string, UserInfo> s_cachedUsers =
+            new(StringComparer.OrdinalIgnoreCase);
+
         public ApplicationUsersController(DanceMusicContext context,
             UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
             ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
@@ -23,6 +26,8 @@ namespace m4d.Controllers
             base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
         {
         }
+
+        private static DateTime CacheTime { get; set; }
 
         //public ApplicationUsersController()
         //{
@@ -63,14 +68,15 @@ namespace m4d.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind("UserName,Email")]ApplicationUser applicationUser)
+        public async Task<ActionResult> Create(
+            [Bind("UserName,Email")]ApplicationUser applicationUser)
         {
             if (!ModelState.IsValid)
             {
                 return View(applicationUser);
             }
 
-            var user = Database.FindOrAddUser(
+            var user = await Database.FindOrAddUser(
                 applicationUser.UserName,
                 DanceMusicCoreService.PseudoRole);
             user.Email = applicationUser.Email;
@@ -110,7 +116,7 @@ namespace m4d.Controllers
                 return StatusCode((int)HttpStatusCode.BadRequest);
             }
 
-            var applicationUser = Context.Users.Find(id);
+            var applicationUser = await Context.Users.FindAsync(id);
 
             var oldUserName = applicationUser.UserName;
             var oldSubscriptionLevel = applicationUser.SubscriptionLevel;
@@ -127,7 +133,7 @@ namespace m4d.Controllers
                 {
                     if (!string.Equals(oldUserName, applicationUser.UserName))
                     {
-                        Database.ChangeUserName(oldUserName, applicationUser.UserName);
+                        await Database.ChangeUserName(oldUserName, applicationUser.UserName);
                     }
 
                     await UpdateSubscriptionRole(
@@ -236,7 +242,8 @@ namespace m4d.Controllers
         // GET: ApplicationUsers
         public async Task<ActionResult> VotingResults()
         {
-            var records = Database.GetVotingRecords().OrderByDescending(r => r.Total).ToList();
+            var records = (await Database.GetVotingRecords()).OrderByDescending(r => r.Total)
+                .ToList();
             foreach (var record in records)
             {
                 var user =
@@ -343,8 +350,6 @@ namespace m4d.Controllers
                                 applicationUser,
                                 DanceMusicCoreService.PremiumRole);
                             break;
-                        default:
-                            break;
                     }
 
                     break;
@@ -382,10 +387,5 @@ namespace m4d.Controllers
             s_cachedUsers.Clear();
             CacheTime = DateTime.MinValue;
         }
-
-        private static readonly Dictionary<string, UserInfo> s_cachedUsers =
-            new(StringComparer.OrdinalIgnoreCase);
-
-        private static DateTime CacheTime { get; set; }
     }
 }

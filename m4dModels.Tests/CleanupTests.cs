@@ -1,7 +1,8 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace m4dModels.Tests
 {
@@ -38,22 +39,22 @@ namespace m4dModels.Tests
         private const string SongBadCategoryTags =
             @"SongId={a8cace40-03bc-47bf-b781-47a817a7602d}	.Create=	User=HunterZ	Time=3/17/2014 5:46:07 PM	Title=Test Track	Tag+=Christmas: Pop	User=FlowZ	Time=3/17/2014 5:46:08 PM	Tag+=Christmas: Other";
 
-        private TraceSwitch General { get; }
-
         public CleanupTests()
         {
             General = new TraceSwitch("General", "All Tests");
         }
 
+        private TraceSwitch General { get; }
+
         [TestMethod]
-        public void CleanEmpties()
+        public async Task CleanEmpties()
         {
-            var dms = DanceMusicTester.CreateService("Cleanup");
+            var dms = await DanceMusicTester.CreateService("Cleanup");
 
             var songs = new List<Song>
             {
-                new(SongA, dms),
-                new(SongD, dms)
+                await Song.Create(SongA, dms),
+                await Song.Create(SongD, dms)
             };
 
             var deltas = new List<int> { 13, 4 };
@@ -80,15 +81,15 @@ namespace m4dModels.Tests
         }
 
         [TestMethod]
-        public void CleanRatings()
+        public async Task CleanRatings()
         {
-            var dms = DanceMusicTester.CreateService("Cleanup");
+            var dms = await DanceMusicTester.CreateService("Cleanup");
 
             var songs = new List<Song>
             {
-                new(SongB, dms),
-                new(SongC, dms),
-                new(SongE, dms)
+                await Song.Create(SongB, dms),
+                await Song.Create(SongC, dms),
+                await Song.Create(SongE, dms)
             };
 
             var deltas = new List<int> { 17, 11, 3 };
@@ -107,7 +108,7 @@ namespace m4dModels.Tests
                     $"{song.SongId}:{song.SongProperties.Count - c}");
                 Assert.AreEqual(c - deltas[index], song.SongProperties.Count);
 
-                var sd = new Song(song.SongId, song.SongProperties, dms);
+                var sd = await Song.Create(song.SongId, song.SongProperties, dms);
                 Assert.AreEqual(song.DanceRatings.Count, sd.DanceRatings.Count);
                 foreach (var dr in song.DanceRatings)
                 {
@@ -124,14 +125,14 @@ namespace m4dModels.Tests
         }
 
         [TestMethod]
-        public void CleanDurations()
+        public async Task CleanDurations()
         {
-            var dms = DanceMusicTester.CreateService("Cleanup");
+            var dms = await DanceMusicTester.CreateService("Cleanup");
 
             var songs = new List<Song>
             {
-                new(SongB, dms),
-                new(SongC, dms)
+                await Song.Create(SongB, dms),
+                await Song.Create(SongC, dms)
             };
 
             var deltas = new List<int> { 17, 2 };
@@ -158,11 +159,11 @@ namespace m4dModels.Tests
         }
 
         [TestMethod]
-        public void CleanAlbums()
+        public async Task CleanAlbums()
         {
-            var dms = DanceMusicTester.CreateService("Cleanup");
+            var dms = await DanceMusicTester.CreateService("Cleanup");
 
-            var song = new Song(SongB, dms);
+            var song = await Song.Create(SongB, dms);
 
             Trace.WriteLine(General.TraceInfo, $"---------------Predump for Song {song.SongId}");
             DanceMusicTester.DumpSongProperties(song);
@@ -178,17 +179,17 @@ namespace m4dModels.Tests
         }
 
         [TestMethod]
-        public void CleanAll()
+        public async Task CleanAll()
         {
-            var dms = DanceMusicTester.CreateService("Cleanup");
+            var dms = await DanceMusicTester.CreateService("Cleanup");
 
             var songs = new List<Song>
             {
-                new(SongA, dms),
-                new(SongB, dms),
-                new(SongC, dms),
-                new(SongD, dms),
-                new(SongE, dms)
+                await Song.Create(SongA, dms),
+                await Song.Create(SongB, dms),
+                await Song.Create(SongC, dms),
+                await Song.Create(SongD, dms),
+                await Song.Create(SongE, dms)
             };
 
             var deltas = new List<List<int>>
@@ -239,17 +240,17 @@ namespace m4dModels.Tests
                 DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
 
                 // May be worth doing some verification on this, but for now just want to make sure it loads...
-                var sd = new Song(song.SongId, song.SongProperties, dms);
+                var sd = await Song.Create(song.SongId, song.SongProperties, dms);
                 Assert.IsNotNull(sd);
             }
         }
 
         [TestMethod]
-        public void FixupLengths()
+        public async Task FixupLengths()
         {
-            var dms = DanceMusicTester.CreateService("Cleanup");
+            var dms = await DanceMusicTester.CreateService("Cleanup");
 
-            var song = new Song(SongLength, dms);
+            var song = await Song.Create(SongLength, dms);
 
             Trace.WriteLine(General.TraceInfo, $"---------------Predump for Song {song.SongId}");
             DanceMusicTester.DumpSongProperties(song);
@@ -259,7 +260,7 @@ namespace m4dModels.Tests
             Trace.WriteLineIf(General.TraceInfo, $"{song.SongId}:{song.SongProperties.Count - c}");
 
             Assert.AreEqual(c, song.SongProperties.Count);
-            song.Load(song.SongProperties, dms);
+            await song.Load(song.SongProperties, dms);
             Assert.AreEqual(song.Length, 125);
 
             Trace.WriteLineIf(General.TraceInfo, $"---------------Postdump for Song {song.SongId}");
@@ -267,11 +268,11 @@ namespace m4dModels.Tests
         }
 
         [TestMethod]
-        public void FixupExtraLong()
+        public async Task FixupExtraLong()
         {
-            var dms = DanceMusicTester.CreateService("Cleanup");
+            var dms = await DanceMusicTester.CreateService("Cleanup");
 
-            var song = new Song(ExtraLength, dms);
+            var song = await Song.Create(ExtraLength, dms);
 
             Trace.WriteLine(General.TraceInfo, $"---------------Predump for Song {song.SongId}");
             DanceMusicTester.DumpSongProperties(song);
@@ -281,7 +282,7 @@ namespace m4dModels.Tests
             Trace.WriteLineIf(General.TraceInfo, $"{song.SongId}:{song.SongProperties.Count - c}");
 
             Assert.AreEqual(c, song.SongProperties.Count);
-            song.Load(song.SongProperties, dms);
+            await song.Load(song.SongProperties, dms);
             Assert.AreEqual(song.Length, 3725);
 
             Trace.WriteLineIf(General.TraceInfo, $"---------------Postdump for Song {song.SongId}");
@@ -289,11 +290,11 @@ namespace m4dModels.Tests
         }
 
         [TestMethod]
-        public void FixObsoletePurchase()
+        public async Task FixObsoletePurchase()
         {
-            var dms = DanceMusicTester.CreateService("Cleanup");
+            var dms = await DanceMusicTester.CreateService("Cleanup");
 
-            var song = new Song(SongPurchase, dms);
+            var song = await Song.Create(SongPurchase, dms);
 
             Trace.WriteLine(General.TraceInfo, $"---------------Predump for Song {song.SongId}");
             DanceMusicTester.DumpSongProperties(song);
@@ -309,11 +310,11 @@ namespace m4dModels.Tests
         }
 
         [TestMethod]
-        public void FixDuplicateTags()
+        public async Task FixDuplicateTags()
         {
-            var service = DanceMusicTester.CreateService("TagDupTests");
+            var service = await DanceMusicTester.CreateService("TagDupTests");
 
-            var song = new Song(SongDuplicateTags, service);
+            var song = await Song.Create(SongDuplicateTags, service);
 
             Trace.WriteLine(General.TraceInfo, $"---------------Predump for Song {song.SongId}");
             DanceMusicTester.DumpSongProperties(song);
@@ -334,13 +335,13 @@ namespace m4dModels.Tests
         }
 
         [TestMethod]
-        public void FixBadTagCategory()
+        public async Task FixBadTagCategory()
         {
             General.Level = TraceLevel.Info;
 
-            var dms = DanceMusicTester.CreateService("Cleanup");
+            var dms = await DanceMusicTester.CreateService("Cleanup");
 
-            var song = new Song(SongBadCategoryTags, dms);
+            var song = await Song.Create(SongBadCategoryTags, dms);
 
             Trace.WriteLine(General.TraceInfo, $"---------------Predump for Song {song.SongId}");
             DanceMusicTester.DumpSongProperties(song);

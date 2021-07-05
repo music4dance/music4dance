@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Threading.Tasks;
 using m4d.ViewModels;
 using m4dModels;
 using Microsoft.AspNetCore.Authorization;
@@ -48,9 +49,10 @@ namespace m4d.APIControllers
 
         [Authorize]
         [HttpPatch("{id}")]
-        public IActionResult Patch(string id, [FromBody]DanceCore dance)
+        public async Task<IActionResult> Patch(string id, [FromBody]DanceCore dance)
         {
-            if (!User.Identity.IsAuthenticated || !User.IsInRole("dbAdmin"))
+            if (User.Identity == null || !User.Identity.IsAuthenticated ||
+                !User.IsInRole("dbAdmin"))
             {
                 return StatusCode((int)HttpStatusCode.Forbidden);
             }
@@ -61,7 +63,7 @@ namespace m4d.APIControllers
             }
 
             return StatusCode(
-                (int)(Database.EditDance(dance) == null
+                (int)(await Database.EditDance(dance) == null
                     ? HttpStatusCode.NotFound
                     : HttpStatusCode.OK));
         }

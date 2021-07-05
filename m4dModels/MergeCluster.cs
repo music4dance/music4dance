@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace m4dModels
 {
     internal class MergeCluster
     {
+        private static List<Song> s_mergeCandidateCache;
+        private static int s_mergeCandidateLevel;
+
         public MergeCluster(int hash)
         {
             PropertyHash = hash;
@@ -15,15 +19,13 @@ namespace m4dModels
         public int PropertyHash { get; set; }
         public List<Song> Songs { get; set; }
 
-        private static List<Song> s_mergeCandidateCache;
-        private static int s_mergeCandidateLevel;
-
         public static void ClearMergeCandidateCache()
         {
             s_mergeCandidateCache = null;
         }
 
-        public static IReadOnlyCollection<Song> GetMergeCandidates(DanceMusicCoreService dms, int n,
+        public static async Task<IReadOnlyCollection<Song>> GetMergeCandidates(
+            DanceMusicCoreService dms, int n,
             int level)
         {
             if (level == s_mergeCandidateLevel && s_mergeCandidateCache != null)
@@ -35,7 +37,7 @@ namespace m4dModels
 
             // ReSharper disable once LoopCanBePartlyConvertedToQuery
 
-            foreach (var song in dms.LoadLightSongs())
+            foreach (var song in await dms.LoadLightSongs())
             {
                 var hash = song.TitleHash;
                 if (level != 2)

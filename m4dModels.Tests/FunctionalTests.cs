@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace m4dModels.Tests
@@ -10,9 +10,9 @@ namespace m4dModels.Tests
     public class FunctionalTests
     {
         [TestMethod]
-        public void LoadDatabase()
+        public async Task LoadDatabase()
         {
-            using var service = DanceMusicTester.CreatePopulatedService("LoadDatabase");
+            using var service = await DanceMusicTester.CreatePopulatedService("LoadDatabase");
 
             var users = (from u in service.Context.Users select u)
                 .ToList();

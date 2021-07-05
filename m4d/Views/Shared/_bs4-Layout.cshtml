@@ -44,7 +44,7 @@
     <link href="//fonts.googleapis.com/css?family=Source+Sans+Pro|Merienda:700" rel="stylesheet" type="text/css">
 
     <link rel="stylesheet" href="/css/site.css"/>
-    @RenderSection("styles", false)
+    @await RenderSectionAsync("styles", false)
     <script>
         (function(i, s, o, g, r, a, m) {
             i['GoogleAnalyticsObject'] = r;
@@ -397,6 +397,6 @@
             crossorigin="anonymous"></script>
 </environment>
 
-@RenderSection("scripts", false)
+@await RenderSectionAsync("scripts", false)
 </body>
 </html>

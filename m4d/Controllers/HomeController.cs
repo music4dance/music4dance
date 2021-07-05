@@ -211,7 +211,7 @@ namespace m4d.Controllers
                 };
 
                 var service = new ChargeService();
-                var charge = service.Create(options);
+                var charge = await service.CreateAsync(options);
                 if (charge.Paid)
                 {
                     if (user != null && kind == PurchaseKind.Purchase)
@@ -225,7 +225,7 @@ namespace m4d.Controllers
                         user.SubscriptionStart = start;
                         user.SubscriptionEnd = start.Value.AddYears(1);
                         user.SubscriptionLevel = SubscriptionLevel.Silver;
-                        Database.SaveChanges();
+                        await Database.SaveChanges();
 
                         await UserManager.AddToRoleAsync(user, DanceMusicCoreService.PremiumRole);
 

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace m4dModels.Tests
@@ -6,33 +7,36 @@ namespace m4dModels.Tests
     [TestClass]
     public class TagTests
     {
-        static TagTests()
+        private static async Task<DanceMusicService> GetService()
         {
-            Service = DanceMusicTester.CreateServiceWithUsers("TagTests");
-            Service.SeedDances();
+            var service = await DanceMusicTester.CreateServiceWithUsers("TagTests");
+            service.SeedDances();
 
-            Service.FindOrCreateTagGroup("Swing", "Music");
-            Service.FindOrCreateTagGroup("Swing", "Dance");
-            Service.FindOrCreateTagGroup("Salsa", "Music");
-            Service.FindOrCreateTagGroup("Salsa", "Dance");
-            Service.FindOrCreateTagGroup("Pop", "Music");
-            var tt = Service.FindOrCreateTagGroup("Foxtrot", "Dance");
-            var tt1 = Service.FindOrCreateTagGroup("fox-trot", "Dance", "FoxTrot");
-            var tt2 = Service.FindOrCreateTagGroup("Fox Trot", "Dance", "FoxTrot");
+            service.FindOrCreateTagGroup("Swing", "Music");
+            service.FindOrCreateTagGroup("Swing", "Dance");
+            service.FindOrCreateTagGroup("Salsa", "Music");
+            service.FindOrCreateTagGroup("Salsa", "Dance");
+            service.FindOrCreateTagGroup("Pop", "Music");
+            var tt = service.FindOrCreateTagGroup("Foxtrot", "Dance");
+            var tt1 = service.FindOrCreateTagGroup("fox-trot", "Dance", "FoxTrot");
+            var tt2 = service.FindOrCreateTagGroup("Fox Trot", "Dance", "FoxTrot");
 
             tt1.Primary = tt;
             tt2.Primary = tt;
+
+            return service;
         }
 
         #region TagGroup
 
         [TestMethod]
-        public void TestNormalizeTags()
+        public async Task TestNormalizeTags()
         {
-            var t = Service.NormalizeTags("Swing:Dance|Swing|Salsa|Pop|Blues", "Music");
+            var service = await GetService();
+            var t = service.NormalizeTags("Swing:Dance|Swing|Salsa|Pop|Blues", "Music");
             Assert.AreEqual("Blues:Music|Pop:Music|Salsa:Music|Swing:Dance|Swing:Music", t);
 
-            t = Service.NormalizeTags("Salsa|Blues|Foxtrot|Blues:Music", "Dance");
+            t = service.NormalizeTags("Salsa|Blues|Foxtrot|Blues:Music", "Dance");
             Assert.AreEqual("Blues:Dance|Blues:Music|Foxtrot:Dance|Salsa:Dance", t);
         }
 
@@ -403,8 +407,6 @@ namespace m4dModels.Tests
             "4/4:Tempo|fast:Tempo",
             "Christmas:Other|Crazy:Other"
         };
-
-        private static readonly DanceMusicService Service;
 
         private const string SimpleSummary = "Rumba|Bolero|Latin|Blues";
         private const string SimpleList = "Blues|Bolero|Latin|Rumba";

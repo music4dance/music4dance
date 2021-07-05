@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using m4dModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -21,7 +22,8 @@ namespace m4d.Controllers
         }
 
         // GET: Searches
-        public IActionResult Index(string user, string sort = null, SongFilter filter = null,
+        public async Task<IActionResult> Index(string user, string sort = null,
+            SongFilter filter = null,
             bool showDetails = false)
         {
             if (string.IsNullOrWhiteSpace(user) || user.Equals(
@@ -35,7 +37,7 @@ namespace m4d.Controllers
             IQueryable<Search> searches = Database.Searches.Include(s => s.ApplicationUser);
             if (user != null)
             {
-                var appUser = Database.FindUser(user);
+                var appUser = await Database.FindUser(user);
                 if (appUser != null)
                 {
                     searches = searches.Where(s => s.ApplicationUserId == appUser.Id);

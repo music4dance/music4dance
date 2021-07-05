@@ -6,6 +6,19 @@ namespace m4dModels
 {
     public class IndexUpdater
     {
+        private static readonly Dictionary<string, IndexUpdater> s_updaters =
+            new Dictionary<string, IndexUpdater>();
+
+        private readonly string _index;
+        private readonly object _lock = new object();
+        private bool _continue;
+        private Task _task;
+
+        private IndexUpdater(string index)
+        {
+            _index = index;
+        }
+
         public static void Enqueue(DanceMusicCoreService dms, SearchServiceInfo info)
         {
             // This turns "default" into a real id
@@ -19,11 +32,6 @@ namespace m4dModels
 
                 updater.Enqueue(dms);
             }
-        }
-
-        private IndexUpdater(string index)
-        {
-            _index = index;
         }
 
         private void Enqueue(DanceMusicCoreService dms)
@@ -45,11 +53,11 @@ namespace m4dModels
             Trace.WriteLine("Exiting Enqueue");
         }
 
-        private void DoUpdate(DanceMusicCoreService dms)
+        private async Task DoUpdate(DanceMusicCoreService dms)
         {
             Trace.WriteLine("Entering DoUpdate");
 
-            var count = dms.UpdateAzureIndex(_index);
+            var count = await dms.UpdateAzureIndex(_index);
             Trace.WriteLine($"Updated {count} songs.");
 
             // In the case where things have been enqueued 
@@ -69,13 +77,5 @@ namespace m4dModels
 
             Trace.WriteLine("Exiting DoUpdate");
         }
-
-        private readonly string _index;
-        private Task _task;
-        private readonly object _lock = new object();
-        private bool _continue;
-
-        private static readonly Dictionary<string, IndexUpdater> s_updaters =
-            new Dictionary<string, IndexUpdater>();
     }
 }

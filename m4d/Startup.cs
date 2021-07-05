@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using AutoMapper;
 using m4d.Services;
 using m4d.Utilities;
 using m4d.ViewModels;
@@ -22,43 +21,21 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Serialization;
 using Owl.reCAPTCHA;
 
 namespace m4d
 {
-    //public class ConfigureDanceStats : IConfigureOptions<IDanceStatsManager>
-    //{
-    //    private readonly IServiceScopeFactory _serviceScopeFactory;
-    //    private readonly string _appData;
-
-    //    public ConfigureDanceStats(IServiceScopeFactory serviceScopeFactory, IWebHostEnvironment env)
-    //    {
-    //        _serviceScopeFactory = serviceScopeFactory;
-    //        _appData = Path.Combine(env.WebRootPath, "AppData");
-    //    }
-
-    //    public void Configure(IDanceStatsManager dsm)
-    //    {
-    //        using var scope = _serviceScopeFactory.CreateScope();
-    //        var provider = scope.ServiceProvider;
-    //        using var dbContext = provider.GetRequiredService<DanceMusicContext>();
-    //        dsm.Initialize(_appData, dbContext);
-    //    }
-    //}
-
     public class Startup
     {
-        public IWebHostEnvironment Environment { get; }
-        public IConfiguration Configuration { get; }
-
-
         public Startup(IWebHostEnvironment env, IConfiguration configuration)
         {
             Environment = env;
             Configuration = configuration;
         }
+
+        public IWebHostEnvironment Environment { get; }
+        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
@@ -166,8 +143,8 @@ namespace m4d
 
             services.AddSingleton<ISearchServiceManager>(new SearchServiceManager(Configuration));
             services.AddSingleton<IDanceStatsManager>(new DanceStatsManager(appData));
-
             services.AddSingleton(new RecomputeMarkerService(appData));
+
 
             services.AddControllers().AddNewtonsoftJson()
                 .AddNewtonsoftJson(
@@ -182,12 +159,12 @@ namespace m4d
                 typeof(SongFilterProfile),
                 typeof(SongPropertyProfile),
                 typeof(TagProfile));
+
+            services.AddHostedService<DanceStatsHostedService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env,
-            DanceMusicContext context, UserManager<ApplicationUser> userManager,
-            ISearchServiceManager searchService, IDanceStatsManager stats)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -211,7 +188,7 @@ namespace m4d
                     var blog = "/blog";
                     if (url != null)
                     {
-                        var idx = url.IndexOf(blog);
+                        var idx = url?.IndexOf(blog) ?? -1;
                         if (idx != -1)
                         {
                             var path = url.Substring(idx + blog.Length);
@@ -243,9 +220,6 @@ namespace m4d
                         "{controller=Home}/{action=Index}/{id?}");
                     endpoints.MapRazorPages();
                 });
-
-            var dms = new DanceMusicService(context, userManager, searchService, stats);
-            stats.Initialize(dms);
         }
     }
 }

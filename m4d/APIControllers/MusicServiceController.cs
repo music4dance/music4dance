@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
+using System.Threading.Tasks;
 using m4dModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,9 @@ namespace m4d.APIControllers
     [Route("api/[controller]")]
     public class MusicServiceController : DanceMusicApiController
     {
+        // ReSharper disable once InconsistentNaming
+        private static readonly Dictionary<string, IList<ServiceTrack>> s_cache = new();
+
         public MusicServiceController(DanceMusicContext context,
             UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
             ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
@@ -22,10 +26,10 @@ namespace m4d.APIControllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult Get(Guid id, string service = null, string title = null
+        public async Task<IActionResult> Get(Guid id, string service = null, string title = null
             , string artist = null, string album = null)
         {
-            var song = Database.FindSong(id);
+            var song = await Database.FindSong(id);
             if (song != null && artist == null && title == null)
             {
                 artist = song.Artist;
@@ -80,8 +84,5 @@ namespace m4d.APIControllers
 
             return tracks;
         }
-
-        // ReSharper disable once InconsistentNaming
-        private static readonly Dictionary<string, IList<ServiceTrack>> s_cache = new();
     }
 }

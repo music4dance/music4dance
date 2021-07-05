@@ -18,6 +18,8 @@ namespace m4d.APIControllers
     [Route("api/[controller]")]
     public class RecomputeController : DanceMusicApiController
     {
+        private readonly RecomputeMarkerService _markerService;
+
         public RecomputeController(DanceMusicContext context,
             UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
             ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
@@ -27,11 +29,9 @@ namespace m4d.APIControllers
             _markerService = recomputeMarkerService;
         }
 
-        private readonly RecomputeMarkerService _markerService;
-
         // id should be the type to update - currently songstats, propertycleanup
         [HttpGet("{id}")]
-        public IActionResult Get([FromServices]IConfiguration configuration, string id,
+        public async Task<IActionResult> Get([FromServices]IConfiguration configuration, string id,
             bool force = false, bool sync = false)
         {
             if (!TokenRequirement.Authorize(Request, configuration))
@@ -39,7 +39,7 @@ namespace m4d.APIControllers
                 return Unauthorized();
             }
 
-            if (!force && !HasChanged(id))
+            if (!force && !await HasChanged(id))
             {
                 Trace.WriteLineIf(
                     TraceLevels.General.TraceInfo,
@@ -93,24 +93,20 @@ namespace m4d.APIControllers
             return Ok(new { changed = true, message });
         }
 
-        private bool HasChanged(string id)
+        private async Task<bool> HasChanged(string id)
         {
             var updated = _markerService.GetMarker(id);
-            var changed = Database.GetLastModified();
+            var changed = await Database.GetLastModified();
             return changed > updated;
         }
-
-        private delegate bool DoHandleRecompute(RecomputeMarkerService markerService,
-            DanceMusicCoreService dms, IDanceStatsManager dsm, string id, string message,
-            int iteration, bool force);
 
         private void HandleRecompute(DoHandleRecompute recompute, string id, string message,
             bool force)
         {
             var dms = Database.GetTransientService();
             Task.Run(
-                () =>
-                    recompute.Invoke(
+                async () =>
+                    await recompute.Invoke(
                         _markerService, dms, DanceStatsManager, id, message, 0, force));
         }
 
@@ -120,8 +116,8 @@ namespace m4d.APIControllers
             var dms = Database.GetTransientService();
             int[] i = { 0 };
             while (!Task.Run(
-                    () =>
-                        recompute.Invoke(
+                    async () =>
+                        await recompute.Invoke(
                             _markerService, dms, DanceStatsManager, id, message, i[0],
                             force))
                 .Result)
@@ -135,13 +131,13 @@ namespace m4d.APIControllers
             }
         }
 
-        private static bool DoHandleSongStats(RecomputeMarkerService markerService,
+        private static async Task<bool> DoHandleSongStats(RecomputeMarkerService markerService,
             DanceMusicCoreService dms, IDanceStatsManager dsm, string id, string message,
             int iteration, bool force)
         {
             try
             {
-                dsm.ClearCache(dms, true);
+                await dsm.ClearCache(dms, true);
                 Complete(markerService, id, message);
             }
             catch (Exception e)
@@ -152,7 +148,8 @@ namespace m4d.APIControllers
             return true;
         }
 
-        private static bool DoHandlePropertyCleanup(RecomputeMarkerService markerService,
+        private static async Task<bool> DoHandlePropertyCleanup(
+            RecomputeMarkerService markerService,
             DanceMusicCoreService dms, IDanceStatsManager dsm, string id, string message,
             int iteration, bool force)
         {
@@ -160,7 +157,7 @@ namespace m4d.APIControllers
             {
                 var from = markerService.GetMarker(id);
 
-                var info = dms.CleanupProperties(250, from, new SongFilter());
+                var info = await dms.CleanupProperties(250, from, new SongFilter());
 
                 if (info.Succeeded > 0 || info.Failed > 0)
                 {
@@ -176,12 +173,12 @@ namespace m4d.APIControllers
                     AdminMonitor.CompleteTask(true, message);
                 }
 
-                return info.Complete;
+                return await Task.FromResult(info.Complete);
             }
             catch (Exception e)
             {
                 Fail(e);
-                return true;
+                return await Task.FromResult(true);
             }
         }
 
@@ -197,5 +194,9 @@ namespace m4d.APIControllers
         {
             AdminMonitor.CompleteTask(false, e.Message, e);
         }
+
+        private delegate Task<bool> DoHandleRecompute(RecomputeMarkerService markerService,
+            DanceMusicCoreService dms, IDanceStatsManager dsm, string id, string message,
+            int iteration, bool force);
     }
 }

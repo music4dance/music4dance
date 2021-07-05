@@ -3,15 +3,19 @@ using m4dModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace m4d.APIControllers
 {
     // ReSharper disable once InconsistentNaming
     public class DanceMusicApiController : ControllerBase
     {
+        protected readonly DanceMusicService Database;
+        private readonly IConfiguration _configuration;
+
+        private MusicServiceManager _musicServiceManager;
+
         public DanceMusicApiController(DanceMusicContext context,
+            // ReSharper disable once UnusedParameter.Local
             UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
             ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
             IConfiguration configuration)
@@ -22,13 +26,8 @@ namespace m4d.APIControllers
             _configuration = configuration;
         }
 
-        protected readonly DanceMusicService Database;
-
         protected MusicServiceManager MusicServiceManager =>
             _musicServiceManager ??= new MusicServiceManager(_configuration);
-
-        private MusicServiceManager _musicServiceManager;
-        private IConfiguration _configuration;
 
         protected DanceMusicContext Context => Database.Context;
 

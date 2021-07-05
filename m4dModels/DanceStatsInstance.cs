@@ -84,7 +84,7 @@ namespace m4dModels
                                 new SongFilter { Dances = ds.DanceId, SortOrder = "Dances" }, 10);
                         DanceMusicCoreService.AddAzureCategories(
                             filter, "GenreTags,StyleTags,TempoTags,OtherTags", 100);
-                        var results = await dms.AzureSearchAsync(
+                        var results = await dms.Search(
                             null, filter, DanceMusicCoreService.CruftFilter.NoCruft, null, source);
                         ds.SetTopSongs(results.Songs);
                         var song = ds.TopSongs.FirstOrDefault();
@@ -102,7 +102,7 @@ namespace m4dModels
                     }
                     else
                     {
-                        ds.LoadSongs(dms);
+                        await ds.LoadSongs(dms);
                     }
 
                     if (playlists.TryGetValue(ds.DanceName, out var metadata))
@@ -121,7 +121,7 @@ namespace m4dModels
                                 Description =
                                     "We're busy doing research and pulling together a general description for this dance style. Please check back later for more info."
                             });
-                        dms.SaveChanges();
+                        await dms.SaveChanges();
                     }
 
                     newDances.Add(ds.DanceId);
@@ -130,7 +130,7 @@ namespace m4dModels
                 }
             }
 
-            dms.UpdateIndex(newDances);
+            await dms.UpdateIndex(newDances);
         }
 
         public int GetScaledRating(string danceId, int weight, int scale = 5)
@@ -231,7 +231,7 @@ namespace m4dModels
         }
 
 
-        public void UpdateSong(Song song, DanceMusicCoreService dms)
+        public void UpdateSong(Song song)
         {
             lock (_queuedSongs)
             {
@@ -296,7 +296,8 @@ namespace m4dModels
             }
         }
 
-        public Song FindSongDetails(Guid songId, string userName, DanceMusicCoreService dms)
+        public async Task<Song> FindSongDetails(Guid songId, string userName,
+            DanceMusicCoreService dms)
         {
             var sd = TopSongs.GetValueOrDefault(songId) ?? _otherSongs.GetValueOrDefault(songId);
             if (sd == null)
@@ -304,7 +305,7 @@ namespace m4dModels
                 return null;
             }
 
-            return userName == null ? sd : new Song(sd, dms, userName);
+            return userName == null ? sd : await Song.Create(sd, dms, userName);
         }
 
         internal List<DanceType> GetDanceTypes()

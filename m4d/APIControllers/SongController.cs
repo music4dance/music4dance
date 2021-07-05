@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using AutoMapper;
 using m4dModels;
 using Microsoft.AspNetCore.Authorization;
@@ -24,11 +25,11 @@ namespace m4d.APIControllers
 
         [Authorize]
         [HttpPatch("{id}")]
-        public IActionResult Patch([FromServices]IMapper mapper, Guid id,
+        public async Task<IActionResult> Patch([FromServices]IMapper mapper, Guid id,
             [FromBody]SongHistory history)
         {
-            Trace.WriteLine($"Enter Patch: SongId = {id}, User = {User.Identity.Name}");
-            if (!User.Identity.IsAuthenticated)
+            Trace.WriteLine($"Enter Patch: SongId = {id}, User = {User.Identity?.Name}");
+            if (User.Identity == null || !User.Identity.IsAuthenticated)
             {
                 return StatusCode((int)HttpStatusCode.Forbidden);
             }
@@ -38,18 +39,18 @@ namespace m4d.APIControllers
                 return StatusCode((int)HttpStatusCode.NotFound);
             }
 
-            return Database.AppendHistory(history, mapper)
+            return await Database.AppendHistory(history, mapper)
                 ? Ok()
                 : StatusCode((int)HttpStatusCode.BadRequest);
         }
 
         [Authorize]
         [HttpPut("{id}")]
-        public IActionResult Put([FromServices]IMapper mapper, Guid id,
+        public async Task<IActionResult> Put([FromServices]IMapper mapper, Guid id,
             [FromBody]SongHistory history)
         {
-            Trace.WriteLine($"Enter Patch: SongId = {id}, User = {User.Identity.Name}");
-            if (!User.Identity.IsAuthenticated)
+            Trace.WriteLine($"Enter Patch: SongId = {id}, User = {User.Identity?.Name}");
+            if (User.Identity == null || !User.Identity.IsAuthenticated)
             {
                 return StatusCode((int)HttpStatusCode.Forbidden);
             }
@@ -59,22 +60,23 @@ namespace m4d.APIControllers
                 return StatusCode((int)HttpStatusCode.NotFound);
             }
 
-            return Database.AdminEditSong(history, mapper)
+            return await Database.AdminEditSong(history, mapper)
                 ? Ok()
                 : StatusCode((int)HttpStatusCode.BadRequest);
         }
 
         [Authorize]
         [HttpPost]
-        public IActionResult Post([FromServices]IMapper mapper, [FromBody]SongHistory history)
+        public async Task<IActionResult> Post([FromServices]IMapper mapper,
+            [FromBody]SongHistory history)
         {
-            Trace.WriteLine($"Enter Post: User = {User.Identity.Name}");
-            if (!User.Identity.IsAuthenticated)
+            Trace.WriteLine($"Enter Post: User = {User.Identity?.Name}");
+            if (User.Identity == null || !User.Identity.IsAuthenticated)
             {
                 return StatusCode((int)HttpStatusCode.Forbidden);
             }
 
-            return Database.CreateSong(
+            return await Database.CreateSong(
                 history.Properties.Select(mapper.Map<SongProperty>).ToList())
                 ? Ok()
                 : StatusCode((int)HttpStatusCode.BadRequest);

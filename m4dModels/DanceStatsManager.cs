@@ -83,7 +83,6 @@ namespace m4dModels
 
         private void ClearAssociates()
         {
-            DanceMusicCoreService.BlowTagCache();
             Song.ResetIndex();
         }
 
@@ -116,7 +115,8 @@ namespace m4dModels
 
             LastUpdate = DateTime.Now;
             Source = "AppData";
-            Instance = await DanceStatsInstance.LoadFromJson(File.ReadAllText(path), dms);
+            Instance = await DanceStatsInstance.LoadFromJson(
+                await File.ReadAllTextAsync(path), dms);
             return Instance;
         }
 
@@ -138,8 +138,8 @@ namespace m4dModels
             }
 
             var instance = await DanceStatsInstance.BuildInstance(
-                new TagManager(dms, source),
-                copy ? Instance.Tree : AzureDanceStats(dms, source),
+                await TagManager.BuildTagManager(dms, source),
+                copy ? Instance.Tree : await AzureDanceStats(dms, source),
                 copy ? null : dms, source);
             if (!save)
             {
@@ -153,7 +153,7 @@ namespace m4dModels
             Instance = instance;
             // This will save any tag types that were created via the load from azure
 
-            dms.UpdateAzureIndex(null, source);
+            await dms.UpdateAzureIndex(null, source);
             return instance;
         }
 
@@ -170,12 +170,13 @@ namespace m4dModels
             File.WriteAllText(path, json, Encoding.UTF8);
         }
 
-        private IEnumerable<DanceStats> AzureDanceStats(DanceMusicCoreService dms, string source)
+        private async Task<IEnumerable<DanceStats>> AzureDanceStats(DanceMusicCoreService dms,
+            string source)
         {
             var stats = new List<DanceStats>();
             dms.Context.LoadDances();
 
-            var facets = dms.GetTagFacets("DanceTags,DanceTagsInferred", 100, source);
+            var facets = await dms.GetTagFacets("DanceTags,DanceTagsInferred", 100, source);
 
             var tags = IndexDanceFacet(facets["DanceTags"]);
             var inferred = IndexDanceFacet(facets["DanceTagsInferred"]);

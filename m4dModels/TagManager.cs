@@ -1,39 +1,45 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Azure.Search.Models;
 
 namespace m4dModels
 {
     public class TagManager
     {
+        private readonly Dictionary<string, TagGroup> _queuedTags =
+            new Dictionary<string, TagGroup>();
+
         public TagManager(IEnumerable<TagGroup> tagGroups)
         {
             TagGroups = (tagGroups as List<TagGroup>)?.ToList();
             FixupTags();
         }
 
-        public TagManager(DanceMusicCoreService dms, string source = "default")
+        public List<TagGroup> TagGroups { get; set; }
+
+        public Dictionary<string, TagGroup> TagMap { get; private set; }
+
+        public static async Task<TagManager> BuildTagManager(DanceMusicCoreService dms,
+            string source = "default")
         {
-            TagGroups = dms.TagGroups.OrderBy(t => t.Key).ToList();
+            var tagManager = new TagManager(dms.TagGroups.OrderBy(t => t.Key).ToList());
 
-            var facets = dms.GetTagFacets("GenreTags,StyleTags,TempoTags,OtherTags", 500, source);
+            tagManager.TagMap = tagManager.TagGroups.ToDictionary(tt => tt.Key.ToLower());
 
-            TagMap = TagGroups.ToDictionary(tt => tt.Key.ToLower());
-
-            FixupTags();
+            var facets = await dms.GetTagFacets(
+                "GenreTags,StyleTags,TempoTags,OtherTags", 500, source);
 
             foreach (var facet in facets)
             {
                 var id = SongFilter.TagClassFromName(facet.Key.Substring(0, facet.Key.Length - 4))
                     .ToLower();
-                IndexFacet(facet.Value, id);
+                tagManager.IndexFacet(facet.Value, id);
             }
+
+            return tagManager;
         }
-
-        public List<TagGroup> TagGroups { get; set; }
-
-        public Dictionary<string, TagGroup> TagMap { get; private set; }
 
         public void FixupTags()
         {
@@ -189,8 +195,5 @@ namespace m4dModels
                 tt.Count = (int)facet.Count.Value;
             }
         }
-
-        private readonly Dictionary<string, TagGroup> _queuedTags =
-            new Dictionary<string, TagGroup>();
     }
 }

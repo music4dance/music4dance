@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading.Tasks;
 using AutoMapper;
 using m4dModels;
 
@@ -14,12 +15,12 @@ namespace m4d.ViewModels
 
         public string Artist { get; set; }
 
-        public static AlbumViewModel Create(
+        public static async Task<AlbumViewModel> Create(
             string title, string user,
             IMapper mapper,
             DanceMusicCoreService.CruftFilter cruft, DanceMusicService dms)
         {
-            var songs = dms.FindAlbum(title, cruft);
+            var songs = await dms.FindAlbum(title, cruft);
 
             var map = new Dictionary<int, Song>();
             var max = 0;

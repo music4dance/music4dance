@@ -1,14 +1,19 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using DanceLibrary;
+using Newtonsoft.Json;
 
 namespace m4dModels
 {
     [JsonObject(MemberSerialization.OptIn)]
     public class DanceStats
     {
+        private readonly List<string> _songStrings;
+
+        private List<Song> _topSongs;
+
         public DanceStats()
         {
         }
@@ -81,19 +86,6 @@ namespace m4dModels
         [JsonProperty]
         public IEnumerable<Song> TopSongs => _topSongs;
 
-        private List<Song> _topSongs;
-        private readonly List<string> _songStrings;
-
-        public void SetTopSongs(IEnumerable<Song> songs)
-        {
-            _topSongs = songs.ToList();
-        }
-
-        public void LoadSongs(DanceMusicCoreService dms)
-        {
-            _topSongs = _songStrings?.Select(s => new Song(s, dms)).ToList();
-        }
-
         // Structural properties
         public DanceStats Parent { get; set; }
 
@@ -120,6 +112,16 @@ namespace m4dModels
         };
 
         public IEnumerable<DanceInstance> CompetitionDances { get; private set; }
+
+        public void SetTopSongs(IEnumerable<Song> songs)
+        {
+            _topSongs = songs.ToList();
+        }
+
+        public async Task LoadSongs(DanceMusicCoreService dms)
+        {
+            _topSongs = await dms.CreateSongs(_songStrings);
+        }
 
         public void CopyDanceInfo(Dance dance, bool includeStats, DanceMusicCoreService dms)
         {
@@ -164,11 +166,6 @@ namespace m4dModels
             }
         }
 
-        public void RebuildTopSongs(DanceMusicCoreService dms)
-        {
-            SetTopSongs(TopSongs?.Select(s => new Song(s.Serialize(null), dms)).ToList());
-        }
-
         public void AggregateSongCounts(IReadOnlyDictionary<string, long> tags,
             IReadOnlyDictionary<string, long> inferred)
         {
@@ -177,32 +174,6 @@ namespace m4dModels
             SongCountExplicit = tags.TryGetValue(DanceId, out var expl) ? expl : 0;
             SongCountImplicit = inferred.TryGetValue(DanceId, out var impl) ? impl : 0;
             SongCount = SongCountImplicit + SongCountExplicit;
-        }
-
-        public DanceStats CloneForUser(string userName, DanceMusicCoreService dms)
-        {
-            return new DanceStats
-            {
-                Description = Description,
-                SongCount = SongCount,
-                SongCountImplicit = SongCountImplicit,
-                SongCountExplicit = SongCountExplicit,
-                MaxWeight = MaxWeight,
-                SongTags = SongTags,
-                DanceObject = DanceObject,
-                Parent = Parent,
-                Children = Children,
-                DanceLinks = DanceLinks,
-                _topSongs = TopSongsForUser(userName, dms),
-                SpotifyPlaylist = SpotifyPlaylist,
-                CompetitionDances = CompetitionDances
-            };
-        }
-
-        public List<Song> TopSongsForUser(string userName, DanceMusicCoreService dms)
-        {
-            return TopSongs?.Select(s => new Song(s.SongId, s.Serialize(null), dms, userName))
-                .ToList();
         }
     }
 }
