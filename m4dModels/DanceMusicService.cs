@@ -8,14 +8,15 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AutoMapper;
+using Azure;
+using Azure.Search.Documents;
+using Azure.Search.Documents.Indexes;
+using Azure.Search.Documents.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Azure.Search;
-using Microsoft.Azure.Search.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Rest.Azure;
 using FacetResults =
     System.Collections.Generic.IDictionary<string, System.Collections.Generic.IList<
-        Microsoft.Azure.Search.Models.FacetResult>>;
+        Azure.Search.Documents.Models.FacetResult>>;
 
 namespace m4dModels
 {
@@ -143,7 +144,7 @@ namespace m4dModels
                 stats.UpdateSong(song);
             }
 
-            await UpdateAzureIndex(id);
+            await UpdateAzureIndex(songs, id);
         }
 
         [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
@@ -244,7 +245,7 @@ namespace m4dModels
 
 
         public async Task<List<Song>> CreateSongs(
-            IEnumerable<SearchResult<Document>> documents, string user = null)
+            IEnumerable<SearchResult<SearchDocument>> documents, string user = null)
         {
             return await CreateSongs(documents, d => Song.Create(d.Document, this, user));
         }
@@ -657,28 +658,18 @@ namespace m4dModels
                 userName = null;
             }
 
-            var info = SearchService.GetInfo();
-
-            using var serviceClient =
-                new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey));
-            using var indexClient = serviceClient.Indexes.GetClient(info.Index);
-            return await InternalFindSong(id, userName, indexClient);
+            return await InternalFindSong(id, userName, CreateSearchClient());
         }
 
         public async Task<IEnumerable<Song>> FindSongs(IEnumerable<Guid> ids,
             string userName = null)
         {
-            var info = SearchService.GetInfo();
-
-            using var serviceClient =
-                new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey));
-            using var indexClient = serviceClient.Indexes.GetClient(info.Index);
-            var tasks = ids.Select(id => InternalFindSong(id, userName, indexClient)).ToList();
+            var tasks = ids.Select(id => InternalFindSong(id, userName, CreateSearchClient()))
+                .ToList();
             return await Task.WhenAll(tasks);
         }
 
-        private async Task<Song> InternalFindSong(Guid id, string userName,
-            ISearchIndexClient client)
+        private async Task<Song> InternalFindSong(Guid id, string userName, SearchClient client)
         {
             var sd = await DanceStats.FindSongDetails(id, userName, this);
             if (sd != null)
@@ -688,18 +679,20 @@ namespace m4dModels
 
             try
             {
-                var doc = await client.Documents.GetAsync(
-                    id.ToString(), new[] { Song.PropertiesField });
+                var response = await client.GetDocumentAsync<SearchDocument>(
+                    id.ToString(),
+                    new GetDocumentOptions { SelectedFields = { Song.PropertiesField } });
+                var doc = response.Value;
                 if (doc == null)
                 {
                     return null;
                 }
 
                 var details = await Song.Create(
-                    id, doc[Song.PropertiesField] as string, this, userName);
+                    id, doc.GetString(Song.PropertiesField), this, userName);
                 return details;
             }
-            catch (CloudException e)
+            catch (RequestFailedException e)
             {
                 Trace.WriteLineIf(TraceLevels.General.TraceVerbose, e.Message);
                 return null;
@@ -707,10 +700,10 @@ namespace m4dModels
         }
 
         protected async Task<IEnumerable<Song>> SongsFromAzureResult(
-            DocumentSearchResult<Document> result,
+            SearchResults<SearchDocument> result,
             string user = null)
         {
-            return await CreateSongs(result.Results, user);
+            return await CreateSongs(result.GetResults(), user);
         }
 
         protected async Task<IEnumerable<Song>> FindUserSongs(string user, bool includeHate = false,
@@ -725,71 +718,46 @@ namespace m4dModels
             }
 
             var afilter = AzureParmsFromFilter(filter);
-            afilter.Top = max;
-            afilter.IncludeTotalResultCount = false;
+            afilter.Size = max;
+            afilter.IncludeTotalCount = false;
 
             var results = new List<Song>();
 
             var info = SearchService.GetInfo(id);
 
-            using var serviceClient =
-                new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey));
-            using var indexClient = serviceClient.Indexes.GetClient(info.Index);
+            var searchClient = CreateSearchClient(id);
             var response = await DoSearch(
-                null, afilter, CruftFilter.AllCruft, indexClient);
+                null, afilter, CruftFilter.AllCruft, searchClient);
 
-            results.AddRange(await SongsFromAzureResult(response, user));
-
-            if (response.ContinuationToken == null)
-            {
-                return results;
-            }
-
-            try
-            {
-                while (response.ContinuationToken != null && results.Count < max)
-                {
-                    response =
-                        await indexClient.Documents.ContinueSearchAsync(response.ContinuationToken);
-                    results.AddRange(await CreateSongs(response.Results, user));
-                }
-            }
-            catch (CloudException e)
-            {
-                Trace.WriteLineIf(TraceLevels.General.TraceVerbose, e.Message);
-            }
-
-            return results;
+            return await SongsFromAzureResult(response);
         }
 
         public async Task<Song> FindMergedSong(Guid id, string userName,
-            ISearchIndexClient client = null)
+            SearchClient client = null)
         {
             var response = await DoSearch(
                 null,
-                new SearchParameters { Filter = $"(AlternateIds/any(t: t eq '{id}'))" },
+                new SearchOptions { Filter = $"(AlternateIds/any(t: t eq '{id}'))" },
                 CruftFilter.AllCruft, client);
-            var songs = await CreateSongs(response.Results, userName);
+            var songs = await CreateSongs(response.GetResults(), userName);
             return songs.FirstOrDefault(s => !s.IsNull);
         }
 
-        public async Task<DateTimeOffset> GetLastModified(ISearchIndexClient client = null)
+        public async Task<DateTimeOffset> GetLastModified(SearchClient client = null)
         {
-            var ret = await DoSearch(
-                null,
-                new SearchParameters
-                {
-                    OrderBy = new[] { "Modified desc" }, Top = 1,
-                    Select = new[] { Song.ModifiedField }
-                }, CruftFilter.AllCruft, client);
-            if (ret.Results.Count == 0)
+            var options = new SearchOptions { Size = 1 };
+            options.OrderBy.Add("Modified desc");
+            options.Select.Add(Song.ModifiedField);
+            var ret = await DoSearch(null, options, CruftFilter.AllCruft, client);
+            var list = ret.GetResults().ToList();
+            if (list.Count == 0)
             {
                 return DateTime.MinValue;
             }
 
-            var d = ret.Results[0].Document[Song.ModifiedField];
-            return (DateTimeOffset)d;
+            return list[0].Document.GetDateTimeOffset(Song.ModifiedField) ?? DateTime.MinValue;
         }
+
 
         protected async Task<IEnumerable<Song>> SongsFromList(string list)
         {
@@ -843,14 +811,14 @@ namespace m4dModels
         }
 
         private async Task<IEnumerable<Song>> SongsFromTitle(string title,
-            ISearchIndexClient client = null)
+            SearchClient client = null)
         {
             var response = await DoSearch(
-                title, new SearchParameters(), CruftFilter.AllCruft, client);
-            return await CreateSongs(response.Results);
+                title, new SearchOptions(), CruftFilter.AllCruft, client);
+            return await CreateSongs(response.GetResults());
         }
 
-        private async Task<LocalMerger> MergeFromTitle(Song song, ISearchIndexClient client = null)
+        private async Task<LocalMerger> MergeFromTitle(Song song, SearchClient client = null)
         {
             var songs = await SongsFromTitle(song.Title, client);
 
@@ -909,7 +877,7 @@ namespace m4dModels
                 { Left = song, Right = match, MatchType = type, Conflict = false };
         }
 
-        private async Task<LocalMerger> MergeFromPurchaseInfo(Song song, ISearchIndexClient client)
+        private async Task<LocalMerger> MergeFromPurchaseInfo(Song song, SearchClient client)
         {
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var service in MusicService.GetSearchableServices())
@@ -939,14 +907,11 @@ namespace m4dModels
             newSongs = RemoveDuplicateSongs(newSongs);
             var merge = new List<LocalMerger>();
 
-            var info = SearchService.GetInfo(id);
-            using var serviceClient =
-                new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey));
-            using var indexClient = serviceClient.Indexes.GetClient(info.Index);
+            var searchClient = CreateSearchClient(id);
             foreach (var song in newSongs)
             {
-                var m = await MergeFromPurchaseInfo(song, indexClient) ??
-                    await MergeFromTitle(song, indexClient);
+                var m = await MergeFromPurchaseInfo(song, searchClient)
+                    ?? await MergeFromTitle(song, searchClient);
 
                 switch (method)
                 {
@@ -1084,8 +1049,7 @@ namespace m4dModels
         }
 
         public async Task<Song> GetSongFromService(MusicService service, string id,
-            string userName = null,
-            ISearchIndexClient client = null)
+            string userName = null, SearchClient client = null)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -1093,13 +1057,11 @@ namespace m4dModels
             }
 
             var sid = $"\"{service.CID}:{id}\"";
-            var parameters = new SearchParameters { SearchFields = new[] { Song.ServiceIds } };
-            var results = await DoSearch(
-                sid, parameters,
-                CruftFilter.AllCruft, client);
-            return results.Results.Count > 0
-                ? await Song.Create(results.Results[0].Document, this, userName)
-                : null;
+            var parameters = new SearchOptions();
+            parameters.SearchFields.Add(Song.ServiceIds);
+            var results = await DoSearch(sid, parameters, CruftFilter.AllCruft, client);
+            var r = results.GetResults().FirstOrDefault();
+            return r == null ? null : await Song.Create(r.Document, this, userName);
         }
 
         #endregion
@@ -1220,7 +1182,7 @@ namespace m4dModels
 
             DanceStats.TagManager.UpdateTagRing(tagGroup.Key, tagGroup.PrimaryId);
 
-            var parameters = new SearchParameters { Filter = filter };
+            var parameters = new SearchOptions { Filter = filter };
 
             await UpdateAzureIndex(
                 await SongsFromAzureResult(await DoSearch(null, parameters)));
@@ -1286,8 +1248,10 @@ namespace m4dModels
         protected TagGroup CreateTagGroup(string value, string category,
             bool updateTagManager = true)
         {
-            var type = new TagGroup();
-            type.Key = TagGroup.BuildKey(value, category);
+            var type = new TagGroup
+            {
+                Key = TagGroup.BuildKey(value, category)
+            };
 
             var other = TagGroups.Find(type.Key);
             if (other != null)
@@ -1317,20 +1281,30 @@ namespace m4dModels
         public async Task<bool> ResetIndex(string id = "default")
         {
             var info = SearchService.GetInfo(id);
-            using var serviceClient = new SearchServiceClient(
-                info.Name,
-                new SearchCredentials(info.AdminKey));
-            if (await serviceClient.Indexes.ExistsAsync(info.Index))
+            var client = CreateSearchIndexClient(id);
+            try
             {
-                await serviceClient.Indexes.DeleteAsync(info.Index);
+                var response = await client.DeleteIndexAsync(info.Index);
+                Trace.WriteLine(response.Status);
+            }
+            catch (RequestFailedException ex)
+            {
+                // SearchTODO: If the index doesn't exist, do we end up here?
+                Trace.WriteLine(ex.Message);
             }
 
-            var index = Song.GetIndex(this, DanceStatsManager);
-            index.Name = info.Index;
+            var index = Song.GetIndex(info.Index, this, DanceStatsManager);
 
-            await serviceClient.Indexes.CreateAsync(index);
-
-            return true;
+            try
+            {
+                var response = await client.CreateIndexAsync(index);
+                return response.Value != null;
+            }
+            catch (RequestFailedException ex)
+            {
+                Trace.WriteLine(ex.Message);
+                return false;
+            }
         }
 
         public async Task<bool> UpdateIndex(IEnumerable<string> dances, string id = "default")
@@ -1341,9 +1315,8 @@ namespace m4dModels
             }
 
             var info = SearchService.GetInfo(id);
-            using var serviceClient =
-                new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey));
-            var index = await serviceClient.Indexes.GetAsync(info.Index);
+            var client = CreateSearchIndexClient(id);
+            var index = (await client.GetIndexAsync(info.Index)).Value;
             foreach (var dance in dances)
             {
                 var field = Song.IndexFieldFromDanceId(dance);
@@ -1353,14 +1326,14 @@ namespace m4dModels
                 }
             }
 
-            await serviceClient.Indexes.CreateOrUpdateAsync(index);
-            return true;
+            var response = await client.CreateOrUpdateIndexAsync(index);
+            return response.Value != null;
         }
 
         public async Task CloneIndex(string to, string from = "default")
         {
             AdminMonitor.UpdateTask("StartBackup");
-            var lines = BackupIndex(from) as IList<string>;
+            var lines = await BackupIndex(@from) as IList<string>;
             AdminMonitor.UpdateTask("StartReset");
             await ResetIndex(to);
             AdminMonitor.UpdateTask("StartUpload");
@@ -1371,15 +1344,11 @@ namespace m4dModels
             string id = "default")
         {
             const int chunkSize = 500;
-            var info = SearchService.GetInfo(id);
             var page = 0;
             var added = 0;
-
-            using var serviceClient =
-                new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey));
-            using var indexClient = serviceClient.Indexes.GetClient(info.Index);
             var delete = new List<string>();
 
+            var client = CreateSearchClient(id);
             for (var i = 0; i < lines.Count; page += 1)
             {
                 AdminMonitor.UpdateTask("AddSongs", added);
@@ -1394,24 +1363,25 @@ namespace m4dModels
                     }
                 }
 
-                var songs = (from song in chunk where !song.IsNull select song.GetIndexDocument())
-                    .ToList();
-
-                if (songs.Count <= 0)
+                if (chunk.Count == 0)
                 {
                     continue;
                 }
 
+                //var songs = chunk.Where(s => !s.IsNull).Select(s => 
+                //    new IndexDocumentsAction<SearchDocument>(
+                //        IndexActionType.MergeOrUpload, s.GetIndexDocument()));
+
                 try
                 {
-                    var batch = IndexBatch.MergeOrUpload(songs);
-                    var results = await indexClient.Documents.IndexAsync(batch);
-                    added += results.Results.Count;
+                    var songs = chunk.Where(s => !s.IsNull).Select(s => s.GetIndexDocument());
+                    var batch = IndexDocumentsBatch.Upload(songs);
+                    var results = await client.IndexDocumentsAsync(batch);
+                    added += results.Value.Results.Count;
                 }
-                catch (IndexBatchException ex)
+                catch (RequestFailedException ex)
                 {
-                    Trace.WriteLine("IndexBatchException: ex.Message");
-                    added += ex.IndexingResults.Count;
+                    Trace.WriteLine($"RequestFailedException: {ex.Message}");
                 }
 
                 Trace.WriteLine($"Upload Index: {added} songs added.");
@@ -1422,21 +1392,23 @@ namespace m4dModels
                 return added;
             }
 
-            var docs =
-                IndexBatch.Delete(delete.Select(d => new Document { [Song.SongIdField] = d }));
-            await indexClient.Documents.IndexAsync(docs);
-            return added;
-        }
+            try
+            {
+                var batch = IndexDocumentsBatch.Delete(
+                    delete.Select(d => new SearchDocument { [Song.SongIdField] = d }));
+                var results = await client.IndexDocumentsAsync(batch);
+                Trace.WriteLine($"Deleted = {results.Value.Results.Count}");
+            }
+            catch (RequestFailedException ex)
+            {
+                Trace.WriteLine($"RequestFailedException: {ex.Message}");
+            }
 
-        public async Task<int> UpdateAzureIndex(string id = "default")
-        {
-            return await UpdateAzureIndex(DanceStats.DequeueSongs(), id);
+            return added;
         }
 
         public async Task<int> UpdateAzureIndex(IEnumerable<Song> songs, string id = "default")
         {
-            var info = SearchService.GetInfo(id);
-
             var changed = false;
             var tags = DanceStats.TagManager.DequeueTagGroups();
             foreach (var tag in tags)
@@ -1457,16 +1429,14 @@ namespace m4dModels
 
             try
             {
-                using var serviceClient =
-                    new SearchServiceClient(info.Name, new SearchCredentials(info.AdminKey));
-                using var indexClient = serviceClient.Indexes.GetClient(info.Index);
+                var client = CreateSearchClient(id);
                 var processed = 0;
                 var list = songs as List<Song> ?? songs.ToList();
 
                 while (list.Count > 0)
                 {
-                    var deleted = new List<Document>();
-                    var added = new List<Document>();
+                    var deleted = new List<SearchDocument>();
+                    var added = new List<SearchDocument>();
 
                     // ReSharper disable once LoopCanBeConvertedToQuery
                     foreach (var song in list)
@@ -1488,14 +1458,28 @@ namespace m4dModels
 
                     if (added.Count > 0)
                     {
-                        var batch = IndexBatch.Upload(added);
-                        await indexClient.Documents.IndexAsync(batch);
+                        try
+                        {
+                            var batch = IndexDocumentsBatch.Upload(added);
+                            var results = await client.IndexDocumentsAsync(batch);
+                            Trace.WriteLine($"Added = {results.Value.Results.Count}");
+                        }
+                        catch (RequestFailedException ex)
+                        {
+                            Trace.WriteLine($"RequestFailedException: {ex.Message}");
+                        }
                     }
 
-                    if (deleted.Count > 0)
+                    try
                     {
-                        var delete = IndexBatch.Delete(deleted);
-                        await indexClient.Documents.IndexAsync(delete);
+                        var batch = IndexDocumentsBatch.Delete(
+                            deleted.Select(d => new SearchDocument { [Song.SongIdField] = d }));
+                        var results = await client.IndexDocumentsAsync(batch);
+                        Trace.WriteLine($"Deleted = {results.Value.Results.Count}");
+                    }
+                    catch (RequestFailedException ex)
+                    {
+                        Trace.WriteLine($"RequestFailedException: {ex.Message}");
                     }
 
                     list.RemoveRange(0, added.Count + deleted.Count);
@@ -1526,16 +1510,16 @@ namespace m4dModels
         }
 
         public async Task<SearchResults> Search(
-            string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft,
+            string search, SearchOptions parameters, CruftFilter cruft = CruftFilter.NoCruft,
             string userName = null, string id = "default")
         {
             var response = await DoSearch(search, parameters, cruft, id);
-            var songs = await CreateSongs(response.Results, userName);
-            var pageSize = parameters.Top ?? 25;
+            var songs = await CreateSongs(response.GetResults(), userName);
+            var pageSize = parameters.Size ?? 25;
             var page = (parameters.Skip ?? 0) / pageSize + 1;
             var facets = response.Facets;
             return new SearchResults(
-                search, songs.Count, response.Count ?? -1, page, pageSize,
+                search, songs.Count, response.TotalCount ?? -1, page, pageSize,
                 songs, facets);
         }
 
@@ -1548,30 +1532,31 @@ namespace m4dModels
             return (await DoSearch(null, parameters, CruftFilter.NoCruft, id)).Facets;
         }
 
-        public static void AddAzureCategories(SearchParameters parameters, string categories,
+        public static void AddAzureCategories(SearchOptions parameters, string categories,
             int count)
         {
-            parameters.Facets = categories.Split(',').Select(c => $"{c},count:{count}").ToList();
+            parameters.Facets.AddRange(
+                categories.Split(',').Select(c => $"{c},count:{count}").ToList());
         }
 
         public async Task<IEnumerable<Song>> FindAlbum(string name,
-            CruftFilter cruft = CruftFilter.NoCruft,
-            string id = "default")
+            CruftFilter cruft = CruftFilter.NoCruft, string id = "default")
         {
-            return await SongsFromAzureResult(
-                await DoSearch(
-                    $"\"{name}\"",
-                    new SearchParameters { SearchFields = new[] { Song.AlbumsField } }, cruft, id));
+            return await FindByField(Song.AlbumsField, name, cruft, id);
         }
 
         public async Task<IEnumerable<Song>> FindArtist(string name,
-            CruftFilter cruft = CruftFilter.NoCruft,
-            string id = "default")
+            CruftFilter cruft = CruftFilter.NoCruft, string id = "default")
         {
-            return await SongsFromAzureResult(
-                await DoSearch(
-                    $"\"{name}\"",
-                    new SearchParameters { SearchFields = new[] { Song.ArtistField } }, cruft, id));
+            return await FindByField(Song.ArtistField, name, cruft, id);
+        }
+
+        public async Task<IEnumerable<Song>> FindByField(string field, string name,
+            CruftFilter cruft = CruftFilter.NoCruft, string id = "default")
+        {
+            var options = new SearchOptions();
+            options.SearchFields.Add(field);
+            return await SongsFromAzureResult(await DoSearch($"\"{name}\"", options, cruft, id));
         }
 
         public async Task<IEnumerable<Song>> TakeTail(SongFilter filter, int max,
@@ -1583,100 +1568,74 @@ namespace m4dModels
             return await TakeTail(parameters, max, from, id);
         }
 
-        public async Task<IEnumerable<Song>> TakeTail(SearchParameters parameters, int max,
+        public async Task<IEnumerable<Song>> TakeTail(SearchOptions parameters, int max,
             DateTime? from = null, string id = "default")
         {
             return await TakeTail(null, parameters, max, from, id);
         }
 
-        public async Task<IEnumerable<Song>> TakeTail(string search, SearchParameters parameters,
-            int max,
-            DateTime? from = null, string id = "default")
+        public async Task<IEnumerable<Song>> TakeTail(string search, SearchOptions parameters,
+            int max, DateTime? from = null, string id = "default")
         {
-            parameters.OrderBy = new[] { "Modified desc" };
-            parameters.IncludeTotalResultCount = false;
-            parameters.Top = null;
+            parameters.OrderBy.Add("Modified desc");
+            parameters.IncludeTotalCount = false;
+            parameters.Size = null;
 
-            var info = SearchService.GetInfo(id);
-            using var serviceClient =
-                new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey));
-            using var indexClient = serviceClient.Indexes.GetClient(info.Index);
-            SearchContinuationToken token = null;
-            var results = new List<Song>();
-            do
-            {
-                var response = token == null
-                    ? await indexClient.Documents.SearchAsync(search, parameters)
-                    : await indexClient.Documents.ContinueSearchAsync(token);
-
-                token = response.ContinuationToken;
-                foreach (var doc in response.Results)
-                {
-                    var m = doc.Document["Modified"];
-                    var modified = (DateTimeOffset)m;
-                    if (from != null && modified < from)
-                    {
-                        token = null;
-                        break;
-                    }
-
-                    results.Add(await Song.Create(doc.Document, this));
-
-                    if (results.Count >= max)
-                    {
-                        break;
-                    }
-                }
-            } while (token != null && results.Count < max);
-
-            return results;
+            // SearchTODO: Handle the from parameter (hopefully as a refinement of the search query)
+            var client = CreateSearchClient(id);
+            var response = await client.SearchAsync<SearchDocument>(search, parameters);
+            return await CreateSongs(response.Value.GetResults());
         }
 
         public async Task<IEnumerable<Song>> LoadLightSongs(string id = "default")
         {
-            var parameters = new SearchParameters
+            var parameters = new SearchOptions
             {
-                QueryType = QueryType.Simple,
-                Top = int.MaxValue,
-                Select = new[]
+                QueryType = SearchQueryType.Simple,
+                Size = int.MaxValue,
+            };
+            parameters.Select.AddRange(
+                new[]
                 {
                     Song.SongIdField, Song.TitleField, Song.ArtistField, Song.LengthField,
                     Song.TempoField
-                }
-            };
+                });
 
-            var info = SearchService.GetInfo(id);
-            using var serviceClient =
-                new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey));
-            using var indexClient = serviceClient.Indexes.GetClient(info.Index);
-            SearchContinuationToken token = null;
-
+            var client = CreateSearchClient(id);
             var results = new List<Song>();
-            do
-            {
-                var response = token == null
-                    ? await indexClient.Documents.SearchAsync(null, parameters)
-                    : await indexClient.Documents.ContinueSearchAsync(token);
+            var response = await client.SearchAsync<SearchDocument>("", parameters);
 
-                // ReSharper disable once LoopCanBeConvertedToQuery
-                foreach (var res in response.Results)
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var res in response.Value.GetResults())
+            {
+                var doc = res.Document;
+                var title = doc[Song.TitleField] as string;
+                if (string.IsNullOrEmpty(title))
                 {
-                    var song = Song.CreateLightSong(res.Document);
-                    if (song != null)
-                    {
-                        results.Add(song);
-                    }
+                    continue;
                 }
 
-                token = response.ContinuationToken;
-            } while (token != null);
+                var sid = doc.GetString(Song.SongIdField);
+                var length = doc.GetInt64(Song.LengthField);
+                var tempo = doc.GetDouble(Song.TempoField);
+
+                results.Add(
+                    new Song
+                    {
+                        SongId = sid == null ? new Guid() : new Guid(sid),
+                        Title = title,
+                        Artist = doc[Song.ArtistField] as string,
+                        Length = (int?)length,
+                        Tempo = (decimal?)tempo
+                    });
+            }
 
             return results;
         }
 
-        private async Task<DocumentSearchResult<Document>> DoSearch(
-            string search, SearchParameters parameters,
-            CruftFilter cruft, ISearchIndexClient client)
+        private async Task<SearchResults<SearchDocument>> DoSearch(
+            string search, SearchOptions parameters,
+            CruftFilter cruft, SearchClient client)
         {
             if (client == null)
             {
@@ -1689,22 +1648,17 @@ namespace m4dModels
                 search = "*";
             }
 
-            return await client.Documents.SearchAsync(search, parameters);
+            return await client.SearchAsync<SearchDocument>(search, parameters);
         }
 
-        private async Task<DocumentSearchResult<Document>> DoSearch(
-            string search, SearchParameters parameters, CruftFilter cruft = CruftFilter.NoCruft,
+        private async Task<SearchResults<SearchDocument>> DoSearch(
+            string search, SearchOptions parameters, CruftFilter cruft = CruftFilter.NoCruft,
             string id = "default")
         {
-            var info = SearchService.GetInfo(id);
-
-            using var serviceClient =
-                new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey));
-            using var indexClient = serviceClient.Indexes.GetClient(info.Index);
-            return await DoSearch(search, parameters, cruft, indexClient);
+            return await DoSearch(search, parameters, cruft, CreateSearchClient(id));
         }
 
-        public SearchParameters AzureParmsFromFilter(SongFilter filter, int? pageSize = null)
+        public SearchOptions AzureParmsFromFilter(SongFilter filter, int? pageSize = null)
         {
             pageSize ??= 25;
 
@@ -1716,19 +1670,21 @@ namespace m4dModels
             var order = filter.ODataSort;
             var odataFilter = filter.GetOdataFilter(this);
 
-            return new SearchParameters
+            var ret = new SearchOptions
             {
                 QueryType =
-                    QueryType.Simple, // filter.IsSimple ? QueryType.Simple : QueryType.Full,
+                    SearchQueryType
+                        .Simple, // filter.IsSimple ? SearchQueryType.Simple : SearchQueryType.Full,
                 Filter = odataFilter,
-                IncludeTotalResultCount = true,
-                Top = pageSize,
-                Skip = ((filter.Page ?? 1) - 1) * pageSize,
-                OrderBy = order
+                IncludeTotalCount = true,
+                Size = pageSize,
+                Skip = ((filter.Page ?? 1) - 1) * pageSize
             };
+            ret.OrderBy.AddRange(order);
+            return ret;
         }
 
-        public static SearchParameters AddCruftInfo(SearchParameters parameters, CruftFilter cruft)
+        public static SearchOptions AddCruftInfo(SearchOptions parameters, CruftFilter cruft)
         {
             if (cruft == CruftFilter.AllCruft)
             {
@@ -1766,29 +1722,25 @@ namespace m4dModels
 
         public async Task<SuggestionList> AzureSuggestions(string query, string id = "default")
         {
-            var info = SearchService.GetInfo(id);
-
             try
             {
-                using var serviceClient =
-                    new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey));
-                using var indexClient = serviceClient.Indexes.GetClient(info.Index);
-                var sp = new SuggestParameters { Top = 50 };
+                var client = CreateSearchClient(id);
+                var sp = new SuggestOptions { Size = 50 };
 
                 if (query.Length > 100)
                 {
                     query = query.Substring(0, 100);
                 }
 
-                var response = await indexClient.Documents.SuggestAsync(query, "songs", sp);
+                var response = await client.SuggestAsync<SearchDocument>(
+                    query, "songs", sp);
 
                 var comp = new SuggestionComparer();
-                //var ret = new SuggestionList {Query = "query", Suggestions = new List<Suggestion>()};
-                var ret = response.Results.Select(
+                var ret = response.Value.Results.Select(
                     result => new Suggestion
                     {
                         Value = result.Text,
-                        Data = result.Document["SongId"] as string
+                        Data = result.Document.GetString(Song.SongIdField)
                     }).Distinct(comp).Take(10).ToList();
 
                 return new SuggestionList
@@ -1868,57 +1820,48 @@ namespace m4dModels
             return users.Values.ToList();
         }
 
-        public IEnumerable<string> BackupIndex(string name = "default", int count = -1,
+        public async Task<IEnumerable<string>> BackupIndex(string name = "default", int count = -1,
             DateTime? from = null, SongFilter filter = null)
         {
-            var info = SearchService.GetInfo(name);
-            if (filter == null)
-            {
-                filter = new SongFilter();
-            }
+            filter ??= new SongFilter();
 
             var parameters = AzureParmsFromFilter(filter);
-            parameters.IncludeTotalResultCount = false;
+            parameters.IncludeTotalCount = false;
             parameters.Skip = null;
-            parameters.Top = count == -1 ? (int?)null : count;
-            parameters.OrderBy = new[] { "Modified desc" };
-            parameters.Select = new[]
-                { Song.SongIdField, Song.ModifiedField, Song.PropertiesField };
+            parameters.Size = count == -1 ? (int?)null : count;
+            parameters.OrderBy.Add("Modified desc");
+            parameters.Select.AddRange(
+                new[]
+                    { Song.SongIdField, Song.ModifiedField, Song.PropertiesField });
 
-            using var serviceClient =
-                new SearchServiceClient(info.Name, new SearchCredentials(info.QueryKey));
-            using var indexClient = serviceClient.Indexes.GetClient(info.Index);
-            SearchContinuationToken token = null;
+            // SearchTodo: Decide if we need to honor the from field
+            var client = CreateSearchClient(name);
             var searchString = string.IsNullOrWhiteSpace(filter.SearchString)
                 ? null
                 : filter.SearchString;
-            var results = new List<string>();
-            do
-            {
-                var response = token == null
-                    ? indexClient.Documents.Search(searchString, parameters)
-                    : indexClient.Documents.ContinueSearch(token);
+            var response = await client.SearchAsync<SearchDocument>(searchString, parameters);
+            return response.Value.GetResults().Select(
+                r =>
+                    Song.Serialize(
+                        r.Document.GetString(Song.SongIdField),
+                        r.Document.GetString(Song.PropertiesField)));
 
-                token = response.ContinuationToken;
-                foreach (var doc in response.Results)
-                {
-                    var m = doc.Document["Modified"];
-                    var modified = (DateTimeOffset)m;
-                    if (from != null && modified < from)
-                    {
-                        token = null;
-                        break;
-                    }
+        }
 
-                    results.Add(
-                        Song.Serialize(
-                            doc.Document[Song.SongIdField] as string,
-                            doc.Document[Song.PropertiesField] as string));
-                    AdminMonitor.UpdateTask("readSongs", results.Count);
-                }
-            } while (token != null);
+        private SearchClient CreateSearchClient(string id = null)
+        {
+            var info = SearchService.GetInfo(id);
+            var endpoint = new Uri("https://msc4dnc.search.windows.net");
+            var credentials = new AzureKeyCredential(info.QueryKey);
+            return new SearchClient(endpoint, info.Index, credentials);
+        }
 
-            return results;
+        private SearchIndexClient CreateSearchIndexClient(string id = null)
+        {
+            var info = SearchService.GetInfo(id);
+            var endpoint = new Uri("https://msc4dnc.search.windows.net");
+            var credentials = new AzureKeyCredential(info.AdminKey);
+            return new SearchIndexClient(endpoint, credentials);
         }
 
         #endregion
@@ -2139,7 +2082,7 @@ namespace m4dModels
                 if (userName.Any(x => exclude.Contains(x)))
                 {
                     Trace.WriteLine($"Invalid username {userName}");
-                    break;
+                    continue;
                 }
 
                 if (cells.Length >= 20 && Enum.TryParse(cells[17], out subscriptionLevel) &&
@@ -2156,8 +2099,8 @@ namespace m4dModels
                     }
                 }
 
-                var user = UserManager.FindByIdAsync(userId).Result ??
-                    UserManager.FindByNameAsync(userName).Result;
+                var user = await UserManager.FindByIdAsync(userId) ??
+                    await UserManager.FindByNameAsync(userName);
 
                 var create = user == null;
 
@@ -2188,7 +2131,7 @@ namespace m4dModels
                         user.ServicePreference = servicePreference;
                     }
 
-                    LogIdentityResult(user, UserManager.CreateAsync(user).Result);
+                    LogIdentityResult(user, await UserManager.CreateAsync(user));
                 }
                 else if (extended)
                 {
@@ -2210,17 +2153,17 @@ namespace m4dModels
 
                     user.ConcurrencyStamp = Guid.NewGuid().ToString();
 
-                    var logins = UserManager.GetLoginsAsync(user).Result;
+                    var logins = await UserManager.GetLoginsAsync(user);
                     foreach (var login in logins)
                     {
                         await UserManager
                             .RemoveLoginAsync(user, login.LoginProvider, login.ProviderKey);
                     }
 
-                    var rolesT = UserManager.GetRolesAsync(user).Result;
+                    var rolesT = await UserManager.GetRolesAsync(user);
                     foreach (var role in rolesT)
                     {
-                        LogIdentityResult(user, UserManager.RemoveFromRoleAsync(user, role).Result);
+                        LogIdentityResult(user, await UserManager.RemoveFromRoleAsync(user, role));
                     }
                 }
 
@@ -2238,7 +2181,7 @@ namespace m4dModels
                     for (var j = 0; j < entries.Length; j += 2)
                     {
                         var login = new UserLoginInfo(entries[j], entries[j + 1], entries[j]);
-                        LogIdentityResult(user, UserManager.AddLoginAsync(user, login).Result);
+                        LogIdentityResult(user, await UserManager.AddLoginAsync(user, login));
                     }
                 }
 
@@ -2248,7 +2191,7 @@ namespace m4dModels
                         new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
                     foreach (var roleName in roleNames)
                     {
-                        LogIdentityResult(user, UserManager.AddToRoleAsync(user, roleName).Result);
+                        LogIdentityResult(user, await UserManager.AddToRoleAsync(user, roleName));
                     }
                 }
             }
@@ -2276,11 +2219,11 @@ namespace m4dModels
             {
                 if (reload)
                 {
-                    LoadSearchesBulk(lines);
+                    await LoadSearchesBulk(lines);
                 }
                 else
                 {
-                    LoadSearchesIncremental(lines);
+                    await LoadSearchesIncremental(lines);
                 }
             }
 
@@ -2289,7 +2232,7 @@ namespace m4dModels
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting LoadSearches");
         }
 
-        private void LoadSearchesIncremental(IList<string> lines)
+        private async Task LoadSearchesIncremental(IList<string> lines)
         {
             var fieldCount = lines[0].Split('\t').Length;
             for (var i = 0; i < lines.Count; i++)
@@ -2302,31 +2245,35 @@ namespace m4dModels
                     break;
                 }
 
-                if (!ParseSearchEntry(
-                    s, fieldCount, out var user, out var name, out var query,
-                    out var favorite, out var count, out var created, out var modified))
+                var newSearch = await ParseSearchEntry(s, fieldCount);
+                if (newSearch == null)
                 {
                     continue;
                 }
 
-                var search = user == null
-                    ? Searches.FirstOrDefault(x => x.ApplicationUser == null && x.Query == query)
+                var search = newSearch.ApplicationUser == null
+                    ? Searches.FirstOrDefault(
+                        x => x.ApplicationUser == null && x.Query == newSearch.Query)
                     : Searches.FirstOrDefault(
                         x =>
-                            x.ApplicationUser != null && x.ApplicationUser.Id == user.Id &&
-                            x.Query == query);
+                            x.ApplicationUser != null &&
+                            x.ApplicationUser.Id == newSearch.ApplicationUserId &&
+                            x.Query == newSearch.Query);
 
                 if (search == null)
                 {
-                    search = new Search();
-                    Searches.Add(search);
+                    Searches.Add(newSearch);
                 }
-
-                search.Update(user, name, query, favorite, count, created, modified);
+                else
+                {
+                    search.Update(
+                        newSearch.ApplicationUser, newSearch.Name, newSearch.Query,
+                        newSearch.Favorite, newSearch.Count, newSearch.Created, newSearch.Modified);
+                }
             }
         }
 
-        private void LoadSearchesBulk(IList<string> lines)
+        private async Task LoadSearchesBulk(IList<string> lines)
         {
             try
             {
@@ -2343,17 +2290,13 @@ namespace m4dModels
                         break;
                     }
 
-                    if (!ParseSearchEntry(
-                        s, fieldCount, out var user, out var name, out var query,
-                        out var favorite, out var count, out var created, out var modified))
+                    var search = await ParseSearchEntry(s, fieldCount);
+                    if (search == null)
                     {
                         continue;
                     }
 
-                    var search = new Search();
                     Searches.Add(search);
-
-                    search.Update(user, name, query, favorite, count, created, modified);
                 }
             }
             finally
@@ -2363,37 +2306,38 @@ namespace m4dModels
         }
 
 
-        // ASYNCTODO: This is a monster
-        private bool ParseSearchEntry(
-            string line, int fieldCount, out ApplicationUser user, out string name,
-            out string query,
-            out bool favorite, out int count, out DateTime created, out DateTime modified)
+        private async Task<Search> ParseSearchEntry(string line, int fieldCount)
         {
-            user = null;
-            name = null;
-            query = null;
-            favorite = false;
-            count = 0;
-            created = DateTime.MinValue;
-            modified = DateTime.MaxValue;
-
+            var search = new Search();
             var cells = line.Split('\t');
             if (cells.Length != fieldCount)
             {
-                return false;
+                return null;
             }
 
             var userName = cells[0];
-            name = cells[1];
-            query = cells[2];
-            favorite = string.Equals(cells[3], "true", StringComparison.OrdinalIgnoreCase);
-            int.TryParse(cells[4], out count);
-            DateTime.TryParse(cells[5], out created);
-            DateTime.TryParse(cells[6], out modified);
+            search.Name = cells[1];
+            search.Query = cells[2];
+            search.Favorite = string.Equals(cells[3], "true", StringComparison.OrdinalIgnoreCase);
+            if (int.TryParse(cells[4], out var count))
+            {
+                search.Count = count;
+            }
 
-            user = string.IsNullOrWhiteSpace(userName) ? null : FindUser(userName).Result;
+            if (DateTime.TryParse(cells[5], out var created))
+            {
+                search.Created = created;
+            }
 
-            return true;
+            if (DateTime.TryParse(cells[6], out var modified))
+            {
+                search.Modified = modified;
+            }
+
+            search.ApplicationUser =
+                string.IsNullOrWhiteSpace(userName) ? null : await FindUser(userName);
+
+            return search;
         }
 
         public async Task LoadDances(IList<string> lines)
@@ -2924,7 +2868,8 @@ namespace m4dModels
             return searches;
         }
 
-        public IList<string> SerializeSongs(bool withHeader = true, bool withHistory = true,
+        public async Task<IList<string>> SerializeSongs(bool withHeader = true,
+            bool withHistory = true,
             int max = -1, DateTime? from = null, SongFilter filter = null,
             HashSet<Guid> exclusions = null)
         {
@@ -2935,7 +2880,7 @@ namespace m4dModels
                 songs.Add(SongBreak);
             }
 
-            songs.AddRange(BackupIndex("default", max, from, filter));
+            songs.AddRange(await BackupIndex("default", max, from, filter));
 
             return songs;
         }

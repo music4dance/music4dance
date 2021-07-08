@@ -1,4 +1,10 @@
-﻿using System;
+﻿// TODONEXT: Continue to test against async/search udpate.
+//  Fix new bugs:
+//    Ballroom dance tables formatting messed up
+//    Tag/Dance modals from artist page broken
+//  Fix Existing bugs:
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -337,7 +343,7 @@ namespace m4d.Controllers
             }
 
             var p = Database.AzureParmsFromFilter(filter, 25);
-            p.IncludeTotalResultCount = true;
+            p.IncludeTotalCount = true;
 
             return await Database.Search(
                 filter.SearchString, p, filter.CruftFilter,
@@ -352,7 +358,8 @@ namespace m4d.Controllers
         {
             HelpPage = "advanced-search";
 
-            ViewBag.AzureIndexInfo = Song.GetIndex(Database, danceStatsManager);
+            ViewBag.AzureIndexInfo = Song.GetIndex(
+                SearchService.GetInfo().Index, Database, danceStatsManager);
             UseVue = false;
             return View(new RawSearch(filter is { IsRaw: true } ? filter : null));
         }
@@ -368,7 +375,8 @@ namespace m4d.Controllers
         {
             HelpPage = "advanced-search";
 
-            ViewBag.AzureIndexInfo = Song.GetIndex(Database, danceStatsManager);
+            ViewBag.AzureIndexInfo = Song.GetIndex(
+                SearchService.GetInfo().Index, Database, danceStatsManager);
             return ModelState.IsValid
                 ? await DoAzureSearch(new SongFilter(rawSearch))
                 : View("RawSearchForm", rawSearch);
@@ -1022,7 +1030,7 @@ namespace m4d.Controllers
             {
                 filter.Purchase = "S";
                 var p = Database.AzureParmsFromFilter(filter, info.Count);
-                p.IncludeTotalResultCount = true;
+                p.IncludeTotalCount = true;
                 var results = await Database.Search(
                     filter.SearchString, p, filter.CruftFilter);
                 var tracks = results.Songs.Select(s => s.GetPurchaseId(ServiceType.Spotify));
@@ -1252,7 +1260,7 @@ namespace m4d.Controllers
                                     ((filter.Page ?? 1) - 1) * 500);
 
                                 var parameters = dms.AzureParmsFromFilter(filter, 500);
-                                parameters.IncludeTotalResultCount = false;
+                                parameters.IncludeTotalCount = false;
                                 var res = await dms.Search(
                                     filter.SearchString, parameters,
                                     DanceMusicCoreService.CruftFilter.AllCruft);
@@ -1563,7 +1571,7 @@ namespace m4d.Controllers
             int count = 1)
         {
             var p = Database.AzureParmsFromFilter(filter, 1000);
-            p.IncludeTotalResultCount = true;
+            p.IncludeTotalCount = true;
 
             var results = await Database.Search(
                 filter.SearchString, p,

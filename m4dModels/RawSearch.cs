@@ -2,7 +2,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
-using Microsoft.Azure.Search.Models;
+using Azure.Search.Documents;
+using Azure.Search.Documents.Models;
 
 namespace m4dModels
 {
@@ -68,22 +69,23 @@ namespace m4dModels
         [Display(Name = @"Flags")]
         public int? Page { get; set; }
 
-        public SearchParameters GetAzureSearchParams(int? pageSize)
+        public SearchOptions GetAzureSearchParams(int? pageSize)
         {
             var order = string.IsNullOrEmpty(SortFields) ? null : SortFields.Split('|').ToList();
             var fields = string.IsNullOrEmpty(SearchFields)
                 ? null
                 : SearchFields.Split('|').ToList();
-            return new SearchParameters
+            var ret = new SearchOptions
             {
-                QueryType = IsLucene ? QueryType.Full : QueryType.Simple,
-                SearchFields = fields,
+                QueryType = IsLucene ? SearchQueryType.Full : SearchQueryType.Simple,
                 Filter = ODataFilter,
-                IncludeTotalResultCount = true,
+                IncludeTotalCount = true,
                 Skip = ((Page ?? 1) - 1) * pageSize,
-                Top = pageSize ?? 25,
-                OrderBy = order
+                Size = pageSize ?? 25,
             };
+            ret.SearchFields.AddRange(fields);
+            ret.OrderBy.AddRange(order);
+            return ret;
         }
 
         public string QueryString()

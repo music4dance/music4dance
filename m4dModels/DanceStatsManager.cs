@@ -5,8 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Azure.Search.Documents.Models;
 using DanceLibrary;
-using Microsoft.Azure.Search.Models;
 
 namespace m4dModels
 {
@@ -193,10 +193,13 @@ namespace m4dModels
 
                 stats.Add(scGroup);
 
-                foreach (var dtyp in dg.Members.Select(dtypT => dtypT as DanceType))
+                foreach (var danceType in dg.Members.Select(danceTypeT => danceTypeT as DanceType))
                 {
-                    AzureHandleType(dtyp, scGroup, tags, inferred, dms);
-                    used.Add(dtyp.Id);
+                    AzureHandleType(danceType, scGroup, tags, inferred, dms);
+                    if (danceType != null)
+                    {
+                        used.Add(danceType.Id);
+                    }
                 }
             }
 

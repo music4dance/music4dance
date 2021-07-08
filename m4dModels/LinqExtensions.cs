@@ -1,11 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace m4dModels
 {
+    public static class CollectionExtensions
+    {
+        public static void AddRange<T>(this IList<T> toList, IList<T> fromList)
+        {
+            if (fromList == null)
+            {
+                return;
+            }
+
+            foreach (var t in fromList)
+            {
+                toList.Add(t);
+            }
+        }
+    }
+
     public static class LinqExtensions
     {
         public static IEnumerable<T> DistinctBy<T, TKey>(this IEnumerable<T> items,
@@ -18,12 +32,12 @@ namespace m4dModels
 
     public class GeneralPropertyComparer<T, TKey> : IEqualityComparer<T>
     {
-        private Func<T, TKey> Expr { get; }
-
         public GeneralPropertyComparer(Func<T, TKey> expr)
         {
             Expr = expr;
         }
+
+        private Func<T, TKey> Expr { get; }
 
         public bool Equals(T left, T right)
         {

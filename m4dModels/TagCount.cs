@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
-using Microsoft.Rest;
 
 namespace m4dModels
 {
@@ -10,6 +9,37 @@ namespace m4dModels
     [DataContract]
     public class TagCount
     {
+        private bool Parse(string s)
+        {
+            var ret = true;
+            var list = s.Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            var c = 1;
+
+            if (list.Count < 1 || list.Count > 3)
+            {
+                return false;
+            }
+
+            if (list.Count > 1)
+            {
+                ret = int.TryParse(list[^1], out c);
+            }
+
+            Count = c;
+            Value = list[0].Trim();
+            if (list.Count > 2 || ret == false)
+            {
+                Value += ":" + list[1];
+            }
+
+            return true;
+        }
+
+        public string Serialize()
+        {
+            return $"{Value}:{Count}";
+        }
+
         #region Properties
 
         [DataMember]
@@ -92,36 +122,5 @@ namespace m4dModels
         }
 
         #endregion
-
-        private bool Parse(string s)
-        {
-            var ret = true;
-            var list = s.Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-            var c = 1;
-
-            if (list.Count < 1 || list.Count > 3)
-            {
-                return false;
-            }
-
-            if (list.Count > 1)
-            {
-                ret = int.TryParse(list[^1], out c);
-            }
-
-            Count = c;
-            Value = list[0].Trim();
-            if (list.Count > 2 || ret == false)
-            {
-                Value += ":" + list[1];
-            }
-
-            return true;
-        }
-
-        public string Serialize()
-        {
-            return $"{Value}:{Count}";
-        }
     }
 }

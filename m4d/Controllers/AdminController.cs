@@ -735,7 +735,7 @@ namespace m4d.Controllers
         //
         // Get: //IndexBackup
         [Authorize(Roles = "showDiagnostics")]
-        public ActionResult IndexBackup([FromServices]IWebHostEnvironment environment,
+        public async Task<ActionResult> IndexBackup([FromServices]IWebHostEnvironment environment,
             string name = "default", int count = -1, DateTime? from = null, string filter = null)
         {
             try
@@ -747,14 +747,14 @@ namespace m4d.Controllers
                 var path = Path.Combine(EnsureAppData(environment), fname);
 
                 var n = 0;
-                using (var file = System.IO.File.CreateText(path))
+                await using (var file = System.IO.File.CreateText(path))
                 {
-                    var lines = Database.BackupIndex(
+                    var lines = await Database.BackupIndex(
                         name, count, from,
                         filter == null ? null : new SongFilter(filter));
                     foreach (var line in lines)
                     {
-                        file.WriteLine(line);
+                        await file.WriteLineAsync(line);
                         AdminMonitor.UpdateTask("writeSongs", ++n);
                     }
 

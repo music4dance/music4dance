@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using FacetResults =
     System.Collections.Generic.IDictionary<string, System.Collections.Generic.IList<
-        Microsoft.Azure.Search.Models.FacetResult>>;
+        Azure.Search.Documents.Models.FacetResult>>;
 
 namespace m4dModels
 {

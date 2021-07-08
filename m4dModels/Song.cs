@@ -13,8 +13,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AutoMapper;
+using Azure.Search.Documents.Indexes.Models;
+using Azure.Search.Documents.Models;
 using DanceLibrary;
-using Microsoft.Azure.Search.Models;
 using Newtonsoft.Json;
 using static System.Char;
 
@@ -394,7 +395,7 @@ namespace m4dModels
             return song;
         }
 
-        public static async Task<Song> Create(Document d, DanceMusicCoreService database,
+        public static async Task<Song> Create(SearchDocument d, DanceMusicCoreService database,
             string userName = null)
         {
             var s = d[PropertiesField] as string;
@@ -414,7 +415,7 @@ namespace m4dModels
             return song;
         }
 
-        public static Song CreateLightSong(Document doc)
+        public static Song CreateLightSong(SearchDocument doc)
         {
             var title = doc[TitleField] as string;
             if (string.IsNullOrEmpty(title))
@@ -4179,7 +4180,7 @@ namespace m4dModels
 
         #region Index
 
-        public static Microsoft.Azure.Search.Models.Index GetIndex(DanceMusicCoreService dms,
+        public static SearchIndex GetIndex(string name, DanceMusicCoreService dms,
             IDanceStatsManager danceStatsManager)
         {
             if (s_index != null)
@@ -4187,179 +4188,124 @@ namespace m4dModels
                 return s_index;
             }
 
-            var fields = new List<Field>
+            // SearchTODO: Consider converting to SearchableField, etc.
+            var fields = new List<SearchField>
             {
-                new Field(SongIdField, Microsoft.Azure.Search.Models.DataType.String)
-                    { IsKey = true },
-                new Field(
-                    AltIdField,
-                    Microsoft.Azure.Search.Models.DataType.Collection(
-                        Microsoft.Azure.Search.Models
-                            .DataType.String))
+                new SearchField(SongIdField, SearchFieldDataType.String) { IsKey = true },
+                new SearchField(
+                    AltIdField, SearchFieldDataType.Collection(SearchFieldDataType.String))
                 {
                     IsSearchable = false, IsSortable = false, IsFilterable = true,
                     IsFacetable = false
                 },
-                new Field(TitleField, Microsoft.Azure.Search.Models.DataType.String)
+                new SearchField(TitleField, SearchFieldDataType.String)
                 {
                     IsSearchable = true, IsSortable = true, IsFilterable = true, IsFacetable = true
                 },
-                new Field(TitleHashField, Microsoft.Azure.Search.Models.DataType.Int32)
+                new SearchField(TitleHashField, SearchFieldDataType.Int32)
                 {
                     IsSearchable = false, IsSortable = false, IsFilterable = true,
                     IsFacetable = false
                 },
-                new Field(ArtistField, Microsoft.Azure.Search.Models.DataType.String)
+                new SearchField(ArtistField, SearchFieldDataType.String)
                 {
                     IsSearchable = true, IsSortable = true, IsFilterable = false,
                     IsFacetable = false
                 },
-                new Field(
-                    AlbumsField,
-                    Microsoft.Azure.Search.Models.DataType.Collection(
-                        Microsoft.Azure.Search
-                            .Models
-                            .DataType.String))
+                new SearchField(
+                    AlbumsField, SearchFieldDataType.Collection(SearchFieldDataType.String))
                 {
-                    IsSearchable = true, IsSortable = false, IsFilterable = true,
-                    IsFacetable = true
+                    IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
                 },
-                new Field(
-                    UsersField,
-                    Microsoft.Azure.Search.Models.DataType.Collection(
-                        Microsoft.Azure.Search
-                            .Models
-                            .DataType.String))
+                new SearchField(
+                    UsersField, SearchFieldDataType.Collection(SearchFieldDataType.String))
                 {
-                    IsSearchable = true, IsSortable = false, IsFilterable = true,
-                    IsFacetable = true
+                    IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
                 },
-                new Field(CreatedField, Microsoft.Azure.Search.Models.DataType.DateTimeOffset)
+                new SearchField(CreatedField, SearchFieldDataType.DateTimeOffset)
                 {
                     IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true
                 },
-                new Field(ModifiedField, Microsoft.Azure.Search.Models.DataType.DateTimeOffset)
+                new SearchField(ModifiedField, SearchFieldDataType.DateTimeOffset)
                 {
                     IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true
                 },
-                new Field(EditedField, Microsoft.Azure.Search.Models.DataType.DateTimeOffset)
+                new SearchField(TempoField, SearchFieldDataType.Double)
                 {
                     IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true
                 },
-                new Field(TempoField, Microsoft.Azure.Search.Models.DataType.Double)
+                new SearchField(LengthField, SearchFieldDataType.Int32)
                 {
                     IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true
                 },
-                new Field(LengthField, Microsoft.Azure.Search.Models.DataType.Int32)
+                new SearchField(BeatField, SearchFieldDataType.Double)
                 {
                     IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true
                 },
-                new Field(BeatField, Microsoft.Azure.Search.Models.DataType.Double)
+                new SearchField(EnergyField, SearchFieldDataType.Double)
                 {
                     IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true
                 },
-                new Field(EnergyField, Microsoft.Azure.Search.Models.DataType.Double)
+                new SearchField(MoodField, SearchFieldDataType.Double)
                 {
                     IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true
                 },
-                new Field(MoodField, Microsoft.Azure.Search.Models.DataType.Double)
+                new SearchField(
+                    PurchaseField, SearchFieldDataType.Collection(SearchFieldDataType.String))
                 {
-                    IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true
+                    IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
                 },
-                new Field(
-                    PurchaseField,
-                    Microsoft.Azure.Search.Models.DataType.Collection(
-                        Microsoft.Azure.Search
-                            .Models
-                            .DataType.String))
-                {
-                    IsSearchable = true, IsSortable = false, IsFilterable = true,
-                    IsFacetable = true
-                },
-                new Field(LookupStatus, Microsoft.Azure.Search.Models.DataType.Boolean)
+                new SearchField(LookupStatus, SearchFieldDataType.Boolean)
                 {
                     IsSearchable = false, IsSortable = false, IsFilterable = true,
                     IsFacetable = false
                 },
-                new Field(
-                    DanceTags,
-                    Microsoft.Azure.Search.Models.DataType.Collection(
-                        Microsoft.Azure.Search
-                            .Models
-                            .DataType.String))
+                new SearchField(
+                    DanceTags, SearchFieldDataType.Collection(SearchFieldDataType.String))
                 {
-                    IsSearchable = true, IsSortable = false, IsFilterable = true,
-                    IsFacetable = true
+                    IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
                 },
-                new Field(
-                    DanceTagsInferred,
-                    Microsoft.Azure.Search.Models.DataType.Collection(
-                        Microsoft.Azure.Search
-                            .Models
-                            .DataType.String))
+                new SearchField(
+                    DanceTagsInferred, SearchFieldDataType.Collection(SearchFieldDataType.String))
                 {
-                    IsSearchable = true, IsSortable = false, IsFilterable = true,
-                    IsFacetable = true
+                    IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
                 },
-                new Field(
-                    GenreTags,
-                    Microsoft.Azure.Search.Models.DataType.Collection(
-                        Microsoft.Azure.Search
-                            .Models
-                            .DataType.String))
+                new SearchField(
+                    GenreTags, SearchFieldDataType.Collection(SearchFieldDataType.String))
                 {
-                    IsSearchable = true, IsSortable = false, IsFilterable = true,
-                    IsFacetable = true
+                    IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
                 },
-                new Field(
-                    StyleTags,
-                    Microsoft.Azure.Search.Models.DataType.Collection(
-                        Microsoft.Azure.Search
-                            .Models
-                            .DataType.String))
+                new SearchField(
+                    StyleTags, SearchFieldDataType.Collection(SearchFieldDataType.String))
                 {
-                    IsSearchable = true, IsSortable = false, IsFilterable = true,
-                    IsFacetable = true
+                    IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
                 },
-                new Field(
-                    TempoTags,
-                    Microsoft.Azure.Search.Models.DataType.Collection(
-                        Microsoft.Azure.Search
-                            .Models
-                            .DataType.String))
+                new SearchField(
+                    TempoTags, SearchFieldDataType.Collection(SearchFieldDataType.String))
                 {
-                    IsSearchable = true, IsSortable = false, IsFilterable = true,
-                    IsFacetable = true
+                    IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
                 },
-                new Field(
-                    OtherTags,
-                    Microsoft.Azure.Search.Models.DataType.Collection(
-                        Microsoft.Azure.Search
-                            .Models
-                            .DataType.String))
+                new SearchField(
+                    OtherTags, SearchFieldDataType.Collection(SearchFieldDataType.String))
                 {
-                    IsSearchable = true, IsSortable = false, IsFilterable = true,
-                    IsFacetable = true
+                    IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
                 },
-                new Field(SampleField, Microsoft.Azure.Search.Models.DataType.String)
+                new SearchField(SampleField, SearchFieldDataType.String)
                 {
                     IsSearchable = false, IsSortable = false, IsFilterable = true,
                     IsFacetable = false
                 },
-                new Field(
-                    ServiceIds,
-                    Microsoft.Azure.Search.Models.DataType.Collection(
-                        Microsoft.Azure.Search.Models
-                            .DataType.String))
+                new SearchField(
+                    ServiceIds, SearchFieldDataType.Collection(SearchFieldDataType.String))
                 {
                     IsSearchable = true, IsSortable = false, IsFilterable = false,
                     IsFacetable = false
                 },
-                new Field(PropertiesField, Microsoft.Azure.Search.Models.DataType.String)
+                new SearchField(PropertiesField, SearchFieldDataType.String)
                 {
                     IsSearchable = false, IsSortable = false, IsFilterable = false,
-                    IsFacetable = false, IsRetrievable = true
-                }
+                    IsFacetable = false
+                },
             };
 
             var fsc = danceStatsManager.FlatDanceStats;
@@ -4368,27 +4314,20 @@ namespace m4dModels
                 where sc.SongCount != 0 && sc.DanceId != "ALL"
                 select IndexFieldFromDanceId(sc.DanceId));
 
-            s_index = new Microsoft.Azure.Search.Models.Index
-            {
-                Name = "songs",
-                Fields = fields.ToArray(),
-                Suggesters = new[]
-                {
-                    new Suggester(
-                        "songs", TitleField, ArtistField, AlbumsField, DanceTags,
-                        PurchaseField, GenreTags, TempoTags, StyleTags, OtherTags)
-                }
-            };
+            s_index = new SearchIndex(name, fields.ToArray());
+            s_index.Suggesters.Add(
+                new SearchSuggester(
+                    "songs", TitleField, ArtistField, AlbumsField, DanceTags, PurchaseField,
+                    GenreTags, TempoTags, StyleTags, OtherTags));
 
             return s_index;
         }
 
-        public static Field IndexFieldFromDanceId(string id)
+        public static SearchField IndexFieldFromDanceId(string id)
         {
-            return new Field(BuildDanceFieldName(id), Microsoft.Azure.Search.Models.DataType.Int32)
+            return new SearchField(BuildDanceFieldName(id), SearchFieldDataType.Int32)
             {
-                IsSearchable = false, IsSortable = true, IsFilterable = false, IsFacetable = false,
-                IsRetrievable = false
+                IsSearchable = false, IsSortable = true, IsFilterable = false, IsFacetable = false
             };
         }
 
@@ -4397,9 +4336,9 @@ namespace m4dModels
             s_index = null;
         }
 
-        private static Microsoft.Azure.Search.Models.Index s_index;
+        private static SearchIndex s_index;
 
-        public Document GetIndexDocument()
+        public SearchDocument GetIndexDocument()
         {
             // Set up the purchase flags
             var purchase = string.IsNullOrWhiteSpace(Purchase)
@@ -4457,7 +4396,7 @@ namespace m4dModels
 
             var altIds = GetAltids().ToArray();
 
-            var doc = new Document
+            var doc = new SearchDocument
             {
                 [SongIdField] = SongId.ToString(),
                 [AltIdField] = altIds,
