@@ -2,7 +2,7 @@
 
 var gulp = require("gulp"),
     cleanCss = require("gulp-clean-css"),
-    sass = require("gulp-sass"),
+    sass = require("gulp-dart-sass"),
     autoprefixer = require("gulp-autoprefixer"),
     merge = require("merge2");
 

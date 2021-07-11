@@ -12,6 +12,8 @@ namespace m4dModels
     [JsonObject(MemberSerialization.OptIn)]
     public class DanceStatsInstance
     {
+        private const string descriptionPlaceholder = 
+            "We're busy doing research and pulling together a general description for this dance style. Please check back later for more info.";
         private readonly Dictionary<Guid, Song> _otherSongs = new Dictionary<Guid, Song>();
         private readonly Dictionary<Guid, Song> _queuedSongs = new Dictionary<Guid, Song>();
 
@@ -71,6 +73,7 @@ namespace m4dModels
                     .Select(p => new PlaylistMetadata { Id = p.Id, Name = p.Name })
                     .ToDictionary(m => m.Name, m => m);
 
+            bool saveChanges = false;
             var newDances = new List<string>();
             foreach (var ds in List)
             {
@@ -114,15 +117,23 @@ namespace m4dModels
                 {
                     if (ds.Dance.Description == null)
                     {
-                        dms.Dances.Add(
-                            new Dance
-                            {
-                                Id = ds.DanceId,
-                                Description =
-                                    "We're busy doing research and pulling together a general description for this dance style. Please check back later for more info."
-                            });
-                        await dms.SaveChanges();
+                        var dance = await dms.Dances.FindAsync(ds.DanceId);
+                        if (dance == null)
+                        {
+                            dms.Dances.Add(
+                                new Dance
+                                {
+                                    Id = ds.DanceId,
+                                    Description = descriptionPlaceholder
+
+                                });
+                        }
+                        else
+                        {
+                            dance.Description = descriptionPlaceholder;
+                        }
                     }
+                    saveChanges = true;
 
                     newDances.Add(ds.DanceId);
                     ds.SetTopSongs(new List<Song>());
@@ -130,6 +141,10 @@ namespace m4dModels
                 }
             }
 
+            if (saveChanges)
+            {
+                await dms.SaveChanges();
+            }
             await dms.UpdateIndex(newDances);
         }
 
