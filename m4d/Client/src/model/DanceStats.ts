@@ -206,7 +206,9 @@ export class DanceType extends DanceObject {
   }
 
   public filteredStyles(filter: string[]): string[] {
-    return this.styles.filter((s) => filter.indexOf(wordsToKebab(s)) !== -1);
+    return filter
+      ? this.styles.filter((s) => filter.indexOf(wordsToKebab(s)) !== -1)
+      : this.styles;
   }
 
   public match(filter: DanceFilter): boolean {

@@ -115,6 +115,9 @@ export default class CompetitionCategoryTable extends Vue {
   }
 
   private get styleFamily(): string {
+    if (!this.dances) {
+      return "both";
+    }
     const family = this.dances[0].styleFamily;
     return this.dances.every((d) => d.styleFamily === family) ? family : "Both";
   }

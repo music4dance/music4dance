@@ -40,13 +40,11 @@ export default class FormList extends Vue {
   @Prop() private type!: string;
   @Prop() private options!: ListOption[];
 
-  private allSelected: boolean;
-  private indeterminate: boolean;
-  private selectedInternal: string[];
+  private allSelected = false;
+  private indeterminate = false;
+  private selectedInternal: string[] = [];
 
-  constructor() {
-    super();
-
+  private mounted(): void {
     this.selectedInternal = this.selected;
     this.allSelected = this.selectedInternal.length === this.options.length;
     this.indeterminate =
