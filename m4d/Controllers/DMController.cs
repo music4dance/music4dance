@@ -117,6 +117,7 @@ namespace m4d.Controllers
                 i += 1;
             }
 
+            var saved = modified.Count;
             await dms.SaveSongs(modified);
 
             if (!string.IsNullOrEmpty(review.PlayList))
@@ -124,7 +125,7 @@ namespace m4d.Controllers
                 await dms.UpdatePlayList(review.PlayList, review.Merge.Select(m => m.Left));
             }
 
-            return modified.Count;
+            return saved;
         }
 
         #region AdminTaskHelpers

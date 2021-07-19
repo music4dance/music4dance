@@ -53,6 +53,10 @@ namespace m4dModels
         public override ServiceTrack ParseTrackResults(dynamic results,
             Func<string, dynamic> getResult)
         {
+            if (results == null)
+            {
+                return null;
+            }
             var tracks = results.results;
             return tracks.Count > 0 ? InternalParseTrackResults(tracks[0]) : null;
         }

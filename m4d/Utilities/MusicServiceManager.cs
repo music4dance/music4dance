@@ -447,6 +447,10 @@ namespace m4d.Utilities
         {
             var results =
                 GetMusicServiceResults(service.BuildLookupRequest(url), service, principal);
+            if (results == null)
+            {
+                return null;
+            }
             var name = results.name;
             var description = results.description;
 
@@ -495,6 +499,11 @@ namespace m4d.Utilities
             var results = GetMusicServiceResults(
                 "https://api.spotify.com/v1/me/playlists", service,
                 principal);
+
+            if (results == null)
+            {
+                return new List<PlaylistMetadata>();
+            }
 
             var playlists = ParsePlaylistResults(results);
             while ((results = NextMusicServiceResults(results, service, principal)) != null)
@@ -775,11 +784,19 @@ namespace m4d.Utilities
         private IList<ServiceTrack> FindMSSongGeneral(MusicService service, string title = null,
             string artist = null)
         {
-            var results =
-                GetMusicServiceResults(service.BuildSearchRequest(artist, title), service);
-            return service.ParseSearchResults(
-                results,
-                (Func<string, dynamic>)(req => GetMusicServiceResults(req, service)), null);
+            try
+            {
+                var results =
+                    GetMusicServiceResults(service.BuildSearchRequest(artist, title), service);
+                return service.ParseSearchResults(
+                    results,
+                    (Func<string, dynamic>)(req => GetMusicServiceResults(req, service)), null);
+            }
+            catch (Exception e)
+            {
+                Trace.TraceWarning($"Hard failure searching for {title} by {artist} on {service.Name}: {e.Message}");
+                return new List<ServiceTrack>();
+            }
         }
 
         private static int GetRateInfo(WebHeaderCollection headers, string type)
@@ -798,7 +815,12 @@ namespace m4d.Utilities
             MusicService service,
             IPrincipal principal = null)
         {
-            var retries = 2;
+            if (Paused(service))
+            {
+                return null;
+            }
+
+            var retries = 3;
             while (true)
             {
                 string responseString = null;
@@ -886,9 +908,11 @@ namespace m4d.Utilities
                                 continue;
                             }
 
+                            _pauseITunes = DateTime.Now;
+
                             Trace.WriteLineIf(
                                 TraceLevels.General.TraceInfo,
-                                $"Exceeded Itunes Limits: Giving Up {req.Address}");
+                                $"Exceeded Itunes Limits @{_pauseITunes}: Pausing {req.Address}");
                         }
                     }
 
@@ -903,6 +927,36 @@ namespace m4d.Utilities
                 return JsonConvert.DeserializeObject(responseString);
             }
         }
+
+        private bool Paused(MusicService service)
+        {
+            if (service.Id != ServiceType.ITunes)
+            {
+                // Only pausing itunes for now
+                return false;
+            }
+
+            if (_pauseITunes == DateTime.MinValue)
+            {
+                // iTunes is paused when this value is set to DateTime.Now
+                return false;
+            }
+
+            if (_pauseITunes.AddMinutes(15) < DateTime.Now)
+            {
+                // We've been paused for at least 15 minutes, unpause
+                _pauseITunes = DateTime.MinValue;
+                return false;
+            }
+
+            _skipped += 1;
+            return true;
+        }
+
+        private static DateTime _pauseITunes = DateTime.MinValue;
+        private static int _skipped = 0;
+
+        public static int Skipped => _skipped;
 
         // TODO Handle services other than spotify.
         // This method requires a valid principal

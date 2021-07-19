@@ -813,8 +813,12 @@ namespace m4dModels
         private async Task<IEnumerable<Song>> SongsFromTitle(string title,
             SearchClient client = null)
         {
+            var options = new SearchOptions
+            {
+                Size = 50
+            };
             var response = await DoSearch(
-                title, new SearchOptions(), CruftFilter.AllCruft, client);
+                title, options, CruftFilter.AllCruft, client);
             return await CreateSongs(response.GetResults());
         }
 
@@ -1470,16 +1474,19 @@ namespace m4dModels
                         }
                     }
 
-                    try
+                    if (deleted.Count > 0)
                     {
-                        var batch = IndexDocumentsBatch.Delete(
-                            deleted.Select(d => new SearchDocument { [Song.SongIdField] = d }));
-                        var results = await client.IndexDocumentsAsync(batch);
-                        Trace.WriteLine($"Deleted = {results.Value.Results.Count}");
-                    }
-                    catch (RequestFailedException ex)
-                    {
-                        Trace.WriteLine($"RequestFailedException: {ex.Message}");
+                        try
+                        {
+                            var batch = IndexDocumentsBatch.Delete(
+                                deleted.Select(d => new SearchDocument { [Song.SongIdField] = d }));
+                            var results = await client.IndexDocumentsAsync(batch);
+                            Trace.WriteLine($"Deleted = {results.Value.Results.Count}");
+                        }
+                        catch (RequestFailedException ex)
+                        {
+                            Trace.WriteLine($"RequestFailedException: {ex.Message}");
+                        }
                     }
 
                     list.RemoveRange(0, added.Count + deleted.Count);
@@ -1852,7 +1859,7 @@ namespace m4dModels
         {
             var info = SearchService.GetInfo(id);
             var endpoint = new Uri("https://msc4dnc.search.windows.net");
-            var credentials = new AzureKeyCredential(info.QueryKey);
+            var credentials = new AzureKeyCredential(info.AdminKey);
             return new SearchClient(endpoint, info.Index, credentials);
         }
 

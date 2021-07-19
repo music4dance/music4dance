@@ -134,6 +134,11 @@ namespace m4dModels
         public override ServiceTrack ParseTrackResults(dynamic track,
             Func<string, dynamic> getResult)
         {
+            if (track == null)
+            {
+                return null;
+            }
+
             var artist = track.artists.Count > 0 ? track.artists[0] : null;
             var album = track.album;
 
