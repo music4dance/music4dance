@@ -69,6 +69,10 @@
             >
           </b-dropdown>
           <b-dropdown right text="Update" class="mx-1">
+            <b-dropdown-item
+              :href="batchUrlBase('batchUpdateService', -1, 'serviceType=I')"
+              >iTunes</b-dropdown-item
+            >
             <b-dropdown-item>User Tags (deprecated)</b-dropdown-item>
             <b-dropdown-item>Tags (deprecated)</b-dropdown-item>
             <b-dropdown-item>Tag Summaries</b-dropdown-item>
@@ -230,7 +234,6 @@ export default class SongFooter extends Mixins(AdminTools) {
   @Prop() private readonly canShowImplicitMessage?: boolean;
   @Prop() private readonly selected?: string[];
 
-  private pageNumber: number;
   private editAction = "";
 
   private adminEdit: AdminEdit;
@@ -238,13 +241,22 @@ export default class SongFooter extends Mixins(AdminTools) {
 
   constructor() {
     super();
-    this.pageNumber = this.filter.page ?? 1;
     this.adminEdit = { user: this.userName!, properties: "" };
   }
 
   private get filter(): SongFilter {
     const model = this.model;
     return model ? model.filter : new SongFilter();
+  }
+
+  private get pageNumber(): number {
+    return this.filter.page ?? 1;
+  }
+
+  private set pageNumber(n: number) {
+    if (this.filter) {
+      this.filter.page = n;
+    }
   }
 
   private get pageCount(): number {
@@ -304,9 +316,19 @@ export default class SongFooter extends Mixins(AdminTools) {
     type?: string,
     options?: string
   ): string {
-    const typeParam = type ? `type=${type}&` : "";
+    const typeParam = type ? `type=${type}` : "";
     const optionsParam = options ? `options=${options}` : "";
-    return `/song/${name}?${typeParam}${optionsParam}&count=${count}&filter=${this.filter.encodedQuery}`;
+    const separator = typeParam && optionsParam ? "&" : "";
+    return this.batchUrlBase(name, count, typeParam + separator + optionsParam);
+  }
+
+  private batchUrlBase(
+    name: string,
+    count: number,
+    additional?: string
+  ): string {
+    additional = additional ? `&${additional}` : "";
+    return `/song/${name}?count=${count}${additional}&filter=${this.filter.encodedQuery}`;
   }
 
   private onBulkEdit(type: string): void {

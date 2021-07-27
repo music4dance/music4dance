@@ -215,6 +215,38 @@ namespace m4dModels
             _albums = null;
         }
 
+        public bool RecordFail(MusicService service)
+        {
+            if (ServiceFailed(service))
+            {
+                return false;
+            }
+
+            var failed = FirstProperty(FailedLookup);
+            if (failed == null)
+            {
+                CreateEditProperties(ApplicationUser.AdminUser, EditCommand);
+                SongProperties.Add(new SongProperty(FailedLookup, service.CID.ToString()));
+            }
+            else
+            {
+                failed.Value += service.CID;
+            }
+
+            return true;
+        }
+
+        public bool ServiceTried(MusicService service)
+        {
+            return ServiceFailed(service) || GetPurchaseId(service.Id) != null;
+        }
+
+        private bool ServiceFailed(MusicService service)
+        {
+            var failed = FirstProperty(FailedLookup);
+            return failed != null && failed.Value.Contains(service.CID, StringComparison.OrdinalIgnoreCase);
+        }
+
         #region Constants
 
         // These are the constants that define fields, virtual fields and command

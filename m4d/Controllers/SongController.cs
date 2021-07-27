@@ -827,8 +827,6 @@ namespace m4d.Controllers
                     dms.AdminAppendSong(song, applicationUser, properties), "BatchAdminEdit", max);
         }
 
-        //
-        // POST: /Song/AdminModify/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
@@ -840,6 +838,7 @@ namespace m4d.Controllers
                 (dms, song) => dms.AdminModifySong(song, properties),
                 "BatchAdminModify", max);
         }
+
 
         private ActionResult BatchAdminExecute(SongFilter filter,
             Func<DanceMusicCoreService, Song, Task<bool>> act, string name, int max)
@@ -1199,6 +1198,19 @@ namespace m4d.Controllers
             return View("Details", newSong ?? song);
         }
 
+
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult BatchUpdateService(SongFilter filter, string serviceType)
+        {
+            var service = MusicService.GetService(serviceType);
+            var musicServiceManager = MusicServiceManager;
+            return BatchProcess(
+                filter,
+                async (dms, song) => (await musicServiceManager.
+                    ConditionalUpdateSongAndService(dms, song, service)) ? song : null);
+        }
+
+
         // A= Album
         // B= Broken
         // D= Deprecated Properties
@@ -1306,6 +1318,11 @@ namespace m4d.Controllers
                                         Trace.WriteLineIf(
                                             TraceLevels.General.TraceInfo,
                                             $"{tried} songs tried.");
+                                    }
+                                    catch (AbortBatchException e)
+                                    {
+                                        Trace.WriteLine($"Aborted Batch Process at {DateTime.Now}: {e.Message}");
+                                        break;
                                     }
                                     catch (Exception e)
                                     {

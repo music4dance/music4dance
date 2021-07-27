@@ -80,7 +80,12 @@
 <ul>
     <li>@Html.ActionLink("Show Status", "AdminStatus", "Admin")</li>
     <li>@Html.ActionLink("Reset Admin", "ResetAdmin", "Admin")</li>
-    <li>Skipped iTunes = @MusicServiceManager.Skipped</li>
+    <li>
+        Skipped iTunes = @MusicServiceManager.Skipped;
+        Currently Paused = @MusicServiceManager.Paused
+    </li>
+    <li>iTunes Calls = @MusicServiceManager.iTunesCalls</li>
+    <li>spotify Calls = @MusicServiceManager.spotifyCalls</li>
 </ul>
 
 <hr/>

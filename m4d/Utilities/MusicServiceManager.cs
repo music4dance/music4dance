@@ -54,18 +54,32 @@ namespace m4d.Utilities
             return changed;
         }
 
+        // TODONEXT: make this take a flag for recording failure, then
+        //  create a batch process to run through a list of songs
+        //  and do an update (with failure tracking) of all songs not
+        //  already found for a service
         public async Task<bool> UpdateSongAndService(
-            DanceMusicCoreService dms, Song sd, MusicService service,
-            ApplicationUser user = null)
+            DanceMusicCoreService dms, Song sd, MusicService service)
         {
-            return await UpdateFromTracks(
-                dms, sd,
-                MatchSongAndService(sd, service), user);
+
+            var tracks = MatchSongAndService(sd, service);
+            return await UpdateFromTracks(dms, sd, tracks);
+        }
+
+        public async Task<bool> ConditionalUpdateSongAndService(
+            DanceMusicCoreService dms, Song sd, MusicService service)
+        {
+            if (sd.ServiceTried(service))
+            {
+                return false;
+            }
+
+            var found = await UpdateSongAndService(dms, sd, service);
+            return found || sd.RecordFail(service);
         }
 
         private async Task<bool> UpdateFromTracks(
-            DanceMusicCoreService dms, Song sd, IList<ServiceTrack> tracks,
-            ApplicationUser user = null)
+            DanceMusicCoreService dms, Song sd, IList<ServiceTrack> tracks)
         {
             if (tracks.Count <= 0)
             {
@@ -80,7 +94,7 @@ namespace m4d.Utilities
                 UpdateMusicServiceFromTrack(dms, edit, foundTrack, ref tags);
             }
 
-            user ??= MusicService.GetService(tracks[0].Service).ApplicationUser;
+            var user = MusicService.GetService(tracks[0].Service).ApplicationUser;
             if (user != null)
             {
                 tags = tags.Add(sd.GetUserTags(user.UserName));
@@ -792,6 +806,10 @@ namespace m4d.Utilities
                     results,
                     (Func<string, dynamic>)(req => GetMusicServiceResults(req, service)), null);
             }
+            catch (AbortBatchException)
+            {
+                throw;
+            }
             catch (Exception e)
             {
                 Trace.TraceWarning($"Hard failure searching for {title} by {artist} on {service.Name}: {e.Message}");
@@ -815,12 +833,12 @@ namespace m4d.Utilities
             MusicService service,
             IPrincipal principal = null)
         {
-            if (Paused(service))
+            if (CheckPaused(service))
             {
                 return null;
             }
 
-            var retries = 3;
+            var retries = 5;
             while (true)
             {
                 string responseString = null;
@@ -903,16 +921,17 @@ namespace m4d.Utilities
                             {
                                 Trace.WriteLineIf(
                                     TraceLevels.General.TraceInfo,
-                                    $"Exceeded Itunes Limits: {2 - retries} {req.Address}");
-                                Thread.Sleep(15 * 1000);
+                                    $"Exceeded Itunes Limits: {5 - retries} {req.Address}");
+                                Thread.Sleep(60 * 1000);
                                 continue;
                             }
 
                             _pauseITunes = DateTime.Now;
 
-                            Trace.WriteLineIf(
-                                TraceLevels.General.TraceInfo,
-                                $"Exceeded Itunes Limits @{_pauseITunes}: Pausing {req.Address}");
+                            var message = $"Exceeded Itunes Limits @{_pauseITunes}: Pausing {req.Address}";
+                            Trace.WriteLineIf(TraceLevels.General.TraceInfo, message);
+
+                            throw new AbortBatchException(message, we);
                         }
                     }
 
@@ -922,13 +941,21 @@ namespace m4d.Utilities
                 if (service != null)
                 {
                     responseString = service.PreprocessResponse(responseString);
+                    if (service.Id == ServiceType.ITunes)
+                    {
+                        _iTunes += 1;
+                    }
+                    else if (service.Id == ServiceType.Spotify)
+                    {
+                        _spotify += 1;
+                    }
                 }
 
                 return JsonConvert.DeserializeObject(responseString);
             }
         }
 
-        private bool Paused(MusicService service)
+        private static bool CheckPaused(MusicService service)
         {
             if (service.Id != ServiceType.ITunes)
             {
@@ -942,7 +969,7 @@ namespace m4d.Utilities
                 return false;
             }
 
-            if (_pauseITunes.AddMinutes(15) < DateTime.Now)
+            if (PauseExpired)
             {
                 // We've been paused for at least 15 minutes, unpause
                 _pauseITunes = DateTime.MinValue;
@@ -953,8 +980,16 @@ namespace m4d.Utilities
             return true;
         }
 
+        public static bool Paused => _pauseITunes != DateTime.MinValue && !PauseExpired;
+
+        public static int iTunesCalls => _iTunes;
+        public static int spotifyCalls => _spotify;
+
+        private static bool PauseExpired => _pauseITunes.AddMinutes(15) < DateTime.Now;
         private static DateTime _pauseITunes = DateTime.MinValue;
         private static int _skipped = 0;
+        private static int _iTunes = 0;
+        private static int _spotify = 0;
 
         public static int Skipped => _skipped;
 

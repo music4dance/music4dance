@@ -58,7 +58,7 @@ namespace m4dModels
             Trace.WriteLine("Entering DoUpdate");
 
             // SEARCHTODO: How is this supposed to work (used to take just a string)
-            var count = await dms.UpdateAzureIndex(null, _index);
+            var count = await dms.UpdateAzureIndex(dms.DanceStats.DequeueSongs(), _index);
             Trace.WriteLine($"Updated {count} songs.");
 
             // In the case where things have been enqueued 

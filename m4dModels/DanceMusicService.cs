@@ -161,7 +161,7 @@ namespace m4dModels
                 stats.UpdateSong(song);
             }
 
-            IndexUpdater.Enqueue(this, SearchService.GetInfo(id));
+            IndexUpdater.Enqueue(GetTransientService(), SearchService.GetInfo(id));
         }
 
         public static readonly string EditRole = "canEdit";

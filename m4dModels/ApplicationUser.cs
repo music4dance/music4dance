@@ -144,6 +144,7 @@ namespace m4dModels
 
         #endregion
 
+        public static ApplicationUser AdminUser => new ApplicationUser("admin", true);
         public ApplicationUser()
         {
             StartDate = DateTime.Now;

@@ -36,14 +36,17 @@ namespace m4dModels
         {
             var ret = new List<ServiceTrack>();
 
-            var tracks = results.results;
-
-            foreach (var track in tracks)
+            if (results != null)
             {
-                var st = InternalParseTrackResults(track);
-                if (st != null)
+                var tracks = results.results;
+
+                foreach (var track in tracks)
                 {
-                    ret.Add(st);
+                    var st = InternalParseTrackResults(track);
+                    if (st != null)
+                    {
+                        ret.Add(st);
+                    }
                 }
             }
 
