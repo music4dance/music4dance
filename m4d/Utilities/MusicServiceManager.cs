@@ -54,14 +54,9 @@ namespace m4d.Utilities
             return changed;
         }
 
-        // TODONEXT: make this take a flag for recording failure, then
-        //  create a batch process to run through a list of songs
-        //  and do an update (with failure tracking) of all songs not
-        //  already found for a service
         public async Task<bool> UpdateSongAndService(
             DanceMusicCoreService dms, Song sd, MusicService service)
         {
-
             var tracks = MatchSongAndService(sd, service);
             return await UpdateFromTracks(dms, sd, tracks);
         }

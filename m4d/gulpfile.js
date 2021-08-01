@@ -1,4 +1,4 @@
-﻿/// <binding BeforeBuild='scripts, auth-buttons, bootstrap4, fontawesome' />
+﻿/// <binding BeforeBuild='scripts, auth-buttons, bootstrap4, fontawesome, dances' />
 
 var gulp = require("gulp"),
     cleanCss = require("gulp-clean-css"),
@@ -32,6 +32,12 @@ gulp.task("auth-buttons",
     function() {
         return gulp.src("Styles/auth-buttons/*.*")
             .pipe(gulp.dest("wwwroot/css/"));
+    });
+
+gulp.task("dances",
+    function () {
+        return gulp.src("../DanceLib/*.txt")
+            .pipe(gulp.dest("wwwroot/content/"));
     });
 
 var deps = {

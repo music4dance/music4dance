@@ -1087,25 +1087,30 @@ namespace DanceLibrary
             }
         }
 
+        private static JsonSerializerSettings _settings = new JsonSerializerSettings {
+            NullValueHandling = NullValueHandling.Include,
+            DefaultValueHandling = DefaultValueHandling.Ignore
+        };
+
+        private static List<T> LoadFromJson<T>(string json)
+        {
+            return JsonConvert.DeserializeObject<List<T>>(json, _settings);
+        }
+
+        public static Dances Load(string typesJson, string groupsJson)
+        {
+            return Load(
+                LoadFromJson<DanceType>(typesJson),
+                LoadFromJson<DanceGroup>(groupsJson));
+        }
+
         public static Dances Load(List<DanceType> danceTypes = null,
             List<DanceGroup> danceGroups = null)
         {
             var dances = new Dances();
 
-            var settings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Include,
-                DefaultValueHandling = DefaultValueHandling.Ignore
-            };
-
-            dances.LoadDances(
-                danceTypes ??
-                JsonConvert.DeserializeObject<List<DanceType>>(DanceLibrary.JsonDances, settings));
-            dances.LoadGroups(
-                danceGroups ??
-                JsonConvert.DeserializeObject<List<DanceGroup>>(
-                    DanceLibrary.DanceGroups,
-                    settings));
+            dances.LoadDances(danceTypes ?? LoadFromJson<DanceType>(DanceLibrary.JsonDances));
+            dances.LoadGroups(danceGroups ?? LoadFromJson<DanceGroup>(DanceLibrary.DanceGroups));
 
             return dances;
         }

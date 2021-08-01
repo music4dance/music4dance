@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -104,11 +103,9 @@ namespace m4dModels
             return ret;
         }
 
-        public List<Dance> LoadDances()
+        public async Task<List<Dance>> LoadDances()
         {
-            var dances = Dances.Include(d => d.DanceLinks);
-
-            return dances.ToList();
+            return await Dances.Include(d => d.DanceLinks).ToListAsync();
         }
 
         #region Properties

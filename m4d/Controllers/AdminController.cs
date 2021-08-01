@@ -190,6 +190,21 @@ namespace m4d.Controllers
         }
 
         //
+        // Get: //ClearSongCache
+        [Authorize(Roles = "showDiagnostics")]
+        public async Task<ActionResult> ReloadDances()
+        {
+            ViewBag.Name = "ReloadDances";
+
+            await DanceStatsManager.ReloadDances(Database);
+
+            ViewBag.Success = true;
+            ViewBag.Message = "Dances were loaded";
+
+            return View("Results");
+        }
+
+        //
         // Get: //SetTraceLevel
         [AllowAnonymous]
         public ActionResult SetTraceLevel(int level)
@@ -228,7 +243,7 @@ namespace m4d.Controllers
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Set Search Index: '{id}'");
             SearchService.DefaultId = id;
 
-            DanceStatsManager.LoadFromAzure(Database, id, true);
+            DanceStatsManager.LoadFromAzure(Database, id);
 
             return RedirectToAction("Diagnostics");
         }
@@ -288,7 +303,7 @@ namespace m4d.Controllers
 
                 if (SearchService.GetInfo(idxName).Id == SearchService.GetInfo("default").Id)
                 {
-                    await DanceStatsManager.LoadFromAzure(Database, idxName, true);
+                    await DanceStatsManager.LoadFromAzure(Database, idxName);
                 }
 
                 return CompleteAdminTask(true, $"Index {idxName} loaded with {c} songs");
@@ -768,35 +783,6 @@ namespace m4d.Controllers
             {
                 return FailAdminTask("Failed to backup index", e);
             }
-        }
-
-        //
-        // Get: //DanceStatistics
-        [Authorize(Roles = "showDiagnostics")]
-        public async Task<ActionResult> DanceStatistics(string source = null, bool save = true,
-            bool noDances = false, bool noSongs = false, bool jsFriendly = true)
-        {
-            DanceStatsInstance instance;
-            source = string.IsNullOrWhiteSpace(source) ? null : source;
-            switch (source)
-            {
-                default:
-                    instance = await DanceStatsManager.LoadFromAzure(
-                        Database, source, save, !noDances);
-                    break;
-                case null:
-                    instance = DanceStatsManager.Instance;
-                    break;
-            }
-
-            return new JsonResult(
-                instance.Tree,
-                new JsonSerializerSettings
-                {
-                    NullValueHandling = NullValueHandling.Ignore,
-                    DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate,
-                    ContractResolver = new StatsContractResolver(jsFriendly, noSongs)
-                });
         }
 
         private string EnsureAppData(IWebHostEnvironment environment)

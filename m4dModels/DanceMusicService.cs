@@ -643,7 +643,7 @@ namespace m4dModels
             context.Update(dance);
             await SaveChanges();
 
-            DanceStatsManager.ReloadDances(this);
+            await DanceStatsManager.ReloadDances(this);
             return dance;
         }
 
@@ -2357,7 +2357,7 @@ namespace m4dModels
             }
 
             AdminMonitor.UpdateTask("LoadDances");
-            LoadDances();
+            await LoadDances();
             var modified = false;
             for (var index = 0; index < lines.Count; index++)
             {
@@ -2608,7 +2608,7 @@ namespace m4dModels
         public async Task LoadSongs(IList<string> lines)
         {
             // Load the dance List
-            LoadDances();
+            await LoadDances ();
 
             var c = 0;
             foreach (var line in lines)
@@ -2634,7 +2634,7 @@ namespace m4dModels
 
             // Load the dance List
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Loading Dances");
-            LoadDances();
+            await LoadDances();
 
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Loading Songs");
 
@@ -2706,7 +2706,7 @@ namespace m4dModels
 
             // Load the dance List
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Loading Dances");
-            LoadDances();
+            await LoadDances();
 
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Loading Songs");
 
@@ -2764,9 +2764,9 @@ namespace m4dModels
             }
         }
 
-        private void LoadDances()
+        private async Task LoadDances()
         {
-            Context.LoadDances();
+            await Context.LoadDances();
         }
 
         #endregion

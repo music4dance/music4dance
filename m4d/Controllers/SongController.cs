@@ -1,10 +1,4 @@
-﻿// TODONEXT: Continue to test against async/search udpate.
-//  Fix new bugs:
-//    Ballroom dance tables formatting messed up
-//    Tag/Dance modals from artist page broken
-//  Fix Existing bugs:
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
