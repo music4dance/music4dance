@@ -117,7 +117,6 @@
           :danceRatings="inferredDanceRatings"
           :user="model.userName"
           :filter="model.filter"
-          :editor="editor"
           :edit="edit"
           @dance-vote="onDanceVote($event)"
           @update-song="updateSong"
