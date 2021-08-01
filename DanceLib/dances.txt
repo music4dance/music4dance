@@ -977,7 +977,7 @@
       {
         "Style": "Social",
         "TempoRange": {
-          "Min": 50.0,
+          "Min": 44.0,
           "Max": 56.0
         },
         "Exceptions": []
