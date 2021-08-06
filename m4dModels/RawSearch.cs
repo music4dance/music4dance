@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
 
@@ -86,43 +85,6 @@ namespace m4dModels
             ret.SearchFields.AddRange(fields);
             ret.OrderBy.AddRange(order);
             return ret;
-        }
-
-        public string QueryString()
-        {
-            var sb = new StringBuilder("");
-
-            if (!string.IsNullOrWhiteSpace(SearchText))
-            {
-                sb.Append($"SearchText={SearchText}&");
-            }
-
-            if (!string.IsNullOrWhiteSpace(ODataFilter))
-            {
-                sb.Append($"ODataFilter={ODataFilter}&");
-            }
-
-            if (!string.IsNullOrWhiteSpace(SearchFields))
-            {
-                sb.Append($"SearchFields={SearchFields}&");
-            }
-
-            if (!string.IsNullOrWhiteSpace(Description))
-            {
-                sb.Append($"Description={Description}&");
-            }
-
-            if (IsLucene)
-            {
-                sb.Append("IsLucene=true&");
-            }
-
-            if (CruftFilter != DanceMusicCoreService.CruftFilter.NoCruft)
-            {
-                sb.Append($"CruftFilter={CruftFilter}&");
-            }
-
-            return "?" + sb;
         }
 
         public override string ToString()

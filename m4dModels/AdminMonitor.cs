@@ -5,63 +5,16 @@ namespace m4dModels
 {
     public static class AdminMonitor
     {
-        public static bool StartTask(string name, string phase = null)
-        {
-            lock (Lock)
-            {
-                if (Name != null)
-                {
-                    return false;
-                }
+        private static string _phase;
+        private static int _iteration;
 
-                _stopwatch = Stopwatch.StartNew();
+        private static string _lastTaskName;
+        private static bool _lastTaskCompleted;
+        private static string _lastTaskMessage;
 
-                Name = name;
-                _phase = phase;
-                _iteration = 0;
-                return true;
-            }
-        }
+        private static Stopwatch _stopwatch;
 
-        public static void UpdateTask(string phase, int iteration = 0)
-        {
-            lock (Lock)
-            {
-                _phase = phase;
-                _iteration = iteration;
-            }
-        }
-
-        public static void TryUpdateTask(string phase, int iteration = 0)
-        {
-            lock (Lock)
-            {
-                if (Name == null)
-                {
-                    return;
-                }
-
-                _phase = phase;
-                _iteration = iteration;
-            }
-        }
-
-        public static void CompleteTask(bool completed, string message, Exception exception = null)
-        {
-            lock (Lock)
-            {
-                _stopwatch?.Stop();
-
-                _lastTaskCompleted = completed;
-                _lastTaskName = Name;
-                _lastTaskMessage = message;
-                LastException = exception;
-
-                Name = null;
-                _phase = null;
-                _iteration = 0;
-            }
-        }
+        private static readonly object Lock = new object();
 
         public static bool IsRunning => Name != null;
 
@@ -109,16 +62,49 @@ namespace m4dModels
 
         public static Exception LastException { get; private set; }
 
-        private static string _phase;
-        private static int _iteration;
+        public static bool StartTask(string name, string phase = null)
+        {
+            lock (Lock)
+            {
+                if (Name != null)
+                {
+                    return false;
+                }
 
-        private static string _lastTaskName;
-        private static bool _lastTaskCompleted;
-        private static string _lastTaskMessage;
+                _stopwatch = Stopwatch.StartNew();
 
-        private static Stopwatch _stopwatch;
+                Name = name;
+                _phase = phase;
+                _iteration = 0;
+                return true;
+            }
+        }
 
-        private static readonly object Lock = new object();
+        public static void UpdateTask(string phase, int iteration = 0)
+        {
+            lock (Lock)
+            {
+                _phase = phase;
+                _iteration = iteration;
+            }
+        }
+
+        public static void CompleteTask(bool completed, string message, Exception exception = null)
+        {
+            lock (Lock)
+            {
+                _stopwatch?.Stop();
+
+                _lastTaskCompleted = completed;
+                _lastTaskName = Name;
+                _lastTaskMessage = message;
+                LastException = exception;
+
+                Name = null;
+                _phase = null;
+                _iteration = 0;
+            }
+        }
     }
 
     public class AdminStatus

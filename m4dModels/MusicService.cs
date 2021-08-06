@@ -7,6 +7,25 @@ namespace m4dModels
 {
     public class MusicService
     {
+        #region Constructors
+
+        protected MusicService(
+            ServiceType id, char cid,
+            string name, string target, string description, string link, string searchRequest,
+            string trackRequest = null)
+        {
+            Id = id;
+            CID = cid;
+            Name = name;
+            Target = target;
+            Description = description;
+            AssociateLink = link;
+            SearchRequest = searchRequest;
+            TrackRequest = trackRequest;
+        }
+
+        #endregion
+
         #region Properties
 
         public ServiceType Id { get; }
@@ -20,14 +39,8 @@ namespace m4dModels
         public ApplicationUser ApplicationUser =>
             new ApplicationUser(User, true);
 
-        // This is pretty kludgy but until I implement
-        // a second service that requires a key I don't
-        // want to spend time generalizing
-        public virtual bool RequiresKey => false;
-
         public virtual bool IsSearchable => true;
         public virtual bool ShowInProfile => true;
-        public virtual bool HasRegions => false;
         protected string AssociateLink { get; set; }
         protected string SearchRequest { get; set; }
         protected string TrackRequest { get; set; }
@@ -39,8 +52,7 @@ namespace m4dModels
         public PurchaseLink GetPurchaseLink(PurchaseType pt, string album, string song)
         {
             PurchaseLink ret = null;
-            var id = PurchaseRegion.ParseIdAndRegionInfo(song, out var regions);
-            var link = BuildPurchaseLink(pt, album, id);
+            var link = BuildPurchaseLink(pt, album, song);
 
             if (link != null)
             {
@@ -49,12 +61,11 @@ namespace m4dModels
                     ServiceType = Id,
                     Link = link,
                     AlbumId = album,
-                    SongId = id,
+                    SongId = song,
                     Target = Target,
                     Logo = Name + "-logo.png",
                     Charm = Name + "-charm.png",
                     AltText = Description,
-                    AvailableMarkets = regions
                 };
             }
 
@@ -144,25 +155,6 @@ namespace m4dModels
             Func<string, dynamic> getResult)
         {
             throw new NotImplementedException();
-        }
-
-        #endregion
-
-        #region Constructors
-
-        protected MusicService(
-            ServiceType id, char cid,
-            string name, string target, string description, string link, string searchRequest,
-            string trackRequest = null)
-        {
-            Id = id;
-            CID = cid;
-            Name = name;
-            Target = target;
-            Description = description;
-            AssociateLink = link;
-            SearchRequest = searchRequest;
-            TrackRequest = trackRequest;
         }
 
         #endregion

@@ -21,7 +21,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
-using Newtonsoft.Json;
 
 namespace m4d.Controllers
 {
@@ -621,7 +620,7 @@ namespace m4d.Controllers
 
             var headerList = !string.IsNullOrWhiteSpace(headers)
                 ? Song.BuildHeaderMap(headers, ',')
-                : HeaderFromList(CleanSeparator(separator), lines);
+                : HeaderFromList(lines);
 
             var newSongs = await Song.CreateFromRows(
                 appuser, separator, headerList, lines, Database,
@@ -719,7 +718,7 @@ namespace m4d.Controllers
 
             if (string.IsNullOrEmpty(userName))
             {
-                userName = User.Identity.Name;
+                userName = UserName;
             }
 
             return View(
@@ -1135,13 +1134,8 @@ namespace m4d.Controllers
 
         #region Utilities
 
-        private IList<string> HeaderFromList(string separator, IList<string> songs)
+        private IList<string> HeaderFromList(IList<string> songs)
         {
-            if (separator == null)
-            {
-                throw new ArgumentNullException(nameof(separator));
-            }
-
             if (songs.Count < 2)
             {
                 throw new ArgumentOutOfRangeException(nameof(songs));

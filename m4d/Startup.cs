@@ -156,7 +156,6 @@ namespace m4d
                     });
 
             services.AddAutoMapper(
-                typeof(SongProfile),
                 typeof(SongFilterProfile),
                 typeof(SongPropertyProfile),
                 typeof(TagProfile));

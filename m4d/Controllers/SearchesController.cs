@@ -33,7 +33,7 @@ namespace m4d.Controllers
                 user = null;
             }
 
-            user ??= User.Identity.Name;
+            user ??= UserName;
             IQueryable<Search> searches = Database.Searches.Include(s => s.ApplicationUser);
             if (user != null)
             {

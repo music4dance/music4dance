@@ -19,28 +19,24 @@ namespace m4d.ViewModels
 
         [JsonIgnore]
         public virtual string Parameters => null;
-
-        public string QueryString => Parameters == null ? null : $"filter={Parameters}";
     }
 
     public class DanceClass
     {
-        public string Title;
-        public string Image;
-        public string TopDance;
-
         public List<DanceMapping> Dances;
-
-        public virtual string FullTitle => "Music for " + Title + " Dancers";
+        public string Image;
+        public string Title;
+        public string TopDance;
     }
 
     public class WeddingDanceClass : DanceClass
     {
-        public override string FullTitle => "Music for Wedding Dances";
     }
 
     public class WeddingDanceMapping : DanceMapping
     {
+        private readonly string _tag;
+
         public WeddingDanceMapping(string tag)
         {
             _tag = tag;
@@ -52,7 +48,5 @@ namespace m4d.ViewModels
         public override string Controller => "song";
 
         public override string Parameters => $"Index-.-.-.-.-.-.-.-1-+{_tag}:Other";
-
-        private readonly string _tag;
     }
 }

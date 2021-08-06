@@ -170,7 +170,7 @@ namespace m4d.Controllers
             HelpPage = "subscriptions";
 
             // Do the stripy things
-            var userName = User.Identity.IsAuthenticated ? User.Identity.Name : null;
+            var userName = Identity.IsAuthenticated ? UserName : null;
             var conf = new ShortGuid(Guid.NewGuid()).ToString();
 
             var purchase = new PurchaseModel

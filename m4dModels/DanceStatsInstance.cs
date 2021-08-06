@@ -12,8 +12,9 @@ namespace m4dModels
     [JsonObject(MemberSerialization.OptIn)]
     public class DanceStatsInstance
     {
-        private const string descriptionPlaceholder = 
+        private const string descriptionPlaceholder =
             "We're busy doing research and pulling together a general description for this dance style. Please check back later for more info.";
+
         private readonly Dictionary<Guid, Song> _otherSongs = new Dictionary<Guid, Song>();
         private readonly Dictionary<Guid, Song> _queuedSongs = new Dictionary<Guid, Song>();
 
@@ -73,7 +74,7 @@ namespace m4dModels
                     .Select(p => new PlaylistMetadata { Id = p.Id, Name = p.Name })
                     .ToDictionary(m => m.Name, m => m);
 
-            bool saveChanges = false;
+            var saveChanges = false;
             var newDances = new List<string>();
             foreach (var ds in List)
             {
@@ -133,6 +134,7 @@ namespace m4dModels
                             dance.Description = descriptionPlaceholder;
                         }
                     }
+
                     saveChanges = true;
 
                     newDances.Add(ds.DanceId);
@@ -145,6 +147,7 @@ namespace m4dModels
             {
                 await dms.SaveChanges();
             }
+
             await dms.UpdateIndex(newDances);
         }
 
@@ -311,16 +314,9 @@ namespace m4dModels
             }
         }
 
-        public async Task<Song> FindSongDetails(Guid songId, string userName,
-            DanceMusicCoreService dms)
+        public Song FindSongDetails(Guid songId, DanceMusicCoreService dms)
         {
-            var sd = TopSongs.GetValueOrDefault(songId) ?? _otherSongs.GetValueOrDefault(songId);
-            if (sd == null)
-            {
-                return null;
-            }
-
-            return userName == null ? sd : await Song.Create(sd, dms, userName);
+            return TopSongs.GetValueOrDefault(songId) ?? _otherSongs.GetValueOrDefault(songId);
         }
 
         internal List<DanceType> GetDanceTypes()

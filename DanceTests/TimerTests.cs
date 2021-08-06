@@ -1,8 +1,7 @@
-﻿using DanceLibrary;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
+using DanceLibrary;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DanceTests
 {
@@ -29,7 +28,6 @@ namespace DanceTests
         {
             var st = PrimeTimer();
 
-            var rate = st.Rate;
             var delta = Math.Abs(10M - st.Rate);
 
             Assert.IsTrue(delta < .1M);

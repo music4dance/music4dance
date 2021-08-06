@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace m4dModels
 {
@@ -21,6 +17,48 @@ namespace m4dModels
     // You can add profile data for the user by adding more properties to your ApplicationUser class, please visit http://go.microsoft.com/fwlink/?LinkID=317594 to learn more.
     public sealed class ApplicationUser : IdentityUser
     {
+        public ApplicationUser()
+        {
+            StartDate = DateTime.Now;
+        }
+
+        public ApplicationUser(string userName, bool pseudo = false) : this()
+        {
+            UserName = userName;
+            if (pseudo)
+            {
+                Email = $"{userName}@music4dance.net";
+            }
+        }
+
+        public ApplicationUser(string userName, string email) : this()
+        {
+            UserName = userName;
+            Email = email;
+        }
+
+        public static ApplicationUser AdminUser => new ApplicationUser("admin", true);
+
+        public bool IsPlaceholder => StartDate == DateTime.MinValue;
+
+        public bool IsPseudo =>
+            Email.EndsWith("@music4dance.net", StringComparison.OrdinalIgnoreCase) ||
+            Email.EndsWith("@spotify.com", StringComparison.OrdinalIgnoreCase);
+
+        public bool IsConfirmed => EmailConfirmed && !IsPseudo;
+
+        public string DecoratedName => BuildDecoratedName(UserName, IsPseudo);
+
+        public static string BuildDecoratedName(string userName, bool isPseudo)
+        {
+            return isPseudo ? $"{userName}|P" : userName;
+        }
+
+        public override string ToString()
+        {
+            return $"{UserName}{(IsPlaceholder ? "(P)" : string.Empty)}";
+        }
+
         #region Properties
 
         // Date that the member signed up
@@ -143,61 +181,5 @@ namespace m4dModels
         private const string PrivacyMessage = "{0} allow other members to see my profile and tags.";
 
         #endregion
-
-        public static ApplicationUser AdminUser => new ApplicationUser("admin", true);
-        public ApplicationUser()
-        {
-            StartDate = DateTime.Now;
-        }
-
-        public ApplicationUser(string userName, bool pseudo = false) : this()
-        {
-            UserName = userName;
-            if (pseudo)
-            {
-                Email = $"{userName}@music4dance.net";
-            }
-        }
-
-        public ApplicationUser(string userName, string email) : this()
-        {
-            UserName = userName;
-            Email = email;
-        }
-
-        public bool IsPlaceholder => StartDate == DateTime.MinValue;
-
-        public bool IsPseudo =>
-            Email.EndsWith("@music4dance.net", StringComparison.OrdinalIgnoreCase) ||
-            Email.EndsWith("@spotify.com", StringComparison.OrdinalIgnoreCase);
-
-        public bool IsConfirmed => EmailConfirmed && !IsPseudo;
-
-        public string DecoratedName => BuildDecoratedName(UserName, IsPseudo);
-
-        public static string BuildDecoratedName(string userName, bool isPseudo)
-        {
-            return isPseudo ? $"{userName}|P" : userName;
-        }
-
-        public static string SerializeProviders(IEnumerable<UserLoginInfo> logins)
-        {
-            var sb = new StringBuilder();
-            var sp = string.Empty;
-            foreach (var provider in logins)
-            {
-                var name = provider.LoginProvider;
-                var key = provider.ProviderKey;
-                sb.Append($"{sp}{name}|{key}");
-                sp = "|";
-            }
-
-            return sb.ToString();
-        }
-
-        public override string ToString()
-        {
-            return $"{UserName}{(IsPlaceholder ? "(P)" : string.Empty)}";
-        }
     }
 }

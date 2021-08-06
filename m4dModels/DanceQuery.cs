@@ -50,14 +50,53 @@ namespace m4dModels
 
         public IEnumerable<DanceObject> Dances => DanceLibrary.Dances.Instance.FromIds(DanceIds);
 
-        public bool Advanced => DanceIds.Count() > 1;
-
-        public IEnumerable<string> ExpandedIds => DanceLibrary.Dances.Instance.ExpandMsc(DanceIds);
-
         public bool IsExclusive => (StartsWith(And) || StartsWith(AndX)) &&
             Query.IndexOf(",", 4, StringComparison.Ordinal) != -1;
 
         public bool IncludeInferred => StartsWith(AndX) || StartsWith(OneOfX);
+
+        public string ODataFilter
+        {
+            get
+            {
+                var dances = Dances.ToList();
+                switch (dances.Count)
+                {
+                    case 0:
+                        return null;
+                    case 1:
+                        return $"(DanceTags/any(t: t eq '{dances[0].Name.ToLower()}')" +
+                            (IncludeInferred
+                                ? $" or  DanceTagsInferred/any(t: t eq '{dances[0].Name.ToLower()}')"
+                                : "") + ")";
+                }
+
+                var sb = new StringBuilder();
+                var con = IsExclusive ? "and" : "or";
+
+                foreach (var d in dances)
+                {
+                    if (sb.Length > 0)
+                    {
+                        sb.Append($" {con} ");
+                    }
+
+                    sb.AppendFormat("(DanceTags/any(t: t eq '{0}')", d.Name.ToLower());
+                    if (IncludeInferred)
+                    {
+                        sb.AppendFormat(
+                            " or DanceTagsInferred/any(t: t eq '{0}')",
+                            d.Name.ToLower());
+                    }
+
+                    sb.Append(")");
+                }
+
+                return $"({sb})";
+            }
+        }
+
+        public string ShortDescription => string.Join(", ", Dances.Select(n => n.Name));
 
         public bool HasDance(string id)
         {
@@ -113,47 +152,6 @@ namespace m4dModels
                     RemoveQualifier());
         }
 
-        public string ODataFilter
-        {
-            get
-            {
-                var dances = Dances.ToList();
-                switch (dances.Count)
-                {
-                    case 0:
-                        return null;
-                    case 1:
-                        return $"(DanceTags/any(t: t eq '{dances[0].Name.ToLower()}')" +
-                            (IncludeInferred
-                                ? $" or  DanceTagsInferred/any(t: t eq '{dances[0].Name.ToLower()}')"
-                                : "") + ")";
-                }
-
-                var sb = new StringBuilder();
-                var con = IsExclusive ? "and" : "or";
-
-                foreach (var d in dances)
-                {
-                    if (sb.Length > 0)
-                    {
-                        sb.Append($" {con} ");
-                    }
-
-                    sb.AppendFormat("(DanceTags/any(t: t eq '{0}')", d.Name.ToLower());
-                    if (IncludeInferred)
-                    {
-                        sb.AppendFormat(
-                            " or DanceTagsInferred/any(t: t eq '{0}')",
-                            d.Name.ToLower());
-                    }
-
-                    sb.Append(")");
-                }
-
-                return $"({sb})";
-            }
-        }
-
         public override string ToString()
         {
             var dances = Dances.Select(n => n.Name).ToList();
@@ -188,8 +186,6 @@ namespace m4dModels
                         $"songs danceable to {prefix} of {string.Join(", ", dances)} {connector} {last}{suffix}";
             }
         }
-
-        public string ShortDescription => string.Join(", ", Dances.Select(n => n.Name));
 
         private bool StartsWith(string qualifier)
         {

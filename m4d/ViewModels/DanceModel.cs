@@ -14,11 +14,10 @@ namespace m4d.ViewModels
             DanceId = dance.Id;
             DanceName = dance.Name;
             UserName = userName;
-            Songs = songs.Select(mapper.Map<SongSparse>).ToList();
             Histories = songs.Select(s => s.GetHistory(mapper)).ToList();
             Description = dance.Description;
             Links = ds.DanceLinks;
-            Count = Songs.Count;
+            Count = songs.Count;
             Validate = false;
         }
 

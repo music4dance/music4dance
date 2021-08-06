@@ -12,6 +12,8 @@ namespace m4dModels
     [DataContract]
     public abstract class TaggableObject
     {
+        private static readonly HashSet<string> s_validClasses = new HashSet<string> { "other" };
+
         protected TaggableObject()
         {
             TagSummary = new TagSummary();
@@ -20,13 +22,7 @@ namespace m4dModels
         [DataMember]
         public TagSummary TagSummary { get; set; }
 
-        [DataMember]
-        public TagList CurrentUserTags { get; protected set; }
-
-        public void SetCurrentUserTags(string user, Song song)
-        {
-            CurrentUserTags = GetUserTags(user, song);
-        }
+        protected virtual HashSet<string> ValidClasses => s_validClasses;
 
         // Override this to register changed tags per user for your class (for instance song would push in song properties)
         public virtual void RegisterChangedTags(TagList added, TagList removed, string user,
@@ -135,10 +131,6 @@ namespace m4dModels
 
             return new TagList(result);
         }
-
-        protected virtual HashSet<string> ValidClasses => s_validClasses;
-
-        private static readonly HashSet<string> s_validClasses = new HashSet<string> { "other" };
 
         // Remove any tags from tags that have previously been added by the user and return a list
         //  of the actually removed tags in canonical form

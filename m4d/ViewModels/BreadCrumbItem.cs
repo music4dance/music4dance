@@ -15,57 +15,52 @@ namespace m4d.ViewModels
         public static BreadCrumbItem InfoItem =>
             new() { Title = "Info", Link = "/home/info" };
 
+        public static BreadCrumbItem SongLibraryItem =>
+            new() { Title = "Song Library", Link = "/home/song" };
+
+        public static BreadCrumbItem AdminItem =>
+            new() { Title = "Administration", Link = "/admin" };
+
+        public static BreadCrumbItem DanceItem =>
+            new() { Title = "Dances", Link = "/dances" };
+
+        public static BreadCrumbItem ContributeItem =>
+            new() { Title = "Contribute", Link = "/Home/Contribute" };
+
+        public static BreadCrumbItem UsersItem =>
+            new() { Title = "Users", Link = "/ApplicationUsers" };
+
+        public static BreadCrumbItem PlaylistItem =>
+            new() { Title = "Users", Link = "/Playlist" };
+
         public static List<BreadCrumbItem> BuildInfoTrail(string title)
         {
             return BuildTrail(title, HomeItem, InfoItem);
         }
-
-        public static BreadCrumbItem SongLibraryItem =>
-            new() { Title = "Song Library", Link = "/home/song" };
 
         public static List<BreadCrumbItem> BuildSongLibraryTrail(string title)
         {
             return BuildTrail(title, HomeItem, SongLibraryItem);
         }
 
-        public static BreadCrumbItem AdminItem =>
-            new() { Title = "Administration", Link = "/admin" };
-
         public static List<BreadCrumbItem> BuildAdminTrail(string title)
         {
             return BuildTrail(title, HomeItem, AdminItem);
         }
-
-        public static BreadCrumbItem DanceItem =>
-            new() { Title = "Dances", Link = "/dances" };
 
         public static List<BreadCrumbItem> BuildDanceTrail(string title)
         {
             return BuildTrail(title, HomeItem, DanceItem);
         }
 
-        public static BreadCrumbItem ContributeItem =>
-            new() { Title = "Contribute", Link = "/Home/Contribute" };
-
         public static List<BreadCrumbItem> BuildContributeTrail(string title)
         {
             return BuildTrail(title, HomeItem, InfoItem, ContributeItem);
         }
 
-        public static BreadCrumbItem UsersItem =>
-            new() { Title = "Users", Link = "/ApplicationUsers" };
-
         public static List<BreadCrumbItem> BuildUsersTrail(string title)
         {
             return BuildTrail(title, HomeItem, AdminItem, UsersItem);
-        }
-
-        public static BreadCrumbItem PlaylistItem =>
-            new() { Title = "Users", Link = "/Playlist" };
-
-        public static List<BreadCrumbItem> BuildPlaylistTrail(string title)
-        {
-            return BuildTrail(title, HomeItem, AdminItem, PlaylistItem);
         }
 
         private static List<BreadCrumbItem> BuildTrail(string title, params BreadCrumbItem[] items)

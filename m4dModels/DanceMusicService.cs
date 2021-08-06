@@ -212,7 +212,7 @@ namespace m4dModels
                 song.Create(sd, tags, user, command, value, DanceStats);
             }
 
-            return await Song.Create(song, this, user.UserName);
+            return await Song.Create(song, this);
         }
 
         public async Task<bool> CreateSong(ICollection<SongProperty> properties)
@@ -245,9 +245,9 @@ namespace m4dModels
 
 
         public async Task<List<Song>> CreateSongs(
-            IEnumerable<SearchResult<SearchDocument>> documents, string user = null)
+            IEnumerable<SearchResult<SearchDocument>> documents)
         {
-            return await CreateSongs(documents, d => Song.Create(d.Document, this, user));
+            return await CreateSongs(documents, d => Song.Create(d.Document, this));
         }
 
         public async Task<List<Song>> CreateSongs(
@@ -671,7 +671,7 @@ namespace m4dModels
 
         private async Task<Song> InternalFindSong(Guid id, string userName, SearchClient client)
         {
-            var sd = await DanceStats.FindSongDetails(id, userName, this);
+            var sd = DanceStats.FindSongDetails(id, this);
             if (sd != null)
             {
                 return sd;
@@ -700,10 +700,9 @@ namespace m4dModels
         }
 
         protected async Task<IEnumerable<Song>> SongsFromAzureResult(
-            SearchResults<SearchDocument> result,
-            string user = null)
+            SearchResults<SearchDocument> result)
         {
-            return await CreateSongs(result.GetResults(), user);
+            return await CreateSongs(result.GetResults());
         }
 
         protected async Task<IEnumerable<Song>> FindUserSongs(string user, bool includeHate = false,
@@ -721,10 +720,6 @@ namespace m4dModels
             afilter.Size = max;
             afilter.IncludeTotalCount = false;
 
-            var results = new List<Song>();
-
-            var info = SearchService.GetInfo(id);
-
             var searchClient = CreateSearchClient(id);
             var response = await DoSearch(
                 null, afilter, CruftFilter.AllCruft, searchClient);
@@ -732,14 +727,13 @@ namespace m4dModels
             return await SongsFromAzureResult(response);
         }
 
-        public async Task<Song> FindMergedSong(Guid id, string userName,
-            SearchClient client = null)
+        public async Task<Song> FindMergedSong(Guid id)
         {
             var response = await DoSearch(
                 null,
                 new SearchOptions { Filter = $"(AlternateIds/any(t: t eq '{id}'))" },
-                CruftFilter.AllCruft, client);
-            var songs = await CreateSongs(response.GetResults(), userName);
+                CruftFilter.AllCruft);
+            var songs = await CreateSongs(response.GetResults());
             return songs.FirstOrDefault(s => !s.IsNull);
         }
 
@@ -1025,33 +1019,6 @@ namespace m4dModels
             return links;
         }
 
-        public async Task<ICollection<ICollection<PurchaseLink>>> GetPurchaseLinks(
-            ServiceType serviceType,
-            IEnumerable<Guid> songIds, string region = null)
-        {
-            return GetPurchaseLinks(serviceType, await FindSongs(songIds), region);
-        }
-
-        public string GetPurchaseInfo(ServiceType serviceType, IEnumerable<Song> songs,
-            string region)
-        {
-            var songLinks = GetPurchaseLinks(serviceType, songs, region);
-            return PurchaseLinksToInfo(songLinks, region);
-        }
-
-        public static string PurchaseLinksToInfo(ICollection<ICollection<PurchaseLink>> songLinks,
-            string region)
-        {
-            var results = (from links in songLinks
-                select links.SingleOrDefault(
-                    l =>
-                        l.AvailableMarkets == null || l.AvailableMarkets.Contains(region))
-                into link
-                where link != null
-                select link.SongId).ToList();
-            return string.Join(",", results);
-        }
-
         public async Task<Song> GetSongFromService(MusicService service, string id,
             string userName = null, SearchClient client = null)
         {
@@ -1065,7 +1032,7 @@ namespace m4dModels
             parameters.SearchFields.Add(Song.ServiceIds);
             var results = await DoSearch(sid, parameters, CruftFilter.AllCruft, client);
             var r = results.GetResults().FirstOrDefault();
-            return r == null ? null : await Song.Create(r.Document, this, userName);
+            return r == null ? null : await Song.Create(r.Document, this);
         }
 
         #endregion
@@ -1337,7 +1304,7 @@ namespace m4dModels
         public async Task CloneIndex(string to, string from = "default")
         {
             AdminMonitor.UpdateTask("StartBackup");
-            var lines = await BackupIndex(@from) as IList<string>;
+            var lines = await BackupIndex(from) as IList<string>;
             AdminMonitor.UpdateTask("StartReset");
             await ResetIndex(to);
             AdminMonitor.UpdateTask("StartUpload");
@@ -1521,7 +1488,7 @@ namespace m4dModels
             string userName = null, string id = "default")
         {
             var response = await DoSearch(search, parameters, cruft, id);
-            var songs = await CreateSongs(response.GetResults(), userName);
+            var songs = await CreateSongs(response.GetResults());
             var pageSize = parameters.Size ?? 25;
             var page = (parameters.Skip ?? 0) / pageSize + 1;
             var facets = response.Facets;
@@ -1622,19 +1589,7 @@ namespace m4dModels
                     continue;
                 }
 
-                var sid = doc.GetString(Song.SongIdField);
-                var length = doc.GetInt64(Song.LengthField);
-                var tempo = doc.GetDouble(Song.TempoField);
-
-                results.Add(
-                    new Song
-                    {
-                        SongId = sid == null ? new Guid() : new Guid(sid),
-                        Title = title,
-                        Artist = doc[Song.ArtistField] as string,
-                        Length = (int?)length,
-                        Tempo = (decimal?)tempo
-                    });
+                results.Add(Song.CreateLightSong(doc));
             }
 
             return results;
@@ -2608,7 +2563,7 @@ namespace m4dModels
         public async Task LoadSongs(IList<string> lines)
         {
             // Load the dance List
-            await LoadDances ();
+            await LoadDances();
 
             var c = 0;
             foreach (var line in lines)

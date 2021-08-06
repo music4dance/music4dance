@@ -45,28 +45,9 @@ namespace DanceLibrary
             Tempo = new Tempo(perUnit, Tempo.TempoType);
         }
 
-        /// <summary>
-        ///     Duration in seconds
-        /// </summary>
-        /// <param name="length"></param>
-        public void SetLength(decimal length)
-        {
-            Duration = length;
-        }
-
         public decimal GetBiasedLength()
         {
             return Duration.LengthIn(DurationKind, Tempo);
-        }
-
-        /// <summary>
-        ///     Set tempo in current TempoType at rate of BPS
-        /// </summary>
-        /// <param name="rate"></param>
-        public void SetBPS(decimal rate)
-        {
-            var tempoBPS = new Tempo(rate, new TempoType(TempoKind.BPS, null));
-            Tempo = tempoBPS.Convert(Tempo.TempoType);
         }
 
         public void Convert(IConversand conversand)

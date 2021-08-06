@@ -382,7 +382,7 @@ namespace m4d.Controllers
                 playlist.Count = count;
                 playlist.Created = DateTime.Now;
                 playlist.Updated = DateTime.Now;
-                playlist.User = User.Identity.Name;
+                playlist.User = UserName;
             }
         }
 
@@ -462,7 +462,7 @@ namespace m4d.Controllers
                 playlist.Count = -1;
                 playlist.Created = DateTime.Now;
                 playlist.Updated = DateTime.Now;
-                playlist.User = User.Identity.Name;
+                playlist.User = UserName;
 
                 if (!exists)
                 {

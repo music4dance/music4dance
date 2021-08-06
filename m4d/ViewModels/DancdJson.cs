@@ -17,12 +17,6 @@ namespace m4d.ViewModels
             SeoName = d.CleanName;
         }
 
-        [SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public DanceJson(DanceSample d) : this(d.DanceType)
-        {
-            TempoDelta = d.TempoDelta;
-        }
-
         public string Id { get; set; }
         public string Name { get; set; }
         public Meter Meter { get; set; }

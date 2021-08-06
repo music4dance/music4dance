@@ -59,6 +59,7 @@ namespace m4d.APIControllers
                     new SongDetailsModel
                     {
                         Created = created,
+                        Title = song.Title,
                         SongHistory = song.GetHistory(_mapper)
                     });
             }

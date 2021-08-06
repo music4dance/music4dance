@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Security.Principal;
 using System.Threading.Tasks;
 using m4d.Utilities;
 using m4dModels;
@@ -54,6 +55,26 @@ namespace m4d.Controllers
 
         public string HelpPage { get; set; }
 
+        protected string UserName => Identity.Name;
+
+        protected IIdentity Identity
+        {
+            get
+            {
+                if (User == null)
+                {
+                    throw new Exception("Attempted access undefined User");
+                }
+
+                if (User.Identity == null)
+                {
+                    throw new Exception("Attempted to access undefined Identity");
+                }
+
+                return User.Identity;
+            }
+        }
+
         public ActionResult ReturnError(
             HttpStatusCode statusCode = HttpStatusCode.InternalServerError, string message = null,
             Exception exception = null)
@@ -90,7 +111,6 @@ namespace m4d.Controllers
         {
             await Database.SaveSong(song);
         }
-
 
         protected async Task<int> CommitCatalog(DanceMusicCoreService dms, Review review,
             ApplicationUser user, string danceIds = null)
@@ -159,15 +179,6 @@ namespace m4d.Controllers
             {
                 AdminMonitor.CompleteTask(false, message, e);
             }
-
-            return View("Results");
-        }
-
-        protected ActionResult RestoreBatch()
-        {
-            ViewBag.Success = false;
-            ViewBag.Message =
-                "This functionality hasn't been re-implemented after the azure-search migration - do we really need it?";
 
             return View("Results");
         }

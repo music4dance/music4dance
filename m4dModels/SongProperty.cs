@@ -9,6 +9,37 @@ namespace m4dModels
 {
     public class SongProperty
     {
+        #region Overrides
+
+        public override string ToString()
+        {
+            var value = Value;
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                value = string.Empty;
+            }
+            else if (string.Equals(BaseName, Song.TempoField))
+            {
+                value = FormatTempo(value);
+            }
+            else
+            {
+                if (value.Contains('='))
+                {
+                    value = value.Replace("=", "\\<EQ>\\");
+                }
+
+                if (value.Contains('\t'))
+                {
+                    value = value.Replace("\t", "\\t");
+                }
+            }
+
+            return $"{Name}={value}";
+        }
+
+        #endregion
+
         // Name Syntax: BaseName[:idx[:qual]]
         // idx is zeros based index for multi-value fields (only album at this point?)
         // qual is a qualifier for purchase type (may generalize?)
@@ -187,37 +218,6 @@ namespace m4dModels
         public string Qualifier => ParseQualifier(Name);
 
         public string DanceQualifier => ParsePart(Name, 1);
-
-        #endregion
-
-        #region Overrides
-
-        public override string ToString()
-        {
-            var value = Value;
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                value = string.Empty;
-            }
-            else if (string.Equals(BaseName, Song.TempoField))
-            {
-                value = FormatTempo(value);
-            }
-            else
-            {
-                if (value.Contains('='))
-                {
-                    value = value.Replace("=", "\\<EQ>\\");
-                }
-
-                if (value.Contains('\t'))
-                {
-                    value = value.Replace("\t", "\\t");
-                }
-            }
-
-            return $"{Name}={value}";
-        }
 
         #endregion
 

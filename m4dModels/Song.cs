@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -147,11 +145,6 @@ namespace m4dModels
                 .LastOrDefault(p => p.Name == name);
         }
 
-        public IEnumerable<SongProperty> PropertiesForUser(string baseName, string userName)
-        {
-            return FilteredProperties(baseName, null, new[] { userName });
-        }
-
         public IEnumerable<SongProperty> FilteredProperties(string baseName,
             IEnumerable<string> excludeUsers = null, IEnumerable<string> includeUsers = null)
         {
@@ -244,7 +237,8 @@ namespace m4dModels
         private bool ServiceFailed(MusicService service)
         {
             var failed = FirstProperty(FailedLookup);
-            return failed != null && failed.Value.Contains(service.CID, StringComparison.OrdinalIgnoreCase);
+            return failed != null && failed.Value.Contains(
+                service.CID, StringComparison.OrdinalIgnoreCase);
         }
 
         #region Constants
@@ -375,34 +369,23 @@ namespace m4dModels
             return song;
         }
 
-        public static async Task<Song> Create(Song song, DanceMusicCoreService database)
-        {
-            return await Create(song.SongId, song.SongProperties, database);
-        }
-
-        public static async Task<Song> Create(Song s, DanceMusicCoreService database,
-            string userName,
-            bool forSerialization = true)
+        public static async Task<Song> Create(Song s, DanceMusicCoreService database)
         {
             var song = new Song();
             await song.Init(
-                s.SongId, SongProperty.Serialize(s.SongProperties, null), database, userName,
-                forSerialization);
+                s.SongId, SongProperty.Serialize(s.SongProperties, null), database);
             return song;
         }
 
         public static async Task<Song> Create(Guid guid, string s, DanceMusicCoreService database,
-            string userName = null,
-            bool forSerialization = true)
+            string userName = null)
         {
             var song = new Song();
-            await song.Init(guid, s, database, userName, forSerialization);
+            await song.Init(guid, s, database);
             return song;
         }
 
-        public static async Task<Song> Create(string s, DanceMusicCoreService database,
-            string userName = null,
-            bool forSerialization = true)
+        public static async Task<Song> Create(string s, DanceMusicCoreService database)
         {
             var ich = TryParseId(s, out var id);
             if (ich > 0)
@@ -415,7 +398,7 @@ namespace m4dModels
             }
 
             var song = new Song();
-            await song.Init(id, s, database, userName, forSerialization);
+            await song.Init(id, s, database);
             return song;
         }
 
@@ -427,8 +410,7 @@ namespace m4dModels
             return song;
         }
 
-        public static async Task<Song> Create(SearchDocument d, DanceMusicCoreService database,
-            string userName = null)
+        public static async Task<Song> Create(SearchDocument d, DanceMusicCoreService database)
         {
             var s = d[PropertiesField] as string;
             var sid = d[SongIdField] as string;
@@ -443,7 +425,7 @@ namespace m4dModels
             }
 
             var song = new Song();
-            await song.Init(id, s, database, userName, true);
+            await song.Init(id, s, database);
             return song;
         }
 
@@ -455,12 +437,10 @@ namespace m4dModels
                 return null;
             }
 
-            var sid = doc[SongIdField] as string;
-            var lobj = doc[LengthField];
-            var length = (long?)lobj;
-            var tobj = doc[TempoField];
-            var tempo = (double?)tobj;
-            var artist = doc[ArtistField] as string;
+            var sid = doc.GetString(SongIdField);
+            var length = doc.GetInt64(LengthField);
+            var tempo = doc.GetDouble(TempoField);
+            var artist = doc.GetString(ArtistField);
 
             var history = new List<SongProperty>
             {
@@ -492,25 +472,12 @@ namespace m4dModels
             };
         }
 
-        private async Task Init(Guid id, string s, DanceMusicCoreService database, string userName,
-            bool forSerialization)
+        private async Task Init(Guid id, string s, DanceMusicCoreService database)
         {
             SongId = id;
             var properties = new List<SongProperty>();
             SongProperty.Load(s, properties);
             await Load(SongId, properties, database);
-
-            if (forSerialization && database != null)
-            {
-                SetupSerialization(userName, database);
-            }
-
-            if (userName == null)
-            {
-                return;
-            }
-
-            _currentUserLike = ModifiedBy.FirstOrDefault(mr => mr.UserName == userName)?.Like;
         }
 
         public Song(string title, string artist, decimal? tempo, int? length,
@@ -632,24 +599,6 @@ namespace m4dModels
         #endregion
 
         #region Serialization
-
-        public void SetupSerialization(string userName, DanceMusicCoreService database)
-        {
-            CurrentUserTags = GetUserTags(userName, this, false, database.DanceStats);
-            _currentUserLike = ModifiedBy.FirstOrDefault(
-                mr => mr.UserName == userName)?.Like;
-            if (DanceRatings == null || DanceRatings.Count == 0)
-            {
-                return;
-            }
-
-            foreach (var dr in _danceRatings)
-            {
-                dr.SetupSerialization(
-                    database.DanceStats,
-                    dr.GetUserTags(userName, this, false, database.DanceStats));
-            }
-        }
 
         /// <summary>
         ///     Serialize the song to a single string
@@ -1417,14 +1366,6 @@ namespace m4dModels
             return sd;
         }
 
-        public string ToJson()
-        {
-            var stream = new MemoryStream();
-            var serializer = new DataContractJsonSerializer(typeof(Song));
-            serializer.WriteObject(stream, this);
-            return Encoding.UTF8.GetString(stream.ToArray());
-        }
-
         protected async Task LoadProperties(ICollection<SongProperty> properties,
             DanceMusicCoreService database)
         {
@@ -1562,14 +1503,6 @@ namespace m4dModels
                 }
             }
 
-            if (stats != null)
-            {
-                foreach (var dr in DanceRatings)
-                {
-                    dr.SetupSerialization(stats);
-                }
-            }
-
             if (deleted)
             {
                 ClearValues();
@@ -1663,16 +1596,6 @@ namespace m4dModels
 
         public int TitleHash => CreateTitleHash(Title);
 
-        [DataMember]
-        public bool? CurrentUserLike
-        {
-            get => _currentUserLike;
-            set => throw new NotImplementedException("Shouldn't hit the setter for this.");
-        }
-
-        private bool? _currentUserLike;
-
-
         public bool TempoConflict(Song s, decimal delta)
         {
             return Tempo.HasValue && s.Tempo.HasValue &&
@@ -1683,10 +1606,6 @@ namespace m4dModels
 
         public bool HasSample => Sample != null && Sample != ".";
         public bool HasEchoNest => Danceability != null && !float.IsNaN(Danceability.Value);
-
-        public TimeSpan ModifiedSpan => DateTime.Now - Modified;
-
-        public TimeSpan CreatedSpan => DateTime.Now - Created;
 
         public IEnumerable<string> GetAltids()
         {
@@ -1969,48 +1888,6 @@ namespace m4dModels
             return false;
         }
 
-        public bool EditDanceLike(ApplicationUser user, bool? like, string danceId,
-            DanceStatsInstance stats)
-        {
-            var r = UserDanceRating(user.UserName, danceId);
-
-            // If the existing like value is in line with the current rating, do nothing
-            if (like.HasValue && (like.Value && r > 0 || !like.Value && r < 0) ||
-                !like.HasValue && r == 0)
-            {
-                return false;
-            }
-
-            CreateEditProperties(user, EditCommand);
-
-            // First, neutralize existing rating
-            var delta = -r;
-            var tagDelta = TagsFromDances(new[] { danceId });
-            var tagNeg = "!" + tagDelta;
-            if (like.HasValue)
-            {
-                // Then, update the value for our current nudge factor in the appropriate direction
-                if (like.Value)
-                {
-                    delta += DanceRatingIncrement;
-                    AddTags(tagDelta, user.UserName, stats, this);
-                    RemoveTags(tagNeg, user.UserName, stats, this);
-                }
-                else
-                {
-                    delta += DanceRatingDecrement;
-                    AddTags(tagNeg, user.UserName, stats, this);
-                    RemoveTags(tagDelta, user.UserName, stats, this);
-                }
-            }
-            else
-            {
-                RemoveTags(tagDelta + "|" + tagNeg, user.UserName, stats, this);
-            }
-
-            UpdateDanceRating(new DanceRatingDelta { DanceId = danceId, Delta = delta }, true);
-            return true;
-        }
 
         public async Task<bool> Update(string user, Song update, DanceMusicCoreService database)
         {
@@ -2401,10 +2278,7 @@ namespace m4dModels
             }
 
             // Handle Timestamps
-            if (!time.HasValue)
-            {
-                time = DateTime.Now;
-            }
+            time ??= DateTime.Now;
 
             Modified = time.Value;
             CreateProperty(TimeField, time.Value.ToString(CultureInfo.InvariantCulture));
@@ -3743,7 +3617,7 @@ namespace m4dModels
         public ICollection<string> GetPurchaseIds(MusicService service)
         {
             return Albums.Select(
-                    album => album.GetPurchaseIdentifier(service.Id, PurchaseType.Song, false))
+                    album => album.GetPurchaseIdentifier(service.Id, PurchaseType.Song))
                 .Where(id => id != null)
                 .ToList();
         }
@@ -3759,7 +3633,7 @@ namespace m4dModels
             string ret = null;
             foreach (var album in Albums)
             {
-                ret = album.GetPurchaseIdentifier(service, PurchaseType.Song, false);
+                ret = album.GetPurchaseIdentifier(service, PurchaseType.Song);
                 if (ret != null)
                 {
                     break;
@@ -4872,21 +4746,12 @@ namespace m4dModels
             return Dances.Instance.FromNames(tags.Filter("Dance").StripType()).ToList();
         }
 
-        public static void AddProperty(IList<SongProperty> properties, string baseName,
+        public void AddProperty(string baseName,
             object value = null, int index = -1, string qual = null)
         {
             if (value != null)
             {
-                properties.Add(SongProperty.Create(baseName, value.ToString(), index, qual));
-            }
-        }
-
-        public static void AddProperty(IList<SongProperty> properties, string baseName,
-            string value, int index = -1, string qual = null)
-        {
-            if (!string.IsNullOrWhiteSpace(value))
-            {
-                properties.Add(SongProperty.Create(baseName, value, index, qual));
+                SongProperties.Add(SongProperty.Create(baseName, value.ToString(), index, qual));
             }
         }
 
@@ -5050,7 +4915,7 @@ namespace m4dModels
             {
                 if (ret.Length > 2)
                 {
-                    var ch = ret[ret.Length - 3];
+                    var ch = ret[^3];
                     if (ch != 'A' && ch != 'E' && ch != 'I' && ch != 'O' && ch != 'U')
                     {
                         truncate = 2;

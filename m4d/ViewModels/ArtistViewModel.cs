@@ -23,7 +23,6 @@ namespace m4d.ViewModels
                 Artist = name,
                 UserName = user,
                 Filter = mapper.Map<SongFilterSparse>(new SongFilter { Action = "Artist" }),
-                Songs = list.Select(mapper.Map<SongSparse>).ToList(),
                 Histories = list.Select(s => s.GetHistory(mapper)).ToList()
             };
         }

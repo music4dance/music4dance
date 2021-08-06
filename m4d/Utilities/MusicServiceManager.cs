@@ -295,25 +295,6 @@ namespace m4d.Utilities
             }
         }
 
-        public IList<ServiceTrack> FindMusicServiceSong(Song song, MusicService service,
-            bool clean, string title, string artist)
-        {
-            IList<ServiceTrack> tracks = null;
-            try
-            {
-                FixupTitleArtist(song, clean, ref title, ref artist);
-                tracks = FindMusicServiceSong(song, service, title, artist);
-            }
-            catch (WebException we)
-            {
-                Trace.WriteLineIf(
-                    TraceLevels.General.TraceError,
-                    $"Failed '{we.Message}' on Song '{song}");
-            }
-
-            return tracks;
-        }
-
         public static string DefaultServiceSearch(Song song, bool clean)
         {
             if (clean)
@@ -322,16 +303,6 @@ namespace m4d.Utilities
             }
 
             return song.Title + " " + song.Artist;
-        }
-
-        public static void FixupTitleArtist(Song song, bool clean,
-            ref string title, ref string artist)
-        {
-            if (song != null && artist == null && title == null)
-            {
-                artist = clean ? song.CleanArtist : song.Artist;
-                title = clean ? song.CleanTitle : song.Title;
-            }
         }
 
         #region Search
@@ -460,6 +431,7 @@ namespace m4d.Utilities
             {
                 return null;
             }
+
             var name = results.name;
             var description = results.description;
 
@@ -577,8 +549,7 @@ namespace m4d.Utilities
             EchoTrack track = null;
             foreach (var id in ids)
             {
-                var idt = PurchaseRegion.ParseId(id);
-                track = LookupEchoTrack(idt, service);
+                track = LookupEchoTrack(id, service);
                 if (track != null)
                 {
                     break;
@@ -646,8 +617,7 @@ namespace m4d.Utilities
             var user = await dms.FindUser("batch-s");
             foreach (var id in ids)
             {
-                var idt = PurchaseRegion.ParseId(id);
-                track = GetMusicServiceTrack(idt, spotify);
+                track = GetMusicServiceTrack(id, spotify);
                 if (track?.SampleUrl != null)
                 {
                     break;
@@ -807,7 +777,8 @@ namespace m4d.Utilities
             }
             catch (Exception e)
             {
-                Trace.TraceWarning($"Hard failure searching for {title} by {artist} on {service.Name}: {e.Message}");
+                Trace.TraceWarning(
+                    $"Hard failure searching for {title} by {artist} on {service.Name}: {e.Message}");
                 return new List<ServiceTrack>();
             }
         }
@@ -923,7 +894,8 @@ namespace m4d.Utilities
 
                             _pauseITunes = DateTime.Now;
 
-                            var message = $"Exceeded Itunes Limits @{_pauseITunes}: Pausing {req.Address}";
+                            var message =
+                                $"Exceeded Itunes Limits @{_pauseITunes}: Pausing {req.Address}";
                             Trace.WriteLineIf(TraceLevels.General.TraceInfo, message);
 
                             throw new AbortBatchException(message, we);
@@ -938,11 +910,11 @@ namespace m4d.Utilities
                     responseString = service.PreprocessResponse(responseString);
                     if (service.Id == ServiceType.ITunes)
                     {
-                        _iTunes += 1;
+                        iTunesCalls += 1;
                     }
                     else if (service.Id == ServiceType.Spotify)
                     {
-                        _spotify += 1;
+                        spotifyCalls += 1;
                     }
                 }
 
@@ -971,22 +943,20 @@ namespace m4d.Utilities
                 return false;
             }
 
-            _skipped += 1;
+            Skipped += 1;
             return true;
         }
 
         public static bool Paused => _pauseITunes != DateTime.MinValue && !PauseExpired;
 
-        public static int iTunesCalls => _iTunes;
-        public static int spotifyCalls => _spotify;
+        public static int iTunesCalls { get; private set; }
+
+        public static int spotifyCalls { get; private set; }
 
         private static bool PauseExpired => _pauseITunes.AddMinutes(15) < DateTime.Now;
         private static DateTime _pauseITunes = DateTime.MinValue;
-        private static int _skipped = 0;
-        private static int _iTunes = 0;
-        private static int _spotify = 0;
 
-        public static int Skipped => _skipped;
+        public static int Skipped { get; private set; }
 
         // TODO Handle services other than spotify.
         // This method requires a valid principal

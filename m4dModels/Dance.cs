@@ -17,12 +17,29 @@ namespace m4dModels
 
     public class Dance : DanceCore
     {
+        private static readonly Regex Dex = new Regex(
+            @"\[(?<dance>[^\]]*)\]",
+            RegexOptions.Compiled);
+
+        public static readonly string[] Categories =
+        {
+            "International Standard", "International Latin", "American Smooth", "American Rhythm"
+        };
+
+        private static readonly Dictionary<string, string> Links = new Dictionary<string, string>
+        {
+            { "swing music", "http://en.wikipedia.org/wiki/Swing_music" },
+            { "tango music", "http://en.wikipedia.org/wiki/Tango" }
+        };
+
+        private DanceObject _info;
         public DateTime Modified { get; set; }
 
-        public string SmartLinks()
-        {
-            return SmartLinks(Description);
-        }
+        public DanceObject Info => _info ??= DanceLibrary.DanceFromId(Id);
+
+        public string Name => Info.Name;
+
+        public static Dances DanceLibrary { get; } = Dances.Instance;
 
         public static string SmartLinks(string s)
         {
@@ -34,10 +51,6 @@ namespace m4dModels
 
             return LinkDances(s);
         }
-
-        private static readonly Regex Dex = new Regex(
-            @"\[(?<dance>[^\]]*)\]",
-            RegexOptions.Compiled);
 
         private static string LinkDances(string s)
         {
@@ -134,17 +147,6 @@ namespace m4dModels
             return null;
         }
 
-        public static readonly string[] Categories =
-        {
-            "International Standard", "International Latin", "American Smooth", "American Rhythm"
-        };
-
-        private static readonly Dictionary<string, string> Links = new Dictionary<string, string>()
-        {
-            { "swing music", "http://en.wikipedia.org/wiki/Swing_music" },
-            { "tango music", "http://en.wikipedia.org/wiki/Tango" }
-        };
-
         public bool Update(IList<string> cells)
         {
             var modified = false;
@@ -212,10 +214,6 @@ namespace m4dModels
             return modified;
         }
 
-        public DanceObject Info => _info ??= DanceLibrary.DanceFromId(Id);
-
-        public string Name => Info.Name;
-
         public string Serialize()
         {
             var id = Id;
@@ -234,9 +232,5 @@ namespace m4dModels
 
             return sb.ToString();
         }
-
-        private DanceObject _info;
-
-        public static Dances DanceLibrary { get; } = Dances.Instance;
     }
 }

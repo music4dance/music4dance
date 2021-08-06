@@ -3,15 +3,17 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using AutoMapper.Mappers;
 using Microsoft.CSharp.RuntimeBinder;
-using Exception = System.Exception;
 
 namespace m4dModels
 {
     internal class SpotifyService : MusicService
     {
+        private static readonly Dictionary<string, dynamic> s_results =
+            new Dictionary<string, dynamic>();
+
+        private static readonly TextInfo s_textInfo = CultureInfo.CurrentCulture.TextInfo;
+
         public SpotifyService() :
             base(
                 ServiceType.Spotify,
@@ -24,8 +26,6 @@ namespace m4dModels
                 "https://api.spotify.com/v1/tracks/{0}")
         {
         }
-
-        public override bool HasRegions => true;
 
         public override string BuildLookupRequest(string url)
         {
@@ -291,10 +291,5 @@ namespace m4dModels
                 .Replace(" And ", " and ")
                 .Replace(" Or ", " or ");
         }
-
-        private static readonly Dictionary<string, dynamic> s_results =
-            new Dictionary<string, dynamic>();
-
-        private static readonly TextInfo s_textInfo = CultureInfo.CurrentCulture.TextInfo;
     }
 }

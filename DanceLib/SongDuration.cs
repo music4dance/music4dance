@@ -88,7 +88,6 @@ namespace DanceLibrary
             var imin = s.IndexOf('m');
             var isec = s.IndexOf('s');
 
-            var shour = string.Empty;
             var smin = string.Empty;
             var ssec = string.Empty;
 
@@ -100,7 +99,6 @@ namespace DanceLibrary
 
                     if (parts.Length >= 3)
                     {
-                        shour = parts[0];
                         smin = parts[1];
                         ssec = parts[2];
                     }
@@ -172,10 +170,6 @@ namespace DanceLibrary
         public int Minutes => (int)(Length / 60);
 
         public int Seconds => (int)(Length - 60 * Minutes);
-
-        public string Name => Format(DurationFormat.Long);
-
-        public string ShortName => Format(DurationFormat.Short);
 
         #endregion
 

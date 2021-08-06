@@ -95,16 +95,13 @@ namespace m4dModels
         }
 
         public TrackNumber TrackNumber => new TrackNumber(Track ?? 0);
-        public AlbumTrack AlbumTrack => new AlbumTrack(Name, TrackNumber);
-
-        public string FormattedTrack => Track.HasValue ? TrackNumber.Format("F") : string.Empty;
 
         #endregion
 
         #region Purchase Serialization
 
         /// <summary>
-        /// Formatted purchase info
+        ///     Formatted purchase info
         /// </summary>
         /// <returns></returns>
         public IList<string> GetPurchaseInfo(bool compact = false)
@@ -250,9 +247,7 @@ namespace m4dModels
         public IList<string> GetExtendedPurchaseIds(PurchaseType pt)
         {
             return (from service in MusicService.GetSearchableServices()
-                let id = GetPurchaseIdentifier(service.Id, pt)
-                where id != null
-                select $"{service.CID}:{PurchaseRegion.ParseIdAndRegionInfo(id, out _)}").ToList();
+                select $"{service.CID}:{service.Id}").ToList();
         }
 
         public PurchaseLink GetPurchaseLink(ServiceType ms, PurchaseType pt, string region = null)
@@ -277,8 +272,7 @@ namespace m4dModels
                     : link;
         }
 
-        public string GetPurchaseIdentifier(ServiceType ms, PurchaseType pt,
-            bool includeRegion = true)
+        public string GetPurchaseIdentifier(ServiceType ms, PurchaseType pt)
         {
             // Short-circuit if there is no purchase info for this album
             if (Purchase == null)
@@ -293,7 +287,7 @@ namespace m4dModels
                 return null;
             }
 
-            return includeRegion ? value : PurchaseRegion.ParseIdAndRegionInfo(value, out _);
+            return value;
         }
 
         public bool PurchaseDiff(Song song, AlbumDetails old)

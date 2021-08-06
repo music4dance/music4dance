@@ -45,7 +45,7 @@ namespace m4d.Controllers
 
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
-            var user = User.Identity.Name;
+            var user = UserName;
             filterContext.ActionArguments.TryGetValue("filter", out var o);
             if (o == null)
             {
@@ -150,9 +150,9 @@ namespace m4d.Controllers
                 filter.Page = page;
             }
 
-            if (User.Identity.IsAuthenticated && filter.IsEmpty)
+            if (Identity.IsAuthenticated && filter.IsEmpty)
             {
-                filter.User = new UserQuery(User.Identity.Name, false, false).Query;
+                filter.User = new UserQuery(UserName, false, false).Query;
             }
 
             return await DoAzureSearch(filter, true);
@@ -178,15 +178,13 @@ namespace m4d.Controllers
                     playListId = playlist?.Id;
                 }
 
-                var songs = results.Songs.Select(s => _mapper.Map<SongSparse>(s)).ToList();
                 var histories = results.Songs.Select(s => s.GetHistory(_mapper)).ToList();
                 return View(
                     filter.Action, new HolidaySongListModel
                     {
-                        Songs = songs,
                         Histories = histories,
                         Filter = _mapper.Map<SongFilterSparse>(filter),
-                        UserName = User.Identity.Name,
+                        UserName = UserName,
                         Count = (int)results.TotalCount,
                         Dance = dance,
                         PlayListId = playListId,
@@ -205,9 +203,9 @@ namespace m4d.Controllers
             int page = 1,
             string dances = null)
         {
-            if (User.Identity.IsAuthenticated && filter.IsEmpty)
+            if (Identity.IsAuthenticated && filter.IsEmpty)
             {
-                filter.User = new UserQuery(User.Identity.Name, false, false).Query;
+                filter.User = new UserQuery(UserName, false, false).Query;
             }
 
             if (string.IsNullOrWhiteSpace(dances))
@@ -266,13 +264,12 @@ namespace m4d.Controllers
         private ActionResult FormatSongList(IReadOnlyCollection<Song> songs,
             int? totalSongs, SongFilter filter, bool? hideSort = null)
         {
-            var user = User.Identity.Name;
+            var user = UserName;
             if (user != null)
             {
                 filter.Anonymize(user);
             }
 
-            var sparse = songs.Select(s => _mapper.Map<SongSparse>(s)).ToList();
             var histories = songs.Select(s => s.GetHistory(_mapper)).ToList();
             var action = filter.Action;
             return View(
@@ -283,7 +280,6 @@ namespace m4d.Controllers
                     : filter.Action,
                 new SongListModel
                 {
-                    Songs = sparse,
                     Histories = histories,
                     Filter = _mapper.Map<SongFilterSparse>(filter),
                     UserName = user,
@@ -325,9 +321,9 @@ namespace m4d.Controllers
             var userQuery = filter.UserQuery;
             if (!userQuery.IsEmpty && userQuery.IsAnonymous)
             {
-                if (User.Identity.IsAuthenticated)
+                if (Identity.IsAuthenticated)
                 {
-                    var userName = User.Identity.Name;
+                    var userName = UserName;
                     filter.User = new UserQuery(userQuery, userName).Query;
                 }
                 else
@@ -341,7 +337,7 @@ namespace m4d.Controllers
 
             return await Database.Search(
                 filter.SearchString, p, filter.CruftFilter,
-                User.Identity.Name);
+                UserName);
         }
 
         //
@@ -584,9 +580,9 @@ namespace m4d.Controllers
                 filter.Page = page;
             }
 
-            if (User.Identity.IsAuthenticated && filter.IsEmpty)
+            if (Identity.IsAuthenticated && filter.IsEmpty)
             {
-                filter.User = new UserQuery(User.Identity.Name, false, false).Query;
+                filter.User = new UserQuery(UserName, false, false).Query;
             }
 
             if (!string.IsNullOrWhiteSpace(purchase))
@@ -663,10 +659,10 @@ namespace m4d.Controllers
             }
 
             var gid = id ?? Guid.Empty;
-            var song = id.HasValue ? await Database.FindSong(id.Value, User.Identity.Name) : null;
+            var song = id.HasValue ? await Database.FindSong(id.Value, UserName) : null;
             if (song == null)
             {
-                song = await Database.FindMergedSong(gid, User.Identity.Name);
+                song = await Database.FindMergedSong(gid);
                 return song != null
                     ? RedirectToActionPermanent(
                         "details",
@@ -684,10 +680,10 @@ namespace m4d.Controllers
         {
             return new()
             {
+                Title = song.Title,
                 SongHistory = song.GetHistory(_mapper),
                 Filter = _mapper.Map<SongFilterSparse>(filter),
-                UserName = User.Identity.Name,
-                Song = _mapper.Map<SongSparse>(song)
+                UserName = UserName,
             };
         }
 
@@ -703,7 +699,7 @@ namespace m4d.Controllers
             if (!string.IsNullOrWhiteSpace(title))
             {
                 var model = await AlbumViewModel.Create(
-                    title, User.Identity.Name, _mapper, DefaultCruftFilter(), Database);
+                    title, UserName, _mapper, DefaultCruftFilter(), Database);
                 return View("Album", model);
             }
 
@@ -723,7 +719,7 @@ namespace m4d.Controllers
             if (!string.IsNullOrWhiteSpace(name))
             {
                 var model = await ArtistViewModel.Create(
-                    name, User.Identity.Name, _mapper, DefaultCruftFilter(), Database);
+                    name, UserName, _mapper, DefaultCruftFilter(), Database);
                 return View("Artist", model);
             }
 
@@ -815,7 +811,7 @@ namespace m4d.Controllers
             int max = 1000)
         {
             Debug.Assert(User.Identity != null, "User.Identity != null");
-            var applicationUser = await Database.FindUser(user ?? User.Identity.Name);
+            var applicationUser = await Database.FindUser(user ?? UserName);
             return BatchAdminExecute(
                 filter, (dms, song) =>
                     dms.AdminAppendSong(song, applicationUser, properties), "BatchAdminEdit", max);
@@ -1200,8 +1196,10 @@ namespace m4d.Controllers
             var musicServiceManager = MusicServiceManager;
             return BatchProcess(
                 filter,
-                async (dms, song) => (await musicServiceManager.
-                    ConditionalUpdateSongAndService(dms, song, service)) ? song : null);
+                async (dms, song) =>
+                    await musicServiceManager.ConditionalUpdateSongAndService(dms, song, service)
+                        ? song
+                        : null);
         }
 
 
@@ -1315,7 +1313,8 @@ namespace m4d.Controllers
                                     }
                                     catch (AbortBatchException e)
                                     {
-                                        Trace.WriteLine($"Aborted Batch Process at {DateTime.Now}: {e.Message}");
+                                        Trace.WriteLine(
+                                            $"Aborted Batch Process at {DateTime.Now}: {e.Message}");
                                         break;
                                     }
                                     catch (Exception e)
@@ -1397,7 +1396,7 @@ namespace m4d.Controllers
 
         private async Task<ActionResult> Delete(IEnumerable<Song> songs, SongFilter filter)
         {
-            var user = await Database.FindUser(User.Identity.Name);
+            var user = await Database.FindUser(UserName);
 
             foreach (var song in songs)
             {
@@ -1412,7 +1411,7 @@ namespace m4d.Controllers
         #region MusicService
 
         private async Task<Song> CleanMusicServiceSong(Song song, DanceMusicCoreService dms,
-            string type = "S", string region = "US")
+            string type = "X")
         {
             var props = new List<SongProperty>(song.SongProperties);
 
@@ -1426,11 +1425,6 @@ namespace m4d.Controllers
             if (type.IndexOf('B') != -1)
             {
                 changed |= await CleanBrokenServices(song, props);
-            }
-
-            if (type.IndexOf('S') != -1)
-            {
-                changed |= CleanSpotify(props);
             }
 
             if (type.IndexOf('A') != -1)
@@ -1466,8 +1460,7 @@ namespace m4d.Controllers
 
             foreach (var prop in SpotifySongProperties(song.SongProperties))
             {
-                var id = PurchaseRegion.ParseIdAndRegionInfo(prop.Value, out _);
-                var track = MusicServiceManager.GetMusicServiceTrack(id, spotify);
+                var track = MusicServiceManager.GetMusicServiceTrack(prop.Value, spotify);
                 if (track.Genres is { Length: > 0 })
                 {
                     tags = tags.Add(
@@ -1481,33 +1474,6 @@ namespace m4d.Controllers
             Trace.Write($"Tags={tags}\r\n");
 
             return song.EditSongTags(spotify.ApplicationUser, tags, dms.DanceStats);
-        }
-
-        private bool CleanSpotify(IEnumerable<SongProperty> props)
-        {
-            var changed = 0;
-            var skipped = 0;
-
-            foreach (var prop in SpotifySongProperties(props))
-            {
-                var id = PurchaseRegion.ParseIdAndRegionInfo(prop.Value, out var regions);
-
-                if (null != regions || prop.Value.EndsWith("[]"))
-                {
-                    prop.Value = id;
-                    changed += 1;
-                }
-                else
-                {
-                    skipped += 1;
-                }
-            }
-
-            Trace.WriteLineIf(
-                TraceLevels.General.TraceInfo,
-                $"Spotify: Changed = {changed}, Skipped = {skipped}");
-
-            return changed > 0;
         }
 
         private IEnumerable<SongProperty> SpotifySongProperties(IEnumerable<SongProperty> props)
@@ -1587,13 +1553,10 @@ namespace m4d.Controllers
             var results = await Database.Search(
                 filter.SearchString, p,
                 filter.CruftFilter,
-                User.Identity.Name);
+                UserName);
 
             switch (type)
             {
-                case "S":
-                    return JsonCamelCase(
-                        results.Songs.Select(s => _mapper.Map<SongSparse>(s)).ToList());
                 case "H":
                     return JsonCamelCase(
                         results.Songs.Select(s => s.GetHistory(_mapper)).ToList());
@@ -1743,7 +1706,7 @@ namespace m4d.Controllers
             int level)
         {
             // Get the logged in user
-            var userName = User.Identity.Name;
+            var userName = UserName;
             var user = await Database.FindUser(userName);
 
             var ret = new List<Song>();
@@ -1818,7 +1781,7 @@ namespace m4d.Controllers
 
         private async Task<ActionResult> CleanupAlbums(IEnumerable<Song> songs)
         {
-            var user = await Database.FindUser(User.Identity.Name);
+            var user = await Database.FindUser(UserName);
             var scanned = 0;
             var changed = 0;
             var albums = 0;

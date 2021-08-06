@@ -82,11 +82,5 @@ namespace m4d.Areas.Identity
                 }
             }
         }
-
-        private static void AddToRole(UserManager<ApplicationUser> userManager,
-            ApplicationUser user, string role)
-        {
-            userManager.AddToRoleAsync(user, role);
-        }
     }
 }

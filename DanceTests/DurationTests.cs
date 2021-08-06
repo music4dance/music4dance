@@ -1,18 +1,23 @@
-﻿using DanceLibrary;
+﻿using System;
+using DanceLibrary;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 
 namespace DanceTests
 {
     [TestClass]
     public class DurationTests
     {
+        private static SongDuration _d1 = new(90);
+        private static SongDuration _d2 = new(180);
+        private static SongDuration _d3 = new(181);
+        private static SongDuration _d4 = new(5, new DurationType(DurationKind.Minute));
+
         [TestMethod]
         public void DurationInvalidConstructorLength()
         {
             try
             {
-                var d = new SongDuration(-1.0M);
+                new SongDuration(-1.0M);
             }
             catch (ArgumentOutOfRangeException)
             {
@@ -27,7 +32,7 @@ namespace DanceTests
         {
             try
             {
-                var d = new SongDuration(1.0M, new DurationType(DurationKind.Measure));
+                new SongDuration(1.0M, new DurationType(DurationKind.Measure));
             }
             catch (ArgumentNullException)
             {
@@ -36,11 +41,6 @@ namespace DanceTests
 
             Assert.Fail();
         }
-
-        private static SongDuration _d1 = new(90);
-        private static SongDuration _d2 = new(180);
-        private static SongDuration _d3 = new(181);
-        private static SongDuration _d4 = new(5, new DurationType(DurationKind.Minute));
 
         [TestMethod]
         public void DurationShortFormats()

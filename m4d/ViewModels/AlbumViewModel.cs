@@ -102,7 +102,6 @@ namespace m4d.ViewModels
                 UserName = user,
                 Artist = uniqueArtist && list.Count > 0 ? list[0].Artist : string.Empty,
                 Filter = mapper.Map<SongFilterSparse>(new SongFilter { Action = "Album" }),
-                Songs = list.Select(mapper.Map<SongSparse>).ToList(),
                 Histories = list.Select(s => s.GetHistory(mapper)).ToList()
             };
         }

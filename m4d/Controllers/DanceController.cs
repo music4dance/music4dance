@@ -37,6 +37,8 @@ namespace m4d.Controllers
 
     public class DanceController : ContentController
     {
+        private readonly IMapper _mapper;
+
         public DanceController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
             IDanceStatsManager danceStatsManager, IConfiguration configuration, IMapper mapper) :
@@ -45,8 +47,6 @@ namespace m4d.Controllers
             _mapper = mapper;
             UseVue = true;
         }
-
-        private readonly IMapper _mapper;
 
         // GET: Dances/{dance}
         [AllowAnonymous]
@@ -107,7 +107,7 @@ namespace m4d.Controllers
                 return View("emptydance", ds);
             }
 
-            return View("details", new DanceModel(dbDance, User.Identity.Name, Database, _mapper));
+            return View("details", new DanceModel(dbDance, UserName, Database, _mapper));
         }
 
         // GET: GroupRedirect/group/dance

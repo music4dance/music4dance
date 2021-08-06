@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 // ReSharper disable NonReadonlyMemberInGetHashCode
@@ -408,7 +408,7 @@ namespace DanceLibrary
         }
 
         /// <summary>
-        /// Does some basic filtering against absolute (non-tempo based) filters
+        ///     Does some basic filtering against absolute (non-tempo based) filters
         ///     If Meter doesn't match, this dance won't work
         ///     If Style doesn't match, we won't get a valid result
         ///     If Orginization/Level/Competitor are null it doesn't make sense, so fail
@@ -559,15 +559,12 @@ namespace DanceLibrary
 
     public class DanceSample : IComparable<DanceSample>
     {
+        private readonly List<DanceInstance> _rgdi = new List<DanceInstance>();
+
         public DanceSample(DanceInstance di, decimal delta)
         {
             _rgdi.Add(di);
             TempoDelta = delta;
-        }
-
-        public void Add(DanceInstance di)
-        {
-            _rgdi.Add(di);
         }
 
         public DanceType DanceType => _rgdi[0].DanceType;
@@ -605,35 +602,23 @@ namespace DanceLibrary
 
         public decimal TempoDeltaPercent { get; set; }
 
-        public string TempoDeltaPercentString
-        {
-            get
-            {
-                if (Math.Abs(TempoDeltaPercent) < .01M)
-                {
-                    return "Exact";
-                }
-
-                return TempoDeltaPercent < 0
-                    ? $"{TempoDeltaPercent:F1}%"
-                    : $"+{TempoDeltaPercent:F1}%";
-            }
-        }
+        public ReadOnlyCollection<DanceInstance> Instances =>
+            new ReadOnlyCollection<DanceInstance>(_rgdi);
 
         public int CompareTo(DanceSample other)
         {
             return Math.Abs(TempoDelta).CompareTo(Math.Abs(other.TempoDelta));
         }
 
-        public ReadOnlyCollection<DanceInstance> Instances =>
-            new ReadOnlyCollection<DanceInstance>(_rgdi);
+        public void Add(DanceInstance di)
+        {
+            _rgdi.Add(di);
+        }
 
         public override string ToString()
         {
             return $"{DanceType.Name}: Style=({Style}), Delta=({TempoDeltaString})";
         }
-
-        private readonly List<DanceInstance> _rgdi = new List<DanceInstance>();
     }
 
     public enum DanceCategoryType
@@ -641,7 +626,7 @@ namespace DanceLibrary
         Both,
         American,
         International
-    };
+    }
 
     public class CompetitionGroup
     {
@@ -666,6 +651,30 @@ namespace DanceLibrary
         public const string Smooth = "American Smooth";
         public const string Rhythm = "American Rhythm";
         public const string Ballroom = "Ballroom";
+
+        private static readonly Dictionary<string, List<CompetitionCategory>> s_mapGroups =
+            new Dictionary<string, List<CompetitionCategory>>();
+
+        private static readonly Dictionary<string, CompetitionCategory> s_mapCategories =
+            new Dictionary<string, CompetitionCategory>();
+
+        private readonly List<DanceInstance> _extra = new List<DanceInstance>();
+
+        private readonly List<DanceInstance> _round = new List<DanceInstance>();
+
+        public string Name { get; private set; }
+        public string Group { get; private set; }
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        public DanceCategoryType CategoryType => Name.StartsWith("International")
+            ? DanceCategoryType.International
+            : DanceCategoryType.American;
+
+        public string CanonicalName => BuildCanonicalName(Name);
+        public string FullRoundName => $"{Name} {(Round.Count == 4 ? "four" : "five")} dance round";
+
+        public IList<DanceInstance> Round => _round;
+        public IList<DanceInstance> Extras => _extra;
 
         internal static void RegisterDanceInstance(DanceInstance dance)
         {
@@ -723,29 +732,6 @@ namespace DanceLibrary
                 : null;
         }
 
-        private static readonly Dictionary<string, List<CompetitionCategory>> s_mapGroups =
-            new Dictionary<string, List<CompetitionCategory>>();
-
-        private static readonly Dictionary<string, CompetitionCategory> s_mapCategories =
-            new Dictionary<string, CompetitionCategory>();
-
-        public string Name { get; private set; }
-        public string Group { get; private set; }
-
-        [JsonConverter(typeof(StringEnumConverter))]
-        public DanceCategoryType CategoryType => Name.StartsWith("International")
-            ? DanceCategoryType.International
-            : DanceCategoryType.American;
-
-        public string CanonicalName => BuildCanonicalName(Name);
-        public string FullRoundName => $"{Name} {(Round.Count == 4 ? "four" : "five")} dance round";
-
-        public IList<DanceInstance> Round => _round;
-        public IList<DanceInstance> Extras => _extra;
-
-        private readonly List<DanceInstance> _round = new List<DanceInstance>();
-        private readonly List<DanceInstance> _extra = new List<DanceInstance>();
-
         public static string BuildCanonicalName(string name)
         {
             return name.ToLowerInvariant().Replace(' ', '-');
@@ -754,9 +740,63 @@ namespace DanceLibrary
 
     public class Dances
     {
+        private static readonly JsonSerializerSettings _settings = new JsonSerializerSettings
+        {
+            NullValueHandling = NullValueHandling.Include,
+            DefaultValueHandling = DefaultValueHandling.Ignore
+        };
+
+        private static Dances s_instance;
+        private readonly List<DanceInstance> _allDanceInstances = new List<DanceInstance>();
+        private readonly List<DanceObject> _allDanceObjects = new List<DanceObject>();
+
+        private readonly Dictionary<string, DanceObject> _danceDictionary =
+            new Dictionary<string, DanceObject>();
+
+        private readonly List<DanceType> _npDanceTypes = new List<DanceType>();
+        private List<DanceGroup> _allDanceGroups = new List<DanceGroup>();
+
+        private List<DanceType> _allDanceTypes = new List<DanceType>();
+
+        public OrgSpec[] Organizations =
+        {
+            new OrgSpec { Name = "All" },
+            new OrgSpec { Name = "DanceSport" },
+            new OrgSpec { Name = "NDCA" },
+            new OrgSpec { Name = "NDCA", Category = "Level", Qualifier = "Silver,Gold" },
+            new OrgSpec { Name = "NDCA", Category = "Level", Qualifier = "Bronze" },
+            new OrgSpec
+                { Name = "NDCA", Category = "Competitor", Qualifier = "Professional,Amateur" },
+            new OrgSpec { Name = "NDCA", Category = "Competitor", Qualifier = "ProAm" }
+        };
+
+        public KeyValuePair<string, string>[] Styles =
+        {
+            new KeyValuePair<string, string>("all", "All Styles"),
+            new KeyValuePair<string, string>("is", "International Standard"),
+            new KeyValuePair<string, string>("il", "International Latin"),
+            new KeyValuePair<string, string>("as", "American Smooth"),
+            new KeyValuePair<string, string>("ar", "American Rhythm"),
+            new KeyValuePair<string, string>("s", "Social")
+            /*new KeyValuePair<string,string>("p","Performance"), Add this back in if we do the work to make performance styles 1st class citazens*/
+        };
+
         private Dances()
         {
         }
+
+
+        public IEnumerable<DanceInstance> AllDanceInstances => _allDanceInstances;
+
+        public IEnumerable<DanceObject> AllDances => _allDanceObjects;
+
+        public IEnumerable<DanceType> AllDanceTypes => _allDanceTypes;
+
+        public IEnumerable<DanceType> NonPerformanceDanceTypes => _npDanceTypes;
+
+        public IEnumerable<DanceGroup> AllDanceGroups => _allDanceGroups;
+
+        public static Dances Instance => s_instance ?? (s_instance = Load());
 
         private void LoadDances(List<DanceType> danceTypes)
         {
@@ -802,17 +842,6 @@ namespace DanceLibrary
             }
         }
 
-
-        public IEnumerable<DanceInstance> AllDanceInstances => _allDanceInstances;
-
-        public IEnumerable<DanceObject> AllDances => _allDanceObjects;
-
-        public IEnumerable<DanceType> AllDanceTypes => _allDanceTypes;
-
-        public IEnumerable<DanceType> NonPerformanceDanceTypes => _npDanceTypes;
-
-        public IEnumerable<DanceGroup> AllDanceGroups => _allDanceGroups;
-
         public DanceObject DanceFromName(string name)
         {
             if (string.IsNullOrEmpty(name))
@@ -835,29 +864,6 @@ namespace DanceLibrary
             return _danceDictionary.TryGetValue(id.ToUpper(), out var ret) ? ret : null;
         }
 
-        public OrgSpec[] Organizations =
-        {
-            new OrgSpec { Name = "All" },
-            new OrgSpec { Name = "DanceSport" },
-            new OrgSpec { Name = "NDCA" },
-            new OrgSpec { Name = "NDCA", Category = "Level", Qualifier = "Silver,Gold" },
-            new OrgSpec { Name = "NDCA", Category = "Level", Qualifier = "Bronze" },
-            new OrgSpec
-                { Name = "NDCA", Category = "Competitor", Qualifier = "Professional,Amateur" },
-            new OrgSpec { Name = "NDCA", Category = "Competitor", Qualifier = "ProAm" }
-        };
-
-        public KeyValuePair<string, string>[] Styles =
-        {
-            new KeyValuePair<string, string>("all", "All Styles"),
-            new KeyValuePair<string, string>("is", "International Standard"),
-            new KeyValuePair<string, string>("il", "International Latin"),
-            new KeyValuePair<string, string>("as", "American Smooth"),
-            new KeyValuePair<string, string>("ar", "American Rhythm"),
-            new KeyValuePair<string, string>("s", "Social")
-            /*new KeyValuePair<string,string>("p","Performance"), Add this back in if we do the work to make performance styles 1st class citazens*/
-        };
-
         public string GetJSON()
         {
             var settings = new JsonSerializerSettings
@@ -870,16 +876,6 @@ namespace DanceLibrary
 
             return json;
         }
-
-        private List<DanceType> _allDanceTypes = new List<DanceType>();
-        private readonly List<DanceInstance> _allDanceInstances = new List<DanceInstance>();
-        private List<DanceGroup> _allDanceGroups = new List<DanceGroup>();
-        private readonly List<DanceObject> _allDanceObjects = new List<DanceObject>();
-
-        private readonly Dictionary<string, DanceObject> _danceDictionary =
-            new Dictionary<string, DanceObject>();
-
-        private readonly List<DanceType> _npDanceTypes = new List<DanceType>();
 
         private static decimal SignedMin(decimal a, decimal b)
         {
@@ -900,14 +896,12 @@ namespace DanceLibrary
             {
                 decimal delta;
                 decimal deltaPercent;
-                decimal median;
-                bool match;
 
-                match = meter == null
-                    ? di.CalculateBeatMatch(rate, epsilon, out delta, out deltaPercent, out median)
+                var match = meter == null
+                    ? di.CalculateBeatMatch(rate, epsilon, out delta, out deltaPercent, out _)
                     : di.CalculateTempoMatch(
                         rate, epsilon, out delta, out deltaPercent,
-                        out median);
+                        out _);
 
                 // This tempo and style matches the dance instance
                 if (match)
@@ -935,24 +929,6 @@ namespace DanceLibrary
             return dancelist;
         }
 
-        public List<string> ExpandDanceList(string dances)
-        {
-            var initialList = ParseDanceList(dances.ToUpper());
-
-            // Would use hashset, but looks like not available on phone?
-            var set = new Dictionary<string, string>();
-
-            if (initialList != null)
-            {
-                foreach (var dance in initialList)
-                {
-                    DoExpand(dance, set);
-                }
-            }
-
-            return set.Keys.ToList();
-        }
-
         public List<string> ExpandMsc(IEnumerable<string> dances)
         {
             if (dances == null)
@@ -977,12 +953,6 @@ namespace DanceLibrary
             return set.Keys.ToList();
         }
 
-        public List<string> ExpandMsc(string dances)
-        {
-            var initialList = ParseDanceList(dances.ToUpper());
-            return ExpandMsc(initialList);
-        }
-
         public IList<DanceObject> FromIds(IEnumerable<string> dances)
         {
             var dos = new List<DanceObject>();
@@ -1003,14 +973,6 @@ namespace DanceLibrary
             return dos;
         }
 
-        public IList<DanceObject> FromIds(string dances)
-        {
-            dances = dances?.ToUpper();
-            var list = ParseDanceList(dances);
-
-            return FromIds(list);
-        }
-
         public IList<DanceObject> FromNames(IEnumerable<string> dances)
         {
             var dos = new List<DanceObject>();
@@ -1029,12 +991,6 @@ namespace DanceLibrary
 
             return dos;
         }
-
-        public IList<DanceObject> FromNames(string dances)
-        {
-            return FromNames(ParseDanceList(dances));
-        }
-
 
         private IEnumerable<string> ParseDanceList(string dances)
         {
@@ -1087,11 +1043,6 @@ namespace DanceLibrary
             }
         }
 
-        private static JsonSerializerSettings _settings = new JsonSerializerSettings {
-            NullValueHandling = NullValueHandling.Include,
-            DefaultValueHandling = DefaultValueHandling.Ignore
-        };
-
         private static List<T> LoadFromJson<T>(string json)
         {
             return JsonConvert.DeserializeObject<List<T>>(json, _settings);
@@ -1119,9 +1070,5 @@ namespace DanceLibrary
         {
             return s_instance = instance ?? Load();
         }
-
-        public static Dances Instance => s_instance ?? (s_instance = Load());
-
-        private static Dances s_instance;
     }
 }

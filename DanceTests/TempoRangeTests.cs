@@ -1,7 +1,6 @@
-﻿using DanceLibrary;
+﻿using System;
+using DanceLibrary;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Diagnostics.CodeAnalysis;
 
 namespace DanceTests
 {
@@ -21,7 +20,7 @@ namespace DanceTests
         {
             try
             {
-                var t = new TempoRange(0, 0);
+                new TempoRange(0, 0);
             }
             catch (ArgumentOutOfRangeException)
             {
@@ -36,7 +35,7 @@ namespace DanceTests
         {
             try
             {
-                var t = new TempoRange(26.0M, 22.0M);
+                new TempoRange(26.0M, 22.0M);
             }
             catch (ArgumentException)
             {

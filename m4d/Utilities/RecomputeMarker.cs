@@ -5,14 +5,14 @@ namespace m4d.Utilities
 {
     public class RecomputeMarkerService
     {
+        private static readonly Dictionary<string, RecomputeMarker> Markers = new();
+
+        private readonly string _appData;
+
         public RecomputeMarkerService(string appData)
         {
             _appData = appData;
         }
-
-        private static readonly Dictionary<string, RecomputeMarker> Markers = new();
-
-        private readonly string _appData;
 
         private string ComputePath(string name)
         {
@@ -30,12 +30,6 @@ namespace m4d.Utilities
             return marker.GetTime();
         }
 
-        public Guid GetGuid(string name)
-        {
-            var marker = CreateMarker(name);
-            return marker.GetGuid();
-        }
-
         public void SetMarker(string name, DateTime? time = null)
         {
             var marker = CreateMarker(name);
@@ -47,12 +41,6 @@ namespace m4d.Utilities
             {
                 marker.SetTime();
             }
-        }
-
-        public void SetMarker(string name, Guid guid)
-        {
-            var marker = CreateMarker(name);
-            marker.SetGuid(guid);
         }
 
         public void ResetMarker(string name)
@@ -80,14 +68,17 @@ namespace m4d.Utilities
 
     public class RecomputeMarker
     {
+        private readonly string _dir;
+
+        private readonly string _name;
+
         public RecomputeMarker(string dir, string name)
         {
             _name = name;
             _dir = dir;
         }
 
-        private readonly string _name;
-        private readonly string _dir;
+        private string Path => RecomputeMarkerService.ComputePath(_dir, _name);
 
         public DateTime GetTime()
         {
@@ -122,7 +113,5 @@ namespace m4d.Utilities
         {
             System.IO.File.WriteAllText(Path, guid.ToString());
         }
-
-        private string Path => RecomputeMarkerService.ComputePath(_dir, _name);
     }
 }

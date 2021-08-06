@@ -1,7 +1,6 @@
-﻿using DanceLibrary;
+﻿using System;
+using DanceLibrary;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Diagnostics.CodeAnalysis;
 
 namespace DanceTests
 {
@@ -12,20 +11,20 @@ namespace DanceTests
         public void ValidStringConstructors()
         {
             var m1 = new Meter("3/4");
-            Assert.AreEqual<int>(3, m1.Numerator, "Numerator wasn't set correctly in constructor");
-            Assert.AreEqual<int>(
+            Assert.AreEqual(3, m1.Numerator, "Numerator wasn't set correctly in constructor");
+            Assert.AreEqual(
                 4, m1.Denominator,
                 "Denominator wasn't set correctly in constructor");
 
             var m2 = new Meter("4/4");
-            Assert.AreEqual<int>(4, m2.Numerator, "Numerator wasn't set correctly in constructor");
-            Assert.AreEqual<int>(
+            Assert.AreEqual(4, m2.Numerator, "Numerator wasn't set correctly in constructor");
+            Assert.AreEqual(
                 4, m2.Denominator,
                 "Denominator wasn't set correctly in constructor");
 
             var m3 = new Meter("2/4");
-            Assert.AreEqual<int>(2, m3.Numerator, "Numerator wasn't set correctly in constructor");
-            Assert.AreEqual<int>(
+            Assert.AreEqual(2, m3.Numerator, "Numerator wasn't set correctly in constructor");
+            Assert.AreEqual(
                 4, m3.Denominator,
                 "Denominator wasn't set correctly in constructor");
         }
@@ -35,7 +34,7 @@ namespace DanceTests
         {
             try
             {
-                var m1 = new Meter("Measure 3/4");
+                new Meter("Measure 3/4");
             }
             catch (ArgumentOutOfRangeException e)
             {
@@ -48,7 +47,7 @@ namespace DanceTests
         {
             try
             {
-                var m1 = new Meter("asdjfi;w#(fkjldks");
+                new Meter("asdjfi;w#(fkjldks");
             }
             catch (ArgumentOutOfRangeException e)
             {
@@ -61,7 +60,7 @@ namespace DanceTests
         {
             try
             {
-                var m1 = new Meter("-3/4");
+                new Meter("-3/4");
             }
             catch (ArgumentOutOfRangeException e)
             {
@@ -74,7 +73,7 @@ namespace DanceTests
         {
             try
             {
-                var m1 = new Meter("3/-4");
+                new Meter("3/-4");
             }
             catch (ArgumentOutOfRangeException e)
             {
@@ -86,20 +85,20 @@ namespace DanceTests
         public void ValidNumericalConstructors()
         {
             var m1 = new Meter(3, 4);
-            Assert.AreEqual<int>(3, m1.Numerator, "Numerator wasn't set correctly in constructor");
-            Assert.AreEqual<int>(
+            Assert.AreEqual(3, m1.Numerator, "Numerator wasn't set correctly in constructor");
+            Assert.AreEqual(
                 4, m1.Denominator,
                 "Denominator wasn't set correctly in constructor");
 
             var m2 = new Meter(4, 4);
-            Assert.AreEqual<int>(4, m2.Numerator, "Numerator wasn't set correctly in constructor");
-            Assert.AreEqual<int>(
+            Assert.AreEqual(4, m2.Numerator, "Numerator wasn't set correctly in constructor");
+            Assert.AreEqual(
                 4, m2.Denominator,
                 "Denominator wasn't set correctly in constructor");
 
             var m3 = new Meter(2, 4);
-            Assert.AreEqual<int>(2, m3.Numerator, "Numerator wasn't set correctly in constructor");
-            Assert.AreEqual<int>(
+            Assert.AreEqual(2, m3.Numerator, "Numerator wasn't set correctly in constructor");
+            Assert.AreEqual(
                 4, m3.Denominator,
                 "Denominator wasn't set correctly in constructor");
         }
@@ -109,7 +108,7 @@ namespace DanceTests
         {
             try
             {
-                var m1 = new Meter(-3, 4);
+                new Meter(-3, 4);
             }
             catch (ArgumentOutOfRangeException e)
             {
@@ -122,7 +121,7 @@ namespace DanceTests
         {
             try
             {
-                var m1 = new Meter(3, -4);
+                new Meter(3, -4);
             }
             catch (ArgumentOutOfRangeException e)
             {
@@ -135,7 +134,7 @@ namespace DanceTests
         {
             try
             {
-                var m1 = new Meter(0, 0);
+                new Meter(0, 0);
             }
             catch (ArgumentOutOfRangeException)
             {

@@ -250,8 +250,7 @@ namespace m4dModels.Tests
             {
                 if (!roleManager.RoleExistsAsync(roleName).Result)
                 {
-                    var result =
-                        await roleManager.CreateAsync(new IdentityRole { Name = roleName });
+                    await roleManager.CreateAsync(new IdentityRole { Name = roleName });
                 }
             }
         }
