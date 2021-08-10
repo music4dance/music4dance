@@ -110,9 +110,5 @@ export default class App extends Vue {
     }
     return breadcrumbs;
   }
-
-  private onEnvironmentLoaded(): void {
-    this.model.check();
-  }
 }
 </script>

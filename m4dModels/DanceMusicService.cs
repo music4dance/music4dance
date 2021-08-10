@@ -809,10 +809,24 @@ namespace m4dModels
         {
             var options = new SearchOptions
             {
+                SearchFields = { "Title" },
                 Size = 50
             };
             var response = await DoSearch(
                 title, options, CruftFilter.AllCruft, client);
+            return await CreateSongs(response.GetResults());
+        }
+
+        public async Task<IEnumerable<Song>> SongsFromTitleArtist(string title, string artist,
+            SearchClient client = null)
+        {
+            var options = new SearchOptions
+            {
+                SearchFields = { "Title", "Artist" },
+                Size = 50
+            };
+            var response = await DoSearch(
+                $"{title} {artist}", options, CruftFilter.AllCruft, client);
             return await CreateSongs(response.GetResults());
         }
 

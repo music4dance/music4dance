@@ -103,14 +103,14 @@ namespace m4d.Utilities
         public IList<ServiceTrack> MatchSongAndService(Song sd, MusicService service)
         {
             IList<ServiceTrack> found = new List<ServiceTrack>();
-            var tracks = FindMusicServiceSong(sd, service);
+            var tracks = FindMusicServiceSong(service, sd);
 
             // First try the full title/artist
             if ((tracks == null || tracks.Count == 0) &&
                     !string.Equals(DefaultServiceSearch(sd, true), DefaultServiceSearch(sd, false)))
                 // Now try cleaned up title/artist (remove punctuation and stuff in parens/brackets)
             {
-                tracks = FindMusicServiceSong(sd, service);
+                tracks = FindMusicServiceSong(service, sd);
             }
 
             if (tracks == null || tracks.Count <= 0)
@@ -307,17 +307,30 @@ namespace m4d.Utilities
 
         #region Search
 
-        public IList<ServiceTrack> FindMusicServiceSong(Song song,
-            MusicService service, string title = null, string artist = null,
+        public IList<ServiceTrack> FindMusicServiceSong(MusicService service = null,
+            Song song = null, string title = null, string artist = null,
             string album = null)
         {
             IList<ServiceTrack> list;
-            if (title == null)
+            if (song != null)
             {
-                artist ??= song.Artist;
+                if (title == null)
+                {
+                    artist ??= song.Artist;
+                }
+
+                title ??= song.Title;
             }
 
-            title ??= song.Title;
+            if (title == null)
+            {
+                throw new ArgumentNullException(nameof(title));
+            }
+
+            if (artist == null)
+            {
+                throw new ArgumentNullException(nameof(artist));
+            }
 
             if (service != null)
             {
@@ -347,7 +360,7 @@ namespace m4d.Utilities
                 var cleanTitle = Song.CleanString(title);
                 return cleanArtist == artist && cleanTitle == title
                     ? null
-                    : FindMusicServiceSong(song, service, cleanTitle, cleanArtist, album);
+                    : FindMusicServiceSong(service, song, cleanTitle, cleanArtist, album);
             }
 
             list = FilterKaraoke(list);

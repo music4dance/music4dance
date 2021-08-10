@@ -4,7 +4,7 @@
       :histories="model.histories"
       :filter="model.filter"
       :hideSort="true"
-      :hiddenColumns="['Artist', 'Track']"
+      :hiddenColumns="['artist', 'length', 'track']"
     ></song-table>
   </page>
 </template>

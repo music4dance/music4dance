@@ -12,47 +12,36 @@
         />
       </b-col>
       <b-col>
-        <div>
-          Album: <b>{{ track.album }}</b>
-        </div>
-        <div>
-          Track: <b>{{ track.trackNumber }}</b>
-        </div>
-        <b-button
-          variant="outline-primary"
-          size="sm"
-          block
-          style="text-align: left"
-          class="mb-2"
-          @click="addProperty('title', track.name)"
-        >
-          <b-icon-lock-fill aria-label="add"></b-icon-lock-fill>
-          Title: <b>{{ track.name }}</b>
-        </b-button>
-        <b-button
-          variant="outline-primary"
-          size="sm"
-          block
-          style="text-align: left"
-          class="mb-2"
-          @click="addProperty('artist', track.artist)"
-        >
-          <b-icon-lock-fill aria-label="add"></b-icon-lock-fill>
-          Artist: <b>{{ track.artist }}</b>
-        </b-button>
-        <div>
-          <b-button
-            v-if="track.duration"
-            variant="outline-primary"
-            size="sm"
-            block
-            style="text-align: left"
-            @click="addProperty('artist', track.duration)"
-          >
-            <b-icon-lock-fill aria-label="add"></b-icon-lock-fill>
-            Length: <b>{{ track.duration }}</b>
-          </b-button>
-        </div>
+        <track-field
+          name="title"
+          :value="track.name"
+          :canAdd="enableProperties"
+          @add-property="addProperty"
+        ></track-field>
+        <track-field
+          name="artist"
+          :value="track.artist"
+          :canAdd="enableProperties"
+          @add-property="addProperty"
+        ></track-field>
+        <track-field name="album" :value="track.album"></track-field>
+        <track-field
+          name="track"
+          :value="track.trackNumber.toString()"
+        ></track-field>
+        <track-field
+          name="length"
+          :value="track.duration.toString()"
+          :canAdd="enableProperties"
+          @add-property="addProperty"
+        ></track-field>
+        <track-field
+          v-if="track.tempo"
+          name="tempo"
+          :value="track.tempo.toString()"
+          :canAdd="enableProperties"
+          @add-property="addProperty"
+        ></track-field>
       </b-col>
       <b-col align-self="center" @click="addTrack(track)"
         ><b-button>Add</b-button></b-col
@@ -64,14 +53,16 @@
 <script lang="ts">
 import "reflect-metadata";
 import PurchaseLogo from "@/components/PurcahseLogo.vue";
+import TrackField from "./TrackField.vue";
 import { Component, Prop, Vue } from "vue-property-decorator";
 import { TrackModel } from "@/model/TrackModel";
 import { PurchaseInfo, ServiceType } from "@/model/Purchase";
 import { SongProperty } from "@/model/SongProperty";
 
-@Component({ components: { PurchaseLogo } })
+@Component({ components: { PurchaseLogo, TrackField } })
 export default class TrackItem extends Vue {
   @Prop() private readonly track!: TrackModel;
+  @Prop() private readonly enableProperties?: boolean;
 
   private get purchaseInfo(): PurchaseInfo {
     const track = this.track;

@@ -15,7 +15,7 @@
       :histories="model.histories"
       :filter="filter"
       :hideSort="model.hideSort"
-      :hiddenColumns="['Track']"
+      :hiddenColumns="['length', 'track']"
     ></song-table>
     <song-footer :model="model"></song-footer>
   </page>

@@ -15,6 +15,11 @@
         ></b-form-checkbox>
         <a :href="editRef(data.item.song)"><b-icon-pencil></b-icon-pencil></a>
       </template>
+      <template v-slot:cell(action)="data">
+        <b-button @click="onAction(data.item.song, $event)">{{
+          action
+        }}</b-button>
+      </template>
       <template v-slot:head(play)>
         <div :class="likeHeader">Like/Play</div>
       </template>
@@ -82,6 +87,18 @@
       </template>
       <template v-slot:cell(tempo)="data">
         <a :href="tempoRef(data.item.song)">{{ tempoValue(data.item.song) }}</a>
+      </template>
+      <template v-slot:head(length)>
+        <sortable-header
+          id="Lempo"
+          title="Length"
+          :tip="lengthHeaderTip"
+          :enableSort="false"
+          :filter="filter"
+        ></sortable-header>
+      </template>
+      <template v-slot:cell(length)="data">
+        {{ lengthValue(data.item.song) }}
       </template>
       <template v-slot:head(echo)>
         <div :class="echoClass">
@@ -196,6 +213,9 @@
             >{{ tempoValue(data.item.song) }} BPM</a
           >
         </span>
+        <span v-if="lengthValue(data.item.song) && !isHidden('length')">
+          - {{ lengthValue(data.item.song) }}s
+        </span>
       </template>
       <template v-slot:head(info)>
         <sortable-header
@@ -257,6 +277,7 @@ interface Field {
   label?: string;
 }
 
+const actionField = { key: "action", label: "" };
 const editField = { key: "edit", label: "" };
 const playField = { key: "play" };
 const titleField = { key: "title" };
@@ -269,6 +290,7 @@ const tagsField = { key: "tags" };
 const orderField = { key: "order" };
 const textField = { key: "text" };
 const infoField = { key: "info" };
+const lengthField = { key: "length" };
 
 @Component({
   components: {
@@ -286,6 +308,7 @@ export default class SongTable extends Mixins(AdminTools) {
   @Prop() private readonly filter!: SongFilter;
   @Prop() private readonly hideSort?: boolean;
   @Prop() private readonly hiddenColumns?: string[];
+  @Prop() private readonly action?: string;
 
   private get songs(): SongEditor[] {
     return this.histories.map((h) => new SongEditor(this.userName, h));
@@ -299,32 +322,38 @@ export default class SongTable extends Mixins(AdminTools) {
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     const mq = (this as any).$mq;
 
+    const baseFields =
+      mq === "sm" || mq === "md" ? this.smallFields : this.fullFields;
+
+    return this.action ? [actionField, ...baseFields] : baseFields;
+  }
+
+  private get smallFields(): BvTableFieldArray {
+    const smallFields = [playField, textField, infoField];
+    return this.filterHiddenFields(
+      smallFields.map((f) => this.filterSmallField(f))
+    );
+  }
+
+  private get fullFields(): BvTableFieldArray {
     const fields = [
       playField,
       titleField,
       artistField,
       trackField,
       tempoField,
+      lengthField,
       echoField,
       dancesField,
       tagsField,
       orderField,
     ];
 
-    const smallFields = [playField, textField, infoField];
-
-    const hidden = this.hiddenColumns;
-    if (mq === "sm" || mq === "md") {
-      return smallFields.map((f) => this.filterSmallField(f));
+    const temp = this.filterHiddenFields(fields);
+    if (this.isAdmin && !this.isHidden(editField.key)) {
+      return [editField, ...temp];
     } else {
-      const temp = hidden
-        ? fields.filter((f) => !this.isHidden(f.key))
-        : fields;
-      if (this.isAdmin) {
-        return [editField, ...temp];
-      } else {
-        return temp;
-      }
+      return temp;
     }
   }
 
@@ -336,6 +365,11 @@ export default class SongTable extends Mixins(AdminTools) {
     } else {
       return field;
     }
+  }
+
+  private filterHiddenFields(fields: Field[]): Field[] {
+    const hidden = this.hiddenColumns;
+    return hidden ? fields.filter((f) => !this.isHidden(f.key)) : fields;
   }
 
   private get likeHeader(): string[] {
@@ -368,6 +402,10 @@ export default class SongTable extends Mixins(AdminTools) {
     return "Tempo (Beats Per Minute): Click to sort numerically by tempo";
   }
 
+  private get lengthHeaderTip(): string {
+    return "Duration of Song in seconds";
+  }
+
   private tempoRef(song: Song): string {
     return `/home/counter?numerator=4&tempo=${song.tempo}`; // TODO: smart numerator?
   }
@@ -380,6 +418,11 @@ export default class SongTable extends Mixins(AdminTools) {
   private tempoValue(song: Song): string {
     const tempo = song.tempo;
     return tempo && !this.isHidden("tempo") ? `${Math.round(tempo)}` : "";
+  }
+
+  private lengthValue(song: Song): string {
+    const length = song.length;
+    return length && !this.isHidden("length") ? length.toString() : "";
   }
 
   private isHidden(column: string): boolean {
@@ -496,6 +539,10 @@ export default class SongTable extends Mixins(AdminTools) {
 
   private onSelect(song: Song, selected: boolean): void {
     this.$emit("song-selected", song.songId, selected);
+  }
+
+  private onAction(song: Song): void {
+    this.$emit("song-selected", song.songId, true);
   }
 
   private onClickLike(editor: SongEditor): void {

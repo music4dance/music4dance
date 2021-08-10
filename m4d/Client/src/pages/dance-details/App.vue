@@ -160,7 +160,6 @@ export default class App extends Mixins(AdminTools) {
       this.tags = dance.tags;
       this.isGroup = dance.isGroup;
     }
-    this.model.check();
   }
 
   private buildBreadCrumbs(dance: DanceStats): BreadCrumbItem[] {

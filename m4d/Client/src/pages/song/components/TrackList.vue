@@ -1,4 +1,3 @@
-t
 <template>
   <b-card
     header="Tracks"
@@ -36,7 +35,7 @@ t
     </b-form>
     <b-list-group flush>
       <b-list-group-item v-for="track in newTracks" :key="track.trackId">
-        <track-item :track="track" v-on="$listeners" />
+        <track-item :track="track" :enableProperties="true" v-on="$listeners" />
       </b-list-group-item>
     </b-list-group>
   </b-card>
@@ -67,7 +66,6 @@ export default class TrackList extends Vue {
 
   private async lookup(service: string): Promise<void> {
     try {
-      console.log(service);
       this.error = "";
       let parameters = service ? `service=${service}&` : "";
       const title = this.title;
@@ -81,10 +79,8 @@ export default class TrackList extends Vue {
       const results = await axios.get(
         `/api/musicservice/${this.song.songId}?${parameters}`
       );
-      console.log(results.data);
       this.tracks = TypedJSON.parseAsArray(results.data, TrackModel);
     } catch (e) {
-      console.log(e);
       this.error = e;
       this.tracks = [];
     }

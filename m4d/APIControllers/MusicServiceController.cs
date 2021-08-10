@@ -25,11 +25,18 @@ namespace m4d.APIControllers
         {
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Get(string service = null, string title = null
+            , string artist = null, string album = null)
+        {
+            return await Get(Guid.Empty, service, title, artist, album);
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(Guid id, string service = null, string title = null
             , string artist = null, string album = null)
         {
-            var song = await Database.FindSong(id);
+            var song = id == Guid.Empty ? null : await Database.FindSong(id);
             if (song != null && artist == null && title == null)
             {
                 artist = song.Artist;
@@ -38,10 +45,9 @@ namespace m4d.APIControllers
 
             var key = $"{id}|{service ?? "A"}|{artist ?? ""}|{title ?? ""}";
 
-
             if (!s_cache.TryGetValue(key, out var tracks))
             {
-                tracks = InternalGetServiceTracks(song, service, title, artist, album);
+                tracks = InternalGetServiceTracks(service, song, title, artist, album);
             }
 
             if (tracks == null || tracks.Count == 0)
@@ -54,8 +60,8 @@ namespace m4d.APIControllers
             return JsonCamelCase(tracks);
         }
 
-        private IList<ServiceTrack> InternalGetServiceTracks(Song song,
-            string serviceId, string title, string artist, string album)
+        private IList<ServiceTrack> InternalGetServiceTracks(string serviceId,
+            Song song, string title, string artist, string album)
         {
             IList<ServiceTrack> tracks = null;
 
@@ -66,7 +72,7 @@ namespace m4d.APIControllers
             try
             {
                 tracks = MusicServiceManager.FindMusicServiceSong(
-                    song, service, title, artist, album);
+                    service, song, title, artist, album);
             }
             catch (WebException e)
             {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -21,6 +22,35 @@ namespace m4d.APIControllers
             IDanceStatsManager danceStatsManager, IConfiguration configuration) :
             base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
         {
+        }
+
+        [HttpGet]
+        [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
+        public async Task<IActionResult> Search([FromServices]IMapper mapper, string title,
+            string artist)
+        {
+            Trace.WriteLine(
+                $"Enter Search: Title = {title}, Artist={artist}, User = {User.Identity?.Name}");
+            if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(artist))
+            {
+                return StatusCode((int)HttpStatusCode.BadRequest);
+            }
+
+            var songs = await Database.SongsFromTitleArtist(title, artist);
+            return songs == null || !songs.Any()
+                ? StatusCode((int)HttpStatusCode.NotFound)
+                : JsonCamelCase(songs.Select(s => s.GetHistory(mapper)));
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get([FromServices]IMapper mapper, Guid id)
+        {
+            Trace.WriteLine($"Enter Patch: SongId = {id}, User = {User.Identity?.Name}");
+
+            var song = await Database.FindSong(id);
+            return song == null
+                ? StatusCode((int)HttpStatusCode.NotFound)
+                : JsonCamelCase(song.GetHistory(mapper));
         }
 
         [Authorize]

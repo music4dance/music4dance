@@ -1,9 +1,5 @@
 <template>
-  <page
-    id="app"
-    :consumesEnvironment="true"
-    @environment-loaded="onEnvironmentLoaded"
-  >
+  <page id="app" :consumesEnvironment="true">
     <song-library-header
       v-if="model.filter.isSimple(model.userName)"
       :filter="model.filter"
@@ -18,7 +14,7 @@
       :histories="model.histories"
       :filter="filter"
       :hideSort="model.hideSort"
-      :hiddenColumns="model.hiddenColumns"
+      :hiddenColumns="['length', 'track']"
       @song-selected="selectSong"
     ></song-table>
     <song-footer
@@ -74,10 +70,6 @@ export default class App extends Vue {
     } else {
       this.selected = this.selected.filter((s) => s !== songId);
     }
-  }
-
-  private onEnvironmentLoaded(): void {
-    this.model.check();
   }
 }
 </script>

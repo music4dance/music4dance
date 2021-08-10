@@ -12,6 +12,7 @@
         id="advanced-search"
         @submit="onSubmit"
         @reset="onReset"
+        :validated="validated"
         novalidate
       >
         <b-form-group
@@ -315,6 +316,7 @@ export default class App extends Mixins(AdminTools) {
   private order = "asc";
   private bonuses: string[] = [];
   private model: SearchModel;
+  private validated = false;
 
   constructor() {
     super();
@@ -426,7 +428,7 @@ export default class App extends Mixins(AdminTools) {
       window.location.href = `${loc.origin}/song/filtersearch?filter=${query}`;
     }
 
-    form.classList.add("was-validated");
+    this.validated = true;
   }
 
   private onReset(evt: Event) {
@@ -452,6 +454,8 @@ export default class App extends Mixins(AdminTools) {
     this.sort = "Dances";
     this.order = "asc";
     this.bonuses.splice(0);
+
+    this.validated = false;
   }
 
   private buildTagList(): string {

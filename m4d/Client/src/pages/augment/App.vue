@@ -4,17 +4,42 @@
     :consumesEnvironment="true"
     @environment-loaded="onEnvironmentLoaded"
   >
-    <b-row v-if="lookup">
+    <b-row v-if="phase === 'lookup'">
       <b-col>
         <b-alert v-if="lastSong" dismissible show="10">
           Thank you for {{ created ? "adding" : "editing" }}
           <i>{{ lastSong.title }}</i> by {{ lastSong.artist }}
         </b-alert>
         <h1>Add Song</h1>
-        <augment-lookup
-          v-if="canAugment"
-          @edit-song="editSong($event)"
-        ></augment-lookup>
+        <b-tabs v-if="canAugment" v-model="tabIndex" card>
+          <b-tab title="by Title"
+            ><b-card-text
+              ><augment-search
+                @edit-song="editSong($event)"
+              ></augment-search></b-card-text
+          ></b-tab>
+          <b-tab title="by Id">
+            <b-card-text
+              ><augment-lookup @edit-song="editSong($event)"></augment-lookup
+            ></b-card-text>
+          </b-tab>
+          <b-tab title="Admin">
+            <b-card-text>
+              <p>Paste in text version of propery list</p>
+              <b-input-group prepend="Properties">
+                <b-form-input
+                  id="admin-properties"
+                  palceholder="Song Properties TSV"
+                  v-model="propertiesString"
+                  trim
+                ></b-form-input>
+                <b-button variant="primary" @click="adminCreate"
+                  >Create</b-button
+                >
+              </b-input-group>
+            </b-card-text>
+          </b-tab>
+        </b-tabs>
         <augment-info v-else> </augment-info>
       </b-col>
     </b-row>
@@ -40,20 +65,6 @@
         @cancel-changes="reset(false)"
       ></song-core>
     </div>
-    <b-row v-if="lookup && isAdmin">
-      <b-col>
-        <h2>Admin Add</h2>
-        <b-input-group prepend="Properties">
-          <b-form-input
-            id="admin-properties"
-            palceholder="Song Properties TSV"
-            v-model="propertiesString"
-            trim
-          ></b-form-input>
-          <b-button variant="primary" @click="adminCreate">Create</b-button>
-        </b-input-group>
-      </b-col>
-    </b-row>
   </page>
 </template>
 
@@ -63,6 +74,7 @@ import { Component, Mixins } from "vue-property-decorator";
 import AdminTools from "@/mix-ins/AdminTools";
 import AugmentInfo from "./components/AugmentInfo.vue";
 import AugmentLookup from "./components/AugmentLookup.vue";
+import AugmentSearch from "./components/AugmentSearch.vue";
 import SongCore from "@/pages/song/components/SongCore.vue";
 import Page from "@/components/Page.vue";
 import { SongDetailsModel } from "@/model/SongDetailsModel";
@@ -71,16 +83,23 @@ import { DanceEnvironment } from "@/model/DanceEnvironmet";
 import { Song } from "@/model/Song";
 import { SongHistory } from "@/model/SongHistory";
 
+enum AugmentPhase {
+  lookup = "lookup",
+  results = "results",
+  edit = "edit",
+}
+
 @Component({
-  components: { AugmentInfo, AugmentLookup, SongCore, Page },
+  components: { AugmentInfo, AugmentLookup, AugmentSearch, SongCore, Page },
 })
 export default class App extends Mixins(AdminTools) {
-  private lookup = true;
+  private phase = AugmentPhase.lookup;
   private songModel: SongDetailsModel | null = null;
   private lastSong: Song | null = null;
   private created = false;
   private environment: DanceEnvironment | null = null;
   private propertiesString = "";
+  private tabIndex = 0;
 
   private get canAugment(): boolean {
     return this.canTag || this.isPremium;
@@ -93,7 +112,7 @@ export default class App extends Mixins(AdminTools) {
       filter: new SongFilter(),
       userName: this.userName,
     });
-    this.lookup = false;
+    this.phase = AugmentPhase.edit;
   }
 
   private async adminCreate(): Promise<void> {
@@ -105,7 +124,7 @@ export default class App extends Mixins(AdminTools) {
       userName: this.userName,
     });
     this.propertiesString = "";
-    this.lookup = false;
+    this.phase = AugmentPhase.edit;
   }
 
   private reset(saved: boolean): void {
@@ -113,7 +132,7 @@ export default class App extends Mixins(AdminTools) {
       this.lastSong = Song.fromHistory(this.songModel!.songHistory);
       this.created = !!this.songModel!.created;
     }
-    this.lookup = true;
+    this.phase = AugmentPhase.lookup;
     this.songModel = null;
   }
 

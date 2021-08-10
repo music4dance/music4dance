@@ -9,7 +9,7 @@
         :histories="histories"
         :filter="filter"
         :hideSort="true"
-        :hiddenColumns="['dances', 'track', 'order']"
+        :hiddenColumns="['dances', 'length', 'order', 'track']"
       ></song-table>
     </b-col>
   </b-row>
