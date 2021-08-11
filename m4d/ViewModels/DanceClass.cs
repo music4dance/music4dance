@@ -27,10 +27,12 @@ namespace m4d.ViewModels
         public string Image;
         public string Title;
         public string TopDance;
+        public virtual string FullTitle => "Music for " + Title + " Dancers";
     }
 
     public class WeddingDanceClass : DanceClass
     {
+        public override string FullTitle => "Music for Wedding Dances";
     }
 
     public class WeddingDanceMapping : DanceMapping
