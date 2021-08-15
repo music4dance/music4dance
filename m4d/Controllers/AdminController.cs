@@ -151,10 +151,10 @@ namespace m4d.Controllers
             }
 
             var s = sb.ToString();
-            var bytes = Encoding.UTF8.GetBytes(s);
+            var bytes = Encoding.ASCII.GetBytes(s);
             var stream = new MemoryStream(bytes);
 
-            return File(stream, "text/plain", scraper.Name + extra + ".csv");
+            return File(stream, "text/plain", scraper.Name + extra + ".txt");
         }
 
         //
