@@ -43,6 +43,7 @@
         >
         </dance-description>
         <top-ten
+          v-if="!isGroup"
           :histories="model.histories"
           :filter="model.filter"
           :userName="model.userName"
@@ -52,7 +53,7 @@
         <div v-if="isGroup">
           <hr />
           <h2 id="dance-styles">
-            Dances that ar grouped into the {{ model.danceName }} category:
+            Dances that are grouped into the {{ model.danceName }} category:
           </h2>
           <dance-list :group="this.dance" :showTempo="true"></dance-list>
         </div>
@@ -79,7 +80,7 @@
         ></dance-links>
       </b-col>
     </b-row>
-    <b-row>
+    <b-row v-if="!isGroup">
       <b-col>
         <hr />
         <h2 id="tags">Tags</h2>
@@ -120,7 +121,7 @@ import axios from "axios";
 
 declare const model: string;
 
-//  TODO: Consider whether we should directly eit the dancestats...
+//  Consider getting group to search for all of the songs in the group
 @Component({
   components: {
     CompetitionCategoryTable,

@@ -6,7 +6,7 @@
       v-if="!dance.isGroup && dance.dance.meter.numerator != 1"
       >Tempo Info</b-list-group-item
     >
-    <b-list-group-item href="#top-ten" v-if="model.songs.length > 0"
+    <b-list-group-item href="#top-ten" v-if="hasTopTen"
       >Top Ten Songs</b-list-group-item
     >
     <b-list-group-item href="#spotify-player" v-if="hasPlayer"
@@ -18,14 +18,16 @@
     <b-list-group-item href="#references" v-if="hasReferences"
       >References</b-list-group-item
     >
-    <b-list-group-item href="#competition-info"
+    <b-list-group-item href="#competition-info" v-if="hasCompetitionInfo"
       >Competition Info</b-list-group-item
     >
     <b-list-group-item :href="model.filter.url"
       >All {{ danceName }} Songs
       <b-icon-box-arrow-up-right></b-icon-box-arrow-up-right
     ></b-list-group-item>
-    <b-list-group-item href="#tags">Tags</b-list-group-item>
+    <b-list-group-item href="#tags" v-if="!dance.isGroup"
+      >Tags</b-list-group-item
+    >
     <b-list-group-item v-if="blogLink" :href="blogLink"
       >Blog <b-icon-box-arrow-up-right></b-icon-box-arrow-up-right
     ></b-list-group-item>
@@ -58,6 +60,11 @@ export default class DanceContents extends Mixins(EnvironmentManager) {
 
   private get hasPlayer(): boolean {
     return !!this.dance?.spotifyPlaylist;
+  }
+
+  private get hasTopTen(): boolean {
+    const histories = this.model.histories;
+    return !!histories && !!histories.length && !this.dance?.isGroup;
   }
 
   private get hasReferences(): boolean {

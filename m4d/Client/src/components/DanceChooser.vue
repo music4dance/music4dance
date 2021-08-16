@@ -50,9 +50,9 @@
             :key="dance.danceId"
             button
             :variant="groupVariant(dance)"
-            :class="{ 'sub-item': !dance.isGroup }"
+            :class="{ item: dance.isGroup, 'sub-item': !dance.isGroup }"
             :active="danceId === dance.danceId"
-            :disabled="exists(dance.danceId)"
+            :disabled="exists(dance.danceId) || dance.isGroup"
             @click="choose(dance.danceId)"
           >
             {{ dance.danceName }}
@@ -97,9 +97,9 @@ export default class DanceChooser extends Mixins(EnvironmentManager) {
   private get sortedDances(): DanceStats[] {
     const environment = this.environment;
     return environment
-      ? this.filterAll(environment.flatStats).sort((a, b) =>
-          a.danceName.localeCompare(b.danceName)
-        )
+      ? this.filterAll(environment.flatStats)
+          .filter((d) => !d.isGroup)
+          .sort((a, b) => a.danceName.localeCompare(b.danceName))
       : [];
   }
 
@@ -127,7 +127,7 @@ export default class DanceChooser extends Mixins(EnvironmentManager) {
 
   private groupVariant(dance: DanceStats): string | undefined {
     return dance.isGroup && !(this.danceId === dance.danceId)
-      ? "dark"
+      ? "primary"
       : undefined;
   }
 
@@ -139,7 +139,7 @@ export default class DanceChooser extends Mixins(EnvironmentManager) {
     dances: DanceStats[],
     includeChildren = false
   ): DanceStats[] {
-    const filter = this.nameFilter;
+    const filter = this.nameFilter.toLowerCase();
     return dances.filter(
       (d) =>
         d.songCount > 0 &&
@@ -160,5 +160,8 @@ export default class DanceChooser extends Mixins(EnvironmentManager) {
 <style lang="scss" scoped>
 .sub-item {
   padding-left: 2em;
+}
+.item {
+  font-weight: bolder;
 }
 </style>

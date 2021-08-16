@@ -39,10 +39,9 @@ export default class DanceLinks
   @Model("update") readonly links!: DanceLink[];
   @Prop() private readonly danceId!: string;
   @Prop() private readonly editing!: boolean;
-  private initialLinks: DanceLink[];
+  private initialLinks?: DanceLink[];
 
-  public constructor() {
-    super();
+  private mounted(): void {
     this.initialLinks = this.cloneLinks(this.links);
   }
 
@@ -64,7 +63,7 @@ export default class DanceLinks
 
   @Watch("editing")
   onEditChanged(val: boolean): void {
-    if (val === false) {
+    if (val === false && this.initialLinks) {
       this.$emit("update", this.cloneLinks(this.initialLinks));
     }
   }

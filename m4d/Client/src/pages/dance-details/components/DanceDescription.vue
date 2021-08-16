@@ -12,7 +12,7 @@
     >
       <h2>Tempo Information</h2>
       <p>
-        The {{ danceName }} is generally dance to music in a
+        The {{ danceName }} is generally danced to music in a
         {{ dance.dance.meter.toString() }} meter {{ rangeText }}
         {{ bpmText }} ({{ mpmText }}).
         <a :href="tempoFilter.url">Click here</a> to see a list of

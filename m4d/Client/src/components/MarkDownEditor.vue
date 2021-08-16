@@ -29,10 +29,13 @@ export default class MarkDownEditor
 {
   @Model("input") readonly value!: string;
   @Prop() private readonly editing!: boolean;
-  private initialDescription: string;
+  private initialDescription?: string;
 
   public constructor() {
     super();
+  }
+
+  private mounted(): void {
     this.initialDescription = this.value;
   }
 
