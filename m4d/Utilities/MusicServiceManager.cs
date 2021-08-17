@@ -611,11 +611,6 @@ namespace m4d.Utilities
                 return false;
             }
 
-            if (track.BeatsPerMeasure != null)
-            {
-                edit.InferFromGroups();
-            }
-
             return true;
         }
 

@@ -983,7 +983,6 @@ namespace m4dModels
                         m.Left.UpdateDanceRatingsAndTags(
                             user.UserName, dancesL,
                             Song.DanceRatingInitial, DanceStats);
-                        m.Left.InferDances(user.UserName);
                     }
 
                     songs.Add(m.Left);

@@ -8,6 +8,11 @@ namespace m4dModels.Tests
     [TestClass]
     public class SongTests
     {
+        private const string Vals =
+            @".Create=	User=11101224127	Time=01/05/2018 02:39:33	Title=Pajaro Herido	Artist=Rodolfo Biagi	Length=136	Album:00=Tango Best	Track:00=17	Tag+=Argentine Tango:Dance	DanceRating=ATN+2	Purchase:00:SA=0OysrEZzotITS0fQ22yMne	Purchase:00:SS=7AddIMmrMNrAvfeVLggbdj	DanceRating=TNG+1	.Edit=	User=batch-a	Time=01/05/2018 02:41:52	Album:01=Rodolfo Biagi Con Sus Cantores: 1939-1947	Track:01=10	Purchase:01:AS=D:B075V5L1WH	Purchase:01:AA=D:B075V711N7	Album:02=The Essence of Tango: Rodolfo Biagi, Vol. 1	Track:02=3	Purchase:02:AS=D:B019EPP092	Purchase:02:AA=D:B019EPQLDQ	Album:03=Tango Classics 076: Cuatro palabras	Track:03=6	Purchase:03:AS=D:B004UPEU52	Purchase:03:AA=D:B004UPE43K	Album:04=A la luz del candil (1941 - 1943)	Track:04=12	Purchase:04:AS=D:B071DNT826	Purchase:04:AA=D:B0713R81XC	Tag+=International:Music|Latin:Music	.Edit=	User=batch-i	Time=01/05/2018 02:41:52	Purchase:04:IS=1231281699	Purchase:04:IA=1231281637	Album:05=Cuatro Palabras	Track:05=6	Purchase:05:IS=429503329	Purchase:05:IA=429503294	Tag+=Latino:Music|World:Music	.Edit=	User=batch-e	Time=01/05/2018 02:41:52	Tempo=107.1	Danceability=0.517	Energy=0.31	Valence=0.692	Tag+=3/4:Tempo";
+
+        private const string Tango =
+            @".Create=	User=DWTS|P	Time=09/23/2016 09:37:20	Tag+=DWTS:Other|Episode 2:Other|Season 23:Other|Tango:Dance|United States:Other	DanceRating=TNG+1	Tag+:TNG=Gleb:Other|Jana:Other	Title=I Don't Want to Be	Artist=Gavin DeGraw";
         //
         // Extend AdminModify to correctly handle tags on dances - we should probably handle DNC* (rather than explicit DNC+2) and then
         //  actually load the tags and do appropriate modification of the tags on the dance ratings.
@@ -285,7 +290,7 @@ namespace m4dModels.Tests
             //Trace.WriteLine(actual);
 
             const string expected =
-                @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Wouldn't It Be Nice	Artist=The Beach Boys	Length=154	Album:00=Greatest Hits	Track:00=4	Tag+=Crazy:Music|Testing:Other|West Coast Swing:Dance	DanceRating=WCS+1	Tag+:WCS=Dances:Style|Mellow:Tempo	Purchase:00:SA=2ninxvLuYGCb6H92qTaSFZ	Purchase:00:SS=6VojZJpMyuKClbwyilWlQj	DanceRating=SWG+1";
+                @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Wouldn't It Be Nice	Artist=The Beach Boys	Length=154	Album:00=Greatest Hits	Track:00=4	Tag+=Crazy:Music|Testing:Other|West Coast Swing:Dance	DanceRating=WCS+1	Tag+:WCS=Dances:Style|Mellow:Tempo	Purchase:00:SA=2ninxvLuYGCb6H92qTaSFZ	Purchase:00:SS=6VojZJpMyuKClbwyilWlQj";
             Assert.AreEqual(expected, actual);
         }
 
@@ -298,7 +303,7 @@ namespace m4dModels.Tests
             var song = new Song();
             await song.Load(init, service);
             await song.AdminModify(
-                @"{ExcludeUsers:null,Properties:[{Name:'Tag+',Value:'Argentine Tango:Dance',Replace:'Milonga:Dance'},{Name:'DanceRating',Value:'ATN+2',Replace:'MGA+2'},{Name:'DanceRating',Value:'MGA+1',Replace:null}]}",
+                @"{ExcludeUsers:null,Properties:[{Action:'ReplaceValue',Name:'Tag+',Value:'Argentine Tango:Dance',Replace:'Milonga:Dance'},{Action:'ReplaceValue',Name:'DanceRating',Value:'ATN+2',Replace:'MGA+2'},{Action:'Remove',Name:'DanceRating',Value:'MGA+1'}]}",
                 service);
 
             Assert.AreEqual(2, song.DanceRatings.Count);
@@ -310,15 +315,32 @@ namespace m4dModels.Tests
         }
 
         [TestMethod]
+        public async Task CompressTags()
+        {
+            var service = await GetService();
+            var song = new Song();
+            await song.Load(Vals, service);
+
+            var initSummary = song.TagSummary.ToString();
+            Assert.AreEqual(51, song.SongProperties.Count);
+            Trace.WriteLine($"Initial Count: {song.SongProperties.Count}");
+            Assert.IsTrue(await song.ExpandTags(service));
+            Trace.WriteLine($"Expanded Count: {song.SongProperties.Count}");
+            Assert.AreEqual(53, song.SongProperties.Count);
+            Assert.IsTrue(await song.CollapseTags(service));
+            Trace.WriteLine($"Collapsed Count: {song.SongProperties.Count}");
+            Assert.AreEqual(51, song.SongProperties.Count);
+            Assert.AreEqual(initSummary, song.TagSummary.ToString());
+        }
+
+        [TestMethod]
         public async Task AdminModifyVals()
         {
             var service = await GetService();
-            const string init =
-                @".Create=	User=11101224127	Time=01/05/2018 02:39:33	Title=Pajaro Herido	Artist=Rodolfo Biagi	Length=136	Album:00=Tango Best	Track:00=17	Tag+=Argentine Tango:Dance	DanceRating=ATN+2	Purchase:00:SA=0OysrEZzotITS0fQ22yMne	Purchase:00:SS=7AddIMmrMNrAvfeVLggbdj	DanceRating=TNG+1	.Edit=	User=batch-a	Time=01/05/2018 02:41:52	Album:01=Rodolfo Biagi Con Sus Cantores: 1939-1947	Track:01=10	Purchase:01:AS=D:B075V5L1WH	Purchase:01:AA=D:B075V711N7	Album:02=The Essence of Tango: Rodolfo Biagi, Vol. 1	Track:02=3	Purchase:02:AS=D:B019EPP092	Purchase:02:AA=D:B019EPQLDQ	Album:03=Tango Classics 076: Cuatro palabras	Track:03=6	Purchase:03:AS=D:B004UPEU52	Purchase:03:AA=D:B004UPE43K	Album:04=A la luz del candil (1941 - 1943)	Track:04=12	Purchase:04:AS=D:B071DNT826	Purchase:04:AA=D:B0713R81XC	Tag+=International:Music|Latin:Music	.Edit=	User=batch-i	Time=01/05/2018 02:41:52	Purchase:04:IS=1231281699	Purchase:04:IA=1231281637	Album:05=Cuatro Palabras	Track:05=6	Purchase:05:IS=429503329	Purchase:05:IA=429503294	Tag+=Latino:Music|World:Music	.Edit=	User=batch-e	Time=01/05/2018 02:41:52	Tempo=107.1	Danceability=0.517	Energy=0.31	Valence=0.692	Tag+=3/4:Tempo";
             var song = new Song();
-            await song.Load(init, service);
+            await song.Load(Vals, service);
             await song.AdminModify(
-                @"{ExcludeUsers:null,Properties:[{Name:'Tag+',Value:'Argentine Tango:Dance',Replace:'Tango Vals:Dance'},{Name:'DanceRating',Value:'ATN+2',Replace:'TGV+2'},{Name:'DanceRating',Value:'MGA+1',Replace:null},{Name:'DanceRating',Value:'TNG+1',Replace:null}]}",
+                @"{Properties:[{Action:'ReplaceValue',Name:'Tag+',Value:'Argentine Tango:Dance',Replace:'Tango Vals:Dance'},{Action:'ReplaceValue',Name:'DanceRating',Value:'ATN+2',Replace:'TGV+2'},{Action:'Remove',Name:'DanceRating',Value:'MGA+1'},{Action:'Remove',Name:'DanceRating',Value:'TNG+1'}]}",
                 service);
 
             Assert.AreEqual(1, song.DanceRatings.Count);
@@ -331,6 +353,36 @@ namespace m4dModels.Tests
         }
 
         [TestMethod]
+        public async Task AdminModifyTango()
+        {
+            var service = await GetService();
+            var song = new Song();
+            await song.Load(Tango, service);
+            await song.AdminModify(
+                @"{Properties:[{Action:'ReplaceValue',Name:'Tag+',Value:'Tango:Dance',Replace:'Neo Tango:Dance'},{Action:'ReplaceValue',Name:'DanceRating',Value:'TNG',Replace:'NTN'}]}",
+                service);
+
+            Assert.AreEqual(1, song.DanceRatings.Count);
+            Assert.AreEqual(1, song.DanceRatings.Count(dr => dr.DanceId == "NTN"));
+            Assert.AreEqual(0, song.DanceRatings.Count(dr => dr.DanceId == "TNG"));
+            Assert.IsTrue(song.SongProperties.Exists(p => p.Name == "Tag+:NTN"));
+            Assert.AreEqual(
+                song.SongProperties.Find(p => p.Name == "Tag+:NTN")?.Value,
+                "Gleb:Other|Jana:Other");
+        }
+
+        [TestMethod]
+        public void BuildModifierWithDanceRating()
+        {
+            var modifier = SongModifier.Build(
+                @"{ExcludeUsers:null,Properties:[{Name:'DanceRating',Value:'ATN',Replace:'TGV'}]}");
+
+            Assert.AreEqual(modifier.Properties.Count, 3);
+            Assert.IsTrue(modifier.Properties.Exists(p => p.Name == "Tag+:ATN"));
+            Assert.IsTrue(modifier.Properties.Exists(p => p.Name == "Tag-:ATN"));
+        }
+
+        [TestMethod]
         public async Task AdminModifyExcludeUser()
         {
             var service = await GetService();
@@ -339,7 +391,7 @@ namespace m4dModels.Tests
             var song = new Song();
             await song.Load(init, service);
             await song.AdminModify(
-                @"{ExcludeUsers:['DWTS'],Properties:[{Name:'Tag+',Value:'Argentine Tango:Dance',Replace:'Tango Vals:Dance'},{Name:'DanceRating',Value:'ATN+2',Replace:'TGV+2'},{Name:'DanceRating',Value:'MGA+1',Replace:null},{Name:'DanceRating',Value:'TNG+1',Replace:null}]}",
+                @"{ExcludeUsers:['DWTS'],Properties:[{Action:'ReplaceValue',Name:'Tag+',Value:'Argentine Tango:Dance',Replace:'Tango Vals:Dance'},{Action:'ReplaceValue',Name:'DanceRating',Value:'ATN',Replace:'TGV'},{Action:'Remove',Name:'DanceRating',Value:'MGA'},{Action:'Remove',Name:'DanceRating',Value:'TNG'}]}",
                 service);
 
             Assert.AreEqual(3, song.DanceRatings.Count);

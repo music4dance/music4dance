@@ -1202,11 +1202,6 @@ namespace m4dModels
 
             var ret = new List<Song>(songs.Values);
 
-            foreach (var sd in ret)
-            {
-                sd.InferDances(user.UserName);
-            }
-
             return ret;
         }
 
@@ -1361,9 +1356,7 @@ namespace m4dModels
                 cells.Add(track.TrackId);
             }
 
-            var sd = await CreateFromRow(user, fields, cells, database, DanceRatingIncrement);
-            sd.InferDances(user.UserName);
-            return sd;
+            return await CreateFromRow(user, fields, cells, database, DanceRatingIncrement);
         }
 
         protected async Task LoadProperties(ICollection<SongProperty> properties,
@@ -1826,12 +1819,14 @@ namespace m4dModels
 
         public async Task<bool> AdminModify(string modInfo, DanceMusicCoreService database)
         {
-            var songMod = JsonConvert.DeserializeObject<SongModifier>(modInfo);
+            var songMod = SongModifier.Build(modInfo);
 
             if (songMod == null)
             {
                 throw new ArgumentException($"Failed to deserialize ${modInfo}");
             }
+
+            await ExpandTags(database);
 
             var props = FilteredProperties(songMod.ExcludeUsers).ToList();
             foreach (var modifier in songMod.Properties)
@@ -1840,26 +1835,109 @@ namespace m4dModels
                         p =>
                             string.Equals(
                                 p.Name, modifier.Name, StringComparison.OrdinalIgnoreCase) &&
-                            string.Equals(
-                                p.Value, modifier.Value, StringComparison.OrdinalIgnoreCase))
+                            (string.Equals(
+                                    p.Value, modifier.Value, StringComparison.OrdinalIgnoreCase) ||
+                                p.Name == DanceRatingField && p.Value.StartsWith(
+                                    modifier.Value, StringComparison.InvariantCultureIgnoreCase) ||
+                                p.Name.StartsWith("Tag") &&
+                                modifier.Action == PropertyAction.ReplaceName))
                     .ToList();
 
                 foreach (var prop in modList)
                 {
-                    if (modifier.Replace == null)
+                    var index = SongProperties.FindIndex(p => p == prop);
+                    if (modifier.Action == PropertyAction.Remove ||
+                        modifier.Action == PropertyAction.Replace)
                     {
-                        SongProperties.Remove(prop);
+                        SongProperties.RemoveAt(index);
                     }
-                    else
+
+                    if (modifier.Action == PropertyAction.Append)
                     {
-                        prop.Value = modifier.Replace;
+                        index += 1;
+                    }
+
+                    if (modifier.Action == PropertyAction.Replace ||
+                        modifier.Action == PropertyAction.Append ||
+                        modifier.Action == PropertyAction.Prepend)
+                    {
+                        SongProperties.InsertRange(index, modifier.Properties);
+                    }
+                    else if (modifier.Action == PropertyAction.ReplaceValue)
+                    {
+                        SongProperties[index].Value = prop.Name == DanceRatingField &&
+                            modifier.Replace.Length == 3
+                                ? modifier.Replace + SongProperties[index].Value.Substring(3)
+                                : modifier.Replace;
+                    }
+                    else if (modifier.Action == PropertyAction.ReplaceName)
+                    {
+                        SongProperties[index].Name = modifier.Replace;
                     }
                 }
             }
 
-            await Reload(Serialize(new[] { NoSongId }), database);
+            await Reload(new List<SongProperty>(SongProperties), database);
+
+            await CollapseTags(database);
 
             return true;
+        }
+
+        public async Task<bool> ExpandTags(DanceMusicCoreService database)
+        {
+            var changed = false;
+            var trg = new List<SongProperty>();
+            foreach (var prop in SongProperties)
+            {
+                if (prop.BaseName.StartsWith("Tag"))
+                {
+                    var tags = new TagList(prop.Value).Tags;
+                    changed |= tags.Count > 1;
+                    foreach (var tag in tags)
+                    {
+                        trg.Add(new SongProperty(prop.Name, tag));
+                    }
+                }
+                else
+                {
+                    trg.Add(prop);
+                }
+            }
+
+            await Reload(trg, database);
+            return changed;
+        }
+
+        public async Task<bool> CollapseTags(DanceMusicCoreService database)
+        {
+            var changed = false;
+            var trg = new List<SongProperty>();
+            SongProperty lastProp = null;
+            foreach (var prop in SongProperties)
+            {
+                if (prop.BaseName.StartsWith("Tag"))
+                {
+                    if (lastProp != null && prop.Name == lastProp.Name)
+                    {
+                        lastProp.Value += $"|{prop.Value}";
+                        changed = true;
+                    }
+                    else
+                    {
+                        lastProp = prop;
+                        trg.Add(prop);
+                    }
+                }
+                else
+                {
+                    lastProp = null;
+                    trg.Add(prop);
+                }
+            }
+
+            await Reload(trg, database);
+            return changed;
         }
 
         // Edit 'this' based on SongBase + extras
@@ -1878,7 +1956,6 @@ namespace m4dModels
 
             if (modified)
             {
-                InferDances(user.UserName, true);
                 Modified = DateTime.Now;
                 return true;
             }
@@ -1976,8 +2053,6 @@ namespace m4dModels
                 modified = newTags != null && !string.IsNullOrWhiteSpace(tags);
 
                 modified |= EditDanceRatings(addDances, DanceRatingIncrement, stats);
-
-                InferDances(user.UserName, true);
             }
             else
             {
@@ -3168,139 +3243,6 @@ namespace m4dModels
             return Dances.Instance.FromNames(tags.Strip()).Select(d => d.Id);
         }
 
-        public void InferDances(string userName, bool recent = false)
-        {
-            // Get the dances from the current user's tags
-            var tags = GetUserTags(userName, null, recent);
-
-            // Infer dance groups != MSC
-            var dances = TagsToDances(tags);
-            var ngs = new Dictionary<string, DanceRatingDelta>();
-            var groups = new HashSet<string>();
-
-            // ReSharper disable once LoopCanBePartlyConvertedToQuery
-            foreach (var dance in dances)
-            {
-                var dt = dance as DanceType;
-                if (dt == null)
-                {
-                    var dg = dance as DanceGroup;
-                    if (dg == null)
-                    {
-                        continue;
-                    }
-
-                    if (dg.Id != "MSC" && dg.Id != "LTN" && dg.Id != "PRF")
-                    {
-                        groups.Add(dg.Id);
-                    }
-                }
-                else
-                {
-                    var g = dt.GroupId;
-                    if (g == "MSC" || g == "PRF")
-                    {
-                        continue;
-                    }
-
-                    if (g != "LTN")
-                    {
-                        groups.Add(g);
-                    }
-
-                    DanceRatingDelta drd;
-                    if (ngs.TryGetValue(g, out drd))
-                    {
-                        drd.Delta += 1;
-                    }
-                    else
-                    {
-                        drd = new DanceRatingDelta(g, 1);
-                        ngs.Add(g, drd);
-                    }
-                }
-            }
-
-            foreach (var ng in ngs.Values)
-            {
-                UpdateDanceRating(ng, true);
-            }
-
-            // If we have tempo, infer dances from group (SWG, FXT, TNG, WLZ)
-            if (!Tempo.HasValue)
-            {
-                return;
-            }
-
-            foreach (var gid in groups)
-            {
-                InferFromGroup(gid);
-            }
-        }
-
-        public bool InferFromGroups()
-        {
-            return Tempo.HasValue &&
-                new[] { "SWG", "FXT", "WLZ" }.Aggregate(
-                    false,
-                    (current, group) => current | InferFromGroup(group));
-        }
-
-        public bool InferFromGroup(string gid, ApplicationUser user)
-        {
-            if (!Tempo.HasValue)
-            {
-                return false;
-            }
-
-            var existing = new HashSet<string>(
-                SongProperties
-                    .Where(p => p.BaseName == DanceRatingField)
-                    .Select(p => new DanceRatingDelta(p.Value).DanceId).Distinct());
-            CreateEditProperties(user, EditCommand);
-            if (InferFromGroup(gid, existing))
-            {
-                return true;
-            }
-
-            RemoveEditProperties(EditCommand);
-            return false;
-        }
-
-        private bool InferFromGroup(string gid, HashSet<string> existing = null)
-        {
-            if (!Tempo.HasValue)
-            {
-                return false;
-            }
-
-            var tempo = Tempo.Value;
-
-            if (!(Dances.Instance.DanceFromId(gid) is DanceGroup dg))
-            {
-                return false;
-            }
-
-            var changed = false;
-            // ReSharper disable once LoopCanBePartlyConvertedToQuery
-            foreach (var dto in dg.Members)
-            {
-                var dt = dto as DanceType;
-                if (dt == null ||
-                    dt.Id == "TGV" ||
-                    !dt.TempoRange.ToBpm(dt.Meter).Contains(tempo) ||
-                    existing != null && existing.Contains(dt.Id))
-                {
-                    continue;
-                }
-
-                var drd = new DanceRatingDelta(dt.Id, 1);
-                UpdateDanceRating(drd, true);
-                changed = true;
-            }
-
-            return changed;
-        }
 
         public int UserDanceRating(string userName, string danceId)
         {
@@ -3443,8 +3385,11 @@ namespace m4dModels
             if (tag.TagClass == "Dance")
             {
                 var dance = stats.FromName(tag.TagValue);
-                var rating = DanceRatings.First(dr => dr.DanceId == dance.DanceId);
-                DanceRatings.Remove(rating);
+                var rating = DanceRatings.FirstOrDefault(dr => dr.DanceId == dance.DanceId);
+                if (rating != null)
+                {
+                    DanceRatings.Remove(rating);
+                }
             }
         }
 

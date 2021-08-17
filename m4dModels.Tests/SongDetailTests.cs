@@ -82,14 +82,14 @@ namespace m4dModels.Tests
 
         private static readonly string[] RowProps =
         {
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Black Sheep	Artist=Gin Wigmore	Tempo=120.0	Tag+=West Coast Swing:Dance	DanceRating=WCS+5	Album:00=Gravel & Wine [+digital booklet]	Purchase:00:AS=D:B00BYKXC82	DanceRating=SWG+1	DanceRating=CSG+1	DanceRating=HST+1	DanceRating=WCS+1	DanceRating=LHP+1",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=The L Train	Artist=Gabriel Yared	Tempo=72.0	Tag+=Slow Waltz:Dance	DanceRating=SWZ+5	Album:00=Shall We Dance?	Purchase:00:AS=D:B001NYTZJY	DanceRating=WLZ+1",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Come Wake Me Up	Artist=Rascal Flatts	Tempo=153.0	Tag+=Viennese Waltz:Dance	DanceRating=VWZ+5	Album:00=Changed (Deluxe Version) [+Digital Booklet]	Purchase:00:AS=D:B007MSUAV2	Purchase:00:IA=512102570	Purchase:00:IS=512102578	DanceRating=WLZ+1",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Inflitrado	Artist=Bajofondo	Tempo=120.0	Tag+=Tango:Dance	DanceRating=TNG+5	Album:00=Mar Dulce	Purchase:00:AS=D:B001C3G8MS	DanceRating=TGO+1	DanceRating=ATN+1",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Des Croissants de Soleil	Artist=Emilie-Claire Barlow	Tempo=96.0	Tag+=Bolero:Dance|International Rumba:Dance	DanceRating=BOL+5	DanceRating=RMBI+5	Album:00=Des croissants de soleil	Purchase:00:AS=D:B009CW0JFS	DanceRating=LTN+1",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Black Sheep	Artist=Gin Wigmore	Tempo=120.0	Tag+=West Coast Swing:Dance	DanceRating=WCS+5	Album:00=Gravel & Wine [+digital booklet]	Purchase:00:AS=D:B00BYKXC82",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=The L Train	Artist=Gabriel Yared	Tempo=72.0	Tag+=Slow Waltz:Dance	DanceRating=SWZ+5	Album:00=Shall We Dance?	Purchase:00:AS=D:B001NYTZJY",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Come Wake Me Up	Artist=Rascal Flatts	Tempo=153.0	Tag+=Viennese Waltz:Dance	DanceRating=VWZ+5	Album:00=Changed (Deluxe Version) [+Digital Booklet]	Purchase:00:AS=D:B007MSUAV2	Purchase:00:IA=512102570	Purchase:00:IS=512102578",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Inflitrado	Artist=Bajofondo	Tempo=120.0	Tag+=Tango:Dance	DanceRating=TNG+5	Album:00=Mar Dulce	Purchase:00:AS=D:B001C3G8MS",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Des Croissants de Soleil	Artist=Emilie-Claire Barlow	Tempo=96.0	Tag+=Bolero:Dance|International Rumba:Dance	DanceRating=BOL+5	DanceRating=RMBI+5	Album:00=Des croissants de soleil	Purchase:00:AS=D:B009CW0JFS",
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Private Eyes	Artist=Brazilian Love Affair	Tempo=124.0	Tag+=American Rumba:Dance	DanceRating=RMBA+5	Album:00=Brazilian Lounge - Les Mysteres De Rio	Purchase:00:AS=D:B007UK5L52",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Glam	Artist=Dimie Cat	Tempo=200.0	Tag+=QuickStep:Dance	DanceRating=QST+5	Album:00=Glam!	Purchase:00:AS=D:B0042D1W6C	DanceRating=FXT+1	DanceRating=QST+1",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=All For You	Artist=Imelda May	Tempo=120.0	Tag+=Slow Foxtrot:Dance	DanceRating=SFT+5	Album:00=More Mayhem	Purchase:00:AS=D:B008VSKRAQ	DanceRating=FXT+1	DanceRating=SFT+1"
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Glam	Artist=Dimie Cat	Tempo=200.0	Tag+=QuickStep:Dance	DanceRating=QST+5	Album:00=Glam!	Purchase:00:AS=D:B0042D1W6C",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=All For You	Artist=Imelda May	Tempo=120.0	Tag+=Slow Foxtrot:Dance	DanceRating=SFT+5	Album:00=More Mayhem	Purchase:00:AS=D:B008VSKRAQ"
         };
 
         private static readonly string[] TaggedRows =
@@ -102,9 +102,9 @@ namespace m4dModels.Tests
 
         private static readonly string[] TaggedRowsProps =
         {
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=English:Other|Foxtrot:Dance|Pop:Music|Rock:Music	DanceRating=FXT+5	Title=Glam	Tempo=120.0	Length=200	Artist=Dimie Cat	Tag+:FXT=David:Other|Goliath:Other|Traditional:Style	DanceRating=SFT+1",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Samba:Dance|Spanish:Other	DanceRating=SMB+3	Title=Drop It On Me (Ft Daddy Yankee)	Tempo=100.0	Length=234	Artist=Ricky Martin	DanceRating=LTN+1",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Cha Cha:Dance|Mambo:Dance|Salsa:Dance	DanceRating=MBO+4	DanceRating=SLS+4	Title=Bailemos Otra Vez	Tempo=195.0	Artist=Jose Alberto El Canario	Tag+:MBO=Traditional:Style	Tag+:SLS=Traditional:Style	Length=308	DanceRating=CHA+3	DanceRating=LTN+3"
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=English:Other|Foxtrot:Dance|Pop:Music|Rock:Music	DanceRating=FXT+5	Title=Glam	Tempo=120.0	Length=200	Artist=Dimie Cat	Tag+:FXT=David:Other|Goliath:Other|Traditional:Style",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Samba:Dance|Spanish:Other	DanceRating=SMB+3	Title=Drop It On Me (Ft Daddy Yankee)	Tempo=100.0	Length=234	Artist=Ricky Martin",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Cha Cha:Dance|Mambo:Dance|Salsa:Dance	DanceRating=MBO+4	DanceRating=SLS+4	Title=Bailemos Otra Vez	Tempo=195.0	Artist=Jose Alberto El Canario	Tag+:MBO=Traditional:Style	Tag+:SLS=Traditional:Style	Length=308	DanceRating=CHA+3"
         };
 
         private static readonly string[] StarsRows =
@@ -115,7 +115,7 @@ namespace m4dModels.Tests
 
         private static readonly string[] StarsRowsProps =
         {
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Cha Cha:Dance	DanceRating=CHA+5	Tag+:CHA=Antonio:Other|Cheryl:Other	Title=Tonight (I'm Lovin' You)	Artist=Enrique Iglesias feat. Ludacris & DJ Frank E	DanceRating=LTN+1	Tag+=Episode 1:Other|Season 19:Other",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Cha Cha:Dance	DanceRating=CHA+5	Tag+:CHA=Antonio:Other|Cheryl:Other	Title=Tonight (I'm Lovin' You)	Artist=Enrique Iglesias feat. Ludacris & DJ Frank E	Tag+=Episode 1:Other|Season 19:Other",
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Foxtrot:Dance	DanceRating=FXT+5	Tag+:FXT=Artem:Other|Lea:Other	Title=This Will Be (An Everlasting Love)	Artist=Natalie Cole	Tag+=Episode 1:Other|Season 19:Other"
         };
 
@@ -128,9 +128,9 @@ namespace m4dModels.Tests
 
         private static readonly string[] RhettRowsProps =
         {
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=(I've Had) The Time of My Life	Artist=Bill Medley & Jennifer Warnes	Album:00=Dirty Dancing Soundtrack	Track:00=1	Length=290	Tag+=Mambo:Dance|Salsa:Dance|Merengue:Dance|Hustle:Dance	DanceRating=MBO+1	DanceRating=SLS+1	DanceRating=MRG+1	DanceRating=HST+1	DanceRating=SWG+1	DanceRating=LTN+3",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=A Namorada	Album:00=Phoenix 2001 Cha#1	Track:00=18	Length=287	Tag+=Cha Cha:Dance|Male Vocal:Other	DanceRating=CHA+1	Tag+:CHA=International:Style	DanceRating=LTN+1",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Ain't That A Kick In The Head	Artist=Dean Martin	Album:00=Ultra-Lounge 'Wild, Cool & Swingin' Vol. 1	Track:00=1	Length=145	Tag+=Slow Foxtrot:Dance|Mambo:Dance|Cha Cha:Dance	DanceRating=SFT+1	DanceRating=MBO+1	DanceRating=CHA+1	Tag+:SFT=International:Style	DanceRating=LTN+2	DanceRating=FXT+1"
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=(I've Had) The Time of My Life	Artist=Bill Medley & Jennifer Warnes	Album:00=Dirty Dancing Soundtrack	Track:00=1	Length=290	Tag+=Mambo:Dance|Salsa:Dance|Merengue:Dance|Hustle:Dance	DanceRating=MBO+1	DanceRating=SLS+1	DanceRating=MRG+1	DanceRating=HST+1",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=A Namorada	Album:00=Phoenix 2001 Cha#1	Track:00=18	Length=287	Tag+=Cha Cha:Dance|Male Vocal:Other	DanceRating=CHA+1	Tag+:CHA=International:Style",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Ain't That A Kick In The Head	Artist=Dean Martin	Album:00=Ultra-Lounge 'Wild, Cool & Swingin' Vol. 1	Track:00=1	Length=145	Tag+=Slow Foxtrot:Dance|Mambo:Dance|Cha Cha:Dance	DanceRating=SFT+1	DanceRating=MBO+1	DanceRating=CHA+1	Tag+:SFT=International:Style"
         };
 
         [TestMethod]
