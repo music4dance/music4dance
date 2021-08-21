@@ -296,9 +296,9 @@ export class SongEditor {
   }
 
   public adminEdit(properties: string): void {
-    this.revert();
     const history = SongHistory.fromString(properties, this.songId);
     this.properties = history.properties;
+    this.admin = true;
   }
 
   private createProperty(name: string, value?: PropertyValue): SongProperty {

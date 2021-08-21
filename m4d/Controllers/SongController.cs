@@ -821,7 +821,7 @@ namespace m4d.Controllers
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
         public ActionResult BatchAdminModify(SongFilter filter, string properties,
-            int max = 1000)
+            int max = 10000)
         {
             return BatchAdminExecute(
                 filter,

@@ -4255,10 +4255,10 @@ namespace m4dModels
                 [TitleHashField] = TitleHash,
                 [ArtistField] = Artist,
                 [LengthField] = Length,
-                [BeatField] = Danceability,
-                [EnergyField] = Energy,
-                [MoodField] = Valence,
-                [TempoField] = (double?)Tempo,
+                [BeatField] = CleanNumber(Danceability),
+                [EnergyField] = CleanNumber(Energy),
+                [MoodField] = CleanNumber(Valence),
+                [TempoField] = CleanNumber((float?)Tempo),
                 [CreatedField] = Created,
                 [ModifiedField] = Modified,
                 [EditedField] = Edited,
@@ -4284,6 +4284,16 @@ namespace m4dModels
             }
 
             return doc;
+        }
+
+        private static float? CleanNumber(float? f)
+        {
+            if (f.HasValue && !float.IsFinite(f.Value))
+            {
+                return null;
+            }
+
+            return f;
         }
 
         private static string BuildDanceFieldName(string id)
