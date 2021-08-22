@@ -279,16 +279,20 @@ export class Song extends TaggableObject {
           this.addDanceRating(property.value);
           break;
         case PropertyType.addedTags:
-          this.getTaggableObject(property).addTags(
-            property.value,
-            currentUser === user
-          );
+          {
+            const toAdd = this.getTaggableObject(property);
+            if (toAdd) {
+              toAdd.addTags(property.value, currentUser === user);
+            }
+          }
           break;
         case PropertyType.removedTags:
-          this.getTaggableObject(property).removeTags(
-            property.value,
-            currentUser === user
-          );
+          {
+            const toRem = this.getTaggableObject(property);
+            if (toRem) {
+              toRem.removeTags(property.value, currentUser === user);
+            }
+          }
           break;
         case PropertyType.deleteTag:
           this.forceDeleteTag(property.danceQualifier, property.value);

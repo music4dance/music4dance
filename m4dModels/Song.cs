@@ -3357,6 +3357,12 @@ namespace m4dModels
                 tobj = FindRating(qualifier);
             }
 
+            if (tobj == null)
+            {
+                Trace.WriteLine($"Bad tag on {this.Title} by {this.Artist}");
+                return new TagList();
+            }
+
             return tobj.AddTags(tags, stats);
         }
 
