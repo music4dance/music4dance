@@ -1317,7 +1317,7 @@ namespace m4dModels
         public async Task CloneIndex(string to, string from = "default")
         {
             AdminMonitor.UpdateTask("StartBackup");
-            var lines = await BackupIndex(from) as IList<string>;
+            var lines = (await BackupIndex(from)).ToList();
             AdminMonitor.UpdateTask("StartReset");
             await ResetIndex(to);
             AdminMonitor.UpdateTask("StartUpload");

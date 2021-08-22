@@ -22,16 +22,6 @@
         </div></b-col
       >
     </b-row>
-    <b-row v-if="showExplicitMessage">
-      <b-col>
-        Not seeing as many songs as you expect in this list? You are currently
-        seeing only songs that someone has explicitly tagged as
-        {{ danceQuery.description }}. You can widen the search by choosing to
-        include songs inferred by tempo on the
-        <a href="/song/advancedsearchform">advanced search form</a>
-        or just <a :href="implicitFilter">clicking here</a>.
-      </b-col>
-    </b-row>
     <b-row v-if="isAdmin">
       <b-col>
         <b-button-toolbar aria-label="Admin song modifiers">
@@ -263,16 +253,6 @@ export default class SongFooter extends Mixins(AdminTools) {
     return Math.max(1, Math.ceil(this.model.count / 25));
   }
 
-  private get showExplicitMessage(): boolean {
-    const danceQuery = this.danceQuery;
-    return (
-      !!this.canShowImplicitMessage &&
-      !!danceQuery &&
-      !danceQuery.includeInferred &&
-      danceQuery.dances.length > 0
-    );
-  }
-
   private get danceQuery(): DanceQueryBase | undefined {
     return this.filter.isRaw ? undefined : this.filter.danceQuery;
   }
@@ -281,12 +261,6 @@ export default class SongFooter extends Mixins(AdminTools) {
     return this.filter.isSimple(this.model.userName)
       ? "/song"
       : "/song/advancedsearchform";
-  }
-
-  private get implicitFilter(): string {
-    const filter = this.filter.clone();
-    filter.dances = filter.danceQuery.setIncludeInferred(true).query;
-    return filter.url;
   }
 
   private get selectedSongs(): string[] {

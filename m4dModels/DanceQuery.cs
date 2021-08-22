@@ -59,7 +59,7 @@ namespace m4dModels
         {
             get
             {
-                var dances = Dances.ToList();
+                var dances = DanceLibrary.Dances.Instance.ExpandGroups(Dances).ToList();
                 switch (dances.Count)
                 {
                     case 0:

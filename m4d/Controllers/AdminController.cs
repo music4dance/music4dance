@@ -280,8 +280,9 @@ namespace m4d.Controllers
         // Get: //ReloadIndex
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [DisableRequestSizeLimit]
         [Authorize(Roles = "dbAdmin")]
-        public async Task<ActionResult> LoadIdx(IFormFile file, string idxName = "default",
+        public async Task<ActionResult> LoadIdx(IFormFile fileUpload, string idxName = "default",
             bool reset = true)
         {
             try
@@ -289,7 +290,7 @@ namespace m4d.Controllers
                 StartAdminTask("LoadIndex");
                 AdminMonitor.UpdateTask("UploadFile");
 
-                var lines = UploadFile(file);
+                var lines = UploadFile(fileUpload);
 
                 AdminMonitor.UpdateTask("LoadIndex");
 
@@ -298,7 +299,7 @@ namespace m4d.Controllers
                     await Database.ResetIndex(idxName);
                 }
 
-                var c = Database.UploadIndex(lines, !reset, idxName);
+                var c = await Database.UploadIndex(lines, !reset, idxName);
 
                 if (SearchService.GetInfo(idxName).Id == SearchService.GetInfo("default").Id)
                 {

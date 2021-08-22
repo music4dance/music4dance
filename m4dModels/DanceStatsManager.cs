@@ -24,7 +24,8 @@ namespace m4dModels
         Task ClearCache(DanceMusicCoreService dms, bool fromStore);
         Task ReloadDances(DanceMusicCoreService dms);
 
-        Task<DanceStatsInstance> LoadFromAzure(DanceMusicCoreService dms, string source = "default");
+        Task<DanceStatsInstance>
+            LoadFromAzure(DanceMusicCoreService dms, string source = "default");
 
         Task Initialize(DanceMusicCoreService dms);
     }
@@ -58,7 +59,7 @@ namespace m4dModels
                 throw new Exception("Should only Initialize DanceStatsManager once");
             }
 
-            Instance = await LoadFromAppData(dms) ?? await LoadFromAzure(dms, "default");
+            Instance = await LoadFromAppData(dms) ?? await LoadFromAzure(dms);
         }
 
         public IList<DanceStats> FlatDanceStats => Instance.List;
@@ -72,7 +73,7 @@ namespace m4dModels
         public async Task ClearCache(DanceMusicCoreService dms, bool fromStore)
         {
             var instance = fromStore
-                ? await LoadFromAzure(dms, "default")
+                ? await LoadFromAzure(dms)
                 : await LoadFromAppData(dms);
 
             if (instance != null)
@@ -236,12 +237,7 @@ namespace m4dModels
             scGroup.Children.Add(scType);
             scType.Parent = scGroup;
 
-            // Only add children to MSC, for other groups they're already built in
-
-            if (scGroup.DanceId == "MSC" || scGroup.DanceId == "PRF")
-            {
-                scGroup.SongCount += scType.SongCount;
-            }
+            scGroup.SongCount += scType.SongCount;
         }
 
         private DanceStats InfoFromDance(DanceMusicCoreService dms, bool includeStats,

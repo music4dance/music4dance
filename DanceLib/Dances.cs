@@ -796,7 +796,26 @@ namespace DanceLibrary
 
         public IEnumerable<DanceGroup> AllDanceGroups => _allDanceGroups;
 
-        public static Dances Instance => s_instance ?? (s_instance = Load());
+        public static Dances Instance => s_instance ??= Load();
+
+        public IEnumerable<DanceObject> ExpandGroups(IEnumerable<DanceObject> dances)
+        {
+            var expanded = new List<DanceObject>();
+            foreach (var d in dances)
+            {
+                switch (d)
+                {
+                    case DanceType _:
+                        expanded.Add(d);
+                        break;
+                    case DanceGroup group:
+                        expanded.AddRange(group.Members);
+                        break;
+                }
+            }
+
+            return expanded;
+        }
 
         private void LoadDances(List<DanceType> danceTypes)
         {

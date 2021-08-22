@@ -48,14 +48,6 @@
                 <b-form-radio value="any">Any</b-form-radio>
                 <b-form-radio value="all">All</b-form-radio>
               </b-form-radio-group>
-              <b-form-checkbox
-                id="dance-inferred"
-                class="mx-3"
-                :disabled="dances.length === 0"
-                v-model="danceInferred"
-              >
-                Include Inferred
-              </b-form-checkbox>
             </div>
           </div>
         </b-form-group>
@@ -198,7 +190,6 @@
 searchString = {{ keyWords }}
 dances = {{ dances }}
 danceConnector = {{ danceConnector }}
-danceInferred = {{ danceInferred }}
 tempoMin = {{ tempoMin }}
 tempoMax = {{ tempoMax }}
 activity = {{ activity }}
@@ -248,7 +239,6 @@ export default class App extends Mixins(AdminTools) {
 
   private dances: string[] = [];
   private danceConnector = "any";
-  private danceInferred = false;
 
   private environment: DanceEnvironment | null = null;
   private get tags(): Tag[] {
@@ -329,7 +319,6 @@ export default class App extends Mixins(AdminTools) {
 
     this.dances = danceQuery.danceList;
     this.danceConnector = danceQuery.isExclusive ? "all" : "any";
-    this.danceInferred = danceQuery.includeInferred;
 
     const sort = new SongSort(filter.sortOrder);
     this.sort = sort.order ?? null;
@@ -363,8 +352,7 @@ export default class App extends Mixins(AdminTools) {
   private get songFilter(): SongFilter {
     const danceQuery = DanceQuery.fromParts(
       this.dances,
-      this.danceConnector === "all",
-      this.danceInferred
+      this.danceConnector === "all"
     );
     const userQuery = UserQuery.fromParts(
       this.computedActivity ? this.computedActivity : undefined,
@@ -438,7 +426,6 @@ export default class App extends Mixins(AdminTools) {
     this.keyWords = "";
     this.dances.splice(0);
     this.danceConnector = "any";
-    this.danceInferred = false;
     this.includeTags.splice(0);
     this.excludeTags.splice(0);
     this.tempoMin = 0;

@@ -165,7 +165,7 @@
                 <thead class="big-text">Azure Search Fields</thead>
                 <tbody>
                 <tr>
-                    <td>Field</td><td>Datatype</td><td>Searchable</td><td>Sortable</td><td>Filterable</td><td>Facetable</td><td>Retrievable</td>
+                    <td>Field</td><td>Datatype</td><td>Searchable</td><td>Sortable</td><td>Filterable</td><td>Facetable</td>
                 </tr>
                 @foreach (var field in ViewBag.AzureIndexInfo.Fields)
                 {
@@ -176,7 +176,6 @@
                         <td>@field.IsSortable</td>
                         <td>@field.IsFilterable</td>
                         <td>@field.IsFacetable</td>
-                        <td>@field.IsRetrievable</td>
                     </tr>
                 }
                 </tbody>

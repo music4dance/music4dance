@@ -4087,6 +4087,10 @@ namespace m4dModels
                 {
                     IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true
                 },
+                new SearchField(EditedField, SearchFieldDataType.DateTimeOffset)
+                {
+                    IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true
+                },
                 new SearchField(TempoField, SearchFieldDataType.Double)
                 {
                     IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true
