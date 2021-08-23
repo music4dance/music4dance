@@ -53,8 +53,6 @@ namespace m4dModels
         public bool IsExclusive => (StartsWith(And) || StartsWith(AndX)) &&
             Query.IndexOf(",", 4, StringComparison.Ordinal) != -1;
 
-        public bool IncludeInferred => StartsWith(AndX) || StartsWith(OneOfX);
-
         public string ODataFilter
         {
             get
@@ -65,10 +63,7 @@ namespace m4dModels
                     case 0:
                         return null;
                     case 1:
-                        return $"(DanceTags/any(t: t eq '{dances[0].Name.ToLower()}')" +
-                            (IncludeInferred
-                                ? $" or  DanceTagsInferred/any(t: t eq '{dances[0].Name.ToLower()}')"
-                                : "") + ")";
+                        return $"(DanceTags/any(t: t eq '{dances[0].Name.ToLower()}'))";
                 }
 
                 var sb = new StringBuilder();
@@ -81,15 +76,7 @@ namespace m4dModels
                         sb.Append($" {con} ");
                     }
 
-                    sb.AppendFormat("(DanceTags/any(t: t eq '{0}')", d.Name.ToLower());
-                    if (IncludeInferred)
-                    {
-                        sb.AppendFormat(
-                            " or DanceTagsInferred/any(t: t eq '{0}')",
-                            d.Name.ToLower());
-                    }
-
-                    sb.Append(")");
+                    sb.AppendFormat("(DanceTags/any(t: t eq '{0}'))", d.Name.ToLower());
                 }
 
                 return $"({sb})";
@@ -102,13 +89,6 @@ namespace m4dModels
         {
             return DanceIds.Contains(id, StringComparer.OrdinalIgnoreCase);
         }
-
-        //public bool IsDanceOrEmpty(string id)
-        //{
-        //    var ids = DanceIds as string[];
-        //    Debug.Assert(ids != null);
-        //    return ids.Length == 0 || (ids.Length == 1 && string.Equals(id, ids[0]));
-        //}
 
         public DanceQuery AddDance(string dance)
         {
@@ -131,25 +111,8 @@ namespace m4dModels
             return IsExclusive && DanceIds.Count() > 1
                 ? this
                 : new DanceQuery(
-                    (IncludeInferred ? AndX : And) + "," +
+                    And + "," +
                     (StartsWith(OneOfX) ? RemoveQualifier() : Query));
-        }
-
-        public DanceQuery MakeInferred()
-        {
-            return IncludeInferred
-                ? this
-                : new DanceQuery(
-                    IsExclusive ? AndX + "," + RemoveQualifier() : OneOfX + "," + Query);
-        }
-
-        public DanceQuery MakeExplicit()
-        {
-            return !IncludeInferred
-                ? this
-                : new DanceQuery(
-                    (IsExclusive ? And + "," : string.Empty) + "," +
-                    RemoveQualifier());
         }
 
         public override string ToString()
@@ -165,10 +128,6 @@ namespace m4dModels
             }
 
             var suffix = string.Empty;
-            if (IncludeInferred)
-            {
-                suffix = " (including inferred by tempo)";
-            }
 
             switch (count)
             {

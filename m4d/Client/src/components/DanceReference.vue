@@ -27,7 +27,7 @@ export default class DanceReference extends Mixins(EnvironmentManager) {
   }
 
   private get danceCount(): number | undefined {
-    return this.dance?.songCountExplicit;
+    return this.dance?.songCount;
   }
 }
 </script>

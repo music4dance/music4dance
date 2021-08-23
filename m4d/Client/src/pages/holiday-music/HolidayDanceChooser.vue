@@ -33,7 +33,7 @@ export default class HolidayDanceChooser extends Mixins(EnvironmentManager) {
     const environment = this.environment;
     return environment
       ? environment.flatStats
-          .filter((d) => d.songCountExplicit > 10 && d.danceName !== this.dance)
+          .filter((d) => d.songCount > 10 && d.danceName !== this.dance)
           .sort((a, b) => a.danceName.localeCompare(b.danceName))
       : [];
   }

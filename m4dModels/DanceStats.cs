@@ -60,12 +60,6 @@ namespace m4dModels
         public long SongCount { get; set; }
 
         [JsonProperty]
-        public long SongCountExplicit { get; set; }
-
-        [JsonProperty]
-        public long SongCountImplicit { get; set; }
-
-        [JsonProperty]
         public int MaxWeight { get; set; }
 
         [JsonProperty]
@@ -166,14 +160,9 @@ namespace m4dModels
             }
         }
 
-        public void AggregateSongCounts(IReadOnlyDictionary<string, long> tags,
-            IReadOnlyDictionary<string, long> inferred)
+        public void AggregateSongCounts(IReadOnlyDictionary<string, long> tags)
         {
-            // SongCount
-
-            SongCountExplicit = tags.TryGetValue(DanceId, out var expl) ? expl : 0;
-            SongCountImplicit = inferred.TryGetValue(DanceId, out var impl) ? impl : 0;
-            SongCount = SongCountImplicit + SongCountExplicit;
+            SongCount = tags.TryGetValue(DanceId, out var count) ? count : 0;
         }
     }
 }

@@ -12,14 +12,6 @@ export class DanceQueryBase {
     return false;
   }
 
-  public get includeInferred(): boolean {
-    return false;
-  }
-
-  public setIncludeInferred(value: boolean): DanceQueryBase {
-    throw new Error(`Not Implemented. Value = ${value}`);
-  }
-
   public get dances(): DanceStats[] {
     return this.danceList.map((id) => environment!.fromId(id)!);
   }
@@ -29,7 +21,7 @@ export class DanceQueryBase {
   }
 
   public get singleDance(): boolean {
-    return this.danceList.length === 1;
+    return this.danceList.length === 1 && !this.dances[0].isGroup;
   }
 
   public get isSimple(): boolean {

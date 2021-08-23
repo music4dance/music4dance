@@ -9,22 +9,12 @@ const oneOfX = "OOX"; // Inclusive + Inferred
 const modifiers: string[] = [all, and, andX, oneOfX];
 
 export class DanceQuery extends DanceQueryBase {
-  public static fromParts(
-    dances: string[],
-    exclusive?: boolean,
-    inferred?: boolean
-  ): DanceQuery {
+  public static fromParts(dances: string[], exclusive?: boolean): DanceQuery {
     if (!dances || dances.length === 0) {
       return new DanceQuery();
     }
 
-    let modifier = "";
-    if (exclusive) {
-      modifier = inferred ? andX : and;
-    } else if (inferred) {
-      modifier = oneOfX;
-    }
-
+    const modifier = exclusive ? and : "";
     const composite = modifier ? [modifier, ...dances] : dances;
     return new DanceQuery(composite.join(","));
   }
@@ -63,32 +53,23 @@ export class DanceQuery extends DanceQueryBase {
     return this.startsWithAny([and, andX]) && this.data.indexOf(",", 4) !== -1;
   }
 
-  public get includeInferred(): boolean {
-    return this.startsWithAny([andX, oneOfX]);
-  }
-
-  public setIncludeInferred(value: boolean): DanceQueryBase {
-    return DanceQuery.fromParts(this.danceList, this.isSimple, value);
-  }
-
   public get description(): string {
     const prefix = this.isExclusive ? "all" : "any";
     const connector = this.isExclusive ? "and" : "or";
-    const suffix = this.includeInferred ? " (including inferred by tempo)" : "";
     const dances = this.danceNames;
 
     switch (dances.length) {
       case 0:
-        return `songs${suffix}`;
+        return `songs`;
       case 1:
-        return `${dances[0]} songs${suffix}`;
+        return `${dances[0]} songs`;
       case 2:
-        return `songs danceable to ${prefix} of ${dances[0]} ${connector} ${dances[1]}${suffix}`;
+        return `songs danceable to ${prefix} of ${dances[0]} ${connector} ${dances[1]}`;
       default: {
         const last = dances.pop();
         return `songs danceable to ${prefix} of ${dances.join(
           ", "
-        )} ${connector} ${last}${suffix}`;
+        )} ${connector} ${last}`;
       }
     }
     return "";

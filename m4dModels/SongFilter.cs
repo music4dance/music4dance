@@ -41,16 +41,26 @@ namespace m4dModels
     {
         private const string Empty = ".";
         private const char SubChar = '\u001a';
-        private readonly string _subStr = new string(SubChar, 1);
         private const char Separator = '-';
-        private readonly string _sepStr = new string(Separator, 1);
 
-        public static SongFilter GetDefault(string userName)
-        {
-            return userName == null
-                ? new SongFilter()
-                : new SongFilter($"Index-----\\-{userName}|h");
-        }
+        private const string CommaSeparator = ", ";
+
+        private static readonly Dictionary<string, string> s_tagClasses =
+            new Dictionary<string, string>
+            {
+                { "Music", "Genre" }, { "Style", "Style" }, { "Tempo", "Tempo" },
+                { "Other", "Other" }
+            };
+
+        private static readonly List<PropertyInfo> PropertyInfo;
+
+        private static readonly object[] AltDefaults =
+            { "index", "all", null, null, null, null, null, 1 };
+
+        private readonly string _sepStr = new string(Separator, 1);
+        private readonly string _subStr = new string(SubChar, 1);
+
+        private string _action;
 
         static SongFilter()
         {
@@ -171,45 +181,11 @@ namespace m4dModels
             Action = action;
         }
 
-        public static SongFilter CreateHolidayFilter(string dance = null, int page = 1)
-        {
-            const string holidayFilter =
-                "((OtherTags/any(t: t eq 'holiday') or GenreTags/any(t: t eq 'christmas' or t eq 'holiday')) and OtherTags/all(t: t ne 'halloween'))";
-
-            string danceFilter = null;
-            if (!string.IsNullOrWhiteSpace(dance))
-            {
-                var d = DanceLibrary.Dances.Instance.DanceFromName(dance);
-                if (d != null)
-                {
-                    danceFilter = $"(DanceTags/any(t: t eq '{dance.ToLower()}')" +
-                        (d is DanceGroup
-                            ? $" or  DanceTagsInferred/any(t: t eq '{dance.ToLower()}')"
-                            : "") + ")";
-                }
-            }
-
-            var odata = string.IsNullOrWhiteSpace(dance)
-                ? holidayFilter
-                : $"{danceFilter} and {holidayFilter}";
-
-            return new SongFilter(
-                "holidaymusic",
-                new RawSearch
-                {
-                    ODataFilter = odata, Page = page,
-                    Flags = danceFilter == null ? "" : "singleDance"
-                }
-            );
-        }
-
         public string Action
         {
             get => _action ?? "index";
             set => _action = value;
         }
-
-        private string _action;
 
         public string Dances { get; set; }
         public string SortOrder { get; set; }
@@ -259,84 +235,6 @@ namespace m4dModels
             }
         }
 
-        public string GetTagFilter(DanceMusicCoreService dms)
-        {
-            var tags = new TagList(Tags);
-
-            if (tags.IsEmpty)
-            {
-                return null;
-            }
-
-            var tlInclude = new TagList(Tags);
-            var tlExclude = new TagList();
-
-            if (tlInclude.IsQualified)
-            {
-                var temp = tlInclude;
-                tlInclude = temp.ExtractAdd();
-                tlExclude = temp.ExtractRemove();
-            }
-
-            // We're accepting either a straight include list of tags or a qualified list (+/- for include/exlude)
-            // TODO: For now this is going to be explicit (i&i&!e*!e) - do we need a stronger expression syntax at this level
-            //  or can we do some kind of top level OR of queries?
-
-            var rInclude = new TagList(dms.GetTagRings(tlInclude).Select(tt => tt.Key));
-            var rExclude = new TagList(dms.GetTagRings(tlExclude).Select(tt => tt.Key));
-
-            var sb = new StringBuilder();
-
-            foreach (var tp in s_tagClasses)
-            {
-                HandleFilterClass(sb, rInclude, tp.Key, tp.Value, "{0}Tags/any(t: t eq '{1}')");
-                HandleFilterClass(sb, rExclude, tp.Key, tp.Value, "{0}Tags/all(t: t ne '{1}')");
-            }
-
-            return sb.ToString();
-        }
-
-        public static IEnumerable<string> GetTagClasses()
-        {
-            return s_tagClasses.Keys;
-        }
-
-        public static string TagClassFromName(string tagClass)
-        {
-            return string.Equals(tagClass, "Genre", StringComparison.OrdinalIgnoreCase)
-                ? "Music"
-                : tagClass;
-        }
-
-        private static void HandleFilterClass(StringBuilder sb, TagList tags, string tagClass,
-            string tagName, string format)
-        {
-            var filtered = tags.Filter(tagClass);
-            if (filtered.IsEmpty)
-            {
-                return;
-            }
-
-            foreach (var t in filtered.StripType())
-            {
-                if (sb.Length > 0)
-                {
-                    sb.Append(" and ");
-                }
-
-                var tt = t.Replace(@"'", @"''");
-
-                sb.AppendFormat(format, tagName, tt.ToLower());
-            }
-        }
-
-        private static readonly Dictionary<string, string> s_tagClasses =
-            new Dictionary<string, string>
-            {
-                { "Music", "Genre" }, { "Style", "Style" }, { "Tempo", "Tempo" },
-                { "Other", "Other" }
-            };
-
 
         public bool IsSimple => !IsAdvanced;
 
@@ -361,63 +259,6 @@ namespace m4dModels
 
         public bool IsAzure =>
             Action.ToLower().StartsWith("azure", StringComparison.OrdinalIgnoreCase);
-
-        //public bool Advanced => !string.IsNullOrWhiteSpace(Purchase) ||
-        //                        TempoMin.HasValue || TempoMax.HasValue || DanceQuery.Advanced;
-
-        public bool Anonymize(string user)
-        {
-            return SwapUser(UserQuery.AnonymousUser, user);
-        }
-
-        public bool Deanonymize(string user)
-        {
-            return SwapUser(user, UserQuery.AnonymousUser);
-        }
-
-        public string GetOdataFilter(DanceMusicCoreService dms)
-        {
-            var odata = SongSort.Numeric
-                ? $"({SongSort.Id} ne null) and ({SongSort.Id} ne 0)"
-                : null;
-            var danceFilter = DanceQuery.ODataFilter;
-            if (danceFilter != null)
-            {
-                odata = (odata == null ? "" : odata + " and ") + danceFilter;
-            }
-
-            var userFilter = UserQuery.ODataFilter;
-            if (userFilter != null)
-            {
-                odata = (odata == null ? "" : odata + " and ") + userFilter;
-            }
-
-            if (TempoMin.HasValue)
-            {
-                var tempoMin = TempoMin.Value % 1M < (decimal).0001 ? TempoMin - .5M : TempoMin;
-                odata = (odata == null ? "" : odata + " and ") + $"(Tempo ge {tempoMin})";
-            }
-
-            if (TempoMax.HasValue)
-            {
-                var tempoMax = TempoMax.Value % 1M < (decimal).0001 ? TempoMax + .5M : TempoMax;
-                odata = (odata == null ? "" : odata + " and ") + $"(Tempo le {tempoMax})";
-            }
-
-            var purchaseFilter = ODataPurchase;
-            if (purchaseFilter != null)
-            {
-                odata = (odata == null ? "" : odata + " and ") + purchaseFilter;
-            }
-
-            var tagFilter = GetTagFilter(dms);
-            if (tagFilter != null)
-            {
-                odata = (odata == null ? "" : odata + " and ") + tagFilter;
-            }
-
-            return odata;
-        }
 
         public string ODataPurchase
         {
@@ -453,43 +294,6 @@ namespace m4dModels
             }
         }
 
-        public override string ToString()
-        {
-            var ret = new StringBuilder();
-            var nullBuff = new StringBuilder();
-
-            var sep = string.Empty;
-            var i = 0;
-            foreach (var v in PropertyInfo.Select(p => p.GetValue(this)))
-            {
-                if (v == null || IsAltDefault(v, i))
-                {
-                    nullBuff.Append(sep);
-                    nullBuff.Append(Empty);
-                }
-                else
-                {
-                    ret.Append(nullBuff);
-                    nullBuff.Clear();
-                    ret.Append(sep);
-                    ret.Append(Format(v.ToString()));
-                }
-
-                sep = _sepStr;
-                i += 1;
-            }
-
-            return ret.ToString();
-        }
-
-        public string ToJson()
-        {
-            var stream = new MemoryStream();
-            var serializer = new DataContractJsonSerializer(typeof(SongFilter));
-            serializer.WriteObject(stream, this);
-            return Encoding.UTF8.GetString(stream.ToArray());
-        }
-
         public bool IsEmpty => EmptyExcept(new[] { "SortOrder" });
 
         public bool IsEmptyPaged => EmptyExcept(new[] { "Page", "Action", "SortOrder" });
@@ -500,13 +304,6 @@ namespace m4dModels
             DanceQuery.Dances.Count() < 2;
 
         public bool IsSingDance => IsEmptyDance && DanceQuery.Dances.Count() == 1;
-
-        private bool EmptyExcept(IEnumerable<string> properties)
-        {
-            return !PropertyInfo.Where(pi => !properties.Contains(pi.Name))
-                .Select(t => t.GetValue(this)).Where((o, i) => o != null && !IsAltDefault(o, i))
-                .Any();
-        }
 
         public string Description
         {
@@ -629,18 +426,216 @@ namespace m4dModels
             }
         }
 
-        public SongFilter ToggleInferred()
+        public static SongFilter GetDefault(string userName)
         {
-            var ret = new SongFilter(ToString());
-            var danceQuery = DanceQuery;
-            ret.Dances = danceQuery.IncludeInferred
-                ? danceQuery.MakeExplicit().Query
-                : danceQuery.MakeInferred().Query;
-
-            return ret;
+            return userName == null
+                ? new SongFilter()
+                : new SongFilter($"Index-----\\-{userName}|h");
         }
 
-        private const string CommaSeparator = ", ";
+        public static SongFilter CreateHolidayFilter(string dance = null, int page = 1)
+        {
+            const string holidayFilter =
+                "((OtherTags/any(t: t eq 'holiday') or GenreTags/any(t: t eq 'christmas' or t eq 'holiday')) and OtherTags/all(t: t ne 'halloween'))";
+
+            string danceFilter = null;
+            if (!string.IsNullOrWhiteSpace(dance))
+            {
+                var d = DanceLibrary.Dances.Instance.DanceFromName(dance);
+                if (d != null)
+                {
+                    danceFilter = $"(DanceTags/any(t: t eq '{dance.ToLower()}')" +
+                        (d is DanceGroup
+                            ? $" or  DanceTagsInferred/any(t: t eq '{dance.ToLower()}')"
+                            : "") + ")";
+                }
+            }
+
+            var odata = string.IsNullOrWhiteSpace(dance)
+                ? holidayFilter
+                : $"{danceFilter} and {holidayFilter}";
+
+            return new SongFilter(
+                "holidaymusic",
+                new RawSearch
+                {
+                    ODataFilter = odata, Page = page,
+                    Flags = danceFilter == null ? "" : "singleDance"
+                }
+            );
+        }
+
+        public string GetTagFilter(DanceMusicCoreService dms)
+        {
+            var tags = new TagList(Tags);
+
+            if (tags.IsEmpty)
+            {
+                return null;
+            }
+
+            var tlInclude = new TagList(Tags);
+            var tlExclude = new TagList();
+
+            if (tlInclude.IsQualified)
+            {
+                var temp = tlInclude;
+                tlInclude = temp.ExtractAdd();
+                tlExclude = temp.ExtractRemove();
+            }
+
+            // We're accepting either a straight include list of tags or a qualified list (+/- for include/exlude)
+            // TODO: For now this is going to be explicit (i&i&!e*!e) - do we need a stronger expression syntax at this level
+            //  or can we do some kind of top level OR of queries?
+
+            var rInclude = new TagList(dms.GetTagRings(tlInclude).Select(tt => tt.Key));
+            var rExclude = new TagList(dms.GetTagRings(tlExclude).Select(tt => tt.Key));
+
+            var sb = new StringBuilder();
+
+            foreach (var tp in s_tagClasses)
+            {
+                HandleFilterClass(sb, rInclude, tp.Key, tp.Value, "{0}Tags/any(t: t eq '{1}')");
+                HandleFilterClass(sb, rExclude, tp.Key, tp.Value, "{0}Tags/all(t: t ne '{1}')");
+            }
+
+            return sb.ToString();
+        }
+
+        public static IEnumerable<string> GetTagClasses()
+        {
+            return s_tagClasses.Keys;
+        }
+
+        public static string TagClassFromName(string tagClass)
+        {
+            return string.Equals(tagClass, "Genre", StringComparison.OrdinalIgnoreCase)
+                ? "Music"
+                : tagClass;
+        }
+
+        private static void HandleFilterClass(StringBuilder sb, TagList tags, string tagClass,
+            string tagName, string format)
+        {
+            var filtered = tags.Filter(tagClass);
+            if (filtered.IsEmpty)
+            {
+                return;
+            }
+
+            foreach (var t in filtered.StripType())
+            {
+                if (sb.Length > 0)
+                {
+                    sb.Append(" and ");
+                }
+
+                var tt = t.Replace(@"'", @"''");
+
+                sb.AppendFormat(format, tagName, tt.ToLower());
+            }
+        }
+
+        //public bool Advanced => !string.IsNullOrWhiteSpace(Purchase) ||
+        //                        TempoMin.HasValue || TempoMax.HasValue || DanceQuery.Advanced;
+
+        public bool Anonymize(string user)
+        {
+            return SwapUser(UserQuery.AnonymousUser, user);
+        }
+
+        public bool Deanonymize(string user)
+        {
+            return SwapUser(user, UserQuery.AnonymousUser);
+        }
+
+        public string GetOdataFilter(DanceMusicCoreService dms)
+        {
+            var odata = SongSort.Numeric
+                ? $"({SongSort.Id} ne null) and ({SongSort.Id} ne 0)"
+                : null;
+            var danceFilter = DanceQuery.ODataFilter;
+            if (danceFilter != null)
+            {
+                odata = (odata == null ? "" : odata + " and ") + danceFilter;
+            }
+
+            var userFilter = UserQuery.ODataFilter;
+            if (userFilter != null)
+            {
+                odata = (odata == null ? "" : odata + " and ") + userFilter;
+            }
+
+            if (TempoMin.HasValue)
+            {
+                var tempoMin = TempoMin.Value % 1M < (decimal).0001 ? TempoMin - .5M : TempoMin;
+                odata = (odata == null ? "" : odata + " and ") + $"(Tempo ge {tempoMin})";
+            }
+
+            if (TempoMax.HasValue)
+            {
+                var tempoMax = TempoMax.Value % 1M < (decimal).0001 ? TempoMax + .5M : TempoMax;
+                odata = (odata == null ? "" : odata + " and ") + $"(Tempo le {tempoMax})";
+            }
+
+            var purchaseFilter = ODataPurchase;
+            if (purchaseFilter != null)
+            {
+                odata = (odata == null ? "" : odata + " and ") + purchaseFilter;
+            }
+
+            var tagFilter = GetTagFilter(dms);
+            if (tagFilter != null)
+            {
+                odata = (odata == null ? "" : odata + " and ") + tagFilter;
+            }
+
+            return odata;
+        }
+
+        public override string ToString()
+        {
+            var ret = new StringBuilder();
+            var nullBuff = new StringBuilder();
+
+            var sep = string.Empty;
+            var i = 0;
+            foreach (var v in PropertyInfo.Select(p => p.GetValue(this)))
+            {
+                if (v == null || IsAltDefault(v, i))
+                {
+                    nullBuff.Append(sep);
+                    nullBuff.Append(Empty);
+                }
+                else
+                {
+                    ret.Append(nullBuff);
+                    nullBuff.Clear();
+                    ret.Append(sep);
+                    ret.Append(Format(v.ToString()));
+                }
+
+                sep = _sepStr;
+                i += 1;
+            }
+
+            return ret.ToString();
+        }
+
+        public string ToJson()
+        {
+            var stream = new MemoryStream();
+            var serializer = new DataContractJsonSerializer(typeof(SongFilter));
+            serializer.WriteObject(stream, this);
+            return Encoding.UTF8.GetString(stream.ToArray());
+        }
+
+        private bool EmptyExcept(IEnumerable<string> properties)
+        {
+            return !PropertyInfo.Where(pi => !properties.Contains(pi.Name))
+                .Select(t => t.GetValue(this)).Where((o, i) => o != null && !IsAltDefault(o, i))
+                .Any();
+        }
 
         private static string DescribeTags(TagList tags, string prefix, string connector,
             ref string separator)
@@ -709,10 +704,5 @@ namespace m4dModels
                     StringComparison.InvariantCultureIgnoreCase)
                 : Equals(o, AltDefaults[index]);
         }
-
-        private static readonly List<PropertyInfo> PropertyInfo;
-
-        private static readonly object[] AltDefaults =
-            { "index", "all", null, null, null, null, null, 1 };
     }
 }

@@ -61,7 +61,6 @@ export enum PropertyType {
   modifiedField = "Modified",
   dancesField = "Dances",
   usersField = "Users",
-  danceTagsInferred = "DanceTagsInferred",
   genreTags = "GenreTags",
   tempoTags = "TempoTags",
   styleTags = "StyleTags",

@@ -174,7 +174,6 @@ namespace m4dModels
             var facets = await dms.GetTagFacets("DanceTags,DanceTagsInferred", 100, source);
 
             var tags = IndexDanceFacet(facets["DanceTags"]);
-            var inferred = IndexDanceFacet(facets["DanceTagsInferred"]);
 
             var used = new HashSet<string>();
 
@@ -184,13 +183,13 @@ namespace m4dModels
                 // All groups except other have a valid 'root' node...
                 var scGroup = InfoFromDance(dms, false, dg);
                 scGroup.Children = new List<DanceStats>();
-                scGroup.AggregateSongCounts(tags, inferred);
+                scGroup.AggregateSongCounts(tags);
 
                 stats.Add(scGroup);
 
                 foreach (var danceType in dg.Members.Select(danceTypeT => danceTypeT as DanceType))
                 {
-                    AzureHandleType(danceType, scGroup, tags, inferred, dms);
+                    AzureHandleType(danceType, scGroup, tags, dms);
                     if (danceType != null)
                     {
                         used.Add(danceType.Id);
@@ -198,7 +197,7 @@ namespace m4dModels
                 }
             }
 
-            // Then handle ungrouped types
+            // Then handle un-grouped types
             foreach (var dt in Dances.Instance.AllDanceTypes.Where(dt => !used.Contains(dt.Id)))
             {
                 Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Ungrouped Dance: {0}", dt.Id);
@@ -228,11 +227,10 @@ namespace m4dModels
 
 
         private void AzureHandleType(DanceObject dtyp, DanceStats scGroup,
-            IReadOnlyDictionary<string, long> tags, IReadOnlyDictionary<string, long> inferred,
-            DanceMusicCoreService dms)
+            IReadOnlyDictionary<string, long> tags, DanceMusicCoreService dms)
         {
             var scType = InfoFromDance(dms, false, dtyp);
-            scType.AggregateSongCounts(tags, inferred);
+            scType.AggregateSongCounts(tags);
 
             scGroup.Children.Add(scType);
             scType.Parent = scGroup;

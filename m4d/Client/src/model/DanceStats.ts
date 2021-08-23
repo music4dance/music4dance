@@ -290,8 +290,6 @@ export class DanceStats {
   @jsonMember public seoName!: string;
   @jsonMember public description!: string;
   @jsonMember public songCount!: number;
-  @jsonMember public songCountExplicit!: number;
-  @jsonMember public songCountImplicit!: number;
   @jsonMember public maxWeight!: number;
   @jsonMember public spotifyPlaylist!: string;
   @jsonMember public songTags!: string;

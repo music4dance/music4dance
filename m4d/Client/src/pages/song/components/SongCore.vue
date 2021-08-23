@@ -110,19 +110,6 @@
           >Add Dance Style</b-button
         >
       </b-col>
-      <b-col md="4" v-if="hasInferredDances">
-        <dance-list
-          title="Dances (Inferred)"
-          :song="song"
-          :danceRatings="inferredDanceRatings"
-          :user="model.userName"
-          :filter="model.filter"
-          :edit="edit"
-          @dance-vote="onDanceVote($event)"
-          @update-song="updateSong"
-          @delete-dance="onDeleteDance($event)"
-        />
-      </b-col>
       <b-col md="auto"
         ><song-stats
           :song="song"
@@ -405,22 +392,11 @@ export default class SongCore extends Mixins(AdminTools) {
     return !!this.explicitDanceIds?.length;
   }
 
-  private get hasInferredDances(): boolean {
-    return !!this.inferredDanceRatings?.length;
-  }
-
   private get explicitDanceRatings(): DanceRating[] {
     const ratings = this.song.danceRatings ?? [];
     return this.explicitDanceIds.map(
       (id) => ratings.find((dr) => dr.danceId === id)!
     );
-  }
-
-  private get inferredDanceRatings(): DanceRating[] {
-    const ratings = this.song.danceRatings ?? [];
-    const explicitIds = this.explicitDanceIds;
-
-    return ratings.filter((dr) => !explicitIds.find((id) => id === dr.danceId));
   }
 
   private get explicitDanceIds(): string[] {

@@ -306,7 +306,7 @@ namespace m4d.Controllers
             foreach (var ds in Database.DanceStats.List)
             {
                 var dt = ds.DanceType;
-                if (dt == null || ds.SongCountExplicit < 25)
+                if (dt == null || ds.SongCount < 25)
                 {
                     continue;
                 }
@@ -323,11 +323,11 @@ namespace m4d.Controllers
                 var name = ds.DanceName;
                 var count = 100;
 
-                if (ds.SongCountExplicit < 25)
+                if (ds.SongCount < 25)
                 {
                     count = 25;
                 }
-                else if (ds.SongCountExplicit < 50)
+                else if (ds.SongCount < 50)
                 {
                     count = 50;
                 }
@@ -398,12 +398,12 @@ namespace m4d.Controllers
                     continue;
                 }
 
-                if (dt != null && ds.SongCountExplicit < 25)
+                if (dt != null && ds.SongCount < 25)
                 {
                     continue;
                 }
 
-                if (dg != null && ds.SongCountImplicit < 25)
+                if (dg != null && ds.SongCount < 25)
                 {
                     continue;
                 }
