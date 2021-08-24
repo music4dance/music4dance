@@ -14,7 +14,7 @@
     {
         <script>window.initialNumerator = @ViewBag.paramNumerator;</script>
     }
-    <script src="/client/js/chunk-vendors.js"></script>
-    <script src="/client/js/chunk-common.js"></script>
-    <script src="/client/js/tempo-counter.js"></script>
+    <script asp-src-include="/client/js/chunk-vendors.*.js"></script>
+    <script asp-src-include="/client/js/chunk-common.*.js"></script>
+    <script asp-src-include="/client/js/tempo-counter.*.js"></script>
 }

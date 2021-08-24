@@ -76,7 +76,14 @@ module.exports = {
             filename: "wedding-dance-music.html",
         },
     },
-    configureWebpack: {
-        devtool: "source-map",
+    configureWebpack: (config) => {
+        if (process.env.NODE_ENV === "production") {
+            config.output.filename = "js/[name].[contenthash:8].js";
+            config.output.chunkFilename = "js/[name].[contenthash:8].js";
+        } else {
+            config.output.filename = "js/[name].local.js";
+            config.output.chunkFilename = "js/[name].local.js";
+            config.devtool = "source-map";
+        }
     },
 };

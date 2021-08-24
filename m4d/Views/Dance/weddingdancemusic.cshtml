@@ -15,8 +15,8 @@
 <div id="app"></div>
 
 @section Scripts {
-    <partial name="_jsonCamelCase" model="@converterModel"/>
-    <script src="/client/js/chunk-vendors.js"></script>
-    <script src="/client/js/chunk-common.js"></script>
-    <script src="/client/js/wedding-dance-music.js"></script>
+    <partial name="_jsonCamelCase" model="@converterModel" />
+    <script asp-src-include="/client/js/chunk-vendors.*.js"></script>
+    <script asp-src-include="/client/js/chunk-common.*.js"></script>
+    <script asp-src-include="/client/js/wedding-dance-music.*.js"></script>
 }

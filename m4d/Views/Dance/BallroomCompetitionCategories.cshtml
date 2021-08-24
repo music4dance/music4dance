@@ -15,7 +15,7 @@
 
 @section Scripts {
     <partial name="_jsonCamelCase" model="@converterModel"/>
-    <script src="/client/js/chunk-vendors.js"></script>
-    <script src="/client/js/chunk-common.js"></script>
-    <script src="/client/js/ballroom-index.js"></script>
+    <script asp-src-include="/client/js/chunk-vendors.*.js"></script>
+    <script asp-src-include="/client/js/chunk-common.*.js"></script>
+    <script asp-src-include="/client/js/ballroom-index.*.js"></script>
 }
