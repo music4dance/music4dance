@@ -12,7 +12,7 @@
 
 <script lang="ts">
 import { DanceOrder } from "@/model/DanceOrder";
-import { DanceStats } from "@/model/DanceStats";
+import { TypeStats } from "@/model/DanceStats";
 import { Component, Vue, Prop } from "vue-property-decorator";
 import DanceItem from "./DanceItem.vue";
 
@@ -22,7 +22,7 @@ import DanceItem from "./DanceItem.vue";
   },
 })
 export default class DanceList extends Vue {
-  @Prop() private dances!: DanceStats[];
+  @Prop() private dances!: TypeStats[];
   @Prop() private beatsPerMinute!: number;
   @Prop() private beatsPerMeasure!: number;
   @Prop() private epsilonPercent!: number;
@@ -41,9 +41,7 @@ export default class DanceList extends Vue {
           )
         : [];
     return filter
-      ? dances.filter(
-          (d) => d.dance.danceName.toLowerCase().indexOf(filter) !== -1
-        )
+      ? dances.filter((d) => d.name.toLowerCase().indexOf(filter) !== -1)
       : dances;
   }
 }

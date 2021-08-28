@@ -3,7 +3,7 @@
     <b-list-group-item href="#description">Description</b-list-group-item>
     <b-list-group-item
       href="#tempo-info"
-      v-if="!dance.isGroup && dance.dance.meter.numerator != 1"
+      v-if="!dance.isGroup && dance.meter.numerator != 1"
       >Tempo Info</b-list-group-item
     >
     <b-list-group-item href="#top-ten" v-if="hasTopTen"
@@ -37,7 +37,7 @@
 <script lang="ts">
 import "reflect-metadata";
 import { Component, Mixins, Prop } from "vue-property-decorator";
-import { DanceStats } from "@/model/DanceStats";
+import { DanceStats, TypeStats } from "@/model/DanceStats";
 import { DanceModel } from "@/model/DanceModel";
 import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 
@@ -50,7 +50,7 @@ export default class DanceContents extends Mixins(EnvironmentManager) {
   }
 
   private get danceName(): string | undefined {
-    return this.dance?.danceName;
+    return this.dance?.name;
   }
 
   private get blogLink(): string | undefined {
@@ -59,7 +59,7 @@ export default class DanceContents extends Mixins(EnvironmentManager) {
   }
 
   private get hasPlayer(): boolean {
-    return !!this.dance?.spotifyPlaylist;
+    return !!this.model.spotifyPlaylist;
   }
 
   private get hasTopTen(): boolean {
@@ -68,11 +68,16 @@ export default class DanceContents extends Mixins(EnvironmentManager) {
   }
 
   private get hasReferences(): boolean {
-    return !!this.dance?.danceLinks && this.dance.danceLinks.length > 0;
+    return !!this.model.links && this.model.links.length > 0;
   }
 
   private get hasCompetitionInfo(): boolean {
-    return (this.dance?.danceType?.competitionDances?.length ?? 0) > 0;
+    const dance = this.dance;
+    return (
+      (!!dance &&
+        !dance.isGroup &&
+        (dance as TypeStats).competitionDances?.length) > 0
+    );
   }
 }
 </script>

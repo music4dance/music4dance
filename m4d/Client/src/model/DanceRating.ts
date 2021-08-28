@@ -18,7 +18,7 @@ export class DanceRating extends TaggableObject {
     const positive = !tag.value.startsWith("!");
     const value = positive ? tag.value : tag.value.substr(1);
     return new DanceRating({
-      danceId: environment.fromName(value)!.danceId,
+      danceId: environment.fromName(value)!.id,
     });
   }
 
@@ -41,20 +41,20 @@ export class DanceRating extends TaggableObject {
 
   public get positiveTag(): Tag {
     return new Tag({
-      value: this.stats.danceName,
+      value: this.stats.name,
       category: TagCategory.Dance,
     });
   }
 
   public get negativeTag(): Tag {
     return new Tag({
-      value: "!" + this.stats.danceName,
+      value: "!" + this.stats.name,
       category: TagCategory.Dance,
     });
   }
 
   public get description(): string {
-    return environment.fromId(this.danceId)!.danceName;
+    return environment.fromId(this.danceId)!.name;
   }
 
   public get stats(): DanceStats {

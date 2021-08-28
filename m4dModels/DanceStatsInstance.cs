@@ -9,10 +9,25 @@ using Newtonsoft.Json.Serialization;
 
 namespace m4dModels
 {
+    public class DanceEnvironment
+    {
+        public DanceEnvironment(DanceStatsInstance stats)
+        {
+            Dances = stats.GetSparseStats().ToList();
+            Groups = stats.GetGroupsSparse().ToList();
+            TagGroups = stats.TagGroups;
+        }
+
+        public List<DanceStatsSparse> Dances { get; set; }
+        public List<DanceGroupSparse> Groups { get; set; }
+        public List<TagGroup> TagGroups { get; set; }
+    }
+
+
     [JsonObject(MemberSerialization.OptIn)]
     public class DanceStatsInstance
     {
-        private const string descriptionPlaceholder =
+        private const string DescriptionPlaceholder =
             "We're busy doing research and pulling together a general description for this dance style. Please check back later for more info.";
 
         private readonly Dictionary<Guid, Song> _otherSongs = new Dictionary<Guid, Song>();
@@ -55,6 +70,17 @@ namespace m4dModels
             var instance = new DanceStatsInstance(tree, tagManager);
             await instance.FixupStats(dms, true, source);
             return instance;
+        }
+
+        public IEnumerable<DanceStatsSparse> GetSparseStats()
+        {
+            return Tree.SelectMany(t => t.Children)
+                .Select(s => new DanceStatsSparse(s));
+        }
+
+        public IEnumerable<DanceGroupSparse> GetGroupsSparse()
+        {
+            return Tree.Select(t => new DanceGroupSparse(t));
         }
 
         public async Task FixupStats(DanceMusicCoreService dms, bool reloadSongs,
@@ -125,13 +151,13 @@ namespace m4dModels
                                 new Dance
                                 {
                                     Id = ds.DanceId,
-                                    Description = descriptionPlaceholder
+                                    Description = DescriptionPlaceholder
 
                                 });
                         }
                         else
                         {
-                            dance.Description = descriptionPlaceholder;
+                            dance.Description = DescriptionPlaceholder;
                         }
                     }
 
@@ -151,28 +177,6 @@ namespace m4dModels
             await dms.UpdateIndex(newDances);
         }
 
-        public int GetScaledRating(string danceId, int weight, int scale = 5)
-        {
-            var sc = FromId(danceId);
-            if (sc == null)
-            {
-                return 0;
-            }
-
-            float max = sc.MaxWeight;
-            var ret = (int)Math.Ceiling(weight * scale / max);
-
-            return Math.Max(0, Math.Min(ret, scale));
-        }
-
-        public string GetRatingBadge(string danceId, int weight)
-        {
-            var scaled = GetScaledRating(danceId, weight);
-
-            //return "/Content/thermometer-" + scaled.ToString() + ".png";
-            return "rating-" + scaled;
-        }
-
         public DanceStats FromId(string danceId)
         {
             if (danceId.Length > 3)
@@ -180,8 +184,7 @@ namespace m4dModels
                 danceId = danceId.Substring(0, 3);
             }
 
-            DanceStats sc;
-            if (Map.TryGetValue(danceId.ToUpper(), out sc))
+            if (Map.TryGetValue(danceId.ToUpper(), out var sc))
             {
                 return sc;
             }
@@ -217,17 +220,18 @@ namespace m4dModels
             };
 
             var instance = JsonConvert.DeserializeObject<DanceStatsInstance>(json, settings);
+
+            if (instance == null)
+            {
+                throw new Exception($"Unable to deserialize dance stats instance: {json}");
+            }
+
             if (database != null)
             {
                 await instance.FixupStats(database, false);
             }
 
             Dances.Reset(Dances.Load(instance.GetDanceTypes(), instance.GetDanceGroups()));
-
-            foreach (var dance in instance.List)
-            {
-                dance.UpdateCompetitionDances();
-            }
 
             return instance;
         }
@@ -247,7 +251,6 @@ namespace m4dModels
                     }
                 });
         }
-
 
         public void UpdateSong(Song song)
         {

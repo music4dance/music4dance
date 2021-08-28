@@ -24,7 +24,7 @@ export async function getEnvironment(): Promise<DanceEnvironment> {
 
 async function loadStats(): Promise<DanceEnvironment> {
   try {
-    const response = await axios.get("/api/dancesstatistics/");
+    const response = await axios.get("/api/danceenvironment/");
     const data = response.data;
     sessionStorage.setItem("dance-stats", JSON.stringify(data));
     window.environment = TypedJSON.parse(data, DanceEnvironment);
@@ -36,13 +36,13 @@ async function loadStats(): Promise<DanceEnvironment> {
 }
 
 function loadFromStorage(): DanceEnvironment | undefined {
-  const statString = sessionStorage.getItem("dance-stats");
+  const envString = sessionStorage.getItem("dance-environment");
 
-  if (!statString) {
+  if (!envString) {
     return;
   }
 
-  const environment = TypedJSON.parse(statString, DanceEnvironment);
+  const environment = TypedJSON.parse(envString, DanceEnvironment);
   const incrementalString = sessionStorage.getItem("incremental-tags");
   if (incrementalString) {
     environment!.incrementalTags = TypedJSON.parseAsArray(

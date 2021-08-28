@@ -70,6 +70,7 @@ namespace DanceLibrary
         [JsonProperty]
         public virtual string BlogTag { get; set; }
 
+        [JsonProperty]
         public string CleanName => SeoFriendly(Name);
 
         public static string SeoFriendly(string name)
@@ -79,15 +80,28 @@ namespace DanceLibrary
                 return name;
             }
 
-            name = name.Replace(' ', '-');
-            name = name.ToLower();
-            return name;
+            return name.Replace(' ', '-').ToLower();
         }
     }
 
     [JsonObject(MemberSerialization.OptIn)]
     public class DanceType : DanceObject
     {
+        public DanceType()
+        {
+        }
+
+        public DanceType(DanceType other)
+        {
+            Id = other.Id;
+            Name = other.Name;
+            Meter = other.Meter;
+            Instances = other.Instances;
+            Organizations = other.Organizations;
+            GroupId = other.GroupId;
+            GroupName = other.GroupName;
+        }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage(
             "Microsoft.Usage",
             "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -104,12 +118,9 @@ namespace DanceLibrary
                 Organizations = new List<string>(organizations);
             }
 
-            if (instances != null)
+            foreach (var instance in instances)
             {
-                foreach (var instance in instances)
-                {
-                    instance.DanceType = this;
-                }
+                instance.DanceType = this;
             }
         }
 
@@ -158,8 +169,7 @@ namespace DanceLibrary
 
         public override bool Equals(object obj)
         {
-            var other = obj as DanceType;
-            return other != null && Name == other.Name;
+            return obj is DanceType other && Name == other.Name;
         }
 
         public override int GetHashCode()
@@ -853,6 +863,7 @@ namespace DanceLibrary
                 _allDanceObjects.Add(dg);
                 _danceDictionary.Add(dg.Id, dg);
 
+                // TODOSOON: Can we get rid of the dance/group relationship here?
                 foreach (var dt in dg.DanceIds.Select(DanceFromId).OfType<DanceType>())
                 {
                     dt.GroupName = dg.Name;

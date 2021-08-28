@@ -5,9 +5,9 @@ describe("dance environment", () => {
     const loaded = getEnvironmentMock();
 
     expect(loaded).toBeDefined();
-    expect(loaded?.stats).toBeDefined();
-    expect(loaded?.stats?.length).toBeDefined();
-    expect(loaded?.stats?.length).toEqual(7);
+    expect(loaded?.tree).toBeDefined();
+    expect(loaded?.tree?.length).toBeDefined();
+    expect(loaded?.tree?.length).toEqual(7);
   });
 
   it("should return unique styles", async () => {

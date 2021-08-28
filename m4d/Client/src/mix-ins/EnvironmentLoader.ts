@@ -13,7 +13,7 @@ export default class EnvironmentLoader extends Vue {
   private environment: DanceEnvironment = new DanceEnvironment();
 
   public get loaded(): boolean {
-    const stats = this.environment?.stats;
+    const stats = this.environment?.tree;
     const loaded = !!stats && stats.length > 0;
     return loaded;
   }
@@ -22,7 +22,7 @@ export default class EnvironmentLoader extends Vue {
     this.environment = await getEnvironment();
 
     console.log(
-      `Environment loaded: Stats = ${this.environment!.stats!.length}`
+      `Environment loaded: Stats = ${this.environment!.tree!.length}`
     );
   }
 }

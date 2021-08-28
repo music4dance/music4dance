@@ -12,7 +12,7 @@ export class RawDanceQuery extends DanceQueryBase {
   }
 
   public get danceList(): string[] {
-    return this.danceStats.map((ds) => ds.danceId);
+    return this.danceStats.map((ds) => ds.id);
   }
 
   public get singleDance(): boolean {

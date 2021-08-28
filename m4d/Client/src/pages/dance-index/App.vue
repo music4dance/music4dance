@@ -64,7 +64,7 @@ export default class App extends Vue {
   ];
 
   private onEnvironmentLoaded(environment: DanceEnvironment): void {
-    const stats = environment.stats;
+    const stats = environment.tree;
     if (stats) {
       this.groups = stats;
     }

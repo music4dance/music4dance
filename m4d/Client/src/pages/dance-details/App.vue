@@ -48,7 +48,7 @@
           :filter="model.filter"
           :userName="model.userName"
         ></top-ten>
-        <spotify-player :danceId="model.danceId"></spotify-player>
+        <spotify-player :playlist="model.spotifyPlaylist"></spotify-player>
         <dance-reference :danceId="model.danceId"></dance-reference>
         <div v-if="isGroup">
           <hr />
@@ -115,7 +115,12 @@ import { SongFilter } from "@/model/SongFilter";
 import { TypedJSON } from "typedjson";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
 import { BreadCrumbItem, danceTrail } from "@/model/BreadCrumbItem";
-import { DanceInstance, DanceLink, DanceStats } from "@/model/DanceStats";
+import {
+  DanceInstance,
+  DanceLink,
+  DanceStats,
+  TypeStats,
+} from "@/model/DanceStats";
 import { Tag } from "@/model/Tag";
 import axios from "axios";
 
@@ -170,15 +175,15 @@ export default class App extends Mixins(AdminTools) {
   private breadCrumbDetails(dance: DanceStats): BreadCrumbItem[] {
     return dance.isGroup
       ? [this.breadCrumbLeaf(dance)]
-      : [this.breadCrumbGroup(dance), this.breadCrumbLeaf(dance)];
+      : [this.breadCrumbGroup(dance as TypeStats), this.breadCrumbLeaf(dance)];
   }
 
   private breadCrumbLeaf(dance: DanceStats): BreadCrumbItem {
-    return { text: dance.danceName, active: true };
+    return { text: dance.name, active: true };
   }
 
-  private breadCrumbGroup(dance: DanceStats): BreadCrumbItem {
-    const groupName = dance.danceType!.groupName;
+  private breadCrumbGroup(dance: TypeStats): BreadCrumbItem {
+    const groupName = dance.groupName;
     return { text: groupName, href: `/dances/${groupName}` };
   }
 
@@ -187,11 +192,14 @@ export default class App extends Mixins(AdminTools) {
   }
 
   private get competitionInfo(): DanceInstance[] {
-    return this.dance?.danceType?.competitionDances ?? [];
+    const dance = this.dance;
+    return !dance || dance.isGroup
+      ? []
+      : (dance as TypeStats).competitionDances ?? [];
   }
 
   private get hasReferences(): boolean {
-    return !!this.dance?.danceLinks && this.dance.danceLinks.length > 0;
+    return !!this.model.links && this.model.links.length > 0;
   }
 
   public get modified(): boolean {
@@ -203,7 +211,7 @@ export default class App extends Mixins(AdminTools) {
   }
 
   private get linkEditor(): Editor {
-    return this.$refs.danceLinks as unknown as Editor;
+    return this.$refs.links as unknown as Editor;
   }
 
   private updateDescription(value: string): void {

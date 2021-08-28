@@ -39,7 +39,7 @@ export default class TopTen extends Mixins(EnvironmentManager) {
 
   private get danceName(): string {
     const dance = this.dance;
-    return dance ? dance.danceName : "";
+    return dance ? dance.name : "";
   }
 
   private get dance(): DanceStats | undefined {

@@ -182,7 +182,7 @@ export class SongEditor {
     positive?: boolean,
     negative?: boolean
   ): void {
-    const posTag = `${environment.fromId(danceId)!.danceName}:Dance`;
+    const posTag = `${environment.fromId(danceId)!.name}:Dance`;
     const negTag = "!" + posTag;
 
     if (positive === true) {

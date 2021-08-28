@@ -5,10 +5,10 @@
     <b-button
       v-for="dance in sortedDances"
       :key="dance.id"
-      :href="danceLink(dance.danceName)"
+      :href="danceLink(dance.name)"
       variant="primary"
       style="margin: 0.25em"
-      >{{ dance.danceName }}</b-button
+      >{{ dance.name }}</b-button
     >
   </div>
 </template>
@@ -33,8 +33,8 @@ export default class HolidayDanceChooser extends Mixins(EnvironmentManager) {
     const environment = this.environment;
     return environment
       ? environment.flatStats
-          .filter((d) => d.songCount > 10 && d.danceName !== this.dance)
-          .sort((a, b) => a.danceName.localeCompare(b.danceName))
+          .filter((d) => d.songCount > 10 && d.name !== this.dance)
+          .sort((a, b) => a.name.localeCompare(b.name))
       : [];
   }
 

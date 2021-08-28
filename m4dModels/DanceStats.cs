@@ -7,6 +7,60 @@ using Newtonsoft.Json;
 
 namespace m4dModels
 {
+    public class DanceStatsSparse : DanceType
+    {
+        public DanceStatsSparse(DanceStats stats) : base(stats.DanceType)
+        {
+            Description = stats.Description;
+            SongCount = stats.SongCount;
+            SongTags = stats.SongTags;
+            MaxWeight = stats.MaxWeight;
+        }
+
+        [JsonProperty]
+        public string Description { get; set; }
+
+        [JsonProperty]
+        public long SongCount { get; set; }
+
+        [JsonProperty]
+        public int MaxWeight { get; set; }
+
+        [JsonProperty]
+        public TagSummary SongTags { get; set; }
+    }
+
+    public class DanceGroupSparse
+    {
+        public DanceGroupSparse(DanceStats stats)
+        {
+            Id = stats.DanceId;
+            Name = stats.DanceName;
+            Description = stats.Description;
+            SongTags = stats.SongTags;
+            BlogTag = stats.BlogTag;
+            DanceIds = stats.Children.Select(d => d.DanceId).ToList();
+        }
+
+        [JsonProperty]
+        public string Id { get; set; }
+
+        [JsonProperty]
+        public string Name { get; set; }
+
+        [JsonProperty]
+        public string Description { get; set; }
+
+        [JsonProperty]
+        public TagSummary SongTags { get; set; }
+
+        [JsonProperty]
+        public string BlogTag { get; set; }
+
+        [JsonProperty]
+        public IList<string> DanceIds { get; set; }
+    }
+
     [JsonObject(MemberSerialization.OptIn)]
     public class DanceStats
     {
@@ -105,8 +159,6 @@ namespace m4dModels
             DanceLinks = DanceLinks
         };
 
-        public IEnumerable<DanceInstance> CompetitionDances { get; private set; }
-
         public void SetTopSongs(IEnumerable<Song> songs)
         {
             _topSongs = songs.ToList();
@@ -126,24 +178,6 @@ namespace m4dModels
 
             Description = dance.Description;
             DanceLinks = dance.DanceLinks;
-
-            UpdateCompetitionDances();
-        }
-
-        public void UpdateCompetitionDances()
-        {
-            var dt = DanceObject as DanceType;
-            if (dt == null)
-            {
-                return;
-            }
-
-            var competition = dt.Instances
-                .Where(di => !string.IsNullOrWhiteSpace(di.CompetitionGroup)).ToList();
-            if (competition.Any())
-            {
-                CompetitionDances = competition;
-            }
         }
 
         public void SetParents()

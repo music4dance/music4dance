@@ -17,7 +17,7 @@ export class DanceQueryBase {
   }
 
   public get danceNames(): string[] {
-    return this.dances.map((d) => d.danceName);
+    return this.dances.map((d) => d.name);
   }
 
   public get singleDance(): boolean {

@@ -16,15 +16,16 @@ namespace m4d.ViewModels
             UserName = userName;
             Histories = songs.Select(s => s.GetHistory(mapper)).ToList();
             Description = dance.Description;
+            SpotifyPlaylist = ds.SpotifyPlaylist;
             Links = ds.DanceLinks;
             Count = songs.Count;
-            Validate = false;
         }
 
         public string DanceId { get; set; }
 
         public string DanceName { get; set; }
         public string Description { get; set; }
+        public string SpotifyPlaylist { get; set; }
         public List<DanceLink> Links { get; set; }
     }
 }

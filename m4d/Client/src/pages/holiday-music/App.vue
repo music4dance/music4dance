@@ -1,10 +1,5 @@
 <template>
-  <page
-    id="app"
-    :consumesEnvironment="true"
-    :breadcrumbs="breadcrumbs"
-    @environment-loaded="onEnvironmentLoaded"
-  >
+  <page id="app" :consumesEnvironment="true" :breadcrumbs="breadcrumbs">
     <h1>{{ title }}</h1>
     <holiday-help v-if="model.count === 0" :dance="model.dance" :empty="true">
     </holiday-help>

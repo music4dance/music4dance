@@ -188,7 +188,6 @@ namespace m4d.Controllers
                         Count = (int)results.TotalCount,
                         Dance = dance,
                         PlayListId = playListId,
-                        Validate = false
                     });
             }
             catch (RedirectException ex)
@@ -284,7 +283,6 @@ namespace m4d.Controllers
                     Filter = _mapper.Map<SongFilterSparse>(filter),
                     UserName = user,
                     Count = totalSongs ?? songs.Count,
-                    Validate = false
                 });
         }
 

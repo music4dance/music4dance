@@ -32,7 +32,7 @@ import { Component, Vue } from "vue-property-decorator";
 import Page from "@/components/Page.vue";
 import Counter from "./components/Counter.vue";
 import DanceList from "./components/DanceList.vue";
-import { DanceStats } from "@/model/DanceStats";
+import { TypeStats } from "@/model/DanceStats";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
 
 @Component({
@@ -72,9 +72,9 @@ export default class App extends Vue {
     }
   }
 
-  private dances(): DanceStats[] {
+  private dances(): TypeStats[] {
     const environment = this.environment;
-    return environment ? environment.stats! : [];
+    return environment ? environment.dances! : [];
   }
 
   private get measuresPerMinute(): number {

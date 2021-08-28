@@ -54,7 +54,7 @@ export class Tag {
 
   public static fromDanceId(id: string): Tag {
     return new Tag({
-      value: environment.fromId(id)!.danceName,
+      value: environment.fromId(id)!.name,
       category: TagCategory.Dance,
     });
   }

@@ -80,7 +80,7 @@ export default class DanceList extends Mixins(EnvironmentManager, AdminTools) {
   }
 
   private danceName(dr: DanceRating): string {
-    return this.statsFromRating(dr).danceName;
+    return this.statsFromRating(dr).name;
   }
 
   private danceLink(dr: DanceRating): string {

@@ -75,7 +75,7 @@ export default class Page extends Mixins(AdminTools) {
   }
 
   public get loaded(): boolean {
-    const stats = this.environment?.stats;
+    const stats = this.environment?.tree;
     const loaded = !!stats && stats.length > 0;
     return !this.consumesEnvironment || loaded;
   }

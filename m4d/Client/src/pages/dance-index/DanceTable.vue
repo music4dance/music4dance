@@ -23,7 +23,7 @@ export default class DanceTable extends Vue {
   private order: string[] = ["LTN", "WLZ", "SWG", "FXT", "TNG", "MSC", "PRF"];
 
   private get orderedGroups(): DanceStats[] {
-    return this.order.map((id) => this.groups.find((g) => g.danceId === id)!);
+    return this.order.map((id) => this.groups.find((g) => g.id === id)!);
   }
 }
 </script>

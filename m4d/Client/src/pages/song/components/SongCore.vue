@@ -339,7 +339,7 @@ export default class SongCore extends Mixins(AdminTools) {
       return;
     }
 
-    const stats = environment.stats;
+    const stats = environment.tree;
     if (stats) {
       if (this.model.userName) {
         this.editor = new SongEditor(
@@ -371,7 +371,7 @@ export default class SongCore extends Mixins(AdminTools) {
 
   private onDeleteDance(dr: DanceRating): void {
     const tag = new Tag({
-      value: this.environment!.fromId(dr.danceId)!.danceName,
+      value: this.environment!.fromId(dr.danceId)!.name,
       category: "Dance",
     });
     this.editor!.addProperty(PropertyType.deleteTag, tag.key);
@@ -404,7 +404,7 @@ export default class SongCore extends Mixins(AdminTools) {
     return this.environment && tags
       ? tags
           .filter((t) => t.category === "Dance" && !t.value.startsWith("!"))
-          .map((t) => this.environment!.fromName(t.value)!.danceId)
+          .map((t) => this.environment!.fromName(t.value)!.id)
       : [];
   }
 

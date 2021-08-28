@@ -77,21 +77,35 @@ export class Meter {
   }
 }
 
+export interface DanceStats {
+  id: string;
+  name: string;
+  description?: string;
+  blogTag?: string;
+  seoName: string;
+  songCount: number;
+  maxWeight: number;
+  songTags: string;
+  isGroup: boolean;
+  tags: Tag[];
+}
+
 @jsonObject
-export class DanceObject {
+export class NamedObject {
   @jsonMember public id!: string;
   @jsonMember public name!: string;
+  @jsonMember public description?: string;
+}
+
+@jsonObject
+export class DanceObject extends NamedObject {
   @jsonMember public meter!: Meter;
   @jsonMember public tempoRange!: TempoRange;
+  @jsonMember public blogTag?: string;
 
   public get baseId(): string {
     return this.id.substr(0, 3);
   }
-}
-
-@jsonObject
-export class DanceGroup extends DanceObject {
-  @jsonArrayMember(String) public danceIds!: string[];
 }
 
 @jsonObject
@@ -283,39 +297,13 @@ export class DanceLink {
 }
 
 @jsonObject
-export class DanceStats {
-  @jsonMember public danceId!: string;
-  @jsonMember public danceName!: string;
-  @jsonMember public blogTag!: string;
-  @jsonMember public seoName!: string;
-  @jsonMember public description!: string;
+export class TypeStats extends DanceType implements DanceStats {
   @jsonMember public songCount!: number;
   @jsonMember public maxWeight!: number;
-  @jsonMember public spotifyPlaylist!: string;
   @jsonMember public songTags!: string;
-  @jsonArrayMember(DanceLink) public danceLinks!: DanceLink[];
-  @jsonMember({ constructor: DanceType }) public danceType!: DanceType | null;
-  @jsonMember({ constructor: DanceGroup })
-  public danceGroup!: DanceGroup | null;
-  @jsonArrayMember(DanceStats) public children!: DanceStats[];
-
-  public get tempoRange(): TempoRange {
-    const numerator = this.danceType!.meter.numerator;
-    const range = this.danceType!.tempoRange;
-
-    return new TempoRange(numerator * range.min, numerator * range.max);
-  }
-
-  public get styles(): string[] {
-    return this!.danceType!.styles;
-  }
 
   public get isGroup(): boolean {
-    return !!this.children && this.children.length > 0;
-  }
-
-  public get dance(): DanceObject {
-    return this.isGroup ? this.danceGroup! : this.danceType!;
+    return false;
   }
 
   public get tags(): Tag[] {
@@ -353,7 +341,7 @@ export class DanceStats {
       return true;
     }
 
-    const numerator = this.danceType!.meter.numerator;
+    const numerator = this.meter.numerator;
     if (beatsPerMeasure === numerator) {
       return true;
     }
@@ -366,10 +354,53 @@ export class DanceStats {
   }
 
   public getFuzzyTempoRange(percentEpsilon: number): TempoRange {
-    const range = this.tempoRange;
+    const range = this.tempoRange.toBpm(this.meter.numerator);
     const average = (range.min + range.max) / 2;
     const epsBpm = percentEpsilon * (average / 100);
 
     return new TempoRange(range.min - epsBpm, range.max + epsBpm);
+  }
+}
+
+@jsonObject
+export class DanceGroup extends NamedObject {
+  @jsonMember blogTag?: string;
+  @jsonMember songTags!: string;
+  @jsonArrayMember(String) public danceIds!: string[];
+
+  public constructor(init?: Partial<DanceGroup>) {
+    super();
+    Object.assign(this, init);
+  }
+}
+
+export class GroupStats extends DanceGroup implements DanceStats {
+  public songCount: number;
+  public maxWeight: number;
+  public dances: TypeStats[];
+
+  constructor(base: DanceGroup, dances: TypeStats[]) {
+    super(base);
+    this.dances = this.danceIds.map((id) => dances.find((d) => d.id === id)!);
+    this.songCount = this.dances.reduce(
+      (acc, dance) => acc + dance.songCount,
+      0
+    );
+    this.maxWeight = this.dances.reduce(
+      (acc, dance) => Math.max(acc + dance.maxWeight),
+      0
+    );
+  }
+
+  public get isGroup(): boolean {
+    return true;
+  }
+
+  public get seoName(): string {
+    return wordsToKebab(this.name);
+  }
+
+  public get tags(): Tag[] {
+    return new TagList(this.songTags).tags;
   }
 }

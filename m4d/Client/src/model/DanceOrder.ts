@@ -1,17 +1,17 @@
 import "reflect-metadata";
-import { DanceStats, TempoRange } from "./DanceStats";
+import { TypeStats, TempoRange } from "./DanceStats";
 
 export class DanceOrder {
-  public dance: DanceStats;
+  public dance: TypeStats;
   public bpmDelta: number;
 
-  constructor(stats: DanceStats, target: number) {
+  constructor(stats: TypeStats, target: number) {
     this.dance = stats;
     this.bpmDelta = this.computeDelta(target);
   }
 
   public get name(): string {
-    return this.dance.danceName;
+    return this.dance.name;
   }
 
   public get mpmDelta(): number {
@@ -19,7 +19,7 @@ export class DanceOrder {
   }
 
   public get rangeMpm(): TempoRange {
-    return this.dance.danceType!.tempoRange;
+    return this.dance!.tempoRange;
   }
 
   public get rangeBpm(): TempoRange {
@@ -35,15 +35,17 @@ export class DanceOrder {
   }
 
   private get numerator() {
-    return this.dance.danceType!.meter.numerator;
+    return this.dance!.meter.numerator;
   }
 
   private computeDelta(target: number): number {
-    return this.dance.tempoRange.computeDelta(target);
+    return this.dance.tempoRange
+      .toBpm(this.dance.meter.numerator)
+      .computeDelta(target);
   }
 
   public static dancesForTempo(
-    stats: DanceStats[],
+    stats: TypeStats[],
     beatsPerMinute: number,
     beatsPerMeasure: number,
     percentEpsilon = 5
@@ -51,14 +53,12 @@ export class DanceOrder {
     // return danceStats.flatMap((group: DanceStats) => group.children);  TODO: See if we can find a general polyfill
 
     return stats
-      .map((group: DanceStats) => group.children)
-      .reduce((acc: DanceStats[], val: DanceStats[]) => acc.concat(val))
       .filter(
-        (d: DanceStats) =>
-          d && d.filterByTempo(beatsPerMinute, beatsPerMeasure, percentEpsilon),
+        (d: TypeStats) =>
+          d.filterByTempo(beatsPerMinute, beatsPerMeasure, percentEpsilon),
         []
       )
-      .map((d: DanceStats) => new DanceOrder(d, beatsPerMinute))
+      .map((d: TypeStats) => new DanceOrder(d, beatsPerMinute))
       .sort(
         (a: DanceOrder, b: DanceOrder) =>
           Math.abs(a.bpmDelta) - Math.abs(b.bpmDelta)

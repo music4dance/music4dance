@@ -1,6 +1,13 @@
 import "reflect-metadata";
 import { jsonObject, TypedJSON, jsonArrayMember } from "typedjson";
-import { DanceInstance, DanceStats, DanceType } from "./DanceStats";
+import {
+  DanceGroup,
+  DanceInstance,
+  TypeStats,
+  DanceType,
+  DanceStats,
+  GroupStats,
+} from "./DanceStats";
 import { TagDatabase } from "./TagDatabase";
 import { TagGroup } from "./TagGroup";
 
@@ -11,11 +18,18 @@ TypedJSON.setGlobalConfig({
   },
 });
 
-@jsonObject
+@jsonObject({ onDeserialized: "rehydrate" })
 export class DanceEnvironment {
-  @jsonArrayMember(DanceStats, { name: "tree" }) public stats?: DanceStats[];
+  @jsonArrayMember(TypeStats) public dances?: TypeStats[];
+  @jsonArrayMember(DanceGroup) public groups?: DanceGroup[];
   @jsonArrayMember(TagGroup) public tagGroups?: TagGroup[];
   @jsonArrayMember(TagGroup) public incrementalTags?: TagGroup[];
+
+  public tree?: GroupStats[];
+
+  public rehydrate(): void {
+    this.tree = this.groups?.map((g) => new GroupStats(g, this.dances!));
+  }
 
   public get tagDatabase(): TagDatabase {
     if (!this._tagDatabase && this.tagGroups) {
@@ -27,25 +41,25 @@ export class DanceEnvironment {
   private _tagDatabase?: TagDatabase;
 
   public fromId(id: string): DanceStats | undefined {
-    return this.flatStats.find((d) => id === d.danceId);
+    return this.flatStats.find((d) => id === d.id);
   }
 
   public fromName(name: string): DanceStats | undefined {
     const n = name.toLowerCase();
-    return this.flatStats.find((d) => n === d.danceName.toLowerCase());
+    return this.flatStats.find((d) => n === d.name.toLowerCase());
   }
 
   public get flatStats(): DanceStats[] {
-    return this.stats!.flatMap((group) => [group, ...group.children]).filter(
-      (s) => s
-    );
+    if (!this.tree || !this.dances) {
+      throw new Error(
+        "Attempted to call flatStats on an uninitialized DanceEnvironment"
+      );
+    }
+    return [...this.tree, ...this.dances];
   }
 
   public get flatTypes(): DanceType[] {
-    return this.flatStats
-      .flatMap((group) => group.children)
-      .filter((ds) => ds && ds.danceType)
-      .map((ds) => ds.danceType!);
+    return this.dances!;
   }
 
   public get flatInstances(): DanceInstance[] {
@@ -53,12 +67,12 @@ export class DanceEnvironment {
   }
 
   public get groupedStats(): DanceStats[] {
-    return this.stats!.sort((a, b) =>
-      a.danceName.localeCompare(b.danceName)
-    ).flatMap((group) => [
-      group,
-      ...group.children.sort((a, b) => a.danceName.localeCompare(b.danceName)),
-    ]);
+    return this.tree!.sort((a, b) => a.name.localeCompare(b.name)).flatMap(
+      (group) => [
+        group,
+        ...group.dances.sort((a, b) => a.name.localeCompare(b.name)),
+      ]
+    );
   }
 
   public get styles(): string[] {
@@ -67,6 +81,6 @@ export class DanceEnvironment {
   }
 
   public get types(): string[] {
-    return this.stats!.map((s) => s.danceName);
+    return this.groups!.map((s) => s.name);
   }
 }

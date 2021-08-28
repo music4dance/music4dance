@@ -33,13 +33,13 @@
         <b-list-group>
           <b-list-group-item
             v-for="dance in sortedDances"
-            :key="dance.danceId"
+            :key="dance.id"
             button
-            :active="danceId === dance.danceId"
-            :disabled="exists(dance.danceId)"
-            @click="choose(dance.danceId)"
+            :active="danceId === dance.id"
+            :disabled="exists(dance.id)"
+            @click="choose(dance.id)"
           >
-            {{ dance.danceName }}
+            {{ dance.name }}
           </b-list-group-item>
         </b-list-group>
       </b-tab>
@@ -47,21 +47,21 @@
         <b-list-group>
           <b-list-group-item
             v-for="dance in groupedDances"
-            :key="dance.danceId"
+            :key="dance.id"
             button
             :variant="groupVariant(dance)"
             :class="{ item: dance.isGroup, 'sub-item': !dance.isGroup }"
-            :active="danceId === dance.danceId"
-            :disabled="exists(dance.danceId) || dance.isGroup"
-            @click="choose(dance.danceId)"
+            :active="danceId === dance.id"
+            :disabled="exists(dance.id) || dance.isGroup"
+            @click="choose(dance.id)"
           >
-            {{ dance.danceName }}
+            {{ dance.name }}
           </b-list-group-item>
         </b-list-group>
       </b-tab>
       <b-tab title="By Tempo" active v-if="hasTempo">
         <dance-list
-          :dances="dances"
+          :dances="danceTypes"
           :beatsPerMinute="tempo"
           :beatsPerMeasure="numerator"
           :epsilonPercent="20"
@@ -77,7 +77,7 @@
 <script lang="ts">
 import "reflect-metadata";
 import { Component, Prop, Mixins } from "vue-property-decorator";
-import { DanceStats } from "@/model/DanceStats";
+import { DanceStats, GroupStats, TypeStats } from "@/model/DanceStats";
 import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 import DanceList from "@/pages/tempo-counter/components/DanceList.vue";
 
@@ -99,7 +99,7 @@ export default class DanceChooser extends Mixins(EnvironmentManager) {
     return environment
       ? this.filterAll(environment.flatStats)
           .filter((d) => !d.isGroup)
-          .sort((a, b) => a.danceName.localeCompare(b.danceName))
+          .sort((a, b) => a.name.localeCompare(b.name))
       : [];
   }
 
@@ -110,7 +110,12 @@ export default class DanceChooser extends Mixins(EnvironmentManager) {
 
   private get dances(): DanceStats[] {
     const environment = this.environment;
-    return environment && environment.stats ? environment.stats : [];
+    return environment && environment.tree ? environment.tree : [];
+  }
+
+  private get danceTypes(): TypeStats[] {
+    const environment = this.environment;
+    return environment && environment.dances ? environment.dances : [];
   }
 
   private exists(danceId: string): boolean {
@@ -121,12 +126,12 @@ export default class DanceChooser extends Mixins(EnvironmentManager) {
     return !!filtered.find((id) => id === danceId);
   }
 
-  private choose(danceId?: string): void {
-    this.$emit("chooseDance", danceId);
+  private choose(id?: string): void {
+    this.$emit("chooseDance", id);
   }
 
   private groupVariant(dance: DanceStats): string | undefined {
-    return dance.isGroup && !(this.danceId === dance.danceId)
+    return dance.isGroup && !(this.danceId === dance.id)
       ? "primary"
       : undefined;
   }
@@ -144,13 +149,12 @@ export default class DanceChooser extends Mixins(EnvironmentManager) {
       (d) =>
         d.songCount > 0 &&
         (!filter ||
-          d.danceName.toLowerCase().indexOf(filter) !== -1 ||
+          d.name.toLowerCase().indexOf(filter) !== -1 ||
           (includeChildren &&
             d.isGroup &&
-            d.children.find(
+            (d as GroupStats).dances.find(
               (c) =>
-                c.songCount > 0 &&
-                c.danceName.toLowerCase().indexOf(filter) !== -1
+                c.songCount > 0 && c.name.toLowerCase().indexOf(filter) !== -1
             )))
     );
   }

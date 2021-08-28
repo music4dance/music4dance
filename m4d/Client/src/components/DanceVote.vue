@@ -3,7 +3,7 @@
     :vote="vote"
     :value="danceRating.weight"
     :authenticated="authenticated"
-    :danceName="dance.danceName"
+    :danceName="dance.name"
     :maxVote="dance.maxWeight"
     @up-vote="upVote"
     @down-vote="downVote"

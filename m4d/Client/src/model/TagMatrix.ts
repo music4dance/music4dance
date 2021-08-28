@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { jsonMember, jsonObject, jsonArrayMember } from "typedjson";
-import { DanceType, DanceGroup, DanceObject } from "@/model/DanceStats";
+import { DanceType, DanceObject } from "@/model/DanceStats";
 
 @jsonObject
 export class TagColumn {
@@ -42,7 +42,7 @@ export class TagRowType extends TagRowBase {
 
 @jsonObject
 export class TagRowGroup extends TagRowBase {
-  @jsonMember public dance!: DanceGroup;
+  @jsonMember public dance!: DanceObject;
   @jsonArrayMember(TagRowType) public children!: TagRowType[];
 
   public get tagRow(): TagRow {

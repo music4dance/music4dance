@@ -69,12 +69,12 @@ export class Song extends TaggableObject {
     this.validateArray("tags", other, diffs);
     this.currentUserTags?.sort((a, b) => a.key.localeCompare(b.key));
     this.validateArray("currentUserTags", other, diffs);
-    this.danceRatings?.sort((a, b) => a.danceId.localeCompare(b.danceId));
+    this.danceRatings?.sort((a, b) => a.id.localeCompare(b.id));
     this.danceRatings?.forEach((dr) => {
       dr.tags?.sort((a, b) => a.key.localeCompare(b.key));
       dr.currentUserTags?.sort((a, b) => a.key.localeCompare(b.key));
     });
-    other.danceRatings?.sort((a, b) => a.danceId.localeCompare(b.danceId));
+    other.danceRatings?.sort((a, b) => a.id.localeCompare(b.id));
     this.validateArray("danceRatings", other, diffs);
     this.validateArray("modifiedBy", other, diffs);
     this.validateArray("albums", other, diffs);
@@ -148,12 +148,12 @@ export class Song extends TaggableObject {
   }
 
   public findDanceRatingById(id: string): DanceRating | undefined {
-    return this.danceRatings?.find((r) => r.danceId === id);
+    return this.danceRatings?.find((r) => r.id === id);
   }
 
   public findDanceRatingByName(name: string): DanceRating | undefined {
     const ds = environment!.fromName(name)!;
-    return this.findDanceRatingById(ds.danceId);
+    return this.findDanceRatingById(ds.id);
   }
 
   public removeDanceRating(id: string): void {
@@ -478,7 +478,7 @@ export class Song extends TaggableObject {
 
     if (tag.category === "Dance") {
       const ds = environment!.fromName(tag.value)!;
-      this.removeDanceRating(ds.danceId);
+      this.removeDanceRating(ds.id);
     }
   }
 }

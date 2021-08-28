@@ -10,17 +10,17 @@
     </template>
     <b-list-group>
       <b-list-group-item :href="pageLink" variant="secondary">
-        {{ danceName }} page...
+        {{ name }} page...
       </b-list-group-item>
       <b-list-group-item
         :href="includeDance"
         variant="warning"
         v-if="hasFilter && !isFiltered"
       >
-        Filter the list to include only songs tagged as <em>{{ danceName }}</em>
+        Filter the list to include only songs tagged as <em>{{ name }}</em>
       </b-list-group-item>
       <b-list-group-item :href="includeOnly" variant="success">
-        List all {{ danceName }} songs.
+        List all {{ name }} songs.
       </b-list-group-item>
       <b-list-group-item
         href="https://music4dance.blog/tag-filtering"
@@ -45,10 +45,10 @@
         v-on="$listeners"
       ></dance-vote>
       <span style="padding-inline-start: 1em"
-        >I enjoy dancing <b>{{ danceName }}</b> to {{ this.title }}.</span
+        >I enjoy dancing <b>{{ name }}</b> to {{ this.title }}.</span
       >
       <div>
-        The top song in the {{ danceName }} category has {{ maxWeight }} votes.
+        The top song in the {{ name }} category has {{ maxWeight }} votes.
       </div>
     </div>
   </b-modal>
@@ -77,7 +77,7 @@ export default class DanceModal extends TagModalBase {
   }
 
   private get pageLink(): string {
-    return `/dances/${this.danceName}`;
+    return `/dances/${this.name}`;
   }
 
   private get includeOnly(): string {
@@ -90,8 +90,8 @@ export default class DanceModal extends TagModalBase {
     }`;
   }
 
-  private get danceName(): string {
-    return this.dance?.danceName ?? "";
+  private get name(): string {
+    return this.dance?.name ?? "";
   }
 
   private get maxWeight(): number {
@@ -119,7 +119,7 @@ export default class DanceModal extends TagModalBase {
   }
 
   private get spinTitle(): string {
-    return `I enjoy dancing ${this.danceName} to ${this.title}.`;
+    return `I enjoy dancing ${this.name} to ${this.title}.`;
   }
 
   private get authenticated(): boolean {

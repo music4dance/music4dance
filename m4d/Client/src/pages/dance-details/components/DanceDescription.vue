@@ -6,16 +6,13 @@
       ref="description"
     >
     </mark-down-editor>
-    <div
-      id="tempo-info"
-      v-if="!dance.isGroup && dance.dance.meter.numerator != 1"
-    >
+    <div id="tempo-info" v-if="!dance.isGroup && dance.meter.numerator != 1">
       <h2>Tempo Information</h2>
       <p>
         The {{ danceName }} is generally danced to music in a
-        {{ dance.dance.meter.toString() }} meter {{ rangeText }}
-        {{ bpmText }} ({{ mpmText }}).
-        <a :href="tempoFilter.url">Click here</a> to see a list of
+        {{ dance.meter.toString() }} meter {{ rangeText }} {{ bpmText }} ({{
+          mpmText
+        }}). <a :href="tempoFilter.url">Click here</a> to see a list of
         {{ danceName }} songs {{ rangeText }} {{ mpmText }}.
       </p>
       <tempi-link></tempi-link>
@@ -29,7 +26,7 @@ import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 import MarkDownEditor from "@/components/MarkDownEditor.vue";
 import TempiLink from "@/components/TempiLink.vue";
 import { Component, Mixins, Prop } from "vue-property-decorator";
-import { DanceStats, TempoRange } from "@/model/DanceStats";
+import { DanceStats, TempoRange, TypeStats } from "@/model/DanceStats";
 import { SongFilter } from "@/model/SongFilter";
 import { Editor } from "@/model/Editor";
 
@@ -64,7 +61,7 @@ export default class DanceDescription
   }
 
   private get danceName(): string | undefined {
-    return this.dance?.danceName;
+    return this.dance?.name;
   }
 
   private get descriptionInternal(): string {
@@ -76,7 +73,7 @@ export default class DanceDescription
   }
 
   private get rangeText(): string {
-    const tempo = this.dance?.tempoRange;
+    const tempo = this.typeStats?.tempoRange;
     return tempo && tempo.min === tempo.max ? "at" : "between";
   }
 
@@ -92,7 +89,7 @@ export default class DanceDescription
   }
 
   private get tempoRange(): TempoRange | undefined {
-    return this.dance?.tempoRange;
+    return this.typeStats?.tempoRange;
   }
 
   private get bpmText(): string {
@@ -100,9 +97,18 @@ export default class DanceDescription
     return `${tempo ? tempo.toString(" and ") : ""} beats per minute`;
   }
 
+  private get typeStats(): TypeStats | undefined {
+    if (this.dance?.isGroup) {
+      throw new Error(
+        `Attempted to find tempo for a group: ${this.dance?.name}`
+      );
+    }
+    return this.dance as TypeStats;
+  }
+
   private get mpmText(): string {
     const tempo = this.tempoRange;
-    const numerator = this.dance?.dance.meter.numerator ?? 0;
+    const numerator = this.typeStats?.meter.numerator ?? 0;
     return `${tempo ? tempo.mpm(numerator, " and ") : ""} measures per minute`;
   }
 }
