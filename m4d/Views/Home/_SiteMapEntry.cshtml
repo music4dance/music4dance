@@ -7,11 +7,11 @@
 
     if (string.IsNullOrWhiteSpace(entry.FullPath))
     {
-        <b class="@type">@entry.Title</b>
+        <b>@entry.Title</b>
     }
     else
     {
-        <a href="@entry.FullPath" class="@type">@entry.Title</a>
+        <a href="@entry.FullPath">@entry.Title</a>
     }
     if (entry.Children != null)
     {

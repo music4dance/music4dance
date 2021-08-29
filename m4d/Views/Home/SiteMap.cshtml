@@ -19,7 +19,7 @@
         "music", "info", "tools"
     })
     {
-        <div class="@type col-sm-4">
+        <div class="col-md">
             @foreach (var category in Model.Where(c => c.Type == type))
             {
                 <h2>@category.Name</h2>
@@ -29,7 +29,7 @@
                         <li>
                             @if (entry is SiteMapDance dance)
                             {
-                                <span>@dance.Title: <a href="@dance.FullPath" class="@type">Info</a>, <a href="@dance.CatalogFullPath" class="@type">List</a></span>
+                                <span>@dance.Title: <a href="@dance.FullPath">Info</a>, <a href="@dance.CatalogFullPath">List</a></span>
                             }
                             else
                             {
