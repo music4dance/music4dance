@@ -23,7 +23,7 @@
               ><augment-lookup @edit-song="editSong($event)"></augment-lookup
             ></b-card-text>
           </b-tab>
-          <b-tab title="Admin">
+          <b-tab v-if="isAdmin" title="Admin">
             <b-card-text>
               <p>Paste in text version of propery list</p>
               <b-input-group prepend="Properties">
