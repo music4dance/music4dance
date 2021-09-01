@@ -202,8 +202,6 @@ export interface DanceFilter {
 @jsonObject
 export class DanceType extends DanceObject {
   @jsonArrayMember(String) public organizations!: string[];
-  @jsonMember public groupName!: string;
-  @jsonMember public groupId!: string;
   @jsonMember public link!: string;
   @jsonArrayMember(DanceInstance) public instances!: DanceInstance[];
 
@@ -223,18 +221,6 @@ export class DanceType extends DanceObject {
     return filter
       ? this.styles.filter((s) => filter.indexOf(wordsToKebab(s)) !== -1)
       : this.styles;
-  }
-
-  public match(filter: DanceFilter): boolean {
-    return (
-      filter.types.find((t) => kebabToWords(t) === this.groupName) != null &&
-      filter.meters.find(
-        (m) => m === `${this.meter.numerator}-${this.meter.denominator}`
-      ) != null &&
-      filter.styles.find((s) =>
-        this.instances.find((inst) => kebabToWords(s) === inst.style)
-      ) != null
-    );
   }
 
   public filteredTempo(
@@ -302,6 +288,8 @@ export class TypeStats extends DanceType implements DanceStats {
   @jsonMember public maxWeight!: number;
   @jsonMember public songTags!: string;
 
+  public groups?: GroupStats[];
+
   public get isGroup(): boolean {
     return false;
   }
@@ -323,6 +311,28 @@ export class TypeStats extends DanceType implements DanceStats {
       beatsPerMinute,
       beatsPerMeasure,
       percentEpsilon
+    );
+  }
+
+  public inGroup(groupId: string): boolean {
+    const groups = this.groups;
+    return !!groups && !!groups.find((g) => g.id === groupId);
+  }
+
+  public inGroupName(groupName: string): boolean {
+    const groups = this.groups;
+    return !!groups && !!groups.find((g) => g.name === groupName);
+  }
+
+  public match(filter: DanceFilter): boolean {
+    return (
+      filter.types.find((t) => this.inGroupName(kebabToWords(t))) != null &&
+      filter.meters.find(
+        (m) => m === `${this.meter.numerator}-${this.meter.denominator}`
+      ) != null &&
+      filter.styles.find((s) =>
+        this.instances.find((inst) => kebabToWords(s) === inst.style)
+      ) != null
     );
   }
 

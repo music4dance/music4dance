@@ -98,8 +98,6 @@ namespace DanceLibrary
             Meter = other.Meter;
             Instances = other.Instances;
             Organizations = other.Organizations;
-            GroupId = other.GroupId;
-            GroupName = other.GroupName;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage(
@@ -125,7 +123,7 @@ namespace DanceLibrary
         }
 
         [JsonProperty]
-        public override string Id { get; set; }
+        public sealed override string Id { get; set; }
 
         [JsonProperty]
         public sealed override string Name { get; set; }
@@ -157,11 +155,6 @@ namespace DanceLibrary
 
         [JsonProperty]
         public List<DanceInstance> Instances { get; set; }
-
-        [JsonProperty]
-        public string GroupName { get; set; }
-
-        public string GroupId { get; set; }
 
         public Uri Link { get; set; }
 
@@ -862,13 +855,6 @@ namespace DanceLibrary
             {
                 _allDanceObjects.Add(dg);
                 _danceDictionary.Add(dg.Id, dg);
-
-                // TODOSOON: Can we get rid of the dance/group relationship here?
-                foreach (var dt in dg.DanceIds.Select(DanceFromId).OfType<DanceType>())
-                {
-                    dt.GroupName = dg.Name;
-                    dt.GroupId = dg.Id;
-                }
             }
         }
 

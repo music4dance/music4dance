@@ -45,7 +45,6 @@
           "cleanName": "american-bolero"
         }
       ],
-      "groupName": "Latin",
       "blogTag": null,
       "cleanName": "bolero"
     },
@@ -84,7 +83,6 @@
           "cleanName": "social-bossa-nova"
         }
       ],
-      "groupName": "Latin",
       "blogTag": null,
       "cleanName": "bossa-nova"
     },
@@ -151,7 +149,6 @@
           "cleanName": "international-cha-cha"
         }
       ],
-      "groupName": "Latin",
       "blogTag": null,
       "cleanName": "cha-cha"
     },
@@ -218,7 +215,6 @@
           "cleanName": "american-mambo"
         }
       ],
-      "groupName": "Latin",
       "blogTag": null,
       "cleanName": "mambo"
     },
@@ -322,7 +318,6 @@
           "cleanName": "international-rumba"
         }
       ],
-      "groupName": "Latin",
       "blogTag": null,
       "cleanName": "rumba"
     },
@@ -379,7 +374,6 @@
           "cleanName": "american-paso-doble"
         }
       ],
-      "groupName": "Latin",
       "blogTag": null,
       "cleanName": "paso-doble"
     },
@@ -483,7 +477,6 @@
           "cleanName": "american-samba"
         }
       ],
-      "groupName": "Latin",
       "blogTag": null,
       "cleanName": "samba"
     },
@@ -522,7 +515,6 @@
           "cleanName": "social-salsa"
         }
       ],
-      "groupName": "Latin",
       "blogTag": null,
       "cleanName": "salsa"
     },
@@ -561,7 +553,6 @@
           "cleanName": "social-bachata"
         }
       ],
-      "groupName": "Latin",
       "blogTag": null,
       "cleanName": "bachata"
     },
@@ -600,7 +591,6 @@
           "cleanName": "social-cumbia"
         }
       ],
-      "groupName": "Latin",
       "blogTag": null,
       "cleanName": "cumbia"
     },
@@ -639,7 +629,6 @@
           "cleanName": "american-merengue"
         }
       ],
-      "groupName": "Latin",
       "blogTag": null,
       "cleanName": "merengue"
     },
@@ -678,7 +667,6 @@
           "cleanName": "social-balboa"
         }
       ],
-      "groupName": "Swing",
       "blogTag": null,
       "cleanName": "balboa"
     },
@@ -717,7 +705,6 @@
           "cleanName": "social-collegiate-shag"
         }
       ],
-      "groupName": "Swing",
       "blogTag": null,
       "cleanName": "collegiate-shag"
     },
@@ -756,7 +743,6 @@
           "cleanName": "social-carolina-shag"
         }
       ],
-      "groupName": "Swing",
       "blogTag": null,
       "cleanName": "carolina-shag"
     },
@@ -795,7 +781,6 @@
           "cleanName": "social-charleston"
         }
       ],
-      "groupName": "Swing",
       "blogTag": null,
       "cleanName": "charleston"
     },
@@ -844,7 +829,6 @@
           "cleanName": "american-east-coast-swing"
         }
       ],
-      "groupName": "Swing",
       "blogTag": null,
       "cleanName": "east-coast-swing"
     },
@@ -883,7 +867,6 @@
           "cleanName": "american-hustle"
         }
       ],
-      "groupName": "Swing",
       "blogTag": null,
       "cleanName": "hustle"
     },
@@ -941,7 +924,6 @@
           "cleanName": "international-jive"
         }
       ],
-      "groupName": "Swing",
       "blogTag": null,
       "cleanName": "jive"
     },
@@ -980,7 +962,6 @@
           "cleanName": "social-jump-swing"
         }
       ],
-      "groupName": "Swing",
       "blogTag": null,
       "cleanName": "jump-swing"
     },
@@ -1019,7 +1000,6 @@
           "cleanName": "american-west-coast-swing"
         }
       ],
-      "groupName": "Swing",
       "blogTag": null,
       "cleanName": "west-coast-swing"
     },
@@ -1058,7 +1038,6 @@
           "cleanName": "social-lindy-hop"
         }
       ],
-      "groupName": "Swing",
       "blogTag": null,
       "cleanName": "lindy-hop"
     },
@@ -1097,7 +1076,6 @@
           "cleanName": "performance-broadway"
         }
       ],
-      "groupName": "Performance",
       "blogTag": null,
       "cleanName": "broadway"
     },
@@ -1136,7 +1114,6 @@
           "cleanName": "performance-ballet"
         }
       ],
-      "groupName": "Performance",
       "blogTag": null,
       "cleanName": "ballet"
     },
@@ -1175,7 +1152,6 @@
           "cleanName": "performance-bollywood"
         }
       ],
-      "groupName": "Performance",
       "blogTag": null,
       "cleanName": "bollywood"
     },
@@ -1214,7 +1190,6 @@
           "cleanName": "performance-contemporary"
         }
       ],
-      "groupName": "Performance",
       "blogTag": null,
       "cleanName": "contemporary"
     },
@@ -1253,7 +1228,6 @@
           "cleanName": "performance-disco"
         }
       ],
-      "groupName": "Performance",
       "blogTag": null,
       "cleanName": "disco"
     },
@@ -1292,7 +1266,6 @@
           "cleanName": "performance-freestyle"
         }
       ],
-      "groupName": "Performance",
       "blogTag": null,
       "cleanName": "freestyle"
     },
@@ -1331,7 +1304,6 @@
           "cleanName": "performance-hip-hop"
         }
       ],
-      "groupName": "Performance",
       "blogTag": null,
       "cleanName": "hip-hop"
     },
@@ -1370,7 +1342,6 @@
           "cleanName": "performance-jazz"
         }
       ],
-      "groupName": "Performance",
       "blogTag": null,
       "cleanName": "jazz"
     },
@@ -1409,7 +1380,6 @@
           "cleanName": "performance-tap"
         }
       ],
-      "groupName": "Performance",
       "blogTag": null,
       "cleanName": "tap"
     },
@@ -1486,7 +1456,6 @@
           "cleanName": "international-tango-(ballroom)"
         }
       ],
-      "groupName": "Tango",
       "blogTag": null,
       "cleanName": "tango-(ballroom)"
     },
@@ -1525,7 +1494,6 @@
           "cleanName": "social-argentine-tango"
         }
       ],
-      "groupName": "Tango",
       "blogTag": null,
       "cleanName": "argentine-tango"
     },
@@ -1564,7 +1532,6 @@
           "cleanName": "social-neo-tango"
         }
       ],
-      "groupName": "Tango",
       "blogTag": null,
       "cleanName": "neo-tango"
     },
@@ -1603,7 +1570,6 @@
           "cleanName": "social-milonga"
         }
       ],
-      "groupName": "Tango",
       "blogTag": null,
       "cleanName": "milonga"
     },
@@ -1642,7 +1608,6 @@
           "cleanName": "social-tango-vals"
         }
       ],
-      "groupName": "Tango",
       "blogTag": null,
       "cleanName": "tango-vals"
     },
@@ -1681,7 +1646,6 @@
           "cleanName": "social-blues"
         }
       ],
-      "groupName": "Other",
       "blogTag": null,
       "cleanName": "blues"
     },
@@ -1720,7 +1684,6 @@
           "cleanName": "social-country-two-step"
         }
       ],
-      "groupName": "Other",
       "blogTag": null,
       "cleanName": "country-two-step"
     },
@@ -1759,7 +1722,6 @@
           "cleanName": "social-motown"
         }
       ],
-      "groupName": "Other",
       "blogTag": null,
       "cleanName": "motown"
     },
@@ -1798,7 +1760,6 @@
           "cleanName": "social-night-club-two-step"
         }
       ],
-      "groupName": "Other",
       "blogTag": null,
       "cleanName": "night-club-two-step"
     },
@@ -1837,7 +1798,6 @@
           "cleanName": "american-polka"
         }
       ],
-      "groupName": "Other",
       "blogTag": null,
       "cleanName": "polka"
     },
@@ -1876,7 +1836,6 @@
           "cleanName": "social-castle-foxtrot"
         }
       ],
-      "groupName": "Foxtrot",
       "blogTag": null,
       "cleanName": "castle-foxtrot"
     },
@@ -1961,7 +1920,6 @@
           "cleanName": "international-slow-foxtrot"
         }
       ],
-      "groupName": "Foxtrot",
       "blogTag": null,
       "cleanName": "slow-foxtrot"
     },
@@ -2010,7 +1968,6 @@
           "cleanName": "international-quickstep"
         }
       ],
-      "groupName": "Foxtrot",
       "blogTag": null,
       "cleanName": "quickstep"
     },
@@ -2049,7 +2006,6 @@
           "cleanName": "american-peabody"
         }
       ],
-      "groupName": "Foxtrot",
       "blogTag": null,
       "cleanName": "peabody"
     },
@@ -2088,7 +2044,6 @@
           "cleanName": "social-cross-step-waltz"
         }
       ],
-      "groupName": "Waltz",
       "blogTag": null,
       "cleanName": "cross-step-waltz"
     },
@@ -2165,7 +2120,6 @@
           "cleanName": "international-slow-waltz"
         }
       ],
-      "groupName": "Waltz",
       "blogTag": null,
       "cleanName": "slow-waltz"
     },
@@ -2242,7 +2196,6 @@
           "cleanName": "international-viennese-waltz"
         }
       ],
-      "groupName": "Waltz",
       "blogTag": null,
       "cleanName": "viennese-waltz"
     }

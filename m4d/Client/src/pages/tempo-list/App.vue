@@ -144,9 +144,7 @@ export default class App extends Vue {
   }
 
   private onEnvironmentLoaded(environment: DanceEnvironment): void {
-    this.dances = environment.flatTypes.filter(
-      (dt) => dt.groupName !== "Performance"
-    );
+    this.dances = environment.flatTypes.filter((dt) => !dt.inGroup("PRF"));
     this.styleOptions = optionsFromText(this.filterUnused(environment.styles));
     this.allStyles = valuesFromOptions(this.styleOptions);
     this.styles = this.filterValid(this.allStyles, window.initialStyles);

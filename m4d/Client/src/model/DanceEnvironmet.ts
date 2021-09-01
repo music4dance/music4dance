@@ -26,9 +26,21 @@ export class DanceEnvironment {
   @jsonArrayMember(TagGroup) public incrementalTags?: TagGroup[];
 
   public tree?: GroupStats[];
+  public statsIdMap?: Map<string, DanceStats>;
 
   public rehydrate(): void {
     this.tree = this.groups?.map((g) => new GroupStats(g, this.dances!));
+    this.statsIdMap = new Map<string, DanceStats>(
+      this.dances?.map((d) => [d.id, d])
+    );
+    this.tree?.forEach((g) =>
+      g.danceIds.forEach((d) => {
+        const dance = this.statsIdMap?.get(d) as TypeStats;
+        const groups = dance.groups ?? [];
+        groups.push(g);
+        dance.groups = groups;
+      })
+    );
   }
 
   public get tagDatabase(): TagDatabase {
@@ -58,7 +70,7 @@ export class DanceEnvironment {
     return [...this.tree, ...this.dances];
   }
 
-  public get flatTypes(): DanceType[] {
+  public get flatTypes(): TypeStats[] {
     return this.dances!;
   }
 

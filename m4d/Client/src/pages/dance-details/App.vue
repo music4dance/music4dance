@@ -183,7 +183,7 @@ export default class App extends Mixins(AdminTools) {
   }
 
   private breadCrumbGroup(dance: TypeStats): BreadCrumbItem {
-    const groupName = dance.groupName;
+    const groupName = dance.groups![0].name;
     return { text: groupName, href: `/dances/${groupName}` };
   }
 

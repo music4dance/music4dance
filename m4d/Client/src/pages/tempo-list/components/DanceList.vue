@@ -48,12 +48,12 @@
 import "reflect-metadata";
 import { BvTableFieldArray } from "bootstrap-vue";
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { Meter, TempoRange, DanceType, DanceFilter } from "@/model/DanceStats";
+import { Meter, TempoRange, TypeStats, DanceFilter } from "@/model/DanceStats";
 import { wordsToKebab } from "@/helpers/StringHelpers";
 
 @Component
-export default class FormList extends Vue {
-  @Prop() private readonly dances!: DanceType[];
+export default class DanceList extends Vue {
+  @Prop() private readonly dances!: TypeStats[];
   @Prop() private readonly styles!: string[];
   @Prop() private readonly meters!: string[];
   @Prop() private readonly types!: string[];
@@ -78,33 +78,35 @@ export default class FormList extends Vue {
       key: "bpm",
       label: "BPM",
       sortable: true,
-      sortByFormatted: (value: TempoRange, key: string, item: DanceType) =>
+      sortByFormatted: (value: TempoRange, key: string, item: TypeStats) =>
         this.filteredTempo(item).min.toLocaleString("en", {
           minimumIntegerDigits: 4,
         }),
-      formatter: (value: TempoRange, key: string, item: DanceType) =>
+      formatter: (value: TempoRange, key: string, item: TypeStats) =>
         this.filteredTempo(item).bpm(item.meter.numerator),
     },
     {
       key: "mpm",
       label: "MPM",
       sortable: true,
-      sortByFormatted: (value: TempoRange, key: string, item: DanceType) =>
+      sortByFormatted: (value: TempoRange, key: string, item: TypeStats) =>
         this.filteredTempo(item).min.toLocaleString("en", {
           minimumIntegerDigits: 4,
         }),
-      formatter: (value: TempoRange, key: string, item: DanceType) =>
+      formatter: (value: TempoRange, key: string, item: TypeStats) =>
         this.filteredTempo(item).toString(),
     },
     {
       key: "groupName",
       label: "Type",
       sortable: true,
+      formatter: (value: undefined, key: string, item: TypeStats) =>
+        item.groups!.map((g) => g.name).join(", "),
     },
     {
       key: "styles",
       sortable: true,
-      formatter: (value: undefined, key: string, item: DanceType) =>
+      formatter: (value: undefined, key: string, item: TypeStats) =>
         item.filteredStyles(this.styles).join(", "),
     },
   ];
@@ -131,12 +133,12 @@ export default class FormList extends Vue {
     return JSON.stringify(filter) === this.unfiltered ? null : filter;
   }
 
-  private danceLink(dance: DanceType): string {
+  private danceLink(dance: TypeStats): string {
     return this.m4dLink(dance.seoName);
   }
 
-  private groupLink(dance: DanceType): string {
-    return this.m4dLink(dance.groupName);
+  private groupLink(dance: TypeStats): string {
+    return this.m4dLink(dance.groups![0].name);
   }
 
   private styleLink(style: string): string {
@@ -147,7 +149,7 @@ export default class FormList extends Vue {
     return `https://www.music4dance.net/dances/${item}`;
   }
 
-  private tempoLink(dance: DanceType): string {
+  private tempoLink(dance: TypeStats): string {
     const tempoRange = this.filteredTempo(dance);
     const numerator = dance.meter.numerator;
     return (
@@ -158,18 +160,18 @@ export default class FormList extends Vue {
     );
   }
 
-  private doFilter(item: DanceType, filter: DanceFilter): boolean {
+  private doFilter(item: TypeStats, filter: DanceFilter): boolean {
     return item.match(filter);
   }
 
-  private onFiltered(items: DanceType[], length: number) {
+  private onFiltered(items: TypeStats[], length: number) {
     this.emptyTable =
       length === 0
         ? "Please select at least one item from every drop-down"
         : "";
   }
 
-  private filteredTempo(dance: DanceType): TempoRange {
+  private filteredTempo(dance: TypeStats): TempoRange {
     const range = dance.filteredTempo(this.styles, this.organizations);
     if (range) {
       return range;

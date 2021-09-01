@@ -105,7 +105,6 @@ const rumbaString = `{
                     "cleanName": "international-rumba"
                 }
             ],
-            "groupName": "Latin",
             "blogTag": null,
             "cleanName": "rumba"
         }`;
@@ -158,7 +157,6 @@ const boleroString = `{
                     "cleanName": "american-bolero"
                 }
             ],
-            "groupName": "Latin",
             "blogTag": null,
             "cleanName": "bolero"
         }`;
@@ -229,7 +227,6 @@ const chaString = `{
                     "cleanName": "international-cha-cha"
                 }
             ],
-            "groupName": "Latin",
             "blogTag": null,
             "cleanName": "cha-cha"
         }`;
