@@ -12,7 +12,7 @@ namespace m4d.ViewModels
         public string Artist { get; set; }
 
         public static async Task<ArtistViewModel> Create(
-            string name, string user,
+            string name,
             IMapper mapper,
             DanceMusicCoreService.CruftFilter cruft, DanceMusicService dms)
         {
@@ -21,7 +21,6 @@ namespace m4d.ViewModels
             return new ArtistViewModel
             {
                 Artist = name,
-                UserName = user,
                 Filter = mapper.Map<SongFilterSparse>(new SongFilter { Action = "Artist" }),
                 Histories = list.Select(s => s.GetHistory(mapper)).ToList()
             };

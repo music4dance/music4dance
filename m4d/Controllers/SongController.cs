@@ -184,7 +184,6 @@ namespace m4d.Controllers
                     {
                         Histories = histories,
                         Filter = _mapper.Map<SongFilterSparse>(filter),
-                        UserName = UserName,
                         Count = (int)results.TotalCount,
                         Dance = dance,
                         PlayListId = playListId,
@@ -281,7 +280,6 @@ namespace m4d.Controllers
                 {
                     Histories = histories,
                     Filter = _mapper.Map<SongFilterSparse>(filter),
-                    UserName = user,
                     Count = totalSongs ?? songs.Count,
                 });
         }
@@ -697,7 +695,7 @@ namespace m4d.Controllers
             if (!string.IsNullOrWhiteSpace(title))
             {
                 var model = await AlbumViewModel.Create(
-                    title, UserName, _mapper, DefaultCruftFilter(), Database);
+                    title, _mapper, DefaultCruftFilter(), Database);
                 return View("Album", model);
             }
 
@@ -717,7 +715,7 @@ namespace m4d.Controllers
             if (!string.IsNullOrWhiteSpace(name))
             {
                 var model = await ArtistViewModel.Create(
-                    name, UserName, _mapper, DefaultCruftFilter(), Database);
+                    name, _mapper, DefaultCruftFilter(), Database);
                 return View("Artist", model);
             }
 

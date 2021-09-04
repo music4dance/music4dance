@@ -7,7 +7,6 @@ namespace m4d.ViewModels
     {
         public List<SongHistory> Histories { get; set; }
         public SongFilterSparse Filter { get; set; }
-        public string UserName { get; set; }
         public int Count { get; set; }
     }
 

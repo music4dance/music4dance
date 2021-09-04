@@ -107,7 +107,7 @@ namespace m4d.Controllers
                 return View("emptydance", ds);
             }
 
-            return View("details", new DanceModel(dbDance, UserName, Database, _mapper));
+            return View("details", new DanceModel(dbDance, Database, _mapper));
         }
 
         // GET: GroupRedirect/group/dance

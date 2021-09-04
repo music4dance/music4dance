@@ -33,7 +33,7 @@
 <script lang="ts">
 import "reflect-metadata";
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { FeatureInfo } from "@/model/FeatureInfo";
+import type { FeatureInfo } from "@/model/FeatureInfo";
 import FeatureButton from "./FeatureButton.vue";
 
 @Component({

@@ -258,7 +258,7 @@ export default class SongFooter extends Mixins(AdminTools) {
   }
 
   private get newSearch(): string {
-    return this.filter.isSimple(this.model.userName)
+    return this.filter.isSimple(this.userName)
       ? "/song"
       : "/song/advancedsearchform";
   }

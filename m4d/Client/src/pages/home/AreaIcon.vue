@@ -18,7 +18,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { AreaInfo } from "./AreaInfo";
+import type { AreaInfo } from "./AreaInfo";
 
 @Component
 export default class AreaIcon extends Vue {

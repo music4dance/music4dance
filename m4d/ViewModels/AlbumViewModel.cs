@@ -16,8 +16,7 @@ namespace m4d.ViewModels
         public string Artist { get; set; }
 
         public static async Task<AlbumViewModel> Create(
-            string title, string user,
-            IMapper mapper,
+            string title, IMapper mapper,
             DanceMusicCoreService.CruftFilter cruft, DanceMusicService dms)
         {
             var songs = await dms.FindAlbum(title, cruft);
@@ -99,7 +98,6 @@ namespace m4d.ViewModels
             return new AlbumViewModel
             {
                 Title = albumTitle ?? title,
-                UserName = user,
                 Artist = uniqueArtist && list.Count > 0 ? list[0].Artist : string.Empty,
                 Filter = mapper.Map<SongFilterSparse>(new SongFilter { Action = "Album" }),
                 Histories = list.Select(s => s.GetHistory(mapper)).ToList()

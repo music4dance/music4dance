@@ -18,7 +18,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { DanceStats } from "@/model/DanceStats";
+import type { DanceStats } from "@/model/DanceStats";
 import DanceItem from "@/components/DanceItem.vue";
 import DanceList from "@/components/DanceList.vue";
 
