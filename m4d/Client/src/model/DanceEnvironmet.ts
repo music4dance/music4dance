@@ -1,10 +1,9 @@
 import "reflect-metadata";
-import { jsonObject, TypedJSON, jsonArrayMember } from "typedjson";
+import { jsonObject, TypedJSON, jsonArrayMember, jsonMember } from "typedjson";
 import {
   DanceGroup,
   DanceInstance,
   TypeStats,
-  DanceType,
   DanceStats,
   GroupStats,
 } from "./DanceStats";

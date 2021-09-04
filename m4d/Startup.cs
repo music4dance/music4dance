@@ -65,6 +65,8 @@ namespace m4d
                 option =>
                     option.CompatibilityMode = PasswordHasherCompatibilityMode.IdentityV2);
 
+            services.AddResponseCaching();
+
             var builder = services.AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
@@ -180,6 +182,8 @@ namespace m4d
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseResponseCaching();
 
             app.Use(
                 async (cxt, next) =>

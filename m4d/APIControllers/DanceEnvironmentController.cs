@@ -21,6 +21,7 @@ namespace m4d.APIControllers
         }
 
         [HttpGet]
+        [ResponseCache(Duration = 600, Location = ResponseCacheLocation.Any, NoStore = false)]
         public IActionResult Get()
         {
             var environment = new DanceEnvironment(_statistics);
@@ -28,6 +29,7 @@ namespace m4d.APIControllers
         }
 
         [HttpGet("{id}")]
+        [ResponseCache(Duration = 600, Location = ResponseCacheLocation.Any, NoStore = false)]
         public IActionResult Get(string id)
         {
             var sparse = new DanceStatsSparse(_statistics.FromId(id));

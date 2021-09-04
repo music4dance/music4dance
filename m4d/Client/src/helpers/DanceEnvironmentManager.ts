@@ -9,12 +9,17 @@ declare global {
   }
 }
 
+const environmentKey = "dance-environmnet";
+const expiryKey = "environment-expiry";
+
 export async function getEnvironment(): Promise<DanceEnvironment> {
   if (window.environment) {
     return window.environment;
   }
 
-  window.environment = loadFromStorage();
+  if (checkExpiry()) {
+    window.environment = loadFromStorage();
+  }
   if (window.environment) {
     return window.environment;
   }
@@ -26,7 +31,11 @@ async function loadStats(): Promise<DanceEnvironment> {
   try {
     const response = await axios.get("/api/danceenvironment/");
     const data = response.data;
-    sessionStorage.setItem("dance-stats", JSON.stringify(data));
+    sessionStorage.setItem(environmentKey, JSON.stringify(data));
+    sessionStorage.setItem(
+      expiryKey,
+      JSON.stringify(Date.now() + 1000 * 60 * 60)
+    );
     window.environment = TypedJSON.parse(data, DanceEnvironment);
     return window.environment!;
   } catch (e) {
@@ -35,8 +44,21 @@ async function loadStats(): Promise<DanceEnvironment> {
   }
 }
 
+function checkExpiry(): boolean {
+  try {
+    const expiryString = sessionStorage.getItem(expiryKey);
+    if (!expiryString) {
+      return false;
+    }
+    const expiry = JSON.parse(expiryString) as number;
+    return Date.now() < expiry;
+  } catch {
+    return false;
+  }
+}
+
 function loadFromStorage(): DanceEnvironment | undefined {
-  const envString = sessionStorage.getItem("dance-environment");
+  const envString = sessionStorage.getItem(environmentKey);
 
   if (!envString) {
     return;

@@ -94,7 +94,13 @@ export default class DanceDescription
 
   private get bpmText(): string {
     const tempo = this.tempoRange;
-    return `${tempo ? tempo.toString(" and ") : ""} beats per minute`;
+    const numerator = this.typeStats?.meter.numerator ?? 0;
+    return `${tempo ? tempo.bpm(numerator, " and ") : ""} beats per minute`;
+  }
+
+  private get mpmText(): string {
+    const tempo = this.tempoRange;
+    return `${tempo ? tempo.toString(" and ") : ""} measures per minute`;
   }
 
   private get typeStats(): TypeStats | undefined {
@@ -104,12 +110,6 @@ export default class DanceDescription
       );
     }
     return this.dance as TypeStats;
-  }
-
-  private get mpmText(): string {
-    const tempo = this.tempoRange;
-    const numerator = this.typeStats?.meter.numerator ?? 0;
-    return `${tempo ? tempo.mpm(numerator, " and ") : ""} measures per minute`;
   }
 }
 </script>
