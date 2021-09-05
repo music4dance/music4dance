@@ -80,8 +80,8 @@ export default class TrackList extends Vue {
         `/api/musicservice/${this.song.songId}?${parameters}`
       );
       this.tracks = TypedJSON.parseAsArray(results.data, TrackModel);
-    } catch (e) {
-      this.error = e;
+    } catch (e: unknown) {
+      this.error = e as string;
       this.tracks = [];
     }
   }
