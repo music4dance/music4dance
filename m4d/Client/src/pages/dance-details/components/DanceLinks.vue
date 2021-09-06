@@ -21,7 +21,7 @@
 <script lang="ts">
 import "reflect-metadata";
 import { Component, Mixins, Prop, Model, Watch } from "vue-property-decorator";
-import { DanceLink } from "@/model/DanceStats";
+import { DanceLink } from "@/model/DanceLink";
 import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 import EdittableLink from "./EdittableLink.vue";
 import { Editor } from "@/model/Editor";

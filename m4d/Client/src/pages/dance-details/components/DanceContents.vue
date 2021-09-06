@@ -37,9 +37,10 @@
 <script lang="ts">
 import "reflect-metadata";
 import { Component, Mixins, Prop } from "vue-property-decorator";
-import { DanceStats, TypeStats } from "@/model/DanceStats";
+import { DanceStats } from "@/model/DanceStats";
 import { DanceModel } from "@/model/DanceModel";
 import EnvironmentManager from "@/mix-ins/EnvironmentManager";
+import { TypeStats } from "@/model/TypeStats";
 
 @Component
 export default class DanceContents extends Mixins(EnvironmentManager) {

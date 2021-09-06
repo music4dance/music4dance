@@ -16,7 +16,7 @@
 import { Component, Prop, Model, Vue } from "vue-property-decorator";
 import TagSelector from "@/components/TagSelector.vue";
 import { ListOption } from "@/model/ListOption";
-import { DanceObject } from "@/model/DanceStats";
+import { DanceObject } from "@/model/DanceObject";
 
 @Component({
   components: {

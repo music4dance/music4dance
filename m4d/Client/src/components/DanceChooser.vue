@@ -77,9 +77,11 @@
 <script lang="ts">
 import "reflect-metadata";
 import { Component, Prop, Mixins } from "vue-property-decorator";
-import { DanceStats, GroupStats, TypeStats } from "@/model/DanceStats";
+import { DanceStats } from "@/model/DanceStats";
 import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 import DanceList from "@/pages/tempo-counter/components/DanceList.vue";
+import { TypeStats } from "@/model/TypeStats";
+import { GroupStats } from "@/model/GroupStats";
 
 @Component({
   components: {

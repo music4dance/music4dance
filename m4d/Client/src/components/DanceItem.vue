@@ -17,7 +17,8 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import type { DanceStats, TypeStats } from "@/model/DanceStats";
+import type { DanceStats } from "@/model/DanceStats";
+import { TypeStats } from "@/model/TypeStats";
 
 @Component
 export default class DanceItem extends Vue {

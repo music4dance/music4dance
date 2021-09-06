@@ -12,8 +12,9 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { TypeStats, GroupStats } from "@/model/DanceStats";
 import DanceItem from "@/components/DanceItem.vue";
+import { GroupStats } from "@/model/GroupStats";
+import { TypeStats } from "@/model/TypeStats";
 
 @Component({
   components: {

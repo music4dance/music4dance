@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import { jsonMember, jsonObject, jsonArrayMember } from "typedjson";
-import { DanceType, DanceObject } from "@/model/DanceStats";
+import { DanceType } from "@/model/DanceType";
+import { DanceObject } from "@/model/DanceObject";
 
 @jsonObject
 export class TagColumn {

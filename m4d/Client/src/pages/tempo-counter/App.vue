@@ -32,7 +32,7 @@ import { Component, Vue } from "vue-property-decorator";
 import Page from "@/components/Page.vue";
 import Counter from "./components/Counter.vue";
 import DanceList from "./components/DanceList.vue";
-import { TypeStats } from "@/model/DanceStats";
+import { TypeStats } from "@/model/TypeStats";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
 
 @Component({

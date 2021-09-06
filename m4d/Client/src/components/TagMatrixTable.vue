@@ -32,7 +32,7 @@
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
 import { TagMatrix, TagRow } from "@/model/TagMatrix";
-import { DanceObject } from "@/model/DanceStats";
+import { DanceObject } from "@/model/DanceObject";
 import { wordsToKebab } from "@/helpers/StringHelpers";
 import { BvTableFieldArray } from "bootstrap-vue";
 

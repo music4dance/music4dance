@@ -1,5 +1,5 @@
 import { jsonObject, jsonMember, jsonArrayMember } from "typedjson";
-import { DanceLink } from "./DanceStats";
+import { DanceLink } from "./DanceLink";
 import { SongListModel } from "./SongListModel";
 
 @jsonObject

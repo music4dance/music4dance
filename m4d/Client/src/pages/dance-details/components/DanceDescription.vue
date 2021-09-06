@@ -26,9 +26,11 @@ import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 import MarkDownEditor from "@/components/MarkDownEditor.vue";
 import TempiLink from "@/components/TempiLink.vue";
 import { Component, Mixins, Prop } from "vue-property-decorator";
-import { DanceStats, TempoRange, TypeStats } from "@/model/DanceStats";
+import { DanceStats } from "@/model/DanceStats";
 import { SongFilter } from "@/model/SongFilter";
 import { Editor } from "@/model/Editor";
+import { TempoRange } from "@/model/TempoRange";
+import { TypeStats } from "@/model/TypeStats";
 
 @Component({
   components: {

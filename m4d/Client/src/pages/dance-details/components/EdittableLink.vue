@@ -25,7 +25,7 @@
 <script lang="ts">
 import "reflect-metadata";
 import { Component, Vue, Prop, Model } from "vue-property-decorator";
-import { DanceLink } from "@/model/DanceStats";
+import { DanceLink } from "@/model/DanceLink";
 
 @Component
 export default class EdittableLink extends Vue {

@@ -1,6 +1,8 @@
 import "reflect-metadata";
 import { TypedJSON } from "typedjson";
-import { Meter, DanceStats, TypeStats } from "../DanceStats";
+import { TypeStats } from "../TypeStats";
+import { DanceStats } from "../DanceStats";
+import { Meter } from "../Meter";
 
 const rumbaString = `{
             "description": "There are two competition ballroom dances called *Rumba*.  One in the [International Latin] round that based on what the Cubans called bolero-son and is danced in a similar pattern to the American Style [Bolero] and the other in the [American Rhythm] round which is danced to a faster beat and takes a box step as its basic figure.  The American Style Bolero (96-104 BPM), the International Rumba (100-108 BPM), and the American Rumba (120-144 BPM) are all in a subfamily of Latin dance that are danced to similar music at a range of tempi. The *Rhumba* is generally danced as the second dance of [American Rhythm] and third dance of [International Latin] five dance competitions.",

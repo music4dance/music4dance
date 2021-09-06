@@ -48,8 +48,11 @@
 import "reflect-metadata";
 import { BvTableFieldArray } from "bootstrap-vue";
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { Meter, TempoRange, TypeStats, DanceFilter } from "@/model/DanceStats";
 import { wordsToKebab } from "@/helpers/StringHelpers";
+import { TypeStats } from "@/model/TypeStats";
+import { Meter } from "@/model/Meter";
+import { TempoRange } from "@/model/TempoRange";
+import { DanceFilter } from "@/model/DanceFilter";
 
 @Component
 export default class DanceList extends Vue {

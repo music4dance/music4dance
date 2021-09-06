@@ -83,7 +83,7 @@ import {
   optionsFromText,
 } from "@/model/ListOption";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
-import { DanceType } from "@/model/DanceStats";
+import { DanceType } from "@/model/DanceType";
 
 declare global {
   interface Window {

@@ -41,7 +41,9 @@
 import { BvTableFieldArray } from "bootstrap-vue";
 import { wordsToKebab } from "@/helpers/StringHelpers";
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { DanceInstance, Meter, TempoRange } from "@/model/DanceStats";
+import { DanceInstance } from "@/model/DanceInstance";
+import { TempoRange } from "@/model/TempoRange";
+import { Meter } from "@/model/Meter";
 
 @Component
 export default class CompetitionCategoryTable extends Vue {
@@ -115,7 +117,7 @@ export default class CompetitionCategoryTable extends Vue {
   }
 
   private get styleFamily(): string {
-    if (!this.dances) {
+    if (!this.dances || this.dances.length === 0) {
       return "both";
     }
     const family = this.dances[0].styleFamily;

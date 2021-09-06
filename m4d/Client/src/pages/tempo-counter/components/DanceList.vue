@@ -12,7 +12,7 @@
 
 <script lang="ts">
 import { DanceOrder } from "@/model/DanceOrder";
-import { TypeStats } from "@/model/DanceStats";
+import { TypeStats } from "@/model/TypeStats";
 import { Component, Vue, Prop } from "vue-property-decorator";
 import DanceItem from "./DanceItem.vue";
 

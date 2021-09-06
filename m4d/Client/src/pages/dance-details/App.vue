@@ -115,14 +115,12 @@ import { SongFilter } from "@/model/SongFilter";
 import { TypedJSON } from "typedjson";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
 import { BreadCrumbItem, danceTrail } from "@/model/BreadCrumbItem";
-import {
-  DanceInstance,
-  DanceLink,
-  DanceStats,
-  TypeStats,
-} from "@/model/DanceStats";
+import { DanceStats } from "@/model/DanceStats";
 import { Tag } from "@/model/Tag";
 import axios from "axios";
+import { TypeStats } from "@/model/TypeStats";
+import { DanceInstance } from "@/model/DanceInstance";
+import { DanceLink } from "@/model/DanceLink";
 
 declare const model: string;
 
