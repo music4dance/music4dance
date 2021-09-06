@@ -1,11 +1,22 @@
-﻿@{
+﻿@using Microsoft.Extensions.Configuration
+@inject IConfiguration _configuration;
+
+@{
     ViewBag.Title = "Add Song";
     ViewBag.Description = "Add a new song to the music4dance catalog";
+    var ecString = _configuration["Configuration:Augment:Open"];
+    if (!bool.TryParse(ecString, out var openAugment))
+    {
+        openAugment = false;
+    }
 }
 
 <div id="app"></div>
 
 @section Scripts {
+    <script language="javascript">
+        window.openAugment = @Json.Serialize(openAugment);
+    </script>
     <script asp-src-include="/client/js/chunk-vendors.*.js"></script>
     <script asp-src-include="/client/js/chunk-common.*.js"></script>
     <script asp-src-include="/client/js/augment.*.js"></script>

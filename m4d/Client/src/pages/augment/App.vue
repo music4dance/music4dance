@@ -40,7 +40,7 @@
             </b-card-text>
           </b-tab>
         </b-tabs>
-        <augment-info v-else> </augment-info>
+        <augment-info v-else :openAugment="openAugment"> </augment-info>
       </b-col>
     </b-row>
     <div v-else>
@@ -65,6 +65,20 @@
         @cancel-changes="reset(false)"
       ></song-core>
     </div>
+    <b-row
+      ><b-col>
+        <b-alert show variant="warning">
+          Adding songs is a new feature so if you run into bugs or have
+          suggestions for improving this feature please don't hesitate to send
+          email to
+          <a href="mailto:info@music4dance.net">info@music4dance.net</a> or fill
+          out our
+          <a href="https://music4dance.blog/feedback/">feedback form</a> and
+          we'll be happy to take your input as we contineu to improve the
+          feature.
+        </b-alert>
+      </b-col>
+    </b-row>
   </page>
 </template>
 
@@ -89,6 +103,8 @@ enum AugmentPhase {
   edit = "edit",
 }
 
+declare const openAugment: boolean;
+
 @Component({
   components: { AugmentInfo, AugmentLookup, AugmentSearch, SongCore, Page },
 })
@@ -102,7 +118,11 @@ export default class App extends Mixins(AdminTools) {
   private tabIndex = 0;
 
   private get canAugment(): boolean {
-    return this.canTag || this.isPremium;
+    return openAugment ? !!this.userName : this.canTag || this.isPremium;
+  }
+
+  private get openAugment(): boolean {
+    return openAugment;
   }
 
   private editSong(model: SongDetailsModel): void {
