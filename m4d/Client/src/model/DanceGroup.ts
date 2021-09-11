@@ -4,7 +4,6 @@ import { NamedObject } from "./NamedObject";
 @jsonObject
 export class DanceGroup extends NamedObject {
   @jsonMember blogTag?: string;
-  @jsonMember songTags!: string;
   @jsonArrayMember(String) public danceIds!: string[];
 
   public constructor(init?: Partial<DanceGroup>) {

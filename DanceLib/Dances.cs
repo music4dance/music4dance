@@ -52,25 +52,18 @@ namespace DanceLibrary
         }
     }
 
-    [JsonObject(MemberSerialization.OptIn)]
     public class DanceObject
     {
-        [JsonProperty]
         public virtual string Id { get; set; }
 
-        [JsonProperty]
         public virtual string Name { get; set; }
 
-        [JsonProperty]
         public virtual Meter Meter { get; set; }
 
-        [JsonProperty]
         public virtual TempoRange TempoRange { get; set; }
 
-        [JsonProperty]
         public virtual string BlogTag { get; set; }
 
-        [JsonProperty]
         public string CleanName => SeoFriendly(Name);
 
         public static string SeoFriendly(string name)
@@ -84,7 +77,6 @@ namespace DanceLibrary
         }
     }
 
-    [JsonObject(MemberSerialization.OptIn)]
     public class DanceType : DanceObject
     {
         public DanceType()
@@ -122,13 +114,10 @@ namespace DanceLibrary
             }
         }
 
-        [JsonProperty]
         public sealed override string Id { get; set; }
 
-        [JsonProperty]
         public sealed override string Name { get; set; }
 
-        [JsonProperty]
         public sealed override Meter Meter { get; set; }
 
         public override TempoRange TempoRange
@@ -150,15 +139,11 @@ namespace DanceLibrary
             }
         }
 
-        [JsonProperty]
         public List<string> Organizations { get; set; }
 
-        [JsonProperty]
         public List<DanceInstance> Instances { get; set; }
 
         public Uri Link { get; set; }
-
-        public string ShortName => Name.Replace(" ", "");
 
         public override bool Equals(object obj)
         {
@@ -171,7 +156,6 @@ namespace DanceLibrary
         }
     }
 
-    [JsonObject(MemberSerialization.OptIn)]
     public class DanceInstance : DanceObject
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage(
@@ -190,75 +174,10 @@ namespace DanceLibrary
             }
         }
 
+        [JsonIgnore]
         public DanceType DanceType { get; internal set; }
 
-        [JsonProperty]
         public sealed override TempoRange TempoRange { get; set; }
-
-        public TempoRange DanceSportTempo
-        {
-            get
-            {
-                if (Exceptions == null)
-                {
-                    return TempoRange;
-                }
-
-                foreach (var ex in Exceptions.Where(ex => ex.Organization == "DanceSport"))
-                {
-                    return ex.TempoRange;
-                }
-
-                return TempoRange;
-            }
-        }
-
-        public TempoRange NDCATempoA
-        {
-            get
-            {
-                if (Exceptions == null)
-                {
-                    return TempoRange;
-                }
-
-                foreach (var ex in Exceptions)
-                {
-                    if (ex.Organization == "NDCA" &&
-                        (Id[3] == 'A' && (ex.Level == "All" || ex.Level == "Silver,Gold") ||
-                            Id[3] == 'I' && (ex.Competitor == "All" ||
-                                ex.Competitor == "Professional,Amateur")))
-                    {
-                        return ex.TempoRange;
-                    }
-                }
-
-                return TempoRange;
-            }
-        }
-
-        public TempoRange NDCATempoB
-        {
-            get
-            {
-                if (Exceptions == null)
-                {
-                    return TempoRange;
-                }
-
-                foreach (var ex in Exceptions)
-                {
-                    if (ex.Organization == "NDCA" &&
-                        (Id[3] == 'A' && (ex.Level == "All" || ex.Level == "Bronze") ||
-                            Id[3] == 'I' && (ex.Competitor == "All" || ex.Competitor == "ProAm")))
-                    {
-                        return ex.TempoRange;
-                    }
-                }
-
-                return TempoRange;
-            }
-        }
 
         public override string Id => DanceType.Id + StyleId;
 
@@ -266,19 +185,16 @@ namespace DanceLibrary
 
         public override string Name => ShortStyle + ' ' + DanceType.Name;
 
-        [JsonProperty]
         public string Style { get; set; }
 
-        [JsonProperty]
         public string CompetitionGroup { get; set; }
 
-        [JsonProperty]
         [DefaultValue(0)]
         public int CompetitionOrder { get; set; }
 
-        [JsonProperty]
         public List<DanceException> Exceptions { get; set; }
 
+        [JsonIgnore]
         public TempoRange FilteredTempo
         {
             get
@@ -302,6 +218,7 @@ namespace DanceLibrary
             }
         }
 
+        [JsonIgnore]
         public string ShortStyle
         {
             get
@@ -312,6 +229,7 @@ namespace DanceLibrary
             }
         }
 
+        [JsonIgnore]
         public char StyleId
         {
             get
@@ -457,7 +375,6 @@ namespace DanceLibrary
         }
     }
 
-    [JsonObject(MemberSerialization.OptIn)]
     public class DanceException
     {
         [JsonConstructor]
@@ -481,24 +398,20 @@ namespace DanceLibrary
             Level = level;
         }
 
-        [JsonProperty]
         public string Organization { get; set; }
 
-        [JsonProperty]
         public TempoRange TempoRange { get; set; }
 
-        [JsonProperty]
         [DefaultValue("All")]
         public string Competitor { get; set; }
 
-        [JsonProperty]
         [DefaultValue("All")]
         public string Level { get; set; }
 
+        [JsonIgnore]
         public DanceInstance DanceInstance { get; internal set; }
     }
 
-    [JsonObject(MemberSerialization.OptIn)]
     public sealed class DanceGroup : DanceObject
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage(
@@ -514,10 +427,8 @@ namespace DanceLibrary
             DanceIds = danceIds.ToList();
         }
 
-        [JsonProperty]
         public override string Id { get; set; }
 
-        [JsonProperty]
         public override string Name { get; set; }
 
         public override Meter Meter
@@ -554,9 +465,9 @@ namespace DanceLibrary
             }
         }
 
-        [JsonProperty]
         public List<string> DanceIds { get; set; }
 
+        [JsonIgnore]
         public IList<DanceObject> Members => Dances.Instance.FromIds(DanceIds);
     }
 
@@ -745,7 +656,7 @@ namespace DanceLibrary
     {
         private static readonly JsonSerializerSettings _settings = new JsonSerializerSettings
         {
-            NullValueHandling = NullValueHandling.Include,
+            NullValueHandling = NullValueHandling.Ignore,
             DefaultValueHandling = DefaultValueHandling.Ignore
         };
 

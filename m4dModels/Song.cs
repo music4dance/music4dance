@@ -4169,7 +4169,7 @@ namespace m4dModels
                 },
             };
 
-            var fsc = danceStatsManager.FlatDanceStats;
+            var fsc = danceStatsManager.Dances;
             fields.AddRange(
                 from sc in fsc
                 where sc.SongCount != 0 && sc.DanceId != "ALL"

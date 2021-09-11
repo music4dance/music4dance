@@ -71,4 +71,15 @@ describe("tags loading", () => {
     );
     expect(noVote).toBeUndefined();
   });
+
+  it("should handle concat", () => {
+    const a = new TagList("A:X:1|B:X:2|F:X:3");
+    const b = new TagList("A:X:3|C:X:2|D:X:8|F:X:3");
+
+    const c = TagList.concat(a.tags, b.tags);
+    expect(c.length).toEqual(5);
+
+    const r = TagList.build(c).summary;
+    expect(r).toEqual("A:X:4|B:X:2|C:X:2|D:X:8|F:X:6");
+  });
 });

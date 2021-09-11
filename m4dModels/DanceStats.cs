@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using DanceLibrary;
 using Newtonsoft.Json;
 
@@ -17,16 +16,12 @@ namespace m4dModels
             MaxWeight = stats.MaxWeight;
         }
 
-        [JsonProperty]
         public string Description { get; set; }
 
-        [JsonProperty]
         public long SongCount { get; set; }
 
-        [JsonProperty]
         public int MaxWeight { get; set; }
 
-        [JsonProperty]
         public TagSummary SongTags { get; set; }
     }
 
@@ -37,35 +32,23 @@ namespace m4dModels
             Id = stats.DanceId;
             Name = stats.DanceName;
             Description = stats.Description;
-            SongTags = stats.SongTags;
             BlogTag = stats.BlogTag;
             DanceIds = stats.Children.Select(d => d.DanceId).ToList();
         }
 
-        [JsonProperty]
         public string Id { get; set; }
 
-        [JsonProperty]
         public string Name { get; set; }
 
-        [JsonProperty]
         public string Description { get; set; }
 
-        [JsonProperty]
-        public TagSummary SongTags { get; set; }
-
-        [JsonProperty]
         public string BlogTag { get; set; }
 
-        [JsonProperty]
         public IList<string> DanceIds { get; set; }
     }
 
-    [JsonObject(MemberSerialization.OptIn)]
     public class DanceStats
     {
-        private readonly List<string> _songStrings;
-
         private List<Song> _topSongs;
 
         public DanceStats()
@@ -73,85 +56,58 @@ namespace m4dModels
         }
 
         [JsonConstructor]
-        public DanceStats(string danceId, string danceName, string description, int songCount,
-            int maxWeight, string songTags, IEnumerable<string> topSongs,
-            IEnumerable<DanceStats> children, DanceType danceType, DanceGroup danceGroup)
+        public DanceStats(string danceId, string description, int songCount,
+            int maxWeight, string songTags, IEnumerable<string> songIds)
         {
+            DanceId = danceId;
             Description = description;
             SongCount = songCount;
             MaxWeight = maxWeight;
             SongTags = string.IsNullOrEmpty(songTags) ? null : new TagSummary(songTags);
-            _songStrings = topSongs?.ToList();
-
-            if (danceType != null)
-            {
-                DanceObject = danceType;
-            }
-            else if (danceGroup != null)
-            {
-                DanceObject = danceGroup;
-
-                Children = children.ToList();
-            }
-
-            Debug.Assert(danceId == DanceObject.Id && danceName == DanceObject.Name);
+            SongIds = songIds?.ToList();
         }
 
-        [JsonProperty]
-        public string DanceId => DanceObject?.Id ?? "All";
+        public string DanceId { get; set; }
 
-        [JsonProperty]
-        public string DanceName => DanceObject?.Name ?? "All Dances";
+        public string DanceName => DanceObject.Name;
 
-        [JsonProperty]
         public string BlogTag => DanceObject?.BlogTag;
 
-        // Properties mirrored from the database Dance object
-        [JsonProperty]
-        public string Description { get; set; }
+        public List<string> SongIds { get; set; }
 
-        [JsonProperty]
         public long SongCount { get; set; }
 
-        [JsonProperty]
         public int MaxWeight { get; set; }
 
-        [JsonProperty]
         public TagSummary SongTags { get; set; }
 
-        [JsonProperty]
+        // Properties mirrored from the database Dance object
+        public string Description { get; set; }
+
         public string SpotifyPlaylist { get; set; }
 
-        public TagSummary AggregateSongTags => Children == null
-            ? SongTags
-            : TagAccumulator.MergeSummaries(
-                Children.Select(c => c.SongTags)
-                    .Concat(Enumerable.Repeat(SongTags, 1)));
-
-        [JsonProperty]
         public List<DanceLink> DanceLinks { get; set; }
 
-        [JsonProperty]
+        [JsonIgnore]
         public IEnumerable<Song> TopSongs => _topSongs;
 
-        // Structural properties
-        public DanceStats Parent { get; set; }
-
-        [JsonProperty]
+        [JsonIgnore]
         public List<DanceStats> Children { get; set; }
 
-        [JsonProperty]
+        [JsonIgnore]
         public string SeoName => DanceObject.SeoFriendly(DanceName);
 
         // Dance Metadata
-        public DanceObject DanceObject { get; set; }
+        [JsonIgnore]
+        public DanceObject DanceObject => Dances.Instance.DanceFromId(DanceId);
 
-        [JsonProperty]
+        [JsonIgnore]
         public DanceType DanceType => DanceObject as DanceType;
 
-        [JsonProperty]
+        [JsonIgnore]
         public DanceGroup DanceGroup => DanceObject as DanceGroup;
 
+        [JsonIgnore]
         public Dance Dance => new Dance
         {
             Id = DanceId,
@@ -162,14 +118,15 @@ namespace m4dModels
         public void SetTopSongs(IEnumerable<Song> songs)
         {
             _topSongs = songs.ToList();
+            SongIds = _topSongs.Select(s => s.SongId.ToString()).ToList();
         }
 
-        public async Task LoadSongs(DanceMusicCoreService dms)
+        public void RestoreTopSongs(SongCache songs)
         {
-            _topSongs = await dms.CreateSongs(_songStrings);
+            _topSongs = SongIds.Select(id => songs.FindSongDetails(new Guid(id))).ToList();
         }
 
-        public void CopyDanceInfo(Dance dance, bool includeStats, DanceMusicCoreService dms)
+        public void CopyDanceInfo(Dance dance)
         {
             if (dance == null)
             {
@@ -178,20 +135,6 @@ namespace m4dModels
 
             Description = dance.Description;
             DanceLinks = dance.DanceLinks;
-        }
-
-        public void SetParents()
-        {
-            if (Children == null)
-            {
-                return;
-            }
-
-            foreach (var c in Children)
-            {
-                c.Parent = this;
-                c.SetParents();
-            }
         }
 
         public void AggregateSongCounts(IReadOnlyDictionary<string, long> tags)

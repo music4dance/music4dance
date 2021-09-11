@@ -5,6 +5,20 @@ export class TagList {
     return new TagList(tags.map((t) => t.toString()).join("|"));
   }
 
+  public static concat(a: Tag[], b: Tag[]): Tag[] {
+    const acc = new Map<string, number>(
+      a.map((t) => [t.key, t.count ?? 0] as [string, number])
+    );
+    b.forEach((t) => {
+      const key = t.key;
+      acc.set(key, (t.count ?? 0) + (acc.get(key) ?? 0));
+    });
+    const ret: Tag[] = [];
+    acc.forEach((v, k) => ret.push(Tag.fromKey(k, v)));
+    ret.sort((a, b) => a.toString().localeCompare(b.toString()));
+    return ret;
+  }
+
   constructor(public summary?: string) {}
 
   public get tags(): Tag[] {

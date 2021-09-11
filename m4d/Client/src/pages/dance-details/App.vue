@@ -80,7 +80,7 @@
         ></dance-links>
       </b-col>
     </b-row>
-    <b-row v-if="!isGroup">
+    <b-row>
       <b-col>
         <hr />
         <h2 id="tags">Tags</h2>

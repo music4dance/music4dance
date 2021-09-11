@@ -566,7 +566,7 @@ namespace m4d.Controllers
         public async Task<ActionResult> Index(SongFilter filter, string id = null, int? page = null,
             string purchase = null)
         {
-            if (id != null && Database.DanceStats.Map.ContainsKey(id.ToUpper()))
+            if (id != null && Dances.Instance.DanceFromId(id) != null)
             {
                 filter.Dances = id.ToUpper();
             }

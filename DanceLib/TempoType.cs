@@ -16,13 +16,12 @@ namespace DanceLibrary
     ///     Represents a rate with a labe (MPM, BPM, BPS), in other word a tempo
     ///     This is an immutable class
     /// </summary>
-    [JsonObject(MemberSerialization.OptIn)]
     public class TempoType : IConversand
     {
         public static readonly string TempoSyntaxError = "Sytax error in tempo";
 
 
-        private static List<TempoType> s_commonTempi;
+        private static readonly List<TempoType> s_commonTempi;
 
         static TempoType()
         {
@@ -110,18 +109,18 @@ namespace DanceLibrary
         /// <summary>
         ///     Kind of tempo (MPM, BPM, BPS)
         /// </summary>
-        [JsonProperty]
-        public TempoKind TempoKind { get; private set; }
+        public TempoKind TempoKind { get; }
 
         /// <summary>
         ///     Meter for MPM kinds
         /// </summary>
-        [JsonProperty]
-        public Meter Meter { get; private set; }
+        public Meter Meter { get; }
 
+        [JsonIgnore]
         public static ReadOnlyCollection<TempoType> CommonTempi =>
             new ReadOnlyCollection<TempoType>(s_commonTempi);
 
+        [JsonIgnore]
         public static string TypeName => "Tempo";
 
         public override string ToString()

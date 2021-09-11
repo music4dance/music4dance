@@ -1,10 +1,10 @@
 ﻿@using m4d.ViewModels
 @using Microsoft.Extensions.Configuration
 
-@inject IConfiguration Configuration;
+@inject IConfiguration _configuration;
 
 @{
-    var ecString = Configuration["Configuration:Commerce:Enabled"];
+    var ecString = _configuration["Configuration:Commerce:Enabled"];
     if (!bool.TryParse(ecString, out var enableCommerce))
     {
         enableCommerce = true;

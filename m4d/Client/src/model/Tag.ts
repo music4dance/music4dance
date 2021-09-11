@@ -59,6 +59,11 @@ export class Tag {
     });
   }
 
+  public static fromKey(key: string, count: number): Tag {
+    const parts = key.split(":");
+    return new Tag({ value: parts[0], category: parts[1], count });
+  }
+
   public static get tagKeys(): string[] {
     return [...Tag.tagInfo.keys()];
   }

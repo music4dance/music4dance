@@ -1,28 +1,29 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
+using Newtonsoft.Json;
 
 namespace DanceLibrary
 {
     /// <summary>
-    /// Encapsulates the idea of a tempo range in which a dance can be performed
-    /// 
-    /// This is an immutable class
-    ///
-    /// The idea is that this is a range between two MPM measurements for the meter that the dance 
-    /// is danced to.
-    /// 
+    ///     Encapsulates the idea of a tempo range in which a dance can be performed
+    ///     This is an immutable class
+    ///     The idea is that this is a range between two MPM measurements for the meter that the dance
+    ///     is danced to.
     /// </summary>
-    [JsonObject(MemberSerialization.OptIn)]
     public class TempoRange
     {
+        public static readonly string PositiveDecimal =
+            "must be a positive decimal number less than 250";
+
+        public static readonly string RangeOrder = "Min must be less than or equal to Max";
+
         /// <summary>
-        /// Copy constructor
+        ///     Copy constructor
         /// </summary>
         /// <param name="other">Any valid tempo object</param>
         public TempoRange(TempoRange other)
         {
-            _minTempo = other._minTempo;
-            _maxTempo = other._maxTempo;
+            Min = other.Min;
+            Max = other.Max;
 
             Validate();
         }
@@ -31,46 +32,50 @@ namespace DanceLibrary
         [JsonConstructor]
         public TempoRange(decimal min, decimal max)
         {
-            _minTempo = min;
-            _maxTempo = max;
+            Min = min;
+            Max = max;
 
             Validate();
         }
 
-        public static readonly string PositiveDecimal =
-            "must be a positive decimal number less than 250";
+        public decimal Min { get; }
 
-        public static readonly string RangeOrder = "Min must be less than or equal to Max";
+        public decimal Max { get; }
+
+        [JsonIgnore]
+        public decimal Average => Min + (Max - Min) / 2;
+
+        // Formatted values are shown to two decimal places except
+        //  when the value is with .01 of an integer, in which case
+        //  only the integer is displayed
+
+        [JsonIgnore]
+        public string MinString => Format(Min);
+
+        [JsonIgnore]
+        public string MaxString => Format(Max);
 
         private void Validate()
         {
-            if (_minTempo <= 0M || _minTempo > 1000)
+            if (Min <= 0M || Min > 1000)
                 // ReSharper disable once NotResolvedInText
             {
                 throw new ArgumentOutOfRangeException("_minTempo", PositiveDecimal);
             }
 
-            if (_maxTempo <= 0M || _maxTempo > 1000)
+            if (Max <= 0M || Max > 1000)
                 // ReSharper disable once NotResolvedInText
             {
                 throw new ArgumentOutOfRangeException("_maxTempo", PositiveDecimal);
             }
 
-            if (_maxTempo < _minTempo)
+            if (Max < Min)
                 // ReSharper disable once NotResolvedInText
                 // ReSharper disable once LocalizableElement
             {
                 throw new ArgumentException("_minTempo", RangeOrder);
             }
         }
-
-        [JsonProperty]
-        public decimal Min => _minTempo;
-
-        [JsonProperty]
-        public decimal Max => _maxTempo;
-
-        public decimal Average => _minTempo + (_maxTempo - _minTempo) / 2;
 
         public override bool Equals(object obj)
         {
@@ -107,33 +112,19 @@ namespace DanceLibrary
             return other == null
                 ? new TempoRange(this)
                 : new TempoRange(
-                    Math.Min(_minTempo, other._minTempo),
-                    Math.Max(_maxTempo, other._maxTempo));
+                    Math.Min(Min, other.Min),
+                    Math.Max(Max, other.Max));
         }
 
-        public TempoRange ToBpm(Meter meter)
-        {
-            return new TempoRange(_minTempo * meter.Numerator, _maxTempo * meter.Numerator);
-        }
-
-        // Formatted values are shown to two decimal places except
-        //  when the value is with .01 of an integer, in which case
-        //  only the integer is displayed
-
-        public string MinString => Format(_minTempo);
-
-        public string MaxString => Format(_maxTempo);
-
-        public string AverageString => Format(Average);
 
         public override string ToString()
         {
-            return _minTempo == _maxTempo ? MinString : $"{MinString}-{MaxString}";
+            return Min == Max ? MinString : $"{MinString}-{MaxString}";
         }
 
         public bool Contains(decimal tempo)
         {
-            return tempo >= _minTempo && tempo <= _maxTempo;
+            return tempo >= Min && tempo <= Max;
         }
 
         private string Format(decimal d)
@@ -143,13 +134,8 @@ namespace DanceLibrary
             {
                 return i.ToString("F0");
             }
-            else
-            {
-                return d.ToString("F2");
-            }
-        }
 
-        private readonly decimal _minTempo;
-        private readonly decimal _maxTempo;
+            return d.ToString("F2");
+        }
     }
 }

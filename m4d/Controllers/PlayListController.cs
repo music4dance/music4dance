@@ -303,7 +303,7 @@ namespace m4d.Controllers
         private void BulkCreateTopN(IReadOnlyDictionary<string, PlaylistMetadata> oldS,
             IReadOnlyDictionary<string, PlayList> oldM, IFileProvider fileProvider)
         {
-            foreach (var ds in Database.DanceStats.List)
+            foreach (var ds in Database.DanceStats.Dances)
             {
                 var dt = ds.DanceType;
                 if (dt == null || ds.SongCount < 25)
@@ -389,21 +389,10 @@ namespace m4d.Controllers
         private void BulkCreateHoliday(IReadOnlyDictionary<string, PlaylistMetadata> oldS,
             IReadOnlyDictionary<string, PlayList> oldM, IFileProvider fileProvider)
         {
-            foreach (var ds in Database.DanceStats.List)
+            foreach (var ds in Database.DanceStats.Dances)
             {
                 var dt = ds.DanceType;
-                var dg = ds.DanceGroup;
-                if (dt == null && dg == null)
-                {
-                    continue;
-                }
-
-                if (dt != null && ds.SongCount < 25)
-                {
-                    continue;
-                }
-
-                if (dg != null && ds.SongCount < 25)
+                if (dt != null || ds.SongCount < 25)
                 {
                     continue;
                 }
@@ -426,18 +415,15 @@ namespace m4d.Controllers
                     TraceLevels.General.TraceInfo,
                     $"BulkCreateHoliday: {name}, {description}, {search}");
 
-                if (metadata == null)
-                {
-                    metadata = MusicServiceManager.CreatePlaylist(
-                        MusicService.GetService(ServiceType.Spotify), User, name, description,
-                        fileProvider);
-                }
+                metadata ??= MusicServiceManager.CreatePlaylist(
+                    MusicService.GetService(ServiceType.Spotify), User, name, description,
+                    fileProvider);
 
                 if (metadata == null)
                 {
                     Trace.WriteLineIf(
                         TraceLevels.General.TraceError,
-                        $"BulkCreateHolidy:Unable to create playlist {name}");
+                        $"BulkCreateHoliday:Unable to create playlist {name}");
                     continue;
                 }
 

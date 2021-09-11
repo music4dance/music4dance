@@ -7,7 +7,6 @@ namespace DanceLibrary
     ///     Represents a musical meter with an integral numerator and denominator
     ///     This is an immutable class
     /// </summary>
-    [JsonObject(MemberSerialization.OptIn)]
     public class Meter
     {
         public static readonly string MeterSyntaxError =
@@ -22,14 +21,10 @@ namespace DanceLibrary
         public static readonly string PositiveIntegerDenominator =
             "Denominator must be a positive integer less than 1000";
 
-        private int _denominator;
 
-        //public static bool operator== (Meter m1, Meter m2)
-        //{
-        //    return (m1._numerator == m2._numerator) && (m1._denominator == m2._denominator);
-        //}
+        private readonly int _numerator;
 
-        private int _numerator;
+        private readonly int _denominator;
 
         private Meter()
         {
@@ -83,13 +78,11 @@ namespace DanceLibrary
         /// <summary>
         ///     Return the numerator of the Meter (the top number)
         /// </summary>
-        [JsonProperty]
         public int Numerator => _numerator;
 
         /// <summary>
         ///     Return the denominator of the Meter
         /// </summary>
-        [JsonProperty]
         public int Denominator => _denominator;
 
         private void Validate()

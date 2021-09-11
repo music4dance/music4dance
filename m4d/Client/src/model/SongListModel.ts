@@ -17,6 +17,4 @@ export class SongListModel {
   @jsonMember public filter!: SongFilter;
   @jsonArrayMember(SongHistory) public histories?: SongHistory[];
   @jsonMember public count!: number;
-  @jsonMember public hideSort?: boolean;
-  @jsonArrayMember(String) public hiddenColumns?: string[];
 }

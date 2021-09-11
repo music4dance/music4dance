@@ -243,7 +243,6 @@ namespace m4dModels
             return await CreateSongs(strings, s => Song.Create(s, this));
         }
 
-
         public async Task<List<Song>> CreateSongs(
             IEnumerable<SearchResult<SearchDocument>> documents)
         {
@@ -671,7 +670,7 @@ namespace m4dModels
 
         private async Task<Song> InternalFindSong(Guid id, string userName, SearchClient client)
         {
-            var sd = DanceStats.FindSongDetails(id, this);
+            var sd = DanceStats.FindSongDetails(id);
             if (sd != null)
             {
                 return sd;

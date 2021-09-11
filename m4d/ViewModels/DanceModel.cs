@@ -10,14 +10,16 @@ namespace m4d.ViewModels
         public DanceModel(Dance dance, DanceMusicService database, IMapper mapper)
         {
             var ds = database.DanceStats.Map[dance.Id];
-            var songs = ds.TopSongs.ToList();
             DanceId = dance.Id;
             DanceName = dance.Name;
-            Histories = songs.Select(s => s.GetHistory(mapper)).ToList();
             Description = dance.Description;
-            SpotifyPlaylist = ds.SpotifyPlaylist;
             Links = ds.DanceLinks;
-            Count = songs.Count;
+            if (ds.TopSongs != null)
+            {
+                var songs = ds.TopSongs.ToList();
+                Histories = songs.Select(s => s.GetHistory(mapper)).ToList();
+                SpotifyPlaylist = ds.SpotifyPlaylist;
+            }
         }
 
         public string DanceId { get; set; }

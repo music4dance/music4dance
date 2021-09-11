@@ -128,7 +128,7 @@ namespace m4d.Controllers
             };
             var rows = new List<TagRowGroup>();
 
-            foreach (var group in stats.Tree)
+            foreach (var group in stats.Groups)
             {
                 var row = BuildTagRow(columns, group);
                 if (row != null)
@@ -162,7 +162,7 @@ namespace m4d.Controllers
             var counts = new List<int>();
             foreach (var column in columns)
             {
-                counts.Add(dance.AggregateSongTags?.TagCount(column.Tag) ?? 0);
+                counts.Add(dance.SongTags?.TagCount(column.Tag) ?? 0);
             }
 
             return counts.Any(c => c > 0)

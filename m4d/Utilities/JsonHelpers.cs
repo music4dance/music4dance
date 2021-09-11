@@ -12,7 +12,8 @@ namespace m4d.Utilities
 
         public static readonly JsonSerializerSettings CamelCaseSerializer = new()
         {
-            ContractResolver = ContractResolver
+            ContractResolver = ContractResolver,
+            NullValueHandling = NullValueHandling.Ignore
         };
     }
 }

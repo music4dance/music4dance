@@ -24,75 +24,87 @@ namespace m4dModels
     }
 
 
-    [JsonObject(MemberSerialization.OptIn)]
     public class DanceStatsInstance
     {
         private const string DescriptionPlaceholder =
             "We're busy doing research and pulling together a general description for this dance style. Please check back later for more info.";
 
-        private readonly Dictionary<Guid, Song> _otherSongs = new Dictionary<Guid, Song>();
-        private readonly Dictionary<Guid, Song> _queuedSongs = new Dictionary<Guid, Song>();
-
-        private List<DanceStats> _flat;
-        private Dictionary<Guid, Song> _topSongs;
+        private readonly SongCache _cache = new SongCache();
+        private readonly IEnumerable<string> _songs;
 
         [JsonConstructor]
-        public DanceStatsInstance(IEnumerable<DanceStats> tree, IEnumerable<TagGroup> tagGroups) :
-            this(tree, new TagManager(tagGroups))
+        public DanceStatsInstance(
+            IEnumerable<DanceStats> dances, IEnumerable<DanceStats> groups,
+            IEnumerable<string> cachedSongs, IEnumerable<TagGroup> tagGroups) :
+            this(dances, groups, new TagManager(tagGroups))
         {
+            _songs = cachedSongs;
         }
 
-        public DanceStatsInstance(IEnumerable<DanceStats> tree, TagManager tagManager)
+        public DanceStatsInstance(
+            IEnumerable<DanceStats> dances, IEnumerable<DanceStats> groups,
+            TagManager tagManager)
         {
             TagManager = tagManager;
-            Tree = tree.ToList();
+            Dances = dances.ToList();
+            Groups = groups.ToList();
         }
 
-        [JsonProperty]
-        public List<DanceStats> Tree { get; set; }
+        public List<DanceStats> Dances { get; set; }
+
+        public List<DanceStats> Groups { get; set; }
+
+        public List<string> CachedSongs => _cache.Serialize();
 
         [JsonProperty(PropertyName = "tagGroups")]
         public List<TagGroup> TagGroups => TagManager.TagGroups;
 
+        [JsonIgnore]
         public TagManager TagManager { get; set; }
 
-        public List<DanceStats> List => _flat ??= Flatten();
+        [JsonIgnore]
         public Dictionary<string, DanceStats> Map { get; private set; }
 
-        private Dictionary<Guid, Song> TopSongs => _topSongs ??= new Dictionary<Guid, Song>(
-            List.SelectMany(d => d.TopSongs ?? new List<Song>())
-                .DistinctBy(s => s.SongId).ToDictionary(s => s.SongId));
+        public void UpdateSong(Song song)
+        {
+            _cache.UpdateSong(song);
+        }
+
+        public IEnumerable<Song> DequeueSongs()
+        {
+            return _cache.DequeueSongs();
+        }
+
+        public Song FindSongDetails(Guid songId)
+        {
+            return _cache.FindSongDetails(songId);
+        }
 
         public static async Task<DanceStatsInstance> BuildInstance(TagManager tagManager,
-            IEnumerable<DanceStats> tree,
+            IEnumerable<DanceStats> groups, IEnumerable<DanceStats> dances,
             DanceMusicCoreService dms, string source)
         {
-            var instance = new DanceStatsInstance(tree, tagManager);
+            var instance = new DanceStatsInstance(dances, groups, tagManager);
             await instance.FixupStats(dms, true, source);
             return instance;
         }
 
         public IEnumerable<DanceStatsSparse> GetSparseStats()
         {
-            return Tree.SelectMany(t => t.Children)
-                .Select(s => new DanceStatsSparse(s));
+            return Dances.Select(s => new DanceStatsSparse(s));
         }
 
         public IEnumerable<DanceGroupSparse> GetGroupsSparse()
         {
-            return Tree.Select(t => new DanceGroupSparse(t));
+            return Groups.Select(t => new DanceGroupSparse(t));
         }
 
         public async Task FixupStats(DanceMusicCoreService dms, bool reloadSongs,
             string source = "default")
         {
             dms.SetStatsInstance(this);
-            foreach (var d in Tree)
-            {
-                d.SetParents();
-            }
 
-            Map = List.ToDictionary(ds => ds.DanceId);
+            Map = Dances.Concat(Groups).ToDictionary(ds => ds.DanceId);
 
             var playlists =
                 dms.PlayLists.Where(p => p.Type == PlayListType.SpotifyFromSearch)
@@ -100,73 +112,88 @@ namespace m4dModels
                     .Select(p => new PlaylistMetadata { Id = p.Id, Name = p.Name })
                     .ToDictionary(m => m.Name, m => m);
 
-            var saveChanges = false;
             var newDances = new List<string>();
-            foreach (var ds in List)
+
+            if (reloadSongs)
             {
-                if (ds.SongCount > 0)
+                foreach (var dance in Dances)
                 {
-                    if (reloadSongs)
-                    {
-                        // TopN and MaxWeight
-                        var filter =
-                            dms.AzureParmsFromFilter(
-                                new SongFilter { Dances = ds.DanceId, SortOrder = "Dances" }, 10);
-                        DanceMusicCoreService.AddAzureCategories(
-                            filter, "GenreTags,StyleTags,TempoTags,OtherTags", 100);
-                        var results = await dms.Search(
-                            null, filter, DanceMusicCoreService.CruftFilter.NoCruft, null, source);
-                        ds.SetTopSongs(results.Songs);
-                        var song = ds.TopSongs.FirstOrDefault();
-                        var dr = song?.DanceRatings.FirstOrDefault(d => d.DanceId == ds.DanceId);
+                    // TopN and MaxWeight
+                    var filter =
+                        dms.AzureParmsFromFilter(
+                            new SongFilter { Dances = dance.DanceId, SortOrder = "Dances" }, 10);
+                    DanceMusicCoreService.AddAzureCategories(
+                        filter, "GenreTags,StyleTags,TempoTags,OtherTags", 100);
+                    var results = await dms.Search(
+                        null, filter, DanceMusicCoreService.CruftFilter.NoCruft, null, source);
+                    dance.SetTopSongs(results.Songs);
+                    _cache.AddSongs(results.Songs);
+                    var song = dance.TopSongs.FirstOrDefault();
+                    var dr = song?.DanceRatings.FirstOrDefault(d => d.DanceId == dance.DanceId);
 
-                        if (dr != null)
+                    if (dr != null)
+                    {
+                        dance.MaxWeight = dr.Weight;
+                    }
+
+                    // SongTags
+                    dance.SongTags = results.FacetResults == null
+                        ? new TagSummary()
+                        : new TagSummary(results.FacetResults, TagManager.TagMap);
+                }
+            }
+            else
+            {
+                await _cache.LoadSongs(_songs, dms);
+                foreach (var dance in Dances)
+                {
+                    dance.RestoreTopSongs(_cache);
+                }
+            }
+
+            foreach (var dance in Dances)
+            {
+                if (playlists.TryGetValue(dance.DanceName, out var metadata))
+                {
+                    dance.SpotifyPlaylist = metadata.Id;
+                }
+            }
+
+            foreach (var group in Groups)
+            {
+                group.Children = group.DanceGroup.DanceIds.Select(id => Map[id]).ToList();
+                group.SongTags = TagAccumulator.MergeSummaries(
+                    group.Children.Select(c => c.SongTags));
+                // TODO: At some point we should as azure search for this, since 
+                //   we're double-counting by the current method.
+                group.SongCount = group.Children.Sum(d => d.SongCount);
+                group.MaxWeight = group.Children.Max(d => d.MaxWeight);
+            }
+
+            var saveChanges = false;
+            foreach (var ds in
+                Dances.Concat(Groups).Where(s => s.Dance.Description == null))
+            {
+                var dance = await dms.Dances.FindAsync(ds.DanceId);
+                if (dance == null)
+                {
+                    dms.Dances.Add(
+                        new Dance
                         {
-                            ds.MaxWeight = dr.Weight;
-                        }
-
-                        // SongTags
-                        ds.SongTags = results.FacetResults == null
-                            ? new TagSummary()
-                            : new TagSummary(results.FacetResults, TagManager.TagMap);
-                    }
-                    else
-                    {
-                        await ds.LoadSongs(dms);
-                    }
-
-                    if (playlists.TryGetValue(ds.DanceName, out var metadata))
-                    {
-                        ds.SpotifyPlaylist = metadata.Id;
-                    }
+                            Id = ds.DanceId,
+                            Description = DescriptionPlaceholder
+                        });
                 }
                 else
                 {
-                    if (ds.Dance.Description == null)
-                    {
-                        var dance = await dms.Dances.FindAsync(ds.DanceId);
-                        if (dance == null)
-                        {
-                            dms.Dances.Add(
-                                new Dance
-                                {
-                                    Id = ds.DanceId,
-                                    Description = DescriptionPlaceholder
-
-                                });
-                        }
-                        else
-                        {
-                            dance.Description = DescriptionPlaceholder;
-                        }
-                    }
-
-                    saveChanges = true;
-
-                    newDances.Add(ds.DanceId);
-                    ds.SetTopSongs(new List<Song>());
-                    ds.SongTags = new TagSummary();
+                    dance.Description = DescriptionPlaceholder;
                 }
+
+                saveChanges = true;
+
+                newDances.Add(ds.DanceId);
+                ds.SetTopSongs(new List<Song>());
+                ds.SongTags = new TagSummary();
             }
 
             if (saveChanges)
@@ -189,7 +216,7 @@ namespace m4dModels
                 return sc;
             }
 
-            if (Dances.Instance.DanceFromId(danceId.ToUpper()) == null)
+            if (DanceLibrary.Dances.Instance.DanceFromId(danceId.ToUpper()) == null)
             {
                 return null;
             }
@@ -206,7 +233,7 @@ namespace m4dModels
         public DanceStats FromName(string name)
         {
             name = DanceObject.SeoFriendly(name);
-            var stats = List.FirstOrDefault(sc => string.Equals(sc.SeoName, name));
+            var stats = Dances.Concat(Groups).FirstOrDefault(sc => string.Equals(sc.SeoName, name));
             return stats;
         }
 
@@ -231,7 +258,10 @@ namespace m4dModels
                 await instance.FixupStats(database, false);
             }
 
-            Dances.Reset(Dances.Load(instance.GetDanceTypes(), instance.GetDanceGroups()));
+            DanceLibrary.Dances.Reset(
+                DanceLibrary.Dances.Load(
+                    instance.Dances.Select(d => d.DanceType).ToList(),
+                    instance.Groups.Select(d => d.DanceGroup).ToList()));
 
             return instance;
         }
@@ -250,108 +280,6 @@ namespace m4dModels
                         NamingStrategy = new CamelCaseNamingStrategy()
                     }
                 });
-        }
-
-        public void UpdateSong(Song song)
-        {
-            lock (_queuedSongs)
-            {
-                _queuedSongs[song.SongId] = song;
-
-                if (!TopSongs.ContainsKey(song.SongId))
-                {
-                    if (song.IsNull)
-                    {
-                        _otherSongs.Remove(song.SongId);
-                    }
-                    else
-                    {
-                        _otherSongs[song.SongId] = song;
-                    }
-
-                    return;
-                }
-
-                if (song.IsNull)
-                {
-                    TopSongs.Remove(song.SongId);
-                }
-                else
-                {
-                    TopSongs[song.SongId] = song;
-                }
-
-                foreach (var d in List)
-                {
-                    var songs = d.TopSongs as List<Song>;
-                    if (songs == null)
-                    {
-                        continue;
-                    }
-
-                    var idx = songs.FindIndex(s => s.SongId == song.SongId);
-                    if (idx == -1)
-                    {
-                        continue;
-                    }
-
-                    if (song.IsNull)
-                    {
-                        songs.RemoveAt(idx);
-                    }
-                    else
-                    {
-                        songs[idx] = song;
-                    }
-                }
-            }
-        }
-
-        public IEnumerable<Song> DequeueSongs()
-        {
-            lock (_queuedSongs)
-            {
-                var ret = _queuedSongs.Values.ToList();
-                _queuedSongs.Clear();
-                return ret;
-            }
-        }
-
-        public Song FindSongDetails(Guid songId, DanceMusicCoreService dms)
-        {
-            return TopSongs.GetValueOrDefault(songId) ?? _otherSongs.GetValueOrDefault(songId);
-        }
-
-        internal List<DanceType> GetDanceTypes()
-        {
-            return List.Where(s => s.DanceType != null).Select(s => s.DanceType).ToList();
-        }
-
-        internal List<DanceGroup> GetDanceGroups()
-        {
-            return List.Where(s => s.DanceGroup != null).Select(s => s.DanceGroup).ToList();
-        }
-
-        private List<DanceStats> Flatten()
-        {
-            var flat = new List<DanceStats>();
-
-            flat.AddRange(Tree);
-
-            foreach (var children in Tree.Select(ds => ds.Children))
-            {
-                flat.AddRange(children);
-            }
-
-            var all = new DanceStats
-            {
-                SongCount = Tree.Sum(s => s.SongCount),
-                Children = null
-            };
-
-            flat.Insert(0, all);
-
-            return flat;
         }
     }
 }

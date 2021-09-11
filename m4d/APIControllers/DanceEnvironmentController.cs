@@ -21,7 +21,7 @@ namespace m4d.APIControllers
         }
 
         [HttpGet]
-        [ResponseCache(Duration = 600, Location = ResponseCacheLocation.Any, NoStore = false)]
+        //[ResponseCache(Duration = 600, Location = ResponseCacheLocation.Any, NoStore = false)]
         public IActionResult Get()
         {
             var environment = new DanceEnvironment(_statistics);

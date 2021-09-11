@@ -8,6 +8,7 @@ import { DanceGroup } from "./DanceGroup";
 export class GroupStats extends DanceGroup implements DanceStats {
   public songCount: number;
   public maxWeight: number;
+  public songTags: string;
   public dances: TypeStats[];
 
   constructor(base: DanceGroup, dances: TypeStats[]) {
@@ -21,6 +22,13 @@ export class GroupStats extends DanceGroup implements DanceStats {
       (acc, dance) => Math.max(acc + dance.maxWeight),
       0
     );
+    this.songTags = TagList.build(
+      this.dances.reduce(
+        (acc: Tag[], dance) => TagList.concat(acc, dance.tags),
+        []
+      )
+    ).summary!;
+    console.log(this.songTags);
   }
 
   public get isGroup(): boolean {
