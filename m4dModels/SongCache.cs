@@ -59,7 +59,7 @@ namespace m4dModels
 
         public List<string> Serialize()
         {
-            return _songs.Select(s => s.ToString()).ToList();
+            return _songs.Select(s => s.Value.ToString()).ToList();
         }
     }
 }

@@ -295,6 +295,7 @@
   },
   {
     "Name": "Bolero",
+    "BlogTag": "bolero",
     "Id": "BOL",
     "Meter": {
       "Numerator": 4,
@@ -721,6 +722,7 @@
   },
   {
     "Name": "Polka",
+    "BlogTag": "polka",
     "Id": "PLK",
     "Meter": {
       "Numerator": 2,
@@ -798,6 +800,7 @@
   },
   {
     "Name": "Country Two Step",
+    "BlogTag": "country-two-step",
     "Id": "C2S",
     "Meter": {
       "Numerator": 2,
@@ -1023,6 +1026,7 @@
   },
   {
     "Name": "Blues",
+    "BlogTag": "blues",
     "Id": "BLU",
     "Meter": {
       "Numerator": 4,
@@ -1222,6 +1226,7 @@
   },
     {
     "Name": "Freestyle",
+    "BlogTag": "disco",
     "Id": "FST",
     "Meter": {
       "Numerator": 1,

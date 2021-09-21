@@ -7,9 +7,6 @@ using System.Threading.Tasks;
 using Azure.Search.Documents.Models;
 using DanceLibrary;
 
-// TODONEXT: Make sure that this all works - especially look at what happens
-//   when editing a song that is included in top 10 lists.
-//   Also, get tests working
 namespace m4dModels
 {
     public interface IDanceStatsManager
@@ -35,7 +32,7 @@ namespace m4dModels
 
     public class DanceStatsManager : IDanceStatsManager
     {
-        private const string fileName = "dance-environment";
+        private const string FileName = "dance-environment";
 
         public DanceStatsManager()
         {
@@ -113,7 +110,7 @@ namespace m4dModels
                 return null;
             }
 
-            var path = Path.Combine(AppData, $"{fileName}.json");
+            var path = Path.Combine(AppData, $"{FileName}.json");
             if (!File.Exists(path))
             {
                 return null;
@@ -166,7 +163,7 @@ namespace m4dModels
             }
 
             var json = instance.SaveToJson();
-            var path = Path.Combine(AppData, $"{fileName}.json");
+            var path = Path.Combine(AppData, $"{FileName}.json");
             Directory.CreateDirectory(AppData);
             File.WriteAllText(path, json, Encoding.UTF8);
         }

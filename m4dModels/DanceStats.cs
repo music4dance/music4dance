@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using DanceLibrary;
 using Newtonsoft.Json;
@@ -124,6 +125,10 @@ namespace m4dModels
         public void RestoreTopSongs(SongCache songs)
         {
             _topSongs = SongIds.Select(id => songs.FindSongDetails(new Guid(id))).ToList();
+            if (_topSongs.Any(s => s == null))
+            {
+                Trace.WriteLine($"Bad restore of top songs for {DanceId}");
+            }
         }
 
         public void CopyDanceInfo(Dance dance)

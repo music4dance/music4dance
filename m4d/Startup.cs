@@ -175,7 +175,7 @@ namespace m4d
 
             var options = new RewriteOptions();
             options.AddRedirectToHttps();
-            options.AddRedirectToWwwPermanent();
+            options.AddRedirectToWwwPermanent("music4dance.net");
             app.UseRewriter(options);
             app.UseStaticFiles();
             app.UseRouting();
