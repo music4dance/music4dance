@@ -1,5 +1,6 @@
 <template>
   <b-card
+    :id="computedId"
     no-body
     border-variant="primary"
     style="margin-bottom: 1rem; min-width: 25rem"
@@ -52,9 +53,15 @@ export interface CardInfo {
 })
 export default class InfoCard extends Vue {
   @Prop() private card!: CardInfo;
+  @Prop() private id?: string;
 
   private get image(): string {
     return `url(/images/shadows/${this.card.image}-bkg.png)`;
+  }
+
+  private get computedId(): string {
+    const id = this.id ?? this.card.blog;
+    return `${id}-info`;
   }
 }
 </script>

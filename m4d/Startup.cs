@@ -119,6 +119,8 @@ namespace m4d
                         options.Scope.Add("user-read-email");
                         options.Scope.Add("playlist-modify-public");
                         options.Scope.Add("ugc-image-upload");
+                        //options.Scope.Add("user-read-playback-state");
+                        //options.Scope.Add("user-read-playback-position");
 
                         //options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
                         //options.ClaimActions.MapJsonKey("urn:google:locale", "locale", "string");

@@ -44,6 +44,12 @@
         <button id="logout" type="submit" class="btn btn-link"></button>
       </form>
     </div>
+    <v-tour
+      v-if="tourSteps"
+      name="defaultTour"
+      :steps="tourSteps"
+      :callbacks="tourCallbacks"
+    ></v-tour>
   </div>
 </template>
 
@@ -55,6 +61,8 @@ import { BreadCrumbItem } from "@/model/BreadCrumbItem";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
 import { getEnvironment } from "@/helpers/DanceEnvironmentManager";
 import AdminTools from "@/mix-ins/AdminTools";
+import { TourCallbacks } from "@/model/VueTour";
+import { TourManager } from "@/model/TourManager";
 
 @Component({
   components: {
@@ -63,10 +71,13 @@ import AdminTools from "@/mix-ins/AdminTools";
   },
 })
 export default class Page extends Mixins(AdminTools) {
-  @Prop() private title: string | undefined;
-  @Prop() private help: string | undefined;
-  @Prop() private breadcrumbs: BreadCrumbItem[] | undefined;
+  @Prop() private id?: string;
+  @Prop() private title?: string;
+  @Prop() private help?: string;
+  @Prop() private breadcrumbs?: BreadCrumbItem[];
   @Prop() private consumesEnvironment?: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  @Prop() private tourSteps?: [] | undefined;
 
   private environment: DanceEnvironment = new DanceEnvironment();
 
@@ -74,10 +85,32 @@ export default class Page extends Mixins(AdminTools) {
     return new Date().getFullYear().toString();
   }
 
-  public get loaded(): boolean {
+  protected get loaded(): boolean {
     const stats = this.environment?.tree;
     const loaded = !!stats && stats.length > 0;
     return !this.consumesEnvironment || loaded;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private get tourCallbacks(): TourCallbacks {
+    return {
+      onSkip: this.skipTour,
+      onFinish: this.finishTour,
+    };
+  }
+
+  private skipTour(): void {
+    const tourManager = this.tourManager;
+    if (tourManager) {
+      tourManager.skipTour(this.id!);
+    }
+  }
+
+  private finishTour(): void {
+    const tourManager = this.tourManager;
+    if (tourManager) {
+      tourManager.completeTour(this.id!);
+    }
   }
 
   private async created() {
@@ -85,6 +118,22 @@ export default class Page extends Mixins(AdminTools) {
       this.environment = await getEnvironment();
 
       this.$emit("environment-loaded", this.environment);
+    }
+  }
+
+  private get tourManager(): TourManager | undefined {
+    return undefined;
+    //return this.tourSteps && this.id ? TourManager.loadTours() : undefined;
+  }
+
+  // TODONEXT:
+  //  Figure out a way to globally turn tours on and off
+  //  Have a way to explicity invoke a tour
+  //  Write an actual tour
+  private mounted(): void {
+    const tourManager = this.tourManager;
+    if (tourManager && tourManager?.showTour(this.id!)) {
+      this.$tours["defaultTour"].start();
     }
   }
 }

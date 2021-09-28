@@ -1,7 +1,7 @@
 <template>
-  <page id="app">
+  <page id="home" :tourSteps="tourSteps">
     <b-card-group deck>
-      <info-card :card="funCard">
+      <info-card id="fun" :card="funCard">
         <div style="padding: 0.25em 1em">
           <div style="font-size: 1.5em">
             <a href="/home/contribute"
@@ -89,6 +89,7 @@ import { DanceClass, DanceMapping } from "./DanceClass";
 import { Link } from "@/model/Link";
 import { AreaInfo } from "./AreaInfo";
 import { FeatureInfo } from "@/model/FeatureInfo";
+import { TourStep } from "@/model/VueTour";
 
 @jsonObject
 class HomeModel {
@@ -267,6 +268,23 @@ export default class App extends Vue {
 
   private danceLink(dm: DanceMapping): string {
     return dm.link;
+  }
+
+  private get tourSteps(): TourStep[] {
+    return [
+      {
+        target: "#fun-info",
+        content: "Discover random things about music and dance",
+      },
+      {
+        target: "#tools-menu",
+        content: "Tempo counter and smart table of dance tempos",
+      },
+      {
+        target: "#contribute-menu",
+        content: "Please consider contributing to music4dance",
+      },
+    ];
   }
 }
 </script>

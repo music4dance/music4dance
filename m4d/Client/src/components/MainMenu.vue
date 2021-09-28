@@ -8,7 +8,7 @@
 
     <b-collapse id="nav-collapse" is-nav>
       <b-navbar-nav>
-        <b-nav-item-dropdown text="Music">
+        <b-nav-item-dropdown id="music-menu" text="Music">
           <b-dropdown-item href="/dances">Dances</b-dropdown-item>
           <b-dropdown-item
             href="/dances/ballroom-competition-categories"
@@ -43,7 +43,7 @@
           >
           <b-dropdown-item href="/tag">Tags</b-dropdown-item>
         </b-nav-item-dropdown>
-        <b-nav-item-dropdown text="Tools">
+        <b-nav-item-dropdown id="tools-menu" text="Tools">
           <b-dropdown-item href="/home/counter">Tempo Counter</b-dropdown-item>
           <b-dropdown-item href="/home/tempi">Tempi (Tempos)</b-dropdown-item>
         </b-nav-item-dropdown>
@@ -63,8 +63,14 @@
           >
           <b-dropdown-item href="/home/credits">Credits</b-dropdown-item>
         </b-nav-item-dropdown>
-        <b-nav-item right href="/home/contribute">Contribute</b-nav-item>
-        <b-nav-item-dropdown text="Admin" v-if="context.isAdmin">
+        <b-nav-item id="contribute-menu" right href="/home/contribute"
+          >Contribute</b-nav-item
+        >
+        <b-nav-item-dropdown
+          id="admin-menu"
+          text="Admin"
+          v-if="context.isAdmin"
+        >
           <b-dropdown-item href="/admin">Index</b-dropdown-item>
           <b-dropdown-item href="/applicationusers">Users</b-dropdown-item>
           <b-dropdown-item href="/tag/list">Tags</b-dropdown-item>
@@ -98,7 +104,7 @@
           >
         </b-nav-item-dropdown>
       </b-navbar-nav>
-      <b-navbar-nav class="ml-auto" v-else>
+      <b-navbar-nav id="identity-menu" class="ml-auto" v-else>
         <b-nav-item right href="/identity/account/register"
           >Register</b-nav-item
         >
