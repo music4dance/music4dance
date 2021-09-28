@@ -126,12 +126,14 @@ export default class App extends Vue {
       docs: "/dance-styles-help/",
       posts:
         "/question-1-im-learning-to-cha-cha-where-is-some-great-music-for-practicing/",
+      menu: ["Music", "Dances"],
     },
     {
       title: "Find the most recently added songs",
       type: "music",
       tryIt: "/song/newmusic?type=Created",
       posts: "/tag/new-music/",
+      menu: ["Music", "Song Library", "New Music"],
     },
     {
       title: "Find out what dance styles can be danced to a song.",
@@ -139,6 +141,7 @@ export default class App extends Vue {
       tryIt: "/song",
       docs: "/song-list/",
       posts: "/wedding-music-part-i-can-we-dance-the-foxtrot-to-our-song/",
+      menu: ["Music", "Song Library"],
     },
     {
       title:
@@ -147,12 +150,14 @@ export default class App extends Vue {
       tryIt: "/tag",
       docs: "/tag-cloud/",
       posts: "/tag/tag/",
+      menu: ["Music", "Tags"],
     },
     {
       title: "Find wedding songs and match them with dance styles.",
       type: "music",
       tryIt: "/dances/wedding-music",
       posts: "/tag/wedding/",
+      menu: ["Music", "Wedding"],
     },
     {
       title: "Find songs that match competition tempo ranges.",
@@ -161,6 +166,7 @@ export default class App extends Vue {
       docs: "/dance-category/",
       posts:
         "/im-a-competition-ballroom-dancer-can-i-find-practice-songs-that-are-a-specific-tempo/",
+      menu: ["Music", "Dances", "Ballroom"],
     },
     {
       title: "Vote on what style you would dance to any song in our catalog.",
@@ -181,6 +187,7 @@ export default class App extends Vue {
       type: "music",
       tryIt: "/dances/holiday-music",
       posts: "/tag/holiday/",
+      menu: ["Music", "Halloween"],
     },
   ];
 
@@ -192,6 +199,7 @@ export default class App extends Vue {
       tryIt: "/home/counter",
       docs: "/tempo-counter/",
       posts: "/question-2-what-dance-styles-can-i-dance-to-my-favorite-songs/",
+      menu: ["Tools", "Tempo Counter"],
     },
     {
       title:
@@ -200,6 +208,7 @@ export default class App extends Vue {
       tryIt: "/home/tempi",
       docs: "/dance-tempi/",
       posts: "/tag/tempo/",
+      menu: ["Tools", "Tempi (Tempos)"],
     },
     {
       title:
@@ -208,6 +217,7 @@ export default class App extends Vue {
       tryIt: "/song/advancedsearchform",
       docs: "/advanced-search/",
       posts: "/tag/search/",
+      menu: ["Music", "Song Library", "Advanced Search"],
     },
   ];
 

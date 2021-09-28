@@ -4,4 +4,5 @@ export interface FeatureInfo {
   tryIt?: string;
   docs?: string;
   posts?: string;
+  menu?: string[];
 }

@@ -4,7 +4,7 @@
       <img :src="icon" :alt="this.info.type" width="24" height="24" />
       {{ info.title }}
     </div>
-    <div style="margin-left: 1em">
+    <div class="ml-3">
       <feature-button
         title="Try It!"
         type="play"
@@ -27,6 +27,11 @@
         style="margin-bottom: 0.25em"
       ></feature-button>
     </div>
+    <div v-if="info.menu" class="ml-5">
+      Menu Location:
+      <span v-for="item in pathItems" :key="item">{{ item }} / </span>
+      <a :href="info.tryIt">{{ actionItem }}</a>
+    </div>
   </div>
 </template>
 
@@ -46,6 +51,16 @@ export default class FeatureLink extends Vue {
 
   private get icon(): string {
     return `/images/icons/${this.info.type}.png`;
+  }
+
+  private get pathItems(): string[] {
+    const menu = this.info.menu;
+    return menu ? menu.filter((s, i) => i != menu.length - 1) : [];
+  }
+
+  private get actionItem(): string {
+    const menu = this.info.menu;
+    return menu ? menu[menu.length - 1] : "";
   }
 }
 </script>
