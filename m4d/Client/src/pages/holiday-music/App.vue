@@ -66,7 +66,6 @@ export default class App extends Vue {
     super();
 
     this.model = TypedJSON.parse(model, HolidaySongListModel)!;
-    console.log("Model loaded");
   }
 
   private get title(): string {

@@ -28,7 +28,6 @@ export class GroupStats extends DanceGroup implements DanceStats {
         []
       )
     ).summary!;
-    console.log(this.songTags);
   }
 
   public get isGroup(): boolean {

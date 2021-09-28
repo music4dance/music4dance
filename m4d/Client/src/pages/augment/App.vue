@@ -136,7 +136,6 @@ export default class App extends Mixins(AdminTools) {
   }
 
   private async adminCreate(): Promise<void> {
-    console.log(`Create Song: ${this.propertiesString}`);
     this.songModel = new SongDetailsModel({
       created: true,
       songHistory: SongHistory.fromString(this.propertiesString),
