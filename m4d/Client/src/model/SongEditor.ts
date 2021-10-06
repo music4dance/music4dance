@@ -13,7 +13,7 @@ import { TrackModel } from "./TrackModel";
 declare const environment: DanceEnvironment;
 
 export class SongEditor {
-  private songId: string;
+  public songId: string;
   private properties: SongProperty[];
   private initialCount: number;
   private initialSong: Song;
@@ -64,6 +64,22 @@ export class SongEditor {
     });
   }
 
+  public async saveExternalChanges(other: SongEditor): Promise<void> {
+    // Verify that we're asking to save changes from a clone
+    if (this.modified) {
+      throw new Error("Attempting to add changes to an active editor");
+    }
+    if (this.initialCount !== other.initialCount) {
+      throw new Error("Attempting to save from an unrelated editor");
+    }
+
+    other.editHistory.properties.forEach((p) =>
+      this.history.properties.push(p)
+    );
+
+    return await this.saveChanges();
+  }
+
   public async saveChanges(): Promise<void> {
     try {
       const admin = this.admin;
@@ -107,11 +123,29 @@ export class SongEditor {
     this.admin = false;
   }
 
+  public get likeState(): boolean | undefined {
+    const modifiedRecord = this.song.getUserModified(this.user);
+    return modifiedRecord ? modifiedRecord.like : undefined;
+  }
+
   public toggleLike(): void {
     const modifiedRecord = this.song.getUserModified(this.user);
     const like = this.rotateLike(
       modifiedRecord ? modifiedRecord.like : undefined
     );
+    this.addProperty(PropertyType.likeTag, like);
+  }
+
+  public setLike(value?: boolean | null): void {
+    let like = "null";
+    switch (value) {
+      case true:
+        like = "true";
+        break;
+      case false:
+        like = "false";
+        break;
+    }
     this.addProperty(PropertyType.likeTag, like);
   }
 

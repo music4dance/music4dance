@@ -55,7 +55,7 @@ describe("song filter", () => {
     expect(f).toBeInstanceOf(SongFilter);
     expect(f.isEmpty).toBeFalsy();
     expect(f.description).toEqual(
-      "All Argentine Tango songs excluding songs disliked by me."
+      "All Argentine Tango songs excluding songs in my blocked list."
     );
   });
 
@@ -65,7 +65,7 @@ describe("song filter", () => {
     expect(f).toBeInstanceOf(SongFilter);
     expect(f.isEmpty).toBeFalsy();
     expect(f.description).toEqual(
-      "All songs danceable to any of Argentine Tango or Bolero excluding songs disliked by me."
+      "All songs danceable to any of Argentine Tango or Bolero excluding songs in my blocked list."
     );
   });
 
@@ -162,7 +162,7 @@ describe("song filter", () => {
         " including tag Big Band" +
         " excluding tag Swing" +
         " having tempo between 100 and 150 beats per minute" +
-        " excluding songs disliked by me" +
+        " excluding songs in my blocked list" +
         " sorted by Dance Rating from most popular to least popular."
     );
   });

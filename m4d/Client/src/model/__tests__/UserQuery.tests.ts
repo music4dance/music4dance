@@ -25,7 +25,7 @@ describe("user query", () => {
     expect(uq.include).toBeFalsy();
     expect(uq.hate).toBeTruthy();
     expect(uq.userName).toEqual("me");
-    expect(uq.description).toEqual("excluding songs disliked by me");
+    expect(uq.description).toEqual("excluding songs in my blocked list");
   });
 
   it("should handle exclude like", () => {
@@ -37,7 +37,7 @@ describe("user query", () => {
     expect(uq.query).toEqual("-me|l");
     expect(uq.include).toBeFalsy();
     expect(uq.like).toBeTruthy();
-    expect(uq.description).toEqual("excluding songs liked by me");
+    expect(uq.description).toEqual("excluding songs in my favorites");
   });
 
   it("should handle exclude tagged", () => {
@@ -61,7 +61,7 @@ describe("user query", () => {
     expect(uq.query).toEqual("+me|l");
     expect(uq.include).toBeTruthy();
     expect(uq.like).toBeTruthy();
-    expect(uq.description).toEqual("including songs liked by me");
+    expect(uq.description).toEqual("including songs in my favorites");
   });
 
   it("should handle include hate", () => {
@@ -73,7 +73,7 @@ describe("user query", () => {
     expect(uq.query).toEqual("+me|h");
     expect(uq.include).toBeTruthy();
     expect(uq.hate).toBeTruthy();
-    expect(uq.description).toEqual("including songs disliked by me");
+    expect(uq.description).toEqual("including songs in my blocked list");
   });
 
   it("should handle include tag", () => {

@@ -267,22 +267,18 @@ export default class App extends Mixins(AdminTools) {
   private get activities() {
     const user = this.user;
     const empty = { text: "Don't filter on user activity", value: "NT" };
+    const my = user === "me" ? "my" : user + "'s";
+    const i = user === "me" ? "I have" : user + " has";
 
     return user
       ? [
           empty,
-          { text: `Include all songs ${user} has marked LIKE`, value: "IL" },
-          { text: `Exclude all songs ${user} has marked LIKE`, value: "XL" },
-          { text: `Include all songs ${user} has tagged`, value: "IT" },
-          { text: `Exclude all songs ${user} has tagged`, value: "XT" },
-          {
-            text: `Include all songs ${user} has marked DON'T LIKE`,
-            value: "IH",
-          },
-          {
-            text: `Exclude all songs ${user} has marked DON'T LIKE`,
-            value: "XH",
-          },
+          { text: `Include all songs in ${my} favorites`, value: "IL" },
+          { text: `Exclude all songs in ${my} favorites`, value: "XL" },
+          { text: `Include all songs ${i}  tagged`, value: "IT" },
+          { text: `Exclude all songs ${i} tagged`, value: "XT" },
+          { text: `Exclude all songs in ${my} blocked list`, value: "XH" },
+          { text: `Include all songs in ${my} blocked list`, value: "IH" },
         ]
       : [empty];
   }

@@ -7,6 +7,7 @@
             :user="model.userName"
             :song="song"
             :scale="1"
+            :toggleBehavior="true"
             @click-like="onClickLike"
           ></song-like-button>
           <i

@@ -89,19 +89,21 @@ export class UserQuery {
 
     const include = this.include ? "including" : "excluding";
     let like = "";
+    const user = this.userName;
+    const my = user === "me" ? "my" : user + "'s";
     switch (this.parts[1]) {
       case "L":
-        like = "liked";
+        like = `in ${my} favorites`;
         break;
       case "H":
-        like = "disliked";
+        like = `in ${my} blocked list`;
         break;
       case "T":
-        like = "edited";
+        like = `edited by ${this.userName}`;
         break;
     }
 
-    return `${include} songs ${like} by ${this.userName}`;
+    return `${include} songs ${like}`;
   }
 
   public get parts(): string {

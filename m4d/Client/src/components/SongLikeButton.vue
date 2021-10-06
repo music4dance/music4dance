@@ -4,6 +4,7 @@
     :authenticated="!!user"
     :title="this.song.title"
     :scale="scale"
+    :toggleBehavior="toggleBehavior"
     @click-like="onClick"
   >
   </like-button>
@@ -19,6 +20,7 @@ export default class SongLikeButton extends Vue {
   @Prop() private readonly song!: Song;
   @Prop() private readonly user?: string;
   @Prop() private readonly scale!: number;
+  @Prop() private readonly toggleBehavior?: boolean;
 
   private onClick(): void {
     if (this.user) {

@@ -50,6 +50,7 @@
           </b-iconstack>
         </a>
         <play-modal :song="data.item.song"></play-modal>
+        <like-modal :id="getLikeId(data.item)" :editor="data.item"></like-modal>
       </template>
       <template v-slot:head(title)>
         <sortable-header
@@ -249,6 +250,7 @@ import { BvTableFieldArray } from "bootstrap-vue";
 import DanceButton from "./DanceButton.vue";
 import DanceVote from "@/components/DanceVote.vue";
 import EchoIcon from "./EchoIcon.vue";
+import LikeModal from "@/components/LikeModal.vue";
 import SongLikeButton from "@/components/SongLikeButton.vue";
 import PlayModal from "./PlayModal.vue";
 import SortableHeader from "./SortableHeader.vue";
@@ -297,6 +299,7 @@ const lengthField = { key: "length" };
     DanceButton,
     DanceVote,
     EchoIcon,
+    LikeModal,
     PlayModal,
     SongLikeButton,
     SortableHeader,
@@ -546,13 +549,16 @@ export default class SongTable extends Mixins(AdminTools) {
   }
 
   private onClickLike(editor: SongEditor): void {
-    editor.toggleLike();
-    editor.saveChanges();
+    this.$bvModal.show(this.getLikeId(editor));
   }
 
   private onDanceVote(editor: SongEditor, vote: DanceRatingVote): void {
     editor.danceVote(vote);
     editor.saveChanges();
+  }
+
+  private getLikeId(editor: SongEditor): string {
+    return `like-${editor.songId}`;
   }
 }
 </script>

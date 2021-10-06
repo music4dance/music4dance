@@ -27,17 +27,24 @@ export default class LikeButton extends Vue {
   @Prop() private readonly authenticated!: boolean;
   @Prop() private readonly title!: string;
   @Prop() private readonly scale!: number;
+  @Prop() private readonly toggleBehavior?: boolean;
 
   private get undefinedTip(): string {
-    return `Click to like/dislike ${this.title}.`;
+    return `Click to add ${this.title} to favorites.`;
   }
 
   private get trueTip(): string {
-    return `You have liked ${this.title}, click to dislike.`;
+    return (
+      `${this.title} is in your favorites, click to ` +
+      (this.toggleBehavior ? "move to your blocked list." : "change.")
+    );
   }
 
   private get falseTip(): string {
-    return `You have disliked ${this.title}, click to reset.`;
+    return (
+      `${this.title} is in your blocked list, click to ` +
+      (this.toggleBehavior ? "remove it." : "change.")
+    );
   }
 
   private get redirectUrl(): string {

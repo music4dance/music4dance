@@ -2,7 +2,7 @@
   <a
     href="#"
     @click.prevent="onClick"
-    v-b-tooltip.hover.right="likeTip"
+    v-b-tooltip.hover.blur.right="likeTip"
     role="button"
   >
     <b-icon
@@ -37,18 +37,18 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 export default class IconButton extends Vue {
   @Prop() private readonly state?: boolean;
   @Prop() private readonly authenticated!: boolean;
-  @Prop() private readonly redirectUrl!: string;
-  @Prop() private readonly signInTip!: string;
-  @Prop() private readonly undefinedTip!: string;
-  @Prop() private readonly trueTip!: string;
-  @Prop() private readonly falseTip!: string;
+  @Prop() private readonly redirectUrl?: string;
+  @Prop() private readonly signInTip?: string;
+  @Prop() private readonly undefinedTip?: string;
+  @Prop() private readonly trueTip?: string;
+  @Prop() private readonly falseTip?: string;
   @Prop() private readonly trueIcon!: string;
   @Prop() private readonly falseIcon!: string;
   @Prop() private readonly trueVariant!: string;
   @Prop() private readonly falseVariant!: string;
   @Prop() private readonly scale!: number;
 
-  private get likeTip(): string {
+  private get likeTip(): string | undefined {
     if (!this.authenticated) {
       return this.signInTip;
     }
@@ -64,10 +64,12 @@ export default class IconButton extends Vue {
   }
 
   private async onClick(): Promise<void> {
-    if (this.authenticated) {
-      this.$emit("click-icon");
-    } else {
-      window.location.href = this.redirectUrl;
+    if (this.redirectUrl) {
+      if (this.authenticated) {
+        this.$emit("click-icon");
+      } else {
+        window.location.href = this.redirectUrl;
+      }
     }
   }
 }

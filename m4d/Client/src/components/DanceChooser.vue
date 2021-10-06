@@ -46,8 +46,8 @@
       <b-tab title="By Style">
         <b-list-group>
           <b-list-group-item
-            v-for="dance in groupedDances"
-            :key="dance.id"
+            v-for="(dance, idx) in groupedDances"
+            :key="idx"
             button
             :variant="groupVariant(dance)"
             :class="{ item: dance.isGroup, 'sub-item': !dance.isGroup }"
