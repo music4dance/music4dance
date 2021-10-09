@@ -1,12 +1,12 @@
-import { jsonMember, jsonObject } from "typedjson";
 import { kebabToWords } from "@/helpers/StringHelpers";
+import { jsonMember, jsonObject } from "typedjson";
+import { DanceFilter } from "./DanceFilter";
+import { DanceStats } from "./DanceStats";
+import { DanceType } from "./DanceType";
+import { GroupStats } from "./GroupStats";
 import { Tag } from "./Tag";
 import { TagList } from "./TagList";
 import { TempoRange } from "./TempoRange";
-import { DanceStats } from "./DanceStats";
-import { DanceFilter } from "./DanceFilter";
-import { DanceType } from "./DanceType";
-import { GroupStats } from "./GroupStats";
 
 @jsonObject
 export class TypeStats extends DanceType implements DanceStats {

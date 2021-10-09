@@ -1,4 +1,4 @@
-import { jsonObject, jsonMember } from "typedjson";
+import { jsonMember, jsonObject } from "typedjson";
 import { SongListModel } from "./SongListModel";
 
 @jsonObject

@@ -1,9 +1,9 @@
 import { wordsToKebab } from "@/helpers/StringHelpers";
+import { DanceGroup } from "./DanceGroup";
+import { DanceStats } from "./DanceStats";
 import { Tag } from "./Tag";
 import { TagList } from "./TagList";
-import { DanceStats } from "./DanceStats";
 import { TypeStats } from "./TypeStats";
-import { DanceGroup } from "./DanceGroup";
 
 export class GroupStats extends DanceGroup implements DanceStats {
   public songCount: number;

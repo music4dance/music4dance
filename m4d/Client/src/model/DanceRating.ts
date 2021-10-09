@@ -1,8 +1,8 @@
 import { jsonMember, jsonObject } from "typedjson";
+import { DanceEnvironment } from "./DanceEnvironmet";
+import { DanceStats } from "./DanceStats";
 import { Tag, TagCategory } from "./Tag";
 import { TaggableObject } from "./TaggableObject";
-import { DanceStats } from "./DanceStats";
-import { DanceEnvironment } from "./DanceEnvironmet";
 
 declare const environment: DanceEnvironment;
 

@@ -38,12 +38,12 @@
 </template>
 
 <script lang="ts">
-import { BvTableFieldArray } from "bootstrap-vue";
 import { wordsToKebab } from "@/helpers/StringHelpers";
-import { Component, Prop, Vue } from "vue-property-decorator";
 import { DanceInstance } from "@/model/DanceInstance";
-import { TempoRange } from "@/model/TempoRange";
 import { Meter } from "@/model/Meter";
+import { TempoRange } from "@/model/TempoRange";
+import { BvTableFieldArray } from "bootstrap-vue";
+import { Component, Prop, Vue } from "vue-property-decorator";
 
 @Component
 export default class CompetitionCategoryTable extends Vue {

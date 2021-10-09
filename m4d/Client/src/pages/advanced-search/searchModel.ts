@@ -1,7 +1,7 @@
-import "reflect-metadata";
-import { jsonObject, jsonArrayMember, jsonMember } from "typedjson";
 import { DanceObject } from "@/model/DanceObject";
 import { SongFilter } from "@/model/SongFilter";
+import "reflect-metadata";
+import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
 
 @jsonObject
 export class SearchModel {

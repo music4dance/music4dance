@@ -1,5 +1,5 @@
-import { TypedJSON } from "typedjson";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { TypedJSON } from "typedjson";
 import environmentJson from "../assets/dance-environment.json";
 
 declare global {

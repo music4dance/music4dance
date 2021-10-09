@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { TypedJSON } from "typedjson";
-import { PurchaseEncoded, ServiceType, PurchaseInfo } from "../Purchase";
+import { PurchaseEncoded, PurchaseInfo, ServiceType } from "../Purchase";
 
 function getEncoded(): PurchaseEncoded {
   const encoded = {

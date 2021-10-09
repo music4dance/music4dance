@@ -245,29 +245,29 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
-import { BvTableFieldArray } from "bootstrap-vue";
-import DanceButton from "./DanceButton.vue";
 import DanceVote from "@/components/DanceVote.vue";
-import EchoIcon from "./EchoIcon.vue";
 import LikeModal from "@/components/LikeModal.vue";
 import SongLikeButton from "@/components/SongLikeButton.vue";
+import { DanceRatingVote } from "@/DanceRatingDelta";
+import AdminTools from "@/mix-ins/AdminTools";
+import { DanceHandler } from "@/model/DanceHandler";
+import { DanceRating } from "@/model/DanceRating";
+import { Song } from "@/model/Song";
+import { SongEditor } from "@/model/SongEditor";
+import { SongFilter } from "@/model/SongFilter";
+import { SongHistory } from "@/model/SongHistory";
+import { SongSort, SortOrder } from "@/model/SongSort";
+import { Tag } from "@/model/Tag";
+import { TaggableObject } from "@/model/TaggableObject";
+import { TagHandler } from "@/model/TagHandler";
+import { BvTableFieldArray } from "bootstrap-vue";
+import "reflect-metadata";
+import { Component, Mixins, Prop } from "vue-property-decorator";
+import DanceButton from "./DanceButton.vue";
+import EchoIcon from "./EchoIcon.vue";
 import PlayModal from "./PlayModal.vue";
 import SortableHeader from "./SortableHeader.vue";
 import TagButton from "./TagButton.vue";
-import { Component, Prop, Mixins } from "vue-property-decorator";
-import { DanceRating } from "@/model/DanceRating";
-import { Song } from "@/model/Song";
-import { Tag } from "@/model/Tag";
-import { SongFilter } from "@/model/SongFilter";
-import { DanceHandler } from "@/model/DanceHandler";
-import { TagHandler } from "@/model/TagHandler";
-import { TaggableObject } from "@/model/TaggableObject";
-import { SongSort, SortOrder } from "@/model/SongSort";
-import AdminTools from "@/mix-ins/AdminTools";
-import { SongHistory } from "@/model/SongHistory";
-import { SongEditor } from "@/model/SongEditor";
-import { DanceRatingVote } from "@/DanceRatingDelta";
 
 // TODO:
 //  Look at mixin's again - particularly with respect to danceId->dance translations

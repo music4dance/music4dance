@@ -51,13 +51,13 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
 import PurchaseLogo from "@/components/PurcahseLogo.vue";
-import TrackField from "./TrackField.vue";
-import { Component, Prop, Vue } from "vue-property-decorator";
-import { TrackModel } from "@/model/TrackModel";
 import { PurchaseInfo, ServiceType } from "@/model/Purchase";
 import { SongProperty } from "@/model/SongProperty";
+import { TrackModel } from "@/model/TrackModel";
+import "reflect-metadata";
+import { Component, Prop, Vue } from "vue-property-decorator";
+import TrackField from "./TrackField.vue";
 
 @Component({ components: { PurchaseLogo, TrackField } })
 export default class TrackItem extends Vue {

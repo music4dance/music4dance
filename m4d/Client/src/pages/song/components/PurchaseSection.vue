@@ -33,11 +33,11 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import PurchaseLogo from "@/components/PurcahseLogo.vue";
 import { PurchaseInfo } from "@/model/Purchase";
 import { SongFilter } from "@/model/SongFilter";
-import PurchaseLogo from "@/components/PurcahseLogo.vue";
+import "reflect-metadata";
+import { Component, Prop, Vue } from "vue-property-decorator";
 
 @Component({ components: { PurchaseLogo } })
 export default class SongStats extends Vue {

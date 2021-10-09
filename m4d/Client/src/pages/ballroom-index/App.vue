@@ -42,16 +42,16 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
-import Page from "@/components/Page.vue";
 import BallroomList from "@/components/BallroomList.vue";
-import LinkCategory from "@/components/LinkCategory.vue";
-import TempiLink from "@/components/TempiLink.vue";
 import BlogTagLink from "@/components/BlogTagLink.vue";
 import CompetitionCategoryTable from "@/components/CompetitionCategoryTable.vue";
-import { CompetitionGroup, CompetitionCategory } from "@/model/Competition";
-import { TypedJSON } from "typedjson";
+import LinkCategory from "@/components/LinkCategory.vue";
+import Page from "@/components/Page.vue";
+import TempiLink from "@/components/TempiLink.vue";
 import { BreadCrumbItem, danceTrail } from "@/model/BreadCrumbItem";
+import { CompetitionCategory, CompetitionGroup } from "@/model/Competition";
+import { TypedJSON } from "typedjson";
+import { Component, Vue } from "vue-property-decorator";
 
 declare const model: string;
 

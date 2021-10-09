@@ -1,5 +1,5 @@
-import "reflect-metadata";
 import { Tag } from "@/model/Tag";
+import "reflect-metadata";
 import { TagList } from "../TagList";
 
 const qualified =

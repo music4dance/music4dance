@@ -35,20 +35,20 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
 import DanceVote from "@/components/DanceVote.vue";
 import TagButton from "@/components/TagButton.vue";
 import TagListEditor from "@/components/TagListEditor.vue";
-import { Component, Prop, Mixins } from "vue-property-decorator";
+import AdminTools from "@/mix-ins/AdminTools";
+import EnvironmentManager from "@/mix-ins/EnvironmentManager";
+import { DanceRating } from "@/model/DanceRating";
 import { DanceStats } from "@/model/DanceStats";
 import { Song } from "@/model/Song";
-import { DanceRating } from "@/model/DanceRating";
-import { Tag } from "@/model/Tag";
-import { SongFilter } from "@/model/SongFilter";
-import { TagHandler } from "@/model/TagHandler";
 import { SongEditor } from "@/model/SongEditor";
-import EnvironmentManager from "@/mix-ins/EnvironmentManager";
-import AdminTools from "@/mix-ins/AdminTools";
+import { SongFilter } from "@/model/SongFilter";
+import { Tag } from "@/model/Tag";
+import { TagHandler } from "@/model/TagHandler";
+import "reflect-metadata";
+import { Component, Mixins, Prop } from "vue-property-decorator";
 
 @Component({
   components: {

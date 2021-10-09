@@ -76,20 +76,20 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
-import { Component, Vue } from "vue-property-decorator";
-import Page from "@/components/Page.vue";
 import BlogFeatureLink from "@/components/BlogFeatureLink.vue";
+import Page from "@/components/Page.vue";
+import { FeatureInfo } from "@/model/FeatureInfo";
+import { Link } from "@/model/Link";
+import { SiteMapEntry } from "@/model/SiteMapInfo";
+import { TourStep } from "@/model/VueTour";
+import "reflect-metadata";
+import { jsonArrayMember, jsonObject, TypedJSON } from "typedjson";
+import { Component, Vue } from "vue-property-decorator";
+import AreaIcon from "./AreaIcon.vue";
+import { AreaInfo } from "./AreaInfo";
+import { DanceClass, DanceMapping } from "./DanceClass";
 import HomeSection from "./HomeSection.vue";
 import InfoCard, { CardInfo } from "./InfoCard.vue";
-import AreaIcon from "./AreaIcon.vue";
-import { jsonObject, TypedJSON, jsonArrayMember } from "typedjson";
-import { SiteMapEntry } from "@/model/SiteMapInfo";
-import { DanceClass, DanceMapping } from "./DanceClass";
-import { Link } from "@/model/Link";
-import { AreaInfo } from "./AreaInfo";
-import { FeatureInfo } from "@/model/FeatureInfo";
-import { TourStep } from "@/model/VueTour";
 
 @jsonObject
 class HomeModel {

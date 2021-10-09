@@ -17,10 +17,10 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
-import type { DanceStats } from "@/model/DanceStats";
 import DanceItem from "@/components/DanceItem.vue";
 import DanceList from "@/components/DanceList.vue";
+import type { DanceStats } from "@/model/DanceStats";
+import { Component, Prop, Vue } from "vue-property-decorator";
 
 @Component({
   components: {

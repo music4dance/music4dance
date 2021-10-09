@@ -10,12 +10,12 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
-import { Component, Vue } from "vue-property-decorator";
-import SongTable from "@/components/SongTable.vue";
 import Page from "@/components/Page.vue";
-import { TypedJSON } from "typedjson";
+import SongTable from "@/components/SongTable.vue";
 import { ArtistModel } from "@/model/ArtistModel";
+import "reflect-metadata";
+import { TypedJSON } from "typedjson";
+import { Component, Vue } from "vue-property-decorator";
 
 declare const model: string;
 

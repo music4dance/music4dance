@@ -1,7 +1,7 @@
 import { createLocalVue, mount } from "@vue/test-utils";
 import BootstrapVue from "bootstrap-vue";
-import MainMenu from "../MainMenu.vue";
 import { MenuContext } from "../../model/MenuContext";
+import MainMenu from "../MainMenu.vue";
 
 describe("MainMenu.vue", () => {
   test("renders the main menu with default options", () => {

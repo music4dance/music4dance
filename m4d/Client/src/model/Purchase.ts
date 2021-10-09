@@ -1,6 +1,6 @@
+import { enumKeys } from "@/helpers/enumKeys";
 import "reflect-metadata";
 import { jsonMember, jsonObject } from "typedjson";
-import { enumKeys } from "@/helpers/enumKeys";
 
 export enum ServiceType {
   Amazon = "a",

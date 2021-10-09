@@ -14,11 +14,11 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
-import HolidayHelp from "./HolidayHelp.vue";
-import { Component, Prop, Mixins } from "vue-property-decorator";
-import { DanceStats } from "@/model/DanceStats";
 import EnvironmentManager from "@/mix-ins/EnvironmentManager";
+import { DanceStats } from "@/model/DanceStats";
+import "reflect-metadata";
+import { Component, Mixins, Prop } from "vue-property-decorator";
+import HolidayHelp from "./HolidayHelp.vue";
 
 @Component({
   components: {

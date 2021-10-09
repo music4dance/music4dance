@@ -232,9 +232,9 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
-import { BreadCrumbItem, infoTrail } from "@/model/BreadCrumbItem";
 import Page from "@/components/Page.vue";
+import { BreadCrumbItem, infoTrail } from "@/model/BreadCrumbItem";
+import { Component, Vue } from "vue-property-decorator";
 
 @Component({
   components: {

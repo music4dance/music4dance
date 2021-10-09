@@ -1,6 +1,6 @@
-import "reflect-metadata";
-import { jsonMember, jsonObject, jsonArrayMember } from "typedjson";
 import { DanceInstance } from "@/model/DanceInstance";
+import "reflect-metadata";
+import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
 
 @jsonObject
 export class CompetitionCategory {

@@ -1,7 +1,7 @@
 import { jsonMember, jsonObject } from "typedjson";
-import { TempoRange } from "./TempoRange";
 import { Meter } from "./Meter";
 import { NamedObject } from "./NamedObject";
+import { TempoRange } from "./TempoRange";
 
 @jsonObject
 export class DanceObject extends NamedObject {

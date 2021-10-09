@@ -54,15 +54,15 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Prop } from "vue-property-decorator";
 import Loader from "@/components/Loader.vue";
-import MainMenu from "./MainMenu.vue";
-import { BreadCrumbItem } from "@/model/BreadCrumbItem";
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
 import { getEnvironment } from "@/helpers/DanceEnvironmentManager";
 import AdminTools from "@/mix-ins/AdminTools";
-import { TourCallbacks } from "@/model/VueTour";
+import { BreadCrumbItem } from "@/model/BreadCrumbItem";
+import { DanceEnvironment } from "@/model/DanceEnvironmet";
 import { TourManager } from "@/model/TourManager";
+import { TourCallbacks } from "@/model/VueTour";
+import { Component, Mixins, Prop } from "vue-property-decorator";
+import MainMenu from "./MainMenu.vue";
 
 @Component({
   components: {

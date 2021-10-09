@@ -10,12 +10,12 @@
 </template>
 
 <script lang="ts">
+import Page from "@/components/Page.vue";
+import TagCloud from "@/components/TagCloud.vue";
+import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { Tag } from "@/model/Tag";
 import "reflect-metadata";
 import { Component, Vue } from "vue-property-decorator";
-import TagCloud from "@/components/TagCloud.vue";
-import Page from "@/components/Page.vue";
-import { Tag } from "@/model/Tag";
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
 
 @Component({
   components: {

@@ -42,19 +42,18 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Mixins } from "vue-property-decorator";
-import { PropertyType } from "@/model/SongProperty";
-import { SongEditor } from "@/model/SongEditor";
-import { SongFilter } from "@/model/SongFilter";
-import { Tag } from "@/model/Tag";
-import { TagHandler } from "@/model/TagHandler";
-import { TaggableObject } from "@/model/TaggableObject";
-
 import TagButtonOther from "@/components/TagButtonOther.vue";
 import TagCategorySelector from "@/components/TagCategorySelector.vue";
 import TagList from "@/components/TagList.vue";
-import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 import AdminTools from "@/mix-ins/AdminTools";
+import EnvironmentManager from "@/mix-ins/EnvironmentManager";
+import { SongEditor } from "@/model/SongEditor";
+import { SongFilter } from "@/model/SongFilter";
+import { PropertyType } from "@/model/SongProperty";
+import { Tag } from "@/model/Tag";
+import { TaggableObject } from "@/model/TaggableObject";
+import { TagHandler } from "@/model/TagHandler";
+import { Component, Mixins, Prop } from "vue-property-decorator";
 
 @Component({
   components: {

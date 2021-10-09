@@ -72,13 +72,13 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
-import Page from "@/components/Page.vue";
 import BlogTagLink from "@/components/BlogTagLink.vue";
-import { TagMatrix } from "@/model/TagMatrix";
+import Page from "@/components/Page.vue";
 import TagMatrixTable from "@/components/TagMatrixTable.vue";
-import { TypedJSON } from "typedjson";
 import { BreadCrumbItem, danceTrail } from "@/model/BreadCrumbItem";
+import { TagMatrix } from "@/model/TagMatrix";
+import { TypedJSON } from "typedjson";
+import { Component, Vue } from "vue-property-decorator";
 
 declare const model: string;
 

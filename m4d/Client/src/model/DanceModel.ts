@@ -1,4 +1,4 @@
-import { jsonObject, jsonMember, jsonArrayMember } from "typedjson";
+import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
 import { DanceLink } from "./DanceLink";
 import { SongListModel } from "./SongListModel";
 

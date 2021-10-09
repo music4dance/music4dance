@@ -14,11 +14,11 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
-import { Component, Mixins, Prop, Model, Watch } from "vue-property-decorator";
 import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 import { DanceText } from "@/model/DanceText";
 import { Editor } from "@/model/Editor";
+import "reflect-metadata";
+import { Component, Mixins, Model, Prop, Watch } from "vue-property-decorator";
 
 // TODO: If we want to use this in places other than dance description, we should generalize
 //  the "expand" api...

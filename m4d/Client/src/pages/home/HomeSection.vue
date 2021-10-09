@@ -26,10 +26,10 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
 import FeatureLink from "@/components/FeatureLink.vue";
-import { Link } from "@/model/Link";
 import { FeatureInfo } from "@/model/FeatureInfo";
+import { Link } from "@/model/Link";
+import { Component, Prop, Vue } from "vue-property-decorator";
 
 export interface CardInfo {
   title: Link;

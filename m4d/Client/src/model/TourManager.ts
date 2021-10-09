@@ -1,4 +1,4 @@
-import { jsonMember, jsonObject, jsonArrayMember, TypedJSON } from "typedjson";
+import { jsonArrayMember, jsonMember, jsonObject, TypedJSON } from "typedjson";
 
 const tourKey = "tour-status";
 

@@ -204,10 +204,10 @@
 
 <script lang="ts">
 import AdminTools from "@/mix-ins/AdminTools";
-import { Component, Prop, Mixins } from "vue-property-decorator";
+import { DanceQueryBase } from "@/model/DanceQueryBase";
 import { SongFilter } from "@/model/SongFilter";
 import { SongListModel } from "@/model/SongListModel";
-import { DanceQueryBase } from "@/model/DanceQueryBase";
+import { Component, Mixins, Prop } from "vue-property-decorator";
 
 interface AdminEdit {
   user: string;

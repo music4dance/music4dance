@@ -9,15 +9,15 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
-import { Component, Mixins, Prop } from "vue-property-decorator";
 import DanceButton from "@/components/DanceButton.vue";
 import TagButton from "@/components/TagButton.vue";
-import { Tag } from "@/model/Tag";
 import AdminTools from "@/mix-ins/AdminTools";
-import { TagHandler } from "@/model/TagHandler";
-import { DanceRating } from "@/model/DanceRating";
 import { DanceHandler } from "@/model/DanceHandler";
+import { DanceRating } from "@/model/DanceRating";
+import { Tag } from "@/model/Tag";
+import { TagHandler } from "@/model/TagHandler";
+import "reflect-metadata";
+import { Component, Mixins, Prop } from "vue-property-decorator";
 
 @Component({ components: { DanceButton, TagButton } })
 export default class SongPropertyViewer extends Mixins(AdminTools) {

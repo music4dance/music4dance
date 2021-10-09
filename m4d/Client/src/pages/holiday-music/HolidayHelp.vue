@@ -38,9 +38,9 @@
 </template>
 
 <script lang="ts">
+import { toTitleCase, wordsToKebab } from "@/helpers/StringHelpers";
 import "reflect-metadata";
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { toTitleCase, wordsToKebab } from "@/helpers/StringHelpers";
 
 @Component
 export default class HolidayHelp extends Vue {

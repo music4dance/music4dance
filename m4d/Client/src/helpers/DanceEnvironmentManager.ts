@@ -1,7 +1,7 @@
-import axios from "axios";
-import { TypedJSON } from "typedjson";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
 import { TagGroup } from "@/model/TagGroup";
+import axios from "axios";
+import { TypedJSON } from "typedjson";
 
 declare global {
   interface Window {

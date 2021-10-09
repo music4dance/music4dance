@@ -1,4 +1,4 @@
-import { jsonObject, jsonMember } from "typedjson";
+import { jsonMember, jsonObject } from "typedjson";
 import { SongFilter } from "./SongFilter";
 import { SongHistory } from "./SongHistory";
 

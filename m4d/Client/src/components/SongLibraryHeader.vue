@@ -49,11 +49,11 @@
 </template>
 
 <script lang="ts">
+import { wordsToKebab } from "@/helpers/StringHelpers";
+import { SongFilter } from "@/model/SongFilter";
 import axios from "axios";
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import { SongFilter } from "@/model/SongFilter";
 import DanceChooser from "./DanceChooser.vue";
-import { wordsToKebab } from "@/helpers/StringHelpers";
 
 interface Suggestion {
   value: string;

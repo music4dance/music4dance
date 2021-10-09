@@ -75,13 +75,13 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
-import { Component, Prop, Mixins } from "vue-property-decorator";
-import { DanceStats } from "@/model/DanceStats";
 import EnvironmentManager from "@/mix-ins/EnvironmentManager";
-import DanceList from "@/pages/tempo-counter/components/DanceList.vue";
-import { TypeStats } from "@/model/TypeStats";
+import { DanceStats } from "@/model/DanceStats";
 import { GroupStats } from "@/model/GroupStats";
+import { TypeStats } from "@/model/TypeStats";
+import DanceList from "@/pages/tempo-counter/components/DanceList.vue";
+import "reflect-metadata";
+import { Component, Mixins, Prop } from "vue-property-decorator";
 
 @Component({
   components: {

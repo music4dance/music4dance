@@ -82,12 +82,12 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
-import { Component, Prop, Vue } from "vue-property-decorator";
 import EchoIcon from "@/components/EchoIcon.vue";
-import FieldEditor from "./FieldEditor.vue";
 import { Song } from "@/model/Song";
 import { SongProperty } from "@/model/SongProperty";
+import "reflect-metadata";
+import { Component, Prop, Vue } from "vue-property-decorator";
+import FieldEditor from "./FieldEditor.vue";
 
 @Component({
   components: {

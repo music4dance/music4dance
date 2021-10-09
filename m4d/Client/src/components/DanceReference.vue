@@ -7,10 +7,10 @@
 </template>
 
 <script lang="ts">
+import EnvironmentManager from "@/mix-ins/EnvironmentManager";
+import { DanceStats } from "@/model/DanceStats";
 import "reflect-metadata";
 import { Component, Mixins, Prop } from "vue-property-decorator";
-import { DanceStats } from "@/model/DanceStats";
-import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 
 @Component
 export default class DanceReference extends Mixins(EnvironmentManager) {

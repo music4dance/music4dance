@@ -73,17 +73,17 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
 import Page from "@/components/Page.vue";
-import CheckedList from "./components/CheckedList.vue";
-import DanceList from "./components/DanceList.vue";
-import {
-  ListOption,
-  valuesFromOptions,
-  optionsFromText,
-} from "@/model/ListOption";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
 import { DanceType } from "@/model/DanceType";
+import {
+  ListOption,
+  optionsFromText,
+  valuesFromOptions,
+} from "@/model/ListOption";
+import { Component, Vue } from "vue-property-decorator";
+import CheckedList from "./components/CheckedList.vue";
+import DanceList from "./components/DanceList.vue";
 
 declare global {
   interface Window {

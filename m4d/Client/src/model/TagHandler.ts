@@ -1,7 +1,7 @@
-import { TaggableObject } from "./TaggableObject";
+import { v4 as uuidv4 } from "uuid";
 import { SongFilter } from "./SongFilter";
 import { Tag } from "./Tag";
-import { v4 as uuidv4 } from "uuid";
+import { TaggableObject } from "./TaggableObject";
 
 export class TagHandler {
   public id: string;

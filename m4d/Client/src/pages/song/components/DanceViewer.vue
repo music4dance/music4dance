@@ -15,13 +15,13 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
-import { Component, Mixins, Prop } from "vue-property-decorator";
 import DanceButton from "@/components/DanceButton.vue";
-import { Tag } from "@/model/Tag";
 import AdminTools from "@/mix-ins/AdminTools";
 import { DanceHandler } from "@/model/DanceHandler";
 import { DanceRating } from "@/model/DanceRating";
+import { Tag } from "@/model/Tag";
+import "reflect-metadata";
+import { Component, Mixins, Prop } from "vue-property-decorator";
 
 @Component({ components: { DanceButton } })
 export default class SongPropertyViewer extends Mixins(AdminTools) {

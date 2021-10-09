@@ -1,19 +1,19 @@
-import "reflect-metadata";
-import { jsonMember, jsonObject, jsonArrayMember } from "typedjson";
-import { DanceEnvironment } from "./DanceEnvironmet";
-import { SongHistory } from "./SongHistory";
-import { SongProperty, PropertyType } from "./SongProperty";
-import { pascalToCamel } from "@/helpers/StringHelpers";
-import { ServiceType, PurchaseInfo } from "./Purchase";
-import { enumKeys } from "@/helpers/enumKeys";
-import { timeOrder, timeOrderVerbose } from "@/helpers/timeHelpers";
-import { TaggableObject } from "./TaggableObject";
 import { DanceRatingDelta } from "@/DanceRatingDelta";
-import { TagList } from "./TagList";
+import { enumKeys } from "@/helpers/enumKeys";
+import { pascalToCamel } from "@/helpers/StringHelpers";
+import { timeOrder, timeOrderVerbose } from "@/helpers/timeHelpers";
+import "reflect-metadata";
+import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
+import { AlbumDetails } from "./AlbumDetails";
+import { DanceEnvironment } from "./DanceEnvironmet";
 import { DanceRating } from "./DanceRating";
 import { ModifiedRecord } from "./ModifiedRecord";
-import { AlbumDetails } from "./AlbumDetails";
+import { PurchaseInfo, ServiceType } from "./Purchase";
+import { SongHistory } from "./SongHistory";
+import { PropertyType, SongProperty } from "./SongProperty";
 import { Tag } from "./Tag";
+import { TaggableObject } from "./TaggableObject";
+import { TagList } from "./TagList";
 
 declare const environment: DanceEnvironment;
 

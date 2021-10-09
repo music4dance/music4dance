@@ -73,13 +73,13 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
-import axios from "axios";
-import { Component, Mixins } from "vue-property-decorator";
 import AdminTools from "@/mix-ins/AdminTools";
-import AugmentSources from "./AugmentSources.vue";
-import { TypedJSON } from "typedjson";
 import { SongDetailsModel } from "@/model/SongDetailsModel";
+import axios from "axios";
+import "reflect-metadata";
+import { TypedJSON } from "typedjson";
+import { Component, Mixins } from "vue-property-decorator";
+import AugmentSources from "./AugmentSources.vue";
 
 interface Service {
   id: string;

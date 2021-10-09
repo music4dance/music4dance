@@ -107,17 +107,17 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
-import axios from "axios";
-import { Component, Mixins, Watch } from "vue-property-decorator";
 import AdminTools from "@/mix-ins/AdminTools";
+import { SongDetailsModel } from "@/model/SongDetailsModel";
+import { SongFilter } from "@/model/SongFilter";
+import { SongHistory } from "@/model/SongHistory";
+import { TrackModel } from "@/model/TrackModel";
+import axios from "axios";
+import "reflect-metadata";
+import { TypedJSON } from "typedjson";
+import { Component, Mixins, Watch } from "vue-property-decorator";
 import SongTable from "../../../components/SongTable.vue";
 import TrackItem from "../../../pages/song/components/TrackItem.vue";
-import { TypedJSON } from "typedjson";
-import { SongHistory } from "@/model/SongHistory";
-import { SongFilter } from "@/model/SongFilter";
-import { SongDetailsModel } from "@/model/SongDetailsModel";
-import { TrackModel } from "@/model/TrackModel";
 
 // TODO:
 //  - Consider adding Album/track column

@@ -9,14 +9,14 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
-import { Component, Mixins } from "vue-property-decorator";
-import AdminTools from "@/mix-ins/AdminTools";
 import Page from "@/components/Page.vue";
-import SongCore from "./components/SongCore.vue";
-import { TypedJSON } from "typedjson";
-import { SongDetailsModel } from "@/model/SongDetailsModel";
+import AdminTools from "@/mix-ins/AdminTools";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { SongDetailsModel } from "@/model/SongDetailsModel";
+import "reflect-metadata";
+import { TypedJSON } from "typedjson";
+import { Component, Mixins } from "vue-property-decorator";
+import SongCore from "./components/SongCore.vue";
 
 declare const model: string;
 

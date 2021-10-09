@@ -38,8 +38,8 @@
 
 <script lang="ts">
 import "reflect-metadata";
-import TagModalBase from "./TagModalBase";
 import { Component } from "vue-property-decorator";
+import TagModalBase from "./TagModalBase";
 
 @Component
 export default class TagModal extends TagModalBase {

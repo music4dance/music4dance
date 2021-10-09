@@ -1,12 +1,12 @@
 import "reflect-metadata";
-import { jsonObject, TypedJSON, jsonArrayMember } from "typedjson";
-import { GroupStats } from "./GroupStats";
+import { jsonArrayMember, jsonObject, TypedJSON } from "typedjson";
 import { DanceGroup } from "./DanceGroup";
-import { TypeStats } from "./TypeStats";
 import { DanceInstance } from "./DanceInstance";
 import { DanceStats } from "./DanceStats";
+import { GroupStats } from "./GroupStats";
 import { TagDatabase } from "./TagDatabase";
 import { TagGroup } from "./TagGroup";
+import { TypeStats } from "./TypeStats";
 
 TypedJSON.setGlobalConfig({
   errorHandler: (e) => {

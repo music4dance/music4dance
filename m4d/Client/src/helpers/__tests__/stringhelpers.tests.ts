@@ -1,4 +1,4 @@
-import { wordsToKebab, kebabToWords } from "../stringHelpers";
+import { kebabToWords, wordsToKebab } from "../stringHelpers";
 
 describe("string helper", () => {
   it("should convert words to kebab", () => {

@@ -26,16 +26,16 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
-import { Component, Vue } from "vue-property-decorator";
+import Page from "@/components/Page.vue";
 import SearchHeader from "@/components/SearchHeader.vue";
 import SongFooter from "@/components/SongFooter.vue";
 import SongLibraryHeader from "@/components/SongLibraryHeader.vue";
 import SongTable from "@/components/SongTable.vue";
-import Page from "@/components/Page.vue";
-import { TypedJSON } from "typedjson";
 import { SongFilter } from "@/model/SongFilter";
 import { SongListModel } from "@/model/SongListModel";
+import "reflect-metadata";
+import { TypedJSON } from "typedjson";
+import { Component, Vue } from "vue-property-decorator";
 
 declare const model: string;
 

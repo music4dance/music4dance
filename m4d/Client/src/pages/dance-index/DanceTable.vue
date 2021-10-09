@@ -9,8 +9,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
 import { DanceStats } from "@/model/DanceStats";
+import { Component, Prop, Vue } from "vue-property-decorator";
 import DanceCard from "./DanceCard.vue";
 
 @Component({

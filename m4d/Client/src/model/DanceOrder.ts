@@ -1,6 +1,6 @@
 import "reflect-metadata";
-import { TypeStats } from "./TypeStats";
 import { TempoRange } from "./TempoRange";
+import { TypeStats } from "./TypeStats";
 
 export class DanceOrder {
   public dance: TypeStats;

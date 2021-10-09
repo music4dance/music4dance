@@ -209,20 +209,20 @@ filter = {{ songFilter }}
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
-import { Component, Mixins, Vue } from "vue-property-decorator";
-import { SongFilter } from "@/model/SongFilter";
-import { DanceQuery } from "@/model/DanceQuery";
-import { UserQuery } from "@/model/UserQuery";
-import { SongSort, SortOrder } from "@/model/SongSort";
-import { SearchModel } from "./searchModel";
-import { TypedJSON } from "typedjson";
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
-import { Tag } from "@/model/Tag";
-import AdminTools from "@/mix-ins/AdminTools";
 import DanceSelector from "@/components/DanceSelector.vue";
 import Page from "@/components/Page.vue";
 import TagCategorySelector from "@/components/TagCategorySelector.vue";
+import AdminTools from "@/mix-ins/AdminTools";
+import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { DanceQuery } from "@/model/DanceQuery";
+import { SongFilter } from "@/model/SongFilter";
+import { SongSort, SortOrder } from "@/model/SongSort";
+import { Tag } from "@/model/Tag";
+import { UserQuery } from "@/model/UserQuery";
+import "reflect-metadata";
+import { TypedJSON } from "typedjson";
+import { Component, Mixins, Vue } from "vue-property-decorator";
+import { SearchModel } from "./searchModel";
 
 declare const model: SearchModel;
 

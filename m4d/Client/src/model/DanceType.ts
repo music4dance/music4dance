@@ -1,8 +1,8 @@
-import { jsonMember, jsonObject, jsonArrayMember } from "typedjson";
 import { kebabToWords, wordsToKebab } from "@/helpers/StringHelpers";
-import { TempoRange } from "./TempoRange";
-import { DanceObject } from "./DanceObject";
+import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
 import { DanceInstance } from "./DanceInstance";
+import { DanceObject } from "./DanceObject";
+import { TempoRange } from "./TempoRange";
 
 @jsonObject
 export class DanceType extends DanceObject {

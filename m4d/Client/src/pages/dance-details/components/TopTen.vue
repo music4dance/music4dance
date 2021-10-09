@@ -16,13 +16,13 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
-import { Component, Mixins, Prop } from "vue-property-decorator";
 import SongTable from "@/components/SongTable.vue";
+import EnvironmentManager from "@/mix-ins/EnvironmentManager";
+import { DanceStats } from "@/model/DanceStats";
 import { SongFilter } from "@/model/SongFilter";
 import { SongHistory } from "@/model/SongHistory";
-import { DanceStats } from "@/model/DanceStats";
-import EnvironmentManager from "@/mix-ins/EnvironmentManager";
+import "reflect-metadata";
+import { Component, Mixins, Prop } from "vue-property-decorator";
 
 @Component({
   components: {

@@ -1,6 +1,6 @@
+import { BootstrapVue, BootstrapVueIcons } from "bootstrap-vue";
 import Vue from "vue";
 import VueMq from "vue-mq";
-import { BootstrapVue, BootstrapVueIcons } from "bootstrap-vue";
 import App from "./App.vue";
 
 Vue.config.productionTip = false;

@@ -1,6 +1,5 @@
 import "reflect-metadata";
 import { DanceQuery } from "../DanceQuery";
-import { DanceQueryBase } from "../DanceQueryBase";
 
 describe("dance query", () => {
   it("should load simple list", () => {

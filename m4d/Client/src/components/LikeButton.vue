@@ -18,8 +18,8 @@
 </template>
 
 <script lang="ts">
-import IconButton from "./IconButton.vue";
 import { Component, Prop, Vue } from "vue-property-decorator";
+import IconButton from "./IconButton.vue";
 
 @Component({ components: { IconButton } })
 export default class LikeButton extends Vue {

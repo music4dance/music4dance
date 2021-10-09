@@ -48,7 +48,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Watch, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import BeatsPerMinute from "./BeatsPerMinute.vue";
 import MeasuresPerMinute from "./MeasuresPerMinute.vue";
 import Strictness from "./Strictness.vue";

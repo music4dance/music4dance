@@ -37,10 +37,10 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Model, Vue } from "vue-property-decorator";
 import TagSelector from "@/components/TagSelector.vue";
 import { ListOption } from "@/model/ListOption";
 import { Tag } from "@/model/Tag";
+import { Component, Model, Prop, Vue } from "vue-property-decorator";
 
 @Component({
   components: {

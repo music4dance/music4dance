@@ -12,13 +12,13 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Mixins } from "vue-property-decorator";
 import DanceVoteButton from "@/components/DanceVoteButton.vue";
-import { Song } from "@/model/Song";
-import { DanceRating } from "@/model/DanceRating";
-import { DanceStats } from "@/model/DanceStats";
 import { DanceRatingVote, VoteDirection } from "@/DanceRatingDelta";
 import EnvironmentManager from "@/mix-ins/EnvironmentManager";
+import { DanceRating } from "@/model/DanceRating";
+import { DanceStats } from "@/model/DanceStats";
+import { Song } from "@/model/Song";
+import { Component, Mixins, Prop } from "vue-property-decorator";
 
 @Component({ components: { DanceVoteButton } })
 export default class DanceVote extends Mixins(EnvironmentManager) {

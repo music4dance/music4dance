@@ -1,5 +1,5 @@
-import "reflect-metadata";
 import format from "date-fns/format";
+import "reflect-metadata";
 import { jsonMember, jsonObject } from "typedjson";
 
 // Name Syntax:

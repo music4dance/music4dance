@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { jsonMember, jsonObject, jsonArrayMember } from "typedjson";
+import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
 
 @jsonObject
 export class DanceMapping {

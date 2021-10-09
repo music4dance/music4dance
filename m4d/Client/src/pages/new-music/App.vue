@@ -22,15 +22,15 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
-import { Component, Vue } from "vue-property-decorator";
+import Page from "@/components/Page.vue";
 import SongFooter from "@/components/SongFooter.vue";
 import SongTable from "@/components/SongTable.vue";
-import Page from "@/components/Page.vue";
-import { TypedJSON } from "typedjson";
 import { SongFilter } from "@/model/SongFilter";
-import { SortOrder } from "@/model/SongSort";
 import { SongListModel } from "@/model/SongListModel";
+import { SortOrder } from "@/model/SongSort";
+import "reflect-metadata";
+import { TypedJSON } from "typedjson";
+import { Component, Vue } from "vue-property-decorator";
 
 declare const model: string;
 

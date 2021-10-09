@@ -1,8 +1,8 @@
-import "reflect-metadata";
-import { Component, Prop, Mixins } from "vue-property-decorator";
+import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 import { Tag } from "@/model/Tag";
 import { TagHandler } from "@/model/TagHandler";
-import EnvironmentManager from "@/mix-ins/EnvironmentManager";
+import "reflect-metadata";
+import { Component, Mixins, Prop } from "vue-property-decorator";
 
 @Component
 export default class TagModalBase extends Mixins(EnvironmentManager) {

@@ -96,31 +96,31 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
-import { Component, Mixins } from "vue-property-decorator";
-import AdminTools from "@/mix-ins/AdminTools";
 import CompetitionCategoryTable from "@/components/CompetitionCategoryTable.vue";
-import DanceContents from "./components/DanceContents.vue";
-import DanceDescription from "./components/DanceDescription.vue";
 import DanceList from "@/components/DanceList.vue";
-import DanceLinks from "./components/DanceLinks.vue";
 import DanceReference from "@/components/DanceReference.vue";
 import Page from "@/components/Page.vue";
 import SpotifyPlayer from "@/components/SpotifyPlayer.vue";
 import TagCloud from "@/components/TagCloud.vue";
-import TopTen from "./components/TopTen.vue";
-import { DanceModel } from "@/model/DanceModel";
-import { Editor } from "@/model/Editor";
-import { SongFilter } from "@/model/SongFilter";
-import { TypedJSON } from "typedjson";
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import AdminTools from "@/mix-ins/AdminTools";
 import { BreadCrumbItem, danceTrail } from "@/model/BreadCrumbItem";
-import { DanceStats } from "@/model/DanceStats";
-import { Tag } from "@/model/Tag";
-import axios from "axios";
-import { TypeStats } from "@/model/TypeStats";
+import { DanceEnvironment } from "@/model/DanceEnvironmet";
 import { DanceInstance } from "@/model/DanceInstance";
 import { DanceLink } from "@/model/DanceLink";
+import { DanceModel } from "@/model/DanceModel";
+import { DanceStats } from "@/model/DanceStats";
+import { Editor } from "@/model/Editor";
+import { SongFilter } from "@/model/SongFilter";
+import { Tag } from "@/model/Tag";
+import { TypeStats } from "@/model/TypeStats";
+import axios from "axios";
+import "reflect-metadata";
+import { TypedJSON } from "typedjson";
+import { Component, Mixins } from "vue-property-decorator";
+import DanceContents from "./components/DanceContents.vue";
+import DanceDescription from "./components/DanceDescription.vue";
+import DanceLinks from "./components/DanceLinks.vue";
+import TopTen from "./components/TopTen.vue";
 
 declare const model: string;
 

@@ -17,9 +17,9 @@
 </template>
 
 <script lang="ts">
+import { SongHistory } from "@/model/SongHistory";
 import "reflect-metadata";
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { SongHistory } from "@/model/SongHistory";
 import SongChangeViewer from "./SongChangeViewer.vue";
 
 @Component({ components: { SongChangeViewer } })

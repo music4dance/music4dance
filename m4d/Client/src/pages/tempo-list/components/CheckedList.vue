@@ -30,9 +30,9 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
-import { Component, Watch, Prop, Model, Vue } from "vue-property-decorator";
 import { ListOption, valuesFromOptions } from "@/model/ListOption";
+import "reflect-metadata";
+import { Component, Model, Prop, Vue, Watch } from "vue-property-decorator";
 
 @Component
 export default class FormList extends Vue {

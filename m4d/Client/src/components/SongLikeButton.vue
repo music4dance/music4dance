@@ -12,8 +12,8 @@
 
 <script lang="ts">
 import LikeButton from "@/components/LikeButton.vue";
-import { Component, Prop, Vue } from "vue-property-decorator";
 import { Song } from "@/model/Song";
+import { Component, Prop, Vue } from "vue-property-decorator";
 
 @Component({ components: { LikeButton } })
 export default class SongLikeButton extends Vue {

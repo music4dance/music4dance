@@ -1,15 +1,13 @@
 import "reflect-metadata";
 import { TypedJSON } from "typedjson";
-import { SongHistory } from "../SongHistory";
+import { PurchaseInfo, ServiceType } from "../Purchase";
 import { Song } from "../Song";
-import { ServiceType, PurchaseInfo } from "../Purchase";
-
+import { SongHistory } from "../SongHistory";
+//import songsJson from "./data/songs.json";
+import historiesJson from "./data/histories.json";
 import lalalaHistory from "./data/lalala-history.json";
 //import lalalaSong from "./data/lalala-song.json";
 import history from "./data/simple-history.json";
-
-//import songsJson from "./data/songs.json";
-import historiesJson from "./data/histories.json";
 
 const song = {
   songId: "ec118d17-5d3c-481a-9777-4fcdd087c0b1",

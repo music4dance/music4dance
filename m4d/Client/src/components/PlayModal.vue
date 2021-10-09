@@ -33,10 +33,10 @@
 </template>
 
 <script lang="ts">
+import { PurchaseInfo } from "@/model/Purchase";
+import { Song } from "@/model/Song";
 import "reflect-metadata";
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { Song } from "@/model/Song";
-import { PurchaseInfo } from "@/model/Purchase";
 
 @Component
 export default class PlayModal extends Vue {

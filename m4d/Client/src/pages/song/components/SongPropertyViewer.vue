@@ -13,14 +13,14 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
-import { Component, Mixins, Prop } from "vue-property-decorator";
+import AdminTools from "@/mix-ins/AdminTools";
 import { PropertyType, SongProperty } from "@/model/SongProperty";
-import DanceViewer from "./DanceViewer.vue";
-import TagViewer from "./TagViewer.vue";
 import { Tag, TagCategory } from "@/model/Tag";
 import { TagList } from "@/model/TagList";
-import AdminTools from "@/mix-ins/AdminTools";
+import "reflect-metadata";
+import { Component, Mixins, Prop } from "vue-property-decorator";
+import DanceViewer from "./DanceViewer.vue";
+import TagViewer from "./TagViewer.vue";
 
 @Component({ components: { DanceViewer, TagViewer } })
 export default class SongPropertyViewer extends Mixins(AdminTools) {

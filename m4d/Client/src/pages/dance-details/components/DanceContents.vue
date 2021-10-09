@@ -35,12 +35,12 @@
 </template>
 
 <script lang="ts">
+import EnvironmentManager from "@/mix-ins/EnvironmentManager";
+import { DanceModel } from "@/model/DanceModel";
+import { DanceStats } from "@/model/DanceStats";
+import { TypeStats } from "@/model/TypeStats";
 import "reflect-metadata";
 import { Component, Mixins, Prop } from "vue-property-decorator";
-import { DanceStats } from "@/model/DanceStats";
-import { DanceModel } from "@/model/DanceModel";
-import EnvironmentManager from "@/mix-ins/EnvironmentManager";
-import { TypeStats } from "@/model/TypeStats";
 
 @Component
 export default class DanceContents extends Mixins(EnvironmentManager) {

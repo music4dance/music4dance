@@ -115,8 +115,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
 import { MenuContext } from "@/model/MenuContext";
+import { Component, Prop, Vue } from "vue-property-decorator";
 
 @Component
 export default class MainMenu extends Vue {

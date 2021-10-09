@@ -1,7 +1,7 @@
-import { jsonMember, jsonObject, jsonArrayMember } from "typedjson";
-import { TempoRange } from "./TempoRange";
-import { DanceObject } from "./DanceObject";
+import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
 import { DanceException } from "./DanceException";
+import { DanceObject } from "./DanceObject";
+import { TempoRange } from "./TempoRange";
 
 @jsonObject
 export class DanceInstance extends DanceObject {

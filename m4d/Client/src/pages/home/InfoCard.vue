@@ -33,10 +33,10 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
-import InfoLink from "./InfoLink.vue";
 import BlogTagLink from "@/components/BlogTagLink.vue";
 import { Link } from "@/model/Link";
+import { Component, Prop, Vue } from "vue-property-decorator";
+import InfoLink from "./InfoLink.vue";
 
 export interface CardInfo {
   title: Link;

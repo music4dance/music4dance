@@ -32,11 +32,11 @@
 </template>
 
 <script lang="ts">
+import PurchaseLogo from "@/components/PurcahseLogo.vue";
+import AdminTools from "@/mix-ins/AdminTools";
+import { AlbumDetails } from "@/model/AlbumDetails";
 import "reflect-metadata";
 import { Component, Mixins, Prop } from "vue-property-decorator";
-import { AlbumDetails } from "@/model/AlbumDetails";
-import AdminTools from "@/mix-ins/AdminTools";
-import PurchaseLogo from "@/components/PurcahseLogo.vue";
 
 @Component({ components: { PurchaseLogo } })
 export default class AlbumList extends Mixins(AdminTools) {

@@ -1,5 +1,5 @@
-import { Component, Vue } from "vue-property-decorator";
 import { MenuContext, MenuContextInterface } from "@/model/MenuContext";
+import { Component, Vue } from "vue-property-decorator";
 
 declare const menuContext: MenuContextInterface;
 

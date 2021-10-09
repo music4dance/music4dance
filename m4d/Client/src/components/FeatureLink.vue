@@ -36,9 +36,9 @@
 </template>
 
 <script lang="ts">
+import type { FeatureInfo } from "@/model/FeatureInfo";
 import "reflect-metadata";
 import { Component, Prop, Vue } from "vue-property-decorator";
-import type { FeatureInfo } from "@/model/FeatureInfo";
 import FeatureButton from "./FeatureButton.vue";
 
 @Component({

@@ -1,5 +1,5 @@
-import { DanceOrder } from "../DanceOrder";
 import { getEnvironmentMock } from "@/helpers/MockEnvironmentManager";
+import { DanceOrder } from "../DanceOrder";
 
 describe("Dance Order", () => {
   it("should load", () => {

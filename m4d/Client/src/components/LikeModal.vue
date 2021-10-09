@@ -75,15 +75,15 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
-import { Component, Prop, Mixins } from "vue-property-decorator";
-import EnvironmentManager from "@/mix-ins/EnvironmentManager";
-import IconButton from "@/components/IconButton.vue";
 import DanceVoteItem from "@/components/DanceVoteItem.vue";
-import { SongEditor } from "@/model/SongEditor";
-import AdminTools from "@/mix-ins/AdminTools";
+import IconButton from "@/components/IconButton.vue";
 import { DanceRatingVote } from "@/DanceRatingDelta";
+import AdminTools from "@/mix-ins/AdminTools";
+import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 import { DanceRating } from "@/model/DanceRating";
+import { SongEditor } from "@/model/SongEditor";
+import "reflect-metadata";
+import { Component, Mixins, Prop } from "vue-property-decorator";
 
 @Component({
   components: { IconButton, DanceVoteItem },

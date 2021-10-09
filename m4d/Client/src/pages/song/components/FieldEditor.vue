@@ -15,11 +15,11 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
-import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 import AdminTools from "@/mix-ins/AdminTools";
-import { Component, Mixins, Prop } from "vue-property-decorator";
+import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 import { SongProperty } from "@/model/SongProperty";
+import "reflect-metadata";
+import { Component, Mixins, Prop } from "vue-property-decorator";
 
 @Component
 export default class FieldEditor extends Mixins(

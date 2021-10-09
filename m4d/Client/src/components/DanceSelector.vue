@@ -13,10 +13,10 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Model, Vue } from "vue-property-decorator";
 import TagSelector from "@/components/TagSelector.vue";
-import { ListOption } from "@/model/ListOption";
 import { DanceObject } from "@/model/DanceObject";
+import { ListOption } from "@/model/ListOption";
+import { Component, Model, Prop, Vue } from "vue-property-decorator";
 
 @Component({
   components: {

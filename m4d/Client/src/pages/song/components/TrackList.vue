@@ -42,14 +42,14 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
-import axios from "axios";
-import TrackItem from "./TrackItem.vue";
-import { Component, Prop, Vue } from "vue-property-decorator";
 import { AlbumDetails } from "@/model/AlbumDetails";
 import { Song } from "@/model/Song";
-import { TypedJSON } from "typedjson";
 import { TrackModel } from "@/model/TrackModel";
+import axios from "axios";
+import "reflect-metadata";
+import { TypedJSON } from "typedjson";
+import { Component, Prop, Vue } from "vue-property-decorator";
+import TrackItem from "./TrackItem.vue";
 
 @Component({ components: { TrackItem } })
 export default class TrackList extends Vue {

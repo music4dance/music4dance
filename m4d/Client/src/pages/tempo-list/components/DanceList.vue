@@ -45,14 +45,14 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
-import { BvTableFieldArray } from "bootstrap-vue";
-import { Component, Prop, Vue } from "vue-property-decorator";
 import { wordsToKebab } from "@/helpers/StringHelpers";
-import { TypeStats } from "@/model/TypeStats";
+import { DanceFilter } from "@/model/DanceFilter";
 import { Meter } from "@/model/Meter";
 import { TempoRange } from "@/model/TempoRange";
-import { DanceFilter } from "@/model/DanceFilter";
+import { TypeStats } from "@/model/TypeStats";
+import { BvTableFieldArray } from "bootstrap-vue";
+import "reflect-metadata";
+import { Component, Prop, Vue } from "vue-property-decorator";
 
 @Component
 export default class DanceList extends Vue {

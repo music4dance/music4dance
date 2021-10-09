@@ -1,6 +1,6 @@
 import { BootstrapVue, BootstrapVueIcons } from "bootstrap-vue";
-import VueMq from "vue-mq";
 import Vue, { VueConstructor } from "vue";
+import VueMq from "vue-mq";
 import VueTour from "vue-tour";
 
 require("vue-tour/dist/vue-tour.css");

@@ -1,4 +1,4 @@
-import { jsonMember, jsonObject, jsonArrayMember } from "typedjson";
+import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
 import { NamedObject } from "./NamedObject";
 
 @jsonObject

@@ -1,4 +1,4 @@
-import { jsonObject, jsonArrayMember } from "typedjson";
+import { jsonArrayMember, jsonObject } from "typedjson";
 import { DanceEnvironment } from "./DanceEnvironmet";
 import { Tag } from "./Tag";
 import { TagList } from "./TagList";

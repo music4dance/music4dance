@@ -9,12 +9,12 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
 import TagButton from "@/components/TagButton.vue";
 import { SongFilter } from "@/model/SongFilter";
 import { Tag } from "@/model/Tag";
-import { TagHandler } from "@/model/TagHandler";
 import { TaggableObject } from "@/model/TaggableObject";
+import { TagHandler } from "@/model/TagHandler";
+import { Component, Prop, Vue } from "vue-property-decorator";
 
 @Component({
   components: {

@@ -1,10 +1,10 @@
 import "reflect-metadata";
-import { jsonMember, jsonObject, jsonArrayMember } from "typedjson";
-import { PropertyType, SongProperty } from "./SongProperty";
+import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
 import { v4 as uuidv4 } from "uuid";
-import { TrackModel } from "./TrackModel";
-import { SongEditor } from "./SongEditor";
 import { SongChange } from "./SongChange";
+import { SongEditor } from "./SongEditor";
+import { PropertyType, SongProperty } from "./SongProperty";
+import { TrackModel } from "./TrackModel";
 
 @jsonObject
 export class SongHistory {

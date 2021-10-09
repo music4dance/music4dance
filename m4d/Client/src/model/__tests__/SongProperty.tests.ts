@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { TypedJSON } from "typedjson";
-import { SongProperty } from "../SongProperty";
 import { SongHistory } from "../SongHistory";
+import { SongProperty } from "../SongProperty";
 
 const simpleName = { name: "name" };
 const trackName = { name: "name:00:ss" };

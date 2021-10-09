@@ -57,12 +57,12 @@
 </template>
 
 <script lang="ts">
+import { SongFilter } from "@/model/SongFilter";
+import { Tag, TagBucket, TagInfo } from "@/model/Tag";
+import { TagHandler } from "@/model/TagHandler";
 import "reflect-metadata";
 import { Component, Prop, Vue } from "vue-property-decorator";
 import TagModal from "./TagModal.vue";
-import { Tag, TagBucket, TagInfo } from "@/model/Tag";
-import { TagHandler } from "@/model/TagHandler";
-import { SongFilter } from "@/model/SongFilter";
 
 class TagButton implements TagInfo {
   public static get buttons() {

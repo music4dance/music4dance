@@ -22,11 +22,11 @@
 </template>
 
 <script lang="ts">
+import { SongChange } from "@/model/SongChange";
+import { PropertyType, SongProperty } from "@/model/SongProperty";
+import format from "date-fns/format";
 import "reflect-metadata";
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { SongChange } from "@/model/SongChange";
-import format from "date-fns/format";
-import { PropertyType, SongProperty } from "@/model/SongProperty";
 import SongPropertyViewer from "./SongPropertyViewer.vue";
 
 @Component({ components: { SongPropertyViewer } })

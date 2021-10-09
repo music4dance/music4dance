@@ -22,9 +22,9 @@
 </template>
 
 <script lang="ts">
+import { SongHistory } from "@/model/SongHistory";
 import "reflect-metadata";
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { SongHistory } from "@/model/SongHistory";
 
 @Component
 export default class SongHistoryLog extends Vue {

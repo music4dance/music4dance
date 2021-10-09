@@ -1,12 +1,11 @@
+import { DanceRatingVote, VoteDirection } from "@/DanceRatingDelta";
 import "reflect-metadata";
 import { TypedJSON } from "typedjson";
-import { SongHistory } from "../SongHistory";
 import { Song } from "../Song";
 import { SongEditor } from "../SongEditor";
+import { SongHistory } from "../SongHistory";
 import { PropertyType } from "../SongProperty";
-
 import history from "./data/simple-history.json";
-import { DanceRatingVote, VoteDirection } from "@/DanceRatingDelta";
 
 describe("song history editor tests", () => {
   it("should create a simple song", () => {

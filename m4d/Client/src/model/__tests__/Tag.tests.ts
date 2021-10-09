@@ -1,6 +1,6 @@
+import { Tag, TagBucket } from "@/model/Tag";
 import "reflect-metadata";
 import { TypedJSON } from "typedjson";
-import { Tag, TagBucket } from "@/model/Tag";
 
 const tagsPojo = [
   { value: "1940S", category: "Other", count: 186 },

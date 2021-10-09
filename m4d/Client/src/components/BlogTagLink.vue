@@ -10,9 +10,9 @@
 </template>
 
 <script lang="ts">
+import { toTitleCase } from "@/helpers/StringHelpers";
 import "reflect-metadata";
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { toTitleCase } from "@/helpers/StringHelpers";
 
 @Component
 export default class BlogTagLink extends Vue {

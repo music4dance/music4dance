@@ -83,19 +83,19 @@
 </template>
 
 <script lang="ts">
+import Page from "@/components/Page.vue";
+import AdminTools from "@/mix-ins/AdminTools";
+import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { Song } from "@/model/Song";
+import { SongDetailsModel } from "@/model/SongDetailsModel";
+import { SongFilter } from "@/model/SongFilter";
+import { SongHistory } from "@/model/SongHistory";
+import SongCore from "@/pages/song/components/SongCore.vue";
 import "reflect-metadata";
 import { Component, Mixins } from "vue-property-decorator";
-import AdminTools from "@/mix-ins/AdminTools";
 import AugmentInfo from "./components/AugmentInfo.vue";
 import AugmentLookup from "./components/AugmentLookup.vue";
 import AugmentSearch from "./components/AugmentSearch.vue";
-import SongCore from "@/pages/song/components/SongCore.vue";
-import Page from "@/components/Page.vue";
-import { SongDetailsModel } from "@/model/SongDetailsModel";
-import { SongFilter } from "@/model/SongFilter";
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
-import { Song } from "@/model/Song";
-import { SongHistory } from "@/model/SongHistory";
 
 enum AugmentPhase {
   lookup = "lookup",

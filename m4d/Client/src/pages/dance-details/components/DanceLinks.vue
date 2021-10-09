@@ -19,13 +19,13 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
-import { Component, Mixins, Prop, Model, Watch } from "vue-property-decorator";
-import { DanceLink } from "@/model/DanceLink";
-import EnvironmentManager from "@/mix-ins/EnvironmentManager";
-import EdittableLink from "./EdittableLink.vue";
-import { Editor } from "@/model/Editor";
 import { jsonCompare } from "@/helpers/ObjectHelpers";
+import EnvironmentManager from "@/mix-ins/EnvironmentManager";
+import { DanceLink } from "@/model/DanceLink";
+import { Editor } from "@/model/Editor";
+import "reflect-metadata";
+import { Component, Mixins, Model, Prop, Watch } from "vue-property-decorator";
+import EdittableLink from "./EdittableLink.vue";
 
 @Component({
   components: {

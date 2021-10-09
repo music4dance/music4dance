@@ -42,13 +42,13 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
-import { Component, Vue } from "vue-property-decorator";
 import Page from "@/components/Page.vue";
-import DanceTable from "./DanceTable.vue";
-import { DanceStats } from "@/model/DanceStats";
 import { BreadCrumbItem, homeCrumb } from "@/model/BreadCrumbItem";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { DanceStats } from "@/model/DanceStats";
+import "reflect-metadata";
+import { Component, Vue } from "vue-property-decorator";
+import DanceTable from "./DanceTable.vue";
 
 @Component({
   components: {

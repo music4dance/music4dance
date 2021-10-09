@@ -3,10 +3,10 @@
 </template>
 
 <script lang="ts">
+import { FeatureInfo } from "@/model/FeatureInfo";
 import "reflect-metadata";
 import { Component, Vue } from "vue-property-decorator";
 import FeatureLink from "./FeatureLink.vue";
-import { FeatureInfo } from "@/model/FeatureInfo";
 
 @Component({
   components: {

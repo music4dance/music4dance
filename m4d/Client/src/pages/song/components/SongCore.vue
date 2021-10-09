@@ -211,33 +211,33 @@
 </template>
 
 <script lang="ts">
+import DanceChooser from "@/components/DanceChooser.vue";
+import SongLikeButton from "@/components/SongLikeButton.vue";
+import TagButton from "@/components/TagButton.vue";
+import TagListEditor from "@/components/TagListEditor.vue";
+import { DanceRatingVote, VoteDirection } from "@/DanceRatingDelta";
+import AdminTools from "@/mix-ins/AdminTools";
+import { AlbumDetails } from "@/model/AlbumDetails";
+import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { DanceRating } from "@/model/DanceRating";
+import { Song } from "@/model/Song";
+import { SongDetailsModel } from "@/model/SongDetailsModel";
+import { SongEditor } from "@/model/SongEditor";
+import { SongFilter } from "@/model/SongFilter";
+import { SongHistory } from "@/model/SongHistory";
+import { PropertyType, SongProperty } from "@/model/SongProperty";
+import { Tag } from "@/model/Tag";
+import { TrackModel } from "@/model/TrackModel";
 import "reflect-metadata";
 import { Component, Mixins, Prop, Watch } from "vue-property-decorator";
-import AdminTools from "@/mix-ins/AdminTools";
 import AlbumList from "./AlbumList.vue";
-import DanceChooser from "@/components/DanceChooser.vue";
 import DanceList from "./DanceList.vue";
 import FieldEditor from "./FieldEditor.vue";
 import PurchaseSection from "./PurchaseSection.vue";
 import SongHistoryLog from "./SongHistoryLog.vue";
 import SongHistoryViewer from "./SongHistoryViewer.vue";
-import SongLikeButton from "@/components/SongLikeButton.vue";
 import SongStats from "./SongStats.vue";
-import TagButton from "@/components/TagButton.vue";
-import TagListEditor from "@/components/TagListEditor.vue";
 import TrackList from "./TrackList.vue";
-import { SongEditor } from "@/model/SongEditor";
-import { SongFilter } from "@/model/SongFilter";
-import { SongDetailsModel } from "@/model/SongDetailsModel";
-import { Song } from "@/model/Song";
-import { DanceRating } from "@/model/DanceRating";
-import { DanceRatingVote, VoteDirection } from "@/DanceRatingDelta";
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
-import { PropertyType, SongProperty } from "@/model/SongProperty";
-import { AlbumDetails } from "@/model/AlbumDetails";
-import { Tag } from "@/model/Tag";
-import { TrackModel } from "@/model/TrackModel";
-import { SongHistory } from "@/model/SongHistory";
 
 @Component({
   components: {

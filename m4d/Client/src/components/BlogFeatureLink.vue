@@ -12,9 +12,9 @@
 </template>
 
 <script lang="ts">
+import { SiteMapEntry } from "@/model/SiteMapInfo";
 import "reflect-metadata";
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { SiteMapEntry } from "@/model/SiteMapInfo";
 
 @Component
 export default class BlogFeatureLink extends Vue {

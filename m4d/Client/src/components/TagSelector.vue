@@ -87,9 +87,9 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
-import { Component, Prop, Model, Vue } from "vue-property-decorator";
 import { ListOption } from "@/model/ListOption";
+import "reflect-metadata";
+import { Component, Model, Prop, Vue } from "vue-property-decorator";
 
 @Component
 export default class TagSelector extends Vue {

@@ -34,18 +34,18 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
-import { Component, Vue } from "vue-property-decorator";
-import HolidayDanceChooser from "./HolidayDanceChooser.vue";
-import HolidayHelp from "./HolidayHelp.vue";
+import Page from "@/components/Page.vue";
 import SongFooter from "@/components/SongFooter.vue";
 import SongTable from "@/components/SongTable.vue";
 import SpotifyPlayer from "@/components/SpotifyPlayer.vue";
-import Page from "@/components/Page.vue";
-import { TypedJSON } from "typedjson";
-import { HolidaySongListModel } from "@/model/HolidaySongListModel";
 import { toTitleCase, wordsToKebab } from "@/helpers/StringHelpers";
 import { BreadCrumbItem, homeCrumb, songCrumb } from "@/model/BreadCrumbItem";
+import { HolidaySongListModel } from "@/model/HolidaySongListModel";
+import "reflect-metadata";
+import { TypedJSON } from "typedjson";
+import { Component, Vue } from "vue-property-decorator";
+import HolidayDanceChooser from "./HolidayDanceChooser.vue";
+import HolidayHelp from "./HolidayHelp.vue";
 
 declare const model: string;
 

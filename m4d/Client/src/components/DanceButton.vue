@@ -18,11 +18,11 @@
 </template>
 
 <script lang="ts">
+import { DanceHandler } from "@/model/DanceHandler";
+import { DanceRating } from "@/model/DanceRating";
 import { Component } from "vue-property-decorator";
 import DanceModal from "./DanceModal.vue";
 import TagButtonBase from "./TagButtonBase";
-import { DanceHandler } from "@/model/DanceHandler";
-import { DanceRating } from "@/model/DanceRating";
 
 @Component({
   components: {

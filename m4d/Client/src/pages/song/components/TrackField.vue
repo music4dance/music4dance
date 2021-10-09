@@ -19,10 +19,10 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
 import PurchaseLogo from "@/components/PurcahseLogo.vue";
-import { Component, Prop, Vue } from "vue-property-decorator";
 import { camelToPascal } from "@/helpers/StringHelpers";
+import "reflect-metadata";
+import { Component, Prop, Vue } from "vue-property-decorator";
 
 @Component({ components: { PurchaseLogo } })
 export default class TrackItem extends Vue {

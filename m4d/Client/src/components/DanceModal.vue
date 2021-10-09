@@ -55,15 +55,15 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
-import TagModalBase from "./TagModalBase";
-import TagButton from "./TagButton.vue";
 import DanceVote from "@/components/DanceVote.vue";
-import { Component } from "vue-property-decorator";
-import { Tag } from "@/model/Tag";
 import { DanceHandler } from "@/model/DanceHandler";
 import { DanceStats } from "@/model/DanceStats";
+import { Tag } from "@/model/Tag";
 import { TagHandler } from "@/model/TagHandler";
+import "reflect-metadata";
+import { Component } from "vue-property-decorator";
+import TagButton from "./TagButton.vue";
+import TagModalBase from "./TagModalBase";
 
 @Component({
   components: {

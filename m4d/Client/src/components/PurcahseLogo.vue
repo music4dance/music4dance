@@ -5,9 +5,9 @@
 </template>
 
 <script lang="ts">
+import { PurchaseInfo } from "@/model/Purchase";
 import "reflect-metadata";
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { PurchaseInfo } from "@/model/Purchase";
 
 @Component
 export default class PurchaseLogo extends Vue {

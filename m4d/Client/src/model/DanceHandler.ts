@@ -1,7 +1,7 @@
-import { TaggableObject } from "./TaggableObject";
 import { DanceRating } from "./DanceRating";
 import { SongFilter } from "./SongFilter";
 import { Tag } from "./Tag";
+import { TaggableObject } from "./TaggableObject";
 import { TagHandler } from "./TagHandler";
 
 export class DanceHandler extends TagHandler {
