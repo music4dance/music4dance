@@ -180,7 +180,7 @@ namespace m4d.Utilities
                 tags = tags.Add(
                     new TagList(
                         dms.NormalizeTags(
-                            string.Join("|", track.Genres),
+                            string.Join("|", track.Genres.Select(TagList.Clean)),
                             "Music", true)));
             }
 

@@ -1212,7 +1212,7 @@ namespace m4d.Controllers
         }
 
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult BatchCleanupProperties(SongFilter filter, string type = "TC")
+        public ActionResult BatchCleanupProperties(SongFilter filter, string type = "X")
         {
             return BatchProcess(
                 filter, (dms, song) =>
@@ -1462,7 +1462,7 @@ namespace m4d.Controllers
                     tags = tags.Add(
                         new TagList(
                             dms.NormalizeTags(
-                                string.Join("|", track.Genres),
+                                string.Join("|", track.Genres.Select(TagList.Clean)),
                                 "Music", true)));
                 }
             }

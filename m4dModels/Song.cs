@@ -3072,6 +3072,16 @@ namespace m4dModels
                 prop => new TagList(prop.Value).RemoveDuplicates(dms).ToString());
         }
 
+        public bool RemoveTagRing(DanceMusicCoreService dms)
+        {
+            return FixupProperties(
+                    AddedTags,
+                    prop => new TagList(prop.Value).ConvertToPrimary(dms).ToString()) ||
+                FixupProperties(
+                    RemovedTags,
+                    prop => new TagList(prop.Value).ConvertToPrimary(dms).ToString());
+        }
+
         public bool FixBadTagCategory()
         {
             return FixupProperties(
@@ -3120,6 +3130,11 @@ namespace m4dModels
             if (actions.Contains('C'))
             {
                 changed |= FixBadTagCategory();
+            }
+
+            if (actions.Contains('X'))
+            {
+                changed |= RemoveTagRing(dms);
             }
 
             return changed;

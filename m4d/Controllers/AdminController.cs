@@ -730,20 +730,6 @@ namespace m4d.Controllers
                     : "UploadCatalog");
         }
 
-        private static string CleanSeparator(string separator)
-        {
-            if (string.IsNullOrWhiteSpace(separator))
-            {
-                separator = " - ";
-            }
-            else if (separator.Contains(@"\t"))
-            {
-                separator = separator.Replace(@"\t", "\t");
-            }
-
-            return separator;
-        }
-
         #endregion
 
 
@@ -974,8 +960,7 @@ namespace m4d.Controllers
             var exclusions = new HashSet<Guid>();
             foreach (var line in lines)
             {
-                Guid guid;
-                if (Guid.TryParse(line, out guid))
+                if (Guid.TryParse(line, out var guid))
                 {
                     exclusions.Add(guid);
                 }

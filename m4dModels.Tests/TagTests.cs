@@ -27,21 +27,6 @@ namespace m4dModels.Tests
             return service;
         }
 
-        #region TagGroup
-
-        [TestMethod]
-        public async Task TestNormalizeTags()
-        {
-            var service = await GetService();
-            var t = service.NormalizeTags("Swing:Dance|Swing|Salsa|Pop|Blues", "Music");
-            Assert.AreEqual("Blues:Music|Pop:Music|Salsa:Music|Swing:Dance|Swing:Music", t);
-
-            t = service.NormalizeTags("Salsa|Blues|Foxtrot|Blues:Music", "Dance");
-            Assert.AreEqual("Blues:Dance|Blues:Music|Foxtrot:Dance|Salsa:Dance", t);
-        }
-
-        #endregion
-
         #region TagAccumulator
 
         [TestMethod]
@@ -66,6 +51,28 @@ namespace m4dModels.Tests
             Assert.IsTrue(ts4.HasTag("Swing:Dance"));
             Assert.IsTrue(ts4.HasTag("Waltz:Dance"));
             Assert.IsFalse(ts4.HasTag("Tango:Dance"));
+        }
+
+        #endregion
+
+        #region TagGroup
+
+        [TestMethod]
+        public async Task TestNormalizeTags()
+        {
+            var service = await GetService();
+            var t = service.NormalizeTags("Swing:Dance|Swing|Salsa|Pop|Blues", "Music");
+            Assert.AreEqual("Blues:Music|Pop:Music|Salsa:Music|Swing:Dance|Swing:Music", t);
+
+            t = service.NormalizeTags("Salsa|Blues|Foxtrot|Blues:Music", "Dance");
+            Assert.AreEqual("Blues:Dance|Blues:Music|Foxtrot:Dance|Salsa:Dance", t);
+        }
+
+        [TestMethod]
+        public void ReplaceInvalid()
+        {
+            var result = TagList.Clean(@"Té,st :-12 (ñot).");
+            Assert.AreEqual(@"Tést 12 (ñot)", result);
         }
 
         #endregion

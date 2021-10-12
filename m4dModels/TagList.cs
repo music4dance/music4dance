@@ -5,6 +5,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace m4dModels
 {
@@ -264,6 +265,17 @@ namespace m4dModels
             return list;
         }
 
+        public TagList ConvertToPrimary(DanceMusicCoreService dms)
+        {
+            return new TagList(
+                Tags.Select(
+                    t =>
+                    {
+                        var r = dms.GetTagRing(t);
+                        return r == null ? t : r.Key;
+                    }));
+        }
+
         public static string NormalizeTag(string tag)
         {
             var fields = tag.Split(':').ToList();
@@ -294,6 +306,14 @@ namespace m4dModels
         #endregion
 
         #region Implementation
+
+        public static string Clean(string value)
+        {
+            return s_tagChars.Replace(value, "");
+        }
+
+        private static readonly Regex s_tagChars = new Regex(
+            @"[^\p{L}\d()'& ]", RegexOptions.Compiled | RegexOptions.Multiline);
 
         private static List<string> Parse(string serialized, bool trim = true)
         {

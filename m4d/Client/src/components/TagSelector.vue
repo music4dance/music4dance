@@ -91,6 +91,8 @@ import { ListOption } from "@/model/ListOption";
 import "reflect-metadata";
 import { Component, Model, Prop, Vue } from "vue-property-decorator";
 
+const tagChars = /[^\p{L}\d()'& ]/gmu;
+
 @Component
 export default class TagSelector extends Vue {
   @Model("input") private readonly selected!: string[];
@@ -260,7 +262,7 @@ export default class TagSelector extends Vue {
   }
 
   private tagFormatter(tag: string): string {
-    return tag.replace(/[^a-zA-Z0-9/\-'" ]/gm, "");
+    return tag.replace(tagChars, "");
   }
 }
 </script>
