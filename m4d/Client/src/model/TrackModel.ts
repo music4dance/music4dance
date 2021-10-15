@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
 import { ServiceType } from "./Purchase";
 

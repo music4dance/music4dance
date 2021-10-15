@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { jsonMember, jsonObject } from "typedjson";
 import { DanceEnvironment } from "./DanceEnvironmet";
 import { DanceStats } from "./DanceStats";

@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
 import { DanceLink } from "./DanceLink";
 import { SongListModel } from "./SongListModel";

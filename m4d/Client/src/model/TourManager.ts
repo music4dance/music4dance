@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { jsonArrayMember, jsonMember, jsonObject, TypedJSON } from "typedjson";
 
 const tourKey = "tour-status";
