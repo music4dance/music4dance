@@ -6,7 +6,7 @@
       ref="description"
     >
     </mark-down-editor>
-    <div id="tempo-info" v-if="!dance.isGroup && dance.meter.numerator != 1">
+    <div id="tempo-info" v-if="!dance.isGroup && numerator != 1">
       <h2>Tempo Information</h2>
       <p>
         The {{ danceName }} is generally danced to music in a
@@ -80,7 +80,7 @@ export default class DanceDescription
   }
 
   private get tempoFilter(): SongFilter {
-    const tempo = this.tempoRange;
+    const tempo = this.tempoRange?.toBpm(this.numerator);
     const filter = new SongFilter();
     filter.action = "advanced";
     filter.tempoMin = tempo?.min;
@@ -96,8 +96,12 @@ export default class DanceDescription
 
   private get bpmText(): string {
     const tempo = this.tempoRange;
-    const numerator = this.typeStats?.meter.numerator ?? 0;
+    const numerator = this.numerator;
     return `${tempo ? tempo.bpm(numerator, " and ") : ""} beats per minute`;
+  }
+
+  private get numerator(): number {
+    return this.typeStats?.meter.numerator ?? 0;
   }
 
   private get mpmText(): string {

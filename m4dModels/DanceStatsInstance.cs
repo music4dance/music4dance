@@ -118,28 +118,38 @@ namespace m4dModels
             {
                 foreach (var dance in Dances)
                 {
-                    // TopN and MaxWeight
-                    var filter =
-                        dms.AzureParmsFromFilter(
-                            new SongFilter { Dances = dance.DanceId, SortOrder = "Dances" }, 10);
-                    DanceMusicCoreService.AddAzureCategories(
-                        filter, "GenreTags,StyleTags,TempoTags,OtherTags", 100);
-                    var results = await dms.Search(
-                        null, filter, DanceMusicCoreService.CruftFilter.NoCruft, null, source);
-                    dance.SetTopSongs(results.Songs);
-                    _cache.AddSongs(results.Songs);
-                    var song = dance.TopSongs.FirstOrDefault();
-                    var dr = song?.DanceRatings.FirstOrDefault(d => d.DanceId == dance.DanceId);
-
-                    if (dr != null)
+                    try
                     {
-                        dance.MaxWeight = dr.Weight;
-                    }
+                        // TopN and MaxWeight
+                        var filter =
+                            dms.AzureParmsFromFilter(
+                                new SongFilter
+                                    { Dances = dance.DanceId, SortOrder = "Dances" }, 10);
+                        DanceMusicCoreService.AddAzureCategories(
+                            filter, "GenreTags,StyleTags,TempoTags,OtherTags", 100);
+                        var results = await dms.Search(
+                            null, filter, DanceMusicCoreService.CruftFilter.NoCruft, source);
+                        dance.SetTopSongs(results.Songs);
+                        _cache.AddSongs(results.Songs);
+                        var song = dance.TopSongs.FirstOrDefault();
+                        var dr = song?.DanceRatings.FirstOrDefault(d => d.DanceId == dance.DanceId);
 
-                    // SongTags
-                    dance.SongTags = results.FacetResults == null
-                        ? new TagSummary()
-                        : new TagSummary(results.FacetResults, TagManager.TagMap);
+                        if (dr != null)
+                        {
+                            dance.MaxWeight = dr.Weight;
+                        }
+
+                        // SongTags
+                        dance.SongTags = results.FacetResults == null
+                            ? new TagSummary()
+                            : new TagSummary(results.FacetResults, TagManager.TagMap);
+                    }
+                    catch (Azure.RequestFailedException ex)
+                    {
+                        // This is likely because we didn't create an index
+                        //  for this dance (because there weren't enough songs for the dance)
+                        Trace.WriteLine(ex.Message);
+                    }
                 }
             }
             else

@@ -58,7 +58,7 @@ export class DanceText {
 
   // TODO: Can we derive these from the dance stats DB?
   private static categories = [
-    "international ballroom",
+    "international standard",
     "international latin",
     "american smooth",
     "american rhythm",

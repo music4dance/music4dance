@@ -201,7 +201,7 @@ export default class App extends Mixins(AdminTools) {
   }
 
   public get modified(): boolean {
-    return this.descriptionEditor.isModified || this.linkEditor.isModified;
+    return this.descriptionEditor.isModified || this.linkEditor?.isModified;
   }
 
   private get descriptionEditor(): Editor {
@@ -209,7 +209,7 @@ export default class App extends Mixins(AdminTools) {
   }
 
   private get linkEditor(): Editor {
-    return this.$refs.links as unknown as Editor;
+    return this.$refs.danceLinks as unknown as Editor;
   }
 
   private updateDescription(value: string): void {

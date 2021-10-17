@@ -29,7 +29,7 @@ namespace m4dModels
             tagManager.TagMap = tagManager.TagGroups.ToDictionary(tt => tt.Key.ToLower());
 
             var facets = await dms.GetTagFacets(
-                "GenreTags,StyleTags,TempoTags,OtherTags", 500, source);
+                "GenreTags,StyleTags,TempoTags,OtherTags", 10000, source);
 
             foreach (var facet in facets)
             {
