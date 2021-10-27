@@ -1,10 +1,7 @@
 import "reflect-metadata";
 import { jsonArrayMember, jsonObject } from "typedjson";
-import { DanceEnvironment } from "./DanceEnvironmet";
 import { Tag } from "./Tag";
 import { TagList } from "./TagList";
-
-declare const environment: DanceEnvironment;
 
 @jsonObject
 export class TaggableObject {
@@ -60,28 +57,23 @@ export class TaggableObject {
     return TaggableObject.modify(initial, less, -1);
   }
 
-  private static normalize(tags: string, count: number): Tag[] {
-    return environment.tagDatabase.normalizeTagList(new TagList(tags), count)
-      .tags;
-  }
-
   private static modify(
     initial: Tag[],
     modified: string,
     direction: number
   ): Tag[] {
-    const normal = TaggableObject.normalize(modified, direction);
-    return this.merge(initial, normal);
+    return this.merge(initial, new TagList(modified).tags, direction);
   }
 
-  private static merge(a: Tag[], b: Tag[]): Tag[] {
+  private static merge(a: Tag[], b: Tag[], direction: number): Tag[] {
     const map = new Map<string, Tag>(a.map((t) => [t.key, t]));
     b.forEach((tB) => {
-      const tA = map.get(tB.key);
+      const key = tB.key;
+      const tA = map.get(key);
       if (tA) {
-        tA.count = (tA.count ?? 0) + (tB.count ?? 0);
-      } else {
-        map.set(tB.key, tB);
+        tA.count = (tA.count ?? 0) + direction;
+      } else if (direction > 0) {
+        map.set(tB.key, Tag.fromKey(key, 1));
       }
     });
     return [...map.values()]

@@ -1,38 +1,25 @@
 import { Tag } from "./Tag";
-import { TagGroup } from "./TagGroup";
-import { TagList } from "./TagList";
 
 export class TagDatabase {
-  constructor(
-    private tagGroups?: TagGroup[],
-    private incrementalTags?: TagGroup[]
-  ) {}
-
-  public get tags(): Tag[] {
-    if (!this._tagCache && this.tagGroups) {
-      this._tagCache = TagGroup.ToTags(this.allGroups);
-    }
-    return this._tagCache ?? [];
-  }
+  constructor(private tagList?: Tag[], private incrementalTags?: Tag[]) {}
 
   public addTag(key: string): void {
     const keyL = key.toLowerCase();
-    const groups = this.groupMap!;
+    const groups = this.map!;
     const tag = groups.get(keyL);
     if (tag) {
       tag.count = (tag.count ?? 0) + 1;
     } else {
-      const tagGroup = new TagGroup({
+      const tag = new Tag({
         key: key,
-        modified: new Date(Date.now()),
         count: 1,
       });
-      groups.set(keyL, tagGroup);
+      groups.set(keyL, tag);
       this._tagCache!.push(Tag.fromString(key));
       if (this.incrementalTags) {
-        this.incrementalTags.push(tagGroup);
+        this.incrementalTags.push(tag);
       } else {
-        this.incrementalTags = [tagGroup];
+        this.incrementalTags = [tag];
       }
 
       sessionStorage.setItem(
@@ -42,53 +29,29 @@ export class TagDatabase {
     }
   }
 
-  public getPrimary(key: string): TagGroup | undefined {
-    const group = this.getGroup(key);
-    if (!group) {
-      return;
-    }
-    return group.primaryId ? this.getPrimary(group.primaryId) : group;
-  }
-
-  public getGroup(key: string): TagGroup | undefined {
-    return this.groupMap.get(key.toLowerCase());
-  }
-
-  public normalizeTagList(list: TagList, count?: number): TagList {
-    return TagList.build(
-      list.tags.map((t) => {
-        const p = this.getPrimary(t.key);
-        return new Tag({
-          value: p?.value ?? t.value,
-          category: p?.category ?? t.category,
-          count: count ?? t.count,
-        });
-      })
-    );
-  }
-
-  private get groupMap(): Map<string, TagGroup> {
-    if (!this._groupMap && this.tagGroups) {
-      this._groupMap = new Map<string, TagGroup>(
-        this.allGroups.map((x) => [x.key.toLowerCase(), x])
-      );
-    }
-    return this._groupMap ?? new Map<string, TagGroup>();
-  }
-
-  private get allGroups(): TagGroup[] {
-    if (!this.tagGroups) {
+  public get tags(): Tag[] {
+    if (!this.tagList) {
       return [];
     }
 
     return this.incrementalTags
-      ? [
-          ...this.tagGroups.filter((tg) => !tg.primaryId),
-          ...this.incrementalTags!,
-        ]
-      : this.tagGroups;
+      ? [...this.tagList, ...this.incrementalTags!]
+      : this.tagList;
+  }
+
+  public getTag(key: string): Tag | undefined {
+    return this.map.get(key.toLowerCase());
+  }
+
+  private get map(): Map<string, Tag> {
+    if (!this._map && this.tagList) {
+      this._map = new Map<string, Tag>(
+        this.tags.map((x) => [x.key.toLowerCase(), x])
+      );
+    }
+    return this._map ?? new Map<string, Tag>();
   }
 
   private _tagCache?: Tag[];
-  private _groupMap?: Map<string, TagGroup>;
+  private _map?: Map<string, Tag>;
 }

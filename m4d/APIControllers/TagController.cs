@@ -1,4 +1,5 @@
-﻿using m4dModels;
+﻿using System.Linq;
+using m4dModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -7,11 +8,11 @@ namespace m4d.APIControllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class DanceEnvironmentController : DanceMusicApiController
+    public class TagController : DanceMusicApiController
     {
         private readonly DanceStatsInstance _statistics;
 
-        public DanceEnvironmentController(DanceMusicContext context,
+        public TagController(DanceMusicContext context,
             UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
             ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
             IConfiguration configuration) :
@@ -24,16 +25,9 @@ namespace m4d.APIControllers
         [ResponseCache(Duration = 600, Location = ResponseCacheLocation.Any, NoStore = false)]
         public IActionResult Get()
         {
-            var environment = new DanceEnvironment(_statistics);
-            return JsonCamelCase(environment);
-        }
-
-        [HttpGet("{id}")]
-        [ResponseCache(Duration = 600, Location = ResponseCacheLocation.Any, NoStore = false)]
-        public IActionResult Get(string id)
-        {
-            var sparse = new DanceStatsSparse(_statistics.FromId(id));
-            return JsonCamelCase(sparse);
+            return JsonCamelCase(
+                _statistics.TagGroups.Where(g => g.Category != "Dance")
+                    .Select(g => new { g.Key, g.Count }));
         }
     }
 }

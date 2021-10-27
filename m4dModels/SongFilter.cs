@@ -8,7 +8,6 @@ using System.Reflection;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using AutoMapper;
-using DanceLibrary;
 
 namespace m4dModels
 {
@@ -444,10 +443,7 @@ namespace m4dModels
                 var d = DanceLibrary.Dances.Instance.DanceFromName(dance);
                 if (d != null)
                 {
-                    danceFilter = $"(DanceTags/any(t: t eq '{dance.ToLower()}')" +
-                        (d is DanceGroup
-                            ? $" or  DanceTagsInferred/any(t: t eq '{dance.ToLower()}')"
-                            : "") + ")";
+                    danceFilter = $"(DanceTags/any(t: t eq '{TagManager.CanonicalKey(dance)}'))";
                 }
             }
 
@@ -523,7 +519,7 @@ namespace m4dModels
                 return;
             }
 
-            foreach (var t in filtered.StripType())
+            foreach (var t in filtered.StripType().Select(TagManager.CanonicalKey))
             {
                 if (sb.Length > 0)
                 {
@@ -532,7 +528,7 @@ namespace m4dModels
 
                 var tt = t.Replace(@"'", @"''");
 
-                sb.AppendFormat(format, tagName, tt.ToLower());
+                sb.AppendFormat(format, tagName, tt);
             }
         }
 

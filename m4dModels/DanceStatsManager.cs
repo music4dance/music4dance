@@ -171,7 +171,7 @@ namespace m4dModels
         private async Task<Dictionary<string, long>> GetSongCounts(DanceMusicCoreService dms,
             string source)
         {
-            var facets = await dms.GetTagFacets("DanceTags,DanceTagsInferred", 100, source);
+            var facets = await dms.GetTagFacets("DanceTags", 100, source);
 
             return IndexDanceFacet(facets["DanceTags"]);
         }

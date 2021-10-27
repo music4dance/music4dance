@@ -164,10 +164,7 @@ namespace m4dModels
 
         public void SetPurchaseInfo(PurchaseType pt, ServiceType ms, string value)
         {
-            if (Purchase == null)
-            {
-                Purchase = new Dictionary<string, string>();
-            }
+            Purchase ??= new Dictionary<string, string>();
 
             Purchase[BuildPurchaseKey(pt, ms)] = value;
         }
@@ -246,8 +243,13 @@ namespace m4dModels
 
         public IList<string> GetExtendedPurchaseIds(PurchaseType pt)
         {
-            return (from service in MusicService.GetSearchableServices()
-                select $"{service.CID}:{service.Id}").ToList();
+            return Purchase != null
+                ? MusicService.GetSearchableServices()
+                    .Where(service => Purchase.ContainsKey(BuildPurchaseKey(pt, service.Id)))
+                    .Select(
+                        service => $"{service.CID}:{Purchase[BuildPurchaseKey(pt, service.Id)]}")
+                    .ToList()
+                : new List<string>();
         }
 
         public PurchaseLink GetPurchaseLink(ServiceType ms, PurchaseType pt, string region = null)

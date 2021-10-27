@@ -4,8 +4,6 @@ import { DanceGroup } from "./DanceGroup";
 import { DanceInstance } from "./DanceInstance";
 import { DanceStats } from "./DanceStats";
 import { GroupStats } from "./GroupStats";
-import { TagDatabase } from "./TagDatabase";
-import { TagGroup } from "./TagGroup";
 import { TypeStats } from "./TypeStats";
 
 TypedJSON.setGlobalConfig({
@@ -19,8 +17,6 @@ TypedJSON.setGlobalConfig({
 export class DanceEnvironment {
   @jsonArrayMember(TypeStats) public dances?: TypeStats[];
   @jsonArrayMember(DanceGroup) public groups?: DanceGroup[];
-  @jsonArrayMember(TagGroup) public tagGroups?: TagGroup[];
-  @jsonArrayMember(TagGroup) public incrementalTags?: TagGroup[];
 
   public tree?: GroupStats[];
   public statsIdMap?: Map<string, DanceStats>;
@@ -39,15 +35,6 @@ export class DanceEnvironment {
       })
     );
   }
-
-  public get tagDatabase(): TagDatabase {
-    if (!this._tagDatabase && this.tagGroups) {
-      this._tagDatabase = new TagDatabase(this.tagGroups, this.incrementalTags);
-    }
-
-    return this._tagDatabase ?? new TagDatabase();
-  }
-  private _tagDatabase?: TagDatabase;
 
   public fromId(id: string): DanceStats | undefined {
     return this.flatStats.find((d) => id === d.id);

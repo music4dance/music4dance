@@ -202,7 +202,7 @@ describe("tags loading", () => {
   });
 
   it("should negate", () => {
-    const tag = new Tag({ value: "Rumba", category: "Dance" });
+    const tag = new Tag({ key: "Rumba:Dance" });
     expect(tag.key).toEqual("Rumba:Dance");
     const neg = tag.negated;
     expect(neg.key).toEqual("!Rumba:Dance");

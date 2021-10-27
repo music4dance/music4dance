@@ -90,10 +90,8 @@ export class TagList {
       .map(
         (t) =>
           new Tag({
-            value: t.value.substr(1),
-            category: t.category,
+            key: t.key.substr(1),
             count: t.count,
-            primaryId: t.primaryId,
           })
       );
   }

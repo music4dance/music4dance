@@ -40,7 +40,7 @@ namespace m4dModels
 
                 if (rg[1] == type)
                 {
-                    tags.Add(rg[0].ToLower());
+                    tags.Add(TagManager.CanonicalKey(rg[0]));
                 }
             }
 

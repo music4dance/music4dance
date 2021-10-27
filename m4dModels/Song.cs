@@ -377,8 +377,7 @@ namespace m4dModels
             return song;
         }
 
-        public static async Task<Song> Create(Guid guid, string s, DanceMusicCoreService database,
-            string userName = null)
+        public static async Task<Song> Create(Guid guid, string s, DanceMusicCoreService database)
         {
             var song = new Song();
             await song.Init(guid, s, database);
@@ -4250,16 +4249,10 @@ namespace m4dModels
             var style = new HashSet<string>();
 
             var dance = TagSummary.GetTagSet("Dance");
-            var inferred = new HashSet<string>();
 
             foreach (var dr in DanceRatings)
             {
                 var d = Dances.Instance.DanceFromId(dr.DanceId).Name.ToLower();
-                if (!dance.Contains(d))
-                {
-                    inferred.Add(d);
-                }
-
                 other.UnionWith(dr.TagSummary.GetTagSet("Other"));
                 tempo.UnionWith(dr.TagSummary.GetTagSet("Tempo"));
                 style.UnionWith(dr.TagSummary.GetTagSet("Style"));
@@ -4294,7 +4287,6 @@ namespace m4dModels
                 [AlbumsField] = Albums.Select(ad => ad.Name).ToArray(),
                 [UsersField] = users,
                 [DanceTags] = dance.ToArray(),
-                [DanceTagsInferred] = inferred.ToArray(),
                 [GenreTags] = genre.ToArray(),
                 [TempoTags] = tempo.ToArray(),
                 [StyleTags] = style.ToArray(),

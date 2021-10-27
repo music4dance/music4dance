@@ -2,6 +2,7 @@
   <page
     id="app"
     :consumesEnvironment="true"
+    :consumesTags="true"
     @environment-loaded="onEnvironmentLoaded"
   >
     <song-core :model="model" :environment="environment"></song-core>
@@ -31,6 +32,8 @@ declare const model: string;
 //  Consider property history as a public facing feature
 //  Make property history editable?
 
+// TODO: I haven't been able to use the EnvironmentManager mixin because SongCore depends
+//  on watching "environment" and for some reason that's not firing when using envirnomentmanager
 @Component({
   components: {
     Page,

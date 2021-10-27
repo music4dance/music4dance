@@ -126,6 +126,8 @@ namespace m4dModels.Tests
 
         public static async Task<DanceMusicService> CreateService(string name)
         {
+            TagManager.TransformKey = true;
+
             var contextOptions = new DbContextOptionsBuilder<DanceMusicContext>()
                 .UseInMemoryDatabase(name).Options;
 

@@ -4,13 +4,13 @@ import { TaggableObject } from "../TaggableObject";
 
 const complex = {
   tags: [
-    { value: "Dance Pop", category: "Music", count: 5 },
-    { value: "Washington Indie", category: "Music", count: 3 },
-    { value: "Unconditional", category: "Other", count: 1 },
+    { key: "Dance Pop:Music", count: 5 },
+    { key: "Washington Indie:Music", count: 3 },
+    { key: "Unconditional:Other", count: 1 },
   ],
   currentUserTags: [
-    { value: "Dance Pop", category: "Music", count: 1 },
-    { value: "Washington Indie", category: "Music", count: 1 },
+    { key: "Dance Pop:Music", count: 1 },
+    { key: "Washington Indie:Music", count: 1 },
   ],
 };
 
@@ -25,21 +25,21 @@ describe("taggable object", () => {
 
   it("should manage simple add", () => {
     const t = new TaggableObject();
-    t.addTags("dance-pop:Music");
+    t.addTags("Dance Pop:Music");
     expect(t.tags.length).toEqual(1);
     expect(t.tags[0].key).toEqual("Dance Pop:Music");
   });
 
   it("should manage simple remove", () => {
     const t = new TaggableObject();
-    t.addTags("dance-pop:Music");
+    t.addTags("Dance Pop:Music");
     t.removeTags("Dance Pop:Music");
     expect(t.tags.length).toEqual(0);
   });
 
   it("should manage simple add for user", () => {
     const t = new TaggableObject();
-    t.addTags("dance-pop:Music", true);
+    t.addTags("Dance Pop:Music", true);
     expect(t.tags.length).toEqual(1);
     expect(t.tags[0].key).toEqual("Dance Pop:Music");
     expect(t.currentUserTags.length).toEqual(1);
@@ -64,7 +64,7 @@ describe("taggable object", () => {
     expect(t?.tags.length).toEqual(3);
     expect(t?.currentUserTags.length).toEqual(3);
 
-    t?.removeTags("dance-pop:Music");
+    t?.removeTags("Dance Pop:Music");
     expect(t?.tags.length).toEqual(3);
     expect(t?.currentUserTags.length).toEqual(3);
     const dpm = t?.tags.find((x) => x.key === "Dance Pop:Music");

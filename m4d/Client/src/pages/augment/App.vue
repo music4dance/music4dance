@@ -2,6 +2,7 @@
   <page
     id="app"
     :consumesEnvironment="true"
+    :consumesTags="true"
     @environment-loaded="onEnvironmentLoaded"
   >
     <b-row v-if="phase === 'lookup'">

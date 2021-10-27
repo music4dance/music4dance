@@ -77,7 +77,7 @@ export default class TagListEditor extends Mixins(
   }
 
   private getTagList(): Tag[] {
-    return this.environment.tagDatabase.tags;
+    return this.tagDatabase.tags;
   }
 
   private get userTagKeys(): string[] {
@@ -126,7 +126,7 @@ export default class TagListEditor extends Mixins(
       tag
     );
     if (add) {
-      this.environment.tagDatabase.addTag(tag);
+      this.tagDatabase.addTag(tag);
     }
 
     this.$emit("update-song");

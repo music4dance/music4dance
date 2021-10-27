@@ -41,17 +41,11 @@ export class DanceRating extends TaggableObject {
   }
 
   public get positiveTag(): Tag {
-    return new Tag({
-      value: this.stats.name,
-      category: TagCategory.Dance,
-    });
+    return Tag.fromParts(this.stats.name, TagCategory.Dance);
   }
 
   public get negativeTag(): Tag {
-    return new Tag({
-      value: "!" + this.stats.name,
-      category: TagCategory.Dance,
-    });
+    return Tag.fromParts("!" + this.stats.name, TagCategory.Dance);
   }
 
   public get description(): string {

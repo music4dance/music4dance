@@ -219,10 +219,6 @@ describe("song tests", () => {
       properties: [
         {
           name: "Tag+",
-          value: "dance-pop:Music",
-        },
-        {
-          name: "Tag+",
           value: "40'S:Other",
         },
         {
@@ -256,10 +252,6 @@ describe("song tests", () => {
         },
         {
           name: "Tag+",
-          value: "dance-pop:Music",
-        },
-        {
-          name: "Tag+",
           value: "40'S:Other",
         },
         {
@@ -276,7 +268,7 @@ describe("song tests", () => {
         },
         {
           name: "Tag+",
-          value: "dance-pop:Music",
+          value: "Dance Pop:Music",
         },
         {
           name: "Tag+",
@@ -316,7 +308,7 @@ describe("song tests", () => {
         },
         {
           name: "Tag+:ATN",
-          value: "dance-pop:Music",
+          value: "Dance Pop:Music",
         },
         {
           name: "Tag+:ATN",

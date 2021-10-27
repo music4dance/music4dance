@@ -2,7 +2,8 @@
   <page
     id="app"
     :consumesEnvironment="true"
-    @environment-loaded="onEnvironmentLoaded"
+    :consumesTags="true"
+    @tag-database-loaded="onEnvironmentLoaded"
   >
     <h1 class="col-sm-12" style="font-size: 22px; text-align: center">
       Advanced Song Search
@@ -213,11 +214,12 @@ import DanceSelector from "@/components/DanceSelector.vue";
 import Page from "@/components/Page.vue";
 import TagCategorySelector from "@/components/TagCategorySelector.vue";
 import AdminTools from "@/mix-ins/AdminTools";
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 import { DanceQuery } from "@/model/DanceQuery";
 import { SongFilter } from "@/model/SongFilter";
 import { SongSort, SortOrder } from "@/model/SongSort";
 import { Tag } from "@/model/Tag";
+import { TagDatabase } from "@/model/TagDatabase";
 import { UserQuery } from "@/model/UserQuery";
 import "reflect-metadata";
 import { TypedJSON } from "typedjson";
@@ -233,18 +235,13 @@ declare const model: SearchModel;
     TagCategorySelector,
   },
 })
-export default class App extends Mixins(AdminTools) {
+export default class App extends Mixins(AdminTools, EnvironmentManager) {
   private showDiagnostics = false;
   private keyWords = "";
 
   private dances: string[] = [];
   private danceConnector = "any";
-
-  private environment: DanceEnvironment | null = null;
-  private get tags(): Tag[] {
-    const environment = this.environment;
-    return environment ? environment.tagDatabase.tags : [];
-  }
+  private tags: Tag[] = [];
 
   private includeTags: string[] = [];
   private excludeTags: string[] = [];
@@ -475,15 +472,12 @@ export default class App extends Mixins(AdminTools) {
     return filtered;
   }
 
-  private async onEnvironmentLoaded(
-    environment: DanceEnvironment
-  ): Promise<void> {
-    this.environment = environment;
-
+  private async onEnvironmentLoaded(tagDatabase: TagDatabase): Promise<void> {
     const filter = this.getSourceFilter();
     const userQuery = new UserQuery(filter.user);
     this.activity = userQuery.parts;
     this.user = userQuery.userName ?? this.userName ?? "";
+    this.tags = tagDatabase.tags;
 
     await this.$nextTick();
     ((this.$refs.keywords as Vue).$el as HTMLElement).focus();

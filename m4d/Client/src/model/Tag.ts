@@ -19,8 +19,20 @@ export interface TagInfo {
 
 @jsonObject
 export class Tag {
-  public get key(): string {
-    return `${this.value}:${this.category}`;
+  public get value(): string {
+    if (!this.key) {
+      throw new Error("Invalid Tag");
+    }
+    const parts = this.key.split(":");
+    return parts[0];
+  }
+
+  public get category(): string {
+    if (!this.key) {
+      throw new Error("Invalid Tag");
+    }
+    const parts = this.key.split(":");
+    return parts[1];
   }
 
   public get variant(): string | undefined {
@@ -48,21 +60,25 @@ export class Tag {
 
   public static fromString(key: string): Tag {
     const parts = key.split(":");
-    const count = parts.length > 1 ? Number.parseInt(parts[2], 10) : undefined;
+    const count = parts.length > 2 ? Number.parseInt(parts[2], 10) : undefined;
 
-    return new Tag({ value: parts[0], category: parts[1], count });
+    return Tag.fromParts(parts[0], parts[1], count);
   }
 
   public static fromDanceId(id: string): Tag {
-    return new Tag({
-      value: environment.fromId(id)!.name,
-      category: TagCategory.Dance,
-    });
+    return Tag.fromParts(environment.fromId(id)!.name, TagCategory.Dance);
   }
 
-  public static fromKey(key: string, count: number): Tag {
-    const parts = key.split(":");
-    return new Tag({ value: parts[0], category: parts[1], count });
+  public static fromKey(key: string, count?: number): Tag {
+    return new Tag({ key: key, count: count ?? 0 });
+  }
+
+  public static fromParts(
+    value: string,
+    category: string,
+    count?: number
+  ): Tag {
+    return new Tag({ key: `${value}:${category}`, count: count ?? 0 });
   }
 
   public static get tagKeys(): string[] {
@@ -77,10 +93,8 @@ export class Tag {
     ["dance", { iconName: "award", description: "dance" }],
   ]);
 
-  @jsonMember public value!: string;
-  @jsonMember public category!: string;
+  @jsonMember public key!: string;
   @jsonMember public count?: number;
-  @jsonMember public primaryId?: string;
 
   public constructor(init?: Partial<Tag>) {
     Object.assign(this, init);
@@ -92,18 +106,17 @@ export class Tag {
 
   public get negated(): Tag {
     const value = this.value;
-    return new Tag({
-      value: this.positive ? "!" + value : value.substring(1),
-      category: this.category,
-      count: this.count,
-    });
+    return Tag.fromParts(
+      this.positive ? "!" + value : value.substring(1),
+      this.category,
+      this.count
+    );
   }
 
   public get neutral(): Tag {
-    const value = this.value;
+    const key = this.key;
     return new Tag({
-      value: this.positive ? value : value.substring(1),
-      category: this.category,
+      key: this.positive ? key : key.substring(1),
       count: this.count,
     });
   }
@@ -119,8 +132,7 @@ export class TagBucket extends Tag {
     const serializer = new TypedJSON(TagBucket);
     return ordered.map((t, idx) => {
       return serializer.parse({
-        value: t.value,
-        category: t.category,
+        key: t.key,
         count: t.count,
         bucket: Math.floor(idx / bucketSize),
       })!;

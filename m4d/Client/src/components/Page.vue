@@ -55,10 +55,14 @@
 
 <script lang="ts">
 import Loader from "@/components/Loader.vue";
-import { getEnvironment } from "@/helpers/DanceEnvironmentManager";
+import {
+  getEnvironment,
+  getTagDatabase,
+} from "@/helpers/DanceEnvironmentManager";
 import AdminTools from "@/mix-ins/AdminTools";
 import { BreadCrumbItem } from "@/model/BreadCrumbItem";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { TagDatabase } from "@/model/TagDatabase";
 import { TourManager } from "@/model/TourManager";
 import { TourCallbacks } from "@/model/VueTour";
 import { Component, Mixins, Prop } from "vue-property-decorator";
@@ -76,19 +80,31 @@ export default class Page extends Mixins(AdminTools) {
   @Prop() private help?: string;
   @Prop() private breadcrumbs?: BreadCrumbItem[];
   @Prop() private consumesEnvironment?: boolean;
+  @Prop() private consumesTags?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @Prop() private tourSteps?: [] | undefined;
 
   private environment: DanceEnvironment = new DanceEnvironment();
+  private tagDatabase: TagDatabase = new TagDatabase();
 
   private get year(): string {
     return new Date().getFullYear().toString();
   }
 
   protected get loaded(): boolean {
-    const stats = this.environment?.tree;
-    const loaded = !!stats && stats.length > 0;
-    return !this.consumesEnvironment || loaded;
+    let loaded = true;
+
+    if (this.consumesEnvironment) {
+      const stats = this.environment?.tree;
+      loaded &&= !!stats && stats.length > 0;
+    }
+
+    if (this.consumesTags) {
+      const tags = this.tagDatabase?.tags;
+      loaded &&= !!tags && tags.length > 0;
+    }
+
+    return loaded;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -116,9 +132,15 @@ export default class Page extends Mixins(AdminTools) {
   private async created() {
     if (this.consumesEnvironment) {
       this.environment = await getEnvironment();
-
       this.$emit("environment-loaded", this.environment);
     }
+    if (this.consumesTags) {
+      this.tagDatabase = await getTagDatabase();
+      this.$emit("tag-database-loaded", this.tagDatabase);
+    }
+
+    // if (this.consumesEnvironment || this.consumesTags) {
+    // }
   }
 
   private get tourManager(): TourManager | undefined {
@@ -126,7 +148,7 @@ export default class Page extends Mixins(AdminTools) {
     //return this.tourSteps && this.id ? TourManager.loadTours() : undefined;
   }
 
-  // TODONEXT:
+  // TOURNEXT:
   //  Figure out a way to globally turn tours on and off
   //  Have a way to explicity invoke a tour
   //  Write an actual tour

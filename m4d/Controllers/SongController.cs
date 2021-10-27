@@ -332,8 +332,7 @@ namespace m4d.Controllers
             p.IncludeTotalCount = true;
 
             return await Database.Search(
-                filter.SearchString, p, filter.CruftFilter,
-                UserName);
+                filter.SearchString, p, filter.CruftFilter);
         }
 
         //
@@ -655,7 +654,7 @@ namespace m4d.Controllers
             }
 
             var gid = id ?? Guid.Empty;
-            var song = id.HasValue ? await Database.FindSong(id.Value, UserName) : null;
+            var song = id.HasValue ? await Database.FindSong(id.Value) : null;
             if (song == null)
             {
                 song = await Database.FindMergedSong(gid);
@@ -1546,10 +1545,7 @@ namespace m4d.Controllers
             var p = Database.AzureParmsFromFilter(filter, 1000);
             p.IncludeTotalCount = true;
 
-            var results = await Database.Search(
-                filter.SearchString, p,
-                filter.CruftFilter,
-                UserName);
+            var results = await Database.Search(filter.SearchString, p, filter.CruftFilter);
 
             switch (type)
             {

@@ -58,17 +58,11 @@ describe("tags loading", () => {
   it("should handle voting", () => {
     const tagList = new TagList(votes);
 
-    const voteFor = tagList.voteFromTags(
-      new Tag({ value: "Bolero", category: "Dance" })
-    );
+    const voteFor = tagList.voteFromTags(new Tag({ key: "Bolero:Dance" }));
     expect(voteFor).toEqual(true);
-    const voteAgainst = tagList.voteFromTags(
-      new Tag({ value: "Rumba", category: "Dance" })
-    );
+    const voteAgainst = tagList.voteFromTags(new Tag({ key: "Rumba:Dance" }));
     expect(voteAgainst).toEqual(false);
-    const noVote = tagList.voteFromTags(
-      new Tag({ value: "Swing", category: "Dance" })
-    );
+    const noVote = tagList.voteFromTags(new Tag({ key: "Swing:Dance" }));
     expect(noVote).toBeUndefined();
   });
 

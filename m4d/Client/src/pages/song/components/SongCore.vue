@@ -371,10 +371,10 @@ export default class SongCore extends Mixins(AdminTools) {
   }
 
   private onDeleteDance(dr: DanceRating): void {
-    const tag = new Tag({
-      value: this.environment!.fromId(dr.danceId)!.name,
-      category: "Dance",
-    });
+    const tag = Tag.fromParts(
+      this.environment!.fromId(dr.danceId)!.name,
+      "Dance"
+    );
     this.editor!.addProperty(PropertyType.deleteTag, tag.key);
     this.updateSong();
   }

@@ -650,25 +650,19 @@ namespace m4dModels
 
         #region Song Lookup
 
-        public async Task<Song> FindSong(Guid id, string userName = null)
+        public async Task<Song> FindSong(Guid id)
         {
-            if (string.IsNullOrEmpty(userName))
-            {
-                userName = null;
-            }
-
-            return await InternalFindSong(id, userName, CreateSearchClient());
+            return await InternalFindSong(id, CreateSearchClient());
         }
 
-        public async Task<IEnumerable<Song>> FindSongs(IEnumerable<Guid> ids,
-            string userName = null)
+        public async Task<IEnumerable<Song>> FindSongs(IEnumerable<Guid> ids)
         {
-            var tasks = ids.Select(id => InternalFindSong(id, userName, CreateSearchClient()))
+            var tasks = ids.Select(id => InternalFindSong(id, CreateSearchClient()))
                 .ToList();
             return await Task.WhenAll(tasks);
         }
 
-        private async Task<Song> InternalFindSong(Guid id, string userName, SearchClient client)
+        private async Task<Song> InternalFindSong(Guid id, SearchClient client)
         {
             var sd = DanceStats.FindSongDetails(id);
             if (sd != null)
@@ -688,7 +682,7 @@ namespace m4dModels
                 }
 
                 var details = await Song.Create(
-                    id, doc.GetString(Song.PropertiesField), this, userName);
+                    id, doc.GetString(Song.PropertiesField), this);
                 return details;
             }
             catch (RequestFailedException e)
@@ -1492,21 +1486,30 @@ namespace m4dModels
 
             return await Search(
                 filter.SearchString, AzureParmsFromFilter(filter, pageSize),
-                cruft, null, id);
+                cruft, id);
         }
 
         public async Task<SearchResults> Search(
             string search, SearchOptions parameters, CruftFilter cruft = CruftFilter.NoCruft,
-            string userName = null, string id = "default")
+            string id = "default")
         {
-            var response = await DoSearch(search, parameters, cruft, id);
-            var songs = await CreateSongs(response.GetResults());
-            var pageSize = parameters.Size ?? 25;
-            var page = (parameters.Skip ?? 0) / pageSize + 1;
-            var facets = response.Facets;
-            return new SearchResults(
-                search, songs.Count, response.TotalCount ?? -1, page, pageSize,
-                songs, facets);
+            try
+            {
+                var response = await DoSearch(search, parameters, cruft, id);
+                var songs = await CreateSongs(response.GetResults());
+                var pageSize = parameters.Size ?? 25;
+                var page = (parameters.Skip ?? 0) / pageSize + 1;
+                var facets = response.Facets;
+                return new SearchResults(
+                    search, songs.Count, response.TotalCount ?? -1, page, pageSize,
+                    songs, facets);
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine($"Failed Search: ${e.Message}");
+                return new SearchResults(
+                    search, 0, -1, 0, 0, new List<Song>(), null);
+            }
         }
 
         public async Task<FacetResults> GetTagFacets(string categories, int count,

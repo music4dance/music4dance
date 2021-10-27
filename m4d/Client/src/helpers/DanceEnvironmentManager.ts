@@ -1,41 +1,57 @@
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
-import { TagGroup } from "@/model/TagGroup";
+import { Tag } from "@/model/Tag";
+import { TagDatabase } from "@/model/TagDatabase";
 import axios from "axios";
 import { TypedJSON } from "typedjson";
 
 declare global {
   interface Window {
     environment?: DanceEnvironment;
+    tagDatabase?: TagDatabase;
   }
 }
 
 const environmentKey = "dance-environmnet";
-const expiryKey = "environment-expiry";
+const tagDatabaseKey = "tag-database";
+const expiryKey = "expiry";
 
 export async function getEnvironment(): Promise<DanceEnvironment> {
   if (window.environment) {
     return window.environment;
   }
 
-  if (checkExpiry()) {
-    window.environment = loadFromStorage();
+  if (checkExpiry(environmentKey)) {
+    window.environment = loadDancesFromStorage();
   }
+
   if (window.environment) {
     return window.environment;
   }
 
-  return loadStats();
+  return loadDances();
 }
 
-async function loadStats(): Promise<DanceEnvironment> {
+export async function getTagDatabase(): Promise<TagDatabase> {
+  if (window.tagDatabase) {
+    return window.tagDatabase;
+  }
+
+  if (checkExpiry(tagDatabaseKey)) {
+    window.tagDatabase = loadTagsFromStorage();
+  }
+  if (window.tagDatabase) {
+    return window.tagDatabase;
+  }
+
+  return loadTags();
+}
+
+async function loadDances(): Promise<DanceEnvironment> {
   try {
     const response = await axios.get("/api/danceenvironment/");
     const data = response.data;
     sessionStorage.setItem(environmentKey, JSON.stringify(data));
-    sessionStorage.setItem(
-      expiryKey,
-      JSON.stringify(Date.now() + 1000 * 60 * 60)
-    );
+    setExpiry(environmentKey);
     window.environment = TypedJSON.parse(data, DanceEnvironment);
     return window.environment!;
   } catch (e) {
@@ -44,9 +60,52 @@ async function loadStats(): Promise<DanceEnvironment> {
   }
 }
 
-function checkExpiry(): boolean {
+function loadDancesFromStorage(): DanceEnvironment | undefined {
+  const envString = sessionStorage.getItem(environmentKey);
+
+  if (!envString) {
+    return;
+  }
+
+  window.environment = TypedJSON.parse(envString, DanceEnvironment);
+  return window.environment;
+}
+
+async function loadTags(): Promise<TagDatabase> {
   try {
-    const expiryString = sessionStorage.getItem(expiryKey);
+    const response = await axios.get("/api/tag/");
+    const data = response.data;
+    sessionStorage.setItem(tagDatabaseKey, JSON.stringify(data));
+    setExpiry(tagDatabaseKey);
+    const tags = TypedJSON.parseAsArray(data, Tag);
+    window.tagDatabase = new TagDatabase(tags);
+    return window.tagDatabase;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+}
+
+function loadTagsFromStorage(): TagDatabase | undefined {
+  const tagsString = sessionStorage.getItem(tagDatabaseKey);
+
+  if (!tagsString) {
+    return;
+  }
+
+  const tags = TypedJSON.parseAsArray(tagsString, Tag);
+  const incrementalString = sessionStorage.getItem("incremental-tags");
+  let incrementalTags;
+  if (incrementalString) {
+    incrementalTags = TypedJSON.parseAsArray(incrementalString, Tag);
+  }
+  window.tagDatabase = new TagDatabase(tags, incrementalTags);
+  return window.tagDatabase;
+}
+
+function checkExpiry(key: string): boolean {
+  try {
+    const expiryString = sessionStorage.getItem(`${key}-${expiryKey}`);
     if (!expiryString) {
       return false;
     }
@@ -57,21 +116,9 @@ function checkExpiry(): boolean {
   }
 }
 
-function loadFromStorage(): DanceEnvironment | undefined {
-  const envString = sessionStorage.getItem(environmentKey);
-
-  if (!envString) {
-    return;
-  }
-
-  const environment = TypedJSON.parse(envString, DanceEnvironment);
-  const incrementalString = sessionStorage.getItem("incremental-tags");
-  if (incrementalString) {
-    environment!.incrementalTags = TypedJSON.parseAsArray(
-      incrementalString,
-      TagGroup
-    );
-  }
-  window.environment = environment;
-  return environment;
+function setExpiry(key: string): void {
+  sessionStorage.setItem(
+    `${key}-${expiryKey}`,
+    JSON.stringify(Date.now() + 1000 * 60 * 60)
+  );
 }
