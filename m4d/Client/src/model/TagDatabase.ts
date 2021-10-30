@@ -15,7 +15,6 @@ export class TagDatabase {
         count: 1,
       });
       groups.set(keyL, tag);
-      this._tagCache!.push(Tag.fromString(key));
       if (this.incrementalTags) {
         this.incrementalTags.push(tag);
       } else {
@@ -52,6 +51,5 @@ export class TagDatabase {
     return this._map ?? new Map<string, Tag>();
   }
 
-  private _tagCache?: Tag[];
   private _map?: Map<string, Tag>;
 }
