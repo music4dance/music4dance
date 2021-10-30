@@ -34,7 +34,7 @@ namespace m4dModels.Tests
             @"SongId={a8cace40-03bc-47bf-b781-47a817a7602d}	.Create=	User=HunterZ	Time=3/17/2014 5:46:07 PM	Title=Test Track	Album:01=Test Album	Track:01=6	Purchase:01:MS=T B00FAXDMWU";
 
         private const string SongDuplicateTags =
-            @"SongId={a8cace40-03bc-47bf-b781-47a817a7602d}	.Create=	User=HunterZ	Time=3/17/2014 5:46:07 PM	Title=Test Track	Tag+=International:Style|Pop:Music|pop:Music|Zoom:Other	Tag+=International:Style|Soundtrack:Music|Soundtracks:Music|soundtracks:Music|soundtrack:Music|Zoom:Other";
+            @"SongId={a8cace40-03bc-47bf-b781-47a817a7602d}	.Create=	User=HunterZ	Time=3/17/2014 5:46:07 PM	Title=Test Track	Tag+=International:Style|Pop:Music|Pop:Music|Zoom:Other	Tag+=International:Style|Soundtrack:Music|Soundtracks:Music|soundtracks:Music|soundtrack:Music|Zoom:Other";
 
         private const string SongBadCategoryTags =
             @"SongId={a8cace40-03bc-47bf-b781-47a817a7602d}	.Create=	User=HunterZ	Time=3/17/2014 5:46:07 PM	Title=Test Track	Tag+=Christmas: Pop	User=FlowZ	Time=3/17/2014 5:46:08 PM	Tag+=Christmas: Other";

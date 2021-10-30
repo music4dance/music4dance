@@ -49,7 +49,8 @@ namespace m4dModels
 
         public void FixupTags()
         {
-            TagMap = TagGroups.ToDictionary(tt => CanonicalKey(tt.Key));
+            TagMap = TagGroups.ToDictionary(
+                tt => CanonicalKey(tt.Key), StringComparer.OrdinalIgnoreCase);
 
             foreach (var tt in TagGroups.Where(tt => !string.IsNullOrEmpty(tt.PrimaryId)))
             {

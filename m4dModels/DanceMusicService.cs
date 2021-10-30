@@ -1200,7 +1200,7 @@ namespace m4dModels
 
         public TagGroup GetTagRing(string tag)
         {
-            return TagMap.TryGetValue(tag.ToLower(), out var tt)
+            return TagMap.TryGetValue(tag, out var tt)
                 ? tt.GetPrimary()
                 : new TagGroup(tag);
         }
@@ -2380,7 +2380,7 @@ namespace m4dModels
                     var value = cells[1];
                     var key = TagGroup.BuildKey(value, category);
 
-                    var ttOld = await TagGroups.FindAsync(key) ?? TagMap.GetValueOrDefault(key);
+                    var ttOld = await TagGroups.FindAsync(key); // ?? TagMap.GetValueOrDefault(key);
 
                     if (ttOld != null)
                     {
