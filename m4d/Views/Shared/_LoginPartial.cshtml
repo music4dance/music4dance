@@ -31,9 +31,9 @@
                     <a id="manage" class="@dropDownItem" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">My Profile</a>
                 </li>
                 <li>
-                    @Html.ActionLink("My Songs", "FilterUser", "Song", new
+                    @Html.ActionLink("My Songs", "Info", "Users", new
                     {
-                        user = UserManager.GetUserName(User)
+                        id = UserManager.GetUserName(User)
                     }, new
                     {
                         @class = @dropDownItem

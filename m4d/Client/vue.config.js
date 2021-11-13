@@ -57,6 +57,9 @@ module.exports = {
         "wedding-dance-music": {
             entry: "src/pages/wedding-dance-music/main.ts",
         },
+        "user-info": {
+            entry: "src/pages/user-info/main.ts",
+        },
     },
     configureWebpack: (config) => {
         if (process.env.NODE_ENV === "production") {

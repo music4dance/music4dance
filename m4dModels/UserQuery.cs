@@ -6,6 +6,8 @@ namespace m4dModels
     // normalize to (+|-)UserName\|[l|h]
     public class UserQuery
     {
+        public const string AnonymousUser = "me";
+
         public UserQuery(string query = null)
         {
             Query = Normalize(query);
@@ -25,11 +27,11 @@ namespace m4dModels
                 {
                     if (like.Value)
                     {
-                        qs += 'l';
+                        qs += "|l";
                     }
                     else
                     {
-                        qs += 'h';
+                        qs += "h";
                     }
                 }
             }
@@ -80,32 +82,6 @@ namespace m4dModels
             }
         }
 
-        private static string Normalize(string query)
-        {
-            if (string.IsNullOrWhiteSpace(query))
-            {
-                return string.Empty;
-            }
-
-            if (string.Equals(query, "null", StringComparison.OrdinalIgnoreCase))
-            {
-                return "null";
-            }
-
-            query = query.Trim().ToLower();
-            if (query[0] != '+' && query[0] != '-')
-            {
-                query = "+" + query;
-            }
-
-            if (!query.Contains('|'))
-            {
-                query += '|';
-            }
-
-            return query;
-        }
-
         public string Query { get; }
         public bool IsNull => string.Equals(Query, "null", StringComparison.OrdinalIgnoreCase);
         public bool IsEmpty => string.IsNullOrWhiteSpace(Query) || IsNull;
@@ -119,8 +95,6 @@ namespace m4dModels
 
         public bool IsAnonymous =>
             string.Equals(AnonymousUser, UserName, StringComparison.OrdinalIgnoreCase);
-
-        public const string AnonymousUser = "me";
 
         public string ActionDescription
         {
@@ -185,6 +159,32 @@ namespace m4dModels
                     : $"({a} or {b})"
                     : $"({a} and {b} and {c})";
             }
+        }
+
+        private static string Normalize(string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return string.Empty;
+            }
+
+            if (string.Equals(query, "null", StringComparison.OrdinalIgnoreCase))
+            {
+                return "null";
+            }
+
+            query = query.Trim().ToLower();
+            if (query[0] != '+' && query[0] != '-')
+            {
+                query = "+" + query;
+            }
+
+            if (!query.Contains('|'))
+            {
+                query += '|';
+            }
+
+            return query;
         }
 
         private static string MakeOneOdata(string userName, string inc, string cmp, bool? like)

@@ -10,9 +10,11 @@
       ></b-icon-heart>
       <b-icon-x-circle stacked variant="danger"></b-icon-x-circle>
     </b-iconstack>
-    <span v-else style="margin-right: 1.25rem"></span>
-    {{ action }} by
-    <a :href="userLink" :class="userClasses">{{ change.baseUser }}</a>
+    <b-icon-pencil v-else></b-icon-pencil>
+    <template v-if="!oneUser">
+      {{ action }} by
+      <a :href="userLink" :class="userClasses">{{ change.baseUser }}</a>
+    </template>
     on
     {{ formattedDate }}
     <div v-for="(property, index) in tagProperties" :key="index" class="ml-4">
@@ -32,6 +34,7 @@ import SongPropertyViewer from "./SongPropertyViewer.vue";
 @Component({ components: { SongPropertyViewer } })
 export default class SongChangeViewer extends Vue {
   @Prop() private readonly change!: SongChange;
+  @Prop() private readonly oneUser?: boolean;
 
   private get action(): string {
     return this.change.action === PropertyType.createdField
@@ -40,7 +43,7 @@ export default class SongChangeViewer extends Vue {
   }
 
   private get userLink(): string {
-    return `/song/filteruser?user=${this.change.baseUser}`;
+    return `/users/info/${this.change.baseUser}`;
   }
 
   private get formattedDate(): string {

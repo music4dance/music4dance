@@ -1,10 +1,12 @@
 <template>
-  <div>
+  <div style="display: flex">
     <b-icon :icon="icon" :variant="variant"></b-icon>
-    <tag-button :tagHandler="tagHandler" class="ml-2"></tag-button>
-    <span v-if="danceId">
-      on <dance-button :tagHandler="danceHandler"></dance-button
-    ></span>
+    <span>
+      <tag-button :tagHandler="tagHandler" class="ml-2"></tag-button>
+      <span v-if="danceId">
+        on <dance-button :tagHandler="danceHandler"></dance-button
+      ></span>
+    </span>
   </div>
 </template>
 

@@ -1781,7 +1781,6 @@ namespace m4dModels
         {
             ClearValues();
             await Reload(properties, database);
-            Modified = DateTime.Now;
             return true;
         }
 

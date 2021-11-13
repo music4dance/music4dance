@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Azure.Search.Documents.Models;
@@ -13,9 +14,7 @@ namespace m4dModels
 
         public TagManager(IEnumerable<TagGroup> tagGroups)
         {
-            TagGroups = (tagGroups as List<TagGroup>)?
-                .DistinctBy(g => CanonicalKey(g.Key))
-                .ToList();
+            TagGroups = CleanTagGroups(tagGroups.ToList());
             FixupTags();
         }
 
@@ -24,6 +23,37 @@ namespace m4dModels
         public Dictionary<string, TagGroup> TagMap { get; private set; }
 
         public static bool TransformKey { get; set; }
+
+        private List<TagGroup> CleanTagGroups(List<TagGroup> tagGroups)
+        {
+            var groups = tagGroups
+                .DistinctBy(g => g.Key.ToLower())
+                .OrderBy(g => g.Key.ToLower())
+                .ToList();
+
+            if (groups.Count != tagGroups.Count)
+            {
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
+
+                var dups = tagGroups
+                    .GroupBy(g => g.Key.ToLower())
+                    .Where(g => g.Count() > 1).ToList();
+
+                Trace.WriteLine($"{dups.Count()} duplicate tags");
+                foreach (var group in dups)
+                {
+                    foreach (var tag in group)
+                    {
+                        Trace.WriteLine(tag.Key);
+                    }
+                }
+            }
+
+            return groups;
+        }
 
         public static async Task<TagManager> BuildTagManager(DanceMusicCoreService dms,
             string source = "default")
@@ -65,14 +95,13 @@ namespace m4dModels
         {
             lock (_queuedTags)
             {
-                var tt = TagMap.GetValueOrDefault(CanonicalKey(tag)) ??
-                    _queuedTags.GetValueOrDefault(CanonicalKey(tag));
+                var t = TagList.NormalizeTag(tag);
+                var tt = TagMap.GetValueOrDefault(CanonicalKey(t)) ??
+                    _queuedTags.GetValueOrDefault(CanonicalKey(t));
                 if (tt != null)
                 {
                     return tt;
                 }
-
-                var t = TagList.NormalizeTag(tag);
 
                 tt = new TagGroup(t);
                 _queuedTags[tt.Key] = tt;
@@ -84,6 +113,11 @@ namespace m4dModels
 
         public void AddTagGroup(TagGroup tt)
         {
+            if (TagMap.ContainsKey(tt.Key))
+            {
+                return;
+            }
+
             lock (_queuedTags)
             {
                 TagMap[CanonicalKey(tt.Key)] = tt;

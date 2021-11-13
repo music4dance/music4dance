@@ -133,6 +133,7 @@ namespace m4d.Controllers
                 {
                     if (!string.Equals(oldUserName, applicationUser.UserName))
                     {
+                        applicationUser.NormalizedUserName = applicationUser.UserName.ToUpper();
                         await Database.ChangeUserName(oldUserName, applicationUser.UserName);
                     }
 

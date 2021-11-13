@@ -14,12 +14,18 @@ export class DanceRating extends TaggableObject {
 
   public static fromTag(tag: Tag): DanceRating {
     if (tag.category !== TagCategory.Dance) {
-      throw new Error("Can't creat a dancerating form a non-dance tag");
+      throw new Error(
+        `Can't create a dancerating form a non-dance tag ${tag.key}`
+      );
     }
-    const positive = !tag.value.startsWith("!");
-    const value = positive ? tag.value : tag.value.substr(1);
+    const decorated = tag.value.match(/^[!\-+].*/);
+    const value = decorated ? tag.value.substr(1) : tag.value;
+    const dance = environment.fromName(value);
+    if (!dance) {
+      throw new Error(`Couldn't find dance ${value}`);
+    }
     return new DanceRating({
-      danceId: environment.fromName(value)!.id,
+      danceId: dance.id,
     });
   }
 

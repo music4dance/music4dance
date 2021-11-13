@@ -132,7 +132,7 @@ export default class MainMenu extends Vue {
   }
 
   private get songLink(): string {
-    return `/song/filteruser/?user=${this.context.userName}`;
+    return `/users/info/${this.context.userName}`;
   }
 
   private get searchLink(): string {

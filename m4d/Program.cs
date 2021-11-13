@@ -18,13 +18,17 @@ namespace m4d
         {
             var host = CreateHostBuilder(args).Build();
 
-            using (var scope = host.Services.CreateScope())
+            var env = host.Services.GetRequiredService<IWebHostEnvironment>();
+            if (env.IsDevelopment())
             {
+                using var scope = host.Services.CreateScope();
                 var serviceProvider = scope.ServiceProvider;
                 try
                 {
-                    //using var context = scope.ServiceProvider.GetRequiredService<DanceMusicContext>();
-                    //context.Database.Migrate();
+                    using var context =
+                        scope.ServiceProvider.GetRequiredService<DanceMusicContext>();
+                    //context.Database.EnsureDeleted();
+                    context.Database.Migrate();
 
                     var userManager =
                         serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
@@ -36,6 +40,7 @@ namespace m4d
                 {
                     Debug.WriteLine(ex.Message);
                 }
+
             }
 
             host.Run();

@@ -41,9 +41,26 @@ namespace m4dModels
 
         public bool IsPlaceholder => StartDate == DateTime.MinValue;
 
-        public bool IsPseudo =>
-            Email.EndsWith("@music4dance.net", StringComparison.OrdinalIgnoreCase) ||
+        public bool IsPseudo => IsM4d || IsSpotify;
+
+        public bool IsM4d =>
+            Email.EndsWith("@music4dance.net", StringComparison.OrdinalIgnoreCase);
+
+        public bool IsSpotify =>
             Email.EndsWith("@spotify.com", StringComparison.OrdinalIgnoreCase);
+
+        public string EmailAlias
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(Email) || !Email.Contains("@"))
+                {
+                    return null;
+                }
+
+                return Email.Substring(0, Email.IndexOf('@'));
+            }
+        }
 
         public bool IsConfirmed => EmailConfirmed && !IsPseudo;
 
@@ -89,6 +106,9 @@ namespace m4dModels
         public SubscriptionLevel SubscriptionLevel { get; set; }
 
         // Everything below here are computed properties
+
+        public string SpotifyId => IsSpotify ? EmailAlias : null;
+
         public string RegionName => CountryCodes.TranslateCode(Region);
 
         public string PrivacyDescription =>
@@ -174,11 +194,11 @@ namespace m4dModels
         public static string[] ContactStrings { get; } =
         {
             @"I would be interested in participating in email or surveys to help improve music4dance",
-            @"I am interested in occassional promotional emails from music4dance partners",
-            @"I am interested in occassional promotional emails from music4dance"
+            @"I am interested in occasional promotional emails from music4dance partners",
+            @"I am interested in occasional promotional emails from music4dance"
         };
 
-        private const string PrivacyMessage = "{0} allow other members to see my profile and tags.";
+        private const string PrivacyMessage = "{0} allow other members to see my profile.";
 
         #endregion
     }

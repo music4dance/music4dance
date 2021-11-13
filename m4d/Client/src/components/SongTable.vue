@@ -24,33 +24,7 @@
         <div :class="likeHeader">Like/Play</div>
       </template>
       <template v-slot:cell(play)="data">
-        <dance-vote
-          v-if="filter.singleDance"
-          :song="data.item.song"
-          :danceRating="getDanceRating(data.item.song)"
-          :authenticated="!!userName"
-          @dance-vote="onDanceVote(data.item, $event)"
-          style="margin-right: 0.25em"
-        ></dance-vote>
-        <song-like-button
-          :song="data.item.song"
-          :user="userName"
-          @click-like="onClickLike(data.item)"
-          :scale="1.75"
-        ></song-like-button>
-        <a
-          href="#"
-          @click.prevent="showPlayModal(data.item.song)"
-          role="button"
-          class="ml-1"
-        >
-          <b-iconstack font-scale="1.75">
-            <b-icon stacked icon="circle"></b-icon>
-            <b-icon stacked icon="play-fill" shift-h="1"></b-icon>
-          </b-iconstack>
-        </a>
-        <play-modal :song="data.item.song"></play-modal>
-        <like-modal :id="getLikeId(data.item)" :editor="data.item"></like-modal>
+        <play-cell :editor="data.item" :filter="filter"></play-cell>
       </template>
       <template v-slot:head(title)>
         <sortable-header
@@ -189,6 +163,16 @@
           data.item.song.modifiedOrder
         }}</span>
       </template>
+      <template v-slot:head(user)>
+        <div class="userHeader">{{ filterUser }}'s Changes</div>
+      </template>
+      <template v-slot:cell(user)="data">
+        <song-change-viewer
+          v-if="getUserChange(data.item.history)"
+          :change="getUserChange(data.item.history)"
+          :oneUser="true"
+        ></song-change-viewer>
+      </template>
 
       <template v-slot:head(text)>
         <sortable-header
@@ -197,17 +181,25 @@
           :enableSort="!hideSort"
           :filter="filter"
         ></sortable-header>
-        -
-        <sortable-header
-          id="Artist"
-          :tip="titleHeaderTip"
-          :enableSort="!hideSort"
-          :filter="filter"
-        ></sortable-header>
+        <template v-if="!isHidden('artist')">
+          -
+          <sortable-header
+            id="Artist"
+            :tip="titleHeaderTip"
+            :enableSort="!hideSort"
+            :filter="filter"
+          ></sortable-header>
+        </template>
       </template>
       <template v-slot:cell(text)="data">
-        <a :href="songRef(data.item.song)">{{ data.item.song.title }}</a> by
-        <a :href="artistRef(data.item.song)">{{ data.item.song.artist }}</a>
+        <play-cell :editor="data.item" :filter="filter"></play-cell>
+        <a :href="songRef(data.item.song)" class="ml-1">{{
+          data.item.song.title
+        }}</a>
+        <template v-if="!isHidden('artist')">
+          by
+          <a :href="artistRef(data.item.song)">{{ data.item.song.artist }}</a>
+        </template>
         <span v-if="tempoValue(data.item.song)">
           @
           <a :href="tempoRef(data.item.song)"
@@ -217,6 +209,11 @@
         <span v-if="lengthValue(data.item.song) && !isHidden('length')">
           - {{ lengthValue(data.item.song) }}s
         </span>
+        <song-change-viewer
+          v-if="hasUser && getUserChange(data.item.history)"
+          :change="getUserChange(data.item.history)"
+          :oneUser="false"
+        ></song-change-viewer>
       </template>
       <template v-slot:head(info)>
         <sortable-header
@@ -245,14 +242,11 @@
 </template>
 
 <script lang="ts">
-import DanceVote from "@/components/DanceVote.vue";
-import LikeModal from "@/components/LikeModal.vue";
-import SongLikeButton from "@/components/SongLikeButton.vue";
 import { DanceRatingVote } from "@/DanceRatingDelta";
 import AdminTools from "@/mix-ins/AdminTools";
 import { DanceHandler } from "@/model/DanceHandler";
-import { DanceRating } from "@/model/DanceRating";
 import { Song } from "@/model/Song";
+import { SongChange } from "@/model/SongChange";
 import { SongEditor } from "@/model/SongEditor";
 import { SongFilter } from "@/model/SongFilter";
 import { SongHistory } from "@/model/SongHistory";
@@ -260,12 +254,13 @@ import { SongSort, SortOrder } from "@/model/SongSort";
 import { Tag } from "@/model/Tag";
 import { TaggableObject } from "@/model/TaggableObject";
 import { TagHandler } from "@/model/TagHandler";
+import SongChangeViewer from "@/pages/song/components/SongChangeViewer.vue";
 import { BvTableFieldArray } from "bootstrap-vue";
 import "reflect-metadata";
 import { Component, Mixins, Prop } from "vue-property-decorator";
 import DanceButton from "./DanceButton.vue";
 import EchoIcon from "./EchoIcon.vue";
-import PlayModal from "./PlayModal.vue";
+import PlayCell from "./PlayCell.vue";
 import SortableHeader from "./SortableHeader.vue";
 import TagButton from "./TagButton.vue";
 
@@ -290,6 +285,7 @@ const echoField = { key: "echo" };
 const dancesField = { key: "dances" };
 const tagsField = { key: "tags" };
 const orderField = { key: "order" };
+const userField = { key: "user", label: "" };
 const textField = { key: "text" };
 const infoField = { key: "info" };
 const lengthField = { key: "length" };
@@ -297,11 +293,9 @@ const lengthField = { key: "length" };
 @Component({
   components: {
     DanceButton,
-    DanceVote,
     EchoIcon,
-    LikeModal,
-    PlayModal,
-    SongLikeButton,
+    PlayCell,
+    SongChangeViewer,
     SortableHeader,
     TagButton,
   },
@@ -332,7 +326,7 @@ export default class SongTable extends Mixins(AdminTools) {
   }
 
   private get smallFields(): BvTableFieldArray {
-    const smallFields = [playField, textField, infoField];
+    const smallFields = [textField, infoField];
     return this.filterHiddenFields(
       smallFields.map((f) => this.filterSmallField(f))
     );
@@ -352,7 +346,10 @@ export default class SongTable extends Mixins(AdminTools) {
       orderField,
     ];
 
-    const temp = this.filterHiddenFields(fields);
+    const hasUser = this.hasUser;
+    const temp = this.filterHiddenFields(fields).map((f) =>
+      f.key === orderField.key && hasUser ? userField : f
+    );
     if (this.isAdmin && !this.isHidden(editField.key)) {
       return [editField, ...temp];
     } else {
@@ -361,9 +358,7 @@ export default class SongTable extends Mixins(AdminTools) {
   }
 
   private filterSmallField(field: Field): Field {
-    if (field === textField && this.isHidden("artist")) {
-      return titleField;
-    } else if (field === infoField && this.isHidden("dances")) {
+    if (field === infoField && this.isHidden("dances")) {
       return tagsField;
     } else {
       return field;
@@ -507,6 +502,21 @@ export default class SongTable extends Mixins(AdminTools) {
     }
   }
 
+  private get hasUser(): boolean {
+    const query = this.filter.userQuery;
+    return !!query.userName && query.include;
+  }
+
+  private getUserChange(history: SongHistory): SongChange | undefined {
+    const user = this.filterUser;
+    return history.recentUserChange(user);
+  }
+
+  private get filterUser(): string {
+    const user = this.hasUser ? this.filter.userQuery.userName : "";
+    return user === "me" ? this.userName! : user;
+  }
+
   private danceHandler(tag: Tag, filter: SongFilter, song: Song): DanceHandler {
     const danceRating = song.findDanceRatingByName(tag.value);
     return new DanceHandler(danceRating!, tag, this.userName, filter, song);
@@ -528,16 +538,8 @@ export default class SongTable extends Mixins(AdminTools) {
     return !this.hideSort && this.filter.singleDance;
   }
 
-  private getDanceRating(song: Song): DanceRating {
-    return song.findDanceRatingById(this.filter.danceQuery.danceList[0])!;
-  }
-
   private editRef(song: Song): string {
     return `/song/edit?id=${song.songId}&filter=${this.filter.encodedQuery}`;
-  }
-
-  private showPlayModal(song: Song): void {
-    this.$bvModal.show(song.songId);
   }
 
   private onSelect(song: Song, selected: boolean): void {
@@ -548,17 +550,9 @@ export default class SongTable extends Mixins(AdminTools) {
     this.$emit("song-selected", song.songId, true);
   }
 
-  private onClickLike(editor: SongEditor): void {
-    this.$bvModal.show(this.getLikeId(editor));
-  }
-
   private onDanceVote(editor: SongEditor, vote: DanceRatingVote): void {
     editor.danceVote(vote);
     editor.saveChanges();
-  }
-
-  private getLikeId(editor: SongEditor): string {
-    return `like-${editor.songId}`;
   }
 }
 </script>
@@ -579,10 +573,16 @@ export default class SongTable extends Mixins(AdminTools) {
 .echoHeader {
   min-width: 75px;
 }
+
 .sortedEchoHeader {
   min-width: 100px;
 }
+
 .orderHeader {
   min-width: 3em;
+}
+
+.userHeader {
+  min-width: 12em;
 }
 </style>

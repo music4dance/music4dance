@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -40,112 +39,6 @@ namespace m4dModels
         public string Name => Info.Name;
 
         public static Dances DanceLibrary { get; } = Dances.Instance;
-
-        public static string SmartLinks(string s)
-        {
-            if (string.IsNullOrWhiteSpace(s))
-            {
-                return
-                    @"<p>We're busy doing research and pulling together a general description for @Model.DanceName dance.  Please check back later for more info.</p>";
-            }
-
-            return LinkDances(s);
-        }
-
-        private static string LinkDances(string s)
-        {
-            var sb = new StringBuilder();
-
-            s = s.Replace("&lt;", "<");
-            s = s.Replace("&gt;", ">");
-            var matches = Dex.Matches(s);
-            var i = 0;
-            foreach (Match match in matches)
-            {
-                sb.Append(s.Substring(i, match.Index - i));
-                var d = match.Groups["dance"].Value;
-                if (IsDanceMatch(match, s))
-                {
-                    var l = FindLink(d);
-                    if (l != null)
-                    {
-                        sb.AppendFormat("<a href='{0}'>{1}</a>", l.Value.Value, d);
-                    }
-                    else
-                    {
-                        sb.Append(d);
-                    }
-                }
-                else
-                {
-                    sb.AppendFormat(@"[{0}]", d);
-                }
-
-                i = match.Index + match.Length;
-            }
-
-            sb.Append(s.Substring(i));
-
-            return sb.ToString();
-        }
-
-        private static bool IsDanceMatch(Match match, string s)
-        {
-            return !string.IsNullOrWhiteSpace(match.Groups["dance"].Value) &&
-                (match.Index + match.Length == s.Length || s[match.Index + match.Length] != '(');
-        }
-
-        private static KeyValuePair<string, string>? FindLink(string d)
-        {
-            var list = d.Split(
-                new[] { ' ', '\n', '\t', '\r', '\f', '\v' },
-                StringSplitOptions.RemoveEmptyEntries).ToList();
-
-            while (list.Count > 0)
-            {
-                var link = FindSpecificLink(string.Join(" ", list));
-                if (link != null)
-                {
-                    return link;
-                }
-
-                list.RemoveAt(list.Count - 1);
-            }
-
-            return null;
-        }
-
-        private static KeyValuePair<string, string>? FindSpecificLink(string d)
-        {
-            var dance = Dances.Instance.AllDances.FirstOrDefault(
-                dnc =>
-                    string.Equals(dnc.Name, d, StringComparison.OrdinalIgnoreCase));
-            if (dance != null)
-            {
-                return new KeyValuePair<string, string>(
-                    dance.Name.Replace(" ", "").ToLower(),
-                    $"/dances/{dance.CleanName}");
-            }
-
-            var cat = Categories.FirstOrDefault(
-                c =>
-                    string.Equals(d, c, StringComparison.OrdinalIgnoreCase));
-            if (cat != null)
-            {
-                return new KeyValuePair<string, string>(
-                    cat.Replace(" ", "").ToLower(),
-                    $"/dances/{DanceObject.SeoFriendly(cat)}");
-            }
-
-            d = d.ToLower();
-            if (Links.TryGetValue(d, out var link))
-            {
-                return new KeyValuePair<string, string>(d.Replace(" ", ""), link);
-            }
-
-            Trace.WriteLineIf(TraceLevels.General.TraceError, $"Link not found: {d}");
-            return null;
-        }
 
         public bool Update(IList<string> cells)
         {

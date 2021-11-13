@@ -29,7 +29,15 @@ export default class AdminTools extends Vue {
     return this.context.userName;
   }
 
+  protected get isAuthenticated(): boolean {
+    return !!this.userName;
+  }
+
   protected hasRole(role: string): boolean {
     return this.context.hasRole(role);
+  }
+
+  protected getAccountLink(page: string): string {
+    return `/identity/account/${page}?returnUrl=${window.location.pathname}?${window.location.search}`;
   }
 }

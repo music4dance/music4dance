@@ -5,6 +5,7 @@ import { SongChange } from "./SongChange";
 import { SongEditor } from "./SongEditor";
 import { PropertyType, SongProperty } from "./SongProperty";
 import { TrackModel } from "./TrackModel";
+import { UserQuery } from "./UserQuery";
 
 @jsonObject
 export class SongHistory {
@@ -121,6 +122,21 @@ export class SongHistory {
             p.baseName === PropertyType.likeTag
         )
     );
+  }
+
+  public singleUserChanges(user: string): SongChange[] {
+    const cleanUser = new UserQuery(user).userName;
+    return this.userChanges.filter(
+      (c) => new UserQuery(c.user).userName === cleanUser
+    );
+  }
+
+  public recentUserChange(user: string): SongChange | undefined {
+    const changes = this.singleUserChanges(user);
+    if (changes.length === 0) {
+      return undefined;
+    }
+    return changes[changes.length - 1];
   }
 
   private static serviceUserFromType(type: string): string {

@@ -11,10 +11,10 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace m4d.Areas.Identity.Pages.Account.Manage
 {
-    public partial class IndexModel : PageModel
+    public class IndexModel : PageModel
     {
-        private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         public IndexModel(
             UserManager<ApplicationUser> userManager,
@@ -42,16 +42,6 @@ namespace m4d.Areas.Identity.Pages.Account.Manage
         [BindProperty]
         public InputModel Input { get; set; }
 
-        public class InputModel
-        {
-            public string Region { get; set; }
-
-            [Display(Name = "Share my profile or tags with other members.")]
-            public bool PublicProfile { get; set; }
-            public List<byte> ContactSelection { get; set; }
-            public List<char> ServiceSelection { get; set; }
-        }
-
         private async Task LoadAsync(ApplicationUser user)
         {
             var userName = await _userManager.GetUserNameAsync(user);
@@ -65,14 +55,19 @@ namespace m4d.Areas.Identity.Pages.Account.Manage
             SubscriptionEnd = user.SubscriptionEnd;
 
             ContactOptions = ApplicationUser.ContactOptions;
-            ServiceOptions = MusicService.GetProfileServices().Select(s => new KeyValuePair<char, string>(s.CID, s.Name)).ToList();
-            RegionItems = CountryCodes.Codes.Select(code => new SelectListItem { Text = code.Value, Value = code.Key }).OrderBy(cc => cc.Text).ToList();
+            ServiceOptions = MusicService.GetProfileServices()
+                .Select(s => new KeyValuePair<char, string>(s.CID, s.Name)).ToList();
+            RegionItems = CountryCodes.Codes
+                .Select(code => new SelectListItem { Text = code.Value, Value = code.Key })
+                .OrderBy(cc => cc.Text).ToList();
 
             Input = new InputModel
             {
                 PublicProfile = user.Privacy > 0,
                 ContactSelection = user.ContactSelection,
-                ServiceSelection = (user.ServicePreference == null) ? new List<char>() : (user.ServicePreference.Select(c => c).ToList()),
+                ServiceSelection = user.ServicePreference == null
+                    ? new List<char>()
+                    : user.ServicePreference.Select(c => c).ToList(),
                 Region = string.IsNullOrWhiteSpace(user.Region) ? "US" : user.Region
             };
         }
@@ -103,24 +98,27 @@ namespace m4d.Areas.Identity.Pages.Account.Manage
                 return Page();
             }
 
-            bool modified = false;
-            byte privacy = (byte) (Input.PublicProfile ? 255 : 0);
+            var modified = false;
+            var privacy = (byte)(Input.PublicProfile ? 255 : 0);
             if (user.Privacy != privacy)
             {
                 user.Privacy = privacy;
                 modified = true;
             }
 
-            var canContact = (Input.ContactSelection == null) 
-                ? ContactStatus.None 
-                : (ContactStatus)Input.ContactSelection.Aggregate<byte, byte>(0, (current, cnt) => (byte)(current | cnt));
+            var canContact = Input.ContactSelection == null
+                ? ContactStatus.None
+                : (ContactStatus)Input.ContactSelection.Aggregate<byte, byte>(
+                    0, (current, cnt) => (byte)(current | cnt));
             if (user.CanContact != canContact)
             {
                 user.CanContact = canContact;
                 modified = true;
             }
 
-            var servicePreference = (Input.ServiceSelection == null) ? string.Empty : new string(Input.ServiceSelection.ToArray());
+            var servicePreference = Input.ServiceSelection == null
+                ? string.Empty
+                : new string(Input.ServiceSelection.ToArray());
             if (user.ServicePreference != servicePreference)
             {
                 user.ServicePreference = servicePreference;
@@ -149,13 +147,25 @@ namespace m4d.Areas.Identity.Pages.Account.Manage
                 var result = await _userManager.UpdateAsync(user);
                 if (!result.Succeeded)
                 {
-                    throw new InvalidOperationException($"Unexpected error occurred updating user '{user.UserName}' profile.");
+                    throw new InvalidOperationException(
+                        $"Unexpected error occurred updating user '{user.UserName}' profile.");
                 }
             }
 
             await _signInManager.RefreshSignInAsync(user);
             StatusMessage = "Your profile has been updated";
             return RedirectToPage();
+        }
+
+        public class InputModel
+        {
+            public string Region { get; set; }
+
+            [Display(Name = "Share my profile with other members.")]
+            public bool PublicProfile { get; set; }
+
+            public List<byte> ContactSelection { get; set; }
+            public List<char> ServiceSelection { get; set; }
         }
     }
 }

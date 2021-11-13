@@ -706,7 +706,7 @@ namespace m4dModels
             var filter = new SongFilter { User = user };
             if (includeHate)
             {
-                filter.User += "|A";
+                filter.User += "|a";
             }
 
             var afilter = AzureParmsFromFilter(filter);
@@ -718,6 +718,23 @@ namespace m4dModels
                 null, afilter, CruftFilter.AllCruft, searchClient);
 
             return await SongsFromAzureResult(response);
+        }
+
+        public async Task<int> UserSongCount(string user, bool? like)
+        {
+            const int max = 10000;
+
+            var filter = new SongFilter { User = new UserQuery(user, true, like).Query };
+
+            var afilter = AzureParmsFromFilter(filter);
+            afilter.Size = max;
+            afilter.IncludeTotalCount = true;
+
+            var searchClient = CreateSearchClient();
+            var response = await DoSearch(
+                null, afilter, CruftFilter.AllCruft, searchClient);
+
+            return (int)(response.TotalCount ?? 0);
         }
 
         public async Task<Song> FindMergedSong(Guid id)

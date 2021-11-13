@@ -181,6 +181,7 @@ namespace m4d.Controllers
             ViewBag.Name = "ClearSongCache";
 
             await DanceStatsManager.ClearCache(Database, reloadFromStore);
+            UsersController.ClearCache();
 
             ViewBag.Success = true;
             ViewBag.Message = "Cache was cleared";
@@ -386,7 +387,11 @@ namespace m4d.Controllers
                         if (users != null && dances != null && tags != null)
                         {
                             AdminMonitor.UpdateTask("Wipe Database");
-                            RestoreDb(userManager, roleManager, null, true);
+                            // For now we're not going to explicitly clear the DB
+                            // (cause it appears to be broken) - instead make sure
+                            // to run update-database from the package manager
+                            // console before doing a DB reload.
+                            RestoreDb(userManager, roleManager);
                         }
                     }
 
