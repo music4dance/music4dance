@@ -1,16 +1,16 @@
 ﻿@using m4dModels
 @using Microsoft.AspNetCore.Identity
 @using Newtonsoft.Json
-@inject SignInManager<ApplicationUser> SignInManager
-@inject UserManager<ApplicationUser> UserManager
-@inject ISearchServiceManager SearchService
-@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@inject SignInManager<ApplicationUser> _signInManager
+@inject UserManager<ApplicationUser> _userManager
+@inject ISearchServiceManager _searchService
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery _xsrf
 
 @functions{
 
     public string GetAntiXsrfRequestToken()
     {
-        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+        return _xsrf.GetAndStoreTokens(Context).RequestToken;
     }
 
 }
@@ -23,9 +23,16 @@
         help = string.Format("https://music4dance.blog/music4dance-help/{0}/", ViewBag.Help);
     }
 
-    var userName = User.Identity.IsAuthenticated ? User.Identity.Name : "";
+    string userName = "";
+    string userId = "";
+    if (User.Identity.IsAuthenticated)
+    {
+        userName = User.Identity.Name;
+        var user = await _userManager.GetUserAsync(User);
+        userId = user.Privacy == 0 ? user.Id : "";
+    }
     var roles = DanceMusicCoreService.UserRoles(User);
-    var searchIndex = SearchService.DefaultId.Last();
+    var searchIndex = _searchService.DefaultId.Last();
 }
 <html>
 <head>
@@ -112,6 +119,7 @@
         var menuContext = {
             helpLink: '@help',
             userName: '@userName',
+            userId: '@userId',
             roles: @Html.Raw(JsonConvert.SerializeObject(roles)),
             indexId: '@searchIndex',
             xsrfToken: '@GetAntiXsrfRequestToken()'

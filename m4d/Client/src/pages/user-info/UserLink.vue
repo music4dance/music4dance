@@ -24,6 +24,7 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 @Component({})
 export default class UserLink extends Vue {
   @Prop() private userName!: string;
+  @Prop() private displayName!: string;
   @Prop() private text!: string;
   @Prop() private type!: string;
   @Prop() private include!: boolean;
@@ -40,7 +41,7 @@ export default class UserLink extends Vue {
   }
 
   private get formattedText(): string {
-    return this.text.replace("{{ userName }}", this.userName);
+    return this.text.replace("{{ userName }}", this.displayName);
   }
 }
 </script>

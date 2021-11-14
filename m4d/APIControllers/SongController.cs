@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
+using m4d.Utilities;
 using m4dModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -39,7 +40,11 @@ namespace m4d.APIControllers
             var songs = await Database.SongsFromTitleArtist(title, artist);
             return songs == null || !songs.Any()
                 ? StatusCode((int)HttpStatusCode.NotFound)
-                : JsonCamelCase(songs.Select(s => s.GetHistory(mapper)));
+                : JsonCamelCase(
+                    songs
+                        .Select(
+                            async s => await UserMapper.AnonymizeHistory(
+                                s.GetHistory(mapper), UserManager)));
         }
 
         [HttpGet("{id}")]
@@ -50,7 +55,8 @@ namespace m4d.APIControllers
             var song = await Database.FindSong(id);
             return song == null
                 ? StatusCode((int)HttpStatusCode.NotFound)
-                : JsonCamelCase(song.GetHistory(mapper));
+                : JsonCamelCase(
+                    await UserMapper.AnonymizeHistory(song.GetHistory(mapper), UserManager));
         }
 
         [Authorize]
@@ -69,7 +75,8 @@ namespace m4d.APIControllers
                 return StatusCode((int)HttpStatusCode.NotFound);
             }
 
-            return await Database.AppendHistory(history, mapper)
+            return await Database.AppendHistory(
+                await UserMapper.DeanonymizeHistory(history, UserManager), mapper)
                 ? Ok()
                 : StatusCode((int)HttpStatusCode.BadRequest);
         }
@@ -90,7 +97,8 @@ namespace m4d.APIControllers
                 return StatusCode((int)HttpStatusCode.NotFound);
             }
 
-            return await Database.AdminEditSong(history, mapper)
+            return await Database.AdminEditSong(
+                await UserMapper.DeanonymizeHistory(history, UserManager), mapper)
                 ? Ok()
                 : StatusCode((int)HttpStatusCode.BadRequest);
         }

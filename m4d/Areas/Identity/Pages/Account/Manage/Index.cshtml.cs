@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using m4d.Utilities;
 using m4dModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -150,6 +151,8 @@ namespace m4d.Areas.Identity.Pages.Account.Manage
                     throw new InvalidOperationException(
                         $"Unexpected error occurred updating user '{user.UserName}' profile.");
                 }
+
+                UserMapper.Clear();
             }
 
             await _signInManager.RefreshSignInAsync(user);

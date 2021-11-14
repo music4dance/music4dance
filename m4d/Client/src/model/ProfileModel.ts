@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import { jsonMember, jsonObject } from "typedjson";
+import { UserQuery } from "./UserQuery";
 
 @jsonObject
 export class ProfileModel {
@@ -10,4 +11,8 @@ export class ProfileModel {
   @jsonMember public favoriteCount?: number;
   @jsonMember public blockedCount?: number;
   @jsonMember public editCount?: number;
+
+  public get displayName(): string {
+    return new UserQuery(this.userName).displayName;
+  }
 }

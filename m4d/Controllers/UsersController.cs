@@ -11,8 +11,7 @@ namespace m4d.Controllers
 {
     public class UsersController : DanceMusicController
     {
-        private static readonly Dictionary<string, UserProfile> _userCache =
-            new Dictionary<string, UserProfile>();
+        private static readonly Dictionary<string, UserProfile> s_userCache = new();
 
         public UsersController(DanceMusicContext context,
             UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
@@ -32,25 +31,28 @@ namespace m4d.Controllers
                 return StatusCode((int)HttpStatusCode.BadRequest);
             }
 
-            var user = await UserManager.FindByNameAsync(id);
+            var user = await UserManager.FindByNameAsync(id)
+                ?? await UserManager.FindByIdAsync(id);
+
             if (user == null)
             {
                 return StatusCode((int)HttpStatusCode.NotFound);
             }
 
-            if (!_userCache.TryGetValue(id, out var profile))
+            var userName = user.UserName;
+            if (!s_userCache.TryGetValue(id, out var profile))
             {
                 profile = new UserProfile
                 {
-                    UserName = user.UserName,
+                    UserName = id, // This will be username or id depending on what came in
                     IsPublic = user.Privacy > 0,
                     IsPseudo = user.IsPseudo,
                     SpotifyId = user.SpotifyId,
-                    favoriteCount = await Database.UserSongCount(id, true),
-                    blockedCount = await Database.UserSongCount(id, false),
-                    editCount = await Database.UserSongCount(id, null),
+                    FavoriteCount = await Database.UserSongCount(userName, true),
+                    BlockedCount = await Database.UserSongCount(userName, false),
+                    EditCount = await Database.UserSongCount(userName, null),
                 };
-                _userCache[id] = profile;
+                s_userCache[id] = profile;
             }
 
             return View(profile);
@@ -58,7 +60,7 @@ namespace m4d.Controllers
 
         public static void ClearCache()
         {
-            _userCache.Clear();
+            s_userCache.Clear();
         }
     }
 }

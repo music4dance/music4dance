@@ -72,6 +72,15 @@ export class UserQuery {
     return this.data.substring(1, idx);
   }
 
+  public get isAnonymous(): boolean {
+    const userName = this.userName;
+    return userName.indexOf("-") !== -1 && userName.length === 36;
+  }
+
+  public get displayName(): string {
+    return this.isAnonymous ? "Anonymous" : this.userName;
+  }
+
   public isDefault(userName?: string): boolean {
     if (!userName && !this.data) {
       return true;
@@ -89,7 +98,7 @@ export class UserQuery {
 
     const include = this.include ? "including" : "excluding";
     let like = "";
-    const user = this.userName;
+    const user = this.displayName;
     const my = user === "me" ? "my" : user + "'s";
     switch (this.parts[1]) {
       case "L":
@@ -99,7 +108,7 @@ export class UserQuery {
         like = `in ${my} blocked list`;
         break;
       case "T":
-        like = `edited by ${this.userName}`;
+        like = `edited by ${user}`;
         break;
     }
 

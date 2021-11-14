@@ -1,6 +1,7 @@
 export interface MenuContextInterface {
   helpLink?: string;
   userName?: string;
+  userId?: string;
   roles?: string[];
   indexId?: string;
   xsrfToken?: string;
@@ -9,6 +10,7 @@ export interface MenuContextInterface {
 export class MenuContext implements MenuContextInterface {
   public helpLink?: string;
   public userName?: string;
+  public userId?: string;
   public roles?: string[];
   public indexId?: string;
   public xsrfToken?: string;

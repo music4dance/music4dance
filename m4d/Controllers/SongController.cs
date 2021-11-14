@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using AutoMapper;
+using Azure.Search.Documents;
 using DanceLibrary;
 using m4d.Utilities;
 using m4d.ViewModels;
@@ -178,7 +179,10 @@ namespace m4d.Controllers
                     playListId = playlist?.Id;
                 }
 
-                var histories = results.Songs.Select(s => s.GetHistory(_mapper)).ToList();
+                var dictionary = await UserMapper.GetUserNameDictionary(UserManager);
+                var histories = results.Songs
+                    .Select(s => UserMapper.AnonymizeHistory(s.GetHistory(_mapper), dictionary))
+                    .ToList();
                 return View(
                     filter.Action, new HolidaySongListModel
                     {
@@ -242,7 +246,7 @@ namespace m4d.Controllers
             try
             {
                 var results = await BuildAzureSearch(filter);
-                return FormatResults(results, filter, hideSort);
+                return await FormatResults(results, filter, hideSort);
             }
             catch (RedirectException ex)
             {
@@ -251,15 +255,15 @@ namespace m4d.Controllers
 
         }
 
-        private ActionResult FormatResults(
+        private async Task<ActionResult> FormatResults(
             SearchResults results, SongFilter filter, bool? hideSort = null)
         {
-            return FormatSongList(
+            return await FormatSongList(
                 results.Songs.ToList(), (int)results.TotalCount,
                 filter, hideSort);
         }
 
-        private ActionResult FormatSongList(IReadOnlyCollection<Song> songs,
+        private async Task<ActionResult> FormatSongList(IReadOnlyCollection<Song> songs,
             int? totalSongs, SongFilter filter, bool? hideSort = null)
         {
             var user = UserName;
@@ -268,7 +272,10 @@ namespace m4d.Controllers
                 filter.Anonymize(user);
             }
 
-            var histories = songs.Select(s => s.GetHistory(_mapper)).ToList();
+            var dictionary = await UserMapper.GetUserNameDictionary(UserManager);
+            var histories = songs.Select(
+                s =>
+                    UserMapper.AnonymizeHistory(s.GetHistory(_mapper), dictionary)).ToList();
             var action = filter.Action;
             return View(
                 action.Equals("Advanced", StringComparison.OrdinalIgnoreCase)
@@ -328,7 +335,7 @@ namespace m4d.Controllers
                 }
             }
 
-            var p = Database.AzureParmsFromFilter(filter, 25);
+            var p = await AzureParmsFromFilter(filter, 25);
             p.IncludeTotalCount = true;
 
             return await Database.Search(
@@ -668,15 +675,16 @@ namespace m4d.Controllers
             }
 
             HelpPage = "song-details";
-            return View(GetSongDetails(song, filter));
+            return View(await GetSongDetails(song, filter));
         }
 
-        private SongDetailsModel GetSongDetails(Song song, SongFilter filter)
+        private async Task<SongDetailsModel> GetSongDetails(Song song, SongFilter filter)
         {
             return new()
             {
                 Title = song.Title,
-                SongHistory = song.GetHistory(_mapper),
+                SongHistory = await UserMapper.AnonymizeHistory(
+                    song.GetHistory(_mapper), UserManager),
                 Filter = _mapper.Map<SongFilterSparse>(filter),
                 UserName = UserName,
             };
@@ -1013,7 +1021,7 @@ namespace m4d.Controllers
             try
             {
                 filter.Purchase = "S";
-                var p = Database.AzureParmsFromFilter(filter, info.Count);
+                var p = await AzureParmsFromFilter(filter, info.Count);
                 p.IncludeTotalCount = true;
                 var results = await Database.Search(
                     filter.SearchString, p, filter.CruftFilter);
@@ -1070,7 +1078,7 @@ namespace m4d.Controllers
                 songs = await AutoMerge(songs, filter.Level ?? 1);
             }
 
-            return FormatSongList(songs, null, filter);
+            return await FormatSongList(songs, null, filter);
         }
 
         //
@@ -1126,7 +1134,7 @@ namespace m4d.Controllers
                     return await CleanupAlbums(songs);
                 default:
                     var list = songs.ToList().AsReadOnly();
-                    return FormatSongList(list, list.Count, new SongFilter());
+                    return await FormatSongList(list, list.Count, new SongFilter());
             }
         }
 
@@ -1377,6 +1385,13 @@ namespace m4d.Controllers
 
         #region General Utilities
 
+        private async Task<SearchOptions> AzureParmsFromFilter(
+            SongFilter filter, int? pageSize = null)
+        {
+            return Database.AzureParmsFromFilter(
+                await UserMapper.DeanonymizeFilter(filter, UserManager), pageSize);
+        }
+
         private ActionResult HandleRedirect(RedirectException redirect)
         {
             UseVue = false;
@@ -1542,7 +1557,7 @@ namespace m4d.Controllers
         public async Task<IActionResult> DownloadJson(SongFilter filter, string type = "S",
             int count = 1)
         {
-            var p = Database.AzureParmsFromFilter(filter, 1000);
+            var p = await AzureParmsFromFilter(filter, 1000);
             p.IncludeTotalCount = true;
 
             var results = await Database.Search(filter.SearchString, p, filter.CruftFilter);
@@ -1551,7 +1566,10 @@ namespace m4d.Controllers
             {
                 case "H":
                     return JsonCamelCase(
-                        results.Songs.Select(s => s.GetHistory(_mapper)).ToList());
+                        results.Songs.Select(
+                                s =>
+                                    UserMapper.AnonymizeHistory(s.GetHistory(_mapper), UserManager))
+                            .ToList());
                 default:
                     return JsonCamelCase(null);
             }

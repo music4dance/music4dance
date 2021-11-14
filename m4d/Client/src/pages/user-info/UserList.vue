@@ -1,12 +1,13 @@
 /
 <template>
   <div>
-    <h2>{{ userName }}'s Song Lists</h2>
+    <h2>{{ model.displayName }}'s Song Lists</h2>
     <ul>
       <user-link
         v-for="(link, index) in links"
         :key="index"
-        :userName="userName"
+        :userName="model.userName"
+        :displayName="model.displayName"
         :text="link.text"
         :type="link.type"
         :include="link.include"
@@ -53,10 +54,6 @@ interface ProfileLink {
 })
 export default class UserList extends Vue {
   @Prop() private model!: ProfileModel;
-
-  private get userName(): string {
-    return this.model.userName;
-  }
 
   private get links(): ProfileLink[] {
     return this.allLinks.filter((l) => l.count);

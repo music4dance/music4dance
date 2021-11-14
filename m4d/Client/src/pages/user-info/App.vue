@@ -1,7 +1,8 @@
 <template>
   <page id="app" :breadcrumbs="breadcrumbs">
     <H1
-      >Info for <em>{{ model.userName }}</em></H1
+      >Info for <em>{{ model.displayName }}</em
+      >'s Profile</H1
     >
     <div>
       <user-profile :model="model"></user-profile>
@@ -22,10 +23,9 @@ import UserList from "./UserList.vue";
 import UserProfile from "./UserProfile.vue";
 declare const model: string;
 
-// TODONEXT:
-//  Figure out tag issue :-() Casing wrong in DB?  How to correct?  How often?
-//  Advanced search add tag failing?
-//  Custom not found page?
+// TODO:
+//  Do we handle the thread where someone actually knows the anonymous user?  Can we just convert
+//    that to anonymous if it's not the actual user?
 
 @Component({
   components: {

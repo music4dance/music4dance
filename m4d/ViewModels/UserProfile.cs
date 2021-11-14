@@ -6,8 +6,8 @@
         public bool IsPublic { get; set; }
         public bool IsPseudo { get; set; }
         public string SpotifyId { get; set; }
-        public int favoriteCount { get; set; }
-        public int blockedCount { get; set; }
-        public int editCount { get; set; }
+        public int FavoriteCount { get; set; }
+        public int BlockedCount { get; set; }
+        public int EditCount { get; set; }
     }
 }

@@ -113,7 +113,7 @@
             <b-form-input
               id="user"
               placeholder="UserName"
-              v-model="user"
+              v-model="displayUser"
               style="width: 10rem"
               class="mr-2"
             ></b-form-input>
@@ -250,6 +250,7 @@ export default class App extends Mixins(AdminTools, EnvironmentManager) {
   private tempoMax = 250;
 
   private user: string;
+  private displayUser: string;
 
   private activity = "NT";
   private get computedActivity(): string {
@@ -262,7 +263,7 @@ export default class App extends Mixins(AdminTools, EnvironmentManager) {
   }
 
   private get activities() {
-    const user = this.user;
+    const user = this.displayUser;
     const empty = { text: "Don't filter on user activity", value: "NT" };
     const my = user === "me" ? "my" : user + "'s";
     const i = user === "me" ? "I have" : user + " has";
@@ -322,6 +323,7 @@ export default class App extends Mixins(AdminTools, EnvironmentManager) {
     // Real initialization of user defered to after environment is loaded
     this.activity = "NT";
     this.user = "";
+    this.displayUser = "";
 
     this.tempoMin = filter.tempoMin ?? 0;
     this.tempoMax = filter.tempoMax ?? 250;
@@ -430,6 +432,7 @@ export default class App extends Mixins(AdminTools, EnvironmentManager) {
       this.user = "";
       this.activity = "NT";
     }
+    this.displayUser = "";
     this.services.splice(0);
     this.sort = "Dances";
     this.order = "asc";
@@ -477,6 +480,7 @@ export default class App extends Mixins(AdminTools, EnvironmentManager) {
     const userQuery = new UserQuery(filter.user);
     this.activity = userQuery.parts;
     this.user = userQuery.userName ?? this.userName ?? "";
+    this.displayUser = userQuery.displayName;
     this.tags = tagDatabase.tags;
 
     await this.$nextTick();

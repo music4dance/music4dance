@@ -164,7 +164,7 @@
         }}</span>
       </template>
       <template v-slot:head(user)>
-        <div class="userHeader">{{ filterUser }}'s Changes</div>
+        <div class="userHeader">{{ filterDisplayName }}'s Changes</div>
       </template>
       <template v-slot:cell(user)="data">
         <song-change-viewer
@@ -308,7 +308,15 @@ export default class SongTable extends Mixins(AdminTools) {
   @Prop() private readonly action?: string;
 
   private get songs(): SongEditor[] {
-    return this.histories.map((h) => new SongEditor(this.userName, h));
+    const userId = this.userId;
+    const userName = this.userName;
+    if (userId && userName) {
+      return this.histories.map(
+        (h) => new SongEditor(this.userName, h.Deanonymize(userName, userId))
+      );
+    } else {
+      return this.histories.map((h) => new SongEditor(this.userName, h));
+    }
   }
 
   private get songMap(): Map<string, SongEditor> {
@@ -514,6 +522,11 @@ export default class SongTable extends Mixins(AdminTools) {
 
   private get filterUser(): string {
     const user = this.hasUser ? this.filter.userQuery.userName : "";
+    return user === "me" ? this.userName! : user;
+  }
+
+  private get filterDisplayName(): string {
+    const user = this.hasUser ? this.filter.userQuery.displayName : "";
     return user === "me" ? this.userName! : user;
   }
 

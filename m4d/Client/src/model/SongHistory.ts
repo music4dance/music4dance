@@ -110,6 +110,20 @@ export class SongHistory {
     return changes;
   }
 
+  public Deanonymize(userName: string, userId: string): SongHistory {
+    return new SongHistory({
+      id: this.id,
+      properties: this.properties.map((p) =>
+        p.baseName === PropertyType.userField && p.value.indexOf(userId) != -1
+          ? new SongProperty({
+              name: p.name,
+              value: p.value.replace(userId, userName),
+            })
+          : p
+      ),
+    });
+  }
+
   public get userChanges(): SongChange[] {
     return this.changes.filter(
       (c) =>

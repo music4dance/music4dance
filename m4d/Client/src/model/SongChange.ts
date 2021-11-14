@@ -1,4 +1,5 @@
 import { PropertyType, SongProperty } from "./SongProperty";
+import { UserQuery } from "./UserQuery";
 
 export class SongChange {
   public constructor(
@@ -18,13 +19,14 @@ export class SongChange {
     return !!user && user.endsWith("|P");
   }
 
-  public get baseUser(): string | undefined {
-    const user = this.user;
-    if (!user) {
-      return undefined;
-    }
-    const parts = user.split("|");
-    return parts[0];
+  public get userName(): string | undefined {
+    const query = this.userQuery;
+    return query ? query.userName : undefined;
+  }
+
+  public get userDisplayName(): string | undefined {
+    const query = this.userQuery;
+    return query ? query.displayName : undefined;
   }
 
   public get like(): boolean | undefined {
@@ -32,5 +34,13 @@ export class SongChange {
       (p) => p.baseName === PropertyType.likeTag
     );
     return likes.length ? (likes.pop()?.valueTyped as boolean) : undefined;
+  }
+
+  private get userQuery(): UserQuery | undefined {
+    const user = this.user;
+    if (!user) {
+      return undefined;
+    }
+    return new UserQuery(user);
   }
 }

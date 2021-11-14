@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using m4d.Utilities;
 using m4dModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -16,9 +17,6 @@ namespace m4d.Controllers
     //[RequireHttps]
     public class ApplicationUsersController : DanceMusicController
     {
-        private static readonly Dictionary<string, UserInfo> s_cachedUsers =
-            new(StringComparer.OrdinalIgnoreCase);
-
         public ApplicationUsersController(DanceMusicContext context,
             UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
             ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
@@ -27,7 +25,6 @@ namespace m4d.Controllers
         {
         }
 
-        private static DateTime CacheTime { get; set; }
 
         //public ApplicationUsersController()
         //{
@@ -36,11 +33,13 @@ namespace m4d.Controllers
         //}
 
         // GET: ApplicationUsers
-        public async Task<ActionResult> Index(bool showUnconfirmed = false, bool showPseudo = false)
+        public async Task<ActionResult> Index(bool showUnconfirmed = false, bool showPseudo = false,
+            bool hidePrivate = false)
         {
             ViewBag.ShowUnconfirmed = showUnconfirmed;
             ViewBag.ShowPseudo = showPseudo;
-            return View("Index", await GetUserDictionary(Database.UserManager));
+            ViewBag.HidePrivate = hidePrivate;
+            return View("Index", await UserMapper.GetUserNameDictionary(Database.UserManager));
         }
 
         // GET: ApplicationUsers/Details/5
@@ -152,6 +151,8 @@ namespace m4d.Controllers
                 }
             }
 
+            UserMapper.Clear();
+
             return View(applicationUser);
         }
 
@@ -213,6 +214,7 @@ namespace m4d.Controllers
             }
 
             ViewBag.Roles = Context.Roles;
+            UserMapper.Clear();
             return View("Details", user);
         }
 
@@ -233,10 +235,9 @@ namespace m4d.Controllers
             return View(applicationUser);
         }
 
-        // GET: ApplicationUsers/Create
         public async Task<ActionResult> ClearCache()
         {
-            ClearUserCache();
+            UserMapper.Clear();
             return await Index();
         }
 
@@ -248,7 +249,7 @@ namespace m4d.Controllers
             foreach (var record in records)
             {
                 var user =
-                    (await GetUserDictionary(Database.UserManager))
+                    (await UserMapper.GetUserNameDictionary(Database.UserManager))
                     .GetValueOrDefault(record.UserId);
                 if (user != null)
                 {
@@ -276,6 +277,7 @@ namespace m4d.Controllers
 
             Context.Users.Remove(applicationUser);
             await Context.SaveChangesAsync();
+            UserMapper.Clear();
             return RedirectToAction("Index");
         }
 
@@ -355,38 +357,6 @@ namespace m4d.Controllers
 
                     break;
             }
-        }
-
-        public static async Task<IReadOnlyDictionary<string, UserInfo>> GetUserDictionary(
-            UserManager<ApplicationUser> userManager)
-        {
-            if (s_cachedUsers.Count == 0)
-            {
-                foreach (var user in userManager.Users)
-                {
-                    var roles = await userManager.GetRolesAsync(user);
-                    var logins = await userManager.GetLoginsAsync(user);
-
-                    var userInfo = new UserInfo
-                    {
-                        User = user,
-                        Roles = roles.ToList(),
-                        Logins = logins.Select(l => l.LoginProvider).ToList()
-                    };
-
-                    s_cachedUsers.Add(user.UserName, userInfo);
-                }
-
-                CacheTime = DateTime.Now;
-            }
-
-            return s_cachedUsers;
-        }
-
-        private static void ClearUserCache()
-        {
-            s_cachedUsers.Clear();
-            CacheTime = DateTime.MinValue;
         }
     }
 }

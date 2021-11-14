@@ -29,6 +29,10 @@ export default class AdminTools extends Vue {
     return this.context.userName;
   }
 
+  protected get userId(): string | undefined {
+    return this.context.userId;
+  }
+
   protected get isAuthenticated(): boolean {
     return !!this.userName;
   }

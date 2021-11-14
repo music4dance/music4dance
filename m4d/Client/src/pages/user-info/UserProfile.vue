@@ -1,9 +1,9 @@
 <template>
   <div>
-    <h2>{{ model.userName }}'s Profile</h2>
     <div v-if="model.spotifyId">
       This is a proxy user based on a public spotify profile. View
-      {{ model.userName }}'s spotify profile <a :href="spotifyProfile">here.</a>
+      {{ model.displayName }}'s spotify profile
+      <a :href="spotifyProfile">here.</a>
     </div>
     <must-register
       v-else-if="!isAuthenticated"

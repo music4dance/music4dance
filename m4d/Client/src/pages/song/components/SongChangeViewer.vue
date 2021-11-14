@@ -13,7 +13,7 @@
     <b-icon-pencil v-else></b-icon-pencil>
     <template v-if="!oneUser">
       {{ action }} by
-      <a :href="userLink" :class="userClasses">{{ change.baseUser }}</a>
+      <a :href="userLink" :class="userClasses">{{ change.userDisplayName }}</a>
     </template>
     on
     {{ formattedDate }}
@@ -43,7 +43,7 @@ export default class SongChangeViewer extends Vue {
   }
 
   private get userLink(): string {
-    return `/users/info/${this.change.baseUser}`;
+    return `/users/info/${this.change.userName}`;
   }
 
   private get formattedDate(): string {
