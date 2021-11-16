@@ -238,6 +238,7 @@ namespace m4d.Controllers
         public async Task<ActionResult> ClearCache()
         {
             UserMapper.Clear();
+            UsersController.ClearCache();
             return await Index();
         }
 

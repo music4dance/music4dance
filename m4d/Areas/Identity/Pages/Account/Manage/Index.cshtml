@@ -31,9 +31,38 @@
                 </div>
                 <div class="form-group row">
                     <div class="col-md-11 col-md-offset-1">
-                        <input asp-for="Input.PublicProfile"/>
+                        <input asp-for="Input.PublicProfile" />
                         <label asp-for="Input.PublicProfile"></label>
                     </div>
+                    @if (Model.Input.PublicProfile)
+                    {
+                <p>
+                    Thank you for sharing your profile.  This will allow
+                    other members of the music4dance community see the
+                    songs that you've tagged and learn.  If you have other
+                    ideas for ways to enhance the site especially
+                    with respect to communit involvement, please don't
+                    hesitate to share your <a href='https://music4dance.blog/feedback/'>
+                        feedback
+                    </a>
+                </p> }
+                            else
+                            {
+                <p>
+                    Please consider sharing your profile.  This will allow
+                    other members of the music4dance community see the
+                    songs that you've tagged and learn.  The only information
+                    that we currently share is your username and lists of 
+                    songs that you have tagged or added to your favorites. If
+                    in the future we expand the user profile feature you will be
+                    able to opt out of adding information to your profile.  And 
+                    of course you can opt out at any time.  If you would prefer
+                    to change your user name before sharing to something more
+                    anonymous, please don't hesitate to contact us at
+                    <a href='https://music4dance.blog/feedback/'>
+                        feedback
+                    </a> with your prefered profile name and we'd be happy to change it for you.
+                </p>}
                 </div>
 
                 <div class="form-group row">

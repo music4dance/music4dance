@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using m4d.Controllers;
 using m4d.Utilities;
 using m4dModels;
 using Microsoft.AspNetCore.Identity;
@@ -153,6 +154,7 @@ namespace m4d.Areas.Identity.Pages.Account.Manage
                 }
 
                 UserMapper.Clear();
+                UsersController.ClearCache();
             }
 
             await _signInManager.RefreshSignInAsync(user);

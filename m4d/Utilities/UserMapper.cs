@@ -42,6 +42,7 @@ namespace m4d.Utilities
         public static void Clear()
         {
             s_cachedUsers.Clear();
+            s_cachedIds.Clear();
             CacheTime = DateTime.MinValue;
         }
 

@@ -23,12 +23,20 @@
         are a dance/music professional. Please contact us with any suggestions
         <a href="https://music4dance.blog/feedback/">here.</a>
       </p>
-      <p v-if="!model.isPublic">
+      <p v-if="isCurrentUser && !model.isPublic">
+        Your are currently set to not share this profile page and your activity
+        with others. This may have been becuase that was the default setting
+        when you created your account. By changing to show your profile
+        publicly, you'll help other members learn by being able to see what
+        you've tagged songs with.
+      </p>
+      <p v-else-if="!model.isPublic">
         This user has opted out of displaying profile information in the future.
       </p>
       <p>
         To change your preferences, please go to your
-        <a href="/identity/account/manage">my profile</a> page.
+        <a href="/identity/account/manage">my profile</a> page and check the box
+        next to "Share my profile with other members"
       </p>
     </div>
   </div>
@@ -47,6 +55,10 @@ export default class UserProfile extends Mixins(AdminTools) {
 
   private get spotifyProfile(): string {
     return `https://open.spotify.com/user/${this.model.spotifyId}`;
+  }
+
+  private get isCurrentUser(): boolean {
+    return this.model.userName === this.userName;
   }
 }
 </script>
