@@ -51,6 +51,10 @@ namespace m4d.Utilities
         {
             var dictionary = await GetUserIdDictionary(userManager);
             var userName = filter.UserQuery.UserName;
+            if (userName == null)
+            {
+                return filter;
+            }
             var realName = Deanonymize(userName, dictionary);
             if (!string.Equals(userName, realName, StringComparison.InvariantCultureIgnoreCase))
             {
