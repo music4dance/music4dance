@@ -14,6 +14,7 @@ using m4dModels;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
+using TagList = m4dModels.TagList;
 
 namespace m4d.Utilities
 {

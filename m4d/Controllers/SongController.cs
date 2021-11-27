@@ -615,7 +615,7 @@ namespace m4d.Controllers
                 return await DoAzureSearch(filter);
             }
 
-            var list = new TagList(tags).AddMissingQualifier('+');
+            var list = new m4dModels.TagList(tags).AddMissingQualifier('+');
             filter.Tags = list.ToString();
 
             return await DoAzureSearch(filter);
@@ -624,8 +624,8 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public async Task<ActionResult> AddTags(string tags, SongFilter filter)
         {
-            var add = new TagList(tags);
-            var old = new TagList(filter.Tags);
+            var add = new m4dModels.TagList(tags);
+            var old = new m4dModels.TagList(filter.Tags);
 
             // First remove any tags from the old list
             old = old.Subtract(add);
@@ -639,8 +639,8 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public async Task<ActionResult> RemoveTags(string tags, SongFilter filter)
         {
-            var sub = new TagList(tags);
-            var old = new TagList(filter.Tags);
+            var sub = new m4dModels.TagList(tags);
+            var old = new m4dModels.TagList(filter.Tags);
             var ret = old.Subtract(sub);
             filter.Tags = ret.ToString();
             filter.Page = null;
@@ -1474,9 +1474,9 @@ namespace m4d.Controllers
                 if (track.Genres is { Length: > 0 })
                 {
                     tags = tags.Add(
-                        new TagList(
+                        new m4dModels.TagList(
                             dms.NormalizeTags(
-                                string.Join("|", track.Genres.Select(TagList.Clean)),
+                                string.Join("|", track.Genres.Select(m4dModels.TagList.Clean)),
                                 "Music", true)));
                 }
             }

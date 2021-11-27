@@ -659,7 +659,7 @@ namespace m4d.Controllers
             }
 
             tags = !string.IsNullOrEmpty(tags) ? tags.Trim() : null;
-            TagList tagList = null;
+            m4dModels.TagList tagList = null;
             if (tags != null)
             {
                 tagList = newSongs[0].VerifyTags(tags, false);
