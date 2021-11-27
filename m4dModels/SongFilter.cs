@@ -435,7 +435,7 @@ namespace m4dModels
         public static SongFilter CreateHolidayFilter(string dance = null, int page = 1)
         {
             const string holidayFilter =
-                "((OtherTags/any(t: t eq 'holiday') or GenreTags/any(t: t eq 'christmas' or t eq 'holiday')) and OtherTags/all(t: t ne 'halloween'))";
+                "((OtherTags/any(t: t eq 'Holiday') or GenreTags/any(t: t eq 'Christmas' or t eq 'Holiday')) and OtherTags/all(t: t ne 'Halloween'))";
 
             string danceFilter = null;
             if (!string.IsNullOrWhiteSpace(dance))

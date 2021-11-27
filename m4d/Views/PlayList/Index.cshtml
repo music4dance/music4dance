@@ -54,18 +54,32 @@
         @if (Model.Type == PlayListType.SpotifyFromSearch)
         {
             <p>
-                @Html.ActionLink("Create Dance Playlists", "BulkCreate", new
+                @Html.ActionLink("Create", "BulkCreate", new
                 {
                     Type = PlayListType.SpotifyFromSearch,
                     Flavor = "TopN"
                 })
+				|
+                @Html.ActionLink("Fix", "BulkFix", new
+                {
+                    Type = PlayListType.SpotifyFromSearch,
+                    Flavor = "TopN"
+                })
+				Dance Playlists
             </p>
             <p>
-                @Html.ActionLink("Create Holiday Playlists", "BulkCreate", new
+                @Html.ActionLink("Create", "BulkCreate", new
                 {
                     Type = PlayListType.SpotifyFromSearch,
                     Flavor = "Holiday"
                 })
+				|
+                @Html.ActionLink("Fix", "BulkFix", new
+                {
+                    Type = PlayListType.SpotifyFromSearch,
+                    Flavor = "Holiday"
+                })
+				Holiday Playlists
             </p>
         }
     </div>

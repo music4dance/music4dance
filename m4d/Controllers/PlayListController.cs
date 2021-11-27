@@ -222,7 +222,7 @@ namespace m4d.Controllers
             return Content("{success:true, reason='Kicked off Update Batch'}");
         }
 
-        // GET: UpdateAll
+        // GET: BulkCreate
         [SuppressMessage("ReSharper", "InconsistentNaming")]
         [Authorize(Roles = "dbAdmin")]
         public async Task<ActionResult> BulkCreate([FromServices]IFileProvider fileProvider,
@@ -454,6 +454,44 @@ namespace m4d.Controllers
                 {
                     Database.PlayLists.Add(playlist);
                 }
+            }
+        }
+
+        // GET: BulkFix
+        [Authorize(Roles = "dbAdmin")]
+        public async Task<ActionResult> BulkFix([FromServices] IFileProvider fileProvider,
+            PlayListType type, string flavor = "TopN")
+        {
+            switch (flavor)
+            {
+                case "TopN":
+                    //BulkFixTopN(oldS, oldM, fileProvider);
+                    break;
+                case "Holiday":
+                    BulkFixHoliday(fileProvider);
+                    break;
+            }
+
+            await Database.SaveChanges();
+
+            return View("Index", GetIndex(PlayListType.SpotifyFromSearch));
+        }
+
+        private void BulkFixHoliday(IFileProvider fileProvider)
+        {
+            const string prefix = "Holiday ";
+            var playlists = Database.PlayLists.Where(p => p.Type == PlayListType.SpotifyFromSearch && p.Name.StartsWith(prefix)).ToList();
+            foreach (var playlist in playlists)
+            {
+                var name = playlist.Name.Substring(prefix.Length);
+                var dance = Database.DanceStats.FromName(name);
+                if (dance == null)
+                {
+                    continue;
+                }
+
+                playlist.Search = SongFilter.CreateHolidayFilter(dance.DanceName).ToString();
+
             }
         }
 

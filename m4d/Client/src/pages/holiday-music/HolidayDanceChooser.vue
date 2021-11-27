@@ -30,9 +30,9 @@ export default class HolidayDanceChooser extends Mixins(EnvironmentManager) {
   @Prop() private readonly count!: number;
 
   private get sortedDances(): DanceStats[] {
-    const environment = this.environment;
-    return environment
-      ? environment.flatStats
+    const dances = this.environment?.dances;
+    return dances
+      ? dances
           .filter((d) => d.songCount > 10 && d.name !== this.dance)
           .sort((a, b) => a.name.localeCompare(b.name))
       : [];
