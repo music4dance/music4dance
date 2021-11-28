@@ -1,0 +1,38 @@
+﻿@using m4d.ViewModels
+@using m4dModels
+@model List<PlaylistMetadata>
+
+@{
+    ViewBag.Title = "Spotify PlayList Statistics";
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
+}
+
+<h1>@ViewBag.Title</h1>
+
+<table class="table" width="100%">
+	<thead>
+		<tr>
+			<th>Id</th>
+			<th>Name</th>
+			<th>Count</th>
+			<th>Desription</th>
+			<th>Link</th>
+			<th>Reference</th>
+		</tr>
+	</thead>
+
+	<tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+			<td>@item.Id</td>
+			<td>@item.Name</td>
+			<td>@item.Count</td>
+			<td>@item.Description</td>
+			<td>@item.Link</td>
+			<td>@item.Reference</td>
+		</tr>
+    }
+	</tbody>
+
+</table>

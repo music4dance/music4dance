@@ -19,7 +19,7 @@ namespace DanceTests
 
         private readonly string[] _51HAll =
         {
-            "QuickStep: Style=(International Standard), Delta=()",
+            "Quickstep: Style=(International Standard), Delta=()",
             "Salsa: Style=(Social), Delta=()",
             "Charleston: Style=(Social), Delta=()",
             "Milonga: Style=(Social), Delta=()",
@@ -31,7 +31,7 @@ namespace DanceTests
 
         private readonly string[] _51HNR =
         {
-            "QuickStep: Style=(International Standard), Delta=()",
+            "Quickstep: Style=(International Standard), Delta=()",
             "Salsa: Style=(Social), Delta=()",
             "Charleston: Style=(Social), Delta=()",
             "Milonga: Style=(Social), Delta=()",

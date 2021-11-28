@@ -264,7 +264,7 @@
     ]
   },
   {
-    "Name": "QuickStep",
+    "Name": "Quickstep",
     "Id": "QST",
     "Meter": {
       "Numerator": 4,

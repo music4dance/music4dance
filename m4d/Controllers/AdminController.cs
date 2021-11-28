@@ -37,11 +37,11 @@ namespace m4d.Controllers
             // Do something before the action executes.
             if (context.Controller is DanceMusicController controller)
             {
-                controller.ViewBag.TraceLevel = TraceLevels.General.Level.ToString();
-                controller.ViewBag.BotReport = SpiderManager.CreateBotReport();
-                controller.ViewBag.SearchIdx = controller.SearchService.DefaultId;
-                controller.ViewBag.StatsUpdateTime = controller.DanceStatsManager.LastUpdate;
-                controller.ViewBag.StatsUpdateSource = controller.DanceStatsManager.Source;
+                controller.ViewData["TraceLevel"] = TraceLevels.General.Level.ToString();
+                controller.ViewData["BotReport"] = SpiderManager.CreateBotReport();
+                controller.ViewData["SearchIdx"] = controller.SearchService.DefaultId;
+                controller.ViewData["StatsUpdateTime"] = controller.DanceStatsManager.LastUpdate;
+                controller.ViewData["StatsUpdateSource"] = controller.DanceStatsManager.Source;
             }
         }
     }

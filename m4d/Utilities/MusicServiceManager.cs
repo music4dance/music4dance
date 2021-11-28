@@ -520,11 +520,17 @@ namespace m4d.Utilities
 
             foreach (var playlist in results.items)
             {
+                var external = playlist.external_urls;
+                var link = (external != null && external.spotify != null) ? external.spotify : null;
                 ret.Add(
                     new PlaylistMetadata
                     {
                         Id = playlist.id,
-                        Name = playlist.name
+                        Name = playlist.name,
+                        Description = playlist.description,
+                        Link = link,
+                        Reference = playlist.tracks?.href,
+                        Count = playlist.tracks?.total
                     });
             }
 

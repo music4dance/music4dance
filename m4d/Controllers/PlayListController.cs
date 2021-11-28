@@ -139,6 +139,21 @@ namespace m4d.Controllers
             return View("Error");
         }
 
+        // GET: PlayLists
+        [Authorize(Roles = "dbAdmin")]
+        public async Task<IActionResult> Statistics()
+        {
+            return View(await GetStatistics());
+        }
+
+        private async Task<List<PlaylistMetadata>> GetStatistics()
+        {
+            await SpotifyAuthorization();
+
+            var spotify = MusicService.GetService(ServiceType.Spotify);
+            return MusicServiceManager.GetPlaylists(spotify, User);
+        }
+
         // GET: Update
         [Authorize(Roles = "dbAdmin")]
         public async Task<ActionResult> Update(string id)
@@ -608,7 +623,7 @@ namespace m4d.Controllers
 
             // Match songs & update
             var dms = Database.GetTransientService();
-            Task.Run(
+            await Task.Run(
                 async () =>
                 {
                     try
@@ -645,7 +660,7 @@ namespace m4d.Controllers
             var emailMap = await UserEmail(playlists);
 
             var dms = Database.GetTransientService();
-            Task.Run(
+            await Task.Run(
                 async () =>
                 {
                     try
