@@ -105,6 +105,9 @@ namespace m4dModels
 
         public SubscriptionLevel SubscriptionLevel { get; set; }
 
+        public List<Search> Searches { get; set; }
+        public List<ActivityLog> ActivityLog { get; set; }
+
         // Everything below here are computed properties
 
         public string SpotifyId => IsSpotify ? EmailAlias : null;

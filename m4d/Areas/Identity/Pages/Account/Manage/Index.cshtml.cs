@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Dynamic;
 using System.Linq;
 using System.Threading.Tasks;
 using m4d.Controllers;
@@ -100,11 +101,16 @@ namespace m4d.Areas.Identity.Pages.Account.Manage
                 return Page();
             }
 
+            var changes = new ProfileChanges { 
+                Old = new ProfileDelta(), New = new ProfileDelta() 
+            };
+
             var modified = false;
             var privacy = (byte)(Input.PublicProfile ? 255 : 0);
             if (user.Privacy != privacy)
             {
-                user.Privacy = privacy;
+                changes.Old.Privacy = user.Privacy;
+                changes.New.Privacy = user.Privacy = privacy;
                 modified = true;
             }
 
@@ -114,7 +120,8 @@ namespace m4d.Areas.Identity.Pages.Account.Manage
                     0, (current, cnt) => (byte)(current | cnt));
             if (user.CanContact != canContact)
             {
-                user.CanContact = canContact;
+                changes.Old.CanContact = user.CanContact;
+                changes.New.CanContact = user.CanContact = canContact;
                 modified = true;
             }
 
@@ -123,13 +130,15 @@ namespace m4d.Areas.Identity.Pages.Account.Manage
                 : new string(Input.ServiceSelection.ToArray());
             if (user.ServicePreference != servicePreference)
             {
-                user.ServicePreference = servicePreference;
+                changes.Old.ServicePreference = user.ServicePreference;
+                changes.New.ServicePreference = user.ServicePreference = servicePreference;
                 modified = true;
             }
 
             if (Input.Region != user.Region)
             {
-                user.Region = Input.Region;
+                changes.Old.Region = user.Region;
+                changes.New.Region = user.Region = Input.Region;
                 modified = true;
             }
 
@@ -146,6 +155,11 @@ namespace m4d.Areas.Identity.Pages.Account.Manage
 
             if (modified)
             {
+                if (user.ActivityLog == null)
+                {
+                    user.ActivityLog= new List<ActivityLog>();
+                }
+                user.ActivityLog.Add(new ActivityLog("Profile", user, changes));
                 var result = await _userManager.UpdateAsync(user);
                 if (!result.Succeeded)
                 {

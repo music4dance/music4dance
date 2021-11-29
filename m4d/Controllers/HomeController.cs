@@ -197,7 +197,6 @@ namespace m4d.Controllers
                 if (kind == PurchaseKind.Purchase && userName != null)
                 {
                     user = await UserManager.GetUserAsync(User);
-                    ;
                 }
 
                 var options = new ChargeCreateOptions
@@ -232,6 +231,8 @@ namespace m4d.Controllers
                         await signInManager.RefreshSignInAsync(user);
                     }
 
+                    Database.Context.ActivityLog.Add(new ActivityLog("Purchase", user, purchase));
+                    await Database.SaveChanges();
                     return View("ConfirmPurchase", purchase);
                 }
 
@@ -249,6 +250,9 @@ namespace m4d.Controllers
                     ErrorMessage = e.StripeError.Message
                 };
             }
+
+            Database.Context.ActivityLog.Add(new ActivityLog("Purchase", null, purchase));
+            await Database.SaveChanges();
 
             return View("PurchaseError", purchase);
         }

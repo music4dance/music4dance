@@ -1048,6 +1048,11 @@ namespace m4d.Controllers
 
             ViewBag.SongFilter = filter;
             UseVue = false;
+
+            var user = await Database.FindUser(User.Identity?.Name);
+            Database.Context.ActivityLog.Add(new ActivityLog(
+                "SpotifyExport", user, new SpotifyCreate { Id = metadata.Id, Info = info }));
+            await Database.SaveChanges();
             return View("SpotifyCreated", metadata);
         }
 

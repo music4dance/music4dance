@@ -19,28 +19,26 @@ namespace m4d
             var host = CreateHostBuilder(args).Build();
 
             var env = host.Services.GetRequiredService<IWebHostEnvironment>();
-            if (env.IsDevelopment())
+            using var scope = host.Services.CreateScope();
+            var serviceProvider = scope.ServiceProvider;
+            try
             {
-                using var scope = host.Services.CreateScope();
-                var serviceProvider = scope.ServiceProvider;
-                try
-                {
-                    using var context =
-                        scope.ServiceProvider.GetRequiredService<DanceMusicContext>();
-                    //context.Database.EnsureDeleted();
-                    context.Database.Migrate();
+                using var context =
+                    scope.ServiceProvider.GetRequiredService<DanceMusicContext>();
+                context.Database.Migrate();
 
+                if (env.IsDevelopment())
+                {
                     var userManager =
                         serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
                     var roleManager =
                         serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
                     IdentityHostingStartup.SeedData(userManager, roleManager);
                 }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine(ex.Message);
-                }
-
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
             }
 
             host.Run();

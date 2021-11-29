@@ -45,9 +45,10 @@ namespace m4dModels
 
             builder.Entity<Dance>().ToTable("Dances");
             builder.Entity<DanceLink>().ToTable("DanceLink");
-            builder.Entity<PlayList>().ToTable("Playlists");
+            builder.Entity<PlayList>().ToTable("PlayLists");
             builder.Entity<Search>().ToTable("Searches");
             builder.Entity<TagGroup>().ToTable("TagGroups");
+            builder.Entity<ActivityLog>().ToTable("ActivityLog");
 
             builder.Entity<Dance>().Property(dance => dance.Id).HasMaxLength(5);
             builder.Entity<Dance>().Ignore(dance => dance.Info);
@@ -115,7 +116,7 @@ namespace m4dModels
         public DbSet<TagGroup> TagGroups { get; set; }
         public DbSet<Search> Searches { get; set; }
         public DbSet<PlayList> PlayLists { get; set; }
-
+        public DbSet<ActivityLog> ActivityLog { get; set; }
         #endregion
     }
 }

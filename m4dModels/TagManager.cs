@@ -33,10 +33,10 @@ namespace m4dModels
 
             if (groups.Count != tagGroups.Count)
             {
-                if (Debugger.IsAttached)
-                {
-                    Debugger.Break();
-                }
+                //if (Debugger.IsAttached)
+                //{
+                //    Debugger.Break();
+                //}
 
                 var dups = tagGroups
                     .GroupBy(g => g.Key.ToLower())

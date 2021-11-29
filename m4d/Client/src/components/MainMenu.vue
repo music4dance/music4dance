@@ -73,6 +73,7 @@
         >
           <b-dropdown-item href="/admin">Index</b-dropdown-item>
           <b-dropdown-item href="/applicationusers">Users</b-dropdown-item>
+          <b-dropdown-item href="/activitylog">Activity Log</b-dropdown-item>
           <b-dropdown-item href="/tag/list">Tags</b-dropdown-item>
           <b-dropdown-item href="/admin/diagnostics"
             >Diagnostics</b-dropdown-item
