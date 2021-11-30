@@ -9,6 +9,7 @@ using m4dModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace m4d.Controllers
@@ -43,17 +44,16 @@ namespace m4d.Controllers
         }
 
         // GET: ApplicationUsers/Details/5
-        public async Task<ActionResult> Details(string id)
+        public ActionResult Details(string id)
         {
             if (id == null)
             {
                 return StatusCode((int)HttpStatusCode.BadRequest);
             }
 
-            //TODO: Figure out how to get user details (login & roles) down to view
-            ViewBag.Roles = Database.Context.Roles;
-
-            return View(await UserManager.FindByIdAsync(id));
+            var user = Database.Context.Users.Where(u => u.Id == id)
+                .Include(u => u.ActivityLog).Include(u => u.Searches).FirstOrDefault();
+            return View(user);
         }
 
         // GET: ApplicationUsers/Create

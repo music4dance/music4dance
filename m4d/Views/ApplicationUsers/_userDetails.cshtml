@@ -3,6 +3,12 @@
 @model m4dModels.ApplicationUser
 @inject UserManager<ApplicationUser> UserManager;
 
+@{
+	var roles = await UserManager.GetRolesAsync(Model);
+	var logins = await UserManager.GetLoginsAsync(Model);
+	ViewData["ShowDetails"] = true;
+}
+
 <div class="row">
     <div class="col-sm-3">
         @Html.DisplayNameFor(model => model.UserName)
@@ -24,7 +30,7 @@
         Role(s)
     </div>
     <div class="col-sm-9">
-        @string.Join(',', await UserManager.GetRolesAsync(Model))
+        @string.Join(", ", roles)
     </div>
 </div>
 <div class="row">
@@ -32,7 +38,7 @@
         Login(s)
     </div>
     <div class="col-sm-9">
-        @string.Join(',', await UserManager.GetLoginsAsync(Model))
+        @string.Join(", ", logins)
     </div>
 </div>
 <div class="row">
@@ -184,4 +190,20 @@
     <div class="col-sm-9">
         @Html.DisplayFor(model => model.AccessFailedCount)
     </div>
+</div>
+
+<div class="row">
+	<h2>Activity Log</h2>
+</div>
+
+<div class="row">
+	<partial name="_ActivityLog" model="Model.ActivityLog.OrderByDescending(l => l.Id)" />
+</div>
+
+<div class="row">
+	<h2>Searches</h2>
+</div>
+
+<div class="row">
+	<partial name="_SearchesCore" model="Model.Searches.OrderByDescending(s => s.Count)" />
 </div>

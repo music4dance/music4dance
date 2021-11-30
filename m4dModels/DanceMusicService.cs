@@ -119,6 +119,8 @@ namespace m4dModels
         public DbSet<Search> Searches => Context.Searches;
         public DbSet<PlayList> PlayLists => Context.PlayLists;
 
+        public DbSet<ActivityLog> ActivityLog => Context.ActivityLog;
+
         public async Task<int> SaveChanges()
         {
             return await Context.SaveChangesAsync();
