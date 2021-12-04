@@ -27,7 +27,7 @@ namespace m4d.Controllers
             bool showDetails = false)
         {
             if (string.IsNullOrWhiteSpace(user) || user.Equals(
-                UserQuery.AnonymousUser,
+                UserQuery.IdentityUser,
                 StringComparison.OrdinalIgnoreCase))
             {
                 user = null;

@@ -322,16 +322,25 @@ namespace m4d.Controllers
             }
 
             var userQuery = filter.UserQuery;
-            if (!userQuery.IsEmpty && userQuery.IsAnonymous)
+            var currentUser = UserName;
+            if (!userQuery.IsEmpty)
             {
-                if (Identity.IsAuthenticated)
+                if (userQuery.IsIdentity)
                 {
-                    var userName = UserName;
-                    filter.User = new UserQuery(userQuery, userName).Query;
+                    if (Identity.IsAuthenticated)
+                    {
+                        filter.User = new UserQuery(userQuery, currentUser).Query;
+                    }
+                    else
+                    {
+                        throw new RedirectException("Login", filter);
+                    }
                 }
-                else
+                else if (!string.Equals(currentUser, userQuery.UserName))
                 {
-                    throw new RedirectException("Login", filter);
+                    // In this case we want to intentionally overwrite the incoming filter
+                    var temp = await UserMapper.AnonymizeFilter(filter, UserManager);
+                    filter.User = temp.User;
                 }
             }
 

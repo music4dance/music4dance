@@ -537,12 +537,12 @@ namespace m4dModels
 
         public bool Anonymize(string user)
         {
-            return SwapUser(UserQuery.AnonymousUser, user);
+            return SwapUser(UserQuery.IdentityUser, user);
         }
 
         public bool Deanonymize(string user)
         {
-            return SwapUser(user, UserQuery.AnonymousUser);
+            return SwapUser(user, UserQuery.IdentityUser);
         }
 
         public string GetOdataFilter(DanceMusicCoreService dms)

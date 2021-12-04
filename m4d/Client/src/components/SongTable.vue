@@ -163,14 +163,14 @@
           data.item.song.modifiedOrder
         }}</span>
       </template>
-      <template v-slot:head(user)>
-        <div class="userHeader">{{ filterDisplayName }}'s Changes</div>
+      <template v-slot:head(change)>
+        <div class="changeHeader">{{ changeHeader }}'s Changes</div>
       </template>
-      <template v-slot:cell(user)="data">
+      <template v-slot:cell(change)="data">
         <song-change-viewer
           v-if="getUserChange(data.item.history)"
           :change="getUserChange(data.item.history)"
-          :oneUser="true"
+          :oneUser="!showHistory"
         ></song-change-viewer>
       </template>
 
@@ -210,7 +210,7 @@
           - {{ lengthValue(data.item.song) }}s
         </span>
         <song-change-viewer
-          v-if="hasUser && getUserChange(data.item.history)"
+          v-if="(hasUser || showHistory) && getUserChange(data.item.history)"
           :change="getUserChange(data.item.history)"
           :oneUser="false"
         ></song-change-viewer>
@@ -285,7 +285,7 @@ const echoField = { key: "echo" };
 const dancesField = { key: "dances" };
 const tagsField = { key: "tags" };
 const orderField = { key: "order" };
-const userField = { key: "user", label: "" };
+const userChangeField = { key: "change", label: "" };
 const textField = { key: "text" };
 const infoField = { key: "info" };
 const lengthField = { key: "length" };
@@ -306,6 +306,7 @@ export default class SongTable extends Mixins(AdminTools) {
   @Prop() private readonly hideSort?: boolean;
   @Prop() private readonly hiddenColumns?: string[];
   @Prop() private readonly action?: string;
+  @Prop() private readonly showHistory?: boolean;
 
   private get songs(): SongEditor[] {
     const userId = this.userId;
@@ -355,8 +356,9 @@ export default class SongTable extends Mixins(AdminTools) {
     ];
 
     const hasUser = this.hasUser;
+    const showHistory = this.showHistory;
     const temp = this.filterHiddenFields(fields).map((f) =>
-      f.key === orderField.key && hasUser ? userField : f
+      f.key === orderField.key && (hasUser || showHistory) ? userChangeField : f
     );
     if (this.isAdmin && !this.isHidden(editField.key)) {
       return [editField, ...temp];
@@ -516,8 +518,12 @@ export default class SongTable extends Mixins(AdminTools) {
   }
 
   private getUserChange(history: SongHistory): SongChange | undefined {
-    const user = this.filterUser;
-    return history.recentUserChange(user);
+    if (this.showHistory) {
+      return history.latestChange();
+    } else {
+      const user = this.filterUser;
+      return history.recentUserChange(user);
+    }
   }
 
   private get filterUser(): string {
@@ -528,6 +534,10 @@ export default class SongTable extends Mixins(AdminTools) {
   private get filterDisplayName(): string {
     const user = this.hasUser ? this.filter.userQuery.displayName : "";
     return user === "me" ? this.userName! : user;
+  }
+
+  private get changeHeader(): string {
+    return this.showHistory ? "Latest Change" : this.filterDisplayName;
   }
 
   private danceHandler(tag: Tag, filter: SongFilter, song: Song): DanceHandler {
@@ -595,7 +605,7 @@ export default class SongTable extends Mixins(AdminTools) {
   min-width: 3em;
 }
 
-.userHeader {
+.changeHeader {
   min-width: 12em;
 }
 </style>

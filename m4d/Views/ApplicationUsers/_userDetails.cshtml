@@ -192,18 +192,22 @@
     </div>
 </div>
 
-<div class="row">
-	<h2>Activity Log</h2>
-</div>
+@if (Model.ActivityLog != null) {
+	<div class="row">
+		<h2>Activity Log</h2>
+	</div>
 
-<div class="row">
-	<partial name="_ActivityLog" model="Model.ActivityLog.OrderByDescending(l => l.Id)" />
-</div>
+	<div class="row">
+		<partial name="_ActivityLog" model="Model.ActivityLog.OrderByDescending(l => l.Id)" />
+	</div>
+}
 
-<div class="row">
-	<h2>Searches</h2>
-</div>
+@if (Model.Searches != null) {
+	<div class="row">
+		<h2>Searches</h2>
+	</div>
 
-<div class="row">
-	<partial name="_SearchesCore" model="Model.Searches.OrderByDescending(s => s.Count)" />
-</div>
+	<div class="row">
+		<partial name="_SearchesCore" model="Model.Searches.OrderByDescending(s => s.Count)" />
+	</div>	
+}

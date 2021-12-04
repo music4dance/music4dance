@@ -117,6 +117,8 @@ namespace m4dModels
         public string PrivacyDescription =>
             string.Format(PrivacyMessage, Privacy == 0 ? "Don't" : "Do");
 
+        public bool Anonymous => Privacy == 0;
+
         public IEnumerable<string> ContactDescription
         {
             get

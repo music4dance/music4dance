@@ -6,7 +6,7 @@ namespace m4dModels
     // normalize to (+|-)UserName\|[l|h]
     public class UserQuery
     {
-        public const string AnonymousUser = "me";
+        public const string IdentityUser = "me";
 
         public UserQuery(string query = null)
         {
@@ -93,8 +93,11 @@ namespace m4dModels
         public bool IsAny => Query.EndsWith("|a", StringComparison.OrdinalIgnoreCase);
         public string UserName => IsEmpty ? null : Query.Substring(1, Query.IndexOf('|') - 1);
 
+        public bool IsIdentity =>
+            string.Equals(IdentityUser, UserName, StringComparison.OrdinalIgnoreCase);
+
         public bool IsAnonymous =>
-            string.Equals(AnonymousUser, UserName, StringComparison.OrdinalIgnoreCase);
+            !string.IsNullOrEmpty(UserName) && UserName.Length == 36 && UserName.Contains('-');
 
         public string ActionDescription
         {
@@ -128,7 +131,7 @@ namespace m4dModels
         {
             get
             {
-                if (IsEmpty || IsAnonymous)
+                if (IsEmpty || IsIdentity)
                 {
                     return null;
                 }

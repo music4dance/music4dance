@@ -10,7 +10,7 @@ namespace m4dModels
         /// <summary>Create a 22-character case-sensitive short GUID.</summary>
         public ShortGuid(Guid guid)
         {
-            if (guid == null)
+            if (guid.Equals(Guid.Empty))
             {
                 throw new ArgumentNullException(nameof(guid));
             }

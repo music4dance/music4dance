@@ -67,8 +67,7 @@ namespace m4d
 
             services.AddResponseCaching();
 
-            var builder = services.AddMvc()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            var builder = services.AddMvc();
 
 #if DEBUG
             builder.AddRazorRuntimeCompilation();

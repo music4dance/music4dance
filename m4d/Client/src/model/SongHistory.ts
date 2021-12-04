@@ -153,6 +153,14 @@ export class SongHistory {
     return changes[changes.length - 1];
   }
 
+  public latestChange(): SongChange | undefined {
+    const changes = this.userChanges;
+    if (changes.length === 0) {
+      return undefined;
+    }
+    return changes[changes.length - 1];
+  }
+
   private static serviceUserFromType(type: string): string {
     return `batch-${type[0].toLowerCase()}`;
   }

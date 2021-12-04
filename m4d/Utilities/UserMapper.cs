@@ -65,6 +65,25 @@ namespace m4d.Utilities
             return filter;
         }
 
+        public static async Task<SongFilter> AnonymizeFilter(
+            SongFilter filter, UserManager<ApplicationUser> userManager)
+        {
+            var dictionary = await GetUserNameDictionary(userManager);
+            var userName = filter.UserQuery.UserName;
+            if (userName == null)
+            {
+                return filter;
+            }
+            var anonName = Anonymize(userName, dictionary);
+            if (!string.Equals(userName, anonName, StringComparison.InvariantCultureIgnoreCase))
+            {
+                filter = new SongFilter(filter.ToString());
+                filter.User = filter.User.Replace(userName, anonName, StringComparison.InvariantCultureIgnoreCase);
+            }
+
+            return filter;
+        }
+
         public static async Task<SongHistory> AnonymizeHistory(
             SongHistory history, UserManager<ApplicationUser> userManager)
         {

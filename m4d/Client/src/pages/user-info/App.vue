@@ -23,10 +23,6 @@ import UserList from "./UserList.vue";
 import UserProfile from "./UserProfile.vue";
 declare const model: string;
 
-// TODO:
-//  Do we handle the thread where someone actually knows the anonymous user?  Can we just convert
-//    that to anonymous if it's not the actual user?
-
 @Component({
   components: {
     Page,
