@@ -14,7 +14,7 @@ namespace m4dModels
 
         private static Stopwatch _stopwatch;
 
-        private static readonly object Lock = new object();
+        private static readonly object Lock = new();
 
         public static bool IsRunning => Name != null;
 

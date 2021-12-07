@@ -10,13 +10,12 @@ namespace m4dModels
     [DataContract]
     public class DanceRating : TaggableObject
     {
-        private static readonly HashSet<string> s_validClasses = new HashSet<string>
-            { "style", "tempo", "other" };
+        private static readonly HashSet<string> s_validClasses = new() { "style", "tempo", "other" };
 
         private static bool s_builtDanceMap;
 
         private static readonly Dictionary<string, string> InitialDanceMap =
-            new Dictionary<string, string>
+            new()
             {
                 { "SLOWANDCROSSSTEPWALTZ", "CSW,SWZ" },
                 { "SOCIALTANGO", "TNG" },
@@ -110,7 +109,7 @@ namespace m4dModels
                 return;
             }
 
-            if (!(data is Song song))
+            if (data is not Song song)
             {
                 Trace.WriteLineIf(TraceLevels.General.TraceError, "Bad Song");
                 return;
@@ -128,9 +127,8 @@ namespace m4dModels
 
             foreach (var ds in dl)
             {
-                string list;
                 string[] ids = null;
-                if (DanceMap.TryGetValue(Song.CleanDanceName(ds), out list))
+                if (DanceMap.TryGetValue(Song.CleanDanceName(ds), out var list))
                 {
                     ids = list.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 }

@@ -43,17 +43,7 @@ namespace m4dModels
         {
             var leftProp = Expr.Invoke(left);
             var rightProp = Expr.Invoke(right);
-            if (leftProp == null && rightProp == null)
-            {
-                return true;
-            }
-
-            if ((leftProp == null) ^ (rightProp == null))
-            {
-                return false;
-            }
-
-            return leftProp.Equals(rightProp);
+            return leftProp == null && rightProp == null ? true : (leftProp == null) ^ (rightProp == null) ? false : leftProp.Equals(rightProp);
         }
 
         public int GetHashCode(T obj)

@@ -17,7 +17,7 @@ namespace m4dModels
 
             _guid = guid;
             _value = Convert.ToBase64String(guid.ToByteArray())
-                .Substring(0, 22)
+[..22]
                 .Replace("/", "_")
                 .Replace("+", "-");
         }
@@ -39,17 +39,11 @@ namespace m4dModels
         /// <exception cref="System.FormatException"></exception>
         public static ShortGuid Parse(string shortGuid)
         {
-            if (shortGuid == null)
-            {
-                throw new ArgumentNullException(nameof(shortGuid));
-            }
-
-            if (shortGuid.Length != 22)
-            {
-                throw new FormatException("Input string was not in a correct format.");
-            }
-
-            return new ShortGuid(
+            return shortGuid == null
+                ? throw new ArgumentNullException(nameof(shortGuid))
+                : shortGuid.Length != 22
+                ? throw new FormatException("Input string was not in a correct format.")
+                : new ShortGuid(
                 new Guid(
                     Convert.FromBase64String
                         (shortGuid.Replace("_", "/").Replace("-", "+") + "==")));

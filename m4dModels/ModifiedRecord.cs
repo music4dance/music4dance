@@ -37,16 +37,11 @@ namespace m4dModels
         [NotMapped]
         [JsonIgnore]
         public ApplicationUser ApplicationUser =>
-            new ApplicationUser(UserName, IsPseudo);
+            new(UserName, IsPseudo);
 
         public static bool? ParseLike(string likeString)
         {
-            if (bool.TryParse(likeString, out var like))
-            {
-                return like;
-            }
-
-            return null;
+            return bool.TryParse(likeString, out var like) ? like : null;
         }
     }
 }

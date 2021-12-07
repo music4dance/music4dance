@@ -203,7 +203,7 @@ namespace m4dModels
 
         public static bool IsComplexName(string name)
         {
-            return name.Contains(":");
+            return name.Contains(':');
         }
 
         public static bool IsActionName(string name)

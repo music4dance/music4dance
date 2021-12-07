@@ -118,7 +118,7 @@ namespace DanceLibrary
 
         [JsonIgnore]
         public static ReadOnlyCollection<TempoType> CommonTempi =>
-            new ReadOnlyCollection<TempoType>(s_commonTempi);
+            new(s_commonTempi);
 
         [JsonIgnore]
         public static string TypeName => "Tempo";
@@ -139,12 +139,7 @@ namespace DanceLibrary
         public override bool Equals(object obj)
         {
             var tempo = obj as TempoType;
-            if (tempo == null)
-            {
-                return false;
-            }
-
-            return TempoKind == tempo.TempoKind && Meter == tempo.Meter;
+            return tempo == null ? false : TempoKind == tempo.TempoKind && Meter == tempo.Meter;
         }
 
         public override int GetHashCode()
@@ -167,12 +162,7 @@ namespace DanceLibrary
             }
 
             // Handle a is null case☺.
-            if ((object)a == null)
-            {
-                return (object)b == null;
-            }
-
-            return a.Equals(b);
+            return a is null ? b is null : a.Equals(b);
         }
 
         public static bool operator !=(TempoType a, TempoType b)

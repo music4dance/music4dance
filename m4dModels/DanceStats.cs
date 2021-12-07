@@ -109,7 +109,7 @@ namespace m4dModels
         public DanceGroup DanceGroup => DanceObject as DanceGroup;
 
         [JsonIgnore]
-        public Dance Dance => new Dance
+        public Dance Dance => new()
         {
             Id = DanceId,
             Description = Description,

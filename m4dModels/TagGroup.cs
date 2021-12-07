@@ -15,13 +15,13 @@ namespace m4dModels
         public string Key { get; set; }
 
         // The user visible tag
-        public string Value => Key.Substring(0, Key.IndexOf(':'));
+        public string Value => Key[..Key.IndexOf(':')];
 
         [JsonProperty]
         public DateTime Modified { get; set; }
 
         // A single tag category/namespace
-        public string Category => Key.Substring(Key.IndexOf(':') + 1);
+        public string Category => Key[(Key.IndexOf(':') + 1)..];
 
         // The total number of references to this tag
         [JsonProperty]

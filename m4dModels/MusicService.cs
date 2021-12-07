@@ -37,7 +37,7 @@ namespace m4dModels
         public string User => $"batch-{CID.ToString().ToLower()}";
 
         public ApplicationUser ApplicationUser =>
-            new ApplicationUser(User, true);
+            new(User, true);
 
         public virtual bool IsSearchable => true;
         public virtual bool ShowInProfile => true;
@@ -163,10 +163,8 @@ namespace m4dModels
 
         public static string ExpandPurchaseType(string abbrv)
         {
-            PurchaseType pt;
-            ServiceType ms;
 
-            if (!TryParsePurchaseType(abbrv, out pt, out ms))
+            if (!TryParsePurchaseType(abbrv, out var pt, out var ms))
             {
                 throw new ArgumentOutOfRangeException(nameof(abbrv));
             }
@@ -289,12 +287,7 @@ namespace m4dModels
 
         public static MusicService GetService(string type)
         {
-            if (string.IsNullOrEmpty(type))
-            {
-                throw new ArgumentNullException(nameof(type));
-            }
-
-            return GetService(type[0]);
+            return string.IsNullOrEmpty(type) ? throw new ArgumentNullException(nameof(type)) : GetService(type[0]);
         }
 
         static MusicService()

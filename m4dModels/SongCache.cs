@@ -7,8 +7,8 @@ namespace m4dModels
 {
     public class SongCache
     {
-        private readonly Dictionary<Guid, Song> _queuedSongs = new Dictionary<Guid, Song>();
-        private readonly Dictionary<Guid, Song> _songs = new Dictionary<Guid, Song>();
+        private readonly Dictionary<Guid, Song> _queuedSongs = new();
+        private readonly Dictionary<Guid, Song> _songs = new();
 
         public async Task LoadSongs(IEnumerable<string> songs, DanceMusicCoreService dms)
         {

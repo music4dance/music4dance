@@ -12,7 +12,7 @@ namespace m4dModels
     [DataContract]
     public abstract class TaggableObject
     {
-        private static readonly HashSet<string> s_validClasses = new HashSet<string> { "other" };
+        private static readonly HashSet<string> s_validClasses = new() { "other" };
 
         protected TaggableObject()
         {
@@ -111,8 +111,8 @@ namespace m4dModels
                 }
                 else
                 {
-                    var cls = tag.Substring(i + 1).ToLower();
-                    var val = tag.Substring(0, i);
+                    var cls = tag[(i + 1)..].ToLower();
+                    var val = tag[..i];
                     if (cls.Length < 2 || !validClasses.Contains(cls))
                     {
                         if (!fix)
@@ -123,7 +123,7 @@ namespace m4dModels
                         cls = "other";
                     }
 
-                    one = $"{val}:{char.ToUpper(cls[0])}{cls.Substring(1).ToLower()}";
+                    one = $"{val}:{char.ToUpper(cls[0])}{cls[1..].ToLower()}";
                 }
 
                 result.Add(one);

@@ -29,7 +29,7 @@ namespace m4dModels
         private const string DescriptionPlaceholder =
             "We're busy doing research and pulling together a general description for this dance style. Please check back later for more info.";
 
-        private readonly SongCache _cache = new SongCache();
+        private readonly SongCache _cache = new();
         private readonly IEnumerable<string> _songs;
 
         [JsonConstructor]
@@ -218,7 +218,7 @@ namespace m4dModels
         {
             if (danceId.Length > 3)
             {
-                danceId = danceId.Substring(0, 3);
+                danceId = danceId[..3];
             }
 
             if (Map.TryGetValue(danceId.ToUpper(), out var sc))

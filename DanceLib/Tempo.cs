@@ -8,7 +8,7 @@ namespace DanceLibrary
         public static readonly string PositiveDecimalRate =
             "Tempo must start with a positive integer";
 
-        private static readonly TempoType _bps = new TempoType(TempoKind.BPS, null);
+        private static readonly TempoType _bps = new(TempoKind.BPS, null);
 
         public Tempo(decimal rate, TempoType tempoType)
         {
@@ -38,12 +38,11 @@ namespace DanceLibrary
             var ispace = s.IndexOf(' ');
             if (ispace > 0)
             {
-                rateString = s.Substring(0, ispace);
-                typeString = s.Substring(ispace + 1);
+                rateString = s[..ispace];
+                typeString = s[(ispace + 1)..];
             }
 
-            decimal rate;
-            if (!decimal.TryParse(rateString, out rate))
+            if (!decimal.TryParse(rateString, out var rate))
             {
                 throw new ArgumentOutOfRangeException(PositiveDecimalRate);
             }
@@ -69,12 +68,7 @@ namespace DanceLibrary
             get
             {
                 var spb = SecondsPerBeat;
-                if (TempoType.TempoKind == TempoKind.MPM)
-                {
-                    return spb * TempoType.Meter.Numerator;
-                }
-
-                return spb;
+                return TempoType.TempoKind == TempoKind.MPM ? spb * TempoType.Meter.Numerator : spb;
             }
         }
 
@@ -123,12 +117,7 @@ namespace DanceLibrary
         public override bool Equals(object obj)
         {
             var tempo = obj as Tempo;
-            if (tempo == null)
-            {
-                return false;
-            }
-
-            return TempoType == tempo.TempoType && Rate == tempo.Rate;
+            return tempo == null ? false : TempoType == tempo.TempoType && Rate == tempo.Rate;
         }
 
         public override int GetHashCode()
@@ -145,12 +134,7 @@ namespace DanceLibrary
             }
 
             // Handle a is null case☺.
-            if ((object)a == null)
-            {
-                return (object)b == null;
-            }
-
-            return a.Equals(b);
+            return a is null ? b is null : a.Equals(b);
         }
 
         public static bool operator !=(Tempo a, Tempo b)

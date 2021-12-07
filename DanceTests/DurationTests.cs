@@ -7,10 +7,10 @@ namespace DanceTests
     [TestClass]
     public class DurationTests
     {
-        private static SongDuration _d1 = new(90);
-        private static SongDuration _d2 = new(180);
-        private static SongDuration _d3 = new(181);
-        private static SongDuration _d4 = new(5, new DurationType(DurationKind.Minute));
+        private static readonly SongDuration _d1 = new(90);
+        private static readonly SongDuration _d2 = new(180);
+        private static readonly SongDuration _d3 = new(181);
+        private static readonly SongDuration _d4 = new(5, new DurationType(DurationKind.Minute));
 
         [TestMethod]
         public void DurationInvalidConstructorLength()

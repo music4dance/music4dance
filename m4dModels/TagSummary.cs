@@ -82,9 +82,8 @@ namespace m4dModels
             IReadOnlyDictionary<string, TagGroup> tagMap)
         {
             var key =
-                $"{tvalue}:{SongFilter.TagClassFromName(ttype.Substring(0, ttype.Length - 4))}";
-            TagGroup tt;
-            if (tagMap.TryGetValue(key.ToLower(), out tt))
+                $"{tvalue}:{SongFilter.TagClassFromName(ttype[0..^4])}";
+            if (tagMap.TryGetValue(key.ToLower(), out var tt))
             {
                 key = tt.Key;
             }

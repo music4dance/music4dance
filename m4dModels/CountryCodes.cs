@@ -6,18 +6,12 @@ namespace m4dModels
     {
         public static string TranslateCode(string code)
         {
-            if (string.IsNullOrWhiteSpace(code))
-            {
-                return Codes["US"];
-            }
-
-            string name;
-            return Codes.TryGetValue(code.ToUpperInvariant(), out name) ? name : null;
+            return string.IsNullOrWhiteSpace(code) ? Codes["US"] : Codes.TryGetValue(code.ToUpperInvariant(), out var name) ? name : null;
         }
 
 
         public static readonly SortedDictionary<string, string> Codes =
-            new SortedDictionary<string, string>()
+            new()
             {
                 { "AD", "Andorra" },
                 { "AE", "United Arab Emirates" },

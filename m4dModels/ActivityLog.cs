@@ -30,7 +30,7 @@ namespace m4dModels
         public string Action { get; set; }
         public string Details { get; set; }
 
-        private static JsonSerializerSettings SerializerSettings = new JsonSerializerSettings
+        private static readonly JsonSerializerSettings SerializerSettings = new()
         {
             ContractResolver = new CamelCasePropertyNamesContractResolver(),
             NullValueHandling = NullValueHandling.Ignore

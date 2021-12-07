@@ -51,7 +51,7 @@ namespace m4dModels
         public string TagValue => Value.Split(':')[0];
 
         public string TagClass =>
-            Value.Contains(':') ? Value.Substring(Value.LastIndexOf(':') + 1) : null;
+            Value.Contains(':') ? Value[(Value.LastIndexOf(':') + 1)..] : null;
 
         #endregion
 
@@ -108,12 +108,7 @@ namespace m4dModels
             }
 
             // Handle a is null case.
-            if ((object)a == null)
-            {
-                return (object)b == null;
-            }
-
-            return a.Equals(b);
+            return a is null ? b is null : a.Equals(b);
         }
 
         public static bool operator !=(TagCount a, TagCount b)

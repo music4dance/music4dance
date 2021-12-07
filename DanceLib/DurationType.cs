@@ -95,15 +95,7 @@ namespace DanceLibrary
 
         public override bool Equals(object obj)
         {
-            var duration = obj as DurationType;
-            if (duration == null)
-            {
-                return false;
-            }
-            else
-            {
-                return _dk == duration._dk;
-            }
+            return obj is not DurationType duration ? false : _dk == duration._dk;
         }
 
         public override int GetHashCode()
@@ -114,11 +106,11 @@ namespace DanceLibrary
         #endregion
 
         public static ReadOnlyCollection<DurationType> CommonDurations =>
-            new ReadOnlyCollection<DurationType>(s_commonDurations);
+            new(s_commonDurations);
 
-        private DurationKind _dk;
+        private readonly DurationKind _dk;
 
-        private static List<DurationType> s_commonDurations;
+        private static readonly List<DurationType> s_commonDurations;
 
         // Implement IConversand
         public Kind Kind => Kind.Duration;

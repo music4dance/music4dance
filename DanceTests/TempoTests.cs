@@ -8,9 +8,9 @@ namespace DanceTests
     [TestClass]
     public class TempoTests
     {
-        private Tempo _bps = new(1.81M, new TempoType(TempoKind.BPS));
-        private Tempo _bpm = new(50M, new TempoType(TempoKind.BPM));
-        private Tempo _mpm = new(25, new TempoType(TempoKind.MPM, new Meter(4, 4)));
+        private readonly Tempo _bps = new(1.81M, new TempoType(TempoKind.BPS));
+        private readonly Tempo _bpm = new(50M, new TempoType(TempoKind.BPM));
+        private readonly Tempo _mpm = new(25, new TempoType(TempoKind.MPM, new Meter(4, 4)));
 
         [TestMethod]
         public void TempoConstructors()

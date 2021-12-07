@@ -68,12 +68,7 @@ namespace DanceLibrary
 
         public static string SeoFriendly(string name)
         {
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                return name;
-            }
-
-            return name.Replace(' ', '-').ToLower();
+            return string.IsNullOrWhiteSpace(name) ? name : name.Replace(' ', '-').ToLower();
         }
     }
 
@@ -473,7 +468,7 @@ namespace DanceLibrary
 
     public class DanceSample : IComparable<DanceSample>
     {
-        private readonly List<DanceInstance> _rgdi = new List<DanceInstance>();
+        private readonly List<DanceInstance> _rgdi = new();
 
         public DanceSample(DanceInstance di, decimal delta)
         {
@@ -505,19 +500,14 @@ namespace DanceLibrary
         {
             get
             {
-                if (Math.Abs(TempoDelta) < .01M)
-                {
-                    return "";
-                }
-
-                return TempoDelta < 0 ? $"{TempoDelta:F2}MPM" : $"+{TempoDelta:F2}MPM";
+                return Math.Abs(TempoDelta) < .01M ? "" : TempoDelta < 0 ? $"{TempoDelta:F2}MPM" : $"+{TempoDelta:F2}MPM";
             }
         }
 
         public decimal TempoDeltaPercent { get; set; }
 
         public ReadOnlyCollection<DanceInstance> Instances =>
-            new ReadOnlyCollection<DanceInstance>(_rgdi);
+            new(_rgdi);
 
         public int CompareTo(DanceSample other)
         {
@@ -567,14 +557,14 @@ namespace DanceLibrary
         public const string Ballroom = "Ballroom";
 
         private static readonly Dictionary<string, List<CompetitionCategory>> s_mapGroups =
-            new Dictionary<string, List<CompetitionCategory>>();
+            new();
 
         private static readonly Dictionary<string, CompetitionCategory> s_mapCategories =
-            new Dictionary<string, CompetitionCategory>();
+            new();
 
-        private readonly List<DanceInstance> _extra = new List<DanceInstance>();
+        private readonly List<DanceInstance> _extra = new();
 
-        private readonly List<DanceInstance> _round = new List<DanceInstance>();
+        private readonly List<DanceInstance> _round = new();
 
         public string Name { get; private set; }
         public string Group { get; private set; }
@@ -654,23 +644,23 @@ namespace DanceLibrary
 
     public class Dances
     {
-        private static readonly JsonSerializerSettings _settings = new JsonSerializerSettings
+        private static readonly JsonSerializerSettings _settings = new()
         {
             NullValueHandling = NullValueHandling.Ignore,
             DefaultValueHandling = DefaultValueHandling.Ignore
         };
 
         private static Dances s_instance;
-        private readonly List<DanceInstance> _allDanceInstances = new List<DanceInstance>();
-        private readonly List<DanceObject> _allDanceObjects = new List<DanceObject>();
+        private readonly List<DanceInstance> _allDanceInstances = new();
+        private readonly List<DanceObject> _allDanceObjects = new();
 
         private readonly Dictionary<string, DanceObject> _danceDictionary =
-            new Dictionary<string, DanceObject>();
+            new();
 
-        private readonly List<DanceType> _npDanceTypes = new List<DanceType>();
-        private List<DanceGroup> _allDanceGroups = new List<DanceGroup>();
+        private readonly List<DanceType> _npDanceTypes = new();
+        private List<DanceGroup> _allDanceGroups = new();
 
-        private List<DanceType> _allDanceTypes = new List<DanceType>();
+        private List<DanceType> _allDanceTypes = new();
 
         public OrgSpec[] Organizations =
         {
@@ -771,24 +761,16 @@ namespace DanceLibrary
 
         public DanceObject DanceFromName(string name)
         {
-            if (string.IsNullOrEmpty(name))
-            {
-                return null;
-            }
-
-            return _allDanceObjects.FirstOrDefault(
+            return string.IsNullOrEmpty(name)
+                ? null
+                : _allDanceObjects.FirstOrDefault(
                 d =>
                     string.Equals(d.Name, name, StringComparison.OrdinalIgnoreCase));
         }
 
         public DanceObject DanceFromId(string id)
         {
-            if (string.IsNullOrEmpty(id))
-            {
-                return null;
-            }
-
-            return _danceDictionary.TryGetValue(id.ToUpper(), out var ret) ? ret : null;
+            return string.IsNullOrEmpty(id) ? null : _danceDictionary.TryGetValue(id.ToUpper(), out var ret) ? ret : null;
         }
 
         public string GetJSON()
@@ -821,11 +803,9 @@ namespace DanceLibrary
             foreach (var di in _allDanceInstances.Where(di => di.StyleId != 'P')
                 .Where(di => meter == null || di.CanMatch(meter)))
             {
-                decimal delta;
-                decimal deltaPercent;
 
                 var match = meter == null
-                    ? di.CalculateBeatMatch(rate, epsilon, out delta, out deltaPercent, out _)
+                    ? di.CalculateBeatMatch(rate, epsilon, out var delta, out var deltaPercent, out _)
                     : di.CalculateTempoMatch(
                         rate, epsilon, out delta, out deltaPercent,
                         out _);
@@ -890,8 +870,7 @@ namespace DanceLibrary
 
             foreach (var s in dances)
             {
-                DanceObject d;
-                if (_danceDictionary.TryGetValue(s.ToUpper(), out d))
+                if (_danceDictionary.TryGetValue(s.ToUpper(), out var d))
                 {
                     dos.Add(d);
                 }
@@ -936,9 +915,8 @@ namespace DanceLibrary
 
         private void DoExpand(string dance, Dictionary<string, string> set)
         {
-            DanceObject dobj;
             if (set.ContainsKey(dance) ||
-                !_danceDictionary.TryGetValue(dance.ToUpper(), out dobj))
+                !_danceDictionary.TryGetValue(dance.ToUpper(), out var dobj))
             {
                 return;
             }
@@ -946,8 +924,7 @@ namespace DanceLibrary
             set.Add(dance, dance);
 
             // TODO: Revisit making dance objects generically have children...
-            var type = dobj as DanceType;
-            if (type != null)
+            if (dobj is DanceType type)
             {
                 var dt = type;
                 if (dt.Instances == null)
@@ -960,9 +937,8 @@ namespace DanceLibrary
                     DoExpand(child.Id, set);
                 }
             }
-            else if (dobj is DanceGroup)
+            else if (dobj is DanceGroup dg)
             {
-                var dg = (DanceGroup)dobj;
                 foreach (var id in dg.DanceIds)
                 {
                     DoExpand(id, set);

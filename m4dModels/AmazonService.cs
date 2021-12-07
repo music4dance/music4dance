@@ -26,7 +26,7 @@
 
         public override string NormalizeId(string id)
         {
-            if (id.IndexOf(':') == -1)
+            if (!id.Contains(':'))
             {
                 id = "D:" + id;
             }
@@ -38,7 +38,7 @@
         {
             if (info != null && (info.StartsWith("A:") || info.StartsWith("D:")))
             {
-                info = info.Substring(2);
+                info = info[2..];
             }
 
             return info;

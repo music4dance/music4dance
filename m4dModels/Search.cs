@@ -30,6 +30,6 @@ namespace m4dModels
         public DateTime Modified { get; set; }
 
         [NotMapped]
-        public SongFilter Filter => new SongFilter(Query);
+        public SongFilter Filter => new(Query);
     }
 }

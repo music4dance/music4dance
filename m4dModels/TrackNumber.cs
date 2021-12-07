@@ -33,13 +33,13 @@ namespace m4dModels
                 cells = s.Split(':');
             }
 
-            if (cells.Length > 0 && int.TryParse(cells[cells.Length - 1], out track))
+            if (cells.Length > 0 && int.TryParse(cells[^1], out track))
             {
-                if (cells.Length > 1 && int.TryParse(cells[cells.Length - 2], out volume))
+                if (cells.Length > 1 && int.TryParse(cells[^2], out volume))
                 {
                     if (cells.Length > 2)
                     {
-                        int.TryParse(cells[cells.Length - 3], out work);
+                        int.TryParse(cells[^3], out work);
                     }
                 }
             }
@@ -136,14 +136,7 @@ namespace m4dModels
 
         public int CompareTo(object other)
         {
-            if (other is TrackNumber)
-            {
-                return _val.CompareTo(((TrackNumber)other)._val);
-            }
-            else
-            {
-                return -1;
-            }
+            return other is TrackNumber ? _val.CompareTo(((TrackNumber)other)._val) : -1;
         }
 
         public override bool Equals(object obj)
@@ -158,14 +151,7 @@ namespace m4dModels
 
         public static bool operator ==(TrackNumber a, TrackNumber b)
         {
-            if ((object)a == null || (object)b == null)
-            {
-                return (object)a == (object)b;
-            }
-            else
-            {
-                return a.Equals(b);
-            }
+            return a is null || b is null ? a == (object)b : a.Equals(b);
         }
 
         public static bool operator !=(TrackNumber a, TrackNumber b)

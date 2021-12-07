@@ -10,7 +10,7 @@ namespace m4dModels
     public class TagManager
     {
         private readonly Dictionary<string, TagGroup> _queuedTags =
-            new Dictionary<string, TagGroup>();
+            new();
 
         public TagManager(IEnumerable<TagGroup> tagGroups)
         {
@@ -70,7 +70,7 @@ namespace m4dModels
             foreach (var facet in facets)
             {
                 var id = CanonicalKey(
-                    SongFilter.TagClassFromName(facet.Key.Substring(0, facet.Key.Length - 4)));
+                    SongFilter.TagClassFromName(facet.Key[0..^4]));
                 tagManager.IndexFacet(facet.Value, id);
             }
 

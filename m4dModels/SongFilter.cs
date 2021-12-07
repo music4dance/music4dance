@@ -45,7 +45,7 @@ namespace m4dModels
         private const string CommaSeparator = ", ";
 
         private static readonly Dictionary<string, string> s_tagClasses =
-            new Dictionary<string, string>
+            new()
             {
                 { "Music", "Genre" }, { "Style", "Style" }, { "Tempo", "Tempo" },
                 { "Other", "Other" }
@@ -56,8 +56,8 @@ namespace m4dModels
         private static readonly object[] AltDefaults =
             { "index", "all", null, null, null, null, null, 1 };
 
-        private readonly string _sepStr = new string(Separator, 1);
-        private readonly string _subStr = new string(SubChar, 1);
+        private readonly string _sepStr = new(Separator, 1);
+        private readonly string _subStr = new(SubChar, 1);
 
         private string _action;
 
@@ -201,9 +201,9 @@ namespace m4dModels
 
         public bool DescriptionOverride => IsRaw && !string.IsNullOrWhiteSpace(Purchase);
 
-        public DanceQuery DanceQuery => new DanceQuery(IsRaw ? null : Dances);
-        public UserQuery UserQuery => new UserQuery(User);
-        public SongSort SongSort => new SongSort(SortOrder);
+        public DanceQuery DanceQuery => new(IsRaw ? null : Dances);
+        public UserQuery UserQuery => new(User);
+        public SongSort SongSort => new(SortOrder);
 
         public DanceMusicCoreService.CruftFilter CruftFilter =>
             !Action.StartsWith("merge", StringComparison.OrdinalIgnoreCase) && Level.HasValue
@@ -273,7 +273,7 @@ namespace m4dModels
                 if (purch.StartsWith("!"))
                 {
                     not = "not ";
-                    purch = purch.Substring(1);
+                    purch = purch[1..];
                 }
 
                 var services = purch.ToCharArray().Select(c => MusicService.GetService(c).Name);
@@ -368,7 +368,7 @@ namespace m4dModels
                 var trivialUser = noUserFilter.IsEmpty;
 
                 sb.Append(UserQuery.Description(trivialUser));
-                sb.Append(".");
+                sb.Append('.');
 
                 sb.Append(SongSort.Description);
 
@@ -672,7 +672,7 @@ namespace m4dModels
 
         private static string Format(string s)
         {
-            return s.Contains("-") ? s.Replace("-", @"\-") : s;
+            return s.Contains('-') ? s.Replace("-", @"\-") : s;
         }
 
         private bool SwapUser(string newUser, string oldUser)
@@ -688,13 +688,9 @@ namespace m4dModels
 
         private static bool IsAltDefault(object o, int index)
         {
-            if (index > AltDefaults.Length - 1 || AltDefaults[index] == null)
-            {
-                return false;
-            }
-
-            var s = o as string;
-            return s != null
+            return index > AltDefaults.Length - 1 || AltDefaults[index] == null
+                ? false
+                : o is string s
                 ? string.Equals(
                     s, AltDefaults[index] as string,
                     StringComparison.InvariantCultureIgnoreCase)

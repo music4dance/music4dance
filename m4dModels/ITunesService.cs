@@ -22,12 +22,7 @@ namespace m4dModels
         protected override string BuildPurchaseLink(PurchaseType pt, string album, string song)
         {
             // TODO: itunes would need a different kind of link for album only lookup...
-            if (pt == PurchaseType.Song && album != null && song != null)
-            {
-                return string.Format(AssociateLink, song, album);
-            }
-
-            return null;
+            return pt == PurchaseType.Song && album != null && song != null ? string.Format(AssociateLink, song, album) : null;
         }
 
         public override IList<ServiceTrack> ParseSearchResults(

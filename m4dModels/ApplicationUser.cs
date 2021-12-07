@@ -37,7 +37,7 @@ namespace m4dModels
             Email = email;
         }
 
-        public static ApplicationUser AdminUser => new ApplicationUser("admin", true);
+        public static ApplicationUser AdminUser => new("admin", true);
 
         public bool IsPlaceholder => StartDate == DateTime.MinValue;
 
@@ -53,12 +53,7 @@ namespace m4dModels
         {
             get
             {
-                if (string.IsNullOrWhiteSpace(Email) || !Email.Contains("@"))
-                {
-                    return null;
-                }
-
-                return Email.Substring(0, Email.IndexOf('@'));
+                return string.IsNullOrWhiteSpace(Email) || !Email.Contains('@') ? null : Email[..Email.IndexOf('@')];
             }
         }
 

@@ -756,12 +756,7 @@ namespace m4dModels
             options.Select.Add(Song.ModifiedField);
             var ret = await DoSearch(null, options, CruftFilter.AllCruft, client);
             var list = ret.GetResults().ToList();
-            if (list.Count == 0)
-            {
-                return DateTime.MinValue;
-            }
-
-            return list[0].Document.GetDateTimeOffset(Song.ModifiedField) ?? DateTime.MinValue;
+            return list.Count == 0 ? DateTime.MinValue : list[0].Document.GetDateTimeOffset(Song.ModifiedField) ?? DateTime.MinValue;
         }
 
 
@@ -1725,7 +1720,7 @@ namespace m4dModels
 
                 if (query.Length > 100)
                 {
-                    query = query.Substring(0, 100);
+                    query = query[..100];
                 }
 
                 var response = await client.SuggestAsync<SearchDocument>(
@@ -1824,7 +1819,7 @@ namespace m4dModels
             var parameters = AzureParmsFromFilter(filter);
             parameters.IncludeTotalCount = false;
             parameters.Skip = null;
-            parameters.Size = count == -1 ? (int?)null : count;
+            parameters.Size = count == -1 ? null : count;
             parameters.OrderBy.Add("Modified desc");
             parameters.Select.AddRange(
                 new[]
@@ -1929,7 +1924,7 @@ namespace m4dModels
         }
 
         protected readonly Dictionary<string, ApplicationUser> UserCache =
-            new Dictionary<string, ApplicationUser>();
+            new();
 
         #endregion
     }
@@ -2730,7 +2725,7 @@ namespace m4dModels
 
         // ReSharper disable once FieldCanBeMadeReadOnly.Local
         // ReSharper disable once UnusedMember.Local
-        private static Guid s_guidError = new Guid("25053e8c-5f1e-441e-bd54-afdab5b1b638");
+        private static readonly Guid s_guidError = new("25053e8c-5f1e-441e-bd54-afdab5b1b638");
 
 
         public void SeedDances()
@@ -2825,7 +2820,7 @@ namespace m4dModels
             foreach (var tt in TagGroups.Where(t => t.Modified >= from.Value)
                 .OrderBy(t => t.Modified))
             {
-                tags.Add($"{tt.Category}\t{tt.Value}\t{tt.PrimaryId}\t{tt.Modified.ToString("g")}");
+                tags.Add($"{tt.Category}\t{tt.Value}\t{tt.PrimaryId}\t{tt.Modified:g}");
             }
 
             if (withHeader && tags.Count > 0)
@@ -2853,7 +2848,7 @@ namespace m4dModels
                     ? search.ApplicationUser.UserName
                     : string.Empty;
                 searches.Add(
-                    $"{userName}\t{search.Name}\t{search.Query}\t{search.Favorite}\t{search.Count}\t{search.Created.ToString("g")}\t{search.Modified.ToString("g")}");
+                    $"{userName}\t{search.Name}\t{search.Query}\t{search.Favorite}\t{search.Count}\t{search.Created:g}\t{search.Modified:g}");
             }
 
             if (withHeader && searches.Count > 0)
@@ -3026,7 +3021,7 @@ namespace m4dModels
             _roleCache.Add(key);
         }
 
-        private readonly HashSet<string> _roleCache = new HashSet<string>();
+        private readonly HashSet<string> _roleCache = new();
 
         #endregion
     }

@@ -16,7 +16,7 @@ namespace m4dModels
 
     public class Dance : DanceCore
     {
-        private static readonly Regex Dex = new Regex(
+        private static readonly Regex Dex = new(
             @"\[(?<dance>[^\]]*)\]",
             RegexOptions.Compiled);
 
@@ -25,7 +25,7 @@ namespace m4dModels
             "International Standard", "International Latin", "American Smooth", "American Rhythm"
         };
 
-        private static readonly Dictionary<string, string> Links = new Dictionary<string, string>
+        private static readonly Dictionary<string, string> Links = new()
         {
             { "swing music", "http://en.wikipedia.org/wiki/Swing_music" },
             { "tango music", "http://en.wikipedia.org/wiki/Tango" }

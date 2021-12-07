@@ -7,10 +7,10 @@ namespace m4dModels
     public class IndexUpdater
     {
         private static readonly Dictionary<string, IndexUpdater> s_updaters =
-            new Dictionary<string, IndexUpdater>();
+            new();
 
         private readonly string _index;
-        private readonly object _lock = new object();
+        private readonly object _lock = new();
         private bool _continue;
         private Task _task;
 

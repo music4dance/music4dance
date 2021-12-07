@@ -209,7 +209,7 @@ namespace m4dModels.Tests
                 }
             }
 
-            Assert.AreEqual(org, str, $"{id.ToString("B")} failed to save.");
+            Assert.AreEqual(org, str, $"{id:B} failed to save.");
         }
 
         [TestMethod]

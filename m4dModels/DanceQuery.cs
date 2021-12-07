@@ -155,7 +155,7 @@ namespace m4dModels
 
         private string RemoveQualifier()
         {
-            return Query.Substring(4);
+            return Query[4..];
         }
     }
 }

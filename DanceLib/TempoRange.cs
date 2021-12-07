@@ -79,12 +79,7 @@ namespace DanceLibrary
 
         public override bool Equals(object obj)
         {
-            if (!(obj is TempoRange other))
-            {
-                return false;
-            }
-
-            return other.Min == Min && other.Max == Max;
+            return obj is not TempoRange other ? false : other.Min == Min && other.Max == Max;
         }
 
         public override int GetHashCode()
@@ -130,12 +125,7 @@ namespace DanceLibrary
         private string Format(decimal d)
         {
             var i = Math.Round(d);
-            if (Math.Abs(i - d) < .01M)
-            {
-                return i.ToString("F0");
-            }
-
-            return d.ToString("F2");
+            return Math.Abs(i - d) < .01M ? i.ToString("F0") : d.ToString("F2");
         }
     }
 }

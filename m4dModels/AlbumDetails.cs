@@ -94,7 +94,7 @@ namespace m4dModels
             }
         }
 
-        public TrackNumber TrackNumber => new TrackNumber(Track ?? 0);
+        public TrackNumber TrackNumber => new(Track ?? 0);
 
         #endregion
 
@@ -187,7 +187,7 @@ namespace m4dModels
             {
                 if (sb.Length != 0)
                 {
-                    sb.Append(";");
+                    sb.Append(';');
                 }
 
                 sb.Append(BuildPurchaseInfo(PurchaseType.Song, ms, track));
@@ -198,17 +198,11 @@ namespace m4dModels
 
         public static string BuildPurchaseKey(PurchaseType purchaseType, ServiceType serviceType)
         {
-            if (purchaseType == PurchaseType.None)
-            {
-                throw new ArgumentOutOfRangeException(nameof(purchaseType));
-            }
-
-            if (serviceType == ServiceType.None)
-            {
-                throw new ArgumentOutOfRangeException(nameof(serviceType));
-            }
-
-            return MusicService.GetService(serviceType).BuildPurchaseKey(purchaseType);
+            return purchaseType == PurchaseType.None
+                ? throw new ArgumentOutOfRangeException(nameof(purchaseType))
+                : serviceType == ServiceType.None
+                ? throw new ArgumentOutOfRangeException(nameof(serviceType))
+                : MusicService.GetService(serviceType).BuildPurchaseKey(purchaseType);
         }
 
         public void SetPurchaseInfo(string purchase)
@@ -277,19 +271,13 @@ namespace m4dModels
         public string GetPurchaseIdentifier(ServiceType ms, PurchaseType pt)
         {
             // Short-circuit if there is no purchase info for this album
-            if (Purchase == null)
-            {
-                return null;
-            }
-
-            if (!Purchase.TryGetValue(
+            return Purchase == null
+                ? null
+                : !Purchase.TryGetValue(
                 MusicService.GetService(ms).BuildPurchaseKey(pt),
-                out var value))
-            {
-                return null;
-            }
-
-            return value;
+                out var value)
+                ? null
+                : value;
         }
 
         public bool PurchaseDiff(Song song, AlbumDetails old)
@@ -634,9 +622,9 @@ namespace m4dModels
             return true;
         }
 
-        private static readonly Regex s_wordPattern = new Regex(@"\W");
+        private static readonly Regex s_wordPattern = new(@"\W");
 
-        private static readonly HashSet<string> BallroomWords = new HashSet<string>
+        private static readonly HashSet<string> BallroomWords = new()
         {
             "ballroom", "latin", "ultimate", "standard", "dancing", "competition", "classics",
             "dance"

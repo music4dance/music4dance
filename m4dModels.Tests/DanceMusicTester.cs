@@ -76,16 +76,11 @@ namespace m4dModels.Tests
                     continue;
                 }
 
-                Trace.WriteLine("Failed at " + i + "[" + a.Substring(0, i) + "]");
+                Trace.WriteLine("Failed at " + i + "[" + a[..i] + "]");
                 return false;
             }
 
-            if (a.Length <= b.Length)
-            {
-                return b.Length <= a.Length;
-            }
-
-            return false;
+            return a.Length <= b.Length ? b.Length <= a.Length : false;
         }
 
         public static void DumpSongProperties(Song song, bool verbose = true)

@@ -103,7 +103,7 @@ namespace m4dModels
             return string.IsNullOrWhiteSpace(Summary)
                 ? new TagList()
                 : new TagList(
-                    Tags.Where(tag => tag[0] == c).Select(tag => tag.Substring(1))
+                    Tags.Where(tag => tag[0] == c).Select(tag => tag[1..])
                         .ToList());
         }
 
@@ -116,23 +116,15 @@ namespace m4dModels
 
         private TagList Extract(char c)
         {
-            if (!IsQualified)
-            {
-                throw new InvalidConstraintException();
-            }
-
-            return ExtractPrefixed(c);
+            return !IsQualified ? throw new InvalidConstraintException() : ExtractPrefixed(c);
         }
 
         public IList<string> StripType()
         {
-            if (Summary == null)
-            {
-                return new List<string>();
-            }
-
-            return Summary.Contains(':')
-                ? Tags.Select(tag => tag.Substring(0, tag.IndexOf(':'))).ToList()
+            return Summary == null
+                ? new List<string>()
+                : Summary.Contains(':')
+                ? Tags.Select(tag => tag[..tag.IndexOf(':')]).ToList()
                 : new List<string>();
         }
 
@@ -144,7 +136,7 @@ namespace m4dModels
         public IList<string> Strip()
         {
             return Summary != null && Summary.Contains(':')
-                ? Tags.Select(tag => TrimQualifier(tag.Substring(0, tag.IndexOf(':')))).ToList()
+                ? Tags.Select(tag => TrimQualifier(tag[..tag.IndexOf(':')])).ToList()
                 : new List<string>();
         }
 
@@ -219,7 +211,8 @@ namespace m4dModels
         }
 
         private static readonly HashSet<string> s_validClasses =
-            new HashSet<string> { "dance", "music", "style", "tempo", "other" };
+            new()
+            { "dance", "music", "style", "tempo", "other" };
 
         public TagList FixBadCategory()
         {
@@ -286,7 +279,7 @@ namespace m4dModels
             }
             else if (!char.IsUpper(fields[1][0]))
             {
-                fields[1] = fields[1].Substring(0, 1).ToUpper() + fields[1].Substring(1);
+                fields[1] = fields[1][..1].ToUpper() + fields[1][1..];
             }
 
             return string.Join(":", fields);
@@ -308,7 +301,7 @@ namespace m4dModels
             return s_tagChars.Replace(value, "");
         }
 
-        private static readonly Regex s_tagChars = new Regex(
+        private static readonly Regex s_tagChars = new(
             @"[^\p{L}\d()'& ]", RegexOptions.Compiled | RegexOptions.Multiline);
 
         private static List<string> Parse(string serialized, bool trim = true)
@@ -337,12 +330,7 @@ namespace m4dModels
 
         private static string TrimQualifier(string tag)
         {
-            if (string.IsNullOrWhiteSpace(tag))
-            {
-                return tag;
-            }
-
-            return tag[0] == '+' || tag[0] == '-' ? tag.Substring(1) : tag;
+            return string.IsNullOrWhiteSpace(tag) ? tag : tag[0] == '+' || tag[0] == '-' ? tag[1..] : tag;
         }
 
         private static readonly TextInfo s_ti = new CultureInfo("en-US", false).TextInfo;

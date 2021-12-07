@@ -110,12 +110,7 @@ namespace DanceLibrary
         public override bool Equals(object obj)
         {
             var m = obj as Meter;
-            if (m == null)
-            {
-                return false;
-            }
-
-            return _numerator == m._numerator && _denominator == m._denominator;
+            return m != null && _numerator == m._numerator && _denominator == m._denominator;
         }
 
         public static bool operator ==(Meter a, Meter b)
@@ -127,12 +122,7 @@ namespace DanceLibrary
             }
 
             // Handle a is null case☺.
-            if ((object)a == null)
-            {
-                return (object)b == null;
-            }
-
-            return a.Equals(b);
+            return a is null ? b is null : a.Equals(b);
         }
 
         public static bool operator !=(Meter a, Meter b)

@@ -10,7 +10,7 @@ namespace m4dModels
     internal class SpotifyService : MusicService
     {
         private static readonly Dictionary<string, dynamic> s_results =
-            new Dictionary<string, dynamic>();
+            new();
 
         private static readonly TextInfo s_textInfo = CultureInfo.CurrentCulture.TextInfo;
 
@@ -31,7 +31,7 @@ namespace m4dModels
         {
             if (url.Contains("/album/"))
             {
-                var id = url.Substring(url.LastIndexOf('/') + 1);
+                var id = url[(url.LastIndexOf('/') + 1)..];
 
                 return $"https://api.spotify.com/v1/albums/{id}";
             }

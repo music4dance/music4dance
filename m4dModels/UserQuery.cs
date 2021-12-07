@@ -20,7 +20,7 @@ namespace m4dModels
             {
                 if (!include)
                 {
-                    qs = "-" + qs.Substring(1);
+                    qs = "-" + qs[1..];
                 }
 
                 if (like.HasValue)
@@ -48,7 +48,7 @@ namespace m4dModels
             {
                 if (query.IsExclude)
                 {
-                    qs = "-" + qs.Substring(1);
+                    qs = "-" + qs[1..];
                 }
 
                 if (query.IsLike)
@@ -68,17 +68,7 @@ namespace m4dModels
         {
             get
             {
-                if (IsLike)
-                {
-                    return true;
-                }
-
-                if (IsHate)
-                {
-                    return false;
-                }
-
-                return null;
+                return IsLike ? true : IsHate ? false : null;
             }
         }
 
@@ -91,7 +81,7 @@ namespace m4dModels
         public bool IsLike => Query.EndsWith("|l", StringComparison.OrdinalIgnoreCase);
         public bool IsHate => Query.EndsWith("|h", StringComparison.OrdinalIgnoreCase);
         public bool IsAny => Query.EndsWith("|a", StringComparison.OrdinalIgnoreCase);
-        public string UserName => IsEmpty ? null : Query.Substring(1, Query.IndexOf('|') - 1);
+        public string UserName => IsEmpty ? null : Query[1..Query.IndexOf('|')];
 
         public bool IsIdentity =>
             string.Equals(IdentityUser, UserName, StringComparison.OrdinalIgnoreCase);

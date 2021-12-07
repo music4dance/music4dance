@@ -40,14 +40,14 @@ namespace DanceLibrary
     public class FilterObject
     {
         private static readonly Dictionary<string, FilterObject> _filters =
-            new Dictionary<string, FilterObject>();
+            new();
 
-        private readonly List<FilterItem> _sortedValues = new List<FilterItem>();
+        private readonly List<FilterItem> _sortedValues = new();
 
         private readonly string _type;
 
         private readonly Dictionary<string, FilterItem> _values =
-            new Dictionary<string, FilterItem>();
+            new();
 
         static FilterObject()
         {
@@ -239,8 +239,7 @@ namespace DanceLibrary
 
             for (var i = 0; i < _sortedValues.Count; i++)
             {
-                var temp = true;
-                if (valid && bool.TryParse(a[i + 1], out temp))
+                if (valid && bool.TryParse(a[i + 1], out var temp))
                 {
                     _sortedValues[i].Value = temp;
                 }
@@ -275,7 +274,7 @@ namespace DanceLibrary
             foreach (var fi in _sortedValues)
             {
                 sb.Append(fi.Value.ToString());
-                sb.Append(",");
+                sb.Append(',');
             }
 
             return sb.ToString();

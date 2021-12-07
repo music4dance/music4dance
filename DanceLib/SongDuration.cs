@@ -52,7 +52,7 @@ namespace DanceLibrary
                 case DurationKind.Beat:
                     if (tempo == null)
                     {
-                        throw new ArgumentNullException("tempo");
+                        throw new ArgumentNullException(nameof(tempo));
                     }
 
                     Length = length * tempo.SecondsPerBeat;
@@ -60,7 +60,7 @@ namespace DanceLibrary
                 case DurationKind.Measure:
                     if (tempo == null)
                     {
-                        throw new ArgumentNullException("tempo");
+                        throw new ArgumentNullException(nameof(tempo));
                     }
 
                     Length = length * tempo.SecondsPerMeasure;
@@ -93,7 +93,7 @@ namespace DanceLibrary
 
             if (imin < 0 && isec < 0)
             {
-                if (s.IndexOf(':') >= 0)
+                if (s.Contains(':'))
                 {
                     var parts = s.Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -121,28 +121,26 @@ namespace DanceLibrary
             {
                 if (imin < 0)
                 {
-                    ssec = s.Substring(0, isec);
+                    ssec = s[..isec];
                 }
                 else if (isec < 0)
                 {
-                    smin = s.Substring(0, imin);
+                    smin = s[..imin];
                 }
                 else
                 {
-                    smin = s.Substring(0, imin);
+                    smin = s[..imin];
                     ssec = s.Substring(imin + 1, isec);
                 }
             }
 
             decimal seconds = 0;
-            var dmin = 0m;
-            var dsec = 0m;
-            if (!string.IsNullOrEmpty(smin) && decimal.TryParse(smin, out dmin))
+            if (!string.IsNullOrEmpty(smin) && decimal.TryParse(smin, out var dmin))
             {
                 seconds = 60 * dmin;
             }
 
-            if (!string.IsNullOrEmpty(ssec) && decimal.TryParse(ssec, out dsec))
+            if (!string.IsNullOrEmpty(ssec) && decimal.TryParse(ssec, out var dsec))
             {
                 seconds += dsec;
             }
@@ -193,13 +191,7 @@ namespace DanceLibrary
 
         public override bool Equals(object obj)
         {
-            if (obj is SongDuration)
-            {
-                var other = (SongDuration)obj;
-                return CompareTo(other) == 0;
-            }
-
-            return false;
+            return obj is SongDuration other ? CompareTo(other) == 0 : false;
         }
 
         public override int GetHashCode()
@@ -228,14 +220,14 @@ namespace DanceLibrary
                 case DurationKind.Beat:
                     if (tempo == null)
                     {
-                        throw new ArgumentNullException("tempo");
+                        throw new ArgumentNullException(nameof(tempo));
                     }
 
                     return Length / tempo.SecondsPerBeat;
                 case DurationKind.Measure:
                     if (tempo == null)
                     {
-                        throw new ArgumentNullException("tempo");
+                        throw new ArgumentNullException(nameof(tempo));
                     }
 
                     return Length / tempo.SecondsPerMeasure;
@@ -293,17 +285,7 @@ namespace DanceLibrary
                 rg = rgs;
             }
 
-            if (Length < 100)
-            {
-                return string.Format(rg[0], Length);
-            }
-
-            if (exact)
-            {
-                return string.Format(rg[1], Minutes);
-            }
-
-            return string.Format(rg[2], Minutes, Seconds);
+            return Length < 100 ? string.Format(rg[0], Length) : exact ? string.Format(rg[1], Minutes) : string.Format(rg[2], Minutes, Seconds);
         }
 
         #endregion

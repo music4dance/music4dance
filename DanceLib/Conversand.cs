@@ -35,13 +35,13 @@ namespace DanceLibrary
         }
 
         public static ReadOnlyCollection<IConversand> All =>
-            new ReadOnlyCollection<IConversand>(s_allConversands);
+            new(s_allConversands);
 
         public static ReadOnlyCollection<IConversand> Meters =>
-            new ReadOnlyCollection<IConversand>(s_tempoConversands);
+            new(s_tempoConversands);
 
         public static ReadOnlyCollection<IConversand> Durations =>
-            new ReadOnlyCollection<IConversand>(s_durationConversands);
+            new(s_durationConversands);
 
         public static string GetSerialization(IConversand c)
         {
@@ -80,8 +80,8 @@ namespace DanceLibrary
             return ret;
         }
 
-        private static List<IConversand> s_allConversands = new List<IConversand>();
-        private static List<IConversand> s_tempoConversands = new List<IConversand>();
-        private static List<IConversand> s_durationConversands = new List<IConversand>();
+        private static readonly List<IConversand> s_allConversands = new();
+        private static readonly List<IConversand> s_tempoConversands = new();
+        private static readonly List<IConversand> s_durationConversands = new();
     }
 }

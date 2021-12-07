@@ -70,13 +70,7 @@ namespace DanceLibrary
 
         public override bool Equals(object obj)
         {
-            var st = obj as SongTiming;
-            if (st == null)
-            {
-                return false;
-            }
-
-            return Duration == st.Duration && Tempo == st.Tempo && DurationKind == st.DurationKind;
+            return obj is not SongTiming st ? false : Duration == st.Duration && Tempo == st.Tempo && DurationKind == st.DurationKind;
         }
 
         public override int GetHashCode()

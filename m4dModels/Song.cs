@@ -389,7 +389,7 @@ namespace m4dModels
             var ich = TryParseId(s, out var id);
             if (ich > 0)
             {
-                s = s.Substring(ich);
+                s = s[ich..];
             }
             else
             {
@@ -411,9 +411,7 @@ namespace m4dModels
 
         public static async Task<Song> Create(SearchDocument d, DanceMusicCoreService database)
         {
-            var s = d[PropertiesField] as string;
-            var sid = d[SongIdField] as string;
-            if (s == null || sid == null)
+            if (d[PropertiesField] is not string s || d[SongIdField] is not string sid)
             {
                 throw new ArgumentOutOfRangeException(nameof(d));
             }
@@ -613,12 +611,7 @@ namespace m4dModels
             }
 
             var props = SongProperty.Serialize(SongProperties, actions);
-            if (actions != null && actions.Contains(NoSongId))
-            {
-                return props;
-            }
-
-            return Serialize(SongId.ToString("B"), props);
+            return actions != null && actions.Contains(NoSongId) ? props : Serialize(SongId.ToString("B"), props);
         }
 
         public static string Serialize(string id, string properties)
@@ -667,7 +660,7 @@ namespace m4dModels
                 var baseName = SongProperty.ParseBaseName(fields[i]);
                 string qual = null;
                 cell = cell.Trim();
-                if (cell.Length > 0 && cell[0] == '"' && cell[cell.Length - 1] == '"')
+                if (cell.Length > 0 && cell[0] == '"' && cell[^1] == '"')
                 {
                     cell = cell.Trim('"');
                 }
@@ -1075,10 +1068,9 @@ namespace m4dModels
 
             foreach (var parts in headers.Select(t => t.Trim()).Select(header => header.Split(':')))
             {
-                string field;
                 // If this fails, we want to add a null to our list because
                 // that indicates a column we don't care about
-                if (parts.Length > 0 && PropertyMap.TryGetValue(parts[0].ToUpper(), out field))
+                if (parts.Length > 0 && PropertyMap.TryGetValue(parts[0].ToUpper(), out var field))
                 {
                     map.Add(parts.Length > 1 ? field + ":" + parts[1] : field);
                 }
@@ -1092,7 +1084,7 @@ namespace m4dModels
         }
 
         private static readonly Dictionary<string, string> PropertyMap =
-            new Dictionary<string, string>
+            new()
             {
                 { "DANCE", DanceRatingField },
                 { "TITLE", TitleField },
@@ -1865,7 +1857,7 @@ namespace m4dModels
                     {
                         SongProperties[index].Value = prop.Name == DanceRatingField &&
                             modifier.Replace.Length == 3
-                                ? modifier.Replace + SongProperties[index].Value.Substring(3)
+                                ? modifier.Replace + SongProperties[index].Value[3..]
                                 : modifier.Replace;
                     }
                     else if (modifier.Action == PropertyAction.ReplaceName)
@@ -2144,8 +2136,7 @@ namespace m4dModels
 
             foreach (var dr in DanceRatings)
             {
-                TagList tl;
-                if (!hash.TryGetValue(dr.DanceId, out tl))
+                if (!hash.TryGetValue(dr.DanceId, out var tl))
                 {
                     tl = new TagList();
                 }
@@ -2593,8 +2584,7 @@ namespace m4dModels
                     {
                         if (stats != null)
                         {
-                            List<SongProperty> r;
-                            if (!users.TryGetValue(stats, out r))
+                            if (!users.TryGetValue(stats, out var r))
                             {
                                 r = new List<SongProperty>();
                                 users[stats] = r;
@@ -2623,8 +2613,7 @@ namespace m4dModels
                         {
                             if (stats != null)
                             {
-                                List<SongProperty> r;
-                                if (!users.TryGetValue(stats, out r))
+                                if (!users.TryGetValue(stats, out var r))
                                 {
                                     r = new List<SongProperty>();
                                     users[stats] = r;
@@ -2708,7 +2697,7 @@ namespace m4dModels
                 }
 
                 var val = prop.ObjectValue;
-                if (!(val is int))
+                if (val is not int)
                 {
                     continue;
                 }
@@ -3032,13 +3021,10 @@ namespace m4dModels
                 PurchaseField, prop =>
                 {
                     var qualifier = prop.Qualifier;
-                    if (string.Equals(qualifier, "ms", StringComparison.OrdinalIgnoreCase) ||
-                        qualifier.StartsWith("X", StringComparison.OrdinalIgnoreCase))
-                    {
-                        return null;
-                    }
-
-                    return prop.Value;
+                    return string.Equals(qualifier, "ms", StringComparison.OrdinalIgnoreCase) ||
+                        qualifier.StartsWith("X", StringComparison.OrdinalIgnoreCase)
+                        ? null
+                        : prop.Value;
                 });
         }
 
@@ -3051,12 +3037,7 @@ namespace m4dModels
                     if (value.Contains(':'))
                     {
                         value = $"0:{value}";
-                        if (TimeSpan.TryParse(value, out var length))
-                        {
-                            return Math.Round(length.TotalSeconds).ToString();
-                        }
-
-                        return null;
+                        return TimeSpan.TryParse(value, out var length) ? Math.Round(length.TotalSeconds).ToString() : null;
                     }
 
                     return value;
@@ -3248,12 +3229,7 @@ namespace m4dModels
 
         public static IEnumerable<string> DancesFromTags(TagList tags)
         {
-            if (tags == null || tags.IsEmpty)
-            {
-                return new List<string>();
-            }
-
-            return Dances.Instance.FromNames(tags.Strip()).Select(d => d.Id);
+            return tags == null || tags.IsEmpty ? new List<string>() : Dances.Instance.FromNames(tags.Strip()).Select(d => d.Id);
         }
 
 
@@ -3267,7 +3243,7 @@ namespace m4dModels
             {
                 var v = rating.Value;
                 var i = v.IndexOfAny(new[] { '+', '-' });
-                if (i == -1 || !int.TryParse(v.Substring(i), out var t))
+                if (i == -1 || !int.TryParse(v[i..], out var t))
                 {
                     continue;
                 }
@@ -3308,7 +3284,7 @@ namespace m4dModels
             {
                 Trace.WriteLineIf(
                     TraceLevels.General.TraceError,
-                    $"Undefined DanceRating {SongId.ToString()}:{danceId}");
+                    $"Undefined DanceRating {SongId}:{danceId}");
             }
         }
 
@@ -3372,7 +3348,7 @@ namespace m4dModels
 
             if (tobj == null)
             {
-                Trace.WriteLine($"Bad tag on {this.Title} by {this.Artist}");
+                Trace.WriteLine($"Bad tag on {Title} by {Artist}");
                 return new TagList();
             }
 
@@ -3414,8 +3390,7 @@ namespace m4dModels
 
         protected override HashSet<string> ValidClasses => s_validClasses;
 
-        private static readonly HashSet<string> s_validClasses = new HashSet<string>
-            { "dance", "music", "tempo", "other" };
+        private static readonly HashSet<string> s_validClasses = new() { "dance", "music", "tempo", "other" };
 
         #endregion
 
@@ -3800,8 +3775,7 @@ namespace m4dModels
 
                 foreach (var t in reorder)
                 {
-                    AlbumDetails d;
-                    if (map.TryGetValue(t, out d))
+                    if (map.TryGetValue(t, out var d))
                     {
                         albums.Add(d);
                     }
@@ -3812,8 +3786,7 @@ namespace m4dModels
             {
                 for (var i = 0; i <= max; i++)
                 {
-                    AlbumDetails d;
-                    if (map.TryGetValue(i, out d) && d.Name != null)
+                    if (map.TryGetValue(i, out var d) && d.Name != null)
                     {
                         albums.Add(d);
                     }
@@ -3823,8 +3796,7 @@ namespace m4dModels
             // Now do individual (trivial) promotions
             foreach (var t in promotions)
             {
-                AlbumDetails d;
-                if (!map.TryGetValue(t, out d) || d.Name == null)
+                if (!map.TryGetValue(t, out var d) || d.Name == null)
                 {
                     continue;
                 }
@@ -4012,8 +3984,7 @@ namespace m4dModels
                 if (track.Duration.HasValue)
                 {
                     var cluster = (track.Duration.Value + offset) / size;
-                    List<ServiceTrack> list;
-                    if (!ret.TryGetValue(cluster, out list))
+                    if (!ret.TryGetValue(cluster, out var list))
                     {
                         list = new List<ServiceTrack>();
                         ret.Add(cluster, list);
@@ -4234,7 +4205,7 @@ namespace m4dModels
                 purchase.Add("---");
             }
 
-            if (Purchase != null && Purchase.Contains("x", StringComparison.OrdinalIgnoreCase))
+            if (Purchase != null && Purchase.Contains('x', StringComparison.OrdinalIgnoreCase))
             {
                 Trace.WriteLine($"SongId = {SongId}, Purchase = {Purchase}");
             }
@@ -4304,12 +4275,7 @@ namespace m4dModels
 
         private static float? CleanNumber(float? f)
         {
-            if (f.HasValue && !float.IsFinite(f.Value))
-            {
-                return null;
-            }
-
-            return f;
+            return f.HasValue && !float.IsFinite(f.Value) ? null : f;
         }
 
         private static string BuildDanceFieldName(string id)
@@ -4339,18 +4305,10 @@ namespace m4dModels
         public bool TitleArtistEquivalent(Song song)
         {
             // No-similar titles != equivalent
-            if (CreateTitleHash(Title) != CreateTitleHash(song.Title))
-            {
-                return false;
-            }
-
-            if (!string.IsNullOrWhiteSpace(Artist) && !string.IsNullOrWhiteSpace(song.Artist) &&
-                CreateTitleHash(Artist) != CreateTitleHash(song.Artist))
-            {
-                return false;
-            }
-
-            return true;
+            return CreateTitleHash(Title) != CreateTitleHash(song.Title)
+                ? false
+                : string.IsNullOrWhiteSpace(Artist) || string.IsNullOrWhiteSpace(song.Artist) ||
+                CreateTitleHash(Artist) == CreateTitleHash(song.Artist);
         }
 
         #endregion
@@ -4359,12 +4317,9 @@ namespace m4dModels
 
         public bool TitleArtistMatch(string title, string artist)
         {
-            if (!SoftArtistMatch(artist, Artist))
-            {
-                return false;
-            }
-
-            return DoMatch(CreateNormalForm(title), CreateNormalForm(Title)) ||
+            return !SoftArtistMatch(artist, Artist)
+                ? false
+                : DoMatch(CreateNormalForm(title), CreateNormalForm(Title)) ||
                 DoMatch(NormalizeAlbumString(title), NormalizeAlbumString(Title)) ||
                 DoMatch(CleanAlbum(title, artist), CleanAlbum(Title, Artist));
         }
@@ -4471,9 +4426,8 @@ namespace m4dModels
                 return 0;
             }
 
-            var sg = s.Substring(idField.Length, t - idField.Length);
-            Guid g;
-            if (Guid.TryParse(sg, out g))
+            var sg = s[idField.Length..t];
+            if (Guid.TryParse(sg, out var g))
             {
                 id = g;
             }
@@ -4497,7 +4451,7 @@ namespace m4dModels
             return AlbumFields.Contains(baseName);
         }
 
-        protected static HashSet<string> AlbumFields = new HashSet<string>
+        protected static HashSet<string> AlbumFields = new()
         {
             AlbumField, PublisherField, TrackField, PurchaseField, AlbumListField, AlbumPromote,
             AlbumOrder
@@ -4648,7 +4602,7 @@ namespace m4dModels
             var idx = album.LastIndexOf(delimiter);
             return idx == -1 || idx < 10 || idx < album.Length / 4
                 ? album
-                : album.Substring(0, idx);
+                : album[..idx];
         }
 
         public static string CleanAlbum(string album, string artist)
@@ -4705,7 +4659,7 @@ namespace m4dModels
             { "BAND", "FEAT", "FEATURING", "HIS", "HER", "ORCHESTRA", "WITH" };
 
         private static readonly HashSet<string> ArtistIgnore =
-            new HashSet<string>(Ignore.Concat(ArtIgnore));
+            new(Ignore.Concat(ArtIgnore));
 
         protected static IList<string> TagsToDanceIds(TagList tags)
         {
@@ -4750,7 +4704,7 @@ namespace m4dModels
             {
                 if (ret.Length > 2)
                 {
-                    var ch = ret[ret.Length - 3];
+                    var ch = ret[^3];
                     if (ch != 'A' && ch != 'E' && ch != 'I' && ch != 'O' && ch != 'U')
                     {
                         truncate = 2;
@@ -4758,7 +4712,7 @@ namespace m4dModels
                 }
             }
 
-            ret = ret.Substring(0, ret.Length - truncate);
+            ret = ret[..^truncate];
 
             return ret;
         }
@@ -4809,7 +4763,7 @@ namespace m4dModels
 
         public static string CustomTrim(string name, char quote)
         {
-            if (name.Length > 0 && name[0] == quote && name[name.Length - 1] == quote)
+            if (name.Length > 0 && name[0] == quote && name[^1] == quote)
             {
                 name = name.Trim(quote);
             }
@@ -4836,7 +4790,7 @@ namespace m4dModels
 
         public static string CleanArtistString(string name)
         {
-            if (name.IndexOf(',') == -1)
+            if (!name.Contains(','))
             {
                 return name;
             }
@@ -4894,7 +4848,7 @@ namespace m4dModels
                 }
             }
 
-            ret = ret.Substring(0, ret.Length - truncate);
+            ret = ret[..^truncate];
 
             return ret;
         }

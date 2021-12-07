@@ -45,7 +45,7 @@ namespace m4dModels
 
             if (!string.IsNullOrEmpty(Id))
             {
-                Id = $"{char.ToUpper(Id[0])}{Id.Substring(1).ToLower()}";
+                Id = $"{char.ToUpper(Id[0])}{Id[1..].ToLower()}";
 
                 if (!(s_directional.Contains(Id) || s_intrinsic.Contains(Id) ||
                     s_numerical.Contains(Id) || string.Equals(Id, "Dances")))
@@ -203,7 +203,7 @@ namespace m4dModels
                     }
                 }
 
-                ret.Append(".");
+                ret.Append('.');
                 return ret.ToString();
             }
         }

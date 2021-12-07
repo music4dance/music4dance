@@ -58,7 +58,7 @@ namespace DanceLibrary
                 var rate = AverageWait;
                 if (rate != 0)
                 {
-                    rate = (decimal)1000 / rate;
+                    rate = 1000 / rate;
                 }
 
                 System.Diagnostics.Debug.WriteLine("Tempo = {0}", rate);
@@ -70,12 +70,7 @@ namespace DanceLibrary
         {
             get
             {
-                if (_totalWaitTicks == 0)
-                {
-                    return 0;
-                }
-
-                return ConvertTicksToMilliSeconds(_totalWaitTicks / _totalCount);
+                return _totalWaitTicks == 0 ? 0 : ConvertTicksToMilliSeconds(_totalWaitTicks / _totalCount);
             }
         }
 

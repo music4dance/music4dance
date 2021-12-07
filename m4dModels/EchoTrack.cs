@@ -52,24 +52,14 @@ namespace m4dModels
         {
             get
             {
-                if (!BeatsPerMeasure.HasValue)
+                return !BeatsPerMeasure.HasValue
+                    ? null
+                    : BeatsPerMeasure switch
                 {
-                    return null;
-                }
-
-                switch (BeatsPerMeasure)
-                {
-                    case 2:
-                    case 3:
-                    case 4:
-                        return $"{BeatsPerMeasure}/4";
-                    case 6:
-                    case 9:
-                    case 12:
-                        return $"{BeatsPerMeasure}/8";
-                    default:
-                        return null;
-                }
+                    2 or 3 or 4 => $"{BeatsPerMeasure}/4",
+                    6 or 9 or 12 => $"{BeatsPerMeasure}/8",
+                    _ => null,
+                };
             }
         }
     }
