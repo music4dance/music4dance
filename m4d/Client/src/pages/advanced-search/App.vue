@@ -254,12 +254,20 @@ export default class App extends Mixins(AdminTools, EnvironmentManager) {
 
   private activity = "NT";
   private get computedActivity(): string {
-    return this.user ? this.activity : "NT";
+    return this.displayUser ? this.activity : "NT";
   }
   private set computedActivity(value: string) {
-    if (this.user) {
+    if (this.hasUser) {
       this.activity = value;
     }
+  }
+
+  private get hasUser(): boolean {
+    return !!(this.user || this.displayUser);
+  }
+
+  private get isAnonymous(): boolean {
+    return this.displayUser === "Anonymous";
   }
 
   private get activities() {
@@ -351,7 +359,7 @@ export default class App extends Mixins(AdminTools, EnvironmentManager) {
     );
     const userQuery = UserQuery.fromParts(
       this.computedActivity ? this.computedActivity : undefined,
-      this.user
+      this.isAnonymous ? this.user : this.displayUser
     );
     const filter = new SongFilter();
     let level = 0;
@@ -416,7 +424,7 @@ export default class App extends Mixins(AdminTools, EnvironmentManager) {
 
   private onReset(evt: Event) {
     evt.preventDefault();
-    const userName = this.userName;
+    const userName = this.isAnonymous ? this.userName : this.displayUser;
 
     this.keyWords = "";
     this.dances.splice(0);
