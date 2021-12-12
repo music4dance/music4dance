@@ -52,6 +52,7 @@
         }, null)
     </li>
 </ul>
+
 <hr />
 <h3>History</h3>
 <ul>
@@ -106,6 +107,15 @@
         </li>
     }
     <li>Enviroment: @SearchService.RawEnvironment</li>
+</ul>
+
+<hr />
+<h3>Tag Duplicates</h3>
+<ul>
+    @foreach (var key in TagManager.Duplicates)
+    {
+        <li>@key</li>
+    }
 </ul>
 
 <hr />

@@ -12,6 +12,8 @@ namespace m4dModels
         private readonly Dictionary<string, TagGroup> _queuedTags =
             new();
 
+        public static List<string> Duplicates { get; } = new();
+
         public TagManager(IEnumerable<TagGroup> tagGroups)
         {
             TagGroups = CleanTagGroups(tagGroups.ToList());
@@ -42,11 +44,14 @@ namespace m4dModels
                     .GroupBy(g => g.Key.ToLower())
                     .Where(g => g.Count() > 1).ToList();
 
+                Duplicates.Clear();
+
                 Trace.WriteLine($"{dups.Count()} duplicate tags");
                 foreach (var group in dups)
                 {
                     foreach (var tag in group)
                     {
+                        Duplicates.Add(tag.Key);
                         Trace.WriteLine(tag.Key);
                     }
                 }

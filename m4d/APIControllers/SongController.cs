@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -27,7 +28,7 @@ namespace m4d.APIControllers
 
         [HttpGet]
         [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
-        public async Task<IActionResult> Search([FromServices]IMapper mapper, string title,
+        public async Task<IActionResult> Search([FromServices] IMapper mapper, string title,
             string artist)
         {
             Trace.WriteLine(
@@ -38,13 +39,19 @@ namespace m4d.APIControllers
             }
 
             var songs = await Database.SongsFromTitleArtist(title, artist);
-            return songs == null || !songs.Any()
-                ? StatusCode((int)HttpStatusCode.NotFound)
-                : JsonCamelCase(
-                    songs
-                        .Select(
-                            async s => await UserMapper.AnonymizeHistory(
-                                s.GetHistory(mapper), UserManager)));
+
+            if (songs == null || !songs.Any())
+            {
+                return StatusCode((int)HttpStatusCode.NotFound);
+            }
+
+            var anonymized = new List<SongHistory>();
+            foreach (var song in songs)
+            {
+                anonymized.Add(await UserMapper.AnonymizeHistory(song.GetHistory(mapper), UserManager));
+            }
+
+            return JsonCamelCase(anonymized);
         }
 
         [HttpGet("{id}")]
