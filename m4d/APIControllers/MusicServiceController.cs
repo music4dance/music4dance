@@ -47,7 +47,7 @@ namespace m4d.APIControllers
 
             if (!s_cache.TryGetValue(key, out var tracks))
             {
-                tracks = InternalGetServiceTracks(service, song, title, artist, album);
+                tracks = await InternalGetServiceTracks(service, song, title, artist, album);
             }
 
             if (tracks == null || tracks.Count == 0)
@@ -60,7 +60,7 @@ namespace m4d.APIControllers
             return JsonCamelCase(tracks);
         }
 
-        private IList<ServiceTrack> InternalGetServiceTracks(string serviceId,
+        private async Task<IList<ServiceTrack>> InternalGetServiceTracks(string serviceId,
             Song song, string title, string artist, string album)
         {
             IList<ServiceTrack> tracks = null;
@@ -71,7 +71,7 @@ namespace m4d.APIControllers
 
             try
             {
-                tracks = MusicServiceManager.FindMusicServiceSong(
+                tracks = await MusicServiceManager.FindMusicServiceSong(
                     service, song, title, artist, album);
             }
             catch (WebException e)

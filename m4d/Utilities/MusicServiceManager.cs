@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Security.Principal;
 using System.Text;
 using System.Threading;
@@ -14,6 +15,7 @@ using m4dModels;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
+using SixLabors.ImageSharp;
 using TagList = m4dModels.TagList;
 
 namespace m4d.Utilities
@@ -58,7 +60,7 @@ namespace m4d.Utilities
         public async Task<bool> UpdateSongAndService(
             DanceMusicCoreService dms, Song sd, MusicService service)
         {
-            var tracks = MatchSongAndService(sd, service);
+            var tracks = await MatchSongAndService(sd, service);
             return await UpdateFromTracks(dms, sd, tracks);
         }
 
@@ -101,17 +103,17 @@ namespace m4d.Utilities
                 new[] { new UserTag { Id = string.Empty, Tags = tags } });
         }
 
-        public IList<ServiceTrack> MatchSongAndService(Song sd, MusicService service)
+        public async Task<IList<ServiceTrack>> MatchSongAndService(Song sd, MusicService service)
         {
             IList<ServiceTrack> found = new List<ServiceTrack>();
-            var tracks = FindMusicServiceSong(service, sd);
+            var tracks = await FindMusicServiceSong(service, sd);
 
             // First try the full title/artist
             if ((tracks == null || tracks.Count == 0) &&
                     !string.Equals(DefaultServiceSearch(sd, true), DefaultServiceSearch(sd, false)))
                 // Now try cleaned up title/artist (remove punctuation and stuff in parens/brackets)
             {
-                tracks = FindMusicServiceSong(service, sd);
+                tracks = await FindMusicServiceSong(service, sd);
             }
 
             if (tracks == null || tracks.Count <= 0)
@@ -158,7 +160,7 @@ namespace m4d.Utilities
             var existingIds = sd.GetPurchaseIds(service);
             foreach (var track in existingIds.Where(id => found.All(f => f.TrackId != id)))
             {
-                var t = GetMusicServiceTrack(track, service);
+                var t = await GetMusicServiceTrack(track, service);
                 if (t != null)
                 {
                     found.Add(t);
@@ -308,7 +310,7 @@ namespace m4d.Utilities
 
         #region Search
 
-        public IList<ServiceTrack> FindMusicServiceSong(MusicService service = null,
+        public async Task<IList<ServiceTrack>> FindMusicServiceSong(MusicService service = null,
             Song song = null, string title = null, string artist = null,
             string album = null)
         {
@@ -335,14 +337,14 @@ namespace m4d.Utilities
 
             if (service != null)
             {
-                list = DoFindMusicServiceSong(service, title, artist);
+                list = await DoFindMusicServiceSong(service, title, artist);
             }
             else
             {
                 var acc = new List<ServiceTrack>();
                 foreach (var s in MusicService.GetSearchableServices())
                 {
-                    var tracks = DoFindMusicServiceSong(
+                    var tracks = await DoFindMusicServiceSong(
                         s,
                         title, artist);
 
@@ -361,7 +363,7 @@ namespace m4d.Utilities
                 var cleanTitle = Song.CleanString(title);
                 return cleanArtist == artist && cleanTitle == title
                     ? null
-                    : FindMusicServiceSong(service, song, cleanTitle, cleanArtist, album);
+                    : await FindMusicServiceSong(service, song, cleanTitle, cleanArtist, album);
             }
 
             list = FilterKaraoke(list);
@@ -371,7 +373,7 @@ namespace m4d.Utilities
             return list;
         }
 
-        public ServiceTrack GetMusicServiceTrack(string id, MusicService service)
+        public async Task<ServiceTrack> GetMusicServiceTrack(string id, MusicService service)
         {
             var extra = id.IndexOf('[');
             if (extra != -1)
@@ -388,10 +390,10 @@ namespace m4d.Utilities
             if (service.Id != ServiceType.Amazon)
             {
                 var request = service.BuildTrackRequest(id);
-                var results = GetMusicServiceResults(request, service);
-                ret = service.ParseTrackResults(
+                var results = await GetMusicServiceResults(request, service);
+                ret = await service.ParseTrackResults(
                     results,
-                    (Func<string, dynamic>)(req => GetMusicServiceResults(req, service)));
+                    (Func<string, Task<dynamic>>)(req => GetMusicServiceResults(req, service)));
             }
 
             if (s_trackCache.Count > 10000)
@@ -406,7 +408,7 @@ namespace m4d.Utilities
         public async Task<Song> CreateSong(DanceMusicCoreService dms,
             ApplicationUser user, string id, MusicService service)
         {
-            var track = GetMusicServiceTrack(id, service);
+            var track = await GetMusicServiceTrack(id, service);
 
             if (track == null)
             {
@@ -436,11 +438,11 @@ namespace m4d.Utilities
 
         private static readonly Dictionary<string, ServiceTrack> s_trackCache = new();
 
-        public GenericPlaylist LookupPlaylist(MusicService service, string url,
+        public async Task<GenericPlaylist> LookupPlaylist(MusicService service, string url,
             IEnumerable<string> oldTrackList, IPrincipal principal = null)
         {
             var results =
-                GetMusicServiceResults(service.BuildLookupRequest(url), service, principal);
+                await GetMusicServiceResults(service.BuildLookupRequest(url), service, principal);
             if (results == null)
             {
                 return null;
@@ -449,18 +451,18 @@ namespace m4d.Utilities
             var name = results.name;
             var description = results.description;
 
-            IList<ServiceTrack> tracks = service.ParseSearchResults(
+            IList<ServiceTrack> tracks = await service.ParseSearchResults(
                 results,
-                (Func<string, dynamic>)(req => GetMusicServiceResults(req, service)),
+                (Func<string, Task<dynamic>>)(req => GetMusicServiceResults(req, service)),
                 // ReSharper disable once PossibleMultipleEnumeration
                 oldTrackList);
-            while ((results = NextMusicServiceResults(results, service, principal)) != null)
+            while ((results = await NextMusicServiceResults(results, service, principal)) != null)
             {
                 var t = tracks as List<ServiceTrack> ?? tracks.ToList();
                 t.AddRange(
-                    service.ParseSearchResults(
+                    await service.ParseSearchResults(
                         results,
-                        (Func<string, dynamic>)(req => GetMusicServiceResults(req, service)),
+                        (Func<string, Task<dynamic>>)(req => GetMusicServiceResults(req, service)),
                         // ReSharper disable once PossibleMultipleEnumeration
                         oldTrackList));
                 tracks = t;
@@ -482,7 +484,7 @@ namespace m4d.Utilities
         }
 
         // TODO: Handle services other than spotify
-        public List<PlaylistMetadata> GetPlaylists(MusicService service, IPrincipal principal)
+        public async Task<List<PlaylistMetadata>> GetPlaylists(MusicService service, IPrincipal principal)
         {
             if (service.Id != ServiceType.Spotify)
             {
@@ -491,7 +493,7 @@ namespace m4d.Utilities
                     "GetPlaylists currently only supports Spotify");
             }
 
-            var results = GetMusicServiceResults(
+            var results = await GetMusicServiceResults(
                 "https://api.spotify.com/v1/me/playlists", service,
                 principal);
 
@@ -501,7 +503,7 @@ namespace m4d.Utilities
             }
 
             var playlists = ParsePlaylistResults(results);
-            while ((results = NextMusicServiceResults(results, service, principal)) != null)
+            while ((results = await NextMusicServiceResults(results, service, principal)) != null)
             {
                 playlists.AddRange(ParsePlaylistResults(results));
             }
@@ -537,13 +539,13 @@ namespace m4d.Utilities
             return ret;
         }
 
-        public virtual EchoTrack LookupEchoTrack(string id, MusicService service)
+        public virtual async Task<EchoTrack> LookupEchoTrack(string id, MusicService service)
         {
             var request =
                 $"https://api.spotify.com/v1/audio-features/{id}"; //$"http://developer.echonest.com/api/v4/track/profile?api_key=B0SEV0FNKNEOHGFB0&format=json&id=spotify:track:{id}&bucket=audio_summary";
             try
             {
-                var results = GetMusicServiceResults(request, service);
+                var results = await GetMusicServiceResults(request, service);
                 return EchoTrack.BuildEchoTrack(results);
             }
             catch (WebException e)
@@ -569,7 +571,7 @@ namespace m4d.Utilities
             EchoTrack track = null;
             foreach (var id in ids)
             {
-                track = LookupEchoTrack(id, service);
+                track = await LookupEchoTrack(id, service);
                 if (track != null)
                 {
                     break;
@@ -632,7 +634,7 @@ namespace m4d.Utilities
             var user = await dms.FindUser("batch-s");
             foreach (var id in ids)
             {
-                track = GetMusicServiceTrack(id, spotify);
+                track = await GetMusicServiceTrack(id, spotify);
                 if (track?.SampleUrl != null)
                 {
                     break;
@@ -646,7 +648,7 @@ namespace m4d.Utilities
                 ids = edit.GetPurchaseIds(itunes);
                 foreach (var id in ids)
                 {
-                    track = GetMusicServiceTrack(id, itunes);
+                    track = await GetMusicServiceTrack(id, itunes);
                     if (track?.SampleUrl != null)
                     {
                         user = await dms.FindUser("batch-i");
@@ -664,7 +666,7 @@ namespace m4d.Utilities
         #region Edit
 
         // TODO: Handle services other than spotify
-        public PlaylistMetadata CreatePlaylist(MusicService service, IPrincipal principal,
+        public async Task<PlaylistMetadata> CreatePlaylist(MusicService service, IPrincipal principal,
             string name, string description, IFileProvider fileProvider)
         {
             dynamic obj = new
@@ -673,19 +675,19 @@ namespace m4d.Utilities
                 description
             };
             var inputs = JsonConvert.SerializeObject(obj);
-            var response = MusicServiceAction(
+            var response = await MusicServiceAction(
                 "https://api.spotify.com/v1/me/playlists", inputs,
-                WebRequestMethods.Http.Post, service, principal);
+                HttpMethod.Post, service, principal);
 
             if (response == null)
             {
                 return null;
             }
 
-            MusicServiceAction(
+            await MusicServiceAction(
                 $"https://api.spotify.com/v1/playlists/{response.id}/images",
                 GetEncodedImage(fileProvider, "/wwwroot/images/icons/color-logo.jpg"),
-                WebRequestMethods.Http.Put, service, principal, "image/jpeg");
+                HttpMethod.Put, service, principal, "image/jpeg");
 
             return new PlaylistMetadata
             {
@@ -698,23 +700,23 @@ namespace m4d.Utilities
         {
             var fullPath = fileProvider.GetFileInfo(path).PhysicalPath;
 
-            using var image = Image.FromFile(fullPath);
+            using var image = Image.Load(fullPath, out var format);
             using var m = new MemoryStream();
-            image.Save(m, image.RawFormat);
+            image.Save(m, format);
             var imageBytes = m.ToArray();
             var base64String = Convert.ToBase64String(imageBytes);
             return base64String;
         }
 
-        public bool SetPlaylistTracks(MusicService service, IPrincipal principal, string id,
+        public async Task<bool> SetPlaylistTracks(MusicService service, IPrincipal principal, string id,
             IEnumerable<string> tracks)
         {
             var tracklist = string.Join(
                 ",",
                 tracks.Where(t => t != null).Select(t => $"\"spotify:track:{t}\""));
-            var response = MusicServiceAction(
+            var response = await MusicServiceAction(
                 $"https://api.spotify.com/v1/playlists/{id}/tracks",
-                $"{{\"uris\":[{tracklist}]}}", WebRequestMethods.Http.Put, service, principal);
+                $"{{\"uris\":[{tracklist}]}}", HttpMethod.Put, service, principal);
 
             return response != null && response.snapshot_id != null;
         }
@@ -743,10 +745,10 @@ namespace m4d.Utilities
                     name.IndexOf(s, StringComparison.InvariantCultureIgnoreCase) != -1);
         }
 
-        private IList<ServiceTrack> DoFindMusicServiceSong(MusicService service,
+        private async Task<IList<ServiceTrack>> DoFindMusicServiceSong(MusicService service,
             string title = null, string artist = null)
         {
-            var tracks = FindMSSongGeneral(service, title, artist);
+            var tracks = await FindMSSongGeneral(service, title, artist);
 
             if (tracks == null)
             {
@@ -775,16 +777,16 @@ namespace m4d.Utilities
         }
 
         // ReSharper disable once InconsistentNaming
-        private IList<ServiceTrack> FindMSSongGeneral(MusicService service, string title = null,
+        private async Task<IList<ServiceTrack>> FindMSSongGeneral(MusicService service, string title = null,
             string artist = null)
         {
             try
             {
                 var results =
-                    GetMusicServiceResults(service.BuildSearchRequest(artist, title), service);
-                return service.ParseSearchResults(
+                  await GetMusicServiceResults(service.BuildSearchRequest(artist, title), service);
+                return await service.ParseSearchResults(
                     results,
-                    (Func<string, dynamic>)(req => GetMusicServiceResults(req, service)), null);
+                    (Func<string, Task<dynamic>>)(req => GetMusicServiceResults(req, service)), null);
             }
             catch (AbortBatchException)
             {
@@ -798,19 +800,17 @@ namespace m4d.Utilities
             }
         }
 
-        private static int GetRateInfo(WebHeaderCollection headers, string type)
+        private static int GetRateInfo(HttpResponseHeaders headers, string type)
         {
-            var s = headers.Get(type);
-            if (s == null)
-            {
+            if (!headers.TryGetValues(type, out var values)) {
                 return -1;
             }
 
-            Trace.WriteLineIf(TraceLevels.General.TraceVerbose, $"{type}: {s}");
-            return int.TryParse(s, out var info) ? info : -1;
+            return int.TryParse(values.First(), out var info) ? info : -1;
         }
 
-        private dynamic GetMusicServiceResults(string request,
+        // TODONEXT: Can we validate that this still works including the throttling handling code???
+        private async Task<dynamic> GetMusicServiceResults(string request,
             MusicService service,
             IPrincipal principal = null)
         {
@@ -829,14 +829,12 @@ namespace m4d.Utilities
                     return null;
                 }
 
-                var req = (HttpWebRequest)WebRequest.Create(request);
-                req.Method = WebRequestMethods.Http.Get;
-                req.Accept = "application/json";
-
+                using var req = new HttpRequestMessage(HttpMethod.Get, request);
+                req.Headers.Add("Accept", "application/json");
                 string auth = null;
                 if (service != null)
                 {
-                    auth = AdmAuthentication.GetServiceAuthorization(
+                    auth = await AdmAuthentication.GetServiceAuthorization(
                         Configuration, service.Id,
                         principal);
                 }
@@ -848,16 +846,12 @@ namespace m4d.Utilities
 
                 try
                 {
-                    using var response = (HttpWebResponse)req.GetResponse();
+                    using var response = await HttpClientHelper.Client.SendAsync(req);
                     if (response.StatusCode == HttpStatusCode.OK)
                     {
-                        var stream = response.GetResponseStream();
-                        using (var sr = new StreamReader(stream))
-                        {
-                            responseString = sr.ReadToEnd();
-                        }
-
                         var remaining = GetRateInfo(response.Headers, "X-RateLimit-Remaining");
+
+                        responseString = await response.Content.ReadAsStringAsync();
 
                         if (remaining is > 0 and < 20)
                         {
@@ -879,7 +873,7 @@ namespace m4d.Utilities
 
                     if (responseString == null)
                     {
-                        throw new WebException(response.StatusDescription);
+                        throw new WebException(response.ReasonPhrase);
                     }
                 }
                 catch (WebException we)
@@ -902,7 +896,7 @@ namespace m4d.Utilities
                             {
                                 Trace.WriteLineIf(
                                     TraceLevels.General.TraceInfo,
-                                    $"Exceeded Itunes Limits: {5 - retries} {req.Address}");
+                                    $"Exceeded Itunes Limits: {5 - retries} {req.RequestUri}");
                                 Thread.Sleep(60 * 1000);
                                 continue;
                             }
@@ -910,7 +904,7 @@ namespace m4d.Utilities
                             _pauseITunes = DateTime.Now;
 
                             var message =
-                                $"Exceeded Itunes Limits @{_pauseITunes}: Pausing {req.Address}";
+                                $"Exceeded Itunes Limits @{_pauseITunes}: Pausing {req.RequestUri}";
                             Trace.WriteLineIf(TraceLevels.General.TraceInfo, message);
 
                             throw new AbortBatchException(message, we);
@@ -975,7 +969,7 @@ namespace m4d.Utilities
 
         // TODO Handle services other than spotify.
         // This method requires a valid principal
-        private dynamic MusicServiceAction(string request, string input, string method,
+        private async Task<dynamic> MusicServiceAction(string request, string input, HttpMethod method,
             MusicService service, IPrincipal principal, string contentType = "application/json")
         {
             string responseString = null;
@@ -985,36 +979,31 @@ namespace m4d.Utilities
                 return null;
             }
 
-            var req = (HttpWebRequest)WebRequest.Create(request);
-            req.Method = method;
-            req.Accept = "application/json";
-            req.ContentType = contentType;
+            // TODONEXT:  Make sure this works
+            using var req = new HttpRequestMessage(method, request);
+            req.Headers.Add("Accept", "application/json");
+            if (!string.IsNullOrEmpty(input))
+            {
+                req.Content = new StringContent(input, Encoding.UTF8, contentType);
+            }
 
             req.Headers.Add(
                 "Authorization",
-                AdmAuthentication.GetServiceAuthorization(Configuration, service.Id, principal));
+                await AdmAuthentication.GetServiceAuthorization(Configuration, service.Id, principal));
 
             try
             {
-                using (var body = req.GetRequestStream())
-                {
-                    var data = Encoding.UTF8.GetBytes(input);
-                    body.Write(data, 0, data.Length);
-                    body.Close();
-                }
+                using var response = await HttpClientHelper.Client.SendAsync(req);
 
-                using var response = (HttpWebResponse)req.GetResponse();
                 if (response.StatusCode == HttpStatusCode.Created ||
                     response.StatusCode == HttpStatusCode.Accepted)
                 {
-                    var stream = response.GetResponseStream();
-                    using var sr = new StreamReader(stream);
-                    responseString = sr.ReadToEnd();
+                    responseString = await response.Content.ReadAsStringAsync();
                 }
 
                 if (responseString == null)
                 {
-                    throw new WebException(response.StatusDescription);
+                    throw new WebException(response.ReasonPhrase);
                 }
             }
             catch (WebException we)
@@ -1027,11 +1016,11 @@ namespace m4d.Utilities
         }
 
 
-        private dynamic NextMusicServiceResults(dynamic last, MusicService service,
+        private async Task<dynamic> NextMusicServiceResults(dynamic last, MusicService service,
             IPrincipal principal = null)
         {
             var request = service.GetNextRequest(last);
-            return request == null ? null : GetMusicServiceResults(request, service, principal);
+            return request == null ? null : await GetMusicServiceResults(request, service, principal);
         }
 
         #endregion

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.CSharp.RuntimeBinder;
 
 namespace m4dModels
@@ -72,8 +73,8 @@ namespace m4dModels
         }
 
 
-        public override IList<ServiceTrack> ParseSearchResults(
-            dynamic results, Func<string, dynamic> getResult,
+        public override async Task<IList<ServiceTrack>> ParseSearchResults(
+            dynamic results, Func<string, Task<dynamic>> getResult,
             IEnumerable<string> excludeTracks)
         {
             var excludeMap = new HashSet<string>(excludeTracks ?? new List<string>());
@@ -105,7 +106,7 @@ namespace m4dModels
                 string trackId = trackT.id;
                 if (trackId != null && !excludeMap.Contains(trackId))
                 {
-                    ret.Add(ParseTrackResults(trackT, getResult));
+                    ret.Add(await ParseTrackResults(trackT, getResult));
                 }
             }
 
@@ -131,8 +132,8 @@ namespace m4dModels
             return ret;
         }
 
-        public override ServiceTrack ParseTrackResults(dynamic track,
-            Func<string, dynamic> getResult)
+        public override async Task<ServiceTrack> ParseTrackResults(dynamic track,
+            Func<string, Task<dynamic>> getResult)
         {
             if (track == null)
             {
@@ -193,7 +194,7 @@ namespace m4dModels
                 CollectionId = album?.id,
                 ImageUrl = imageUrl,
                 //ReleaseDate = track.ReleaseDate,
-                Genres = BuildGenres(track, getResult),
+                Genres = await BuildGenres(track, getResult),
                 Duration = (track.duration_ms + 500) / 1000,
                 TrackNumber = trackNum,
                 IsPlayable = isPlayable,
@@ -209,31 +210,31 @@ namespace m4dModels
             return $"https://open.spotify.com/user/{alias}/playlist/{playList.Id}";
         }
 
-        private string[] BuildGenres(dynamic track, Func<string, dynamic> getResult)
+        private async Task<string[]> BuildGenres(dynamic track, Func<string, Task<dynamic>> getResult)
         {
             var genres = new HashSet<string>();
 
-            genres.UnionWith(GenresFromReference(track.album, getResult));
+            genres.UnionWith(await GenresFromReference(track.album, getResult));
 
             if (track?.artists.Count > 0)
             {
                 foreach (var a in track.artists)
                 {
-                    genres.UnionWith(GenresFromReference(a, getResult));
+                    genres.UnionWith(await GenresFromReference(a, getResult));
                 }
             }
 
             return genres.Count > 0 ? genres.ToArray() : null;
         }
 
-        private List<string> GenresFromReference(dynamic field, Func<string, dynamic> getResult)
+        private async Task<List<string>> GenresFromReference(dynamic field, Func<string, Task<dynamic>> getResult)
         {
             if (field?.href == null)
             {
                 return new List<string>();
             }
 
-            var t = GetResults(field.href.ToString(), getResult);
+            var t = await GetResults(field.href.ToString(), getResult);
             return t != null ? (List<string>)GenresFromObject(t) : new List<string>();
         }
 
@@ -260,7 +261,7 @@ namespace m4dModels
             return list;
         }
 
-        private dynamic GetResults(string url, Func<string, dynamic> getResult)
+        private async Task<dynamic> GetResults(string url, Func<string, Task<dynamic>> getResult)
         {
             if (s_results.TryGetValue(url, out var result))
             {
@@ -274,7 +275,7 @@ namespace m4dModels
 
             try
             {
-                return getResult(url);
+                return await getResult(url);
             }
             catch (Exception e)
             {

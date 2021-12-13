@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace m4dModels
 {
@@ -144,15 +145,15 @@ namespace m4dModels
             return response;
         }
 
-        public virtual IList<ServiceTrack> ParseSearchResults(
-            dynamic results, Func<string, dynamic> getResult,
+        public virtual Task<IList<ServiceTrack>> ParseSearchResults(
+            dynamic results, Func<string, Task<dynamic>> getResult,
             IEnumerable<string> excludeTracks)
         {
             throw new NotImplementedException();
         }
 
-        public virtual ServiceTrack ParseTrackResults(dynamic results,
-            Func<string, dynamic> getResult)
+        public virtual Task<ServiceTrack> ParseTrackResults(dynamic results,
+            Func<string, Task<dynamic>> getResult)
         {
             throw new NotImplementedException();
         }

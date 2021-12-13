@@ -151,7 +151,7 @@ namespace m4d.Controllers
             await SpotifyAuthorization();
 
             var spotify = MusicService.GetService(ServiceType.Spotify);
-            return MusicServiceManager.GetPlaylists(spotify, User);
+            return await MusicServiceManager.GetPlaylists(spotify, User);
         }
 
         // GET: Update
@@ -246,7 +246,7 @@ namespace m4d.Controllers
             await SpotifyAuthorization();
 
             var spotify = MusicService.GetService(ServiceType.Spotify);
-            var oldS = MusicServiceManager.GetPlaylists(spotify, User).ToDictionary(
+            var oldS = (await MusicServiceManager.GetPlaylists(spotify, User)).ToDictionary(
                 p => p.Name,
                 p => new PlaylistMetadata { Id = p.Id, Name = p.Name });
             var oldM = Database.PlayLists.Where(p => p.Type == PlayListType.SpotifyFromSearch)
@@ -255,10 +255,10 @@ namespace m4d.Controllers
             switch (flavor)
             {
                 case "TopN":
-                    BulkCreateTopN(oldS, oldM, fileProvider);
+                    await BulkCreateTopN(oldS, oldM, fileProvider);
                     break;
                 case "Holiday":
-                    BulkCreateHoliday(oldS, oldM, fileProvider);
+                    await BulkCreateHoliday(oldS, oldM, fileProvider);
                     break;
             }
 
@@ -315,7 +315,7 @@ namespace m4d.Controllers
                 });
         }
 
-        private void BulkCreateTopN(IReadOnlyDictionary<string, PlaylistMetadata> oldS,
+        private async Task BulkCreateTopN(IReadOnlyDictionary<string, PlaylistMetadata> oldS,
             IReadOnlyDictionary<string, PlayList> oldM, IFileProvider fileProvider)
         {
             foreach (var ds in Database.DanceStats.Dances)
@@ -362,7 +362,7 @@ namespace m4d.Controllers
 
                 if (metadata == null)
                 {
-                    metadata = MusicServiceManager.CreatePlaylist(
+                    metadata = await MusicServiceManager.CreatePlaylist(
                         MusicService.GetService(ServiceType.Spotify), User, name, description,
                         fileProvider);
                 }
@@ -401,7 +401,7 @@ namespace m4d.Controllers
             }
         }
 
-        private void BulkCreateHoliday(IReadOnlyDictionary<string, PlaylistMetadata> oldS,
+        private async Task BulkCreateHoliday(IReadOnlyDictionary<string, PlaylistMetadata> oldS,
             IReadOnlyDictionary<string, PlayList> oldM, IFileProvider fileProvider)
         {
             foreach (var ds in Database.DanceStats.Dances)
@@ -430,7 +430,7 @@ namespace m4d.Controllers
                     TraceLevels.General.TraceInfo,
                     $"BulkCreateHoliday: {name}, {description}, {search}");
 
-                metadata ??= MusicServiceManager.CreatePlaylist(
+                metadata ??= await MusicServiceManager.CreatePlaylist(
                     MusicService.GetService(ServiceType.Spotify), User, name, description,
                     fileProvider);
 
@@ -515,15 +515,12 @@ namespace m4d.Controllers
             IPrincipal principal)
         {
             var playlist = SafeLoadPlaylist(id, dms);
-            switch (playlist.Type)
+            return playlist.Type switch
             {
-                case PlayListType.SongsFromSpotify:
-                    return await UpdateSongsFromSpotify(playlist, email, dms);
-                case PlayListType.SpotifyFromSearch:
-                    return await UpdateSpotifyFromSearch(playlist, dms, principal);
-                default:
-                    return $"Playlist {id} unsupported type - {playlist.Type}";
-            }
+                PlayListType.SongsFromSpotify => await UpdateSongsFromSpotify(playlist, email, dms),
+                PlayListType.SpotifyFromSearch => await UpdateSpotifyFromSearch(playlist, dms, principal),
+                _ => $"Playlist {id} unsupported type - {playlist.Type}",
+            };
         }
 
         private async Task<string> UpdateSongsFromSpotify(PlayList playlist, string email,
@@ -531,7 +528,7 @@ namespace m4d.Controllers
         {
             try
             {
-                var spl = LoadServicePlaylist(playlist, email, MusicServiceManager);
+                var spl = await LoadServicePlaylist(playlist, email, MusicServiceManager);
                 if (spl == null)
                 {
                     return $"UpdateSongsFromSpotify {playlist.Id}: Unable to load playlist";
@@ -592,7 +589,7 @@ namespace m4d.Controllers
                 }
 
                 var tracks = sr.Songs.Select(s => s.GetPurchaseId(ServiceType.Spotify));
-                if (MusicServiceManager.SetPlaylistTracks(spotify, principal, playlist.Id, tracks))
+                if (await MusicServiceManager.SetPlaylistTracks(spotify, principal, playlist.Id, tracks))
                 {
                     playlist.Updated = DateTime.Now;
                     await dms.SaveChanges();
@@ -752,7 +749,7 @@ namespace m4d.Controllers
                         $"Playlist {id} not restored: Unsupported type {playlist.Type}");
                 }
 
-                var spl = LoadServicePlaylist(playlist, email, serviceManager);
+                var spl = await LoadServicePlaylist(playlist, email, serviceManager);
                 if (spl == null)
                 {
                     throw new Exception(
@@ -806,7 +803,7 @@ namespace m4d.Controllers
         }
 
 
-        private static GenericPlaylist LoadServicePlaylist(PlayList playList, string email,
+        private static async Task<GenericPlaylist> LoadServicePlaylist(PlayList playList, string email,
             MusicServiceManager serviceManager)
         {
             var service = MusicService.GetService(ServiceType.Spotify);
@@ -820,7 +817,7 @@ namespace m4d.Controllers
                     $@"Playlists of type ${playList.Type} not not yet supported.");
             }
 
-            return serviceManager.LookupPlaylist(service, url, playList.SongIdList);
+            return await serviceManager.LookupPlaylist(service, url, playList.SongIdList);
         }
 
         private HttpStatusCode GetPlaylist(string id, out PlayList playList)
@@ -845,7 +842,7 @@ namespace m4d.Controllers
         private async Task SpotifyAuthorization()
         {
             var authResult = await HttpContext.AuthenticateAsync();
-            AdmAuthentication.GetServiceAuthorization(
+            await AdmAuthentication.GetServiceAuthorization(
                 Configuration, ServiceType.Spotify, User,
                 authResult);
         }

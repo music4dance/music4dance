@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace m4dModels
 {
@@ -25,8 +26,8 @@ namespace m4dModels
             return pt == PurchaseType.Song && album != null && song != null ? string.Format(AssociateLink, song, album) : null;
         }
 
-        public override IList<ServiceTrack> ParseSearchResults(
-            dynamic results, Func<string, dynamic> getResult,
+        public override async Task<IList<ServiceTrack>> ParseSearchResults(
+            dynamic results, Func<string, Task<dynamic>> getResult,
             IEnumerable<string> excludeTracks)
         {
             var ret = new List<ServiceTrack>();
@@ -37,7 +38,7 @@ namespace m4dModels
 
                 foreach (var track in tracks)
                 {
-                    var st = InternalParseTrackResults(track);
+                    var st = await InternalParseTrackResults(track);
                     if (st != null)
                     {
                         ret.Add(st);
@@ -48,8 +49,8 @@ namespace m4dModels
             return ret;
         }
 
-        public override ServiceTrack ParseTrackResults(dynamic results,
-            Func<string, dynamic> getResult)
+        public override Task<ServiceTrack> ParseTrackResults(dynamic results,
+            Func<string, Task<dynamic>> getResult)
         {
             if (results == null)
             {
@@ -59,7 +60,7 @@ namespace m4dModels
             return tracks.Count > 0 ? InternalParseTrackResults(tracks[0]) : null;
         }
 
-        private ServiceTrack InternalParseTrackResults(dynamic track)
+        private Task<ServiceTrack> InternalParseTrackResults(dynamic track)
         {
             if (!string.Equals("song", (string)track.kind))
             {
@@ -72,7 +73,7 @@ namespace m4dModels
                 duration = ((int)track.trackTimeMillis + 500) / 1000;
             }
 
-            return new ServiceTrack
+            return Task.FromResult(new ServiceTrack
             {
                 Service = ServiceType.ITunes,
                 TrackId = track.trackId.ToString(),
@@ -87,7 +88,7 @@ namespace m4dModels
                 Genres = new string[] { track.primaryGenreName },
                 TrackNumber = track.trackNumber,
                 SampleUrl = track.PreviewUrl
-            };
+            });
         }
     }
 }

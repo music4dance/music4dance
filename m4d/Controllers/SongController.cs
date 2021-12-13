@@ -969,8 +969,8 @@ namespace m4d.Controllers
             UseVue = false;
 
             var authResult = await HttpContext.AuthenticateAsync();
-            var canSpotify = AdmAuthentication.GetServiceAuthorization(
-                Configuration, ServiceType.Spotify, User, authResult) != null;
+            var canSpotify = (await AdmAuthentication.GetServiceAuthorization(
+                Configuration, ServiceType.Spotify, User, authResult)) != null;
 
             return View(
                 new PlaylistCreateInfo
@@ -996,8 +996,8 @@ namespace m4d.Controllers
             PlaylistCreateInfo info)
         {
             var authResult = await HttpContext.AuthenticateAsync();
-            var canSpotify = AdmAuthentication.GetServiceAuthorization(
-                Configuration, ServiceType.Spotify, User, authResult) != null;
+            var canSpotify = (await AdmAuthentication.GetServiceAuthorization(
+                Configuration, ServiceType.Spotify, User, authResult)) != null;
 
             info.IsAuthenticated = User.Identity?.IsAuthenticated ?? false;
             info.IsPremium = User.IsInRole("premium") || User.IsInRole("trial");
@@ -1037,11 +1037,11 @@ namespace m4d.Controllers
                 var tracks = results.Songs.Select(s => s.GetPurchaseId(ServiceType.Spotify));
 
                 var service = MusicService.GetService(ServiceType.Spotify);
-                metadata = MusicServiceManager.CreatePlaylist(
+                metadata = await MusicServiceManager.CreatePlaylist(
                     service, User, info.Title,
                     $"{info.DescriptionPrefix} {filter.Description}", fileProvider);
 
-                if (!MusicServiceManager.SetPlaylistTracks(service, User, metadata.Id, tracks))
+                if (!await MusicServiceManager.SetPlaylistTracks(service, User, metadata.Id, tracks))
                 {
                     ViewBag.StatusMessage = "Unable to set the playlist tracks.";
                     return View("Error");
@@ -1474,17 +1474,17 @@ namespace m4d.Controllers
                 return newSong;
             }
 
-            return UpdateSpotifyGenre(newSong, dms) || changed ? newSong : null;
+            return await UpdateSpotifyGenre(newSong, dms) || changed ? newSong : null;
         }
 
-        private bool UpdateSpotifyGenre(Song song, DanceMusicCoreService dms)
+        private async Task<bool> UpdateSpotifyGenre(Song song, DanceMusicCoreService dms)
         {
             var spotify = MusicService.GetService(ServiceType.Spotify);
             var tags = song.GetUserTags(spotify.User);
 
             foreach (var prop in SpotifySongProperties(song.SongProperties))
             {
-                var track = MusicServiceManager.GetMusicServiceTrack(prop.Value, spotify);
+                var track = await MusicServiceManager.GetMusicServiceTrack(prop.Value, spotify);
                 if (track.Genres is { Length: > 0 })
                 {
                     tags = tags.Add(

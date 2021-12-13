@@ -4,11 +4,13 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Net;
+using System.Net.Http;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Security.Principal;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using m4dModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Configuration;
@@ -56,30 +58,27 @@ namespace m4d.Utilities
 
         protected Timer AccessTokenRenewer { get; set; }
 
-        public AccessToken GetAccessToken()
+        public async Task<AccessToken> GetAccessToken()
         {
-            lock (this)
+            if (Token != null)
             {
-                if (Token != null)
-                {
-                    return Token;
-                }
-
-                Token = CreateToken();
-                if (AccessTokenRenewer == null)
-                {
-                    AccessTokenRenewer = new Timer(
-                        OnTokenExpiredCallback, this, Token.ExpiresIn,
-                        Token.ExpiresIn);
-                }
-
                 return Token;
             }
+
+            Token = await CreateToken();
+            if (AccessTokenRenewer == null)
+            {
+                AccessTokenRenewer = new Timer(
+                    OnTokenExpiredCallback, this, Token.ExpiresIn,
+                    Token.ExpiresIn);
+            }
+
+            return Token;
         }
 
-        public string GetAccessString()
+        public async Task<string> GetAccessString()
         {
-            var token = GetAccessToken();
+            var token = await GetAccessToken();
             return "Bearer " + token.access_token;
         }
 
@@ -91,12 +90,11 @@ namespace m4d.Utilities
         private string _request;
         protected AccessToken Token { get; set; }
 
-        private AccessToken CreateToken()
+        private async Task<AccessToken> CreateToken()
         {
             //Prepare OAuth request 
-            var webRequest = WebRequest.Create(RequestUrl);
-            webRequest.ContentType = "application/x-www-form-urlencoded";
-            webRequest.Method = "POST";
+            using var webRequest = new HttpRequestMessage(HttpMethod.Post, RequestUrl);
+            //webRequest.Headers.Add("ContentType", "application/x-www-form-urlencoded");
 
             var svcCredentials =
                 Convert.ToBase64String(Encoding.ASCII.GetBytes(ClientId + ":" + ClientSecret));
@@ -105,19 +103,15 @@ namespace m4d.Utilities
             var request = _request ?? (_request = string.Format(
                 RequestFormat,
                 Uri.EscapeDataString(ClientId), Uri.EscapeDataString(ClientSecret))) + RequestExtra;
+            webRequest.Content = new StringContent(request, Encoding.UTF8, "application/x-www-form-urlencoded");
             var bytes = Encoding.ASCII.GetBytes(request);
-            webRequest.ContentLength = bytes.Length;
-            using (var outputStream = webRequest.GetRequestStream())
-            {
-                outputStream.Write(bytes, 0, bytes.Length);
-            }
 
             try
             {
-                using var webResponse = webRequest.GetResponse();
+                using var webResponse = await HttpClientHelper.Client.SendAsync(webRequest);
                 var serializer = new DataContractJsonSerializer(typeof(AccessToken));
                 //Get deserialized object from JSON stream
-                return (AccessToken)serializer.ReadObject(webResponse.GetResponseStream());
+                return (AccessToken)serializer.ReadObject(await webResponse.Content.ReadAsStreamAsync());
             }
             catch (Exception e)
             {
@@ -136,12 +130,12 @@ namespace m4d.Utilities
             AccessTokenRenewer.Dispose();
         }
 
-        public static string GetServiceAuthorization(IConfiguration configuration,
+        public static async Task<string> GetServiceAuthorization(IConfiguration configuration,
             ServiceType serviceType, IPrincipal principal = null,
             AuthenticateResult authResult = null)
         {
-            return SetupService(configuration, serviceType, principal, authResult)
-                ?.GetAccessString();
+            var service = SetupService(configuration, serviceType, principal, authResult);
+            return service == null ? null : await service.GetAccessString();
         }
 
         private static AdmAuthentication SetupService(IConfiguration configuration,
