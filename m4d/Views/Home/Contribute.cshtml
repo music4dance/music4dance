@@ -54,33 +54,36 @@
                 <button type="submit" class="btn btn-primary">Purchase Subscription</button>
             </div>
         }
+
+        <h2>Donate</h2>
+
+        using (Html.BeginForm("Purchase", "Home", FormMethod.Post, new
+        {
+            id = "contribute",
+            @class = "form-inline"
+        }))
+        {
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" name="kind" value="Donation"/>
+            <div class="form-group">
+                <label for="purchase-amount">Amount:</label>
+                $<input type="text" name="amount" min="0" max="9999" step="0.01" value="5.00" class="form-control" id="donate-amount"/>
+                <button type="submit" class="btn btn-primary">Donate</button>
+            </div>
+        }        
     }
     else
     {
         <p class="big-text">
-            You must be logged in to purchase a subscription, please
+            You must be logged in to purchase a subscription or donate, please
             <a id="login" asp-area="Identity" asp-page="/Account/Login" asp-route-ReturnUrl="/Home/Contribute">log in</a> or
             <a id="register" asp-area="Identity" asp-page="/Account/Register" asp-route-ReturnUrl="/Home/Contribute">register</a>.
         </p>
-        <p class="big-text">If you would like to donate without creating an account, please choose donate below.</p>
+        <p>We did allow anonymous donations, but that left us exposed to card testing attacks. So we're going to have to ask you to register befor donating to avoid malitious use of this site to hack innocent people's credit cards.</p>
     }
 
-    <h2>Donate</h2>
-    using (Html.BeginForm("Purchase", "Home", FormMethod.Post, new
-    {
-        id = "contribute",
-        @class = "form-inline"
-    }))
-    {
-        @Html.AntiForgeryToken()
 
-        <input type="hidden" name="kind" value="Donation"/>
-        <div class="form-group">
-            <label for="purchase-amount">Amount:</label>
-            $<input type="text" name="amount" min="0" max="9999" step="0.01" value="5.00" class="form-control" id="donate-amount"/>
-            <button type="submit" class="btn btn-primary">Donate</button>
-        </div>
-    }
 
     <p class="big-text">Any questions about how subscriptions or donations work, how transactions are processed securely or anything else related to this transaction? Please check out our <a href="https://music4dance.blog/music4dance-help/subscriptions/" target="_blank">help page.</a></p>
 

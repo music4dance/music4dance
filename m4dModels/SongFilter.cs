@@ -586,6 +586,7 @@ namespace m4dModels
                 odata = (odata == null ? "" : odata + " and ") + tagFilter;
             }
 
+            Trace.WriteLine($"ODataFilter: {odata}");
             return odata;
         }
 
