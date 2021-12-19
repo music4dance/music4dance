@@ -318,6 +318,12 @@
                         @class = "dropdown-item"
                     })
                 </li>
+                <li>
+                    @Html.ActionLink("Raw Search", "RawSearchForm", "Song", null, new
+                    {
+                        @class = "dropdown-item"
+                    })
+                </li>
                 @if (User.IsInRole("dbAdmin"))
                 {
                     <li>

@@ -79,6 +79,10 @@ export class SongFilter {
   }
 
   public get query(): string {
+    return this.isRaw ? this.rawFilterQuery : this.normalFilterQuery;
+  }
+
+  private get normalFilterQuery(): string {
     const tempoMin = this.tempoMin ? this.tempoMin.toString() : "";
     const tempoMax = this.tempoMax ? this.tempoMax.toString() : "";
     const level = this.level ? this.level : "";
@@ -93,6 +97,21 @@ export class SongFilter {
       `${tempoMin}-${tempoMax}-${this.cleanPage}-${this.encode(
         this.tags
       )}-${level}`;
+
+    return this.trimEnd(ret, ".-");
+  }
+
+  private get rawFilterQuery(): string {
+    const ret =
+      `${this.action}-${this.encode(this.dances ?? "")}-${this.encode(
+        this.sortOrder ?? ""
+      )}-` +
+      `${this.encode(this.searchString)}-${this.encode(
+        this.purchase ?? ""
+      )}-${this.encode(this.user ?? "")}-` +
+      `--${this.cleanPage}-${this.encode(this.tags)}-${
+        this.level?.toString() ?? ""
+      }`;
 
     return this.trimEnd(ret, ".-");
   }

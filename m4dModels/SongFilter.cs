@@ -89,7 +89,7 @@ namespace m4dModels
                 value = value.Replace(@"\-", _subStr);
             }
 
-            var cells = value.Split(Separator).ToList();
+            var cells = value.Split(Separator).Select(s => s.Trim()).ToList();
 
             // Special case where the first field is dance
             //  Need to see if we're still generating these
@@ -105,6 +105,7 @@ namespace m4dModels
                         cells.RemoveAt(2);
                     }
                 }
+                cells[0] = cells[0].Trim('+');
             }
 
             for (var i = 0; i < cells.Count; i++)
@@ -152,7 +153,7 @@ namespace m4dModels
                 pi.SetValue(this, v);
             }
 
-            if (Action.StartsWith("azure", StringComparison.OrdinalIgnoreCase))
+            if (!IsRaw && Action.StartsWith("azure", StringComparison.OrdinalIgnoreCase))
             {
                 Action = Action.Contains("advanced", StringComparison.OrdinalIgnoreCase)
                     ? "Advanced"

@@ -145,7 +145,6 @@ export default class AugmentSearch extends Mixins(AdminTools) {
     if (!title || !artist) {
       return;
     }
-
     try {
       this.searching = true;
       const results = await axios.get(

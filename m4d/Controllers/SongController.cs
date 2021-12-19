@@ -66,7 +66,7 @@ namespace m4d.Controllers
                 User.IsInRole(DanceMusicCoreService.TrialRole)
                     ? DanceMusicCoreService.CruftFilter.AllCruft
                     : DanceMusicCoreService.CruftFilter.NoCruft;
-        }
+        } 
 
         #region Commands
 
