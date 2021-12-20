@@ -308,57 +308,5 @@ namespace m4dModels.Tests
             Trace.WriteLineIf(General.TraceInfo, $"---------------Postdump for Song {song.SongId}");
             DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
         }
-
-        [TestMethod]
-        public async Task FixDuplicateTags()
-        {
-            var service = await DanceMusicTester.CreateService("TagDupTests");
-
-            var song = await Song.Create(SongDuplicateTags, service);
-
-            Trace.WriteLine(General.TraceInfo, $"---------------Predump for Song {song.SongId}");
-            DanceMusicTester.DumpSongProperties(song);
-            var c = song.SongProperties.Count;
-
-            Assert.IsTrue(song.FixDuplicateTags(service));
-            Trace.WriteLineIf(General.TraceInfo, $"{song.SongId}:{song.SongProperties.Count - c}");
-
-            Assert.AreEqual(c, song.SongProperties.Count);
-            Assert.AreEqual(
-                "International:Style|Pop:Music|Zoom:Other",
-                song.SongProperties[c - 2].Value);
-            Assert.AreEqual(
-                "International:Style|Soundtrack:Music|Zoom:Other",
-                song.SongProperties[c - 1].Value);
-            Trace.WriteLineIf(General.TraceInfo, $"---------------Postdump for Song {song.SongId}");
-            DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
-        }
-
-        [TestMethod]
-        public async Task FixBadTagCategory()
-        {
-            General.Level = TraceLevel.Info;
-
-            var dms = await DanceMusicTester.CreateService("Cleanup");
-
-            var song = await Song.Create(SongBadCategoryTags, dms);
-
-            Trace.WriteLine(General.TraceInfo, $"---------------Predump for Song {song.SongId}");
-            DanceMusicTester.DumpSongProperties(song);
-            var c = song.SongProperties.Count;
-
-            Assert.IsTrue(song.FixBadTagCategory());
-            Trace.WriteLineIf(General.TraceInfo, $"{song.SongId}:{song.SongProperties.Count - c}");
-
-            Assert.AreEqual(c, song.SongProperties.Count);
-            Assert.AreEqual(
-                "Christmas:Other|Pop:Music",
-                song.SongProperties[c - 4].Value);
-            Assert.AreEqual(
-                "Christmas:Other",
-                song.SongProperties[c - 1].Value);
-            Trace.WriteLineIf(General.TraceInfo, $"---------------Postdump for Song {song.SongId}");
-            DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
-        }
     }
 }

@@ -7,6 +7,9 @@ using Azure.Search.Documents.Models;
 
 namespace m4dModels
 {
+    // TODONEXT: Split the tag database into just the DB tag rings and the 
+    //  tags pulled from the facets (there will be overlap, which we can validate)
+    //  Then look at trimming the DB to remove any non-ring tags...
     public class TagManager
     {
         private readonly Dictionary<string, TagGroup> _queuedTags =
@@ -24,9 +27,7 @@ namespace m4dModels
 
         public Dictionary<string, TagGroup> TagMap { get; private set; }
 
-        public static bool TransformKey { get; set; }
-
-        private List<TagGroup> CleanTagGroups(List<TagGroup> tagGroups)
+        private static List<TagGroup> CleanTagGroups(List<TagGroup> tagGroups)
         {
             var groups = tagGroups
                 .DistinctBy(g => g.Key.ToLower())
@@ -65,17 +66,16 @@ namespace m4dModels
         {
             var tagManager =
                 new TagManager(
-                    dms.TagGroups.OrderBy(t => TransformKey ? t.Key.ToLower() : t.Key).ToList());
+                    dms.TagGroups.OrderBy(t => t.Key).ToList());
 
-            tagManager.TagMap = tagManager.TagGroups.ToDictionary(tt => CanonicalKey(tt.Key));
+            tagManager.TagMap = tagManager.TagGroups.ToDictionary(tt => tt.Key);
 
             var facets = await dms.GetTagFacets(
                 "GenreTags,StyleTags,TempoTags,OtherTags", 10000, source);
 
             foreach (var facet in facets)
             {
-                var id = CanonicalKey(
-                    SongFilter.TagClassFromName(facet.Key[0..^4]));
+                var id = SongFilter.TagClassFromName(facet.Key[0..^4]);
                 tagManager.IndexFacet(facet.Value, id);
             }
 
@@ -85,11 +85,11 @@ namespace m4dModels
         public void FixupTags()
         {
             TagMap = TagGroups.ToDictionary(
-                tt => CanonicalKey(tt.Key), StringComparer.OrdinalIgnoreCase);
+                tt => tt.Key, StringComparer.OrdinalIgnoreCase);
 
             foreach (var tt in TagGroups.Where(tt => !string.IsNullOrEmpty(tt.PrimaryId)))
             {
-                tt.Primary = TagMap[CanonicalKey(tt.PrimaryId)];
+                tt.Primary = TagMap[tt.PrimaryId];
                 tt.Primary.Children ??= new List<TagGroup>();
 
                 tt.Primary.Children.Add(tt);
@@ -101,8 +101,8 @@ namespace m4dModels
             lock (_queuedTags)
             {
                 var t = TagList.NormalizeTag(tag);
-                var tt = TagMap.GetValueOrDefault(CanonicalKey(t)) ??
-                    _queuedTags.GetValueOrDefault(CanonicalKey(t));
+                var tt = TagMap.GetValueOrDefault(t) ??
+                    _queuedTags.GetValueOrDefault(t);
                 if (tt != null)
                 {
                     return tt;
@@ -125,7 +125,7 @@ namespace m4dModels
 
             lock (_queuedTags)
             {
-                TagMap[CanonicalKey(tt.Key)] = tt;
+                TagMap[tt.Key] = tt;
                 var index = TagGroups.BinarySearch(
                     tt,
                     Comparer<TagGroup>.Create(
@@ -144,7 +144,6 @@ namespace m4dModels
         {
             lock (_queuedTags)
             {
-                key = CanonicalKey(key);
                 var tt = TagMap.GetValueOrDefault(key);
                 if (tt == null)
                 {
@@ -175,7 +174,7 @@ namespace m4dModels
         {
             lock (_queuedTags)
             {
-                var tagGroup = TagMap.GetValueOrDefault(CanonicalKey(key));
+                var tagGroup = TagMap.GetValueOrDefault(key);
                 if (tagGroup == null)
                 {
                     return;
@@ -190,7 +189,7 @@ namespace m4dModels
                 else
                 {
                     tagGroup.PrimaryId = primaryId;
-                    tagGroup.Primary = TagMap.GetValueOrDefault(CanonicalKey(primaryId));
+                    tagGroup.Primary = TagMap.GetValueOrDefault(primaryId);
                     tagGroup.Primary.AddChild(tagGroup);
                 }
             }
@@ -200,7 +199,7 @@ namespace m4dModels
         {
             lock (_queuedTags)
             {
-                var tag = TagMap.GetValueOrDefault(CanonicalKey(oldKey));
+                var tag = TagMap.GetValueOrDefault(oldKey);
                 if (tag == null)
                 {
                     return;
@@ -237,11 +236,6 @@ namespace m4dModels
 
                 tt.Count = (int)facet.Count.Value;
             }
-        }
-
-        public static string CanonicalKey(string s)
-        {
-            return TransformKey ? s.ToLower() : s;
         }
     }
 }

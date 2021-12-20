@@ -314,7 +314,7 @@ namespace m4dModels
                     tags.Tags
                         .Select(
                             t =>
-                                (tagMap.GetValueOrDefault(t.ToLower()) ?? new TagGroup { Key = t })
+                                (tagMap.GetValueOrDefault(t) ?? new TagGroup { Key = t })
                                 .GetPrimary()).Select(tt => tt.Key).Distinct().ToList());
         }
     }

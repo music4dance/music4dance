@@ -1365,7 +1365,7 @@ namespace m4dModels
 
                 try
                 {
-                    var songs = chunk.Where(s => !s.IsNull).Select(s => s.GetIndexDocument());
+                    var songs = chunk.Where(s => !s.IsNull).Select(s => s.GetIndexDocument(this));
                     var batch = IndexDocumentsBatch.Upload(songs);
                     var results = await client.IndexDocumentsAsync(batch);
                     added += results.Value.Results.Count;
@@ -1434,11 +1434,11 @@ namespace m4dModels
                     {
                         if (!song.IsNull)
                         {
-                            added.Add(song.GetIndexDocument());
+                            added.Add(song.GetIndexDocument(this));
                         }
                         else
                         {
-                            deleted.Add(song.GetIndexDocument());
+                            deleted.Add(song.GetIndexDocument(this));
                         }
 
                         if (added.Count > 990 || deleted.Count > 990)

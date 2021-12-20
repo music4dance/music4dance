@@ -444,7 +444,7 @@ namespace m4dModels
                 var d = DanceLibrary.Dances.Instance.DanceFromName(dance);
                 if (d != null)
                 {
-                    danceFilter = $"(DanceTags/any(t: t eq '{TagManager.CanonicalKey(dance)}'))";
+                    danceFilter = $"(DanceTags/any(t: t eq '{dance}'))";
                 }
             }
 
@@ -520,7 +520,7 @@ namespace m4dModels
                 return;
             }
 
-            foreach (var t in filtered.StripType().Select(TagManager.CanonicalKey))
+            foreach (var t in filtered.StripType())
             {
                 if (sb.Length > 0)
                 {

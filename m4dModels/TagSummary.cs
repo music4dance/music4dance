@@ -40,7 +40,7 @@ namespace m4dModels
 
                 if (rg[1] == type)
                 {
-                    tags.Add(TagManager.CanonicalKey(rg[0]));
+                    tags.Add(rg[0]);
                 }
             }
 
@@ -58,10 +58,20 @@ namespace m4dModels
             Summary = "";
         }
 
-        public TagSummary(string serialized)
+        public TagSummary(string serialized, IReadOnlyDictionary<string, TagGroup> tagMap = null)
         {
             // Normalize the tags summary by pushing it through parse/deserialize
-            Summary = Serialize(Parse(serialized));
+            var tags = Parse(serialized);
+            if (tagMap != null)
+            {
+                tags = tags.Select(t => MassageeTag(t, tagMap)).ToList();
+            }
+            Summary = Serialize(tags);
+        }
+
+        public TagSummary(TagSummary tagSummary, IReadOnlyDictionary<string, TagGroup> tagMap = null)
+            : this(tagSummary.Summary, tagMap)
+        {
         }
 
         public TagSummary(FacetResults facets, IReadOnlyDictionary<string, TagGroup> tagMap)
@@ -89,6 +99,13 @@ namespace m4dModels
             }
 
             return $"{key}:{count}";
+        }
+
+        private static TagCount MassageeTag(TagCount tag, IReadOnlyDictionary<string, TagGroup> tagMap)
+        {
+            return tagMap.TryGetValue(tag.Value, out var tt)
+                ? new TagCount(tt.Key, tag.Count)
+                : tag;
         }
 
         public TagSummary(IEnumerable<TagCount> tags)

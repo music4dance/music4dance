@@ -1403,7 +1403,7 @@ namespace m4dModels
                         }
                         else
                         {
-                            AddObjectTags(prop.DanceQualifier, prop.Value, stats);
+                            prop.Value = AddObjectTags(prop.DanceQualifier, prop.Value, stats).ToString();
                         }
 
                         break;
@@ -4183,8 +4183,10 @@ namespace m4dModels
 
         private static SearchIndex s_index;
 
-        public SearchDocument GetIndexDocument()
+        public SearchDocument GetIndexDocument(DanceMusicCoreService dms)
         {
+            var tagMap = dms.DanceStats.TagManager.TagMap;
+
             // Set up the purchase flags
             var purchase = string.IsNullOrWhiteSpace(Purchase)
                 ? new List<string>()
@@ -4213,9 +4215,10 @@ namespace m4dModels
             var purchaseIds = GetExtendedPurchaseIds();
 
             // And the tags
-            var genre = TagSummary.GetTagSet("Music");
-            var other = TagSummary.GetTagSet("Other");
-            var tempo = TagSummary.GetTagSet("Tempo");
+            var ts = new TagSummary(TagSummary, tagMap);
+            var genre = ts.GetTagSet("Music");
+            var other = ts.GetTagSet("Other");
+            var tempo = ts.GetTagSet("Tempo");
             var style = new HashSet<string>();
 
             var dance = TagSummary.GetTagSet("Dance");
@@ -4223,9 +4226,10 @@ namespace m4dModels
             foreach (var dr in DanceRatings)
             {
                 var d = Dances.Instance.DanceFromId(dr.DanceId).Name.ToLower();
-                other.UnionWith(dr.TagSummary.GetTagSet("Other"));
-                tempo.UnionWith(dr.TagSummary.GetTagSet("Tempo"));
-                style.UnionWith(dr.TagSummary.GetTagSet("Style"));
+                ts = new TagSummary(dr.TagSummary, tagMap);
+                other.UnionWith(ts.GetTagSet("Other"));
+                tempo.UnionWith(ts.GetTagSet("Tempo"));
+                style.UnionWith(ts.GetTagSet("Style"));
             }
 
             var users = ModifiedBy.Select(

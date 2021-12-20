@@ -82,6 +82,9 @@ namespace m4d.APIControllers
                 return StatusCode((int)HttpStatusCode.NotFound);
             }
 
+            // TODO: Consider returning the history (or the tail) to the client and then
+            //  updating the client - this will smooth out the situation where a tag gets
+            //  transformed by the server
             return await Database.AppendHistory(
                 await UserMapper.DeanonymizeHistory(history, UserManager), mapper)
                 ? Ok()

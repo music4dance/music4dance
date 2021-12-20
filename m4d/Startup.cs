@@ -163,9 +163,6 @@ namespace m4d
                 typeof(TagProfile));
 
             services.AddHostedService<DanceStatsHostedService>();
-
-            var hasTransform = Configuration["Configuration:TransformTagKey:Enabled"];
-            TagManager.TransformKey = hasTransform != null && hasTransform != "false";
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

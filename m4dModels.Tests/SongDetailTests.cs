@@ -128,9 +128,9 @@ namespace m4dModels.Tests
 
         private static readonly string[] RhettRowsProps =
         {
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=(I've Had) The Time of My Life	Artist=Bill Medley & Jennifer Warnes	Album:00=Dirty Dancing Soundtrack	Track:00=1	Length=290	Tag+=Mambo:Dance|Salsa:Dance|Merengue:Dance|Hustle:Dance	DanceRating=MBO+1	DanceRating=SLS+1	DanceRating=MRG+1	DanceRating=HST+1",
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=(I've Had) The Time of My Life	Artist=Bill Medley & Jennifer Warnes	Album:00=Dirty Dancing Soundtrack	Track:00=1	Length=290	Tag+=Hustle:Dance|Mambo:Dance|Merengue:Dance|Salsa:Dance	DanceRating=MBO+1	DanceRating=SLS+1	DanceRating=MRG+1	DanceRating=HST+1",
             @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=A Namorada	Album:00=Phoenix 2001 Cha#1	Track:00=18	Length=287	Tag+=Cha Cha:Dance|Male Vocal:Other	DanceRating=CHA+1	Tag+:CHA=International:Style",
-            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Ain't That A Kick In The Head	Artist=Dean Martin	Album:00=Ultra-Lounge 'Wild, Cool & Swingin' Vol. 1	Track:00=1	Length=145	Tag+=Slow Foxtrot:Dance|Mambo:Dance|Cha Cha:Dance	DanceRating=SFT+1	DanceRating=MBO+1	DanceRating=CHA+1	Tag+:SFT=International:Style"
+            @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Ain't That A Kick In The Head	Artist=Dean Martin	Album:00=Ultra-Lounge 'Wild, Cool & Swingin' Vol. 1	Track:00=1	Length=145	Tag+=Cha Cha:Dance|Mambo:Dance|Slow Foxtrot:Dance	DanceRating=SFT+1	DanceRating=MBO+1	DanceRating=CHA+1	Tag+:SFT=International:Style"
         };
 
         [TestMethod]

@@ -64,7 +64,7 @@ namespace m4dModels
                         return null;
                     case 1:
                         return
-                            $"(DanceTags/any(t: t eq '{TagManager.CanonicalKey(dances[0].Name)}'))";
+                            $"(DanceTags/any(t: t eq '{dances[0].Name}'))";
                 }
 
                 var sb = new StringBuilder();
@@ -78,7 +78,7 @@ namespace m4dModels
                     }
 
                     sb.AppendFormat(
-                        "(DanceTags/any(t: t eq '{0}'))", TagManager.CanonicalKey(d.Name));
+                        "(DanceTags/any(t: t eq '{0}'))", d.Name);
                 }
 
                 return $"({sb})";

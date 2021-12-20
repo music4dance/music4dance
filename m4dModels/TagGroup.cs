@@ -38,6 +38,8 @@ namespace m4dModels
 
         public bool IsNull => string.IsNullOrWhiteSpace(Key);
 
+        public bool IsConected => Primary != null 
+            || Children != null && Children.Count > 0;
         #endregion
 
         #region Constructors

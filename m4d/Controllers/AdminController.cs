@@ -249,16 +249,6 @@ namespace m4d.Controllers
         }
 
         //
-        // Get: //SetTransformKey
-        public ActionResult SetTransformKey(bool value)
-        {
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Set Transform Key: '{value}'");
-            TagManager.TransformKey = value;
-
-            return RedirectToAction("Diagnostics");
-        }
-
-        //
         //
         // Get: //AzureFacets
         [Authorize(Roles = "dbAdmin")]

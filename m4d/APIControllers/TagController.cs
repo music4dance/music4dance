@@ -26,7 +26,7 @@ namespace m4d.APIControllers
         public IActionResult Get()
         {
             return JsonCamelCase(
-                _statistics.TagGroups.Where(g => g.Category != "Dance")
+                _statistics.TagGroups.Where(g => g.Category != "Dance" && g.PrimaryId == null)
                     .Select(g => new { g.Key, g.Count }));
         }
     }
