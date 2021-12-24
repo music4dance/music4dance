@@ -1,14 +1,8 @@
 ﻿@using m4d.ViewModels
 @using Microsoft.Extensions.Configuration
-
-@inject IConfiguration _configuration;
+@model ContributeModel
 
 @{
-    var ecString = _configuration["Configuration:Commerce:Enabled"];
-    if (!bool.TryParse(ecString, out var enableCommerce))
-    {
-        enableCommerce = true;
-    }
     ViewBag.Title = "Contribute";
     ViewBag.Description = "How to contribute to music4dance.net";
 
@@ -21,7 +15,7 @@
 
 <H1>@ViewBag.Title to music4dance.net</H1>
 
-@if (enableCommerce)
+@if (Model.CommerceEnabled)
 {
     <h2>Purchase a Subscription</h2>
     <p class="big-text">
@@ -38,40 +32,51 @@
         </a> from search results.
     </p>
 
-    if (User.Identity.IsAuthenticated)
+    if (Model.IsAuthenticated)
     {
-        using (Html.BeginForm("Purchase", "Home", FormMethod.Post, new
+        if (Model.FraudDetected)
         {
-            id = "purchase",
-            @class = "form-inline"
-        }))
-        {
-            @Html.AntiForgeryToken()
-            <input type="hidden" name="kind" value="Purchase"/>
-            <div class="form-group">
-                <label for="purchase-amount">Amount:</label>
-                $<input type="number" name="amount" min="10" max="9999" step="0.01" value="10.00" class="form-control" id="purchase-amount"/>
-                <button type="submit" class="btn btn-primary">Purchase Subscription</button>
-            </div>
+            <p class="big-text">
+                There have been a number of failed credit card charge attempts on this account.  This is generally an indication
+                of attempted credit card fraud.  If that's not the case here, please contact us at
+                <a href="mailto:info@music4dance.net">info@music4dance.net</a> and we'll look into unblocking your account.
+            </p>
         }
-
-        <h2>Donate</h2>
-
-        using (Html.BeginForm("Purchase", "Home", FormMethod.Post, new
+        else
         {
-            id = "contribute",
-            @class = "form-inline"
-        }))
-        {
-            @Html.AntiForgeryToken()
+            using (Html.BeginForm("Purchase", "Home", FormMethod.Post, new
+            {
+                id = "purchase",
+                @class = "form-inline"
+            }))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="kind" value="Purchase"/>
+                <div class="form-group">
+                    <label for="purchase-amount">Amount:</label>
+                    $<input type="number" name="amount" min="10" max="9999" step="0.01" value="10.00" class="form-control" id="purchase-amount"/>
+                    <button type="submit" class="btn btn-primary">Purchase Subscription</button>
+                </div>
+            }
 
-            <input type="hidden" name="kind" value="Donation"/>
-            <div class="form-group">
-                <label for="purchase-amount">Amount:</label>
-                $<input type="text" name="amount" min="0" max="9999" step="0.01" value="5.00" class="form-control" id="donate-amount"/>
-                <button type="submit" class="btn btn-primary">Donate</button>
-            </div>
-        }        
+            <h2>Donate</h2>
+
+            using (Html.BeginForm("Purchase", "Home", FormMethod.Post, new
+            {
+                id = "contribute",
+                @class = "form-inline"
+            }))
+            {
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" name="kind" value="Donation"/>
+                <div class="form-group">
+                    <label for="purchase-amount">Amount:</label>
+                    $<input type="text" name="amount" min="0" max="9999" step="0.01" value="5.00" class="form-control" id="donate-amount"/>
+                    <button type="submit" class="btn btn-primary">Donate</button>
+                </div>
+            }                    
+        }
     }
     else
     {
@@ -82,8 +87,6 @@
         </p>
         <p>We did allow anonymous donations, but that left us exposed to card testing attacks. So we're going to have to ask you to register befor donating to avoid malitious use of this site to hack innocent people's credit cards.</p>
     }
-
-
 
     <p class="big-text">Any questions about how subscriptions or donations work, how transactions are processed securely or anything else related to this transaction? Please check out our <a href="https://music4dance.blog/music4dance-help/subscriptions/" target="_blank">help page.</a></p>
 

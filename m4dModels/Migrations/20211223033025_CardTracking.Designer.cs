@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using m4dModels;
 
@@ -11,9 +12,10 @@ using m4dModels;
 namespace m4dModels.Migrations
 {
     [DbContext(typeof(DanceMusicContext))]
-    partial class DanceMusicContextModelSnapshot : ModelSnapshot
+    [Migration("20211223033025_CardTracking")]
+    partial class CardTracking
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -30,4 +30,11 @@
         public string ErrorCode { get; set; }
         public string ErrorMessage { get; set; }
     }
+
+    public class ContributeModel
+    {
+        public bool CommerceEnabled { get; set; }
+        public bool IsAuthenticated { get; set; }
+        public bool FraudDetected { get; set; }
+    }
 }

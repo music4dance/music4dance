@@ -191,6 +191,23 @@
         @Html.DisplayFor(model => model.AccessFailedCount)
     </div>
 </div>
+<div class="row">
+    <div class="col-sm-3">
+        @Html.DisplayNameFor(model => model.FailedCardAttempts)
+    </div>
+    <div class="col-sm-9">
+        @Html.DisplayFor(model => model.FailedCardAttempts)
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+        @Html.DisplayNameFor(model => model.LifetimePurchased)
+    </div>
+    <div class="col-sm-9">
+        @Html.DisplayFor(model => model.LifetimePurchased)
+    </div>
+</div>
+
 
 @if (Model.ActivityLog != null) {
 	<div class="row">

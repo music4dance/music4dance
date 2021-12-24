@@ -126,42 +126,42 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
-        public IActionResult Contribute()
+        public async Task<IActionResult> Contribute()
         {
             HelpPage = "subscriptions";
-            return View();
+
+            var user = await UserManager.GetUserAsync(User);
+            return View(GetContributeModel(user));
         }
 
-        [AllowAnonymous]
+        [Authorize]
         public async Task<IActionResult> Purchase([FromServices]IConfiguration configuration,
             decimal amount, PurchaseKind kind)
         {
             HelpPage = "subscriptions";
 
-            string userName = null;
-            string email = null;
+            var user = await UserManager.GetUserAsync(User);
 
-            if (User.Identity.IsAuthenticated)
+            if (IsFraudDetected(user))
             {
-                var user = await UserManager.GetUserAsync(User);
-                userName = user.UserName;
-                email = user.Email;
+                return Redirect("/Home/Contribute");
             }
+
 
             var purchase = new PurchaseModel
             {
                 Key = configuration["Authentication:Stripe:PublicKey"],
                 Kind = kind,
                 Amount = amount,
-                User = userName,
-                Email = email
+                User = user.UserName,
+                Email = user.Email
             };
             return View(purchase);
         }
 
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [AllowAnonymous]
         public async Task<ActionResult> ConfirmPurchase(
             [FromServices]SignInManager<ApplicationUser> signInManager,
             [FromServices]IConfiguration configuration, string stripeToken, string stripeEmail,
@@ -172,6 +172,7 @@ namespace m4d.Controllers
             // Do the stripy things
             var userName = Identity.IsAuthenticated ? UserName : null;
             var conf = new ShortGuid(Guid.NewGuid()).ToString();
+            ApplicationUser user = null;
 
             var purchase = new PurchaseModel
             {
@@ -186,14 +187,12 @@ namespace m4d.Controllers
                 // TODO: Can this be done once per session?
                 StripeConfiguration.ApiKey = configuration["Authentication:Stripe:SecretKey"];
 
-
                 var metaData = new Dictionary<string, string> { { "confirmation-code", conf } };
                 if (userName != null)
                 {
                     metaData.Add("user-id", userName);
                 }
 
-                ApplicationUser user = null;
                 if (kind == PurchaseKind.Purchase && userName != null)
                 {
                     user = await UserManager.GetUserAsync(User);
@@ -224,11 +223,13 @@ namespace m4d.Controllers
                         user.SubscriptionStart = start;
                         user.SubscriptionEnd = start.Value.AddYears(1);
                         user.SubscriptionLevel = SubscriptionLevel.Silver;
+                        user.LifetimePurchased += ((decimal)charge.Amount / 100);
                         await Database.SaveChanges();
 
                         await UserManager.AddToRoleAsync(user, DanceMusicCoreService.PremiumRole);
 
                         await signInManager.RefreshSignInAsync(user);
+                        
                     }
 
                     Database.Context.ActivityLog.Add(new ActivityLog("Purchase", user, purchase));
@@ -252,6 +253,12 @@ namespace m4d.Controllers
             }
 
             Database.Context.ActivityLog.Add(new ActivityLog("Purchase", null, purchase));
+            user ??= await UserManager.GetUserAsync(User);
+            if (user != null)
+            {
+                user.FailedCardAttempts += 1;
+                await UserManager.UpdateAsync(user);
+            }
             await Database.SaveChanges();
 
             return View("PurchaseError", purchase);
@@ -261,6 +268,42 @@ namespace m4d.Controllers
         public IActionResult IntentionalError(string message)
         {
             throw new Exception(message ?? "This is an error");
+        }
+
+        private ContributeModel GetContributeModel(ApplicationUser user)
+        {
+            return new ContributeModel
+            {
+                CommerceEnabled = IsCommerceEnabled(),
+                IsAuthenticated = User.Identity.IsAuthenticated,
+                FraudDetected = IsFraudDetected(user),
+            };
+        }
+
+        private bool IsFraudDetected(ApplicationUser user)
+        {
+            return user != null && user.FailedCardAttempts >= GetCardFailLimit();
+        }
+
+        private int GetCardFailLimit()
+        {
+            var ecString = Configuration["Configuration:Commerce:FailLimit"];
+
+            if (!int.TryParse(ecString, out var failLimit))
+            {
+                failLimit = 5;
+            }
+            return failLimit;
+        }
+
+        private bool IsCommerceEnabled()
+        {
+            var ecString = Configuration["Configuration:Commerce:Enabled"];
+            if (!bool.TryParse(ecString, out var enableCommerce))
+            {
+                enableCommerce = true;
+            }
+            return enableCommerce;
         }
     }
 }
