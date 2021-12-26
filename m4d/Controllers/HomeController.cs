@@ -95,6 +95,7 @@ namespace m4d.Controllers
 
             HelpPage = "tempo-counter";
             UseVue = true;
+            BuildEnvironment(danceEnvironment: true);
             return View("TempoCounter");
         }
 
@@ -109,6 +110,7 @@ namespace m4d.Controllers
 
             HelpPage = "dance-tempi";
             UseVue = true;
+            BuildEnvironment(danceEnvironment: true);
             return View("TempoList");
         }
 

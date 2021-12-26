@@ -1,0 +1,14 @@
+﻿@{
+    ViewData.TryGetValue("DanceEnvironment", out var environment);
+    ViewData.TryGetValue("TagDatabase", out var tagDatabase);
+}
+
+@if (environment != null)
+{
+    <script>var environmentJson = @Html.Raw(environment)</script>
+}
+
+@if (tagDatabase != null)
+{
+    <script>var tagDatabaseJson = @Html.Raw(tagDatabase)</script>
+}

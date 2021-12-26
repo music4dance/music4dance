@@ -3,12 +3,20 @@
 @model m4d.ViewModels.ObjectConverterModel
 
 @{
-    var jsonSerializerSettings = new JsonSerializerSettings
+    string json = null;
+    if (Model.Model is string)
     {
-        ContractResolver = new CamelCasePropertyNamesContractResolver(),
-        NullValueHandling = NullValueHandling.Ignore
-    };
-    var json = JsonConvert.SerializeObject(Model.Model, Formatting.Indented, jsonSerializerSettings);
+        json = Model.Model as string;
+    }
+    else
+    {
+        var jsonSerializerSettings = new JsonSerializerSettings
+        {
+            ContractResolver = new CamelCasePropertyNamesContractResolver(),
+            NullValueHandling = NullValueHandling.Ignore
+        };
+        json = JsonConvert.SerializeObject(Model.Model, Formatting.Indented, jsonSerializerSettings);        
+    }
 }
 
 <script>var @Model.Name = @Html.Raw(json);</script>

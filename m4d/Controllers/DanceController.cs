@@ -52,6 +52,7 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Index(string dance)
         {
+            BuildEnvironment(danceEnvironment: true);
             if (string.IsNullOrWhiteSpace(dance))
             {
                 HelpPage = "dance-styles";

@@ -183,6 +183,19 @@ namespace m4d.Controllers
             return View("Results");
         }
 
+        protected void BuildEnvironment(bool danceEnvironment = false, bool tagDatabase = false)
+        {
+            if (danceEnvironment)
+            {
+                ViewData["DanceEnvironment"] = Database.DanceStats.GetJsonDanceEnvironment();
+            }
+            if (tagDatabase)
+            {
+                ViewData["TagDatabase"] = Database.DanceStats.GetJsonTagDatabse();
+            }
+        }
+
+
         #endregion
     }
 }

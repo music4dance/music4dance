@@ -17,7 +17,9 @@
 
 <div id="app"></div>
 
+
 @section Scripts {
+    <partial name="_environmentWriter"/>
     <partial name="_jsonCamelCase" model="@converterModel" />
     <script asp-src-include="/client/js/chunk-vendors.*.js"></script>
     <script asp-src-include="/client/js/chunk-common.*.js"></script>

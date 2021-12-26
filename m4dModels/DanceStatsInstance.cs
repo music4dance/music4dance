@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using DanceLibrary;
+using m4d.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -15,7 +16,6 @@ namespace m4dModels
         {
             Dances = stats.GetSparseStats().ToList();
             Groups = stats.GetGroupsSparse().ToList();
-            TagGroups = stats.TagGroups;
         }
 
         public List<DanceStatsSparse> Dances { get; set; }
@@ -291,5 +291,31 @@ namespace m4dModels
                     }
                 });
         }
+
+        public string GetJsonDanceEnvironment()
+        {
+            if (_jsonEnvironment == null)
+            {
+                var environment = new DanceEnvironment(this);
+                _jsonEnvironment = JsonConvert.SerializeObject(environment, JsonHelpers.CamelCaseSerializer);
+
+            }
+            return _jsonEnvironment;
+        }
+        private string _jsonEnvironment;
+
+        public string GetJsonTagDatabse()
+        {
+            if (_jsonTagDatabase == null)
+            {
+                var tagDatabase = TagGroups
+                    .Where(g => g.Category != "Dance" && g.PrimaryId == null)
+                    .Select(g => new { g.Key, g.Count });
+
+                _jsonTagDatabase = JsonConvert.SerializeObject(tagDatabase, JsonHelpers.CamelCaseSerializer);
+            }
+            return _jsonTagDatabase;
+        }
+        private string _jsonTagDatabase;
     }
 }

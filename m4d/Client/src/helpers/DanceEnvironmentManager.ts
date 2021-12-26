@@ -6,7 +6,9 @@ import { TypedJSON } from "typedjson";
 
 declare global {
   interface Window {
+    environmentJson?: string;
     environment?: DanceEnvironment;
+    tagDatabaseJson?: string;
     tagDatabase?: TagDatabase;
   }
 }
@@ -17,15 +19,18 @@ const expiryKey = "expiry";
 
 export async function getEnvironment(): Promise<DanceEnvironment> {
   if (window.environment) {
+    console.log("Environment Already Loaded");
     return window.environment;
   }
 
-  if (checkExpiry(environmentKey)) {
-    window.environment = loadDancesFromStorage();
+  if (window.environmentJson && loadDancesFromString(window.environmentJson)) {
+    console.log("Environment Loaded from Json");
+    return window.environment!;
   }
 
-  if (window.environment) {
-    return window.environment;
+  if (checkExpiry(environmentKey) && loadDancesFromStorage()) {
+    console.log("Environment Loaded from Storage");
+    return window.environment!;
   }
 
   return loadDances();
@@ -33,14 +38,20 @@ export async function getEnvironment(): Promise<DanceEnvironment> {
 
 export async function getTagDatabase(): Promise<TagDatabase> {
   if (window.tagDatabase) {
+    console.log("TagDabase Already Loaded");
+
     return window.tagDatabase;
   }
 
-  if (checkExpiry(tagDatabaseKey)) {
-    window.tagDatabase = loadTagsFromStorage();
+  if (window.tagDatabaseJson && loadTagsFromString(window.tagDatabaseJson)) {
+    console.log("TagDabase Loaded from Json");
+    return window.tagDatabase!;
   }
-  if (window.tagDatabase) {
-    return window.tagDatabase;
+
+  if (checkExpiry(tagDatabaseKey) && loadTagsFromStorage()) {
+    console.log("TagDabase Loaded from Storage");
+
+    return window.tagDatabase!;
   }
 
   return loadTags();
@@ -60,15 +71,15 @@ async function loadDances(): Promise<DanceEnvironment> {
   }
 }
 
-function loadDancesFromStorage(): DanceEnvironment | undefined {
+function loadDancesFromStorage(): boolean {
   const envString = sessionStorage.getItem(environmentKey);
 
-  if (!envString) {
-    return;
-  }
+  return envString ? loadDancesFromString(envString) : false;
+}
 
-  window.environment = TypedJSON.parse(envString, DanceEnvironment);
-  return window.environment;
+function loadDancesFromString(s: string): boolean {
+  window.environment = TypedJSON.parse(s, DanceEnvironment);
+  return !!window.environment;
 }
 
 async function loadTags(): Promise<TagDatabase> {
@@ -86,21 +97,29 @@ async function loadTags(): Promise<TagDatabase> {
   }
 }
 
-function loadTagsFromStorage(): TagDatabase | undefined {
+function loadTagsFromStorage(): boolean {
   const tagsString = sessionStorage.getItem(tagDatabaseKey);
 
   if (!tagsString) {
-    return;
+    return false;
   }
 
   const tags = TypedJSON.parseAsArray(tagsString, Tag);
+  window.tagDatabase = new TagDatabase(tags, loadIncrementalTags());
+  return !!window.tagDatabase;
+}
+
+function loadTagsFromString(s: string): boolean {
+  const tags = TypedJSON.parseAsArray(s, Tag);
+  window.tagDatabase = new TagDatabase(tags, loadIncrementalTags());
+  return !!window.tagDatabase;
+}
+
+function loadIncrementalTags(): Tag[] | undefined {
   const incrementalString = sessionStorage.getItem("incremental-tags");
-  let incrementalTags;
-  if (incrementalString) {
-    incrementalTags = TypedJSON.parseAsArray(incrementalString, Tag);
-  }
-  window.tagDatabase = new TagDatabase(tags, incrementalTags);
-  return window.tagDatabase;
+  return incrementalString
+    ? TypedJSON.parseAsArray(incrementalString, Tag)
+    : undefined;
 }
 
 function checkExpiry(key: string): boolean {

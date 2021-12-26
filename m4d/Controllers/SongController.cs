@@ -167,6 +167,7 @@ namespace m4d.Controllers
             try
             {
                 var results = await BuildAzureSearch(filter);
+                BuildEnvironment(danceEnvironment: true);
 
                 string playListId = null;
 
@@ -246,6 +247,7 @@ namespace m4d.Controllers
             try
             {
                 var results = await BuildAzureSearch(filter);
+                BuildEnvironment(danceEnvironment:true);
                 return await FormatResults(results, filter, hideSort);
             }
             catch (RedirectException ex)
@@ -399,6 +401,7 @@ namespace m4d.Controllers
                 Dances = dances
             };
 
+            BuildEnvironment(danceEnvironment: true, tagDatabase: true);
             return View(
                 "AdvancedSearchForm",
                 JsonConvert.SerializeObject(model, CamelCaseSerializerSettings));
@@ -627,6 +630,7 @@ namespace m4d.Controllers
             var list = new m4dModels.TagList(tags).AddMissingQualifier('+');
             filter.Tags = list.ToString();
 
+            BuildEnvironment(tagDatabase: true);
             return await DoAzureSearch(filter);
         }
 
@@ -689,6 +693,8 @@ namespace m4d.Controllers
 
         private async Task<SongDetailsModel> GetSongDetails(Song song, SongFilter filter)
         {
+            // TODONEXT: Figure out why dance environment isn't loading correctly on the client...
+            BuildEnvironment(danceEnvironment: true, tagDatabase: true);
             return new()
             {
                 Title = song.Title,
@@ -712,6 +718,7 @@ namespace m4d.Controllers
             {
                 var model = await AlbumViewModel.Create(
                     title, _mapper, DefaultCruftFilter(), Database);
+                BuildEnvironment(danceEnvironment: true);
                 return View("Album", model);
             }
 
@@ -732,6 +739,7 @@ namespace m4d.Controllers
             {
                 var model = await ArtistViewModel.Create(
                     name, _mapper, DefaultCruftFilter(), Database);
+                BuildEnvironment(danceEnvironment: true);
                 return View("Artist", model);
             }
 
@@ -744,6 +752,7 @@ namespace m4d.Controllers
         public ActionResult Augment(SongFilter filter)
         {
             HelpPage = "add-songs";
+            BuildEnvironment(danceEnvironment: true, tagDatabase: true);
             return View();
         }
 

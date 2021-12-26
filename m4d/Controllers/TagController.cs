@@ -28,6 +28,7 @@ namespace m4d.Controllers
         public IActionResult Index([FromServices]IMapper mapper)
         {
             UseVue = true;
+            BuildEnvironment(tagDatabase:true);
             return View();
         }
 

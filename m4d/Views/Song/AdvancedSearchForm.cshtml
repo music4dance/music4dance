@@ -17,6 +17,7 @@
 <div id="app"></div>
 
 @section Scripts {
+    <partial name="_environmentWriter"/>
     <script>window.model = @Html.Raw(Model);</script>
     <script asp-src-include="/client/js/chunk-vendors.*.js"></script>
     <script asp-src-include="/client/js/chunk-common.*.js"></script>
