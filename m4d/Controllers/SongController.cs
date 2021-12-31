@@ -693,7 +693,6 @@ namespace m4d.Controllers
 
         private async Task<SongDetailsModel> GetSongDetails(Song song, SongFilter filter)
         {
-            // TODONEXT: Figure out why dance environment isn't loading correctly on the client...
             BuildEnvironment(danceEnvironment: true, tagDatabase: true);
             return new()
             {
@@ -1500,7 +1499,7 @@ namespace m4d.Controllers
                         new m4dModels.TagList(
                             dms.NormalizeTags(
                                 string.Join("|", track.Genres.Select(m4dModels.TagList.Clean)),
-                                "Music", true)));
+                                "Music")));
                 }
             }
 

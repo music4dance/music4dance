@@ -25,17 +25,18 @@ namespace m4d.Controllers
 
         // GET: Tag
         [AllowAnonymous]
-        public IActionResult Index([FromServices]IMapper mapper)
+        public IActionResult Index()
         {
             UseVue = true;
             BuildEnvironment(tagDatabase:true);
             return View();
         }
 
+        [Authorize(Roles = "dbAdmin")]
         public IActionResult List()
         {
             var model = Database.OrderedTagGroups;
-            return View(model);
+             return View(model);
         }
 
         // GET: Tag/Details/5
@@ -50,47 +51,16 @@ namespace m4d.Controllers
             return View(tagGroup);
         }
 
-        // GET: Tag/Create
-        public ActionResult Create()
-        {
-            SetupPrimary();
-            return View();
-        }
-
-        // POST: Tag/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Key,PrimaryId")]TagGroup tagGroup)
-        {
-            if (ModelState.IsValid)
-            {
-                var tt = Database.DanceStats.TagManager.FindOrCreateTagGroup(tagGroup.Key);
-                if (tagGroup.PrimaryId != null)
-                {
-                    tt.PrimaryId = tagGroup.PrimaryId;
-                    tt.Primary = Database.DanceStats.TagManager.TagMap[tt.PrimaryId];
-                }
-
-                await Database.UpdateAzureIndex(null);
-
-                return RedirectToAction("List");
-            }
-
-            SetupPrimary();
-            return View(tagGroup);
-        }
-
         private void SetupPrimary()
         {
-            var tagGroups = Database.TagGroups.ToList();
+            var tagGroups = Database.OrderedTagGroups.ToList();
             var nullT = new TagGroup();
             tagGroups.Insert(0, nullT);
             ViewBag.PrimaryId = new SelectList(tagGroups, "Key", "Key", string.Empty);
         }
 
         // GET: Tag/Edit/5
+        [Authorize(Roles ="dbAdmin")]
         public IActionResult Edit(string id)
         {
             var code = GetTag(id, out var tagGroup);
@@ -99,49 +69,73 @@ namespace m4d.Controllers
                 return StatusCode((int)code);
             }
 
-            var pid = tagGroup.PrimaryId ?? tagGroup.Key;
+            return GetEditor(tagGroup);
+        }
 
-            ViewBag.PrimaryId = new SelectList(Database.TagGroups, "Key", "Key", pid);
-            return View(new TagGroupView(tagGroup));
+        private IActionResult GetEditor(TagGroup tagGroup)
+        {
+            ViewBag.PrimaryId = new SelectList(Database.OrderedTagGroups,
+                "Key", "Key", tagGroup.PrimaryId ?? tagGroup.Key);
+            return View("Edit", new TagGroupView(tagGroup));
         }
 
         // POST: Tag/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "dbAdmin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit([Bind("Key,PrimaryId")]TagGroup tagGroup,
+        public async Task<IActionResult> Edit([Bind("Key,PrimaryId")]TagGroup tagGroup,
             string newKey)
         {
             // The tagGroup coming in is the original tagGroup with a possibly edited Primary Key
             //  newKey is the key typed into the key field
             if (!ModelState.IsValid)
             {
-                var pid = tagGroup.PrimaryId ?? tagGroup.Key;
-
-                ViewBag.PrimaryId = new SelectList(Database.TagGroups, "Key", "Key", pid);
-                return View(tagGroup);
+                return GetEditor(tagGroup);
             }
 
-            var oldTag = await Database.TagGroups.FindAsync(tagGroup.Key);
-            if (oldTag == null)
+            if (!Database.TagMap.TryGetValue(tagGroup.Key, out var oldTag))
             {
                 throw new ArgumentOutOfRangeException(nameof(newKey));
             }
 
-            return await Database.UpdateTag(oldTag, newKey, tagGroup.PrimaryId)
-                ? RedirectToAction("List")
-                : View(tagGroup);
+            if (tagGroup.Key != newKey && oldTag.PrimaryId != null && tagGroup.PrimaryId != oldTag.PrimaryId)
+            {
+                ModelState.AddModelError("PrimaryId", "Can't change both the Key and the PrimaryKey at the same time");
+                return GetEditor(tagGroup);
+            }
+            else if (tagGroup.Key != newKey)
+            {
+                if (await Database.RenameTag(tagGroup, newKey))
+                {
+                    return RedirectToAction("List");
+                }
+            }
+            else if (tagGroup.PrimaryId != oldTag.PrimaryId)
+            {
+                if (await Database.SetPrimaryTag(tagGroup, tagGroup.PrimaryId))
+                {
+                    return RedirectToAction("List");
+                }
+            }
+
+            return GetEditor(tagGroup);
         }
 
-
         // GET: Tag/Delete/5
+        [Authorize(Roles = "dbAdmin")]
         public ActionResult Delete(string id)
         {
             var code = GetTag(id, out var tagGroup);
             if (HttpStatusCode.OK != code)
             {
                 return StatusCode((int)code);
+            }
+
+            if (string.IsNullOrWhiteSpace(tagGroup.PrimaryId))
+            {
+                return StatusCode((int)HttpStatusCode.NotAcceptable);
             }
 
             return View(tagGroup);
@@ -151,12 +145,33 @@ namespace m4d.Controllers
         [HttpPost]
         [ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "dbAdmin")]
         public async Task<ActionResult> DeleteConfirmed(string id)
         {
-            // TODO: Should we consider guarding this?  If the tagtype is being used we may screw ourselves
             var tagGroup = await Database.TagGroups.FindAsync(TagGroup.TagDecode(id));
+            if (tagGroup == null || string.IsNullOrWhiteSpace(tagGroup.PrimaryId))
+            {
+                return StatusCode((int)HttpStatusCode.NotAcceptable);
+            }
             Database.DanceStats.TagManager.DeleteTagGroup(tagGroup.Key);
             Database.TagGroups.Remove(tagGroup);
+            await Database.SaveChanges();
+
+            return RedirectToAction("List");
+        }
+
+        [Authorize(Roles = "dbAdmin")]
+        public async Task<ActionResult> CleanupTags()
+        {
+            var tagMap = Database.DanceStats.TagManager.TagMap;
+            var delete = Database.TagGroups.AsEnumerable()
+                .Where(t => !tagMap.ContainsKey(t.Key) || !tagMap[t.Key].IsConected)
+                .ToList();
+
+            foreach (var tag in delete)
+            {
+                Database.Context.RemoveRange(delete);
+            }
             await Database.SaveChanges();
 
             return RedirectToAction("List");
@@ -171,8 +186,10 @@ namespace m4d.Controllers
                 return HttpStatusCode.BadRequest;
             }
 
-            tag = Database.TagGroups.Find(TagGroup.TagDecode(id));
-            if (tag == null)
+            var decoded = TagGroup.TagDecode(id);
+            tag = Database.TagGroups.Find(decoded);
+
+            if (tag == null && !Database.DanceStats.TagManager.TagMap.TryGetValue(decoded, out tag))
             {
                 return HttpStatusCode.NotFound;
             }

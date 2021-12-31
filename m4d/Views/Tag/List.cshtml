@@ -9,11 +9,11 @@
 }
 <h1>@ViewBag.Title</h1>
 
-@if (User.IsInRole("showDiagnostics"))
+@if (User.IsInRole("dbAdmin"))
 {
-    <p>
-        @Html.ActionLink("Create New", "Create")
-    </p>
+    <p>Create new tags through consumer UI of adding a tag to a song</p>
+    <p>@Html.ActionLink("Clean up tags", "CleanupTags")</p>
+
     <table class="table table-striped">
         <tr>
             <th scope="col">
@@ -40,6 +40,10 @@
                     {
                         tags = item.Key
                     }, null)
+                    @if (item.IsConected)
+                    {
+                        <b>*</b>
+                    }
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item1.Count)
@@ -68,11 +72,15 @@
                     @Html.ActionLink("Details", "Details", new
                     {
                         id = item.EncodedKey
-                    }) |
-                    @Html.ActionLink("Delete", "Delete", new
-                    {
-                        id = item.EncodedKey
                     })
+                    @if (!string.IsNullOrWhiteSpace(item.PrimaryId))
+                    {
+                        <text>|</text>
+                        @Html.ActionLink("Delete", "Delete", new
+                        {
+                            id = item.EncodedKey
+                        })                        
+                    }
                 </td>
             </tr>
         }

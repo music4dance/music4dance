@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -7,25 +8,16 @@ using Azure.Search.Documents.Models;
 
 namespace m4dModels
 {
-    // TODONEXT: Split the tag database into just the DB tag rings and the 
-    //  tags pulled from the facets (there will be overlap, which we can validate)
-    //  Then look at trimming the DB to remove any non-ring tags...
     public class TagManager
     {
-        private readonly Dictionary<string, TagGroup> _queuedTags =
-            new();
-
         public static List<string> Duplicates { get; } = new();
 
         public TagManager(IEnumerable<TagGroup> tagGroups)
         {
-            TagGroups = CleanTagGroups(tagGroups.ToList());
-            FixupTags();
+            SetTagMap(CleanTagGroups(tagGroups.ToList()));
         }
 
-        public List<TagGroup> TagGroups { get; set; }
-
-        public Dictionary<string, TagGroup> TagMap { get; private set; }
+        public ConcurrentDictionary<string, TagGroup> TagMap { get; private set; }
 
         private static List<TagGroup> CleanTagGroups(List<TagGroup> tagGroups)
         {
@@ -68,8 +60,6 @@ namespace m4dModels
                 new TagManager(
                     dms.TagGroups.OrderBy(t => t.Key).ToList());
 
-            tagManager.TagMap = tagManager.TagGroups.ToDictionary(tt => tt.Key);
-
             var facets = await dms.GetTagFacets(
                 "GenreTags,StyleTags,TempoTags,OtherTags", 10000, source);
 
@@ -82,12 +72,13 @@ namespace m4dModels
             return tagManager;
         }
 
-        public void FixupTags()
+        public void SetTagMap(IList<TagGroup> tagGroups)
         {
-            TagMap = TagGroups.ToDictionary(
-                tt => tt.Key, StringComparer.OrdinalIgnoreCase);
+            TagMap = new ConcurrentDictionary<string, TagGroup>(
+                tagGroups.Select(t => KeyValuePair.Create(t.Key, t)), 
+                StringComparer.OrdinalIgnoreCase);
 
-            foreach (var tt in TagGroups.Where(tt => !string.IsNullOrEmpty(tt.PrimaryId)))
+            foreach (var tt in tagGroups.Where(tt => !string.IsNullOrEmpty(tt.PrimaryId)))
             {
                 tt.Primary = TagMap[tt.PrimaryId];
                 tt.Primary.Children ??= new List<TagGroup>();
@@ -98,22 +89,17 @@ namespace m4dModels
 
         public TagGroup FindOrCreateTagGroup(string tag)
         {
-            lock (_queuedTags)
+            var t = TagList.NormalizeTag(tag);
+            var tt = TagMap.GetValueOrDefault(t);
+
+            if (tt != null)
             {
-                var t = TagList.NormalizeTag(tag);
-                var tt = TagMap.GetValueOrDefault(t) ??
-                    _queuedTags.GetValueOrDefault(t);
-                if (tt != null)
-                {
-                    return tt;
-                }
-
-                tt = new TagGroup(t);
-                _queuedTags[tt.Key] = tt;
-
-                AddTagGroup(tt);
                 return tt;
             }
+
+            tt = new TagGroup(t);
+            AddTagGroup(tt);
+            return tt;
         }
 
         public void AddTagGroup(TagGroup tt)
@@ -123,103 +109,43 @@ namespace m4dModels
                 return;
             }
 
-            lock (_queuedTags)
-            {
-                TagMap[tt.Key] = tt;
-                var index = TagGroups.BinarySearch(
-                    tt,
-                    Comparer<TagGroup>.Create(
-                        (a, b) =>
-                            string.Compare(a.Key, b.Key, StringComparison.OrdinalIgnoreCase)));
-                if (index < 0)
-                {
-                    index = ~index;
-                }
-
-                TagGroups.Insert(index, tt);
-            }
+            TagMap[tt.Key] = tt;
         }
 
         public void DeleteTagGroup(string key)
         {
-            lock (_queuedTags)
-            {
-                var tt = TagMap.GetValueOrDefault(key);
-                if (tt == null)
-                {
-                    return;
-                }
-
-                if (!TagMap.Remove(key))
-                {
-                    return;
-                }
-
-                tt.Primary?.Children.Remove(tt);
-                var index = TagGroups.BinarySearch(
-                    tt,
-                    Comparer<TagGroup>.Create(
-                        (a, b) =>
-                            string.Compare(a.Key, b.Key, StringComparison.OrdinalIgnoreCase)));
-                if (index < 0)
-                {
-                    return;
-                }
-
-                TagGroups.RemoveAt(index);
-            }
-        }
-
-        public void UpdateTagRing(string key, string primaryId)
-        {
-            lock (_queuedTags)
-            {
-                var tagGroup = TagMap.GetValueOrDefault(key);
-                if (tagGroup == null)
-                {
-                    return;
-                }
-
-                if (string.IsNullOrEmpty(primaryId))
-                {
-                    tagGroup.Primary?.Children?.Remove(tagGroup);
-                    tagGroup.PrimaryId = null;
-                    tagGroup.Primary = null;
-                }
-                else
-                {
-                    tagGroup.PrimaryId = primaryId;
-                    tagGroup.Primary = TagMap.GetValueOrDefault(primaryId);
-                    tagGroup.Primary.AddChild(tagGroup);
-                }
-            }
+            TagMap.TryRemove(key, out var _);
         }
 
         public void ChangeTagName(string oldKey, string newKey)
         {
-            lock (_queuedTags)
+            var tag = TagMap.GetValueOrDefault(oldKey);
+            if (tag == null)
             {
-                var tag = TagMap.GetValueOrDefault(oldKey);
-                if (tag == null)
-                {
-                    return;
-                }
-
-                DeleteTagGroup(oldKey);
-
-                tag.Key = newKey;
-                AddTagGroup(tag);
+                return;
             }
+
+            DeleteTagGroup(oldKey);
+
+            tag.Key = newKey;
+            AddTagGroup(tag);
         }
 
-        public IEnumerable<TagGroup> DequeueTagGroups()
+        public TagGroup SetPrimary(string key, string primaryKey)
         {
-            lock (_queuedTags)
+            var tag = TagMap.GetValueOrDefault(key);
+            var primary = TagMap.GetValueOrDefault(primaryKey);
+            if (tag == null || primary == null)
             {
-                var ret = _queuedTags.Values.ToList();
-                _queuedTags.Clear();
-                return ret;
+                return null;
             }
+            tag.PrimaryId = primaryKey;
+            tag.Primary = primary;
+
+            primary.AddChild(tag);
+            primary.Count += tag.Count;
+            tag.Count = 0;
+            return tag;
         }
 
         private void IndexFacet(IEnumerable<FacetResult> facets, string category)

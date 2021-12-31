@@ -184,7 +184,7 @@ namespace m4d.Utilities
                     new TagList(
                         dms.NormalizeTags(
                             string.Join("|", track.Genres.Select(TagList.Clean)),
-                            "Music", true)));
+                            "Music")));
             }
 
             return ret;
@@ -809,7 +809,6 @@ namespace m4d.Utilities
             return int.TryParse(values.First(), out var info) ? info : -1;
         }
 
-        // TODONEXT: Can we validate that this still works including the throttling handling code???
         private async Task<dynamic> GetMusicServiceResults(string request,
             MusicService service,
             IPrincipal principal = null)
@@ -979,7 +978,6 @@ namespace m4d.Utilities
                 return null;
             }
 
-            // TODONEXT:  Make sure this works
             using var req = new HttpRequestMessage(method, request);
             req.Headers.Add("Accept", "application/json");
             if (!string.IsNullOrEmpty(input))

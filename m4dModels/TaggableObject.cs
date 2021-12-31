@@ -308,14 +308,16 @@ namespace m4dModels
         private static TagList ConvertToRing(TagList tags, DanceStatsInstance stats)
         {
             var tagMap = stats.TagManager.TagMap;
+            var manager = stats.TagManager;
             return tags == null
                 ? null
                 : new TagList(
                     tags.Tags
                         .Select(
                             t =>
-                                (tagMap.GetValueOrDefault(t) ?? new TagGroup { Key = t })
-                                .GetPrimary()).Select(tt => tt.Key).Distinct().ToList());
+                                manager.FindOrCreateTagGroup(t)
+                                    .GetPrimary()).Select(tt => tt.Key)
+                                    .Distinct().ToList());
         }
     }
 }

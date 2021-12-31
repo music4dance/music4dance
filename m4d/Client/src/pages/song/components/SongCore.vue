@@ -404,7 +404,12 @@ export default class SongCore extends Mixins(AdminTools) {
     const tags = this.song.tags;
     return this.environment && tags
       ? tags
-          .filter((t) => t.category === "Dance" && !t.value.startsWith("!"))
+          .filter(
+            (t) =>
+              t.category === "Dance" &&
+              !t.value.startsWith("!") &&
+              !t.value.startsWith("-")
+          )
           .map((t) => this.environment!.fromName(t.value)!.id)
       : [];
   }

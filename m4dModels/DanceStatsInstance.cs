@@ -57,7 +57,7 @@ namespace m4dModels
         public List<string> CachedSongs => _cache.Serialize();
 
         [JsonProperty(PropertyName = "tagGroups")]
-        public List<TagGroup> TagGroups => TagManager.TagGroups;
+        public List<TagGroup> TagGroups => TagManager.TagMap.Values.OrderBy(t => t.Key).ToList();
 
         [JsonIgnore]
         public TagManager TagManager { get; set; }
@@ -290,6 +290,12 @@ namespace m4dModels
                         NamingStrategy = new CamelCaseNamingStrategy()
                     }
                 });
+        }
+
+        public void ClearCache()
+        {
+            _jsonEnvironment = null;
+            _jsonTagDatabase = null;
         }
 
         public string GetJsonDanceEnvironment()

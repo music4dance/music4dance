@@ -1064,6 +1064,8 @@ namespace m4dModels
 
         public DanceStatsInstance DanceStats => _stats ?? DanceStatsManager.Instance;
 
+        public TagManager TagManager => DanceStats.TagManager;
+
         public void SetStatsInstance(DanceStatsInstance stats)
         {
             _stats = stats;
@@ -1071,117 +1073,98 @@ namespace m4dModels
 
         private DanceStatsInstance _stats;
 
-        public TagGroup FindOrCreateTagGroup(string value, string category, string primary = null)
-        {
-            return TagGroups.Find(TagGroup.BuildKey(value, category)) ??
-                CreateTagGroup(value, category);
-        }
-
         // Add in category for tags that don't already have one + create
         //  tagtype if necessary
-        public string NormalizeTags(string tags, string category, bool useGroup = false)
+        public string NormalizeTags(string tags, string category)
         {
             var old = new TagList(tags);
             var result = new List<string>();
             foreach (var tag in old.Tags)
             {
-                var fullTag = tag;
                 var tempTag = tag;
                 var tempCat = category;
                 var rg = tag.Split(':');
-                if (rg.Length == 1)
-                {
-                    fullTag = TagGroup.BuildKey(tag, category);
-                }
-                else if (rg.Length == 2)
+                if (rg.Length == 2)
                 {
                     tempTag = rg[0];
                     tempCat = rg[1];
                 }
 
-                var group = FindOrCreateTagGroup(tempTag, tempCat);
+                var group = TagManager.FindOrCreateTagGroup($"{tempTag}:{tempCat}");
 
-                result.Add(useGroup ? group.Key : fullTag);
+                result.Add(group.Key);
             }
 
             return new TagList(result).ToString();
         }
 
-        //  Rename an existing tag: (tagGroup.Key != newKey), don't care about primary
-        //   - Create tag of new name
-        //   - Point this tag to new tag as primary
-        //  Change a tag to not be primary: newPrimaryKey != tagGroup.Key
-        //  Change a tag to be primary: newPrimaryKey == tagGroup.Key
-        //
-        //  In all cases we want to search on the old primary key for the songs to fix up
-
-        public async Task<bool> UpdateTag(TagGroup tagGroup, string newKey, string newPrimaryKey)
+        // Change the name of a tag: This finds or creates a primary tag with the new name
+        //  points this tag to it, then renames all the actual tags.  The user can then
+        //  delete this tag if we don't want all future use of this tag to point to the primary
+        public async Task<bool> RenameTag(TagGroup tagGroup, string newKey)
         {
-            // Before doing anything else, we're going to get the filter for the
-            //  potentially affected songs
+            return await UpdateTag(tagGroup, newKey, allowPrimaryCreation: true);
+        }
+
+        // Set Primary Tag: Set's the tag's primary and renames all atual references
+        //  to the original tag.
+        public async Task<bool> SetPrimaryTag(TagGroup tagGroup, string newPrimary)
+        {
+            return await UpdateTag(tagGroup, newPrimary, allowPrimaryCreation: false);
+        }
+
+        private async Task<bool> UpdateTag(TagGroup tagGroup, string newKey, bool allowPrimaryCreation)
+        {
             var filter = FilterFromTag(tagGroup.Key);
-            if (string.IsNullOrWhiteSpace(filter))
+
+            TagGroup primary;
+            if (allowPrimaryCreation)
             {
-                throw new ArgumentOutOfRangeException(
-                    nameof(tagGroup),
-                    $"Attempted to UpdateTag {tagGroup.Key}");
+                primary = TagManager.FindOrCreateTagGroup(newKey);
             }
-
-
-            // Nothing Changed, just return
-            if (string.Equals(tagGroup.Key, newKey) &&
-                (string.Equals(tagGroup.PrimaryId, newPrimaryKey) ||
-                    tagGroup.PrimaryId == null && newPrimaryKey == newKey))
+            else if (!TagManager.TagMap.TryGetValue(newKey, out primary))
             {
                 return false;
             }
 
-            var existing = await TagGroups.FindAsync(newKey);
-            if (existing != null)
+            if (!await AddTagsToDatabase(tagGroup, primary))
             {
-                tagGroup.PrimaryId = existing.Key;
-                tagGroup.Primary = existing;
-            }
-            else if (!string.Equals(tagGroup.Key, newKey))
-            {
-                // Create tag group with new name and point old tag group to it
-                var newTag = new TagGroup
-                {
-                    Key = newKey,
-                    PrimaryId = null
-                };
-
-                TagGroups.Add(newTag);
-                tagGroup.PrimaryId = newTag.Key;
-                tagGroup.Primary = newTag;
-                tagGroup.Modified = DateTime.Now;
-
-                DanceStats.TagManager.AddTagGroup(newTag);
-            }
-            // Reset the primary key of the old tag group
-            else if (tagGroup.PrimaryId != newPrimaryKey)
-            {
-                tagGroup.PrimaryId = newPrimaryKey;
-                tagGroup.Modified = DateTime.Now;
+                return false;
             }
 
-            if (tagGroup.PrimaryId == tagGroup.Key)
-            {
-                tagGroup.PrimaryId = null;
-                tagGroup.Primary = null;
-            }
-
-            DanceStats.TagManager.UpdateTagRing(tagGroup.Key, tagGroup.PrimaryId);
-
-            var parameters = new SearchOptions { Filter = filter };
-
-            await UpdateAzureIndex(
-                await SongsFromAzureResult(await DoSearch(null, parameters)));
-
-            await SaveChanges();
+            await UpdateFromFilter(filter);
 
             return true;
+
         }
+
+        private async Task<bool> AddTagsToDatabase(TagGroup tagGroup, TagGroup primary)
+        {
+            tagGroup = TagManager.SetPrimary(tagGroup.Key, primary.Key);
+            if (tagGroup == null)
+            {
+                return false;
+            }
+
+            var dbGroup = await TagGroups.FindAsync(tagGroup.Key);
+            if (dbGroup == null)
+            {
+                TagGroups.Add(tagGroup.GetDisconnected());
+            }
+            else
+            {
+                dbGroup.Primary = primary;
+                dbGroup.PrimaryId = primary.Key;
+            }
+            var dbPrimary = await TagGroups.FindAsync(primary.Key);
+            if (dbPrimary == null)
+            {
+                TagGroups.Add(primary.GetDisconnected());
+            }
+            return true;
+
+        }
+
 
         private string FilterFromTag(string key)
         {
@@ -1190,7 +1173,25 @@ namespace m4dModels
                 Tags = key
             };
             var parameters = AzureParmsFromFilter(filter);
-            return parameters.Filter;
+            var ret = parameters.Filter;
+
+            if (string.IsNullOrWhiteSpace(ret))
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(key),
+                    $"Attempted to UpdateTag {key}");
+            }
+            return ret;
+        }
+
+        private async Task UpdateFromFilter(string filter)
+        {
+            var parameters = new SearchOptions { Filter = filter };
+
+            await UpdateAzureIndex(
+                await SongsFromAzureResult(await DoSearch(null, parameters)));
+
+            await SaveChanges();
         }
 
         public IEnumerable<TagGroup> OrderedTagGroups => DanceStatsManager.Instance.TagGroups;
@@ -1219,23 +1220,6 @@ namespace m4dModels
                 : new TagGroup(tag);
         }
 
-        private void AddTagType(TagGroup tagGroup)
-        {
-            if (TagGroups.Find(tagGroup.Key) != null)
-            {
-                return;
-            }
-
-            TagGroups.Add(
-                new TagGroup
-                {
-                    Key = tagGroup.Key,
-                    PrimaryId = tagGroup.PrimaryId,
-                    Count = tagGroup.Count,
-                    Modified = DateTime.Now
-                });
-        }
-
         protected TagGroup CreateTagGroup(string value, string category,
             bool updateTagManager = true)
         {
@@ -1258,7 +1242,7 @@ namespace m4dModels
                 TagGroups.Add(type);
                 if (updateTagManager)
                 {
-                    DanceStats.TagManager.AddTagGroup(type);
+                    TagManager.AddTagGroup(type);
                 }
             }
 
@@ -1400,19 +1384,6 @@ namespace m4dModels
 
         public async Task<int> UpdateAzureIndex(IEnumerable<Song> songs, string id = "default")
         {
-            var changed = false;
-            var tags = DanceStats.TagManager.DequeueTagGroups();
-            foreach (var tag in tags)
-            {
-                AddTagType(tag);
-                changed = true;
-            }
-
-            if (changed)
-            {
-                await SaveChanges();
-            }
-
             if (songs == null)
             {
                 return 0;

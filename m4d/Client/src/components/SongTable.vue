@@ -164,7 +164,7 @@
         }}</span>
       </template>
       <template v-slot:head(change)>
-        <div class="changeHeader">{{ changeHeader }}'s Changes</div>
+        <div class="changeHeader">{{ changeHeader }}</div>
       </template>
       <template v-slot:cell(change)="data">
         <song-change-viewer
@@ -537,7 +537,9 @@ export default class SongTable extends Mixins(AdminTools) {
   }
 
   private get changeHeader(): string {
-    return this.showHistory ? "Latest Change" : this.filterDisplayName;
+    return this.showHistory
+      ? "Latest Changes"
+      : `${this.filterDisplayName}'s Changes`;
   }
 
   private danceHandler(tag: Tag, filter: SongFilter, song: Song): DanceHandler {

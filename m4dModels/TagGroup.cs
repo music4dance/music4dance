@@ -38,7 +38,7 @@ namespace m4dModels
 
         public bool IsNull => string.IsNullOrWhiteSpace(Key);
 
-        public bool IsConected => Primary != null 
+        public bool IsConected => PrimaryId != null 
             || Children != null && Children.Count > 0;
         #endregion
 
@@ -285,6 +285,15 @@ namespace m4dModels
             }
 
             Children.Add(tagGroup);
+        }
+
+        // Crate a disconnected tag object for saving in the DB
+        public TagGroup GetDisconnected()
+        {
+            var d = this.MemberwiseClone() as TagGroup;
+            d.Primary = null;
+            d.Children = null;
+            return d;
         }
     }
 }
