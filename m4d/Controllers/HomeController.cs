@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using m4d.ViewModels;
 using m4dModels;
@@ -9,13 +8,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
-using Stripe;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace m4d.Controllers
 {
-    public class HomeController : DanceMusicController
+    public class HomeController : CommerceController
     {
         public HomeController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
@@ -24,63 +22,53 @@ namespace m4d.Controllers
         {
         }
 
-        [AllowAnonymous]
-        public IActionResult Index([FromServices]IFileProvider fileProvider)
+        public IActionResult Index([FromServices] IFileProvider fileProvider)
         {
             UseVue = true;
             return View(new HomeModel(SiteMapInfo.GetCategories(fileProvider)));
         }
 
-        [AllowAnonymous]
         public IActionResult FAQ()
         {
             UseVue = true;
             return View();
         }
 
-        [AllowAnonymous]
         public IActionResult Info()
         {
             return View();
         }
 
-        [AllowAnonymous]
         public IActionResult Credits()
         {
             return View();
         }
 
-        [AllowAnonymous]
         public IActionResult Dances()
         {
             return RedirectPermanent("/dances");
         }
 
-        [AllowAnonymous]
-        public IActionResult SiteMap([FromServices]IFileProvider fileProvider)
+        public IActionResult SiteMap([FromServices] IFileProvider fileProvider)
         {
             return View(SiteMapInfo.GetCategories(fileProvider));
         }
 
-        [AllowAnonymous]
         public IActionResult About()
         {
             return View();
         }
 
-        [AllowAnonymous]
         public IActionResult TermsOfService()
         {
             return View();
         }
 
-        [AllowAnonymous]
         public IActionResult PrivacyPolicy()
         {
             return View();
         }
 
-        [AllowAnonymous]
         public IActionResult Counter(int? numerator = null, decimal? tempo = null)
         {
             if (numerator.HasValue && numerator != 0)
@@ -99,7 +87,6 @@ namespace m4d.Controllers
             return View("TempoCounter");
         }
 
-        [AllowAnonymous]
         public IActionResult Tempi(List<string> styles, List<string> types,
             List<string> organizations, List<string> meters)
         {
@@ -121,13 +108,11 @@ namespace m4d.Controllers
                 : null;
         }
 
-        [AllowAnonymous]
         public IActionResult CounterHelp()
         {
             return RedirectPermanent("https://music4dance.blog/music4dance-help/tempo-counter/");
         }
 
-        [AllowAnonymous]
         public async Task<IActionResult> Contribute()
         {
             HelpPage = "subscriptions";
@@ -135,143 +120,6 @@ namespace m4d.Controllers
             var user = await UserManager.GetUserAsync(User);
             return View(GetContributeModel(user));
         }
-
-        [Authorize]
-        public async Task<IActionResult> Purchase([FromServices]IConfiguration configuration,
-            decimal amount, PurchaseKind kind)
-        {
-            HelpPage = "subscriptions";
-
-            var user = await UserManager.GetUserAsync(User);
-
-            if (IsFraudDetected(user))
-            {
-                return Redirect("/Home/Contribute");
-            }
-
-
-            var purchase = new PurchaseModel
-            {
-                Key = configuration["Authentication:Stripe:PublicKey"],
-                Kind = kind,
-                Amount = amount,
-                User = user.UserName,
-                Email = user.Email
-            };
-            return View(purchase);
-        }
-
-        [Authorize]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> ConfirmPurchase(
-            [FromServices]SignInManager<ApplicationUser> signInManager,
-            [FromServices]IConfiguration configuration, string stripeToken, string stripeEmail,
-            PurchaseKind kind, decimal amount)
-        {
-            HelpPage = "subscriptions";
-
-            // Do the stripy things
-            var userName = Identity.IsAuthenticated ? UserName : null;
-            var conf = new ShortGuid(Guid.NewGuid()).ToString();
-            ApplicationUser user = null;
-
-            var purchase = new PurchaseModel
-            {
-                Kind = kind,
-                Amount = amount,
-                User = userName,
-                Confirmation = conf
-            };
-
-            try
-            {
-                // TODO: Can this be done once per session?
-                StripeConfiguration.ApiKey = configuration["Authentication:Stripe:SecretKey"];
-
-                var metaData = new Dictionary<string, string> { { "confirmation-code", conf } };
-                if (userName != null)
-                {
-                    metaData.Add("user-id", userName);
-                }
-
-                if (kind == PurchaseKind.Purchase && userName != null)
-                {
-                    user = await UserManager.GetUserAsync(User);
-                }
-
-                var options = new ChargeCreateOptions
-                {
-                    Amount = purchase.Pennies,
-                    Currency = "usd",
-                    Description = purchase.Description,
-                    Source = stripeToken,
-                    Metadata = metaData,
-                    ReceiptEmail = stripeEmail
-                };
-
-                var service = new ChargeService();
-                var charge = await service.CreateAsync(options);
-                if (charge.Paid)
-                {
-                    if (user != null && kind == PurchaseKind.Purchase)
-                    {
-                        DateTime? start = DateTime.Now;
-                        if (user.SubscriptionEnd != null && user.SubscriptionEnd < start)
-                        {
-                            start = user.SubscriptionEnd;
-                        }
-
-                        user.SubscriptionStart = start;
-                        user.SubscriptionEnd = start.Value.AddYears(1);
-                        user.SubscriptionLevel = SubscriptionLevel.Silver;
-                        user.LifetimePurchased += ((decimal)charge.Amount / 100);
-                        await Database.SaveChanges();
-
-                        await UserManager.AddToRoleAsync(user, DanceMusicCoreService.PremiumRole);
-
-                        await signInManager.RefreshSignInAsync(user);
-                        
-                    }
-
-                    Database.Context.ActivityLog.Add(new ActivityLog("Purchase", user, purchase));
-                    await Database.SaveChanges();
-                    return View("ConfirmPurchase", purchase);
-                }
-
-                purchase.Error = new PurchaseError
-                {
-                    ErrorType = "internal_error"
-                };
-            }
-            catch (StripeException e)
-            {
-                purchase.Error = new PurchaseError
-                {
-                    ErrorType = e.StripeError.Type,
-                    ErrorCode = e.StripeError.Code,
-                    ErrorMessage = e.StripeError.Message
-                };
-            }
-
-            Database.Context.ActivityLog.Add(new ActivityLog("Purchase", null, purchase));
-            user ??= await UserManager.GetUserAsync(User);
-            if (user != null)
-            {
-                user.FailedCardAttempts += 1;
-                await UserManager.UpdateAsync(user);
-            }
-            await Database.SaveChanges();
-
-            return View("PurchaseError", purchase);
-        }
-
-        [AllowAnonymous]
-        public IActionResult IntentionalError(string message)
-        {
-            throw new Exception(message ?? "This is an error");
-        }
-
         private ContributeModel GetContributeModel(ApplicationUser user)
         {
             return new ContributeModel
@@ -282,30 +130,6 @@ namespace m4d.Controllers
             };
         }
 
-        private bool IsFraudDetected(ApplicationUser user)
-        {
-            return user != null && user.FailedCardAttempts >= GetCardFailLimit();
-        }
 
-        private int GetCardFailLimit()
-        {
-            var ecString = Configuration["Configuration:Commerce:FailLimit"];
-
-            if (!int.TryParse(ecString, out var failLimit))
-            {
-                failLimit = 5;
-            }
-            return failLimit;
-        }
-
-        private bool IsCommerceEnabled()
-        {
-            var ecString = Configuration["Configuration:Commerce:Enabled"];
-            if (!bool.TryParse(ecString, out var enableCommerce))
-            {
-                enableCommerce = true;
-            }
-            return enableCommerce;
-        }
     }
 }

@@ -1,4 +1,5 @@
-﻿@using m4d.ViewModels
+﻿@using m4d.Controllers
+@using m4d.ViewModels
 @using Microsoft.Extensions.Configuration
 @model ContributeModel
 
@@ -7,6 +8,7 @@
     ViewBag.Description = "How to contribute to music4dance.net";
 
     ViewBag.BreadCrumbs = BreadCrumbItem.BuildInfoTrail(ViewBag.Title);
+    var annualPrice = $"${CommerceController.AnnualSubscription:N2}";
 }
 <div id="fb-root"></div>
 <script async defer crossorigin="anonymous"
@@ -20,7 +22,7 @@
     <h2>Purchase a Subscription</h2>
     <p class="big-text">
         We appreciate any amount that you're willing to contribute to the music4dance effort.
-        Anyone who contributes ten dollars or more receives a year of our
+        Anyone who contributes @annualPrice or more receives a year of our
         <a href="https://music4dance.blog/music4dance-help/subscriptions/"></a>premium subscription,
         which always gives you an ad-free experience. We will also be experimenting with specific
         premium features such as
@@ -44,7 +46,7 @@
         }
         else
         {
-            using (Html.BeginForm("Purchase", "Home", FormMethod.Post, new
+            using (Html.BeginForm("CreateCheckoutSession", "Payment", FormMethod.Post, new
             {
                 id = "purchase",
                 @class = "form-inline"
@@ -53,15 +55,15 @@
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="kind" value="Purchase"/>
                 <div class="form-group">
-                    <label for="purchase-amount">Amount:</label>
-                    $<input type="number" name="amount" min="10" max="9999" step="0.01" value="10.00" class="form-control" id="purchase-amount"/>
                     <button type="submit" class="btn btn-primary">Purchase Subscription</button>
                 </div>
             }
+            <p class="ml-2">The next page you see will be a <a href="https://www.stripe.com">Stripe</a> checkout
+                form with a @annualPrice annual subscription charge.</p>
 
             <h2>Donate</h2>
 
-            using (Html.BeginForm("Purchase", "Home", FormMethod.Post, new
+            using (Html.BeginForm("CreateCheckoutSession", "Payment", FormMethod.Post, new
             {
                 id = "contribute",
                 @class = "form-inline"
@@ -72,10 +74,14 @@
                 <input type="hidden" name="kind" value="Donation"/>
                 <div class="form-group">
                     <label for="purchase-amount">Amount:</label>
-                    $<input type="text" name="amount" min="0" max="9999" step="0.01" value="5.00" class="form-control" id="donate-amount"/>
+                    $<input type="text" name="amount" min="1.00" max="9999" step="0.01" value="5.00" class="form-control" id="donate-amount"/>
                     <button type="submit" class="btn btn-primary">Donate</button>
                 </div>
-            }                    
+            }
+            <p class="ml-2">The next page you see will be a <a href="https://www.stripe.com">Stripe</a> checkout
+                form with your dontion amount.</p>
+            <p>If you would prefer to pay via paypal, please <a href="https://music4dance.blog/feedback/">contact us</a>
+            and we'll send you a paypal link</p>
         }
     }
     else
@@ -85,7 +91,10 @@
             <a id="login" asp-area="Identity" asp-page="/Account/Login" asp-route-ReturnUrl="/Home/Contribute">log in</a> or
             <a id="register" asp-area="Identity" asp-page="/Account/Register" asp-route-ReturnUrl="/Home/Contribute">register</a>.
         </p>
-        <p>We did allow anonymous donations, but that left us exposed to card testing attacks. So we're going to have to ask you to register befor donating to avoid malitious use of this site to hack innocent people's credit cards.</p>
+        <p>We used to allow donations without creating an account, but that left us exposed to <a href="https://stripe.com/docs/card-testing">card testing attacks</a>.
+            So we're going to have to ask you to register befor donating to avoid malitious use of this site to hack innocent people's credit cards.  If you would
+            prefer to donate without creating an account or if you would prefer to pay via paypal, please <a href="https://music4dance.blog/feedback/">contact us</a>
+            and we'll send you a paypal link</p>
     }
 
     <p class="big-text">Any questions about how subscriptions or donations work, how transactions are processed securely or anything else related to this transaction? Please check out our <a href="https://music4dance.blog/music4dance-help/subscriptions/" target="_blank">help page.</a></p>

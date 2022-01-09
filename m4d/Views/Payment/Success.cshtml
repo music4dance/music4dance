@@ -1,4 +1,5 @@
-﻿@using m4d.ViewModels
+﻿@using m4d.Controllers
+@using m4d.ViewModels
 @model m4d.ViewModels.PurchaseModel
 
 @{
@@ -24,9 +25,9 @@
 @if (Model.Kind == PurchaseKind.Purchase)
 {
     <p class="big-text">Thank you for purchasing an annual subscription to music4dance.net. This entitles you to a one year subscription with an ad free experience. Remember that you must log in as @Model.User in order to turn off the advertisements.</p>
-    if (Model.Amount > 10)
+    if (Model.Amount > CommerceController.AnnualSubscription)
     {
-        <p class="big-text">Also, thank you for the generous additional donation of $@((Model.Amount - 10).ToString("F2"))</p>
+        <p class="big-text">Also, thank you for the generous additional donation of $@((Model.Amount - CommerceController.AnnualSubscription).ToString("F2"))</p>
     }
 }
 else
@@ -36,7 +37,7 @@ else
 
 <p class="big-text">Your confirmation code is <b>@Model.Confirmation</b></p>
 
-@if (Model.Kind == PurchaseKind.Donation || Model.Amount > 10)
+@if (Model.Kind == PurchaseKind.Donation || Model.Amount > CommerceController.AnnualSubscription)
 {
     <p class="big-text">Your donation will help us continue to improve the web site and catalog.</p>
 }
