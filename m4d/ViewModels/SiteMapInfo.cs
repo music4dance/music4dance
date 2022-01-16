@@ -213,10 +213,10 @@ namespace m4d.ViewModels
                         new() { Title = "Terms of Service", Reference = "home/termsofservice" },
                         new() { Title = "Credits", Reference = "home/credits" },
                         new() { Title = "Reading List", Reference = "blog/reading-list" },
+                        new SiteMapFile("helpmap", fileProvider)
+                            { Title = "Help", Reference = "blog/music4dance-help" },
                         new SiteMapFile("blogmap", fileProvider)
                             { Title = "Blog", Reference = "blog" },
-                        new SiteMapFile("helpmap", fileProvider)
-                            { Title = "Help", Reference = "blog/music4dance-help" }
                     }
                 },
                 new()
