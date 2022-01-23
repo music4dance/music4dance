@@ -3,7 +3,9 @@
     <div v-if="model.spotifyId">
       This is a proxy user based on a public spotify profile. View
       {{ model.displayName }}'s spotify profile
-      <a :href="spotifyProfile">here.</a>
+      <a :href="spotifyProfile" target="_blank"
+        >here <b-icon-box-arrow-up-right></b-icon-box-arrow-up-right></a
+      >.
     </div>
     <must-register
       v-else-if="!isAuthenticated"

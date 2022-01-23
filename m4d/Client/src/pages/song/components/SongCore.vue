@@ -86,6 +86,13 @@
           <source :src="song.sample" type="audio/mpeg" />
           Your browser does not support audio.
         </audio>
+        <comment-editor
+          :container="song"
+          :editor="editor"
+          :edit="edit"
+          :rows="6"
+          :placeholder="commentPlaceholder"
+        ></comment-editor>
       </b-col>
     </b-row>
     <b-row class="mb-2">
@@ -203,6 +210,7 @@
     </b-row>
     <dance-chooser
       @chooseDance="addDance"
+      @update-song="updateSong"
       :filterIds="explicitDanceIds"
       :tempo="song.tempo"
       :numerator="numerator"
@@ -211,6 +219,7 @@
 </template>
 
 <script lang="ts">
+import CommentEditor from "@/components/CommentEditor.vue";
 import DanceChooser from "@/components/DanceChooser.vue";
 import SongLikeButton from "@/components/SongLikeButton.vue";
 import TagButton from "@/components/TagButton.vue";
@@ -242,6 +251,7 @@ import TrackList from "./TrackList.vue";
 @Component({
   components: {
     AlbumList,
+    CommentEditor,
     DanceChooser,
     DanceList,
     FieldEditor,
@@ -358,6 +368,7 @@ export default class SongCore extends Mixins(AdminTools) {
       throw new Error("Can't edit if not logged in");
     }
     this.editor!.danceVote(vote);
+    this.edit = true;
     this.updateSong();
   }
 
@@ -448,6 +459,7 @@ export default class SongCore extends Mixins(AdminTools) {
       this.updateSong();
       this.$bvModal.hide("danceChooser");
     }
+    this.edit = true;
   }
 
   private updateField(property: SongProperty): void {
@@ -525,6 +537,14 @@ export default class SongCore extends Mixins(AdminTools) {
 
   private get updateServices(): string {
     return `/song/UpdateSongAndServices?id=${this.song.songId}&filter=${this.model.filter.query}`;
+  }
+
+  private get commentPlaceholder(): string {
+    return (
+      `Add comments about this song and its general dancability.  If you have any comments about ` +
+      `how this song relates to a particular dance style please vote on that dance style in the ` +
+      `"Dances" section and add your comments there.`
+    );
   }
 
   private get saveText(): string {

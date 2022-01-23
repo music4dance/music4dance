@@ -297,7 +297,22 @@ export class Song extends TaggableObject {
         case PropertyType.deleteTag:
           this.forceDeleteTag(property.danceQualifier, property.value);
           break;
-
+        case PropertyType.addCommentField:
+          {
+            const toAdd = this.getTaggableObject(property);
+            if (toAdd) {
+              toAdd.addComment(property.value, user);
+            }
+          }
+          break;
+        case PropertyType.removeCommentField:
+          {
+            const toRem = this.getTaggableObject(property);
+            if (toRem) {
+              toRem.removeComment(user);
+            }
+          }
+          break;
         case PropertyType.albumField:
         case PropertyType.publisherField:
         case PropertyType.trackField:

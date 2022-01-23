@@ -17,9 +17,10 @@
     <div>
       <p>
         The User Song List feature is still under development. We are
-        considering including lists of dance styles that the user has tagged as
-        well as hiding the current links if the user has not specified any
-        songs. We could also include lists of arbitrary tags.
+        considering including lists of dance styles that the user has tagged or
+        possibly including lists of arbitrary tags. Please
+        <a href="https://music4dance.blog/feedback/">let us know</a> if you like
+        this feature or have ideas to improve it (or both).
       </p>
       <p v-if="model.isAnonymous">
         The association of username with dances and tags that the user has voted

@@ -40,6 +40,10 @@ export enum PropertyType {
   addedTags = "Tag+",
   removedTags = "Tag-",
 
+  // Comments
+  addCommentField = "Comment+",
+  removeCommentField = "Commnent-",
+
   // User/Song info
   ownerHash = "OwnerHash",
   likeTag = "Like",

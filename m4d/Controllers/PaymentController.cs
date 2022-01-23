@@ -38,8 +38,6 @@ namespace m4d.Controllers
 
             var lineItems = new List<SessionLineItemOptions>();
             var donationAmount = amount;
-            // TODONEXT: rework this code to make Purchase be default purchase amount and donation
-            //  handle <> that...
             if (kind == PurchaseKind.Purchase || amount > AnnualSubscription)
             {
                 lineItems.Add(new SessionLineItemOptions

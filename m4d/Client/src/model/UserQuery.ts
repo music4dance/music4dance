@@ -1,4 +1,7 @@
 export class UserQuery {
+  namePseudo = "|p";
+  queryPseudo = "[p]";
+
   public static fromParts(parts?: string, user?: string): UserQuery {
     if (!parts || parts === "NT") {
       return new UserQuery("");
@@ -69,12 +72,23 @@ export class UserQuery {
 
   public get userName(): string {
     const idx = this.data.indexOf("|");
-    return this.data.substring(1, idx);
+    return this.data
+      .substring(1, idx === -1 ? undefined : idx)
+      .replace(this.queryPseudo, "");
   }
 
   public get isAnonymous(): boolean {
     const userName = this.userName;
     return userName.indexOf("-") !== -1 && userName.length === 36;
+  }
+
+  public get isPseudo(): boolean {
+    return this.data.indexOf(this.queryPseudo) != -1;
+  }
+
+  public get isBatch(): boolean {
+    const user = this.userName;
+    return !!user && (user === "batch" || user.startsWith("batch-"));
   }
 
   public get displayName(): string {
@@ -153,6 +167,11 @@ export class UserQuery {
       return query;
     }
 
+    if (query.toLowerCase().endsWith(this.namePseudo)) {
+      query =
+        query.substring(0, query.length - this.namePseudo.length) +
+        this.queryPseudo;
+    }
     if (query[0] !== "+" && query[0] !== "-") {
       query = "+" + query;
     }

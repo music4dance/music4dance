@@ -13,7 +13,7 @@
     <b-icon-pencil v-else></b-icon-pencil>
     <template v-if="!oneUser">
       {{ action }} by
-      <a :href="userLink" :class="userClasses">{{ change.userDisplayName }}</a>
+      <user-link :user="this.change.user"></user-link>
     </template>
     on
     {{ formattedDate }}
@@ -24,6 +24,7 @@
 </template>
 
 <script lang="ts">
+import UserLink from "@/components/UserLink.vue";
 import { SongChange } from "@/model/SongChange";
 import { PropertyType, SongProperty } from "@/model/SongProperty";
 import format from "date-fns/format";
@@ -31,7 +32,7 @@ import "reflect-metadata";
 import { Component, Prop, Vue } from "vue-property-decorator";
 import SongPropertyViewer from "./SongPropertyViewer.vue";
 
-@Component({ components: { SongPropertyViewer } })
+@Component({ components: { SongPropertyViewer, UserLink } })
 export default class SongChangeViewer extends Vue {
   @Prop() private readonly change!: SongChange;
   @Prop() private readonly oneUser?: boolean;
@@ -42,17 +43,9 @@ export default class SongChangeViewer extends Vue {
       : "Changed";
   }
 
-  private get userLink(): string {
-    return `/users/info/${this.change.userName}`;
-  }
-
   private get formattedDate(): string {
     const date = this.change.date;
     return date ? format(date, "Pp") : "<unknown>";
-  }
-
-  private get userClasses(): string[] {
-    return this.change.isPseudo ? ["pseudo"] : [];
   }
 
   private get tagProperties(): SongProperty[] {
@@ -60,9 +53,3 @@ export default class SongChangeViewer extends Vue {
   }
 }
 </script>
-
-<style scoped lang="scss">
-.pseudo {
-  font-style: italic;
-}
-</style>

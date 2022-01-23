@@ -40,7 +40,7 @@ namespace m4dModels
 
         #endregion
 
-        // Name Syntax: BaseName[:idx[:qual]]
+        // Name Syntax: BaseName[:idx[:qual]]|[:danceId]
         // idx is zeros based index for multi-value fields (only album at this point?)
         // qual is a qualifier for purchase type (may generalize?)
         //

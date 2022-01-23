@@ -29,12 +29,21 @@
             @update-song="$emit('update-song')"
             @edit="$emit('edit')"
           ></tag-list-editor>
-        </span> </b-list-group-item
+        </span>
+        <comment-editor
+          :container="dr"
+          :editor="editor"
+          :edit="edit && userVotedOn(dr)"
+          :rows="3"
+          placeholder="Please add a note on why you voted for/against dancing this dance to this song"
+          v-on="$listeners"
+        ></comment-editor> </b-list-group-item
     ></b-list-group>
   </b-card>
 </template>
 
 <script lang="ts">
+import CommentEditor from "@/components/CommentEditor.vue";
 import DanceVote from "@/components/DanceVote.vue";
 import TagButton from "@/components/TagButton.vue";
 import TagListEditor from "@/components/TagListEditor.vue";
@@ -52,6 +61,7 @@ import { Component, Mixins, Prop } from "vue-property-decorator";
 
 @Component({
   components: {
+    CommentEditor,
     DanceVote,
     TagButton,
     TagListEditor,
@@ -89,6 +99,13 @@ export default class DanceList extends Mixins(EnvironmentManager, AdminTools) {
 
   private subTagHandler(dr: DanceRating, tag: Tag): TagHandler {
     return new TagHandler(tag, this.user, this.filter, dr);
+  }
+
+  private userVotedOn(dr: DanceRating): boolean {
+    const tags = this.song.currentUserTags;
+    const positive = Tag.fromDanceId(dr.danceId);
+    const negative = positive.negated;
+    return !!tags.find((t) => t.key == positive.key || t.key === negative.key);
   }
 }
 </script>

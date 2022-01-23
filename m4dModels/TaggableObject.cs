@@ -17,10 +17,14 @@ namespace m4dModels
         protected TaggableObject()
         {
             TagSummary = new TagSummary();
+            Comments = new List<UserComment> ();
         }
 
         [DataMember]
         public TagSummary TagSummary { get; set; }
+
+        public List<UserComment> Comments { get; set; }
+
 
         protected virtual HashSet<string> ValidClasses => s_validClasses;
 
@@ -318,6 +322,17 @@ namespace m4dModels
                                 manager.FindOrCreateTagGroup(t)
                                     .GetPrimary()).Select(tt => tt.Key)
                                     .Distinct().ToList());
+        }
+
+        public void AddComment(string comment, string userName)
+        {
+            RemoveComment(userName);
+            Comments.Add(new UserComment { Comment = comment, UserName = userName });
+        }
+
+        public void RemoveComment(string userName)
+        {
+            Comments = Comments.Where(c => c.UserName != userName).ToList();
         }
     }
 }

@@ -2,6 +2,7 @@ import "reflect-metadata";
 import { jsonArrayMember, jsonObject } from "typedjson";
 import { Tag } from "./Tag";
 import { TagList } from "./TagList";
+import { UserComment } from "./UserComment";
 
 @jsonObject
 export class TaggableObject {
@@ -23,6 +24,7 @@ export class TaggableObject {
 
   @jsonArrayMember(Tag) public tags: Tag[] = [];
   @jsonArrayMember(Tag) public currentUserTags: Tag[] = [];
+  @jsonArrayMember(UserComment) public comments: UserComment[] = [];
 
   public addTags(tags: string, currentUser = false): void {
     this.tags = TaggableObject.add(this.tags, tags);
@@ -47,6 +49,17 @@ export class TaggableObject {
     return userTags
       ? !!userTags.find((t) => t.key.toLowerCase() === tag.key.toLowerCase())
       : false;
+  }
+
+  public addComment(comment: string, userName: string): void {
+    this.removeComment(userName);
+    this.comments.push(
+      new UserComment({ userName: userName, comment: comment })
+    );
+  }
+
+  public removeComment(userName: string): void {
+    this.comments = this.comments.filter((c) => c.userName != userName);
   }
 
   private static add(initial: Tag[], more: string): Tag[] {

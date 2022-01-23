@@ -246,6 +246,13 @@ namespace m4dModels
         // These are the constants that define fields, virtual fields and command
         // TODO: Should I factor these into their own class??
 
+        // TODONEXT: Get Comment field in next to MultiDance when importing CSV (*)
+        //  Make Comment field translate to azure search (Should we encode dance/user in the comment) (*)
+        //  Add comments to dance rating (*)
+        //  Get comment field working in load properties (*)
+        //  Add comment to front end editor
+        //  Get import working & pull in ***REMOVED***
+
         // Field names - note that these must be kept in sync with the actual property names
         public const string UserField = "User";
         public const string TimeField = "Time";
@@ -275,6 +282,10 @@ namespace m4dModels
         public const string AddedTags = "Tag+";
         public const string RemovedTags = "Tag-";
 
+        // Comments
+        public const string AddCommentField = "Comment+";
+        public const string RemoveCommentField = "Comment-";
+
         // User/Song info
         public const string OwnerHash = "OwnerHash";
         public const string LikeTag = "Like";
@@ -296,6 +307,7 @@ namespace m4dModels
         public const string EditedField = "Edited";
         public const string DancesField = "Dances";
         public const string UsersField = "Users";
+        public const string CommentField = "Comment";
         public const string DanceTagsInferred = "DanceTagsInferred";
         public const string GenreTags = "GenreTags";
         public const string TempoTags = "TempoTags";
@@ -312,6 +324,8 @@ namespace m4dModels
         public const string SongTags = "SongTags";
         public const string MeasureTempo = "MPM";
         public const string MultiDance = "MultiDance";
+        public const string SongComment = "SongComment";
+        public const string DanceComment = "DanceComment";
 
         // Commands
         public const string CreateCommand = ".Create";
@@ -957,6 +971,17 @@ namespace m4dModels
                         }
 
                         break;
+                    case DanceComment:
+                        // TODO: Verify that this works
+                        // TODO: Add SongComment and generalize DanceComment to allow for different
+                        //  comments per dancer
+                        foreach (var r in ratings)
+                        {
+                            properties.Add(new SongProperty(baseName, cell, -1, r.DanceId));
+                        }
+                        cell = null;
+                        break;
+
                 }
 
                 if (tags != null && tags.Count > 0)
@@ -1000,8 +1025,7 @@ namespace m4dModels
                 }
 
                 var idx = IsAlbumField(fields[i]) ? 0 : -1;
-                var prop = new SongProperty(baseName, cell, idx, qual);
-                properties.Add(prop);
+                properties.Add(new SongProperty(baseName, cell, idx, qual));
             }
 
             const string sep = "|";
@@ -1112,7 +1136,8 @@ namespace m4dModels
                 { "DANCETAGS", DanceTags },
                 { "SONGTAGS", SongTags },
                 { "MPM", MeasureTempo },
-                { "MULTIDANCE", MultiDance }
+                { "MULTIDANCE", MultiDance },
+                { "DanceComment", DanceComment }
             };
 
         public static async Task<IList<Song>> CreateFromRows(
@@ -1399,7 +1424,7 @@ namespace m4dModels
                         {
                             Trace.WriteLineIf(
                                 TraceLevels.General.TraceError,
-                                $"Null User when attempting to ad tag {prop.Value} to song {SongId}");
+                                $"Null User when attempting to add tag {prop.Value} to song {SongId}");
                         }
                         else
                         {
@@ -1412,13 +1437,38 @@ namespace m4dModels
                         {
                             Trace.WriteLineIf(
                                 TraceLevels.General.TraceError,
-                                $"Null User when attempting to ad tag {prop.Value} to song {SongId}");
+                                $"Null User when attempting to remove tag {prop.Value} from song {SongId}");
                         }
                         else
                         {
                             RemoveObjectTags(prop.DanceQualifier, prop.Value, stats);
                         }
-
+                        break;
+                    case AddCommentField:
+                        {
+                            if (user == null)
+                            {
+                                Trace.WriteLineIf(
+                                    TraceLevels.General.TraceError,
+                                    $"Null User when attempting to add comment {prop.Value} to song {SongId}");
+                            }
+                            else
+                            {
+                                AddObjectComment(prop.DanceQualifier, prop.Value, user);
+                            }
+                        }
+                        break;
+                    case RemoveCommentField:
+                        if (user == null)
+                        {
+                            Trace.WriteLineIf(
+                                TraceLevels.General.TraceError,
+                                $"Null User when attempting to remove comment {prop.Value} from song {SongId}");
+                        }
+                        else
+                        {
+                            RemoveObjectComment(prop.DanceQualifier, user);
+                        }
                         break;
                     case DeleteTagLabel:
                         ForceDeleteTag(prop.DanceQualifier, prop.Value, stats);
@@ -3366,6 +3416,34 @@ namespace m4dModels
             return tobj?.RemoveTags(tags, stats);
         }
 
+        public void AddObjectComment(string qualifier, string comment, string userName)
+        {
+            TaggableObject tobj = this;
+            if (!string.IsNullOrWhiteSpace(qualifier))
+            {
+                tobj = FindRating(qualifier);
+            }
+
+            if (tobj == null)
+            {
+                Trace.WriteLine($"Bad comment on {Title} by {Artist}");
+                return;
+            }
+
+            tobj.AddComment(comment, userName);
+        }
+
+        public void RemoveObjectComment(string qualifier, string userName)
+        {
+            TaggableObject tobj = this;
+            if (!string.IsNullOrWhiteSpace(qualifier))
+            {
+                tobj = FindRating(qualifier);
+            }
+
+            tobj?.RemoveComment(userName);
+        }
+
         public void ForceDeleteTag(string qualifier, string tagString,
             DanceStatsInstance stats)
         {
@@ -4057,6 +4135,11 @@ namespace m4dModels
                     AlbumsField, SearchFieldDataType.Collection(SearchFieldDataType.String))
                 {
                     IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
+                },
+                new SearchField(
+                    CommentField, SearchFieldDataType.Collection(SearchFieldDataType.String))
+                {
+                    IsSearchable = true, IsSortable = false, IsFilterable = false, IsFacetable = false
                 },
                 new SearchField(
                     UsersField, SearchFieldDataType.Collection(SearchFieldDataType.String))

@@ -15,18 +15,15 @@ export class SongChange {
   }
 
   public get isPseudo(): boolean {
-    const user = this.user;
-    return !!user && user.endsWith("|P");
+    return this.userQuery.isPseudo;
   }
 
   public get userName(): string | undefined {
-    const query = this.userQuery;
-    return query ? query.userName : undefined;
+    return this.userQuery.userName;
   }
 
   public get userDisplayName(): string | undefined {
-    const query = this.userQuery;
-    return query ? query.displayName : undefined;
+    return this.userQuery.displayName;
   }
 
   public get like(): boolean | undefined {
@@ -36,11 +33,7 @@ export class SongChange {
     return likes.length ? (likes.pop()?.valueTyped as boolean) : undefined;
   }
 
-  private get userQuery(): UserQuery | undefined {
-    const user = this.user;
-    if (!user) {
-      return undefined;
-    }
-    return new UserQuery(user);
+  private get userQuery(): UserQuery {
+    return new UserQuery(this.user);
   }
 }
