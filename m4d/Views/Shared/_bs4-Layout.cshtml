@@ -366,21 +366,20 @@
 <div id="body-content" class="container-fluid body-content">
 
     @RenderBody()
-    <div class="row">
-        <div class="col-xs-12">
-            <hr/>
-            <footer>
-                <p>
-                    &copy; @DateTime.Now.Year - Music4Dance.net -
-                    @Html.ActionLink("Site Map", "sitemap", "Home") -
-                    @Html.ActionLink("Terms of Service", "termsofservice", "Home") -
-                    @Html.ActionLink("Privacy Policy", "privacypolicy", "Home") -
-                    @Html.ActionLink("Credits", "credits", "Home") -
-                    <a href="@help">Help</a>
-                </p>
-            </footer>
-        </div>
-    </div>
+</div>
+
+<div id="footer-content">
+    <hr/>
+    <footer>
+        <p>
+            &copy; @DateTime.Now.Year - Music4Dance.net -
+            @Html.ActionLink("Site Map", "sitemap", "Home") -
+            @Html.ActionLink("Terms of Service", "termsofservice", "Home") -
+            @Html.ActionLink("Privacy Policy", "privacypolicy", "Home") -
+            @Html.ActionLink("Credits", "credits", "Home") -
+            <a href="@help">Help</a>
+        </p>
+    </footer>
 </div>
 
 <script src="https://cdn.polyfill.io/v3/polyfill.min.js?features=default&flags=gated"></script>

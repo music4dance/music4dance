@@ -19,6 +19,7 @@ namespace m4dModels
         {
             var basicAuth = new SearchAuth("basic", configuration);
             var backupAuth = new SearchAuth("backup", configuration);
+            var freeAuth = new SearchAuth("free", configuration);
             _info = new Dictionary<string, SearchServiceInfo>
             {
                 {
@@ -44,6 +45,12 @@ namespace m4dModels
                     new SearchServiceInfo(
                         "backup", "m4d-backup", "songs", backupAuth.AdminKey,
                         backupAuth.QueryKey)
+                },
+                {
+                    "freep",
+                    new SearchServiceInfo(
+                        "freep", "m4d", "pages", freeAuth.AdminKey,
+                        freeAuth.QueryKey)
                 }
             };
 

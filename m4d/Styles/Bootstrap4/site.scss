@@ -36,6 +36,9 @@ $fa-font-path: "/fonts";
 @import "bootstrap.scss";
 @import "../../node_modules/bootstrap-vue/src/index.scss";
 
+footer {
+    margin: 1rem
+}
 .list-clean {
     list-style-type: none;
 }

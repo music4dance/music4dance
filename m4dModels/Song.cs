@@ -247,10 +247,7 @@ namespace m4dModels
         // TODO: Should I factor these into their own class??
 
         // TODONEXT: Get Comment field in next to MultiDance when importing CSV (*)
-        //  Make Comment field translate to azure search (Should we encode dance/user in the comment) (*)
-        //  Add comments to dance rating (*)
-        //  Get comment field working in load properties (*)
-        //  Add comment to front end editor
+        //  Fix the comment field in search (can we kill it and rebuild it)
         //  Get import working & pull in ***REMOVED***
 
         // Field names - note that these must be kept in sync with the actual property names

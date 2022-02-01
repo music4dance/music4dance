@@ -2,8 +2,8 @@
 @using m4d.ViewModels
 
 @{
-    ViewBag.Title = Model.DanceName + " Information, Top Ten List, and Resources.";
-    ViewBag.Description = "music4dance catalog: " + Model.DanceName;
+    ViewBag.Title = $"music4dance catalog: {Model.DanceName} Page";
+    ViewBag.Description = Model.DanceName + " Information, Top Ten List, and Resources.";
     var converterModel = new ObjectConverterModel
     {
         Name = "model",

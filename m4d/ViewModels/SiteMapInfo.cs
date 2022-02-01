@@ -13,6 +13,7 @@ namespace m4d.ViewModels
         public virtual string Reference { get; set; }
         public virtual string Description { get; set; }
         public virtual bool OneTime { get; set; }
+        public virtual bool Crawl { get; set; }
         public virtual IEnumerable<SiteMapEntry> Children { get; set; }
 
         public string FullPath => MakeFullPath(Reference);
@@ -167,35 +168,40 @@ namespace m4d.ViewModels
                         {
                             Title = "Ballroom Competition Categories",
                             Reference = "dances/ballroom-competition-categories",
+                            Crawl = true,
                             Children = new List<SiteMapEntry>
                             {
                                 new()
                                 {
                                     Title = "International Standard",
-                                    Reference = "dances/international-standard"
+                                    Reference = "dances/international-standard",
+                                    Crawl = true,
                                 },
                                 new()
                                 {
                                     Title = "International Latin",
-                                    Reference = "dances/international-latin"
+                                    Reference = "dances/international-latin",
+                                    Crawl = true,
                                 },
                                 new()
                                 {
-                                    Title = "American Smooth", Reference = "dances/american-smooth"
+                                    Title = "American Smooth", Reference = "dances/american-smooth",
+                                    Crawl = true,
                                 },
                                 new()
                                 {
-                                    Title = "American Rhythm", Reference = "dances/american-rhythm"
+                                    Title = "American Rhythm", Reference = "dances/american-rhythm",
+                                    Crawl = true,
                                 }
                             }
                         },
-                        new() { Title = "Wedding Music", Reference = "dances/wedding-music" },
-                        new() { Title = "Holiday Music", Reference = "song/holidaymusic" },
+                        new() { Title = "Wedding Music", Reference = "dances/wedding-music", Crawl = true },
+                        new() { Title = "Holiday Music", Reference = "song/holidaymusic", Crawl = true },
                         new()
                         {
                             Title = "Halloween Music",
                             Reference = "song/addtags/?tags=%2BHalloween%3AOther"
-                        }
+                        },
                     }
                 },
                 new SiteMapDances(),
@@ -205,13 +211,13 @@ namespace m4d.ViewModels
                     Type = "info",
                     Entries = new List<SiteMapEntry>
                     {
-                        new() { Title = "Home Page", Reference = "" },
-                        new() { Title = "Contribute", Reference = "home/contribute" },
-                        new() { Title = "About Us", Reference = "home/about" },
-                        new() { Title = "FAQ", Reference = "home/faq" },
-                        new() { Title = "Privacy Policy", Reference = "home/privacypolicy" },
-                        new() { Title = "Terms of Service", Reference = "home/termsofservice" },
-                        new() { Title = "Credits", Reference = "home/credits" },
+                        new() { Title = "Home Page", Reference = "", Crawl = true },
+                        new() { Title = "Contribute", Reference = "home/contribute", Crawl = true },
+                        new() { Title = "About Us", Reference = "home/about", Crawl = true },
+                        new() { Title = "FAQ", Reference = "home/faq", Crawl = true },
+                        new() { Title = "Privacy Policy", Reference = "home/privacypolicy", Crawl = true },
+                        new() { Title = "Terms of Service", Reference = "home/termsofservice", Crawl = true },
+                        new() { Title = "Credits", Reference = "home/credits", Crawl = true },
                         new() { Title = "Reading List", Reference = "blog/reading-list" },
                         new SiteMapFile("helpmap", fileProvider)
                             { Title = "Help", Reference = "blog/music4dance-help" },

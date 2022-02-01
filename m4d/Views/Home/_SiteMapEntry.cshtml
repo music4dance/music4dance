@@ -4,6 +4,7 @@
 @{
     var entry = Model.Item1;
     var type = Model.Item2;
+    var crawl = entry.Crawl ? "class=m4d-content" : "";
 
     if (string.IsNullOrWhiteSpace(entry.FullPath))
     {
@@ -11,7 +12,7 @@
     }
     else
     {
-        <a href="@entry.FullPath">@entry.Title</a>
+        <a href='@entry.FullPath' @crawl>@entry.Title</a>
     }
     if (entry.Children != null)
     {
