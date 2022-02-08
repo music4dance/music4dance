@@ -223,6 +223,8 @@ namespace m4dModels
 
         #region Serialization
 
+        // During serialize replace tabs and newlines with unicode sub + T and R respectively
+        //  do the opposite during deserialization.
         public static string Serialize(IEnumerable<SongProperty> properties, string[] actions)
         {
             var sb = new StringBuilder();
@@ -235,7 +237,7 @@ namespace m4dModels
                     continue;
                 }
 
-                var p = sp.ToString();
+                var p = sp.ToString().Replace("\t", "\u001aT").Replace("\r\n", "\u001aR");
 
                 sb.AppendFormat("{0}{1}", sep, p);
 
@@ -255,7 +257,12 @@ namespace m4dModels
 
                 if (values.Length == 2)
                 {
-                    properties.Add(new SongProperty(values[0], values[1]));
+                    var p = values[1];
+                    if (p.Contains("\u001a"))
+                    {
+                        p = p.Replace("\u001aT", "\t").Replace("\u001aR", "\r\n");
+                    }
+                    properties.Add(new SongProperty(values[0], p));
                 }
                 else
                 {

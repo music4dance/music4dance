@@ -14,9 +14,9 @@ namespace m4dModels
                 "ITunes",
                 "itunes_store",
                 "Buy it on ITunes",
-                "http://itunes.apple.com/album/id{1}?i={0}&uo=4&at=11lwtf",
+                "https://itunes.apple.com/album/id{1}?i={0}&uo=4&at=11lwtf",
                 "https://itunes.apple.com/search?term={0}&media=music&entity=song&limit=200",
-                "http://itunes.apple.com/lookup?id={0}&entity=song")
+                "https://itunes.apple.com/lookup?id={0}&entity=song")
         {
         }
 

@@ -28,7 +28,7 @@ namespace m4d.APIControllers
 
         // GET api/<controller>
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(string id)
+        public async Task<IActionResult> Get(string id, bool localOnly=false)
         {
             if (string.IsNullOrWhiteSpace(id) || id.Length < 2)
             {
@@ -39,12 +39,12 @@ namespace m4d.APIControllers
             id = service.NormalizeId(id.Substring(1));
 
             var user = await Database.UserManager.GetUserAsync(User);
-
+https://open.spotify.com/artist/2kRfqPViCqYdSGhYSM9R0Q
             // Find a song associate with the service id
             var song = await Database.GetSongFromService(service, id, user.UserName);
             var created = false;
 
-            if (song == null)
+            if (song == null && !localOnly)
             {
                 song = await MusicServiceManager.CreateSong(Database, user, id, service);
                 if (song != null)

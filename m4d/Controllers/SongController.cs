@@ -977,8 +977,8 @@ namespace m4d.Controllers
             UseVue = false;
 
             var authResult = await HttpContext.AuthenticateAsync();
-            var canSpotify = (await AdmAuthentication.GetServiceAuthorization(
-                Configuration, ServiceType.Spotify, User, authResult)) != null;
+            var canSpotify = AdmAuthentication.HasAccess(
+                Configuration, ServiceType.Spotify, User, authResult);
 
             return View(
                 new PlaylistCreateInfo

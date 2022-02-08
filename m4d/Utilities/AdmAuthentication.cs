@@ -130,6 +130,18 @@ namespace m4d.Utilities
             AccessTokenRenewer.Dispose();
         }
 
+        public static bool HasAccess(IConfiguration configuration,
+            ServiceType serviceType, IPrincipal principal = null,
+            AuthenticateResult authResult = null)
+        {
+            var service = SetupService(configuration, serviceType, principal, authResult);
+            if (service == null)
+            {
+                return false;
+            }
+            return service as SpotUserAuthentication != null;
+        }
+
         public static async Task<string> GetServiceAuthorization(IConfiguration configuration,
             ServiceType serviceType, IPrincipal principal = null,
             AuthenticateResult authResult = null)
@@ -178,6 +190,11 @@ namespace m4d.Utilities
             ServiceType serviceType, AuthenticateResult authResult)
         {
             var accessToken = authResult.Properties.GetTokenValue("access_token");
+            if (string.IsNullOrWhiteSpace(accessToken))
+            {
+                return null;
+            }
+
             var now = DateTime.Now;
             var expiresAt = authResult.Properties.GetTokenValue("expires_at");
             var expiresIn = DateTime.Parse(expiresAt) - now;

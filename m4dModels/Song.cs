@@ -248,6 +248,8 @@ namespace m4dModels
 
         // TODONEXT: Get Comment field in next to MultiDance when importing CSV (*)
         //  Fix the comment field in search (can we kill it and rebuild it)
+        //  Make sure that import/export isn't broken by tabs/cr/lf
+        //  Continue to validate advanced search service lookup
         //  Get import working & pull in ***REMOVED***
 
         // Field names - note that these must be kept in sync with the actual property names
@@ -4226,6 +4228,12 @@ namespace m4dModels
                     IsSearchable = true, IsSortable = false, IsFilterable = false,
                     IsFacetable = false
                 },
+                new SearchField(
+                    CommentField, SearchFieldDataType.Collection(SearchFieldDataType.String))
+                {
+                    IsSearchable = true, IsSortable = false, IsFilterable = true,
+                    IsFacetable = false
+                },
                 new SearchField(PropertiesField, SearchFieldDataType.String)
                 {
                     IsSearchable = false, IsSortable = false, IsFilterable = false,
@@ -4303,6 +4311,9 @@ namespace m4dModels
 
             var dance = TagSummary.GetTagSet("Dance");
 
+            var comments = new List<string>();
+            AccumulateComments(Comments, comments);
+
             foreach (var dr in DanceRatings)
             {
                 var d = Dances.Instance.DanceFromId(dr.DanceId).Name.ToLower();
@@ -4310,6 +4321,7 @@ namespace m4dModels
                 other.UnionWith(ts.GetTagSet("Other"));
                 tempo.UnionWith(ts.GetTagSet("Tempo"));
                 style.UnionWith(ts.GetTagSet("Style"));
+                AccumulateComments(dr.Comments, comments);
             }
 
             var users = ModifiedBy.Select(
@@ -4345,6 +4357,7 @@ namespace m4dModels
                 [TempoTags] = tempo.ToArray(),
                 [StyleTags] = style.ToArray(),
                 [OtherTags] = other.ToArray(),
+                [CommentField] = comments.ToArray(),
                 [PropertiesField] = SongProperty.Serialize(SongProperties, null)
             };
 
@@ -4355,6 +4368,15 @@ namespace m4dModels
             }
 
             return doc;
+        }
+
+
+        private void AccumulateComments(List<UserComment> comments, List<string> accumulator)
+        {
+            if (comments != null && comments.Count > 0)
+            {
+                accumulator.AddRange(comments.Select(c => c.Comment));
+            }
         }
 
         private static float? CleanNumber(float? f)

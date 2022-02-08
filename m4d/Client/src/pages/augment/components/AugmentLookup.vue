@@ -74,37 +74,10 @@
 
 <script lang="ts">
 import AdminTools from "@/mix-ins/AdminTools";
-import { SongDetailsModel } from "@/model/SongDetailsModel";
-import axios from "axios";
+import { Service, ServiceMatcher } from "@/model/ServiceMatcher";
 import "reflect-metadata";
-import { TypedJSON } from "typedjson";
 import { Component, Mixins } from "vue-property-decorator";
 import AugmentSources from "./AugmentSources.vue";
-
-interface Service {
-  id: string;
-  name: string;
-  rgx: RegExp[];
-}
-
-const services: Service[] = [
-  {
-    id: "i",
-    name: "Apple Music",
-    rgx: [
-      /(^\d{9})$/gi,
-      /https:\/\/(?:music|itunes)\.apple\.com.*\/\d{7,10}\?i=(\d{7,10})/gi,
-    ],
-  },
-  {
-    id: "s",
-    name: "Spotify",
-    rgx: [
-      /^([a-z0-9]{22})$/gi,
-      /https:\/\/open\.spotify\.com\/track\/([a-z0-9]{22})/gi,
-    ],
-  },
-];
 
 @Component({
   components: { AugmentSources },
@@ -114,6 +87,7 @@ export default class AugmentLookup extends Mixins(AdminTools) {
   private songId = "";
   private searching = false;
   private failed = false;
+  private serviceMatcher = new ServiceMatcher();
 
   private get serviceIdState(): boolean | null {
     return this.serviceString ? !!this.serviceId : null;
@@ -121,16 +95,10 @@ export default class AugmentLookup extends Mixins(AdminTools) {
 
   private async findService(): Promise<void> {
     this.searching = true;
-    try {
-      const uri = `/api/servicetrack/${this.serviceType}${this.serviceId}`;
-      const response = await axios.get(uri);
-      const songModel = TypedJSON.parse(response.data, SongDetailsModel);
-      if (!songModel) {
-        this.failed = true;
-      } else {
-        this.$emit("edit-song", songModel);
-      }
-    } catch (e) {
+    const song = await this.serviceMatcher.findSong(this.serviceString);
+    if (song) {
+      this.$emit("edit-song", song);
+    } else {
       this.failed = true;
     }
   }
@@ -140,9 +108,15 @@ export default class AugmentLookup extends Mixins(AdminTools) {
     this.failed = false;
   }
 
+  private get service(): Service | undefined {
+    return this.serviceMatcher.match(this.serviceString);
+  }
+
   private get serviceId(): string | null {
     const service = this.service;
-    return service ? this.parseId(this.serviceString, service) : null;
+    return service
+      ? this.serviceMatcher.parseId(this.serviceString, service)
+      : null;
   }
 
   private get serviceType(): string | null {
@@ -153,27 +127,6 @@ export default class AugmentLookup extends Mixins(AdminTools) {
   private get serviceName(): string | null {
     const service = this.service;
     return service ? service.name : null;
-  }
-
-  private get service(): Service | undefined {
-    return services.find((s) => this.matchService(this.serviceString, s));
-  }
-
-  private matchService(id: string, service: Service): boolean {
-    return service.rgx.some((rgx) => id.match(rgx));
-  }
-
-  private parseId(id: string, service: Service): string {
-    const rgx = service.rgx.find((r) => id.match(r));
-    if (!rgx) {
-      throw new Error(`Invalid id ${id}: No regex found for ${service.name}`);
-    }
-    const match = rgx.exec(id);
-    if (!match) {
-      throw new Error(`Invalid id ${id}: No match found for ${service.name}`);
-    }
-
-    return match[1];
   }
 }
 </script>

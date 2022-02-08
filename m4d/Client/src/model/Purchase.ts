@@ -90,7 +90,7 @@ export class ItunesPurchaseInfo extends PurchaseInfo {
   }
 
   public get link(): string {
-    return `http://itunes.apple.com/album/id${this.albumId}?i=${this.songId}&uo=4&at=11lwtf`;
+    return `https://itunes.apple.com/album/id${this.albumId}?i=${this.songId}&uo=4&at=11lwtf`;
   }
 
   public get name(): string {
@@ -105,7 +105,7 @@ export class AmazonPurchaseInfo extends PurchaseInfo {
   }
 
   public get link(): string {
-    return `http://www.amazon.com/gp/product/${this.cleanSong}/ref=as_li_ss_tl?ie=UTF8&camp=1789&creative=390957&creativeASIN=${this.cleanSong}&linkCode=as2&tag=msc4dnc-20`;
+    return `https://www.amazon.com/gp/product/${this.cleanSong}/ref=as_li_ss_tl?ie=UTF8&camp=1789&creative=390957&creativeASIN=${this.cleanSong}&linkCode=as2&tag=msc4dnc-20`;
   }
 
   public get name(): string {
@@ -135,7 +135,7 @@ export class SpotifyPurchaseInfo extends PurchaseInfo {
   }
 
   public get link(): string {
-    return `http://open.spotify.com/track/${this.songId}`;
+    return `https://open.spotify.com/track/${this.songId}`;
   }
 
   public get name(): string {

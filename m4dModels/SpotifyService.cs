@@ -22,7 +22,7 @@ namespace m4dModels
                 "Spotify",
                 "spotify_client",
                 "listen on spotify",
-                "http://open.spotify.com/track/{0}",
+                "https://open.spotify.com/track/{0}",
                 "https://api.spotify.com/v1/search?q={0}&type=track",
                 "https://api.spotify.com/v1/tracks/{0}")
         {
