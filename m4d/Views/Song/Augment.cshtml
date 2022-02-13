@@ -1,5 +1,7 @@
-﻿@using Microsoft.Extensions.Configuration
+﻿@using m4d.ViewModels
+@using Microsoft.Extensions.Configuration
 @inject IConfiguration _configuration;
+@model m4d.ViewModels.AugmentViewModel;
 
 @{
     ViewBag.Title = "Add Song";
@@ -9,12 +11,18 @@
     {
         openAugment = false;
     }
+    var converterModel = new ObjectConverterModel
+    {
+        Name = "model",
+        Model = Model
+    };
 }
 
 <div id="app"></div>
 
 @section Scripts {
     <partial name="_environmentWriter"/>
+    <partial name="_jsonCamelCase" model="@converterModel" />
     <script language="javascript">
         window.openAugment = @Json.Serialize(openAugment);
     </script>

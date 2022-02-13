@@ -21,7 +21,10 @@
           ></b-tab>
           <b-tab title="by Id">
             <b-card-text
-              ><augment-lookup @edit-song="editSong($event)"></augment-lookup
+              ><augment-lookup
+                :id="model.id"
+                @edit-song="editSong($event)"
+              ></augment-lookup
             ></b-card-text>
           </b-tab>
           <b-tab v-if="isAdmin" title="Admin">
@@ -41,7 +44,8 @@
             </b-card-text>
           </b-tab>
         </b-tabs>
-        <augment-info v-else :openAugment="openAugment"> </augment-info>
+        <augment-info v-else :openAugment="openAugment" :id="model.id">
+        </augment-info>
       </b-col>
     </b-row>
     <div v-else>
@@ -86,6 +90,7 @@
 <script lang="ts">
 import Page from "@/components/Page.vue";
 import AdminTools from "@/mix-ins/AdminTools";
+import { AugmentModel } from "@/model/AugmentModel";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
 import { Song } from "@/model/Song";
 import { SongDetailsModel } from "@/model/SongDetailsModel";
@@ -93,6 +98,7 @@ import { SongFilter } from "@/model/SongFilter";
 import { SongHistory } from "@/model/SongHistory";
 import SongCore from "@/pages/song/components/SongCore.vue";
 import "reflect-metadata";
+import { TypedJSON } from "typedjson";
 import { Component, Mixins } from "vue-property-decorator";
 import AugmentInfo from "./components/AugmentInfo.vue";
 import AugmentLookup from "./components/AugmentLookup.vue";
@@ -105,19 +111,30 @@ enum AugmentPhase {
 }
 
 declare const openAugment: boolean;
+declare const model: AugmentModel;
 
 @Component({
   components: { AugmentInfo, AugmentLookup, AugmentSearch, SongCore, Page },
 })
 export default class App extends Mixins(AdminTools) {
+  private model: AugmentModel;
   private phase = AugmentPhase.lookup;
   private songModel: SongDetailsModel | null = null;
   private lastSong: Song | null = null;
   private created = false;
   private environment: DanceEnvironment | null = null;
   private propertiesString = "";
-  private tabIndex = 0;
+  private tabIndex: number;
 
+  constructor() {
+    super();
+    this.model = TypedJSON.parse(model, AugmentModel) ?? {};
+    this.tabIndex = this.model.id ? 1 : 0;
+  }
+
+  // TODO:
+  //  - We should put openAugment into the model (or delete it)
+  //  - Should do another pass on cleaning up service lookup
   private get canAugment(): boolean {
     return openAugment ? !!this.userName : this.canTag || this.isPremium;
   }

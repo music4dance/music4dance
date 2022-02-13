@@ -11,7 +11,7 @@
     <div style="max-width: 600px; margin-left: auto; margin-right: auto">
       <b-form
         id="advanced-search"
-        @submit="onSubmit"
+        @submit.stop.prevent="onSubmit"
         @reset="onReset"
         :validated="validated"
         novalidate
@@ -27,7 +27,7 @@
             type="text"
             placeholder="Enter Keywords from title, artist, etc... OR a Spotify or Apple share link"
             ref="keywords"
-            @input="checkService"
+            @input="checkServiceAndWarn"
           ></b-form-input>
         </b-form-group>
 
@@ -215,9 +215,9 @@ import DanceSelector from "@/components/DanceSelector.vue";
 import Page from "@/components/Page.vue";
 import TagCategorySelector from "@/components/TagCategorySelector.vue";
 import AdminTools from "@/mix-ins/AdminTools";
+import DropTarget from "@/mix-ins/DropTarget";
 import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 import { DanceQuery } from "@/model/DanceQuery";
-import { ServiceMatcher } from "@/model/ServiceMatcher";
 import { SongFilter } from "@/model/SongFilter";
 import { SongSort, SortOrder } from "@/model/SongSort";
 import { Tag } from "@/model/Tag";
@@ -237,7 +237,11 @@ declare const model: SearchModel;
     TagCategorySelector,
   },
 })
-export default class App extends Mixins(AdminTools, EnvironmentManager) {
+export default class App extends Mixins(
+  AdminTools,
+  EnvironmentManager,
+  DropTarget
+) {
   private showDiagnostics = false;
   private keyWords = "";
 
@@ -253,8 +257,6 @@ export default class App extends Mixins(AdminTools, EnvironmentManager) {
 
   private user: string;
   private displayUser: string;
-
-  private serviceMatcher: ServiceMatcher = new ServiceMatcher();
 
   private activity = "NT";
   private get computedActivity(): string {
@@ -404,46 +406,7 @@ export default class App extends Mixins(AdminTools, EnvironmentManager) {
     return queryFilter ? queryFilter : model.filter;
   }
 
-  private async onSubmit(evt: Event): Promise<void> {
-    evt.preventDefault();
-    evt.stopPropagation(); // Do we need this?
-
-    const service = this.serviceMatcher.match(this.keyWords);
-    if (service) {
-      const found = await this.checkService(this.keyWords);
-
-      console.log(`checkService returned: ${found}`);
-      if (!found) {
-        this.$bvModal
-          .msgBoxConfirm(
-            `It looks like you may have tried to search by ${service.name} id for a song not in the music4dance catalog.
-         If that is true, please cancel and consider going to the "Add Songs" page to add it to the catalog.
-         If you are searching for a keyword, please continue.`,
-            {
-              title: "Music Service Search?",
-              okTitle: "Continue",
-            }
-          )
-          .then((value) => {
-            if (value) {
-              console.log("Continue search");
-              this.doSubmit();
-            } else {
-              console.log("Cancel search");
-              return;
-            }
-          })
-          .catch(() => {
-            console.log("Modal exception");
-            return;
-          });
-      }
-    } else {
-      this.doSubmit();
-    }
-  }
-
-  private doSubmit(): void {
+  private async onSubmit(): Promise<void> {
     const form = document.getElementById("advanced-search") as HTMLFormElement;
 
     if (form.checkValidity() === true) {
@@ -521,28 +484,6 @@ export default class App extends Mixins(AdminTools, EnvironmentManager) {
     }
 
     return filtered;
-  }
-
-  private async checkService(input: string): Promise<boolean> {
-    const matcher = this.serviceMatcher;
-    const service = matcher.match(input);
-    if (service) {
-      try {
-        const id = matcher.parseId(input, service);
-        if (id) {
-          const song = await matcher.findSong(input, true);
-          if (song) {
-            window.location.href = `/song/details/${song.songHistory.id}`;
-            console.log("checkService: true");
-            return true;
-          }
-        }
-      } catch {
-        // swallow any errors
-      }
-    }
-    console.log("checkService: false");
-    return false;
   }
 
   private async onEnvironmentLoaded(tagDatabase: TagDatabase): Promise<void> {

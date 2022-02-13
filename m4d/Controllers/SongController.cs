@@ -748,11 +748,11 @@ namespace m4d.Controllers
         //
         // GET: /Song/Add
         [AllowAnonymous]
-        public ActionResult Augment(SongFilter filter)
+        public ActionResult Augment(string title = null, string artist = null, string id = null)
         {
             HelpPage = "add-songs";
             BuildEnvironment(danceEnvironment: true, tagDatabase: true);
-            return View();
+            return View(new AugmentViewModel { Title = title, Artist = artist, Id = id});
         }
 
         //

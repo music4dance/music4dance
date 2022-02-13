@@ -76,18 +76,24 @@
 import AdminTools from "@/mix-ins/AdminTools";
 import { Service, ServiceMatcher } from "@/model/ServiceMatcher";
 import "reflect-metadata";
-import { Component, Mixins } from "vue-property-decorator";
+import { Component, Mixins, Prop } from "vue-property-decorator";
 import AugmentSources from "./AugmentSources.vue";
 
 @Component({
   components: { AugmentSources },
 })
 export default class AugmentLookup extends Mixins(AdminTools) {
+  @Prop() private id?: string;
   private serviceString = "";
   private songId = "";
   private searching = false;
   private failed = false;
   private serviceMatcher = new ServiceMatcher();
+
+  private async mounted(): Promise<void> {
+    this.serviceString = this.id ?? "";
+    await this.findService();
+  }
 
   private get serviceIdState(): boolean | null {
     return this.serviceString ? !!this.serviceId : null;

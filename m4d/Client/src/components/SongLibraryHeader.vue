@@ -19,6 +19,7 @@
         autofocus
         debounce="100"
         @keyup.enter.native="search"
+        @input="checkServiceAndWarn"
       ></b-form-input>
       <datalist id="auto-complete">
         <option v-for="suggestion in suggestions" :key="suggestion">
@@ -50,9 +51,10 @@
 
 <script lang="ts">
 import { wordsToKebab } from "@/helpers/StringHelpers";
+import DropTarget from "@/mix-ins/DropTarget";
 import { SongFilter } from "@/model/SongFilter";
 import axios from "axios";
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import { Component, Mixins, Prop, Watch } from "vue-property-decorator";
 import DanceChooser from "./DanceChooser.vue";
 
 interface Suggestion {
@@ -70,7 +72,7 @@ interface SuggestionList {
     DanceChooser,
   },
 })
-export default class SongLibrary extends Vue {
+export default class SongLibrary extends Mixins(DropTarget) {
   @Prop() private readonly filter!: SongFilter;
   @Prop() private readonly user?: string;
 
