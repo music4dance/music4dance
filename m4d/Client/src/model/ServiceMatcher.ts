@@ -13,7 +13,7 @@ const services: Service[] = [
     id: "i",
     name: "Apple Music",
     rgx: [
-      /(^\d{9})$/gi,
+      /(^\d{7,10})$/gi,
       /https:\/\/(?:music|itunes)\.apple\.com.*\/\d{7,10}\?i=(\d{7,10})/gi,
     ],
   },

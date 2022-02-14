@@ -92,7 +92,9 @@ export default class AugmentLookup extends Mixins(AdminTools) {
 
   private async mounted(): Promise<void> {
     this.serviceString = this.id ?? "";
-    await this.findService();
+    if (this.serviceString) {
+      await this.findService();
+    }
   }
 
   private get serviceIdState(): boolean | null {
