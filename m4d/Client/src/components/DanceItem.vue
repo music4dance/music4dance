@@ -58,9 +58,9 @@ export default class DanceItem extends Vue {
   private get tempoText(): string {
     const dance = this.stats.isGroup ? undefined : (this.stats as TypeStats);
     return dance
-      ? `${dance.tempoRange.toString()} BPM/${dance.tempoRange.mpm(
+      ? `${dance.tempoRange.bpm(
           dance.meter.numerator
-        )} MPM`
+        )} BPM/${dance.tempoRange.toString()} MPM`
       : "";
   }
 }

@@ -1,5 +1,5 @@
 export function wordsToKebab(words: string): string {
-  return words.toLowerCase().replace(" ", "-");
+  return words.toLowerCase().replaceAll(" ", "-");
 }
 
 export function toTitleCase(sentance: string, separator?: string): string {

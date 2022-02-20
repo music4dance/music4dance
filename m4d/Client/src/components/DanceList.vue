@@ -16,11 +16,7 @@ import { GroupStats } from "@/model/GroupStats";
 import { TypeStats } from "@/model/TypeStats";
 import { Component, Prop, Vue } from "vue-property-decorator";
 
-@Component({
-  components: {
-    DanceItem,
-  },
-})
+@Component({ components: { DanceItem } })
 export default class DanceList extends Vue {
   @Prop() private group!: GroupStats;
   @Prop() private flush?: boolean;

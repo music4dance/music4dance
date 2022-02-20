@@ -659,9 +659,14 @@ namespace m4dModels
 
         public async Task<IEnumerable<Song>> FindSongs(IEnumerable<Guid> ids)
         {
-            var tasks = ids.Select(id => InternalFindSong(id, CreateSearchClient()))
-                .ToList();
-            return await Task.WhenAll(tasks);
+            // Apparently EF won't let me do these in parallel
+            var songs = new List<Song>();
+            var client = CreateSearchClient();
+            foreach (var id in ids)
+            {
+                songs.Add(await InternalFindSong(id, client));
+            }
+            return songs;
         }
 
         private async Task<Song> InternalFindSong(Guid id, SearchClient client)
@@ -1437,7 +1442,7 @@ namespace m4dModels
                         try
                         {
                             var batch = IndexDocumentsBatch.Delete(
-                                deleted.Select(d => new SearchDocument { [Song.SongIdField] = d }));
+                                deleted.Select(d => new SearchDocument { [Song.SongIdField] = d.GetString(Song.SongIdField) }));
                             var results = await client.IndexDocumentsAsync(batch);
                             Trace.WriteLine($"Deleted = {results.Value.Results.Count}");
                         }

@@ -1187,7 +1187,7 @@ namespace m4d.Controllers
 
             ViewBag.BackAction = "MergeCandidates";
 
-            return View("details", GetSongDetails(song, filter));
+            return View("details", await GetSongDetails(song, filter));
         }
 
         // CleanMusicServices: /Song/CleanMusicServices
