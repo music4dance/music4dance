@@ -131,13 +131,7 @@ export default class DanceModal extends TagModalBase {
     if (!this.danceHandler.danceRating) {
       console.log(JSON.stringify(this.danceHandler));
     }
-    return (
-      !!filter &&
-      !filter.isDefaultDance(
-        this.danceHandler.danceRating.id,
-        this.danceHandler.user
-      )
-    );
+    return !!filter && !filter.isDefault(this.danceHandler.danceRating.id);
   }
 
   private get isFiltered(): boolean {

@@ -2,7 +2,7 @@
   <page id="app" :title="title" :consumesEnvironment="true">
     <song-table
       :histories="model.histories"
-      :filter="model.filter"
+      :filter="filter"
       :hideSort="true"
       :hiddenColumns="['artist', 'length', 'track']"
     ></song-table>
@@ -13,6 +13,7 @@
 import Page from "@/components/Page.vue";
 import SongTable from "@/components/SongTable.vue";
 import { ArtistModel } from "@/model/ArtistModel";
+import { SongFilter } from "@/model/SongFilter";
 import "reflect-metadata";
 import { TypedJSON } from "typedjson";
 import { Component, Vue } from "vue-property-decorator";
@@ -36,6 +37,10 @@ export default class App extends Vue {
 
   private get title(): string {
     return `Artist: ${this.model.artist}`;
+  }
+
+  private get filter(): SongFilter {
+    return new SongFilter();
   }
 }
 </script>
