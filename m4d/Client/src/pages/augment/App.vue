@@ -29,7 +29,7 @@
           </b-tab>
           <b-tab v-if="isAdmin" title="Admin">
             <b-card-text>
-              <p>Paste in text version of propery list</p>
+              <p>Paste in text version of property list</p>
               <b-input-group prepend="Properties">
                 <b-form-input
                   id="admin-properties"
@@ -170,6 +170,7 @@ export default class App extends Mixins(AdminTools) {
       this.created = !!this.songModel!.created;
     }
     this.phase = AugmentPhase.lookup;
+    this.model = new AugmentModel();
     this.songModel = null;
   }
 

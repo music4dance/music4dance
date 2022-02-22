@@ -1,124 +1,136 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`MainMenu.vue renders the main menu with admin options 1`] = `
-<nav class="navbar navbar-dark bg-primary navbar-expand-md" id="mainMenu"><a href="/" target="_self" class="navbar-brand"><img src="/images/header-logo.png" height="40" title="music4dance"></a> <button type="button" aria-label="Toggle navigation" class="navbar-toggler collapsed" aria-expanded="false" aria-controls="nav-collapse"><span class="navbar-toggler-icon"></span></button>
-  <transition-stub css="true" enterclass="" leaveclass="collapse show" entertoclass="collapse show" leavetoclass="collapse" enteractiveclass="collapsing" leaveactiveclass="collapsing">
-    <div id="nav-collapse" class="navbar-collapse collapse" style="display: none;">
-      <ul class="navbar-nav">
-        <li id="music-menu" class="nav-item b-nav-dropdown dropdown"><a id="music-menu__BV_toggle_" role="button" aria-haspopup="true" aria-expanded="false" href="#music-menu" target="_self" class="nav-link dropdown-toggle"><span>Music</span></a>
-          <ul tabindex="-1" aria-labelledby="music-menu__BV_toggle_" class="dropdown-menu">
-            <li role="presentation"><a role="menuitem" href="/dances" target="_self" class="dropdown-item">Dances</a></li>
-            <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/ballroom-competition-categories" target="_self" class="dropdown-item">Ballroom</a></li>
-            <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/latin" target="_self" class="dropdown-item">Latin</a></li>
-            <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/swing" target="_self" class="dropdown-item">Swing</a></li>
-            <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/tango" target="_self" class="dropdown-item">Tango</a></li>
-            <li role="presentation"><a role="menuitem" href="/song" target="_self" class="dropdown-item">Song Library</a></li>
-            <li role="presentation" class="nav-subitem"><a role="menuitem" href="/song/advancedsearchform" target="_self" class="dropdown-item">Advanced Search</a></li>
-            <li role="presentation" class="nav-subitem"><a role="menuitem" href="/song/augment" target="_self" class="dropdown-item">Add Song</a></li>
-            <li role="presentation" class="nav-subitem"><a role="menuitem" href="/song/newmusic" target="_self" class="dropdown-item">New Music</a></li>
-            <li role="presentation"><a role="menuitem" href="/dances/wedding-music" target="_self" class="dropdown-item">Wedding</a></li>
-            <li role="presentation"><a role="menuitem" href="/song/holidaymusic" target="_self" class="dropdown-item">Holiday</a></li>
-            <li role="presentation"><a role="menuitem" href="/song/addtags/?tags=%2BHalloween%3AOther" target="_self" class="dropdown-item">Halloween</a></li>
-            <li role="presentation"><a role="menuitem" href="/tag" target="_self" class="dropdown-item">Tags</a></li>
-          </ul>
-        </li>
-        <li id="tools-menu" class="nav-item b-nav-dropdown dropdown"><a id="tools-menu__BV_toggle_" role="button" aria-haspopup="true" aria-expanded="false" href="#tools-menu" target="_self" class="nav-link dropdown-toggle"><span>Tools</span></a>
-          <ul tabindex="-1" aria-labelledby="tools-menu__BV_toggle_" class="dropdown-menu">
-            <li role="presentation"><a role="menuitem" href="/home/counter" target="_self" class="dropdown-item">Tempo Counter</a></li>
-            <li role="presentation"><a role="menuitem" href="/home/tempi" target="_self" class="dropdown-item">Tempi (Tempos)</a></li>
-          </ul>
-        </li>
-        <li class="nav-item b-nav-dropdown dropdown"><a role="button" aria-haspopup="true" aria-expanded="false" href="#" target="_self" class="nav-link dropdown-toggle"><span>Info</span></a>
-          <ul tabindex="-1" class="dropdown-menu">
-            <li role="presentation"><a role="menuitem" href="#" target="_self" class="dropdown-item">Help</a></li>
-            <li role="presentation"><a role="menuitem" href="https://music4dance.blog/" target="_self" class="dropdown-item">Blog</a></li>
-            <li role="presentation"><a role="menuitem" href="/home/faq" target="_self" class="dropdown-item">FAQ</a></li>
-            <li role="presentation"><a role="menuitem" href="/home/about" target="_self" class="dropdown-item">About Us</a></li>
-            <li role="presentation"><a role="menuitem" href="https://music4dance.blog/reading-list/" target="_self" class="dropdown-item">Reading List</a></li>
-            <li role="presentation"><a role="menuitem" href="/home/sitemap" target="_self" class="dropdown-item">Site Map</a></li>
-            <li role="presentation"><a role="menuitem" href="/home/privacypolicy" target="_self" class="dropdown-item">Privacy Policy</a></li>
-            <li role="presentation"><a role="menuitem" href="/home/credits" target="_self" class="dropdown-item">Credits</a></li>
-          </ul>
-        </li>
-        <li id="contribute-menu" right="" class="nav-item"><a href="/home/contribute" target="_self" class="nav-link">Contribute</a></li>
-        <li id="admin-menu" class="nav-item b-nav-dropdown dropdown"><a id="admin-menu__BV_toggle_" role="button" aria-haspopup="true" aria-expanded="false" href="#admin-menu" target="_self" class="nav-link dropdown-toggle"><span>Admin</span></a>
-          <ul tabindex="-1" aria-labelledby="admin-menu__BV_toggle_" class="dropdown-menu">
-            <li role="presentation"><a role="menuitem" href="/admin" target="_self" class="dropdown-item">Index</a></li>
-            <li role="presentation"><a role="menuitem" href="/applicationusers" target="_self" class="dropdown-item">Users</a></li>
-            <li role="presentation"><a role="menuitem" href="/activitylog" target="_self" class="dropdown-item">Activity Log</a></li>
-            <li role="presentation"><a role="menuitem" href="/tag/list" target="_self" class="dropdown-item">Tags</a></li>
-            <li role="presentation"><a role="menuitem" href="/admin/diagnostics" target="_self" class="dropdown-item">Diagnostics</a></li>
-            <li role="presentation"><a role="menuitem" href="/admin/initializationTasks" target="_self" class="dropdown-item">Initialization and Cleanup</a></li>
-            <li role="presentation"><a role="menuitem" href="/admin/scraping" target="_self" class="dropdown-item">Scraping</a></li>
-            <li role="presentation"><a role="menuitem" href="/playlist" target="_self" class="dropdown-item">PlayLists</a></li>
-            <li role="presentation"><a role="menuitem" href="/song/rawsearchform" target="_self" class="dropdown-item">Raw Search</a></li>
-            <li role="presentation"><a role="menuitem" href="/admin/uploadbackup" target="_self" class="dropdown-item">Uploads and Backups</a></li>
-          </ul>
-        </li>
-      </ul>
-      <ul class="navbar-nav ml-auto">
-        <li class="nav-item b-nav-dropdown dropdown"><a role="button" aria-haspopup="true" aria-expanded="false" href="#" target="_self" class="nav-link dropdown-toggle"><span>dwgray <img src="/images/swing-ui.png" alt="User Icon" height="30" width="30"></span></a>
-          <ul tabindex="-1" class="dropdown-menu">
-            <li role="presentation"><a right="" role="menuitem" href="/identity/account/manage" target="_self" class="dropdown-item">My Profile</a></li>
-            <li role="presentation"><a right="" role="menuitem" href="/users/info/dwgray" target="_self" class="dropdown-item">My Songs</a></li>
-            <li role="presentation"><a right="" role="menuitem" href="/searches/?user=dwgray" target="_self" class="dropdown-item">My Searches</a></li>
-            <li role="presentation"><a right="" role="menuitem" href="javascript:document.getElementById('logoutForm').submit()" target="_self" class="dropdown-item">Log out</a></li>
-          </ul>
-        </li>
-      </ul>
-    </div>
-  </transition-stub>
-</nav>
+<div>
+  <nav class="navbar navbar-dark bg-primary navbar-expand-lg" id="mainMenu"><a href="/" target="_self" class="navbar-brand"><img src="/images/header-logo.png" height="40" title="music4dance"></a> <button type="button" aria-label="Toggle navigation" class="navbar-toggler collapsed" aria-expanded="false" aria-controls="nav-collapse"><span class="navbar-toggler-icon"></span></button>
+    <transition-stub css="true" enterclass="" leaveclass="collapse show" entertoclass="collapse show" leavetoclass="collapse" enteractiveclass="collapsing" leaveactiveclass="collapsing">
+      <div id="nav-collapse" class="navbar-collapse collapse" style="display: none;">
+        <ul class="navbar-nav">
+          <li id="music-menu" class="nav-item b-nav-dropdown dropdown"><a id="music-menu__BV_toggle_" role="button" aria-haspopup="true" aria-expanded="false" href="#music-menu" target="_self" class="nav-link dropdown-toggle"><span>Music</span></a>
+            <ul tabindex="-1" aria-labelledby="music-menu__BV_toggle_" class="dropdown-menu">
+              <li role="presentation"><a role="menuitem" href="/dances" target="_self" class="dropdown-item">Dances</a></li>
+              <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/ballroom-competition-categories" target="_self" class="dropdown-item">Ballroom</a></li>
+              <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/latin" target="_self" class="dropdown-item">Latin</a></li>
+              <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/swing" target="_self" class="dropdown-item">Swing</a></li>
+              <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/tango" target="_self" class="dropdown-item">Tango</a></li>
+              <li role="presentation"><a role="menuitem" href="/song" target="_self" class="dropdown-item">Song Library</a></li>
+              <li role="presentation" class="nav-subitem"><a role="menuitem" href="/song/advancedsearchform" target="_self" class="dropdown-item">Advanced Search</a></li>
+              <li role="presentation" class="nav-subitem"><a role="menuitem" href="/song/augment" target="_self" class="dropdown-item">Add Song</a></li>
+              <li role="presentation" class="nav-subitem"><a role="menuitem" href="/song/newmusic" target="_self" class="dropdown-item">New Music</a></li>
+              <li role="presentation"><a role="menuitem" href="/dances/wedding-music" target="_self" class="dropdown-item">Wedding</a></li>
+              <li role="presentation"><a role="menuitem" href="/song/holidaymusic" target="_self" class="dropdown-item">Holiday</a></li>
+              <li role="presentation"><a role="menuitem" href="/song/addtags/?tags=%2BHalloween%3AOther" target="_self" class="dropdown-item">Halloween</a></li>
+              <li role="presentation"><a role="menuitem" href="/tag" target="_self" class="dropdown-item">Tags</a></li>
+            </ul>
+          </li>
+          <li id="tools-menu" class="nav-item b-nav-dropdown dropdown"><a id="tools-menu__BV_toggle_" role="button" aria-haspopup="true" aria-expanded="false" href="#tools-menu" target="_self" class="nav-link dropdown-toggle"><span>Tools</span></a>
+            <ul tabindex="-1" aria-labelledby="tools-menu__BV_toggle_" class="dropdown-menu">
+              <li role="presentation"><a role="menuitem" href="/home/counter" target="_self" class="dropdown-item">Tempo Counter</a></li>
+              <li role="presentation"><a role="menuitem" href="/home/tempi" target="_self" class="dropdown-item">Tempi (Tempos)</a></li>
+            </ul>
+          </li>
+          <li class="nav-item b-nav-dropdown dropdown"><a role="button" aria-haspopup="true" aria-expanded="false" href="#" target="_self" class="nav-link dropdown-toggle"><span>Info</span></a>
+            <ul tabindex="-1" class="dropdown-menu">
+              <li role="presentation"><a role="menuitem" href="#" target="_self" class="dropdown-item">Help</a></li>
+              <li role="presentation"><a role="menuitem" href="https://music4dance.blog/" target="_self" class="dropdown-item">Blog</a></li>
+              <li role="presentation"><a role="menuitem" href="/home/faq" target="_self" class="dropdown-item">FAQ</a></li>
+              <li role="presentation"><a role="menuitem" href="/home/about" target="_self" class="dropdown-item">About Us</a></li>
+              <li role="presentation"><a role="menuitem" href="https://music4dance.blog/reading-list/" target="_self" class="dropdown-item">Reading List</a></li>
+              <li role="presentation"><a role="menuitem" href="/home/sitemap" target="_self" class="dropdown-item">Site Map</a></li>
+              <li role="presentation"><a role="menuitem" href="/home/privacypolicy" target="_self" class="dropdown-item">Privacy Policy</a></li>
+              <li role="presentation"><a role="menuitem" href="/home/credits" target="_self" class="dropdown-item">Credits</a></li>
+            </ul>
+          </li>
+          <li id="contribute-menu" right="" class="nav-item"><a href="/home/contribute" target="_self" class="nav-link">Contribute</a></li>
+          <li id="admin-menu" class="nav-item b-nav-dropdown dropdown"><a id="admin-menu__BV_toggle_" role="button" aria-haspopup="true" aria-expanded="false" href="#admin-menu" target="_self" class="nav-link dropdown-toggle"><span>Admin</span></a>
+            <ul tabindex="-1" aria-labelledby="admin-menu__BV_toggle_" class="dropdown-menu">
+              <li role="presentation"><a role="menuitem" href="/admin" target="_self" class="dropdown-item">Index</a></li>
+              <li role="presentation"><a role="menuitem" href="/applicationusers" target="_self" class="dropdown-item">Users</a></li>
+              <li role="presentation"><a role="menuitem" href="/activitylog" target="_self" class="dropdown-item">Activity Log</a></li>
+              <li role="presentation"><a role="menuitem" href="/tag/list" target="_self" class="dropdown-item">Tags</a></li>
+              <li role="presentation"><a role="menuitem" href="/admin/diagnostics" target="_self" class="dropdown-item">Diagnostics</a></li>
+              <li role="presentation"><a role="menuitem" href="/admin/initializationTasks" target="_self" class="dropdown-item">Initialization and Cleanup</a></li>
+              <li role="presentation"><a role="menuitem" href="/admin/scraping" target="_self" class="dropdown-item">Scraping</a></li>
+              <li role="presentation"><a role="menuitem" href="/playlist" target="_self" class="dropdown-item">PlayLists</a></li>
+              <li role="presentation"><a role="menuitem" href="/song/rawsearchform" target="_self" class="dropdown-item">Raw Search</a></li>
+              <li role="presentation"><a role="menuitem" href="/admin/uploadbackup" target="_self" class="dropdown-item">Uploads and Backups</a></li>
+            </ul>
+          </li>
+        </ul>
+        <ul class="navbar-nav ml-auto">
+          <li class="form-inline">
+            <form class="form-inline"><input type="text" placeholder="Search" class="mr-sm-2 form-control form-control-sm"> <button type="submit" disabled="disabled" class="btn my-2 my-sm-0 btn-secondary btn-sm disabled">Search</button></form>
+          </li>
+          <li class="nav-item b-nav-dropdown dropdown"><a role="button" aria-haspopup="true" aria-expanded="false" href="#" target="_self" class="nav-link dropdown-toggle"><span>dwgray <img src="/images/swing-ui.png" alt="User Icon" height="30" width="30"></span></a>
+            <ul tabindex="-1" class="dropdown-menu">
+              <li role="presentation"><a right="" role="menuitem" href="/identity/account/manage" target="_self" class="dropdown-item">My Profile</a></li>
+              <li role="presentation"><a right="" role="menuitem" href="/users/info/dwgray" target="_self" class="dropdown-item">My Songs</a></li>
+              <li role="presentation"><a right="" role="menuitem" href="/searches/?user=dwgray" target="_self" class="dropdown-item">My Searches</a></li>
+              <li role="presentation"><a right="" role="menuitem" href="javascript:document.getElementById('logoutForm').submit()" target="_self" class="dropdown-item">Log out</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </transition-stub>
+  </nav>
+  <form id="logoutForm" action="/identity/account/logout" method="post" style="height: 0px;"><input name="__RequestVerificationToken" type="hidden"> <input type="hidden" name="returnUrl" value="/"> <button id="logout" type="submit" class="btn btn-link"></button></form>
+</div>
 `;
 
 exports[`MainMenu.vue renders the main menu with default options 1`] = `
-<nav class="navbar navbar-dark bg-primary navbar-expand-md" id="mainMenu"><a href="/" target="_self" class="navbar-brand"><img src="/images/header-logo.png" height="40" title="music4dance"></a> <button type="button" aria-label="Toggle navigation" class="navbar-toggler collapsed" aria-expanded="false" aria-controls="nav-collapse"><span class="navbar-toggler-icon"></span></button>
-  <transition-stub css="true" enterclass="" leaveclass="collapse show" entertoclass="collapse show" leavetoclass="collapse" enteractiveclass="collapsing" leaveactiveclass="collapsing">
-    <div id="nav-collapse" class="navbar-collapse collapse" style="display: none;">
-      <ul class="navbar-nav">
-        <li id="music-menu" class="nav-item b-nav-dropdown dropdown"><a id="music-menu__BV_toggle_" role="button" aria-haspopup="true" aria-expanded="false" href="#music-menu" target="_self" class="nav-link dropdown-toggle"><span>Music</span></a>
-          <ul tabindex="-1" aria-labelledby="music-menu__BV_toggle_" class="dropdown-menu">
-            <li role="presentation"><a role="menuitem" href="/dances" target="_self" class="dropdown-item">Dances</a></li>
-            <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/ballroom-competition-categories" target="_self" class="dropdown-item">Ballroom</a></li>
-            <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/latin" target="_self" class="dropdown-item">Latin</a></li>
-            <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/swing" target="_self" class="dropdown-item">Swing</a></li>
-            <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/tango" target="_self" class="dropdown-item">Tango</a></li>
-            <li role="presentation"><a role="menuitem" href="/song" target="_self" class="dropdown-item">Song Library</a></li>
-            <li role="presentation" class="nav-subitem"><a role="menuitem" href="/song/advancedsearchform" target="_self" class="dropdown-item">Advanced Search</a></li>
-            <li role="presentation" class="nav-subitem"><a role="menuitem" href="/song/augment" target="_self" class="dropdown-item">Add Song</a></li>
-            <li role="presentation" class="nav-subitem"><a role="menuitem" href="/song/newmusic" target="_self" class="dropdown-item">New Music</a></li>
-            <li role="presentation"><a role="menuitem" href="/dances/wedding-music" target="_self" class="dropdown-item">Wedding</a></li>
-            <li role="presentation"><a role="menuitem" href="/song/holidaymusic" target="_self" class="dropdown-item">Holiday</a></li>
-            <li role="presentation"><a role="menuitem" href="/song/addtags/?tags=%2BHalloween%3AOther" target="_self" class="dropdown-item">Halloween</a></li>
-            <li role="presentation"><a role="menuitem" href="/tag" target="_self" class="dropdown-item">Tags</a></li>
-          </ul>
-        </li>
-        <li id="tools-menu" class="nav-item b-nav-dropdown dropdown"><a id="tools-menu__BV_toggle_" role="button" aria-haspopup="true" aria-expanded="false" href="#tools-menu" target="_self" class="nav-link dropdown-toggle"><span>Tools</span></a>
-          <ul tabindex="-1" aria-labelledby="tools-menu__BV_toggle_" class="dropdown-menu">
-            <li role="presentation"><a role="menuitem" href="/home/counter" target="_self" class="dropdown-item">Tempo Counter</a></li>
-            <li role="presentation"><a role="menuitem" href="/home/tempi" target="_self" class="dropdown-item">Tempi (Tempos)</a></li>
-          </ul>
-        </li>
-        <li class="nav-item b-nav-dropdown dropdown"><a role="button" aria-haspopup="true" aria-expanded="false" href="#" target="_self" class="nav-link dropdown-toggle"><span>Info</span></a>
-          <ul tabindex="-1" class="dropdown-menu">
-            <li role="presentation"><a role="menuitem" href="#" target="_self" class="dropdown-item">Help</a></li>
-            <li role="presentation"><a role="menuitem" href="https://music4dance.blog/" target="_self" class="dropdown-item">Blog</a></li>
-            <li role="presentation"><a role="menuitem" href="/home/faq" target="_self" class="dropdown-item">FAQ</a></li>
-            <li role="presentation"><a role="menuitem" href="/home/about" target="_self" class="dropdown-item">About Us</a></li>
-            <li role="presentation"><a role="menuitem" href="https://music4dance.blog/reading-list/" target="_self" class="dropdown-item">Reading List</a></li>
-            <li role="presentation"><a role="menuitem" href="/home/sitemap" target="_self" class="dropdown-item">Site Map</a></li>
-            <li role="presentation"><a role="menuitem" href="/home/privacypolicy" target="_self" class="dropdown-item">Privacy Policy</a></li>
-            <li role="presentation"><a role="menuitem" href="/home/credits" target="_self" class="dropdown-item">Credits</a></li>
-          </ul>
-        </li>
-        <li id="contribute-menu" right="" class="nav-item"><a href="/home/contribute" target="_self" class="nav-link">Contribute</a></li>
-        <!---->
-      </ul>
-      <ul id="identity-menu" class="navbar-nav ml-auto">
-        <li right="" class="nav-item"><a href="/identity/account/register" target="_self" class="nav-link">Register</a></li>
-        <li right="" class="nav-item"><a href="/identity/account/login" target="_self" class="nav-link">Login</a></li>
-      </ul>
-    </div>
-  </transition-stub>
-</nav>
+<div>
+  <nav class="navbar navbar-dark bg-primary navbar-expand-lg" id="mainMenu"><a href="/" target="_self" class="navbar-brand"><img src="/images/header-logo.png" height="40" title="music4dance"></a> <button type="button" aria-label="Toggle navigation" class="navbar-toggler collapsed" aria-expanded="false" aria-controls="nav-collapse"><span class="navbar-toggler-icon"></span></button>
+    <transition-stub css="true" enterclass="" leaveclass="collapse show" entertoclass="collapse show" leavetoclass="collapse" enteractiveclass="collapsing" leaveactiveclass="collapsing">
+      <div id="nav-collapse" class="navbar-collapse collapse" style="display: none;">
+        <ul class="navbar-nav">
+          <li id="music-menu" class="nav-item b-nav-dropdown dropdown"><a id="music-menu__BV_toggle_" role="button" aria-haspopup="true" aria-expanded="false" href="#music-menu" target="_self" class="nav-link dropdown-toggle"><span>Music</span></a>
+            <ul tabindex="-1" aria-labelledby="music-menu__BV_toggle_" class="dropdown-menu">
+              <li role="presentation"><a role="menuitem" href="/dances" target="_self" class="dropdown-item">Dances</a></li>
+              <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/ballroom-competition-categories" target="_self" class="dropdown-item">Ballroom</a></li>
+              <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/latin" target="_self" class="dropdown-item">Latin</a></li>
+              <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/swing" target="_self" class="dropdown-item">Swing</a></li>
+              <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/tango" target="_self" class="dropdown-item">Tango</a></li>
+              <li role="presentation"><a role="menuitem" href="/song" target="_self" class="dropdown-item">Song Library</a></li>
+              <li role="presentation" class="nav-subitem"><a role="menuitem" href="/song/advancedsearchform" target="_self" class="dropdown-item">Advanced Search</a></li>
+              <li role="presentation" class="nav-subitem"><a role="menuitem" href="/song/augment" target="_self" class="dropdown-item">Add Song</a></li>
+              <li role="presentation" class="nav-subitem"><a role="menuitem" href="/song/newmusic" target="_self" class="dropdown-item">New Music</a></li>
+              <li role="presentation"><a role="menuitem" href="/dances/wedding-music" target="_self" class="dropdown-item">Wedding</a></li>
+              <li role="presentation"><a role="menuitem" href="/song/holidaymusic" target="_self" class="dropdown-item">Holiday</a></li>
+              <li role="presentation"><a role="menuitem" href="/song/addtags/?tags=%2BHalloween%3AOther" target="_self" class="dropdown-item">Halloween</a></li>
+              <li role="presentation"><a role="menuitem" href="/tag" target="_self" class="dropdown-item">Tags</a></li>
+            </ul>
+          </li>
+          <li id="tools-menu" class="nav-item b-nav-dropdown dropdown"><a id="tools-menu__BV_toggle_" role="button" aria-haspopup="true" aria-expanded="false" href="#tools-menu" target="_self" class="nav-link dropdown-toggle"><span>Tools</span></a>
+            <ul tabindex="-1" aria-labelledby="tools-menu__BV_toggle_" class="dropdown-menu">
+              <li role="presentation"><a role="menuitem" href="/home/counter" target="_self" class="dropdown-item">Tempo Counter</a></li>
+              <li role="presentation"><a role="menuitem" href="/home/tempi" target="_self" class="dropdown-item">Tempi (Tempos)</a></li>
+            </ul>
+          </li>
+          <li class="nav-item b-nav-dropdown dropdown"><a role="button" aria-haspopup="true" aria-expanded="false" href="#" target="_self" class="nav-link dropdown-toggle"><span>Info</span></a>
+            <ul tabindex="-1" class="dropdown-menu">
+              <li role="presentation"><a role="menuitem" href="#" target="_self" class="dropdown-item">Help</a></li>
+              <li role="presentation"><a role="menuitem" href="https://music4dance.blog/" target="_self" class="dropdown-item">Blog</a></li>
+              <li role="presentation"><a role="menuitem" href="/home/faq" target="_self" class="dropdown-item">FAQ</a></li>
+              <li role="presentation"><a role="menuitem" href="/home/about" target="_self" class="dropdown-item">About Us</a></li>
+              <li role="presentation"><a role="menuitem" href="https://music4dance.blog/reading-list/" target="_self" class="dropdown-item">Reading List</a></li>
+              <li role="presentation"><a role="menuitem" href="/home/sitemap" target="_self" class="dropdown-item">Site Map</a></li>
+              <li role="presentation"><a role="menuitem" href="/home/privacypolicy" target="_self" class="dropdown-item">Privacy Policy</a></li>
+              <li role="presentation"><a role="menuitem" href="/home/credits" target="_self" class="dropdown-item">Credits</a></li>
+            </ul>
+          </li>
+          <li id="contribute-menu" right="" class="nav-item"><a href="/home/contribute" target="_self" class="nav-link">Contribute</a></li>
+          <!---->
+        </ul>
+        <ul class="navbar-nav ml-auto">
+          <li class="form-inline">
+            <form class="form-inline"><input type="text" placeholder="Search" class="mr-sm-2 form-control form-control-sm"> <button type="submit" disabled="disabled" class="btn my-2 my-sm-0 btn-secondary btn-sm disabled">Search</button></form>
+          </li>
+          <li right="" class="nav-item"><a href="/identity/account/register" target="_self" class="nav-link">Register</a></li>
+          <li right="" class="nav-item"><a href="/identity/account/login" target="_self" class="nav-link">Login</a></li>
+        </ul>
+      </div>
+    </transition-stub>
+  </nav>
+  <form id="logoutForm" action="/identity/account/logout" method="post" style="height: 0px;"><input name="__RequestVerificationToken" type="hidden"> <input type="hidden" name="returnUrl" value="/"> <button id="logout" type="submit" class="btn btn-link"></button></form>
+</div>
 `;

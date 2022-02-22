@@ -842,6 +842,20 @@ namespace m4dModels
             return await CreateSongs(response.GetResults());
         }
 
+        public async Task<IEnumerable<Song>> SimpleSearch(string search, SearchClient client = null)
+        {
+            var options = new SearchOptions
+            {
+                Size = 6
+            };
+
+            var response = await DoSearch(
+                search, options, CruftFilter.NoCruft, client);
+
+            return await CreateSongs(response.GetResults());
+        }
+
+
         private async Task<LocalMerger> MergeFromTitle(Song song, SearchClient client = null)
         {
             var songs = await SongsFromTitle(song.Title, client);

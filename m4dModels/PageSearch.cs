@@ -18,7 +18,8 @@ namespace m4dModels
             s => s.Replace("/", "_").Replace("(", "=OP").Replace(")", "=CP"));
 
         public PageSearch GetDecoded() => Recode(
-            s => s.Replace("_", "/").Replace("=OP", "(").Replace("=CP", ")"));
+            s => "/" + s.Replace("_", "/").Replace("=OP", "(").Replace("=CP", ")"));
+
         private PageSearch Recode(Func<string, string> replace)
         {
             var coded = MemberwiseClone() as PageSearch;

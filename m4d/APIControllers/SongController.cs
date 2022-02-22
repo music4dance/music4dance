@@ -28,17 +28,31 @@ namespace m4d.APIControllers
 
         [HttpGet]
         [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
-        public async Task<IActionResult> Search([FromServices] IMapper mapper, string title,
-            string artist)
+        public async Task<IActionResult> Get([FromServices] IMapper mapper,
+            string search = null, string title = null, string artist = null, string filter = null)
         {
             Trace.WriteLine(
-                $"Enter Search: Title = {title}, Artist={artist}, User = {User.Identity?.Name}");
-            if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(artist))
+                $"Enter Search: Search = { search }, Title = {title}, Artist={artist}, Filter = {filter}, User = {User.Identity?.Name}");
+
+            IEnumerable<Song> songs = null;
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                songs = await Database.SimpleSearch(search);
+            }
+            else if (!string.IsNullOrWhiteSpace(title) && !string.IsNullOrWhiteSpace(artist))
+            {
+                songs = await Database.SongsFromTitleArtist(title, artist);
+            }
+            else if (!string.IsNullOrWhiteSpace(filter))
+            {
+                var songFilter = new SongFilter(filter);
+                var results = await Database.Search(songFilter);
+                songs = results.Songs;
+            }
+            else
             {
                 return StatusCode((int)HttpStatusCode.BadRequest);
             }
-
-            var songs = await Database.SongsFromTitleArtist(title, artist);
 
             if (songs == null || !songs.Any())
             {

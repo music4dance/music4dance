@@ -30,6 +30,9 @@ module.exports = {
         faq: {
             entry: "src/pages/faq/main.ts",
         },
+        header: {
+            entry: "src/pages/header/main.ts",
+        },
         "holiday-music": {
             entry: "src/pages/holiday-music/main.ts",
         },
@@ -38,6 +41,9 @@ module.exports = {
         },
         "new-music": {
             entry: "src/pages/new-music/main.ts",
+        },
+        search: {
+            entry: "src/pages/search/main.ts",
         },
         song: {
             entry: "src/pages/song/main.ts",

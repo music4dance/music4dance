@@ -452,7 +452,7 @@ export default class SongTable extends Mixins(AdminTools) {
   }
 
   private get echoClass(): string[] {
-    const order = this.filter.sort.order;
+    const order = this.filter.sort?.order;
     return order === "Mood" || order === "Beat" || order === "Energy"
       ? ["sortedEchoHeader"]
       : ["echoHeader"];
@@ -496,11 +496,11 @@ export default class SongTable extends Mixins(AdminTools) {
   }
 
   private get orderType(): string {
-    return this.sortOrder.order ?? SortOrder.Created;
+    return this.sortOrder?.order ?? SortOrder.Created;
   }
 
   private get orderIcon(): string {
-    switch (this.sortOrder.order) {
+    switch (this.sortOrder?.order) {
       case SortOrder.Created:
         return "file-earmark-plus";
       case SortOrder.Modified:
@@ -514,7 +514,7 @@ export default class SongTable extends Mixins(AdminTools) {
 
   private get hasUser(): boolean {
     const query = this.filter.userQuery;
-    return !!query.userName && query.include;
+    return !!query?.userName && query.include;
   }
 
   private getUserChange(history: SongHistory): SongChange | undefined {
@@ -527,7 +527,7 @@ export default class SongTable extends Mixins(AdminTools) {
   }
 
   private get filterUser(): string {
-    const user = this.hasUser ? this.filter.userQuery.userName : "";
+    const user = this.hasUser ? this.filter.userQuery?.userName : "";
     return user === "me" ? this.userName! : user;
   }
 

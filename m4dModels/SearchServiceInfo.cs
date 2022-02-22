@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Azure;
+using Azure.Search.Documents;
 using Microsoft.Extensions.Configuration;
 
 namespace m4dModels
@@ -136,5 +138,16 @@ namespace m4dModels
             AdminKey = adminKey;
             QueryKey = queryKey;
         }
+
+        public SearchClient AdminClient => GetSearchClient(true);
+        public SearchClient QueryClient => GetSearchClient(false);
+
+        private SearchClient GetSearchClient(bool admin)
+        {
+            var endpoint = new Uri($"https://{Name}.search.windows.net");
+            var credentials = new AzureKeyCredential(admin ? AdminKey : QueryKey);
+            return new SearchClient(endpoint, Index, credentials);
+        }
+
     }
 }

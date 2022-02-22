@@ -62,13 +62,11 @@ export class ServiceMatcher {
         const uri = `/api/servicetrack/${service.id}${id}?localOnly=${localOnly}`;
         const response = await axios.get(uri);
         const songModel = TypedJSON.parse(response.data, SongDetailsModel);
-        console.log("Song found");
         return songModel;
       } catch (e) {
         // Swallow errors
       }
     }
-    console.log("Song not found");
     return undefined;
   }
 }

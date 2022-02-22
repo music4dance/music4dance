@@ -13,7 +13,6 @@ export default class DropTarget extends Vue {
     }
     const found = await this.checkService(input);
 
-    console.log(`checkService returned: ${found}`);
     if (!found) {
       const okay = await this.$bvModal.msgBoxConfirm(
         `It looks like you may have tried to search by ${service.name} id for a song not in the music4dance catalog.
@@ -40,7 +39,6 @@ export default class DropTarget extends Vue {
           const song = await matcher.findSong(input, true);
           if (song) {
             window.location.href = `/song/details/${song.songHistory.id}`;
-            console.log("checkService: true");
             return true;
           }
         }
@@ -48,7 +46,6 @@ export default class DropTarget extends Vue {
         // swallow any errors
       }
     }
-    console.log("checkService: false");
     return false;
   }
 }

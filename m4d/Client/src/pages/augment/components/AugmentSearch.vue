@@ -160,6 +160,10 @@ export default class AugmentSearch extends Mixins(AdminTools) {
 
   private onReset(event: Event): void {
     event.preventDefault();
+    this.reset();
+  }
+
+  private reset(): void {
     this.title = "";
     this.artist = "";
     this.searching = false;
@@ -179,6 +183,7 @@ export default class AugmentSearch extends Mixins(AdminTools) {
       filter: this.filter,
     });
 
+    this.reset();
     this.$emit("edit-song", model);
   }
 

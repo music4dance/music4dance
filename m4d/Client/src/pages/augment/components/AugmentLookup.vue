@@ -79,9 +79,7 @@ import "reflect-metadata";
 import { Component, Mixins, Prop } from "vue-property-decorator";
 import AugmentSources from "./AugmentSources.vue";
 
-@Component({
-  components: { AugmentSources },
-})
+@Component({ components: { AugmentSources } })
 export default class AugmentLookup extends Mixins(AdminTools) {
   @Prop() private id?: string;
   private serviceString = "";
@@ -104,6 +102,7 @@ export default class AugmentLookup extends Mixins(AdminTools) {
   private async findService(): Promise<void> {
     this.searching = true;
     const song = await this.serviceMatcher.findSong(this.serviceString);
+    this.serviceString = "";
     if (song) {
       this.$emit("edit-song", song);
     } else {

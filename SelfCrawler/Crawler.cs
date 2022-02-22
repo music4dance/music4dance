@@ -8,8 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Azure.Search.Documents.Indexes;
-using Azure.Search.Documents.Indexes.Models;
 using m4dModels;
 using Azure.Search.Documents;
 using Azure;
@@ -109,15 +107,11 @@ namespace SelfCrawler
         private List<PageSearch> LoadPages()
         {
             var text = File.ReadAllText(@"C:\Temp\SearchIndex.json");
-            var pages = JsonConvert.DeserializeObject<List<PageSearch>>(text);
-            return pages;
+            return JsonConvert.DeserializeObject<List<PageSearch>>(text);
         }
 
-        // TODONEXT:
-        //  Figure out how to push this to azure search
-        //  Play with search
-        //  Build a search control for the header
-        //  Add in wordpress search
+        // TODOSOON: 2/21/22
+        //  Consider adding dance aliasing (maybe not right now)
         private PageSearch CrawlPage(string relativePath)
         {
             _driver.Navigate().GoToUrl($"{_root}{relativePath}");
@@ -198,10 +192,7 @@ namespace SelfCrawler
 
         private SearchClient CreateSearchClient(string id = "freep")
         {
-            var info = _searchServiceManager.GetInfo(id);
-            var endpoint = new Uri($"https://{info.Name}.search.windows.net");
-            var credentials = new AzureKeyCredential(info.AdminKey);
-            return new SearchClient(endpoint, info.Index, credentials);
+            return _searchServiceManager.GetInfo(id).AdminClient;
         }
     }
 }

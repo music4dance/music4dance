@@ -33,15 +33,6 @@
         </p>
       </footer>
     </div>
-    <form id="logoutForm" action="/identity/account/logout" method="post">
-      <input
-        name="__RequestVerificationToken"
-        type="hidden"
-        :value="context.xsrfToken"
-      />
-      <input type="hidden" name="returnUrl" value="/" />
-      <button id="logout" type="submit" class="btn btn-link"></button>
-    </form>
     <v-tour
       v-if="tourSteps"
       name="defaultTour"
@@ -136,9 +127,6 @@ export default class Page extends Mixins(AdminTools) {
       this.tagDatabase = await getTagDatabase();
       this.$emit("tag-database-loaded", this.tagDatabase);
     }
-
-    // if (this.consumesEnvironment || this.consumesTags) {
-    // }
   }
 
   private get tourManager(): TourManager | undefined {
