@@ -29,6 +29,7 @@
     <holiday-dance-chooser
       :dance="model.dance"
       :count="model.count"
+      :include-groups="true"
     ></holiday-dance-chooser>
   </page>
 </template>

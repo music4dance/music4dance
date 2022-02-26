@@ -391,20 +391,8 @@ namespace m4d.Controllers
         public ActionResult AdvancedSearchForm(SongFilter filter)
         {
             HelpPage = "advanced-search";
-
-            var dances = new List<DanceObject>(Dances.Instance.AllDanceTypes);
-            dances.AddRange(Dances.Instance.AllDanceGroups);
-
-            var model = new SearchModel
-            {
-                Filter = _mapper.Map<SongFilterSparse>(filter),
-                Dances = dances
-            };
-
             BuildEnvironment(danceEnvironment: true, tagDatabase: true);
-            return View(
-                "AdvancedSearchForm",
-                JsonConvert.SerializeObject(model, CamelCaseSerializerSettings));
+            return View("AdvancedSearchForm");
         }
 
         [AllowAnonymous]

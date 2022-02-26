@@ -4,6 +4,7 @@ import { DanceGroup } from "./DanceGroup";
 import { DanceInstance } from "./DanceInstance";
 import { DanceStats } from "./DanceStats";
 import { GroupStats } from "./GroupStats";
+import { NamedObject } from "./NamedObject";
 import { TypeStats } from "./TypeStats";
 
 TypedJSON.setGlobalConfig({
@@ -49,6 +50,15 @@ export class DanceEnvironment {
     if (!this.tree || !this.dances) {
       throw new Error(
         "Attempted to call flatStats on an uninitialized DanceEnvironment"
+      );
+    }
+    return [...this.tree, ...this.dances];
+  }
+
+  public get flatDances(): NamedObject[] {
+    if (!this.tree || !this.dances) {
+      throw new Error(
+        "Attempted to call flatDances on an uninitialized DanceEnvironment"
       );
     }
     return [...this.tree, ...this.dances];

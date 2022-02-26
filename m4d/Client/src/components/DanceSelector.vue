@@ -14,8 +14,8 @@
 
 <script lang="ts">
 import TagSelector from "@/components/TagSelector.vue";
-import { DanceObject } from "@/model/DanceObject";
 import { ListOption } from "@/model/ListOption";
+import { NamedObject } from "@/model/NamedObject";
 import { Component, Model, Prop, Vue } from "vue-property-decorator";
 
 @Component({
@@ -25,7 +25,7 @@ import { Component, Model, Prop, Vue } from "vue-property-decorator";
 })
 export default class DanceSelector extends Vue {
   @Model("input") private readonly selected!: string[];
-  @Prop() private readonly danceList!: DanceObject[];
+  @Prop() private readonly danceList!: NamedObject[];
 
   private get selectedInternal(): string[] {
     return this.selected;

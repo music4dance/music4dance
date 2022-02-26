@@ -3,7 +3,8 @@
     id="app"
     :consumesEnvironment="true"
     :consumesTags="true"
-    @tag-database-loaded="onEnvironmentLoaded"
+    @tag-database-loaded="onTagDatabaseLoaded"
+    @environment-loaded="onEnvironmentLoaded"
   >
     <h1 class="col-sm-12" style="font-size: 22px; text-align: center">
       Advanced Song Search
@@ -34,7 +35,7 @@
         <b-form-group label="Dances:">
           <div style="border: 1px solid #ced4da; boder-radius: 0.25rem">
             <dance-selector
-              :danceList="model.dances"
+              :danceList="allDances"
               v-model="dances"
             ></dance-selector>
             <div class="d-flex justify-content-between w-100 mx-1 mb-2">
@@ -217,18 +218,16 @@ import TagCategorySelector from "@/components/TagCategorySelector.vue";
 import AdminTools from "@/mix-ins/AdminTools";
 import DropTarget from "@/mix-ins/DropTarget";
 import EnvironmentManager from "@/mix-ins/EnvironmentManager";
+import { DanceEnvironment } from "@/model/DanceEnvironmet";
 import { DanceQuery } from "@/model/DanceQuery";
+import { NamedObject } from "@/model/NamedObject";
 import { SongFilter } from "@/model/SongFilter";
 import { SongSort, SortOrder } from "@/model/SongSort";
 import { Tag } from "@/model/Tag";
 import { TagDatabase } from "@/model/TagDatabase";
 import { UserQuery } from "@/model/UserQuery";
 import "reflect-metadata";
-import { TypedJSON } from "typedjson";
 import { Component, Mixins, Vue } from "vue-property-decorator";
-import { SearchModel } from "./searchModel";
-
-declare const model: SearchModel;
 
 @Component({
   components: {
@@ -267,6 +266,8 @@ export default class App extends Mixins(
       this.activity = value;
     }
   }
+
+  private allDances: NamedObject[] = [];
 
   private get hasUser(): boolean {
     return !!(this.user || this.displayUser);
@@ -313,14 +314,12 @@ export default class App extends Mixins(
   private sort: string | null = "Dances";
   private order = "asc";
   private bonuses: string[] = [];
-  private model: SearchModel;
   private validated = false;
 
   constructor() {
     super();
 
-    this.model = TypedJSON.parse(model, SearchModel)!;
-    const filter = this.getSourceFilter(model);
+    const filter = this.getSourceFilter();
     const danceQuery = new DanceQuery(filter.dances);
 
     this.keyWords = filter.searchString ?? "";
@@ -400,10 +399,9 @@ export default class App extends Mixins(
     return filterString ? SongFilter.buildFilter(filterString) : undefined;
   }
 
-  private getSourceFilter(model?: SearchModel): SongFilter {
+  private getSourceFilter(): SongFilter {
     const queryFilter = this.getQueryFilter();
-    model = model ? model : this.model;
-    return queryFilter ? queryFilter : model.filter;
+    return queryFilter ? queryFilter : new SongFilter();
   }
 
   private async onSubmit(): Promise<void> {
@@ -486,7 +484,7 @@ export default class App extends Mixins(
     return filtered;
   }
 
-  private async onEnvironmentLoaded(tagDatabase: TagDatabase): Promise<void> {
+  private async onTagDatabaseLoaded(tagDatabase: TagDatabase): Promise<void> {
     const filter = this.getSourceFilter();
     const userQuery = new UserQuery(filter.user);
     this.activity = userQuery.parts;
@@ -496,6 +494,10 @@ export default class App extends Mixins(
 
     await this.$nextTick();
     ((this.$refs.keywords as Vue).$el as HTMLElement).focus();
+  }
+
+  private onEnvironmentLoaded(environment: DanceEnvironment): void {
+    this.allDances = environment.flatDances;
   }
 }
 </script>

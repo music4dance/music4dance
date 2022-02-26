@@ -52,7 +52,7 @@
             :variant="groupVariant(dance)"
             :class="{ item: dance.isGroup, 'sub-item': !dance.isGroup }"
             :active="danceId === dance.id"
-            :disabled="exists(dance.id) || dance.isGroup"
+            :disabled="exists(dance.id) || (dance.isGroup && !includeGroups)"
             @click="choose(dance.id)"
           >
             {{ dance.name }}
@@ -93,14 +93,17 @@ export default class DanceChooser extends Mixins(EnvironmentManager) {
   @Prop() private readonly filterIds?: string[];
   @Prop() private readonly tempo?: number;
   @Prop() private readonly numerator?: number;
+  @Prop() private readonly includeGroups?: boolean;
 
   private readonly nameFilter: string = "";
 
   private get sortedDances(): DanceStats[] {
     const environment = this.environment;
+    const includeGroups = this.includeGroups;
+
     return environment
       ? this.filterAll(environment.flatStats)
-          .filter((d) => !d.isGroup)
+          .filter((d) => includeGroups || !d.isGroup)
           .sort((a, b) => a.name.localeCompare(b.name))
       : [];
   }
