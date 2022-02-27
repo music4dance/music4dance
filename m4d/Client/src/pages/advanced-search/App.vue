@@ -417,6 +417,9 @@ export default class App extends Mixins(
       const loc = window.location;
       const query = this.songFilter.encodedQuery;
 
+      const state = window.location.pathname + `?filter=${query}`;
+      window.history.replaceState(null, "", state);
+
       window.location.href = `${loc.origin}/song/filtersearch?filter=${query}`;
     }
 

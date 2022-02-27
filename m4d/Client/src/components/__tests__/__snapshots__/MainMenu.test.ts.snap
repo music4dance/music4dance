@@ -125,8 +125,8 @@ exports[`MainMenu.vue renders the main menu with default options 1`] = `
           <li class="form-inline">
             <form class="form-inline"><input type="text" placeholder="Search" class="mr-sm-2 form-control form-control-sm"> <button type="submit" disabled="disabled" class="btn my-2 my-sm-0 btn-secondary btn-sm disabled">Search</button></form>
           </li>
-          <li right="" class="nav-item"><a href="/identity/account/register" target="_self" class="nav-link">Register</a></li>
-          <li right="" class="nav-item"><a href="/identity/account/login" target="_self" class="nav-link">Login</a></li>
+          <li right="" class="nav-item"><a href="/identity/account/register?returnUrl=/" target="_self" class="nav-link">Register</a></li>
+          <li right="" class="nav-item"><a href="/identity/account/login?returnUrl=/" target="_self" class="nav-link">Login</a></li>
         </ul>
       </div>
     </transition-stub>

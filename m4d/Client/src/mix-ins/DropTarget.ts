@@ -1,4 +1,5 @@
 import { ServiceMatcher } from "@/model/ServiceMatcher";
+import "reflect-metadata";
 import { Component, Vue } from "vue-property-decorator";
 
 @Component

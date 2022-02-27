@@ -37,7 +37,7 @@
             button
             :active="danceId === dance.id"
             :disabled="exists(dance.id)"
-            @click="choose(dance.id)"
+            @click="chooseEvent(dance.id, $event)"
           >
             {{ dance.name }}
           </b-list-group-item>
@@ -53,7 +53,7 @@
             :class="{ item: dance.isGroup, 'sub-item': !dance.isGroup }"
             :active="danceId === dance.id"
             :disabled="exists(dance.id) || (dance.isGroup && !includeGroups)"
-            @click="choose(dance.id)"
+            @click="chooseEvent(dance.id, $event)"
           >
             {{ dance.name }}
           </b-list-group-item>
@@ -67,7 +67,7 @@
           :epsilonPercent="20"
           :filter="nameFilter"
           countMethod="beats"
-          @choose-dance="choose($event)"
+          @choose-dance="choose"
         ></dance-list>
       </b-tab>
     </b-tabs>
@@ -131,8 +131,12 @@ export default class DanceChooser extends Mixins(EnvironmentManager) {
     return !!filtered.find((id) => id === danceId);
   }
 
-  private choose(id?: string): void {
-    this.$emit("chooseDance", id);
+  private chooseEvent(id?: string, event?: MouseEvent): void {
+    this.choose(id, event?.ctrlKey);
+  }
+
+  private choose(id?: string, persist?: boolean): void {
+    this.$emit("choose-dance", id, persist);
   }
 
   private groupVariant(dance: DanceStats): string | undefined {

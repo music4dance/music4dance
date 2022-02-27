@@ -2,7 +2,7 @@
   <b-list-group-item
     :variant="variant"
     href="#"
-    @click="$emit('choose-dance', dance.dance.id)"
+    @click="$emit('choose-dance', dance.dance.id, $event.ctrlKey)"
     class="d-flex justify-content-between align-items-center"
   >
     <span

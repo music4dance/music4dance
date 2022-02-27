@@ -43,7 +43,7 @@
       </b-col>
     </b-row>
     <dance-chooser
-      @chooseDance="chooseDance"
+      @choose-dance="chooseDance"
       :danceId="filter.dances"
       :includeGroups="true"
     ></dance-chooser>

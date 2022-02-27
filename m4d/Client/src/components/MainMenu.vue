@@ -129,10 +129,10 @@
             </b-nav-item-dropdown>
           </template>
           <template v-else>
-            <b-nav-item right href="/identity/account/register"
+            <b-nav-item right :href="accountLink('register')"
               >Register</b-nav-item
             >
-            <b-nav-item right href="/identity/account/login">Login</b-nav-item>
+            <b-nav-item right :href="accountLink('login')">Login</b-nav-item>
           </template>
         </b-navbar-nav>
       </b-collapse>
@@ -157,6 +157,7 @@
 <script lang="ts">
 import DropTarget from "@/mix-ins/DropTarget";
 import { MenuContext } from "@/model/MenuContext";
+import "reflect-metadata";
 import { Component, Mixins, Prop } from "vue-property-decorator";
 
 @Component
@@ -172,6 +173,11 @@ export default class MainMenu extends Mixins(DropTarget) {
         ? ` (${context.indexId})`
         : "";
     return `${context.userName}${index} <img src="/images/swing-ui.png" alt="User Icon" height="30" width="30" />`;
+  }
+
+  private accountLink(type: string): string {
+    const url = window.location.pathname + window.location.search;
+    return `/identity/account/${type}?returnUrl=${url}`;
   }
 
   private get songLink(): string {

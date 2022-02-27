@@ -209,7 +209,7 @@
       </b-col>
     </b-row>
     <dance-chooser
-      @chooseDance="addDance"
+      @choose-dance="addDance"
       @update-song="updateSong"
       :filterIds="explicitDanceIds"
       :tempo="song.tempo"
@@ -449,7 +449,7 @@ export default class SongCore extends Mixins(AdminTools) {
     this.updateSong();
   }
 
-  private addDance(danceId?: string): void {
+  private addDance(danceId?: string, persist?: boolean): void {
     const editor = this.editor;
     if (!editor) {
       throw new Error("Can't edit if not logged in");
@@ -457,9 +457,12 @@ export default class SongCore extends Mixins(AdminTools) {
     if (danceId) {
       this.editor!.danceVote(new DanceRatingVote(danceId, VoteDirection.Up));
       this.updateSong();
-      this.$bvModal.hide("danceChooser");
+
+      if (!persist) {
+        this.$bvModal.hide("danceChooser");
+      }
+      this.edit = true;
     }
-    this.edit = true;
   }
 
   private updateField(property: SongProperty): void {

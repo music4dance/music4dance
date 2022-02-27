@@ -1,4 +1,5 @@
 import axios from "axios";
+import "reflect-metadata";
 import { TypedJSON } from "typedjson";
 import { SongDetailsModel } from "./SongDetailsModel";
 
