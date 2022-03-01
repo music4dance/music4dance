@@ -90,7 +90,7 @@
                 type="number"
                 number
                 min="0"
-                max="250"
+                max="400"
                 style="width: 6rem"
               ></b-form-input>
               <span class="mx-2 pt-2">to</span>
@@ -99,12 +99,12 @@
                 v-model="tempoMax"
                 type="number"
                 min="0"
-                max="250"
+                max="400"
                 number
                 style="width: 6rem"
               ></b-form-input>
               <div class="invalid-feedback">
-                Tempos must be between 0 and 250 BPM
+                Tempos must be between 0 and 400 BPM
               </div>
             </div>
           </b-form-group>
@@ -165,7 +165,7 @@
           <b-form-select
             id="sort"
             v-model="sort"
-            :options="sortOptions"
+            :options="validSortOptions"
             required
           ></b-form-select>
           <b-form-radio-group
@@ -229,6 +229,11 @@ import { UserQuery } from "@/model/UserQuery";
 import "reflect-metadata";
 import { Component, Mixins, Vue } from "vue-property-decorator";
 
+interface SortOption {
+  text: string;
+  value: SortOrder | null;
+}
+
 @Component({
   components: {
     DanceSelector,
@@ -252,10 +257,10 @@ export default class App extends Mixins(
   private excludeTags: string[] = [];
 
   private tempoMin = 0;
-  private tempoMax = 250;
+  private tempoMax = 400;
 
-  private user: string;
-  private displayUser: string;
+  private user = "";
+  private displayUser = "";
 
   private activity = "NT";
   private get computedActivity(): string {
@@ -313,45 +318,16 @@ export default class App extends Mixins(
   ];
   private sort: string | null = "Dances";
   private order = "asc";
+
+  private get validSortOptions(): SortOption[] {
+    const singleDance = this.songFilter.singleDance;
+    return this.sortOptions.filter(
+      (opt) => opt.value !== SortOrder.Dances || singleDance
+    );
+  }
+
   private bonuses: string[] = [];
   private validated = false;
-
-  constructor() {
-    super();
-
-    const filter = this.getSourceFilter();
-    const danceQuery = new DanceQuery(filter.dances);
-
-    this.keyWords = filter.searchString ?? "";
-
-    this.dances = danceQuery.danceList;
-    this.danceConnector = danceQuery.isExclusive ? "all" : "any";
-
-    const sort = new SongSort(filter.sortOrder);
-    this.sort = sort.order ?? null;
-    this.order = sort.direction;
-
-    this.services = filter.purchase ? filter.purchase.trim().split("") : [];
-
-    // Real initialization of user defered to after environment is loaded
-    this.activity = "NT";
-    this.user = "";
-    this.displayUser = "";
-
-    this.tempoMin = filter.tempoMin ?? 0;
-    this.tempoMax = filter.tempoMax ?? 250;
-
-    this.includeTags = filter.tags ? this.extractTags(filter.tags, true) : [];
-    this.excludeTags = filter.tags ? this.extractTags(filter.tags, false) : [];
-
-    this.bonuses = [];
-    if (filter.level && filter.level & 1) {
-      this.bonuses.push("P");
-    }
-    if (filter.level && filter.level & 2) {
-      this.bonuses.push("D");
-    }
-  }
 
   private get tempoValid(): boolean {
     return this.tempoMin <= this.tempoMax;
@@ -385,7 +361,7 @@ export default class App extends Mixins(
     filter.user = userQuery.query;
     filter.purchase = this.services.join("");
     filter.tempoMin = this.tempoMin === 0 ? undefined : this.tempoMin;
-    filter.tempoMax = this.tempoMax >= 250 ? undefined : this.tempoMax;
+    filter.tempoMax = this.tempoMax >= 400 ? undefined : this.tempoMax;
     filter.tags = this.buildTagList();
     filter.level = level ? level : undefined;
 
@@ -436,7 +412,7 @@ export default class App extends Mixins(
     this.includeTags.splice(0);
     this.excludeTags.splice(0);
     this.tempoMin = 0;
-    this.tempoMax = 250;
+    this.tempoMax = 400;
     if (userName) {
       this.user = userName;
       this.activity = "IH";
@@ -446,7 +422,7 @@ export default class App extends Mixins(
     }
     this.displayUser = "";
     this.services.splice(0);
-    this.sort = "Dances";
+    this.sort = null;
     this.order = "asc";
     this.bonuses.splice(0);
 
@@ -489,11 +465,38 @@ export default class App extends Mixins(
 
   private async onTagDatabaseLoaded(tagDatabase: TagDatabase): Promise<void> {
     const filter = this.getSourceFilter();
+
+    const danceQuery = new DanceQuery(filter.dances);
+
+    this.keyWords = filter.searchString ?? "";
+
+    this.dances = danceQuery.danceList;
+    this.danceConnector = danceQuery.isExclusive ? "all" : "any";
+
+    const sort = new SongSort(filter.sortOrder);
+    this.sort = sort.order ?? null;
+    this.order = sort.direction;
+
+    this.services = filter.purchase ? filter.purchase.trim().split("") : [];
     const userQuery = new UserQuery(filter.user);
     this.activity = userQuery.parts;
     this.user = userQuery.userName ?? this.userName ?? "";
     this.displayUser = userQuery.displayName;
     this.tags = tagDatabase.tags;
+
+    this.tempoMin = filter.tempoMin ?? 0;
+    this.tempoMax = filter.tempoMax ?? 400;
+
+    this.includeTags = filter.tags ? this.extractTags(filter.tags, true) : [];
+    this.excludeTags = filter.tags ? this.extractTags(filter.tags, false) : [];
+
+    this.bonuses = [];
+    if (filter.level && filter.level & 1) {
+      this.bonuses.push("P");
+    }
+    if (filter.level && filter.level & 2) {
+      this.bonuses.push("D");
+    }
 
     await this.$nextTick();
     ((this.$refs.keywords as Vue).$el as HTMLElement).focus();
