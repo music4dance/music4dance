@@ -5,6 +5,7 @@ export enum SortOrder {
   Artist = "Artist",
   Dances = "Dances",
   Tempo = "Tempo",
+  Length = "Length",
   Modified = "Modified",
   Created = "Created",
   Edited = "Edited",
@@ -91,6 +92,8 @@ export class SongSort {
       switch (this.order) {
         case SortOrder.Tempo:
           return "slowest to fastest";
+        case SortOrder.Length:
+          return "shortest to longest";
         case SortOrder.Modified:
         case SortOrder.Edited:
         case SortOrder.Created:
@@ -110,6 +113,8 @@ export class SongSort {
       switch (this.order) {
         case SortOrder.Tempo:
           return "fastest to slowest";
+        case SortOrder.Length:
+          return "longest to shortest";
         case SortOrder.Modified:
         case SortOrder.Edited:
         case SortOrder.Created:

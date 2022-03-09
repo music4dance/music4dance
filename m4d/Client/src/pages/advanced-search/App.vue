@@ -110,6 +110,39 @@
           </b-form-group>
         </b-form-group>
 
+        <b-form-group
+          id="length-range-group"
+          label="Length range (seconds):"
+          label-for="length-range"
+        >
+          <b-form-group id="length-range">
+            <div class="d-flex">
+              <b-form-input
+                id="length-min"
+                v-model="lengthMin"
+                type="number"
+                number
+                min="0"
+                max="600"
+                style="width: 6rem"
+              ></b-form-input>
+              <span class="mx-2 pt-2">to</span>
+              <b-form-input
+                id="length-max"
+                v-model="lengthMax"
+                type="number"
+                min="0"
+                max="600"
+                number
+                style="width: 6rem"
+              ></b-form-input>
+              <div class="invalid-feedback">
+                Length must be between 0 and 600 seconds
+              </div>
+            </div>
+          </b-form-group>
+        </b-form-group>
+
         <b-form-group id="activity-group" label="By User:" label-for="activity">
           <div class="d-flex">
             <b-form-input
@@ -175,10 +208,12 @@
             class="mt-2"
           >
             <b-form-radio value="asc"
-              >Ascending (A-Z, Slow-Fast, Newest-Oldest)</b-form-radio
+              >Ascending (A-Z, Slow-Fast, Newest-Oldest,
+              Shortest-Longest)</b-form-radio
             >
             <b-form-radio value="desc"
-              >Descending (Z-A, Fast-Slow, Oldest-Newest)</b-form-radio
+              >Descending (Z-A, Fast-Slow, Oldest-Newest,
+              Longest-Shortest)</b-form-radio
             >
           </b-form-radio-group>
         </b-form-group>
@@ -195,6 +230,8 @@ dances = {{ dances }}
 danceConnector = {{ danceConnector }}
 tempoMin = {{ tempoMin }}
 tempoMax = {{ tempoMax }}
+lengthMin = {{ lengthMin }}
+lengthMax = {{ lengthMax }}
 activity = {{ activity }}
 services = {{ services }}
 sort = {{ sort }}
@@ -259,6 +296,9 @@ export default class App extends Mixins(
   private tempoMin = 0;
   private tempoMax = 400;
 
+  private lengthMin = 0;
+  private lengthMax = 600;
+
   private user = "";
   private displayUser = "";
 
@@ -307,6 +347,7 @@ export default class App extends Mixins(
     { text: "Title", value: SortOrder.Title },
     { text: "Artist", value: SortOrder.Artist },
     { text: "Tempo", value: SortOrder.Tempo },
+    { text: "Length", value: SortOrder.Length },
     { text: "Dance Rating", value: SortOrder.Dances },
     { text: "Last Modified", value: SortOrder.Modified },
     { text: "Last Edited", value: SortOrder.Edited },
@@ -331,6 +372,10 @@ export default class App extends Mixins(
 
   private get tempoValid(): boolean {
     return this.tempoMin <= this.tempoMax;
+  }
+
+  private get lengthValid(): boolean {
+    return this.lengthMin <= this.lengthMax;
   }
 
   private get songFilter(): SongFilter {
@@ -362,6 +407,8 @@ export default class App extends Mixins(
     filter.purchase = this.services.join("");
     filter.tempoMin = this.tempoMin === 0 ? undefined : this.tempoMin;
     filter.tempoMax = this.tempoMax >= 400 ? undefined : this.tempoMax;
+    filter.lengthMin = this.lengthMin === 0 ? undefined : this.lengthMin;
+    filter.lengthMax = this.lengthMax >= 400 ? undefined : this.lengthMax;
     filter.tags = this.buildTagList();
     filter.level = level ? level : undefined;
 
@@ -390,6 +437,12 @@ export default class App extends Mixins(
         this.tempoMin = tempo;
       }
 
+      if (this.lengthMin > this.lengthMax) {
+        const length = this.lengthMax;
+        this.lengthMax = this.lengthMin;
+        this.lengthMin = length;
+      }
+
       const loc = window.location;
       const query = this.songFilter.encodedQuery;
 
@@ -413,6 +466,8 @@ export default class App extends Mixins(
     this.excludeTags.splice(0);
     this.tempoMin = 0;
     this.tempoMax = 400;
+    this.lengthMin = 0;
+    this.lengthMax = 600;
     if (userName) {
       this.user = userName;
       this.activity = "IH";
@@ -486,6 +541,9 @@ export default class App extends Mixins(
 
     this.tempoMin = filter.tempoMin ?? 0;
     this.tempoMax = filter.tempoMax ?? 400;
+
+    this.lengthMin = filter.lengthMin ?? 0;
+    this.lengthMax = filter.lengthMax ?? 600;
 
     this.includeTags = filter.tags ? this.extractTags(filter.tags, true) : [];
     this.excludeTags = filter.tags ? this.extractTags(filter.tags, false) : [];

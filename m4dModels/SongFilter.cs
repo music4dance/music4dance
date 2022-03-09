@@ -22,6 +22,7 @@ namespace m4dModels
 
     public class SongFilterSparse
     {
+        public int Version { get; set; }
         public string Action { get; set; }
         public string SearchString { get; set; }
         public string Dances { get; set; }
@@ -30,6 +31,8 @@ namespace m4dModels
         public string User { get; set; }
         public decimal? TempoMin { get; set; }
         public decimal? TempoMax { get; set; }
+        public int? LengthMin { get; set; }
+        public int? LengthMax { get; set; }
         public int? Page { get; set; }
         public string Tags { get; set; }
         public int? Level { get; set; }
@@ -53,8 +56,8 @@ namespace m4dModels
 
         private static readonly List<PropertyInfo> PropertyInfo;
 
-        private static readonly object[] AltDefaults =
-            { "index", "all", null, null, null, null, null, 1 };
+        private static readonly Dictionary<string,object>  AltDefaults =
+            new() { {"Action", "index" }, {"Dances", "all" },  {"Page", 1 } };
 
         private readonly string _sepStr = new(Separator, 1);
         private readonly string _subStr = new(SubChar, 1);
@@ -73,8 +76,10 @@ namespace m4dModels
             Action = "Index";
         }
 
-        // action-dances-sortorder-searchstring-purchase-user-tempomin-tempomax-page-tags-level
+        // TODONEXT: Add sort by length
+        //  Should we also enable a length column when filtering/sorting by length???
 
+        // action-dances-sortorder-searchstring-purchase-user-tempomin-tempomax[-lengthmin-lengthmax]-page-tags-level
         public SongFilter(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -82,76 +87,33 @@ namespace m4dModels
                 return;
             }
 
-            var fancy = false;
-            if (value.Contains(@"\-"))
+            var cells = SplitFilter(value);
+
+            int idx = 0;
+
+            var versionString = ReadCell(cells, 0);
+
+            Version = string.Equals(versionString, "v2", StringComparison.OrdinalIgnoreCase) ? 2 : 1;
+            if (Version > 1)
             {
-                fancy = true;
-                value = value.Replace(@"\-", _subStr);
+                idx += 1;
             }
-
-            var cells = value.Split(Separator).Select(s => s.Trim()).ToList();
-
-            // Special case where the first field is dance
-            //  Need to see if we're still generating these
-            //  as this is way kludgier than I'd like
-            if (cells.Count > 0)
+            Action = ReadCell(cells, idx++);
+            Dances = ReadCell(cells, idx++);
+            SortOrder = ReadCell(cells, idx++);
+            SearchString = ReadCell(cells, idx++);
+            Purchase = ReadCell(cells, idx++);
+            User = ReadCell(cells, idx++);
+            TempoMin = ReadDecimal(cells, idx++);
+            TempoMax = ReadDecimal(cells, idx++);
+            if (Version > 1)
             {
-                var danceQuery = new DanceQuery(cells[0]);
-                if (danceQuery.Dances.Any())
-                {
-                    cells.Insert(0, "index");
-                    if (cells.Count > 2)
-                    {
-                        cells.RemoveAt(2);
-                    }
-                }
-                cells[0] = cells[0].Trim('+');
+                LengthMin = ReadInt(cells, idx++);
+                LengthMax = ReadInt(cells, idx++);
             }
-
-            for (var i = 0; i < cells.Count; i++)
-            {
-                if (string.Equals(cells[i], Empty))
-                {
-                    cells[i] = string.Empty;
-                }
-
-                if (fancy)
-                {
-                    cells[i] = cells[i].Replace(SubChar, Separator);
-                }
-
-                var pi = PropertyInfo[i];
-
-                object v = null;
-                if (!string.IsNullOrWhiteSpace(cells[i]))
-                {
-                    var type = pi.PropertyType;
-                    if (type == typeof(string))
-                    {
-                        v = cells[i];
-                    }
-                    else
-                    {
-                        // This should get the underlying type for a nullable type or just the type otherwise
-                        var ut = Nullable.GetUnderlyingType(pi.PropertyType) ?? pi.PropertyType;
-                        try
-                        {
-                            v = ut.InvokeMember(
-                                "Parse",
-                                BindingFlags.Static | BindingFlags.Public |
-                                BindingFlags.InvokeMethod, null, null, new object[] { cells[i] });
-                        }
-                        catch (Exception e)
-                        {
-                            Trace.WriteLineIf(
-                                TraceLevels.General.TraceError,
-                                $"SongFilter: {e.Message}");
-                        }
-                    }
-                }
-
-                pi.SetValue(this, v);
-            }
+            Page = ReadInt(cells, idx++);
+            Tags = ReadCell(cells, idx++);
+            Level = ReadInt(cells, idx++);
 
             if (!IsRaw && Action.StartsWith("azure", StringComparison.OrdinalIgnoreCase))
             {
@@ -159,6 +121,41 @@ namespace m4dModels
                     ? "Advanced"
                     : "Index";
             }
+        }
+
+        private List<string> SplitFilter(string input)
+        {
+            return input
+                .Replace(@"\-", _subStr)
+                .Split('-')
+                .Select(s => s.Trim().Replace(_subStr, "-"))
+                .ToList();
+        }
+
+        private static string ReadCell(List<string> cells, int index)
+        {
+            var ret = cells.Count > index ? cells[index] : null;
+            return ret = string.IsNullOrWhiteSpace(ret) || ret == "." ? null : ret;
+        }
+
+        private static decimal? ReadDecimal(List<string> cells, int index)
+        {
+            var s = ReadCell(cells, index);
+            if (!string.IsNullOrWhiteSpace(s) && decimal.TryParse(s, out decimal d))
+            {
+                return d;
+            }
+            return null;
+        }
+
+        private static int? ReadInt(List<string> cells, int index)
+        {
+            var s = ReadCell(cells, index);
+            if (!string.IsNullOrWhiteSpace(s) && int.TryParse(s, out int i))
+            {
+                return i;
+            }
+            return null;
         }
 
         public SongFilter(RawSearch raw)
@@ -181,9 +178,10 @@ namespace m4dModels
             Action = action;
         }
 
+        public int Version { get; set; }
         public string Action
         {
-            get => _action ?? "index";
+            get => _action ?? "Index";
             set => _action = value;
         }
 
@@ -194,6 +192,8 @@ namespace m4dModels
         public string User { get; set; }
         public decimal? TempoMin { get; set; }
         public decimal? TempoMax { get; set; }
+        public int? LengthMin { get; set; }
+        public int? LengthMax { get; set; }
         public int? Page { get; set; }
         public string Tags { get; set; }
         public int? Level { get; set; }
@@ -309,7 +309,9 @@ namespace m4dModels
         {
             get
             {
-                // All [dance] songs [including the text "<SearchString>] [Available on [Amazon|ITunes|Spotify] [Including tags TI] [Excluding tags TX] [between Tempo Range] [(liked|disliked|edited) by user] sorted by [Sort Order] from [High|low] to [low|high]
+                // All [dance] songs [including the text "<SearchString>] [Available on [Amazon|ITunes|Spotify]
+                //   [Including tags TI] [Excluding tags TX] [between Tempo Range] [between Length]
+                //   [(liked|disliked|edited) by user] sorted by [Sort Order] from [High|low] to [low|high]
                 // TOOD: If we pass in context, we can have user name + we can do better stuff with the tags...
 
                 if (IsRaw)
@@ -364,8 +366,27 @@ namespace m4dModels
                         TempoMax.Value);
                 }
 
+                if (LengthMin.HasValue && LengthMax.HasValue)
+                {
+                    sb.AppendFormat(
+                        "{0}having length between {1} and {2} seconds",
+                        separator, LengthMin.Value, LengthMax.Value);
+                }
+                else if (LengthMin.HasValue)
+                {
+                    sb.AppendFormat(
+                        "{0}having length greater than {1} seconds", separator,
+                        LengthMin.Value);
+                }
+                else if (LengthMax.HasValue)
+                {
+                    sb.AppendFormat(
+                        "{0}having length less than {1} seconds", separator,
+                        LengthMax.Value);
+                }
+
                 var noUserFilter = new SongFilter(ToString())
-                    { Action = "Index", User = null, Page = null };
+                    { Action = null, User = null, Page = null };
                 var trivialUser = noUserFilter.IsEmpty;
 
                 sb.Append(UserQuery.Description(trivialUser));
@@ -413,6 +434,21 @@ namespace m4dModels
                 else if (TempoMax.HasValue)
                 {
                     sb.AppendFormat("Tempo < {0} beats per minute", TempoMax.Value);
+                }
+
+                if (LengthMax.HasValue && LengthMin.HasValue)
+                {
+                    sb.AppendFormat(
+                        "Between {0} and {1} seconds", LengthMin.Value,
+                        LengthMax.Value);
+                }
+                else if (LengthMin.HasValue)
+                {
+                    sb.AppendFormat("Length > {0} seconds", LengthMin.Value);
+                }
+                else if (LengthMax.HasValue)
+                {
+                    sb.AppendFormat("Length < {0} seconds", LengthMax.Value);
                 }
 
                 if (sb.Length > 0)
@@ -575,6 +611,16 @@ namespace m4dModels
                 odata = (odata == null ? "" : odata + " and ") + $"(Tempo le {tempoMax})";
             }
 
+            if (LengthMin.HasValue)
+            {
+                odata = (odata == null ? "" : odata + " and ") + $"(Length ge {LengthMin})";
+            };
+
+            if (LengthMax.HasValue)
+            {
+                odata = (odata == null ? "" : odata + " and ") + $"(Length le {LengthMax})";
+            };
+
             var purchaseFilter = ODataPurchase;
             if (purchaseFilter != null)
             {
@@ -593,31 +639,19 @@ namespace m4dModels
 
         public override string ToString()
         {
-            var ret = new StringBuilder();
-            var nullBuff = new StringBuilder();
+            var version = Version == 2 ? "v2-" : "";
+            var length = Version == 2 ? $"{Format(LengthMin.ToString())}-{Format(LengthMax.ToString())}-" : "";
+            var ret = $"{version}{Action}-{Dances}-{Format(SortOrder)}-{Format(SearchString)}-{Format(Purchase)}-{Format(User)}-" +
+                $"{Format(TempoMin.ToString())}-{Format(TempoMax.ToString())}-{length}{Format(Page.ToString())}-{Format(Tags)}-{Format(Level.ToString())}";
+            var clean = ret.TrimEnd(new char [] { '.', '-' });
+            return string.Equals(clean, "index", StringComparison.OrdinalIgnoreCase) ? "" : clean;
+        }
 
-            var sep = string.Empty;
-            var i = 0;
-            foreach (var v in PropertyInfo.Select(p => p.GetValue(this)))
-            {
-                if (v == null || IsAltDefault(v, i))
-                {
-                    nullBuff.Append(sep);
-                    nullBuff.Append(Empty);
-                }
-                else
-                {
-                    ret.Append(nullBuff);
-                    nullBuff.Clear();
-                    ret.Append(sep);
-                    ret.Append(Format(v.ToString()));
-                }
-
-                sep = _sepStr;
-                i += 1;
-            }
-
-            return ret.ToString();
+        private string Format(string s)
+        {
+            return string.IsNullOrWhiteSpace(s)
+                ? "."
+                : s.Contains('-') ? s.Replace("-", @"\-") : s;
         }
 
         public string ToJson()
@@ -630,8 +664,10 @@ namespace m4dModels
 
         private bool EmptyExcept(IEnumerable<string> properties)
         {
-            return !PropertyInfo.Where(pi => !properties.Contains(pi.Name))
-                .Select(t => t.GetValue(this)).Where((o, i) => o != null && !IsAltDefault(o, i))
+            var props = new List<string>(properties);
+            props.Add("Version");
+            return !PropertyInfo.Where(pi => !props.Contains(pi.Name))
+                .Select(t => new { n = t.Name, v =  t.GetValue(this)}).Where(o => o.v != null && !IsAltDefault(o.v, o.n))
                 .Any();
         }
 
@@ -672,11 +708,6 @@ namespace m4dModels
             return ret.ToString();
         }
 
-        private static string Format(string s)
-        {
-            return s.Contains('-') ? s.Replace("-", @"\-") : s;
-        }
-
         private bool SwapUser(string newUser, string oldUser)
         {
             if (string.IsNullOrWhiteSpace(User) || !User.Contains(oldUser))
@@ -688,15 +719,14 @@ namespace m4dModels
             return true;
         }
 
-        private static bool IsAltDefault(object o, int index)
+        private static bool IsAltDefault(object o, string name)
         {
-            return index > AltDefaults.Length - 1 || AltDefaults[index] == null
-                ? false
-                : o is string s
-                ? string.Equals(
-                    s, AltDefaults[index] as string,
-                    StringComparison.InvariantCultureIgnoreCase)
-                : Equals(o, AltDefaults[index]);
+
+            return AltDefaults.TryGetValue(name, out var value) ?
+                value is string s
+                ? string.Equals(s, value as string, StringComparison.InvariantCultureIgnoreCase)
+                : Equals(o, value)
+                : false;
         }
     }
 }

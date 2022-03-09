@@ -9,8 +9,8 @@ namespace m4dModels
     {
         private static readonly string[] s_directional =
         {
-            Song.TitleField, Song.ArtistField,
-            Song.TempoField, Song.ModifiedField, Song.CreatedField, Song.EditedField,
+            Song.TitleField, Song.ArtistField, Song.TempoField, Song.LengthField,
+            Song.ModifiedField, Song.CreatedField, Song.EditedField,
             Song.EnergyField, Song.MoodField, Song.BeatField
         };
 
@@ -19,16 +19,6 @@ namespace m4dModels
 
         private static readonly string[] s_intrinsic =
             { Song.EnergyField, Song.MoodField, Song.BeatField };
-
-        private const string SortAsc = "<span class='glyphicon glyphicon-sort-by-alphabet'></span>";
-
-        private const string SortDsc =
-            "<span class='glyphicon glyphicon-sort-by-alphabet-alt'></span>";
-
-        private const string SortNAsc = "<span class='glyphicon glyphicon-sort-by-order'></span>";
-
-        private const string SortNDsc =
-            "<span class='glyphicon glyphicon-sort-by-order-alt'></span>";
 
         public SongSort(string sort)
         {
@@ -153,6 +143,9 @@ namespace m4dModels
                         case Song.TempoField:
                             ret.Append("slowest to fastest");
                             break;
+                        case Song.LengthField:
+                            ret.Append("shortest to longest");
+                            break;
                         case Song.ModifiedField:
                         case Song.CreatedField:
                             ret.Append("newest to oldest");
@@ -181,6 +174,9 @@ namespace m4dModels
                         case Song.TempoField:
                             ret.Append("fastest to slowest");
                             break;
+                        case Song.LengthField:
+                            ret.Append("longest to shortest");
+                            break;
                         case Song.ModifiedField:
                         case Song.CreatedField:
                             ret.Append("oldest to newest");
@@ -206,29 +202,6 @@ namespace m4dModels
                 ret.Append('.');
                 return ret.ToString();
             }
-        }
-
-        public string GetSortGlyph(string column)
-        {
-            var ret = string.Empty;
-            if (column == Id && !s_intrinsic.Contains(Id))
-            {
-                if (s_numerical.Contains(Id))
-                {
-                    ret = Descending ? SortNDsc : SortNAsc;
-                }
-                else
-                {
-                    ret = Descending ? SortDsc : SortAsc;
-                }
-            }
-
-            return ret;
-        }
-
-        public string GetDirectionString(string column)
-        {
-            return column == Id ? Descending ? "desc" : "asc" : "10";
         }
 
         public void Resort(string newOrder)

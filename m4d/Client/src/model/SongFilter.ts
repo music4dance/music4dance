@@ -18,17 +18,29 @@ export class SongFilter {
 
     const cells = SongFilter.splitFilter(input);
 
-    filter.action = SongFilter.readCell(cells, 0);
-    filter.dances = SongFilter.readCell(cells, 1);
-    filter.sortOrder = SongFilter.readCell(cells, 2);
-    filter.searchString = SongFilter.readCell(cells, 3);
-    filter.purchase = SongFilter.readCell(cells, 4);
-    filter.user = SongFilter.readCell(cells, 5);
-    filter.tempoMin = SongFilter.readNumberCell(cells, 6);
-    filter.tempoMax = SongFilter.readNumberCell(cells, 7);
-    filter.page = SongFilter.readNumberCell(cells, 8);
-    filter.tags = SongFilter.readCell(cells, 9);
-    filter.level = SongFilter.readNumberCell(cells, 10);
+    let idx = 0;
+
+    const versionString = SongFilter.readCell(cells, 0);
+
+    filter.version = versionString?.toLocaleLowerCase() === "v2" ? 2 : 1;
+    if (filter.version > 1) {
+      idx += 1;
+    }
+    filter.action = SongFilter.readCell(cells, idx++);
+    filter.dances = SongFilter.readCell(cells, idx++);
+    filter.sortOrder = SongFilter.readCell(cells, idx++);
+    filter.searchString = SongFilter.readCell(cells, idx++);
+    filter.purchase = SongFilter.readCell(cells, idx++);
+    filter.user = SongFilter.readCell(cells, idx++);
+    filter.tempoMin = SongFilter.readNumberCell(cells, idx++);
+    filter.tempoMax = SongFilter.readNumberCell(cells, idx++);
+    if (filter.version > 1) {
+      filter.lengthMin = SongFilter.readNumberCell(cells, idx++);
+      filter.lengthMax = SongFilter.readNumberCell(cells, idx++);
+    }
+    filter.page = SongFilter.readNumberCell(cells, idx++);
+    filter.tags = SongFilter.readCell(cells, idx++);
+    filter.level = SongFilter.readNumberCell(cells, idx++);
 
     return filter;
   }
@@ -58,6 +70,7 @@ export class SongFilter {
     return val ? Number.parseFloat(val) : undefined;
   }
 
+  @jsonMember public version?: number = 1;
   @jsonMember public action?: string = "index";
   @jsonMember public searchString?: string;
   @jsonMember public dances?: string;
@@ -66,6 +79,8 @@ export class SongFilter {
   @jsonMember public user?: string;
   @jsonMember public tempoMin?: number;
   @jsonMember public tempoMax?: number;
+  @jsonMember public lengthMin?: number;
+  @jsonMember public lengthMax?: number;
   @jsonMember public page?: number;
   @jsonMember public tags?: string;
   @jsonMember public level?: number;
@@ -85,18 +100,20 @@ export class SongFilter {
   private get normalFilterQuery(): string {
     const tempoMin = this.tempoMin ? this.tempoMin.toString() : "";
     const tempoMax = this.tempoMax ? this.tempoMax.toString() : "";
+    const lengthMin = this.lengthMin ? this.lengthMin.toString() : "";
+    const lengthMax = this.lengthMax ? this.lengthMax.toString() : "";
     const level = this.level ? this.level : "";
 
     const ret =
-      `${this.action}-${this.danceQuery.query}-${this.encode(
+      `v2-${this.action}-${this.danceQuery.query}-${this.encode(
         this.sortOrder
       )}-` +
       `${this.encode(this.searchString)}-${this.encode(
         this.purchase
       )}-${this.encode(this.user)}-` +
-      `${tempoMin}-${tempoMax}-${this.cleanPage}-${this.encode(
-        this.tags
-      )}-${level}`;
+      `${tempoMin}-${tempoMax}-${lengthMin}-${lengthMax}-${
+        this.cleanPage
+      }-${this.encode(this.tags)}-${level}`;
 
     return this.trimEnd(ret, ".-");
   }
@@ -146,7 +163,7 @@ export class SongFilter {
   }
 
   public get isEmpty(): boolean {
-    return this.isEmptyExcept(["action", "sortOrder"]);
+    return this.isEmptyExcept(["action", "sortOrder", "version"]);
   }
 
   public get cleanPage(): string {
@@ -203,6 +220,7 @@ export class SongFilter {
           `${this.describePart(this.describeIncludedTags)}` +
           `${this.describePart(this.describeExcludedTags)}` +
           `${this.describePart(this.describeTempo)}` +
+          `${this.describePart(this.describeLength)}` +
           `${this.describePart(this.userQuery.description)}` +
           `${this.describePart(this.describeSort)}.`;
   }
@@ -263,6 +281,18 @@ export class SongFilter {
       return `having tempo greater than ${this.tempoMin} beats per minute`;
     } else if (this.tempoMax) {
       return `having tempo less than ${this.tempoMax} beats per minute`;
+    } else {
+      return "";
+    }
+  }
+
+  private get describeLength(): string {
+    if (this.lengthMin && this.lengthMax) {
+      return `having length between ${this.lengthMin} and ${this.lengthMax} seconds`;
+    } else if (this.lengthMin) {
+      return `having length greater than ${this.lengthMin} seconds`;
+    } else if (this.lengthMax) {
+      return `having length less than ${this.lengthMax} seconds`;
     } else {
       return "";
     }

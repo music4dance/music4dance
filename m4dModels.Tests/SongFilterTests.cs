@@ -91,15 +91,57 @@ namespace m4dModels.Tests
         }
 
         [TestMethod]
+        public void FilterDescriptionV2()
+        {
+            var f1 = new SongFilter(F1V2);
+            var f2 = new SongFilter(F2V2);
+
+            Trace.WriteLine(f1.Description);
+            Trace.WriteLine(f2.Description);
+
+            Assert.AreEqual(
+                @"All Swing songs containing the text ""Goodman"", available on ITunes, having tempo between 50 and 150 beats per minute, having length between 30 and 90 seconds.",
+                f1.Description);
+            Assert.AreEqual(
+                @"All Swing songs available on ITunes, having length between 30 and 90 seconds.",
+                f2.Description);
+        }
+
+        [TestMethod]
         public void TestEmpty()
         {
             Assert.IsTrue(new SongFilter(@"Index-ALL").IsEmpty);
             Assert.IsTrue(new SongFilter(@"Index").IsEmpty);
             Assert.IsFalse(new SongFilter(@"Index-ALL-Title-.--.-.-150-1").IsEmpty);
             Assert.IsTrue(new SongFilter(@"Index-.-Dances-.-.-.-.-.-1").IsEmpty);
+            Assert.IsFalse(new SongFilter(@"v2-Index-.-Dances-.-.-.-.-.-1").IsEmpty);
+            Assert.IsTrue(new SongFilter(@"v2-Index-.-Dances-.-.-.-.-.-.-.-1").IsEmpty);
         }
 
         private static void TestFilters(bool withEncoding)
+        {
+            const string trivial = "{0}Trivial filter fails round-trip: {1}";
+            var s = RoundTrip("", "", trivial, 1, false);
+            RoundTrip(s, "", trivial, 1, withEncoding);
+
+            const string simple = "{0}Simple filter fails round-trip: {1}";
+            s = RoundTrip(F1, F1, simple, 1, false);
+            RoundTrip(s, F1, simple, 1, withEncoding);
+
+            const string complex = "{0}Complex filter fails round-trip: {1}";
+            s = RoundTrip(F2, F2, complex, 1, false);
+            RoundTrip(s, F2, complex, 2, withEncoding);
+
+            const string simple2 = "{0}Simple v2 filter fails round-trip: {1}";
+            s = RoundTrip(F1V2, F1V2, simple2, 1, false);
+            RoundTrip(s, F1V2, simple2, 1, withEncoding);
+
+            const string complex2 = "{0}Complex v2 filter fails round-trip: {1}";
+            s = RoundTrip(F2V2, F2V2, complex2, 1, false);
+            RoundTrip(s, F2V2, complex2, 2, withEncoding);
+        }
+
+        private static void TestV2Filters(bool withEncoding)
         {
             const string trivial = "{0}Trivial filter fails round-trip: {1}";
             var s = RoundTrip("", "", trivial, 1, false);
@@ -134,7 +176,9 @@ namespace m4dModels.Tests
             return s;
         }
 
-        private const string F1 = @".-SWG-Album-Goodman-X-.-50-150-1-%2BPop%3AMusic";
-        private const string F2 = @".-SWG-\\--\\-\\--X";
+        private const string F1 = @"Index-SWG-Album-Goodman-X-.-50-150-1-%2BPop%3AMusic";
+        private const string F2 = @"Index-SWG-.-.-I";
+        private const string F1V2 = @"v2-Index-SWG-Album-Goodman-I-.-50-150-30-90-1-%2BPop%3AMusic";
+        private const string F2V2= @"v2-Index-SWG-.-.-I-.-.-.-30-90";
     }
 }

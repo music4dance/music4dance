@@ -5,6 +5,8 @@ const simple = "Advanced--Modified";
 const basic = "Advanced--Modified---\\-me|h";
 const complex =
   "Advanced-ATN,BBA-Dances--A-\\-me|h-100-150--+Big Band:Music|\\-Swing:Music-3";
+const complex2 =
+  "v2-Advanced-ATN,BBA-Dances--A-\\-me|h-100-150-90-180--+Big Band:Music|\\-Swing:Music-3";
 
 describe("song filter", () => {
   it("should load basic from string", () => {
@@ -26,6 +28,23 @@ describe("song filter", () => {
     expect(f.sortOrder).toEqual("Dances");
     expect(f.purchase).toEqual("A");
     expect(f.user).toEqual("-me|h");
+    expect(f.tempoMin).toEqual(100);
+    expect(f.tempoMax).toEqual(150);
+  });
+
+  it("should load complicated2 from string", () => {
+    const f = SongFilter.buildFilter(complex2);
+
+    expect(f).toBeDefined();
+    expect(f).toBeInstanceOf(SongFilter);
+    expect(f.dances).toEqual("ATN,BBA");
+    expect(f.sortOrder).toEqual("Dances");
+    expect(f.purchase).toEqual("A");
+    expect(f.user).toEqual("-me|h");
+    expect(f.tempoMin).toEqual(100);
+    expect(f.tempoMax).toEqual(150);
+    expect(f.lengthMin).toEqual(90);
+    expect(f.lengthMax).toEqual(180);
   });
 
   it("should pass isEmpty on a trivial filter", () => {
@@ -162,6 +181,23 @@ describe("song filter", () => {
         " including tag Big Band" +
         " excluding tag Swing" +
         " having tempo between 100 and 150 beats per minute" +
+        " excluding songs in my blocked list" +
+        " sorted by Dance Rating from most popular to least popular."
+    );
+  });
+
+  it("should describe a complex2 filter", () => {
+    const f = SongFilter.buildFilter(complex2);
+    expect(f).toBeDefined();
+    expect(f).toBeInstanceOf(SongFilter);
+    expect(f.isEmpty).toBeFalsy();
+    expect(f.description).toEqual(
+      "All songs danceable to any of Argentine Tango or Balboa" +
+        " available on Amazon" +
+        " including tag Big Band" +
+        " excluding tag Swing" +
+        " having tempo between 100 and 150 beats per minute" +
+        " having length between 90 and 180 seconds" +
         " excluding songs in my blocked list" +
         " sorted by Dance Rating from most popular to least popular."
     );
