@@ -1136,7 +1136,7 @@ namespace m4dModels
                 { "SONGTAGS", SongTags },
                 { "MPM", MeasureTempo },
                 { "MULTIDANCE", MultiDance },
-                { "DanceComment", DanceComment }
+                { "DANCECOMMENT", DanceComment }
             };
 
         public static async Task<IList<Song>> CreateFromRows(
@@ -4136,11 +4136,6 @@ namespace m4dModels
                     IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
                 },
                 new SearchField(
-                    CommentField, SearchFieldDataType.Collection(SearchFieldDataType.String))
-                {
-                    IsSearchable = true, IsSortable = false, IsFilterable = false, IsFacetable = false
-                },
-                new SearchField(
                     UsersField, SearchFieldDataType.Collection(SearchFieldDataType.String))
                 {
                     IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
@@ -4244,7 +4239,7 @@ namespace m4dModels
             var fsc = danceStatsManager.Dances;
             fields.AddRange(
                 from sc in fsc
-                where sc.SongCount != 0 && sc.DanceId != "ALL"
+                where sc.DanceId != "ALL"
                 select IndexFieldFromDanceId(sc.DanceId));
 
             s_index = new SearchIndex(name, fields.ToArray());
@@ -4316,7 +4311,12 @@ namespace m4dModels
 
             foreach (var dr in DanceRatings)
             {
-                var d = Dances.Instance.DanceFromId(dr.DanceId).Name.ToLower();
+                var dobj = Dances.Instance.DanceFromId(dr.DanceId);
+                if (dobj is DanceGroup)
+                {
+                    continue;
+                }
+                var d = dobj.Name.ToLower();
                 ts = new TagSummary(dr.TagSummary, tagMap);
                 other.UnionWith(ts.GetTagSet("Other"));
                 tempo.UnionWith(ts.GetTagSet("Tempo"));
@@ -4364,6 +4364,12 @@ namespace m4dModels
             // Set the dance ratings
             foreach (var dr in DanceRatings)
             {
+                var dobj = Dances.Instance.DanceFromId(dr.DanceId);
+                if (dobj is DanceGroup)
+                {
+                    Trace.WriteLine($"Invalid use of group {dobj.Name} in song {SongId}");
+                    continue;
+                }
                 doc[BuildDanceFieldName(dr.DanceId)] = dr.Weight;
             }
 

@@ -76,8 +76,7 @@ namespace m4dModels
             Action = "Index";
         }
 
-        // TODONEXT: Add sort by length
-        //  Should we also enable a length column when filtering/sorting by length???
+        // TODO: Should we also enable a length column when filtering/sorting by length???
 
         // action-dances-sortorder-searchstring-purchase-user-tempomin-tempomax[-lengthmin-lengthmax]-page-tags-level
         public SongFilter(string value)
