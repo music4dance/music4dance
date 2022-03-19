@@ -34,7 +34,7 @@ exports[`MainMenu.vue renders the main menu with admin options 1`] = `
               <li role="presentation"><a role="menuitem" href="#" target="_self" class="dropdown-item">Help</a></li>
               <li role="presentation"><a role="menuitem" href="https://music4dance.blog/" target="_self" class="dropdown-item">Blog</a></li>
               <li role="presentation"><a role="menuitem" href="/home/faq" target="_self" class="dropdown-item">FAQ</a></li>
-              <li role="presentation"><a role="menuitem" href="/home/about" target="_self" class="dropdown-item">About Us</a></li>
+              <li role="presentation"><a role="menuitem" href="/home/about" target="_self" class="dropdown-item">About music4dance</a></li>
               <li role="presentation"><a role="menuitem" href="https://music4dance.blog/reading-list/" target="_self" class="dropdown-item">Reading List</a></li>
               <li role="presentation"><a role="menuitem" href="/home/sitemap" target="_self" class="dropdown-item">Site Map</a></li>
               <li role="presentation"><a role="menuitem" href="/home/privacypolicy" target="_self" class="dropdown-item">Privacy Policy</a></li>
@@ -111,7 +111,7 @@ exports[`MainMenu.vue renders the main menu with default options 1`] = `
               <li role="presentation"><a role="menuitem" href="#" target="_self" class="dropdown-item">Help</a></li>
               <li role="presentation"><a role="menuitem" href="https://music4dance.blog/" target="_self" class="dropdown-item">Blog</a></li>
               <li role="presentation"><a role="menuitem" href="/home/faq" target="_self" class="dropdown-item">FAQ</a></li>
-              <li role="presentation"><a role="menuitem" href="/home/about" target="_self" class="dropdown-item">About Us</a></li>
+              <li role="presentation"><a role="menuitem" href="/home/about" target="_self" class="dropdown-item">About music4dance</a></li>
               <li role="presentation"><a role="menuitem" href="https://music4dance.blog/reading-list/" target="_self" class="dropdown-item">Reading List</a></li>
               <li role="presentation"><a role="menuitem" href="/home/sitemap" target="_self" class="dropdown-item">Site Map</a></li>
               <li role="presentation"><a role="menuitem" href="/home/privacypolicy" target="_self" class="dropdown-item">Privacy Policy</a></li>

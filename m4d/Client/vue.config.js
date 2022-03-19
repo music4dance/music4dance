@@ -3,6 +3,9 @@ module.exports = {
     outputDir: "../wwwroot/client/",
     filenameHashing: false,
     pages: {
+        about: {
+            entry: "src/pages/about/main.ts",
+        },
         "advanced-search": {
             entry: "src/pages/advanced-search/main.ts",
         },

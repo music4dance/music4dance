@@ -1,14 +1,12 @@
-﻿@using m4d.ViewModels
-@{
+﻿@{
     ViewBag.Title = "FAQ";
     ViewBag.Description = "Frequently Asked Questions about Music4Dance and the answers.";
-
-    ViewBag.BreadCrumbs = BreadCrumbItem.BuildInfoTrail(ViewBag.Title);
 }
 
 <div id="app"></div>
 
 @section Scripts {
+    <partial name="_environmentWriter"/>
     <script asp-src-include="/client/js/chunk-vendors.*.js"></script>
     <script asp-src-include="/client/js/chunk-common.*.js"></script>
     <script asp-src-include="/client/js/faq.*.js"></script>

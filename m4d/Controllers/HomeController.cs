@@ -30,6 +30,7 @@ namespace m4d.Controllers
 
         public IActionResult FAQ()
         {
+            BuildEnvironment(danceEnvironment:true);
             UseVue = true;
             return View();
         }
@@ -56,6 +57,8 @@ namespace m4d.Controllers
 
         public IActionResult About()
         {
+            BuildEnvironment(danceEnvironment: true);
+            UseVue = true;
             return View();
         }
 

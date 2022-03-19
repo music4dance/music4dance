@@ -56,7 +56,9 @@
               >Blog</b-dropdown-item
             >
             <b-dropdown-item href="/home/faq">FAQ</b-dropdown-item>
-            <b-dropdown-item href="/home/about">About Us</b-dropdown-item>
+            <b-dropdown-item href="/home/about"
+              >About music4dance</b-dropdown-item
+            >
             <b-dropdown-item href="https://music4dance.blog/reading-list/"
               >Reading List</b-dropdown-item
             >

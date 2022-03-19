@@ -17,11 +17,14 @@
           <b-card-body>
             <b-card-text>
               <p>
-                Go to the
-                <a href="/song/advancedsearchform">Advanced Search</a> available
-                from the "Music" menu and include the style of dance you are
-                interested then click search. The result should be a list of
-                songs that can be danced to that style.
+                From the "Music Menu" at the top of the page, choose
+                <a href="/song">Song Library</a>, then click on the "All Dances"
+                button in the upper left to choose the style of dance you are
+                interestaed in. Or from the same menu choose
+                <a href="/song/advancedsearchform">Advanced Search</a>
+                and include the style of dance you are interested then click
+                search. In either case, the result should be a list of songs
+                that can be danced to that style.
               </p>
               <p>
                 If you would like more information check out our related blog
@@ -72,7 +75,17 @@
                 Or if you have a particular song in mind,
                 <a href="/song/advancedsearchform">search</a> for it and if it
                 is in the database look at what styles and tags are associated
-                with it.
+                with it. Better yet, if you're listening to it in Spotify or
+                Apple Music, you can drag the song to the text control on the
+                <a href="/song">song library page</a> or
+                <a href="/song/advancedsearchform">advanced search page</a> and
+                if it's in the music4dance catalog, we'll take you right to it.
+                See
+                <a
+                  href="https://music4dance.blog/new-feature-searching-for-a-song-from-spotify-or-itunes/"
+                  >Searching for a song from Spotify or iTunes</a
+                >
+                for more details
               </p>
               <p>
                 If you would like more information please read this blog blost
@@ -104,9 +117,30 @@
               <p>
                 It's Free! You'll be able to edit tags on songs and Music4Dance
                 will remember the songs you like, edited, or even disliked.
-                <a href="/identity/account/register">Register today!</a> We are
-                always working on new features for our site and special features
-                for our registered users.
+                You'll alo be able to
+                <a href="https://music4dance.blog/music4dance-help/tag-editing/"
+                  >tag songs</a
+                >,
+                <a href="https://music4dance.blog/music4dance-help/dance-tags/"
+                  >vote on the dancability of songs</a
+                >
+                and
+                <a href="https://music4dance.blog/music4dance-help/add-songs/"
+                  >add your own songs</a
+                >. <a href="/identity/account/register">Register today!</a> We
+                are always working on new features for our site and special
+                features for our registered users.
+              </p>
+              <p>
+                Once you've signed up, please consider
+                <a
+                  href="https://music4dance.blog/music4dance-help/subscriptions/"
+                  >purchasing a premium</a
+                >
+                subscriptions. This is one of the ways that you can help
+                <a href="/home/contribute">support the music4dance project</a>
+                (and you never have to look at ads on the site again - well, at
+                least as long as your subscription lasts).
               </p>
             </b-card-text>
           </b-card-body>
@@ -116,19 +150,26 @@
       <b-card no-body class="mb-1">
         <b-card-header header-tag="header" class="p-1" role="tab">
           <b-button block v-b-toggle.accordion-4 variant="primary">
-            I'm not finding the song I want, what should I do?
+            I can't find the song I'm looking for, what should I do?
           </b-button>
         </b-card-header>
         <b-collapse id="accordion-4" accordion="my-accordion" role="tabpanel">
           <b-card-body>
             <b-card-text>
               <p>
-                Contact us at
+                You can go ahead and
+                <a href="https://music4dance.blog/music4dance-help/add-songs/"
+                  >add it</a
+                >
+                yourself.
+              </p>
+              <p>
+                If you you're looking for the song because you don't know what
+                to dance to it, please ontact us at
                 <a href="mailto:info@music4dance.net">info@music4dance.net</a>
                 or through our
                 <a href="https://music4dance.blog/feedback/">feedback form</a>
-                and we will try to add it! Feel free to give us any other
-                feedback you might have as well.
+                and we will add it if we can.
               </p>
             </b-card-text>
           </b-card-body>
