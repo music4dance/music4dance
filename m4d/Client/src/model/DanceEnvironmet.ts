@@ -89,4 +89,24 @@ export class DanceEnvironment {
   public get types(): string[] {
     return this.groups!.map((s) => s.name);
   }
+
+  public static filterByName(
+    dances: DanceStats[],
+    nameFilter: string,
+    includeChildren = false
+  ): DanceStats[] {
+    const filter = nameFilter.toLowerCase();
+    return dances.filter(
+      (d) =>
+        d.songCount > 0 &&
+        (!filter ||
+          d.name.toLowerCase().indexOf(filter) !== -1 ||
+          (includeChildren &&
+            d.isGroup &&
+            (d as GroupStats).dances.find(
+              (c) =>
+                c.songCount > 0 && c.name.toLowerCase().indexOf(filter) !== -1
+            )))
+    );
+  }
 }

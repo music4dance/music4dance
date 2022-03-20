@@ -18,7 +18,9 @@
   </b-row>
   <div v-else>
     <b>{{ link.description }}: </b><span> </span>
-    <a :href="link.link">{{ link.link }}</a>
+    <a :href="link.link" target="_blank"
+      >{{ link.link }} <b-icon-box-arrow-up-right></b-icon-box-arrow-up-right
+    ></a>
   </div>
 </template>
 

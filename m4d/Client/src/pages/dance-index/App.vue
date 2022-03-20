@@ -6,10 +6,10 @@
     :consumesEnvironment="true"
     @environment-loaded="onEnvironmentLoaded"
   >
-    <dance-table :groups="groups"></dance-table>
+    <dance-table :dances="dances"></dance-table>
+    <h2 class="mt-2">Other Resources:</h2>
     <p id="competition">
-      Or check out our more traditional ballroom competition categories
-      including
+      Check out our more traditional ballroom competition categories including
       <a href="/dances/international-standard">International Standard</a>,
       <a href="/dances/international-latin">International Latin</a>,
       <a href="/dances/american-smooth">American Smooth</a> and
@@ -25,10 +25,10 @@
       event on our
       <a href="/dances/wedding-music">Wedding Dance Music</a> page.
     </p>
-    <p>
-      Choose from the dances styles to get more information or click on the
-      number next to the name to get a list of songs that are suitable to dance
-      that dance to.
+    <p id="tempi">
+      Our <a href="/home/tempi">Tempi (Tempos)</a> tool shows this same list of
+      dances with additional infomration and the ability to filter and sort in
+      different ways..
     </p>
     <p>
       Don't agree with how we've organized dance styles? Well, we're not
@@ -57,17 +57,14 @@ import DanceTable from "./DanceTable.vue";
   },
 })
 export default class App extends Vue {
-  private groups: DanceStats[] = [];
+  private dances: DanceStats[] = [];
   private breadcrumbs: BreadCrumbItem[] = [
     homeCrumb,
     { text: "Dances", active: true },
   ];
 
   private onEnvironmentLoaded(environment: DanceEnvironment): void {
-    const stats = environment.tree;
-    if (stats) {
-      this.groups = stats;
-    }
+    this.dances = environment.groupedStats;
   }
 }
 </script>

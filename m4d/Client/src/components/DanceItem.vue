@@ -1,17 +1,23 @@
 <template>
   <div class="d-flex justify-content-between">
     <span
-      ><a :href="danceLink" :style="safeStyle">{{ stats.name }}</a>
+      ><a :href="danceLink">{{ stats.name }}</a>
       <span v-if="showTempo && canShowTempo" style="font-size: 0.8rem">
         ({{ tempoText }})</span
       >
     </span>
-    <b-badge
-      :href="countLink"
-      :variant="safeVariant"
-      style="line-height: 1.5"
-      >{{ stats.songCount }}</b-badge
-    >
+    <div>
+      <b-badge :href="countLink" :variant="variant" style="line-height: 1.5"
+        >songs ({{ stats.songCount }})</b-badge
+      >
+      <b-badge
+        :href="danceLink"
+        :variant="variant"
+        style="line-height: 1.5"
+        class="ml-2"
+        >info</b-badge
+      >
+    </div>
   </div>
 </template>
 
@@ -23,8 +29,6 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 @Component
 export default class DanceItem extends Vue {
   @Prop() private dance!: DanceStats;
-  @Prop() private variant?: string;
-  @Prop() private textStyle?: string;
   @Prop() private showTempo?: boolean;
 
   private get stats(): DanceStats {
@@ -43,12 +47,12 @@ export default class DanceItem extends Vue {
     return `/song/index?filter=.-OOX,${this.stats.id}-Dances`;
   }
 
-  private get safeVariant(): string {
-    return this.variant ?? "primary";
+  private get variant(): string {
+    return this.stats.isGroup ? "secondary" : "primary";
   }
 
-  private get safeStyle(): string {
-    return this.textStyle ?? "";
+  private get style(): string {
+    return this.stats.isGroup ? "color:white" : "";
   }
 
   private get canShowTempo(): boolean {

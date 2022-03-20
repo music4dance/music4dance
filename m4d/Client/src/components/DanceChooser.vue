@@ -76,8 +76,8 @@
 
 <script lang="ts">
 import EnvironmentManager from "@/mix-ins/EnvironmentManager";
+import { DanceEnvironment } from "@/model/DanceEnvironmet";
 import { DanceStats } from "@/model/DanceStats";
-import { GroupStats } from "@/model/GroupStats";
 import { TypeStats } from "@/model/TypeStats";
 import DanceList from "@/pages/tempo-counter/components/DanceList.vue";
 import "reflect-metadata";
@@ -153,18 +153,10 @@ export default class DanceChooser extends Mixins(EnvironmentManager) {
     dances: DanceStats[],
     includeChildren = false
   ): DanceStats[] {
-    const filter = this.nameFilter.toLowerCase();
-    return dances.filter(
-      (d) =>
-        d.songCount > 0 &&
-        (!filter ||
-          d.name.toLowerCase().indexOf(filter) !== -1 ||
-          (includeChildren &&
-            d.isGroup &&
-            (d as GroupStats).dances.find(
-              (c) =>
-                c.songCount > 0 && c.name.toLowerCase().indexOf(filter) !== -1
-            )))
+    return DanceEnvironment.filterByName(
+      dances,
+      this.nameFilter,
+      includeChildren
     );
   }
 }

@@ -55,7 +55,7 @@
           <h2 id="dance-styles">
             Dances that are grouped into the {{ model.danceName }} category:
           </h2>
-          <dance-list :group="this.dance" :showTempo="true"></dance-list>
+          <dance-list :dances="dances" :showTempo="true"></dance-list>
         </div>
       </b-col>
     </b-row>
@@ -109,7 +109,9 @@ import { DanceInstance } from "@/model/DanceInstance";
 import { DanceLink } from "@/model/DanceLink";
 import { DanceModel } from "@/model/DanceModel";
 import { DanceStats } from "@/model/DanceStats";
+import { DanceType } from "@/model/DanceType";
 import { Editor } from "@/model/Editor";
+import { GroupStats } from "@/model/GroupStats";
 import { SongFilter } from "@/model/SongFilter";
 import { Tag } from "@/model/Tag";
 import { TypeStats } from "@/model/TypeStats";
@@ -210,6 +212,10 @@ export default class App extends Mixins(AdminTools) {
 
   private get linkEditor(): Editor {
     return this.$refs.danceLinks as unknown as Editor;
+  }
+
+  private get dances(): DanceType[] | undefined {
+    return this.dance?.isGroup ? (this.dance as GroupStats).dances : undefined;
   }
 
   private updateDescription(value: string): void {

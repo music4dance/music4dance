@@ -195,6 +195,7 @@ export class SongFilter {
     return (
       !this.isRaw &&
       this.isEmptyExcept([
+        "version",
         "action",
         "user",
         "searchString",
