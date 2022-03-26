@@ -225,6 +225,9 @@ export default class App extends Vue {
 .job {
   margin-bottom: 0.5em;
 }
+.description {
+  font-size: 1.25em;
+}
 li {
   list-style-type: square;
   font-size: 1.25em;
