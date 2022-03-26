@@ -39,7 +39,6 @@ namespace m4d.APIControllers
             id = service.NormalizeId(id.Substring(1));
 
             var user = await Database.UserManager.GetUserAsync(User);
-https://open.spotify.com/artist/2kRfqPViCqYdSGhYSM9R0Q
             // Find a song associate with the service id
             var song = await Database.GetSongFromService(service, id, user?.UserName);
             var created = false;

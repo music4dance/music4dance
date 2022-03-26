@@ -214,6 +214,7 @@ namespace m4d.ViewModels
                         new() { Title = "Home Page", Reference = "", Crawl = true },
                         new() { Title = "Contribute", Reference = "home/contribute", Crawl = true },
                         new() { Title = "About", Reference = "home/about", Crawl = true },
+                        new() { Title = "Resume", Reference = "home/resume", Crawl = true },
                         new() { Title = "FAQ", Reference = "home/faq", Crawl = true },
                         new() { Title = "Privacy Policy", Reference = "home/privacypolicy", Crawl = true },
                         new() { Title = "Terms of Service", Reference = "home/termsofservice", Crawl = true },

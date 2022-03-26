@@ -45,6 +45,9 @@ module.exports = {
         "new-music": {
             entry: "src/pages/new-music/main.ts",
         },
+        resume: {
+            entry: "src/pages/resume/main.ts",
+        },
         search: {
             entry: "src/pages/search/main.ts",
         },

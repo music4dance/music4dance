@@ -57,7 +57,12 @@ namespace m4d.Controllers
 
         public IActionResult About()
         {
-            BuildEnvironment(danceEnvironment: true);
+            UseVue = true;
+            return View();
+        }
+
+        public IActionResult Resume()
+        {
             UseVue = true;
             return View();
         }
