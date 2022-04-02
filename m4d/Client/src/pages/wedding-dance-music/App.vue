@@ -51,7 +51,7 @@
       <a href="/Song/Index/?filter=Index-SFT-Dances-.-.-.-.-.-1-+Wedding:Other"
         >Slow Foxtrot</a
       >
-      lists, they are full of songs with a good slow and steady beat to do a
+      lists, they are full of songs with a good slow and steady beat to dance
       either a simplified Foxtrot or traditional slow dance.
     </p>
     <p>

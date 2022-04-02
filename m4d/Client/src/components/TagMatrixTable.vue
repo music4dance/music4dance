@@ -10,7 +10,11 @@
       <template v-slot:cell(dance)="data">
         <div :class="data.item.isGroup ? groupClass : itemClass">
           <a :href="danceLink(data.item)">
-            {{ data.value }}
+            <dance-name
+              :dance="data.item.dance"
+              :showSynonyms="true"
+              :multiLine="true"
+            ></dance-name>
           </a>
         </div>
       </template>
@@ -30,15 +34,14 @@
 </template>
 
 <script lang="ts">
+import DanceName from "@/components/DanceName.vue";
 import { wordsToKebab } from "@/helpers/StringHelpers";
 import { DanceObject } from "@/model/DanceObject";
 import { TagMatrix, TagRow } from "@/model/TagMatrix";
 import { BvTableFieldArray } from "bootstrap-vue";
 import { Component, Prop, Vue } from "vue-property-decorator";
 
-@Component({
-  components: {},
-})
+@Component({ components: { DanceName } })
 export default class TagMatrixTable extends Vue {
   @Prop() private matrix!: TagMatrix;
 

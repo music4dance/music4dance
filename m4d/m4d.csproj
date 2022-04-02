@@ -70,7 +70,7 @@
   <ItemGroup>
     <WCFMetadata Include="Connected Services" />
   </ItemGroup>
-  <Target Name="client" BeforeTargets="ComputeFilesToPublish">
+  <Target Name="vue-client" BeforeTargets="PrepareForPublish">
     <Exec Command="yarn" WorkingDirectory="Client"></Exec>
     <Exec Command="yarn run build" WorkingDirectory="Client"></Exec>
   </Target>

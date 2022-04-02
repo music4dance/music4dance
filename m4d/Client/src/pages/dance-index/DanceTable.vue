@@ -14,7 +14,8 @@
     <dance-list
       :dances="filteredDances"
       :flush="false"
-      :showTempo="true"
+      :showTempo="showTempo"
+      :showSynonyms="true"
     ></dance-list>
   </div>
 </template>
@@ -23,16 +24,14 @@
 import DanceList from "@/components/DanceList.vue";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
 import { DanceStats } from "@/model/DanceStats";
+import { TempoType } from "@/model/TempoType";
 import { Component, Prop, Vue } from "vue-property-decorator";
 
-@Component({
-  components: {
-    DanceList,
-  },
-})
+@Component({ components: { DanceList } })
 export default class DanceTable extends Vue {
   @Prop() private dances!: DanceStats[];
   private nameFilter = "";
+  private showTempo = TempoType.Both;
 
   private get filteredDances(): DanceStats[] {
     return DanceEnvironment.filterByName(this.dances, this.nameFilter, true);

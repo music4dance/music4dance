@@ -55,6 +55,10 @@ export class TempoRange {
     );
   }
 
+  public get isInfinite(): boolean {
+    return this.min < 10 && this.max > 499;
+  }
+
   public toBpm(numerator: number): TempoRange {
     return new TempoRange(this.min * numerator, this.max * numerator);
   }

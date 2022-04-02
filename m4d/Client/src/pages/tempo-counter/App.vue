@@ -20,7 +20,7 @@
       :dances="dances()"
       :beatsPerMeasure="beatsPerMeasure"
       :beatsPerMinute="beatsPerMinute"
-      :countMethod="countMethod"
+      :tempoType="tempoType"
       :epsilonPercent="epsilonPercent"
       @choose-dance="chooseDance"
     />
@@ -30,6 +30,7 @@
 <script lang="ts">
 import Page from "@/components/Page.vue";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { TempoType } from "@/model/TempoType";
 import { TypeStats } from "@/model/TypeStats";
 import { Component, Vue } from "vue-property-decorator";
 import Counter from "./components/Counter.vue";
@@ -75,6 +76,12 @@ export default class App extends Vue {
   private dances(): TypeStats[] {
     const environment = this.environment;
     return environment ? environment.dances! : [];
+  }
+
+  private get tempoType(): TempoType {
+    return this.countMethod === "measures"
+      ? TempoType.Measures
+      : TempoType.Beats;
   }
 
   private get measuresPerMinute(): number {

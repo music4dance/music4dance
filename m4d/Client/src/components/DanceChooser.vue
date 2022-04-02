@@ -39,7 +39,11 @@
             :disabled="exists(dance.id)"
             @click="chooseEvent(dance.id, $event)"
           >
-            {{ dance.name }}
+            <dance-name
+              :dance="dance"
+              :showSynonyms="true"
+              :showTempo="tempoType"
+            ></dance-name>
           </b-list-group-item>
         </b-list-group>
       </b-tab>
@@ -55,7 +59,11 @@
             :disabled="exists(dance.id) || (dance.isGroup && !includeGroups)"
             @click="chooseEvent(dance.id, $event)"
           >
-            {{ dance.name }}
+            <dance-name
+              :dance="dance"
+              :showSynonyms="true"
+              :showTempo="tempoType"
+            ></dance-name>
           </b-list-group-item>
         </b-list-group>
       </b-tab>
@@ -66,7 +74,6 @@
           :beatsPerMeasure="numerator"
           :epsilonPercent="20"
           :filter="nameFilter"
-          countMethod="beats"
           @choose-dance="choose"
         ></dance-list>
       </b-tab>
@@ -75,9 +82,11 @@
 </template>
 
 <script lang="ts">
+import DanceName from "@/components/DanceName.vue";
 import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
 import { DanceStats } from "@/model/DanceStats";
+import { TempoType } from "@/model/TempoType";
 import { TypeStats } from "@/model/TypeStats";
 import DanceList from "@/pages/tempo-counter/components/DanceList.vue";
 import "reflect-metadata";
@@ -85,6 +94,7 @@ import { Component, Mixins, Prop } from "vue-property-decorator";
 
 @Component({
   components: {
+    DanceName,
     DanceList,
   },
 })
@@ -123,6 +133,9 @@ export default class DanceChooser extends Mixins(EnvironmentManager) {
     return environment && environment.dances ? environment.dances : [];
   }
 
+  private get tempoType(): TempoType {
+    return TempoType.Measures;
+  }
   private exists(danceId: string): boolean {
     const filtered = this.filterIds;
     if (!filtered) {

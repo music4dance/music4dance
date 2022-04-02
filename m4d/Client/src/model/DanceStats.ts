@@ -5,7 +5,9 @@ export interface DanceStats {
   name: string;
   description?: string;
   blogTag?: string;
-  seoName: string;
+  seoName?: string;
+  synonyms?: string[];
+  searchonyms?: string[];
   songCount: number;
   maxWeight: number;
   songTags: string;

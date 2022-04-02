@@ -18,7 +18,12 @@
           :authenticated="!!user"
           v-on="$listeners"
         ></dance-vote>
-        <a :href="danceLink(dr)">{{ danceName(dr) }}</a>
+        <a :href="danceLink(dr)"
+          ><dance-name
+            :dance="statsFromRating(dr)"
+            :showSynonyms="true"
+          ></dance-name
+        ></a>
         <span v-if="dr.tags" style="margin-left: 0.25rem; line-height: 2.75rem">
           <tag-list-editor
             :container="dr"
@@ -44,6 +49,7 @@
 
 <script lang="ts">
 import CommentEditor from "@/components/CommentEditor.vue";
+import DanceName from "@/components/DanceName.vue";
 import DanceVote from "@/components/DanceVote.vue";
 import TagButton from "@/components/TagButton.vue";
 import TagListEditor from "@/components/TagListEditor.vue";
@@ -62,6 +68,7 @@ import { Component, Mixins, Prop } from "vue-property-decorator";
 @Component({
   components: {
     CommentEditor,
+    DanceName,
     DanceVote,
     TagButton,
     TagListEditor,

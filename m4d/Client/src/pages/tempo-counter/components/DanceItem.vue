@@ -5,21 +5,26 @@
     @click="$emit('choose-dance', dance.dance.id, $event.ctrlKey)"
     class="d-flex justify-content-between align-items-center"
   >
-    <span
-      >{{ dance.name }} - <small>{{ meterDescription }}</small></span
-    >
+    <dance-name
+      :dance="dance.dance"
+      :tempoType="tempoType"
+      :showTempo="true"
+      :showSynonyms="true"
+    ></dance-name>
     <b-badge v-show="showDelta" :variant="variant">{{ deltaMessage }}</b-badge>
   </b-list-group-item>
 </template>
 
 <script lang="ts">
+import DanceName from "@/components/DanceName.vue";
 import { DanceOrder } from "@/model/DanceOrder";
+import { TempoType } from "@/model/TempoType";
 import { Component, Prop, Vue } from "vue-property-decorator";
 
-@Component
+@Component({ components: { DanceName } })
 export default class DanceItem extends Vue {
   @Prop() private readonly dance!: DanceOrder;
-  @Prop() private countMethod!: string;
+  @Prop() private tempoType!: TempoType;
 
   private get variant(): string {
     if (!this.showDelta) {
@@ -30,7 +35,7 @@ export default class DanceItem extends Vue {
   }
 
   private get meterDescription() {
-    return this.countMethod === "measures"
+    return this.tempoType === TempoType.Measures
       ? this.dance.rangeMpmFormatted
       : this.dance.rangeBpmFormatted;
   }
@@ -40,7 +45,7 @@ export default class DanceItem extends Vue {
   }
 
   private get deltaMessage(): string {
-    const measures = this.countMethod === "measures";
+    const measures = this.tempoType === TempoType.Measures;
     const slower = this.dance.bpmDelta < 0;
     const abs = Math.abs(
       measures ? this.dance.mpmDelta : this.dance.bpmDelta

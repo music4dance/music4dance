@@ -55,7 +55,7 @@
           <h2 id="dance-styles">
             Dances that are grouped into the {{ model.danceName }} category:
           </h2>
-          <dance-list :dances="dances" :showTempo="true"></dance-list>
+          <dance-list :dances="dances" :showTempo="showTempo"></dance-list>
         </div>
       </b-col>
     </b-row>
@@ -114,6 +114,7 @@ import { Editor } from "@/model/Editor";
 import { GroupStats } from "@/model/GroupStats";
 import { SongFilter } from "@/model/SongFilter";
 import { Tag } from "@/model/Tag";
+import { TempoType } from "@/model/TempoType";
 import { TypeStats } from "@/model/TypeStats";
 import axios from "axios";
 import "reflect-metadata";
@@ -148,6 +149,7 @@ export default class App extends Mixins(AdminTools) {
   private isGroup = false;
   private dance: DanceStats | null = null;
   private editing = false;
+  private showTempo = TempoType.Both;
 
   constructor() {
     super();

@@ -85,7 +85,7 @@ export default class SongResults extends Vue {
     const filter = new SongFilter();
     const search = this.search.trim();
 
-    const dance = environment.fromName(search);
+    const dance = environment.fromSynonym(search);
     if (dance) {
       filter.dances = dance.id;
       filter.sortOrder = "Dances";

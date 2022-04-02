@@ -216,21 +216,9 @@ namespace m4dModels
             {
                 var sort = SongSort;
 
-                if (sort.Id != "Dances")
-                {
-                    return sort.OData;
-                }
-
-                var dq = DanceQuery;
-                var dids = dq.DanceIds.ToList();
-
-                if (dids.Count == 0)
-                {
-                    return null;
-                }
-
-                var order = sort.Descending ? "asc" : "desc";
-                return dids.Select(did => $"dance_{did} {order}").ToList();
+                return sort.Id != "Dances"
+                    ? sort.OData
+                    : DanceQuery?.ODataSort(sort.Descending ? "asc" : "desc");
             }
         }
 

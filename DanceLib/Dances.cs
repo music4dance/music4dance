@@ -31,7 +31,7 @@ namespace DanceLibrary
         {
             get;
             set;
-        } // Level = Bronze or Silter,Gold; Competitor = Professional,Amateur or ProAm
+        } // Level = Bronze or Silver,Gold; Competitor = Professional,Amateur or ProAm
 
         public string Title
         {
@@ -64,6 +64,10 @@ namespace DanceLibrary
 
         public virtual string BlogTag { get; set; }
 
+        public virtual List<string> Synonyms { get; set; }
+
+        public virtual List<string> Searchonyms { get; set; }
+
         public string CleanName => SeoFriendly(Name);
 
         public static string SeoFriendly(string name)
@@ -84,6 +88,9 @@ namespace DanceLibrary
             Name = other.Name;
             Meter = other.Meter;
             Instances = other.Instances;
+            BlogTag = other.BlogTag;
+            Synonyms = other.Synonyms;
+            Searchonyms = other.Searchonyms;
             Organizations = other.Organizations;
         }
 
@@ -114,6 +121,12 @@ namespace DanceLibrary
         public sealed override string Name { get; set; }
 
         public sealed override Meter Meter { get; set; }
+
+        public sealed override string BlogTag { get; set; }
+
+        public sealed override List<string> Synonyms { get; set; }
+
+        public sealed override List<string> Searchonyms { get; set; }
 
         public override TempoRange TempoRange
         {

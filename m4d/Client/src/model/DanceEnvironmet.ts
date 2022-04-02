@@ -46,6 +46,14 @@ export class DanceEnvironment {
     return this.flatStats.find((d) => n === d.name.toLowerCase());
   }
 
+  public fromSynonym(name: string): DanceStats | undefined {
+    const d = this.fromName(name);
+    if (d) return d;
+
+    const n = this.flatDances.find((x) => x.isMatch(name));
+    return n ? this.fromId(n.id) : undefined;
+  }
+
   public get flatStats(): DanceStats[] {
     if (!this.tree || !this.dances) {
       throw new Error(
@@ -62,6 +70,10 @@ export class DanceEnvironment {
       );
     }
     return [...this.tree, ...this.dances];
+  }
+
+  public danceFromId(id: string): NamedObject | undefined {
+    return this.flatDances.find((d) => d.id === id);
   }
 
   public get flatTypes(): TypeStats[] {

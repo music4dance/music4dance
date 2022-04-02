@@ -110,7 +110,7 @@
               size="sm"
               class="my-2 my-sm-0"
               type="submit"
-              :disabled="!searchString"
+              :disabled="!searchString.trim()"
               >Search</b-button
             >
           </b-nav-form>

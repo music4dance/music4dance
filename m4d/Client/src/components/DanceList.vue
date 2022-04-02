@@ -13,13 +13,15 @@
 <script lang="ts">
 import DanceItem from "@/components/DanceItem.vue";
 import { DanceStats } from "@/model/DanceStats";
+import { TempoType } from "@/model/TempoType";
 import { Component, Prop, Vue } from "vue-property-decorator";
 
 @Component({ components: { DanceItem } })
 export default class DanceList extends Vue {
   @Prop() private dances!: DanceStats[];
   @Prop() private flush?: boolean;
-  @Prop() private showTempo?: boolean;
+  @Prop({ default: TempoType.None }) private showTempo!: TempoType;
+  @Prop() private showSynonyms?: boolean;
 
   private get filteredDances(): DanceStats[] {
     return this.dances.filter((d) => d.songCount > 0);
