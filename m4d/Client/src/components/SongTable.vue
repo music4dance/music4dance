@@ -313,10 +313,17 @@ export default class SongTable extends Mixins(AdminTools) {
     const userName = this.userName;
     if (userId && userName) {
       return this.histories.map(
-        (h) => new SongEditor(this.userName, h.Deanonymize(userName, userId))
+        (h) =>
+          new SongEditor(
+            this.axiosXsrf,
+            this.userName,
+            h.Deanonymize(userName, userId)
+          )
       );
     } else {
-      return this.histories.map((h) => new SongEditor(this.userName, h));
+      return this.histories.map(
+        (h) => new SongEditor(this.axiosXsrf, this.userName, h)
+      );
     }
   }
 

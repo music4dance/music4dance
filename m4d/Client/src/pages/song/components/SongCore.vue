@@ -354,6 +354,7 @@ export default class SongCore extends Mixins(AdminTools) {
     if (stats) {
       if (this.model.userName) {
         this.editor = new SongEditor(
+          this.axiosXsrf,
           this.model.userName,
           this.model.songHistory
         );

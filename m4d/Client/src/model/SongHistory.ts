@@ -1,3 +1,4 @@
+import { AxiosInstance } from "axios";
 import "reflect-metadata";
 import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
 import { v4 as uuidv4 } from "uuid";
@@ -10,10 +11,11 @@ import { UserQuery } from "./UserQuery";
 @jsonObject
 export class SongHistory {
   public static fromTrack(
+    axios: AxiosInstance,
     track: TrackModel,
     currentUser?: string
   ): SongHistory {
-    const editor = new SongEditor(currentUser);
+    const editor = new SongEditor(axios, currentUser);
     // Give this user the credit for creating the song
     if (currentUser) {
       editor.setupEdit();

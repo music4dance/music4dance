@@ -1,4 +1,5 @@
 import { DanceRatingVote, VoteDirection } from "@/DanceRatingDelta";
+import axios from "axios";
 import "reflect-metadata";
 import { TypedJSON } from "typedjson";
 import { Song } from "../Song";
@@ -7,9 +8,11 @@ import { SongHistory } from "../SongHistory";
 import { PropertyType } from "../SongProperty";
 import history from "./data/simple-history.json";
 
+const ax = axios.create();
+
 describe("song history editor tests", () => {
   it("should create a simple song", () => {
-    const e = new SongEditor("dwgray");
+    const e = new SongEditor(ax, "dwgray");
 
     expect(e).toBeDefined();
     expect(e).toBeInstanceOf(SongEditor);
@@ -30,7 +33,11 @@ describe("song history editor tests", () => {
   });
 
   it("should add a simple property to a song", () => {
-    const e = new SongEditor("dwgray", TypedJSON.parse(history, SongHistory)!);
+    const e = new SongEditor(
+      ax,
+      "dwgray",
+      TypedJSON.parse(history, SongHistory)!
+    );
 
     e.addProperty(PropertyType.titleField, "My Song");
     e.addProperty(PropertyType.artistField, "Myself");
@@ -46,7 +53,11 @@ describe("song history editor tests", () => {
   });
 
   it("should revert a song", () => {
-    const e = new SongEditor("dwgray", TypedJSON.parse(history, SongHistory)!);
+    const e = new SongEditor(
+      ax,
+      "dwgray",
+      TypedJSON.parse(history, SongHistory)!
+    );
 
     e.addProperty(PropertyType.titleField, "My Song");
     e.addProperty(PropertyType.artistField, "Myself");
@@ -60,7 +71,11 @@ describe("song history editor tests", () => {
   });
 
   it("should add dance ratings to a song", () => {
-    const e = new SongEditor("dwgray", TypedJSON.parse(history, SongHistory)!);
+    const e = new SongEditor(
+      ax,
+      "dwgray",
+      TypedJSON.parse(history, SongHistory)!
+    );
 
     e.danceVote(new DanceRatingVote("WCS", VoteDirection.Up));
 
@@ -77,7 +92,11 @@ describe("song history editor tests", () => {
   });
 
   it("should remove dance rating from a song", () => {
-    const e = new SongEditor("dwgray", TypedJSON.parse(history, SongHistory)!);
+    const e = new SongEditor(
+      ax,
+      "dwgray",
+      TypedJSON.parse(history, SongHistory)!
+    );
 
     e.danceVote(new DanceRatingVote("WCS", VoteDirection.Up));
     e.danceVote(new DanceRatingVote("WCS", VoteDirection.Down));
@@ -92,7 +111,11 @@ describe("song history editor tests", () => {
   });
 
   it("should toggle liking a song", () => {
-    const e = new SongEditor("dwgray", TypedJSON.parse(history, SongHistory)!);
+    const e = new SongEditor(
+      ax,
+      "dwgray",
+      TypedJSON.parse(history, SongHistory)!
+    );
 
     e.toggleLike();
     const songLike = e.song;

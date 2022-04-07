@@ -147,7 +147,7 @@ export default class AugmentSearch extends Mixins(AdminTools) {
     }
     try {
       this.searching = true;
-      const results = await axios.get(
+      const results = await this.axiosXsrf.get(
         `/api/song/?title=${title}&artist=${artist}`
       );
       this.songs = TypedJSON.parseAsArray(results.data, SongHistory);

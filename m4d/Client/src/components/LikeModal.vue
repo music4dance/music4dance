@@ -139,7 +139,11 @@ export default class LikeModal extends Mixins(EnvironmentManager, AdminTools) {
   }
 
   private resetModal(): void {
-    this.instance = new SongEditor(this.userName, this.editor.songHistory);
+    this.instance = new SongEditor(
+      this.axiosXsrf,
+      this.userName,
+      this.editor.songHistory
+    );
   }
 
   private forceNull(value?: boolean): boolean | null {

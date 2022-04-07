@@ -3,7 +3,7 @@ import {
   DanceRatingVote,
   VoteDirection,
 } from "@/DanceRatingDelta";
-import axios from "axios";
+import { AxiosInstance } from "axios";
 import { DanceEnvironment } from "./DanceEnvironmet";
 import { Song } from "./Song";
 import { SongHistory } from "./SongHistory";
@@ -20,8 +20,13 @@ export class SongEditor {
   private user?: string;
   public modified: boolean;
   public admin: boolean; // Requires put rather than patch
+  public axios: AxiosInstance;
 
-  public constructor(user?: string, history?: SongHistory) {
+  public constructor(
+    axios: AxiosInstance,
+    user?: string,
+    history?: SongHistory
+  ) {
     history = history ? history : new SongHistory();
     this.songId = history.id;
     this.properties = [...history.properties];
@@ -30,6 +35,7 @@ export class SongEditor {
     this.modified = false;
     this.admin = false;
     this.initialSong = Song.fromHistory(this.history, this.user);
+    this.axios = axios;
   }
 
   public get history(): SongHistory {
@@ -86,9 +92,9 @@ export class SongEditor {
       const history = admin ? this.history : this.editHistory;
       const url = `/api/song/${history.id}`;
       if (admin) {
-        await axios.put(url, history);
+        await this.axios.put(url, history);
       } else {
-        await axios.patch(url, history);
+        await this.axios.patch(url, history);
       }
       this.commit();
     } catch (e) {
@@ -99,7 +105,7 @@ export class SongEditor {
 
   public async create(): Promise<void> {
     try {
-      await axios.post("/api/song/", this.songHistory);
+      await this.axios.post("/api/song/", this.songHistory);
       this.commit();
     } catch (e) {
       console.log(e);

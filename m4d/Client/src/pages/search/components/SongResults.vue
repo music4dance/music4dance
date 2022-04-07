@@ -33,13 +33,13 @@
 <script lang="ts">
 import Loader from "@/components/Loader.vue";
 import SongTable from "@/components/SongTable.vue";
+import AdminTools from "@/mix-ins/AdminTools";
 import { DanceEnvironment } from "@/model/DanceEnvironmet";
 import { SongFilter } from "@/model/SongFilter";
 import { SongHistory } from "@/model/SongHistory";
-import axios from "axios";
 import "reflect-metadata";
 import { TypedJSON } from "typedjson";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop } from "vue-property-decorator";
 import ContinueOptions from "./ContinueOptions.vue";
 import SearchNav from "./SearchNav.vue";
 import ShowMore from "./ShowMore.vue";
@@ -53,7 +53,7 @@ import ShowMore from "./ShowMore.vue";
     SongTable,
   },
 })
-export default class SongResults extends Vue {
+export default class SongResults extends AdminTools {
   @Prop() private search!: string;
   @Prop() environment!: DanceEnvironment;
   private loaded = false;
@@ -67,7 +67,7 @@ export default class SongResults extends Vue {
       return;
     }
     try {
-      const results = await axios.get(
+      const results = await this.axiosXsrf.get(
         `/api/song/?filter=${filter.encodedQuery}`
       );
       this.histories = TypedJSON.parseAsArray(results.data, SongHistory);

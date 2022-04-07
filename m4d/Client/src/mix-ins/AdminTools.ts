@@ -1,4 +1,5 @@
 import { MenuContext, MenuContextInterface } from "@/model/MenuContext";
+import axios, { AxiosInstance } from "axios";
 import { Component, Vue } from "vue-property-decorator";
 
 declare const menuContext: MenuContextInterface;
@@ -35,6 +36,16 @@ export default class AdminTools extends Vue {
 
   protected get isAuthenticated(): boolean {
     return !!this.userName;
+  }
+
+  protected get xsrfToken(): string | undefined {
+    return this.context.xsrfToken;
+  }
+
+  protected get axiosXsrf(): AxiosInstance {
+    return axios.create({
+      headers: { RequestVerificationToken: this.xsrfToken },
+    });
   }
 
   protected hasRole(role: string): boolean {

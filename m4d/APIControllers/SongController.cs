@@ -17,6 +17,7 @@ namespace m4d.APIControllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [ValidateAntiForgeryToken]
     public class SongController : DanceMusicApiController
     {
         public SongController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
