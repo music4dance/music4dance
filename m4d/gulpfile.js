@@ -1,5 +1,4 @@
-﻿/// <binding BeforeBuild='scripts, auth-buttons, bootstrap4, fontawesome, dances' />
-
+/// <binding AfterBuild='scripts, auth-buttons, bootstrap4, fontawesome, dances, assets' />
 var gulp = require("gulp"),
     cleanCss = require("gulp-clean-css"),
     sass = require("gulp-dart-sass"),
@@ -38,6 +37,11 @@ gulp.task("dances",
     function () {
         return gulp.src("../DanceLib/*.txt")
             .pipe(gulp.dest("wwwroot/content/"));
+    });
+
+gulp.task("assets",
+    function() {
+        return gulp.src("./assets/**/*").pipe(gulp.dest('./wwwroot'));
     });
 
 var deps = {

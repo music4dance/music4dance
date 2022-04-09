@@ -263,5 +263,4 @@ paket-files/
 *.sln.iml
 
 # Dance Json
-/m4d/wwwroot/content/dancegroups.txt
-/m4d/wwwroot/content/dances.txt
+/**/*
