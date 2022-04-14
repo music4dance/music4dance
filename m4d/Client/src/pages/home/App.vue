@@ -4,20 +4,12 @@
       <info-card id="fun" :card="funCard">
         <div style="padding: 0.25em 1em">
           <div style="font-size: 1.5em">
-            <a href="/home/contribute"
+            <a
+              href="https://open.spotify.com/user/ebo1rk39vp51kkyjps45eobph?si=31df6fc12cf04a64"
               ><b-icon-music-note-list></b-icon-music-note-list> Follow
               music4dance on Spotify</a
             >
           </div>
-          <iframe
-            src="https://open.spotify.com/follow/1/?uri=spotify:user:ebo1rk39vp51kkyjps45eobph&size=basic&theme=light&show-count=0"
-            width="200"
-            height="25"
-            scrolling="no"
-            frameborder="0"
-            style="border: none; overflow: hidden; padding-left: 1em"
-            allowtransparency="true"
-          ></iframe>
         </div>
         <div style="padding: 0.25em 1em">
           <div style="font-size: 1.5em">

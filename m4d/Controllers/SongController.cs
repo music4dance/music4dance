@@ -167,7 +167,6 @@ namespace m4d.Controllers
             try
             {
                 var results = await BuildAzureSearch(filter);
-                BuildEnvironment(danceEnvironment: true);
 
                 string playListId = null;
 
@@ -184,15 +183,19 @@ namespace m4d.Controllers
                 var histories = results.Songs
                     .Select(s => UserMapper.AnonymizeHistory(s.GetHistory(_mapper), dictionary))
                     .ToList();
-                return View(
-                    filter.Action, new HolidaySongListModel
+                return Vue(
+                    "Holiday Dance Music", 
+                    "Help finding holiday dance music for partner dancing - Foxtrot, Waltz, Swing and others.", 
+                    "holiday-music",
+                     new HolidaySongListModel
                     {
                         Histories = histories,
                         Filter = _mapper.Map<SongFilterSparse>(filter),
                         Count = (int)results.TotalCount,
                         Dance = dance,
                         PlayListId = playListId,
-                    });
+                    },
+                    danceEnvironment:true);
             }
             catch (RedirectException ex)
             {
@@ -247,7 +250,6 @@ namespace m4d.Controllers
             try
             {
                 var results = await BuildAzureSearch(filter);
-                BuildEnvironment(danceEnvironment:true);
                 return await FormatResults(results, filter, hideSort);
             }
             catch (RedirectException ex)
@@ -265,9 +267,11 @@ namespace m4d.Controllers
                 filter, hideSort);
         }
 
+        // VUETODO: Figure out how to map the old "action" to vue-name - possibly just a straight-up string map?
         private async Task<ActionResult> FormatSongList(IReadOnlyCollection<Song> songs,
             int? totalSongs, SongFilter filter, bool? hideSort = null)
         {
+
             var user = UserName;
             if (user != null)
             {
@@ -278,19 +282,15 @@ namespace m4d.Controllers
             var histories = songs.Select(
                 s =>
                     UserMapper.AnonymizeHistory(s.GetHistory(_mapper), dictionary)).ToList();
-            var action = filter.Action;
-            return View(
-                action.Equals("Advanced", StringComparison.OrdinalIgnoreCase)
-                || action.StartsWith("azure+raw", StringComparison.OrdinalIgnoreCase)
-                || action.Equals("MergeCandidates")
-                    ? "index"
-                    : filter.Action,
+                
+            return Vue("Songs for Dancing", $"music4dance catalog: {filter.Description}", filter.VueName,
                 new SongListModel
                 {
                     Histories = histories,
                     Filter = _mapper.Map<SongFilterSparse>(filter),
                     Count = totalSongs ?? songs.Count,
-                });
+                },
+                danceEnvironment: true);
         }
 
         private async Task<SearchResults> BuildAzureSearch(SongFilter filter)
@@ -390,9 +390,11 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult AdvancedSearchForm(SongFilter filter)
         {
-            HelpPage = "advanced-search";
-            BuildEnvironment(danceEnvironment: true, tagDatabase: true);
-            return View("AdvancedSearchForm");
+            return Vue(
+                "Advanced Search",
+                $"music4dance advanced song search form: {filter.Description}",
+                "advanced-search", helpPage: "advanced-search",
+                danceEnvironment: true, tagEnvironment: true);
         }
 
         [AllowAnonymous]
@@ -675,8 +677,9 @@ namespace m4d.Controllers
                         $"The song with id = {gid} has been deleted.");
             }
 
-            HelpPage = "song-details";
-            return View(await GetSongDetails(song, filter));
+            var details = await GetSongDetails(song, filter);
+            return Vue(details.Title, $"music4dance catalog: {details.Title} dance information", "song",
+                details, helpPage: "song-details");
         }
 
         private async Task<SongDetailsModel> GetSongDetails(Song song, SongFilter filter)
@@ -705,8 +708,9 @@ namespace m4d.Controllers
             {
                 var model = await AlbumViewModel.Create(
                     title, _mapper, DefaultCruftFilter(), Database);
-                BuildEnvironment(danceEnvironment: true);
-                return View("Album", model);
+                return Vue(
+                    $"Album: {title}", $"Songs for dancing on {title}", "album",
+                    model, danceEnvironment: true);
             }
 
             return ReturnError(HttpStatusCode.NotFound, @"Empty album title not valid.");
@@ -726,11 +730,12 @@ namespace m4d.Controllers
             {
                 var model = await ArtistViewModel.Create(
                     name, _mapper, DefaultCruftFilter(), Database);
-                BuildEnvironment(danceEnvironment: true);
-                return View("Artist", model);
+                return Vue(
+                    $"Artist: {name}", $"Songs for dancing by {name}", "artist",
+                    model, danceEnvironment:true);
             }
 
-            return ReturnError(HttpStatusCode.NotFound, $"Album '{name}' not found.");
+            return ReturnError(HttpStatusCode.NotFound, @"Empty artist name not valid.");
         }
 
         //
@@ -738,9 +743,10 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Augment(string title = null, string artist = null, string id = null)
         {
-            HelpPage = "add-songs";
-            BuildEnvironment(danceEnvironment: true, tagDatabase: true);
-            return View(new AugmentViewModel { Title = title, Artist = artist, Id = id});
+            return Vue("Add Song", "Add a new song to the music4dance catalog", "augment", 
+                new AugmentViewModel { Title = title, Artist = artist, Id = id},
+                danceEnvironment: true, tagEnvironment:true, helpPage: "add-songs"
+                );
         }
 
         //
@@ -760,6 +766,7 @@ namespace m4d.Controllers
             return View("Details", GetSongDetails(song, filter));
         }
 
+        // VUEDTODO: Do we still support this????
         //
         // GET: /Song/Delete/5
         [Authorize(Roles = "dbAdmin")]

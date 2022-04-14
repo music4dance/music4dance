@@ -36,6 +36,13 @@ import { Component, Vue } from "vue-property-decorator";
 import Counter from "./components/Counter.vue";
 import DanceList from "./components/DanceList.vue";
 
+interface TempoModel {
+  numerator?: number;
+  tempo?: number;
+}
+
+declare const model: TempoModel;
+
 @Component({
   components: {
     Counter,
@@ -53,14 +60,12 @@ export default class App extends Vue {
   constructor() {
     super();
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const beatsPerMeasure = (window as any).initialNumerator;
+    const beatsPerMeasure = model.numerator;
     if (beatsPerMeasure) {
       this.beatsPerMeasure = beatsPerMeasure;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const beatsPerMinute = (window as any).initialTempo;
+    const beatsPerMinute = model.tempo;
     if (beatsPerMinute) {
       this.beatsPerMinute = beatsPerMinute;
     }

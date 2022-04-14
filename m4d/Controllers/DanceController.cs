@@ -55,8 +55,13 @@ namespace m4d.Controllers
             BuildEnvironment(danceEnvironment: true);
             if (string.IsNullOrWhiteSpace(dance))
             {
-                HelpPage = "dance-styles";
-                return View();
+                return Vue(
+                    "Dance Style Index",
+                    "A list of partner dancing styles, including Ballroom, Salsa, Swing, and Tango.",
+                    "dance-index",
+                    helpPage: "dance-styles",
+                    danceEnvironment: true
+                );
             }
 
             var stats = DanceStatsManager.Instance;
@@ -64,29 +69,38 @@ namespace m4d.Controllers
                 dance, "ballroom-competition-categories",
                 StringComparison.OrdinalIgnoreCase))
             {
-                return View(
-                    "BallroomCompetitionCategories",
-                    CompetitionGroup.Get(CompetitionCategory.Ballroom));
+                return Vue(
+                    "Ballroom Competition Categories",
+                    "An overview of competitive ballroom categories along with tempo ranges and song lists.",
+                    "ballroom-index",
+                    CompetitionGroup.Get(CompetitionCategory.Ballroom),
+                    danceEnvironment: true
+                );
             }
 
             if (string.Equals(dance, "wedding-music", StringComparison.OrdinalIgnoreCase))
             {
-                // TODO: Wedding dance help page?
-                HelpPage = "dance-styles";
-                return View("weddingdancemusic", BuildWeddingTagMatrix(stats));
-            }
-
-            if (string.Equals(dance, "holiday-music", StringComparison.OrdinalIgnoreCase))
-            {
-                return RedirectToActionPermanent("HolidayMusic", "Song");
+                return Vue(
+                    "Wedding Dance Music",
+                    "Help finding wedding dance music: First Dance, Mother/Son, Father/Daughter - Foxtrot, Waltz, Swing and others.",
+                    "wedding-dance-music",
+                    BuildWeddingTagMatrix(stats),
+                    danceEnvironment: true,
+                    helpPage: "dance-styles"
+                );
             }
 
             var category = CompetitionGroupModel.Get(CompetitionCategory.Ballroom, dance);
             if (category != null)
             {
-                HelpPage = "dance-category";
-
-                return View("category", category);
+                return Vue(
+                    category.CurrentCategoryName,
+                    $"A description of the competition dance category {category.CurrentCategoryName} along with tempo ranges and song lists.",
+                    "competition-category",
+                    category,
+                    danceEnvironment:true,
+                    helpPage: "dance-category"
+                    );
             }
 
             HelpPage = "dance-details";
@@ -108,7 +122,12 @@ namespace m4d.Controllers
                 return View("emptydance", ds);
             }
 
-            return View("details", new DanceModel(dbDance, Database, _mapper));
+            return Vue(
+                $"music4dance catalog: {ds.DanceName} Page",
+                $"{ds.DanceName} Information, Top Ten List, and Resources.",
+                "dance-details",
+                new DanceModel(dbDance, Database, _mapper)
+            );
         }
 
         // GET: GroupRedirect/group/dance

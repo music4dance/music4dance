@@ -27,9 +27,11 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public IActionResult Index()
         {
-            UseVue = true;
-            BuildEnvironment(tagDatabase:true);
-            return View();
+            return Vue(
+                "Tag Cloud",
+                "Explore songs based on musical genre, tempo, style and other tags.",
+                "tag-index",
+                tagEnvironment: true);
         }
 
         [Authorize(Roles = "dbAdmin")]

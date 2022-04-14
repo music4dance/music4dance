@@ -44,8 +44,7 @@
             </b-card-text>
           </b-tab>
         </b-tabs>
-        <augment-info v-else :openAugment="openAugment" :id="model.id">
-        </augment-info>
+        <augment-info v-else :id="model.id"> </augment-info>
       </b-col>
     </b-row>
     <div v-else>
@@ -110,7 +109,6 @@ enum AugmentPhase {
   edit = "edit",
 }
 
-declare const openAugment: boolean;
 declare const model: AugmentModel;
 
 @Component({
@@ -133,14 +131,9 @@ export default class App extends Mixins(AdminTools) {
   }
 
   // TODO:
-  //  - We should put openAugment into the model (or delete it)
   //  - Should do another pass on cleaning up service lookup
   private get canAugment(): boolean {
-    return openAugment ? !!this.userName : this.canTag || this.isPremium;
-  }
-
-  private get openAugment(): boolean {
-    return openAugment;
+    return !!this.userName;
   }
 
   private editSong(model: SongDetailsModel): void {

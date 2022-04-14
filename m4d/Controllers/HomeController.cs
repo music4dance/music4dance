@@ -24,15 +24,17 @@ namespace m4d.Controllers
 
         public IActionResult Index([FromServices] IFileProvider fileProvider)
         {
-            UseVue = true;
-            return View(new HomeModel(SiteMapInfo.GetCategories(fileProvider)));
+            return Vue(
+                "Home Page",
+                "music4dance.net is an online music catalog, tool and educational resource to help Ballroom, Salsa, Swing, Tango and other dancers find fun and exciting music.",
+                "home",
+                new HomeModel(SiteMapInfo.GetCategories(fileProvider)),
+                script: "_fbLike");
         }
 
         public IActionResult FAQ()
         {
-            BuildEnvironment(danceEnvironment:true);
-            UseVue = true;
-            return View();
+            return Vue("FAQ", "Frequently Asked Questions about Music4Dance and the answers.", "faq", danceEnvironment: true);
         }
 
         public IActionResult Info()
@@ -57,14 +59,13 @@ namespace m4d.Controllers
 
         public IActionResult About()
         {
-            UseVue = true;
-            return View();
+            return Vue(
+                "About music4Dance", "About the music4dance project an it's creator", "about");
         }
 
         public IActionResult Resume()
         {
-            UseVue = true;
-            return View();
+            return Vue("Resume", "David W. Gray's Resume", "resume");
         }
 
         public IActionResult TermsOfService()
@@ -79,41 +80,34 @@ namespace m4d.Controllers
 
         public IActionResult Counter(int? numerator = null, decimal? tempo = null)
         {
-            if (numerator.HasValue && numerator != 0)
-            {
-                ViewBag.paramNumerator = numerator.Value;
-            }
-
-            if (tempo.HasValue)
-            {
-                ViewBag.paramTempo = tempo.Value;
-            }
-
-            HelpPage = "tempo-counter";
-            UseVue = true;
-            BuildEnvironment(danceEnvironment: true);
-            return View("TempoCounter");
+            return Vue(
+                "Counter",
+                "A web application to measure the tempo of a song and match it with styles of dance.",
+                "tempo-counter", new TempoCounterModel { Numerator = numerator, Tempo = tempo },
+                danceEnvironment:true);
         }
 
         public IActionResult Tempi(List<string> styles, List<string> types,
             List<string> organizations, List<string> meters)
         {
-            ViewBag.Styles = ConvertParameter(styles);
-            ViewBag.Types = ConvertParameter(types);
-            ViewBag.Organizations = ConvertParameter(organizations);
-            ViewBag.Meters = ConvertParameter(meters);
 
-            HelpPage = "dance-tempi";
-            UseVue = true;
-            BuildEnvironment(danceEnvironment: true);
-            return View("TempoList");
+            return Vue(
+                "Tempos",
+                "A web application to show the relationship between different dance tempos.",
+                "tempo-list",
+                new TempoListModel
+                {
+                    Styles = ConvertParameter(styles),
+                    Types = ConvertParameter(types),
+                    Organizations = ConvertParameter(organizations),
+                    Meters = ConvertParameter(meters),
+                },
+                danceEnvironment:true);
         }
 
-        private static string ConvertParameter(List<string> parameter)
+        private static List<string> ConvertParameter(List<string> parameter)
         {
-            return parameter != null && parameter.Count > 0
-                ? JsonConvert.SerializeObject(parameter, CamelCaseSerializerSettings)
-                : null;
+            return parameter is { Count: > 0 } ? parameter : null;
         }
 
         public IActionResult CounterHelp()

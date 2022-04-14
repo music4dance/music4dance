@@ -1,0 +1,34 @@
+﻿@using m4d.ViewModels
+@model m4d.ViewModels.VueModel
+
+@{
+    ViewBag.Title = Model.Title;
+    ViewBag.Description = Model.Description;
+    ViewBag.VueName = Model.Name;
+    var vueModel = Model.Model;
+    if (vueModel is string)
+    {
+        vueModel = $"'{vueModel}'";
+    }
+
+    var converterModel = Model.Model != null
+        ? new ObjectConverterModel
+        {
+            Name = "model",
+            Model = vueModel
+        }
+        : null;
+}
+
+@if (Model.Script != null)
+{
+    <partial name="@Model.Script"/>
+}
+
+<div id="app"></div>
+
+@if (Model.Model != null){
+    @section Scripts {
+        <partial name="_jsonCamelCase" model="@converterModel" />
+    }
+}

@@ -1,7 +1,36 @@
-﻿@{
+﻿@using m4dModels
+@using Microsoft.AspNetCore.Identity
+@using Newtonsoft.Json
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery _xsrf
+@inject UserManager<ApplicationUser> _userManager
+@inject ISearchServiceManager _searchService
+
+@{
     var userAgent = Context.Request.Headers.UserAgent.ToString().ToLower();
+    var help = "https://music4dance.blog/music4dance-help/";
+    if (!string.IsNullOrEmpty(ViewBag.Help))
+    {
+        help = string.Format("https://music4dance.blog/music4dance-help/{0}/", ViewBag.Help);
+    }
+
+    string userName = "";
+    string userId = "";
+    if (User.Identity.IsAuthenticated)
+    {
+        userName = User.Identity.Name;
+        var user = await _userManager.GetUserAsync(User);
+        userId = user.Privacy == 0 ? user.Id : "";
+    }
+    var roles = DanceMusicCoreService.UserRoles(User);
+    var searchIndex = _searchService.DefaultId.Last();
 }
 
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return _xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
 
 @if (!User.IsInRole("premium") && !userAgent.Contains("googlebot") )
 {
@@ -37,6 +66,18 @@
 <link href="//fonts.googleapis.com/css?family=Source+Sans+Pro|Merienda:700" rel="stylesheet" type="text/css">
 
 <link rel="stylesheet" href="/css/site.css"/>
+
+<script>
+    var menuContext = {
+        helpLink: '@help',
+        userName: '@userName',
+        userId: '@userId',
+        roles: @Html.Raw(JsonConvert.SerializeObject(roles)),
+        indexId: '@searchIndex',
+        xsrfToken: '@GetAntiXsrfRequestToken()'
+    };
+</script>
+
 <script>
     (function(i, s, o, g, r, a, m) {
         i['GoogleAnalyticsObject'] = r;

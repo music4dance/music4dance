@@ -85,14 +85,14 @@ import { Component, Vue } from "vue-property-decorator";
 import CheckedList from "./components/CheckedList.vue";
 import DanceList from "./components/DanceList.vue";
 
-declare global {
-  interface Window {
-    initialStyles?: string[];
-    initialTypes?: string[];
-    initialMeters?: string[];
-    initialOrganizations?: string[];
-  }
+interface TempoListModel {
+  styles?: string[];
+  types?: string[];
+  meters?: string[];
+  organizations?: string[];
 }
+
+declare const model: TempoListModel;
 
 @Component({
   components: {
@@ -127,7 +127,7 @@ export default class App extends Vue {
       { text: "4/4 MPM", value: "4-4" },
     ];
     this.allMeters = valuesFromOptions(this.meterOptions);
-    this.meters = this.filterValid(this.allMeters, window.initialMeters);
+    this.meters = this.filterValid(this.allMeters, model.meters);
 
     this.organizationOptions = [
       { text: "DanceSport", value: "dancesport" },
@@ -137,9 +137,9 @@ export default class App extends Vue {
     this.allOrganizations = valuesFromOptions(this.organizationOptions);
     this.organizations = this.filterValid(
       this.allOrganizations,
-      window.initialOrganizations
+      model.organizations
     );
-    const organizations = window.initialOrganizations;
+    const organizations = model.organizations;
     this.organizations = organizations ? organizations : this.allOrganizations;
   }
 
@@ -147,11 +147,11 @@ export default class App extends Vue {
     this.dances = environment.flatTypes.filter((dt) => !dt.inGroup("PRF"));
     this.styleOptions = optionsFromText(this.filterUnused(environment.styles));
     this.allStyles = valuesFromOptions(this.styleOptions);
-    this.styles = this.filterValid(this.allStyles, window.initialStyles);
+    this.styles = this.filterValid(this.allStyles, model.styles);
 
     this.typeOptions = optionsFromText(this.filterUnused(environment.types));
     this.allTypes = valuesFromOptions(this.typeOptions);
-    this.types = this.filterValid(this.allTypes, window.initialTypes);
+    this.types = this.filterValid(this.allTypes, model.types);
   }
 
   private filterUnused(list: string[]): string[] {

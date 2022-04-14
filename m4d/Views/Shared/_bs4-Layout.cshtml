@@ -2,52 +2,24 @@
 @using m4d.ViewModels
 @using Microsoft.AspNetCore.Mvc.Rendering
 @using Microsoft.AspNetCore.Identity
-@using Newtonsoft.Json
 @inject SignInManager<ApplicationUser> _signInManager
 @inject UserManager<ApplicationUser> _userManager
 @inject ISearchServiceManager _searchService
-@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery _xsrf
 
-@functions{
-    public string GetAntiXsrfRequestToken()
-    {
-        return _xsrf.GetAndStoreTokens(Context).RequestToken;
-    }
-}
-
-<!DOCTYPE html>
 @{
     var help = "https://music4dance.blog/music4dance-help/";
     if (!string.IsNullOrEmpty(ViewBag.Help))
     {
         help = string.Format("https://music4dance.blog/music4dance-help/{0}/", ViewBag.Help);
     }
-
-    string userName = "";
-    string userId = "";
-    if (User.Identity.IsAuthenticated)
-    {
-        userName = User.Identity.Name;
-        var user = await _userManager.GetUserAsync(User);
-        userId = user.Privacy == 0 ? user.Id : "";
-    }
-    var roles = DanceMusicCoreService.UserRoles(User);
-    var searchIndex = _searchService.DefaultId.Last();
+}
+<!DOCTYPE html>
+@{
 }
 <html>
 <head>
     @await RenderSectionAsync("styles", false)
     <partial name="_head"/>
-    <script>
-        var menuContext = {
-            helpLink: '@help',
-            userName: '@userName',
-            userId: '@userId',
-            roles: @Html.Raw(JsonConvert.SerializeObject(roles)),
-            indexId: '@searchIndex',
-            xsrfToken: '@GetAntiXsrfRequestToken()'
-        };
-    </script>
 </head>
 
 <body>

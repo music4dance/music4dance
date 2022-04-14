@@ -19,8 +19,7 @@ namespace m4d.Controllers
         // GET: Search
         public IActionResult Index(string search)
         {
-            UseVue = true;
-            return View("Index", search);
+            return Vue("music4dance search results", "music4dance search results", "search", search);
         }
     }
 }

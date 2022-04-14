@@ -1,55 +1,37 @@
 ﻿@using m4dModels
 @using Microsoft.AspNetCore.Identity
-@using Newtonsoft.Json
+@using Microsoft.Extensions.FileProviders
 @inject SignInManager<ApplicationUser> _signInManager
 @inject UserManager<ApplicationUser> _userManager
 @inject ISearchServiceManager _searchService
-@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery _xsrf
+@inject IFileProvider _fileProvider;
 
-@functions{
-    public string GetAntiXsrfRequestToken()
+@{
+    if (!ViewData.TryGetValue("VueName", out var baseName))
     {
-        return _xsrf.GetAndStoreTokens(Context).RequestToken;
+        throw new Exception("Vue view must define a VueName");
     }
+    string jsFile = $"/client/js/{baseName}.*.js";
+    string cssFile = $"/client/css/{baseName}.css";
 }
 
 <!DOCTYPE html>
-@{
-    var help = "https://music4dance.blog/music4dance-help/";
-    if (!string.IsNullOrEmpty(ViewBag.Help))
-    {
-        help = string.Format("https://music4dance.blog/music4dance-help/{0}/", ViewBag.Help);
-    }
-
-    string userName = "";
-    string userId = "";
-    if (User.Identity.IsAuthenticated)
-    {
-        userName = User.Identity.Name;
-        var user = await _userManager.GetUserAsync(User);
-        userId = user.Privacy == 0 ? user.Id : "";
-    }
-    var roles = DanceMusicCoreService.UserRoles(User);
-    var searchIndex = _searchService.DefaultId.Last();
-}
 <html>
-<head>
+    <head>
+    @if (_fileProvider.GetFileInfo($"/wwwroot/client/css/song-index.css").Exists)
+    {
+        <link rel="stylesheet" href="@cssFile" asp-append-version="true" />
+    }
     @await RenderSectionAsync("styles", false)
     <partial name="_head"/>
-    <script>
-        var menuContext = {
-            helpLink: '@help',
-            userName: '@userName',
-            userId: '@userId',
-            roles: @Html.Raw(JsonConvert.SerializeObject(roles)),
-            indexId: '@searchIndex',
-            xsrfToken: '@GetAntiXsrfRequestToken()'
-        };
-    </script>
-</head>
-<body>
-@RenderBody()
+    </head>
+    <body>
+        @RenderBody()
 
-@await RenderSectionAsync("scripts", false)
-</body>
+        <partial name="_environmentWriter"/>
+        @await RenderSectionAsync("scripts", false)
+        <script asp-src-include="/client/js/chunk-vendors.*.js"></script>
+        <script asp-src-include="/client/js/chunk-common.*.js"></script>
+        <script asp-src-include="@jsFile"></script>
+    </body>
 </html>

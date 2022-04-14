@@ -199,6 +199,28 @@ namespace m4dModels
 
         public string TargetAction => IsAzure ? "azuresearch" : Action;
 
+        public string VueName
+        {
+            get
+            {
+                var action = Action.Equals("Advanced", StringComparison.OrdinalIgnoreCase)
+                    || Action.StartsWith("azure+raw", StringComparison.OrdinalIgnoreCase)
+                    || Action.Equals("MergeCandidates")
+                        ? "index"
+                        : Action.ToLowerInvariant();
+
+                switch (action)
+                {
+                    case "newmusic":
+                        return "new-music";
+                    case "holidaymusic":
+                        return "holiday-music";
+                    case "index":
+                    default:
+                        return "song-index";
+                }
+            }
+        }
         public bool DescriptionOverride => IsRaw && !string.IsNullOrWhiteSpace(Purchase);
 
         public DanceQuery DanceQuery => new(IsRaw ? null : Dances);

@@ -5,6 +5,7 @@ using System.Net;
 using System.Security.Principal;
 using System.Threading.Tasks;
 using m4d.Utilities;
+using m4d.ViewModels;
 using m4dModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -195,6 +196,31 @@ namespace m4d.Controllers
             }
         }
 
+        protected ActionResult Vue(string title, string description, string name,
+            object model = null, string helpPage = null,
+            bool danceEnvironment = false, bool tagEnvironment = false,
+            string script = null)
+        {
+            UseVue = true;
+            if (!string.IsNullOrEmpty(helpPage))
+            {
+                HelpPage = helpPage;
+            }
+            if (danceEnvironment || tagEnvironment)
+            {
+                BuildEnvironment(danceEnvironment, tagEnvironment);
+            }
+
+            return View(
+                "Vue", new VueModel
+                {
+                    Title = title,
+                    Description = description,
+                    Name = name,
+                    Script = script,
+                    Model = model,
+                });
+        }
 
         #endregion
     }
