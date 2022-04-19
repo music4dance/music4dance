@@ -59,7 +59,7 @@
             <b-dropdown-item href="/home/about"
               >About music4dance</b-dropdown-item
             >
-            <b-dropdown-item href="https://music4dance.blog/reading-list/"
+            <b-dropdown-item href="/home/readinglist"
               >Reading List</b-dropdown-item
             >
             <b-dropdown-item href="/home/sitemap">Site Map</b-dropdown-item>

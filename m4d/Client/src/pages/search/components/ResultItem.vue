@@ -9,7 +9,7 @@
 </template>
 
 <script lang="ts">
-import { SearchPage } from "@/model/SearchPage";
+import type { SearchPage } from "@/model/SearchPage";
 import "reflect-metadata";
 import { Component, Prop, Vue } from "vue-property-decorator";
 

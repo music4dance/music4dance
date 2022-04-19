@@ -2,14 +2,10 @@
 using System.Threading.Tasks;
 using m4d.ViewModels;
 using m4dModels;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
-using Newtonsoft.Json;
-
-// For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace m4d.Controllers
 {
@@ -76,6 +72,14 @@ namespace m4d.Controllers
         public IActionResult PrivacyPolicy()
         {
             return View();
+        }
+
+        public IActionResult ReadingList()
+        {
+            return Vue(
+                "Reading List",
+                "Some fun and interesting reading related to dance in one way or another",
+                "reading-list");
         }
 
         public IActionResult Counter(int? numerator = null, decimal? tempo = null)
