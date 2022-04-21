@@ -58,6 +58,18 @@ namespace SelfCrawler
             UploadPages(pages);
         }
 
+        [TestMethod]
+        public void SinglePage()
+        {
+            var url = "/home/readinglist";
+            var page = CrawlPage(url);
+            var pages = new List<PageSearch>() { page.GetEncoded() };
+            var client = CreateSearchClient();
+            var indexResults = client.UploadDocuments(pages);
+            Console.WriteLine(indexResults.Value);
+        }
+
+
         private List<PageSearch> CrawlPages()
         {
             _driver.Navigate().GoToUrl($"{_root}/home/sitemap");
@@ -114,7 +126,7 @@ namespace SelfCrawler
         //  Consider adding dance aliasing (maybe not right now)
         private PageSearch CrawlPage(string relativePath)
         {
-            _driver.Navigate().GoToUrl($"{_root}{relativePath}");
+            _driver.Navigate().GoToUrl($"{_root}{relativePath}?flat=true");
             string? description = null;
             var descriptionElement = TryFindElement(By.CssSelector("meta[name='description']"));
             if (descriptionElement != null)
@@ -150,14 +162,12 @@ namespace SelfCrawler
             {
                 return url.Substring(_root.Length);
             }
-            else if (url.StartsWith(_altRoot, StringComparison.OrdinalIgnoreCase))
+
+            if (url.StartsWith(_altRoot, StringComparison.OrdinalIgnoreCase))
             {
                 return url.Substring(_altRoot.Length);
             }
-            else
-            {
-                return url;
-            }
+            return url;
         }
 
         protected static readonly JsonSerializerSettings CamelCaseSerializerSettings = new()
