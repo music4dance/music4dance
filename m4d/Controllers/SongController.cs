@@ -74,60 +74,7 @@ namespace m4d.Controllers
         public async Task<ActionResult> Search(string searchString, string dances,
             SongFilter filter)
         {
-            if (string.IsNullOrWhiteSpace(searchString))
-            {
-                searchString = null;
-            }
-
-            if (!string.Equals(searchString, filter.SearchString))
-            {
-                filter.SearchString = searchString;
-                filter.Page = 1;
-            }
-
-            if (string.IsNullOrWhiteSpace(dances))
-            {
-                dances = null;
-            }
-
-            if (!string.Equals(dances, filter.Dances, StringComparison.OrdinalIgnoreCase))
-            {
-                filter.Dances = dances;
-                filter.Page = 1;
-
-                if (string.IsNullOrWhiteSpace(filter.SortOrder))
-                {
-                    filter.SortOrder = "Dances";
-                }
-            }
-
-            if (filter.Dances != null)
-            {
-                var stats = Database.DanceStats;
-                var dq = filter.DanceQuery;
-                foreach (var d in dq.DanceIds)
-                {
-                    var ds = stats.FromId(d);
-                    if (ds == null)
-                    {
-                        return ReturnError(
-                            HttpStatusCode.NotFound,
-                            $"Dance id = {d} is not defined.");
-                    }
-
-                    if (ds.SongCount == 0)
-                    {
-                        // ReSharper disable once Mvc.ActionNotResolved
-                        return RedirectToAction("Index", "Dances", new { dance = ds.SeoName });
-                    }
-                }
-            }
-
-            filter.Purchase = null;
-            filter.TempoMin = null;
-            filter.TempoMax = null;
-
-            return await DoAzureSearch(filter);
+            return await AzureSearch(searchString, filter, 0, dances);
         }
 
         [AllowAnonymous]
@@ -225,7 +172,7 @@ namespace m4d.Controllers
                 filter.Dances = dances;
                 filter.Page = 1;
 
-                if (string.IsNullOrWhiteSpace(filter.SortOrder))
+                if (string.IsNullOrWhiteSpace(filter.SortOrder) && filter.DanceQuery.Dances.Count() == 1)
                 {
                     filter.SortOrder = "Dances";
                 }
@@ -240,6 +187,10 @@ namespace m4d.Controllers
             {
                 filter.Page = page;
             }
+
+            filter.Purchase = null;
+            filter.TempoMin = null;
+            filter.TempoMax = null;
 
             return await DoAzureSearch(filter);
         }
@@ -267,7 +218,6 @@ namespace m4d.Controllers
                 filter, hideSort);
         }
 
-        // VUETODO: Figure out how to map the old "action" to vue-name - possibly just a straight-up string map?
         private async Task<ActionResult> FormatSongList(IReadOnlyCollection<Song> songs,
             int? totalSongs, SongFilter filter, bool? hideSort = null)
         {

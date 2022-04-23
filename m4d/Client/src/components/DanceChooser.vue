@@ -43,6 +43,7 @@
               :dance="dance"
               :showSynonyms="true"
               :showTempo="tempoType"
+              :hideLink="hideNameLink"
             ></dance-name>
           </b-list-group-item>
         </b-list-group>
@@ -63,6 +64,7 @@
               :dance="dance"
               :showSynonyms="true"
               :showTempo="tempoType"
+              :hideLink="hideNameLink"
             ></dance-name>
           </b-list-group-item>
         </b-list-group>
@@ -104,6 +106,7 @@ export default class DanceChooser extends Mixins(EnvironmentManager) {
   @Prop() private readonly tempo?: number;
   @Prop() private readonly numerator?: number;
   @Prop() private readonly includeGroups?: boolean;
+  @Prop() private readonly hideNameLink?: boolean;
 
   private readonly nameFilter: string = "";
 

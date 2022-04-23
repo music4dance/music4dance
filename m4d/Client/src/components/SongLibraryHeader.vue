@@ -46,6 +46,7 @@
       @choose-dance="chooseDance"
       :danceId="filter.dances"
       :includeGroups="true"
+      :hideNameLink="true"
     ></dance-chooser>
   </div>
 </template>

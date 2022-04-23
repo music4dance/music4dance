@@ -1,7 +1,11 @@
 <template>
   <span
-    ><a :href="danceLink">{{ stats.name }}</a>
-    <span v-if="synonymText"><br v-if="multiLine" />({{ synonymText }}) </span>
+    ><span v-if="hideLink">{{ stats.name }}</span
+    ><a v-else :href="danceLink">{{ stats.name }}</a>
+    <span v-if="synonymText"
+      ><br v-if="multiLine" />
+      ({{ synonymText }})
+    </span>
     <span v-if="showTempo && canShowTempo" style="font-size: 0.8rem">
       {{ tempoText }}</span
     >
@@ -20,6 +24,7 @@ export default class DanceName extends Vue {
   @Prop({ default: TempoType.None }) private showTempo!: TempoType;
   @Prop() private showSynonyms?: boolean;
   @Prop() private multiLine?: boolean;
+  @Prop() private hideLink?: boolean;
 
   private get stats(): DanceStats {
     if (!this.dance) {
