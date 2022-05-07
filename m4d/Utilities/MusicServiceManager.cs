@@ -98,7 +98,7 @@ namespace m4d.Utilities
                 tags = tags.Add(sd.GetUserTags(user.UserName));
             }
 
-            return await dms.EditSong(
+            return await dms.SongIndex.EditSong(
                 user, sd, edit,
                 new[] { new UserTag { Id = string.Empty, Tags = tags } });
         }
@@ -417,7 +417,7 @@ namespace m4d.Utilities
 
             var song = await Song.UserCreateFromTrack(dms, user, track);
             var found = false;
-            var oldSong = await dms.FindMatchingSong(song);
+            var oldSong = await dms.SongIndex.FindMatchingSong(song);
 
             if (oldSong != null)
             {
@@ -430,7 +430,7 @@ namespace m4d.Utilities
 
             if (found)
             {
-                await dms.SaveSong(song);
+                await dms.SongIndex.SaveSong(song);
             }
 
             return song;
@@ -581,7 +581,7 @@ namespace m4d.Utilities
             if (track == null)
             {
                 edit.Danceability = float.NaN;
-                return await dms.EditSong(user, song, edit);
+                return await dms.SongIndex.EditSong(user, song, edit);
             }
 
             if (track.BeatsPerMinute != null)
@@ -611,7 +611,7 @@ namespace m4d.Utilities
                 tags = tags.Add($"{meter}:Tempo");
             }
 
-            if (!await dms.EditSong(
+            if (!await dms.SongIndex.EditSong(
                 user, song, edit, new[]
                 {
                     new UserTag { Id = string.Empty, Tags = tags }
@@ -658,7 +658,7 @@ namespace m4d.Utilities
             }
 
             edit.Sample = track?.SampleUrl ?? @".";
-            return await dms.EditSong(user, song, edit);
+            return await dms.SongIndex.EditSong(user, song, edit);
         }
 
         #endregion

@@ -32,8 +32,8 @@ namespace m4dModels
             SearchFields = songFilter.User;
             IsLucene = songFilter.IsLucene;
             CruftFilter = songFilter.Level.HasValue
-                ? (DanceMusicCoreService.CruftFilter)songFilter.Level.Value
-                : DanceMusicCoreService.CruftFilter.NoCruft;
+                ? (CruftFilter)songFilter.Level.Value
+                : m4dModels.CruftFilter.NoCruft;
             Flags = songFilter.Tags;
             Page = songFilter.Page;
         }
@@ -61,7 +61,7 @@ namespace m4dModels
         public bool IsLucene { get; set; }
 
         [Display(Name = @"CruftFilter")]
-        public DanceMusicCoreService.CruftFilter CruftFilter { get; set; }
+        public CruftFilter CruftFilter { get; set; }
 
         public string Flags { get; set; }
 

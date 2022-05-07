@@ -37,7 +37,8 @@ namespace m4dModels
 
             // ReSharper disable once LoopCanBePartlyConvertedToQuery
 
-            foreach (var song in await dms.LoadLightSongs())
+            var songIndex = dms.SongIndex;
+            foreach (var song in await songIndex.LoadLightSongs())
             {
                 var hash = song.TitleHash;
                 if (level != 2)

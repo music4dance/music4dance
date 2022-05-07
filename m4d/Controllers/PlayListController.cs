@@ -551,12 +551,12 @@ namespace m4d.Controllers
                 }
 
                 var tags = playlist.Tags.Split(new[] { "|||" }, 2, StringSplitOptions.None);
-                var newSongs = await dms.SongsFromTracks(
+                var newSongs = await dms.SongIndex.SongsFromTracks(
                     await Database.FindUser(playlist.User), tracks, tags[0],
                     tags.Length > 1 ? tags[1] : string.Empty);
 
                 AdminMonitor.UpdateTask("Starting Merge");
-                var results = await dms.MatchSongs(
+                var results = await dms.SongIndex.MatchSongs(
                     newSongs, DanceMusicCoreService.MatchMethod.Merge);
                 var succeeded = await CommitCatalog(
                     dms,
@@ -581,7 +581,7 @@ namespace m4d.Controllers
                 {
                     Purchase = spotify.CID.ToString()
                 };
-                var sr = await dms.Search(
+                var sr = await dms.SongIndex.Search(
                     filter, playlist.Count == -1 ? 100 : playlist.Count);
                 if (sr.Count == 0)
                 {
@@ -767,7 +767,7 @@ namespace m4d.Controllers
                 var service = MusicService.GetService(ServiceType.Spotify);
                 foreach (var track in tracks)
                 {
-                    var song = await dms.GetSongFromService(service, track.TrackId);
+                    var song = await dms.SongIndex.GetSongFromService(service, track.TrackId);
                     if (song?.FindModified(playlist.User) != null)
                     {
                         songs.Add(song);

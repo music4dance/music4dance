@@ -60,8 +60,8 @@ namespace m4dModels
                 new TagManager(
                     dms.TagGroups.OrderBy(t => t.Key).ToList());
 
-            var facets = await dms.GetTagFacets(
-                "GenreTags,StyleTags,TempoTags,OtherTags", 10000, source);
+            var facets = await dms.GetSongIndex(source).GetTagFacets(
+                "GenreTags,StyleTags,TempoTags,OtherTags", 10000);
 
             foreach (var facet in facets)
             {

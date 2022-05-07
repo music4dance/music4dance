@@ -624,7 +624,9 @@ namespace m4dModels
             }
 
             var props = SongProperty.Serialize(SongProperties, actions);
-            return actions != null && actions.Contains(NoSongId) ? props : Serialize(SongId.ToString("B"), props);
+            return actions != null && actions.Contains(NoSongId)
+                ? props
+                : Serialize(SongId.ToString("B"), props);
         }
 
         public static string Serialize(string id, string properties)
@@ -709,8 +711,8 @@ namespace m4dModels
                         var dts = new List<string>();
                         ratings = new List<DanceRatingDelta>();
                         foreach (var dnc in cell.Split(
-                            new[] { "||" },
-                            StringSplitOptions.RemoveEmptyEntries))
+                                     new[] { "||" },
+                                     StringSplitOptions.RemoveEmptyEntries))
                         {
                             var drg = dnc.Split(
                                     new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)
@@ -978,6 +980,7 @@ namespace m4dModels
                         {
                             properties.Add(new SongProperty(baseName, cell, -1, r.DanceId));
                         }
+
                         cell = null;
                         break;
 
@@ -1007,8 +1010,9 @@ namespace m4dModels
                     {
                         danceTagProperties = new List<SongProperty>();
                         foreach (var p in ratings.Select(
-                            drd =>
-                                new SongProperty(AddedTags, tl.ToString(), -1, drd.DanceId)))
+                                     drd =>
+                                         new SongProperty(
+                                             AddedTags, tl.ToString(), -1, drd.DanceId)))
                         {
                             properties.Add(p);
                             danceTagProperties.Add(p);
@@ -1374,11 +1378,12 @@ namespace m4dModels
             return await CreateFromRow(user, fields, cells, database, DanceRatingIncrement);
         }
 
+
         protected async Task LoadProperties(ICollection<SongProperty> properties,
             DanceMusicCoreService database)
         {
             var stats = database.DanceStats;
-            var created = SongProperties != null && SongProperties.Count > 0;
+            var created = SongProperties is { Count: > 0 };
             string user = null;
             ModifiedRecord currentModified = null;
             var deleted = false;
@@ -1408,6 +1413,7 @@ namespace m4dModels
                             ? currentModified.DecoratedName
                             : user;
                     }
+                        prop.Value = currentModified.DecoratedName;
                         break;
                     case DanceRatingField:
                     {
@@ -1427,7 +1433,8 @@ namespace m4dModels
                         }
                         else
                         {
-                            prop.Value = AddObjectTags(prop.DanceQualifier, prop.Value, stats).ToString();
+                            prop.Value = AddObjectTags(prop.DanceQualifier, prop.Value, stats)
+                                .ToString();
                         }
 
                         break;
@@ -1442,20 +1449,21 @@ namespace m4dModels
                         {
                             RemoveObjectTags(prop.DanceQualifier, prop.Value, stats);
                         }
+
                         break;
                     case AddCommentField:
+                    {
+                        if (user == null)
                         {
-                            if (user == null)
-                            {
-                                Trace.WriteLineIf(
-                                    TraceLevels.General.TraceError,
-                                    $"Null User when attempting to add comment {prop.Value} to song {SongId}");
-                            }
-                            else
-                            {
-                                AddObjectComment(prop.DanceQualifier, prop.Value, user);
-                            }
+                            Trace.WriteLineIf(
+                                TraceLevels.General.TraceError,
+                                $"Null User when attempting to add comment {prop.Value} to song {SongId}");
                         }
+                        else
+                        {
+                            AddObjectComment(prop.DanceQualifier, prop.Value, user);
+                        }
+                    }
                         break;
                     case RemoveCommentField:
                         if (user == null)
@@ -1468,6 +1476,7 @@ namespace m4dModels
                         {
                             RemoveObjectComment(prop.DanceQualifier, user);
                         }
+
                         break;
                     case DeleteTagLabel:
                         ForceDeleteTag(prop.DanceQualifier, prop.Value, stats);
@@ -2043,8 +2052,8 @@ namespace m4dModels
             await LoadProperties(properties, database);
 
             foreach (var prop in properties.Where(
-                prop =>
-                    excluded == null || !excluded.Contains(prop.BaseName)))
+                         prop =>
+                             excluded == null || !excluded.Contains(prop.BaseName)))
             {
                 SongProperties.Add(new SongProperty { Name = prop.Name, Value = prop.Value });
             }
@@ -2277,8 +2286,8 @@ namespace m4dModels
             }
 
             foreach (var r in ratings.Select(
-                rating => new DanceRatingDelta
-                    { DanceId = rating.DanceId, Delta = -rating.Weight }))
+                         rating => new DanceRatingDelta
+                             { DanceId = rating.DanceId, Delta = -rating.Weight }))
             {
                 UpdateDanceRating(r, true);
             }
@@ -3072,8 +3081,8 @@ namespace m4dModels
                     var qualifier = prop.Qualifier;
                     return string.Equals(qualifier, "ms", StringComparison.OrdinalIgnoreCase) ||
                         qualifier.StartsWith("X", StringComparison.OrdinalIgnoreCase)
-                        ? null
-                        : prop.Value;
+                            ? null
+                            : prop.Value;
                 });
         }
 
@@ -3086,7 +3095,9 @@ namespace m4dModels
                     if (value.Contains(':'))
                     {
                         value = $"0:{value}";
-                        return TimeSpan.TryParse(value, out var length) ? Math.Round(length.TotalSeconds).ToString() : null;
+                        return TimeSpan.TryParse(value, out var length)
+                            ? Math.Round(length.TotalSeconds).ToString()
+                            : null;
                     }
 
                     return value;
@@ -3109,6 +3120,22 @@ namespace m4dModels
                     RemovedTags,
                     prop => new TagList(prop.Value).ConvertToPrimary(dms).ToString());
         }
+
+        private void CheckInvalidProperty()
+        {
+            if (DanceRatings.Any(dr => dr.TagSummary.Tags.Any(t => t.TagClass == "Music")))
+            {
+                Trace.WriteLine($"Dance/Genre Conflict {SongId}");
+            }
+
+            if (DanceRatings.Any(dr => s_groupIds.Contains(dr.DanceId)))
+            {
+                Trace.WriteLine($"Invalid Group: {SongId}");
+            }
+        }
+
+        private static HashSet<string> s_groupIds = new()
+            { "MSC", "TNG", "SWG", "WLZ" };
 
         public bool FixBadTagCategory()
         {
@@ -3165,10 +3192,16 @@ namespace m4dModels
                 changed |= RemoveTagRing(dms);
             }
 
+            if (actions.Contains('S'))
+            {
+                CheckInvalidProperty();
+            }
+
             return changed;
         }
 
-        #endregion
+
+    #endregion
 
         #region DanceRating
 
@@ -4098,8 +4131,7 @@ namespace m4dModels
 
         #region Index
 
-        public static SearchIndex GetIndex(string name, DanceMusicCoreService dms,
-            IDanceStatsManager danceStatsManager)
+        public static SearchIndex GetIndex(string name, IDanceStatsManager danceStatsManager)
         {
             if (s_index != null)
             {

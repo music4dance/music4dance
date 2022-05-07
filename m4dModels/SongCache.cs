@@ -12,7 +12,7 @@ namespace m4dModels
 
         public async Task LoadSongs(IEnumerable<string> songs, DanceMusicCoreService dms)
         {
-            var loaded = await dms.CreateSongs(songs);
+            var loaded = await dms.SongIndex.CreateSongs(songs);
             AddSongs(loaded);
         }
 

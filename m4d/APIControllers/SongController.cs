@@ -35,19 +35,19 @@ namespace m4d.APIControllers
             Trace.WriteLine(
                 $"Enter Search: Search = { search }, Title = {title}, Artist={artist}, Filter = {filter}, User = {User.Identity?.Name}");
 
-            IEnumerable<Song> songs = null;
+            IEnumerable<Song> songs;
             if (!string.IsNullOrWhiteSpace(search))
             {
-                songs = await Database.SimpleSearch(search);
+                songs = await SongIndex.SimpleSearch(search);
             }
             else if (!string.IsNullOrWhiteSpace(title) && !string.IsNullOrWhiteSpace(artist))
             {
-                songs = await Database.SongsFromTitleArtist(title, artist);
+                songs = await SongIndex.SongsFromTitleArtist(title, artist);
             }
             else if (!string.IsNullOrWhiteSpace(filter))
             {
                 var songFilter = new SongFilter(filter);
-                var results = await Database.Search(songFilter);
+                var results = await SongIndex.Search(songFilter);
                 songs = results.Songs;
             }
             else
@@ -74,7 +74,7 @@ namespace m4d.APIControllers
         {
             Trace.WriteLine($"Enter Patch: SongId = {id}, User = {User.Identity?.Name}");
 
-            var song = await Database.FindSong(id);
+            var song = await SongIndex.FindSong(id);
             return song == null
                 ? StatusCode((int)HttpStatusCode.NotFound)
                 : JsonCamelCase(
@@ -100,7 +100,7 @@ namespace m4d.APIControllers
             // TODO: Consider returning the history (or the tail) to the client and then
             //  updating the client - this will smooth out the situation where a tag gets
             //  transformed by the server
-            return await Database.AppendHistory(
+            return await SongIndex.AppendHistory(
                 await UserMapper.DeanonymizeHistory(history, UserManager), mapper)
                 ? Ok()
                 : StatusCode((int)HttpStatusCode.BadRequest);
@@ -122,7 +122,7 @@ namespace m4d.APIControllers
                 return StatusCode((int)HttpStatusCode.NotFound);
             }
 
-            return await Database.AdminEditSong(
+            return await SongIndex.AdminEditSong(
                 await UserMapper.DeanonymizeHistory(history, UserManager), mapper)
                 ? Ok()
                 : StatusCode((int)HttpStatusCode.BadRequest);
@@ -139,7 +139,7 @@ namespace m4d.APIControllers
                 return StatusCode((int)HttpStatusCode.Forbidden);
             }
 
-            return await Database.CreateSong(
+            return await SongIndex.CreateSong(
                 history.Properties.Select(mapper.Map<SongProperty>).ToList())
                 ? Ok()
                 : StatusCode((int)HttpStatusCode.BadRequest);

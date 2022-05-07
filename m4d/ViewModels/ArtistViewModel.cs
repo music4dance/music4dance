@@ -14,9 +14,9 @@ namespace m4d.ViewModels
         public static async Task<ArtistViewModel> Create(
             string name,
             IMapper mapper,
-            DanceMusicCoreService.CruftFilter cruft, DanceMusicService dms)
+            CruftFilter cruft, DanceMusicService dms)
         {
-            var list = (await dms.FindArtist(name, cruft)).Take(500);
+            var list = (await dms.SongIndex.FindArtist(name, cruft)).Take(500);
 
             return new ArtistViewModel
             {

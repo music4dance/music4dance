@@ -151,7 +151,7 @@ namespace m4dModels
             Instance = instance;
             // This will save any tag types that were created via the load from azure
 
-            await dms.UpdateAzureIndex(null, source);
+            await dms.GetSongIndex(source).UpdateAzureIndex(null, dms);
             return instance;
         }
 
@@ -171,7 +171,8 @@ namespace m4dModels
         private async Task<Dictionary<string, long>> GetSongCounts(DanceMusicCoreService dms,
             string source)
         {
-            var facets = await dms.GetTagFacets("DanceTags", 100, source);
+            var facets = await dms.GetSongIndex(source)
+                .GetTagFacets("DanceTags", 100);
 
             return IndexDanceFacet(facets["DanceTags"]);
         }

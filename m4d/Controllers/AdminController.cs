@@ -35,16 +35,13 @@ namespace m4d.Controllers
         public override void OnActionExecuting(ActionExecutingContext context)
         {
             // Do something before the action executes.
-            if (context.Controller is DanceMusicController controller)
+            if (context.Controller is AdminController controller)
             {
-                controller.ViewData["TraceLevel"] = TraceLevels.General.Level.ToString();
-                controller.ViewData["BotReport"] = SpiderManager.CreateBotReport();
-                controller.ViewData["SearchIdx"] = controller.SearchService.DefaultId;
-                controller.ViewData["StatsUpdateTime"] = controller.DanceStatsManager.LastUpdate;
-                controller.ViewData["StatsUpdateSource"] = controller.DanceStatsManager.Source;
+                controller.SetupDiagnosticAttributes();
             }
         }
     }
+
 
     [Authorize]
     [SetupDiagnostics]
@@ -258,7 +255,7 @@ namespace m4d.Controllers
             {
                 StartAdminTask("BuildFacets");
 
-                var facets = await Database.GetTagFacets(categories, count);
+                var facets = await SongIndex.GetTagFacets(categories, count);
 
                 foreach (var facet in facets)
                 {
@@ -295,12 +292,13 @@ namespace m4d.Controllers
 
                 AdminMonitor.UpdateTask("LoadIndex");
 
+                var idx = Database.GetSongIndex(idxName);
                 if (reset)
                 {
-                    await Database.ResetIndex(idxName);
+                    await idx.ResetIndex();
                 }
 
-                var c = await Database.UploadIndex(lines, !reset, idxName);
+                var c = await idx.UploadIndex(lines, !reset);
 
                 if (SearchService.GetInfo(idxName).Id == SearchService.GetInfo("default").Id)
                 {
@@ -694,7 +692,7 @@ namespace m4d.Controllers
             if (newSongs.Count > 0)
             {
                 var results =
-                    await Database.MatchSongs(newSongs, DanceMusicCoreService.MatchMethod.Merge);
+                    await SongIndex.MatchSongs(newSongs, DanceMusicCoreService.MatchMethod.Merge);
                 var review = new Review { Merge = results };
                 ViewBag.FileId = CacheReview(review);
                 return View("ReviewBatch", review.Merge);
@@ -742,7 +740,7 @@ namespace m4d.Controllers
         // Get: //IndexBackup
         [Authorize(Roles = "showDiagnostics")]
         public async Task<ActionResult> IndexBackup([FromServices]IWebHostEnvironment environment,
-            string name = "default", int count = -1, DateTime? from = null, string filter = null)
+            string name = "default", int count = -1, string filter = null)
         {
             try
             {
@@ -755,8 +753,8 @@ namespace m4d.Controllers
                 var n = 0;
                 await using (var file = System.IO.File.CreateText(path))
                 {
-                    var lines = await Database.BackupIndex(
-                        name, count, from,
+                    var lines = await Database.GetSongIndex(name).BackupIndex(
+                        count,
                         filter == null ? null : new SongFilter(filter));
                     foreach (var line in lines)
                     {
@@ -1023,19 +1021,14 @@ namespace m4d.Controllers
         //
         // Get: //ResetSearchIdx
         [Authorize(Roles = "showDiagnostics")]
-        public async Task<ActionResult> ResetSearchIdx(
-            [FromServices]RecomputeMarkerService recomputeMarkerService, string id = "default")
+        public async Task<ActionResult> ResetSearchIdx(string id = "default")
         {
             try
             {
                 StartAdminTask("ResetIndex");
 
-                var success = await Database.ResetIndex(id);
-
-                if (success)
-                {
-                    recomputeMarkerService.SetMarker("indexsongs", DateTime.MinValue);
-                }
+                var idx = Database.GetSongIndex(id);
+                var success = await idx.ResetIndex();
 
                 ViewBag.Name = "Reset Index";
                 ViewBag.Success = success;
@@ -1048,48 +1041,6 @@ namespace m4d.Controllers
                 return FailAdminTask($"Reset: {e.Message}", e);
             }
         }
-
-        //
-        // Get: //CleanupProperties
-        [Authorize(Roles = "showDiagnostics")]
-        public async Task<ActionResult> CleanupProperties(
-            [FromServices]RecomputeMarkerService markerService,
-            int count = 100, string filter = null)
-        {
-            try
-            {
-                StartAdminTask("CleanupProperties");
-
-                SongFilter songFilter = null;
-                if (!string.IsNullOrWhiteSpace(filter))
-                {
-                    songFilter = new SongFilter(filter);
-                }
-
-                var from = markerService.GetMarker("propertycleanup");
-
-                var info = await Database.CleanupProperties(count, from, songFilter);
-
-                if (info.Succeeded > 0)
-                {
-                    markerService.SetMarker("propertycleanup", info.LastTime);
-                }
-
-                ViewBag.Name = "Cleaned up Properties";
-                ViewBag.Success = true;
-
-                ViewBag.Message = $"{info.Succeeded} songs cleaned, {info.Failed} failed.";
-
-                return CompleteAdminTask(
-                    true,
-                    $"{info.Succeeded} songs cleaned up. {info.Message}");
-            }
-            catch (Exception e)
-            {
-                return FailAdminTask($"CleanupProperties: {e.Message}", e);
-            }
-        }
-
         #endregion
 
         #region Migration-Restore
@@ -1124,6 +1075,16 @@ namespace m4d.Controllers
         #endregion
 
         #region Utilities
+
+        internal void SetupDiagnosticAttributes()
+        {
+            ViewData["TraceLevel"] = TraceLevels.General.Level.ToString();
+            ViewData["BotReport"] = SpiderManager.CreateBotReport();
+            ViewData["SearchIdx"] = SearchService.DefaultId;
+            ViewData["StatsUpdateTime"] = DanceStatsManager.LastUpdate;
+            ViewData["StatsUpdateSource"] = DanceStatsManager.Source;
+        }
+
 
         private IList<string> HeaderFromList(IList<string> songs)
         {

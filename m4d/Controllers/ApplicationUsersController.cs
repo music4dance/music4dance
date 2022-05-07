@@ -245,7 +245,7 @@ namespace m4d.Controllers
         // GET: ApplicationUsers
         public async Task<ActionResult> VotingResults()
         {
-            var records = (await Database.GetVotingRecords()).OrderByDescending(r => r.Total)
+            var records = (await SongIndex.GetVotingRecords()).OrderByDescending(r => r.Total)
                 .ToList();
             foreach (var record in records)
             {

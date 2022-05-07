@@ -30,10 +30,11 @@ namespace m4d.APIControllers
             _musicServiceManager ??= new MusicServiceManager(_configuration);
 
         protected DanceMusicContext Context => Database.Context;
+        protected SongIndex SongIndex => Database.SongIndex;
 
         protected UserManager<ApplicationUser> UserManager => Database.UserManager;
 
-        public IDanceStatsManager DanceStatsManager { get; }
+        protected IDanceStatsManager DanceStatsManager { get; }
 
         protected IActionResult JsonCamelCase(object json)
         {

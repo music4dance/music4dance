@@ -36,7 +36,7 @@ namespace m4d.APIControllers
         public async Task<IActionResult> Get(Guid id, string service = null, string title = null
             , string artist = null, string album = null)
         {
-            var song = id == Guid.Empty ? null : await Database.FindSong(id);
+            var song = id == Guid.Empty ? null : await SongIndex.FindSong(id);
             if (song != null && artist == null && title == null)
             {
                 artist = song.Artist;

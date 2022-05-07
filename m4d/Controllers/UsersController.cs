@@ -42,15 +42,16 @@ namespace m4d.Controllers
             var userName = user.UserName;
             if (!s_userCache.TryGetValue(id, out var profile))
             {
+                var songIndex = Database.SongIndex;
                 profile = new UserProfile
                 {
                     UserName = id, // This will be username or id depending on what came in
                     IsPublic = user.Privacy > 0,
                     IsPseudo = user.IsPseudo,
                     SpotifyId = user.SpotifyId,
-                    FavoriteCount = await Database.UserSongCount(userName, true),
-                    BlockedCount = await Database.UserSongCount(userName, false),
-                    EditCount = await Database.UserSongCount(userName, null),
+                    FavoriteCount = await songIndex.UserSongCount(userName, true),
+                    BlockedCount = await songIndex.UserSongCount(userName, false),
+                    EditCount = await songIndex.UserSongCount(userName, null),
                 };
                 s_userCache[id] = profile;
             }

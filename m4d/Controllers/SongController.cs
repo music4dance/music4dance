@@ -21,7 +21,6 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Net.Http.Headers;
-using Newtonsoft.Json;
 
 namespace m4d.Controllers
 {
@@ -59,13 +58,13 @@ namespace m4d.Controllers
             base.OnActionExecuting(filterContext);
         }
 
-        private DanceMusicCoreService.CruftFilter DefaultCruftFilter()
+        private CruftFilter DefaultCruftFilter()
         {
             return User.IsInRole(DanceMusicCoreService.DiagRole) ||
                 User.IsInRole(DanceMusicCoreService.PremiumRole) ||
                 User.IsInRole(DanceMusicCoreService.TrialRole)
-                    ? DanceMusicCoreService.CruftFilter.AllCruft
-                    : DanceMusicCoreService.CruftFilter.NoCruft;
+                    ? CruftFilter.AllCruft
+                    : CruftFilter.NoCruft;
         } 
 
         #region Commands
@@ -299,7 +298,7 @@ namespace m4d.Controllers
             var p = await AzureParmsFromFilter(filter, 25);
             p.IncludeTotalCount = true;
 
-            return await Database.Search(
+            return await SongIndex.Search(
                 filter.SearchString, p, filter.CruftFilter);
         }
 
@@ -312,7 +311,7 @@ namespace m4d.Controllers
             HelpPage = "advanced-search";
 
             ViewBag.AzureIndexInfo = Song.GetIndex(
-                SearchService.GetInfo().Index, Database, danceStatsManager);
+                SearchService.GetInfo().Index, danceStatsManager);
             UseVue = false;
             return View(new RawSearch(filter is { IsRaw: true } ? filter : null));
         }
@@ -329,7 +328,7 @@ namespace m4d.Controllers
             HelpPage = "advanced-search";
 
             ViewBag.AzureIndexInfo = Song.GetIndex(
-                SearchService.GetInfo().Index, Database, danceStatsManager);
+                SearchService.GetInfo().Index, danceStatsManager);
             return ModelState.IsValid
                 ? await DoAzureSearch(new SongFilter(rawSearch))
                 : View("RawSearchForm", rawSearch);
@@ -614,10 +613,10 @@ namespace m4d.Controllers
             }
 
             var gid = id ?? Guid.Empty;
-            var song = id.HasValue ? await Database.FindSong(id.Value) : null;
+            var song = id.HasValue ? await SongIndex.FindSong(id.Value) : null;
             if (song == null)
             {
-                song = await Database.FindMergedSong(gid);
+                song = await SongIndex.FindMergedSong(gid);
                 return song != null
                     ? RedirectToActionPermanent(
                         "details",
@@ -704,7 +703,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public async Task<ActionResult> UpdateSongAndServices(Guid id, SongFilter filter)
         {
-            var song = await Database.FindSong(id);
+            var song = await SongIndex.FindSong(id);
             if (song == null)
             {
                 ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.");
@@ -722,7 +721,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public async Task<ActionResult> Delete(Guid id)
         {
-            var song = await Database.FindSong(id);
+            var song = await SongIndex.FindSong(id);
             UseVue = false;
             return song == null
                 ? ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.")
@@ -738,10 +737,10 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public async Task<ActionResult> DeleteConfirmed(Guid id, SongFilter filter)
         {
-            var song = await Database.FindSong(id);
+            var song = await SongIndex.FindSong(id);
             var userName = User.Identity?.Name;
             var user = await Database.FindUser(userName);
-            await Database.DeleteSong(user, song);
+            await SongIndex.DeleteSong(user, song);
 
             return RedirectToAction("Index", new { filter });
         }
@@ -762,7 +761,7 @@ namespace m4d.Controllers
             return BatchAdminExecute(
                 filter,
                 async (dms, song) =>
-                    await dms.CorrectTempoSong(song, applicationUser, multiplier),
+                    await dms.SongIndex.CorrectTempoSong(song, applicationUser, multiplier),
                 "BatchCorrectTempo", max);
         }
 
@@ -779,7 +778,7 @@ namespace m4d.Controllers
             var applicationUser = await Database.FindUser(user ?? UserName);
             return BatchAdminExecute(
                 filter, (dms, song) =>
-                    dms.AdminAppendSong(song, applicationUser, properties), "BatchAdminEdit", max);
+                    dms.SongIndex.AdminAppendSong(song, applicationUser, properties), "BatchAdminEdit", max);
         }
 
         [HttpPost]
@@ -790,7 +789,7 @@ namespace m4d.Controllers
         {
             return BatchAdminExecute(
                 filter,
-                (dms, song) => dms.AdminModifySong(song, properties),
+                (dms, song) => dms.SongIndex.AdminModifySong(song, properties),
                 "BatchAdminModify", max);
         }
 
@@ -815,8 +814,8 @@ namespace m4d.Controllers
                     {
                         try
                         {
-                            var results = await dms.Search(
-                                filter, max, DanceMusicCoreService.CruftFilter.AllCruft);
+                            var results = await dms.SongIndex.Search(
+                                filter, max, CruftFilter.AllCruft);
                             var songs = results.Songs;
 
                             var processed = 0;
@@ -850,7 +849,7 @@ namespace m4d.Controllers
                                     $"{tried} songs tried.");
                             }
 
-                            await dms.UpdateAzureIndex(succeeded.Concat(failed));
+                            await dms.SongIndex.UpdateAzureIndex(succeeded.Concat(failed), dms);
 
 
                             AdminMonitor.CompleteTask(
@@ -880,8 +879,8 @@ namespace m4d.Controllers
         {
             var user = await Database.FindUser(User.Identity?.Name);
 
-            var song = await Database.FindSong(id);
-            if (await Database.CleanupAlbums(user, song) != 0)
+            var song = await SongIndex.FindSong(id);
+            if (await SongIndex.CleanupAlbums(user, song) != 0)
             {
                 await SaveSong(song);
             }
@@ -985,7 +984,7 @@ namespace m4d.Controllers
                 filter.Purchase = "S";
                 var p = await AzureParmsFromFilter(filter, info.Count);
                 p.IncludeTotalCount = true;
-                var results = await Database.Search(
+                var results = await SongIndex.Search(
                     filter.SearchString, p, filter.CruftFilter);
                 var tracks = results.Songs.Select(s => s.GetPurchaseId(ServiceType.Spotify));
 
@@ -1065,7 +1064,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public async Task<ActionResult> UpdateRatings(Guid id, SongFilter filter)
         {
-            var song = await Database.FindSong(id);
+            var song = await SongIndex.FindSong(id);
             if (song == null)
             {
                 return ReturnError(
@@ -1089,7 +1088,7 @@ namespace m4d.Controllers
         public async Task<ActionResult> BulkEdit(Guid[] selectedSongs, string action,
             SongFilter filter)
         {
-            var songs = await Database.FindSongs(selectedSongs);
+            var songs = await SongIndex.FindSongs(selectedSongs);
 
             switch (action)
             {
@@ -1111,14 +1110,14 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public async Task<ActionResult> MergeResults(string songIds, SongFilter filter)
         {
-            var songs = (await Database.FindSongs(songIds.Split(',').Select(Guid.Parse))).ToList();
+            var songs = (await SongIndex.FindSongs(songIds.Split(',').Select(Guid.Parse))).ToList();
 
             // Create a merged version of the song (and commit to DB)
 
             // Get the logged in user
             var user = await Database.FindUser(User.Identity?.Name);
 
-            var song = await Database.MergeSongs(
+            var song = await SongIndex.MergeSongs(
                 user, songs,
                 ResolveStringField(Song.TitleField, songs, Request.Form),
                 ResolveStringField(Song.ArtistField, songs, Request.Form),
@@ -1140,7 +1139,7 @@ namespace m4d.Controllers
         public async Task<ActionResult> CleanMusicServices(SongFilter filter, Guid id,
             string type = "S")
         {
-            var song = await Database.FindSong(id);
+            var song = await SongIndex.FindSong(id);
             if (song == null)
             {
                 return ReturnError(
@@ -1151,7 +1150,7 @@ namespace m4d.Controllers
             var newSong = await CleanMusicServiceSong(song, Database, type);
             if (newSong != null)
             {
-                await Database.SaveSong(newSong);
+                await SongIndex.SaveSong(newSong);
             }
 
             HelpPage = "song-details";
@@ -1186,7 +1185,7 @@ namespace m4d.Controllers
         }
 
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult BatchCleanupProperties(SongFilter filter, string type = "X")
+        public ActionResult BatchCleanupProperties(SongFilter filter, string type = "S")
         {
             return BatchProcess(
                 filter, (dms, song) =>
@@ -1201,7 +1200,7 @@ namespace m4d.Controllers
         {
             return BatchProcess(
                 filter, async (dms, song) =>
-                    await dms.ReloadSong(song)
+                    await dms.SongIndex.ReloadSong(song)
                         ? song
                         : null);
         }
@@ -1233,11 +1232,11 @@ namespace m4d.Controllers
                                     "BuildSongList",
                                     ((filter.Page ?? 1) - 1) * 500);
 
-                                var parameters = dms.AzureParmsFromFilter(filter, 500);
+                                var parameters = dms.SongIndex.AzureParmsFromFilter(filter, 500);
                                 parameters.IncludeTotalCount = false;
-                                var res = await dms.Search(
+                                var res = await dms.SongIndex.Search(
                                     filter.SearchString, parameters,
-                                    DanceMusicCoreService.CruftFilter.AllCruft);
+                                    CruftFilter.AllCruft);
                                 if (!res.Songs.Any())
                                 {
                                     break;
@@ -1296,7 +1295,7 @@ namespace m4d.Controllers
 
                                 if (save.Count > 0)
                                 {
-                                    dms.SaveSongsImmediate(save);
+                                    dms.SongIndex.SaveSongsImmediate(save);
                                 }
 
                                 filter.Page += 1;
@@ -1355,7 +1354,7 @@ namespace m4d.Controllers
         private async Task<SearchOptions> AzureParmsFromFilter(
             SongFilter filter, int? pageSize = null)
         {
-            return Database.AzureParmsFromFilter(
+            return SongIndex.AzureParmsFromFilter(
                 await UserMapper.DeanonymizeFilter(filter, UserManager), pageSize);
         }
 
@@ -1377,7 +1376,7 @@ namespace m4d.Controllers
 
             foreach (var song in songs)
             {
-                await Database.DeleteSong(user, song);
+                await SongIndex.DeleteSong(user, song);
             }
 
             return RedirectToAction("Index", new { filter });
@@ -1527,7 +1526,7 @@ namespace m4d.Controllers
             var p = await AzureParmsFromFilter(filter, 1000);
             p.IncludeTotalCount = true;
 
-            var results = await Database.Search(filter.SearchString, p, filter.CruftFilter);
+            var results = await SongIndex.Search(filter.SearchString, p, filter.CruftFilter);
 
             switch (type)
             {
@@ -1732,9 +1731,9 @@ namespace m4d.Controllers
         private async Task<Song> AutoMerge(List<Song> songs, ApplicationUser user)
         {
             // These songs are coming from "light loading", so need to reload the full songs before merging
-            songs = (await Database.FindSongs(songs.Select(s => s.SongId))).ToList();
+            songs = (await SongIndex.FindSongs(songs.Select(s => s.SongId))).ToList();
 
-            var song = await Database.MergeSongs(
+            var song = await SongIndex.MergeSongs(
                 user, songs,
                 ResolveStringField(Song.TitleField, songs),
                 ResolveStringField(Song.ArtistField, songs),
@@ -1764,7 +1763,7 @@ namespace m4d.Controllers
             var albums = 0;
             foreach (var song in songs)
             {
-                var delta = await Database.CleanupAlbums(user, song);
+                var delta = await SongIndex.CleanupAlbums(user, song);
                 if (delta > 0)
                 {
                     changed += 1;

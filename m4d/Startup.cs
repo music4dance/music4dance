@@ -147,8 +147,7 @@ namespace m4d
 
             services.AddSingleton<ISearchServiceManager>(new SearchServiceManager(Configuration));
             services.AddSingleton<IDanceStatsManager>(new DanceStatsManager(appRoot));
-            services.AddSingleton(new RecomputeMarkerService(appData));
-
+            
             services.AddControllers().AddNewtonsoftJson()
                 .AddNewtonsoftJson(
                     options =>

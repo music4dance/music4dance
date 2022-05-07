@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace m4dModels.Tests
 {
@@ -80,7 +81,7 @@ namespace m4dModels.Tests
                 return false;
             }
 
-            return a.Length <= b.Length ? b.Length <= a.Length : false;
+            return a.Length <= b.Length && b.Length <= a.Length;
         }
 
         public static void DumpSongProperties(Song song, bool verbose = true)
@@ -170,7 +171,10 @@ namespace m4dModels.Tests
             var manager = new DanceStatsManager(null);
             GetDanceStats(manager).Wait();
 
-            var service = new DanceMusicService(context, userManager, null, manager);
+            var songIndex = new Mock<SongIndex>();
+            songIndex.Setup(m => m.UpdateIndex(new List<string>())).ReturnsAsync(true);
+            var service = new DanceMusicService(context, userManager, null, manager, songIndex.Object);
+            songIndex.Setup(m => m.DanceMusicService).Returns(service);
             manager.Instance.FixupStats(service, false).Wait();
 
             await SeedRoles(roleManager);

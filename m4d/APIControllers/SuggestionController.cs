@@ -21,7 +21,7 @@ namespace m4d.APIControllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(string id)
         {
-            var suggestions = await Database.AzureSuggestions(id);
+            var suggestions = await SongIndex.AzureSuggestions(id);
             if (suggestions != null)
             {
                 return Ok(suggestions);

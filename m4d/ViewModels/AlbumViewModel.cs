@@ -17,9 +17,9 @@ namespace m4d.ViewModels
 
         public static async Task<AlbumViewModel> Create(
             string title, IMapper mapper,
-            DanceMusicCoreService.CruftFilter cruft, DanceMusicService dms)
+            CruftFilter cruft, DanceMusicService dms)
         {
-            var songs = await dms.FindAlbum(title, cruft);
+            var songs = await dms.SongIndex.FindAlbum(title, cruft);
 
             var map = new Dictionary<int, Song>();
             var max = 0;

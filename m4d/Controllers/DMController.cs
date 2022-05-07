@@ -46,15 +46,17 @@ namespace m4d.Controllers
 
         protected IConfiguration Configuration { get; }
 
-        public ISearchServiceManager SearchService { get; }
+        protected ISearchServiceManager SearchService { get; }
 
-        public IDanceStatsManager DanceStatsManager { get; }
+        protected IDanceStatsManager DanceStatsManager { get; }
 
-        public UserManager<ApplicationUser> UserManager => Database.UserManager;
+        protected UserManager<ApplicationUser> UserManager => Database.UserManager;
 
-        public DanceMusicContext Context => Database.Context;
+        protected DanceMusicContext Context => Database.Context;
 
-        public string HelpPage { get; set; }
+        protected SongIndex SongIndex => Database.SongIndex;
+
+        protected string HelpPage { get; set; }
 
         protected string UserName => Identity.Name;
 
@@ -110,7 +112,7 @@ namespace m4d.Controllers
 
         protected async Task SaveSong(Song song)
         {
-            await Database.SaveSong(song);
+            await SongIndex.SaveSong(song);
         }
 
         protected async Task<int> CommitCatalog(DanceMusicCoreService dms, Review review,
@@ -127,7 +129,7 @@ namespace m4d.Controllers
                 return 0;
             }
 
-            var modified = dms.MergeCatalog(user, review.Merge, dances).ToList();
+            var modified = dms.SongIndex.MergeCatalog(user, review.Merge, dances).ToList();
 
             var i = 0;
 
@@ -139,7 +141,7 @@ namespace m4d.Controllers
             }
 
             var saved = modified.Count;
-            await dms.SaveSongs(modified);
+            await dms.SongIndex.SaveSongs(modified);
 
             if (!string.IsNullOrEmpty(review.PlayList))
             {

@@ -40,7 +40,7 @@ namespace m4d.APIControllers
 
             var user = await Database.UserManager.GetUserAsync(User);
             // Find a song associate with the service id
-            var song = await Database.GetSongFromService(service, id, user?.UserName);
+            var song = await SongIndex.GetSongFromService(service, id, user?.UserName);
             var created = false;
 
             if (song == null && !localOnly)
@@ -48,7 +48,7 @@ namespace m4d.APIControllers
                 song = await MusicServiceManager.CreateSong(Database, user, id, service);
                 if (song != null)
                 {
-                    created = await Database.FindSong(song.SongId) == null;
+                    created = await SongIndex.FindSong(song.SongId) == null;
                 }
             }
 

@@ -39,7 +39,7 @@ export class DanceRating extends TaggableObject {
   }
 
   public get categories(): string[] {
-    return ["Style", "Tempo", "Other", "Music"];
+    return ["Style", "Tempo", "Other"];
   }
 
   public get modifier(): string {
