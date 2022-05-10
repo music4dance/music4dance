@@ -122,6 +122,11 @@ namespace m4dModels
             }
         }
 
+        public SongFilter Clone()
+        {
+            return new SongFilter(ToString());
+        }
+
         private List<string> SplitFilter(string input)
         {
             return input
@@ -312,7 +317,13 @@ namespace m4dModels
             EmptyExcept(new[] { "Page", "Action", "SortOrder", "Dances" }) &&
             DanceQuery.Dances.Count() < 2;
 
+        public bool IsEmptyUser(string user) =>
+            EmptyExcept(new[] { "Page", "Action", "SortOrder", "Dances", "User" }) &&
+            DanceQuery.Dances.Count() < 2 &&
+            UserQuery.IsDefault(user);
+
         public bool IsSingDance => IsEmptyDance && DanceQuery.Dances.Count() == 1;
+
 
         public string Description
         {

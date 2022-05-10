@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Azure.Search.Documents;
 using DanceLibrary;
+using m4d.Services;
 using m4d.Utilities;
 using m4d.ViewModels;
 using m4dModels;
@@ -18,7 +19,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Net.Http.Headers;
 
@@ -30,17 +33,19 @@ namespace m4d.Controllers
 
         private readonly LinkGenerator _linkGenerator;
         private readonly IMapper _mapper;
+        private readonly IBackgroundTaskQueue _backgroundTaskQueue;
 
         public SongController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
             IDanceStatsManager danceStatsManager, LinkGenerator linkGenerator,
-            IConfiguration configuration, IMapper mapper) :
+            IConfiguration configuration, IMapper mapper, IBackgroundTaskQueue queue) :
             base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
         {
             HelpPage = "song-list";
             UseVue = true;
             _linkGenerator = linkGenerator;
             _mapper = mapper;
+            _backgroundTaskQueue = queue;
         }
 
         public override void OnActionExecuting(ActionExecutingContext filterContext)
@@ -298,8 +303,73 @@ namespace m4d.Controllers
             var p = await AzureParmsFromFilter(filter, 25);
             p.IncludeTotalCount = true;
 
+            await LogSearch(filter.Clone());
+
             return await SongIndex.Search(
                 filter.SearchString, p, filter.CruftFilter);
+        }
+
+        private async Task LogSearch(SongFilter filter)
+        {
+            if (filter.IsEmptyUser(User.Identity?.Name) || filter.Action == "holidaymusic")
+            {
+                return;
+            }
+
+            if (string.Equals(filter.Action, "index", StringComparison.OrdinalIgnoreCase))
+            {
+                filter.Action = "Advanced";
+            }
+
+            var user = User.Identity is { IsAuthenticated: true }
+                ? await UserManager.FindByNameAsync(User.Identity.Name)
+                : null;
+            var userId = user?.Id;
+
+            if (filter.UserQuery.IsDefault(user?.UserName))
+            {
+                filter.User = null;
+            }
+
+            var filterString = filter.ToString();
+            var now = DateTime.Now;
+
+            _backgroundTaskQueue.EnqueueTask(
+                async (serviceScopeFactory, cancellationToken) =>
+                {
+                    try
+                    {
+                        using var scope = serviceScopeFactory.CreateScope();
+                        var context = scope.ServiceProvider.GetRequiredService<DanceMusicContext>();
+
+                        var old = await context.Searches.FirstOrDefaultAsync(
+                            s => s.ApplicationUserId == userId && s.Query == filterString);
+
+                        if (old != null)
+                        {
+                            old.Modified = now;
+                            old.Count += 1;
+                        }
+                        else
+                        {
+                            await context.Searches.AddAsync(
+                                new()
+                                {
+                                    ApplicationUserId = userId,
+                                    Query = filterString,
+                                    Count = 1,
+                                    Created = now,
+                                    Modified = now,
+                                }, cancellationToken);
+                        }
+
+                        await context.SaveChangesAsync(cancellationToken);
+                    }
+                    catch (Exception ex)
+                    {
+                        Trace.WriteLine(ex.Message);
+                    }
+                });
         }
 
         //

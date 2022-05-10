@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
+using System.Security.Authentication;
 using System.Threading.Tasks;
 using m4dModels;
 using Microsoft.AspNetCore.Identity;
@@ -34,6 +35,13 @@ namespace m4d.Controllers
             }
 
             user ??= UserName;
+
+            if (!User.IsInRole("dbAdmin") && !string.Equals(
+                    user, UserName, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new AuthenticationException();
+            }
+
             IQueryable<Search> searches = Database.Searches.Include(s => s.ApplicationUser);
             if (user != null)
             {

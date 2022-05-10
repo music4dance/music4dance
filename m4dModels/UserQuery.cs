@@ -64,13 +64,7 @@ namespace m4dModels
             Query = qs;
         }
 
-        private bool? NullableLike
-        {
-            get
-            {
-                return IsLike ? true : IsHate ? false : null;
-            }
-        }
+        private bool? NullableLike => IsLike ? true : IsHate ? false : null;
 
         public string Query { get; }
         public bool IsNull => string.Equals(Query, "null", StringComparison.OrdinalIgnoreCase);
@@ -85,6 +79,10 @@ namespace m4dModels
 
         public bool IsIdentity =>
             string.Equals(IdentityUser, UserName, StringComparison.OrdinalIgnoreCase);
+
+        public bool IsDefault(string user) =>
+            IsEmpty || ((IsIdentity || string.Equals(
+                user, UserName, StringComparison.OrdinalIgnoreCase)) && IsHate);
 
         public bool IsAnonymous =>
             !string.IsNullOrEmpty(UserName) && UserName.Length == 36 && UserName.Contains('-');
