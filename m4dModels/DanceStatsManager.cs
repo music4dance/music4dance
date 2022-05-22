@@ -86,7 +86,6 @@ namespace m4dModels
 
         private void ClearAssociates()
         {
-            Song.ResetIndex();
         }
 
         public async Task ReloadDances(DanceMusicCoreService dms)

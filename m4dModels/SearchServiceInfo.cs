@@ -34,7 +34,7 @@ namespace m4dModels
                     "basicb",
                     new SearchServiceInfo(
                         "basicb", "msc4dnc", "songs-b", basicAuth.AdminKey,
-                        basicAuth.QueryKey)
+                        basicAuth.QueryKey /*, isStructured:true */)
                 },
                 {
                     "basicc",
@@ -128,15 +128,17 @@ namespace m4dModels
         public string Index { get; }
         public string AdminKey { get; }
         public string QueryKey { get; }
+        public bool IsStructured { get; }
 
         public SearchServiceInfo(string id, string name, string index, string adminKey,
-            string queryKey)
+            string queryKey, bool isStructured = false)
         {
             Id = id;
             Name = name;
             Index = index;
             AdminKey = adminKey;
             QueryKey = queryKey;
+            IsStructured = isStructured;
         }
 
         public SearchClient AdminClient => GetSearchClient(true);

@@ -11,7 +11,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AutoMapper;
-using Azure.Search.Documents.Indexes.Models;
 using Azure.Search.Documents.Models;
 using DanceLibrary;
 using Newtonsoft.Json;
@@ -21,6 +20,10 @@ using static System.Char;
 
 namespace m4dModels
 {
+    public static class FieldNames {
+
+    }
+
     [DataContract]
     [JsonConverter(typeof(ToStringJsonConverter))]
     public class Song : TaggableObject
@@ -295,27 +298,6 @@ namespace m4dModels
         // Curator Fields
         public const string DeleteTagLabel = "DeleteTag";
 
-        // Azure Search Fields
-        public const string SongIdField = "SongId";
-        public const string AltIdField = "AlternateIds";
-        public const string MoodField = "Mood";
-        public const string BeatField = "Beat";
-        public const string AlbumsField = "Albums";
-        public const string CreatedField = "Created";
-        public const string ModifiedField = "Modified";
-        public const string EditedField = "Edited";
-        public const string DancesField = "Dances";
-        public const string UsersField = "Users";
-        public const string CommentField = "Comment";
-        public const string DanceTagsInferred = "DanceTagsInferred";
-        public const string GenreTags = "GenreTags";
-        public const string TempoTags = "TempoTags";
-        public const string StyleTags = "StyleTags";
-        public const string OtherTags = "OtherTags";
-        public const string PropertiesField = "Properties";
-        public const string ServiceIds = "ServiceIds";
-        public const string LookupStatus = "LookupStatus";
-
         // Special cases for reading scraped data
         public const string TitleArtistCell = "TitleArtist";
         public const string DancersCell = "Dancers";
@@ -422,23 +404,6 @@ namespace m4dModels
             return song;
         }
 
-        public static async Task<Song> Create(SearchDocument d, DanceMusicCoreService database)
-        {
-            if (d[PropertiesField] is not string s || d[SongIdField] is not string sid)
-            {
-                throw new ArgumentOutOfRangeException(nameof(d));
-            }
-
-            if (!Guid.TryParse(sid, out var id))
-            {
-                throw new ArgumentOutOfRangeException(nameof(d));
-            }
-
-            var song = new Song();
-            await song.Init(id, s, database);
-            return song;
-        }
-
         public static Song CreateLightSong(SearchDocument doc)
         {
             var title = doc[TitleField] as string;
@@ -447,15 +412,15 @@ namespace m4dModels
                 return null;
             }
 
-            var sid = doc.GetString(SongIdField);
+            var sid = doc.GetString(SongIndex.SongIdField);
             var length = doc.GetInt64(LengthField);
             var tempo = doc.GetDouble(TempoField);
             var artist = doc.GetString(ArtistField);
 
             var history = new List<SongProperty>
             {
-                new SongProperty(TitleField, title),
-                new SongProperty(ArtistField, artist)
+                new(TitleField, title),
+                new(ArtistField, artist)
             };
             if (length != null)
             {
@@ -2136,7 +2101,8 @@ namespace m4dModels
 
         public bool EditSongTags(ApplicationUser user, TagList tags, DanceStatsInstance stats)
         {
-            return EditTags(user, new List<UserTag> { new UserTag { Tags = tags } }, stats);
+            return EditTags(user, new List<UserTag> { new()
+                { Tags = tags } }, stats);
         }
 
         public bool LookupTried()
@@ -4126,307 +4092,6 @@ namespace m4dModels
                         Math.Abs(track.Duration.Value - duration) < epsilon)
                 .ToList();
         }
-
-        #endregion
-
-        #region Index
-
-        public static SearchIndex GetIndex(string name, IDanceStatsManager danceStatsManager)
-        {
-            if (s_index != null)
-            {
-                return s_index;
-            }
-
-            // SearchTODO: Consider converting to SearchableField, etc.
-            var fields = new List<SearchField>
-            {
-                new SearchField(SongIdField, SearchFieldDataType.String) { IsKey = true },
-                new SearchField(
-                    AltIdField, SearchFieldDataType.Collection(SearchFieldDataType.String))
-                {
-                    IsSearchable = false, IsSortable = false, IsFilterable = true,
-                    IsFacetable = false
-                },
-                new SearchField(TitleField, SearchFieldDataType.String)
-                {
-                    IsSearchable = true, IsSortable = true, IsFilterable = true, IsFacetable = true
-                },
-                new SearchField(TitleHashField, SearchFieldDataType.Int32)
-                {
-                    IsSearchable = false, IsSortable = false, IsFilterable = true,
-                    IsFacetable = false
-                },
-                new SearchField(ArtistField, SearchFieldDataType.String)
-                {
-                    IsSearchable = true, IsSortable = true, IsFilterable = false,
-                    IsFacetable = false
-                },
-                new SearchField(
-                    AlbumsField, SearchFieldDataType.Collection(SearchFieldDataType.String))
-                {
-                    IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
-                },
-                new SearchField(
-                    UsersField, SearchFieldDataType.Collection(SearchFieldDataType.String))
-                {
-                    IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
-                },
-                new SearchField(CreatedField, SearchFieldDataType.DateTimeOffset)
-                {
-                    IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true
-                },
-                new SearchField(ModifiedField, SearchFieldDataType.DateTimeOffset)
-                {
-                    IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true
-                },
-                new SearchField(EditedField, SearchFieldDataType.DateTimeOffset)
-                {
-                    IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true
-                },
-                new SearchField(TempoField, SearchFieldDataType.Double)
-                {
-                    IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true
-                },
-                new SearchField(LengthField, SearchFieldDataType.Int32)
-                {
-                    IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true
-                },
-                new SearchField(BeatField, SearchFieldDataType.Double)
-                {
-                    IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true
-                },
-                new SearchField(EnergyField, SearchFieldDataType.Double)
-                {
-                    IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true
-                },
-                new SearchField(MoodField, SearchFieldDataType.Double)
-                {
-                    IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true
-                },
-                new SearchField(
-                    PurchaseField, SearchFieldDataType.Collection(SearchFieldDataType.String))
-                {
-                    IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
-                },
-                new SearchField(LookupStatus, SearchFieldDataType.Boolean)
-                {
-                    IsSearchable = false, IsSortable = false, IsFilterable = true,
-                    IsFacetable = false
-                },
-                new SearchField(
-                    DanceTags, SearchFieldDataType.Collection(SearchFieldDataType.String))
-                {
-                    IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
-                },
-                new SearchField(
-                    DanceTagsInferred, SearchFieldDataType.Collection(SearchFieldDataType.String))
-                {
-                    IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
-                },
-                new SearchField(
-                    GenreTags, SearchFieldDataType.Collection(SearchFieldDataType.String))
-                {
-                    IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
-                },
-                new SearchField(
-                    StyleTags, SearchFieldDataType.Collection(SearchFieldDataType.String))
-                {
-                    IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
-                },
-                new SearchField(
-                    TempoTags, SearchFieldDataType.Collection(SearchFieldDataType.String))
-                {
-                    IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
-                },
-                new SearchField(
-                    OtherTags, SearchFieldDataType.Collection(SearchFieldDataType.String))
-                {
-                    IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
-                },
-                new SearchField(SampleField, SearchFieldDataType.String)
-                {
-                    IsSearchable = false, IsSortable = false, IsFilterable = true,
-                    IsFacetable = false
-                },
-                new SearchField(
-                    ServiceIds, SearchFieldDataType.Collection(SearchFieldDataType.String))
-                {
-                    IsSearchable = true, IsSortable = false, IsFilterable = false,
-                    IsFacetable = false
-                },
-                new SearchField(
-                    CommentField, SearchFieldDataType.Collection(SearchFieldDataType.String))
-                {
-                    IsSearchable = true, IsSortable = false, IsFilterable = true,
-                    IsFacetable = false
-                },
-                new SearchField(PropertiesField, SearchFieldDataType.String)
-                {
-                    IsSearchable = false, IsSortable = false, IsFilterable = false,
-                    IsFacetable = false
-                },
-            };
-
-            var fsc = danceStatsManager.Dances;
-            fields.AddRange(
-                from sc in fsc
-                where sc.DanceId != "ALL"
-                select IndexFieldFromDanceId(sc.DanceId));
-
-            s_index = new SearchIndex(name, fields.ToArray());
-            s_index.Suggesters.Add(
-                new SearchSuggester(
-                    "songs", TitleField, ArtistField, AlbumsField, DanceTags, PurchaseField,
-                    GenreTags, TempoTags, StyleTags, OtherTags));
-
-            return s_index;
-        }
-
-        public static SearchField IndexFieldFromDanceId(string id)
-        {
-            return new SearchField(BuildDanceFieldName(id), SearchFieldDataType.Int32)
-            {
-                IsSearchable = false, IsSortable = true, IsFilterable = false, IsFacetable = false
-            };
-        }
-
-        public static void ResetIndex()
-        {
-            s_index = null;
-        }
-
-        private static SearchIndex s_index;
-
-        public SearchDocument GetIndexDocument(DanceMusicCoreService dms)
-        {
-            var tagMap = dms.DanceStats.TagManager.TagMap;
-
-            // Set up the purchase flags
-            var purchase = string.IsNullOrWhiteSpace(Purchase)
-                ? new List<string>()
-                : Purchase.ToCharArray().Where(c => MusicService.GetService(c) != null)
-                    .Select(c => MusicService.GetService(c).Name).ToList();
-            if (HasSample)
-            {
-                purchase.Add("Sample");
-            }
-
-            if (HasEchoNest)
-            {
-                purchase.Add("EchoNest");
-            }
-
-            if (BatchProcessed)
-            {
-                purchase.Add("---");
-            }
-
-            if (Purchase != null && Purchase.Contains('x', StringComparison.OrdinalIgnoreCase))
-            {
-                Trace.WriteLine($"SongId = {SongId}, Purchase = {Purchase}");
-            }
-
-            var purchaseIds = GetExtendedPurchaseIds();
-
-            // And the tags
-            var ts = new TagSummary(TagSummary, tagMap);
-            var genre = ts.GetTagSet("Music");
-            var other = ts.GetTagSet("Other");
-            var tempo = ts.GetTagSet("Tempo");
-            var style = new HashSet<string>();
-
-            var dance = TagSummary.GetTagSet("Dance");
-
-            var comments = new List<string>();
-            AccumulateComments(Comments, comments);
-
-            foreach (var dr in DanceRatings)
-            {
-                var dobj = Dances.Instance.DanceFromId(dr.DanceId);
-                if (dobj is DanceGroup)
-                {
-                    continue;
-                }
-                var d = dobj.Name.ToLower();
-                ts = new TagSummary(dr.TagSummary, tagMap);
-                other.UnionWith(ts.GetTagSet("Other"));
-                tempo.UnionWith(ts.GetTagSet("Tempo"));
-                style.UnionWith(ts.GetTagSet("Style"));
-                AccumulateComments(dr.Comments, comments);
-            }
-
-            var users = ModifiedBy.Select(
-                m =>
-                    m.UserName.ToLower() +
-                    (m.Like.HasValue ? m.Like.Value ? "|l" : "|h" : string.Empty)).ToArray();
-
-            var altIds = GetAltids().ToArray();
-
-            var doc = new SearchDocument
-            {
-                [SongIdField] = SongId.ToString(),
-                [AltIdField] = altIds,
-                [TitleField] = Title,
-                [TitleHashField] = TitleHash,
-                [ArtistField] = Artist,
-                [LengthField] = Length,
-                [BeatField] = CleanNumber(Danceability),
-                [EnergyField] = CleanNumber(Energy),
-                [MoodField] = CleanNumber(Valence),
-                [TempoField] = CleanNumber((float?)Tempo),
-                [CreatedField] = Created,
-                [ModifiedField] = Modified,
-                [EditedField] = Edited,
-                [SampleField] = Sample,
-                [PurchaseField] = purchase.ToArray(),
-                [ServiceIds] = purchaseIds.ToArray(),
-                [LookupStatus] = LookupTried(),
-                [AlbumsField] = Albums.Select(ad => ad.Name).ToArray(),
-                [UsersField] = users,
-                [DanceTags] = dance.ToArray(),
-                [GenreTags] = genre.ToArray(),
-                [TempoTags] = tempo.ToArray(),
-                [StyleTags] = style.ToArray(),
-                [OtherTags] = other.ToArray(),
-                [CommentField] = comments.ToArray(),
-                [PropertiesField] = SongProperty.Serialize(SongProperties, null)
-            };
-
-            // Set the dance ratings
-            foreach (var dr in DanceRatings)
-            {
-                var dobj = Dances.Instance.DanceFromId(dr.DanceId);
-                if (dobj is DanceGroup)
-                {
-                    Trace.WriteLine($"Invalid use of group {dobj.Name} in song {SongId}");
-                    continue;
-                }
-                doc[BuildDanceFieldName(dr.DanceId)] = dr.Weight;
-            }
-
-            return doc;
-        }
-
-
-        private void AccumulateComments(List<UserComment> comments, List<string> accumulator)
-        {
-            if (comments != null && comments.Count > 0)
-            {
-                accumulator.AddRange(comments.Select(c => c.Comment));
-            }
-        }
-
-        private static float? CleanNumber(float? f)
-        {
-            return f.HasValue && !float.IsFinite(f.Value) ? null : f;
-        }
-
-        private static string BuildDanceFieldName(string id)
-        {
-            return $"dance_{id}";
-        }
-
         #endregion
 
         #region Comparison
@@ -4449,10 +4114,8 @@ namespace m4dModels
         public bool TitleArtistEquivalent(Song song)
         {
             // No-similar titles != equivalent
-            return CreateTitleHash(Title) != CreateTitleHash(song.Title)
-                ? false
-                : string.IsNullOrWhiteSpace(Artist) || string.IsNullOrWhiteSpace(song.Artist) ||
-                CreateTitleHash(Artist) == CreateTitleHash(song.Artist);
+            return CreateTitleHash(Title) == CreateTitleHash(song.Title) && (string.IsNullOrWhiteSpace(Artist) || string.IsNullOrWhiteSpace(song.Artist) ||
+                CreateTitleHash(Artist) == CreateTitleHash(song.Artist));
         }
 
         #endregion
@@ -4461,11 +4124,9 @@ namespace m4dModels
 
         public bool TitleArtistMatch(string title, string artist)
         {
-            return !SoftArtistMatch(artist, Artist)
-                ? false
-                : DoMatch(CreateNormalForm(title), CreateNormalForm(Title)) ||
+            return SoftArtistMatch(artist, Artist) && (DoMatch(CreateNormalForm(title), CreateNormalForm(Title)) ||
                 DoMatch(NormalizeAlbumString(title), NormalizeAlbumString(Title)) ||
-                DoMatch(CleanAlbum(title, artist), CleanAlbum(Title, Artist));
+                DoMatch(CleanAlbum(title, artist), CleanAlbum(Title, Artist)));
         }
 
         public static bool SoftArtistMatch(string artist1, string artist2)
@@ -4557,9 +4218,9 @@ namespace m4dModels
 
         public static int TryParseId(string s, out Guid id)
         {
-            const string idField = SongIdField + "=";
+            const string idField = SongIndex.SongIdField + "=";
             id = Guid.Empty;
-            if (!s.StartsWith(SongIdField))
+            if (!s.StartsWith(SongIndex.SongIdField))
             {
                 return 0;
             }

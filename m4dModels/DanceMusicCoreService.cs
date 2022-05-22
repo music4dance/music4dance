@@ -105,10 +105,10 @@ public partial class DanceMusicCoreService : IDisposable
     private SongIndex _songSearch;
         
     public SongIndex SongIndex =>
-        _songSearch ??= new SongIndex(this);
+        _songSearch ??= SongIndex.Create(this);
 
     public SongIndex GetSongIndex(string id) => 
-        id == "default" || id == null ? SongIndex : new SongIndex(this, id);
+        id == "default" || id == null ? SongIndex : SongIndex.Create(this, id);
 
     public DbSet<Dance> Dances => Context.Dances;
     public DbSet<TagGroup> TagGroups => Context.TagGroups;

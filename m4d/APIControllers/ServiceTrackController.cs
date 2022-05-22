@@ -40,7 +40,7 @@ namespace m4d.APIControllers
 
             var user = await Database.UserManager.GetUserAsync(User);
             // Find a song associate with the service id
-            var song = await SongIndex.GetSongFromService(service, id, user?.UserName);
+            var song = await SongIndex.GetSongFromService(service, id);
             var created = false;
 
             if (song == null && !localOnly)

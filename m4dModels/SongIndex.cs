@@ -9,39 +9,62 @@ using AutoMapper;
 using Azure;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Indexes;
+using Azure.Search.Documents.Indexes.Models;
 using Azure.Search.Documents.Models;
 
 namespace m4dModels;
 
-public class SongIndex
+public abstract class SongIndex
 {
+    public const string SongIdField = "SongId";
+    public const string AltIdField = "AlternateIds";
+    public const string MoodField = "Mood";
+    public const string BeatField = "Beat";
+    public const string AlbumsField = "Albums";
+    public const string CreatedField = "Created";
+    public const string ModifiedField = "Modified";
+    public const string EditedField = "Edited";
+    public const string DancesField = "Dances";
+    public const string UsersField = "Users";
+    public const string CommentField = "Comment";
+    public const string DanceTagsInferred = "DanceTagsInferred";
+    public const string GenreTags = "GenreTags";
+    public const string TempoTags = "TempoTags";
+    public const string StyleTags = "StyleTags";
+    public const string OtherTags = "OtherTags";
+    public const string PropertiesField = "Properties";
+    public const string ServiceIds = "ServiceIds";
+    public const string LookupStatus = "LookupStatus";
+
     // Public for testing purposes
     public virtual DanceMusicCoreService DanceMusicService { get; }
     private string SearchId { get; }
     private ISearchServiceManager Manager => DanceMusicService.SearchService;
 
     private SearchClient _client;
-    private SearchClient Client => _client ??= CreateSearchClient();
+    protected SearchClient Client => _client ??= CreateSearchClient();
 
     private SearchIndexClient _indexClient;
-    private SearchIndexClient IndexClient => _indexClient ??= CreateSearchIndexClient();
+    protected SearchIndexClient IndexClient => _indexClient ??= CreateSearchIndexClient();
 
-    private SearchServiceInfo Info => DanceMusicService.SearchService.GetInfo(SearchId);
+    protected SearchServiceInfo Info => DanceMusicService.SearchService.GetInfo(SearchId);
+
+    public static SongIndex Create(DanceMusicCoreService dms, string id = null)
+    {
+        var info = dms.SearchService.GetInfo(id);
+        return info.IsStructured ? new StructuredSongIndex(dms, id): new FlatSongIndex(dms, id);
+    }
 
     // For Moq
-    public SongIndex()
+    protected SongIndex()
     {
     }
 
-    public SongIndex(DanceMusicCoreService dms, string id = null)
+    protected SongIndex(DanceMusicCoreService dms, string id = null)
     {
         DanceMusicService = dms;
         SearchId = id;
     }
-
-    #region Search
-
-    #endregion
 
     #region Lookup
 
@@ -51,16 +74,16 @@ public class SongIndex
         {
             var response = await Client.GetDocumentAsync<SearchDocument>(
                 id.ToString(),
-                new GetDocumentOptions { SelectedFields = { Song.PropertiesField } });
+                new GetDocumentOptions { SelectedFields = {
+                    PropertiesField
+                } });
             var doc = response.Value;
             if (doc == null)
             {
                 return null;
             }
 
-            var details = await Song.Create(
-                id, doc.GetString(Song.PropertiesField), DanceMusicService);
-            return details;
+            return await CreateSong(doc);
         }
         catch (RequestFailedException e)
         {
@@ -118,8 +141,7 @@ public class SongIndex
             songTags);
     }
 
-    public async Task<Song> GetSongFromService(MusicService service, string id,
-        string userName = null, SearchClient client = null)
+    public async Task<Song> GetSongFromService(MusicService service, string id)
     {
         if (string.IsNullOrWhiteSpace(id))
         {
@@ -128,10 +150,10 @@ public class SongIndex
 
         var sid = $"\"{service.CID}:{id}\"";
         var parameters = new SearchOptions();
-        parameters.SearchFields.Add(Song.ServiceIds);
+        parameters.SearchFields.Add(ServiceIds);
         var results = await DoSearch(sid, parameters, CruftFilter.AllCruft);
         var r = results.GetResults().FirstOrDefault();
-        return r == null ? null : await Song.Create(r.Document, DanceMusicService);
+        return r == null ? null : await CreateSong(r.Document);
     }
 
     #endregion
@@ -199,7 +221,7 @@ public class SongIndex
     public async Task<List<Song>> CreateSongs(
         IEnumerable<SearchResult<SearchDocument>> documents)
     {
-        return await CreateSongs(documents, d => Song.Create(d.Document, DanceMusicService));
+        return await CreateSongs(documents, d => CreateSong(d.Document));
     }
 
     public async Task<List<Song>> CreateSongs(
@@ -783,19 +805,19 @@ public class SongIndex
 
             while (list.Count > 0)
             {
-                var deleted = new List<SearchDocument>();
-                var added = new List<SearchDocument>();
+                var deleted = new List<object>();
+                var added = new List<object>();
 
                 // ReSharper disable once LoopCanBeConvertedToQuery
                 foreach (var song in list)
                 {
                     if (!song.IsNull)
                     {
-                        added.Add(song.GetIndexDocument(dms));
+                        added.Add(DocumentFromSong(song));
                     }
                     else
                     {
-                        deleted.Add(song.GetIndexDocument(dms));
+                        deleted.Add(DocumentFromSong(song));
                     }
 
                     if (added.Count > 990 || deleted.Count > 990)
@@ -823,7 +845,7 @@ public class SongIndex
                     try
                     {
                         var batch = IndexDocumentsBatch.Delete(
-                            deleted.Select(d => new SearchDocument { [Song.SongIdField] = d.GetString(Song.SongIdField) }));
+                            deleted.Select(d => new SearchDocument { [SongIdField] = GetSongId(d) }));
                         var results = await Client.IndexDocumentsAsync(batch);
                         Trace.WriteLine($"Deleted = {results.Value.Results.Count}");
                     }
@@ -845,6 +867,8 @@ public class SongIndex
             return 0;
         }
     }
+
+    protected abstract string GetSongId(object doc);
 
     [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
     public void SaveSongsImmediate(IEnumerable<Song> songs)
@@ -911,7 +935,7 @@ public class SongIndex
 
     public async Task<IEnumerable<Song>> FindAlbum(string name, CruftFilter cruft = CruftFilter.NoCruft)
     {
-        return await FindByField(Song.AlbumsField, name, cruft);
+        return await FindByField(AlbumsField, name, cruft);
     }
 
     public async Task<IEnumerable<Song>> FindArtist(string name,
@@ -960,8 +984,7 @@ public class SongIndex
             Size = 6
         };
 
-        var response = await DoSearch(
-            search, options, CruftFilter.NoCruft);
+        var response = await DoSearch(search, options);
 
         return await CreateSongs(response.GetResults());
     }
@@ -976,7 +999,7 @@ public class SongIndex
         parameters.Select.AddRange(
             new[]
             {
-                Song.SongIdField, Song.TitleField, Song.ArtistField, Song.LengthField,
+                SongIdField, Song.TitleField, Song.ArtistField, Song.LengthField,
                 Song.TempoField
             });
 
@@ -1008,7 +1031,7 @@ public class SongIndex
         var parameters = AzureParmsFromFilter(new SongFilter(), 1);
         AddAzureCategories(parameters, categories, count);
 
-        return (await DoSearch(null, parameters, CruftFilter.NoCruft)).Facets;
+        return (await DoSearch(null, parameters)).Facets;
     }
 
     public static void AddAzureCategories(SearchOptions parameters, string categories,
@@ -1037,7 +1060,7 @@ public class SongIndex
                 result => new Suggestion
                 {
                     Value = result.Text,
-                    Data = result.Document.GetString(Song.SongIdField)
+                    Data = result.Document.GetString(SongIdField)
                 }).Distinct(comp).Take(10).ToList();
 
             return new SuggestionList
@@ -1152,7 +1175,7 @@ public class SongIndex
             Trace.WriteLine(ex.Message);
         }
 
-        var index = Song.GetIndex(info.Index, DanceMusicService.DanceStatsManager);
+        var index = GetIndex();
 
         try
         {
@@ -1166,21 +1189,9 @@ public class SongIndex
         }
     }
 
-    public virtual async Task<bool> UpdateIndex(IEnumerable<string> dances)
-    {
-        var index = (await IndexClient.GetIndexAsync(Info.Index)).Value;
-        foreach (var dance in dances)
-        {
-            var field = Song.IndexFieldFromDanceId(dance);
-            if (index.Fields.All(f => f.Name != field.Name))
-            {
-                index.Fields.Add(field);
-            }
-        }
+    public abstract SearchIndex GetIndex();
 
-        var response = await IndexClient.CreateOrUpdateIndexAsync(index);
-        return response.Value != null;
-    }
+    public abstract Task<bool> UpdateIndex(IEnumerable<string> dances);
 
     public async Task<int> UploadIndex(IList<string> lines, bool trackDeleted)
     {
@@ -1214,7 +1225,7 @@ public class SongIndex
 
             try
             {
-                var songs = chunk.Where(s => !s.IsNull).Select(s => s.GetIndexDocument(DanceMusicService));
+                var songs = chunk.Where(s => !s.IsNull).Select(song => DocumentFromSong(song));
                 var batch = IndexDocumentsBatch.Upload(songs);
                 var results = await Client.IndexDocumentsAsync(batch);
                 added += results.Value.Results.Count;
@@ -1235,7 +1246,7 @@ public class SongIndex
         try
         {
             var batch = IndexDocumentsBatch.Delete(
-                delete.Select(d => new SearchDocument { [Song.SongIdField] = d }));
+                delete.Select(d => new SearchDocument { [SongIdField] = d }));
             var results = await Client.IndexDocumentsAsync(batch);
             Trace.WriteLine($"Deleted = {results.Value.Results.Count}");
         }
@@ -1246,6 +1257,8 @@ public class SongIndex
 
         return added;
     }
+
+    protected abstract object DocumentFromSong(Song song);
 
     public async Task<IEnumerable<string>> BackupIndex(int count = -1, SongFilter filter = null)
     {
@@ -1258,7 +1271,7 @@ public class SongIndex
         parameters.OrderBy.Add("Modified desc");
         parameters.Select.AddRange(
             new[]
-                { Song.SongIdField, Song.ModifiedField, Song.PropertiesField });
+                { SongIdField, ModifiedField, PropertiesField });
 
         var searchString = string.IsNullOrWhiteSpace(filter.SearchString)
             ? null
@@ -1267,13 +1280,15 @@ public class SongIndex
         return response.Value.GetResults().Select(
             r =>
                 Song.Serialize(
-                    r.Document.GetString(Song.SongIdField),
-                    r.Document.GetString(Song.PropertiesField)));
+                    r.Document.GetString(SongIdField),
+                    r.Document.GetString(PropertiesField)));
 
     }
     #endregion
 
     #region Helpers
+    protected abstract Task<Song> CreateSong(SearchDocument document);
+
     protected async Task<IEnumerable<Song>> SongsFromAzureResult(
         SearchResults<SearchDocument> result)
     {
@@ -1295,6 +1310,21 @@ public class SongIndex
         var credentials = new AzureKeyCredential(info.AdminKey);
         return new SearchIndexClient(endpoint, credentials);
     }
+
+    protected static void AccumulateComments(List<UserComment> comments, List<string> accumulator)
+    {
+        if (comments is { Count: > 0 })
+        {
+            accumulator.AddRange(comments.Select(c => c.Comment));
+        }
+    }
+
+    protected static float? CleanNumber(float? f)
+    {
+        return f.HasValue && !float.IsFinite(f.Value) ? null : f;
+    }
+
+
     #endregion
 }
 

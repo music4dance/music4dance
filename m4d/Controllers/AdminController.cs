@@ -202,6 +202,15 @@ namespace m4d.Controllers
         }
 
         //
+        // Get: //ToggleStructuredSchema
+        [AllowAnonymous]
+        public ActionResult ToggleStructuredSchema()
+        {
+            SongFilter.StructuredSchema = !SongFilter.StructuredSchema;
+            return View("Diagnostics");
+        }
+
+        //
         // Get: //SetTraceLevel
         [AllowAnonymous]
         public ActionResult SetTraceLevel(int level)

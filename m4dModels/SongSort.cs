@@ -10,15 +10,15 @@ namespace m4dModels
         private static readonly string[] s_directional =
         {
             Song.TitleField, Song.ArtistField, Song.TempoField, Song.LengthField,
-            Song.ModifiedField, Song.CreatedField, Song.EditedField,
-            Song.EnergyField, Song.MoodField, Song.BeatField
+            SongIndex.ModifiedField, SongIndex.CreatedField, SongIndex.EditedField,
+            Song.EnergyField, SongIndex.MoodField, SongIndex.BeatField
         };
 
         private static readonly string[] s_numerical =
-            { Song.TempoField, Song.MoodField, Song.CreatedField };
+            { Song.TempoField, SongIndex.MoodField, SongIndex.CreatedField };
 
         private static readonly string[] s_intrinsic =
-            { Song.EnergyField, Song.MoodField, Song.BeatField };
+            { Song.EnergyField, SongIndex.MoodField, SongIndex.BeatField };
 
         public SongSort(string sort)
         {
@@ -146,17 +146,17 @@ namespace m4dModels
                         case Song.LengthField:
                             ret.Append("shortest to longest");
                             break;
-                        case Song.ModifiedField:
-                        case Song.CreatedField:
+                        case SongIndex.ModifiedField:
+                        case SongIndex.CreatedField:
                             ret.Append("newest to oldest");
                             break;
-                        case Song.DancesField:
+                        case SongIndex.DancesField:
                             ret.Append("most popular to least popular");
                             break;
-                        case Song.BeatField:
+                        case SongIndex.BeatField:
                             ret.Append("weakest to strongest");
                             break;
-                        case Song.MoodField:
+                        case SongIndex.MoodField:
                             ret.Append("saddest to happiest");
                             break;
                         case Song.EnergyField:
@@ -177,17 +177,17 @@ namespace m4dModels
                         case Song.LengthField:
                             ret.Append("longest to shortest");
                             break;
-                        case Song.ModifiedField:
-                        case Song.CreatedField:
+                        case SongIndex.ModifiedField:
+                        case SongIndex.CreatedField:
                             ret.Append("oldest to newest");
                             break;
-                        case Song.DancesField:
+                        case SongIndex.DancesField:
                             ret.Append("most popular to least popular");
                             break;
-                        case Song.BeatField:
+                        case SongIndex.BeatField:
                             ret.Append("strongest to weakest");
                             break;
-                        case Song.MoodField:
+                        case SongIndex.MoodField:
                             ret.Append("happiest to saddest");
                             break;
                         case Song.EnergyField:

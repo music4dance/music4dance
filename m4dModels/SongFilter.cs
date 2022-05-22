@@ -41,7 +41,6 @@ namespace m4dModels
     [TypeConverter(typeof(SongFilterConverter))]
     public class SongFilter
     {
-        private const string Empty = ".";
         private const char SubChar = '\u001a';
         private const char Separator = '-';
 
@@ -59,10 +58,16 @@ namespace m4dModels
         private static readonly Dictionary<string,object>  AltDefaults =
             new() { {"Action", "index" }, {"Dances", "all" },  {"Page", 1 } };
 
-        private readonly string _sepStr = new(Separator, 1);
         private readonly string _subStr = new(SubChar, 1);
-
         private string _action;
+
+        // TODONEXT: Move Field Ids into SongIndex.
+        //  Continue to abstract out parts of song index that are specific to the Flat Schema
+        //  Create another child class for StructuredIndex
+        //  Make the index definition include the type & allow that to be selectable via admin portal
+        //  Move to a factory system based on this boolean
+        //  This should work for songfitler & its descendents
+        public static bool StructuredSchema { get; set; }
 
         static SongFilter()
         {

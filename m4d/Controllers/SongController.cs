@@ -34,6 +34,7 @@ namespace m4d.Controllers
         private readonly LinkGenerator _linkGenerator;
         private readonly IMapper _mapper;
         private readonly IBackgroundTaskQueue _backgroundTaskQueue;
+        private SongFilter Filter { get; set; }
 
         public SongController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
@@ -51,15 +52,18 @@ namespace m4d.Controllers
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
             var user = UserName;
-            filterContext.ActionArguments.TryGetValue("filter", out var o);
-            if (o == null)
+            var filterString = filterContext.HttpContext.Request.Query["filter"];
+            if (!string.IsNullOrEmpty(filterString))
             {
-                o = SongFilter.GetDefault(user);
-                filterContext.ActionArguments["filter"] = o;
+                Filter = new SongFilter(filterString);
+            }
+            else
+            {
+                Filter = SongFilter.GetDefault(user);
+                filterContext.ActionArguments["filter"] = Filter;
             }
 
-            ViewBag.SongFilter = o is SongFilter filter ? filter : SongFilter.GetDefault(user);
-
+            ViewBag.SongFilter = Filter;
             base.OnActionExecuting(filterContext);
         }
 
@@ -75,49 +79,46 @@ namespace m4d.Controllers
         #region Commands
 
         [AllowAnonymous]
-        public async Task<ActionResult> Search(string searchString, string dances,
-            SongFilter filter)
+        public async Task<ActionResult> Search(string searchString, string dances)
         {
-            return await AzureSearch(searchString, filter, 0, dances);
+            return await AzureSearch(searchString, 0, dances);
         }
 
         [AllowAnonymous]
-        public async Task<ActionResult> NewMusic(string type = null, int? page = null,
-            SongFilter filter = null)
+        public async Task<ActionResult> NewMusic(string type = null, int? page = null)
         {
-            filter ??= new SongFilter();
-            filter.Action = "newmusic";
+            Filter.Action = "newmusic";
             if (type != null)
             {
-                filter.SortOrder = type;
+                Filter.SortOrder = type;
             }
 
-            if (string.IsNullOrWhiteSpace(filter.SortOrder))
+            if (string.IsNullOrWhiteSpace(Filter.SortOrder))
             {
-                filter.SortOrder = "Created";
+                Filter.SortOrder = "Created";
             }
 
             if (page != null)
             {
-                filter.Page = page;
+                Filter.Page = page;
             }
 
-            if (Identity.IsAuthenticated && filter.IsEmpty)
+            if (Identity.IsAuthenticated && Filter.IsEmpty)
             {
-                filter.User = new UserQuery(UserName, false, false).Query;
+                Filter.User = new UserQuery(UserName, false, false).Query;
             }
 
-            return await DoAzureSearch(filter, true);
+            return await DoAzureSearch();
         }
 
         [AllowAnonymous]
         public async Task<ActionResult> HolidayMusic(string dance = null, int page = 1)
         {
-            var filter = SongFilter.CreateHolidayFilter(dance, page);
+            Filter = SongFilter.CreateHolidayFilter(dance, page);
 
             try
             {
-                var results = await BuildAzureSearch(filter);
+                var results = await BuildAzureSearch();
 
                 string playListId = null;
 
@@ -141,7 +142,7 @@ namespace m4d.Controllers
                      new HolidaySongListModel
                     {
                         Histories = histories,
-                        Filter = _mapper.Map<SongFilterSparse>(filter),
+                        Filter = _mapper.Map<SongFilterSparse>(Filter),
                         Count = (int)results.TotalCount,
                         Dance = dance,
                         PlayListId = playListId,
@@ -156,56 +157,49 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
-        public async Task<ActionResult> AzureSearch(string searchString, SongFilter filter,
-            int page = 1,
-            string dances = null)
+        public async Task<ActionResult> AzureSearch(string searchString, int page = 1, string dances = null)
         {
-            if (Identity.IsAuthenticated && filter.IsEmpty)
-            {
-                filter.User = new UserQuery(UserName, false, false).Query;
-            }
-
             if (string.IsNullOrWhiteSpace(dances))
             {
                 dances = null;
             }
 
             if (dances != null &&
-                !string.Equals(dances, filter.Dances, StringComparison.OrdinalIgnoreCase))
+                !string.Equals(dances, Filter.Dances, StringComparison.OrdinalIgnoreCase))
             {
-                filter.Dances = dances;
-                filter.Page = 1;
+                Filter.Dances = dances;
+                Filter.Page = 1;
 
-                if (string.IsNullOrWhiteSpace(filter.SortOrder) && filter.DanceQuery.Dances.Count() == 1)
+                if (string.IsNullOrWhiteSpace(Filter.SortOrder) && Filter.DanceQuery.Dances.Count() == 1)
                 {
-                    filter.SortOrder = "Dances";
+                    Filter.SortOrder = "Dances";
                 }
             }
 
             if (searchString != null)
             {
-                filter.SearchString = searchString;
+                Filter.SearchString = searchString;
             }
 
             if (page != 0)
             {
-                filter.Page = page;
+                Filter.Page = page;
             }
 
-            filter.Purchase = null;
-            filter.TempoMin = null;
-            filter.TempoMax = null;
+            Filter.Purchase = null;
+            Filter.TempoMin = null;
+            Filter.TempoMax = null;
 
-            return await DoAzureSearch(filter);
+            return await DoAzureSearch();
         }
 
         // TODO: Consider abstracting this (and maybe format) out into a builder/computer
-        private async Task<ActionResult> DoAzureSearch(SongFilter filter, bool? hideSort = null)
+        private async Task<ActionResult> DoAzureSearch()
         {
             try
             {
-                var results = await BuildAzureSearch(filter);
-                return await FormatResults(results, filter, hideSort);
+                var results = await BuildAzureSearch();
+                return await FormatResults(results);
             }
             catch (RedirectException ex)
             {
@@ -214,22 +208,19 @@ namespace m4d.Controllers
 
         }
 
-        private async Task<ActionResult> FormatResults(
-            SearchResults results, SongFilter filter, bool? hideSort = null)
+        private async Task<ActionResult> FormatResults(SearchResults results)
         {
-            return await FormatSongList(
-                results.Songs.ToList(), (int)results.TotalCount,
-                filter, hideSort);
+            return await FormatSongList(results.Songs.ToList(), (int)results.TotalCount);
         }
 
         private async Task<ActionResult> FormatSongList(IReadOnlyCollection<Song> songs,
-            int? totalSongs, SongFilter filter, bool? hideSort = null)
+            int? totalSongs)
         {
 
             var user = UserName;
             if (user != null)
             {
-                filter.Anonymize(user);
+                Filter.Anonymize(user);
             }
 
             var dictionary = await UserMapper.GetUserNameDictionary(UserManager);
@@ -237,36 +228,36 @@ namespace m4d.Controllers
                 s =>
                     UserMapper.AnonymizeHistory(s.GetHistory(_mapper), dictionary)).ToList();
                 
-            return Vue("Songs for Dancing", $"music4dance catalog: {filter.Description}", filter.VueName,
+            return Vue("Songs for Dancing", $"music4dance catalog: {Filter.Description}", Filter.VueName,
                 new SongListModel
                 {
                     Histories = histories,
-                    Filter = _mapper.Map<SongFilterSparse>(filter),
+                    Filter = _mapper.Map<SongFilterSparse>(Filter),
                     Count = totalSongs ?? songs.Count,
                 },
                 danceEnvironment: true);
         }
 
-        private async Task<SearchResults> BuildAzureSearch(SongFilter filter)
+        private async Task<SearchResults> BuildAzureSearch()
         {
-            HelpPage = filter.IsSimple ? "song-list" : "advanced-search";
+            HelpPage = Filter.IsSimple ? "song-list" : "advanced-search";
 
-            if (!filter.IsEmptyBot &&
+            if (!Filter.IsEmptyBot &&
                 SpiderManager.CheckAnySpiders(Request.Headers[HeaderNames.UserAgent]))
             {
-                throw new RedirectException("BotFilter", filter);
+                throw new RedirectException("BotFilter", Filter);
             }
 
-            if (filter.Level != null && filter.Level != 0 &&
+            if (Filter.Level != null && Filter.Level != 0 &&
                 !(User.IsInRole(DanceMusicCoreService.PremiumRole) ||
                     User.IsInRole(DanceMusicCoreService.TrialRole) ||
                     User.IsInRole(DanceMusicCoreService.DiagRole)))
             {
-                filter.Level = null;
+                Filter.Level = null;
                 var redirectUrl =
                     _linkGenerator.GetUriByAction(
                         HttpContext, "AdvancedSearchForm", "Song",
-                        new { filter });
+                        new { Filter });
                 var premiumRedirect = new PremiumRedirect
                 {
                     FeatureType = "search",
@@ -277,7 +268,7 @@ namespace m4d.Controllers
                 throw new RedirectException("RequiresPremium", premiumRedirect);
             }
 
-            var userQuery = filter.UserQuery;
+            var userQuery = Filter.UserQuery;
             var currentUser = UserName;
             if (!userQuery.IsEmpty)
             {
@@ -285,28 +276,28 @@ namespace m4d.Controllers
                 {
                     if (Identity.IsAuthenticated)
                     {
-                        filter.User = new UserQuery(userQuery, currentUser).Query;
+                        Filter.User = new UserQuery(userQuery, currentUser).Query;
                     }
                     else
                     {
-                        throw new RedirectException("Login", filter);
+                        throw new RedirectException("Login", Filter);
                     }
                 }
                 else if (!string.Equals(currentUser, userQuery.UserName))
                 {
                     // In this case we want to intentionally overwrite the incoming filter
-                    var temp = await UserMapper.AnonymizeFilter(filter, UserManager);
-                    filter.User = temp.User;
+                    var temp = await UserMapper.AnonymizeFilter(Filter, UserManager);
+                    Filter.User = temp.User;
                 }
             }
 
-            var p = await AzureParmsFromFilter(filter, 25);
+            var p = await AzureParmsFromFilter(Filter, 25);
             p.IncludeTotalCount = true;
 
-            await LogSearch(filter.Clone());
+            await LogSearch(Filter.Clone());
 
             return await SongIndex.Search(
-                filter.SearchString, p, filter.CruftFilter);
+                Filter.SearchString, p, Filter.CruftFilter);
         }
 
         private async Task LogSearch(SongFilter filter)
@@ -375,15 +366,13 @@ namespace m4d.Controllers
         //
         // GET: /Song/RawSearchForm
         [AllowAnonymous]
-        public ActionResult RawSearchForm([FromServices]IDanceStatsManager danceStatsManager,
-            SongFilter filter = null)
+        public ActionResult RawSearchForm([FromServices]IDanceStatsManager danceStatsManager)
         {
             HelpPage = "advanced-search";
 
-            ViewBag.AzureIndexInfo = Song.GetIndex(
-                SearchService.GetInfo().Index, danceStatsManager);
+            ViewBag.AzureIndexInfo = Database.SongIndex.GetIndex();
             UseVue = false;
-            return View(new RawSearch(filter is { IsRaw: true } ? filter : null));
+            return View(new RawSearch(Filter is { IsRaw: true } ? Filter : null));
         }
 
         //
@@ -397,29 +386,29 @@ namespace m4d.Controllers
         {
             HelpPage = "advanced-search";
 
-            ViewBag.AzureIndexInfo = Song.GetIndex(
-                SearchService.GetInfo().Index, danceStatsManager);
+            Filter = new SongFilter(rawSearch);
+            ViewBag.AzureIndexInfo = Database.SongIndex.GetIndex();
             return ModelState.IsValid
-                ? await DoAzureSearch(new SongFilter(rawSearch))
+                ? await DoAzureSearch()
                 : View("RawSearchForm", rawSearch);
         }
 
         //
         // GET: /Song/AdvancedSearchForm
         [AllowAnonymous]
-        public ActionResult AdvancedSearchForm(SongFilter filter)
+        public ActionResult AdvancedSearchForm()
         {
             return Vue(
                 "Advanced Search",
-                $"music4dance advanced song search form: {filter.Description}",
+                $"music4dance advanced song search form: {Filter.Description}",
                 "advanced-search", helpPage: "advanced-search",
                 danceEnvironment: true, tagEnvironment: true);
         }
 
         [AllowAnonymous]
-        public async Task<ActionResult> FilterSearch(SongFilter filter)
+        public async Task<ActionResult> FilterSearch()
         {
-            return await DoAzureSearch(filter);
+            return await DoAzureSearch();
         }
 
         // Get: /Song/AdvancedSearch
@@ -428,12 +417,11 @@ namespace m4d.Controllers
             string dances = null,
             string tags = null, ICollection<string> services = null, decimal? tempoMin = null,
             decimal? tempoMax = null, string user = null, string sortOrder = null,
-            string sortDirection = null, ICollection<int> bonusContent = null,
-            SongFilter filter = null)
+            string sortDirection = null, ICollection<int> bonusContent = null)
         {
-            if (!filter.IsAdvanced)
+            if (!Filter.IsAdvanced)
             {
-                filter.Action = filter.IsAzure ? "azure+advanced" : "Advanced";
+                Filter.Action = Filter.IsAzure ? "azure+advanced" : "Advanced";
             }
 
             if (string.IsNullOrWhiteSpace(searchString))
@@ -441,10 +429,10 @@ namespace m4d.Controllers
                 searchString = null;
             }
 
-            if (!string.Equals(searchString, filter.SearchString))
+            if (!string.Equals(searchString, Filter.SearchString))
             {
-                filter.SearchString = searchString;
-                filter.Page = 1;
+                Filter.SearchString = searchString;
+                Filter.Page = 1;
             }
 
             if (string.IsNullOrWhiteSpace(dances))
@@ -452,10 +440,10 @@ namespace m4d.Controllers
                 dances = null;
             }
 
-            if (!string.Equals(dances, filter.Dances, StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(dances, Filter.Dances, StringComparison.OrdinalIgnoreCase))
             {
-                filter.Dances = dances;
-                filter.Page = 1;
+                Filter.Dances = dances;
+                Filter.Page = 1;
             }
 
             if (string.IsNullOrWhiteSpace(tags))
@@ -463,10 +451,10 @@ namespace m4d.Controllers
                 tags = null;
             }
 
-            if (!string.Equals(tags, filter.Tags, StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(tags, Filter.Tags, StringComparison.OrdinalIgnoreCase))
             {
-                filter.Tags = tags;
-                filter.Page = 1;
+                Filter.Tags = tags;
+                Filter.Page = 1;
             }
 
             if (string.IsNullOrWhiteSpace(user))
@@ -474,10 +462,10 @@ namespace m4d.Controllers
                 user = null;
             }
 
-            if (!string.Equals(user, filter.User, StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(user, Filter.User, StringComparison.OrdinalIgnoreCase))
             {
-                filter.User = user;
-                filter.Page = 1;
+                Filter.User = user;
+                Filter.Page = 1;
             }
 
             if (string.IsNullOrWhiteSpace(sortOrder) || string.Equals(
@@ -491,10 +479,10 @@ namespace m4d.Controllers
                 sortOrder = sortOrder + "_desc";
             }
 
-            if (!string.Equals(sortOrder, filter.SortOrder, StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(sortOrder, Filter.SortOrder, StringComparison.OrdinalIgnoreCase))
             {
-                filter.SortOrder = sortOrder;
-                filter.Page = 1;
+                Filter.SortOrder = sortOrder;
+                Filter.Page = 1;
             }
 
             var purchase = string.Empty;
@@ -503,17 +491,17 @@ namespace m4d.Controllers
                 purchase = string.Concat(services);
             }
 
-            if (filter.Purchase != purchase)
+            if (Filter.Purchase != purchase)
             {
-                filter.Purchase = purchase;
-                filter.Page = 1;
+                Filter.Purchase = purchase;
+                Filter.Page = 1;
             }
 
-            if (filter.TempoMin != tempoMin || filter.TempoMax != tempoMax)
+            if (Filter.TempoMin != tempoMin || Filter.TempoMax != tempoMax)
             {
-                filter.TempoMin = tempoMin;
-                filter.TempoMax = tempoMax;
-                filter.Page = 1;
+                Filter.TempoMin = tempoMin;
+                Filter.TempoMax = tempoMax;
+                Filter.Page = 1;
             }
 
             int? level = null;
@@ -526,34 +514,33 @@ namespace m4d.Controllers
                 }
             }
 
-            if (filter.Level != level)
+            if (Filter.Level != level)
             {
-                filter.Level = level;
-                filter.Page = 1;
+                Filter.Level = level;
+                Filter.Page = 1;
             }
 
-            return await DoAzureSearch(filter);
+            return await DoAzureSearch();
         }
 
 
         [AllowAnonymous]
-        public async Task<ActionResult> Sort(string sortOrder, SongFilter filter)
+        public async Task<ActionResult> Sort(string sortOrder)
         {
-            filter.SortOrder = SongSort.DoSort(sortOrder, filter.SortOrder);
+            Filter.SortOrder = SongSort.DoSort(sortOrder, Filter.SortOrder);
 
-            return await DoAzureSearch(filter);
+            return await DoAzureSearch();
         }
 
         [AllowAnonymous]
-        public async Task<ActionResult> FilterUser(string user, SongFilter filter)
+        public async Task<ActionResult> FilterUser(string user)
         {
-            filter.User = string.IsNullOrWhiteSpace(user) ? null : user;
-            return await DoAzureSearch(filter);
+            Filter.User = string.IsNullOrWhiteSpace(user) ? null : user;
+            return await DoAzureSearch();
         }
 
         [AllowAnonymous]
-        public async Task<ActionResult> FilterService(ICollection<string> services,
-            SongFilter filter)
+        public async Task<ActionResult> FilterService(ICollection<string> services)
         {
             var purchase = string.Empty;
             if (services != null)
@@ -561,120 +548,119 @@ namespace m4d.Controllers
                 purchase = string.Concat(services);
             }
 
-            if (filter.Purchase == purchase)
+            if (Filter.Purchase == purchase)
             {
-                return await DoAzureSearch(filter);
+                return await DoAzureSearch();
             }
 
-            filter.Purchase = purchase;
-            filter.Page = 1;
-            return await DoAzureSearch(filter);
+            Filter.Purchase = purchase;
+            Filter.Page = 1;
+            return await DoAzureSearch();
         }
 
         [AllowAnonymous]
-        public async Task<ActionResult> FilterTempo(decimal? tempoMin, decimal? tempoMax,
-            SongFilter filter)
+        public async Task<ActionResult> FilterTempo(decimal? tempoMin, decimal? tempoMax)
         {
-            if (filter.TempoMin == tempoMin && filter.TempoMax == tempoMax)
+            if (Filter.TempoMin == tempoMin && Filter.TempoMax == tempoMax)
             {
-                return await DoAzureSearch(filter);
+                return await DoAzureSearch();
             }
 
-            filter.TempoMin = tempoMin;
-            filter.TempoMax = tempoMax;
-            filter.Page = 1;
+            Filter.TempoMin = tempoMin;
+            Filter.TempoMax = tempoMax;
+            Filter.Page = 1;
 
-            return await DoAzureSearch(filter);
+            return await DoAzureSearch();
         }
 
         //
         // GET: /Index/
         [AllowAnonymous]
-        public async Task<ActionResult> Index(SongFilter filter, string id = null, int? page = null,
+        public async Task<ActionResult> Index(string id = null, int? page = null,
             string purchase = null)
         {
             if (id != null && Dances.Instance.DanceFromId(id) != null)
             {
-                filter.Dances = id.ToUpper();
+                Filter.Dances = id.ToUpper();
             }
 
             if (page.HasValue)
             {
-                filter.Page = page;
+                Filter.Page = page;
             }
 
-            if (Identity.IsAuthenticated && filter.IsEmpty)
+            if (Identity.IsAuthenticated && Filter.IsEmpty)
             {
-                filter.User = new UserQuery(UserName, false, false).Query;
+                Filter.User = new UserQuery(UserName, false, false).Query;
             }
 
             if (!string.IsNullOrWhiteSpace(purchase))
             {
-                filter.Purchase = purchase;
+                Filter.Purchase = purchase;
             }
 
-            return await DoAzureSearch(filter);
+            return await DoAzureSearch();
         }
 
         //
         // GET: /AdvancedIndex/
         // TODO: Figure out if this ever gets called
         [AllowAnonymous]
-        public async Task<ActionResult> Advanced(int? page, string purchase, SongFilter filter)
+        public async Task<ActionResult> Advanced(int? page, string purchase)
         {
-            return await Index(filter, null, page, purchase);
+            return await Index( null, page, purchase);
         }
 
         [AllowAnonymous]
-        public async Task<ActionResult> Tags(string tags, SongFilter filter)
+        public async Task<ActionResult> Tags(string tags)
         {
-            filter.Tags = null;
-            filter.Page = null;
+            Filter.Tags = null;
+            Filter.Page = null;
 
             if (string.IsNullOrWhiteSpace(tags))
             {
-                return await DoAzureSearch(filter);
+                return await DoAzureSearch();
             }
 
             var list = new m4dModels.TagList(tags).AddMissingQualifier('+');
-            filter.Tags = list.ToString();
+            Filter.Tags = list.ToString();
 
             BuildEnvironment(tagDatabase: true);
-            return await DoAzureSearch(filter);
+            return await DoAzureSearch();
         }
 
         [AllowAnonymous]
-        public async Task<ActionResult> AddTags(string tags, SongFilter filter)
+        public async Task<ActionResult> AddTags(string tags)
         {
             var add = new m4dModels.TagList(tags);
-            var old = new m4dModels.TagList(filter.Tags);
+            var old = new m4dModels.TagList(Filter.Tags);
 
             // First remove any tags from the old list
             old = old.Subtract(add);
             var ret = old.Add(add.AddMissingQualifier('+'));
-            filter.Tags = ret.ToString();
-            filter.Page = null;
+            Filter.Tags = ret.ToString();
+            Filter.Page = null;
 
-            return await DoAzureSearch(filter);
+            return await DoAzureSearch();
         }
 
         [AllowAnonymous]
-        public async Task<ActionResult> RemoveTags(string tags, SongFilter filter)
+        public async Task<ActionResult> RemoveTags(string tags)
         {
             var sub = new m4dModels.TagList(tags);
-            var old = new m4dModels.TagList(filter.Tags);
+            var old = new m4dModels.TagList(Filter.Tags);
             var ret = old.Subtract(sub);
-            filter.Tags = ret.ToString();
-            filter.Page = null;
+            Filter.Tags = ret.ToString();
+            Filter.Page = null;
 
-            return await DoAzureSearch(filter);
+            return await DoAzureSearch();
         }
 
         //
         // GET: /Song/Details/5
 
         [AllowAnonymous]
-        public async Task<ActionResult> Details(SongFilter filter, Guid? id = null)
+        public async Task<ActionResult> Details(Guid? id = null)
         {
             var spider = CheckSpiders();
             if (spider != null)
@@ -690,18 +676,18 @@ namespace m4d.Controllers
                 return song != null
                     ? RedirectToActionPermanent(
                         "details",
-                        new { id = song.SongId.ToString(), filter })
+                        new { id = song.SongId.ToString(), Filter })
                     : ReturnError(
                         HttpStatusCode.NotFound,
                         $"The song with id = {gid} has been deleted.");
             }
 
-            var details = await GetSongDetails(song, filter);
+            var details = await GetSongDetails(song);
             return Vue(details.Title, $"music4dance catalog: {details.Title} dance information", "song",
                 details, helpPage: "song-details");
         }
 
-        private async Task<SongDetailsModel> GetSongDetails(Song song, SongFilter filter)
+        private async Task<SongDetailsModel> GetSongDetails(Song song)
         {
             BuildEnvironment(danceEnvironment: true, tagDatabase: true);
             return new()
@@ -709,7 +695,7 @@ namespace m4d.Controllers
                 Title = song.Title,
                 SongHistory = await UserMapper.AnonymizeHistory(
                     song.GetHistory(_mapper), UserManager),
-                Filter = _mapper.Map<SongFilterSparse>(filter),
+                Filter = _mapper.Map<SongFilterSparse>(Filter),
                 UserName = UserName,
             };
         }
@@ -771,7 +757,7 @@ namespace m4d.Controllers
         //
         // GET: /Song/UpdateSongAndServices
         [Authorize(Roles = "dbAdmin")]
-        public async Task<ActionResult> UpdateSongAndServices(Guid id, SongFilter filter)
+        public async Task<ActionResult> UpdateSongAndServices(Guid id)
         {
             var song = await SongIndex.FindSong(id);
             if (song == null)
@@ -782,7 +768,7 @@ namespace m4d.Controllers
             await MusicServiceManager.UpdateSongAndServices(Database, song);
 
             HelpPage = "song-details";
-            return View("Details", GetSongDetails(song, filter));
+            return View("Details", GetSongDetails(song));
         }
 
         // VUEDTODO: Do we still support this????
@@ -805,14 +791,14 @@ namespace m4d.Controllers
         [ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
-        public async Task<ActionResult> DeleteConfirmed(Guid id, SongFilter filter)
+        public async Task<ActionResult> DeleteConfirmed(Guid id)
         {
             var song = await SongIndex.FindSong(id);
             var userName = User.Identity?.Name;
             var user = await Database.FindUser(userName);
             await SongIndex.DeleteSong(user, song);
 
-            return RedirectToAction("Index", new { filter });
+            return RedirectToAction("Index", new { Filter });
         }
 
         //
@@ -840,25 +826,24 @@ namespace m4d.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
-        public async Task<ActionResult> BatchAdminEdit(SongFilter filter, string properties,
+        public async Task<ActionResult> BatchAdminEdit(string properties,
             string user = null,
             int max = 1000)
         {
             Debug.Assert(User.Identity != null, "User.Identity != null");
             var applicationUser = await Database.FindUser(user ?? UserName);
             return BatchAdminExecute(
-                filter, (dms, song) =>
+                Filter, (dms, song) =>
                     dms.SongIndex.AdminAppendSong(song, applicationUser, properties), "BatchAdminEdit", max);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult BatchAdminModify(SongFilter filter, string properties,
-            int max = 10000)
+        public ActionResult BatchAdminModify(string properties, int max = 10000)
         {
             return BatchAdminExecute(
-                filter,
+                Filter,
                 (dms, song) => dms.SongIndex.AdminModifySong(song, properties),
                 "BatchAdminModify", max);
         }
@@ -966,8 +951,7 @@ namespace m4d.Controllers
         [ActionName("UndoUserChanges")]
         [ValidateAntiForgeryToken]
         [Authorize]
-        public async Task<ActionResult> UndoUserChanges(SongFilter filter, Guid id,
-            string userName = null)
+        public async Task<ActionResult> UndoUserChanges(Guid id, string userName = null)
         {
             if (userName == null)
             {
@@ -980,12 +964,12 @@ namespace m4d.Controllers
 
             var user = await Database.FindUser(userName);
             await Database.UndoUserChanges(user, id);
-            return RedirectToAction("Details", new { id, filter });
+            return RedirectToAction("Details", new { id, Filter });
         }
 
 
         [HttpGet]
-        public async Task<ActionResult> CreateSpotify(SongFilter filter)
+        public async Task<ActionResult> CreateSpotify()
         {
             HelpPage = "spotify-playlist";
             UseVue = false;
@@ -997,14 +981,14 @@ namespace m4d.Controllers
             return View(
                 new PlaylistCreateInfo
                 {
-                    Title = string.IsNullOrWhiteSpace(filter.ShortDescription)
+                    Title = string.IsNullOrWhiteSpace(Filter.ShortDescription)
                         ? "music4dance playlist"
-                        : filter.ShortDescription,
+                        : Filter.ShortDescription,
                     DescriptionPrefix =
                         "This playlist was created with information from music4dance.net: ",
-                    Description = filter.Description,
+                    Description = Filter.Description,
                     Count = 25,
-                    Filter = filter.ToString(),
+                    Filter = Filter.ToString(),
                     IsAuthenticated = User.Identity?.IsAuthenticated ?? false,
                     IsPremium = User.IsInRole("premium") || User.IsInRole("trial"),
                     CanSpotify = canSpotify
@@ -1090,31 +1074,30 @@ namespace m4d.Controllers
         //
         // Merge: /Song/MergeCandidates
         [Authorize(Roles = "dbAdmin")]
-        public async Task<ActionResult> MergeCandidates(int? page, int? level, bool? autoCommit,
-            SongFilter filter)
+        public async Task<ActionResult> MergeCandidates(int? page, int? level, bool? autoCommit)
         {
-            filter.Action = "MergeCandidates";
+            Filter.Action = "MergeCandidates";
 
             if (page.HasValue)
             {
-                filter.Page = page;
+                Filter.Page = page;
             }
 
             if (level.HasValue)
             {
-                filter.Level = level;
+                Filter.Level = level;
             }
 
             var songs =
                 await Database.FindMergeCandidates(
-                    autoCommit == true ? 10000 : 500, filter.Level ?? 1);
+                    autoCommit == true ? 10000 : 500, Filter.Level ?? 1);
 
             if (autoCommit.HasValue && autoCommit.Value)
             {
-                songs = await AutoMerge(songs, filter.Level ?? 1);
+                songs = await AutoMerge(songs, Filter.Level ?? 1);
             }
 
-            return await FormatSongList(songs, null, filter);
+            return await FormatSongList(songs, null);
         }
 
         //
@@ -1132,7 +1115,7 @@ namespace m4d.Controllers
         //
         // GET: /Song/UpdateRatings/5
         [Authorize(Roles = "dbAdmin")]
-        public async Task<ActionResult> UpdateRatings(Guid id, SongFilter filter)
+        public async Task<ActionResult> UpdateRatings(Guid id)
         {
             var song = await SongIndex.FindSong(id);
             if (song == null)
@@ -1155,8 +1138,7 @@ namespace m4d.Controllers
         // BulkEdit: /Song/BulkEdit
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
-        public async Task<ActionResult> BulkEdit(Guid[] selectedSongs, string action,
-            SongFilter filter)
+        public async Task<ActionResult> BulkEdit(Guid[] selectedSongs, string action)
         {
             var songs = await SongIndex.FindSongs(selectedSongs);
 
@@ -1165,12 +1147,12 @@ namespace m4d.Controllers
                 case "Merge":
                     return Merge(songs);
                 case "Delete":
-                    return await Delete(songs, filter);
+                    return await Delete(songs, Filter);
                 case "CleanupAlbums":
                     return await CleanupAlbums(songs);
                 default:
                     var list = songs.ToList().AsReadOnly();
-                    return await FormatSongList(list, list.Count, new SongFilter());
+                    return await FormatSongList(list, list.Count);
             }
         }
 
@@ -1178,7 +1160,7 @@ namespace m4d.Controllers
         // Merge: /Song/Merge
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
-        public async Task<ActionResult> MergeResults(string songIds, SongFilter filter)
+        public async Task<ActionResult> MergeResults(string songIds)
         {
             var songs = (await SongIndex.FindSongs(songIds.Split(',').Select(Guid.Parse))).ToList();
 
@@ -1201,7 +1183,7 @@ namespace m4d.Controllers
 
             ViewBag.BackAction = "MergeCandidates";
 
-            return View("details", await GetSongDetails(song, filter));
+            return View("details", await GetSongDetails(song));
         }
 
         // CleanMusicServices: /Song/CleanMusicServices
@@ -1229,12 +1211,11 @@ namespace m4d.Controllers
 
 
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult BatchUpdateService(SongFilter filter, string serviceType)
+        public ActionResult BatchUpdateService(string serviceType)
         {
             var service = MusicService.GetService(serviceType);
             var musicServiceManager = MusicServiceManager;
             return BatchProcess(
-                filter,
                 async (dms, song) =>
                     await musicServiceManager.ConditionalUpdateSongAndService(dms, song, service)
                         ? song
@@ -1249,16 +1230,16 @@ namespace m4d.Controllers
         // G= Spotify Genre
         // P= Batch Process
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult BatchCleanService(SongFilter filter, string type = "D", int count = -1)
+        public ActionResult BatchCleanService(string type = "D", int count = -1)
         {
-            return BatchProcess(filter, (dms, song) => CleanMusicServiceSong(song, dms, type));
+            return BatchProcess((dms, song) => CleanMusicServiceSong(song, dms, type));
         }
 
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult BatchCleanupProperties(SongFilter filter, string type = "S")
+        public ActionResult BatchCleanupProperties(string type = "S")
         {
             return BatchProcess(
-                filter, (dms, song) =>
+                 (dms, song) =>
                     Task.FromResult(
                         song.CleanupProperties(Database, type)
                             ? song
@@ -1266,16 +1247,16 @@ namespace m4d.Controllers
         }
 
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult BatchReloadSongs(SongFilter filter)
+        public ActionResult BatchReloadSongs()
         {
             return BatchProcess(
-                filter, async (dms, song) =>
+                async (dms, song) =>
                     await dms.SongIndex.ReloadSong(song)
                         ? song
                         : null);
         }
 
-        private ActionResult BatchProcess(SongFilter filter,
+        private ActionResult BatchProcess(
             Func<DanceMusicCoreService, Song, Task<Song>> act, int count = -1)
         {
             try
@@ -1288,7 +1269,7 @@ namespace m4d.Controllers
                 var tried = 0;
                 var done = false;
 
-                filter.Page = 1;
+                Filter.Page = 1;
 
                 var dms = Database.GetTransientService();
                 Task.Run(
@@ -1300,12 +1281,12 @@ namespace m4d.Controllers
                             {
                                 AdminMonitor.UpdateTask(
                                     "BuildSongList",
-                                    ((filter.Page ?? 1) - 1) * 500);
+                                    ((Filter.Page ?? 1) - 1) * 500);
 
-                                var parameters = dms.SongIndex.AzureParmsFromFilter(filter, 500);
+                                var parameters = dms.SongIndex.AzureParmsFromFilter(Filter, 500);
                                 parameters.IncludeTotalCount = false;
                                 var res = await dms.SongIndex.Search(
-                                    filter.SearchString, parameters,
+                                    Filter.SearchString, parameters,
                                     CruftFilter.AllCruft);
                                 if (!res.Songs.Any())
                                 {
@@ -1321,7 +1302,7 @@ namespace m4d.Controllers
                                     {
                                         AdminMonitor.UpdateTask(
                                             "Processing",
-                                            ((filter.Page ?? 1) - 1) * 500 + processed);
+                                            ((Filter.Page ?? 1) - 1) * 500 + processed);
 
                                         processed += 1;
                                         tried += 1;
@@ -1368,7 +1349,7 @@ namespace m4d.Controllers
                                     dms.SongIndex.SaveSongsImmediate(save);
                                 }
 
-                                filter.Page += 1;
+                                Filter.Page += 1;
                                 if (processed < 500)
                                 {
                                     done = true;
@@ -1397,21 +1378,21 @@ namespace m4d.Controllers
         }
 
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult BatchSamples(SongFilter filter)
+        public ActionResult BatchSamples()
         {
             return BatchProcess(
-                filter, async (dms, song) =>
+                async (dms, song) =>
                     await MusicServiceManager.GetSampleData(dms, song)
                         ? song
                         : null);
         }
 
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult BatchEchoNest(SongFilter filter)
+        public ActionResult BatchEchoNest()
         {
             // TODO: Consider re-instating the option to only lookup songs w/o tempo or beat info
             return BatchProcess(
-                filter, async (dms, song) =>
+                async (dms, song) =>
                     await MusicServiceManager.GetEchoData(dms, song)
                         ? song
                         : null);

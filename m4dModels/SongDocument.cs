@@ -37,10 +37,10 @@ namespace m4dModels
         public List<string> Album { get; set; }
 
         [SimpleField(IsSortable = true, IsFilterable = true)]
-        public double Tempo { get; set; }
+        public double? Tempo { get; set; }
 
         [SimpleField(IsSortable = true, IsFilterable = true)]
-        public int Length { get; set; }
+        public int? Length { get; set; }
 
         // Dates
 
@@ -59,38 +59,55 @@ namespace m4dModels
 
 
         [SimpleField(IsSortable = true, IsFilterable = true)]
-        public double Beat { get; set; }
+        public double? Beat { get; set; }
 
         [SimpleField(IsSortable = true, IsFilterable = true)]
-        public double Energy { get; set; }
+        public double? Energy { get; set; }
 
         [SimpleField(IsSortable = true, IsFilterable = true)]
-        public double Mood { get; set; }
+        public double? Mood { get; set; }
 
         [SimpleField(IsFilterable = true)]
         public List<string> Purchase { get; set; }
 
         // Song Tags
 
-        [SearchableField(IsFilterable = true, IsFacetable = true, IsSortable = true)]
-        public List<string> DanceTags { get; set; }
-
-        [SearchableField(IsFilterable = true, IsFacetable = true, IsSortable = true)]
+        [SearchableField(IsFilterable = true, IsFacetable = true)]
         public List<string> GenreTags { get; set; }
 
-        [SearchableField(IsFilterable = true, IsFacetable = true, IsSortable = true)]
-        public List<string> StyleTags { get; set; }
-
-        [SearchableField(IsFilterable = true, IsFacetable = true, IsSortable = true)]
+        [SearchableField(IsFilterable = true, IsFacetable = true)]
         public List<string> TempoTags { get; set; }
 
-        [SearchableField(IsFilterable = true, IsFacetable = true, IsSortable = true)]
+        [SearchableField(IsFilterable = true, IsFacetable = true)]
         public List<string> OtherTags { get; set; }
 
         [SimpleField(IsFilterable = true)]
         public string Sample { get; set; }
+        public List<DanceDocument> Dances { get; set; }
 
         [SearchableField(IsFilterable = true)]
-        public string Comment { get; set; }
+        public List<string> Comments { get; set; }
+
+    }
+
+    public class DanceDocument
+    {
+        [SearchableField(IsFilterable = true)]
+        public string Name { get; set; }
+
+        [SimpleField(IsSortable = true)]
+        public int Votes { get; set; }
+
+        [SearchableField(IsFilterable = true, IsFacetable = true)]
+        public List<string> StyleTags { get; set; }
+
+        [SearchableField(IsFilterable = true, IsFacetable = true)]
+        public List<string> TempoTags { get; set; }
+
+        [SearchableField(IsFilterable = true, IsFacetable = true)]
+        public List<string> OtherTags { get; set; }
+
+        [SearchableField(IsFilterable = true)]
+        public List<string> Comments { get; set; }
     }
 }
