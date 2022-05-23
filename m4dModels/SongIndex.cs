@@ -75,6 +75,7 @@ public abstract class SongIndex
             var response = await Client.GetDocumentAsync<SearchDocument>(
                 id.ToString(),
                 new GetDocumentOptions { SelectedFields = {
+                    SongIdField,
                     PropertiesField
                 } });
             var doc = response.Value;
