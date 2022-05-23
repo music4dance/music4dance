@@ -78,7 +78,7 @@ module.exports = {
     },
     configureWebpack: (config) => {
         if (process.env.NODE_ENV === "production") {
-            config.output.filename = "js/[name].prod004.js";
+            config.output.filename = "js/[name].prod005.js";
             config.output.chunkFilename = "js/[name].prod001.js";
         } else {
             config.output.filename = "js/[name].local.js";

@@ -8,6 +8,7 @@
     "test:unit": "vue-cli-service test:unit",
     "lint": "vue-cli-service lint",
     "lint:fix": "vue-cli-service lint --fix",
+    "build:dev": "vue-cli-service build  --mode development",
     "watch": "vue-cli-service build --mode development --watch"
   },
   "dependencies": {
