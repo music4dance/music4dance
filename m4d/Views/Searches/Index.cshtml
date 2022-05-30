@@ -16,7 +16,7 @@
         recentActive = string.Empty;
         popularActive = "disabled btn-primary";
     }
-    var userName = User.Identity.Name;
+    var userName = ViewBag.User;
 
     ViewData["BreadCrumbs"] = new List<BreadCrumbItem>
     {
