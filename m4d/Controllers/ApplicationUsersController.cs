@@ -56,6 +56,11 @@ namespace m4d.Controllers
             return View(user);
         }
 
+        public async Task<ActionResult> PremiumUsers()
+        {
+            return View(await UserMapper.GetPremiumUsers(UserManager));
+        }
+
         // GET: ApplicationUsers/Create
         public ActionResult Create()
         {

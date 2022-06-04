@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using m4d.Utilities;
 using m4dModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Stripe;
 
 namespace m4d.APIControllers
 {
@@ -27,10 +31,9 @@ namespace m4d.APIControllers
 
         // id should be the type to update - currently songstats, propertycleanup
         [HttpGet("{id}")]
-        public IActionResult Get([FromServices]IConfiguration configuration, string id,
-            bool sync = false)
+        public async Task<IActionResult> Get([FromServices]IServiceScopeFactory serviceScopeFactory, string id)
         {
-            if (!TokenRequirement.Authorize(Request, configuration))
+            if (!TokenRequirement.Authorize(Request, _configuration))
             {
                 return Unauthorized();
             }
@@ -40,16 +43,17 @@ namespace m4d.APIControllers
                 return Conflict();
             }
 
-            string message;
-            DoHandleRecompute recompute;
 
             var rgid = id.Split('-');
+            string message;
 
             switch (rgid[0])
             {
                 case "songstats":
-                    recompute = DoHandleSongStats;
-                    message = "Updated song stats.";
+                    message = await DoHandleSongStats(serviceScopeFactory, Database.GetTransientService());
+                    break;
+                case "subscription":
+                    message = await DoHandleSubscriptions(serviceScopeFactory);
                     break;
                 default:
                     AdminMonitor.CompleteTask(false, $"Bad Id: {id}");
@@ -57,37 +61,62 @@ namespace m4d.APIControllers
             }
 
 
-            HandleRecompute(recompute, message);
-
             Trace.WriteLineIf(
                 TraceLevels.General.TraceInfo,
                 $"RecomputeController: id = {id}, changed = true, message = {message}");
             return Ok(new { changed = true, message });
         }
 
-        private void HandleRecompute(DoHandleRecompute recompute, string message)
+        private static async Task<string> DoHandleSongStats(IServiceScopeFactory serviceScopeFactory, DanceMusicCoreService dms)
         {
-            var dms = Database.GetTransientService();
-            Task.Run(
-                async () =>
-                    await recompute.Invoke(dms, DanceStatsManager, message));
-        }
-
-        private static async Task<bool> DoHandleSongStats(
-            DanceMusicCoreService dms, IDanceStatsManager dsm, string message)
-        {
+            var message = "Clear Song Stats Cache";
             try
             {
+                using var scope = serviceScopeFactory.CreateScope();
+                var dsm = scope.ServiceProvider.GetRequiredService<IDanceStatsManager>();
                 await dsm.ClearCache(dms, true);
                 Complete(message);
             }
             catch (Exception e)
             {
                 Fail(e);
+                message = $"Failed to {message}";
             }
 
-            return true;
+            return message;
         }
+
+        private static async Task<string> DoHandleSubscriptions(IServiceScopeFactory serviceScopeFactory)
+        {
+            var message = "Updated Subscriptions.";
+            try
+            {
+                using var scope = serviceScopeFactory.CreateScope();
+                var context = scope.ServiceProvider.GetRequiredService<DanceMusicContext>();
+                var userManager =
+                    scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+                var expired = context.Users.Where(
+                    u => u.SubscriptionEnd.HasValue && u.SubscriptionEnd < DateTime.Now);
+
+                foreach (var user in await expired.ToListAsync())
+                {
+                    if (await userManager.IsInRoleAsync(user, DanceMusicCoreService.PremiumRole))
+                    {
+                        await userManager.RemoveFromRoleAsync(user, DanceMusicCoreService.PremiumRole);
+                        Trace.WriteLine($"Remove: {user.UserName}");
+                    }
+                }
+                Complete("Updated Subscriptions.");
+            }
+            catch (Exception e)
+            {
+                Fail(e);
+                message = $"Failed to {message}";
+            }
+
+            return message;
+        }
+
 
         private static void Complete(string message)
         {

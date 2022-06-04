@@ -15,11 +15,13 @@
 
     string userName = "";
     string userId = "";
+    string expiration = null;
     if (User.Identity.IsAuthenticated)
     {
         userName = User.Identity.Name;
         var user = await _userManager.GetUserAsync(User);
         userId = user.Privacy == 0 ? user.Id : "";
+        expiration = user.SubscriptionEnd.ToString();
     }
     var roles = DanceMusicCoreService.UserRoles(User);
     var searchIndex = _searchService.DefaultId.Last();
@@ -67,6 +69,7 @@
 
 <link rel="stylesheet" href="/css/site.css"/>
 
+<!-- TODONEXT: Get date parsing working -->
 <script>
     var menuContext = {
         helpLink: '@help',
@@ -74,6 +77,7 @@
         userId: '@userId',
         roles: @Html.Raw(JsonConvert.SerializeObject(roles)),
         indexId: '@searchIndex',
+        expiration: @Html.Raw(expiration == null ? "undefined" : $"new Date('{expiration}')"),
         xsrfToken: '@GetAntiXsrfRequestToken()'
     };
 </script>

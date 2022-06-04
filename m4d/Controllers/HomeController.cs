@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using m4d.ViewModels;
 using m4dModels;
@@ -124,14 +125,21 @@ namespace m4d.Controllers
             HelpPage = "subscriptions";
 
             var user = await UserManager.GetUserAsync(User);
-            return View(GetContributeModel(user));
+            return View(await GetContributeModel(user));
         }
-        private ContributeModel GetContributeModel(ApplicationUser user)
+        private async Task<ContributeModel> GetContributeModel(ApplicationUser user)
         {
+            if (User.Identity == null)
+            {
+                throw new Exception("Expected identity when in contribution page.");
+            }
+
+            
             return new ContributeModel
             {
                 CommerceEnabled = IsCommerceEnabled(),
                 IsAuthenticated = User.Identity.IsAuthenticated,
+                CurrentPremium  = await Database.UserManager.IsInRoleAsync(user, DanceMusicCoreService.PremiumRole),
                 FraudDetected = IsFraudDetected(user),
             };
         }

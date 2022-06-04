@@ -1,0 +1,87 @@
+﻿@using m4d.ViewModels
+@using m4dModels
+@model List<UserInfo>
+
+@{
+    ViewBag.Title = "Premium Users";
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
+}
+
+<h2>User Administrator</h2>
+
+
+<hr/>
+<h3>Users</h3>
+<table class="table table-striped">
+    <tr>
+        <th style="width: 100px">
+            UserName<br />
+            Email
+        </th>
+        <th>
+            Signed Up<br />
+            Signed In
+        </th>
+        <th>
+            Start<br />
+            End
+        </th>
+        <th>
+            $
+        </th>
+        <th>Roles</th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model.OrderByDescending(u => u.User.SubscriptionEnd).ToList())
+    {
+        <tr>
+            <td>
+                @Html.ActionLink(item.User.UserName, "Details", new{id = item.User.Id})
+                <br />
+                @Html.DisplayFor(modelItem => item.User.Email)
+            </td>
+            <td>
+                @item.User.StartDate.ToString("d")
+                <br />
+                @if (item.User.LastActive != DateTime.Parse("1/1/0001"))
+                {
+                    @item.User.LastActive.ToString("d")
+                }
+            </td>
+            <td>
+                @item.User.SubscriptionStart?.ToString("d")
+                <br />
+                @item.User.SubscriptionEnd?.ToString("d")
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.User.LifetimePurchased)
+            </td>
+            <td>@Html.Raw(string.Join("<br />", item.Roles))</td>
+            <td>
+                @Html.ActionLink("List Songs", "FilterUser", "Song", new
+                {
+                    user = item.User.UserName
+                }, null),
+                @Html.ActionLink("List Searches", "Index", "Searches", new
+                {
+                    user = item.User.UserName,
+                    showDetails = true,
+                    sort = "recent"
+                }, null) <br />
+                @Html.ActionLink("Change Roles", "ChangeRoles", new
+                {
+                    id = item.User.Id
+                }) <br />
+                @Html.ActionLink("Delete", "Delete", new
+                {
+                    id = item.User.Id
+                }),
+                @Html.ActionLink("Edit", "Edit", new
+                {
+                    id = item.User.Id
+                })
+            </td>
+        </tr>
+        }
+</table>

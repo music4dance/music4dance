@@ -139,6 +139,20 @@
         </b-navbar-nav>
       </b-collapse>
     </b-navbar>
+    <b-alert
+      variant="warning"
+      show
+      dismissible
+      v-if="showExpiration"
+      style="margin-bottom: 0"
+      @dismissed="onDismissed"
+    >
+      Your premium subcription will expire in
+      {{ Math.round(context.daysToExpiration) }}
+      day(s). Please
+      <a href="/home/contribute" class="alert-link">click here</a> to renew.
+      Thanks for your continued support.
+    </b-alert>
     <form
       id="logoutForm"
       action="/identity/account/logout"
@@ -161,6 +175,8 @@ import DropTarget from "@/mix-ins/DropTarget";
 import { MenuContext } from "@/model/MenuContext";
 import "reflect-metadata";
 import { Component, Mixins, Prop } from "vue-property-decorator";
+
+const renewal = "renewal-acknowledged";
 
 @Component
 export default class MainMenu extends Mixins(DropTarget) {
@@ -188,6 +204,18 @@ export default class MainMenu extends Mixins(DropTarget) {
 
   private get searchLink(): string {
     return `/searches/?user=${this.context.userName}`;
+  }
+
+  private get showExpiration(): boolean {
+    return (
+      this.context.daysToExpiration !== undefined &&
+      this.context.daysToExpiration < 30 &&
+      !sessionStorage.getItem(renewal)
+    );
+  }
+
+  private onDismissed(): void {
+    sessionStorage.setItem(renewal, "true");
   }
 
   private search(): void {

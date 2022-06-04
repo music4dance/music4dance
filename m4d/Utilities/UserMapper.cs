@@ -28,6 +28,16 @@ namespace m4d.Utilities
             return s_cachedUsers;
         }
 
+        public static async Task<List<UserInfo>> GetPremiumUsers(
+            UserManager<ApplicationUser> userManager)
+        {
+            var dict = await GetUserNameDictionary(userManager);
+
+            return dict.Values.Where(u => 
+                u.Roles.Contains(DanceMusicCoreService.PremiumRole) ||
+                u.User.LifetimePurchased > 0).ToList();
+        }
+
         public static async Task<IReadOnlyDictionary<string, UserInfo>> GetUserIdDictionary(
             UserManager<ApplicationUser> userManager)
         {

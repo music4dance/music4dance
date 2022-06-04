@@ -36,5 +36,6 @@
         public bool CommerceEnabled { get; set; }
         public bool IsAuthenticated { get; set; }
         public bool FraudDetected { get; set; }
+        public bool CurrentPremium { get; set; }
     }
 }

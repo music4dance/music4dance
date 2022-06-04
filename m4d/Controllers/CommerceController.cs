@@ -1,13 +1,6 @@
-﻿using m4d.ViewModels;
-using m4dModels;
+﻿using m4dModels;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Stripe.Checkout;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading.Tasks;
 
 namespace m4d.Controllers
 {

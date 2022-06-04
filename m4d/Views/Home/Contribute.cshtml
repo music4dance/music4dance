@@ -1,6 +1,5 @@
 ﻿@using m4d.Controllers
 @using m4d.ViewModels
-@using Microsoft.Extensions.Configuration
 @model ContributeModel
 
 @{
@@ -19,20 +18,37 @@
 
 @if (Model.CommerceEnabled)
 {
-    <h2>Purchase a Subscription</h2>
-    <p class="big-text">
-        We appreciate any amount that you're willing to contribute to the music4dance effort.
-        Anyone who contributes @annualPrice or more receives a year of our
-        <a href="https://music4dance.blog/music4dance-help/subscriptions/"></a>premium subscription,
-        which always gives you an ad-free experience. We will also be experimenting with specific
-        premium features such as
-        <a href="https://music4dance.blog/music4dance-help/bonus-content/">
-            bonus content.
-        </a> and
-        <a href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/spotify-playlist/">
-            creating a spotify playlist
-        </a> from search results.
-    </p>
+    <h2>@(Model.CurrentPremium ? "Renew your" : "Purchase a") Subscription</h2>
+        @if (Model.CurrentPremium)
+        {
+            <p class="big-text">
+                Thank you for your continued support of the music4dance effort. We hope you continue to enjoy the benefits of 
+                <a href="https://music4dance.blog/music4dance-help/subscriptions/"></a>premium,
+                with its ad-free experience, 
+                <a href="https://music4dance.blog/music4dance-help/bonus-content/">
+                    bonus content.
+                </a> and
+                <a href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/spotify-playlist/">
+                    spotify integration
+                </a>.
+            </p>
+        }
+        else
+        {
+            <p class="big-text">
+                We appreciate any amount that you're willing to contribute to the music4dance effort.
+                Anyone who contributes @annualPrice or more receives a year of our
+                <a href="https://music4dance.blog/music4dance-help/subscriptions/"></a>premium subscription,
+                which always gives you an ad-free experience. We will also be experimenting with specific
+                premium features such as
+                <a href="https://music4dance.blog/music4dance-help/bonus-content/">
+                    bonus content.
+                </a> and
+                <a href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/spotify-playlist/">
+                    creating a spotify playlist
+                </a> from search results.
+            </p>
+        }
 
     if (Model.IsAuthenticated)
     {
@@ -55,7 +71,7 @@
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="kind" value="Purchase"/>
                 <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Purchase Subscription</button>
+                    <button type="submit" class="btn btn-primary">@(Model.CurrentPremium ? "Renew" : "Purchase") Subscription</button>
                 </div>
             }
             <p class="ml-2">The next page you see will be a <a href="https://www.stripe.com">Stripe</a> checkout

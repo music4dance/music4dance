@@ -4,6 +4,7 @@ export interface MenuContextInterface {
   userId?: string;
   roles?: string[];
   indexId?: string;
+  expiration?: Date;
   xsrfToken?: string;
 }
 
@@ -13,6 +14,7 @@ export class MenuContext implements MenuContextInterface {
   public userId?: string;
   public roles?: string[];
   public indexId?: string;
+  public expiration?: Date;
   public xsrfToken?: string;
 
   public constructor(init?: MenuContextInterface) {
@@ -37,5 +39,14 @@ export class MenuContext implements MenuContextInterface {
 
   public hasRole(role: string): boolean {
     return !!this.roles?.includes(role);
+  }
+
+  public get daysToExpiration(): number | undefined {
+    if (!this.expiration) {
+      return undefined;
+    }
+    const timeDiff = this.expiration.getTime() - Date.now();
+    const dayDiff = timeDiff / (1000 * 60 * 60 * 24);
+    return dayDiff > 0 ? dayDiff : 0;
   }
 }

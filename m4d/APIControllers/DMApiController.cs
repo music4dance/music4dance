@@ -9,8 +9,8 @@ namespace m4d.APIControllers
     // ReSharper disable once InconsistentNaming
     public class DanceMusicApiController : ControllerBase
     {
-        protected readonly DanceMusicService Database;
-        private readonly IConfiguration _configuration;
+        protected DanceMusicService Database { get; }
+        protected readonly IConfiguration _configuration;
 
         private MusicServiceManager _musicServiceManager;
 

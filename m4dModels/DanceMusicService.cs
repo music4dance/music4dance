@@ -127,6 +127,7 @@ namespace m4dModels
                 var subscriptionLevel = SubscriptionLevel.None;
                 DateTime? subscriptionStart = null;
                 DateTime? subscriptionEnd = null;
+                decimal lifeTimePurchased = 0;
 
                 var extended = cells.Length >= 17;
                 if (extended)
@@ -166,9 +167,14 @@ namespace m4dModels
                         subscriptionStart = start;
                     }
 
-                    if (DateTime.TryParse(cells[18], out var end))
+                    if (DateTime.TryParse(cells[19], out var end))
                     {
                         subscriptionEnd = end;
+                    }
+
+                    if (cells.Length >= 20)
+                    {
+                        decimal.TryParse(cells[20], out lifeTimePurchased);
                     }
                 }
 
@@ -246,6 +252,7 @@ namespace m4dModels
                 user.SubscriptionLevel = subscriptionLevel;
                 user.SubscriptionStart = subscriptionStart;
                 user.SubscriptionEnd = subscriptionEnd;
+                user.LifetimePurchased = lifeTimePurchased;
 
                 if (!string.IsNullOrWhiteSpace(providers))
                 {
@@ -876,9 +883,10 @@ namespace m4dModels
                 var sl = user.SubscriptionLevel;
                 var ss = user.SubscriptionStart;
                 var se = user.SubscriptionEnd;
+                var lp = user.LifetimePurchased;
 
                 users.Add(
-                    $"{userId}\t{username}\t{roles}\t{hash}\t{stamp}\t{lockout}\t{providers}\t{email}\t{emailConfirmed}\t{time}\t{region}\t{privacy}\t{canContact}\t{servicePreference}\t{lastActive}\t{rc}\t{col}\t{sl}\t{ss}\t{se}");
+                    $"{userId}\t{username}\t{roles}\t{hash}\t{stamp}\t{lockout}\t{providers}\t{email}\t{emailConfirmed}\t{time}\t{region}\t{privacy}\t{canContact}\t{servicePreference}\t{lastActive}\t{rc}\t{col}\t{sl}\t{ss}\t{se}\t{lp}");
             }
 
             if (withHeader && users.Count > 0)
