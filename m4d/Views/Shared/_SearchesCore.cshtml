@@ -17,7 +17,7 @@
                 @Html.DisplayNameFor(model => model.Query)
             </th>
             <th scope="col">
-                @Html.DisplayNameFor(model => model.Name)
+                @Html.DisplayNameFor(model => model.ApplicationUser.UserName)
             </th>
             <th scope="col">
                 @Html.DisplayNameFor(model => model.Count)
@@ -52,7 +52,7 @@
                     @Html.DisplayFor(modelItem => item.Query)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Name)
+                    @Html.DisplayFor(modelItem => item.ApplicationUser.UserName)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Count)

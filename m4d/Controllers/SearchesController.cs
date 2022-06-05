@@ -4,6 +4,7 @@ using System.Net;
 using System.Security.Authentication;
 using System.Threading.Tasks;
 using m4dModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace m4d.Controllers
 {
+    [Authorize]
     public class SearchesController : DanceMusicController
     {
         public SearchesController(DanceMusicContext context,
@@ -19,7 +21,7 @@ namespace m4d.Controllers
             IConfiguration configuration) :
             base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
         {
-            HelpPage = "song-list";
+            HelpPage = "saved-searches";
         }
 
         // GET: Searches
@@ -43,7 +45,7 @@ namespace m4d.Controllers
             }
 
             IQueryable<Search> searches = Database.Searches.Include(s => s.ApplicationUser);
-            if (user != null)
+            if (user != null && user != "all")
             {
                 var appUser = await Database.FindUser(user);
                 if (appUser != null)

@@ -322,6 +322,8 @@ namespace m4d.Controllers
                 filter.User = null;
             }
 
+            filter.Page = null;
+
             var filterString = filter.ToString();
             var now = DateTime.Now;
 
