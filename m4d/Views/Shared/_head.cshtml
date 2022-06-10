@@ -16,14 +16,14 @@
     string userName = "";
     string userId = "";
     string expiration = null;
+    var roles = DanceMusicCoreService.UserRoles(User);
     if (User.Identity.IsAuthenticated)
     {
         userName = User.Identity.Name;
         var user = await _userManager.GetUserAsync(User);
         userId = user.Privacy == 0 ? user.Id : "";
-        expiration = user.SubscriptionEnd.ToString();
+        expiration = roles.Contains(DanceMusicCoreService.PremiumRole) ? user.SubscriptionEnd.ToString() : null;
     }
-    var roles = DanceMusicCoreService.UserRoles(User);
     var searchIndex = _searchService.DefaultId.Last();
 }
 
