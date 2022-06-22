@@ -1037,7 +1037,7 @@ namespace m4d.Controllers
                 StartAdminTask("ResetIndex");
 
                 var idx = Database.GetSongIndex(id);
-                var success = await idx.ResetIndex();
+                var success = (await idx.ResetIndex()) != null;
 
                 ViewBag.Name = "Reset Index";
                 ViewBag.Success = success;

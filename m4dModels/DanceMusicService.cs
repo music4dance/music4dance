@@ -32,7 +32,7 @@ namespace m4dModels
         private const string PlaylistBreak = "+++++PLAYLISTS+++++";
 
         private const string UserHeader =
-            "UserId\tUserName\tRoles\tPWHash\tSecStamp\tLockout\tProviders\tEmail\tEmailConfirmed\tStartDate\tRegion\tPrivacy\tCanContact\tServicePreference\tLastActive\tRowCount\tColumns\tSubscriptionLevel\tSubscriptionStart\tSubscriptionEnd";
+            "UserId\tUserName\tRoles\tPWHash\tSecStamp\tLockout\tProviders\tEmail\tEmailConfirmed\tStartDate\tRegion\tPrivacy\tCanContact\tServicePreference\tLastActive\tRowCount\tColumns\tSubscriptionLevel\tSubscriptionStart\tSubscriptionEnd\tLifetimePurchased";
 
         public static bool IsSongBreak(string line)
         {

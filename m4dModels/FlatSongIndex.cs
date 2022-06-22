@@ -153,14 +153,11 @@ namespace m4dModels
                 },
             };
 
-            var danceStatsManager = DanceMusicService.DanceStatsManager;
-            var fsc = danceStatsManager.Dances;
-            fields.AddRange(
-                from sc in fsc
-                where sc.DanceId != "ALL"
-                select IndexFieldFromDanceId(sc.DanceId));
+            
+            var ids = Dances.Instance.AllDanceTypes.Where(t => t.Id != "ALL").Select(t => IndexFieldFromDanceId(t.Id));
+            fields.AddRange(ids);
 
-            var index = new SearchIndex(Info.Name, fields.ToArray());
+            var index = new SearchIndex(Info.Index, fields.ToArray());
             index.Suggesters.Add(
                 new SearchSuggester(
                     "songs", 
@@ -185,7 +182,7 @@ namespace m4dModels
 
         public override async Task<bool> UpdateIndex(IEnumerable<string> dances)
         {
-            var index = (await IndexClient.GetIndexAsync(Info.Index)).Value;
+            var index = await GetSearchIndex();
             foreach (var dance in dances)
             {
                 var field = IndexFieldFromDanceId(dance);
@@ -328,6 +325,19 @@ namespace m4dModels
         protected override string GetSongId(object doc)
         {
             return (doc as SearchDocument)?.GetString(SongIdField);
+        }
+
+        private async Task<SearchIndex> GetSearchIndex()
+        {
+            try
+            {
+                return await IndexClient.GetIndexAsync(Info.Index);
+            }
+            catch (Azure.RequestFailedException ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return await ResetIndex();
+            }
         }
     }
 }

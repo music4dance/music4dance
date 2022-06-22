@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using Azure.Identity;
 using m4d.Areas.Identity;
 using m4dModels;
@@ -16,13 +15,15 @@ namespace m4d
     {
         public static void Main(string[] args)
         {
-            var host = CreateHostBuilder(args).Build();
-
-            var env = host.Services.GetRequiredService<IWebHostEnvironment>();
-            using var scope = host.Services.CreateScope();
-            var serviceProvider = scope.ServiceProvider;
+            Console.WriteLine("Entering Main");
             try
             {
+                var host = CreateHostBuilder(args).Build();
+
+                var env = host.Services.GetRequiredService<IWebHostEnvironment>();
+                using var scope = host.Services.CreateScope();
+                var serviceProvider = scope.ServiceProvider;
+
                 using var context =
                     scope.ServiceProvider.GetRequiredService<DanceMusicContext>();
                 context.Database.Migrate();
@@ -35,18 +36,20 @@ namespace m4d
                         serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
                     IdentityHostingStartup.SeedData(userManager, roleManager);
                 }
+
+                host.Run();
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
+                Console.WriteLine(ex.Message);
             }
-
-            host.Run();
+            Console.WriteLine("Exiting Main");
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
             return Host.CreateDefaultBuilder(args)
+
                 .ConfigureWebHostDefaults(
                     webBuilder => webBuilder
                         .ConfigureAppConfiguration(
@@ -54,10 +57,13 @@ namespace m4d
                             {
                                 var environment =
                                     Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+                                Console.WriteLine($"Environment: {environment}");
+
                                 var isDevelopment = environment == Environments.Development;
 
                                 if (!isDevelopment)
                                 {
+                                    Console.WriteLine("Getting Configuration");
                                     var settings = config.Build();
                                     var credentials = new ManagedIdentityCredential();
 

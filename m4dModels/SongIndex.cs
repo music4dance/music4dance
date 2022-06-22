@@ -1162,7 +1162,7 @@ public abstract class SongIndex
 
     #region Index Management
 
-    public async Task<bool> ResetIndex()
+    public async Task<SearchIndex> ResetIndex()
     {
         var info = Info;
         try
@@ -1181,12 +1181,12 @@ public abstract class SongIndex
         try
         {
             var response = await IndexClient.CreateIndexAsync(index);
-            return response.Value != null;
+            return response.Value;
         }
         catch (RequestFailedException ex)
         {
             Trace.WriteLine(ex.Message);
-            return false;
+            return null;
         }
     }
 
