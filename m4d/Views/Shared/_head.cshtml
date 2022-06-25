@@ -25,6 +25,7 @@
         expiration = roles.Contains(DanceMusicCoreService.PremiumRole) ? user.SubscriptionEnd.ToString() : null;
     }
     var searchIndex = _searchService.DefaultId.Last();
+    var hideAds = ViewData.TryGetValue("HideAds", out var hideAdsObj) && (hideAdsObj as bool?).Value;
 }
 
 @functions{
@@ -34,7 +35,7 @@
     }
 }
 
-@if (!User.IsInRole("premium") && !userAgent.Contains("googlebot") )
+@if (!hideAds && !User.IsInRole("premium") && !userAgent.Contains("googlebot") )
 {
     <!-- Google Adsense Verifier -->
     <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>

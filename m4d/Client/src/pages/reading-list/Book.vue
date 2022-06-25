@@ -39,6 +39,9 @@ export default class BookComponent extends Vue {
     if (book.hardcover) {
       links.push({ text: `${book.title} (Hardcover)`, ref: book.hardcover });
     }
+    if (book.audible) {
+      links.push({ text: `${book.title} (Audible)`, ref: book.audible });
+    }
     if (book.review) {
       links.push({ text: "Review", ref: book.review });
     }

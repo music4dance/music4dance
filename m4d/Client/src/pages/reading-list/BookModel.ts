@@ -9,6 +9,7 @@ export interface Book {
   kindle?: string;
   paperback?: string;
   hardcover?: string;
+  audible?: string;
   others?: Link[];
   review?: string;
   notes?: string;

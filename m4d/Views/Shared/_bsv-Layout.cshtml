@@ -18,7 +18,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-    @if (_fileProvider.GetFileInfo($"/wwwroot/client/css/song-index.css").Exists)
+    @if (_fileProvider.GetFileInfo($"/wwwroot/client/css/{baseName}.css").Exists)
     {
         <link rel="stylesheet" href="@cssFile" asp-append-version="true" />
     }

@@ -77,6 +77,7 @@ namespace m4d.Controllers
 
         public IActionResult ReadingList()
         {
+            ViewBag.HideAds = true;
             return Vue(
                 "Reading List",
                 "Some fun and interesting reading related to dance in one way or another",

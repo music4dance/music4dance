@@ -18,15 +18,45 @@ a
     </b-tabs>
     <div>
       <h2>About the links on this page</h2>
-      If you found a book through this
-      <a href="https://www.music4dance.net">site</a> or the associated
-      <a href="https://music4dance.blog">blog</a> please be kind and click on a
-      link on this site to purchase it. This helps support the site. If you're
-      feeling especially generous (or just like the site a lot) clicking on the
-      Amazon links in the blog or the site and then doing your regular,
-      unrelated shopping will also help support the site as a very small
-      fraction of those proceeds will be directed to musci4dance.
+      <p>
+        If you found a book through this
+        <a href="https://www.music4dance.net">site</a> or the associated
+        <a href="https://music4dance.blog">blog</a> please be kind and click on
+        a link on this site to purchase it. This helps support the site. If
+        you're feeling especially generous (or just like the site a lot)
+        clicking on the Amazon links in the blog or the site and then doing your
+        regular, unrelated shopping will also help support the site as a very
+        small fraction of those proceeds will be directed to musci4dance.
+      </p>
+      <p>
+        Also, if you are interested in signing up for audible to "read" any of
+        the recommended books, please consider doing so through the link below.
+        Similaraly, if you are considering trying Amazon music, signing up
+        through the link below will help out music4dance.
+      </p>
     </div>
+    <iframe
+      src="//rcm-na.amazon-adsystem.com/e/cm?o=1&p=12&l=ur1&category=audibleplus&banner=0MG2XKQ7PYPP84NBNFR2&f=ifr&lc=pf4&linkID=20e48696049a1c82b9a4f031746f4339&t=msc4dnc-20&tracking_id=msc4dnc-20"
+      width="300"
+      height="250"
+      scrolling="no"
+      border="0"
+      marginwidth="0"
+      style="border: none"
+      frameborder="0"
+      sandbox="allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"
+    ></iframe>
+    <iframe
+      src="//rcm-na.amazon-adsystem.com/e/cm?o=1&p=12&l=ur1&category=primemusic&banner=0Y451P54C03XJ9ZRPK82&f=ifr&lc=pf4&linkID=d2af141871b51c4f9ec4ce1e95a3b479&t=msc4dnc-20&tracking_id=msc4dnc-20"
+      width="300"
+      height="250"
+      scrolling="no"
+      border="0"
+      marginwidth="0"
+      style="border: none"
+      frameborder="0"
+      sandbox="allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"
+    ></iframe>
   </page>
 </template>
 
@@ -111,13 +141,37 @@ const books: Book[] = [
   },
   {
     type: BookType.History,
-    title: "A Century of Dance:",
+    title: "A Century of Dance",
     subtitle: "A Hundred Years of Musical Movement, from Waltz to Hip Hop",
     author: "Ian Driver",
     paperback: "https://amzn.to/3MamSIx",
     notes:
       "This is a large format book with many amazing illustrations.  But the best part of this books from my perspective is that it gives an easy to read overview of the history of dance in the Twentieth Century, giving some useful context to many of the dances that I learned aas a ballroom dancer.",
     image: `<a href="https://www.amazon.com/Century-Dance-Hundred-Musical-Movement/dp/0815411332?crid=1PC8WV1OBSB2Y&keywords=A+century+of+dance&qid=1650211117&s=books&sprefix=a+century+of+dance%2Cstripbooks%2C122&sr=1-2&linkCode=li2&tag=msc4dnc-20&linkId=d3e040773b8b72d1defb7ed1ecbffc81&language=en_US&ref_=as_li_ss_il" target="_blank"><img border="0" src="//ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=0815411332&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=msc4dnc-20&language=en_US" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=msc4dnc-20&language=en_US&l=li2&o=1&a=0815411332" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />`,
+  },
+  {
+    type: BookType.History,
+    title: "Frankie Manning",
+    subtitle: "Ambassador of Lindy Hop",
+    author: "Cynthia Millman, Frankie Manning",
+    paperback: "https://amzn.to/3A5eeZ9",
+    hardcover: "https://amzn.to/3tYxWlq",
+    audible: "https://amzn.to/3OFPCtV",
+    notes:
+      "This is a wonderful story of one of the greatest Lindy Hop dancers of all time.  Not only does it cover much of the early history of Lindy Hop, but it also talks about Mr. Manning's amazing return during the Lindy Hop revival after having spent decades at the U.S. Post Office.",
+    image: `<a href="https://www.amazon.com/Frankie-Manning-Ambassador-Lindy-Hop/dp/1592135641?_encoding=UTF8&qid=1656199632&sr=8-1&linkCode=li2&tag=msc4dnc-20&linkId=26c9873e1e5973edd32bee0b06f1a556&language=en_US&ref_=as_li_ss_il" target="_blank"><img border="0" src="//ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=1592135641&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=msc4dnc-20&language=en_US" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=msc4dnc-20&language=en_US&l=li2&o=1&a=1592135641" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />`,
+  },
+  {
+    type: BookType.History,
+    title: "Swingin' at the Savoy",
+    subtitle: "The Memoir of a Jazz Dancer",
+    author: "Norma Miller, Evette Jensen",
+    paperback: "https://amzn.to/3nfbWPt",
+    hardcover: "https://amzn.to/3nfbWPt",
+    audible: "https://amzn.to/3nfvfbq",
+    notes:
+      "This is a beautiful memomoir of one of the greatest Lindy Hop dancers of all time. Ms. Miller was not only one of dancers that defined the Lindy Hop, but as Lindy Hop faded for a while post World War II, she launched a career as a Jazz Dancer.",
+    image: `<a href="https://www.amazon.com/Swingin-at-Savoy-Norma-Miller/dp/1566398495?_encoding=UTF8&qid=1656199984&sr=8-6&linkCode=li2&tag=msc4dnc-20&linkId=e5b0da9f979d004a9af19329b8f60808&language=en_US&ref_=as_li_ss_il" target="_blank"><img border="0" src="//ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=1566398495&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=msc4dnc-20&language=en_US" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=msc4dnc-20&language=en_US&l=li2&o=1&a=1566398495" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />`,
   },
   {
     type: BookType.Fiction,
