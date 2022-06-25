@@ -99,6 +99,13 @@ namespace m4d.Areas.Identity.Pages.Account
 
                 await _signInManager.SignInAsync(user, props, info.LoginProvider);
 
+                user.LastActive = System.DateTime.Now;
+                var lastLoginResult = await _userManager.UpdateAsync(user);
+                if (!lastLoginResult.Succeeded)
+                {
+                    _logger.LogWarning($"Failed to set last loging for user {user.UserName}");
+                }
+
                 return LocalRedirect(returnUrl);
             }
             if (result.IsLockedOut)

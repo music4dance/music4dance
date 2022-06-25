@@ -92,7 +92,14 @@ namespace m4d.Areas.Identity.Pages.Account
                 var result = await _signInManager.PasswordSignInAsync(Input.UserName, Input.Password, Input.RememberMe, lockoutOnFailure: true);
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation("User logged in.");
+                    _logger.LogInformation($"User {user.UserName} logged in.");
+                    user.LastActive = System.DateTime.Now;
+                    var lastLoginResult = await _userManager.UpdateAsync(user);
+                    if (!lastLoginResult.Succeeded)
+                    {
+                        _logger.LogWarning($"Failed to set last loging for user {user.UserName}");
+                    }
+
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)
