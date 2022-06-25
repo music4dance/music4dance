@@ -2,6 +2,7 @@
 @using m4d.Utilities
 @using m4d.ViewModels
 @using m4dModels
+@using System
 @inject ISearchServiceManager SearchService;
 
 @{
@@ -15,6 +16,29 @@
 <hr />
 <h3>Structured Schema =  @Html.ActionLink(@SongFilter.StructuredSchema.ToString(), "ToggleStructuredSchema", "Admin")</h3>
 
+<hr />
+<h3>Environment</h3>
+<ul>
+    <li>
+        <b>Command Line:</b>@Environment.CommandLine
+    </li>
+    <li>
+        <b>Current Directory:</b>@Environment.CurrentDirectory
+    </li>
+    <li>
+        <b>OSVersion:</b>@Environment.OSVersion
+    </li>
+    <li>
+        <b>UserDomainName:</b>@Environment.UserDomainName
+    </li>
+    <li>
+        <b>UserName:</b>@Environment.UserName
+    </li>
+    <li>
+        <b>Version:</b>@Environment.Version
+    </li>
+
+</ul>
 <hr />
 <h3>Tracing (Current Level = @TraceLevels.General.Level.ToString())</h3>
 <ul>
