@@ -135,8 +135,12 @@ namespace m4d.Controllers
                 throw new Exception("Expected identity when in contribution page.");
             }
 
-            
-            return new ContributeModel
+            return user == null
+                ? new ContributeModel
+                {
+                    CommerceEnabled = IsCommerceEnabled(),
+                }
+                : new ContributeModel
             {
                 CommerceEnabled = IsCommerceEnabled(),
                 IsAuthenticated = User.Identity.IsAuthenticated,
