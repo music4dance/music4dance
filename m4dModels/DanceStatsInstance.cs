@@ -268,7 +268,7 @@ namespace m4dModels
             {
                 await instance.FixupStats(database, false);
             }
-
+            
             DanceLibrary.Dances.Reset(
                 DanceLibrary.Dances.Load(
                     instance.Dances.Select(d => d.DanceType).ToList(),

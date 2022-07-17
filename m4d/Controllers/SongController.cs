@@ -705,23 +705,29 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public async Task<ActionResult> Album(string title)
         {
-            var spider = CheckSpiders();
-            if (spider != null)
+            try
             {
-                return spider;
-            }
+                var spider = CheckSpiders();
+                if (spider != null)
+                {
+                    return spider;
+                }
 
-            if (!string.IsNullOrWhiteSpace(title))
+                if (!string.IsNullOrWhiteSpace(title))
+                {
+                    var model = await AlbumViewModel.Create(
+                        title, _mapper, DefaultCruftFilter(), Database);
+                    return Vue(
+                        $"Album: {title}", $"Songs for dancing on {title}", "album",
+                        model, danceEnvironment: true);
+                }
+
+                return ReturnError(HttpStatusCode.NotFound, @"Empty album title not valid.");
+            }
+            catch
             {
-                var model = await AlbumViewModel.Create(
-                    title, _mapper, DefaultCruftFilter(), Database);
-                return Vue(
-                    $"Album: {title}", $"Songs for dancing on {title}", "album",
-                    model, danceEnvironment: true);
+                return ReturnError(HttpStatusCode.NotFound, $"{title} album title not found.");
             }
-
-            return ReturnError(HttpStatusCode.NotFound, @"Empty album title not valid.");
-
         }
 
         [AllowAnonymous]

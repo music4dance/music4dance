@@ -76,7 +76,8 @@
           :beatsPerMeasure="numerator"
           :epsilonPercent="20"
           :filter="nameFilter"
-          @choose-dance="choose"
+          :hideNameLink="true"
+          @choose-dance="hideNameLink"
         ></dance-list>
       </b-tab>
     </b-tabs>

@@ -10,6 +10,7 @@
       :tempoType="tempoType"
       :showTempo="true"
       :showSynonyms="true"
+      :hideLink="hideLink"
     ></dance-name>
     <b-badge v-show="showDelta" :variant="variant">{{ deltaMessage }}</b-badge>
   </b-list-group-item>
@@ -25,6 +26,7 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 export default class DanceItem extends Vue {
   @Prop() private readonly dance!: DanceOrder;
   @Prop() private tempoType!: TempoType;
+  @Prop() private hideLink?: boolean;
 
   private get variant(): string {
     if (!this.showDelta) {

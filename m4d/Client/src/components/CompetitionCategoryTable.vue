@@ -5,7 +5,7 @@
       <template v-slot:cell(name)="data">
         <a :href="danceLink(data.item)">{{ data.value }}</a>
       </template>
-      <template v-slot:cell(tempoRange)="data">
+      <template v-slot:cell(mpm)="data">
         <a :href="defaultTempoLink(data.item)">{{ data.value }}</a>
       </template>
       <template v-slot:cell(dancesport)="data">
@@ -19,7 +19,7 @@
       <template v-slot:cell(ndca-2)="data">
         <a :href="filteredTempoLink(data.item, 'ndca-2')">{{ data.value }}</a>
       </template>
-      <template v-slot:cell(bpm)="data">
+      <template v-slot:cell(tempoRange)="data">
         <a :href="defaultTempoLink(data.item)">{{ data.value }}</a>
       </template>
     </b-table>
@@ -58,33 +58,33 @@ export default class CompetitionCategoryTable extends Vue {
         this.name(item),
     },
     {
-      key: "tempoRange",
+      key: "mpm",
       label: "MPM",
-      formatter: (value: TempoRange) => value.toString(),
+      formatter: (value: null, key: string, item: DanceInstance) =>
+        item.tempoRange.mpm(item.meter.numerator),
     },
     {
       key: "dancesport",
       label: "DanceSport",
       formatter: (value: null, key: string, item: DanceInstance) =>
-        item.filteredTempo(["dancesport"])!.toString(),
+        item.filteredTempo(["dancesport"])!.mpm(item.meter.numerator),
     },
     {
       key: "ndca-1",
       label: this.ndcaATitle,
       formatter: (value: null, key: string, item: DanceInstance) =>
-        item.filteredTempo(["ndca-1"])!.toString(),
+        item.filteredTempo(["ndca-1"])!.mpm(item.meter.numerator),
     },
     {
       key: "ndca-2",
       label: this.ndcaBTitle,
       formatter: (value: null, key: string, item: DanceInstance) =>
-        item.filteredTempo(["ndca-2"])!.toString(),
+        item.filteredTempo(["ndca-2"])!.mpm(item.meter.numerator),
     },
     {
-      key: "bpm",
+      key: "tempoRange",
       label: "BPM",
-      formatter: (value: null, key: string, item: DanceInstance) =>
-        item.tempoRange.bpm(item.meter.numerator),
+      formatter: (value: TempoRange) => value.toString(),
     },
     {
       key: "meter",
@@ -133,14 +133,11 @@ export default class CompetitionCategoryTable extends Vue {
   }
 
   private defaultTempoLink(dance: DanceInstance): string {
-    return this.tempoLink(dance, dance.tempoRange.toBpm(dance.meter.numerator));
+    return this.tempoLink(dance, dance.tempoRange);
   }
 
   private filteredTempoLink(dance: DanceInstance, filter: string): string {
-    return this.tempoLink(
-      dance,
-      dance.filteredTempo([filter])!.toBpm(dance.meter.numerator)
-    );
+    return this.tempoLink(dance, dance.filteredTempo([filter])!);
   }
 
   private tempoLink(dance: DanceInstance, tempo: TempoRange): string {

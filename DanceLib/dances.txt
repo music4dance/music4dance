@@ -1,1260 +1,1929 @@
 [
   {
-    "Name": "Slow Waltz",
-    "BlogTag" : "waltz",
-    "Synonyms" : ["Waltz"],
-    "Id" : "SWZ",
-    "Meter": {
-      "Numerator": 3,
-      "Denominator": 4
+    "id": "SWZ",
+    "name": "Slow Waltz",
+    "meter": {
+      "numerator": 3,
+      "denominator": 4
     },
-    "Organizations": ["DanceSport","NDCA"],
-    "Instances": [
+    "blogTag": "waltz",
+    "synonyms": [
+      "Waltz"
+    ],
+    "tempoRange": {
+      "min": 84.0,
+      "max": 90.0
+    },
+    "organizations": [
+      "DanceSport",
+      "NDCA"
+    ],
+    "instances": [
       {
-        "Style": "American Smooth",
-        "CompetitionGroup": "Ballroom",
-        "CompetitionOrder": "1",
-        "TempoRange": {
-          "Min": 28.0,
-          "Max": 30.0
+        "tempoRange": {
+          "min": 84.0,
+          "max": 90.0
         },
-        "Exceptions": [
+        "id": "SWZA",
+        "meter": {
+          "numerator": 3,
+          "denominator": 4
+        },
+        "name": "American Slow Waltz",
+        "style": "American Smooth",
+        "competitionGroup": "Ballroom",
+        "competitionOrder": 1,
+        "exceptions": [
           {
-            "Organization": "NDCA",
-            "TempoRange": {
-              "Min": 30.0,
-              "Max": 32.0
+            "organization": "NDCA",
+            "tempoRange": {
+              "min": 90.0,
+              "max": 96.0
             },
-            "Level": "Bronze"
+            "competitor": "All",
+            "level": "Bronze"
           }
         ]
       },
       {
-        "Style": "International Standard",
-        "CompetitionGroup": "Ballroom",
-        "CompetitionOrder": "1",
-        "TempoRange": {
-          "Min": 28.0,
-          "Max": 30.0
+        "tempoRange": {
+          "min": 84.0,
+          "max": 90.0
         },
-        "Exceptions": [
+        "id": "SWZI",
+        "meter": {
+          "numerator": 3,
+          "denominator": 4
+        },
+        "name": "International Slow Waltz",
+        "style": "International Standard",
+        "competitionGroup": "Ballroom",
+        "competitionOrder": 1,
+        "exceptions": [
           {
-            "Organization": "NDCA",
-            "TempoRange": {
-              "Min": 28.0,
-              "Max": 28.0
+            "organization": "NDCA",
+            "tempoRange": {
+              "min": 84.0,
+              "max": 84.0
             },
-            "Competitor": "Professional,Amateur"
+            "competitor": "Professional,Amateur",
+            "level": "All"
           }
         ]
       }
     ]
   },
   {
-    "Name": "Cross-step Waltz",
-    "BlogTag" : "waltz",
-    "Id": "CSW",
-    "Meter": {
-      "Numerator": 3,
-      "Denominator": 4
+    "id": "CSW",
+    "name": "Cross-step Waltz",
+    "meter": {
+      "numerator": 3,
+      "denominator": 4
     },
-    "Instances": [
+    "blogTag": "waltz",
+    "tempoRange": {
+      "min": 108.0,
+      "max": 120.0
+    },
+    "instances": [
       {
-        "Style": "Social",
-        "TempoRange": {
-          "Min": 36.0,
-          "Max": 40.0
+        "tempoRange": {
+          "min": 108.0,
+          "max": 120.0
         },
-        "Exceptions": []
+        "id": "CSWS",
+        "meter": {
+          "numerator": 3,
+          "denominator": 4
+        },
+        "name": "Social Cross-step Waltz",
+        "style": "Social",
+        "competitionOrder": 0,
+        "exceptions": []
       }
     ]
   },
   {
-    "Name": "Castle Foxtrot",
-    "Id": "CFT",
-    "Synonyms": ["Slow Dance"],
-    "BlogTag" : "castle-foxtrot",
-    "Meter": {
-      "Numerator": 4,
-      "Denominator": 4
+    "id": "CFT",
+    "name": "Castle Foxtrot",
+    "meter": {
+      "numerator": 4,
+      "denominator": 4
     },
-    "Instances": [
+    "blogTag": "castle-foxtrot",
+    "synonyms": [
+      "Slow Dance"
+    ],
+    "tempoRange": {
+      "min": 60.0,
+      "max": 100.0
+    },
+    "instances": [
       {
-        "Style": "Social",
-        "TempoRange": {
-          "Min": 15.0,
-          "Max": 25.0
+        "tempoRange": {
+          "min": 60.0,
+          "max": 100.0
         },
-        "Exceptions": []
+        "id": "CFTS",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "Social Castle Foxtrot",
+        "style": "Social",
+        "competitionOrder": 0,
+        "exceptions": []
       }
     ]
   },
   {
-    "Name": "Slow Foxtrot",
-    "Synonyms": ["Foxtrot"],
-    "Id": "SFT",
-    "Meter": {
-      "Numerator": 4,
-      "Denominator": 4
+    "id": "SFT",
+    "name": "Slow Foxtrot",
+    "meter": {
+      "numerator": 4,
+      "denominator": 4
     },
-    "BlogTag" : "slow-foxtrot",
-    "Organizations": ["DanceSport","NDCA"],
-    "Instances": [
+    "blogTag": "slow-foxtrot",
+    "synonyms": [
+      "Foxtrot"
+    ],
+    "tempoRange": {
+      "min": 112.0,
+      "max": 136.0
+    },
+    "organizations": [
+      "DanceSport",
+      "NDCA"
+    ],
+    "instances": [
       {
-        "Style": "American Smooth",
-        "CompetitionGroup": "Ballroom",
-        "CompetitionOrder": "3",
-        "TempoRange": {
-          "Min": 30.0,
-          "Max": 34.0
+        "tempoRange": {
+          "min": 120.0,
+          "max": 136.0
         },
-        "Exceptions": [
+        "id": "SFTA",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "American Slow Foxtrot",
+        "style": "American Smooth",
+        "competitionGroup": "Ballroom",
+        "competitionOrder": 3,
+        "exceptions": [
           {
-            "Organization": "NDCA",
-            "TempoRange": {
-              "Min": 32.0,
-              "Max": 34.0
+            "organization": "NDCA",
+            "tempoRange": {
+              "min": 128.0,
+              "max": 136.0
             },
-            "Level": "Bronze"
+            "competitor": "All",
+            "level": "Bronze"
           },
           {
-            "Organization": "NDCA",
-            "TempoRange": {
-              "Min": 30.0,
-              "Max": 30.0
+            "organization": "NDCA",
+            "tempoRange": {
+              "min": 120.0,
+              "max": 120.0
             },
-            "Level": "Silver,Gold"
+            "competitor": "All",
+            "level": "Silver,Gold"
           },
           {
-            "Organization": "DanceSport",
-            "TempoRange": {
-              "Min": 30.0,
-              "Max": 32.0
-            }
+            "organization": "DanceSport",
+            "tempoRange": {
+              "min": 120.0,
+              "max": 128.0
+            },
+            "competitor": "All",
+            "level": "All"
           }
         ]
       },
       {
-        "Style": "International Standard",
-        "CompetitionGroup": "Ballroom",
-        "CompetitionOrder": "4",
-        "TempoRange": {
-          "Min": 28.0,
-          "Max": 30.0
+        "tempoRange": {
+          "min": 112.0,
+          "max": 120.0
         },
-        "Exceptions": []
+        "id": "SFTI",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "International Slow Foxtrot",
+        "style": "International Standard",
+        "competitionGroup": "Ballroom",
+        "competitionOrder": 4,
+        "exceptions": []
       }
     ]
   },
   {
-    "Name": "Tango (Ballroom)",
-    "BlogTag" : "tango",
-    "Id": "TGO",
-    "Meter": {
-      "Numerator": 4,
-      "Denominator": 4
+    "id": "TGO",
+    "name": "Tango (Ballroom)",
+    "meter": {
+      "numerator": 4,
+      "denominator": 4
     },
-    "Organizations": ["DanceSport","NDCA"],
-    "Instances": [
+    "blogTag": "tango",
+    "tempoRange": {
+      "min": 120.0,
+      "max": 128.0
+    },
+    "organizations": [
+      "DanceSport",
+      "NDCA"
+    ],
+    "instances": [
       {
-        "Style": "American Smooth",
-        "CompetitionGroup": "Ballroom",
-        "CompetitionOrder": "2",
-        "TempoRange": {
-          "Min": 30.0,
-          "Max": 30.0
+        "tempoRange": {
+          "min": 120.0,
+          "max": 120.0
         },
-        "Exceptions": [
+        "id": "TGOA",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "American Tango (Ballroom)",
+        "style": "American Smooth",
+        "competitionGroup": "Ballroom",
+        "competitionOrder": 2,
+        "exceptions": [
           {
-            "Organization": "NDCA",
-            "TempoRange": {
-              "Min": 30.0,
-              "Max": 32.0
+            "organization": "NDCA",
+            "tempoRange": {
+              "min": 120.0,
+              "max": 128.0
             },
-            "Level": "Bronze"
+            "competitor": "All",
+            "level": "Bronze"
           }
         ]
       },
       {
-        "Style": "International Standard",
-        "CompetitionGroup": "Ballroom",
-        "CompetitionOrder": "2",
-        "TempoRange": {
-          "Min": 32.0,
-          "Max": 32.0
+        "tempoRange": {
+          "min": 128.0,
+          "max": 128.0
         },
-        "Exceptions": [
+        "id": "TGOI",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "International Tango (Ballroom)",
+        "style": "International Standard",
+        "competitionGroup": "Ballroom",
+        "competitionOrder": 2,
+        "exceptions": [
           {
-            "Organization": "DanceSport",
-            "TempoRange": {
-              "Min": 31.0,
-              "Max": 33.0
-            }
+            "organization": "DanceSport",
+            "tempoRange": {
+              "min": 124.0,
+              "max": 132.0
+            },
+            "competitor": "All",
+            "level": "All"
           }
         ]
       }
     ]
   },
   {
-    "Name": "Peabody",
-    "Id": "PBD",
-    "Synonyms": ["One Step"],
-    "BlogTag" : "peabody",
-    "Meter": {
-      "Numerator": 4,
-      "Denominator": 4
+    "id": "PBD",
+    "name": "Peabody",
+    "meter": {
+      "numerator": 4,
+      "denominator": 4
     },
-    "Organizations": ["DanceSport","NDCA"],
-    "Instances": [
+    "blogTag": "peabody",
+    "synonyms": [
+      "One Step"
+    ],
+    "tempoRange": {
+      "min": 240.0,
+      "max": 248.0
+    },
+    "organizations": [
+      "DanceSport",
+      "NDCA"
+    ],
+    "instances": [
       {
-        "Style": "American Smooth",
-        "CompetitionGroup": "Ballroom",
-        "CompetitionOrder": "0",
-        "TempoRange": {
-          "Min": 60.0,
-          "Max": 62.0
+        "tempoRange": {
+          "min": 240.0,
+          "max": 248.0
         },
-        "Exceptions": []
+        "id": "PBDA",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "American Peabody",
+        "style": "American Smooth",
+        "competitionGroup": "Ballroom",
+        "competitionOrder": 0,
+        "exceptions": []
       }
     ]
   },
   {
-    "Name": "Viennese Waltz",
-    "BlogTag" : "waltz",
-    "Searchonyms": ["viennese"],
-    "Id": "VWZ",
-    "Meter": {
-      "Numerator": 3,
-      "Denominator": 4
+    "id": "VWZ",
+    "name": "Viennese Waltz",
+    "meter": {
+      "numerator": 3,
+      "denominator": 4
     },
-    "Organizations": ["DanceSport","NDCA"],
-    "Instances": [
-      {
-        "Style": "American Smooth",
-        "CompetitionGroup": "Ballroom",
-        "CompetitionOrder": "4",
-        "TempoRange": {
-          "Min": 53.0,
-          "Max": 54.0
-        },
-        "Exceptions": [
-          {
-            "Organization": "NDCA",
-            "TempoRange": {
-              "Min": 54.0,
-              "Max": 54.0
-            },
-            "Level": "Bronze"
-          }
-        ]
-      },
-      {
-        "Style": "International Standard",
-        "CompetitionGroup": "Ballroom",
-        "CompetitionOrder": "3",
-        "TempoRange": {
-          "Min": 56.0,
-          "Max": 58.0
-        },
-        "Exceptions": [
-          {
-            "Organization": "DanceSport",
-            "TempoRange": {
-              "Min": 58.0,
-              "Max": 60.0
-            }
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "Name": "Quickstep",
-    "Id": "QST",
-    "Meter": {
-      "Numerator": 4,
-      "Denominator": 4
+    "blogTag": "waltz",
+    "searchonyms": [
+      "viennese"
+    ],
+    "tempoRange": {
+      "min": 159.0,
+      "max": 174.0
     },
-    "BlogTag" : "quickstep",
-    "Organizations": ["DanceSport","NDCA"],
-    "Instances": [
+    "organizations": [
+      "DanceSport",
+      "NDCA"
+    ],
+    "instances": [
       {
-        "Style": "International Standard",
-        "CompetitionGroup": "Ballroom",
-        "CompetitionOrder": "5",
-        "TempoRange": {
-          "Min": 48.0,
-          "Max": 52.0
+        "tempoRange": {
+          "min": 159.0,
+          "max": 162.0
         },
-        "Exceptions": [
-          {
-            "Organization": "DanceSport",
-            "TempoRange": {
-              "Min": 50.0,
-              "Max": 52.0
-            }
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "Name": "Bolero",
-    "BlogTag": "bolero",
-    "Id": "BOL",
-    "Meter": {
-      "Numerator": 4,
-      "Denominator": 4
-    },
-    "Organizations": ["DanceSport","NDCA"],
-    "Instances": [
-      {
-        "Style": "American Rhythm",
-        "CompetitionGroup": "Ballroom",
-        "CompetitionOrder": "4",
-        "TempoRange": {
-          "Min": 24.0,
-          "Max": 26.0
+        "id": "VWZA",
+        "meter": {
+          "numerator": 3,
+          "denominator": 4
         },
-        "Exceptions": [
+        "name": "American Viennese Waltz",
+        "style": "American Smooth",
+        "competitionGroup": "Ballroom",
+        "competitionOrder": 4,
+        "exceptions": [
           {
-            "Organization": "NDCA",
-            "TempoRange": {
-              "Min": 24.0,
-              "Max": 24.0
+            "organization": "NDCA",
+            "tempoRange": {
+              "min": 162.0,
+              "max": 162.0
             },
-            "Level": "Silver,Gold"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "Name": "Cha Cha",
-    "Id": "CHA",
-    "BlogTag" : "cha-cha",
-    "Searchonymns": ["cha", "cha cha cha"],
-    "Meter": {
-      "Numerator": 4,
-      "Denominator": 4
-    },
-    "Organizations": ["DanceSport","NDCA"],
-    "Instances": [
-      {
-        "Style": "American Rhythm",
-        "CompetitionGroup": "Ballroom",
-        "CompetitionOrder": "1",
-        "TempoRange": {
-          "Min": 30.0,
-          "Max": 30.0
-        },
-        "Exceptions": []
-      },
-      {
-        "Style": "International Latin",
-        "CompetitionGroup": "Ballroom",
-        "CompetitionOrder": "1",
-        "TempoRange": {
-          "Min": 31.0,
-          "Max": 31.0
-        },
-        "Exceptions": [
-          {
-            "Organization": "DanceSport",
-            "TempoRange": {
-              "Min": 30.0,
-              "Max": 32.0
-            }
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "Name": "Mambo",
-    "Id": "MBO",
-    "BlogTag" : "mambo",
-    "Meter": {
-      "Numerator": 4,
-      "Denominator": 4
-    },
-    "Organizations": ["DanceSport","NDCA"],
-    "Instances": [
-      {
-        "Style": "American Rhythm",
-        "CompetitionGroup": "Ballroom",
-        "CompetitionOrder": "5",
-        "TempoRange": {
-          "Min": 47.0,
-          "Max": 51.0
-        },
-        "Exceptions": [
-          {
-            "Organization": "NDCA",
-            "TempoRange": {
-              "Min": 48.0,
-              "Max": 51.0
-            },
-            "Level": "Bronze"
-          },
-          {
-            "Organization": "NDCA",
-            "TempoRange": {
-              "Min": 47.0,
-              "Max": 47.0
-            },
-            "Level": "Silver,Gold"
-          },
-          {
-            "Organization": "DanceSport",
-            "TempoRange": {
-              "Min": 47.0,
-              "Max": 51.0
-            }
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "Name": "Jive",
-    "BlogTag" : "jive",
-    "Id": "JIV",
-    "Meter": {
-      "Numerator": 4,
-      "Denominator": 4
-    },
-    "Organizations": ["DanceSport","NDCA"],
-    "Instances": [
-      {
-        "Style": "International Latin",
-        "CompetitionGroup": "Ballroom",
-        "CompetitionOrder": "5",
-        "TempoRange": {
-          "Min": 38.0,
-          "Max": 44.0
-        },
-        "Exceptions": [
-          {
-            "Organization": "NDCA",
-            "TempoRange": {
-              "Min": 44.0,
-              "Max": 44.0
-            },
-            "Competitor": "Professional,Amateur"
-          },
-          {
-            "Organization": "DanceSport",
-            "TempoRange": {
-              "Min": 42.0,
-              "Max": 44.0
-            }
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "Name": "Rumba",
-    "BlogTag" : "rumba",
-    "Id": "RMB",
-    "Meter": {
-      "Numerator": 4,
-      "Denominator": 4
-    },
-    "Organizations": ["DanceSport","NDCA"],
-    "Instances": [
-      {
-        "Style": "American Rhythm",
-        "CompetitionGroup": "Ballroom",
-        "CompetitionOrder": "2",
-        "TempoRange": {
-          "Min": 30.0,
-          "Max": 36.0
-        },
-        "Exceptions": [
-          {
-            "Organization": "NDCA",
-            "TempoRange": {
-              "Min": 30.0,
-              "Max": 32.0
-            },
-            "Level": "Bronze"
-          },
-          {
-            "Organization": "NDCA",
-            "TempoRange": {
-              "Min": 32.0,
-              "Max": 36.0
-            },
-            "Level": "Silver,Gold"
-          },
-          {
-            "Organization": "DanceSport",
-            "TempoRange": {
-              "Min": 30.0,
-              "Max": 34.0
-            },
+            "competitor": "All",
+            "level": "Bronze"
           }
         ]
       },
       {
-        "Style": "International Latin",
-        "CompetitionGroup": "Ballroom",
-        "CompetitionOrder": "3",
-        "TempoRange": {
-          "Min": 25.0,
-          "Max": 27.0
+        "tempoRange": {
+          "min": 168.0,
+          "max": 174.0
         },
-        "Exceptions": [
+        "id": "VWZI",
+        "meter": {
+          "numerator": 3,
+          "denominator": 4
+        },
+        "name": "International Viennese Waltz",
+        "style": "International Standard",
+        "competitionGroup": "Ballroom",
+        "competitionOrder": 3,
+        "exceptions": [
           {
-            "Organization": "NDCA",
-            "TempoRange": {
-              "Min": 27.0,
-              "Max": 27.0
+            "organization": "DanceSport",
+            "tempoRange": {
+              "min": 174.0,
+              "max": 180.0
             },
-            "Competitor": "ProAm"
-          },
-          {
-            "Organization": "NDCA",
-            "TempoRange": {
-              "Min": 26.0,
-              "Max": 26.0
-            },
-            "Competitor": "Professional,Amateur"
+            "competitor": "All",
+            "level": "All"
           }
         ]
       }
     ]
   },
   {
-    "Name": "East Coast Swing",
-    "BlogTag" : "east-coast-swing",
-    "Synonyms": ["Triple Swing", "East Coast"],
-    "Searchonyms": ["swing", "ec swing"],
-    "Id": "ECS",
-    "Meter": {
-      "Numerator": 4,
-      "Denominator": 4
+    "id": "QST",
+    "name": "Quickstep",
+    "meter": {
+      "numerator": 4,
+      "denominator": 4
     },
-    "Organizations": ["DanceSport","NDCA"],
-    "Instances": [
+    "blogTag": "quickstep",
+    "tempoRange": {
+      "min": 192.0,
+      "max": 208.0
+    },
+    "organizations": [
+      "DanceSport",
+      "NDCA"
+    ],
+    "instances": [
       {
-        "Style": "American Rhythm",
-        "CompetitionGroup": "Ballroom",
-        "CompetitionOrder": "3",
-        "TempoRange": {
-          "Min": 34.0,
-          "Max": 36.0
+        "tempoRange": {
+          "min": 192.0,
+          "max": 208.0
         },
-        "Exceptions": [
+        "id": "QSTI",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "International Quickstep",
+        "style": "International Standard",
+        "competitionGroup": "Ballroom",
+        "competitionOrder": 5,
+        "exceptions": [
           {
-            "Organization": "NDCA",
-            "TempoRange": {
-              "Min": 36.0,
-              "Max": 36.0
+            "organization": "DanceSport",
+            "tempoRange": {
+              "min": 200.0,
+              "max": 208.0
             },
-            "Level": "Silver,Gold"
+            "competitor": "All",
+            "level": "All"
           }
         ]
       }
     ]
   },
   {
-    "Name": "West Coast Swing",
-    "BlogTag" : "west-coast-swing",
-    "Synonyms": ["West Coast"],
-    "Searchonyms" : ["wc swing"],
-    "Id": "WCS",
-    "Meter": {
-      "Numerator": 4,
-      "Denominator": 4
+    "id": "BOL",
+    "name": "Bolero",
+    "meter": {
+      "numerator": 4,
+      "denominator": 4
     },
-    "Organizations": ["DanceSport","NDCA"],
-    "Instances": [
+    "blogTag": "bolero",
+    "tempoRange": {
+      "min": 96.0,
+      "max": 104.0
+    },
+    "organizations": [
+      "DanceSport",
+      "NDCA"
+    ],
+    "instances": [
       {
-        "Style": "American Rhythm",
-        "CompetitionGroup": "Ballroom",
-        "CompetitionOrder": "0",
-        "TempoRange": {
-          "Min": 28.0,
-          "Max": 32.0
+        "tempoRange": {
+          "min": 96.0,
+          "max": 104.0
         },
-        "Exceptions": []
+        "id": "BOLA",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "American Bolero",
+        "style": "American Rhythm",
+        "competitionGroup": "Ballroom",
+        "competitionOrder": 4,
+        "exceptions": [
+          {
+            "organization": "NDCA",
+            "tempoRange": {
+              "min": 96.0,
+              "max": 96.0
+            },
+            "competitor": "All",
+            "level": "Silver,Gold"
+          }
+        ]
       }
     ]
   },
   {
-    "Name": "Hustle",
-    "BlogTag" : "hustle",
-    "Id": "HST",
-    "Synonyms": ["Street Swing", "Disco Fox"],
-    "Meter": {
-      "Numerator": 4,
-      "Denominator": 4
+    "id": "CHA",
+    "name": "Cha Cha",
+    "meter": {
+      "numerator": 4,
+      "denominator": 4
     },
-    "Organizations": ["DanceSport","NDCA"],
-    "Instances": [
-      {
-        "Style": "American Rhythm",
-        "CompetitionGroup": "Ballroom",
-        "CompetitionOrder": "0",
-        "TempoRange": {
-          "Min": 28.0,
-          "Max": 30.0
-        },
-        "Exceptions": []
-      }
-    ]
-  },
-  {
-    "Name": "Merengue",
-    "Id": "MRG",
-    "Meter": {
-      "Numerator": 2,
-      "Denominator": 4
+    "blogTag": "cha-cha",
+    "tempoRange": {
+      "min": 120.0,
+      "max": 124.0
     },
-    "Organizations": ["DanceSport","NDCA"],
-    "Instances": [
+    "organizations": [
+      "DanceSport",
+      "NDCA"
+    ],
+    "instances": [
       {
-        "Style": "American Rhythm",
-        "CompetitionGroup": "Ballroom",
-        "CompetitionOrder": "0",
-        "TempoRange": {
-          "Min": 29.0,
-          "Max": 32.0
+        "tempoRange": {
+          "min": 120.0,
+          "max": 120.0
         },
-        "Exceptions": []
-      }
-    ]
-  },
-  {
-    "Name": "Paso Doble",
-    "BlogTag" : "paso-doble",
-    "Id": "PDL",
-    "Meter": {
-      "Numerator": 2,
-      "Denominator": 4
-    },
-    "Organizations": ["DanceSport","NDCA"],
-    "Instances": [
-      {
-        "Style": "International Latin",
-        "CompetitionGroup": "Ballroom",
-        "CompetitionOrder": "4",
-        "TempoRange": {
-          "Min": 60.0,
-          "Max": 62.0
+        "id": "CHAA",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
         },
-        "Exceptions": []
+        "name": "American Cha Cha",
+        "style": "American Rhythm",
+        "competitionGroup": "Ballroom",
+        "competitionOrder": 1,
+        "exceptions": []
       },
       {
-        "Style": "American Rhythm",
-        "CompetitionGroup": "Ballroom",
-        "CompetitionOrder": "0",
-        "TempoRange": {
-          "Min": 58.0,
-          "Max": 60.0
+        "tempoRange": {
+          "min": 124.0,
+          "max": 124.0
         },
-        "Exceptions": []
+        "id": "CHAI",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "International Cha Cha",
+        "style": "International Latin",
+        "competitionGroup": "Ballroom",
+        "competitionOrder": 1,
+        "exceptions": [
+          {
+            "organization": "DanceSport",
+            "tempoRange": {
+              "min": 120.0,
+              "max": 128.0
+            },
+            "competitor": "All",
+            "level": "All"
+          }
+        ]
       }
     ]
   },
   {
-    "Name": "Samba",
-    "Id": "SMB",
-    "BlogTag" : "samba",
-    "Meter": {
-      "Numerator": 2,
-      "Denominator": 4
+    "id": "MBO",
+    "name": "Mambo",
+    "meter": {
+      "numerator": 4,
+      "denominator": 4
     },
-    "Organizations": ["DanceSport","NDCA"],
-    "Instances": [
+    "blogTag": "mambo",
+    "tempoRange": {
+      "min": 188.0,
+      "max": 204.0
+    },
+    "organizations": [
+      "DanceSport",
+      "NDCA"
+    ],
+    "instances": [
       {
-        "Style": "International Latin",
-        "CompetitionGroup": "Ballroom",
-        "CompetitionOrder": "2",
-        "TempoRange": {
-          "Min": 48.0,
-          "Max": 52.0
+        "tempoRange": {
+          "min": 188.0,
+          "max": 204.0
         },
-        "Exceptions": [
+        "id": "MBOA",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "American Mambo",
+        "style": "American Rhythm",
+        "competitionGroup": "Ballroom",
+        "competitionOrder": 5,
+        "exceptions": [
           {
-            "Organization": "NDCA",
-            "TempoRange": {
-              "Min": 50.0,
-              "Max": 50.0
+            "organization": "NDCA",
+            "tempoRange": {
+              "min": 192.0,
+              "max": 204.0
             },
-            "Competitor": "Professional,Amateur"
+            "competitor": "All",
+            "level": "Bronze"
           },
           {
-            "Organization": "NDCA",
-            "TempoRange": {
-              "Min": 48.0,
-              "Max": 50.0
+            "organization": "NDCA",
+            "tempoRange": {
+              "min": 188.0,
+              "max": 188.0
             },
-            "Competitor": "ProAm"
+            "competitor": "All",
+            "level": "Silver,Gold"
           },
           {
-            "Organization": "DanceSport",
-            "TempoRange": {
-              "Min": 50.0,
-              "Max": 52.0
-            }
+            "organization": "DanceSport",
+            "tempoRange": {
+              "min": 188.0,
+              "max": 204.0
+            },
+            "competitor": "All",
+            "level": "All"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "JIV",
+    "name": "Jive",
+    "meter": {
+      "numerator": 4,
+      "denominator": 4
+    },
+    "blogTag": "jive",
+    "tempoRange": {
+      "min": 152.0,
+      "max": 176.0
+    },
+    "organizations": [
+      "DanceSport",
+      "NDCA"
+    ],
+    "instances": [
+      {
+        "tempoRange": {
+          "min": 152.0,
+          "max": 176.0
+        },
+        "id": "JIVI",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "International Jive",
+        "style": "International Latin",
+        "competitionGroup": "Ballroom",
+        "competitionOrder": 5,
+        "exceptions": [
+          {
+            "organization": "NDCA",
+            "tempoRange": {
+              "min": 176.0,
+              "max": 176.0
+            },
+            "competitor": "Professional,Amateur",
+            "level": "All"
+          },
+          {
+            "organization": "DanceSport",
+            "tempoRange": {
+              "min": 168.0,
+              "max": 176.0
+            },
+            "competitor": "All",
+            "level": "All"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "RMB",
+    "name": "Rumba",
+    "meter": {
+      "numerator": 4,
+      "denominator": 4
+    },
+    "blogTag": "rumba",
+    "tempoRange": {
+      "min": 100.0,
+      "max": 144.0
+    },
+    "organizations": [
+      "DanceSport",
+      "NDCA"
+    ],
+    "instances": [
+      {
+        "tempoRange": {
+          "min": 120.0,
+          "max": 144.0
+        },
+        "id": "RMBA",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "American Rumba",
+        "style": "American Rhythm",
+        "competitionGroup": "Ballroom",
+        "competitionOrder": 2,
+        "exceptions": [
+          {
+            "organization": "NDCA",
+            "tempoRange": {
+              "min": 120.0,
+              "max": 128.0
+            },
+            "competitor": "All",
+            "level": "Bronze"
+          },
+          {
+            "organization": "NDCA",
+            "tempoRange": {
+              "min": 128.0,
+              "max": 144.0
+            },
+            "competitor": "All",
+            "level": "Silver,Gold"
+          },
+          {
+            "organization": "DanceSport",
+            "tempoRange": {
+              "min": 120.0,
+              "max": 136.0
+            },
+            "competitor": "All",
+            "level": "All"
           }
         ]
       },
       {
-        "Style": "American Rhythm",
-        "CompetitionGroup": "Ballroom",
-        "CompetitionOrder": "0",
-        "TempoRange": {
-          "Min": 48.0,
-          "Max": 52.0
+        "tempoRange": {
+          "min": 100.0,
+          "max": 108.0
         },
-        "Exceptions": [
+        "id": "RMBI",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "International Rumba",
+        "style": "International Latin",
+        "competitionGroup": "Ballroom",
+        "competitionOrder": 3,
+        "exceptions": [
           {
-            "Organization": "NDCA",
-            "TempoRange": {
-              "Min": 52.0,
-              "Max": 52.0
-            }
+            "organization": "NDCA",
+            "tempoRange": {
+              "min": 108.0,
+              "max": 108.0
+            },
+            "competitor": "ProAm",
+            "level": "All"
           },
           {
-            "Organization": "DanceSport",
-            "TempoRange": {
-              "Min": 48.0,
-              "Max": 48.0
-            }
+            "organization": "NDCA",
+            "tempoRange": {
+              "min": 104.0,
+              "max": 104.0
+            },
+            "competitor": "Professional,Amateur",
+            "level": "All"
           }
         ]
       }
     ]
   },
   {
-    "Name": "Polka",
-    "BlogTag": "polka",
-    "Id": "PLK",
-    "Meter": {
-      "Numerator": 2,
-      "Denominator": 4
+    "id": "ECS",
+    "name": "East Coast Swing",
+    "meter": {
+      "numerator": 4,
+      "denominator": 4
     },
-    "Organizations": ["DanceSport","NDCA"],
-    "Instances": [
+    "blogTag": "east-coast-swing",
+    "synonyms": [
+      "Triple Swing",
+      "East Coast"
+    ],
+    "searchonyms": [
+      "swing",
+      "ec swing"
+    ],
+    "tempoRange": {
+      "min": 136.0,
+      "max": 144.0
+    },
+    "organizations": [
+      "DanceSport",
+      "NDCA"
+    ],
+    "instances": [
       {
-        "Style": "American Rhythm",
-        "CompetitionGroup": "Ballroom",
-        "CompetitionOrder": "0",
-        "TempoRange": {
-          "Min": 60.0,
-          "Max": 62.0
+        "tempoRange": {
+          "min": 136.0,
+          "max": 144.0
         },
-        "Exceptions": []
+        "id": "ECSA",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "American East Coast Swing",
+        "style": "American Rhythm",
+        "competitionGroup": "Ballroom",
+        "competitionOrder": 3,
+        "exceptions": [
+          {
+            "organization": "NDCA",
+            "tempoRange": {
+              "min": 144.0,
+              "max": 144.0
+            },
+            "competitor": "All",
+            "level": "Silver,Gold"
+          }
+        ]
       }
     ]
   },
   {
-    "Name": "Salsa",
-    "Id": "SLS",
-    "BlogTag" : "salsa",
-    "Meter": {
-      "Numerator": 4,
-      "Denominator": 4
+    "id": "WCS",
+    "name": "West Coast Swing",
+    "meter": {
+      "numerator": 4,
+      "denominator": 4
     },
-    "Instances": [
+    "blogTag": "west-coast-swing",
+    "synonyms": [
+      "West Coast"
+    ],
+    "searchonyms": [
+      "wc swing"
+    ],
+    "tempoRange": {
+      "min": 112.0,
+      "max": 128.0
+    },
+    "organizations": [
+      "DanceSport",
+      "NDCA"
+    ],
+    "instances": [
       {
-        "Style": "Social",
-        "TempoRange": {
-          "Min": 40.0,
-          "Max": 55.0
+        "tempoRange": {
+          "min": 112.0,
+          "max": 128.0
         },
-        "Exceptions": []
+        "id": "WCSA",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "American West Coast Swing",
+        "style": "American Rhythm",
+        "competitionGroup": "Ballroom",
+        "competitionOrder": 0,
+        "exceptions": []
       }
     ]
   },
   {
-    "Name": "Bachata",
-    "BlogTag" : "bachata",
-    "Id": "BCH",
-    "Meter": {
-      "Numerator": 4,
-      "Denominator": 4
+    "id": "HST",
+    "name": "Hustle",
+    "meter": {
+      "numerator": 4,
+      "denominator": 4
     },
-    "Instances": [
+    "blogTag": "hustle",
+    "synonyms": [
+      "Street Swing",
+      "Disco Fox"
+    ],
+    "tempoRange": {
+      "min": 112.0,
+      "max": 120.0
+    },
+    "organizations": [
+      "DanceSport",
+      "NDCA"
+    ],
+    "instances": [
       {
-        "Style": "Social",
-        "TempoRange": {
-          "Min": 27.0,
-          "Max": 38.0
+        "tempoRange": {
+          "min": 112.0,
+          "max": 120.0
         },
-        "Exceptions": []
+        "id": "HSTA",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "American Hustle",
+        "style": "American Rhythm",
+        "competitionGroup": "Ballroom",
+        "competitionOrder": 0,
+        "exceptions": []
       }
     ]
   },
   {
-    "Name": "Night Club Two Step",
-    "Id": "NC2",
-    "Searchonyms": ["club two step"],
-    "Meter": {
-      "Numerator": 4,
-      "Denominator": 4
+    "id": "MRG",
+    "name": "Merengue",
+    "meter": {
+      "numerator": 2,
+      "denominator": 4
     },
-    "Instances": [
+    "tempoRange": {
+      "min": 58.0,
+      "max": 64.0
+    },
+    "organizations": [
+      "DanceSport",
+      "NDCA"
+    ],
+    "instances": [
       {
-        "Style": "Social",
-        "TempoRange": {
-          "Min": 12.5,
-          "Max": 23.0
+        "tempoRange": {
+          "min": 58.0,
+          "max": 64.0
         },
-        "Exceptions": []
+        "id": "MRGA",
+        "meter": {
+          "numerator": 2,
+          "denominator": 4
+        },
+        "name": "American Merengue",
+        "style": "American Rhythm",
+        "competitionGroup": "Ballroom",
+        "competitionOrder": 0,
+        "exceptions": []
       }
     ]
   },
   {
-    "Name": "Country Two Step",
-    "BlogTag": "country-two-step",
-    "Id": "C2S",
-    "Meter": {
-      "Numerator": 2,
-      "Denominator": 4
+    "id": "PDL",
+    "name": "Paso Doble",
+    "meter": {
+      "numerator": 2,
+      "denominator": 4
     },
-    "Instances": [
+    "blogTag": "paso-doble",
+    "tempoRange": {
+      "min": 116.0,
+      "max": 124.0
+    },
+    "organizations": [
+      "DanceSport",
+      "NDCA"
+    ],
+    "instances": [
       {
-        "Style": "Social",
-        "TempoRange": {
-          "Min": 84.0,
-          "Max": 100.0
+        "tempoRange": {
+          "min": 120.0,
+          "max": 124.0
         },
-        "Exceptions": []
+        "id": "PDLI",
+        "meter": {
+          "numerator": 2,
+          "denominator": 4
+        },
+        "name": "International Paso Doble",
+        "style": "International Latin",
+        "competitionGroup": "Ballroom",
+        "competitionOrder": 4,
+        "exceptions": []
+      },
+      {
+        "tempoRange": {
+          "min": 116.0,
+          "max": 120.0
+        },
+        "id": "PDLA",
+        "meter": {
+          "numerator": 2,
+          "denominator": 4
+        },
+        "name": "American Paso Doble",
+        "style": "American Rhythm",
+        "competitionGroup": "Ballroom",
+        "competitionOrder": 0,
+        "exceptions": []
       }
     ]
   },
   {
-    "Name": "Cumbia",
-    "Id": "CMB",
-    "Meter": {
-      "Numerator": 2,
-      "Denominator": 4
+    "id": "SMB",
+    "name": "Samba",
+    "meter": {
+      "numerator": 2,
+      "denominator": 4
     },
-    "Instances": [
-      {
-        "Style": "Social",
-        "TempoRange": {
-          "Min": 45.0,
-          "Max": 55.0
-        },
-        "Exceptions": []
-      }
-    ]
-   },
-   {
-    "Name": "Lindy Hop",
-    "BlogTag" : "lindy-hop",
-    "Synonyms": ["Swing", "Jitterbug"],
-    "Id": "LHP",
-    "Meter": {
-      "Numerator": 4,
-      "Denominator": 4
+    "blogTag": "samba",
+    "tempoRange": {
+      "min": 96.0,
+      "max": 104.0
     },
-    "Instances": [
+    "organizations": [
+      "DanceSport",
+      "NDCA"
+    ],
+    "instances": [
       {
-        "Style": "Social",
-        "TempoRange": {
-          "Min": 30.0,
-          "Max": 45.0
+        "tempoRange": {
+          "min": 96.0,
+          "max": 104.0
         },
-        "Exceptions": []
-      }
-    ]
-  },
-   {
-    "Name": "Charleston",
-    "Id": "CST",
-    "BlogTag" : "charleston",
-    "Meter": {
-      "Numerator": 4,
-      "Denominator": 4
-    },
-    "Instances": [
+        "id": "SMBI",
+        "meter": {
+          "numerator": 2,
+          "denominator": 4
+        },
+        "name": "International Samba",
+        "style": "International Latin",
+        "competitionGroup": "Ballroom",
+        "competitionOrder": 2,
+        "exceptions": [
+          {
+            "organization": "NDCA",
+            "tempoRange": {
+              "min": 100.0,
+              "max": 100.0
+            },
+            "competitor": "Professional,Amateur",
+            "level": "All"
+          },
+          {
+            "organization": "NDCA",
+            "tempoRange": {
+              "min": 96.0,
+              "max": 100.0
+            },
+            "competitor": "ProAm",
+            "level": "All"
+          },
+          {
+            "organization": "DanceSport",
+            "tempoRange": {
+              "min": 100.0,
+              "max": 104.0
+            },
+            "competitor": "All",
+            "level": "All"
+          }
+        ]
+      },
       {
-        "Style": "Social",
-        "TempoRange": {
-          "Min": 50.0,
-          "Max": 75.0
+        "tempoRange": {
+          "min": 96.0,
+          "max": 104.0
         },
-        "Exceptions": []
-      }
-    ]
-  },
-  {
-    "Name": "Carolina Shag",
-    "BlogTag" : "carolina-shag",
-    "Id": "CSG",
-    "Meter": {
-      "Numerator": 4,
-      "Denominator": 4
-    },
-    "Instances": [
-      {
-        "Style": "Social",
-        "TempoRange": {
-          "Min": 27.0,
-          "Max": 33.0
+        "id": "SMBA",
+        "meter": {
+          "numerator": 2,
+          "denominator": 4
         },
-        "Exceptions": []
-      }
-    ]
-  },
-  {
-    "Name": "Collegiate Shag",
-    "BlogTag" : "collegiate-shag",
-    "Id": "CLS",
-    "Meter": {
-      "Numerator": 4,
-      "Denominator": 4
-    },
-    "Instances": [
-      {
-        "Style": "Social",
-        "TempoRange": {
-          "Min": 45.0,
-          "Max": 50.0
-        },
-        "Exceptions": []
-      }
-    ]
-  },
-  {
-    "Name": "Argentine Tango",
-    "BlogTag" : "tango",
-    "Synonyms": ["Tango Argentino"],
-    "Id": "ATN",
-    "Meter": {
-      "Numerator": 4,
-      "Denominator": 4
-    },
-    "Instances": [
-      {
-        "Style": "Social",
-        "TempoRange": {
-          "Min": 28,
-          "Max": 35
-        },
-        "Exceptions": []
+        "name": "American Samba",
+        "style": "American Rhythm",
+        "competitionGroup": "Ballroom",
+        "competitionOrder": 0,
+        "exceptions": [
+          {
+            "organization": "NDCA",
+            "tempoRange": {
+              "min": 104.0,
+              "max": 104.0
+            },
+            "competitor": "All",
+            "level": "All"
+          },
+          {
+            "organization": "DanceSport",
+            "tempoRange": {
+              "min": 96.0,
+              "max": 96.0
+            },
+            "competitor": "All",
+            "level": "All"
+          }
+        ]
       }
     ]
   },
   {
-    "Name": "Tango Vals",
-    "Id": "TGV",
-    "BlogTag" : "tango-vals",
-    "Meter": {
-      "Numerator": 3,
-      "Denominator": 4
+    "id": "PLK",
+    "name": "Polka",
+    "meter": {
+      "numerator": 2,
+      "denominator": 4
     },
-    "Instances": [
+    "blogTag": "polka",
+    "tempoRange": {
+      "min": 120.0,
+      "max": 124.0
+    },
+    "organizations": [
+      "DanceSport",
+      "NDCA"
+    ],
+    "instances": [
       {
-        "Style": "Social",
-        "TempoRange": {
-          "Min": 50,
-          "Max": 80
+        "tempoRange": {
+          "min": 120.0,
+          "max": 124.0
         },
-        "Exceptions": []
+        "id": "PLKA",
+        "meter": {
+          "numerator": 2,
+          "denominator": 4
+        },
+        "name": "American Polka",
+        "style": "American Rhythm",
+        "competitionGroup": "Ballroom",
+        "competitionOrder": 0,
+        "exceptions": []
       }
     ]
   },
   {
-    "Name": "Neo Tango",
-    "BlogTag" : "tango",
-    "Id": "NTN",
-    "Meter": {
-      "Numerator": 4,
-      "Denominator": 4
+    "id": "SLS",
+    "name": "Salsa",
+    "meter": {
+      "numerator": 4,
+      "denominator": 4
     },
-    "Instances": [
+    "blogTag": "salsa",
+    "tempoRange": {
+      "min": 160.0,
+      "max": 220.0
+    },
+    "instances": [
       {
-        "Style": "Social",
-        "TempoRange": {
-          "Min": 15.0,
-          "Max": 25.0
+        "tempoRange": {
+          "min": 160.0,
+          "max": 220.0
         },
-        "Exceptions": []
+        "id": "SLSS",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "Social Salsa",
+        "style": "Social",
+        "competitionOrder": 0,
+        "exceptions": []
       }
     ]
   },
   {
-    "Name": "Milonga",
-    "Id": "MGA",
-    "BlogTag" : "milonga",
-    "Meter": {
-      "Numerator": 4,
-      "Denominator": 4
+    "id": "BCH",
+    "name": "Bachata",
+    "meter": {
+      "numerator": 4,
+      "denominator": 4
     },
-    "Instances": [
+    "blogTag": "bachata",
+    "tempoRange": {
+      "min": 108.0,
+      "max": 152.0
+    },
+    "instances": [
       {
-        "Style": "Social",
-        "TempoRange": {
-          "Min": 44.0,
-          "Max": 56.0
+        "tempoRange": {
+          "min": 108.0,
+          "max": 152.0
         },
-        "Exceptions": []
+        "id": "BCHS",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "Social Bachata",
+        "style": "Social",
+        "competitionOrder": 0,
+        "exceptions": []
       }
     ]
   },
   {
-    "Name": "Bossa Nova",
-    "Id": "BSN",
-    "BlogTag" : "bossa-nova",
-    "Meter": {
-      "Numerator": 4,
-      "Denominator": 4
+    "id": "NC2",
+    "name": "Night Club Two Step",
+    "meter": {
+      "numerator": 4,
+      "denominator": 4
     },
-    "Instances": [
+    "searchonyms": [
+      "club two step"
+    ],
+    "tempoRange": {
+      "min": 50.0,
+      "max": 92.0
+    },
+    "instances": [
       {
-        "Style": "Social",
-        "TempoRange": {
-          "Min": 15.0,
-          "Max": 22.5
+        "tempoRange": {
+          "min": 50.0,
+          "max": 92.0
         },
-        "Exceptions": []
+        "id": "NC2S",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "Social Night Club Two Step",
+        "style": "Social",
+        "competitionOrder": 0,
+        "exceptions": []
       }
     ]
   },
   {
-    "Name": "Jump Swing",
-    "Id": "JSW",
-    "Meter": {
-      "Numerator": 4,
-      "Denominator": 4
+    "id": "C2S",
+    "name": "Country Two Step",
+    "meter": {
+      "numerator": 2,
+      "denominator": 4
     },
-    "Instances": [
+    "blogTag": "country-two-step",
+    "tempoRange": {
+      "min": 168.0,
+      "max": 200.0
+    },
+    "instances": [
       {
-        "Style": "Social",
-        "TempoRange": {
-          "Min": 40.0,
-          "Max": 60.0
+        "tempoRange": {
+          "min": 168.0,
+          "max": 200.0
         },
-        "Exceptions": []
+        "id": "C2SS",
+        "meter": {
+          "numerator": 2,
+          "denominator": 4
+        },
+        "name": "Social Country Two Step",
+        "style": "Social",
+        "competitionOrder": 0,
+        "exceptions": []
       }
     ]
   },
   {
-    "Name": "Blues",
-    "BlogTag": "blues",
-    "Id": "BLU",
-    "Meter": {
-      "Numerator": 4,
-      "Denominator": 4
+    "id": "CMB",
+    "name": "Cumbia",
+    "meter": {
+      "numerator": 2,
+      "denominator": 4
     },
-    "Instances": [
+    "tempoRange": {
+      "min": 90.0,
+      "max": 110.0
+    },
+    "instances": [
       {
-        "Style": "Social",
-        "TempoRange": {
-          "Min": 10.0,
-          "Max": 25.0
+        "tempoRange": {
+          "min": 90.0,
+          "max": 110.0
         },
-        "Exceptions": []
+        "id": "CMBS",
+        "meter": {
+          "numerator": 2,
+          "denominator": 4
+        },
+        "name": "Social Cumbia",
+        "style": "Social",
+        "competitionOrder": 0,
+        "exceptions": []
       }
     ]
   },
   {
-    "Name": "Motown",
-    "Id": "MWT",
-    "Meter": {
-      "Numerator": 4,
-      "Denominator": 4
+    "id": "LHP",
+    "name": "Lindy Hop",
+    "meter": {
+      "numerator": 4,
+      "denominator": 4
     },
-    "Instances": [
+    "blogTag": "lindy-hop",
+    "synonyms": [
+      "Swing",
+      "Jitterbug"
+    ],
+    "tempoRange": {
+      "min": 120.0,
+      "max": 180.0
+    },
+    "instances": [
       {
-        "Style": "Social",
-        "TempoRange": {
-          "Min": 20.0,
-          "Max": 37.5
+        "tempoRange": {
+          "min": 120.0,
+          "max": 180.0
         },
-        "Exceptions": []
+        "id": "LHPS",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "Social Lindy Hop",
+        "style": "Social",
+        "competitionOrder": 0,
+        "exceptions": []
       }
     ]
   },
   {
-    "Name": "Balboa",
-    "Id": "BBA",
-    "Meter": {
-      "Numerator": 4,
-      "Denominator": 4
+    "id": "CST",
+    "name": "Charleston",
+    "meter": {
+      "numerator": 4,
+      "denominator": 4
     },
-    "Instances": [
+    "blogTag": "charleston",
+    "tempoRange": {
+      "min": 200.0,
+      "max": 300.0
+    },
+    "instances": [
       {
-        "Style": "Social",
-        "TempoRange": {
-          "Min": 40.0,
-          "Max": 65.0
+        "tempoRange": {
+          "min": 200.0,
+          "max": 300.0
         },
-        "Exceptions": []
+        "id": "CSTS",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "Social Charleston",
+        "style": "Social",
+        "competitionOrder": 0,
+        "exceptions": []
       }
     ]
   },
   {
-    "Name": "Jazz",
-    "BlogTag" : "jazz",
-    "Id": "JAZ",
-    "Meter": {
-      "Numerator": 1,
-      "Denominator": 1
+    "id": "CSG",
+    "name": "Carolina Shag",
+    "meter": {
+      "numerator": 4,
+      "denominator": 4
     },
-    "Instances": [
+    "blogTag": "carolina-shag",
+    "tempoRange": {
+      "min": 108.0,
+      "max": 132.0
+    },
+    "instances": [
       {
-        "Style": "Performance",
-        "TempoRange": {
-          "Min": 1.0,
-          "Max": 500.0
+        "tempoRange": {
+          "min": 108.0,
+          "max": 132.0
         },
-        "Exceptions": []
+        "id": "CSGS",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "Social Carolina Shag",
+        "style": "Social",
+        "competitionOrder": 0,
+        "exceptions": []
       }
     ]
   },
   {
-    "Name": "Contemporary",
-    "Id": "CNT",
-    "Meter": {
-      "Numerator": 1,
-      "Denominator": 1
+    "id": "CLS",
+    "name": "Collegiate Shag",
+    "meter": {
+      "numerator": 4,
+      "denominator": 4
     },
-    "Instances": [
+    "blogTag": "collegiate-shag",
+    "tempoRange": {
+      "min": 180.0,
+      "max": 200.0
+    },
+    "instances": [
       {
-        "Style": "Performance",
-        "TempoRange": {
-          "Min": 1.0,
-          "Max": 500.0
+        "tempoRange": {
+          "min": 180.0,
+          "max": 200.0
         },
-        "Exceptions": []
+        "id": "CLSS",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "Social Collegiate Shag",
+        "style": "Social",
+        "competitionOrder": 0,
+        "exceptions": []
       }
     ]
   },
   {
-    "Name": "Ballet",
-    "Id": "BLT",
-    "Meter": {
-      "Numerator": 1,
-      "Denominator": 1
+    "id": "ATN",
+    "name": "Argentine Tango",
+    "meter": {
+      "numerator": 4,
+      "denominator": 4
     },
-    "Instances": [
+    "blogTag": "tango",
+    "synonyms": [
+      "Tango Argentino"
+    ],
+    "tempoRange": {
+      "min": 112.0,
+      "max": 140.0
+    },
+    "instances": [
       {
-        "Style": "Performance",
-        "TempoRange": {
-          "Min": 1.0,
-          "Max": 500.0
+        "tempoRange": {
+          "min": 112.0,
+          "max": 140.0
         },
-        "Exceptions": []
+        "id": "ATNS",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "Social Argentine Tango",
+        "style": "Social",
+        "competitionOrder": 0,
+        "exceptions": []
       }
     ]
   },
   {
-    "Name": "Broadway",
-    "Id": "BDW",
-    "Meter": {
-      "Numerator": 1,
-      "Denominator": 1
+    "id": "TGV",
+    "name": "Tango Vals",
+    "meter": {
+      "numerator": 3,
+      "denominator": 4
     },
-    "Instances": [
+    "blogTag": "tango-vals",
+    "tempoRange": {
+      "min": 150.0,
+      "max": 240.0
+    },
+    "instances": [
       {
-        "Style": "Performance",
-        "TempoRange": {
-          "Min": 1.0,
-          "Max": 500.0
+        "tempoRange": {
+          "min": 150.0,
+          "max": 240.0
         },
-        "Exceptions": []
+        "id": "TGVS",
+        "meter": {
+          "numerator": 3,
+          "denominator": 4
+        },
+        "name": "Social Tango Vals",
+        "style": "Social",
+        "competitionOrder": 0,
+        "exceptions": []
       }
     ]
   },
   {
-    "Name": "Tap",
-    "Id": "TAP",
-    "Meter": {
-      "Numerator": 1,
-      "Denominator": 1
+    "id": "NTN",
+    "name": "Neo Tango",
+    "meter": {
+      "numerator": 4,
+      "denominator": 4
     },
-    "Instances": [
+    "blogTag": "tango",
+    "tempoRange": {
+      "min": 60.0,
+      "max": 100.0
+    },
+    "instances": [
       {
-        "Style": "Performance",
-        "TempoRange": {
-          "Min": 1.0,
-          "Max": 500.0
+        "tempoRange": {
+          "min": 60.0,
+          "max": 100.0
         },
-        "Exceptions": []
+        "id": "NTNS",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "Social Neo Tango",
+        "style": "Social",
+        "competitionOrder": 0,
+        "exceptions": []
       }
     ]
   },
   {
-    "Name": "Hip-Hop",
-    "Id": "HHP",
-    "Meter": {
-      "Numerator": 1,
-      "Denominator": 1
+    "id": "MGA",
+    "name": "Milonga",
+    "meter": {
+      "numerator": 4,
+      "denominator": 4
     },
-    "Instances": [
+    "blogTag": "milonga",
+    "tempoRange": {
+      "min": 176.0,
+      "max": 224.0
+    },
+    "instances": [
       {
-        "Style": "Performance",
-        "TempoRange": {
-          "Min": 1.0,
-          "Max": 500.0
+        "tempoRange": {
+          "min": 176.0,
+          "max": 224.0
         },
-        "Exceptions": []
+        "id": "MGAS",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "Social Milonga",
+        "style": "Social",
+        "competitionOrder": 0,
+        "exceptions": []
       }
     ]
   },
   {
-    "Name": "Bollywood",
-    "Id": "BWD",
-    "Meter": {
-      "Numerator": 1,
-      "Denominator": 1
+    "id": "BSN",
+    "name": "Bossa Nova",
+    "meter": {
+      "numerator": 4,
+      "denominator": 4
     },
-    "Instances": [
+    "blogTag": "bossa-nova",
+    "tempoRange": {
+      "min": 60.0,
+      "max": 90.0
+    },
+    "instances": [
       {
-        "Style": "Performance",
-        "TempoRange": {
-          "Min": 1.0,
-          "Max": 500.0
+        "tempoRange": {
+          "min": 60.0,
+          "max": 90.0
         },
-        "Exceptions": []
+        "id": "BSNS",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "Social Bossa Nova",
+        "style": "Social",
+        "competitionOrder": 0,
+        "exceptions": []
       }
     ]
   },
   {
-    "Name": "Disco",
-    "Id": "DSC",
-    "Meter": {
-      "Numerator": 1,
-      "Denominator": 1
+    "id": "JSW",
+    "name": "Jump Swing",
+    "meter": {
+      "numerator": 4,
+      "denominator": 4
     },
-    "Instances": [
+    "tempoRange": {
+      "min": 160.0,
+      "max": 240.0
+    },
+    "instances": [
       {
-        "Style": "Performance",
-        "TempoRange": {
-          "Min": 1.0,
-          "Max": 500.0
+        "tempoRange": {
+          "min": 160.0,
+          "max": 240.0
         },
-        "Exceptions": []
+        "id": "JSWS",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "Social Jump Swing",
+        "style": "Social",
+        "competitionOrder": 0,
+        "exceptions": []
       }
     ]
   },
-    {
-    "Name": "Freestyle",
-    "BlogTag": "disco",
-    "Id": "FST",
-    "Meter": {
-      "Numerator": 1,
-      "Denominator": 1
+  {
+    "id": "BLU",
+    "name": "Blues",
+    "meter": {
+      "numerator": 4,
+      "denominator": 4
     },
-    "Instances": [
+    "blogTag": "blues",
+    "tempoRange": {
+      "min": 40.0,
+      "max": 100.0
+    },
+    "instances": [
       {
-        "Style": "Performance",
-        "TempoRange": {
-          "Min": 1.0,
-          "Max": 500.0
+        "tempoRange": {
+          "min": 40.0,
+          "max": 100.0
         },
-        "Exceptions": []
+        "id": "BLUS",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "Social Blues",
+        "style": "Social",
+        "competitionOrder": 0,
+        "exceptions": []
       }
     ]
   },
+  {
+    "id": "MWT",
+    "name": "Motown",
+    "meter": {
+      "numerator": 4,
+      "denominator": 4
+    },
+    "tempoRange": {
+      "min": 80.0,
+      "max": 150.0
+    },
+    "instances": [
+      {
+        "tempoRange": {
+          "min": 80.0,
+          "max": 150.0
+        },
+        "id": "MWTS",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "Social Motown",
+        "style": "Social",
+        "competitionOrder": 0,
+        "exceptions": []
+      }
+    ]
+  },
+  {
+    "id": "BBA",
+    "name": "Balboa",
+    "meter": {
+      "numerator": 4,
+      "denominator": 4
+    },
+    "tempoRange": {
+      "min": 160.0,
+      "max": 260.0
+    },
+    "instances": [
+      {
+        "tempoRange": {
+          "min": 160.0,
+          "max": 260.0
+        },
+        "id": "BBAS",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "Social Balboa",
+        "style": "Social",
+        "competitionOrder": 0,
+        "exceptions": []
+      }
+    ]
+  },
+  {
+    "id": "JAZ",
+    "name": "Jazz",
+    "meter": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "blogTag": "jazz",
+    "tempoRange": {
+      "min": 1.0,
+      "max": 500.0
+    },
+    "instances": [
+      {
+        "tempoRange": {
+          "min": 1.0,
+          "max": 500.0
+        },
+        "id": "JAZP",
+        "meter": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "name": "Performance Jazz",
+        "style": "Performance",
+        "competitionOrder": 0,
+        "exceptions": []
+      }
+    ]
+  },
+  {
+    "id": "CNT",
+    "name": "Contemporary",
+    "meter": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "tempoRange": {
+      "min": 1.0,
+      "max": 500.0
+    },
+    "instances": [
+      {
+        "tempoRange": {
+          "min": 1.0,
+          "max": 500.0
+        },
+        "id": "CNTP",
+        "meter": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "name": "Performance Contemporary",
+        "style": "Performance",
+        "competitionOrder": 0,
+        "exceptions": []
+      }
+    ]
+  },
+  {
+    "id": "BLT",
+    "name": "Ballet",
+    "meter": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "tempoRange": {
+      "min": 1.0,
+      "max": 500.0
+    },
+    "instances": [
+      {
+        "tempoRange": {
+          "min": 1.0,
+          "max": 500.0
+        },
+        "id": "BLTP",
+        "meter": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "name": "Performance Ballet",
+        "style": "Performance",
+        "competitionOrder": 0,
+        "exceptions": []
+      }
+    ]
+  },
+  {
+    "id": "BDW",
+    "name": "Broadway",
+    "meter": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "tempoRange": {
+      "min": 1.0,
+      "max": 500.0
+    },
+    "instances": [
+      {
+        "tempoRange": {
+          "min": 1.0,
+          "max": 500.0
+        },
+        "id": "BDWP",
+        "meter": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "name": "Performance Broadway",
+        "style": "Performance",
+        "competitionOrder": 0,
+        "exceptions": []
+      }
+    ]
+  },
+  {
+    "id": "TAP",
+    "name": "Tap",
+    "meter": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "tempoRange": {
+      "min": 1.0,
+      "max": 500.0
+    },
+    "instances": [
+      {
+        "tempoRange": {
+          "min": 1.0,
+          "max": 500.0
+        },
+        "id": "TAPP",
+        "meter": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "name": "Performance Tap",
+        "style": "Performance",
+        "competitionOrder": 0,
+        "exceptions": []
+      }
+    ]
+  },
+  {
+    "id": "HHP",
+    "name": "Hip-Hop",
+    "meter": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "tempoRange": {
+      "min": 1.0,
+      "max": 500.0
+    },
+    "instances": [
+      {
+        "tempoRange": {
+          "min": 1.0,
+          "max": 500.0
+        },
+        "id": "HHPP",
+        "meter": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "name": "Performance Hip-Hop",
+        "style": "Performance",
+        "competitionOrder": 0,
+        "exceptions": []
+      }
+    ]
+  },
+  {
+    "id": "BWD",
+    "name": "Bollywood",
+    "meter": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "tempoRange": {
+      "min": 1.0,
+      "max": 500.0
+    },
+    "instances": [
+      {
+        "tempoRange": {
+          "min": 1.0,
+          "max": 500.0
+        },
+        "id": "BWDP",
+        "meter": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "name": "Performance Bollywood",
+        "style": "Performance",
+        "competitionOrder": 0,
+        "exceptions": []
+      }
+    ]
+  },
+  {
+    "id": "DSC",
+    "name": "Disco",
+    "meter": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "tempoRange": {
+      "min": 1.0,
+      "max": 500.0
+    },
+    "instances": [
+      {
+        "tempoRange": {
+          "min": 1.0,
+          "max": 500.0
+        },
+        "id": "DSCP",
+        "meter": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "name": "Performance Disco",
+        "style": "Performance",
+        "competitionOrder": 0,
+        "exceptions": []
+      }
+    ]
+  },
+  {
+    "id": "FST",
+    "name": "Freestyle",
+    "meter": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "blogTag": "disco",
+    "tempoRange": {
+      "min": 1.0,
+      "max": 500.0
+    },
+    "instances": [
+      {
+        "tempoRange": {
+          "min": 1.0,
+          "max": 500.0
+        },
+        "id": "FSTP",
+        "meter": {
+          "numerator": 1,
+          "denominator": 1
+        },
+        "name": "Performance Freestyle",
+        "style": "Performance",
+        "competitionOrder": 0,
+        "exceptions": []
+      }
+    ]
+  }
 ]

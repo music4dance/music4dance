@@ -20,7 +20,7 @@ export class DanceOrder {
   }
 
   public get rangeMpm(): TempoRange {
-    return this.dance!.tempoRange;
+    return this.dance.tempoRange.toMpm(this.numerator);
   }
 
   public get rangeBpm(): TempoRange {
@@ -40,9 +40,7 @@ export class DanceOrder {
   }
 
   private computeDelta(target: number): number {
-    return this.dance.tempoRange
-      .toBpm(this.dance.meter.numerator)
-      .computeDelta(target);
+    return this.dance.tempoRange.computeDelta(target);
   }
 
   public static dancesForTempo(

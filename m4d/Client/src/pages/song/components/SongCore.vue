@@ -212,8 +212,9 @@
       @choose-dance="addDance"
       @update-song="updateSong"
       :filterIds="explicitDanceIds"
-      :tempo="song.tempo"
+      :tempo="editor.song.tempo"
       :numerator="numerator"
+      :hideNameLink="true"
     ></dance-chooser>
   </div>
 </template>

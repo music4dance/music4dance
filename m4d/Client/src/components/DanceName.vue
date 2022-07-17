@@ -49,12 +49,10 @@ export default class DanceName extends Vue {
 
     const showTempo = this.showTempo;
     const bpm =
-      showTempo & TempoType.Beats
-        ? `${dance.tempoRange.bpm(dance.meter.numerator)} BPM`
-        : "";
+      showTempo & TempoType.Beats ? `${dance.tempoRange.toString()} BPM` : "";
     const mpm =
       showTempo & TempoType.Measures
-        ? `${dance.tempoRange.toString()} MPM`
+        ? `${dance.tempoRange.mpm(dance.meter.numerator)} MPM`
         : "";
 
     return `${bpm}${mpm && bpm ? "/" : ""}${mpm}`;

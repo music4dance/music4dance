@@ -63,6 +63,10 @@ export class TempoRange {
     return new TempoRange(this.min * numerator, this.max * numerator);
   }
 
+  public toMpm(numerator: number): TempoRange {
+    return new TempoRange(this.min / numerator, this.max / numerator);
+  }
+
   private formatTempo(tempo: number): string {
     return parseFloat(tempo.toFixed(1)).toString();
   }

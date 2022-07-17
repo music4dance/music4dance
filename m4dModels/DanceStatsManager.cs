@@ -115,6 +115,7 @@ namespace m4dModels
                 return null;
             }
 
+            await InitializeDanceLibrary();
             LastUpdate = DateTime.Now;
             Source = "AppData";
             Instance = await DanceStatsInstance.LoadFromJson(
@@ -132,10 +133,7 @@ namespace m4dModels
         public async Task<DanceStatsInstance> LoadFromAzure(
             DanceMusicCoreService dms, string source = "default")
         {
-            var dancesJson = await File.ReadAllTextAsync(Path.Combine(Content, "dances.txt"));
-            var groupsJson = await File.ReadAllTextAsync(Path.Combine(Content, "dancegroups.txt"));
-            DanceLibrary.Dances.Reset(DanceLibrary.Dances.Load(dancesJson, groupsJson));
-
+            await InitializeDanceLibrary();
             var songCounts = await GetSongCounts(dms, source);
             var instance = await DanceStatsInstance.BuildInstance(
                 await TagManager.BuildTagManager(dms, source),
@@ -152,6 +150,14 @@ namespace m4dModels
 
             await dms.GetSongIndex(source).UpdateAzureIndex(null, dms);
             return instance;
+        }
+
+        private async Task InitializeDanceLibrary()
+        {
+            var dancesJson = await File.ReadAllTextAsync(Path.Combine(Content, "dances.txt"));
+            var groupsJson = await File.ReadAllTextAsync(Path.Combine(Content, "dancegroups.txt"));
+            DanceLibrary.Dances.Reset(DanceLibrary.Dances.Load(dancesJson, groupsJson));
+
         }
 
         private void SaveToAppData(DanceStatsInstance instance)

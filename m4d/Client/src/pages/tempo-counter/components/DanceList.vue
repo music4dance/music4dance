@@ -4,6 +4,7 @@
       <dance-item
         :dance="ds"
         :tempoType="tempoType"
+        :hideLink="hideNameLink"
         v-on="$listeners"
       ></dance-item>
     </b-list-group>
@@ -25,6 +26,7 @@ export default class DanceList extends Vue {
   @Prop() private epsilonPercent!: number;
   @Prop() private tempoType!: TempoType;
   @Prop() private filter?: string;
+  @Prop() private hideNameLink?: boolean;
 
   private get orderedDances(): DanceOrder[] {
     const filter = this.filter;

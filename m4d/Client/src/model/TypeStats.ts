@@ -91,7 +91,7 @@ export class TypeStats extends DanceType implements DanceStats {
   }
 
   public getFuzzyTempoRange(percentEpsilon: number): TempoRange {
-    const range = this.tempoRange.toBpm(this.meter.numerator);
+    const range = this.tempoRange;
     const average = (range.min + range.max) / 2;
     const epsBpm = percentEpsilon * (average / 100);
 

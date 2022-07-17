@@ -79,7 +79,7 @@ namespace DanceLibrary
 
         public override bool Equals(object obj)
         {
-            return obj is not TempoRange other ? false : other.Min == Min && other.Max == Max;
+            return obj is TempoRange other && (other.Min == Min && other.Max == Max);
         }
 
         public override int GetHashCode()

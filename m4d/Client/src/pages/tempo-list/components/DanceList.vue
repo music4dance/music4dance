@@ -66,6 +66,8 @@ export default class DanceList extends Vue {
   @Prop() private readonly allMeters!: string[];
   @Prop() private readonly allTypes!: string[];
 
+  @Prop() private readonly hideNameLink?: boolean;
+
   private fields: BvTableFieldArray = [
     {
       key: "name",
@@ -86,7 +88,7 @@ export default class DanceList extends Vue {
           minimumIntegerDigits: 4,
         }),
       formatter: (value: TempoRange, key: string, item: TypeStats) =>
-        this.filteredTempo(item).bpm(item.meter.numerator),
+        this.filteredTempo(item).toString(),
     },
     {
       key: "mpm",
@@ -97,7 +99,7 @@ export default class DanceList extends Vue {
           minimumIntegerDigits: 4,
         }),
       formatter: (value: TempoRange, key: string, item: TypeStats) =>
-        this.filteredTempo(item).toString(),
+        this.filteredTempo(item).mpm(item.meter.numerator),
     },
     {
       key: "groupName",

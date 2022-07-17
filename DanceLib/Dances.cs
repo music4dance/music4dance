@@ -68,6 +68,7 @@ namespace DanceLibrary
 
         public virtual List<string> Searchonyms { get; set; }
 
+        [JsonIgnore]
         public string CleanName => SeoFriendly(Name);
 
         public static string SeoFriendly(string name)
@@ -312,7 +313,7 @@ namespace DanceLibrary
             out decimal deltaPercent, out decimal median)
         {
             var ret = false;
-            var filteredTempo = FilteredTempo;
+            var filteredTempo = new TempoRange(FilteredTempo.Min / Meter.Numerator, FilteredTempo.Max / Meter.Numerator);
             delta = filteredTempo.CalculateDelta(tempo);
             median = (filteredTempo.Min + filteredTempo.Max) / 2;
             deltaPercent = delta * 100 / median;
@@ -379,7 +380,7 @@ namespace DanceLibrary
 
         public override string ToString()
         {
-            return $"{Style} ({FilteredTempo}MPM)";
+            return $"{Style} ({FilteredTempo}BPM)";
         }
     }
 
@@ -909,21 +910,6 @@ namespace DanceLibrary
                     .Where(dobj => dobj != null));
 
             return dos;
-        }
-
-        private IEnumerable<string> ParseDanceList(string dances)
-        {
-            IEnumerable<string> ret = null;
-            if (!string.IsNullOrWhiteSpace(dances))
-            {
-                var a = dances.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                if (a.Length > 0)
-                {
-                    ret = a;
-                }
-            }
-
-            return ret;
         }
 
         private void DoExpand(string dance, Dictionary<string, string> set)

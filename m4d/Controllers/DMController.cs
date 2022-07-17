@@ -88,6 +88,7 @@ namespace m4d.Controllers
             Response.StatusCode = (int)statusCode;
             // Response.TrySkipIisCustomErrors = true;
 
+            UseVue = false;
             return View("HttpError", model);
         }
 
