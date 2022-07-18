@@ -84,37 +84,48 @@ namespace m4d.Areas.Identity.Pages.Account
             {
                 // If the input is a valid user's email, use that
                 var user = await _userManager.FindByEmailAsync(Input.UserName);
+                if (user == null)
+                {
+                    user = await _userManager.FindByNameAsync(Input.UserName);
+                }
+
                 if (user != null)
                 {
                     Input.UserName = user.UserName;
-                }
 
-                var result = await _signInManager.PasswordSignInAsync(Input.UserName, Input.Password, Input.RememberMe, lockoutOnFailure: true);
-                if (result.Succeeded)
-                {
-                    _logger.LogInformation($"User {user.UserName} logged in.");
-                    user.LastActive = System.DateTime.Now;
-                    var lastLoginResult = await _userManager.UpdateAsync(user);
-                    if (!lastLoginResult.Succeeded)
+                    var result = await _signInManager.PasswordSignInAsync(
+                        Input.UserName, Input.Password, Input.RememberMe, lockoutOnFailure: true);
+                    if (result.Succeeded)
                     {
-                        _logger.LogWarning($"Failed to set last loging for user {user.UserName}");
+                        _logger.LogInformation($"User {user.UserName} logged in.");
+                        user.LastActive = System.DateTime.Now;
+                        var lastLoginResult = await _userManager.UpdateAsync(user);
+                        if (!lastLoginResult.Succeeded)
+                        {
+                            _logger.LogWarning(
+                                $"Failed to set last loging for user {user.UserName}");
+                        }
+
+                        return LocalRedirect(returnUrl);
                     }
 
-                    return LocalRedirect(returnUrl);
-                }
-                if (result.RequiresTwoFactor)
-                {
-                    return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
-                }
-                if (result.IsLockedOut)
-                {
-                    _logger.LogWarning("User account locked out.");
-                    return RedirectToPage("./Lockout");
-                }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                    return Page();
+                    if (result.RequiresTwoFactor)
+                    {
+                        return RedirectToPage(
+                            "./LoginWith2fa",
+                            new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
+                    }
+
+                    if (result.IsLockedOut)
+                    {
+                        _logger.LogWarning("User account locked out.");
+                        return RedirectToPage("./Lockout");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                        return Page();
+                    }
                 }
             }
 
