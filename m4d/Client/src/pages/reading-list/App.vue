@@ -170,7 +170,7 @@ const books: Book[] = [
     hardcover: "https://amzn.to/3nfbWPt",
     audible: "https://amzn.to/3nfvfbq",
     notes:
-      "This is a beautiful memomoir of one of the greatest Lindy Hop dancers of all time. Ms. Miller was not only one of dancers that defined the Lindy Hop, but as Lindy Hop faded for a while post World War II, she launched a career as a Jazz Dancer.",
+      "This is a beautiful memoir of one of the greatest Lindy Hop dancers of all time. Ms. Miller was not only one of dancers that defined the Lindy Hop, but as Lindy Hop faded for a while post World War II, she launched a career as a Jazz Dancer.",
     image: `<a href="https://www.amazon.com/Swingin-at-Savoy-Norma-Miller/dp/1566398495?_encoding=UTF8&qid=1656199984&sr=8-6&linkCode=li2&tag=msc4dnc-20&linkId=e5b0da9f979d004a9af19329b8f60808&language=en_US&ref_=as_li_ss_il" target="_blank"><img border="0" src="//ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=1566398495&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=msc4dnc-20&language=en_US" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=msc4dnc-20&language=en_US&l=li2&o=1&a=1566398495" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />`,
   },
   {
