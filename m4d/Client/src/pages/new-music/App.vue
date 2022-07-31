@@ -41,9 +41,6 @@ import { Component, Vue } from "vue-property-decorator";
 
 declare const model: string;
 
-// TODONEXT: Implement comment sort order on back end (make front end "Comment" match back end "Comments")
-// Reload songs-a
-// Push these changes out to the server
 @Component({
   components: {
     Page,
