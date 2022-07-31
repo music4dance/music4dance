@@ -26,7 +26,7 @@ public abstract class SongIndex
     public const string EditedField = "Edited";
     public const string DancesField = "Dances";
     public const string UsersField = "Users";
-    public const string CommentField = "Comment";
+    public const string CommentsField = "Comments";
     public const string DanceTagsInferred = "DanceTagsInferred";
     public const string GenreTags = "GenreTags";
     public const string TempoTags = "TempoTags";

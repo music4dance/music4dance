@@ -4,7 +4,7 @@ import { DanceQuery } from "./DanceQuery";
 import { DanceQueryBase } from "./DanceQueryBase";
 import { PurchaseInfo } from "./Purchase";
 import { RawDanceQuery } from "./RawDanceQuery";
-import { SongSort } from "./SongSort";
+import { SongSort, SortOrder } from "./SongSort";
 import { TagList } from "./TagList";
 import { UserQuery } from "./UserQuery";
 
@@ -204,7 +204,8 @@ export class SongFilter {
         "page",
       ]) &&
       this.danceQuery.isSimple &&
-      this.userQuery.isDefault(user)
+      this.userQuery.isDefault(user) &&
+      !this.sortOrder?.startsWith(SortOrder.Comments)
     );
   }
 
@@ -223,6 +224,7 @@ export class SongFilter {
           `${this.describePart(this.describeTempo)}` +
           `${this.describePart(this.describeLength)}` +
           `${this.describePart(this.userQuery.description)}` +
+          `${this.describePart(this.describeComments)}` +
           `${this.describePart(this.describeSort)}.`;
   }
 
@@ -297,6 +299,12 @@ export class SongFilter {
     } else {
       return "";
     }
+  }
+
+  private get describeComments(): string {
+    return this.sortOrder?.startsWith(SortOrder.Comments)
+      ? "including only songs with comments"
+      : "";
   }
 
   private get describeSort(): string {

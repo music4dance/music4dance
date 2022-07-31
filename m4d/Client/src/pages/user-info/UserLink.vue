@@ -19,6 +19,7 @@
 
 <script lang="ts">
 import { SongFilter } from "@/model/SongFilter";
+import { SortOrder } from "@/model/SongSort";
 import { Component, Prop, Vue } from "vue-property-decorator";
 
 @Component({})
@@ -33,6 +34,7 @@ export default class UserLink extends Vue {
   private get url(): string {
     const filter = new SongFilter();
     filter.user = `${this.include ? "+" : "-"}${this.userName}|${this.type}`;
+    filter.sortOrder = SortOrder.Modified;
     return `/song/filterSearch?filter=${filter.encodedQuery}`;
   }
 

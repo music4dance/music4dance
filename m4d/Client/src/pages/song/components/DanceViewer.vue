@@ -24,7 +24,7 @@ import "reflect-metadata";
 import { Component, Mixins, Prop } from "vue-property-decorator";
 
 @Component({ components: { DanceButton } })
-export default class SongPropertyViewer extends Mixins(AdminTools) {
+export default class DanceViewer extends Mixins(AdminTools) {
   @Prop() private readonly tag!: Tag;
   @Prop() private readonly added!: boolean;
 

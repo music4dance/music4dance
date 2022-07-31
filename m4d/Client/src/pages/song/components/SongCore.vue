@@ -212,7 +212,7 @@
       @choose-dance="addDance"
       @update-song="updateSong"
       :filterIds="explicitDanceIds"
-      :tempo="editor.song.tempo"
+      :tempo="song.tempo"
       :numerator="numerator"
       :hideNameLink="true"
     ></dance-chooser>
@@ -272,15 +272,20 @@ export default class SongCore extends Mixins(AdminTools) {
   @Prop() private readonly startEditing?: boolean;
   @Prop() private readonly creating?: boolean;
 
-  private song: Song;
+  private songStore: Song;
   private editor: SongEditor | null;
   private toastShown = false;
   private edit = false;
 
   constructor() {
     super();
-    this.song = new Song();
+    this.songStore = new Song();
     this.editor = null;
+  }
+
+  private get song(): Song {
+    const editor = this.editor;
+    return editor ? editor.song : this.songStore;
   }
 
   private beforeMount() {
@@ -333,7 +338,6 @@ export default class SongCore extends Mixins(AdminTools) {
 
   private set adminProperties(properties: string) {
     this.editor!.adminEdit(properties);
-    this.updateSong();
   }
 
   private computePropertyString(properties: SongProperty[]): string {
@@ -360,7 +364,10 @@ export default class SongCore extends Mixins(AdminTools) {
           this.model.songHistory
         );
       }
-      this.song = Song.fromHistory(this.model.songHistory, this.model.userName);
+      this.songStore = Song.fromHistory(
+        this.model.songHistory,
+        this.model.userName
+      );
     }
   }
 
@@ -371,7 +378,6 @@ export default class SongCore extends Mixins(AdminTools) {
     }
     this.editor!.danceVote(vote);
     this.edit = true;
-    this.updateSong();
   }
 
   private onDeleteAlbum(album: AlbumDetails): void {
@@ -380,7 +386,6 @@ export default class SongCore extends Mixins(AdminTools) {
       undefined,
       album.index!
     );
-    this.updateSong();
   }
 
   private onDeleteDance(dr: DanceRating): void {
@@ -389,12 +394,10 @@ export default class SongCore extends Mixins(AdminTools) {
       "Dance"
     );
     this.editor!.addProperty(PropertyType.deleteTag, tag.key);
-    this.updateSong();
   }
 
   private addProperty(property: SongProperty): void {
     this.editor!.addProperty(property.name, property.value);
-    this.updateSong();
   }
 
   private get artistLink(): string | undefined {
@@ -448,7 +451,6 @@ export default class SongCore extends Mixins(AdminTools) {
       throw new Error("Can't edit if not logged in");
     }
     editor.toggleLike();
-    this.updateSong();
   }
 
   private addDance(danceId?: string, persist?: boolean): void {
@@ -458,7 +460,6 @@ export default class SongCore extends Mixins(AdminTools) {
     }
     if (danceId) {
       this.editor!.danceVote(new DanceRatingVote(danceId, VoteDirection.Up));
-      this.updateSong();
 
       if (!persist) {
         this.$bvModal.hide("danceChooser");
@@ -481,7 +482,6 @@ export default class SongCore extends Mixins(AdminTools) {
       throw new Error("Can't edit if not logged in");
     }
     editor.deleteProperty(index);
-    this.updateSong();
   }
 
   private get hasUserChanges(): boolean {
@@ -515,9 +515,8 @@ export default class SongCore extends Mixins(AdminTools) {
   private get hasDances(): boolean {
     return this.song.hasDances;
   }
-
   private updateSong(): void {
-    this.song = this.editor!.song;
+    this.songStore = this.editor!.song;
   }
 
   private setEdit(): void {
@@ -526,7 +525,6 @@ export default class SongCore extends Mixins(AdminTools) {
 
   private addTrack(track: TrackModel): void {
     this.editor?.addAlbumFromTrack(track);
-    this.updateSong();
   }
 
   private leaveWarning(event: BeforeUnloadEvent): void {
@@ -558,7 +556,6 @@ export default class SongCore extends Mixins(AdminTools) {
 
   private cancelChanges(): void {
     this.editor!.revert();
-    this.updateSong();
     this.edit = false;
     this.$emit("cancel-changes");
   }
@@ -570,7 +567,6 @@ export default class SongCore extends Mixins(AdminTools) {
       await this.editor!.saveChanges();
     }
 
-    this.updateSong();
     this.edit = false;
 
     if (this.startEditing) {

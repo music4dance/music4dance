@@ -1,6 +1,14 @@
 <template>
   <div>
+    <comment-viewer
+      v-if="isComment"
+      :comment="property.value"
+      :added="isAdd"
+      :danceId="danceId"
+    >
+    </comment-viewer>
     <component
+      v-else
       v-for="(tag, index) in tags"
       :key="index"
       :is="viewer(tag)"
@@ -19,10 +27,11 @@ import { Tag, TagCategory } from "@/model/Tag";
 import { TagList } from "@/model/TagList";
 import "reflect-metadata";
 import { Component, Mixins, Prop } from "vue-property-decorator";
+import CommentViewer from "./CommentViewer.vue";
 import DanceViewer from "./DanceViewer.vue";
 import TagViewer from "./TagViewer.vue";
 
-@Component({ components: { DanceViewer, TagViewer } })
+@Component({ components: { CommentViewer, DanceViewer, TagViewer } })
 export default class SongPropertyViewer extends Mixins(AdminTools) {
   @Prop() private readonly property!: SongProperty;
 
@@ -31,7 +40,7 @@ export default class SongPropertyViewer extends Mixins(AdminTools) {
   }
 
   private get isAdd(): boolean {
-    return this.property.baseName === PropertyType.addedTags;
+    return this.property.baseName.endsWith("+");
   }
 
   private get danceId(): string | undefined {
@@ -40,6 +49,13 @@ export default class SongPropertyViewer extends Mixins(AdminTools) {
 
   private isDance(tag: Tag): boolean {
     return tag.category === TagCategory.Dance;
+  }
+
+  private get isComment(): boolean {
+    return (
+      this.property.baseName == PropertyType.addCommentField ||
+      this.property.baseName == PropertyType.removeCommentField
+    );
   }
 
   private viewer(tag: Tag): string {

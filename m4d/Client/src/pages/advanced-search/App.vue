@@ -355,6 +355,7 @@ export default class App extends Mixins(
     { text: "Energy", value: SortOrder.Energy },
     { text: "Mood", value: SortOrder.Mood },
     { text: "Strength of Beat", value: SortOrder.Beat },
+    { text: "Comments", value: SortOrder.Comments },
     { text: "Closest Match", value: null },
   ];
   private sort: string | null = "Dances";

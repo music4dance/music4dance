@@ -12,6 +12,7 @@ export enum SortOrder {
   Energy = "Energy",
   Mood = "Mood",
   Beat = "Beat",
+  Comments = "Comments",
   Match = "",
 }
 
@@ -97,6 +98,7 @@ export class SongSort {
         case SortOrder.Modified:
         case SortOrder.Edited:
         case SortOrder.Created:
+        case SortOrder.Comments:
           return "newest to oldest";
         case SortOrder.Dances:
           return "most popular to least popular";
@@ -118,6 +120,7 @@ export class SongSort {
         case SortOrder.Modified:
         case SortOrder.Edited:
         case SortOrder.Created:
+        case SortOrder.Comments:
           return "oldest to newest";
         case SortOrder.Dances:
           return "least popular to most popular";

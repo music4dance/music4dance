@@ -17,7 +17,11 @@
     </template>
     on
     {{ formattedDate }}
-    <div v-for="(property, index) in tagProperties" :key="index" class="ml-4">
+    <div
+      v-for="(property, index) in viewableProperties"
+      :key="index"
+      class="ml-4"
+    >
       <song-property-viewer :property="property"></song-property-viewer>
     </div>
   </div>
@@ -48,8 +52,10 @@ export default class SongChangeViewer extends Vue {
     return date ? format(date, "Pp") : "<unknown>";
   }
 
-  private get tagProperties(): SongProperty[] {
-    return this.change.properties.filter((t) => t.baseName.startsWith("Tag"));
+  private get viewableProperties(): SongProperty[] {
+    return this.change.properties.filter(
+      (t) => t.baseName.startsWith("Tag") || t.baseName.startsWith("Comment")
+    );
   }
 }
 </script>

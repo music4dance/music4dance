@@ -7,11 +7,23 @@ namespace m4dModels
 {
     public class SongSort
     {
+        public const string Dances = SongIndex.DancesField;
+        public const string Modified = SongIndex.ModifiedField;
+        public const string Edited = SongIndex.EditedField;
+        public const string Created = SongIndex.CreatedField;
+        public const string Closest = "Closest";
+        public const string Comments = SongIndex.CommentsField;
+        public const string Tempo = Song.TempoField;
+        public const string Length = Song.LengthField;
+        public const string Beat = SongIndex.BeatField;
+        public const string Mood = SongIndex.MoodField;
+        public const string Energy = Song.EnergyField;
+
         private static readonly string[] s_directional =
         {
             Song.TitleField, Song.ArtistField, Song.TempoField, Song.LengthField,
             SongIndex.ModifiedField, SongIndex.CreatedField, SongIndex.EditedField,
-            Song.EnergyField, SongIndex.MoodField, SongIndex.BeatField
+            Song.EnergyField, SongIndex.MoodField, SongIndex.BeatField, SongIndex.CommentsField
         };
 
         private static readonly string[] s_numerical =
@@ -38,7 +50,7 @@ namespace m4dModels
                 Id = $"{char.ToUpper(Id[0])}{Id[1..].ToLower()}";
 
                 if (!(s_directional.Contains(Id) || s_intrinsic.Contains(Id) ||
-                    s_numerical.Contains(Id) || string.Equals(Id, "Dances")))
+                    s_numerical.Contains(Id) || string.Equals(Id, Dances)))
                 {
                     Id = null;
                     return;
@@ -82,13 +94,13 @@ namespace m4dModels
             {
                 switch (Id)
                 {
-                    case "Dances":
+                    case Dances:
                         return "Dance Rating";
-                    case "Modified":
+                    case Modified:
                         return "Last Modified";
-                    case "Edited":
+                    case Edited:
                         return "Last Edited";
-                    case "Created":
+                    case Created:
                         return "When Added";
                     case null:
                     case "":
@@ -108,13 +120,13 @@ namespace m4dModels
                     return null;
                 }
 
-                if (Id == "Dances")
+                if (Id == Dances)
                 {
                     return null;
                 }
 
                 var desc = Descending;
-                if (Id == "Modified" || Id == "Created" || Id == "Edited")
+                if (Id == Modified || Id == Created || Id == Edited)
                 {
                     desc = !desc;
                 }
@@ -140,26 +152,27 @@ namespace m4dModels
                 {
                     switch (Id)
                     {
-                        case Song.TempoField:
+                        case Tempo:
                             ret.Append("slowest to fastest");
                             break;
-                        case Song.LengthField:
+                        case Length:
                             ret.Append("shortest to longest");
                             break;
-                        case SongIndex.ModifiedField:
-                        case SongIndex.CreatedField:
+                        case Modified:
+                        case Created:
+                        case Comments:
                             ret.Append("newest to oldest");
                             break;
-                        case SongIndex.DancesField:
+                        case Dances:
                             ret.Append("most popular to least popular");
                             break;
-                        case SongIndex.BeatField:
+                        case Beat:
                             ret.Append("weakest to strongest");
                             break;
-                        case SongIndex.MoodField:
+                        case Mood:
                             ret.Append("saddest to happiest");
                             break;
-                        case Song.EnergyField:
+                        case Energy:
                             ret.Append("lowest to highest");
                             break;
                         default:
@@ -171,26 +184,27 @@ namespace m4dModels
                 {
                     switch (Id)
                     {
-                        case Song.TempoField:
+                        case Tempo:
                             ret.Append("fastest to slowest");
                             break;
-                        case Song.LengthField:
+                        case Length:
                             ret.Append("longest to shortest");
                             break;
-                        case SongIndex.ModifiedField:
-                        case SongIndex.CreatedField:
+                        case Modified:
+                        case Created:
+                        case Comments:
                             ret.Append("oldest to newest");
                             break;
-                        case SongIndex.DancesField:
+                        case Dances:
                             ret.Append("most popular to least popular");
                             break;
-                        case SongIndex.BeatField:
+                        case Beat:
                             ret.Append("strongest to weakest");
                             break;
-                        case SongIndex.MoodField:
+                        case Mood:
                             ret.Append("happiest to saddest");
                             break;
-                        case Song.EnergyField:
+                        case Energy:
                             ret.Append("highest to lowest");
                             break;
                         default:

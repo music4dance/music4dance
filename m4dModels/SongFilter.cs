@@ -248,12 +248,17 @@ namespace m4dModels
             {
                 var sort = SongSort;
 
-                return sort.Id != "Dances"
-                    ? sort.OData
-                    : DanceQuery?.ODataSort(sort.Descending ? "asc" : "desc");
+                switch (sort.Id)
+                {
+                    case SongSort.Dances:
+                        return DanceQuery?.ODataSort(sort.Descending ? "asc" : "desc");
+                    case SongSort.Comments:
+                        return new List<string> { "Modified " + (sort.Descending ? "asc" : "desc") };
+                    default:
+                        return sort.OData;
+                }
             }
         }
-
 
         public bool IsSimple => !IsAdvanced;
 
@@ -476,6 +481,10 @@ namespace m4dModels
                     sb.AppendFormat("Length < {0} seconds", LengthMax.Value);
                 }
 
+                if (SortOrder.StartsWith(SongSort.Comments))
+                {
+                    sb.Append("only including songs with comments");
+                }
                 if (sb.Length > 0)
                 {
                     sb.Append(". ");
@@ -560,6 +569,11 @@ namespace m4dModels
             return sb.ToString();
         }
 
+        public string GetCommentsFilter()
+        {
+            return new SongSort(SortOrder).Id == SongIndex.CommentsField ? "Comments/any()" : null;
+        }
+
         public static IEnumerable<string> GetTagClasses()
         {
             return s_tagClasses.Keys;
@@ -612,17 +626,9 @@ namespace m4dModels
             var odata = SongSort.Numeric
                 ? $"({SongSort.Id} ne null) and ({SongSort.Id} ne 0)"
                 : null;
-            var danceFilter = DanceQuery.ODataFilter;
-            if (danceFilter != null)
-            {
-                odata = (odata == null ? "" : odata + " and ") + danceFilter;
-            }
 
-            var userFilter = UserQuery.ODataFilter;
-            if (userFilter != null)
-            {
-                odata = (odata == null ? "" : odata + " and ") + userFilter;
-            }
+            odata = CombineFilter(odata, DanceQuery.ODataFilter);
+            odata = CombineFilter(odata, UserQuery.ODataFilter);
 
             if (TempoMin.HasValue)
             {
@@ -646,20 +652,20 @@ namespace m4dModels
                 odata = (odata == null ? "" : odata + " and ") + $"(Length le {LengthMax})";
             };
 
-            var purchaseFilter = ODataPurchase;
-            if (purchaseFilter != null)
-            {
-                odata = (odata == null ? "" : odata + " and ") + purchaseFilter;
-            }
+            odata = CombineFilter(odata, ODataPurchase);
+            odata = CombineFilter(odata, GetTagFilter(dms));
+            odata = CombineFilter(odata, GetCommentsFilter());
 
-            var tagFilter = GetTagFilter(dms);
-            if (tagFilter != null)
-            {
-                odata = (odata == null ? "" : odata + " and ") + tagFilter;
-            }
 
             Trace.WriteLine($"ODataFilter: {odata}");
             return odata;
+        }
+
+        private string CombineFilter(string odata, string newData)
+        {
+            if (newData == null) return odata;
+
+            return (odata == null ? "" : odata + " and ") + newData;
         }
 
         public override string ToString()

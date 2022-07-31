@@ -10,6 +10,12 @@
         @click="clickChanged"
         >Recently Changed</b-button
       >
+      <b-button
+        variant="outline-primary"
+        :pressed="commented"
+        @click="clickCommented"
+        >Recently Commented</b-button
+      >
     </b-button-group>
     <song-table
       :histories="model.histories"
@@ -35,6 +41,9 @@ import { Component, Vue } from "vue-property-decorator";
 
 declare const model: string;
 
+// TODONEXT: Implement comment sort order on back end (make front end "Comment" match back end "Comments")
+// Reload songs-a
+// Push these changes out to the server
 @Component({
   components: {
     Page,
@@ -46,6 +55,7 @@ export default class App extends Vue {
   private readonly model: SongListModel;
   private readonly added: boolean;
   private readonly changed: boolean;
+  private readonly commented: boolean;
 
   constructor() {
     super();
@@ -53,6 +63,7 @@ export default class App extends Vue {
     this.model = TypedJSON.parse(model, SongListModel)!;
     this.added = this.model.filter.sortOrder === SortOrder.Created;
     this.changed = this.model.filter.sortOrder === SortOrder.Modified;
+    this.commented = this.model.filter.sortOrder === SortOrder.Comments;
   }
 
   private get filter(): SongFilter {
@@ -65,6 +76,10 @@ export default class App extends Vue {
 
   private clickChanged(): void {
     this.navigate(SortOrder.Modified);
+  }
+
+  private clickCommented(): void {
+    this.navigate(SortOrder.Comments);
   }
 
   private navigate(order: SortOrder): void {

@@ -526,7 +526,9 @@ export default class SongTable extends Mixins(AdminTools) {
 
   private getUserChange(history: SongHistory): SongChange | undefined {
     if (this.showHistory) {
-      return history.latestChange();
+      return this.sortOrder?.order == SortOrder.Comments
+        ? history.latestComment()
+        : history.latestChange();
     } else {
       const user = this.filterUser;
       return history.recentUserChange(user);

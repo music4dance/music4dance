@@ -141,7 +141,7 @@ namespace m4dModels
                     IsFacetable = false
                 },
                 new(
-                    CommentField, SearchFieldDataType.Collection(SearchFieldDataType.String))
+                    CommentsField, SearchFieldDataType.Collection(SearchFieldDataType.String))
                 {
                     IsSearchable = true, IsSortable = false, IsFilterable = true,
                     IsFacetable = false
@@ -287,7 +287,7 @@ namespace m4dModels
                 [TempoTags] = tempo.ToArray(),
                 [StyleTags] = style.ToArray(),
                 [OtherTags] = other.ToArray(),
-                [CommentField] = comments.ToArray(),
+                [CommentsField] = comments.ToArray(),
                 [PropertiesField] = SongProperty.Serialize(song.SongProperties, null)
             };
 

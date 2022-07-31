@@ -101,6 +101,7 @@ export class SongHistory {
           case PropertyType.addedTags:
           case PropertyType.removedTags:
           case PropertyType.likeTag:
+          case PropertyType.addCommentField:
             properties.push(property);
             break;
         }
@@ -161,6 +162,13 @@ export class SongHistory {
       return undefined;
     }
     return changes[changes.length - 1];
+  }
+
+  public latestComment(): SongChange | undefined {
+    const changes = this.userChanges;
+    return changes
+      .reverse()
+      .find((c) => c.properties.some((p) => p.baseName.startsWith("Comment")));
   }
 
   private static serviceUserFromType(type: string): string {
