@@ -1,5 +1,12 @@
 <template>
   <div>
+    <b-alert v-if="isTest" show variant="danger" style="margin-bottom: 0"
+      >This is a TEST site. Please navigate to
+      <a href="https://www.music4dance.net" class="alert-link"
+        >wwww.music4dance.net</a
+      >
+      to use the production site.</b-alert
+    >
     <b-navbar id="mainMenu" type="dark" variant="primary" toggleable="lg" fixed>
       <b-navbar-brand href="/">
         <img src="/images/header-logo.png" height="40" title="music4dance" />
@@ -223,6 +230,10 @@ export default class MainMenu extends Mixins(DropTarget) {
     window.location.href = `/search?search=${encodeURIComponent(
       this.searchString
     )}`;
+  }
+
+  private get isTest(): boolean {
+    return window.location.hostname.endsWith(".azurewebsites.net");
   }
 }
 </script>

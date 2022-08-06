@@ -41,10 +41,27 @@
 
         <tr>
             <td>
-                @Html.ActionLink(@t.Description, "Index", "Song", new
+                @Html.ActionLink("Search", "Index", "Song", new
                 {
                     filter = t
-                }, null)
+                },new
+                {
+                    role = "button",
+                    @class = "btn btn-success"
+                })
+                &nbsp;
+                @Html.ActionLink("Delete", "Delete", "Searches", new
+                {
+                    id = item.Id,
+                    user = item.ApplicationUser.UserName,
+                    showDetails
+                },new
+                {
+                    role = "button",
+                    @class = "btn btn-danger"
+                })
+
+                @t.Description
             </td>
             @if (showDetails)
             {

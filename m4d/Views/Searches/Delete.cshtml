@@ -1,0 +1,49 @@
+﻿@using m4d.ViewModels
+@model m4dModels.Search
+
+@{
+    ViewBag.Title = "Delete";
+
+    ViewData["BreadCrumbs"] = new List<BreadCrumbItem>
+    {
+        BreadCrumbItem.HomeItem,
+        new()
+        {
+            Title = Model.ApplicationUser.UserName,
+            Link = "/Identity/Account/Manage"
+        },
+        new()
+        {
+            Title = "Searches",
+            Link = "/Searches",
+        },
+        new()
+        {
+            Title = ViewBag.Title,
+            Active = true
+        }
+    };
+
+    var sort = ViewBag.Sort;
+    var showDetails = ViewBag.ShowDetails;
+    var user = ViewBag.User;
+}
+
+
+<h1>@ViewBag.Title</h1>
+<hr/>
+
+<h3>Are you sure you want to delete this search?</h3>
+<div>
+    <p>@Model.Filter.Description</p>
+
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-actions no-color">
+            <input type="submit" value="Delete" class="btn btn-danger"/> |
+            @Html.ActionLink("Back to Search", "Index", new { sort, showDetails, user})
+        </div>
+    }
+</div>
