@@ -294,7 +294,7 @@ namespace m4d.Controllers
             var p = await AzureParmsFromFilter(Filter, 25);
             p.IncludeTotalCount = true;
 
-            await LogSearch(Filter.Clone());
+            await LogSearch(Filter);
 
             return await SongIndex.Search(
                 Filter.SearchString, p, Filter.CruftFilter);
@@ -307,24 +307,13 @@ namespace m4d.Controllers
                 return;
             }
 
-            if (string.Equals(filter.Action, "index", StringComparison.OrdinalIgnoreCase))
-            {
-                filter.Action = "Advanced";
-            }
+            var filterString = filter.Normalize(UserName).ToString();
 
             var user = User.Identity is { IsAuthenticated: true }
                 ? await UserManager.FindByNameAsync(User.Identity.Name)
                 : null;
             var userId = user?.Id;
 
-            if (filter.UserQuery.IsDefault(user?.UserName))
-            {
-                filter.User = null;
-            }
-
-            filter.Page = null;
-
-            var filterString = filter.ToString();
             var now = DateTime.Now;
 
             _backgroundTaskQueue.EnqueueTask(

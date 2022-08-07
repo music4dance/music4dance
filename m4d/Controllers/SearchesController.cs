@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Security.Authentication;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 
 namespace m4d.Controllers
 {
@@ -50,16 +52,76 @@ namespace m4d.Controllers
                 }
             }
 
-            searches =
+            var model =
                 (string.Equals(sort, "recent")
                     ? searches.OrderByDescending(s => s.Modified)
-                    : searches.OrderByDescending(s => s.Count)).Take(100);
+                    : searches.OrderByDescending(s => s.Count)).Take(100).ToList();
+
+
+            if (user != null && user != "all")
+            {
+                await SetSpotify(searches, user);
+            }
+
             ViewBag.Sort = sort;
             ViewBag.ShowDetails = showDetails;
             ViewBag.SongFilter = filter;
             ViewBag.User = user;
             var list = searches.ToList();
             return View(list);
+        }
+
+        private async Task SetSpotify(IEnumerable<Search> searches, string userName)
+        {
+            var exports = await MapSpotify(userName);
+            foreach (var search in searches)
+            {
+                var filter = search.Filter.Normalize(userName).ToString();
+                if (exports.TryGetValue(filter, out var export))
+                {
+                    search.Spotify = export.Id;
+                }
+            }
+        }
+
+        private async Task<Dictionary<string, SpotifyCreate>> MapSpotify(string userName)
+        {
+            var map = new Dictionary<string, SpotifyCreate>();
+            foreach (var export in await GetSpotify(userName))
+            {
+                if (export?.Info == null)
+                {
+                    continue;
+                }
+
+                var filter = new SongFilter(export.Info.Filter).Normalize(userName).ToString();
+                if (!map.ContainsKey(filter))
+                {
+                    map[filter] = export;
+                }
+            }
+            return map;
+        }
+
+        // TODONEXT: why is this coming up empty for Arne?
+
+        private async Task<List<SpotifyCreate>> GetSpotify(string userName)
+        {
+            if (string.IsNullOrEmpty(userName))
+            {
+                return new List<SpotifyCreate>();
+            }
+
+            var user = await UserManager.FindByNameAsync(userName);
+            if (user == null)
+            {
+                return new List<SpotifyCreate>();
+            }
+
+            var userId = user.Id;
+
+            return  Database.ActivityLog.Where(l => l.ApplicationUserId == userId).OrderByDescending(e => e.Date)
+                .Select(ex => JsonConvert.DeserializeObject<SpotifyCreate>(ex.Details)).ToList();
         }
 
         // GET: Searches/Details/5

@@ -496,6 +496,29 @@ namespace m4dModels
             }
         }
 
+        public SongFilter Normalize(string userName)
+        {
+            var clone = Clone();
+
+            if (string.Equals(clone.Action, "index", StringComparison.OrdinalIgnoreCase))
+            {
+                clone.Action = "Advanced";
+            }
+
+            var userQuery = clone.UserQuery;
+            if (userQuery.IsDefault(userName))
+            {
+                clone.User = null;
+            }
+            else if (userQuery.UserName != null)
+            {
+                clone.User = userQuery.Query;
+            }
+            clone.Page = null;
+
+            return clone;
+        }
+
         public static SongFilter GetDefault(string userName)
         {
             return userName == null

@@ -31,5 +31,8 @@ namespace m4dModels
 
         [NotMapped]
         public SongFilter Filter => new(Query);
+
+        [NotMapped]
+        public string Spotify { get; set; }
     }
 }

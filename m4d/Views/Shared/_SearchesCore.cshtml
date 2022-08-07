@@ -61,6 +61,12 @@
                     @class = "btn btn-danger"
                 })
 
+                @if (!string.IsNullOrWhiteSpace(item.Spotify))
+                {
+                    var r = $"https://open.spotify.com/playlist/{item.Spotify}";
+                    <a href="@r" target="_blank"><img src="/images/icons/spotify-logo.png" alt="Spotify Playlist" width="24" height="24"/></a>
+                }
+
                 @t.Description
             </td>
             @if (showDetails)
