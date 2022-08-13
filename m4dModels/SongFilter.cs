@@ -481,7 +481,7 @@ namespace m4dModels
                     sb.AppendFormat("Length < {0} seconds", LengthMax.Value);
                 }
 
-                if (SortOrder.StartsWith(SongSort.Comments))
+                if (SortOrder != null && SortOrder.StartsWith(SongSort.Comments))
                 {
                     sb.Append("only including songs with comments");
                 }
