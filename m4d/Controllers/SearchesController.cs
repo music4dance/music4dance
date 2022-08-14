@@ -54,7 +54,7 @@ namespace m4d.Controllers
 
             var model =
                 (string.Equals(sort, "recent")
-                    ? searches.OrderByDescending(s => s.Modified)
+                    ? searches.OrderBy(s => s.Modified)
                     : searches.OrderByDescending(s => s.Count)).Take(100).ToList();
 
 

@@ -8,27 +8,9 @@
 
 <h2>Error</h2>
 <div>
-    @{
-        var message = Model.Message;
-        if (string.IsNullOrWhiteSpace(message))
-        {
-            switch (Model.HttpStatusCode)
-            {
-                case 404:
-                    message = "The page you requested wasn't found.";
-                    break;
-                case 500:
-                    message = string.Concat("The following server error was encountered:<br /> ", Model.Exception.Message);
-                    if (Model.Exception.InnerException != null)
-                    {
-                        message += $" ({Model.Exception.InnerException.Message})";
-                    }
-                    break;
-            }
-        }
-    }
+    <p>@Model.HttpStatusCode: @Model.Message</p>
 
-    @Html.Raw(message)
+    <p>If you believe you landed on this page due to a bug, please <a href="https://music4dance.blog/bug-report/">report it</a>, otherwise try one of the suggestions below.</p>
 </div>
 
 <div>
@@ -37,7 +19,7 @@
         Or you are welcome to contact us through email at <a href="mailto:info@music4dance.net">info@music4dance.net</a>.
         Please include the URL of the page that failed, approximate time of failure, steps to reproduce the bug and browser and device/operating system that you were using a the time.
     </p>
-    <h3>While we're working on a fix, here are a few things to try:</h3>
+    <h3>Here are a few things to try:</h3>
     <ul>
         <li class="big-text">Try our <a href="https://www.music4dance.net/dances">dances page</a> if you're looking for information about a particular dance style.</li>
         <li class="big-text">Try our <a href="https://www.music4dance.net/song">songs page</a> if you're looking for dance information about a particular song or artist.</li>
@@ -49,8 +31,7 @@
 
 @if ((TraceLevels.General.TraceVerbose || User.IsInRole("showDiagnostics")) && Model?.Exception != null)
 {
-    var hresult = "0x" + Model.Exception.HResult.ToString("X8");
-    <p><b>Exception:</b>@Model.Exception.Message (@hresult)</p>
+    <p><b>Exception:</b>@Model.Exception.Message (@Model.HttpStatusCode)</p>
     if (Model.Exception.InnerException != null)
     {
         <p>
@@ -61,15 +42,18 @@
         <b>Target Site:</b>@Model.Exception.TargetSite
     </p>
 
-    <h3>Stack Trace:</h3>
-    var frames = Model.Exception.StackTrace.Split(new[]
+    @if (Model.Exception?.StackTrace != null)
     {
-        '\n'
-    }, StringSplitOptions.RemoveEmptyEntries);
-    <ul>
-        @foreach (var s in frames)
+        <h3>Stack Trace:</h3>
+        var frames = Model.Exception.StackTrace.Split(new[]
         {
-            <li>@s</li>
-        }
-    </ul>
+            '\n'
+        }, StringSplitOptions.RemoveEmptyEntries);
+        <ul>
+            @foreach (var s in frames)
+            {
+                <li>@s</li>
+            }
+        </ul>
+    }
 }

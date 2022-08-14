@@ -762,10 +762,13 @@ namespace m4d.Controllers
                 ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.");
             }
 
-            await MusicServiceManager.UpdateSongAndServices(Database, song);
+            if (await MusicServiceManager.UpdateSongAndServices(Database, song))
+            {
+                await SaveSong(song);
+            }
 
             HelpPage = "song-details";
-            return View("Details", GetSongDetails(song));
+            return await Details(song?.SongId);
         }
 
         // VUEDTODO: Do we still support this????
@@ -998,6 +1001,7 @@ namespace m4d.Controllers
             [Bind("Title,DescriptionPrefix,Description,Count,Filter")]
             PlaylistCreateInfo info)
         {
+            UseVue = false;
             var authResult = await HttpContext.AuthenticateAsync();
             var canSpotify = (await AdmAuthentication.GetServiceAuthorization(
                 Configuration, ServiceType.Spotify, User, authResult)) != null;
@@ -1005,6 +1009,14 @@ namespace m4d.Controllers
             info.IsAuthenticated = User.Identity?.IsAuthenticated ?? false;
             info.IsPremium = User.IsInRole("premium") || User.IsInRole("trial");
             info.CanSpotify = canSpotify;
+
+            var filter = new SongFilter(info.Filter)
+            {
+                Purchase = "S"
+            };
+            ViewBag.SongFilter = filter;
+
+            HelpPage = "spotify-playlist";
 
             if (!ModelState.IsValid)
             {
@@ -1026,13 +1038,9 @@ namespace m4d.Controllers
             }
 
             PlaylistMetadata metadata;
-            var filter = new SongFilter(info.Filter);
-
-            HelpPage = "spotify-playlist";
 
             try
             {
-                filter.Purchase = "S";
                 var p = await AzureParmsFromFilter(filter, info.Count);
                 p.IncludeTotalCount = true;
                 var results = await SongIndex.Search(
@@ -1057,9 +1065,6 @@ namespace m4d.Controllers
                     "Unable to create a playlist at this time.  Please report the issue.";
                 return View("Error");
             }
-
-            ViewBag.SongFilter = filter;
-            UseVue = false;
 
             var user = await Database.FindUser(User.Identity?.Name);
             Database.Context.ActivityLog.Add(new ActivityLog(
@@ -1127,7 +1132,7 @@ namespace m4d.Controllers
 
             HelpPage = "song-details";
 
-            return View("Details", song);
+            return await Details(song?.SongId);
         }
 
 
@@ -1180,7 +1185,7 @@ namespace m4d.Controllers
 
             ViewBag.BackAction = "MergeCandidates";
 
-            return View("details", await GetSongDetails(song));
+            return await Details(song?.SongId);
         }
 
         // CleanMusicServices: /Song/CleanMusicServices
@@ -1203,7 +1208,7 @@ namespace m4d.Controllers
             }
 
             HelpPage = "song-details";
-            return View("Details", newSong ?? song);
+            return await Details(newSong?.SongId ?? song.SongId);
         }
 
 

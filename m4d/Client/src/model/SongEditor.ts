@@ -16,11 +16,11 @@ export class SongEditor {
   public songId: string;
   private properties: SongProperty[];
   private initialCount: number;
-  private initialSong: Song;
   private user?: string;
   public modified: boolean;
   public admin: boolean; // Requires put rather than patch
   public axios: AxiosInstance;
+  public initialSong: Song;
 
   public constructor(
     axios: AxiosInstance,

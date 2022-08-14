@@ -303,7 +303,7 @@ export default class SongCore extends Mixins(AdminTools) {
   }
 
   private get showSave(): boolean {
-    return (this.modified && this.hasDances) || (this.isAdmin && this.edit);
+    return (this.modified && this.checkDances) || (this.isAdmin && this.edit);
   }
 
   private get history(): SongHistory {
@@ -512,9 +512,10 @@ export default class SongCore extends Mixins(AdminTools) {
     return !!userName && this.song.isCreator(userName);
   }
 
-  private get hasDances(): boolean {
-    return this.song.hasDances;
+  private get checkDances(): boolean {
+    return (this.song.hasDances || this.editor?.initialSong.hasDances) ?? false;
   }
+
   private updateSong(): void {
     this.songStore = this.editor!.song;
   }
