@@ -54,8 +54,8 @@ namespace m4d.Controllers
 
             var model =
                 (string.Equals(sort, "recent")
-                    ? searches.OrderBy(s => s.Modified)
-                    : searches.OrderByDescending(s => s.Count)).Take(100).ToList();
+                    ? searches.OrderByDescending(s => s.Modified)
+                    : searches.OrderByDescending(s => s.Count)).Take(250).ToList();
 
 
             if (user != null && user != "all")
@@ -67,8 +67,7 @@ namespace m4d.Controllers
             ViewBag.ShowDetails = showDetails;
             ViewBag.SongFilter = filter;
             ViewBag.User = user;
-            var list = searches.ToList();
-            return View(list);
+            return View(model);
         }
 
         private async Task SetSpotify(IEnumerable<Search> searches, string userName)
