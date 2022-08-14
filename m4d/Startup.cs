@@ -173,7 +173,14 @@ namespace m4d
             {
                 app.UseDeveloperExceptionPage();
             }
+            else
+            {
+                app.UseExceptionHandler("/Home/Error");
+                app.UseStatusCodePagesWithReExecute("/error/{0}");
+                app.UseHsts();
+            }
 
+            app.UseHttpsRedirection();
             var options = new RewriteOptions();
             options.AddRedirectToHttps();
             options.AddRedirectToWwwPermanent("music4dance.net");

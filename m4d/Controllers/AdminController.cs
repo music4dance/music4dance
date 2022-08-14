@@ -203,12 +203,21 @@ namespace m4d.Controllers
 
         //
         // Get: //ToggleStructuredSchema
-        [AllowAnonymous]
+        [Authorize(Roles = "showDiagnostics")]
         public ActionResult ToggleStructuredSchema()
         {
             SongFilter.StructuredSchema = !SongFilter.StructuredSchema;
             return View("Diagnostics");
         }
+
+        //
+        // Get: //SetTraceLevel
+        [AllowAnonymous]
+        public ActionResult ThrowException()
+        {
+            throw new Exception("This is an intentional exception");
+        }
+
 
         //
         // Get: //SetTraceLevel

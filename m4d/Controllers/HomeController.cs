@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using m4d.ViewModels;
 using m4dModels;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -128,6 +129,19 @@ namespace m4d.Controllers
             var user = await UserManager.GetUserAsync(User);
             return View(await GetContributeModel(user));
         }
+
+        public IActionResult Error()
+        {
+            var error = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
+            return View(
+                "HttpError", new ErrorModel
+                {
+                    HttpStatusCode = 500,
+                    Message = "Something went very wrong",
+                    Exception = error?.Error
+                });
+        }
+
         private async Task<ContributeModel> GetContributeModel(ApplicationUser user)
         {
             if (User.Identity == null)
