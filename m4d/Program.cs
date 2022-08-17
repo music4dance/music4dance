@@ -75,12 +75,6 @@ namespace m4d
                                                 .ConfigureKeyVault(
                                                     kv => { kv.SetCredential(credentials); }));
                                 }
-
-                                // Working version of app config/keyvault for dev environment 
-                                //var settings = config.Build();
-                                //config.AddAzureAppConfiguration(options =>
-                                //    options.Connect(settings["ConnectionStrings:AppConfig"])
-                                //        .ConfigureKeyVault(kv => { kv.SetCredential(new DefaultAzureCredential()); }));
                             })
                         .UseStartup<Startup>());
         }

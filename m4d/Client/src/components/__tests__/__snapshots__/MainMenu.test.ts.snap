@@ -7,8 +7,8 @@ exports[`MainMenu.vue renders the main menu with admin options 1`] = `
     <transition-stub css="true" enterclass="" leaveclass="collapse show" entertoclass="collapse show" leavetoclass="collapse" enteractiveclass="collapsing" leaveactiveclass="collapsing">
       <div id="nav-collapse" class="navbar-collapse collapse" style="display: none;">
         <ul class="navbar-nav">
-          <li id="music-menu" class="nav-item b-nav-dropdown dropdown"><a id="music-menu__BV_toggle_" role="button" aria-haspopup="true" aria-expanded="false" href="#music-menu" target="_self" class="nav-link dropdown-toggle"><span>Music</span></a>
-            <ul tabindex="-1" aria-labelledby="music-menu__BV_toggle_" class="dropdown-menu">
+          <li id="music-menu" class="nav-item b-nav-dropdown dropdown"><a id="music-menu__BV_toggle_" role="button" aria-haspopup="true" aria-expanded="false" aria-controls="music-menu__BV_toggle_menu_" href="#music-menu" target="_self" class="nav-link dropdown-toggle"><span>Music</span></a>
+            <ul tabindex="-1" aria-labelledby="music-menu__BV_toggle_" id="music-menu__BV_toggle_menu_" class="dropdown-menu">
               <li role="presentation"><a role="menuitem" href="/dances" target="_self" class="dropdown-item">Dances</a></li>
               <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/ballroom-competition-categories" target="_self" class="dropdown-item">Ballroom</a></li>
               <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/latin" target="_self" class="dropdown-item">Latin</a></li>
@@ -24,8 +24,8 @@ exports[`MainMenu.vue renders the main menu with admin options 1`] = `
               <li role="presentation"><a role="menuitem" href="/tag" target="_self" class="dropdown-item">Tags</a></li>
             </ul>
           </li>
-          <li id="tools-menu" class="nav-item b-nav-dropdown dropdown"><a id="tools-menu__BV_toggle_" role="button" aria-haspopup="true" aria-expanded="false" href="#tools-menu" target="_self" class="nav-link dropdown-toggle"><span>Tools</span></a>
-            <ul tabindex="-1" aria-labelledby="tools-menu__BV_toggle_" class="dropdown-menu">
+          <li id="tools-menu" class="nav-item b-nav-dropdown dropdown"><a id="tools-menu__BV_toggle_" role="button" aria-haspopup="true" aria-expanded="false" aria-controls="tools-menu__BV_toggle_menu_" href="#tools-menu" target="_self" class="nav-link dropdown-toggle"><span>Tools</span></a>
+            <ul tabindex="-1" aria-labelledby="tools-menu__BV_toggle_" id="tools-menu__BV_toggle_menu_" class="dropdown-menu">
               <li role="presentation"><a role="menuitem" href="/home/counter" target="_self" class="dropdown-item">Tempo Counter</a></li>
               <li role="presentation"><a role="menuitem" href="/home/tempi" target="_self" class="dropdown-item">Tempi (Tempos)</a></li>
             </ul>
@@ -43,8 +43,8 @@ exports[`MainMenu.vue renders the main menu with admin options 1`] = `
             </ul>
           </li>
           <li id="contribute-menu" right="" class="nav-item"><a href="/home/contribute" target="_self" class="nav-link">Contribute</a></li>
-          <li id="admin-menu" class="nav-item b-nav-dropdown dropdown"><a id="admin-menu__BV_toggle_" role="button" aria-haspopup="true" aria-expanded="false" href="#admin-menu" target="_self" class="nav-link dropdown-toggle"><span>Admin</span></a>
-            <ul tabindex="-1" aria-labelledby="admin-menu__BV_toggle_" class="dropdown-menu">
+          <li id="admin-menu" class="nav-item b-nav-dropdown dropdown"><a id="admin-menu__BV_toggle_" role="button" aria-haspopup="true" aria-expanded="false" aria-controls="admin-menu__BV_toggle_menu_" href="#admin-menu" target="_self" class="nav-link dropdown-toggle"><span>Admin</span></a>
+            <ul tabindex="-1" aria-labelledby="admin-menu__BV_toggle_" id="admin-menu__BV_toggle_menu_" class="dropdown-menu">
               <li role="presentation"><a role="menuitem" href="/admin" target="_self" class="dropdown-item">Index</a></li>
               <li role="presentation"><a role="menuitem" href="/applicationusers" target="_self" class="dropdown-item">Users</a></li>
               <li role="presentation"><a role="menuitem" href="/activitylog" target="_self" class="dropdown-item">Activity Log</a></li>
@@ -86,8 +86,8 @@ exports[`MainMenu.vue renders the main menu with default options 1`] = `
     <transition-stub css="true" enterclass="" leaveclass="collapse show" entertoclass="collapse show" leavetoclass="collapse" enteractiveclass="collapsing" leaveactiveclass="collapsing">
       <div id="nav-collapse" class="navbar-collapse collapse" style="display: none;">
         <ul class="navbar-nav">
-          <li id="music-menu" class="nav-item b-nav-dropdown dropdown"><a id="music-menu__BV_toggle_" role="button" aria-haspopup="true" aria-expanded="false" href="#music-menu" target="_self" class="nav-link dropdown-toggle"><span>Music</span></a>
-            <ul tabindex="-1" aria-labelledby="music-menu__BV_toggle_" class="dropdown-menu">
+          <li id="music-menu" class="nav-item b-nav-dropdown dropdown"><a id="music-menu__BV_toggle_" role="button" aria-haspopup="true" aria-expanded="false" aria-controls="music-menu__BV_toggle_menu_" href="#music-menu" target="_self" class="nav-link dropdown-toggle"><span>Music</span></a>
+            <ul tabindex="-1" aria-labelledby="music-menu__BV_toggle_" id="music-menu__BV_toggle_menu_" class="dropdown-menu">
               <li role="presentation"><a role="menuitem" href="/dances" target="_self" class="dropdown-item">Dances</a></li>
               <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/ballroom-competition-categories" target="_self" class="dropdown-item">Ballroom</a></li>
               <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/latin" target="_self" class="dropdown-item">Latin</a></li>
@@ -103,8 +103,8 @@ exports[`MainMenu.vue renders the main menu with default options 1`] = `
               <li role="presentation"><a role="menuitem" href="/tag" target="_self" class="dropdown-item">Tags</a></li>
             </ul>
           </li>
-          <li id="tools-menu" class="nav-item b-nav-dropdown dropdown"><a id="tools-menu__BV_toggle_" role="button" aria-haspopup="true" aria-expanded="false" href="#tools-menu" target="_self" class="nav-link dropdown-toggle"><span>Tools</span></a>
-            <ul tabindex="-1" aria-labelledby="tools-menu__BV_toggle_" class="dropdown-menu">
+          <li id="tools-menu" class="nav-item b-nav-dropdown dropdown"><a id="tools-menu__BV_toggle_" role="button" aria-haspopup="true" aria-expanded="false" aria-controls="tools-menu__BV_toggle_menu_" href="#tools-menu" target="_self" class="nav-link dropdown-toggle"><span>Tools</span></a>
+            <ul tabindex="-1" aria-labelledby="tools-menu__BV_toggle_" id="tools-menu__BV_toggle_menu_" class="dropdown-menu">
               <li role="presentation"><a role="menuitem" href="/home/counter" target="_self" class="dropdown-item">Tempo Counter</a></li>
               <li role="presentation"><a role="menuitem" href="/home/tempi" target="_self" class="dropdown-item">Tempi (Tempos)</a></li>
             </ul>
