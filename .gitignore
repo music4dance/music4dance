@@ -265,4 +265,4 @@ paket-files/
 /m4d/wwwroot
 /m4d/Properties/ServiceDependencies
 /m4d/Properties/serviceDependencies*
-/m4d/Client/**/*.js
+/m4d/Client/src/**/*.js
