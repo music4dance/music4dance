@@ -7,7 +7,7 @@ var gulp = require("gulp"),
 
 function bootstrap4() {
     return gulp
-        .src("./styles/bootstrap4/*.scss")
+        .src("./styles/bootstrap/*.scss")
         .pipe(
             sass({
                 includePaths: [
