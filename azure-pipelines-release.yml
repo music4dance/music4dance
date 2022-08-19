@@ -17,8 +17,7 @@ steps:
   displayName: publish web project
   inputs:
     command: 'publish'
-    nobuild: true
-    arguments: '--no-build --configuration $(buildConfiguration)'
+    arguments: '--configuration $(buildConfiguration)'
     publishWebProjects: true
 - task: AzureWebApp@1
   displayName: deploy
