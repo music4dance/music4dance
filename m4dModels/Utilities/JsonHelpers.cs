@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace m4d.Utilities
+namespace m4dModels.Utilities
 {
     public static class JsonHelpers
     {

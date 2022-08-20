@@ -1,6 +1,7 @@
-﻿@using m4d.ViewModels
+﻿@using m4d.Utilities
+@using m4d.ViewModels
 @using m4dModels
-@inject IDanceStatsManager DanceStatsManager;
+@using Microsoft.EntityFrameworkCore.Infrastructure.Internal
 
 @{
     ViewBag.Title = "InitializationTasks";
@@ -53,6 +54,31 @@
     <li>@Html.ActionLink("Reload Dances", "ReloadDances")</li>
     <li>@Html.ActionLink("Update Sitemap", "UpdateSitemap")</li>
 </ul>
+
+<h3>Update Warning</h3>
+@using (Html.BeginForm("UpdateWarning", "Admin", FormMethod.Post, new
+    {
+    enctype = "multipart/form-data"
+    }))
+{
+    @Html.AntiForgeryToken()
+    @if (string.IsNullOrWhiteSpace(GlobalState.UpdateMessage))
+    {
+        <textarea name="message" id="mesage" rows="4" cols="100">
+            We are in the process of upgrading the music4dance.net infrastructure.
+            You should still be able to use the site to browse and search but please
+            hold off doing any editing or registering an account until this banner disappears.
+            Thanks!
+        </textarea>
+        <input type="submit" name="submit" id="Update" value="Update"/>
+    }
+    else
+    {
+        <p>Current Update: @GlobalState.UpdateMessage</p>
+        <input type="hidden" name="message" id="message" value=""/>
+        <input type="submit" name="clear" id="cear" value="Clear" />
+    }
+}
 
 <h3>Clean Up</h3>
 <ul>

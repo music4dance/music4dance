@@ -11,6 +11,7 @@ using m4d.Scrapers;
 using m4d.Utilities;
 using m4d.ViewModels;
 using m4dModels;
+using m4dModels.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -108,6 +109,17 @@ namespace m4d.Controllers
             SiteMapInfo.ReloadCategories(fileProvider);
 
             return RedirectToAction("SiteMap", "Home");
+        }
+
+        //
+        // Get: //ReloadIndex
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult UpdateWarning(string message = null)
+        {
+            GlobalState.UpdateMessage = message?.CleanWhitespace();
+            return View("InitializationTasks");
         }
 
         //

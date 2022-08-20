@@ -5,6 +5,7 @@ export interface MenuContextInterface {
   roles?: string[];
   indexId?: string;
   expiration?: Date;
+  updateMessage?: string;
   xsrfToken?: string;
 }
 

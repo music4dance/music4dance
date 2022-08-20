@@ -1,11 +1,18 @@
 <template>
   <div>
-    <b-alert v-if="isTest" show variant="danger" style="margin-bottom: 0"
+    <b-alert v-if="isTest" show variant="warning" style="margin-bottom: 0"
       >This is a TEST site. Please navigate to
       <a href="https://www.music4dance.net" class="alert-link"
         >wwww.music4dance.net</a
       >
       to use the production site.</b-alert
+    >
+    <b-alert
+      v-if="context.updateMessage"
+      show
+      variant="danger"
+      style="margin-bottom: 0"
+      >{{ context.updateMessage }}</b-alert
     >
     <b-navbar id="mainMenu" type="dark" variant="primary" toggleable="lg" fixed>
       <b-navbar-brand href="/">

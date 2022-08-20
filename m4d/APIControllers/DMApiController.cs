@@ -1,5 +1,6 @@
 ﻿using m4d.Utilities;
 using m4dModels;
+using m4dModels.Utilities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
