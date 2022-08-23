@@ -22,6 +22,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging;
 
 namespace m4d.Controllers
 {
@@ -50,10 +51,13 @@ namespace m4d.Controllers
     {
         public AdminController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
-            IDanceStatsManager danceStatsManager, IConfiguration configuration) :
+            IDanceStatsManager danceStatsManager, IConfiguration configuration, ILogger<AdminController> logger) :
             base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
         {
+            _logger = logger;
         }
+
+        private readonly ILogger<AdminController> _logger;
 
         #region Commands
 
@@ -118,6 +122,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult UpdateWarning(string message = null)
         {
+            _logger.LogInformation($"Changed UpdateWarning to: {message}");
             GlobalState.UpdateMessage = message?.CleanWhitespace();
             return View("InitializationTasks");
         }
@@ -251,14 +256,27 @@ namespace m4d.Controllers
         //
         // Get: //TestTrace
         [AllowAnonymous]
-        public ActionResult TestTrace(string message)
+        public ActionResult TestTrace(string message, LogLevel level)
         {
             ViewBag.Name = "Test Trace";
 
             ViewBag.Success = true;
             ViewBag.Message = $"Trace message sent: '{message}'";
 
-            Trace.WriteLine($"Test Trace ({TraceLevels.General}): '{message}'");
+            _logger.Log(level, $"Test Log via Logger: {level}");
+            //switch (level)
+            //{
+            //    case LogLevel.Error:
+            //        Trace.TraceError("Test Log via Diagnostic Trace: Error");
+            //        break;
+            //    case LogLevel.Warning:
+            //        Trace.TraceWarning("Test Log via Diagnostic Trace: Warning");
+            //        break;
+            //    case LogLevel.Information:
+            //        Trace.TraceInformation("Test Log via Diagnostic Trace: Info");
+            //        break;
+            //}
+
             return View("Results");
         }
 
@@ -267,7 +285,7 @@ namespace m4d.Controllers
         // Get: //SetSearchIdx
         public ActionResult SetSearchIdx(string id)
         {
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Set Search Index: '{id}'");
+            _logger.LogInformation($"Set Search Index: '{id}'");
             SearchService.DefaultId = id;
 
             DanceStatsManager.LoadFromAzure(Database, id);

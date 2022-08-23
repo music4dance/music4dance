@@ -53,11 +53,19 @@
         {
             level = 1
         }, null)
+        @Html.ActionLink("Test Trace", "TestTrace", "Admin", new
+        {
+        message = "Nothing Special", level=4
+        }, null)
     </li>
     <li>
         @Html.ActionLink("Trace Warning", "SetTraceLevel", "Admin", new
         {
             level = 2
+        }, null)
+        @Html.ActionLink("Test Trace", "TestTrace", "Admin", new
+        {
+            message = "Nothing Special", level=3
         }, null)
     </li>
     <li>
@@ -65,17 +73,19 @@
         {
             level = 3
         }, null)
+        @Html.ActionLink("Test Trace", "TestTrace", "Admin", new
+        {
+            message = "Nothing Special", level=2
+        }, null)
     </li>
     <li>
         @Html.ActionLink("Trace Verbose", "SetTraceLevel", "Admin", new
         {
             level = 4
         }, null)
-    </li>
-    <li>
         @Html.ActionLink("Test Trace", "TestTrace", "Admin", new
         {
-            message = "Nothing Special"
+            message = "Nothing Special", level=1
         }, null)
     </li>
 </ul>

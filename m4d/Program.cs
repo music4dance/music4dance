@@ -4,10 +4,12 @@ using m4d.Areas.Identity;
 using m4dModels;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace m4d
 {
@@ -48,8 +50,7 @@ namespace m4d
 
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
-            return Host.CreateDefaultBuilder(args)
-
+            var builder = Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(
                     webBuilder => webBuilder
                         .ConfigureAppConfiguration(
@@ -77,6 +78,16 @@ namespace m4d
                                 }
                             })
                         .UseStartup<Startup>());
+
+            builder.ConfigureLogging(
+                logging =>
+                {
+                    logging.ClearProviders();
+                    logging.AddConsole();
+                    logging.AddAzureWebAppDiagnostics();
+                });
+
+            return builder;
         }
     }
 }

@@ -102,8 +102,6 @@ namespace m4d.Controllers
             return map;
         }
 
-        // TODONEXT: why is this coming up empty for Arne?
-
         private async Task<List<SpotifyCreate>> GetSpotify(string userName)
         {
             if (string.IsNullOrEmpty(userName))
