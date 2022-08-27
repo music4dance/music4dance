@@ -1,3 +1,3 @@
-// import { DanceEnvironment } from "./model/DanceEnvironmet";
+// import { DanceEnvironment } from "./model/DanceEnvironment";
 
 // declare var environment: DanceEnvironment;

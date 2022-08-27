@@ -29,7 +29,7 @@
 
 <script lang="ts">
 import Page from "@/components/Page.vue";
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { DanceEnvironment } from "@/model/DanceEnvironment";
 import { TempoType } from "@/model/TempoType";
 import { TypeStats } from "@/model/TypeStats";
 import { Component, Vue } from "vue-property-decorator";

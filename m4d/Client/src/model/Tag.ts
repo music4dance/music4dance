@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { jsonMember, jsonObject, TypedJSON } from "typedjson";
-import { DanceEnvironment } from "./DanceEnvironmet";
+import { DanceEnvironment } from "./DanceEnvironment";
 
 declare const environment: DanceEnvironment;
 

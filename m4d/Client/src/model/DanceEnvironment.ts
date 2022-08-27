@@ -22,6 +22,11 @@ export class DanceEnvironment {
   public tree?: GroupStats[];
   public statsIdMap?: Map<string, DanceStats>;
 
+  public constructor() {
+    this.dances = [];
+    this.groups = [];
+  }
+
   public rehydrate(): void {
     this.tree = this.groups?.map((g) => new GroupStats(g, this.dances!));
     this.statsIdMap = new Map<string, DanceStats>(

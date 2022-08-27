@@ -1,4 +1,4 @@
-import { getEnvironmentMock } from "@/helpers/MockEnvironmentManager";
+import { getEnvironmentMock } from "@helpers/MockEnvironmentManager";
 import { DanceOrder } from "../DanceOrder";
 
 describe("Dance Order", () => {

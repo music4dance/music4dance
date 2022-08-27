@@ -22,7 +22,7 @@
 
 <script lang="ts">
 import DanceList from "@/components/DanceList.vue";
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { DanceEnvironment } from "@/model/DanceEnvironment";
 import { DanceStats } from "@/model/DanceStats";
 import { TempoType } from "@/model/TempoType";
 import { Component, Prop, Vue } from "vue-property-decorator";

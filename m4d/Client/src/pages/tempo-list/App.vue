@@ -74,7 +74,7 @@
 
 <script lang="ts">
 import Page from "@/components/Page.vue";
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { DanceEnvironment } from "@/model/DanceEnvironment";
 import { DanceType } from "@/model/DanceType";
 import {
   ListOption,

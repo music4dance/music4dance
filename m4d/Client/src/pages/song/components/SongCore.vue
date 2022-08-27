@@ -228,7 +228,7 @@ import TagListEditor from "@/components/TagListEditor.vue";
 import { DanceRatingVote, VoteDirection } from "@/DanceRatingDelta";
 import AdminTools from "@/mix-ins/AdminTools";
 import { AlbumDetails } from "@/model/AlbumDetails";
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { DanceEnvironment } from "@/model/DanceEnvironment";
 import { DanceRating } from "@/model/DanceRating";
 import { Song } from "@/model/Song";
 import { SongDetailsModel } from "@/model/SongDetailsModel";

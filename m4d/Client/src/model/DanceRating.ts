@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { jsonMember, jsonObject } from "typedjson";
-import { DanceEnvironment } from "./DanceEnvironmet";
+import { DanceEnvironment } from "./DanceEnvironment";
 import { DanceStats } from "./DanceStats";
 import { Tag, TagCategory } from "./Tag";
 import { TaggableObject } from "./TaggableObject";

@@ -50,7 +50,7 @@ import {
 } from "@/helpers/DanceEnvironmentManager";
 import AdminTools from "@/mix-ins/AdminTools";
 import { BreadCrumbItem } from "@/model/BreadCrumbItem";
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { DanceEnvironment } from "@/model/DanceEnvironment";
 import { TagDatabase } from "@/model/TagDatabase";
 import { TourManager } from "@/model/TourManager";
 import { TourCallbacks } from "@/model/VueTour";

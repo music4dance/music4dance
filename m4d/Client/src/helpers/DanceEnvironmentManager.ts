@@ -1,4 +1,4 @@
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { DanceEnvironment } from "@/model/DanceEnvironment";
 import { Tag } from "@/model/Tag";
 import { TagDatabase } from "@/model/TagDatabase";
 import axios from "axios";

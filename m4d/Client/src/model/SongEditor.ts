@@ -4,7 +4,7 @@ import {
   VoteDirection,
 } from "@/DanceRatingDelta";
 import { AxiosInstance } from "axios";
-import { DanceEnvironment } from "./DanceEnvironmet";
+import { DanceEnvironment } from "./DanceEnvironment";
 import { Song } from "./Song";
 import { SongHistory } from "./SongHistory";
 import { PropertyType, PropertyValue, SongProperty } from "./SongProperty";

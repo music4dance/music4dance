@@ -1,4 +1,4 @@
-import { DanceEnvironment } from "./DanceEnvironmet";
+import { DanceEnvironment } from "./DanceEnvironment";
 import { DanceQueryBase } from "./DanceQueryBase";
 import { DanceStats } from "./DanceStats";
 

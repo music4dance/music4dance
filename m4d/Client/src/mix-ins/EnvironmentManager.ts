@@ -1,4 +1,4 @@
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { DanceEnvironment } from "@/model/DanceEnvironment";
 import { TagDatabase } from "@/model/TagDatabase";
 import { Component, Vue } from "vue-property-decorator";
 

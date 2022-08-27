@@ -36,7 +36,7 @@
 import Page from "@/components/Page.vue";
 import AdminTools from "@/mix-ins/AdminTools";
 import EnvironmentManager from "@/mix-ins/EnvironmentManager";
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { DanceEnvironment } from "@/model/DanceEnvironment";
 import "reflect-metadata";
 import { Component, Mixins } from "vue-property-decorator";
 import HelpResults from "./components/HelpResults.vue";

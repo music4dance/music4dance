@@ -44,7 +44,7 @@
 <script lang="ts">
 import Page from "@/components/Page.vue";
 import { BreadCrumbItem, homeCrumb } from "@/model/BreadCrumbItem";
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { DanceEnvironment } from "@/model/DanceEnvironment";
 import { DanceStats } from "@/model/DanceStats";
 import "reflect-metadata";
 import { Component, Vue } from "vue-property-decorator";

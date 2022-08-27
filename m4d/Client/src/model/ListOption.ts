@@ -1,4 +1,4 @@
-import { wordsToKebab } from "@/helpers/StringHelpers";
+import { wordsToKebab } from "@helpers/StringHelpers";
 
 export interface ListOption {
   text: string;

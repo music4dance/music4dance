@@ -255,7 +255,7 @@ import TagCategorySelector from "@/components/TagCategorySelector.vue";
 import AdminTools from "@/mix-ins/AdminTools";
 import DropTarget from "@/mix-ins/DropTarget";
 import EnvironmentManager from "@/mix-ins/EnvironmentManager";
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { DanceEnvironment } from "@/model/DanceEnvironment";
 import { DanceQuery } from "@/model/DanceQuery";
 import { NamedObject } from "@/model/NamedObject";
 import { SongFilter } from "@/model/SongFilter";

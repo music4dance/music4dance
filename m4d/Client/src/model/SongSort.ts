@@ -1,4 +1,4 @@
-import { toTitleCase } from "@/helpers/StringHelpers";
+import { toTitleCase } from "@helpers/StringHelpers";
 
 export enum SortOrder {
   Title = "Title",

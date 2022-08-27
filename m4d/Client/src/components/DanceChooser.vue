@@ -87,7 +87,7 @@
 <script lang="ts">
 import DanceName from "@/components/DanceName.vue";
 import EnvironmentManager from "@/mix-ins/EnvironmentManager";
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { DanceEnvironment } from "@/model/DanceEnvironment";
 import { DanceStats } from "@/model/DanceStats";
 import { TempoType } from "@/model/TempoType";
 import { TypeStats } from "@/model/TypeStats";

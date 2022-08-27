@@ -1,4 +1,4 @@
-import { getTagDatabaseMock } from "@/helpers/MockTagDatabaseManager";
+import { getTagDatabaseMock } from "@helpers/MockTagDatabaseManager";
 
 describe("tag database", () => {
   it("should load", () => {

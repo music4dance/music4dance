@@ -16,7 +16,8 @@
     "typeRoots": ["src/customTypings", "node_modules/@types"],
     "types": ["webpack-env", "jest"],
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@helpers/*": ["src/helpers/*"]
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },

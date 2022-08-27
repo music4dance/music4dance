@@ -90,7 +90,7 @@
 import Page from "@/components/Page.vue";
 import AdminTools from "@/mix-ins/AdminTools";
 import { AugmentModel } from "@/model/AugmentModel";
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { DanceEnvironment } from "@/model/DanceEnvironment";
 import { Song } from "@/model/Song";
 import { SongDetailsModel } from "@/model/SongDetailsModel";
 import { SongFilter } from "@/model/SongFilter";

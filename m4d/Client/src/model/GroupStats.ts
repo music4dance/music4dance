@@ -1,4 +1,4 @@
-import { wordsToKebab } from "@/helpers/StringHelpers";
+import { wordsToKebab } from "@helpers/StringHelpers";
 import { DanceGroup } from "./DanceGroup";
 import { DanceStats } from "./DanceStats";
 import { Tag } from "./Tag";

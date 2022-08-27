@@ -1,11 +1,11 @@
 import { DanceRatingDelta } from "@/DanceRatingDelta";
-import { enumKeys } from "@/helpers/enumKeys";
-import { pascalToCamel } from "@/helpers/StringHelpers";
-import { timeOrder, timeOrderVerbose } from "@/helpers/timeHelpers";
+import { enumKeys } from "@helpers/enumKeys";
+import { pascalToCamel } from "@helpers/StringHelpers";
+import { timeOrder, timeOrderVerbose } from "@helpers/timeHelpers";
 import "reflect-metadata";
 import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
 import { AlbumDetails } from "./AlbumDetails";
-import { DanceEnvironment } from "./DanceEnvironmet";
+import { DanceEnvironment } from "./DanceEnvironment";
 import { DanceRating } from "./DanceRating";
 import { ModifiedRecord } from "./ModifiedRecord";
 import { PurchaseInfo, ServiceType } from "./Purchase";

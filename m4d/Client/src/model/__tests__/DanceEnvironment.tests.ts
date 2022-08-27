@@ -1,4 +1,4 @@
-import { getEnvironmentMock } from "@/helpers/MockEnvironmentManager";
+import { getEnvironmentMock } from "@helpers/MockEnvironmentManager";
 
 describe("dance environment", () => {
   it("should load", () => {

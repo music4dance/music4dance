@@ -1,4 +1,4 @@
-import { kebabToWords, wordsToKebab } from "@/helpers/StringHelpers";
+import { kebabToWords, wordsToKebab } from "@helpers/StringHelpers";
 import "reflect-metadata";
 import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
 import { DanceInstance } from "./DanceInstance";

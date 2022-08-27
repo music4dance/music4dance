@@ -1,4 +1,4 @@
-import { DanceEnvironment } from "./DanceEnvironmet";
+import { DanceEnvironment } from "./DanceEnvironment";
 import { DanceStats } from "./DanceStats";
 
 declare const environment: DanceEnvironment;

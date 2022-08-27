@@ -1,4 +1,4 @@
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { DanceEnvironment } from "@/model/DanceEnvironment";
 import { TypedJSON } from "typedjson";
 import environmentJson from "../assets/dance-environment.json";
 

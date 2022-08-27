@@ -1,3 +1,6 @@
+const { pathsToModuleNameMapper } = require("ts-jest");
+const path = require("path");
+
 // vue.config.js
 module.exports = {
     outputDir: "../wwwroot/client/",
@@ -85,5 +88,9 @@ module.exports = {
             config.output.chunkFilename = "js/[name].local.js";
             config.devtool = "source-map";
         }
+        config.resolve.alias = {
+            "@": path.resolve(__dirname, "src"),
+            "@helpers": path.resolve(__dirname, "src/helpers"),
+        };
     },
 };

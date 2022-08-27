@@ -91,7 +91,8 @@
     "preset": "ts-jest",
     "testEnvironment": "jsdom",
     "moduleNameMapper": {
-      "^@/(.*)$": "<rootDir>/src/$1"
+      "^@/(.*)$": "<rootDir>/src/$1",
+      "^@helpers/(.*)$": "<rootDir>/src/helpers/$1"
     },
     "verbose": false,
     "silent": false,

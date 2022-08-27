@@ -34,7 +34,7 @@
 import Loader from "@/components/Loader.vue";
 import SongTable from "@/components/SongTable.vue";
 import AdminTools from "@/mix-ins/AdminTools";
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { DanceEnvironment } from "@/model/DanceEnvironment";
 import { SongFilter } from "@/model/SongFilter";
 import { SongHistory } from "@/model/SongHistory";
 import "reflect-metadata";

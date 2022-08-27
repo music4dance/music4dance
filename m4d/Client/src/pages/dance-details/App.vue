@@ -104,7 +104,7 @@ import SpotifyPlayer from "@/components/SpotifyPlayer.vue";
 import TagCloud from "@/components/TagCloud.vue";
 import AdminTools from "@/mix-ins/AdminTools";
 import { BreadCrumbItem, danceTrail } from "@/model/BreadCrumbItem";
-import { DanceEnvironment } from "@/model/DanceEnvironmet";
+import { DanceEnvironment } from "@/model/DanceEnvironment";
 import { DanceInstance } from "@/model/DanceInstance";
 import { DanceLink } from "@/model/DanceLink";
 import { DanceModel } from "@/model/DanceModel";

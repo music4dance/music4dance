@@ -1,4 +1,4 @@
-import { enumKeys } from "@/helpers/enumKeys";
+import { enumKeys } from "@helpers/enumKeys";
 import "reflect-metadata";
 import { jsonMember, jsonObject } from "typedjson";
 
