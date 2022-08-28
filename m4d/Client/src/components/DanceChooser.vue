@@ -77,7 +77,7 @@
           :epsilonPercent="20"
           :filter="nameFilter"
           :hideNameLink="true"
-          @choose-dance="hideNameLink"
+          @choose-dance="choose"
         ></dance-list>
       </b-tab>
     </b-tabs>
