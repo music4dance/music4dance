@@ -71,11 +71,10 @@
       </b-tab>
       <b-tab title="By Tempo" active v-if="hasTempo">
         <dance-list
-          :dances="danceTypes"
+          :dances="tempoFiltered"
           :beatsPerMinute="tempo"
           :beatsPerMeasure="numerator"
           :epsilonPercent="20"
-          :filter="nameFilter"
           :hideNameLink="true"
           @choose-dance="choose"
         ></dance-list>
@@ -130,6 +129,14 @@ export default class DanceChooser extends Mixins(EnvironmentManager) {
   private get dances(): DanceStats[] {
     const environment = this.environment;
     return environment && environment.tree ? environment.tree : [];
+  }
+
+  private get tempoFiltered(): TypeStats[] {
+    return DanceEnvironment.filterByName(
+      this.danceTypes,
+      this.nameFilter,
+      false
+    );
   }
 
   private get danceTypes(): TypeStats[] {

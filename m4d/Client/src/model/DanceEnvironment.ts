@@ -107,6 +107,18 @@ export class DanceEnvironment {
     return this.groups!.map((s) => s.name);
   }
 
+  // TODO: Figure out how to get this into DanceStats (or both TypeStats and GroupStats)
+  private static hasString(dance: DanceStats, s: string): boolean {
+    console.log(`${dance.name}: ${dance.synonyms?.join(",")}`);
+    if (dance.name === "Lindy Hop") {
+      console.log("Stop at Lindy");
+    }
+    return (
+      dance.name.toLowerCase().indexOf(s) !== -1 ||
+      !!dance.synonyms?.find((n) => n.toLowerCase().indexOf(s) !== -1)
+    );
+  }
+
   public static filterByName(
     dances: DanceStats[],
     nameFilter: string,
@@ -117,12 +129,11 @@ export class DanceEnvironment {
       (d) =>
         d.songCount > 0 &&
         (!filter ||
-          d.name.toLowerCase().indexOf(filter) !== -1 ||
+          DanceEnvironment.hasString(d, filter) ||
           (includeChildren &&
             d.isGroup &&
             (d as GroupStats).dances.find(
-              (c) =>
-                c.songCount > 0 && c.name.toLowerCase().indexOf(filter) !== -1
+              (c) => c.songCount > 0 && DanceEnvironment.hasString(c, filter)
             )))
     );
   }

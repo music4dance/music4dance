@@ -1,26 +1,24 @@
-﻿@using m4d.ViewModels
-@using m4dModels
-@model IEnumerable<m4dModels.ActivityLog>
+﻿@model IEnumerable<m4dModels.ActivityLog>
 <table class="table table-striped table-songs col-sm">
-	<thead>
-		<tr>
-			<th scope="col">
-				@Html.DisplayNameFor(model => model.Id)
-			</th>
-			<th scope="col">
-				@Html.DisplayNameFor(model => model.Date)
-			</th>
-			<th scope="col">
-				@Html.DisplayNameFor(model => model.User.UserName)
-			</th>
-			<th scope="col">
-				@Html.DisplayNameFor(model => model.Action)
-			</th>
-			<th scope="col">
-				@Html.DisplayNameFor(model => model.Details)
-			</th>
-		</tr>
-	</thead>
+    <thead>
+        <tr>
+            <th scope="col">
+                @Html.DisplayNameFor(model => model.Id)
+            </th>
+            <th scope="col">
+                @Html.DisplayNameFor(model => model.Date)
+            </th>
+            <th scope="col">
+                @Html.DisplayNameFor(model => model.User.UserName)
+            </th>
+            <th scope="col">
+                @Html.DisplayNameFor(model => model.Action)
+            </th>
+            <th scope="col">
+                @Html.DisplayNameFor(model => model.Details)
+            </th>
+        </tr>
+    </thead>
 
     @foreach (var item in Model)
     {
@@ -32,7 +30,14 @@
                 @Html.DisplayFor(modelItem => item.Date)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.User.UserName)
+                @if (item.User != null)
+                {
+                    @Html.DisplayFor(modelItem => item.User.UserName)
+                }
+                else
+                {
+                    <span>no user</span>
+                }
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Action)

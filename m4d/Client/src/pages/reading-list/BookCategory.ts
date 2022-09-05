@@ -21,7 +21,6 @@ export class BookCategory {
     selector: BookSelector,
     type: BookType
   ): boolean {
-    console.log(selector);
     if (Array.isArray(selector)) {
       const rg = selector as BookType[];
       const idx = rg.findIndex((t) => t === type);

@@ -69,7 +69,7 @@ namespace m4d
             var builder = services.AddMvc();
 
 #if DEBUG
-            //builder.AddRazorRuntimeCompilation();
+            builder.AddRazorRuntimeCompilation();
 #endif
 
             var physicalProvider = Environment.ContentRootFileProvider;

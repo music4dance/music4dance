@@ -126,6 +126,26 @@ const books: Book[] = [
     image: `<a href="https://www.amazon.com/Dance-Better-Now-mastering-excellent-ebook/dp/B010T578GE?ie=UTF8&linkCode=li2&tag=msc4dnc-20&linkId=f41b0c5f8b7a7da8d2584dd069588b04&language=en_US&ref_=as_li_ss_il" target="_blank"><img border="0" src="//ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B010T578GE&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=msc4dnc-20&language=en_US" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=msc4dnc-20&language=en_US&l=li2&o=1&a=B010T578GE" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />`,
   },
   {
+    type: [BookType.Education],
+    title: "How to Read Music in 30 Days",
+    subtitle:
+      "Music Theory for Beginners - with Exercises & Online Audio (Practical Music Theory Book 1)",
+    author: "Matthew Ellul",
+    kindle: "https://amzn.to/3CUlzw9",
+    paperback: "https://amzn.to/3cHbEiU",
+    hardcover: "https://amzn.to/3Qb0HUg",
+    others: [
+      {
+        text: "Music Theory for Beginners (spiral-bound)",
+        ref: "https://amzn.to/3RxIv93",
+      },
+    ],
+    notes:
+      "This book is a quick read that does a credible job of covering the basics of reading music.  For dancers that are interested in checking sheet music for tempo information, the first half of the book covers time signatures and tempo markings.",
+    review: "",
+    image: `<a href="https://www.amazon.com/How-Read-Music-Days-Beginners-ebook/dp/B08KD4XZFK?_encoding=UTF8&qid=&sr=&linkCode=li2&tag=msc4dnc-20&linkId=2fe5bcf1cada5e84ef112707a383de29&language=en_US&ref_=as_li_ss_il" target="_blank"><img border="0" src="//ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B08KD4XZFK&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=msc4dnc-20&language=en_US" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=msc4dnc-20&language=en_US&l=li2&o=1&a=B08KD4XZFK" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />`,
+  },
+  {
     type: [BookType.History, BookType.Education],
     title: "The Meaning of Tango",
     subtitle: "The Story of the Argentinian Dance",
@@ -134,7 +154,7 @@ const books: Book[] = [
     paperback: "https://amzn.to/2zLAMOm",
     hardcover: "https://amzn.to/2ZK1D83",
     notes:
-      "The book is a quick read and full of wonderful tidbits about Tango and its history. The book is very centered around traditional Argentine Tango and does an excellent job of conveying that perspective.  It’s also somewhat unusual in that it is predominantly about the history and philosophy of the dance but contains a section that is straight up technique with diagrams",
+      "This book is a quick read and full of wonderful tidbits about Tango and its history. The book is very centered around traditional Argentine Tango and does an excellent job of conveying that perspective.  It’s also somewhat unusual in that it is predominantly about the history and philosophy of the dance but contains a section that is straight up technique with diagrams",
     review:
       "https://music4dance.blog/2018/07/21/book-review-the-meaning-of-tango/",
     image: `<a href="https://www.amazon.com/Meaning-Tango-Story-Argentinian-Hardcover/dp/B003H72H0Y?_encoding=UTF8&qid=1567446252&sr=8-1&linkCode=li2&tag=msc4dnc-20&linkId=426e321afcfb3f69775aded252f9280c&language=en_US&ref_=as_li_ss_il" target="_blank"><img border="0" src="//ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B003H72H0Y&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=msc4dnc-20&language=en_US" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=msc4dnc-20&language=en_US&l=li2&o=1&a=B003H72H0Y" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />`,
@@ -166,7 +186,7 @@ const books: Book[] = [
     title: "Swingin' at the Savoy",
     subtitle: "The Memoir of a Jazz Dancer",
     author: "Norma Miller, Evette Jensen",
-    paperback: "https://amzn.to/3nfbWPt",
+    paperback: "https://amzn.to/3Qrq98k",
     hardcover: "https://amzn.to/3nfbWPt",
     audible: "https://amzn.to/3nfvfbq",
     notes:

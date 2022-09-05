@@ -294,7 +294,10 @@ namespace m4d.Controllers
             var p = await AzureParmsFromFilter(Filter, 25);
             p.IncludeTotalCount = true;
 
-            await LogSearch(Filter);
+            if (!SpiderManager.CheckAnySpiders(Request.Headers[HeaderNames.UserAgent]))
+            {
+                await LogSearch(Filter);
+            }
 
             return await SongIndex.Search(
                 Filter.SearchString, p, Filter.CruftFilter);

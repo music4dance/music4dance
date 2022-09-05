@@ -15,7 +15,7 @@
       responsive
     >
       <template v-slot:cell(name)="data">
-        <a :href="danceLink(data.item)">{{ data.value }}</a>
+        <dance-name :dance="data.item" :showSynonyms="true"></dance-name>
       </template>
       <template v-slot:cell(groupName)="data">
         <a :href="groupLink(data.item)">{{ data.value }}</a>
@@ -45,6 +45,7 @@
 </template>
 
 <script lang="ts">
+import DanceName from "@/components/DanceName.vue";
 import { wordsToKebab } from "@/helpers/StringHelpers";
 import { DanceFilter } from "@/model/DanceFilter";
 import { Meter } from "@/model/Meter";
@@ -54,7 +55,9 @@ import { BvTableFieldArray } from "bootstrap-vue";
 import "reflect-metadata";
 import { Component, Prop, Vue } from "vue-property-decorator";
 
-@Component
+@Component({
+  components: { DanceName },
+})
 export default class DanceList extends Vue {
   @Prop() private readonly dances!: TypeStats[];
   @Prop() private readonly styles!: string[];
@@ -136,10 +139,6 @@ export default class DanceList extends Vue {
     };
 
     return JSON.stringify(filter) === this.unfiltered ? null : filter;
-  }
-
-  private danceLink(dance: TypeStats): string {
-    return this.m4dLink(dance.seoName);
   }
 
   private groupLink(dance: TypeStats): string {
