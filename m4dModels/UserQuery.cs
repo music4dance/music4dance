@@ -13,7 +13,7 @@ namespace m4dModels
             Query = Normalize(query);
         }
 
-        public UserQuery(string userName, bool include, bool? like)
+        public UserQuery(string userName, bool include, bool? like = null)
         {
             var qs = Normalize(userName);
             if (!string.IsNullOrEmpty(qs) && !string.IsNullOrWhiteSpace(qs) && qs != "null")

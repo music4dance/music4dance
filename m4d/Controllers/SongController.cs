@@ -103,10 +103,7 @@ namespace m4d.Controllers
                 Filter.Page = page;
             }
 
-            if (Identity.IsAuthenticated && Filter.IsEmpty)
-            {
-                Filter.User = new UserQuery(UserName, false, false).Query;
-            }
+            Filter.User = new UserQuery("dgsnure", false).Query;
 
             return await DoAzureSearch();
         }
