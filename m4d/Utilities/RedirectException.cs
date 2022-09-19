@@ -9,7 +9,7 @@ namespace m4d.Utilities
         {
         }
 
-        public RedirectException(string view, object model)
+        public RedirectException(string view, object model = null)
             : base($"Redirecting to view {view}")
         {
             View = view;

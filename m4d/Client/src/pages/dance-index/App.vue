@@ -34,9 +34,11 @@
       Don't agree with how we've organized dance styles? Well, we're not
       convinced there is a "right way" but we're doing some research to see if
       we can find a better way (or maybe multiple ways). Please help us out by
-      <a href="https://music4dance.blog/feedback/">sending us feedback</a> so
-      that we can include your ideas about how to organize dance styles in the
-      future.
+      <a href="https://music4dance.blog/feedback/" target="_blank"
+        >sending us feedback</a
+      >
+      so that we can include your ideas about how to organize dance styles in
+      the future.
     </p>
   </page>
 </template>

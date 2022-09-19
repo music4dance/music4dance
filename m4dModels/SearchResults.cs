@@ -12,16 +12,29 @@ namespace m4dModels
         {
             Query = query;
             Count = count;
-            TotalCount = totalCount;
+            RawCount = TotalCount = totalCount;
             CurrentPage = currentPage;
             PageSize = pageSize;
             Songs = songs;
             FacetResults = facets;
         }
 
+        public SearchResults(SearchResults result, List<Song> songs, int totalCount)
+        {
+            Query = result.Query;
+            TotalCount = totalCount;
+            Count = songs.Count;
+            RawCount = result.TotalCount;
+            CurrentPage = result.CurrentPage;
+            PageSize = result.PageSize;
+            Songs = songs;
+            FacetResults = result.FacetResults;
+        }
+
         public string Query { get; }
         public int Count { get; }
         public long TotalCount { get; }
+        public long RawCount { get; }
         public int CurrentPage { get; }
         public int PageSize { get; }
         public IEnumerable<Song> Songs { get; }

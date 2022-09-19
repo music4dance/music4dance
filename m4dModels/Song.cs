@@ -177,7 +177,7 @@ namespace m4dModels
             {
                 if (prop.BaseName == UserField || prop.BaseName == UserProxy)
                 {
-                    var name = new ModifiedRecord(prop.Value).UserName;
+                    var name = new ModifiedRecord(prop.Value).UserName.ToLowerInvariant();
                     if (eu != null)
                     {
                         inFilter = eu.Contains(name);
@@ -3280,6 +3280,11 @@ namespace m4dModels
             return tags == null || tags.IsEmpty ? new List<string>() : Dances.Instance.FromNames(tags.Strip()).Select(d => d.Id);
         }
 
+        public int NormalizedUserDanceRating(string userName, string danceId)
+        {
+            var rating = UserDanceRating(userName, danceId);
+            return rating == 0 ? 0 : rating < 0 ? -1 : 1;
+        }
 
         public int UserDanceRating(string userName, string danceId)
         {

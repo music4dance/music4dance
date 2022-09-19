@@ -8,6 +8,7 @@ namespace m4d.ViewModels
         public List<SongHistory> Histories { get; set; }
         public SongFilterSparse Filter { get; set; }
         public int Count { get; set; }
+        public int RawCount { get; set; }
     }
 
     public class HolidaySongListModel : SongListModel

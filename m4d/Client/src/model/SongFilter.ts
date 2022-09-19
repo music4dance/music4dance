@@ -177,7 +177,7 @@ export class SongFilter {
   public isDefault(user?: string): boolean {
     return (
       !this.isRaw &&
-      this.isEmptyExcept(["action", "sortOrder", "user"]) &&
+      this.isEmptyExcept(["action", "sortOrder", "user", "version"]) &&
       this.isDefaultUser(user)
     );
   }
@@ -185,7 +185,7 @@ export class SongFilter {
   public isDefaultDance(danceId?: string, user?: string): boolean {
     return (
       !this.isRaw &&
-      this.isEmptyExcept(["action", "dance", "sortOrder", "user"]) &&
+      this.isEmptyExcept(["action", "dance", "sortOrder", "user", "version"]) &&
       this.isDefaultUser(user) &&
       (!danceId || danceId?.toLowerCase() === this.dances?.toLowerCase())
     );

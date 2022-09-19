@@ -391,7 +391,7 @@ namespace m4dModels.Tests
             var song = new Song();
             await song.Load(init, service);
             await song.AdminModify(
-                @"{ExcludeUsers:['DWTS'],Properties:[{Action:'ReplaceValue',Name:'Tag+',Value:'Argentine Tango:Dance',Replace:'Tango Vals:Dance'},{Action:'ReplaceValue',Name:'DanceRating',Value:'ATN',Replace:'TGV'},{Action:'Remove',Name:'DanceRating',Value:'MGA'},{Action:'Remove',Name:'DanceRating',Value:'TNG'}]}",
+                @"{ExcludeUsers:['dwts'],Properties:[{Action:'ReplaceValue',Name:'Tag+',Value:'Argentine Tango:Dance',Replace:'Tango Vals:Dance'},{Action:'ReplaceValue',Name:'DanceRating',Value:'ATN',Replace:'TGV'},{Action:'Remove',Name:'DanceRating',Value:'MGA'},{Action:'Remove',Name:'DanceRating',Value:'TNG'}]}",
                 service);
 
             Assert.AreEqual(3, song.DanceRatings.Count);

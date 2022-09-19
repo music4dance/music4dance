@@ -147,7 +147,7 @@
           <div class="d-flex">
             <b-form-input
               id="user"
-              placeholder="UserName"
+              placeholder="UserName or me"
               v-model="displayUser"
               style="width: 10rem"
               class="mr-2"
@@ -283,6 +283,7 @@ export default class App extends Mixins(
   EnvironmentManager,
   DropTarget
 ) {
+  private danceEnvironment: DanceEnvironment | null = null;
   private showDiagnostics = false;
   private keyWords = "";
 
@@ -312,7 +313,17 @@ export default class App extends Mixins(
     }
   }
 
-  private allDances: NamedObject[] = [];
+  private get allDances(): NamedObject[] {
+    const environment = this.danceEnvironment;
+    return environment && environment.tree ? environment.flatDances : [];
+  }
+
+  private get danceNames(): NamedObject[] {
+    const environment = this.danceEnvironment;
+    return environment
+      ? this.dances.map((d) => environment.fromId(d).name)
+      : [];
+  }
 
   private get hasUser(): boolean {
     return !!(this.user || this.displayUser);
@@ -325,20 +336,38 @@ export default class App extends Mixins(
   private get activities() {
     const user = this.displayUser;
     const empty = { text: "Don't filter on user activity", value: "NT" };
+
+    if (!user) {
+      return empty;
+    }
+
     const my = user === "me" ? "my" : user + "'s";
     const i = user === "me" ? "I have" : user + " has";
 
-    return user
-      ? [
-          empty,
-          { text: `Include all songs in ${my} favorites`, value: "IL" },
-          { text: `Exclude all songs in ${my} favorites`, value: "XL" },
-          { text: `Include all songs ${i}  tagged`, value: "IT" },
-          { text: `Exclude all songs ${i} tagged`, value: "XT" },
-          { text: `Exclude all songs in ${my} blocked list`, value: "XH" },
-          { text: `Include all songs in ${my} blocked list`, value: "IH" },
-        ]
-      : [empty];
+    var items = [
+      { text: `Include all songs in ${my} favorites`, value: "IL" },
+      { text: `Exclude all songs in ${my} favorites`, value: "XL" },
+      { text: `Include all songs ${i} tagged`, value: "IT" },
+      { text: `Exclude all songs ${i} tagged`, value: "XT" },
+      { text: `Exclude all songs in ${my} blocked list`, value: "XH" },
+      { text: `Include all songs in ${my} blocked list`, value: "IH" },
+    ];
+
+    const dances = this.dances;
+    if (dances.length > 0) {
+      items.unshift({
+        text: `Include all songs ${i} voted against ${this.danceNames.join(
+          ", "
+        )}`,
+        value: "IX",
+      });
+      items.unshift({
+        text: `Include all songs ${i} voted for ${this.danceNames.join(", ")}`,
+        value: "ID",
+      });
+    }
+    items.unshift(empty);
+    return items;
   }
 
   private services: string[] = [];
@@ -562,7 +591,7 @@ export default class App extends Mixins(
   }
 
   private onEnvironmentLoaded(environment: DanceEnvironment): void {
-    this.allDances = environment.flatDances;
+    this.danceEnvironment = environment;
   }
 }
 </script>

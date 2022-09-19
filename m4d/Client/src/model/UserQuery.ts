@@ -22,6 +22,9 @@ export class UserQuery {
 
     let suffix = "";
     switch (parts[1]) {
+      case "D":
+        suffix = "d";
+        break;
       case "L":
         suffix = "l";
         break;
@@ -30,6 +33,9 @@ export class UserQuery {
         break;
       case "T":
         suffix = "a";
+        break;
+      case "X":
+        suffix = "x";
         break;
       default:
         throw new Error(
@@ -124,6 +130,12 @@ export class UserQuery {
       case "T":
         like = `edited by ${user}`;
         break;
+      case "D":
+        like = `voted for by ${user}`;
+        break;
+      case "X":
+        like = `voted against by ${user}`;
+        break;
     }
 
     return `${include} songs ${like}`;
@@ -144,6 +156,12 @@ export class UserQuery {
           break;
         case "h":
           ret += "H";
+          break;
+        case "d":
+          ret += "D";
+          break;
+        case "x":
+          ret += "X";
           break;
         default:
           ret += "T";

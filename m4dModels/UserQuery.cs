@@ -13,7 +13,7 @@ namespace m4dModels
             Query = Normalize(query);
         }
 
-        public UserQuery(string userName, bool include, bool? like = null)
+        public UserQuery(string userName, bool include, char? modifier)
         {
             var qs = Normalize(userName);
             if (!string.IsNullOrEmpty(qs) && !string.IsNullOrWhiteSpace(qs) && qs != "null")
@@ -23,45 +23,23 @@ namespace m4dModels
                     qs = "-" + qs[1..];
                 }
 
-                if (like.HasValue)
+                if (modifier.HasValue)
                 {
-                    if (like.Value)
-                    {
-                        qs += "|l";
-                    }
-                    else
-                    {
-                        qs += "h";
-                    }
+                    qs += modifier;
                 }
             }
 
             Query = qs;
         }
 
-        public UserQuery(UserQuery query, string userName) : this(
-            userName, query.IsInclude,
-            query.NullableLike)
+        public UserQuery(string userName, bool include, bool? like = null) 
+            : this(userName, include, like.HasValue ? (like.Value ? 'l' : 'h') : 'a')
         {
-            var qs = Normalize(userName);
-            if (!query.IsEmpty && !string.IsNullOrWhiteSpace(qs) && qs != "null")
-            {
-                if (query.IsExclude)
-                {
-                    qs = "-" + qs[1..];
-                }
+        }
 
-                if (query.IsLike)
-                {
-                    qs += 'l';
-                }
-                else if (query.IsHate)
-                {
-                    qs += 'h';
-                }
-            }
-
-            Query = qs;
+        public UserQuery(UserQuery query, string userName) 
+            : this(userName, query.IsInclude, query.Modifier)
+        {
         }
 
         private bool? NullableLike => IsLike ? true : IsHate ? false : null;
@@ -72,9 +50,12 @@ namespace m4dModels
         public bool IsInclude => !IsEmpty && Query[0] == '+';
         public bool IsExclude => !IsEmpty && Query[0] == '-';
         public bool HasOpinion => !IsEmpty && IsLike || IsHate || IsAny;
-        public bool IsLike => Query.EndsWith("|l", StringComparison.OrdinalIgnoreCase);
-        public bool IsHate => Query.EndsWith("|h", StringComparison.OrdinalIgnoreCase);
-        public bool IsAny => Query.EndsWith("|a", StringComparison.OrdinalIgnoreCase);
+        public bool IsLike => Modifier == 'l';
+        public bool IsHate => Modifier == 'h';
+        public bool IsAny => Modifier == 'a' || IsVoted;
+        public bool IsUpVoted => Modifier == 'd';
+        public bool IsDownVoted => Modifier == 'x';
+        public bool IsVoted => IsDownVoted || IsUpVoted;
         public string UserName => IsEmpty ? null : Query[1..Query.IndexOf('|')];
 
         public bool IsIdentity =>
@@ -93,22 +74,31 @@ namespace m4dModels
             {
                 if (IsNull)
                 {
-                    return "Don't filter on my activity";
+                    return "Don't filter on user activity";
                 }
 
                 var start = IsInclude ? "Include only" : "Exclude all";
                 string end;
-                if (IsLike)
+
+                var i = IsIdentity ? "I" : UserName;
+
+                switch (Modifier)
                 {
-                    end = "I marked LIKE";
-                }
-                else if (IsHate)
-                {
-                    end = "I marked DON'T LIKE";
-                }
-                else
-                {
-                    end = "I tagged";
+                    case 'l':
+                        end = $"{i} marked LIKE";
+                        break;
+                    case 'h':
+                        end = $"{i} marked DON'T LIKE";
+                        break;
+                    case 'd':
+                        end = $"{i} voted FOR";
+                        break;
+                    case 'x':
+                        end = $"{i} voted AGAINST";
+                        break;
+                    default:
+                        end = $"{i} tagged";
+                        break;
                 }
 
                 return $"{start} songs {end}";
@@ -189,6 +179,16 @@ namespace m4dModels
             return $"Users/{inc}(t: t {cmp} '{userName}{vote}')";
         }
 
+        private char? Modifier
+        {
+            get
+            {
+                var length = Query.Length;
+                return (length > 2 && Query[length - 2] == '|') ? char.ToLower(Query[length - 1]) : null;
+            }
+        }
+
+
         public string Description(bool trivial = false)
         {
             if (IsEmpty)
@@ -208,17 +208,23 @@ namespace m4dModels
 
             var ret = new StringBuilder(start);
 
-            if (IsLike)
+            switch (Modifier)
             {
-                ret.Append(" liked");
-            }
-            else if (IsHate)
-            {
-                ret.Append(" disliked");
-            }
-            else
-            {
-                ret.Append(" edited");
+                case 'l':
+                    ret.Append(" liked");
+                    break;
+                case 'h':
+                    ret.Append(" liked");
+                    break;
+                case 'd':
+                    ret.Append(" voted for");
+                    break;
+                case 'x':
+                    ret.Append(" voted against");
+                    break;
+                default:
+                    ret.Append(" edited");
+                    break;
             }
 
             ret.Append(" by ");

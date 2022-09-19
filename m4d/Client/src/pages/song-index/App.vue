@@ -1,5 +1,24 @@
 <template>
   <page id="app" :consumesEnvironment="true">
+    <b-alert
+      v-if="complexSearchWarning"
+      show
+      dismissible
+      variant="warning"
+      style="margin-bottom: 0"
+    >
+      This is a complex search that requries multiple passes to compute. We're
+      limitting the initial pass to 500 songs, which may result in much less
+      that 500 songs in the final results as well as incomplete results (the
+      intial pass in this cases yields {{ model.rawCount }} songs). We believe
+      we can solve this is a more general way, so please
+      <a href="https://music4dance.blog/feedback/" target="_blank"
+        >send feedback</a
+      >
+      about what you are trying to accomplish with this search and we can either
+      help you with an alternate search or increase the priority of building
+      amore general solution.
+    </b-alert>
     <song-library-header
       v-if="model.filter.isSimple(model.userName)"
       :filter="model.filter"
@@ -60,6 +79,10 @@ export default class App extends Vue {
 
   private get filter(): SongFilter {
     return this.model.filter;
+  }
+
+  private get complexSearchWarning(): boolean {
+    return this.model.rawCount > 500;
   }
 
   private selectSong(songId: string, selected: boolean): void {

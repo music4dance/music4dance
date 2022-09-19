@@ -19,9 +19,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Net.Http.Headers;
 
@@ -112,10 +110,18 @@ namespace m4d.Controllers
         public async Task<ActionResult> HolidayMusic(string dance = null, int page = 1)
         {
             Filter = SongFilter.CreateHolidayFilter(dance, page);
+            HelpPage = Filter.IsSimple ? "song-list" : "advanced-search";
 
             try
             {
-                var results = await BuildAzureSearch();
+                if (!Filter.IsEmptyBot &&
+                    SpiderManager.CheckAnySpiders(Request.Headers[HeaderNames.UserAgent]))
+                {
+                    throw new RedirectException("BotFilter", Filter);
+                }
+
+                var results = await new SongSearch(
+                    Filter, UserName, IsPremium(), SongIndex, UserManager, _backgroundTaskQueue).Search();
 
                 string playListId = null;
 
@@ -193,9 +199,17 @@ namespace m4d.Controllers
         // TODO: Consider abstracting this (and maybe format) out into a builder/computer
         private async Task<ActionResult> DoAzureSearch()
         {
+            HelpPage = Filter.IsSimple ? "song-list" : "advanced-search";
+
             try
             {
-                var results = await BuildAzureSearch();
+                if (!Filter.IsEmptyBot &&
+                    SpiderManager.CheckAnySpiders(Request.Headers[HeaderNames.UserAgent]))
+                {
+                    throw new RedirectException("BotFilter", Filter);
+                }
+
+                var results = await new SongSearch(Filter, UserName, IsPremium(), SongIndex, UserManager, _backgroundTaskQueue).Search();
                 return await FormatResults(results);
             }
             catch (RedirectException ex)
@@ -207,11 +221,11 @@ namespace m4d.Controllers
 
         private async Task<ActionResult> FormatResults(SearchResults results)
         {
-            return await FormatSongList(results.Songs.ToList(), (int)results.TotalCount);
+            return await FormatSongList(results.Songs.ToList(), (int)results.TotalCount, (int) results.RawCount);
         }
 
         private async Task<ActionResult> FormatSongList(IReadOnlyCollection<Song> songs,
-            int? totalSongs)
+            int? totalSongs = null, int? rawCount = null)
         {
 
             var user = UserName;
@@ -231,128 +245,11 @@ namespace m4d.Controllers
                     Histories = histories,
                     Filter = _mapper.Map<SongFilterSparse>(Filter),
                     Count = totalSongs ?? songs.Count,
+                    RawCount = rawCount ?? totalSongs ?? songs.Count
                 },
                 danceEnvironment: true);
         }
 
-        private async Task<SearchResults> BuildAzureSearch()
-        {
-            HelpPage = Filter.IsSimple ? "song-list" : "advanced-search";
-
-            if (!Filter.IsEmptyBot &&
-                SpiderManager.CheckAnySpiders(Request.Headers[HeaderNames.UserAgent]))
-            {
-                throw new RedirectException("BotFilter", Filter);
-            }
-
-            if (Filter.Level != null && Filter.Level != 0 &&
-                !(User.IsInRole(DanceMusicCoreService.PremiumRole) ||
-                    User.IsInRole(DanceMusicCoreService.TrialRole) ||
-                    User.IsInRole(DanceMusicCoreService.DiagRole)))
-            {
-                Filter.Level = null;
-                var redirectUrl =
-                    _linkGenerator.GetUriByAction(
-                        HttpContext, "AdvancedSearchForm", "Song",
-                        new { Filter });
-                var premiumRedirect = new PremiumRedirect
-                {
-                    FeatureType = "search",
-                    FeatureName = "bonus content",
-                    InfoUrl = "https://music4dance.blog/?page_id=8217",
-                    RedirectUrl = redirectUrl
-                };
-                throw new RedirectException("RequiresPremium", premiumRedirect);
-            }
-
-            var userQuery = Filter.UserQuery;
-            var currentUser = UserName;
-            if (!userQuery.IsEmpty)
-            {
-                if (userQuery.IsIdentity)
-                {
-                    if (Identity.IsAuthenticated)
-                    {
-                        Filter.User = new UserQuery(userQuery, currentUser).Query;
-                    }
-                    else
-                    {
-                        throw new RedirectException("Login", Filter);
-                    }
-                }
-                else if (!string.Equals(currentUser, userQuery.UserName))
-                {
-                    // In this case we want to intentionally overwrite the incoming filter
-                    var temp = await UserMapper.AnonymizeFilter(Filter, UserManager);
-                    Filter.User = temp.User;
-                }
-            }
-
-            var p = await AzureParmsFromFilter(Filter, 25);
-            p.IncludeTotalCount = true;
-
-            if (!SpiderManager.CheckAnySpiders(Request.Headers[HeaderNames.UserAgent]))
-            {
-                await LogSearch(Filter);
-            }
-
-            return await SongIndex.Search(
-                Filter.SearchString, p, Filter.CruftFilter);
-        }
-
-        private async Task LogSearch(SongFilter filter)
-        {
-            if (filter.IsEmptyUser(User.Identity?.Name) || filter.Action == "holidaymusic")
-            {
-                return;
-            }
-
-            var filterString = filter.Normalize(UserName).ToString();
-
-            var user = User.Identity is { IsAuthenticated: true }
-                ? await UserManager.FindByNameAsync(User.Identity.Name)
-                : null;
-            var userId = user?.Id;
-
-            var now = DateTime.Now;
-
-            _backgroundTaskQueue.EnqueueTask(
-                async (serviceScopeFactory, cancellationToken) =>
-                {
-                    try
-                    {
-                        using var scope = serviceScopeFactory.CreateScope();
-                        var context = scope.ServiceProvider.GetRequiredService<DanceMusicContext>();
-
-                        var old = await context.Searches.FirstOrDefaultAsync(
-                            s => s.ApplicationUserId == userId && s.Query == filterString);
-
-                        if (old != null)
-                        {
-                            old.Modified = now;
-                            old.Count += 1;
-                        }
-                        else
-                        {
-                            await context.Searches.AddAsync(
-                                new()
-                                {
-                                    ApplicationUserId = userId,
-                                    Query = filterString,
-                                    Count = 1,
-                                    Created = now,
-                                    Modified = now,
-                                }, cancellationToken);
-                        }
-
-                        await context.SaveChangesAsync(cancellationToken);
-                    }
-                    catch (Exception ex)
-                    {
-                        Trace.WriteLine(ex.Message);
-                    }
-                });
-        }
 
         //
         // GET: /Song/RawSearchForm
@@ -1099,7 +996,7 @@ namespace m4d.Controllers
                 songs = await AutoMerge(songs, Filter.Level ?? 1);
             }
 
-            return await FormatSongList(songs, null);
+            return await FormatSongList(songs);
         }
 
         //
@@ -1411,16 +1308,40 @@ namespace m4d.Controllers
                 await UserMapper.DeanonymizeFilter(filter, UserManager), pageSize);
         }
 
+        private bool IsPremium()
+        {
+            return User.IsInRole(DanceMusicCoreService.PremiumRole) ||
+                User.IsInRole(DanceMusicCoreService.TrialRole) ||
+                User.IsInRole(DanceMusicCoreService.DiagRole);
+        }
+
         private ActionResult HandleRedirect(RedirectException redirect)
         {
             UseVue = false;
-            if (redirect.View == "Login" && redirect.Model is SongFilter filter)
+            var model = redirect.Model;
+            if (redirect.View == "Login" && model is SongFilter filter)
             {
                 return Redirect(
                     $"/Identity/Account/Login/?ReturnUrl=/song/advancedsearchform?filter={filter}");
             }
 
-            return View(redirect.View, redirect.Model);
+            if (redirect.View == "RequiresPremium")
+            {
+                Filter.Level = null;
+                var redirectUrl =
+                    _linkGenerator.GetUriByAction(
+                        HttpContext, "AdvancedSearchForm", "Song",
+                        new { Filter });
+                model = new PremiumRedirect
+                {
+                    FeatureType = "search",
+                    FeatureName = "bonus content",
+                    InfoUrl = "https://music4dance.blog/?page_id=8217",
+                    RedirectUrl = redirectUrl
+                };
+            }
+
+            return View(redirect.View, model);
         }
 
         private async Task<ActionResult> Delete(IEnumerable<Song> songs, SongFilter filter)
