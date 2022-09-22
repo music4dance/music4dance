@@ -82,7 +82,8 @@ export default class App extends Vue {
   }
 
   private get complexSearchWarning(): boolean {
-    return this.model.rawCount > 500;
+    const model = this.model;
+    return model.rawCount > model.count && model.rawCount > 500;
   }
 
   private selectSong(songId: string, selected: boolean): void {
