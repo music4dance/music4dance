@@ -9,6 +9,7 @@ namespace m4d.ViewModels
         public SongFilterSparse Filter { get; set; }
         public int Count { get; set; }
         public int RawCount { get; set; }
+        public List<string> HiddenColumns { get; set; }
     }
 
     public class HolidaySongListModel : SongListModel

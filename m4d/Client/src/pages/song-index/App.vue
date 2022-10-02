@@ -33,7 +33,7 @@
       :histories="model.histories"
       :filter="filter"
       :hideSort="model.hideSort"
-      :hiddenColumns="['length', 'track']"
+      :hiddenColumns="hiddenColumns"
       @song-selected="selectSong"
     ></song-table>
     <song-footer
@@ -84,6 +84,11 @@ export default class App extends Vue {
   private get complexSearchWarning(): boolean {
     const model = this.model;
     return model.rawCount > model.count && model.rawCount > 500;
+  }
+
+  private get hiddenColumns(): string[] {
+    const columns = this.model.hiddenColumns;
+    return columns ? columns : ["length", "track"];
   }
 
   private selectSong(songId: string, selected: boolean): void {

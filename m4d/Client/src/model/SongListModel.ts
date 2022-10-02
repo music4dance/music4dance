@@ -19,4 +19,5 @@ export class SongListModel {
   @jsonArrayMember(SongHistory) public histories?: SongHistory[];
   @jsonMember public count!: number;
   @jsonMember public rawCount!: number;
+  @jsonArrayMember(String) public hiddenColumns!: string[];
 }

@@ -118,6 +118,18 @@
                 }
             </td>
         </tr>
+        <tr>
+            <th>Tags</th>
+            @foreach (var song in Model.Songs)
+            {
+                <td>
+                    @foreach (var tag in song.TagSummary.Tags)
+                    {
+                        <span> @tag </span>
+                    }
+                </td>
+            }
+        </tr>
     </table>
 
     <hr/>

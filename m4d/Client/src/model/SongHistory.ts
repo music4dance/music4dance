@@ -102,6 +102,8 @@ export class SongHistory {
           case PropertyType.removedTags:
           case PropertyType.likeTag:
           case PropertyType.addCommentField:
+          case PropertyType.removeCommentField:
+          case PropertyType.tempoField:
             properties.push(property);
             break;
         }
@@ -136,7 +138,10 @@ export class SongHistory {
           (p) =>
             p.baseName === PropertyType.addedTags ||
             p.baseName === PropertyType.removedTags ||
-            p.baseName === PropertyType.likeTag
+            p.baseName === PropertyType.likeTag ||
+            p.baseName === PropertyType.addCommentField ||
+            p.baseName === PropertyType.removeCommentField ||
+            p.baseName === PropertyType.tempoField
         )
     );
   }

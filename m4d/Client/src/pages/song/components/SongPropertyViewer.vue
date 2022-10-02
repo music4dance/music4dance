@@ -7,6 +7,7 @@
       :danceId="danceId"
     >
     </comment-viewer>
+    <span v-else-if="isTempo"> tempo = {{ property.value }} BPM</span>
     <component
       v-else
       v-for="(tag, index) in tags"
@@ -53,9 +54,13 @@ export default class SongPropertyViewer extends Mixins(AdminTools) {
 
   private get isComment(): boolean {
     return (
-      this.property.baseName == PropertyType.addCommentField ||
-      this.property.baseName == PropertyType.removeCommentField
+      this.property.baseName === PropertyType.addCommentField ||
+      this.property.baseName === PropertyType.removeCommentField
     );
+  }
+
+  private get isTempo(): boolean {
+    return this.property.baseName === PropertyType.tempoField;
   }
 
   private viewer(tag: Tag): string {

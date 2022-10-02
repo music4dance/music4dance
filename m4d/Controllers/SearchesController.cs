@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Security.Authentication;
 using System.Threading.Tasks;
 using m4dModels;
@@ -121,24 +120,6 @@ namespace m4d.Controllers
                 .Select(ex => JsonConvert.DeserializeObject<SpotifyCreate>(ex.Details)).ToList();
         }
 
-        // GET: Searches/Details/5
-        public IActionResult Details(long? id)
-        {
-
-            if (id == null)
-            {
-                return StatusCode((int)HttpStatusCode.BadRequest);
-            }
-
-            var search = Database.Searches.Find(id);
-            if (search == null)
-            {
-                return StatusCode((int)HttpStatusCode.NotFound);
-            }
-
-            return View(search);
-        }
-
         // GET: Searches/Delete/5
         [Authorize]
         public async Task<ActionResult> Delete(long id, string sort, bool showDetails = false, string user = null)
@@ -153,7 +134,7 @@ namespace m4d.Controllers
             ViewBag.ShowDetails = showDetails;
             ViewBag.User = user;
 
-            user ??= search.ApplicationUser.UserName;
+            user ??= search.ApplicationUser?.UserName;
             Authenticate(user);
 
             return View(search);
@@ -170,7 +151,7 @@ namespace m4d.Controllers
 
             if (search != null)
             {
-                Authenticate(search.ApplicationUser.UserName);
+                Authenticate(search.ApplicationUser?.UserName);
                 Database.Searches.Remove(search);
                 await Database.SaveChanges();
                 return RedirectToAction("Index", new {sort, showDetails, user});

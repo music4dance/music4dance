@@ -102,6 +102,9 @@
             >
             <b-dropdown-item href="/admin/scraping">Scraping</b-dropdown-item>
             <b-dropdown-item href="/playlist">PlayLists</b-dropdown-item>
+            <b-dropdown-item href="/Searches?showDetails=True&user=all"
+              >Searches</b-dropdown-item
+            >
             <b-dropdown-item href="/song/rawsearchform"
               >Raw Search</b-dropdown-item
             >

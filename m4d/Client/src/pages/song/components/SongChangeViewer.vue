@@ -54,7 +54,10 @@ export default class SongChangeViewer extends Vue {
 
   private get viewableProperties(): SongProperty[] {
     return this.change.properties.filter(
-      (t) => t.baseName.startsWith("Tag") || t.baseName.startsWith("Comment")
+      (t) =>
+        t.baseName.startsWith("Tag") ||
+        t.baseName.startsWith("Comment") ||
+        t.baseName === PropertyType.tempoField
     );
   }
 }

@@ -225,7 +225,7 @@ namespace m4d.Controllers
         }
 
         private async Task<ActionResult> FormatSongList(IReadOnlyCollection<Song> songs,
-            int? totalSongs = null, int? rawCount = null)
+            int? totalSongs = null, int? rawCount = null, List<string> hiddenColumns = null)
         {
 
             var user = UserName;
@@ -245,7 +245,8 @@ namespace m4d.Controllers
                     Histories = histories,
                     Filter = _mapper.Map<SongFilterSparse>(Filter),
                     Count = totalSongs ?? songs.Count,
-                    RawCount = rawCount ?? totalSongs ?? songs.Count
+                    RawCount = rawCount ?? totalSongs ?? songs.Count,
+                    HiddenColumns = hiddenColumns
                 },
                 danceEnvironment: true);
         }
@@ -996,7 +997,7 @@ namespace m4d.Controllers
                 songs = await AutoMerge(songs, Filter.Level ?? 1);
             }
 
-            return await FormatSongList(songs);
+            return await FormatSongList(songs, hiddenColumns: new List<string> { "dances", "echo", "length", "order", "play", "tags", "track" });
         }
 
         //

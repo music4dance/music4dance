@@ -13,7 +13,6 @@
         <b-form-checkbox
           @change="onSelect(data.item.song, $event)"
         ></b-form-checkbox>
-        <a :href="editRef(data.item.song)"><b-icon-pencil></b-icon-pencil></a>
       </template>
       <template v-slot:cell(action)="data">
         <b-button @click="onAction(data.item.song, $event)">{{
@@ -570,10 +569,6 @@ export default class SongTable extends Mixins(AdminTools) {
 
   private get sortableDances(): boolean {
     return !this.hideSort && this.filter.singleDance;
-  }
-
-  private editRef(song: Song): string {
-    return `/song/edit?id=${song.songId}&filter=${this.filter.encodedQuery}`;
   }
 
   private onSelect(song: Song, selected: boolean): void {

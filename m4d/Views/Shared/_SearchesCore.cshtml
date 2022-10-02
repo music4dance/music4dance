@@ -1,6 +1,4 @@
-﻿@using m4d.ViewModels
-@using m4dModels
-@model IEnumerable<m4dModels.Search>
+﻿@model IEnumerable<m4dModels.Search>
 
 @{
 	var showDetails = ViewData.ContainsKey("ShowDetails") ? ViewBag.ShowDetails : false;
@@ -33,6 +31,7 @@
 
     @foreach (var item in Model)
     {
+        var userName = item.ApplicationUser?.UserName ?? "anonymous";
         var t = item.Filter;
         if (t.IsAzure == false)
         {
@@ -53,7 +52,7 @@
                 @Html.ActionLink("Delete", "Delete", "Searches", new
                 {
                     id = item.Id,
-                    user = item.ApplicationUser.UserName,
+                    user = item.ApplicationUser?.UserName,
                     showDetails
                 },new
                 {
@@ -75,7 +74,7 @@
                     @Html.DisplayFor(modelItem => item.Query)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.ApplicationUser.UserName)
+                    @userName
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Count)

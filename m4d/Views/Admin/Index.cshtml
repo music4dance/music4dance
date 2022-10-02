@@ -41,6 +41,9 @@
 <div>
     <h3>@Html.ActionLink("PlayLists", "Index", "PlayList")</h3>
 </div>
+<div>
+    <h3>@Html.ActionLink("Searches", "Index", "Searches", new { user = "all", showDetails=true})</h3>
+</div>
 
 @if (User.IsInRole("dbAdmin"))
 {

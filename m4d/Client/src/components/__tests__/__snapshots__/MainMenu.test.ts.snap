@@ -54,6 +54,7 @@ exports[`MainMenu.vue renders the main menu with admin options 1`] = `
               <li role="presentation"><a role="menuitem" href="/admin/initializationTasks" target="_self" class="dropdown-item">Initialization and Cleanup</a></li>
               <li role="presentation"><a role="menuitem" href="/admin/scraping" target="_self" class="dropdown-item">Scraping</a></li>
               <li role="presentation"><a role="menuitem" href="/playlist" target="_self" class="dropdown-item">PlayLists</a></li>
+              <li role="presentation"><a role="menuitem" href="/Searches?showDetails=True&amp;user=all" target="_self" class="dropdown-item">Searches</a></li>
               <li role="presentation"><a role="menuitem" href="/song/rawsearchform" target="_self" class="dropdown-item">Raw Search</a></li>
               <li role="presentation"><a role="menuitem" href="/admin/uploadbackup" target="_self" class="dropdown-item">Uploads and Backups</a></li>
             </ul>
