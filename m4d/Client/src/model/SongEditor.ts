@@ -20,7 +20,9 @@ export class SongEditor {
   public modified: boolean;
   public admin: boolean; // Requires put rather than patch
   public axios: AxiosInstance;
-  public initialSong: Song;
+  // These are initializers to mollify linting, shouldn't be necessary
+  public initialSong: Song = new Song();
+  private initialHistory: SongHistory = new SongHistory();
 
   public constructor(
     axios: AxiosInstance,
@@ -34,8 +36,16 @@ export class SongEditor {
     this.user = user;
     this.modified = false;
     this.admin = false;
-    this.initialSong = Song.fromHistory(this.history, this.user);
+    this.setInitials(history, user);
     this.axios = axios;
+  }
+
+  private setInitials(history: SongHistory, user?: string): void {
+    this.initialSong = Song.fromHistory(history, user);
+    this.initialHistory = new SongHistory({
+      id: history.id,
+      properties: [...history.properties],
+    });
   }
 
   public get history(): SongHistory {
@@ -114,17 +124,13 @@ export class SongEditor {
   }
 
   public commit(): void {
-    this.initialCount = this.history.properties.length;
-    this.initialSong = Song.fromHistory(this.history, this.user);
+    this.setInitials(this.history, this.user);
     this.modified = false;
     this.admin = false;
   }
 
   public revert(): void {
-    this.properties.splice(
-      this.initialCount,
-      this.properties.length - this.initialCount
-    );
+    this.properties = [...this.initialHistory.properties];
     this.modified = false;
     this.admin = false;
   }
@@ -297,8 +303,12 @@ export class SongEditor {
   }
 
   public setupEdit(user?: string): void {
+    user ??= this.user;
     const properties = this.properties;
-    if (properties.length > this.initialCount) {
+    if (
+      properties.length > this.initialCount ||
+      (user && this.isUserMerge(user))
+    ) {
       return;
     }
 
@@ -316,12 +326,38 @@ export class SongEditor {
     );
   }
 
-  public deleteProperty(index: number): void {
-    if (index < this.initialCount) {
-      this.admin = true;
+  private isUserMerge(user: string): boolean {
+    const idx = this.lastActionIndex;
+    if (idx === -1) {
+      return false;
     }
-    this.modified = true;
-    const history = this.properties;
+    const props = this.properties;
+    const merge = props[idx];
+    if (merge.baseName !== PropertyType.mergeCommand) {
+      return false;
+    }
+    for (let i = idx + 1; i < props.length; i++) {
+      const prop = props[i];
+      if (prop.baseName === PropertyType.userField && prop.value === user) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // TODO: pull this when js/ts implement lastIndexOf
+  private get lastActionIndex(): number {
+    const props = this.properties;
+    for (let i = props.length - 1; i >= 0; i--) {
+      if (props[i].isAction) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  public deleteProperty(index: number): void {
+    const history = this.setupHistory(index);
     let count = 1;
     if (history[index].isAction) {
       while (
@@ -335,9 +371,105 @@ export class SongEditor {
     history.splice(index, count);
   }
 
+  public promoteProperty(index: number): void {
+    const prop = this.history.properties[index];
+    this.addProperty(prop.name, prop.value);
+  }
+
+  public movePropertyUp(index: number): void {
+    this.moveProperty(
+      index,
+      (index) => index - this.getPreviousSegmentSize(index)
+    );
+  }
+
+  public movePropertyDown(index: number): void {
+    this.moveProperty(
+      index,
+      (index, size) => index + this.getSegmentSize(index + size)
+    );
+  }
+
+  public movePropertyFirst(index: number): void {
+    this.moveProperty(index, (index, size) =>
+      size === 1 ? this.getSegmentStart(index) + 1 : 0
+    );
+  }
+
+  public movePropertyLast(index: number): void {
+    this.moveProperty(index, (index, size) =>
+      size === 1
+        ? this.getSegmentEnd(index) - 1
+        : this.history.properties.length - size
+    );
+  }
+
+  private moveProperty(
+    index: number,
+    computeInsert: (index: number, size: number) => number
+  ) {
+    const history = this.setupHistory(index);
+    const size = this.getSegmentSize(index);
+    const insertAt = computeInsert(index, size);
+    const removed = history.splice(index, size);
+    history.splice(insertAt, 0, ...removed);
+  }
+
+  private setupHistory(index: number): SongProperty[] {
+    this.checkAdmin(index);
+    this.modified = true;
+    return this.properties;
+  }
+
+  private getSegmentSize(index: number): number {
+    const properties = this.properties;
+    if (index > properties.length) {
+      return 0;
+    }
+    if (!properties[index].isAction) {
+      return 1;
+    }
+    return this.getSegmentEnd(index + 1) - index;
+  }
+
+  private getPreviousSegmentSize(index: number): number {
+    const properties = this.properties;
+    if (index > properties.length) {
+      return 0;
+    }
+    if (!properties[index].isAction) {
+      return 1;
+    }
+    return index - this.getSegmentStart(index - 1);
+  }
+
+  private getSegmentStart(index: number): number {
+    while (index > 0 && !this.properties[index].isAction) {
+      index -= 1;
+    }
+    return index;
+  }
+
+  private getSegmentEnd(index: number): number {
+    const properties = this.properties;
+    while (index < properties.length && !this.properties[index].isAction) {
+      index += 1;
+    }
+    return index;
+  }
+
+  private checkAdmin(index: number): void {
+    if (index < this.initialCount) {
+      this.admin = true;
+    }
+  }
+
   public adminEdit(properties: string): void {
-    const history = SongHistory.fromString(properties, this.songId);
-    this.properties = history.properties;
+    this.replaceAll(SongHistory.fromString(properties, this.songId).properties);
+  }
+
+  public replaceAll(properties: SongProperty[]): void {
+    this.properties = properties;
     this.admin = true;
   }
 

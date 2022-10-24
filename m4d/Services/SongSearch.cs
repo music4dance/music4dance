@@ -77,12 +77,10 @@ namespace m4d.Services
                 Filter.SearchString, p, Filter.CruftFilter);
         }
 
-        // TODONEXT:
+        // TODO:
         //  - Think about how to handle additional filter - continue down the path 
         //    of truncation or move towards infinite scrolling
-        //    - Get paging working
-        //    - Get message for too big a list working
-        //  - Can we use facets to get user's pages to have links to dance lists
+        //  - Can we use facets to get user's pages to have links to dance lists (no)
         public async Task<SearchResults> VoteSearch(SearchOptions options)
         {
             var offset = options.Skip ?? 0;

@@ -5,14 +5,14 @@ import Vue from "vue";
 import VueMq from "vue-mq";
 import App from "./App.vue";
 
-Vue.config.productionTip = false;
-
 TypedJSON.setGlobalConfig({
   errorHandler: (e) => {
     console.error(e);
     throw e;
   },
 });
+
+Vue.config.productionTip = false;
 
 Vue.use(BootstrapVue);
 Vue.use(BootstrapVueIcons);

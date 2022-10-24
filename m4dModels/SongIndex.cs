@@ -191,9 +191,21 @@ public abstract class SongIndex
         return await Song.Create(song, DanceMusicService);
     }
 
-    public async Task<bool> CreateSong(ICollection<SongProperty> properties)
+    public async Task<bool> CreateOrMergeSong(ICollection<SongProperty> props, ApplicationUser user)
     {
+        var properties = props.ToList();
         await SaveSong(await Song.Create(Guid.NewGuid(), properties, DanceMusicService));
+        var mergeIdx = properties.FindLastIndex(p => p.BaseName == Song.MergeCommand);
+        var actionIdx = properties.FindLastIndex(p => p.IsAction);
+        if (mergeIdx != -1 && mergeIdx == actionIdx)
+        {
+            var merge = properties[mergeIdx];
+            var ids = merge.Value.Split(';');
+            foreach (var id in ids)
+            {
+                await DeleteSong(user, await FindSong(new Guid(id)));
+            }
+        }
         return true;
     }
 

@@ -1046,6 +1046,8 @@ namespace m4d.Controllers
             {
                 case "Merge":
                     return Merge(songs);
+                case "SimpleMerge":
+                    return SongMerge(songs);
                 case "Delete":
                     return await Delete(songs, Filter);
                 case "CleanupAlbums":
@@ -1729,6 +1731,16 @@ namespace m4d.Controllers
             UseVue = false;
             return View("Merge", sm);
         }
+
+        private ActionResult SongMerge(IEnumerable<Song> songs)
+        {
+            var sm = new SongMergeModel(songs.Select(s => s.GetHistory(_mapper)));
+            var title = "Merge Songs";
+            return Vue(title, $"music4dance catalog: {title} dance information", "song-merge",
+                sm, helpPage: "song");
+
+        }
+
 
         private async Task<ActionResult> CleanupAlbums(IEnumerable<Song> songs)
         {

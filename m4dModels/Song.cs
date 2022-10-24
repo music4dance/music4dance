@@ -249,7 +249,7 @@ namespace m4dModels
         // These are the constants that define fields, virtual fields and command
         // TODO: Should I factor these into their own class??
 
-        // TODONEXT: Get Comment field in next to MultiDance when importing CSV (*)
+        // TODO: Get Comment field in next to MultiDance when importing CSV (*)
         //  Fix the comment field in search (can we kill it and rebuild it)
         //  Make sure that import/export isn't broken by tabs/cr/lf
         //  Continue to validate advanced search service lookup
@@ -3110,22 +3110,34 @@ namespace m4dModels
                 prop => new TagList(prop.Value).FixBadCategory().ToString());
         }
 
+        //private bool FixBadCreate()
+        //{
+        //    return FixupProperties(
+        //        AddedTags,
+        //        prop => new TagList(prop.Value).RemoveDuplicates(dms).ToString());
+        //}
+
         public bool CleanupProperties(DanceMusicCoreService dms, string actions = "DARE")
         {
             var changed = false;
-            if (actions.Contains('D'))
-            {
-                changed |= RemoveDuplicateDurations();
-            }
-
             if (actions.Contains('A'))
             {
                 changed |= CleanupAlbums();
             }
 
-            if (actions.Contains('R'))
+            //if (actions.Contains('A'))
+            //{
+            //    changed |= FixBadCreate();
+            //}
+
+            if (actions.Contains('C'))
             {
-                changed |= NormalizeRatings();
+                changed |= FixBadTagCategory();
+            }
+
+            if (actions.Contains('D'))
+            {
+                changed |= RemoveDuplicateDurations();
             }
 
             if (actions.Contains('E'))
@@ -3143,24 +3155,24 @@ namespace m4dModels
                 changed |= RemoveObsoletePurchases();
             }
 
-            if (actions.Contains('T'))
+            if (actions.Contains('R'))
             {
-                changed |= FixDuplicateTags(dms);
-            }
-
-            if (actions.Contains('C'))
-            {
-                changed |= FixBadTagCategory();
-            }
-
-            if (actions.Contains('X'))
-            {
-                changed |= RemoveTagRing(dms);
+                changed |= NormalizeRatings();
             }
 
             if (actions.Contains('S'))
             {
                 CheckInvalidProperty();
+            }
+
+            if (actions.Contains('T'))
+            {
+                changed |= FixDuplicateTags(dms);
+            }
+
+            if (actions.Contains('X'))
+            {
+                changed |= RemoveTagRing(dms);
             }
 
             return changed;

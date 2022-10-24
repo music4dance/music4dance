@@ -105,6 +105,16 @@ export class SongProperty {
   @jsonMember public name!: string;
   @jsonMember public value!: string;
 
+  public static BuildIndexName(
+    baseName: string,
+    index: number,
+    modifier?: string
+  ): string {
+    const idxString = index.toString().padStart(2, "0");
+    const start = `${baseName}:${idxString}`;
+    return modifier ? `${start}:${modifier}` : start;
+  }
+
   public constructor(init?: Partial<SongProperty>) {
     Object.assign(this, init);
   }
@@ -170,9 +180,20 @@ export class SongProperty {
     return this.hasPart(1);
   }
 
+  public get safeIndex(): number | undefined {
+    return this.computeIndex(true);
+  }
+
   public get index(): number {
+    return this.computeIndex(false)!;
+  }
+
+  private computeIndex(safe: boolean): number | undefined {
     const part = this.parsePart(1);
     if (part === undefined) {
+      if (safe) {
+        return undefined;
+      }
       throw new Error(
         `Attempted to retrieve part ${1} from '${
           this.name
@@ -182,10 +203,16 @@ export class SongProperty {
 
     const index = Number.parseInt(part, 10);
     if (Number.isNaN(index)) {
+      if (safe) {
+        return undefined;
+      }
       throw new Error(`Index must be a number, not '${index}'`);
     }
 
     if (index < 0) {
+      if (safe) {
+        return undefined;
+      }
       throw new Error(`Index must be a postitive integer, not '${index}'`);
     }
 

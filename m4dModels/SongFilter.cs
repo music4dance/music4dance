@@ -61,7 +61,7 @@ namespace m4dModels
         private readonly string _subStr = new(SubChar, 1);
         private string _action;
 
-        // TODONEXT: Move Field Ids into SongIndex.
+        // TODO: Move Field Ids into SongIndex.
         //  Continue to abstract out parts of song index that are specific to the Flat Schema
         //  Create another child class for StructuredIndex
         //  Make the index definition include the type & allow that to be selectable via admin portal
@@ -720,9 +720,9 @@ namespace m4dModels
         {
             var props = new List<string>(properties);
             props.Add("Version");
-            return !PropertyInfo.Where(pi => !props.Contains(pi.Name))
-                .Select(t => new { n = t.Name, v =  t.GetValue(this)}).Where(o => o.v != null && !IsAltDefault(o.v, o.n))
-                .Any();
+            return !PropertyInfo
+                .Where(pi => !props.Contains(pi.Name)).Select(t => new { n = t.Name, v =  t.GetValue(this)})
+                .Any(o => o.v != null && !IsAltDefault(o.v, o.n));
         }
 
         private static string DescribeTags(TagList tags, string prefix, string connector,
@@ -776,11 +776,9 @@ namespace m4dModels
         private static bool IsAltDefault(object o, string name)
         {
 
-            return AltDefaults.TryGetValue(name, out var value) ?
-                value is string s
-                ? string.Equals(s, value as string, StringComparison.InvariantCultureIgnoreCase)
-                : Equals(o, value)
-                : false;
+            return AltDefaults.TryGetValue(name, out var value) && (value is string s
+                ? string.Equals(o as string, s, StringComparison.InvariantCultureIgnoreCase)
+                : Equals(o, value));
         }
     }
 }

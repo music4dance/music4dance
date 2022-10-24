@@ -139,8 +139,10 @@ namespace m4d.APIControllers
                 return StatusCode((int)HttpStatusCode.Forbidden);
             }
 
-            return await SongIndex.CreateSong(
-                history.Properties.Select(mapper.Map<SongProperty>).ToList())
+            var appUser = await UserManager.FindByNameAsync(User.Identity.Name);
+
+            return await SongIndex.CreateOrMergeSong(
+                history.Properties.Select(mapper.Map<SongProperty>).ToList(), appUser)
                 ? Ok()
                 : StatusCode((int)HttpStatusCode.BadRequest);
         }

@@ -199,7 +199,13 @@
             v-if="model.songHistory"
             :history="history"
             :editing="editing"
-            @delete-property="onDeleteProperty($event)"
+            @delete-property="safeEditor.deleteProperty($event)"
+            @promote-property="safeEditor.promoteProperty($event)"
+            @move-property-up="safeEditor.movePropertyUp($event)"
+            @move-property-down="safeEditor.movePropertyDown($event)"
+            @move-property-first="safeEditor.movePropertyFirst($event)"
+            @move-property-last="safeEditor.movePropertyLast($event)"
+            @replace-history="onReplaceHistory"
           >
           </song-history-log>
         </div>
@@ -288,6 +294,14 @@ export default class SongCore extends Mixins(AdminTools) {
     return editor ? editor.song : this.songStore;
   }
 
+  private get safeEditor(): SongEditor {
+    const editor = this.editor;
+    if (!editor) {
+      throw new Error("Can't edit if not logged in");
+    }
+    return editor;
+  }
+
   private beforeMount() {
     this.edit = !!this.startEditing;
     this.initialize();
@@ -337,7 +351,7 @@ export default class SongCore extends Mixins(AdminTools) {
   }
 
   private set adminProperties(properties: string) {
-    this.editor!.adminEdit(properties);
+    this.safeEditor.adminEdit(properties);
   }
 
   private computePropertyString(properties: SongProperty[]): string {
@@ -372,16 +386,12 @@ export default class SongCore extends Mixins(AdminTools) {
   }
 
   private onDanceVote(vote: DanceRatingVote): void {
-    const editor = this.editor;
-    if (!editor) {
-      throw new Error("Can't edit if not logged in");
-    }
-    this.editor!.danceVote(vote);
+    this.safeEditor.danceVote(vote);
     this.edit = true;
   }
 
   private onDeleteAlbum(album: AlbumDetails): void {
-    this.editor!.addAlbumProperty(
+    this.safeEditor.addAlbumProperty(
       PropertyType.albumField,
       undefined,
       album.index!
@@ -393,11 +403,11 @@ export default class SongCore extends Mixins(AdminTools) {
       this.environment!.fromId(dr.danceId)!.name,
       "Dance"
     );
-    this.editor!.addProperty(PropertyType.deleteTag, tag.key);
+    this.safeEditor.addProperty(PropertyType.deleteTag, tag.key);
   }
 
   private addProperty(property: SongProperty): void {
-    this.editor!.addProperty(property.name, property.value);
+    this.safeEditor.addProperty(property.name, property.value);
   }
 
   private get artistLink(): string | undefined {
@@ -446,20 +456,12 @@ export default class SongCore extends Mixins(AdminTools) {
   }
 
   private onClickLike(): void {
-    const editor = this.editor;
-    if (!editor) {
-      throw new Error("Can't edit if not logged in");
-    }
-    editor.toggleLike();
+    this.safeEditor.toggleLike();
   }
 
   private addDance(danceId?: string, persist?: boolean): void {
-    const editor = this.editor;
-    if (!editor) {
-      throw new Error("Can't edit if not logged in");
-    }
     if (danceId) {
-      this.editor!.danceVote(new DanceRatingVote(danceId, VoteDirection.Up));
+      this.safeEditor.danceVote(new DanceRatingVote(danceId, VoteDirection.Up));
 
       if (!persist) {
         this.$bvModal.hide("danceChooser");
@@ -469,19 +471,12 @@ export default class SongCore extends Mixins(AdminTools) {
   }
 
   private updateField(property: SongProperty): void {
-    const editor = this.editor;
-    if (!editor) {
-      throw new Error("Can't edit if not logged in");
-    }
-    this.editor?.modifyProperty(property.name, property.value);
+    this.safeEditor.modifyProperty(property.name, property.value);
   }
 
-  private onDeleteProperty(index: number): void {
-    const editor = this.editor;
-    if (!editor) {
-      throw new Error("Can't edit if not logged in");
-    }
-    editor.deleteProperty(index);
+  private onReplaceHistory(properties: SongProperty[]): void {
+    this.safeEditor.replaceAll(properties);
+    this.edit = true;
   }
 
   private get hasUserChanges(): boolean {

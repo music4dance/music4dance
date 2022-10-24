@@ -26,6 +26,9 @@
       <b-col>
         <b-button-toolbar aria-label="Admin song modifiers">
           <b-dropdown right text="Multi-Edit" class="mx-1 mb-1">
+            <b-dropdown-item @click="onBulkEdit('SimpleMerge')"
+              >Simple Merge</b-dropdown-item
+            >
             <b-dropdown-item @click="onBulkEdit('Merge')"
               >Merge</b-dropdown-item
             >
@@ -90,10 +93,16 @@
           <input type="hidden" name="filter" :value="model.filter.query" />
           <input type="submit" name="action" :value="editAction" />
           <input type="submit" ref="Merge" name="action" value="Merge" />
+          <input
+            type="submit"
+            ref="SimpleMerge"
+            name="action"
+            value="SimpleMerge"
+          />
           <input type="submit" ref="Delete" name="action" value="Delete" />
           <input
             type="submit"
-            ref="CelanupAlbums"
+            ref="ClaanupAlbums"
             name="action"
             value="cleanupAlbums"
           />

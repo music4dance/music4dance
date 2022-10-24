@@ -126,6 +126,26 @@
     </li>
 </ul>
 
+<h4>Merge Songs</h4>
+@using (Html.BeginForm("BulkEdit", "Song", FormMethod.Post, new
+{
+    enctype = "multipart/form-data"
+}))
+{
+    @Html.AntiForgeryToken()
+
+    <input
+        type="text"
+        value="54a3db2a-7c17-47e1-bd39-11ddc079918d"
+        name="selectedSongs"
+    />
+    <input type="text"
+       value="130bb268-a7a6-4b3c-890a-708051e786bb"
+       name="selectedSongs" />
+    <input type="submit" id="Submit" name="action" value="SimpleMerge" />
+}
+
+
 <h3>Old Tasks</h3>
 <ul>
     @if (User.IsInRole("dbAdmin"))

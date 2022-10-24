@@ -1,4 +1,3 @@
-const { pathsToModuleNameMapper } = require("ts-jest");
 const path = require("path");
 
 // vue.config.js
@@ -63,6 +62,9 @@ module.exports = {
         "song-index": {
             entry: "src/pages/song-index/main.ts",
         },
+        "song-merge": {
+            entry: "src/pages/song-merge/main.ts",
+        },
         "tag-index": {
             entry: "src/pages/tag-index/main.ts",
         },
@@ -81,8 +83,8 @@ module.exports = {
     },
     configureWebpack: (config) => {
         if (process.env.NODE_ENV === "production") {
-            config.output.filename = "js/[name].prod00E.js";
-            config.output.chunkFilename = "js/[name].prod00E.js";
+            config.output.filename = "js/[name].prod00F.js";
+            config.output.chunkFilename = "js/[name].prod00F.js";
         } else {
             config.output.filename = "js/[name].local.js";
             config.output.chunkFilename = "js/[name].local.js";
