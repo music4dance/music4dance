@@ -531,7 +531,7 @@ export default class SongCore extends Mixins(AdminTools) {
   }
 
   private get deleteLink(): string {
-    return `/song/delete?id=${this.song.songId}`;
+    return `/song/delete?id=${this.model.songHistory.id}`;
   }
 
   private get updateServices(): string {
