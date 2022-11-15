@@ -19,7 +19,9 @@ namespace m4d.Services
         private UserManager<ApplicationUser> UserManager { get; }
         private SongIndex SongIndex { get; }
         private IBackgroundTaskQueue BackgroundTaskQueue { get; }
-        public SongSearch(SongFilter filter, string userName, bool isPremium, SongIndex songIndex, UserManager<ApplicationUser> userManager, IBackgroundTaskQueue backgroundTaskQueue)
+        private int? PageSize { get; }
+        public SongSearch(SongFilter filter, string userName, bool isPremium, SongIndex songIndex,
+            UserManager<ApplicationUser> userManager, IBackgroundTaskQueue backgroundTaskQueue, int? pageSize = null)
         {
             Filter = filter;
             UserName = userName;
@@ -27,6 +29,7 @@ namespace m4d.Services
             SongIndex = songIndex;
             UserManager = userManager;
             BackgroundTaskQueue = backgroundTaskQueue;
+            PageSize = pageSize;
         }
 
         private bool IsAuthenticated => !string.IsNullOrWhiteSpace(UserName);
@@ -62,7 +65,7 @@ namespace m4d.Services
             }
 
             var p = SongIndex.AzureParmsFromFilter(
-                await UserMapper.DeanonymizeFilter(Filter, UserManager));
+                await UserMapper.DeanonymizeFilter(Filter, UserManager), PageSize);
 
             p.IncludeTotalCount = true;
 

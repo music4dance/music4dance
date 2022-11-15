@@ -941,8 +941,9 @@ namespace m4d.Controllers
             {
                 var p = await AzureParmsFromFilter(filter, info.Count);
                 p.IncludeTotalCount = true;
-                var results = await SongIndex.Search(
-                    filter.SearchString, p, filter.CruftFilter);
+                var results = await new SongSearch(
+                    filter, UserName, true, SongIndex, UserManager, _backgroundTaskQueue, info.Count).Search();
+
                 var tracks = results.Songs.Select(s => s.GetPurchaseId(ServiceType.Spotify));
 
                 var service = MusicService.GetService(ServiceType.Spotify);

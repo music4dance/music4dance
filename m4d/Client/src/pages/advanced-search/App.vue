@@ -318,10 +318,10 @@ export default class App extends Mixins(
     return environment && environment.tree ? environment.flatDances : [];
   }
 
-  private get danceNames(): NamedObject[] {
+  private get danceNames(): string[] {
     const environment = this.danceEnvironment;
     return environment
-      ? this.dances.map((d) => environment.fromId(d).name)
+      ? this.dances.map((d) => environment.fromId(d)!.name)
       : [];
   }
 
