@@ -98,7 +98,7 @@ namespace m4d.Services
             var songs = results.Songs.Where(s => Filter.DanceQuery.Dances.Any(d => s.NormalizedUserDanceRating(user, d.Id) == vote)).ToList();
             var negated = results.Songs.Where(s => Filter.DanceQuery.Dances.All(d => s.NormalizedUserDanceRating(user, d.Id) != vote)).ToList();
 
-            return new SearchResults(results, songs.Skip(offset).Take(25).ToList(),songs.Count);
+            return new SearchResults(results, songs.Skip(offset).Take(options.Size ?? 25).ToList(),songs.Count);
         }
 
         private async Task LogSearch(SongFilter filter)
