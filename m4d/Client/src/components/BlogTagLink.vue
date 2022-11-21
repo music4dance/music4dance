@@ -12,23 +12,24 @@
 <script lang="ts">
 import { toTitleCase } from "@/helpers/StringHelpers";
 import "reflect-metadata";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Vue } from "vue-property-decorator";
 
-@Component
-export default class BlogTagLink extends Vue {
-  @Prop() private readonly title?: string;
-  @Prop() private readonly tag!: string;
+export default Vue.extend({
+  props: {
+    title: String,
+    tag: {
+      type: String,
+      required: true,
+    },
+  },
 
-  private get icon(): string {
-    return `/images/icons/info.png`;
-  }
-
-  private get safeTitle(): string {
-    return this.title ? this.title : toTitleCase(this.tag);
-  }
-
-  private get tagLink(): string {
-    return `https://music4dance.blog/tag/${this.tag}`;
-  }
-}
+  computed: {
+    safeTitle(): string {
+      return this.title ? this.title : toTitleCase(this.tag);
+    },
+    tagLink(): string {
+      return `https://music4dance.blog/tag/${this.tag}`;
+    },
+  },
+});
 </script>

@@ -90,6 +90,7 @@ export default class TagListEditor extends Mixins(
   }
 
   private set userTagKeys(keys: string[]) {
+    // eslint-disable-next-line no-console
     console.log(keys.join("|"));
   }
 

@@ -31,9 +31,6 @@ export default class DanceVote extends Mixins(EnvironmentManager) {
   }
 
   private get vote(): boolean | undefined {
-    if (!this.danceRating) {
-      console.log(this.song.title);
-    }
     return this.song.danceVote(this.danceRating.danceId);
   }
 

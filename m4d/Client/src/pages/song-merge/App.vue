@@ -46,7 +46,6 @@ export default class App extends Mixins(AdminTools) {
   }
 
   private get songDetails(): SongDetailsModel {
-    console.log("Testing eslint");
     return new SongDetailsModel({
       created: true,
       songHistory: SongHistory.merge(

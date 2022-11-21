@@ -35,7 +35,7 @@
 <script lang="ts">
 import BlogTagLink from "@/components/BlogTagLink.vue";
 import { Link } from "@/model/Link";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 import InfoLink from "./InfoLink.vue";
 
 export interface CardInfo {
@@ -45,23 +45,26 @@ export interface CardInfo {
   blog?: string;
 }
 
-@Component({
+export default Vue.extend({
   components: {
     BlogTagLink,
     InfoLink,
   },
-})
-export default class InfoCard extends Vue {
-  @Prop() private card!: CardInfo;
-  @Prop() private id?: string;
-
-  private get image(): string {
-    return `url(/images/shadows/${this.card.image}-bkg.png)`;
-  }
-
-  private get computedId(): string {
-    const id = this.id ?? this.card.blog;
-    return `${id}-info`;
-  }
-}
+  props: {
+    card: {
+      type: Object as PropType<CardInfo>,
+      required: true,
+    },
+    id: String,
+  },
+  computed: {
+    image(): string {
+      return `url(/images/shadows/${this.card.image}-bkg.png)`;
+    },
+    computedId(): string {
+      const id = this.id ?? this.card.blog;
+      return `${id}-info`;
+    },
+  },
+});
 </script>

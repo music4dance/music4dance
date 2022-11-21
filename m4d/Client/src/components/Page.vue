@@ -127,6 +127,7 @@ export default class Page extends Mixins(AdminTools) {
       this.tagDatabase = await getTagDatabase();
       this.$emit("tag-database-loaded", this.tagDatabase);
     }
+    this.$emit("loaded");
   }
 
   private get tourManager(): TourManager | undefined {

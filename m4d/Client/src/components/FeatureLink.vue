@@ -38,29 +38,32 @@
 <script lang="ts">
 import type { FeatureInfo } from "@/model/FeatureInfo";
 import "reflect-metadata";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 import FeatureButton from "./FeatureButton.vue";
 
-@Component({
+export default Vue.extend({
   components: {
     FeatureButton,
   },
-})
-export default class FeatureLink extends Vue {
-  @Prop() private readonly info!: FeatureInfo;
+  props: {
+    info: {
+      type: Object as PropType<FeatureInfo>,
+      required: true,
+    },
+  },
 
-  private get icon(): string {
-    return `/images/icons/${this.info.type}.png`;
-  }
-
-  private get pathItems(): string[] {
-    const menu = this.info.menu;
-    return menu ? menu.filter((s, i) => i != menu.length - 1) : [];
-  }
-
-  private get actionItem(): string {
-    const menu = this.info.menu;
-    return menu ? menu[menu.length - 1] : "";
-  }
-}
+  computed: {
+    icon(): string {
+      return `/images/icons/${this.info.type}.png`;
+    },
+    pathItems(): string[] {
+      const menu = this.info.menu;
+      return menu ? menu.filter((s, i) => i != menu.length - 1) : [];
+    },
+    actionItem(): string {
+      const menu = this.info.menu;
+      return menu ? menu[menu.length - 1] : "";
+    },
+  },
+});
 </script>

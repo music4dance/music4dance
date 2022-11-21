@@ -89,180 +89,191 @@
 <script lang="ts">
 import { ListOption } from "@/model/ListOption";
 import "reflect-metadata";
-import { Component, Model, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 
 const tagChars = /[^\p{L}\d()'&/ ]/gmu;
 
-@Component
-export default class TagSelector extends Vue {
-  @Model("input") private readonly selected!: string[];
-  @Prop() private options!: ListOption[];
-  @Prop() private searchLabel!: string;
-  @Prop() private chooseLabel!: string;
-  @Prop() private emptyLabel!: string;
-  @Prop() private variant!: string;
-  @Prop() private showInitialList?: boolean;
-  @Prop() private readonly addCategories?: string[];
-
-  private search = "";
-
-  private get mapText(): Map<string, string> {
-    return new Map(this.options.map((opt) => [opt.value, opt.text]));
-  }
-
-  private get selectedInternal(): string[] {
-    return this.selected;
-  }
-
-  private set selectedInternal(selected: string[]) {
-    this.$emit("input", selected);
-  }
-
-  private get showList(): boolean {
-    return this.showInitialList || !!this.criteria;
-  }
-
-  private get criteria(): string {
-    // Compute the search criteria
-    return this.search.trim().toLowerCase();
-  }
-
-  private get availableOptions(): ListOption[] {
-    const criteria = this.criteria;
-    const prefix = `${criteria}:`;
-    const exactMatches = this.criteria
-      ? this.filterSelected(
-          this.options.filter((opt) =>
-            opt.value.toLowerCase().startsWith(prefix)
+export default Vue.extend({
+  model: {
+    prop: "selected",
+    event: "input",
+  },
+  props: {
+    selected: [] as PropType<string[]>,
+    options: {
+      type: [] as PropType<ListOption[]>,
+      required: true,
+    },
+    searchLabel: {
+      type: String,
+      required: true,
+    },
+    chooseLabel: {
+      type: String,
+      required: true,
+    },
+    emptyLabel: {
+      type: String,
+      required: true,
+    },
+    variant: {
+      type: String,
+      required: true,
+    },
+    showInitialList: Boolean,
+    addCategories: [] as PropType<string[]>,
+  },
+  data() {
+    return new (class {
+      search = "";
+    })();
+  },
+  computed: {
+    selectedInternal: {
+      get: function (): string[] {
+        return this.selected;
+      },
+      set: function (selected: string[]): void {
+        this.$emit("input", selected);
+      },
+    },
+    addableOptions(): ListOption[] {
+      const categories = this.addCategories;
+      const search = this.search.trim();
+      return categories
+        ? categories.map((cat) => ({
+            text: `+${search}`,
+            value: `${search}:${cat}`,
+          }))
+        : [];
+    },
+    availableOptions(): ListOption[] {
+      const criteria = this.criteria;
+      const prefix = `${criteria}:`;
+      const exactMatches = this.criteria
+        ? this.filterSelected(
+            this.options.filter((opt) =>
+              opt.value.toLowerCase().startsWith(prefix)
+            )
           )
+        : [];
+      const addableOptions = this.filterSelected(
+        this.addableOptions.filter(
+          (opt) =>
+            !exactMatches.find(
+              (m) => m.value.toLocaleLowerCase() === opt.value.toLowerCase()
+            )
         )
-      : [];
-    const addableOptions = this.filterSelected(
-      this.addableOptions.filter(
-        (opt) =>
-          !exactMatches.find(
-            (m) => m.value.toLocaleLowerCase() === opt.value.toLowerCase()
-          )
-      )
-    );
-
-    let options = this.filterSelected(this.options);
-    if (criteria) {
-      // Show only options that match criteria
-      options = options.filter(
-        (opt) => opt.text.toLowerCase().indexOf(criteria) > -1
       );
-    }
 
-    options = this.filterOptions(options, [...exactMatches, ...addableOptions]);
+      let options = this.filterSelected(this.options);
+      if (criteria) {
+        // Show only options that match criteria
+        options = options.filter(
+          (opt) => opt.text.toLowerCase().indexOf(criteria) > -1
+        );
+      }
 
-    const prefixOptions = this.buildPrefixOptions(options);
-    const remainingOptions = this.buildRemainingOptions(options);
-    // Show all options available
+      options = this.filterOptions(options, [
+        ...exactMatches,
+        ...addableOptions,
+      ]);
 
-    return [
-      ...exactMatches,
-      ...addableOptions,
-      ...prefixOptions,
-      ...remainingOptions,
-    ];
-  }
+      const prefixOptions = this.buildPrefixOptions(options);
+      const remainingOptions = this.buildRemainingOptions(options);
+      // Show all options available
 
-  private filterSelected(options: ListOption[]): ListOption[] {
-    return options.filter((opt) => this.selected.indexOf(opt.value) === -1);
-  }
+      return [
+        ...exactMatches,
+        ...addableOptions,
+        ...prefixOptions,
+        ...remainingOptions,
+      ];
+    },
+    criteria(): string {
+      // Compute the search criteria
+      return this.search.trim().toLowerCase();
+    },
+    mapText(): Map<string, string> {
+      return new Map(this.options.map((opt) => [opt.value, opt.text]));
+    },
+    searchDesc(): string {
+      if (this.criteria && this.availableOptions.length === 0) {
+        return "There are no tags matching your search criteria";
+      }
+      return "";
+    },
+    showList(): boolean {
+      return this.showInitialList || !!this.criteria;
+    },
+  },
+  methods: {
+    buildPrefixOptions(options: ListOption[]): ListOption[] {
+      return options
+        .filter((opt) => opt.value.toLowerCase().startsWith(this.criteria))
+        .sort((a, b) => a.value.localeCompare(b.value));
+    },
+    buildRemainingOptions(options: ListOption[]): ListOption[] {
+      return options
+        .filter((opt) => !opt.value.toLowerCase().startsWith(this.criteria))
+        .sort((a, b) => a.value.localeCompare(b.value));
+    },
+    filterOptions(options: ListOption[], filter: ListOption[]): ListOption[] {
+      const filterValues = filter.map((flt) => flt.value.toLowerCase());
+      return filterValues.length > 0
+        ? options.filter(
+            (opt) =>
+              !filterValues.find((flt) => flt === opt.value.toLowerCase())
+          )
+        : options;
+    },
+    filterSelected(options: ListOption[]): ListOption[] {
+      return options.filter((opt) => this.selected.indexOf(opt.value) === -1);
+    },
+    async setInputFocus(): Promise<void> {
+      await this.$nextTick();
+      ((this.$refs.searchInput as Vue).$el as HTMLElement).focus();
+    },
+    tagFormatter(tag: string): string {
+      return tag.replace(tagChars, "");
+    },
+    titleFromTag(tag: string): string {
+      return this.mapText.get(tag)!;
+    },
 
-  private buildPrefixOptions(options: ListOption[]): ListOption[] {
-    return options
-      .filter((opt) => opt.value.toLowerCase().startsWith(this.criteria))
-      .sort((a, b) => a.value.localeCompare(b.value));
-  }
-
-  private buildRemainingOptions(options: ListOption[]): ListOption[] {
-    return options
-      .filter((opt) => !opt.value.toLowerCase().startsWith(this.criteria))
-      .sort((a, b) => a.value.localeCompare(b.value));
-  }
-
-  private filterOptions(
-    options: ListOption[],
-    filter: ListOption[]
-  ): ListOption[] {
-    const filterValues = filter.map((flt) => flt.value.toLowerCase());
-    return filterValues.length > 0
-      ? options.filter(
-          (opt) => !filterValues.find((flt) => flt === opt.value.toLowerCase())
-        )
-      : options;
-  }
-
-  private get addableOptions(): ListOption[] {
-    const categories = this.addCategories;
-    const search = this.search.trim();
-    return categories
-      ? categories.map((cat) => ({
-          text: `+${search}`,
-          value: `${search}:${cat}`,
-        }))
-      : [];
-  }
-
-  private get searchDesc(): string {
-    if (this.criteria && this.availableOptions.length === 0) {
-      return "There are no tags matching your search criteria";
-    }
-    return "";
-  }
-
-  private onOptionClick(
-    option: ListOption,
-    addTag: (opt: string) => void
-  ): void {
-    addTag(option.value);
-    this.search = "";
-  }
-
-  private onEnter(addTag: (opt: string) => void): void {
-    const criteria = this.criteria;
-    if (!criteria) {
+    async onDownArrow(): Promise<void> {
+      const options = this.$refs.options as HTMLElement;
+      const item = options.firstElementChild as HTMLElement;
+      if (!item) {
+        return;
+      }
+      const button = item.firstElementChild as HTMLElement;
+      if (!button) {
+        return;
+      }
+      await this.$nextTick();
+      button.focus();
       return;
-    }
-    const options = this.availableOptions;
-    if (options.length === 0) {
-      return;
-    }
-    const option = options[0];
-    if (option.text.toLowerCase().startsWith(criteria)) {
+    },
+    onEnter(addTag: (opt: string) => void): void {
+      const criteria = this.criteria;
+      if (!criteria) {
+        return;
+      }
+      const options = this.availableOptions;
+      if (options.length === 0) {
+        return;
+      }
+      const option = options[0];
+      if (option.text.toLowerCase().startsWith(criteria)) {
+        addTag(option.value);
+        this.search = "";
+      }
+    },
+    onOptionClick(option: ListOption, addTag: (opt: string) => void): void {
       addTag(option.value);
       this.search = "";
-    }
-  }
-
-  private async onDownArrow(): Promise<void> {
-    const options = this.$refs.options as HTMLElement;
-    const item = options.firstElementChild as HTMLElement;
-    if (!item) {
-      return;
-    }
-    const button = item.firstElementChild as HTMLElement;
-    if (!button) {
-      return;
-    }
-    await this.$nextTick();
-    button.focus();
-  }
-
-  private async setInputFocus(): Promise<void> {
-    await this.$nextTick();
-    ((this.$refs.searchInput as Vue).$el as HTMLElement).focus();
-  }
-
-  private titleFromTag(tag: string): string {
-    return this.mapText.get(tag)!;
-  }
-
-  private tagFormatter(tag: string): string {
-    return tag.replace(tagChars, "");
-  }
-}
+    },
+  },
+});
 </script>

@@ -248,6 +248,7 @@ export default class App extends Mixins(AdminTools) {
       this.linkEditor.commit();
       this.editing = false;
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.log(e);
       throw e;
     }

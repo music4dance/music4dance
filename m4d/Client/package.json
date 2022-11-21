@@ -85,6 +85,9 @@
     },
     "testURL": "http://localhost/",
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "testPathIgnorePatterns": [
+      "model.ts"
+    ],
     "snapshotSerializers": [
       "jest-serializer-vue"
     ],

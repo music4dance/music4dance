@@ -38,11 +38,11 @@ import {
   CompetitionGroupModel,
 } from "@/model/Competition";
 import { TypedJSON } from "typedjson";
-import { Component, Vue } from "vue-property-decorator";
+import Vue from "vue";
 
 declare const model: string;
 
-@Component({
+export default Vue.extend({
   components: {
     BallroomList,
     BlogTagLink,
@@ -51,37 +51,30 @@ declare const model: string;
     Page,
     TempiLink,
   },
-})
-export default class App extends Vue {
-  private groupModel: CompetitionGroupModel;
-  private breadcrumbs: BreadCrumbItem[];
-
-  constructor() {
-    super();
-
-    const serializer = new TypedJSON(CompetitionGroupModel);
-    const modelS = JSON.stringify(model);
-    const modelT = serializer.parse(modelS);
+  data() {
+    const modelT = TypedJSON.parse(model, CompetitionGroupModel);
     if (!modelT) {
       throw new Error("Unable to parse model");
     }
-    this.groupModel = modelT;
-    this.breadcrumbs = [
-      ...ballroomTrail,
-      { text: this.category.name, active: true },
-    ];
-  }
-
-  private get category(): CompetitionCategory {
-    return this.groupModel.currentCategory;
-  }
-
-  private get groupTitle(): string {
-    return `competition ${this.groupModel.group.name.toLowerCase()} dancing`;
-  }
-
-  private get groupLink(): string {
-    return `/dances/${this.groupModel.group.name.toLowerCase()}-competition-categories`;
-  }
-}
+    const modelTT = modelT;
+    return new (class {
+      groupModel: CompetitionGroupModel = modelTT;
+      breadcrumbs: BreadCrumbItem[] = [
+        ...ballroomTrail,
+        { text: modelTT.currentCategory.name, active: true },
+      ];
+    })();
+  },
+  computed: {
+    category(): CompetitionCategory {
+      return this.groupModel.currentCategory;
+    },
+    groupTitle(): string {
+      return `competition ${this.groupModel.group.name.toLowerCase()} dancing`;
+    },
+    groupLink(): string {
+      return `/dances/${this.groupModel.group.name.toLowerCase()}-competition-categories`;
+    },
+  },
+});
 </script>

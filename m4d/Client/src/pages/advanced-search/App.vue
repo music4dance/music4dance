@@ -1,11 +1,5 @@
 <template>
-  <page
-    id="app"
-    :consumesEnvironment="true"
-    :consumesTags="true"
-    @tag-database-loaded="onTagDatabaseLoaded"
-    @environment-loaded="onEnvironmentLoaded"
-  >
+  <page id="app">
     <h1 class="col-sm-12" style="font-size: 22px; text-align: center">
       Advanced Song Search
     </h1>
@@ -252,6 +246,10 @@ filter = {{ songFilter }}
 import DanceSelector from "@/components/DanceSelector.vue";
 import Page from "@/components/Page.vue";
 import TagCategorySelector from "@/components/TagCategorySelector.vue";
+import {
+  safeEnvironment,
+  safeTagDatabase,
+} from "@/helpers/DanceEnvironmentManager";
 import AdminTools from "@/mix-ins/AdminTools";
 import DropTarget from "@/mix-ins/DropTarget";
 import EnvironmentManager from "@/mix-ins/EnvironmentManager";
@@ -264,334 +262,335 @@ import { Tag } from "@/model/Tag";
 import { TagDatabase } from "@/model/TagDatabase";
 import { UserQuery } from "@/model/UserQuery";
 import "reflect-metadata";
-import { Component, Mixins, Vue } from "vue-property-decorator";
+import Vue from "vue";
 
 interface SortOption {
   text: string;
   value: SortOrder | null;
 }
 
-@Component({
+interface Activity {
+  text: string;
+  value: string;
+}
+
+export default AdminTools.extend({
   components: {
     DanceSelector,
     Page,
     TagCategorySelector,
   },
-})
-export default class App extends Mixins(
-  AdminTools,
-  EnvironmentManager,
-  DropTarget
-) {
-  private danceEnvironment: DanceEnvironment | null = null;
-  private showDiagnostics = false;
-  private keyWords = "";
+  mixins: [EnvironmentManager, DropTarget],
+  data() {
+    return new (class {
+      danceEnvironment: DanceEnvironment | null = null;
+      showDiagnostics = false;
+      keyWords = "";
 
-  private dances: string[] = [];
-  private danceConnector = "any";
-  private tags: Tag[] = [];
+      dances: string[] = [];
+      danceConnector = "any";
+      tags: Tag[] = [];
 
-  private includeTags: string[] = [];
-  private excludeTags: string[] = [];
+      includeTags: string[] = [];
+      excludeTags: string[] = [];
 
-  private tempoMin = 0;
-  private tempoMax = 400;
+      tempoMin = 0;
+      tempoMax = 400;
 
-  private lengthMin = 0;
-  private lengthMax = 600;
+      lengthMin = 0;
+      lengthMax = 600;
 
-  private user = "";
-  private displayUser = "";
+      user = "";
+      displayUser = "";
 
-  private activity = "NT";
-  private get computedActivity(): string {
-    return this.displayUser ? this.activity : "NT";
-  }
-  private set computedActivity(value: string) {
-    if (this.hasUser) {
-      this.activity = value;
-    }
-  }
+      bonuses: string[] = [];
+      validated = false;
+      services: string[] = [];
+      activity = "NT";
 
-  private get allDances(): NamedObject[] {
-    const environment = this.danceEnvironment;
-    return environment && environment.tree ? environment.flatDances : [];
-  }
+      sortOptions: SortOption[] = [
+        { text: "Title", value: SortOrder.Title },
+        { text: "Artist", value: SortOrder.Artist },
+        { text: "Tempo", value: SortOrder.Tempo },
+        { text: "Length", value: SortOrder.Length },
+        { text: "Dance Rating", value: SortOrder.Dances },
+        { text: "Last Modified", value: SortOrder.Modified },
+        { text: "Last Edited", value: SortOrder.Edited },
+        { text: "When Added", value: SortOrder.Created },
+        { text: "Energy", value: SortOrder.Energy },
+        { text: "Mood", value: SortOrder.Mood },
+        { text: "Strength of Beat", value: SortOrder.Beat },
+        { text: "Comments", value: SortOrder.Comments },
+        { text: "Closest Match", value: null },
+      ];
+      sort: string | null = "Dances";
+      order = "asc";
+    })();
+  },
+  computed: {
+    activities(): Activity[] {
+      const user = this.displayUser;
+      const empty = { text: "Don't filter on user activity", value: "NT" };
 
-  private get danceNames(): string[] {
-    const environment = this.danceEnvironment;
-    return environment
-      ? this.dances.map((d) => environment.fromId(d)!.name)
-      : [];
-  }
-
-  private get hasUser(): boolean {
-    return !!(this.user || this.displayUser);
-  }
-
-  private get isAnonymous(): boolean {
-    return this.displayUser === "Anonymous";
-  }
-
-  private get activities() {
-    const user = this.displayUser;
-    const empty = { text: "Don't filter on user activity", value: "NT" };
-
-    if (!user) {
-      return empty;
-    }
-
-    const my = user === "me" ? "my" : user + "'s";
-    const i = user === "me" ? "I have" : user + " has";
-
-    var items = [
-      { text: `Include all songs in ${my} favorites`, value: "IL" },
-      { text: `Exclude all songs in ${my} favorites`, value: "XL" },
-      { text: `Include all songs ${i} tagged`, value: "IT" },
-      { text: `Exclude all songs ${i} tagged`, value: "XT" },
-      { text: `Exclude all songs in ${my} blocked list`, value: "XH" },
-      { text: `Include all songs in ${my} blocked list`, value: "IH" },
-    ];
-
-    const dances = this.dances;
-    if (dances.length > 0) {
-      items.unshift({
-        text: `Include all songs ${i} voted against ${this.danceNames.join(
-          ", "
-        )}`,
-        value: "IX",
-      });
-      items.unshift({
-        text: `Include all songs ${i} voted for ${this.danceNames.join(", ")}`,
-        value: "ID",
-      });
-    }
-    items.unshift(empty);
-    return items;
-  }
-
-  private services: string[] = [];
-
-  private sortOptions = [
-    { text: "Title", value: SortOrder.Title },
-    { text: "Artist", value: SortOrder.Artist },
-    { text: "Tempo", value: SortOrder.Tempo },
-    { text: "Length", value: SortOrder.Length },
-    { text: "Dance Rating", value: SortOrder.Dances },
-    { text: "Last Modified", value: SortOrder.Modified },
-    { text: "Last Edited", value: SortOrder.Edited },
-    { text: "When Added", value: SortOrder.Created },
-    { text: "Energy", value: SortOrder.Energy },
-    { text: "Mood", value: SortOrder.Mood },
-    { text: "Strength of Beat", value: SortOrder.Beat },
-    { text: "Comments", value: SortOrder.Comments },
-    { text: "Closest Match", value: null },
-  ];
-  private sort: string | null = "Dances";
-  private order = "asc";
-
-  private get validSortOptions(): SortOption[] {
-    const singleDance = this.songFilter.singleDance;
-    return this.sortOptions.filter(
-      (opt) => opt.value !== SortOrder.Dances || singleDance
-    );
-  }
-
-  private bonuses: string[] = [];
-  private validated = false;
-
-  private get tempoValid(): boolean {
-    return this.tempoMin <= this.tempoMax;
-  }
-
-  private get lengthValid(): boolean {
-    return this.lengthMin <= this.lengthMax;
-  }
-
-  private get songFilter(): SongFilter {
-    const danceQuery = DanceQuery.fromParts(
-      this.dances,
-      this.danceConnector === "all"
-    );
-    const userQuery = UserQuery.fromParts(
-      this.computedActivity ? this.computedActivity : undefined,
-      this.isAnonymous ? this.user : this.displayUser
-    );
-    const filter = new SongFilter();
-    let level = 0;
-    if (this.bonuses.indexOf("P") !== -1) {
-      level = 1;
-    }
-    if (this.bonuses.indexOf("D") !== -1) {
-      level += 2;
-    }
-
-    filter.action = "Advanced";
-    filter.searchString = this.keyWords;
-    filter.dances = danceQuery.query;
-    filter.sortOrder = SongSort.fromParts(
-      this.sort ?? undefined,
-      this.order
-    ).query;
-    filter.user = userQuery.query;
-    filter.purchase = this.services.join("");
-    filter.tempoMin = this.tempoMin === 0 ? undefined : this.tempoMin;
-    filter.tempoMax = this.tempoMax >= 400 ? undefined : this.tempoMax;
-    filter.lengthMin = this.lengthMin === 0 ? undefined : this.lengthMin;
-    filter.lengthMax = this.lengthMax >= 400 ? undefined : this.lengthMax;
-    filter.tags = this.buildTagList();
-    filter.level = level ? level : undefined;
-
-    return filter;
-  }
-
-  private getQueryFilter(): SongFilter | undefined {
-    const params = new URLSearchParams(window.location.search);
-    const filterString = params.get("filter");
-
-    return filterString ? SongFilter.buildFilter(filterString) : undefined;
-  }
-
-  private getSourceFilter(): SongFilter {
-    const queryFilter = this.getQueryFilter();
-    return queryFilter ? queryFilter : new SongFilter();
-  }
-
-  private async onSubmit(): Promise<void> {
-    const form = document.getElementById("advanced-search") as HTMLFormElement;
-
-    if (form.checkValidity() === true) {
-      if (this.tempoMin > this.tempoMax) {
-        const tempo = this.tempoMax;
-        this.tempoMax = this.tempoMin;
-        this.tempoMin = tempo;
+      if (!user) {
+        return [empty];
       }
 
-      if (this.lengthMin > this.lengthMax) {
-        const length = this.lengthMax;
-        this.lengthMax = this.lengthMin;
-        this.lengthMin = length;
+      const my = user === "me" ? "my" : user + "'s";
+      const i = user === "me" ? "I have" : user + " has";
+
+      var items = [
+        { text: `Include all songs in ${my} favorites`, value: "IL" },
+        { text: `Exclude all songs in ${my} favorites`, value: "XL" },
+        { text: `Include all songs ${i} tagged`, value: "IT" },
+        { text: `Exclude all songs ${i} tagged`, value: "XT" },
+        { text: `Exclude all songs in ${my} blocked list`, value: "XH" },
+        { text: `Include all songs in ${my} blocked list`, value: "IH" },
+      ];
+
+      const dances = this.dances;
+      if (dances.length > 0) {
+        items.unshift({
+          text: `Include all songs ${i} voted against ${this.danceNames.join(
+            ", "
+          )}`,
+          value: "IX",
+        });
+        items.unshift({
+          text: `Include all songs ${i} voted for ${this.danceNames.join(
+            ", "
+          )}`,
+          value: "ID",
+        });
       }
+      items.unshift(empty);
+      return items;
+    },
+    allDances(): NamedObject[] {
+      const environment = this.danceEnvironment;
+      return environment && environment.tree ? environment.flatDances : [];
+    },
+    computedActivity: {
+      get: function (): string {
+        return this.displayUser ? this.activity : "NT";
+      },
+      set: function (value: string): void {
+        if (this.hasUser) {
+          this.activity = value;
+        }
+      },
+    },
+    danceNames(): string[] {
+      const environment = this.danceEnvironment;
+      return environment
+        ? this.dances.map((d) => environment.fromId(d)!.name)
+        : [];
+    },
+    hasUser(): boolean {
+      return !!(this.user || this.displayUser);
+    },
+    isAnonymous(): boolean {
+      return this.displayUser === "Anonymous";
+    },
+    lengthValid(): boolean {
+      return this.lengthMin <= this.lengthMax;
+    },
+    queryFilter(): SongFilter | undefined {
+      const params = new URLSearchParams(window.location.search);
+      const filterString = params.get("filter");
 
-      const loc = window.location;
-      const query = this.songFilter.encodedQuery;
-
-      const state = window.location.pathname + `?filter=${query}`;
-      window.history.replaceState(null, "", state);
-
-      window.location.href = `${loc.origin}/song/filtersearch?filter=${query}`;
-    }
-
-    this.validated = true;
-  }
-
-  private onReset(evt: Event) {
-    evt.preventDefault();
-    const userName = this.isAnonymous ? this.userName : this.displayUser;
-
-    this.keyWords = "";
-    this.dances.splice(0);
-    this.danceConnector = "any";
-    this.includeTags.splice(0);
-    this.excludeTags.splice(0);
-    this.tempoMin = 0;
-    this.tempoMax = 400;
-    this.lengthMin = 0;
-    this.lengthMax = 600;
-    if (userName) {
-      this.user = userName;
-      this.activity = "IH";
-    } else {
-      this.user = "";
-      this.activity = "NT";
-    }
-    this.displayUser = "";
-    this.services.splice(0);
-    this.sort = null;
-    this.order = "asc";
-    this.bonuses.splice(0);
-
-    this.validated = false;
-  }
-
-  private buildTagList(): string {
-    const lists: string[] = [];
-    if (this.includeTags.length > 0) {
-      lists.push(this.buildSingleTagList(this.includeTags, "+"));
-    }
-    if (this.excludeTags.length > 0) {
-      lists.push(this.buildSingleTagList(this.excludeTags, "-"));
-    }
-    return lists.join("|");
-  }
-
-  private buildSingleTagList(tags: string[], decorator: string) {
-    return tags.map((t) => `${decorator}${t}`).join("|");
-  }
-
-  private extractTags(tags: string, include: boolean): string[] {
-    if (!tags) {
-      return [];
-    }
-
-    const qualifier = include ? "+" : "-";
-    const parts = tags.split("|").map((p) => p.trim());
-    let filtered = parts
-      .filter((p) => p.startsWith(qualifier))
-      .map((p) => p.slice(1));
-    if (include) {
-      filtered = filtered.concat(
-        parts.filter((p) => !p.startsWith("+") && !p.startsWith("-"))
+      return filterString ? SongFilter.buildFilter(filterString) : undefined;
+    },
+    songFilter(): SongFilter {
+      const danceQuery = DanceQuery.fromParts(
+        this.dances,
+        this.danceConnector === "all"
       );
-    }
+      const userQuery = UserQuery.fromParts(
+        this.computedActivity ? this.computedActivity : undefined,
+        this.isAnonymous ? this.user : this.displayUser
+      );
+      const filter = new SongFilter();
+      let level = 0;
+      if (this.bonuses.indexOf("P") !== -1) {
+        level = 1;
+      }
+      if (this.bonuses.indexOf("D") !== -1) {
+        level += 2;
+      }
 
-    return filtered;
-  }
+      filter.action = "Advanced";
+      filter.searchString = this.keyWords;
+      filter.dances = danceQuery.query;
+      filter.sortOrder = SongSort.fromParts(
+        this.sort ?? undefined,
+        this.order
+      ).query;
+      filter.user = userQuery.query;
+      filter.purchase = this.services.join("");
+      filter.tempoMin = this.tempoMin === 0 ? undefined : this.tempoMin;
+      filter.tempoMax = this.tempoMax >= 400 ? undefined : this.tempoMax;
+      filter.lengthMin = this.lengthMin === 0 ? undefined : this.lengthMin;
+      filter.lengthMax = this.lengthMax >= 400 ? undefined : this.lengthMax;
+      filter.tags = this.tagList;
+      filter.level = level ? level : undefined;
 
-  private async onTagDatabaseLoaded(tagDatabase: TagDatabase): Promise<void> {
-    const filter = this.getSourceFilter();
+      return filter;
+    },
+    sourceFilter(): SongFilter {
+      const queryFilter = this.queryFilter;
+      return queryFilter ? queryFilter : new SongFilter();
+    },
+    tagList(): string {
+      const lists: string[] = [];
+      if (this.includeTags.length > 0) {
+        lists.push(this.buildSingleTagList(this.includeTags, "+"));
+      }
+      if (this.excludeTags.length > 0) {
+        lists.push(this.buildSingleTagList(this.excludeTags, "-"));
+      }
+      return lists.join("|");
+    },
+    tempoValid(): boolean {
+      return this.tempoMin <= this.tempoMax;
+    },
+    validSortOptions(): SortOption[] {
+      const singleDance = this.songFilter.singleDance;
+      return this.sortOptions.filter(
+        (opt) => opt.value !== SortOrder.Dances || singleDance
+      );
+    },
+  },
+  methods: {
+    buildSingleTagList(tags: string[], decorator: string) {
+      return tags.map((t) => `${decorator}${t}`).join("|");
+    },
+    extractTags(tags: string, include: boolean): string[] {
+      if (!tags) {
+        return [];
+      }
 
-    const danceQuery = new DanceQuery(filter.dances);
+      const qualifier = include ? "+" : "-";
+      const parts = tags.split("|").map((p) => p.trim());
+      let filtered = parts
+        .filter((p) => p.startsWith(qualifier))
+        .map((p) => p.slice(1));
+      if (include) {
+        filtered = filtered.concat(
+          parts.filter((p) => !p.startsWith("+") && !p.startsWith("-"))
+        );
+      }
 
-    this.keyWords = filter.searchString ?? "";
+      return filtered;
+    },
+    async onSubmit(): Promise<void> {
+      const form = document.getElementById(
+        "advanced-search"
+      ) as HTMLFormElement;
 
-    this.dances = danceQuery.danceList;
-    this.danceConnector = danceQuery.isExclusive ? "all" : "any";
+      if (form.checkValidity() === true) {
+        if (this.tempoMin > this.tempoMax) {
+          const tempo = this.tempoMax;
+          this.tempoMax = this.tempoMin;
+          this.tempoMin = tempo;
+        }
 
-    const sort = new SongSort(filter.sortOrder);
-    this.sort = sort.order ?? null;
-    this.order = sort.direction;
+        if (this.lengthMin > this.lengthMax) {
+          const length = this.lengthMax;
+          this.lengthMax = this.lengthMin;
+          this.lengthMin = length;
+        }
 
-    this.services = filter.purchase ? filter.purchase.trim().split("") : [];
-    const userQuery = new UserQuery(filter.user);
-    this.activity = userQuery.parts;
-    this.user = userQuery.userName ?? this.userName ?? "";
-    this.displayUser = userQuery.displayName;
-    this.tags = tagDatabase.tags;
+        const loc = window.location;
+        const query = this.songFilter.encodedQuery;
 
-    this.tempoMin = filter.tempoMin ?? 0;
-    this.tempoMax = filter.tempoMax ?? 400;
+        const state = window.location.pathname + `?filter=${query}`;
+        window.history.replaceState(null, "", state);
 
-    this.lengthMin = filter.lengthMin ?? 0;
-    this.lengthMax = filter.lengthMax ?? 600;
+        window.location.href = `${loc.origin}/song/filtersearch?filter=${query}`;
+      }
 
-    this.includeTags = filter.tags ? this.extractTags(filter.tags, true) : [];
-    this.excludeTags = filter.tags ? this.extractTags(filter.tags, false) : [];
+      this.validated = true;
+    },
+    onReset(evt: Event) {
+      evt.preventDefault();
+      const userName = this.isAnonymous ? this.userName : this.displayUser;
 
-    this.bonuses = [];
-    if (filter.level && filter.level & 1) {
-      this.bonuses.push("P");
-    }
-    if (filter.level && filter.level & 2) {
-      this.bonuses.push("D");
-    }
+      this.keyWords = "";
+      this.dances.splice(0);
+      this.danceConnector = "any";
+      this.includeTags.splice(0);
+      this.excludeTags.splice(0);
+      this.tempoMin = 0;
+      this.tempoMax = 400;
+      this.lengthMin = 0;
+      this.lengthMax = 600;
+      if (userName) {
+        this.user = userName;
+        this.activity = "IH";
+      } else {
+        this.user = "";
+        this.activity = "NT";
+      }
+      this.displayUser = "";
+      this.services.splice(0);
+      this.sort = null;
+      this.order = "asc";
+      this.bonuses.splice(0);
 
-    await this.$nextTick();
-    ((this.$refs.keywords as Vue).$el as HTMLElement).focus();
-  }
+      this.validated = false;
+    },
+    onTagDatabaseLoaded(tagDatabase: TagDatabase): void {
+      const filter = this.sourceFilter;
 
-  private onEnvironmentLoaded(environment: DanceEnvironment): void {
-    this.danceEnvironment = environment;
-  }
-}
+      const danceQuery = new DanceQuery(filter.dances);
+
+      this.keyWords = filter.searchString ?? "";
+
+      this.dances = danceQuery.danceList;
+      this.danceConnector = danceQuery.isExclusive ? "all" : "any";
+
+      const sort = new SongSort(filter.sortOrder);
+      this.sort = sort.order ?? null;
+      this.order = sort.direction;
+
+      this.services = filter.purchase ? filter.purchase.trim().split("") : [];
+      const userQuery = new UserQuery(filter.user);
+      this.activity = userQuery.parts;
+      this.user = userQuery.userName ?? this.userName ?? "";
+      this.displayUser = userQuery.displayName;
+      this.tags = tagDatabase.tags;
+
+      this.tempoMin = filter.tempoMin ?? 0;
+      this.tempoMax = filter.tempoMax ?? 400;
+
+      this.lengthMin = filter.lengthMin ?? 0;
+      this.lengthMax = filter.lengthMax ?? 600;
+
+      this.includeTags = filter.tags ? this.extractTags(filter.tags, true) : [];
+      this.excludeTags = filter.tags
+        ? this.extractTags(filter.tags, false)
+        : [];
+
+      this.bonuses = [];
+      if (filter.level && filter.level & 1) {
+        this.bonuses.push("P");
+      }
+      if (filter.level && filter.level & 2) {
+        this.bonuses.push("D");
+      }
+
+      this.$nextTick(() =>
+        ((this.$refs.keywords as Vue).$el as HTMLElement).focus()
+      );
+    },
+    onEnvironmentLoaded(environment: DanceEnvironment): void {
+      this.danceEnvironment = environment;
+    },
+  },
+  mounted(): void {
+    this.onEnvironmentLoaded(safeEnvironment());
+    this.onTagDatabaseLoaded(safeTagDatabase());
+  },
+});
 </script>

@@ -15,8 +15,8 @@ module.exports = {
         parser: "@typescript-eslint/parser",
     },
     rules: {
-        "no-console": process.env.NODE_ENV === "production" ? "warn" : "off",
-        "no-debugger": process.env.NODE_ENV === "production" ? "warn" : "off",
+        "no-console": process.env.NODE_ENV === "production" ? "error" : "warn",
+        "no-debugger": process.env.NODE_ENV === "production" ? "error" : "warn",
         "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/no-use-before-define": "off",
         "prettier/prettier": [

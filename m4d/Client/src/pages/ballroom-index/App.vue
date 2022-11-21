@@ -45,47 +45,40 @@
 import BallroomList from "@/components/BallroomList.vue";
 import BlogTagLink from "@/components/BlogTagLink.vue";
 import CompetitionCategoryTable from "@/components/CompetitionCategoryTable.vue";
-import LinkCategory from "@/components/LinkCategory.vue";
 import Page from "@/components/Page.vue";
 import TempiLink from "@/components/TempiLink.vue";
 import { BreadCrumbItem, danceTrail } from "@/model/BreadCrumbItem";
 import { CompetitionCategory, CompetitionGroup } from "@/model/Competition";
 import { TypedJSON } from "typedjson";
-import { Component, Vue } from "vue-property-decorator";
+import Vue from "vue";
 
 declare const model: string;
 
-@Component({
+export default Vue.extend({
   components: {
     BallroomList,
     BlogTagLink,
     CompetitionCategoryTable,
-    LinkCategory,
     Page,
     TempiLink,
   },
-})
-export default class App extends Vue {
-  private group: CompetitionGroup;
-  private breadcrumbs: BreadCrumbItem[] = [
-    ...danceTrail,
-    { text: "Ballroom", active: true },
-  ];
-
-  constructor() {
-    super();
-
-    const serializer = new TypedJSON(CompetitionGroup);
-    const modelS = JSON.stringify(model);
-    const modelT = serializer.parse(modelS);
+  data() {
+    const modelT = TypedJSON.parse(model, CompetitionGroup);
     if (!modelT) {
       throw new Error("Unable to parse model");
     }
-    this.group = modelT;
-  }
-
-  private categoryLink(category: CompetitionCategory): string {
-    return `/dances/${category.canonicalName}`;
-  }
-}
+    return new (class {
+      group: CompetitionGroup = modelT!;
+      breadcrumbs: BreadCrumbItem[] = [
+        ...danceTrail,
+        { text: "Ballroom", active: true },
+      ];
+    })();
+  },
+  methods: {
+    categoryLink(category: CompetitionCategory): string {
+      return `/dances/${category.canonicalName}`;
+    },
+  },
+});
 </script>

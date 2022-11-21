@@ -72,6 +72,7 @@ export default class SongResults extends AdminTools {
       );
       this.histories = TypedJSON.parseAsArray(results.data, SongHistory);
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.log(e);
     }
     this.loaded = true;
@@ -99,7 +100,6 @@ export default class SongResults extends AdminTools {
   private get visibleHistories(): SongHistory[] {
     const histories = this.histories;
     const ret = this.extraVisible ? histories : histories.slice(0, 4);
-    console.log(`extravisible=${this.extraVisible}; length=${ret.length}`);
     return ret;
   }
 

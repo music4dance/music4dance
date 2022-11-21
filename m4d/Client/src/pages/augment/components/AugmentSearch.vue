@@ -236,6 +236,7 @@ export default class AugmentSearch extends Mixins(AdminTools) {
         this.$emit("edit-song", songModel);
       }
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.log(e);
     }
     this.adding = false;

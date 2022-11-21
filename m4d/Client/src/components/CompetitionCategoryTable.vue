@@ -43,109 +43,114 @@ import { DanceInstance } from "@/model/DanceInstance";
 import { Meter } from "@/model/Meter";
 import { TempoRange } from "@/model/TempoRange";
 import { BvTableFieldArray } from "bootstrap-vue";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 
-@Component
-export default class CompetitionCategoryTable extends Vue {
-  @Prop() private dances!: DanceInstance[];
-  @Prop() private title!: string;
-  @Prop() private useFullName?: boolean;
-
-  private fields: BvTableFieldArray = [
-    {
-      key: "name",
-      formatter: (value: string, key: string, item: DanceInstance) =>
-        this.name(item),
+export default Vue.extend({
+  props: {
+    dances: {
+      type: [] as PropType<DanceInstance[]>,
+      required: true,
     },
-    {
-      key: "mpm",
-      label: "MPM",
-      formatter: (value: null, key: string, item: DanceInstance) =>
-        item.tempoRange.mpm(item.meter.numerator),
+    title: {
+      type: String,
+      required: true,
     },
-    {
-      key: "dancesport",
-      label: "DanceSport",
-      formatter: (value: null, key: string, item: DanceInstance) =>
-        item.filteredTempo(["dancesport"])!.mpm(item.meter.numerator),
+    useFullName: String,
+  },
+  computed: {
+    fields(): BvTableFieldArray {
+      return [
+        {
+          key: "name",
+          formatter: (value: string, key: string, item: DanceInstance) =>
+            this.name(item),
+        },
+        {
+          key: "mpm",
+          label: "MPM",
+          formatter: (value: null, key: string, item: DanceInstance) =>
+            item.tempoRange.mpm(item.meter.numerator),
+        },
+        {
+          key: "dancesport",
+          label: "DanceSport",
+          formatter: (value: null, key: string, item: DanceInstance) =>
+            item.filteredTempo(["dancesport"])!.mpm(item.meter.numerator),
+        },
+        {
+          key: "ndca-1",
+          label: this.ndcaATitle,
+          formatter: (value: null, key: string, item: DanceInstance) =>
+            item.filteredTempo(["ndca-1"])!.mpm(item.meter.numerator),
+        },
+        {
+          key: "ndca-2",
+          label: this.ndcaBTitle,
+          formatter: (value: null, key: string, item: DanceInstance) =>
+            item.filteredTempo(["ndca-2"])!.mpm(item.meter.numerator),
+        },
+        {
+          key: "tempoRange",
+          label: "BPM",
+          formatter: (value: TempoRange) => value.toString(),
+        },
+        {
+          key: "meter",
+          formatter: (value: Meter) => value.toString(),
+        },
+      ];
     },
-    {
-      key: "ndca-1",
-      label: this.ndcaATitle,
-      formatter: (value: null, key: string, item: DanceInstance) =>
-        item.filteredTempo(["ndca-1"])!.mpm(item.meter.numerator),
+    ndcaATitle(): string {
+      const family = this.styleFamily;
+      switch (family) {
+        case "American":
+          return "NDCA Silver/Gold";
+        case "International":
+          return "NDCA Professional or Amateur";
+        default:
+          return "NDCA A(*)";
+      }
     },
-    {
-      key: "ndca-2",
-      label: this.ndcaBTitle,
-      formatter: (value: null, key: string, item: DanceInstance) =>
-        item.filteredTempo(["ndca-2"])!.mpm(item.meter.numerator),
+    ndcaBTitle(): string {
+      const family = this.styleFamily;
+      switch (family) {
+        case "American":
+          return "NDCA Bronze";
+        case "International":
+          return "NDCA Pro/Am";
+        default:
+          return "NDCA B(*)";
+      }
     },
-    {
-      key: "tempoRange",
-      label: "BPM",
-      formatter: (value: TempoRange) => value.toString(),
+    styleFamily(): string {
+      if (!this.dances || this.dances.length === 0) {
+        return "both";
+      }
+      const family = this.dances[0].styleFamily;
+      return this.dances.every((d) => d.styleFamily === family)
+        ? family
+        : "Both";
     },
-    {
-      key: "meter",
-      formatter: (value: Meter) => value.toString(),
+    isMixed(): boolean {
+      return this.styleFamily === "Both";
     },
-  ];
-
-  private get ndcaATitle(): string {
-    const family = this.styleFamily;
-    switch (family) {
-      case "American":
-        return "NDCA Silver/Gold";
-      case "International":
-        return "NDCA Professional or Amateur";
-      default:
-        return "NDCA A(*)";
-    }
-  }
-
-  private get ndcaBTitle(): string {
-    const family = this.styleFamily;
-    switch (family) {
-      case "American":
-        return "NDCA Bronze";
-      case "International":
-        return "NDCA Pro/Am";
-      default:
-        return "NDCA B(*)";
-    }
-  }
-
-  private get styleFamily(): string {
-    if (!this.dances || this.dances.length === 0) {
-      return "both";
-    }
-    const family = this.dances[0].styleFamily;
-    return this.dances.every((d) => d.styleFamily === family) ? family : "Both";
-  }
-
-  private get isMixed(): boolean {
-    return this.styleFamily === "Both";
-  }
-
-  private danceLink(dance: DanceInstance): string {
-    return wordsToKebab(dance.shortName);
-  }
-
-  private defaultTempoLink(dance: DanceInstance): string {
-    return this.tempoLink(dance, dance.tempoRange);
-  }
-
-  private filteredTempoLink(dance: DanceInstance, filter: string): string {
-    return this.tempoLink(dance, dance.filteredTempo([filter])!);
-  }
-
-  private tempoLink(dance: DanceInstance, tempo: TempoRange): string {
-    return `/song/advancedsearch?dances=${dance.baseId}&tempomin=${tempo.min}&tempomax=${tempo.max}`;
-  }
-
-  private name(dance: DanceInstance): string {
-    return this.useFullName ? dance.name : dance.shortName;
-  }
-}
+  },
+  methods: {
+    danceLink(dance: DanceInstance): string {
+      return wordsToKebab(dance.shortName);
+    },
+    defaultTempoLink(dance: DanceInstance): string {
+      return this.tempoLink(dance, dance.tempoRange);
+    },
+    filteredTempoLink(dance: DanceInstance, filter: string): string {
+      return this.tempoLink(dance, dance.filteredTempo([filter])!);
+    },
+    tempoLink(dance: DanceInstance, tempo: TempoRange): string {
+      return `/song/advancedsearch?dances=${dance.baseId}&tempomin=${tempo.min}&tempomax=${tempo.max}`;
+    },
+    name(dance: DanceInstance): string {
+      return this.useFullName ? dance.name : dance.shortName;
+    },
+  },
+});
 </script>

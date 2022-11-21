@@ -17,23 +17,26 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 import type { AreaInfo } from "./AreaInfo";
 
-@Component
-export default class AreaIcon extends Vue {
-  @Prop() private area!: AreaInfo;
-
-  private get link(): string {
-    return this.area.link ?? `#${this.area.name}`;
-  }
-
-  private get image(): string {
-    return `/images/icons/${this.area.name}.png`;
-  }
-
-  private get classes(): string[] {
-    return [this.area.name.toLowerCase()];
-  }
-}
+export default Vue.extend({
+  props: {
+    area: {
+      type: Object as PropType<AreaInfo>,
+      required: true,
+    },
+  },
+  computed: {
+    link(): string {
+      return this.area.link ?? `#${this.area.name}`;
+    },
+    image(): string {
+      return `/images/icons/${this.area.name}.png`;
+    },
+    classes(): string[] {
+      return [this.area.name.toLowerCase()];
+    },
+  },
+});
 </script>

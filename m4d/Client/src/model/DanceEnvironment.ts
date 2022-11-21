@@ -9,6 +9,7 @@ import { TypeStats } from "./TypeStats";
 
 TypedJSON.setGlobalConfig({
   errorHandler: (e) => {
+    // eslint-disable-next-line no-console
     console.error(e);
     throw e;
   },
@@ -109,10 +110,6 @@ export class DanceEnvironment {
 
   // TODO: Figure out how to get this into DanceStats (or both TypeStats and GroupStats)
   private static hasString(dance: DanceStats, s: string): boolean {
-    console.log(`${dance.name}: ${dance.synonyms?.join(",")}`);
-    if (dance.name === "Lindy Hop") {
-      console.log("Stop at Lindy");
-    }
     return (
       dance.name.toLowerCase().indexOf(s) !== -1 ||
       !!dance.synonyms?.find((n) => n.toLowerCase().indexOf(s) !== -1)

@@ -11,7 +11,6 @@ export class NamedObject {
 
   public isMatch(s: string): boolean {
     const t = NamedObject.normalize(s);
-    console.log("base:" + t);
     return !!this.normalizedNames.find((n) => n === t);
   }
 
@@ -22,7 +21,6 @@ export class NamedObject {
       ...NamedObject.normalizedArray(this.synonyms),
       ...NamedObject.normalizedArray(this.searchonyms),
     ];
-    console.log("normalizedNames:" + r);
     return r;
   }
 

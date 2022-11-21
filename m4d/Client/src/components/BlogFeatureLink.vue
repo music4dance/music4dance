@@ -14,10 +14,14 @@
 <script lang="ts">
 import { SiteMapEntry } from "@/model/SiteMapInfo";
 import "reflect-metadata";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 
-@Component
-export default class BlogFeatureLink extends Vue {
-  @Prop() private readonly entry!: SiteMapEntry;
-}
+export default Vue.extend({
+  props: {
+    entry: {
+      type: Object as PropType<SiteMapEntry>,
+      required: true,
+    },
+  },
+});
 </script>

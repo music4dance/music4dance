@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable */
 var gulp = require("gulp"),
     cleanCss = require("gulp-clean-css"),
     sass = require("gulp-dart-sass"),

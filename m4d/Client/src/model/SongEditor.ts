@@ -108,6 +108,7 @@ export class SongEditor {
       }
       this.commit();
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.log(e);
       throw e;
     }
@@ -118,6 +119,7 @@ export class SongEditor {
       await this.axios.post("/api/song/", this.songHistory);
       this.commit();
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.log(e);
       throw e;
     }

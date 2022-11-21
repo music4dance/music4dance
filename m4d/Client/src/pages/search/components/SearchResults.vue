@@ -52,8 +52,8 @@ export default class SearchResults extends Vue {
       this.entries = await this.getEntries();
       this.loaded = true;
     } catch (e) {
-      console.log(`Failed to search for {title}`);
-      console.log(e);
+      // eslint-disable-next-line no-console
+      console.log(`Failed to search for {title}: ${e}`);
     }
   }
 

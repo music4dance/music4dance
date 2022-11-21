@@ -29,7 +29,7 @@
 import FeatureLink from "@/components/FeatureLink.vue";
 import { FeatureInfo } from "@/model/FeatureInfo";
 import { Link } from "@/model/Link";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 
 export interface CardInfo {
   title: Link;
@@ -37,22 +37,30 @@ export interface CardInfo {
   items: Link[];
 }
 
-@Component({
+export default Vue.extend({
   components: {
     FeatureLink,
   },
-})
-export default class HomeSection extends Vue {
-  @Prop() private name!: string;
-  @Prop() private category!: string;
-  @Prop() private features?: FeatureInfo[];
-
-  private get classes(): string[] {
-    return [this.category];
-  }
-
-  private get image(): string {
-    return `/images/icons/${this.category}.png`;
-  }
-}
+  props: {
+    name: {
+      type: String,
+      required: true,
+    },
+    category: {
+      type: String,
+      required: true,
+    },
+    features: {
+      type: [] as PropType<FeatureInfo[]>,
+    },
+  },
+  computed: {
+    classes(): string[] {
+      return [this.category];
+    },
+    image(): string {
+      return `/images/icons/${this.category}.png`;
+    },
+  },
+});
 </script>

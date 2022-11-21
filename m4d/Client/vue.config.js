@@ -1,3 +1,4 @@
+/* eslint-disable */
 const path = require("path");
 
 // vue.config.js
@@ -94,5 +95,6 @@ module.exports = {
             "@": path.resolve(__dirname, "src"),
             "@helpers": path.resolve(__dirname, "src/helpers"),
         };
+        config.experiments = { topLevelAwait: true };
     },
 };

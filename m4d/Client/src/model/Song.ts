@@ -80,7 +80,9 @@ export class Song extends TaggableObject {
     this.validateArray("albums", other, diffs);
 
     if (diffs.length > 0) {
+      // eslint-disable-next-line no-console
       console.log(`Failed to validate song ${this.songId}`);
+      // eslint-disable-next-line no-console
       diffs.forEach((s) => console.log(s));
 
       return false;

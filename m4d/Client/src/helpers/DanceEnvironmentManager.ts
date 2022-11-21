@@ -17,40 +17,46 @@ const environmentKey = "dance-environmnet";
 const tagDatabaseKey = "tag-database";
 const expiryKey = "expiry";
 
+export function safeEnvironment(): DanceEnvironment {
+  if (window.environment) {
+    return window.environment;
+  }
+  throw new Error("Dance Environment not loaded as expected");
+}
+
 export async function getEnvironment(): Promise<DanceEnvironment> {
   if (window.environment) {
-    console.log("Environment Already Loaded");
     return window.environment;
   }
 
   if (window.environmentJson && loadDancesFromString(window.environmentJson)) {
-    console.log("Environment Loaded from Json");
     return window.environment!;
   }
 
   if (checkExpiry(environmentKey) && loadDancesFromStorage()) {
-    console.log("Environment Loaded from Storage");
     return window.environment!;
   }
 
   return loadDances();
 }
 
+export function safeTagDatabase(): TagDatabase {
+  if (window.tagDatabase) {
+    return window.tagDatabase;
+  }
+  throw new Error("Tag Database not loaded as expected");
+}
+
 export async function getTagDatabase(): Promise<TagDatabase> {
   if (window.tagDatabase) {
-    console.log("TagDabase Already Loaded");
-
     return window.tagDatabase;
   }
 
   if (window.tagDatabaseJson && loadTagsFromString(window.tagDatabaseJson)) {
-    console.log("TagDabase Loaded from Json");
     return window.tagDatabase!;
   }
 
   if (checkExpiry(tagDatabaseKey) && loadTagsFromStorage()) {
-    console.log("TagDabase Loaded from Storage");
-
     return window.tagDatabase!;
   }
 
@@ -66,6 +72,7 @@ async function loadDances(): Promise<DanceEnvironment> {
     window.environment = TypedJSON.parse(data, DanceEnvironment);
     return window.environment!;
   } catch (e) {
+    // eslint-disable-next-line no-console
     console.log(e);
     throw e;
   }
@@ -92,6 +99,7 @@ async function loadTags(): Promise<TagDatabase> {
     window.tagDatabase = new TagDatabase(tags);
     return window.tagDatabase;
   } catch (e) {
+    // eslint-disable-next-line no-console
     console.log(e);
     throw e;
   }

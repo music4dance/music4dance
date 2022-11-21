@@ -115,10 +115,6 @@ export default class SongLibrary extends Mixins(DropTarget) {
     window.location.href = `/song/filterSearch?filter=${this.filter.encodedQuery}`;
   }
 
-  private chooseSuggestion(): void {
-    console.log(this.filter.searchString);
-  }
-
   @Watch("filter.searchString") private autoComplete(): void {
     if (
       !this.filter ||
@@ -134,6 +130,7 @@ export default class SongLibrary extends Mixins(DropTarget) {
         this.suggestions = suggestions.suggestions.map((s) => s.value);
       })
       .catch((error) => {
+        // eslint-disable-next-line no-console
         console.log(error);
       });
   }

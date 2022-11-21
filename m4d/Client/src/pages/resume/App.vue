@@ -183,20 +183,22 @@
 <script lang="ts">
 import Page from "@/components/Page.vue";
 import { BreadCrumbItem, infoTrail } from "@/model/BreadCrumbItem";
-import { Component, Vue } from "vue-property-decorator";
+import Vue from "vue";
 
-@Component({
+export default Vue.extend({
   components: {
     Page,
   },
-})
-export default class App extends Vue {
-  private breadcrumbs: BreadCrumbItem[] = [
-    ...infoTrail,
-    { text: "About", href: "/home/about" },
-    { text: "Resmue", active: true },
-  ];
-}
+  data() {
+    return new (class {
+      breadcrumbs: BreadCrumbItem[] = [
+        ...infoTrail,
+        { text: "About", href: "/home/about" },
+        { text: "Resmue", active: true },
+      ];
+    })();
+  },
+});
 </script>
 
 <style lang="scss" scoped>

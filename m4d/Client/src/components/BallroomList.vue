@@ -45,10 +45,11 @@
 
 <script lang="ts">
 import "reflect-metadata";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Vue } from "vue-property-decorator";
 
-@Component
-export default class BallroomList extends Vue {
-  @Prop() private readonly name!: string;
-}
+export default Vue.extend({
+  props: {
+    name: String,
+  },
+});
 </script>

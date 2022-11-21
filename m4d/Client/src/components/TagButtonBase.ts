@@ -26,9 +26,7 @@ export default class TagButtonBase extends Vue {
       return tagInfo.iconName;
     }
 
-    const message = `Couldn't find tagInfo for ${this.variant}`;
-    console.log(message);
-    throw new Error(message);
+    throw new Error(`Couldn't find tagInfo for ${this.variant}`);
   }
 
   protected get selectedIcon(): string | undefined {
