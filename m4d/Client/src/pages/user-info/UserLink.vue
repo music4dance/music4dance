@@ -20,30 +20,30 @@
 <script lang="ts">
 import { SongFilter } from "@/model/SongFilter";
 import { SortOrder } from "@/model/SongSort";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue from "vue";
 
-@Component({})
-export default class UserLink extends Vue {
-  @Prop() private userName!: string;
-  @Prop() private displayName!: string;
-  @Prop() private text!: string;
-  @Prop() private type!: string;
-  @Prop() private include!: boolean;
-  @Prop() private count!: boolean;
-
-  private get url(): string {
-    const filter = new SongFilter();
-    filter.user = `${this.include ? "+" : "-"}${this.userName}|${this.type}`;
-    filter.sortOrder = SortOrder.Modified;
-    return `/song/filterSearch?filter=${filter.encodedQuery}`;
-  }
-
-  private get valenceIcon(): string {
-    return this.include ? "patch-plus" : "patch-minus";
-  }
-
-  private get formattedText(): string {
-    return this.text.replace("{{ userName }}", this.displayName);
-  }
-}
+export default Vue.extend({
+  props: {
+    userName: { type: String, required: true },
+    displayName: { type: String, required: true },
+    text: { type: String, required: true },
+    type: { type: String, required: true },
+    include: { type: Boolean, required: true },
+    count: { type: Number, required: true },
+  },
+  computed: {
+    url(): string {
+      const filter = new SongFilter();
+      filter.user = `${this.include ? "+" : "-"}${this.userName}|${this.type}`;
+      filter.sortOrder = SortOrder.Modified;
+      return `/song/filterSearch?filter=${filter.encodedQuery}`;
+    },
+    valenceIcon(): string {
+      return this.include ? "patch-plus" : "patch-minus";
+    },
+    formattedText(): string {
+      return this.text.replace("{{ userName }}", this.displayName);
+    },
+  },
+});
 </script>

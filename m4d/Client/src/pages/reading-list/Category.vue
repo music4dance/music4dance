@@ -8,14 +8,21 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 import BookComponent from "./Book.vue";
 import { BookCategory } from "./BookCategory";
 
-@Component({ components: { BookComponent } })
-export default class Category extends Vue {
-  @Prop() category!: BookCategory;
-}
+export default Vue.extend({
+  components: {
+    BookComponent,
+  },
+  props: {
+    category: {
+      type: Object as PropType<BookCategory>,
+      required: true,
+    },
+  },
+});
 </script>
 
 <style lang="scss" scoped>

@@ -1,0 +1,144 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`UserInfo.vue renders a user info page 1`] = `
+<div>
+  <div>
+    <!---->
+    <!---->
+    <nav class="navbar navbar-dark bg-primary navbar-expand-lg" id="mainMenu"><a href="/" target="_self" class="navbar-brand"><img src="/images/header-logo.png" height="40" title="music4dance"></a> <button type="button" aria-label="Toggle navigation" class="navbar-toggler collapsed" aria-expanded="false" aria-controls="nav-collapse"><span class="navbar-toggler-icon"></span></button>
+      <transition-stub css="true" enterclass="" leaveclass="collapse show" entertoclass="collapse show" leavetoclass="collapse" enteractiveclass="collapsing" leaveactiveclass="collapsing">
+        <div id="nav-collapse" class="navbar-collapse collapse" style="display: none;">
+          <ul class="navbar-nav">
+            <li id="music-menu" class="nav-item b-nav-dropdown dropdown"><a id="music-menu__BV_toggle_" role="button" aria-haspopup="true" aria-expanded="false" aria-controls="music-menu__BV_toggle_menu_" href="#music-menu" target="_self" class="nav-link dropdown-toggle"><span>Music</span></a>
+              <ul tabindex="-1" aria-labelledby="music-menu__BV_toggle_" id="music-menu__BV_toggle_menu_" class="dropdown-menu">
+                <li role="presentation"><a role="menuitem" href="/dances" target="_self" class="dropdown-item">Dances</a></li>
+                <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/ballroom-competition-categories" target="_self" class="dropdown-item">Ballroom</a></li>
+                <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/latin" target="_self" class="dropdown-item">Latin</a></li>
+                <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/swing" target="_self" class="dropdown-item">Swing</a></li>
+                <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/tango" target="_self" class="dropdown-item">Tango</a></li>
+                <li role="presentation"><a role="menuitem" href="/song" target="_self" class="dropdown-item">Song Library</a></li>
+                <li role="presentation" class="nav-subitem"><a role="menuitem" href="/song/advancedsearchform" target="_self" class="dropdown-item">Advanced Search</a></li>
+                <li role="presentation" class="nav-subitem"><a role="menuitem" href="/song/augment" target="_self" class="dropdown-item">Add Song</a></li>
+                <li role="presentation" class="nav-subitem"><a role="menuitem" href="/song/newmusic" target="_self" class="dropdown-item">New Music</a></li>
+                <li role="presentation"><a role="menuitem" href="/dances/wedding-music" target="_self" class="dropdown-item">Wedding</a></li>
+                <li role="presentation"><a role="menuitem" href="/song/holidaymusic" target="_self" class="dropdown-item">Holiday</a></li>
+                <li role="presentation"><a role="menuitem" href="/song/addtags/?tags=%2BHalloween%3AOther" target="_self" class="dropdown-item">Halloween</a></li>
+                <li role="presentation"><a role="menuitem" href="/tag" target="_self" class="dropdown-item">Tags</a></li>
+              </ul>
+            </li>
+            <li id="tools-menu" class="nav-item b-nav-dropdown dropdown"><a id="tools-menu__BV_toggle_" role="button" aria-haspopup="true" aria-expanded="false" aria-controls="tools-menu__BV_toggle_menu_" href="#tools-menu" target="_self" class="nav-link dropdown-toggle"><span>Tools</span></a>
+              <ul tabindex="-1" aria-labelledby="tools-menu__BV_toggle_" id="tools-menu__BV_toggle_menu_" class="dropdown-menu">
+                <li role="presentation"><a role="menuitem" href="/home/counter" target="_self" class="dropdown-item">Tempo Counter</a></li>
+                <li role="presentation"><a role="menuitem" href="/home/tempi" target="_self" class="dropdown-item">Tempi (Tempos)</a></li>
+              </ul>
+            </li>
+            <li class="nav-item b-nav-dropdown dropdown"><a role="button" aria-haspopup="true" aria-expanded="false" href="#" target="_self" class="nav-link dropdown-toggle"><span>Info</span></a>
+              <ul tabindex="-1" class="dropdown-menu">
+                <li role="presentation"><a role="menuitem" href="https://music4dance.blog/music4dance-help/song-list/" target="_self" class="dropdown-item">Help</a></li>
+                <li role="presentation"><a role="menuitem" href="https://music4dance.blog/" target="_self" class="dropdown-item">Blog</a></li>
+                <li role="presentation"><a role="menuitem" href="/home/faq" target="_self" class="dropdown-item">FAQ</a></li>
+                <li role="presentation"><a role="menuitem" href="/home/about" target="_self" class="dropdown-item">About music4dance</a></li>
+                <li role="presentation"><a role="menuitem" href="/home/readinglist" target="_self" class="dropdown-item">Reading List</a></li>
+                <li role="presentation"><a role="menuitem" href="/home/sitemap" target="_self" class="dropdown-item">Site Map</a></li>
+                <li role="presentation"><a role="menuitem" href="/home/privacypolicy" target="_self" class="dropdown-item">Privacy Policy</a></li>
+                <li role="presentation"><a role="menuitem" href="/home/credits" target="_self" class="dropdown-item">Credits</a></li>
+              </ul>
+            </li>
+            <li id="contribute-menu" right="" class="nav-item"><a href="/home/contribute" target="_self" class="nav-link">Contribute</a></li>
+            <!---->
+          </ul>
+          <ul class="navbar-nav ml-auto">
+            <li class="form-inline">
+              <form class="form-inline"><input type="text" placeholder="Search" class="mr-sm-2 form-control form-control-sm"> <button type="submit" disabled="disabled" class="btn my-2 my-sm-0 btn-secondary btn-sm disabled">Search</button></form>
+            </li>
+            <li right="" class="nav-item"><a href="/identity/account/register?returnUrl=/" target="_self" class="nav-link">Register</a></li>
+            <li right="" class="nav-item"><a href="/identity/account/login?returnUrl=/" target="_self" class="nav-link">Login</a></li>
+          </ul>
+        </div>
+      </transition-stub>
+    </nav>
+    <!---->
+    <form id="logoutForm" action="/identity/account/logout" method="post" style="height: 0px;"><input name="__RequestVerificationToken" type="hidden" value="FOO"> <input type="hidden" name="returnUrl" value="/"> <button id="logout" type="submit" class="btn btn-link"></button></form>
+  </div>
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb" style="padding: 0.25rem 0.5rem;">
+      <li class="breadcrumb-item"><a href="/" target="_self" class="">music4dance</a></li>
+      <li class="breadcrumb-item"><a href="/home/info" target="_self" class="">Info</a></li>
+      <li class="breadcrumb-item active"><span aria-current="location">User Profile</span></li>
+    </ol>
+  </nav>
+  <div id="body-content" class="container-fluid body-content">
+    <div class="mt-2"></div>
+    <div>
+      <h1>Info for <em>chicagoarthurmurray</em>'s Profile</h1>
+      <div>
+        <div>
+          <div>
+            This is a proxy user based on a public spotify profile. View
+            chicagoarthurmurray's spotify profile
+            <a href="https://open.spotify.com/user/chicagoarthurmurray" target="_blank">here <svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="box arrow up right" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-box-arrow-up-right b-icon bi">
+                <g>
+                  <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z"></path>
+                  <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"></path>
+                </g>
+              </svg></a>.
+          </div>
+        </div>
+        <div>
+          <h2>chicagoarthurmurray's Song Lists</h2>
+          <ul>
+            <li class="list-clean"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="patch plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-patch-plus mr-1 b-icon bi">
+                <g>
+                  <path fill-rule="evenodd" d="M8 5.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V10a.5.5 0 0 1-1 0V8.5H6a.5.5 0 0 1 0-1h1.5V6a.5.5 0 0 1 .5-.5z"></path>
+                  <path d="m10.273 2.513-.921-.944.715-.698.622.637.89-.011a2.89 2.89 0 0 1 2.924 2.924l-.01.89.636.622a2.89 2.89 0 0 1 0 4.134l-.637.622.011.89a2.89 2.89 0 0 1-2.924 2.924l-.89-.01-.622.636a2.89 2.89 0 0 1-4.134 0l-.622-.637-.89.011a2.89 2.89 0 0 1-2.924-2.924l.01-.89-.636-.622a2.89 2.89 0 0 1 0-4.134l.637-.622-.011-.89a2.89 2.89 0 0 1 2.924-2.924l.89.01.622-.636a2.89 2.89 0 0 1 4.134 0l-.715.698a1.89 1.89 0 0 0-2.704 0l-.92.944-1.32-.016a1.89 1.89 0 0 0-1.911 1.912l.016 1.318-.944.921a1.89 1.89 0 0 0 0 2.704l.944.92-.016 1.32a1.89 1.89 0 0 0 1.912 1.911l1.318-.016.921.944a1.89 1.89 0 0 0 2.704 0l.92-.944 1.32.016a1.89 1.89 0 0 0 1.911-1.912l-.016-1.318.944-.921a1.89 1.89 0 0 0 0-2.704l-.944-.92.016-1.32a1.89 1.89 0 0 0-1.912-1.911l-1.318.016z"></path>
+                </g>
+              </svg> <svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="pencil" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-pencil b-icon bi">
+                <g>
+                  <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"></path>
+                </g>
+              </svg> <a href="/song/filterSearch?filter=v2-index--Modified---%2Bchicagoarthurmurray%7Ca" class="ml-1">Songs that chicagoarthurmurray has edited.</a> <span> (104)</span></li>
+            <li class="list-clean"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="patch minus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-patch-minus mr-1 b-icon bi">
+                <g>
+                  <path fill-rule="evenodd" d="M5.5 8a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1H6a.5.5 0 0 1-.5-.5z"></path>
+                  <path d="m10.273 2.513-.921-.944.715-.698.622.637.89-.011a2.89 2.89 0 0 1 2.924 2.924l-.01.89.636.622a2.89 2.89 0 0 1 0 4.134l-.637.622.011.89a2.89 2.89 0 0 1-2.924 2.924l-.89-.01-.622.636a2.89 2.89 0 0 1-4.134 0l-.622-.637-.89.011a2.89 2.89 0 0 1-2.924-2.924l.01-.89-.636-.622a2.89 2.89 0 0 1 0-4.134l.637-.622-.011-.89a2.89 2.89 0 0 1 2.924-2.924l.89.01.622-.636a2.89 2.89 0 0 1 4.134 0l-.715.698a1.89 1.89 0 0 0-2.704 0l-.92.944-1.32-.016a1.89 1.89 0 0 0-1.911 1.912l.016 1.318-.944.921a1.89 1.89 0 0 0 0 2.704l.944.92-.016 1.32a1.89 1.89 0 0 0 1.912 1.911l1.318-.016.921.944a1.89 1.89 0 0 0 2.704 0l.92-.944 1.32.016a1.89 1.89 0 0 0 1.911-1.912l-.016-1.318.944-.921a1.89 1.89 0 0 0 0-2.704l-.944-.92.016-1.32a1.89 1.89 0 0 0-1.912-1.911l-1.318.016z"></path>
+                </g>
+              </svg> <svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="pencil" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-pencil b-icon bi">
+                <g>
+                  <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"></path>
+                </g>
+              </svg> <a href="/song/filterSearch?filter=v2-index--Modified---%5C-chicagoarthurmurray%7Ca" class="ml-1">Songs that chicagoarthurmurray has <em>not</em> edited.</a>
+              <!---->
+            </li>
+          </ul>
+          <div>
+            <p>
+              The User Song List feature is still under development. We are
+              considering including lists of dance styles that the user has tagged or
+              possibly including lists of arbitrary tags. Please
+              <a href="https://music4dance.blog/feedback/">let us know</a> if you like
+              this feature or have ideas to improve it (or both).
+            </p>
+            <!---->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="footer-content">
+    <hr>
+    <footer>
+      <p>
+        © 2022 -
+        <a href="https://www.music4dance.net">Music4Dance.net</a> -
+        <a href="https://www.music4dance.net/home/sitemap">Site Map</a> -
+        <a href="https://www.music4dance.net/home/termsofservice">Terms of Service</a>
+        -
+        <a href="https://www.music4dance.net/home/privacypolicy">Privacy Policy</a>
+        - <a href="https://www.music4dance.net/home/credits">Credits</a> -
+        <a href="https://music4dance.blog/music4dance-help/song-list/">Help</a>
+      </p>
+    </footer>
+  </div>
+  <!---->
+</div>
+`;

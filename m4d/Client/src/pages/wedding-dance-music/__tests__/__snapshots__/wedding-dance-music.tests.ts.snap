@@ -1,0 +1,937 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`WeddingDanceMusic.vue renders a wedding dance music page 1`] = `
+<div>
+  <div>
+    <!---->
+    <!---->
+    <nav class="navbar navbar-dark bg-primary navbar-expand-lg" id="mainMenu"><a href="/" target="_self" class="navbar-brand"><img src="/images/header-logo.png" height="40" title="music4dance"></a> <button type="button" aria-label="Toggle navigation" class="navbar-toggler collapsed" aria-expanded="false" aria-controls="nav-collapse"><span class="navbar-toggler-icon"></span></button>
+      <transition-stub css="true" enterclass="" leaveclass="collapse show" entertoclass="collapse show" leavetoclass="collapse" enteractiveclass="collapsing" leaveactiveclass="collapsing">
+        <div id="nav-collapse" class="navbar-collapse collapse" style="display: none;">
+          <ul class="navbar-nav">
+            <li id="music-menu" class="nav-item b-nav-dropdown dropdown"><a id="music-menu__BV_toggle_" role="button" aria-haspopup="true" aria-expanded="false" aria-controls="music-menu__BV_toggle_menu_" href="#music-menu" target="_self" class="nav-link dropdown-toggle"><span>Music</span></a>
+              <ul tabindex="-1" aria-labelledby="music-menu__BV_toggle_" id="music-menu__BV_toggle_menu_" class="dropdown-menu">
+                <li role="presentation"><a role="menuitem" href="/dances" target="_self" class="dropdown-item">Dances</a></li>
+                <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/ballroom-competition-categories" target="_self" class="dropdown-item">Ballroom</a></li>
+                <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/latin" target="_self" class="dropdown-item">Latin</a></li>
+                <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/swing" target="_self" class="dropdown-item">Swing</a></li>
+                <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/tango" target="_self" class="dropdown-item">Tango</a></li>
+                <li role="presentation"><a role="menuitem" href="/song" target="_self" class="dropdown-item">Song Library</a></li>
+                <li role="presentation" class="nav-subitem"><a role="menuitem" href="/song/advancedsearchform" target="_self" class="dropdown-item">Advanced Search</a></li>
+                <li role="presentation" class="nav-subitem"><a role="menuitem" href="/song/augment" target="_self" class="dropdown-item">Add Song</a></li>
+                <li role="presentation" class="nav-subitem"><a role="menuitem" href="/song/newmusic" target="_self" class="dropdown-item">New Music</a></li>
+                <li role="presentation"><a role="menuitem" href="/dances/wedding-music" target="_self" class="dropdown-item">Wedding</a></li>
+                <li role="presentation"><a role="menuitem" href="/song/holidaymusic" target="_self" class="dropdown-item">Holiday</a></li>
+                <li role="presentation"><a role="menuitem" href="/song/addtags/?tags=%2BHalloween%3AOther" target="_self" class="dropdown-item">Halloween</a></li>
+                <li role="presentation"><a role="menuitem" href="/tag" target="_self" class="dropdown-item">Tags</a></li>
+              </ul>
+            </li>
+            <li id="tools-menu" class="nav-item b-nav-dropdown dropdown"><a id="tools-menu__BV_toggle_" role="button" aria-haspopup="true" aria-expanded="false" aria-controls="tools-menu__BV_toggle_menu_" href="#tools-menu" target="_self" class="nav-link dropdown-toggle"><span>Tools</span></a>
+              <ul tabindex="-1" aria-labelledby="tools-menu__BV_toggle_" id="tools-menu__BV_toggle_menu_" class="dropdown-menu">
+                <li role="presentation"><a role="menuitem" href="/home/counter" target="_self" class="dropdown-item">Tempo Counter</a></li>
+                <li role="presentation"><a role="menuitem" href="/home/tempi" target="_self" class="dropdown-item">Tempi (Tempos)</a></li>
+              </ul>
+            </li>
+            <li class="nav-item b-nav-dropdown dropdown"><a role="button" aria-haspopup="true" aria-expanded="false" href="#" target="_self" class="nav-link dropdown-toggle"><span>Info</span></a>
+              <ul tabindex="-1" class="dropdown-menu">
+                <li role="presentation"><a role="menuitem" href="https://music4dance.blog/music4dance-help/song-list/" target="_self" class="dropdown-item">Help</a></li>
+                <li role="presentation"><a role="menuitem" href="https://music4dance.blog/" target="_self" class="dropdown-item">Blog</a></li>
+                <li role="presentation"><a role="menuitem" href="/home/faq" target="_self" class="dropdown-item">FAQ</a></li>
+                <li role="presentation"><a role="menuitem" href="/home/about" target="_self" class="dropdown-item">About music4dance</a></li>
+                <li role="presentation"><a role="menuitem" href="/home/readinglist" target="_self" class="dropdown-item">Reading List</a></li>
+                <li role="presentation"><a role="menuitem" href="/home/sitemap" target="_self" class="dropdown-item">Site Map</a></li>
+                <li role="presentation"><a role="menuitem" href="/home/privacypolicy" target="_self" class="dropdown-item">Privacy Policy</a></li>
+                <li role="presentation"><a role="menuitem" href="/home/credits" target="_self" class="dropdown-item">Credits</a></li>
+              </ul>
+            </li>
+            <li id="contribute-menu" right="" class="nav-item"><a href="/home/contribute" target="_self" class="nav-link">Contribute</a></li>
+            <!---->
+          </ul>
+          <ul class="navbar-nav ml-auto">
+            <li class="form-inline">
+              <form class="form-inline"><input type="text" placeholder="Search" class="mr-sm-2 form-control form-control-sm"> <button type="submit" disabled="disabled" class="btn my-2 my-sm-0 btn-secondary btn-sm disabled">Search</button></form>
+            </li>
+            <li right="" class="nav-item"><a href="/identity/account/register?returnUrl=/" target="_self" class="nav-link">Register</a></li>
+            <li right="" class="nav-item"><a href="/identity/account/login?returnUrl=/" target="_self" class="nav-link">Login</a></li>
+          </ul>
+        </div>
+      </transition-stub>
+    </nav>
+    <!---->
+    <form id="logoutForm" action="/identity/account/logout" method="post" style="height: 0px;"><input name="__RequestVerificationToken" type="hidden" value="FOO"> <input type="hidden" name="returnUrl" value="/"> <button id="logout" type="submit" class="btn btn-link"></button></form>
+  </div>
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb" style="padding: 0.25rem 0.5rem;">
+      <li class="breadcrumb-item"><a href="/" target="_self" class="">music4dance</a></li>
+      <li class="breadcrumb-item"><a href="/dances" target="_self" class="">Dances</a></li>
+      <li class="breadcrumb-item active"><span aria-current="location">WeddingDanceMusic</span></li>
+    </ol>
+  </nav>
+  <div id="body-content" class="container-fluid body-content">
+    <h1>Wedding Dance Music</h1>
+    <div>
+      <p>
+        Are you getting married and trying to find the perfect song for your
+        <a href="/Song/Index/?filter=Index-.-Title-.-.-.-.-.-1-+First Dance:Other">first dance</a>? Or perhaps you're trying to find the perfect dance style for your
+        favorite song? We can help with both of these as well as helping you find
+        music for
+        <a href="/Song/Index/?filter=Index-.-Title-.-.-.-.-.-1-+Father Daughter:Other">Father/Daughter</a>
+        or
+        <a href="/Song/Index/?filter=Index-.-Title-.-.-.-.-.-1-+Mother Son:Other">Mother/Son</a>
+        dances.
+      </p>
+      <p>
+        If you know the song and you would like help figuring out what dance style
+        to dance to it, try looking it up in our
+        <a href="/Song/Index/">music catalog</a>. More details on how to do that
+        are available on this
+        <a href="https://music4dance.blog/wedding-music-part-i-can-we-dance-the-foxtrot-to-our-song/">blog post</a>. If we haven't cataloged your song yet,
+        <a href="https://music4dance.blog/feedback/">let us know</a>
+        and we'll happily add it.
+      </p>
+      <p>
+        If you know what dance style you would like to dance, but haven't found
+        the perfect song yet, you can do that kind of search as well.
+        <a href="https://music4dance.blog/wedding-music-part-ii-were-learning-to-rumba-help-us-find-a-good-song-for-our-first-dance/">
+          Read the post</a>
+        on how to do that, or just click on one of the quick links below. Each
+        number links to a list of songs that have can be danced to the style
+        specified by the row and have also been tagged with the text in the column
+        heading.
+      </p>
+      <p>
+        If you're looking for a slow dance for your wedding, try browsing the
+        <a href="/Song/Index/?filter=Index-CFT-Dances-.-.-.-.-.-1-+Wedding:Other">Castle Foxtrot</a>
+        and
+        <a href="/Song/Index/?filter=Index-SFT-Dances-.-.-.-.-.-1-+Wedding:Other">Slow Foxtrot</a>
+        lists, they are full of songs with a good slow and steady beat to dance
+        either a simplified Foxtrot or traditional slow dance.
+      </p>
+      <p>
+        Don't forget to <a href="/identity/account/register">register</a> (it's
+        free) so you can
+        <a href="https://music4dance.blog/lets-tag-some-songs/">tag the songs you like</a>
+        and have us remember your favorites while you're playing with options.
+      </p>
+      <div style="margin: 0px auto; max-width: 800px;">
+        <div>
+          <div class="table-responsive">
+            <table role="table" aria-busy="false" aria-colcount="5" class="table b-table table-striped table-hover">
+              <!---->
+              <!---->
+              <thead role="rowgroup" class="">
+                <!---->
+                <tr role="row" class="">
+                  <th role="columnheader" scope="col" aria-colindex="1" class="table-b-table-default b-table-sticky-column">Dance Style</th>
+                  <th role="columnheader" scope="col" aria-colindex="2" class=""><a href="/Song/?filter=Index-.-.-.-.-.-.-.-.-+Wedding:Other">Wedding</a></th>
+                  <th role="columnheader" scope="col" aria-colindex="3" class=""><a href="/Song/?filter=Index-.-.-.-.-.-.-.-.-+First Dance:Other">First Dance</a></th>
+                  <th role="columnheader" scope="col" aria-colindex="4" class=""><a href="/Song/?filter=Index-.-.-.-.-.-.-.-.-+Mother Son:Other">Mother/<wbr>Son</a></th>
+                  <th role="columnheader" scope="col" aria-colindex="5" class=""><a href="/Song/?filter=Index-.-.-.-.-.-.-.-.-+Father Daughter:Other">Father/<wbr>Daughter</a></th>
+                </tr>
+              </thead>
+              <tbody role="rowgroup">
+                <!---->
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-group"><a href="/dances/swing"><span><a href="/dances/undefined">Swing</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,SWG-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      358
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,SWG-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      343
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/Song/?filter=Index-OOX,SWG-Dances-.-.-.-.-.-.-+Mother Son:Other" target="_self" class="btn btn-primary btn-sm">
+                      42
+                    </a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,SWG-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      44
+                    </a></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/balboa"><span><a href="/dances/balboa">Balboa</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,BBA-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      1
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,BBA-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      1
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""></td>
+                  <td aria-colindex="5" role="cell" class=""></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/carolina-shag"><span><a href="/dances/carolina-shag">Carolina Shag</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,CSG-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      17
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,CSG-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      17
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/Song/?filter=Index-OOX,CSG-Dances-.-.-.-.-.-.-+Mother Son:Other" target="_self" class="btn btn-primary btn-sm">
+                      3
+                    </a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,CSG-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      3
+                    </a></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/charleston"><span><a href="/dances/charleston">Charleston</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,CST-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      3
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,CST-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      4
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""></td>
+                  <td aria-colindex="5" role="cell" class=""></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/east-coast-swing"><span><a href="/dances/east-coast-swing">East Coast Swing</a> <span><br>
+    (Triple Swing, East Coast)
+  </span>
+                        <!----></span>
+                      </a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,ECS-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      95
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,ECS-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      89
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/Song/?filter=Index-OOX,ECS-Dances-.-.-.-.-.-.-+Mother Son:Other" target="_self" class="btn btn-primary btn-sm">
+                      16
+                    </a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,ECS-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      16
+                    </a></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/hustle"><span><a href="/dances/hustle">Hustle</a> <span><br>
+    (Street Swing, Disco Fox)
+  </span>
+                        <!----></span>
+                      </a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,HST-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      37
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,HST-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      34
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/Song/?filter=Index-OOX,HST-Dances-.-.-.-.-.-.-+Mother Son:Other" target="_self" class="btn btn-primary btn-sm">
+                      5
+                    </a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,HST-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      5
+                    </a></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/jive"><span><a href="/dances/jive">Jive</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,JIV-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      30
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,JIV-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      30
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/Song/?filter=Index-OOX,JIV-Dances-.-.-.-.-.-.-+Mother Son:Other" target="_self" class="btn btn-primary btn-sm">
+                      6
+                    </a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,JIV-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      6
+                    </a></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/jump-swing"><span><a href="/dances/jump-swing">Jump Swing</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,JSW-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      2
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,JSW-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      2
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""></td>
+                  <td aria-colindex="5" role="cell" class=""></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/west-coast-swing"><span><a href="/dances/west-coast-swing">West Coast Swing</a> <span><br>
+    (West Coast)
+  </span>
+                        <!----></span>
+                      </a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,WCS-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      126
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,WCS-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      121
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/Song/?filter=Index-OOX,WCS-Dances-.-.-.-.-.-.-+Mother Son:Other" target="_self" class="btn btn-primary btn-sm">
+                      8
+                    </a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,WCS-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      10
+                    </a></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/lindy-hop"><span><a href="/dances/lindy-hop">Lindy Hop</a> <span><br>
+    (Swing, Jitterbug)
+  </span>
+                        <!----></span>
+                      </a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,LHP-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      47
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,LHP-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      45
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/Song/?filter=Index-OOX,LHP-Dances-.-.-.-.-.-.-+Mother Son:Other" target="_self" class="btn btn-primary btn-sm">
+                      4
+                    </a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,LHP-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      4
+                    </a></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-group"><a href="/dances/tango"><span><a href="/dances/undefined">Tango</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,TNG-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      21
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,TNG-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      21
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/Song/?filter=Index-OOX,TNG-Dances-.-.-.-.-.-.-+Mother Son:Other" target="_self" class="btn btn-primary btn-sm">
+                      1
+                    </a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,TNG-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      1
+                    </a></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/tango-(ballroom)"><span><a href="/dances/tango-(ballroom)">Tango (Ballroom)</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,TGO-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      13
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,TGO-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      13
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""></td>
+                  <td aria-colindex="5" role="cell" class=""></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/argentine-tango"><span><a href="/dances/argentine-tango">Argentine Tango</a> <span><br>
+    (Tango Argentino)
+  </span>
+                        <!----></span>
+                      </a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,ATN-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      3
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,ATN-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      3
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""></td>
+                  <td aria-colindex="5" role="cell" class=""></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/neo-tango"><span><a href="/dances/neo-tango">Neo Tango</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,NTN-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      2
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,NTN-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      2
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""></td>
+                  <td aria-colindex="5" role="cell" class=""></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/milonga"><span><a href="/dances/milonga">Milonga</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,MGA-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      1
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,MGA-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      1
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/Song/?filter=Index-OOX,MGA-Dances-.-.-.-.-.-.-+Mother Son:Other" target="_self" class="btn btn-primary btn-sm">
+                      1
+                    </a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,MGA-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      1
+                    </a></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/tango-vals"><span><a href="/dances/tango-vals">Tango Vals</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,TGV-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      2
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,TGV-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      2
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""></td>
+                  <td aria-colindex="5" role="cell" class=""></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-group"><a href="/dances/waltz"><span><a href="/dances/undefined">Waltz</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,WLZ-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      209
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,WLZ-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      193
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/Song/?filter=Index-OOX,WLZ-Dances-.-.-.-.-.-.-+Mother Son:Other" target="_self" class="btn btn-primary btn-sm">
+                      26
+                    </a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,WLZ-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      32
+                    </a></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/cross-step-waltz"><span><a href="/dances/cross-step-waltz">Cross-step Waltz</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,CSW-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      4
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,CSW-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      3
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/Song/?filter=Index-OOX,CSW-Dances-.-.-.-.-.-.-+Mother Son:Other" target="_self" class="btn btn-primary btn-sm">
+                      1
+                    </a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,CSW-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      1
+                    </a></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/slow-waltz"><span><a href="/dances/slow-waltz">Slow Waltz</a> <span><br>
+    (Waltz)
+  </span>
+                        <!----></span>
+                      </a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,SWZ-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      101
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,SWZ-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      93
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/Song/?filter=Index-OOX,SWZ-Dances-.-.-.-.-.-.-+Mother Son:Other" target="_self" class="btn btn-primary btn-sm">
+                      13
+                    </a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,SWZ-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      18
+                    </a></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/viennese-waltz"><span><a href="/dances/viennese-waltz">Viennese Waltz</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,VWZ-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      102
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,VWZ-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      95
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/Song/?filter=Index-OOX,VWZ-Dances-.-.-.-.-.-.-+Mother Son:Other" target="_self" class="btn btn-primary btn-sm">
+                      12
+                    </a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,VWZ-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      13
+                    </a></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/tango-vals"><span><a href="/dances/tango-vals">Tango Vals</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,TGV-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      2
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,TGV-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      2
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""></td>
+                  <td aria-colindex="5" role="cell" class=""></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-group"><a href="/dances/foxtrot"><span><a href="/dances/undefined">Foxtrot</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,FXT-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      501
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,FXT-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      465
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/Song/?filter=Index-OOX,FXT-Dances-.-.-.-.-.-.-+Mother Son:Other" target="_self" class="btn btn-primary btn-sm">
+                      64
+                    </a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,FXT-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      69
+                    </a></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/castle-foxtrot"><span><a href="/dances/castle-foxtrot">Castle Foxtrot</a> <span><br>
+    (Slow Dance)
+  </span>
+                        <!----></span>
+                      </a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,CFT-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      319
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,CFT-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      293
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/Song/?filter=Index-OOX,CFT-Dances-.-.-.-.-.-.-+Mother Son:Other" target="_self" class="btn btn-primary btn-sm">
+                      48
+                    </a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,CFT-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      50
+                    </a></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/slow-foxtrot"><span><a href="/dances/slow-foxtrot">Slow Foxtrot</a> <span><br>
+    (Foxtrot)
+  </span>
+                        <!----></span>
+                      </a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,SFT-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      166
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,SFT-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      156
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/Song/?filter=Index-OOX,SFT-Dances-.-.-.-.-.-.-+Mother Son:Other" target="_self" class="btn btn-primary btn-sm">
+                      16
+                    </a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,SFT-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      19
+                    </a></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/quickstep"><span><a href="/dances/quickstep">Quickstep</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,QST-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      15
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,QST-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      15
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""></td>
+                  <td aria-colindex="5" role="cell" class=""></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/peabody"><span><a href="/dances/peabody">Peabody</a> <span><br>
+    (One Step)
+  </span>
+                        <!----></span>
+                      </a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,PBD-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      1
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,PBD-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      1
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""></td>
+                  <td aria-colindex="5" role="cell" class=""></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-group"><a href="/dances/latin"><span><a href="/dances/undefined">Latin</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,LTN-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      488
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,LTN-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      460
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/Song/?filter=Index-OOX,LTN-Dances-.-.-.-.-.-.-+Mother Son:Other" target="_self" class="btn btn-primary btn-sm">
+                      66
+                    </a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,LTN-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      67
+                    </a></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/bolero"><span><a href="/dances/bolero">Bolero</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,BOL-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      63
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,BOL-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      58
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/Song/?filter=Index-OOX,BOL-Dances-.-.-.-.-.-.-+Mother Son:Other" target="_self" class="btn btn-primary btn-sm">
+                      9
+                    </a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,BOL-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      9
+                    </a></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/cha-cha"><span><a href="/dances/cha-cha">Cha Cha</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,CHA-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      113
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,CHA-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      106
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/Song/?filter=Index-OOX,CHA-Dances-.-.-.-.-.-.-+Mother Son:Other" target="_self" class="btn btn-primary btn-sm">
+                      19
+                    </a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,CHA-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      19
+                    </a></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/mambo"><span><a href="/dances/mambo">Mambo</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,MBO-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      13
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,MBO-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      13
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""></td>
+                  <td aria-colindex="5" role="cell" class=""></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/rumba"><span><a href="/dances/rumba">Rumba</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,RMB-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      255
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,RMB-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      243
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/Song/?filter=Index-OOX,RMB-Dances-.-.-.-.-.-.-+Mother Son:Other" target="_self" class="btn btn-primary btn-sm">
+                      30
+                    </a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,RMB-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      31
+                    </a></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/samba"><span><a href="/dances/samba">Samba</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,SMB-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      11
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,SMB-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      10
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/Song/?filter=Index-OOX,SMB-Dances-.-.-.-.-.-.-+Mother Son:Other" target="_self" class="btn btn-primary btn-sm">
+                      3
+                    </a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,SMB-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      3
+                    </a></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/salsa"><span><a href="/dances/salsa">Salsa</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,SLS-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      17
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,SLS-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      16
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""></td>
+                  <td aria-colindex="5" role="cell" class=""></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/bachata"><span><a href="/dances/bachata">Bachata</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,BCH-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      5
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,BCH-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      4
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/Song/?filter=Index-OOX,BCH-Dances-.-.-.-.-.-.-+Mother Son:Other" target="_self" class="btn btn-primary btn-sm">
+                      2
+                    </a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,BCH-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      2
+                    </a></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/cumbia"><span><a href="/dances/cumbia">Cumbia</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,CMB-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      3
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,CMB-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      2
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/Song/?filter=Index-OOX,CMB-Dances-.-.-.-.-.-.-+Mother Son:Other" target="_self" class="btn btn-primary btn-sm">
+                      1
+                    </a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,CMB-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      1
+                    </a></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/merengue"><span><a href="/dances/merengue">Merengue</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,MRG-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      8
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,MRG-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      8
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/Song/?filter=Index-OOX,MRG-Dances-.-.-.-.-.-.-+Mother Son:Other" target="_self" class="btn btn-primary btn-sm">
+                      2
+                    </a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,MRG-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      2
+                    </a></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-group"><a href="/dances/other"><span><a href="/dances/undefined">Other</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,MSC-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      145
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,MSC-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      133
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/Song/?filter=Index-OOX,MSC-Dances-.-.-.-.-.-.-+Mother Son:Other" target="_self" class="btn btn-primary btn-sm">
+                      19
+                    </a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,MSC-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      26
+                    </a></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/blues"><span><a href="/dances/blues">Blues</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,BLU-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      28
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,BLU-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      26
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/Song/?filter=Index-OOX,BLU-Dances-.-.-.-.-.-.-+Mother Son:Other" target="_self" class="btn btn-primary btn-sm">
+                      4
+                    </a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,BLU-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      5
+                    </a></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/country-two-step"><span><a href="/dances/country-two-step">Country Two Step</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,C2S-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      4
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,C2S-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      3
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,C2S-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      1
+                    </a></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/motown"><span><a href="/dances/motown">Motown</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,MWT-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      16
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,MWT-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      16
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/Song/?filter=Index-OOX,MWT-Dances-.-.-.-.-.-.-+Mother Son:Other" target="_self" class="btn btn-primary btn-sm">
+                      6
+                    </a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,MWT-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      6
+                    </a></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/night-club-two-step"><span><a href="/dances/night-club-two-step">Night Club Two Step</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,NC2-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      96
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,NC2-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      87
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/Song/?filter=Index-OOX,NC2-Dances-.-.-.-.-.-.-+Mother Son:Other" target="_self" class="btn btn-primary btn-sm">
+                      9
+                    </a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,NC2-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      14
+                    </a></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/polka"><span><a href="/dances/polka">Polka</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,PLK-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      1
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,PLK-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      1
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""></td>
+                  <td aria-colindex="5" role="cell" class=""></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-group"><a href="/dances/performance"><span><a href="/dances/undefined">Performance</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,PRF-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      21
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,PRF-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      17
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/Song/?filter=Index-OOX,PRF-Dances-.-.-.-.-.-.-+Mother Son:Other" target="_self" class="btn btn-primary btn-sm">
+                      4
+                    </a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,PRF-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      4
+                    </a></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/contemporary"><span><a href="/dances/contemporary">Contemporary</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,CNT-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      11
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,CNT-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      9
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/Song/?filter=Index-OOX,CNT-Dances-.-.-.-.-.-.-+Mother Son:Other" target="_self" class="btn btn-primary btn-sm">
+                      2
+                    </a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,CNT-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      2
+                    </a></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/freestyle"><span><a href="/dances/freestyle">Freestyle</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,FST-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      3
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,FST-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      3
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""></td>
+                  <td aria-colindex="5" role="cell" class=""></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
+                    <div class="tag-matrix-item"><a href="/dances/jazz"><span><a href="/dances/jazz">Jazz</a> <!----> <!----></span></a></div>
+                  </td>
+                  <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,JAZ-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
+                      7
+                    </a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="/Song/?filter=Index-OOX,JAZ-Dances-.-.-.-.-.-.-+First Dance:Other" target="_self" class="btn btn-primary btn-sm">
+                      5
+                    </a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/Song/?filter=Index-OOX,JAZ-Dances-.-.-.-.-.-.-+Mother Son:Other" target="_self" class="btn btn-primary btn-sm">
+                      2
+                    </a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/Song/?filter=Index-OOX,JAZ-Dances-.-.-.-.-.-.-+Father Daughter:Other" target="_self" class="btn btn-primary btn-sm">
+                      2
+                    </a></td>
+                </tr>
+                <!---->
+                <!---->
+              </tbody>
+              <tfoot role="rowgroup" class="">
+                <tr role="row" class="">
+                  <th role="columnheader" scope="col" aria-colindex="1" class="table-b-table-default b-table-sticky-column">Dance Style</th>
+                  <th role="columnheader" scope="col" aria-colindex="2" class=""><a href="/Song/?filter=Index-.-.-.-.-.-.-.-.-+Wedding:Other">Wedding</a></th>
+                  <th role="columnheader" scope="col" aria-colindex="3" class=""><a href="/Song/?filter=Index-.-.-.-.-.-.-.-.-+First Dance:Other">First Dance</a></th>
+                  <th role="columnheader" scope="col" aria-colindex="4" class=""><a href="/Song/?filter=Index-.-.-.-.-.-.-.-.-+Mother Son:Other">Mother/<wbr>Son</a></th>
+                  <th role="columnheader" scope="col" aria-colindex="5" class=""><a href="/Song/?filter=Index-.-.-.-.-.-.-.-.-+Father Daughter:Other">Father/<wbr>Daughter</a></th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+      <dl>
+        <div>
+          <dd><img src="/images/icons/info.png" alt="tools" width="24" height="24">
+            Read the <a href="https://music4dance.blog">music4dance blog</a> entries
+            about <a href="https://music4dance.blog/tag/wedding">Wedding Music</a>.
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+  <div id="footer-content">
+    <hr>
+    <footer>
+      <p>
+        © 2022 -
+        <a href="https://www.music4dance.net">Music4Dance.net</a> -
+        <a href="https://www.music4dance.net/home/sitemap">Site Map</a> -
+        <a href="https://www.music4dance.net/home/termsofservice">Terms of Service</a>
+        -
+        <a href="https://www.music4dance.net/home/privacypolicy">Privacy Policy</a>
+        - <a href="https://www.music4dance.net/home/credits">Credits</a> -
+        <a href="https://music4dance.blog/music4dance-help/song-list/">Help</a>
+      </p>
+    </footer>
+  </div>
+  <!---->
+</div>
+`;

@@ -20,35 +20,40 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 import { Book, Link } from "./BookModel";
 
-@Component
-export default class BookComponent extends Vue {
-  @Prop() private book!: Book;
+export default Vue.extend({
+  props: {
+    book: {
+      type: Object as PropType<Book>,
+      required: true,
+    },
+  },
+  computed: {
+    links(): Link[] {
+      const links: Link[] = [];
+      const book = this.book;
+      if (book.kindle) {
+        links.push({ text: `${book.title} (Kindle)`, ref: book.kindle });
+      }
+      if (book.paperback) {
+        links.push({ text: `${book.title} (Paperback)`, ref: book.paperback });
+      }
+      if (book.hardcover) {
+        links.push({ text: `${book.title} (Hardcover)`, ref: book.hardcover });
+      }
+      if (book.audible) {
+        links.push({ text: `${book.title} (Audible)`, ref: book.audible });
+      }
+      if (book.review) {
+        links.push({ text: "Review", ref: book.review });
+      }
 
-  private get links(): Link[] {
-    const links: Link[] = [];
-    const book = this.book;
-    if (book.kindle) {
-      links.push({ text: `${book.title} (Kindle)`, ref: book.kindle });
-    }
-    if (book.paperback) {
-      links.push({ text: `${book.title} (Paperback)`, ref: book.paperback });
-    }
-    if (book.hardcover) {
-      links.push({ text: `${book.title} (Hardcover)`, ref: book.hardcover });
-    }
-    if (book.audible) {
-      links.push({ text: `${book.title} (Audible)`, ref: book.audible });
-    }
-    if (book.review) {
-      links.push({ text: "Review", ref: book.review });
-    }
-
-    return book.others ? [...links, ...book.others] : links;
-  }
-}
+      return book.others ? [...links, ...book.others] : links;
+    },
+  },
+});
 </script>
 
 <style lang="scss" scoped>

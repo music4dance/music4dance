@@ -63,7 +63,7 @@ a
 <script lang="ts">
 import Page from "@/components/Page.vue";
 import { BreadCrumbItem, infoTrail } from "@/model/BreadCrumbItem";
-import { Component, Vue } from "vue-property-decorator";
+import Vue from "vue";
 import { BookCategory } from "./BookCategory";
 import type { Book } from "./BookModel";
 import { BookType } from "./BookType";
@@ -246,52 +246,53 @@ const books: Book[] = [
   // },
 ];
 
-@Component({
+export default Vue.extend({
   components: {
     Category,
     Page,
   },
-})
-export default class App extends Vue {
-  private breadcrumbs: BreadCrumbItem[] = [
-    ...infoTrail,
-    { text: "Reading List", active: true },
-  ];
+  data() {
+    return new (class {
+      breadcrumbs: BreadCrumbItem[] = [
+        ...infoTrail,
+        { text: "Reading List", active: true },
+      ];
+    })();
+  },
+  computed: {
+    books(): Book[] {
+      return books;
+    },
+    categories(): BookCategory[] {
+      return [
+        new BookCategory(
+          BookType.Education,
+          "Learning to Dance",
+          "Books about learning to dance and to become a better dancer",
+          this.books
+        ),
+        new BookCategory(
+          BookType.History,
+          "Dance History",
+          "Books about dance history and the social impact of dance",
+          this.books
+        ),
+        new BookCategory(
+          BookType.Fiction,
+          "Dance in Fiction",
+          "Books that celebrate dance in fiction",
+          this.books
+        ),
+      ];
+    },
+    flattened(): boolean {
+      const params = new URLSearchParams(window.location.search);
+      const flat = params.get("flat");
 
-  private get categories(): BookCategory[] {
-    return [
-      new BookCategory(
-        BookType.Education,
-        "Learning to Dance",
-        "Books about learning to dance and to become a better dancer",
-        this.books
-      ),
-      new BookCategory(
-        BookType.History,
-        "Dance History",
-        "Books about dance history and the social impact of dance",
-        this.books
-      ),
-      new BookCategory(
-        BookType.Fiction,
-        "Dance in Fiction",
-        "Books that celebrate dance in fiction",
-        this.books
-      ),
-    ];
-  }
-
-  private get flattened(): boolean {
-    const params = new URLSearchParams(window.location.search);
-    const flat = params.get("flat");
-
-    return !!flat && flat.toLowerCase() === "true";
-  }
-
-  private get books(): Book[] {
-    return books;
-  }
-}
+      return !!flat && flat.toLowerCase() === "true";
+    },
+  },
+});
 </script>
 
 <style lang="scss" scoped>

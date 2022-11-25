@@ -23,7 +23,6 @@ describe("AdvancedSearch.vue", () => {
     });
   });
 
-  // TODONEXT: make sure dancesEnvironment and Tags are actually preloaded
   test("renders the advanced search page", async () => {
     await testPageAsync(App, Preloads.All);
   });

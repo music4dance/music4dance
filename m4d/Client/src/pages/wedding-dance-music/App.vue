@@ -78,34 +78,26 @@ import TagMatrixTable from "@/components/TagMatrixTable.vue";
 import { BreadCrumbItem, danceTrail } from "@/model/BreadCrumbItem";
 import { TagMatrix } from "@/model/TagMatrix";
 import { TypedJSON } from "typedjson";
-import { Component, Vue } from "vue-property-decorator";
+import Vue from "vue";
 
 declare const model: string;
 
-@Component({
+export default Vue.extend({
   components: {
     BlogTagLink,
     Page,
     TagMatrixTable,
   },
-})
-export default class App extends Vue {
-  private model: TagMatrix;
-  private breadcrumbs: BreadCrumbItem[] = [
-    ...danceTrail,
-    { text: "WeddingDanceMusic", active: true },
-  ];
-
-  constructor() {
-    super();
-
-    const serializer = new TypedJSON(TagMatrix);
-    const modelS = JSON.stringify(model);
-    const modelT = serializer.parse(modelS);
-    if (!modelT) {
-      throw new Error("Unable to parse model");
-    }
-    this.model = modelT;
-  }
-}
+  props: {},
+  data() {
+    return new (class {
+      model: TagMatrix = TypedJSON.parse(model, TagMatrix)!;
+      breadcrumbs: BreadCrumbItem[] = [
+        ...danceTrail,
+        { text: "WeddingDanceMusic", active: true },
+      ];
+    })();
+  },
+  computed: {},
+});
 </script>

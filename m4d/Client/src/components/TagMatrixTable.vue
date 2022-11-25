@@ -34,70 +34,69 @@
 </template>
 
 <script lang="ts">
-import DanceName from "@/components/DanceName.vue";
 import { wordsToKebab } from "@/helpers/StringHelpers";
 import { DanceObject } from "@/model/DanceObject";
 import { TagMatrix, TagRow } from "@/model/TagMatrix";
 import { BvTableFieldArray } from "bootstrap-vue";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
+import DanceName from "./DanceName.vue";
 
-@Component({ components: { DanceName } })
-export default class TagMatrixTable extends Vue {
-  @Prop() private matrix!: TagMatrix;
+export default Vue.extend({
+  components: {
+    DanceName,
+  },
+  props: {
+    matrix: { type: Object as PropType<TagMatrix>, required: true },
+  },
+  computed: {
+    fields(): BvTableFieldArray {
+      const fields: BvTableFieldArray = [
+        {
+          key: "dance",
+          label: "Dance Style",
+          stickyColumn: true,
+          formatter: (value: DanceObject) => value.name,
+        },
+      ];
 
-  private get rows(): TagRow[] {
-    return this.matrix.list;
-  }
+      const columns = this.matrix.columns;
+      for (const column of columns) {
+        fields.push({
+          key: column.tag,
+          label: column.title.replace("/", "/<wbr>"),
+          formatter: (value: null, key: string, item: TagRow) =>
+            this.countFromKey(key, item),
+        });
+      }
 
-  private get fields(): BvTableFieldArray {
-    const fields: BvTableFieldArray = [
-      {
-        key: "dance",
-        label: "Dance Style",
-        stickyColumn: true,
-        formatter: (value: DanceObject) => value.name,
-      },
-    ];
-
-    const columns = this.matrix.columns;
-    for (const column of columns) {
-      fields.push({
-        key: column.tag,
-        label: column.title.replace("/", "/<wbr>"),
-        formatter: (value: null, key: string, item: TagRow) =>
-          this.countFromKey(key, item),
-      });
-    }
-
-    return fields;
-  }
-
-  private get groupClass(): string {
-    return "tag-matrix-group";
-  }
-
-  private columnFromTag(tag: string): number {
-    return this.matrix.columns.findIndex((c) => c.tag === tag)!;
-  }
-
-  private get itemClass(): string {
-    return "tag-matrix-item";
-  }
-
-  private countFromKey(key: string, row: TagRow): string {
-    return row.counts[this.columnFromTag(key)].toString();
-  }
-
-  private danceLink(row: TagRow): string {
-    return `/dances/${wordsToKebab(row.dance.name)}`;
-  }
-
-  private danceTagLink(row: TagRow, field: { key: string }): string {
-    return `/Song/?filter=Index-OOX,${row.dance.id}-Dances-.-.-.-.-.-.-+${field.key}`;
-  }
-
-  private tagLink(key: string): string {
-    return `/Song/?filter=Index-.-.-.-.-.-.-.-.-+${key}`;
-  }
-}
+      return fields;
+    },
+    groupClass(): string {
+      return "tag-matrix-group";
+    },
+    itemClass(): string {
+      return "tag-matrix-item";
+    },
+    rows(): TagRow[] {
+      return this.matrix.list;
+    },
+  },
+  methods: {
+    columnFromTag(tag: string): number {
+      return this.matrix.columns.findIndex((c) => c.tag === tag)!;
+    },
+    countFromKey(key: string, row: TagRow): string {
+      return row.counts[this.columnFromTag(key)].toString();
+    },
+    danceLink(row: TagRow): string {
+      return `/dances/${wordsToKebab(row.dance.name)}`;
+    },
+    danceTagLink(row: TagRow, field: { key: string }): string {
+      return `/Song/?filter=Index-OOX,${row.dance.id}-Dances-.-.-.-.-.-.-+${field.key}`;
+    },
+    tagLink(key: string): string {
+      return `/Song/?filter=Index-.-.-.-.-.-.-.-.-+${key}`;
+    },
+  },
+});
 </script>

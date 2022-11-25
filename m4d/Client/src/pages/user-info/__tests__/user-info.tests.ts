@@ -8,9 +8,8 @@ declare global {
   }
 }
 
-describe("Home.vue", () => {
-  test("renders the home page", () => {
-    window.seedNumber = 2237892;
+describe("UserInfo.vue", () => {
+  test("renders a user info page", () => {
     testPage(App, model);
   });
 });

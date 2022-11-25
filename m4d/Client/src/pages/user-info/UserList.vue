@@ -46,7 +46,7 @@
 
 <script lang="ts">
 import { ProfileModel } from "@/model/ProfileModel";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 import UserLink from "./UserLink.vue";
 
 interface ProfileLink {
@@ -56,59 +56,62 @@ interface ProfileLink {
   count?: number;
 }
 
-@Component({
+export default Vue.extend({
   components: {
     UserLink,
   },
-})
-export default class UserList extends Vue {
-  @Prop() private model!: ProfileModel;
+  props: {
+    model: {
+      type: Object as PropType<ProfileModel>,
+      required: true,
+    },
+  },
+  computed: {
+    allLinks(): ProfileLink[] {
+      const info = this.model;
 
-  private get links(): ProfileLink[] {
-    return this.allLinks.filter((l) => l.count);
-  }
-
-  private get allLinks(): ProfileLink[] {
-    const info = this.model;
-
-    return [
-      {
-        text: "Songs in {{ userName }}'s favorites.",
-        type: "l",
-        include: true,
-        count: info.favoriteCount,
-      },
-      {
-        text: "Songs that {{ userName }} has edited.",
-        type: "a",
-        include: true,
-        count: info.editCount,
-      },
-      {
-        text: "Songs in {{ userName }}'s blocked list.",
-        type: "h",
-        include: true,
-        count: info.blockedCount,
-      },
-      {
-        text: "Songs <em>not</em> in {{ userName }}'s favorites.",
-        type: "l",
-        include: false,
-        count: info.favoriteCount,
-      },
-      {
-        text: "Songs that {{ userName }} has <em>not</em> edited.",
-        type: "a",
-        include: false,
-        count: info.editCount,
-      },
-      {
-        text: "Songs <em>not</em> in {{ userName }}'s blocked list.",
-        type: "h",
-        include: false,
-        count: info.blockedCount,
-      },
-    ];
-  }
-}
+      return [
+        {
+          text: "Songs in {{ userName }}'s favorites.",
+          type: "l",
+          include: true,
+          count: info.favoriteCount,
+        },
+        {
+          text: "Songs that {{ userName }} has edited.",
+          type: "a",
+          include: true,
+          count: info.editCount,
+        },
+        {
+          text: "Songs in {{ userName }}'s blocked list.",
+          type: "h",
+          include: true,
+          count: info.blockedCount,
+        },
+        {
+          text: "Songs <em>not</em> in {{ userName }}'s favorites.",
+          type: "l",
+          include: false,
+          count: info.favoriteCount,
+        },
+        {
+          text: "Songs that {{ userName }} has <em>not</em> edited.",
+          type: "a",
+          include: false,
+          count: info.editCount,
+        },
+        {
+          text: "Songs <em>not</em> in {{ userName }}'s blocked list.",
+          type: "h",
+          include: false,
+          count: info.blockedCount,
+        },
+      ];
+    },
+    links(): ProfileLink[] {
+      return this.allLinks.filter((l) => l.count);
+    },
+  },
+});
 </script>
