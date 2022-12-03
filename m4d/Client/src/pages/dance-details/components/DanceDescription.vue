@@ -80,7 +80,7 @@ export default class DanceDescription
   }
 
   private get tempoFilter(): SongFilter {
-    const tempo = this.tempoRange?.toBpm(this.numerator);
+    const tempo = this.tempoRange;
     const filter = new SongFilter();
     filter.action = "advanced";
     filter.tempoMin = tempo?.min;
