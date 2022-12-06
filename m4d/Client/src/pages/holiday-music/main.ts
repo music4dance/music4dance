@@ -1,4 +1,5 @@
-import { initialize } from "@/initialize";
+import { initializeAsync } from "@/initialize";
+import { Preloads } from "@/Preloads";
 import App from "./App.vue";
 
-initialize(App);
+await initializeAsync(App, Preloads.Dances);

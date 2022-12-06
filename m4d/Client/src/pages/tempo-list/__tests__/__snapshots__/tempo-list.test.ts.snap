@@ -1,0 +1,689 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TempoList.vue renders the tempo list page 1`] = `
+<div>
+  <div>
+    <!---->
+    <!---->
+    <nav class="navbar navbar-dark bg-primary navbar-expand-lg" id="mainMenu"><a href="/" target="_self" class="navbar-brand"><img src="/images/header-logo.png" height="40" title="music4dance"></a> <button type="button" aria-label="Toggle navigation" class="navbar-toggler collapsed" aria-expanded="false" aria-controls="nav-collapse"><span class="navbar-toggler-icon"></span></button>
+      <transition-stub css="true" enterclass="" leaveclass="collapse show" entertoclass="collapse show" leavetoclass="collapse" enteractiveclass="collapsing" leaveactiveclass="collapsing">
+        <div id="nav-collapse" class="navbar-collapse collapse" style="display: none;">
+          <ul class="navbar-nav">
+            <li id="music-menu" class="nav-item b-nav-dropdown dropdown"><a id="music-menu__BV_toggle_" role="button" aria-haspopup="true" aria-expanded="false" aria-controls="music-menu__BV_toggle_menu_" href="#music-menu" target="_self" class="nav-link dropdown-toggle"><span>Music</span></a>
+              <ul tabindex="-1" aria-labelledby="music-menu__BV_toggle_" id="music-menu__BV_toggle_menu_" class="dropdown-menu">
+                <li role="presentation"><a role="menuitem" href="/dances" target="_self" class="dropdown-item">Dances</a></li>
+                <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/ballroom-competition-categories" target="_self" class="dropdown-item">Ballroom</a></li>
+                <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/latin" target="_self" class="dropdown-item">Latin</a></li>
+                <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/swing" target="_self" class="dropdown-item">Swing</a></li>
+                <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/tango" target="_self" class="dropdown-item">Tango</a></li>
+                <li role="presentation"><a role="menuitem" href="/song" target="_self" class="dropdown-item">Song Library</a></li>
+                <li role="presentation" class="nav-subitem"><a role="menuitem" href="/song/advancedsearchform" target="_self" class="dropdown-item">Advanced Search</a></li>
+                <li role="presentation" class="nav-subitem"><a role="menuitem" href="/song/augment" target="_self" class="dropdown-item">Add Song</a></li>
+                <li role="presentation" class="nav-subitem"><a role="menuitem" href="/song/newmusic" target="_self" class="dropdown-item">New Music</a></li>
+                <li role="presentation"><a role="menuitem" href="/dances/wedding-music" target="_self" class="dropdown-item">Wedding</a></li>
+                <li role="presentation"><a role="menuitem" href="/song/holidaymusic" target="_self" class="dropdown-item">Holiday</a></li>
+                <li role="presentation"><a role="menuitem" href="/song/addtags/?tags=%2BHalloween%3AOther" target="_self" class="dropdown-item">Halloween</a></li>
+                <li role="presentation"><a role="menuitem" href="/tag" target="_self" class="dropdown-item">Tags</a></li>
+              </ul>
+            </li>
+            <li id="tools-menu" class="nav-item b-nav-dropdown dropdown"><a id="tools-menu__BV_toggle_" role="button" aria-haspopup="true" aria-expanded="false" aria-controls="tools-menu__BV_toggle_menu_" href="#tools-menu" target="_self" class="nav-link dropdown-toggle"><span>Tools</span></a>
+              <ul tabindex="-1" aria-labelledby="tools-menu__BV_toggle_" id="tools-menu__BV_toggle_menu_" class="dropdown-menu">
+                <li role="presentation"><a role="menuitem" href="/home/counter" target="_self" class="dropdown-item">Tempo Counter</a></li>
+                <li role="presentation"><a role="menuitem" href="/home/tempi" target="_self" class="dropdown-item">Tempi (Tempos)</a></li>
+              </ul>
+            </li>
+            <li class="nav-item b-nav-dropdown dropdown"><a role="button" aria-haspopup="true" aria-expanded="false" href="#" target="_self" class="nav-link dropdown-toggle"><span>Info</span></a>
+              <ul tabindex="-1" class="dropdown-menu">
+                <li role="presentation"><a role="menuitem" href="https://music4dance.blog/music4dance-help/song-list/" target="_self" class="dropdown-item">Help</a></li>
+                <li role="presentation"><a role="menuitem" href="https://music4dance.blog/" target="_self" class="dropdown-item">Blog</a></li>
+                <li role="presentation"><a role="menuitem" href="/home/faq" target="_self" class="dropdown-item">FAQ</a></li>
+                <li role="presentation"><a role="menuitem" href="/home/about" target="_self" class="dropdown-item">About music4dance</a></li>
+                <li role="presentation"><a role="menuitem" href="/home/readinglist" target="_self" class="dropdown-item">Reading List</a></li>
+                <li role="presentation"><a role="menuitem" href="/home/sitemap" target="_self" class="dropdown-item">Site Map</a></li>
+                <li role="presentation"><a role="menuitem" href="/home/privacypolicy" target="_self" class="dropdown-item">Privacy Policy</a></li>
+                <li role="presentation"><a role="menuitem" href="/home/credits" target="_self" class="dropdown-item">Credits</a></li>
+              </ul>
+            </li>
+            <li id="contribute-menu" right="" class="nav-item"><a href="/home/contribute" target="_self" class="nav-link">Contribute</a></li>
+            <!---->
+          </ul>
+          <ul class="navbar-nav ml-auto">
+            <li class="form-inline">
+              <form class="form-inline"><input type="text" placeholder="Search" class="mr-sm-2 form-control form-control-sm"> <button type="submit" disabled="disabled" class="btn my-2 my-sm-0 btn-secondary btn-sm disabled">Search</button></form>
+            </li>
+            <li right="" class="nav-item"><a href="/identity/account/register?returnUrl=/" target="_self" class="nav-link">Register</a></li>
+            <li right="" class="nav-item"><a href="/identity/account/login?returnUrl=/" target="_self" class="nav-link">Login</a></li>
+          </ul>
+        </div>
+      </transition-stub>
+    </nav>
+    <!---->
+    <form id="logoutForm" action="/identity/account/logout" method="post" style="height: 0px;"><input name="__RequestVerificationToken" type="hidden" value="FOO"> <input type="hidden" name="returnUrl" value="/"> <button id="logout" type="submit" class="btn btn-link"></button></form>
+  </div>
+  <!---->
+  <div id="body-content" class="container-fluid body-content">
+    <div class="mt-2"></div>
+    <div>
+      <div class="row">
+        <div id="dropdown-form" class="dropdown b-dropdown col-md btn-group" style="margin-bottom: 8px;">
+          <!----><button id="dropdown-form__BV_toggle_" aria-haspopup="menu" aria-expanded="false" type="button" class="btn dropdown-toggle btn-primary">No Styles</button>
+          <ul role="menu" tabindex="-1" aria-labelledby="dropdown-form__BV_toggle_" class="dropdown-menu">
+            <li role="presentation">
+              <form tabindex="-1" class="b-dropdown-form">
+                <div class="custom-control custom-checkbox"><input aria-describedby="selected" aria-controls="selected" type="checkbox" class="custom-control-input" value="true"><label class="custom-control-label">
+                    Select All
+                  </label></div>
+                <hr>
+                <fieldset class="form-group">
+                  <!---->
+                  <div>
+                    <div role="group" tabindex="-1" class="bv-no-focus-ring">
+                      <div class="custom-control custom-checkbox"><input type="checkbox" name="temp" class="custom-control-input" value="american-rhythm"><label class="custom-control-label"><span>American Rhythm</span></label></div>
+                      <div class="custom-control custom-checkbox"><input type="checkbox" name="temp" class="custom-control-input" value="american-smooth"><label class="custom-control-label"><span>American Smooth</span></label></div>
+                      <div class="custom-control custom-checkbox"><input type="checkbox" name="temp" class="custom-control-input" value="international-latin"><label class="custom-control-label"><span>International Latin</span></label></div>
+                      <div class="custom-control custom-checkbox"><input type="checkbox" name="temp" class="custom-control-input" value="international-standard"><label class="custom-control-label"><span>International Standard</span></label></div>
+                      <div class="custom-control custom-checkbox"><input type="checkbox" name="temp" class="custom-control-input" value="social"><label class="custom-control-label"><span>Social</span></label></div>
+                    </div>
+                    <!---->
+                    <!---->
+                    <!---->
+                  </div>
+                </fieldset>
+              </form>
+            </li>
+          </ul>
+        </div>
+        <div id="dropdown-form" class="dropdown b-dropdown col-md btn-group" style="margin-bottom: 8px;">
+          <!----><button id="dropdown-form__BV_toggle_" aria-haspopup="menu" aria-expanded="false" type="button" class="btn dropdown-toggle btn-primary">No Types</button>
+          <ul role="menu" tabindex="-1" aria-labelledby="dropdown-form__BV_toggle_" class="dropdown-menu">
+            <li role="presentation">
+              <form tabindex="-1" class="b-dropdown-form">
+                <div class="custom-control custom-checkbox"><input aria-describedby="selected" aria-controls="selected" type="checkbox" class="custom-control-input" value="true"><label class="custom-control-label">
+                    Select All
+                  </label></div>
+                <hr>
+                <fieldset class="form-group">
+                  <!---->
+                  <div>
+                    <div role="group" tabindex="-1" class="bv-no-focus-ring">
+                      <div class="custom-control custom-checkbox"><input type="checkbox" name="temp" class="custom-control-input" value="swing"><label class="custom-control-label"><span>Swing</span></label></div>
+                      <div class="custom-control custom-checkbox"><input type="checkbox" name="temp" class="custom-control-input" value="tango"><label class="custom-control-label"><span>Tango</span></label></div>
+                      <div class="custom-control custom-checkbox"><input type="checkbox" name="temp" class="custom-control-input" value="waltz"><label class="custom-control-label"><span>Waltz</span></label></div>
+                      <div class="custom-control custom-checkbox"><input type="checkbox" name="temp" class="custom-control-input" value="foxtrot"><label class="custom-control-label"><span>Foxtrot</span></label></div>
+                      <div class="custom-control custom-checkbox"><input type="checkbox" name="temp" class="custom-control-input" value="latin"><label class="custom-control-label"><span>Latin</span></label></div>
+                      <div class="custom-control custom-checkbox"><input type="checkbox" name="temp" class="custom-control-input" value="other"><label class="custom-control-label"><span>Other</span></label></div>
+                    </div>
+                    <!---->
+                    <!---->
+                    <!---->
+                  </div>
+                </fieldset>
+              </form>
+            </li>
+          </ul>
+        </div>
+        <div id="dropdown-form" class="dropdown b-dropdown col-md btn-group" style="margin-bottom: 8px;">
+          <!----><button id="dropdown-form__BV_toggle_" aria-haspopup="menu" aria-expanded="false" type="button" class="btn dropdown-toggle btn-primary">No Meters</button>
+          <ul role="menu" tabindex="-1" aria-labelledby="dropdown-form__BV_toggle_" class="dropdown-menu">
+            <li role="presentation">
+              <form tabindex="-1" class="b-dropdown-form">
+                <div class="custom-control custom-checkbox"><input aria-describedby="selected" aria-controls="selected" type="checkbox" class="custom-control-input" value="true"><label class="custom-control-label">
+                    Select All
+                  </label></div>
+                <hr>
+                <fieldset class="form-group">
+                  <!---->
+                  <div>
+                    <div role="group" tabindex="-1" class="bv-no-focus-ring">
+                      <div class="custom-control custom-checkbox"><input type="checkbox" name="temp" class="custom-control-input" value="2-4"><label class="custom-control-label"><span>2/4 MPM</span></label></div>
+                      <div class="custom-control custom-checkbox"><input type="checkbox" name="temp" class="custom-control-input" value="3-4"><label class="custom-control-label"><span>3/4 MPM</span></label></div>
+                      <div class="custom-control custom-checkbox"><input type="checkbox" name="temp" class="custom-control-input" value="4-4"><label class="custom-control-label"><span>4/4 MPM</span></label></div>
+                    </div>
+                    <!---->
+                    <!---->
+                    <!---->
+                  </div>
+                </fieldset>
+              </form>
+            </li>
+          </ul>
+        </div>
+        <div id="dropdown-form" class="dropdown b-dropdown col-md btn-group" style="margin-bottom: 8px;">
+          <!----><button id="dropdown-form__BV_toggle_" aria-haspopup="menu" aria-expanded="false" type="button" class="btn dropdown-toggle btn-primary">No Oranizations</button>
+          <ul role="menu" tabindex="-1" aria-labelledby="dropdown-form__BV_toggle_" class="dropdown-menu">
+            <li role="presentation">
+              <form tabindex="-1" class="b-dropdown-form">
+                <div class="custom-control custom-checkbox"><input aria-describedby="selected" aria-controls="selected" type="checkbox" class="custom-control-input" value="true"><label class="custom-control-label">
+                    Select All
+                  </label></div>
+                <hr>
+                <fieldset class="form-group">
+                  <!---->
+                  <div>
+                    <div role="group" tabindex="-1" class="bv-no-focus-ring">
+                      <div class="custom-control custom-checkbox"><input type="checkbox" name="temp" class="custom-control-input" value="dancesport"><label class="custom-control-label"><span>DanceSport</span></label></div>
+                      <div class="custom-control custom-checkbox"><input type="checkbox" name="temp" class="custom-control-input" value="ndca-1"><label class="custom-control-label"><span>NDCA (Silver/Gold or Professional/Amateur)</span></label></div>
+                      <div class="custom-control custom-checkbox"><input type="checkbox" name="temp" class="custom-control-input" value="ndca-2"><label class="custom-control-label"><span>NDCA (Bronze or ProAm)</span></label></div>
+                    </div>
+                    <!---->
+                    <!---->
+                    <!---->
+                  </div>
+                </fieldset>
+              </form>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md">
+          <div class="table-responsive">
+            <table role="table" aria-busy="false" aria-colcount="6" class="table b-table table-striped table-hover">
+              <!---->
+              <!---->
+              <thead role="rowgroup" class="">
+                <!---->
+                <tr role="row" class="">
+                  <th role="columnheader" scope="col" tabindex="0" aria-colindex="1" aria-sort="ascending" class="table-b-table-default b-table-sticky-column position-relative b-table-sort-icon-left">
+                    <div>Name</div><span class="sr-only"> (Click to sort descending)</span>
+                  </th>
+                  <th role="columnheader" scope="col" tabindex="0" aria-colindex="2" aria-sort="none" class="position-relative b-table-sort-icon-left">
+                    <div>Meter</div><span class="sr-only"> (Click to sort ascending)</span>
+                  </th>
+                  <th role="columnheader" scope="col" tabindex="0" aria-colindex="3" aria-sort="none" class="position-relative b-table-sort-icon-left">
+                    <div>BPM</div><span class="sr-only"> (Click to sort ascending)</span>
+                  </th>
+                  <th role="columnheader" scope="col" tabindex="0" aria-colindex="4" aria-sort="none" class="position-relative b-table-sort-icon-left">
+                    <div>MPM</div><span class="sr-only"> (Click to sort ascending)</span>
+                  </th>
+                  <th role="columnheader" scope="col" tabindex="0" aria-colindex="5" aria-sort="none" class="position-relative b-table-sort-icon-left">
+                    <div>Type</div><span class="sr-only"> (Click to sort ascending)</span>
+                  </th>
+                  <th role="columnheader" scope="col" tabindex="0" aria-colindex="6" aria-sort="none" class="position-relative b-table-sort-icon-left">
+                    <div>Styles</div><span class="sr-only"> (Click to sort ascending)</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody role="rowgroup">
+                <!---->
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/argentine-tango">Argentine Tango</a> <span><!---->
+    (Tango Argentino)
+  </span>
+                    <!----></span>
+                  </td>
+                  <td aria-colindex="2" role="cell" class="">4/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-ATN-Tempo-.-.-.-448-560">112-140</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-ATN-Tempo-.-.-.-448-560">28-35</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Tango">Tango</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <span>
+          Social
+        </span></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/bachata">Bachata</a> <!----> <!----></span></td>
+                  <td aria-colindex="2" role="cell" class="">4/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-BCH-Tempo-.-.-.-432-608">108-152</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-BCH-Tempo-.-.-.-432-608">27-38</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Latin">Latin</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <span>
+          Social
+        </span></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/balboa">Balboa</a> <!----> <!----></span></td>
+                  <td aria-colindex="2" role="cell" class="">4/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-BBA-Tempo-.-.-.-640-1040">160-260</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-BBA-Tempo-.-.-.-640-1040">40-65</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Swing">Swing</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <span>
+          Social
+        </span></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/blues">Blues</a> <!----> <!----></span></td>
+                  <td aria-colindex="2" role="cell" class="">4/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-BLU-Tempo-.-.-.-160-400">40-100</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-BLU-Tempo-.-.-.-160-400">10-25</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Other">Other</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <span>
+          Social
+        </span></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/bolero">Bolero</a> <!----> <!----></span></td>
+                  <td aria-colindex="2" role="cell" class="">4/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-BOL-Tempo-.-.-.-384-416">96-104</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-BOL-Tempo-.-.-.-384-416">24-26</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Latin">Latin</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <a href="https://www.music4dance.net/dances/american-rhythm">
+          American Rhythm
+        </a></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/bossa-nova">Bossa Nova</a> <!----> <!----></span></td>
+                  <td aria-colindex="2" role="cell" class="">4/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-BSN-Tempo-.-.-.-240-360">60-90</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-BSN-Tempo-.-.-.-240-360">15-22.5</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Latin">Latin</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <span>
+          Social
+        </span></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/carolina-shag">Carolina Shag</a> <!----> <!----></span></td>
+                  <td aria-colindex="2" role="cell" class="">4/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-CSG-Tempo-.-.-.-432-528">108-132</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-CSG-Tempo-.-.-.-432-528">27-33</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Swing">Swing</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <span>
+          Social
+        </span></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/castle-foxtrot">Castle Foxtrot</a> <span><!---->
+    (Slow Dance)
+  </span>
+                    <!----></span>
+                  </td>
+                  <td aria-colindex="2" role="cell" class="">4/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-CFT-Tempo-.-.-.-240-400">60-100</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-CFT-Tempo-.-.-.-240-400">15-25</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Foxtrot">Foxtrot</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <span>
+          Social
+        </span></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/cha-cha">Cha Cha</a> <!----> <!----></span></td>
+                  <td aria-colindex="2" role="cell" class="">4/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-CHA-Tempo-.-.-.-480-496">120-124</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-CHA-Tempo-.-.-.-480-496">30-31</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Latin">Latin</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <a href="https://www.music4dance.net/dances/american-rhythm">
+          American Rhythm
+        </a></span><span><span>, </span> <a href="https://www.music4dance.net/dances/international-latin">
+                      International Latin
+                    </a></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/charleston">Charleston</a> <!----> <!----></span></td>
+                  <td aria-colindex="2" role="cell" class="">4/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-CST-Tempo-.-.-.-800-1200">200-300</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-CST-Tempo-.-.-.-800-1200">50-75</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Swing">Swing</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <span>
+          Social
+        </span></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/collegiate-shag">Collegiate Shag</a> <!----> <!----></span></td>
+                  <td aria-colindex="2" role="cell" class="">4/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-CLS-Tempo-.-.-.-720-800">180-200</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-CLS-Tempo-.-.-.-720-800">45-50</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Swing">Swing</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <span>
+          Social
+        </span></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/country-two-step">Country Two Step</a> <!----> <!----></span></td>
+                  <td aria-colindex="2" role="cell" class="">2/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-C2S-Tempo-.-.-.-336-400">168-200</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-C2S-Tempo-.-.-.-336-400">84-100</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Other">Other</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <span>
+          Social
+        </span></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/cross-step-waltz">Cross-step Waltz</a> <!----> <!----></span></td>
+                  <td aria-colindex="2" role="cell" class="">3/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-CSW-Tempo-.-.-.-324-360">108-120</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-CSW-Tempo-.-.-.-324-360">36-40</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Waltz">Waltz</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <span>
+          Social
+        </span></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/cumbia">Cumbia</a> <!----> <!----></span></td>
+                  <td aria-colindex="2" role="cell" class="">2/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-CMB-Tempo-.-.-.-180-220">90-110</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-CMB-Tempo-.-.-.-180-220">45-55</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Latin">Latin</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <span>
+          Social
+        </span></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/east-coast-swing">East Coast Swing</a> <span><!---->
+    (Triple Swing, East Coast)
+  </span>
+                    <!----></span>
+                  </td>
+                  <td aria-colindex="2" role="cell" class="">4/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-ECS-Tempo-.-.-.-544-576">136-144</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-ECS-Tempo-.-.-.-544-576">34-36</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Swing">Swing</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <a href="https://www.music4dance.net/dances/american-rhythm">
+          American Rhythm
+        </a></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/hustle">Hustle</a> <span><!---->
+    (Street Swing, Disco Fox)
+  </span>
+                    <!----></span>
+                  </td>
+                  <td aria-colindex="2" role="cell" class="">4/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-HST-Tempo-.-.-.-448-480">112-120</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-HST-Tempo-.-.-.-448-480">28-30</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Swing">Swing</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <a href="https://www.music4dance.net/dances/american-rhythm">
+          American Rhythm
+        </a></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/jive">Jive</a> <!----> <!----></span></td>
+                  <td aria-colindex="2" role="cell" class="">4/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-JIV-Tempo-.-.-.-608-704">152-176</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-JIV-Tempo-.-.-.-608-704">38-44</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Swing">Swing</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <a href="https://www.music4dance.net/dances/international-latin">
+          International Latin
+        </a></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/jump-swing">Jump Swing</a> <!----> <!----></span></td>
+                  <td aria-colindex="2" role="cell" class="">4/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-JSW-Tempo-.-.-.-640-960">160-240</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-JSW-Tempo-.-.-.-640-960">40-60</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Swing">Swing</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <span>
+          Social
+        </span></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/lindy-hop">Lindy Hop</a> <span><!---->
+    (Swing, Jitterbug)
+  </span>
+                    <!----></span>
+                  </td>
+                  <td aria-colindex="2" role="cell" class="">4/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-LHP-Tempo-.-.-.-480-720">120-180</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-LHP-Tempo-.-.-.-480-720">30-45</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Swing">Swing</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <span>
+          Social
+        </span></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/mambo">Mambo</a> <!----> <!----></span></td>
+                  <td aria-colindex="2" role="cell" class="">4/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-MBO-Tempo-.-.-.-752-816">188-204</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-MBO-Tempo-.-.-.-752-816">47-51</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Latin">Latin</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <a href="https://www.music4dance.net/dances/american-rhythm">
+          American Rhythm
+        </a></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/merengue">Merengue</a> <!----> <!----></span></td>
+                  <td aria-colindex="2" role="cell" class="">2/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-MRG-Tempo-.-.-.-116-128">58-64</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-MRG-Tempo-.-.-.-116-128">29-32</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Latin">Latin</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <a href="https://www.music4dance.net/dances/american-rhythm">
+          American Rhythm
+        </a></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/milonga">Milonga</a> <!----> <!----></span></td>
+                  <td aria-colindex="2" role="cell" class="">4/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-MGA-Tempo-.-.-.-704-896">176-224</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-MGA-Tempo-.-.-.-704-896">44-56</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Tango">Tango</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <span>
+          Social
+        </span></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/motown">Motown</a> <!----> <!----></span></td>
+                  <td aria-colindex="2" role="cell" class="">4/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-MWT-Tempo-.-.-.-320-600">80-150</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-MWT-Tempo-.-.-.-320-600">20-37.5</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Other">Other</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <span>
+          Social
+        </span></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/neo-tango">Neo Tango</a> <!----> <!----></span></td>
+                  <td aria-colindex="2" role="cell" class="">4/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-NTN-Tempo-.-.-.-240-400">60-100</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-NTN-Tempo-.-.-.-240-400">15-25</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Tango">Tango</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <span>
+          Social
+        </span></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/night-club-two-step">Night Club Two Step</a> <!----> <!----></span></td>
+                  <td aria-colindex="2" role="cell" class="">4/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-NC2-Tempo-.-.-.-200-368">50-92</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-NC2-Tempo-.-.-.-200-368">12.5-23</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Other">Other</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <span>
+          Social
+        </span></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/paso-doble">Paso Doble</a> <!----> <!----></span></td>
+                  <td aria-colindex="2" role="cell" class="">2/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-PDL-Tempo-.-.-.-232-248">116-124</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-PDL-Tempo-.-.-.-232-248">58-62</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Latin">Latin</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <a href="https://www.music4dance.net/dances/international-latin">
+          International Latin
+        </a></span><span><span>, </span> <a href="https://www.music4dance.net/dances/american-rhythm">
+                      American Rhythm
+                    </a></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/peabody">Peabody</a> <span><!---->
+    (One Step)
+  </span>
+                    <!----></span>
+                  </td>
+                  <td aria-colindex="2" role="cell" class="">4/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-PBD-Tempo-.-.-.-960-992">240-248</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-PBD-Tempo-.-.-.-960-992">60-62</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Foxtrot">Foxtrot</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <a href="https://www.music4dance.net/dances/american-smooth">
+          American Smooth
+        </a></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/polka">Polka</a> <!----> <!----></span></td>
+                  <td aria-colindex="2" role="cell" class="">2/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-PLK-Tempo-.-.-.-240-248">120-124</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-PLK-Tempo-.-.-.-240-248">60-62</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Other">Other</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <a href="https://www.music4dance.net/dances/american-rhythm">
+          American Rhythm
+        </a></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/quickstep">Quickstep</a> <!----> <!----></span></td>
+                  <td aria-colindex="2" role="cell" class="">4/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-QST-Tempo-.-.-.-768-832">192-208</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-QST-Tempo-.-.-.-768-832">48-52</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Foxtrot">Foxtrot</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <a href="https://www.music4dance.net/dances/international-standard">
+          International Standard
+        </a></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/rumba">Rumba</a> <!----> <!----></span></td>
+                  <td aria-colindex="2" role="cell" class="">4/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-RMB-Tempo-.-.-.-400-576">100-144</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-RMB-Tempo-.-.-.-400-576">25-36</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Latin">Latin</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <a href="https://www.music4dance.net/dances/american-rhythm">
+          American Rhythm
+        </a></span><span><span>, </span> <a href="https://www.music4dance.net/dances/international-latin">
+                      International Latin
+                    </a></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/salsa">Salsa</a> <!----> <!----></span></td>
+                  <td aria-colindex="2" role="cell" class="">4/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-SLS-Tempo-.-.-.-640-880">160-220</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-SLS-Tempo-.-.-.-640-880">40-55</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Latin">Latin</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <span>
+          Social
+        </span></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/samba">Samba</a> <!----> <!----></span></td>
+                  <td aria-colindex="2" role="cell" class="">2/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-SMB-Tempo-.-.-.-192-208">96-104</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-SMB-Tempo-.-.-.-192-208">48-52</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Latin">Latin</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <a href="https://www.music4dance.net/dances/international-latin">
+          International Latin
+        </a></span><span><span>, </span> <a href="https://www.music4dance.net/dances/american-rhythm">
+                      American Rhythm
+                    </a></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/slow-foxtrot">Slow Foxtrot</a> <span><!---->
+    (Foxtrot)
+  </span>
+                    <!----></span>
+                  </td>
+                  <td aria-colindex="2" role="cell" class="">4/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-SFT-Tempo-.-.-.-448-544">112-136</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-SFT-Tempo-.-.-.-448-544">28-34</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Foxtrot">Foxtrot</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <a href="https://www.music4dance.net/dances/american-smooth">
+          American Smooth
+        </a></span><span><span>, </span> <a href="https://www.music4dance.net/dances/international-standard">
+                      International Standard
+                    </a></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/slow-waltz">Slow Waltz</a> <span><!---->
+    (Waltz)
+  </span>
+                    <!----></span>
+                  </td>
+                  <td aria-colindex="2" role="cell" class="">3/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-SWZ-Tempo-.-.-.-252-270">84-90</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-SWZ-Tempo-.-.-.-252-270">28-30</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Waltz">Waltz</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <a href="https://www.music4dance.net/dances/american-smooth">
+          American Smooth
+        </a></span><span><span>, </span> <a href="https://www.music4dance.net/dances/international-standard">
+                      International Standard
+                    </a></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/tango-(ballroom)">Tango (Ballroom)</a> <!----> <!----></span></td>
+                  <td aria-colindex="2" role="cell" class="">4/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-TGO-Tempo-.-.-.-480-512">120-128</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-TGO-Tempo-.-.-.-480-512">30-32</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Tango">Tango</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <a href="https://www.music4dance.net/dances/american-smooth">
+          American Smooth
+        </a></span><span><span>, </span> <a href="https://www.music4dance.net/dances/international-standard">
+                      International Standard
+                    </a></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/tango-vals">Tango Vals</a> <!----> <!----></span></td>
+                  <td aria-colindex="2" role="cell" class="">3/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-TGV-Tempo-.-.-.-450-720">150-240</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-TGV-Tempo-.-.-.-450-720">50-80</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Tango">Tango, Waltz</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <span>
+          Social
+        </span></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/viennese-waltz">Viennese Waltz</a> <!----> <!----></span></td>
+                  <td aria-colindex="2" role="cell" class="">3/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-VWZ-Tempo-.-.-.-477-522">159-174</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-VWZ-Tempo-.-.-.-477-522">53-58</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Waltz">Waltz</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <a href="https://www.music4dance.net/dances/american-smooth">
+          American Smooth
+        </a></span><span><span>, </span> <a href="https://www.music4dance.net/dances/international-standard">
+                      International Standard
+                    </a></span></td>
+                </tr>
+                <tr role="row" class="">
+                  <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/west-coast-swing">West Coast Swing</a> <span><!---->
+    (West Coast)
+  </span>
+                    <!----></span>
+                  </td>
+                  <td aria-colindex="2" role="cell" class="">4/4</td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-WCS-Tempo-.-.-.-448-512">112-128</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-WCS-Tempo-.-.-.-448-512">28-32</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Swing">Swing</a></td>
+                  <td aria-colindex="6" role="cell" class=""><span><!----> <a href="https://www.music4dance.net/dances/american-rhythm">
+          American Rhythm
+        </a></span></td>
+                </tr>
+                <!---->
+                <!---->
+              </tbody>
+              <!---->
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <p>
+            Dancesport Tempi are pulled from the WDSF rulles:
+            <a href="http://www.worlddancesport.org/Rule/Athlete/Competition">
+              http://www.worlddancesport.org/Rule/Athlete/Competition</a>
+            and the USADance rules:
+            <a href="https://usadance.org/general/custom.asp?page=Rules">https://usadance.org/general/custom.asp?page=Rules</a>
+          </p>
+          <p>
+            NDCA (National Dance Council of America) Tempi are pulled from here:
+            <a href="https://www.ndca.org/pages/ndca_rule_book/Default.asp">http://ndca.org/pages/ndca_rule_book/</a>
+          </p>
+          <p>
+            If there are other organizations that you would like to see included
+            in this list, please
+            <a href="https://music4dance.blog/feedback/">contact us</a> and we'll
+            be happy to take a look.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="footer-content">
+    <hr>
+    <footer>
+      <p>
+        © 2022 -
+        <a href="https://www.music4dance.net">Music4Dance.net</a> -
+        <a href="https://www.music4dance.net/home/sitemap">Site Map</a> -
+        <a href="https://www.music4dance.net/home/termsofservice">Terms of Service</a>
+        -
+        <a href="https://www.music4dance.net/home/privacypolicy">Privacy Policy</a>
+        - <a href="https://www.music4dance.net/home/credits">Credits</a> -
+        <a href="https://music4dance.blog/music4dance-help/song-list/">Help</a>
+      </p>
+    </footer>
+  </div>
+  <!---->
+</div>
+`;

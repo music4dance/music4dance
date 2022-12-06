@@ -1,22 +1,21 @@
 <template>
-  <page
-    id="app"
-    :consumesEnvironment="true"
-    :consumesTags="true"
-    @environment-loaded="onEnvironmentLoaded"
-  >
+  <page id="app">
     <song-core :model="model" :environment="environment"></song-core>
   </page>
 </template>
 
 <script lang="ts">
 import Page from "@/components/Page.vue";
+import {
+  safeEnvironment,
+  safeTagDatabase,
+} from "@/helpers/DanceEnvironmentManager";
 import AdminTools from "@/mix-ins/AdminTools";
 import { DanceEnvironment } from "@/model/DanceEnvironment";
 import { SongDetailsModel } from "@/model/SongDetailsModel";
+import { TagDatabase } from "@/model/TagDatabase";
 import "reflect-metadata";
 import { TypedJSON } from "typedjson";
-import { Component, Mixins } from "vue-property-decorator";
 import SongCore from "./components/SongCore.vue";
 
 declare const model: string;
@@ -34,24 +33,16 @@ declare const model: string;
 
 // TODO: I haven't been able to use the EnvironmentManager mixin because SongCore depends
 //  on watching "environment" and for some reason that's not firing when using envirnomentmanager
-@Component({
-  components: {
-    Page,
-    SongCore,
+export default AdminTools.extend({
+  components: { Page, SongCore },
+  props: {},
+  data() {
+    return new (class {
+      model: SongDetailsModel = TypedJSON.parse(model, SongDetailsModel)!;
+      environment: DanceEnvironment = safeEnvironment();
+      tagDatabase: TagDatabase = safeTagDatabase();
+    })();
   },
-})
-export default class App extends Mixins(AdminTools) {
-  private readonly model: SongDetailsModel;
-  private environment: DanceEnvironment | null = null;
-
-  constructor() {
-    super();
-
-    this.model = TypedJSON.parse(model, SongDetailsModel)!;
-  }
-
-  private onEnvironmentLoaded(environment: DanceEnvironment): void {
-    this.environment = environment;
-  }
-}
+  computed: {},
+});
 </script>

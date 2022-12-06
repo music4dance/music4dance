@@ -46,6 +46,9 @@ export default class TempoModal extends Vue {
   }
 
   private submit(): void {
+    if (!this.$parent) {
+      throw new Error("Something went terribly wrong");
+    }
     this.$parent.$emit("change-tempo", Number(this.tempoInternal));
   }
 

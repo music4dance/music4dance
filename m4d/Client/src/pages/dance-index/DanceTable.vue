@@ -25,16 +25,23 @@ import DanceList from "@/components/DanceList.vue";
 import { DanceEnvironment } from "@/model/DanceEnvironment";
 import { DanceStats } from "@/model/DanceStats";
 import { TempoType } from "@/model/TempoType";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 
-@Component({ components: { DanceList } })
-export default class DanceTable extends Vue {
-  @Prop() private dances!: DanceStats[];
-  private nameFilter = "";
-  private showTempo = TempoType.Both;
-
-  private get filteredDances(): DanceStats[] {
-    return DanceEnvironment.filterByName(this.dances, this.nameFilter, true);
-  }
-}
+export default Vue.extend({
+  components: { DanceList },
+  props: {
+    dances: { type: [] as PropType<DanceStats[]>, required: true },
+  },
+  data() {
+    return new (class {
+      nameFilter = "";
+      showTempo = TempoType.Both;
+    })();
+  },
+  computed: {
+    filteredDances(): DanceStats[] {
+      return DanceEnvironment.filterByName(this.dances, this.nameFilter, true);
+    },
+  },
+});
 </script>

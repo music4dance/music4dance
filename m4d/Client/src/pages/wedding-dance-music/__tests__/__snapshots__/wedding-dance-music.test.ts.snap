@@ -196,8 +196,7 @@ exports[`WeddingDanceMusic.vue renders a wedding dance music page 1`] = `
                     <div class="tag-matrix-item"><a href="/dances/east-coast-swing"><span><a href="/dances/east-coast-swing">East Coast Swing</a> <span><br>
     (Triple Swing, East Coast)
   </span>
-                        <!----></span>
-                      </a></div>
+                        <!----></span></a></div>
                   </td>
                   <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,ECS-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
                       95
@@ -217,8 +216,7 @@ exports[`WeddingDanceMusic.vue renders a wedding dance music page 1`] = `
                     <div class="tag-matrix-item"><a href="/dances/hustle"><span><a href="/dances/hustle">Hustle</a> <span><br>
     (Street Swing, Disco Fox)
   </span>
-                        <!----></span>
-                      </a></div>
+                        <!----></span></a></div>
                   </td>
                   <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,HST-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
                       37
@@ -268,8 +266,7 @@ exports[`WeddingDanceMusic.vue renders a wedding dance music page 1`] = `
                     <div class="tag-matrix-item"><a href="/dances/west-coast-swing"><span><a href="/dances/west-coast-swing">West Coast Swing</a> <span><br>
     (West Coast)
   </span>
-                        <!----></span>
-                      </a></div>
+                        <!----></span></a></div>
                   </td>
                   <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,WCS-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
                       126
@@ -289,8 +286,7 @@ exports[`WeddingDanceMusic.vue renders a wedding dance music page 1`] = `
                     <div class="tag-matrix-item"><a href="/dances/lindy-hop"><span><a href="/dances/lindy-hop">Lindy Hop</a> <span><br>
     (Swing, Jitterbug)
   </span>
-                        <!----></span>
-                      </a></div>
+                        <!----></span></a></div>
                   </td>
                   <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,LHP-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
                       47
@@ -340,8 +336,7 @@ exports[`WeddingDanceMusic.vue renders a wedding dance music page 1`] = `
                     <div class="tag-matrix-item"><a href="/dances/argentine-tango"><span><a href="/dances/argentine-tango">Argentine Tango</a> <span><br>
     (Tango Argentino)
   </span>
-                        <!----></span>
-                      </a></div>
+                        <!----></span></a></div>
                   </td>
                   <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,ATN-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
                       3
@@ -434,8 +429,7 @@ exports[`WeddingDanceMusic.vue renders a wedding dance music page 1`] = `
                     <div class="tag-matrix-item"><a href="/dances/slow-waltz"><span><a href="/dances/slow-waltz">Slow Waltz</a> <span><br>
     (Waltz)
   </span>
-                        <!----></span>
-                      </a></div>
+                        <!----></span></a></div>
                   </td>
                   <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,SWZ-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
                       101
@@ -502,8 +496,7 @@ exports[`WeddingDanceMusic.vue renders a wedding dance music page 1`] = `
                     <div class="tag-matrix-item"><a href="/dances/castle-foxtrot"><span><a href="/dances/castle-foxtrot">Castle Foxtrot</a> <span><br>
     (Slow Dance)
   </span>
-                        <!----></span>
-                      </a></div>
+                        <!----></span></a></div>
                   </td>
                   <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,CFT-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
                       319
@@ -523,8 +516,7 @@ exports[`WeddingDanceMusic.vue renders a wedding dance music page 1`] = `
                     <div class="tag-matrix-item"><a href="/dances/slow-foxtrot"><span><a href="/dances/slow-foxtrot">Slow Foxtrot</a> <span><br>
     (Foxtrot)
   </span>
-                        <!----></span>
-                      </a></div>
+                        <!----></span></a></div>
                   </td>
                   <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,SFT-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
                       166
@@ -557,8 +549,7 @@ exports[`WeddingDanceMusic.vue renders a wedding dance music page 1`] = `
                     <div class="tag-matrix-item"><a href="/dances/peabody"><span><a href="/dances/peabody">Peabody</a> <span><br>
     (One Step)
   </span>
-                        <!----></span>
-                      </a></div>
+                        <!----></span></a></div>
                   </td>
                   <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,PBD-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
                       1

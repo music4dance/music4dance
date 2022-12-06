@@ -1,7 +1,7 @@
 <template>
   <b-row v-if="editing">
     <b-col sm="auto">
-      <b-button-close></b-button-close>
+      <b-button-close @click="deleteLink()"></b-button-close>
     </b-col>
     <b-col sm="2">
       <b-form-input
@@ -30,7 +30,7 @@ import "reflect-metadata";
 import { Component, Model, Prop, Vue } from "vue-property-decorator";
 
 @Component
-export default class EdittableLink extends Vue {
+export default class EditableLink extends Vue {
   @Model("update") readonly link!: DanceLink;
   @Prop() private readonly editing!: boolean;
 
@@ -48,6 +48,10 @@ export default class EdittableLink extends Vue {
 
   private updateLink(value: string): void {
     this.internalLink = this.link.cloneAndModify({ link: value });
+  }
+
+  private deleteLink(): void {
+    this.$emit("delete", this.link);
   }
 }
 </script>

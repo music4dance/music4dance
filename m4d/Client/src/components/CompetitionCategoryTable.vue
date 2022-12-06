@@ -55,7 +55,7 @@ export default Vue.extend({
       type: String,
       required: true,
     },
-    useFullName: String,
+    useFullName: Boolean,
   },
   computed: {
     fields(): BvTableFieldArray {

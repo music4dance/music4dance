@@ -1,5 +1,5 @@
 <template>
-  <page id="app" :title="title" :consumesEnvironment="true">
+  <page id="app" :title="title">
     <song-table
       :histories="model.histories"
       :filter="filter"
@@ -12,35 +12,32 @@
 <script lang="ts">
 import Page from "@/components/Page.vue";
 import SongTable from "@/components/SongTable.vue";
+import { safeEnvironment } from "@/helpers/DanceEnvironmentManager";
 import { ArtistModel } from "@/model/ArtistModel";
+import { DanceEnvironment } from "@/model/DanceEnvironment";
 import { SongFilter } from "@/model/SongFilter";
 import "reflect-metadata";
 import { TypedJSON } from "typedjson";
-import { Component, Vue } from "vue-property-decorator";
+import Vue from "vue";
 
 declare const model: string;
 
-@Component({
-  components: {
-    Page,
-    SongTable,
+export default Vue.extend({
+  components: { Page, SongTable },
+  props: {},
+  data() {
+    return new (class {
+      model: ArtistModel = TypedJSON.parse(model, ArtistModel)!;
+      environment: DanceEnvironment = safeEnvironment();
+    })();
   },
-})
-export default class App extends Vue {
-  private readonly model: ArtistModel;
-
-  constructor() {
-    super();
-
-    this.model = TypedJSON.parse(model, ArtistModel)!;
-  }
-
-  private get title(): string {
-    return `Artist: ${this.model.artist}`;
-  }
-
-  private get filter(): SongFilter {
-    return new SongFilter();
-  }
-}
+  computed: {
+    title(): string {
+      return `Artist: ${this.model.artist}`;
+    },
+    filter(): SongFilter {
+      return new SongFilter();
+    },
+  },
+});
 </script>

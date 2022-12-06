@@ -1,5 +1,5 @@
 <template>
-  <page id="app" :consumesEnvironment="true">
+  <page id="app">
     <b-alert
       v-if="complexSearchWarning"
       show
@@ -50,15 +50,17 @@ import SearchHeader from "@/components/SearchHeader.vue";
 import SongFooter from "@/components/SongFooter.vue";
 import SongLibraryHeader from "@/components/SongLibraryHeader.vue";
 import SongTable from "@/components/SongTable.vue";
+import { safeEnvironment } from "@/helpers/DanceEnvironmentManager";
+import { DanceEnvironment } from "@/model/DanceEnvironment";
 import { SongFilter } from "@/model/SongFilter";
 import { SongListModel } from "@/model/SongListModel";
 import "reflect-metadata";
 import { TypedJSON } from "typedjson";
-import { Component, Vue } from "vue-property-decorator";
+import Vue from "vue";
 
 declare const model: string;
 
-@Component({
+export default Vue.extend({
   components: {
     Page,
     SearchHeader,
@@ -66,39 +68,37 @@ declare const model: string;
     SongLibraryHeader,
     SongTable,
   },
-})
-export default class App extends Vue {
-  private readonly model: SongListModel;
-  private selected: string[] = [];
-
-  constructor() {
-    super();
-
-    this.model = TypedJSON.parse(model, SongListModel)!;
-  }
-
-  private get filter(): SongFilter {
-    return this.model.filter;
-  }
-
-  private get complexSearchWarning(): boolean {
-    const model = this.model;
-    return model.rawCount > model.count && model.rawCount > 500;
-  }
-
-  private get hiddenColumns(): string[] {
-    const columns = this.model.hiddenColumns;
-    return columns ? columns : ["length", "track"];
-  }
-
-  private selectSong(songId: string, selected: boolean): void {
-    if (selected) {
-      if (!this.selected.find((s) => s === songId)) {
-        this.selected.push(songId);
+  props: {},
+  data() {
+    return new (class {
+      model: SongListModel = TypedJSON.parse(model, SongListModel)!;
+      selected: string[] = [];
+      environment: DanceEnvironment = safeEnvironment();
+    })();
+  },
+  computed: {
+    filter(): SongFilter {
+      return this.model.filter;
+    },
+    complexSearchWarning(): boolean {
+      const model = this.model;
+      return model.rawCount > model.count && model.rawCount > 500;
+    },
+    hiddenColumns(): string[] {
+      const columns = this.model.hiddenColumns;
+      return columns ? columns : ["length", "track"];
+    },
+  },
+  methods: {
+    selectSong(songId: string, selected: boolean): void {
+      if (selected) {
+        if (!this.selected.find((s) => s === songId)) {
+          this.selected.push(songId);
+        }
+      } else {
+        this.selected = this.selected.filter((s) => s !== songId);
       }
-    } else {
-      this.selected = this.selected.filter((s) => s !== songId);
-    }
-  }
-}
+    },
+  },
+});
 </script>

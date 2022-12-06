@@ -20,7 +20,7 @@
         </b-collapse>
         <show-more :id="extraId" v-model="extraVisible"></show-more>
       </div>
-      <div v-if="entries.length === 0">
+      <div v-if="safeEntries.length === 0">
         {{ emptyText }}
       </div>
     </loader>
@@ -31,62 +31,53 @@
 import Loader from "@/components/Loader.vue";
 import { SearchPage } from "@/model/SearchPage";
 import "reflect-metadata";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 import ResultItem from "./ResultItem.vue";
 import SearchNav from "./SearchNav.vue";
 import ShowMore from "./ShowMore.vue";
 
-@Component({ components: { Loader, ResultItem, SearchNav, ShowMore } })
-export default class SearchResults extends Vue {
-  @Prop() private id!: string;
-  @Prop() private title!: string;
-  @Prop() protected search!: string;
-  @Prop() private name!: string;
-
-  private loaded = false;
-  private extraVisible = false;
-  private entries: SearchPage[] = [];
-
-  private async mounted(): Promise<void> {
-    try {
-      this.entries = await this.getEntries();
-      this.loaded = true;
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.log(`Failed to search for {title}: ${e}`);
-    }
-  }
-
-  protected get placeholder(): string {
-    return `Search in ${this.name}...`;
-  }
-
-  protected get emptyText(): string {
-    return `"${this.search}" not found in ${this.name}.`;
-  }
-
-  protected async getEntries(): Promise<SearchPage[]> {
-    throw new Error("Derived class must implement getEntries");
-  }
-
-  private get initialEntries(): SearchPage[] {
-    return this.entries.slice(0, 3);
-  }
-
-  private get extraEntries(): SearchPage[] {
-    return this.entries.slice(3);
-  }
-
-  private get extraId(): string {
-    return `extra-${this.id}`;
-  }
-
-  private get hasExtra(): boolean {
-    return this.entries.length > 3;
-  }
-
-  private get buttonText(): string {
-    return this.extraVisible ? "Show Less" : "Show More";
-  }
-}
+export default Vue.extend({
+  components: { Loader, ResultItem, SearchNav, ShowMore },
+  props: {
+    id: { type: String, required: true },
+    search: { type: String, required: true },
+    name: { type: String, required: true },
+    entries: { type: [] as PropType<SearchPage[] | null> },
+  },
+  data() {
+    return new (class {
+      extraVisible = false;
+    })();
+  },
+  computed: {
+    safeEntries(): SearchPage[] {
+      const entries = this.entries;
+      return entries ? entries : [];
+    },
+    loaded(): boolean {
+      return !!this.entries;
+    },
+    placeholder(): string {
+      return `Search in ${this.name}...`;
+    },
+    emptyText(): string {
+      return `"${this.search}" not found in ${this.name}.`;
+    },
+    initialEntries(): SearchPage[] {
+      return this.safeEntries.slice(0, 3);
+    },
+    extraEntries(): SearchPage[] {
+      return this.safeEntries.slice(3);
+    },
+    extraId(): string {
+      return `extra-${this.id}`;
+    },
+    hasExtra(): boolean {
+      return this.safeEntries.length > 3;
+    },
+    buttonText(): string {
+      return this.extraVisible ? "Show Less" : "Show More";
+    },
+  },
+});
 </script>

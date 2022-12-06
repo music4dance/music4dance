@@ -1,10 +1,5 @@
 <template>
-  <page
-    id="app"
-    :consumesEnvironment="true"
-    :consumesTags="true"
-    @environment-loaded="onEnvironmentLoaded"
-  >
+  <page id="app">
     <b-row v-if="phase === 'lookup'">
       <b-col>
         <b-alert v-if="lastSong" dismissible show="10">
@@ -88,6 +83,10 @@
 
 <script lang="ts">
 import Page from "@/components/Page.vue";
+import {
+  safeEnvironment,
+  safeTagDatabase,
+} from "@/helpers/DanceEnvironmentManager";
 import AdminTools from "@/mix-ins/AdminTools";
 import { AugmentModel } from "@/model/AugmentModel";
 import { DanceEnvironment } from "@/model/DanceEnvironment";
@@ -95,10 +94,10 @@ import { Song } from "@/model/Song";
 import { SongDetailsModel } from "@/model/SongDetailsModel";
 import { SongFilter } from "@/model/SongFilter";
 import { SongHistory } from "@/model/SongHistory";
+import { TagDatabase } from "@/model/TagDatabase";
 import SongCore from "@/pages/song/components/SongCore.vue";
 import "reflect-metadata";
 import { TypedJSON } from "typedjson";
-import { Component, Mixins } from "vue-property-decorator";
 import AugmentInfo from "./components/AugmentInfo.vue";
 import AugmentLookup from "./components/AugmentLookup.vue";
 import AugmentSearch from "./components/AugmentSearch.vue";
@@ -111,66 +110,58 @@ enum AugmentPhase {
 
 declare const model: AugmentModel;
 
-@Component({
+export default AdminTools.extend({
   components: { AugmentInfo, AugmentLookup, AugmentSearch, SongCore, Page },
-})
-export default class App extends Mixins(AdminTools) {
-  private model: AugmentModel;
-  private phase = AugmentPhase.lookup;
-  private songModel: SongDetailsModel | null = null;
-  private lastSong: Song | null = null;
-  private created = false;
-  private environment: DanceEnvironment | null = null;
-  private propertiesString = "";
-  private tabIndex: number;
-
-  constructor() {
-    super();
-    this.model = TypedJSON.parse(model, AugmentModel) ?? {};
-    this.tabIndex = this.model.id ? 1 : 0;
-  }
-
-  // TODO:
-  //  - Should do another pass on cleaning up service lookup
-  private get canAugment(): boolean {
-    return !!this.userName;
-  }
-
-  private editSong(model: SongDetailsModel): void {
-    this.songModel = new SongDetailsModel({
-      created: !!model.created,
-      songHistory: model.songHistory,
-      filter: new SongFilter(),
-      userName: this.userName,
-    });
-    this.phase = AugmentPhase.edit;
-  }
-
-  private async adminCreate(): Promise<void> {
-    this.songModel = new SongDetailsModel({
-      created: true,
-      songHistory: SongHistory.fromString(this.propertiesString),
-      filter: new SongFilter(),
-      userName: this.userName,
-    });
-    this.propertiesString = "";
-    this.phase = AugmentPhase.edit;
-  }
-
-  private reset(saved: boolean): void {
-    if (saved) {
-      this.lastSong = Song.fromHistory(this.songModel!.songHistory);
-      this.created = !!this.songModel!.created;
-    }
-    this.phase = AugmentPhase.lookup;
-    this.model = new AugmentModel();
-    this.songModel = null;
-  }
-
-  private onEnvironmentLoaded(environment: DanceEnvironment): void {
-    this.environment = environment;
-  }
-}
+  data() {
+    const m = TypedJSON.parse(model, AugmentModel) ?? {};
+    return new (class {
+      model: AugmentModel = m;
+      phase = AugmentPhase.lookup;
+      songModel: SongDetailsModel | null = null;
+      lastSong: Song | null = null;
+      created = false;
+      propertiesString = "";
+      tabIndex: number = this.model.id ? 1 : 0;
+      environment: DanceEnvironment = safeEnvironment();
+      tagDatabase: TagDatabase = safeTagDatabase();
+    })();
+  },
+  computed: {
+    canAugment(): boolean {
+      return !!this.userName;
+    },
+  },
+  methods: {
+    editSong(model: SongDetailsModel): void {
+      this.songModel = new SongDetailsModel({
+        created: !!model.created,
+        songHistory: model.songHistory,
+        filter: new SongFilter(),
+        userName: this.userName,
+      });
+      this.phase = AugmentPhase.edit;
+    },
+    async adminCreate(): Promise<void> {
+      this.songModel = new SongDetailsModel({
+        created: true,
+        songHistory: SongHistory.fromString(this.propertiesString),
+        filter: new SongFilter(),
+        userName: this.userName,
+      });
+      this.propertiesString = "";
+      this.phase = AugmentPhase.edit;
+    },
+    reset(saved: boolean): void {
+      if (saved) {
+        this.lastSong = Song.fromHistory(this.songModel!.songHistory);
+        this.created = !!this.songModel!.created;
+      }
+      this.phase = AugmentPhase.lookup;
+      this.model = new AugmentModel();
+      this.songModel = null;
+    },
+  },
+});
 </script>
 
 <style lang="scss" scoped>

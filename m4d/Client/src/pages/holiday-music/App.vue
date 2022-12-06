@@ -1,5 +1,5 @@
 <template>
-  <page id="app" :consumesEnvironment="true" :breadcrumbs="breadcrumbs">
+  <page id="app">
     <h1>{{ title }}</h1>
     <holiday-help v-if="model.count === 0" :dance="model.dance" :empty="true">
     </holiday-help>
@@ -38,18 +38,20 @@ import Page from "@/components/Page.vue";
 import SongFooter from "@/components/SongFooter.vue";
 import SongTable from "@/components/SongTable.vue";
 import SpotifyPlayer from "@/components/SpotifyPlayer.vue";
+import { safeEnvironment } from "@/helpers/DanceEnvironmentManager";
 import { toTitleCase, wordsToKebab } from "@/helpers/StringHelpers";
 import { BreadCrumbItem, homeCrumb, songCrumb } from "@/model/BreadCrumbItem";
+import { DanceEnvironment } from "@/model/DanceEnvironment";
 import { HolidaySongListModel } from "@/model/HolidaySongListModel";
 import "reflect-metadata";
 import { TypedJSON } from "typedjson";
-import { Component, Vue } from "vue-property-decorator";
+import { Vue } from "vue-property-decorator";
 import HolidayDanceChooser from "./HolidayDanceChooser.vue";
 import HolidayHelp from "./HolidayHelp.vue";
 
 declare const model: string;
 
-@Component({
+export default Vue.extend({
   components: {
     HolidayDanceChooser,
     HolidayHelp,
@@ -58,51 +60,47 @@ declare const model: string;
     SongTable,
     SpotifyPlayer,
   },
-})
-export default class App extends Vue {
-  private readonly model: HolidaySongListModel;
-
-  constructor() {
-    super();
-
-    this.model = TypedJSON.parse(model, HolidaySongListModel)!;
-  }
-
-  private get title(): string {
-    return this.model.dance
-      ? `Holiday ${toTitleCase(this.model.dance)} Music`
-      : "Holiday Dance Music";
-  }
-
-  private get pageLink(): string {
-    const dance = this.model.dance;
-    return dance ? `/song/holidaymusic?dance=${dance}` : "/song/holidaymusic";
-  }
-
-  private get danceLink(): string {
-    return `/dances/${this.seoDanceName}`;
-  }
-
-  private get danceName(): string | undefined {
-    const dance = this.model.dance;
-    return dance ? toTitleCase(dance) : undefined;
-  }
-
-  private get seoDanceName(): string | undefined {
-    const dance = this.model.dance;
-    return dance ? wordsToKebab(dance) : undefined;
-  }
-
-  private get breadcrumbs(): BreadCrumbItem[] {
-    const breadcrumbs = [homeCrumb, songCrumb];
-    const text = "Holiday Music";
-    if (this.model.dance) {
-      breadcrumbs.push({ text, href: "/song/holidaymusic" });
-      breadcrumbs.push({ text: toTitleCase(this.model.dance), active: true });
-    } else {
-      breadcrumbs.push({ text, active: true });
-    }
-    return breadcrumbs;
-  }
-}
+  data() {
+    return new (class {
+      model: HolidaySongListModel = TypedJSON.parse(
+        model,
+        HolidaySongListModel
+      )!;
+      environment: DanceEnvironment = safeEnvironment();
+    })();
+  },
+  computed: {
+    title(): string {
+      return this.model.dance
+        ? `Holiday ${toTitleCase(this.model.dance)} Music`
+        : "Holiday Dance Music";
+    },
+    pageLink(): string {
+      const dance = this.model.dance;
+      return dance ? `/song/holidaymusic?dance=${dance}` : "/song/holidaymusic";
+    },
+    danceLink(): string {
+      return `/dances/${this.seoDanceName}`;
+    },
+    danceName(): string | undefined {
+      const dance = this.model.dance;
+      return dance ? toTitleCase(dance) : undefined;
+    },
+    seoDanceName(): string | undefined {
+      const dance = this.model.dance;
+      return dance ? wordsToKebab(dance) : undefined;
+    },
+    breadcrumbs(): BreadCrumbItem[] {
+      const breadcrumbs = [homeCrumb, songCrumb];
+      const text = "Holiday Music";
+      if (this.model.dance) {
+        breadcrumbs.push({ text, href: "/song/holidaymusic" });
+        breadcrumbs.push({ text: toTitleCase(this.model.dance), active: true });
+      } else {
+        breadcrumbs.push({ text, active: true });
+      }
+      return breadcrumbs;
+    },
+  },
+});
 </script>

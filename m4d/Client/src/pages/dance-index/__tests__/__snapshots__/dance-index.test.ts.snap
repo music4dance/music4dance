@@ -1,0 +1,419 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DanceIndex.vue renders the dance index page 1`] = `
+<div>
+  <div>
+    <!---->
+    <!---->
+    <nav class="navbar navbar-dark bg-primary navbar-expand-lg" id="mainMenu"><a href="/" target="_self" class="navbar-brand"><img src="/images/header-logo.png" height="40" title="music4dance"></a> <button type="button" aria-label="Toggle navigation" class="navbar-toggler collapsed" aria-expanded="false" aria-controls="nav-collapse"><span class="navbar-toggler-icon"></span></button>
+      <transition-stub css="true" enterclass="" leaveclass="collapse show" entertoclass="collapse show" leavetoclass="collapse" enteractiveclass="collapsing" leaveactiveclass="collapsing">
+        <div id="nav-collapse" class="navbar-collapse collapse" style="display: none;">
+          <ul class="navbar-nav">
+            <li id="music-menu" class="nav-item b-nav-dropdown dropdown"><a id="music-menu__BV_toggle_" role="button" aria-haspopup="true" aria-expanded="false" aria-controls="music-menu__BV_toggle_menu_" href="#music-menu" target="_self" class="nav-link dropdown-toggle"><span>Music</span></a>
+              <ul tabindex="-1" aria-labelledby="music-menu__BV_toggle_" id="music-menu__BV_toggle_menu_" class="dropdown-menu">
+                <li role="presentation"><a role="menuitem" href="/dances" target="_self" class="dropdown-item">Dances</a></li>
+                <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/ballroom-competition-categories" target="_self" class="dropdown-item">Ballroom</a></li>
+                <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/latin" target="_self" class="dropdown-item">Latin</a></li>
+                <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/swing" target="_self" class="dropdown-item">Swing</a></li>
+                <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/tango" target="_self" class="dropdown-item">Tango</a></li>
+                <li role="presentation"><a role="menuitem" href="/song" target="_self" class="dropdown-item">Song Library</a></li>
+                <li role="presentation" class="nav-subitem"><a role="menuitem" href="/song/advancedsearchform" target="_self" class="dropdown-item">Advanced Search</a></li>
+                <li role="presentation" class="nav-subitem"><a role="menuitem" href="/song/augment" target="_self" class="dropdown-item">Add Song</a></li>
+                <li role="presentation" class="nav-subitem"><a role="menuitem" href="/song/newmusic" target="_self" class="dropdown-item">New Music</a></li>
+                <li role="presentation"><a role="menuitem" href="/dances/wedding-music" target="_self" class="dropdown-item">Wedding</a></li>
+                <li role="presentation"><a role="menuitem" href="/song/holidaymusic" target="_self" class="dropdown-item">Holiday</a></li>
+                <li role="presentation"><a role="menuitem" href="/song/addtags/?tags=%2BHalloween%3AOther" target="_self" class="dropdown-item">Halloween</a></li>
+                <li role="presentation"><a role="menuitem" href="/tag" target="_self" class="dropdown-item">Tags</a></li>
+              </ul>
+            </li>
+            <li id="tools-menu" class="nav-item b-nav-dropdown dropdown"><a id="tools-menu__BV_toggle_" role="button" aria-haspopup="true" aria-expanded="false" aria-controls="tools-menu__BV_toggle_menu_" href="#tools-menu" target="_self" class="nav-link dropdown-toggle"><span>Tools</span></a>
+              <ul tabindex="-1" aria-labelledby="tools-menu__BV_toggle_" id="tools-menu__BV_toggle_menu_" class="dropdown-menu">
+                <li role="presentation"><a role="menuitem" href="/home/counter" target="_self" class="dropdown-item">Tempo Counter</a></li>
+                <li role="presentation"><a role="menuitem" href="/home/tempi" target="_self" class="dropdown-item">Tempi (Tempos)</a></li>
+              </ul>
+            </li>
+            <li class="nav-item b-nav-dropdown dropdown"><a role="button" aria-haspopup="true" aria-expanded="false" href="#" target="_self" class="nav-link dropdown-toggle"><span>Info</span></a>
+              <ul tabindex="-1" class="dropdown-menu">
+                <li role="presentation"><a role="menuitem" href="https://music4dance.blog/music4dance-help/song-list/" target="_self" class="dropdown-item">Help</a></li>
+                <li role="presentation"><a role="menuitem" href="https://music4dance.blog/" target="_self" class="dropdown-item">Blog</a></li>
+                <li role="presentation"><a role="menuitem" href="/home/faq" target="_self" class="dropdown-item">FAQ</a></li>
+                <li role="presentation"><a role="menuitem" href="/home/about" target="_self" class="dropdown-item">About music4dance</a></li>
+                <li role="presentation"><a role="menuitem" href="/home/readinglist" target="_self" class="dropdown-item">Reading List</a></li>
+                <li role="presentation"><a role="menuitem" href="/home/sitemap" target="_self" class="dropdown-item">Site Map</a></li>
+                <li role="presentation"><a role="menuitem" href="/home/privacypolicy" target="_self" class="dropdown-item">Privacy Policy</a></li>
+                <li role="presentation"><a role="menuitem" href="/home/credits" target="_self" class="dropdown-item">Credits</a></li>
+              </ul>
+            </li>
+            <li id="contribute-menu" right="" class="nav-item"><a href="/home/contribute" target="_self" class="nav-link">Contribute</a></li>
+            <!---->
+          </ul>
+          <ul class="navbar-nav ml-auto">
+            <li class="form-inline">
+              <form class="form-inline"><input type="text" placeholder="Search" class="mr-sm-2 form-control form-control-sm"> <button type="submit" disabled="disabled" class="btn my-2 my-sm-0 btn-secondary btn-sm disabled">Search</button></form>
+            </li>
+            <li right="" class="nav-item"><a href="/identity/account/register?returnUrl=/" target="_self" class="nav-link">Register</a></li>
+            <li right="" class="nav-item"><a href="/identity/account/login?returnUrl=/" target="_self" class="nav-link">Login</a></li>
+          </ul>
+        </div>
+      </transition-stub>
+    </nav>
+    <!---->
+    <form id="logoutForm" action="/identity/account/logout" method="post" style="height: 0px;"><input name="__RequestVerificationToken" type="hidden" value="FOO"> <input type="hidden" name="returnUrl" value="/"> <button id="logout" type="submit" class="btn btn-link"></button></form>
+  </div>
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb" style="padding: 0.25rem 0.5rem;">
+      <li class="breadcrumb-item"><a href="/" target="_self" class="">music4dance</a></li>
+      <li class="breadcrumb-item active"><span aria-current="location">Dances</span></li>
+    </ol>
+  </nav>
+  <div id="body-content" class="container-fluid body-content">
+    <h1>Dance Styles</h1>
+    <div>
+      <div>
+        <div role="group" class="input-group mb-2">
+          <!----><input type="text" placeholder="Filter Dances" class="form-control">
+          <div class="input-group-append">
+            <div class="input-group-text"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="search" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-search b-icon bi">
+                <g>
+                  <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"></path>
+                </g>
+              </svg></div>
+          </div>
+          <!---->
+        </div>
+        <div class="list-group">
+          <div class="list-group-item list-group-item-primary">
+            <div class="d-flex justify-content-between"><span><a href="/dances/foxtrot">Foxtrot</a> <!----> <!----></span>
+              <div><a href="/song/index?filter=.-OOX,FXT-Dances" target="_self" class="badge badge-secondary" style="line-height: 1.5;">songs (1344)</a> <a href="/dances/foxtrot" target="_self" class="badge ml-2 badge-secondary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/castle-foxtrot">Castle Foxtrot</a> <!----> <span style="font-size: 0.8rem;">
+    60-100 BPM/15-25 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,CFT-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (185)</a> <a href="/dances/castle-foxtrot" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/peabody">Peabody</a> <!----> <span style="font-size: 0.8rem;">
+    240-248 BPM/60-62 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,PBD-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (17)</a> <a href="/dances/peabody" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/quickstep">Quickstep</a> <!----> <span style="font-size: 0.8rem;">
+    192-208 BPM/48-52 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,QST-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (371)</a> <a href="/dances/quickstep" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/slow-foxtrot">Slow Foxtrot</a> <!----> <span style="font-size: 0.8rem;">
+    112-136 BPM/28-34 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,SFT-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (771)</a> <a href="/dances/slow-foxtrot" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-primary">
+            <div class="d-flex justify-content-between"><span><a href="/dances/latin">Latin</a> <!----> <!----></span>
+              <div><a href="/song/index?filter=.-OOX,LTN-Dances" target="_self" class="badge badge-secondary" style="line-height: 1.5;">songs (13911)</a> <a href="/dances/latin" target="_self" class="badge ml-2 badge-secondary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/bachata">Bachata</a> <!----> <span style="font-size: 0.8rem;">
+    108-152 BPM/27-38 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,BCH-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (322)</a> <a href="/dances/bachata" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/bolero">Bolero</a> <!----> <span style="font-size: 0.8rem;">
+    96-104 BPM/24-26 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,BOL-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (305)</a> <a href="/dances/bolero" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/bossa-nova">Bossa Nova</a> <!----> <span style="font-size: 0.8rem;">
+    60-90 BPM/15-22.5 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,BSN-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (3)</a> <a href="/dances/bossa-nova" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/cha-cha">Cha Cha</a> <!----> <span style="font-size: 0.8rem;">
+    120-124 BPM/30-31 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,CHA-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (7064)</a> <a href="/dances/cha-cha" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/cumbia">Cumbia</a> <!----> <span style="font-size: 0.8rem;">
+    90-110 BPM/45-55 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,CMB-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (313)</a> <a href="/dances/cumbia" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/mambo">Mambo</a> <!----> <span style="font-size: 0.8rem;">
+    188-204 BPM/47-51 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,MBO-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (160)</a> <a href="/dances/mambo" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/merengue">Merengue</a> <!----> <span style="font-size: 0.8rem;">
+    58-64 BPM/29-32 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,MRG-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (290)</a> <a href="/dances/merengue" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/paso-doble">Paso Doble</a> <!----> <span style="font-size: 0.8rem;">
+    116-124 BPM/58-62 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,PDL-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (93)</a> <a href="/dances/paso-doble" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/rumba">Rumba</a> <!----> <span style="font-size: 0.8rem;">
+    100-144 BPM/25-36 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,RMB-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (1227)</a> <a href="/dances/rumba" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/salsa">Salsa</a> <!----> <span style="font-size: 0.8rem;">
+    160-220 BPM/40-55 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,SLS-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (3485)</a> <a href="/dances/salsa" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/samba">Samba</a> <!----> <span style="font-size: 0.8rem;">
+    96-104 BPM/48-52 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,SMB-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (649)</a> <a href="/dances/samba" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-primary">
+            <div class="d-flex justify-content-between"><span><a href="/dances/other">Other</a> <!----> <!----></span>
+              <div><a href="/song/index?filter=.-OOX,MSC-Dances" target="_self" class="badge badge-secondary" style="line-height: 1.5;">songs (583)</a> <a href="/dances/other" target="_self" class="badge ml-2 badge-secondary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/blues">Blues</a> <!----> <span style="font-size: 0.8rem;">
+    40-100 BPM/10-25 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,BLU-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (250)</a> <a href="/dances/blues" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/country-two-step">Country Two Step</a> <!----> <span style="font-size: 0.8rem;">
+    168-200 BPM/84-100 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,C2S-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (43)</a> <a href="/dances/country-two-step" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/motown">Motown</a> <!----> <span style="font-size: 0.8rem;">
+    80-150 BPM/20-37.5 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,MWT-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (45)</a> <a href="/dances/motown" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/night-club-two-step">Night Club Two Step</a> <!----> <span style="font-size: 0.8rem;">
+    50-92 BPM/12.5-23 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,NC2-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (240)</a> <a href="/dances/night-club-two-step" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/polka">Polka</a> <!----> <span style="font-size: 0.8rem;">
+    120-124 BPM/60-62 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,PLK-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (5)</a> <a href="/dances/polka" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-primary">
+            <div class="d-flex justify-content-between"><span><a href="/dances/performance">Performance</a> <!----> <!----></span>
+              <div><a href="/song/index?filter=.-OOX,PRF-Dances" target="_self" class="badge badge-secondary" style="line-height: 1.5;">songs (89)</a> <a href="/dances/performance" target="_self" class="badge ml-2 badge-secondary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/contemporary">Contemporary</a> <!----> <!----></span>
+              <div><a href="/song/index?filter=.-OOX,CNT-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (32)</a> <a href="/dances/contemporary" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/freestyle">Freestyle</a> <!----> <!----></span>
+              <div><a href="/song/index?filter=.-OOX,FST-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (25)</a> <a href="/dances/freestyle" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/jazz">Jazz</a> <!----> <!----></span>
+              <div><a href="/song/index?filter=.-OOX,JAZ-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (32)</a> <a href="/dances/jazz" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-primary">
+            <div class="d-flex justify-content-between"><span><a href="/dances/swing">Swing</a> <!----> <!----></span>
+              <div><a href="/song/index?filter=.-OOX,SWG-Dances" target="_self" class="badge badge-secondary" style="line-height: 1.5;">songs (11026)</a> <a href="/dances/swing" target="_self" class="badge ml-2 badge-secondary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/balboa">Balboa</a> <!----> <span style="font-size: 0.8rem;">
+    160-260 BPM/40-65 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,BBA-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (6)</a> <a href="/dances/balboa" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/carolina-shag">Carolina Shag</a> <!----> <span style="font-size: 0.8rem;">
+    108-132 BPM/27-33 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,CSG-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (40)</a> <a href="/dances/carolina-shag" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/charleston">Charleston</a> <!----> <span style="font-size: 0.8rem;">
+    200-300 BPM/50-75 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,CST-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (31)</a> <a href="/dances/charleston" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/collegiate-shag">Collegiate Shag</a> <!----> <span style="font-size: 0.8rem;">
+    180-200 BPM/45-50 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,CLS-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (5)</a> <a href="/dances/collegiate-shag" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/east-coast-swing">East Coast Swing</a> <!----> <span style="font-size: 0.8rem;">
+    136-144 BPM/34-36 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,ECS-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (658)</a> <a href="/dances/east-coast-swing" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/hustle">Hustle</a> <!----> <span style="font-size: 0.8rem;">
+    112-120 BPM/28-30 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,HST-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (313)</a> <a href="/dances/hustle" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/jive">Jive</a> <!----> <span style="font-size: 0.8rem;">
+    152-176 BPM/38-44 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,JIV-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (393)</a> <a href="/dances/jive" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/jump-swing">Jump Swing</a> <!----> <span style="font-size: 0.8rem;">
+    160-240 BPM/40-60 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,JSW-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (38)</a> <a href="/dances/jump-swing" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/lindy-hop">Lindy Hop</a> <!----> <span style="font-size: 0.8rem;">
+    120-180 BPM/30-45 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,LHP-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (258)</a> <a href="/dances/lindy-hop" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/west-coast-swing">West Coast Swing</a> <!----> <span style="font-size: 0.8rem;">
+    112-128 BPM/28-32 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,WCS-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (9284)</a> <a href="/dances/west-coast-swing" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-primary">
+            <div class="d-flex justify-content-between"><span><a href="/dances/tango">Tango</a> <!----> <!----></span>
+              <div><a href="/song/index?filter=.-OOX,TNG-Dances" target="_self" class="badge badge-secondary" style="line-height: 1.5;">songs (841)</a> <a href="/dances/tango" target="_self" class="badge ml-2 badge-secondary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/argentine-tango">Argentine Tango</a> <!----> <span style="font-size: 0.8rem;">
+    112-140 BPM/28-35 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,ATN-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (219)</a> <a href="/dances/argentine-tango" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/milonga">Milonga</a> <!----> <span style="font-size: 0.8rem;">
+    176-224 BPM/44-56 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,MGA-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (69)</a> <a href="/dances/milonga" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/neo-tango">Neo Tango</a> <!----> <span style="font-size: 0.8rem;">
+    60-100 BPM/15-25 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,NTN-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (24)</a> <a href="/dances/neo-tango" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/tango-(ballroom)">Tango (Ballroom)</a> <!----> <span style="font-size: 0.8rem;">
+    120-128 BPM/30-32 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,TGO-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (477)</a> <a href="/dances/tango-(ballroom)" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/tango-vals">Tango Vals</a> <!----> <span style="font-size: 0.8rem;">
+    150-240 BPM/50-80 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,TGV-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (52)</a> <a href="/dances/tango-vals" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-primary">
+            <div class="d-flex justify-content-between"><span><a href="/dances/waltz">Waltz</a> <!----> <!----></span>
+              <div><a href="/song/index?filter=.-OOX,WLZ-Dances" target="_self" class="badge badge-secondary" style="line-height: 1.5;">songs (1324)</a> <a href="/dances/waltz" target="_self" class="badge ml-2 badge-secondary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/cross-step-waltz">Cross-step Waltz</a> <!----> <span style="font-size: 0.8rem;">
+    108-120 BPM/36-40 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,CSW-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (19)</a> <a href="/dances/cross-step-waltz" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/slow-waltz">Slow Waltz</a> <!----> <span style="font-size: 0.8rem;">
+    84-90 BPM/28-30 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,SWZ-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (685)</a> <a href="/dances/slow-waltz" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/tango-vals">Tango Vals</a> <!----> <span style="font-size: 0.8rem;">
+    150-240 BPM/50-80 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,TGV-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (52)</a> <a href="/dances/tango-vals" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-light">
+            <div class="d-flex justify-content-between"><span><a href="/dances/viennese-waltz">Viennese Waltz</a> <!----> <span style="font-size: 0.8rem;">
+    159-174 BPM/53-58 MPM</span></span>
+              <div><a href="/song/index?filter=.-OOX,VWZ-Dances" target="_self" class="badge badge-primary" style="line-height: 1.5;">songs (568)</a> <a href="/dances/viennese-waltz" target="_self" class="badge ml-2 badge-primary" style="line-height: 1.5;">info</a></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2 class="mt-2">Other Resources:</h2>
+      <p id="competition">
+        Check out our more traditional ballroom competition categories including
+        <a href="/dances/international-standard">International Standard</a>,
+        <a href="/dances/international-latin">International Latin</a>,
+        <a href="/dances/american-smooth">American Smooth</a> and
+        <a href="/dances/american-rhythm">American Rhythm</a>
+        by going to our
+        <a href="/dances/ballroom-competition-categories">Ballroom competition categories</a>
+        page.
+      </p>
+      <p id="wedding">
+        We also have songs cross-indexed by style of dance and type of wedding
+        event on our
+        <a href="/dances/wedding-music">Wedding Dance Music</a> page.
+      </p>
+      <p id="tempi">
+        Our <a href="/home/tempi">Tempi (Tempos)</a> tool shows this same list of
+        dances with additional infomration and the ability to filter and sort in
+        different ways..
+      </p>
+      <p>
+        Don't agree with how we've organized dance styles? Well, we're not
+        convinced there is a "right way" but we're doing some research to see if
+        we can find a better way (or maybe multiple ways). Please help us out by
+        <a href="https://music4dance.blog/feedback/" target="_blank">sending us feedback</a>
+        so that we can include your ideas about how to organize dance styles in
+        the future.
+      </p>
+    </div>
+  </div>
+  <div id="footer-content">
+    <hr>
+    <footer>
+      <p>
+        © 2022 -
+        <a href="https://www.music4dance.net">Music4Dance.net</a> -
+        <a href="https://www.music4dance.net/home/sitemap">Site Map</a> -
+        <a href="https://www.music4dance.net/home/termsofservice">Terms of Service</a>
+        -
+        <a href="https://www.music4dance.net/home/privacypolicy">Privacy Policy</a>
+        - <a href="https://www.music4dance.net/home/credits">Credits</a> -
+        <a href="https://music4dance.blog/music4dance-help/song-list/">Help</a>
+      </p>
+    </footer>
+  </div>
+  <!---->
+</div>
+`;

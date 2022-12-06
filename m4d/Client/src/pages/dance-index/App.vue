@@ -1,11 +1,5 @@
 <template>
-  <page
-    id="app"
-    title="Dance Styles"
-    :breadcrumbs="breadcrumbs"
-    :consumesEnvironment="true"
-    @environment-loaded="onEnvironmentLoaded"
-  >
+  <page id="app" title="Dance Styles" :breadcrumbs="breadcrumbs">
     <dance-table :dances="dances"></dance-table>
     <h2 class="mt-2">Other Resources:</h2>
     <p id="competition">
@@ -45,28 +39,25 @@
 
 <script lang="ts">
 import Page from "@/components/Page.vue";
+import { safeEnvironment } from "@/helpers/DanceEnvironmentManager";
 import { BreadCrumbItem, homeCrumb } from "@/model/BreadCrumbItem";
-import { DanceEnvironment } from "@/model/DanceEnvironment";
 import { DanceStats } from "@/model/DanceStats";
 import "reflect-metadata";
-import { Component, Vue } from "vue-property-decorator";
+import Vue from "vue";
 import DanceTable from "./DanceTable.vue";
 
-@Component({
-  components: {
-    DanceTable,
-    Page,
+export default Vue.extend({
+  components: { DanceTable, Page },
+  props: {},
+  data() {
+    return new (class {
+      dances: DanceStats[] = safeEnvironment().groupedStats;
+      breadcrumbs: BreadCrumbItem[] = [
+        homeCrumb,
+        { text: "Dances", active: true },
+      ];
+    })();
   },
-})
-export default class App extends Vue {
-  private dances: DanceStats[] = [];
-  private breadcrumbs: BreadCrumbItem[] = [
-    homeCrumb,
-    { text: "Dances", active: true },
-  ];
-
-  private onEnvironmentLoaded(environment: DanceEnvironment): void {
-    this.dances = environment.groupedStats;
-  }
-}
+  computed: {},
+});
 </script>

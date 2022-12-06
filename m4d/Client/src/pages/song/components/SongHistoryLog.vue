@@ -126,7 +126,7 @@ export default class SongHistoryLog extends Vue {
   private showLast(prop: SongProperty, index: number): boolean {
     const properties = this.history.properties;
     if (prop.isAction) {
-      return properties.find((p, i) => i > index && p.isAction);
+      return !!properties.find((p, i) => i > index && p.isAction);
     } else {
       return index < properties.length - 1 && !properties[index + 1].isAction;
     }
@@ -142,7 +142,7 @@ export default class SongHistoryLog extends Vue {
 
   private showNext(prop: SongProperty, index: number): boolean {
     if (prop.isAction) {
-      return this.history.properties.find((p, i) => i > index && p.isAction);
+      return !!this.history.properties.find((p, i) => i > index && p.isAction);
     } else {
       const length = this.history.properties.length;
       return index < length - 1 && !this.history.properties[index + 1].isAction;

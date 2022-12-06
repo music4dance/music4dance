@@ -1,9 +1,5 @@
 <template>
-  <page
-    id="app"
-    :consumesEnvironment="true"
-    @environment-loaded="onEnvironmentLoaded"
-  >
+  <page id="app">
     <counter
       :beatsPerMeasure="beatsPerMeasure"
       :beatsPerMinute="beatsPerMinute"
@@ -17,7 +13,7 @@
       @update:epsilon-percent="epsilonPercent = $event"
     />
     <dance-list
-      :dances="dances()"
+      :dances="dances"
       :beatsPerMeasure="beatsPerMeasure"
       :beatsPerMinute="beatsPerMinute"
       :tempoType="tempoType"
@@ -29,10 +25,11 @@
 
 <script lang="ts">
 import Page from "@/components/Page.vue";
+import { safeEnvironment } from "@/helpers/DanceEnvironmentManager";
 import { DanceEnvironment } from "@/model/DanceEnvironment";
 import { TempoType } from "@/model/TempoType";
 import { TypeStats } from "@/model/TypeStats";
-import { Component, Vue } from "vue-property-decorator";
+import Vue from "vue";
 import Counter from "./components/Counter.vue";
 import DanceList from "./components/DanceList.vue";
 
@@ -43,62 +40,44 @@ interface TempoModel {
 
 declare const model: TempoModel;
 
-@Component({
-  components: {
-    Counter,
-    DanceList,
-    Page,
+export default Vue.extend({
+  components: { Counter, DanceList, Page },
+  props: {},
+  data() {
+    return new (class {
+      environment?: DanceEnvironment = safeEnvironment();
+      beatsPerMeasure = model.numerator ?? 4;
+      beatsPerMinute = model.tempo ?? 0;
+      countMethod = "measures";
+      epsilonPercent = 5;
+    })();
   },
-})
-export default class App extends Vue {
-  private environment?: DanceEnvironment;
-  public beatsPerMeasure = 4;
-  public beatsPerMinute = 0;
-  public countMethod = "measures";
-  public epsilonPercent = 5;
-
-  constructor() {
-    super();
-
-    const beatsPerMeasure = model.numerator;
-    if (beatsPerMeasure) {
-      this.beatsPerMeasure = beatsPerMeasure;
-    }
-
-    const beatsPerMinute = model.tempo;
-    if (beatsPerMinute) {
-      this.beatsPerMinute = beatsPerMinute;
-    }
-  }
-
-  private chooseDance(danceId: string): void {
-    const dance = this.environment!.fromId(danceId);
-    if (dance) {
-      window.open(`/dances/${dance.seoName}`, "_blank");
-    }
-  }
-
-  private dances(): TypeStats[] {
-    const environment = this.environment;
-    return environment ? environment.dances! : [];
-  }
-
-  private get tempoType(): TempoType {
-    return this.countMethod === "measures"
-      ? TempoType.Measures
-      : TempoType.Beats;
-  }
-
-  private get measuresPerMinute(): number {
-    return this.beatsPerMinute / this.beatsPerMeasure;
-  }
-
-  private set measuresPerMinute(value: number) {
-    this.beatsPerMinute = value * this.beatsPerMeasure;
-  }
-
-  private onEnvironmentLoaded(environment: DanceEnvironment): void {
-    this.environment = environment;
-  }
-}
+  computed: {
+    dances(): TypeStats[] {
+      const environment = this.environment;
+      return environment ? environment.dances! : [];
+    },
+    tempoType(): TempoType {
+      return this.countMethod === "measures"
+        ? TempoType.Measures
+        : TempoType.Beats;
+    },
+    measuresPerMinute: {
+      get: function (): number {
+        return this.beatsPerMinute / this.beatsPerMeasure;
+      },
+      set: function (value: number) {
+        this.beatsPerMinute = value * this.beatsPerMeasure;
+      },
+    },
+  },
+  methods: {
+    chooseDance(danceId: string): void {
+      const dance = this.environment!.fromId(danceId);
+      if (dance) {
+        window.open(`/dances/${dance.seoName}`, "_blank");
+      }
+    },
+  },
+});
 </script>

@@ -1,10 +1,5 @@
 <template>
-  <page
-    id="app"
-    title="Tag Cloud"
-    :consumesTags="true"
-    @tag-database-loaded="onTagDatabaseLoaded"
-  >
+  <page id="app" title="Tag Cloud">
     <tag-cloud :tags="tags"></tag-cloud>
   </page>
 </template>
@@ -12,22 +7,24 @@
 <script lang="ts">
 import Page from "@/components/Page.vue";
 import TagCloud from "@/components/TagCloud.vue";
+import { safeTagDatabase } from "@/helpers/DanceEnvironmentManager";
+import { BreadCrumbItem, homeCrumb } from "@/model/BreadCrumbItem";
 import { Tag } from "@/model/Tag";
-import { TagDatabase } from "@/model/TagDatabase";
 import "reflect-metadata";
-import { Component, Vue } from "vue-property-decorator";
+import Vue from "vue";
 
-@Component({
-  components: {
-    Page,
-    TagCloud,
+export default Vue.extend({
+  components: { Page, TagCloud },
+  props: {},
+  data() {
+    return new (class {
+      tags: Tag[] = safeTagDatabase().tags;
+      breadcrumbs: BreadCrumbItem[] = [
+        homeCrumb,
+        { text: "Tags", active: true },
+      ];
+    })();
   },
-})
-export default class App extends Vue {
-  private tags: Tag[] = [];
-
-  private onTagDatabaseLoaded(tagDatabase: TagDatabase): void {
-    this.tags = tagDatabase.tags;
-  }
-}
+  computed: {},
+});
 </script>

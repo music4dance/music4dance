@@ -14,15 +14,21 @@
 
 <script lang="ts">
 import "reflect-metadata";
-import { Component, Model, Prop, Vue } from "vue-property-decorator";
+import Vue from "vue";
 
-@Component
-export default class ShowMore extends Vue {
-  @Model("change") private readonly showExtra!: boolean;
-  @Prop() private readonly extraId!: string;
-
-  private get buttonText(): string {
-    return this.showExtra ? "Show Less" : "Show More";
-  }
-}
+export default Vue.extend({
+  model: {
+    prop: "showExtra",
+    event: "change",
+  },
+  props: {
+    showExtra: Boolean,
+    extraId: Boolean,
+  },
+  computed: {
+    buttonText(): string {
+      return this.showExtra ? "Show Less" : "Show More";
+    },
+  },
+});
 </script>

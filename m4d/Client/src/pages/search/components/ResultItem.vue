@@ -11,12 +11,13 @@
 <script lang="ts">
 import type { SearchPage } from "@/model/SearchPage";
 import "reflect-metadata";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 
-@Component({ components: {} })
-export default class ResultItem extends Vue {
-  @Prop() private entry!: SearchPage;
-}
+export default Vue.extend({
+  props: {
+    entry: { type: Object as PropType<SearchPage>, required: true },
+  },
+});
 </script>
 
 <style lang="scss" scoped>

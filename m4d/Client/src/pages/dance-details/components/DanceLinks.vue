@@ -2,10 +2,11 @@
   <div id="references">
     <h2>References:</h2>
     <div v-for="(link, index) in links" :key="index">
-      <edittable-link
+      <editable-link
         v-model="internalLinks[index]"
         :editing="editing"
-      ></edittable-link>
+        @delete="onDelete($event)"
+      ></editable-link>
     </div>
     <b-button
       v-if="editing"
@@ -25,11 +26,11 @@ import { DanceLink } from "@/model/DanceLink";
 import { Editor } from "@/model/Editor";
 import "reflect-metadata";
 import { Component, Mixins, Model, Prop, Watch } from "vue-property-decorator";
-import EdittableLink from "./EdittableLink.vue";
+import EditableLink from "./EditableLink.vue";
 
 @Component({
   components: {
-    EdittableLink,
+    EditableLink,
   },
 })
 export default class DanceLinks
@@ -77,6 +78,15 @@ export default class DanceLinks
 
   private cloneLinks(value: DanceLink[]): DanceLink[] {
     return value.map((l) => new DanceLink(l));
+  }
+
+  private onDelete(link: DanceLink): void {
+    if (this.initialLinks) {
+      const links = this.cloneLinks(this.initialLinks).filter(
+        (l) => l.id !== link.id
+      );
+      this.$emit("update", links);
+    }
   }
 }
 </script>

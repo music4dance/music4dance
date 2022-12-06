@@ -12,13 +12,11 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Vue } from "vue-property-decorator";
 import SearchNavItem from "./SearchNavItem.vue";
 
-@Component({
+export default Vue.extend({
   components: { SearchNavItem },
-})
-export default class SearcgNav extends Vue {
-  @Prop() private active!: string;
-}
+  props: { active: { type: String, required: true } },
+});
 </script>

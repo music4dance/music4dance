@@ -7,20 +7,23 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue from "vue";
 
-@Component
-export default class SearchNavItem extends Vue {
-  @Prop() private id!: string;
-  @Prop() private title!: string;
-  @Prop() private active!: string;
-
-  private get isActive(): boolean {
-    return this.active === this.id;
-  }
-
-  private onClick(): void {
-    window.location.hash = `#${this.id}`;
-  }
-}
+export default Vue.extend({
+  props: {
+    id: { type: String, required: true },
+    title: { type: String, required: true },
+    active: { type: String, required: true },
+  },
+  computed: {
+    isActive(): boolean {
+      return this.active === this.id;
+    },
+  },
+  methods: {
+    onClick(): void {
+      window.location.hash = `#${this.id}`;
+    },
+  },
+});
 </script>

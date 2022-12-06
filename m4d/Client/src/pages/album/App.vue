@@ -1,5 +1,5 @@
 <template>
-  <page id="app" :consumesEnvironment="true">
+  <page id="app">
     <h1>
       Album: {{ model.title }}
       <span v-if="model.artist"
@@ -18,34 +18,30 @@
 <script lang="ts">
 import Page from "@/components/Page.vue";
 import SongTable from "@/components/SongTable.vue";
+import { safeEnvironment } from "@/helpers/DanceEnvironmentManager";
 import { AlbumModel } from "@/model/AlbumModel";
+import { DanceEnvironment } from "@/model/DanceEnvironment";
 import "reflect-metadata";
 import { TypedJSON } from "typedjson";
-import { Component, Vue } from "vue-property-decorator";
+import Vue from "vue";
 
 declare const model: string;
 
-@Component({
-  components: {
-    Page,
-    SongTable,
+export default Vue.extend({
+  components: { Page, SongTable },
+  data() {
+    return new (class {
+      model: AlbumModel = TypedJSON.parse(model, AlbumModel)!;
+      environment: DanceEnvironment = safeEnvironment();
+    })();
   },
-})
-export default class App extends Vue {
-  private readonly model: AlbumModel;
-
-  constructor() {
-    super();
-
-    this.model = TypedJSON.parse(model, AlbumModel)!;
-  }
-
-  private get artistRef(): string {
-    return `/song/artist?name=${this.model.artist}`;
-  }
-
-  private get hidden(): string[] {
-    return this.model.artist ? ["Artist"] : [];
-  }
-}
+  computed: {
+    artistRef(): string {
+      return `/song/artist?name=${this.model.artist}`;
+    },
+    hidden(): string[] {
+      return this.model.artist ? ["Artist"] : [];
+    },
+  },
+});
 </script>

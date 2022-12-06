@@ -18,19 +18,27 @@ const tagDatabaseKey = "tag-database";
 const expiryKey = "expiry";
 
 export function safeEnvironment(): DanceEnvironment {
-  if (window.environment) {
-    return window.environment;
+  const environment = syncEnvironment();
+  if (environment) {
+    return environment;
   }
   throw new Error("Dance Environment not loaded as expected");
 }
 
-export async function getEnvironment(): Promise<DanceEnvironment> {
+function syncEnvironment(): DanceEnvironment | undefined {
   if (window.environment) {
     return window.environment;
   }
-
   if (window.environmentJson && loadDancesFromString(window.environmentJson)) {
     return window.environment!;
+  }
+  return undefined;
+}
+
+export async function getEnvironment(): Promise<DanceEnvironment> {
+  const environment = syncEnvironment();
+  if (environment) {
+    return environment;
   }
 
   if (checkExpiry(environmentKey) && loadDancesFromStorage()) {
@@ -41,19 +49,27 @@ export async function getEnvironment(): Promise<DanceEnvironment> {
 }
 
 export function safeTagDatabase(): TagDatabase {
-  if (window.tagDatabase) {
-    return window.tagDatabase;
+  const tags = syncTags();
+  if (tags) {
+    return tags;
   }
   throw new Error("Tag Database not loaded as expected");
 }
 
-export async function getTagDatabase(): Promise<TagDatabase> {
+function syncTags(): TagDatabase | undefined {
   if (window.tagDatabase) {
     return window.tagDatabase;
   }
-
   if (window.tagDatabaseJson && loadTagsFromString(window.tagDatabaseJson)) {
     return window.tagDatabase!;
+  }
+  return undefined;
+}
+
+export async function getTagDatabase(): Promise<TagDatabase> {
+  const tags = syncTags();
+  if (tags) {
+    return tags;
   }
 
   if (checkExpiry(tagDatabaseKey) && loadTagsFromStorage()) {

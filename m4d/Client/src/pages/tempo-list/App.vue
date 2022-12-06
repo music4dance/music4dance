@@ -1,9 +1,5 @@
 <template>
-  <page
-    id="app"
-    :consumesEnvironment="true"
-    @environment-loaded="onEnvironmentLoaded"
-  >
+  <page id="app">
     <div class="row">
       <checked-list
         class="col-md"
@@ -74,14 +70,14 @@
 
 <script lang="ts">
 import Page from "@/components/Page.vue";
-import { DanceEnvironment } from "@/model/DanceEnvironment";
+import { safeEnvironment } from "@/helpers/DanceEnvironmentManager";
 import { DanceType } from "@/model/DanceType";
 import {
   ListOption,
   optionsFromText,
   valuesFromOptions,
 } from "@/model/ListOption";
-import { Component, Vue } from "vue-property-decorator";
+import Vue from "vue";
 import CheckedList from "./components/CheckedList.vue";
 import DanceList from "./components/DanceList.vue";
 
@@ -94,72 +90,67 @@ interface TempoListModel {
 
 declare const model: TempoListModel;
 
-@Component({
+export default Vue.extend({
   components: {
     CheckedList,
     DanceList,
     Page,
   },
-})
-export default class App extends Vue {
-  private dances: DanceType[] = [];
-  private styleOptions: ListOption[] = [];
-  private styles: string[] = [];
-  private allStyles: string[] = [];
-
-  private typeOptions: ListOption[] = [];
-  private types: string[] = [];
-  private allTypes: string[] = [];
-
-  private meterOptions: ListOption[];
-  private meters: string[];
-  private allMeters: string[];
-
-  private organizationOptions: ListOption[];
-  private organizations: string[];
-  private allOrganizations: string[];
-
-  constructor() {
-    super();
-    this.meterOptions = [
+  props: {},
+  data() {
+    const meterOptions = [
       { text: "2/4 MPM", value: "2-4" },
       { text: "3/4 MPM", value: "3-4" },
       { text: "4/4 MPM", value: "4-4" },
     ];
-    this.allMeters = valuesFromOptions(this.meterOptions);
-    this.meters = this.filterValid(this.allMeters, model.meters);
-
-    this.organizationOptions = [
+    const allMeters = valuesFromOptions(meterOptions);
+    const organizationOptions = [
       { text: "DanceSport", value: "dancesport" },
       { text: "NDCA (Silver/Gold or Professional/Amateur)", value: "ndca-1" },
       { text: "NDCA (Bronze or ProAm)", value: "ndca-2" },
     ];
-    this.allOrganizations = valuesFromOptions(this.organizationOptions);
-    this.organizations = this.filterValid(
-      this.allOrganizations,
-      model.organizations
-    );
-    const organizations = model.organizations;
-    this.organizations = organizations ? organizations : this.allOrganizations;
-  }
+    const allOrganizations = valuesFromOptions(organizationOptions);
+    return new (class {
+      dances: DanceType[] = [];
+      styleOptions: ListOption[] = [];
+      styles: string[] = [];
+      allStyles: string[] = [];
 
-  private onEnvironmentLoaded(environment: DanceEnvironment): void {
+      typeOptions: ListOption[] = [];
+      types: string[] = [];
+      allTypes: string[] = [];
+
+      meterOptions: ListOption[] = meterOptions;
+      meters: string[] = filterValid(allMeters, model.meters);
+      allMeters: string[] = allMeters;
+
+      organizationOptions: ListOption[] = organizationOptions;
+      organizations: string[] = filterValid(
+        allOrganizations,
+        model.organizations
+      );
+      allOrganizations: string[] = allOrganizations;
+    })();
+  },
+  computed: {},
+  methods: {},
+  created(): void {
+    const environment = safeEnvironment();
     this.dances = environment.flatTypes.filter((dt) => !dt.inGroup("PRF"));
-    this.styleOptions = optionsFromText(this.filterUnused(environment.styles));
+    this.styleOptions = optionsFromText(filterUnused(environment.styles));
     this.allStyles = valuesFromOptions(this.styleOptions);
-    this.styles = this.filterValid(this.allStyles, model.styles);
+    this.styles = filterValid(this.allStyles, model.styles);
 
-    this.typeOptions = optionsFromText(this.filterUnused(environment.types));
+    this.typeOptions = optionsFromText(filterUnused(environment.types));
     this.allTypes = valuesFromOptions(this.typeOptions);
-    this.types = this.filterValid(this.allTypes, model.types);
-  }
+    this.types = filterValid(this.allTypes, model.types);
+  },
+});
 
-  private filterUnused(list: string[]): string[] {
-    return list.filter((s) => s !== "Performance");
-  }
-
-  private filterValid(all: string[], selected?: string[]): string[] {
-    return selected ? selected.filter((s) => all.find((a) => a === s)) : all;
-  }
+function filterUnused(list: string[]): string[] {
+  return list.filter((s) => s !== "Performance");
+}
+function filterValid(all: string[], selected?: string[]): string[] {
+  return selected ? selected.filter((s) => all.find((a) => a === s)) : all;
 }
 </script>

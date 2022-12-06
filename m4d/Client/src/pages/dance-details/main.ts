@@ -1,7 +1,5 @@
-import { initialize } from "@/initialize";
-import Vue from "vue";
-import VueShowdown from "vue-showdown";
+import { initializeAsync } from "@/initialize";
+import { Preloads } from "@/Preloads";
 import App from "./App.vue";
 
-Vue.use(VueShowdown, { flavor: "vanilla" });
-initialize(App);
+await initializeAsync(App, Preloads.Dances);

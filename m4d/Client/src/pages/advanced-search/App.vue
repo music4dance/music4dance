@@ -259,7 +259,6 @@ import { NamedObject } from "@/model/NamedObject";
 import { SongFilter } from "@/model/SongFilter";
 import { SongSort, SortOrder } from "@/model/SongSort";
 import { Tag } from "@/model/Tag";
-import { TagDatabase } from "@/model/TagDatabase";
 import { UserQuery } from "@/model/UserQuery";
 import "reflect-metadata";
 import Vue from "vue";
@@ -540,7 +539,8 @@ export default AdminTools.extend({
 
       this.validated = false;
     },
-    onTagDatabaseLoaded(tagDatabase: TagDatabase): void {
+    loadTagDatabase(): void {
+      const tagDatabase = safeTagDatabase();
       const filter = this.sourceFilter;
 
       const danceQuery = new DanceQuery(filter.dances);
@@ -584,13 +584,10 @@ export default AdminTools.extend({
         ((this.$refs.keywords as Vue).$el as HTMLElement).focus()
       );
     },
-    onEnvironmentLoaded(environment: DanceEnvironment): void {
-      this.danceEnvironment = environment;
-    },
   },
   mounted(): void {
-    this.onEnvironmentLoaded(safeEnvironment());
-    this.onTagDatabaseLoaded(safeTagDatabase());
+    this.danceEnvironment = safeEnvironment();
+    this.loadTagDatabase();
   },
 });
 </script>

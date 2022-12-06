@@ -136,7 +136,7 @@ export default class DanceChooser extends Mixins(EnvironmentManager) {
       this.danceTypes,
       this.nameFilter,
       false
-    );
+    ) as TypeStats[];
   }
 
   private get danceTypes(): TypeStats[] {

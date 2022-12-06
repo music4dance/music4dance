@@ -1,10 +1,5 @@
 <template>
-  <page
-    id="app"
-    :breadcrumbs="breadcrumbs"
-    :consumesEnvironment="true"
-    @environment-loaded="onEnvironmentLoaded"
-  >
+  <page id="app" :breadcrumbs="breadcrumbs">
     <b-row>
       <b-col
         ><h1>{{ model.danceName }}</h1></b-col
@@ -69,7 +64,7 @@
         ></competition-category-table>
       </b-col>
     </b-row>
-    <b-row v-if="hasReferences">
+    <b-row v-if="hasReferences || editing">
       <b-col>
         <dance-links
           v-model="model.links"
@@ -102,9 +97,9 @@ import DanceReference from "@/components/DanceReference.vue";
 import Page from "@/components/Page.vue";
 import SpotifyPlayer from "@/components/SpotifyPlayer.vue";
 import TagCloud from "@/components/TagCloud.vue";
+import { safeEnvironment } from "@/helpers/DanceEnvironmentManager";
 import AdminTools from "@/mix-ins/AdminTools";
 import { BreadCrumbItem, danceTrail } from "@/model/BreadCrumbItem";
-import { DanceEnvironment } from "@/model/DanceEnvironment";
 import { DanceInstance } from "@/model/DanceInstance";
 import { DanceLink } from "@/model/DanceLink";
 import { DanceModel } from "@/model/DanceModel";
@@ -119,7 +114,6 @@ import { TypeStats } from "@/model/TypeStats";
 import axios from "axios";
 import "reflect-metadata";
 import { TypedJSON } from "typedjson";
-import { Component, Mixins } from "vue-property-decorator";
 import DanceContents from "./components/DanceContents.vue";
 import DanceDescription from "./components/DanceDescription.vue";
 import DanceLinks from "./components/DanceLinks.vue";
@@ -127,8 +121,7 @@ import TopTen from "./components/TopTen.vue";
 
 declare const model: string;
 
-//  Consider getting group to search for all of the songs in the group
-@Component({
+export default AdminTools.extend({
   components: {
     CompetitionCategoryTable,
     DanceContents,
@@ -141,117 +134,103 @@ declare const model: string;
     TagCloud,
     TopTen,
   },
-})
-export default class App extends Mixins(AdminTools) {
-  private readonly model: DanceModel;
-  private breadcrumbs: BreadCrumbItem[] = danceTrail;
-  private tags: Tag[] = [];
-  private isGroup = false;
-  private dance: DanceStats | null = null;
-  private editing = false;
-  private showTempo = TempoType.Both;
+  data() {
+    const m = TypedJSON.parse(model, DanceModel)!;
+    m.filter = new SongFilter();
+    m.filter.dances = m.danceId;
+    m.filter.sortOrder = "Dances";
 
-  constructor() {
-    super();
+    const dance = safeEnvironment().fromId(m.danceId);
 
-    this.model = TypedJSON.parse(model, DanceModel)!;
-    this.model.filter = new SongFilter();
-    this.model.filter.dances = this.model.danceId;
-    this.model.filter.sortOrder = "Dances";
-  }
-
-  private onEnvironmentLoaded(environment: DanceEnvironment): void {
-    const dance = environment.fromId(this.model.danceId);
-    if (dance) {
-      this.dance = dance;
-      this.breadcrumbs = this.buildBreadCrumbs(dance);
-      this.tags = dance.tags;
-      this.isGroup = dance.isGroup;
-    }
-  }
-
-  private buildBreadCrumbs(dance: DanceStats): BreadCrumbItem[] {
-    return [...danceTrail, ...this.breadCrumbDetails(dance)];
-  }
-
-  private breadCrumbDetails(dance: DanceStats): BreadCrumbItem[] {
-    return dance.isGroup
-      ? [this.breadCrumbLeaf(dance)]
-      : [this.breadCrumbGroup(dance as TypeStats), this.breadCrumbLeaf(dance)];
-  }
-
-  private breadCrumbLeaf(dance: DanceStats): BreadCrumbItem {
-    return { text: dance.name, active: true };
-  }
-
-  private breadCrumbGroup(dance: TypeStats): BreadCrumbItem {
-    const groupName = dance.groups![0].name;
-    return { text: groupName, href: `/dances/${groupName}` };
-  }
-
-  private get showTagFilter(): boolean {
-    return this.tags.length > 20;
-  }
-
-  private get competitionInfo(): DanceInstance[] {
-    const dance = this.dance;
-    return !dance || dance.isGroup
-      ? []
-      : (dance as TypeStats).competitionDances ?? [];
-  }
-
-  private get hasReferences(): boolean {
-    return !!this.model.links && this.model.links.length > 0;
-  }
-
-  public get modified(): boolean {
-    return this.descriptionEditor.isModified || this.linkEditor?.isModified;
-  }
-
-  private get descriptionEditor(): Editor {
-    return this.$refs.danceDescription as unknown as Editor;
-  }
-
-  private get linkEditor(): Editor {
-    return this.$refs.danceLinks as unknown as Editor;
-  }
-
-  private get dances(): DanceType[] | undefined {
-    return this.dance?.isGroup ? (this.dance as GroupStats).dances : undefined;
-  }
-
-  private updateDescription(value: string): void {
-    this.model.description = value;
-  }
-
-  private updateLinks(value: DanceLink[]): void {
-    this.model.links = value;
-  }
-
-  private startEdit(): void {
-    this.editing = true;
-  }
-
-  private cancelChanges(): void {
-    this.editing = false;
-  }
-
-  private async saveChanges(): Promise<void> {
-    try {
-      const model = this.model;
-      await axios.patch(`/api/dances/${model.danceId}`, {
-        id: model.danceId,
-        description: model.description,
-        danceLinks: model.links,
-      });
-      this.descriptionEditor.commit();
-      this.linkEditor.commit();
+    return new (class {
+      model: DanceModel = m;
+      breadcrumbs: BreadCrumbItem[] = dance
+        ? buildBreadCrumbs(dance)
+        : danceTrail;
+      tags: Tag[] = dance ? dance.tags : [];
+      isGroup = dance ? dance.isGroup : false;
+      dance: DanceStats | null = dance ?? null;
+      editing = false;
+      showTempo = TempoType.Both;
+    })();
+  },
+  computed: {
+    showTagFilter(): boolean {
+      return this.tags.length > 20;
+    },
+    competitionInfo(): DanceInstance[] {
+      const dance = this.dance;
+      return !dance || dance.isGroup
+        ? []
+        : (dance as TypeStats).competitionDances ?? [];
+    },
+    hasReferences(): boolean {
+      return !!this.model.links && this.model.links.length > 0;
+    },
+    modified(): boolean {
+      return this.descriptionEditor.isModified || this.linkEditor?.isModified;
+    },
+    descriptionEditor(): Editor {
+      return this.$refs.danceDescription as unknown as Editor;
+    },
+    linkEditor(): Editor {
+      return this.$refs.danceLinks as unknown as Editor;
+    },
+    dances(): DanceType[] | undefined {
+      return this.dance?.isGroup
+        ? (this.dance as GroupStats).dances
+        : undefined;
+    },
+  },
+  methods: {
+    updateDescription(value: string): void {
+      this.model.description = value;
+    },
+    updateLinks(value: DanceLink[]): void {
+      this.model.links = value;
+    },
+    startEdit(): void {
+      this.editing = true;
+    },
+    cancelChanges(): void {
       this.editing = false;
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.log(e);
-      throw e;
-    }
-  }
+    },
+    async saveChanges(): Promise<void> {
+      try {
+        const model = this.model;
+        await axios.patch(`/api/dances/${model.danceId}`, {
+          id: model.danceId,
+          description: model.description,
+          danceLinks: model.links,
+        });
+        this.descriptionEditor.commit();
+        this.linkEditor.commit();
+        this.editing = false;
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log(e);
+        throw e;
+      }
+    },
+  },
+});
+
+function buildBreadCrumbs(dance: DanceStats): BreadCrumbItem[] {
+  return [...danceTrail, ...breadCrumbDetails(dance)];
+}
+
+function breadCrumbDetails(dance: DanceStats): BreadCrumbItem[] {
+  return dance.isGroup
+    ? [breadCrumbLeaf(dance)]
+    : [breadCrumbGroup(dance as TypeStats), breadCrumbLeaf(dance)];
+}
+
+function breadCrumbLeaf(dance: DanceStats): BreadCrumbItem {
+  return { text: dance.name, active: true };
+}
+
+function breadCrumbGroup(dance: TypeStats): BreadCrumbItem {
+  const groupName = dance.groups![0].name;
+  return { text: groupName, href: `/dances/${groupName}` };
 }
 </script>

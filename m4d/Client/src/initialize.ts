@@ -1,6 +1,7 @@
 import { BootstrapVue, BootstrapVueIcons } from "bootstrap-vue";
 import Vue, { VueConstructor } from "vue";
 import VueMq from "vue-mq";
+import VueShowdown from "vue-showdown";
 import VueTour from "vue-tour";
 import { loadPreloads } from "./loadPreloads";
 import { Preloads } from "./Preloads";
@@ -27,6 +28,7 @@ function coreInitialize(app: VueConstructor<Vue>): void {
   Vue.use(VueTour);
   Vue.use(BootstrapVue);
   Vue.use(BootstrapVueIcons);
+  Vue.use(VueShowdown, { flavor: "vanilla" });
   Vue.use(VueMq, {
     breakpoints: {
       sm: 576,
