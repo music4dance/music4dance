@@ -26,7 +26,9 @@ namespace SelfCrawler
 
         public Crawler()
         {
-            _driver = new ChromeDriver();
+            var chromeOptions = new ChromeOptions();
+            chromeOptions.AddArguments("--ignore-certificate-errors");
+            _driver = new ChromeDriver(chromeOptions);
             _searchServiceManager = new SearchServiceManager(GetIConfiguration());
         }
 
