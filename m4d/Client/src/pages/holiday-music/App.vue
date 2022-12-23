@@ -45,7 +45,7 @@ import { DanceEnvironment } from "@/model/DanceEnvironment";
 import { HolidaySongListModel } from "@/model/HolidaySongListModel";
 import "reflect-metadata";
 import { TypedJSON } from "typedjson";
-import { Vue } from "vue-property-decorator";
+import Vue from "vue";
 import HolidayDanceChooser from "./HolidayDanceChooser.vue";
 import HolidayHelp from "./HolidayHelp.vue";
 

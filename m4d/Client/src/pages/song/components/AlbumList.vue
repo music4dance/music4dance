@@ -36,19 +36,22 @@ import PurchaseLogo from "@/components/PurcahseLogo.vue";
 import AdminTools from "@/mix-ins/AdminTools";
 import { AlbumDetails } from "@/model/AlbumDetails";
 import "reflect-metadata";
-import { Component, Mixins, Prop } from "vue-property-decorator";
+import { PropType } from "vue";
 
-@Component({ components: { PurchaseLogo } })
-export default class AlbumList extends Mixins(AdminTools) {
-  @Prop() private readonly albums!: AlbumDetails[];
-  @Prop() private readonly editing?: boolean;
+export default AdminTools.extend({
+  components: { PurchaseLogo },
+  props: {
+    albums: { type: Array as PropType<AlbumDetails[]>, required: true },
+    editing: Boolean,
+  },
+  methods: {
+    albumLink(album: AlbumDetails): string {
+      return `/song/album?title=${album.name}`;
+    },
 
-  private albumLink(album: AlbumDetails): string {
-    return `/song/album?title=${album.name}`;
-  }
-
-  private onDelete(album: AlbumDetails): void {
-    this.$emit("delete-album", album);
-  }
-}
+    onDelete(album: AlbumDetails): void {
+      this.$emit("delete-album", album);
+    },
+  },
+});
 </script>

@@ -14,27 +14,27 @@ import { SongFilter } from "@/model/SongFilter";
 import { Tag } from "@/model/Tag";
 import { TaggableObject } from "@/model/TaggableObject";
 import { TagHandler } from "@/model/TagHandler";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 
-@Component({
-  components: {
-    TagButton,
+export default Vue.extend({
+  components: { TagButton },
+  props: {
+    container: { type: Object as PropType<TaggableObject>, required: true },
+    filter: Object as PropType<SongFilter>,
+    user: String,
   },
-})
-export default class TagList extends Vue {
-  @Prop() readonly container!: TaggableObject;
-  @Prop() readonly filter?: SongFilter;
-  @Prop() readonly user?: string;
-
-  private get tags(): Tag[] {
-    const ret = this.container.tags.filter(
-      (t) => t.category && t.category !== "Dance"
-    );
-    return ret;
-  }
-
-  private tagHandler(tag: Tag): TagHandler {
-    return new TagHandler(tag, this.user, this.filter, this.container);
-  }
-}
+  computed: {
+    tags(): Tag[] {
+      const ret = this.container.tags.filter(
+        (t) => t.category && t.category !== "Dance"
+      );
+      return ret;
+    },
+  },
+  methods: {
+    tagHandler(tag: Tag): TagHandler {
+      return new TagHandler(tag, this.user, this.filter, this.container);
+    },
+  },
+});
 </script>

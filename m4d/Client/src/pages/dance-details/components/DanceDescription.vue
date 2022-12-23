@@ -30,92 +30,91 @@ import { SongFilter } from "@/model/SongFilter";
 import { TempoRange } from "@/model/TempoRange";
 import { TypeStats } from "@/model/TypeStats";
 import "reflect-metadata";
-import { Component, Mixins, Prop } from "vue-property-decorator";
 
-@Component({
-  components: {
-    MarkDownEditor,
-    TempiLink,
+export default EnvironmentManager.extend({
+  components: { MarkDownEditor, TempiLink },
+  props: {
+    description: { type: String, required: true },
+    danceId: { type: String, required: true },
+    editing: Boolean,
   },
-})
-export default class DanceDescription
-  extends Mixins(EnvironmentManager)
-  implements Editor
-{
-  @Prop() private readonly description!: string;
-  @Prop() private readonly danceId!: string;
-  @Prop() private readonly editing!: boolean;
+  data() {
+    return new (class {})();
+  },
+  computed: {
+    descriptionInternal: {
+      get: function (): string {
+        return this.description;
+      },
+      set: function (value: string): void {
+        this.$emit("input", value);
+      },
+    },
+    isModified(): boolean {
+      return this.editor.isModified;
+    },
+    editor(): Editor {
+      return this.$refs.description as unknown as Editor;
+    },
 
-  public get isModified(): boolean {
-    return this.editor.isModified;
-  }
+    dance(): DanceStats | undefined {
+      return this.environment.fromId(this.danceId);
+    },
 
-  public commit(): void {
-    this.editor.commit();
-  }
+    danceName(): string | undefined {
+      return this.dance?.name;
+    },
 
-  private get editor(): Editor {
-    return this.$refs.description as unknown as Editor;
-  }
+    rangeText(): string {
+      const tempo = this.typeStats?.tempoRange;
+      return tempo && tempo.min === tempo.max ? "at" : "between";
+    },
 
-  private get dance(): DanceStats | undefined {
-    return this.environment.fromId(this.danceId);
-  }
+    tempoFilter(): SongFilter {
+      const tempo = this.tempoRange;
+      const filter = new SongFilter();
+      filter.action = "advanced";
+      filter.tempoMin = tempo?.min;
+      filter.tempoMax = tempo?.max;
+      filter.dances = this.danceId;
 
-  private get danceName(): string | undefined {
-    return this.dance?.name;
-  }
+      return filter;
+    },
 
-  private get descriptionInternal(): string {
-    return this.description;
-  }
+    tempoRange(): TempoRange | undefined {
+      return this.typeStats?.tempoRange;
+    },
 
-  private set descriptionInternal(value: string) {
-    this.$emit("input", value);
-  }
+    bpmText(): string {
+      const tempo = this.tempoRange;
+      return `${tempo ? tempo.toString(" and ") : ""} beats per minute`;
+    },
 
-  private get rangeText(): string {
-    const tempo = this.typeStats?.tempoRange;
-    return tempo && tempo.min === tempo.max ? "at" : "between";
-  }
+    numerator(): number {
+      return this.typeStats?.meter.numerator ?? 0;
+    },
 
-  private get tempoFilter(): SongFilter {
-    const tempo = this.tempoRange;
-    const filter = new SongFilter();
-    filter.action = "advanced";
-    filter.tempoMin = tempo?.min;
-    filter.tempoMax = tempo?.max;
-    filter.dances = this.danceId;
+    mpmText(): string {
+      const tempo = this.tempoRange;
+      const numerator = this.numerator;
+      return `${
+        tempo ? tempo.mpm(numerator, " and ") : ""
+      } measures per minute`;
+    },
 
-    return filter;
-  }
-
-  private get tempoRange(): TempoRange | undefined {
-    return this.typeStats?.tempoRange;
-  }
-
-  private get bpmText(): string {
-    const tempo = this.tempoRange;
-    return `${tempo ? tempo.toString(" and ") : ""} beats per minute`;
-  }
-
-  private get numerator(): number {
-    return this.typeStats?.meter.numerator ?? 0;
-  }
-
-  private get mpmText(): string {
-    const tempo = this.tempoRange;
-    const numerator = this.numerator;
-    return `${tempo ? tempo.mpm(numerator, " and ") : ""} measures per minute`;
-  }
-
-  private get typeStats(): TypeStats | undefined {
-    if (this.dance?.isGroup) {
-      throw new Error(
-        `Attempted to find tempo for a group: ${this.dance?.name}`
-      );
-    }
-    return this.dance as TypeStats;
-  }
-}
+    typeStats(): TypeStats | undefined {
+      if (this.dance?.isGroup) {
+        throw new Error(
+          `Attempted to find tempo for a group: ${this.dance?.name}`
+        );
+      }
+      return this.dance as TypeStats;
+    },
+  },
+  methods: {
+    commit(): void {
+      this.editor.commit();
+    },
+  },
+});
 </script>

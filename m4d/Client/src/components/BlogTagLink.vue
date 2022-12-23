@@ -12,7 +12,7 @@
 <script lang="ts">
 import { toTitleCase } from "@/helpers/StringHelpers";
 import "reflect-metadata";
-import { Vue } from "vue-property-decorator";
+import Vue from "vue";
 
 export default Vue.extend({
   props: {

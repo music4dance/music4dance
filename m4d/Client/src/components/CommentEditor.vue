@@ -17,45 +17,40 @@
 
 <script lang="ts">
 import AdminTools from "@/mix-ins/AdminTools";
-import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 import { SongEditor } from "@/model/SongEditor";
 import { TaggableObject } from "@/model/TaggableObject";
 import { UserComment } from "@/model/UserComment";
-import { Component, Mixins, Prop } from "vue-property-decorator";
+import { PropType } from "vue";
 import SingleCommentEditor from "./SingleCommentEditor.vue";
 import SingleCommentViewer from "./SingleCommentViewer.vue";
 
-@Component({
-  components: {
-    SingleCommentEditor,
-    SingleCommentViewer,
+export default AdminTools.extend({
+  components: { SingleCommentEditor, SingleCommentViewer },
+  props: {
+    container: { type: Object as PropType<TaggableObject>, required: true },
+    editor: { type: Object as PropType<SongEditor>, required: true },
+    edit: Boolean,
+    placeholder: String,
+    rows: Number,
   },
-})
-export default class CommentEditor extends Mixins(
-  EnvironmentManager,
-  AdminTools
-) {
-  @Prop() readonly container!: TaggableObject;
-  @Prop() readonly editor!: SongEditor;
-  @Prop() readonly edit!: boolean;
-  @Prop() readonly placeholder!: string;
-  @Prop() readonly rows!: number;
-
-  private get comments(): UserComment[] {
-    let comments = this.container.comments;
-    if (this.edit && !comments.find((c) => c.userName === this.userName)) {
-      comments = [
-        ...comments,
-        new UserComment({ userName: this.userName, comment: "" }),
-      ];
-    }
-    return comments;
-  }
-
-  private enableEdit(comment: UserComment): boolean {
-    return this.edit && this.userName === comment.userName;
-  }
-}
+  computed: {
+    comments(): UserComment[] {
+      let comments = this.container.comments;
+      if (this.edit && !comments.find((c) => c.userName === this.userName)) {
+        comments = [
+          ...comments,
+          new UserComment({ userName: this.userName, comment: "" }),
+        ];
+      }
+      return comments;
+    },
+  },
+  methods: {
+    enableEdit(comment: UserComment): boolean {
+      return this.edit && this.userName === comment.userName;
+    },
+  },
+});
 </script>
 
 <style lang="scss" scoped>

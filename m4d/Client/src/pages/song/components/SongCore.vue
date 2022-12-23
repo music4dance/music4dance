@@ -245,7 +245,7 @@ import { PropertyType, SongProperty } from "@/model/SongProperty";
 import { Tag } from "@/model/Tag";
 import { TrackModel } from "@/model/TrackModel";
 import "reflect-metadata";
-import { Component, Mixins, Prop, Watch } from "vue-property-decorator";
+import { PropType } from "vue";
 import AlbumList from "./AlbumList.vue";
 import DanceList from "./DanceList.vue";
 import FieldEditor from "./FieldEditor.vue";
@@ -255,7 +255,7 @@ import SongHistoryViewer from "./SongHistoryViewer.vue";
 import SongStats from "./SongStats.vue";
 import TrackList from "./TrackList.vue";
 
-@Component({
+export default AdminTools.extend({
   components: {
     AlbumList,
     CommentEditor,
@@ -271,304 +271,304 @@ import TrackList from "./TrackList.vue";
     TagListEditor,
     TrackList,
   },
-})
-export default class SongCore extends Mixins(AdminTools) {
-  @Prop() private readonly model!: SongDetailsModel;
-  @Prop() private readonly environment!: DanceEnvironment | null;
-  @Prop() private readonly startEditing?: boolean;
-  @Prop() private readonly creating?: boolean;
+  props: {
+    model: { type: Object as PropType<SongDetailsModel>, required: true },
+    environment: Object as PropType<DanceEnvironment>,
+    startEditing: Boolean,
+    creating: Boolean,
+  },
+  data() {
+    return new (class {
+      songStore: Song = new Song();
+      editor: SongEditor | null = null;
+      toastShown = false;
+      edit = false;
+    })();
+  },
+  computed: {
+    adminProperties: {
+      get: function (): string {
+        if (!this.isAdmin) {
+          throw new Error("Unauthorized");
+        }
 
-  private songStore: Song;
-  private editor: SongEditor | null;
-  private toastShown = false;
-  private edit = false;
+        const editor = this.editor;
+        const properties = editor
+          ? editor.history.properties
+          : this.model.songHistory.properties;
 
-  constructor() {
-    super();
-    this.songStore = new Song();
-    this.editor = null;
-  }
+        return this.computePropertyString(properties);
+      },
+      set: function (properties: string): void {
+        this.safeEditor.adminEdit(properties);
+      },
+    },
+    song(): Song {
+      const editor = this.editor;
+      return editor ? editor.song : this.songStore;
+    },
 
-  private get song(): Song {
-    const editor = this.editor;
-    return editor ? editor.song : this.songStore;
-  }
+    safeEditor(): SongEditor {
+      const editor = this.editor;
+      if (!editor) {
+        throw new Error("Can't edit if not logged in");
+      }
+      return editor;
+    },
 
-  private get safeEditor(): SongEditor {
-    const editor = this.editor;
-    if (!editor) {
-      throw new Error("Can't edit if not logged in");
-    }
-    return editor;
-  }
+    filter(): SongFilter {
+      return this.model.filter;
+    },
 
-  private beforeMount() {
+    showSave(): boolean {
+      return (this.modified && this.checkDances) || (this.isAdmin && this.edit);
+    },
+
+    history(): SongHistory {
+      const editor = this.editor;
+      return editor ? editor.history : this.model.songHistory;
+    },
+
+    modified(): boolean {
+      const modified = this.editor?.modified ?? false;
+      if (modified && !this.toastShown) {
+        this.$bvToast.toast(`Click '${this.saveText}' to save your changes`, {
+          title: "Don't Forget!",
+          variant: "primary",
+          toaster: "b-toaster-top-center",
+        });
+      }
+      return modified;
+    },
+    artistLink(): string | undefined {
+      const artist = this.song?.artist;
+      return artist ? `/song/artist?name=${artist}` : undefined;
+    },
+
+    hasExplicitDances(): boolean {
+      return !!this.explicitDanceIds?.length;
+    },
+
+    explicitDanceRatings(): DanceRating[] {
+      const ratings = this.song.danceRatings ?? [];
+      return this.explicitDanceIds.map(
+        (id) => ratings.find((dr) => dr.danceId === id)!
+      );
+    },
+
+    explicitDanceIds(): string[] {
+      const tags = this.song.tags;
+      return this.environment && tags
+        ? tags
+            .filter(
+              (t) =>
+                t.category === "Dance" &&
+                !t.value.startsWith("!") &&
+                !t.value.startsWith("-")
+            )
+            .map((t) => this.environment!.fromName(t.value)!.id)
+        : [];
+    },
+
+    numerator(): number | undefined {
+      if (this.hasMeterTag(4)) {
+        return 4;
+      } else if (this.hasMeterTag(3)) {
+        return 3;
+      } else if (this.hasMeterTag(2)) {
+        return 2;
+      }
+      return undefined;
+    },
+
+    hasUserChanges(): boolean {
+      return !!this.editor?.userHasPreviousChanges;
+    },
+
+    editing(): boolean {
+      return this.modified || this.edit;
+    },
+
+    isCreator(): boolean {
+      const userName = this.userName;
+      return !!userName && this.song.isCreator(userName);
+    },
+
+    checkDances(): boolean {
+      return (
+        (this.song.hasDances || this.editor?.initialSong.hasDances) ?? false
+      );
+    },
+
+    deleteLink(): string {
+      return `/song/delete?id=${this.model.songHistory.id}`;
+    },
+
+    updateServices(): string {
+      return `/song/UpdateSongAndServices?id=${this.song.songId}&filter=${this.model.filter.query}`;
+    },
+
+    commentPlaceholder(): string {
+      return (
+        `Add comments about this song and its general dancability.  If you have any comments about ` +
+        `how this song relates to a particular dance style please vote on that dance style in the ` +
+        `"Dances" section and add your comments there.`
+      );
+    },
+
+    saveText(): string {
+      return this.creating ? "Add Song" : "Save Changes";
+    },
+  },
+  watch: {
+    environment(): void {
+      this.initialize();
+    },
+  },
+  methods: {
+    computePropertyString(properties: SongProperty[]): string {
+      return properties.map((p) => p.toString()).join("\t");
+    },
+
+    initialize(): void {
+      const environment = this.environment;
+      if (!environment) {
+        return;
+      }
+
+      const stats = environment.tree;
+      if (stats) {
+        if (this.model.userName) {
+          this.editor = new SongEditor(
+            this.axiosXsrf,
+            this.model.userName,
+            this.model.songHistory
+          );
+        }
+        this.songStore = Song.fromHistory(
+          this.model.songHistory,
+          this.model.userName
+        );
+      }
+    },
+
+    onDanceVote(vote: DanceRatingVote): void {
+      this.safeEditor.danceVote(vote);
+      this.edit = true;
+    },
+
+    onDeleteAlbum(album: AlbumDetails): void {
+      this.safeEditor.addAlbumProperty(
+        PropertyType.albumField,
+        undefined,
+        album.index!
+      );
+    },
+
+    onDeleteDance(dr: DanceRating): void {
+      const tag = Tag.fromParts(
+        this.environment!.fromId(dr.danceId)!.name,
+        "Dance"
+      );
+      this.safeEditor.addProperty(PropertyType.deleteTag, tag.key);
+    },
+
+    addProperty(property: SongProperty): void {
+      this.safeEditor.addProperty(property.name, property.value);
+    },
+
+    hasMeterTag(numerator: number): boolean {
+      return !!this.song.tags.find((t) => t.key === `${numerator}/4:Tempo`);
+    },
+
+    onClickLike(): void {
+      this.safeEditor.toggleLike();
+    },
+
+    addDance(danceId?: string, persist?: boolean): void {
+      if (danceId) {
+        this.safeEditor.danceVote(
+          new DanceRatingVote(danceId, VoteDirection.Up)
+        );
+
+        if (!persist) {
+          this.$bvModal.hide("danceChooser");
+        }
+        this.edit = true;
+      }
+    },
+
+    updateField(property: SongProperty): void {
+      this.safeEditor.modifyProperty(property.name, property.value);
+    },
+
+    onReplaceHistory(properties: SongProperty[]): void {
+      this.safeEditor.replaceAll(properties);
+      this.edit = true;
+    },
+
+    undoUserChanges(): void {
+      this.$bvModal
+        .msgBoxConfirm(
+          "Are you sure you want to undo all of your edits to this song?"
+        )
+        .then((value: boolean) => {
+          if (value) {
+            (this.$refs.undoUserChanges as HTMLFormElement).submit();
+          }
+        })
+        .catch((err) => {
+          // eslint-disable-next-line no-console
+          console.log(err);
+        });
+    },
+
+    updateSong(): void {
+      this.songStore = this.editor!.song;
+    },
+
+    setEdit(): void {
+      this.edit = true;
+    },
+
+    addTrack(track: TrackModel): void {
+      this.editor?.addAlbumFromTrack(track);
+    },
+
+    leaveWarning(event: BeforeUnloadEvent): void {
+      if (this.modified) {
+        event.returnValue =
+          "You have unsaved changes.  Are you sure you want to leave?";
+      }
+    },
+
+    cancelChanges(): void {
+      this.editor!.revert();
+      this.edit = false;
+      this.$emit("cancel-changes");
+    },
+
+    async saveChanges(): Promise<void> {
+      if (this.creating) {
+        await this.editor!.create();
+      } else {
+        await this.editor!.saveChanges();
+      }
+
+      this.edit = false;
+
+      if (this.startEditing) {
+        this.$emit("song-saved");
+      }
+    },
+  },
+  beforeMount() {
     this.edit = !!this.startEditing;
     this.initialize();
     window.addEventListener("beforeunload", this.leaveWarning);
-  }
-
-  private beforeDestroy() {
+  },
+  beforeDestroy() {
     window.removeEventListener("beforeunload", this.leaveWarning);
-  }
-
-  private get filter(): SongFilter {
-    return this.model.filter;
-  }
-
-  private get showSave(): boolean {
-    return (this.modified && this.checkDances) || (this.isAdmin && this.edit);
-  }
-
-  private get history(): SongHistory {
-    const editor = this.editor;
-    return editor ? editor.history : this.model.songHistory;
-  }
-
-  private get modified(): boolean {
-    const modified = this.editor?.modified ?? false;
-    if (modified && !this.toastShown) {
-      this.$bvToast.toast(`Click '${this.saveText}' to save your changes`, {
-        title: "Don't Forget!",
-        variant: "primary",
-        toaster: "b-toaster-top-center",
-      });
-    }
-    return modified;
-  }
-
-  private get adminProperties(): string {
-    if (!this.isAdmin) {
-      throw new Error("Unauthorized");
-    }
-
-    const editor = this.editor;
-    const properties = editor
-      ? editor.history.properties
-      : this.model.songHistory.properties;
-
-    return this.computePropertyString(properties);
-  }
-
-  private set adminProperties(properties: string) {
-    this.safeEditor.adminEdit(properties);
-  }
-
-  private computePropertyString(properties: SongProperty[]): string {
-    return properties.map((p) => p.toString()).join("\t");
-  }
-
-  @Watch("environment")
-  private onEnvironmentLoaded(): void {
-    this.initialize();
-  }
-
-  private initialize(): void {
-    const environment = this.environment;
-    if (!environment) {
-      return;
-    }
-
-    const stats = environment.tree;
-    if (stats) {
-      if (this.model.userName) {
-        this.editor = new SongEditor(
-          this.axiosXsrf,
-          this.model.userName,
-          this.model.songHistory
-        );
-      }
-      this.songStore = Song.fromHistory(
-        this.model.songHistory,
-        this.model.userName
-      );
-    }
-  }
-
-  private onDanceVote(vote: DanceRatingVote): void {
-    this.safeEditor.danceVote(vote);
-    this.edit = true;
-  }
-
-  private onDeleteAlbum(album: AlbumDetails): void {
-    this.safeEditor.addAlbumProperty(
-      PropertyType.albumField,
-      undefined,
-      album.index!
-    );
-  }
-
-  private onDeleteDance(dr: DanceRating): void {
-    const tag = Tag.fromParts(
-      this.environment!.fromId(dr.danceId)!.name,
-      "Dance"
-    );
-    this.safeEditor.addProperty(PropertyType.deleteTag, tag.key);
-  }
-
-  private addProperty(property: SongProperty): void {
-    this.safeEditor.addProperty(property.name, property.value);
-  }
-
-  private get artistLink(): string | undefined {
-    const artist = this.song?.artist;
-    return artist ? `/song/artist?name=${artist}` : undefined;
-  }
-
-  private get hasExplicitDances(): boolean {
-    return !!this.explicitDanceIds?.length;
-  }
-
-  private get explicitDanceRatings(): DanceRating[] {
-    const ratings = this.song.danceRatings ?? [];
-    return this.explicitDanceIds.map(
-      (id) => ratings.find((dr) => dr.danceId === id)!
-    );
-  }
-
-  private get explicitDanceIds(): string[] {
-    const tags = this.song.tags;
-    return this.environment && tags
-      ? tags
-          .filter(
-            (t) =>
-              t.category === "Dance" &&
-              !t.value.startsWith("!") &&
-              !t.value.startsWith("-")
-          )
-          .map((t) => this.environment!.fromName(t.value)!.id)
-      : [];
-  }
-
-  private get numerator(): number | undefined {
-    if (this.hasMeterTag(4)) {
-      return 4;
-    } else if (this.hasMeterTag(3)) {
-      return 3;
-    } else if (this.hasMeterTag(2)) {
-      return 2;
-    }
-    return undefined;
-  }
-
-  private hasMeterTag(numerator: number): boolean {
-    return !!this.song.tags.find((t) => t.key === `${numerator}/4:Tempo`);
-  }
-
-  private onClickLike(): void {
-    this.safeEditor.toggleLike();
-  }
-
-  private addDance(danceId?: string, persist?: boolean): void {
-    if (danceId) {
-      this.safeEditor.danceVote(new DanceRatingVote(danceId, VoteDirection.Up));
-
-      if (!persist) {
-        this.$bvModal.hide("danceChooser");
-      }
-      this.edit = true;
-    }
-  }
-
-  private updateField(property: SongProperty): void {
-    this.safeEditor.modifyProperty(property.name, property.value);
-  }
-
-  private onReplaceHistory(properties: SongProperty[]): void {
-    this.safeEditor.replaceAll(properties);
-    this.edit = true;
-  }
-
-  private get hasUserChanges(): boolean {
-    return !!this.editor?.userHasPreviousChanges;
-  }
-
-  private undoUserChanges(): void {
-    this.$bvModal
-      .msgBoxConfirm(
-        "Are you sure you want to undo all of your edits to this song?"
-      )
-      .then((value: boolean) => {
-        if (value) {
-          (this.$refs.undoUserChanges as HTMLFormElement).submit();
-        }
-      })
-      .catch((err) => {
-        // eslint-disable-next-line no-console
-        console.log(err);
-      });
-  }
-
-  private get editing(): boolean {
-    return this.modified || this.edit;
-  }
-
-  private get isCreator(): boolean {
-    const userName = this.userName;
-    return !!userName && this.song.isCreator(userName);
-  }
-
-  private get checkDances(): boolean {
-    return (this.song.hasDances || this.editor?.initialSong.hasDances) ?? false;
-  }
-
-  private updateSong(): void {
-    this.songStore = this.editor!.song;
-  }
-
-  private setEdit(): void {
-    this.edit = true;
-  }
-
-  private addTrack(track: TrackModel): void {
-    this.editor?.addAlbumFromTrack(track);
-  }
-
-  private leaveWarning(event: BeforeUnloadEvent): void {
-    if (this.modified) {
-      event.returnValue =
-        "You have unsaved changes.  Are you sure you want to leave?";
-    }
-  }
-
-  private get deleteLink(): string {
-    return `/song/delete?id=${this.model.songHistory.id}`;
-  }
-
-  private get updateServices(): string {
-    return `/song/UpdateSongAndServices?id=${this.song.songId}&filter=${this.model.filter.query}`;
-  }
-
-  private get commentPlaceholder(): string {
-    return (
-      `Add comments about this song and its general dancability.  If you have any comments about ` +
-      `how this song relates to a particular dance style please vote on that dance style in the ` +
-      `"Dances" section and add your comments there.`
-    );
-  }
-
-  private get saveText(): string {
-    return this.creating ? "Add Song" : "Save Changes";
-  }
-
-  private cancelChanges(): void {
-    this.editor!.revert();
-    this.edit = false;
-    this.$emit("cancel-changes");
-  }
-
-  private async saveChanges(): Promise<void> {
-    if (this.creating) {
-      await this.editor!.create();
-    } else {
-      await this.editor!.saveChanges();
-    }
-
-    this.edit = false;
-
-    if (this.startEditing) {
-      this.$emit("song-saved");
-    }
-  }
-}
+  },
+});
 </script>

@@ -31,46 +31,49 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue from "vue";
 
-@Component
-export default class IconButton extends Vue {
-  @Prop() private readonly state?: boolean;
-  @Prop() private readonly authenticated!: boolean;
-  @Prop() private readonly redirectUrl?: string;
-  @Prop() private readonly signInTip?: string;
-  @Prop() private readonly undefinedTip?: string;
-  @Prop() private readonly trueTip?: string;
-  @Prop() private readonly falseTip?: string;
-  @Prop() private readonly trueIcon!: string;
-  @Prop() private readonly falseIcon!: string;
-  @Prop() private readonly trueVariant!: string;
-  @Prop() private readonly falseVariant!: string;
-  @Prop() private readonly scale!: number;
-
-  private get likeTip(): string | undefined {
-    if (!this.authenticated) {
-      return this.signInTip;
-    }
-
-    const state = this.state;
-    if (state === undefined) {
-      return this.undefinedTip;
-    } else if (state) {
-      return this.trueTip;
-    } else {
-      return this.falseTip;
-    }
-  }
-
-  private async onClick(): Promise<void> {
-    if (this.redirectUrl) {
-      if (this.authenticated) {
-        this.$emit("click-icon");
-      } else {
-        window.location.href = this.redirectUrl;
+export default Vue.extend({
+  props: {
+    state: Boolean,
+    authenticated: Boolean,
+    redirectUrl: String,
+    signInTip: String,
+    undefinedTip: String,
+    trueTip: String,
+    falseTip: String,
+    trueIcon: String,
+    falseIcon: String,
+    trueVariant: String,
+    falseVariant: String,
+    scale: Number,
+  },
+  computed: {
+    likeTip(): string | undefined {
+      if (!this.authenticated) {
+        return this.signInTip;
       }
-    }
-  }
-}
+
+      const state = this.state;
+      if (state === undefined) {
+        return this.undefinedTip;
+      } else if (state) {
+        return this.trueTip;
+      } else {
+        return this.falseTip;
+      }
+    },
+  },
+  methods: {
+    async onClick(): Promise<void> {
+      if (this.redirectUrl) {
+        if (this.authenticated) {
+          this.$emit("click-icon");
+        } else {
+          window.location.href = this.redirectUrl;
+        }
+      }
+    },
+  },
+});
 </script>

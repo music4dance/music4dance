@@ -1,9 +1,5 @@
 <template>
-  <page
-    id="app"
-    :consumesEnvironment="true"
-    @environment-loaded="onEnvironmentLoaded"
-  >
+  <page id="app">
     <h1>Search Results: {{ search }}</h1>
     <song-results
       :search="search"
@@ -18,6 +14,7 @@
 
 <script lang="ts">
 import Page from "@/components/Page.vue";
+import { safeEnvironment } from "@/helpers/DanceEnvironmentManager";
 import { DanceEnvironment } from "@/model/DanceEnvironment";
 import "reflect-metadata";
 import Vue from "vue";
@@ -40,12 +37,8 @@ export default Vue.extend({
       return model;
     },
   },
-  methods: {
-    async onEnvironmentLoaded(environment: DanceEnvironment): Promise<void> {
-      // TODO: Figure out why the environment variable on the EnvironmentManager
-      //  doesn't appear to be reactive
-      this.localEnvironment = environment;
-    },
+  created(): void {
+    this.localEnvironment = safeEnvironment();
   },
 });
 </script>

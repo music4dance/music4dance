@@ -39,28 +39,54 @@ import { SongFilter } from "@/model/SongFilter";
 import { SongHistory } from "@/model/SongHistory";
 import "reflect-metadata";
 import { TypedJSON } from "typedjson";
-import { Component, Prop } from "vue-property-decorator";
+import { PropType } from "vue";
 import ContinueOptions from "./ContinueOptions.vue";
 import SearchNav from "./SearchNav.vue";
 import ShowMore from "./ShowMore.vue";
 
-@Component({
-  components: {
-    ContinueOptions,
-    Loader,
-    SearchNav,
-    ShowMore,
-    SongTable,
+export default AdminTools.extend({
+  components: { ContinueOptions, Loader, SearchNav, ShowMore, SongTable },
+  props: {
+    search: { type: String, required: true },
+    environment: { type: Object as PropType<DanceEnvironment>, required: true },
   },
-})
-export default class SongResults extends AdminTools {
-  @Prop() private search!: string;
-  @Prop() environment!: DanceEnvironment;
-  private loaded = false;
-  private histories: SongHistory[] = [];
-  private extraVisible = false;
+  data() {
+    return new (class {
+      loaded = false;
+      histories: SongHistory[] = [];
+      extraVisible = false;
+    })();
+  },
+  computed: {
+    filter(): SongFilter | null {
+      const environment = this.environment;
+      if (!environment || !environment.dances) {
+        return null;
+      }
+      const filter = new SongFilter();
+      const search = this.search.trim();
 
-  public async mounted(): Promise<void> {
+      const dance = environment.fromSynonym(search);
+      if (dance) {
+        filter.dances = dance.id;
+        filter.sortOrder = "Dances";
+      } else {
+        filter.searchString = search;
+        filter.sortOrder = "";
+      }
+      return filter;
+    },
+    visibleHistories(): SongHistory[] {
+      const histories = this.histories;
+      const ret = this.extraVisible ? histories : histories.slice(0, 4);
+      return ret;
+    },
+    hasExtra(): boolean {
+      return this.histories.length > 4;
+    },
+  },
+  methods: {},
+  async mounted(): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const filter = this.filter;
     if (!filter) {
@@ -76,35 +102,6 @@ export default class SongResults extends AdminTools {
       console.log(e);
     }
     this.loaded = true;
-  }
-
-  private get filter(): SongFilter | null {
-    const environment = this.environment;
-    if (!environment || !environment.dances) {
-      return null;
-    }
-    const filter = new SongFilter();
-    const search = this.search.trim();
-
-    const dance = environment.fromSynonym(search);
-    if (dance) {
-      filter.dances = dance.id;
-      filter.sortOrder = "Dances";
-    } else {
-      filter.searchString = search;
-      filter.sortOrder = "";
-    }
-    return filter;
-  }
-
-  private get visibleHistories(): SongHistory[] {
-    const histories = this.histories;
-    const ret = this.extraVisible ? histories : histories.slice(0, 4);
-    return ret;
-  }
-
-  private get hasExtra(): boolean {
-    return this.histories.length > 4;
-  }
-}
+  },
+});
 </script>

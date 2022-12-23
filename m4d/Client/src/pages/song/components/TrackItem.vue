@@ -56,26 +56,33 @@ import { PurchaseInfo, ServiceType } from "@/model/Purchase";
 import { SongProperty } from "@/model/SongProperty";
 import { TrackModel } from "@/model/TrackModel";
 import "reflect-metadata";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 import TrackField from "./TrackField.vue";
 
-@Component({ components: { PurchaseLogo, TrackField } })
-export default class TrackItem extends Vue {
-  @Prop() private readonly track!: TrackModel;
-  @Prop() private readonly enableProperties?: boolean;
+export default Vue.extend({
+  components: { PurchaseLogo, TrackField },
+  props: {
+    track: { type: Object as PropType<TrackModel>, required: true },
+    enableProperties: Boolean,
+  },
+  computed: {
+    purchaseInfo(): PurchaseInfo {
+      const track = this.track;
+      const type = track.service[0].toLowerCase() as ServiceType;
+      return PurchaseInfo.Build(type, track.collectionId, track.trackId)!;
+    },
+  },
+  methods: {
+    addTrack(track: TrackModel): void {
+      this.$emit("add-track", track);
+    },
 
-  private get purchaseInfo(): PurchaseInfo {
-    const track = this.track;
-    const type = track.service[0].toLowerCase() as ServiceType;
-    return PurchaseInfo.Build(type, track.collectionId, track.trackId)!;
-  }
-
-  private addTrack(track: TrackModel): void {
-    this.$emit("add-track", track);
-  }
-
-  private addProperty(name: string, value: string): void {
-    this.$emit("add-property", new SongProperty({ name: name, value: value }));
-  }
-}
+    addProperty(name: string, value: string): void {
+      this.$emit(
+        "add-property",
+        new SongProperty({ name: name, value: value })
+      );
+    },
+  },
+});
 </script>

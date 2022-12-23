@@ -10,24 +10,24 @@
 import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 import { DanceStats } from "@/model/DanceStats";
 import "reflect-metadata";
-import { Component, Mixins, Prop } from "vue-property-decorator";
 
-@Component
-export default class DanceReference extends Mixins(EnvironmentManager) {
-  @Prop() private readonly danceId?: string;
+export default EnvironmentManager.extend({
+  components: {},
+  props: { danceId: String },
+  computed: {
+    dance(): DanceStats | undefined {
+      const id = this.danceId;
+      return id ? this.environment.fromId(id) : undefined;
+    },
 
-  private get dance(): DanceStats | undefined {
-    const id = this.danceId;
-    return id ? this.environment.fromId(id) : undefined;
-  }
+    danceLink(): string | undefined {
+      const id = this.danceId;
+      return id ? `/song/search?dances=${id}` : undefined;
+    },
 
-  private get danceLink(): string | undefined {
-    const id = this.danceId;
-    return id ? `/song/search?dances=${id}` : undefined;
-  }
-
-  private get danceCount(): number | undefined {
-    return this.dance?.songCount;
-  }
-}
+    danceCount(): number | undefined {
+      return this.dance?.songCount;
+    },
+  },
+});
 </script>

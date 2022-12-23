@@ -19,11 +19,11 @@
 <script lang="ts">
 import { SongHistory } from "@/model/SongHistory";
 import "reflect-metadata";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 import SongChangeViewer from "./SongChangeViewer.vue";
 
-@Component({ components: { SongChangeViewer } })
-export default class SongHistoryViewer extends Vue {
-  @Prop() private readonly history!: SongHistory;
-}
+export default Vue.extend({
+  components: { SongChangeViewer },
+  props: { history: { type: Object as PropType<SongHistory>, required: true } },
+});
 </script>

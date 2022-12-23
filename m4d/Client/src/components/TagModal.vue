@@ -38,53 +38,50 @@
 
 <script lang="ts">
 import "reflect-metadata";
-import { Component } from "vue-property-decorator";
 import TagModalBase from "./TagModalBase";
 
-@Component
-export default class TagModal extends TagModalBase {
-  private get includeOnly(): string {
-    return this.getTagLink("+", true);
-  }
-
-  private get excludeOnly(): string {
-    return this.getTagLink("-", true);
-  }
-
-  private get includeTag(): string {
-    return this.getTagLink("+", false);
-  }
-
-  private get excludeTag(): string {
-    return this.getTagLink("-", false);
-  }
-
-  private getTagLink(modifier: string, exclusive: boolean): string {
-    let link = `/song/addtags/?tags=${encodeURIComponent(
-      modifier + this.tag.key
-    )}`;
-    const filter = this.tagHandler.filter;
-    if (this.hasFilter && !exclusive) {
-      link = link + `&filter=${filter!.encodedQuery}`;
-    } else if (filter && filter.isDefault(this.tagHandler.user)) {
-      link =
-        link +
-        `&filter=${filter.extractDefault(this.tagHandler.user).encodedQuery}`;
-    }
-    return link;
-  }
-
-  private get hasFilter(): boolean {
-    const filter = this.tagHandler.filter;
-    return !!filter && !filter.isDefault(this.tagHandler.user) && !filter.isRaw;
-  }
-
-  private get singleDance(): boolean {
-    return this.tagHandler.filter?.singleDance ?? false;
-  }
-
-  private get danceName(): string {
-    return this.tagHandler.filter?.danceQuery.danceNames[0] ?? "ERROR";
-  }
-}
+export default TagModalBase.extend({
+  computed: {
+    includeOnly(): string {
+      return this.getTagLink("+", true);
+    },
+    excludeOnly(): string {
+      return this.getTagLink("-", true);
+    },
+    includeTag(): string {
+      return this.getTagLink("+", false);
+    },
+    excludeTag(): string {
+      return this.getTagLink("-", false);
+    },
+    hasFilter(): boolean {
+      const filter = this.tagHandler.filter;
+      return (
+        !!filter && !filter.isDefault(this.tagHandler.user) && !filter.isRaw
+      );
+    },
+    singleDance(): boolean {
+      return this.tagHandler.filter?.singleDance ?? false;
+    },
+    danceName(): string {
+      return this.tagHandler.filter?.danceQuery.danceNames[0] ?? "ERROR";
+    },
+  },
+  methods: {
+    getTagLink(modifier: string, exclusive: boolean): string {
+      let link = `/song/addtags/?tags=${encodeURIComponent(
+        modifier + this.tag.key
+      )}`;
+      const filter = this.tagHandler.filter;
+      if (this.hasFilter && !exclusive) {
+        link = link + `&filter=${filter!.encodedQuery}`;
+      } else if (filter && filter.isDefault(this.tagHandler.user)) {
+        link =
+          link +
+          `&filter=${filter.extractDefault(this.tagHandler.user).encodedQuery}`;
+      }
+      return link;
+    },
+  },
+});
 </script>

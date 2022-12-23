@@ -1,6 +1,6 @@
 import { DanceEnvironment } from "@/model/DanceEnvironment";
 import { TagDatabase } from "@/model/TagDatabase";
-import { Component, Vue } from "vue-property-decorator";
+import Vue from "vue";
 
 declare global {
   interface Window {
@@ -9,13 +9,13 @@ declare global {
   }
 }
 
-@Component
-export default class EnvironmentManager extends Vue {
-  protected get environment(): DanceEnvironment {
-    return window.environment ? window.environment : new DanceEnvironment();
-  }
-
-  protected get tagDatabase(): TagDatabase {
-    return window.tagDatabase ? window.tagDatabase : new TagDatabase();
-  }
-}
+export default Vue.extend({
+  computed: {
+    environment(): DanceEnvironment {
+      return window.environment ? window.environment : new DanceEnvironment();
+    },
+    tagDatabase(): TagDatabase {
+      return window.tagDatabase ? window.tagDatabase : new TagDatabase();
+    },
+  },
+});

@@ -37,11 +37,13 @@ import PurchaseLogo from "@/components/PurcahseLogo.vue";
 import { PurchaseInfo } from "@/model/Purchase";
 import { SongFilter } from "@/model/SongFilter";
 import "reflect-metadata";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 
-@Component({ components: { PurchaseLogo } })
-export default class SongStats extends Vue {
-  @Prop() private readonly purchaseInfos!: PurchaseInfo[];
-  @Prop() private readonly filter!: SongFilter;
-}
+export default Vue.extend({
+  components: { PurchaseLogo },
+  props: {
+    purchaseInfos: { type: Array as PropType<PurchaseInfo[]>, required: true },
+    filter: Object as PropType<SongFilter>,
+  },
+});
 </script>

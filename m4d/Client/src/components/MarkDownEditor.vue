@@ -16,54 +16,54 @@
 <script lang="ts">
 import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 import { DanceText } from "@/model/DanceText";
-import { Editor } from "@/model/Editor";
 import "reflect-metadata";
-import { Component, Mixins, Model, Prop, Watch } from "vue-property-decorator";
 
 // TODO: If we want to use this in places other than dance description, we should generalize
 //  the "expand" api...
-@Component
-export default class MarkDownEditor
-  extends Mixins(EnvironmentManager)
-  implements Editor
-{
-  @Model("input") readonly value!: string;
-  @Prop() private readonly editing!: boolean;
-  private initialDescription?: string;
-
-  public constructor() {
-    super();
-  }
-
-  private mounted(): void {
+export default EnvironmentManager.extend({
+  model: {
+    prop: "value",
+    event: "input",
+  },
+  props: {
+    value: { type: String, required: true },
+    editing: Boolean,
+  },
+  data() {
+    return new (class {
+      initialDescription = "";
+    })();
+  },
+  computed: {
+    descriptionInternal: {
+      get: function (): string {
+        return this.value;
+      },
+      set: function (value: string): void {
+        this.$emit("input", value);
+      },
+    },
+    isModified(): boolean {
+      return this.initialDescription !== this.value;
+    },
+    descriptionExpanded(): string {
+      return new DanceText(this.value).expanded();
+    },
+  },
+  watch: {
+    editing(val: boolean): void {
+      if (val === false) {
+        this.$emit("input", this.initialDescription);
+      }
+    },
+  },
+  methods: {
+    commit(): void {
+      this.initialDescription = this.value;
+    },
+  },
+  mounted(): void {
     this.initialDescription = this.value;
-  }
-
-  public get isModified(): boolean {
-    return this.initialDescription !== this.value;
-  }
-
-  public commit(): void {
-    this.initialDescription = this.value;
-  }
-
-  private get descriptionInternal(): string {
-    return this.value;
-  }
-
-  private set descriptionInternal(value: string) {
-    this.$emit("input", value);
-  }
-
-  private get descriptionExpanded(): string {
-    return new DanceText(this.value).expanded();
-  }
-
-  @Watch("editing")
-  onEditChanged(val: boolean): void {
-    if (val === false) {
-      this.$emit("input", this.initialDescription);
-    }
-  }
-}
+  },
+});
 </script>

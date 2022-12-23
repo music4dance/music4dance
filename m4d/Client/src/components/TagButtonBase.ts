@@ -1,41 +1,38 @@
 import { Tag } from "@/model/Tag";
 import { TagHandler } from "@/model/TagHandler";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 import TagModal from "./TagModal.vue";
 
-@Component({
-  components: {
-    TagModal,
+export default Vue.extend({
+  components: { TagModal },
+  props: {
+    tagHandler: { type: Object as PropType<TagHandler>, required: true },
   },
-})
-export default class TagButtonBase extends Vue {
-  @Prop() protected readonly tagHandler!: TagHandler;
+  computed: {
+    variant(): string {
+      return this.tag.category.toLowerCase();
+    },
+    tag(): Tag {
+      return this.tagHandler.tag;
+    },
+    icon(): string {
+      const tagInfo = Tag.TagInfo.get(this.variant);
 
-  protected get variant(): string {
-    return this.tag.category.toLowerCase();
-  }
+      if (tagInfo) {
+        return tagInfo.iconName;
+      }
 
-  protected get tag(): Tag {
-    return this.tagHandler.tag;
-  }
-
-  protected get icon(): string {
-    const tagInfo = Tag.TagInfo.get(this.variant);
-
-    if (tagInfo) {
-      return tagInfo.iconName;
-    }
-
-    throw new Error(`Couldn't find tagInfo for ${this.variant}`);
-  }
-
-  protected get selectedIcon(): string | undefined {
-    return this.tagHandler.user && this.tagHandler.isSelected
-      ? "check-circle"
-      : undefined;
-  }
-
-  protected showModal(): void {
-    this.$bvModal.show(this.tagHandler.id);
-  }
-}
+      throw new Error(`Couldn't find tagInfo for ${this.variant}`);
+    },
+    selectedIcon(): string | undefined {
+      return this.tagHandler.user && this.tagHandler.isSelected
+        ? "check-circle"
+        : undefined;
+    },
+  },
+  methods: {
+    showModal(): void {
+      this.$bvModal.show(this.tagHandler.id);
+    },
+  },
+});

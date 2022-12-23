@@ -16,10 +16,9 @@
 <script lang="ts">
 import AdminTools from "@/mix-ins/AdminTools";
 import "reflect-metadata";
-import { Component, Mixins, Prop } from "vue-property-decorator";
 
-@Component
-export default class MustRegister extends Mixins(AdminTools) {
-  @Prop() title!: string;
-}
+export default AdminTools.extend({
+  components: {},
+  props: { title: { type: String, required: true } },
+});
 </script>

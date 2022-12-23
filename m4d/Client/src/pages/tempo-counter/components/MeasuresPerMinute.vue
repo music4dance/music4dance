@@ -35,20 +35,19 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue from "vue";
 import TempoModal from "./TempoModal.vue";
 
-@Component({
-  components: {
-    TempoModal,
+export default Vue.extend({
+  components: { TempoModal },
+  props: {
+    measuresPerMinute: { type: Number, required: true },
+    beatsPerMeasure: { type: Number, required: true },
   },
-})
-export default class MeasuresPerMinute extends Vue {
-  @Prop() private measuresPerMinute!: number;
-  @Prop() private beatsPerMeasure!: number;
-
-  get meterDescription(): string {
-    return "MPM (" + this.beatsPerMeasure + "/4)";
-  }
-}
+  computed: {
+    meterDescription(): string {
+      return "MPM (" + this.beatsPerMeasure + "/4)";
+    },
+  },
+});
 </script>

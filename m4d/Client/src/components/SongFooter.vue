@@ -130,7 +130,7 @@
             ><b-form-input
               name="user"
               id="bea-user"
-              v-model="adminEdit.user"
+              v-model="editUser"
               required
             ></b-form-input
           ></b-form-group>
@@ -142,7 +142,7 @@
             ><b-form-input
               name="properties"
               id="bea-properties"
-              v-model="adminEdit.properties"
+              v-model="editProperties"
               required
             ></b-form-input
           ></b-form-group>
@@ -171,7 +171,7 @@
             ><b-form-input
               name="properties"
               id="bma-properties"
-              v-model="adminEdit.properties"
+              v-model="editProperties"
               required
             ></b-form-input
           ></b-form-group>
@@ -216,109 +216,101 @@ import AdminTools from "@/mix-ins/AdminTools";
 import { DanceQueryBase } from "@/model/DanceQueryBase";
 import { SongFilter } from "@/model/SongFilter";
 import { SongListModel } from "@/model/SongListModel";
-import { Component, Mixins, Prop } from "vue-property-decorator";
-
-interface AdminEdit {
-  user: string;
-  properties: string;
-}
+import { PropType } from "vue";
 
 // TODO: Consider generalizing bulk edit functionality and creating a component
 //  Also, look at generalizing tag capability (this currently won't catch individual
 //  tags when the are glommed together in a single property)
-@Component
-export default class SongFooter extends Mixins(AdminTools) {
-  @Prop() private readonly model!: SongListModel;
-  @Prop() private readonly href?: string;
-  @Prop() private readonly canShowImplicitMessage?: boolean;
-  @Prop() private readonly selected?: string[];
 
-  private editAction = "";
-
-  private adminEdit: AdminEdit;
-  private tempoMultiplier = 0.5;
-
-  constructor() {
-    super();
-    this.adminEdit = { user: this.userName!, properties: "" };
-  }
-
-  private get filter(): SongFilter {
-    const model = this.model;
-    return model ? model.filter : new SongFilter();
-  }
-
-  private get pageNumber(): number {
-    return this.filter.page ?? 1;
-  }
-
-  private set pageNumber(n: number) {
-    if (this.filter) {
-      this.filter.page = n;
-    }
-  }
-
-  private get pageCount(): number {
-    return Math.max(1, Math.ceil(this.model.count / 25));
-  }
-
-  private get danceQuery(): DanceQueryBase | undefined {
-    return this.filter.isRaw ? undefined : this.filter.danceQuery;
-  }
-
-  private get newSearch(): string {
-    return this.filter.isSimple(this.userName)
-      ? "/song"
-      : "/song/advancedsearchform";
-  }
-
-  private get selectedSongs(): string[] {
-    return this.selected ?? [];
-  }
-
-  private linkGen(pageNum: number): string {
-    const href = this.href;
-    return href
-      ? this.pagedUrl(href, pageNum)
-      : this.pagedUrl(this.filter.url, pageNum);
-  }
-
-  private get playListRef(): string | undefined {
-    return this.filter.getPlayListRef(this.userName);
-  }
-
-  private pagedUrl(url: string, pageNum: number): string {
-    return url.includes("?")
-      ? `${url}&page=${pageNum}`
-      : `${url}?page=${pageNum}`;
-  }
-
-  private batchUrl(
-    name: string,
-    count: number,
-    type?: string,
-    options?: string
-  ): string {
-    const typeParam = type ? `type=${type}` : "";
-    const optionsParam = options ? `options=${options}` : "";
-    const separator = typeParam && optionsParam ? "&" : "";
-    return this.batchUrlBase(name, count, typeParam + separator + optionsParam);
-  }
-
-  private batchUrlBase(
-    name: string,
-    count: number,
-    additional?: string
-  ): string {
-    additional = additional ? `&${additional}` : "";
-    return `/song/${name}?count=${count}${additional}&filter=${this.filter.encodedQuery}`;
-  }
-
-  private onBulkEdit(type: string): void {
-    this.editAction = type;
-    const submit = this.$refs[type];
-    const button = submit as HTMLButtonElement;
-    button.click();
-  }
-}
+export default AdminTools.extend({
+  components: {},
+  props: {
+    model: { type: Object as PropType<SongListModel>, required: true },
+    href: String,
+    canShowImplicitMessage: Boolean,
+    selected: Array as PropType<string[]>,
+  },
+  data() {
+    return new (class {
+      editAction = "";
+      editProperties = "";
+      editUser = "";
+      tempoMultiplier = 0.5;
+    })();
+  },
+  computed: {
+    filter(): SongFilter {
+      const model = this.model;
+      return model ? model.filter : new SongFilter();
+    },
+    pageNumber: {
+      get(): number {
+        return this.filter.page ?? 1;
+      },
+      set(n: number): void {
+        if (this.filter) {
+          this.filter.page = n;
+        }
+      },
+    },
+    pageCount(): number {
+      return Math.max(1, Math.ceil(this.model.count / 25));
+    },
+    danceQuery(): DanceQueryBase | undefined {
+      return this.filter.isRaw ? undefined : this.filter.danceQuery;
+    },
+    newSearch(): string {
+      return this.filter.isSimple(this.userName)
+        ? "/song"
+        : "/song/advancedsearchform";
+    },
+    selectedSongs(): string[] {
+      return this.selected ?? [];
+    },
+    playListRef(): string | undefined {
+      return this.filter.getPlayListRef(this.userName);
+    },
+  },
+  methods: {
+    linkGen(pageNum: number): string {
+      const href = this.href;
+      return href
+        ? this.pagedUrl(href, pageNum)
+        : this.pagedUrl(this.filter.url, pageNum);
+    },
+    pagedUrl(url: string, pageNum: number): string {
+      return url.includes("?")
+        ? `${url}&page=${pageNum}`
+        : `${url}?page=${pageNum}`;
+    },
+    batchUrl(
+      name: string,
+      count: number,
+      type?: string,
+      options?: string
+    ): string {
+      const typeParam = type ? `type=${type}` : "";
+      const optionsParam = options ? `options=${options}` : "";
+      const separator = typeParam && optionsParam ? "&" : "";
+      return this.batchUrlBase(
+        name,
+        count,
+        typeParam + separator + optionsParam
+      );
+    },
+    batchUrlBase(name: string, count: number, additional?: string): string {
+      additional = additional ? `&${additional}` : "";
+      return `/song/${name}?count=${count}${additional}&filter=${this.filter.encodedQuery}`;
+    },
+    onBulkEdit(type: string): void {
+      this.editAction = type;
+      const submit = this.$refs[type];
+      const button = submit as HTMLButtonElement;
+      button.click();
+    },
+  },
+  mounted(): void {
+    this.editUser = this.userName ?? "";
+  },
+});
 </script>

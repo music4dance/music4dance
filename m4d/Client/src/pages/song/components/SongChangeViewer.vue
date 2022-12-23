@@ -33,32 +33,35 @@ import { SongChange } from "@/model/SongChange";
 import { PropertyType, SongProperty } from "@/model/SongProperty";
 import format from "date-fns/format";
 import "reflect-metadata";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 import SongPropertyViewer from "./SongPropertyViewer.vue";
 
-@Component({ components: { SongPropertyViewer, UserLink } })
-export default class SongChangeViewer extends Vue {
-  @Prop() private readonly change!: SongChange;
-  @Prop() private readonly oneUser?: boolean;
+export default Vue.extend({
+  components: { SongPropertyViewer, UserLink },
+  props: {
+    change: { type: Object as PropType<SongChange>, required: true },
+    oneUser: Boolean,
+  },
+  computed: {
+    action(): string {
+      return this.change.action === PropertyType.createdField
+        ? "Added"
+        : "Changed";
+    },
 
-  private get action(): string {
-    return this.change.action === PropertyType.createdField
-      ? "Added"
-      : "Changed";
-  }
+    formattedDate(): string {
+      const date = this.change.date;
+      return date ? format(date, "Pp") : "<unknown>";
+    },
 
-  private get formattedDate(): string {
-    const date = this.change.date;
-    return date ? format(date, "Pp") : "<unknown>";
-  }
-
-  private get viewableProperties(): SongProperty[] {
-    return this.change.properties.filter(
-      (t) =>
-        t.baseName.startsWith("Tag") ||
-        t.baseName.startsWith("Comment") ||
-        t.baseName === PropertyType.tempoField
-    );
-  }
-}
+    viewableProperties(): SongProperty[] {
+      return this.change.properties.filter(
+        (t) =>
+          t.baseName.startsWith("Tag") ||
+          t.baseName.startsWith("Comment") ||
+          t.baseName === PropertyType.tempoField
+      );
+    },
+  },
+});
 </script>

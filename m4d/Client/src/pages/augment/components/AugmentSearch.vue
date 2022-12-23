@@ -115,133 +115,131 @@ import { TrackModel } from "@/model/TrackModel";
 import axios from "axios";
 import "reflect-metadata";
 import { TypedJSON } from "typedjson";
-import { Component, Mixins, Watch } from "vue-property-decorator";
 import SongTable from "../../../components/SongTable.vue";
 import TrackItem from "../../../pages/song/components/TrackItem.vue";
 
-// TODO:
-//  - Consider adding Album/track column
-//  = Consider formatting time as mm:ss
+export default AdminTools.extend({
+  components: { SongTable, TrackItem },
+  data() {
+    return new (class {
+      title = "";
+      artist = "";
+      searching = false;
+      adding = false;
+      validated = false;
+      filter = new SongFilter();
+      songs: SongHistory[] | null = null;
+      tracks: TrackModel[] | null = null;
+      service: string | null = null;
+    })();
+  },
+  methods: {
+    async onSubmit(event: Event): Promise<void> {
+      event.preventDefault();
+      this.validated = true;
 
-@Component({ components: { SongTable, TrackItem } })
-export default class AugmentSearch extends Mixins(AdminTools) {
-  private title = "";
-  private artist = "";
-  private searching = false;
-  private adding = false;
-  private validated = false;
-  private filter = new SongFilter();
-  private songs: SongHistory[] | null = null;
-  private tracks: TrackModel[] | null = null;
-  private service: string | null = null;
+      const title = this.title;
+      const artist = this.artist;
 
-  private async onSubmit(event: Event): Promise<void> {
-    event.preventDefault();
-    this.validated = true;
-
-    const title = this.title;
-    const artist = this.artist;
-
-    if (!title || !artist) {
-      return;
-    }
-    try {
-      this.searching = true;
-      const results = await this.axiosXsrf.get(
-        `/api/song/?title=${title}&artist=${artist}`
-      );
-      this.songs = TypedJSON.parseAsArray(results.data, SongHistory);
-    } catch (e) {
-      this.songs = [];
-    }
-
-    this.searching = false;
-  }
-
-  private onReset(event: Event): void {
-    event.preventDefault();
-    this.reset();
-  }
-
-  private reset(): void {
-    this.title = "";
-    this.artist = "";
-    this.searching = false;
-    this.coreReset();
-  }
-
-  private editSong(songId: string): void {
-    const history = this.songs?.find((s) => s.id === songId);
-    if (!history) {
-      throw new Error(
-        `Augment search in a bad state: unable to find ${songId}`
-      );
-    }
-    const model = new SongDetailsModel({
-      created: false,
-      songHistory: history,
-      filter: this.filter,
-    });
-
-    this.reset();
-    this.$emit("edit-song", model);
-  }
-
-  private async searchSpotify(): Promise<void> {
-    await this.searchService("S");
-  }
-
-  private async searchItunes(): Promise<void> {
-    await this.searchService("I");
-  }
-
-  @Watch("title")
-  private onTitleChanged(): void {
-    this.coreReset();
-  }
-
-  @Watch("artist")
-  private onArtistChanged(): void {
-    this.coreReset();
-  }
-
-  private coreReset(): void {
-    this.validated = false;
-    this.songs = null;
-    this.tracks = null;
-  }
-
-  private async searchService(service: string): Promise<void> {
-    try {
-      this.service = service;
-      this.searching = true;
-      const results = await axios.get(
-        `/api/musicservice/?service=${service}&title=${this.title}&artist=${this.artist}`
-      );
-      this.tracks = TypedJSON.parseAsArray(results.data, TrackModel);
-    } catch (e) {
-      this.tracks = [];
-      this.service = null;
-    }
-    this.searching = false;
-  }
-
-  private async addTrack(track: TrackModel): Promise<void> {
-    this.adding = true;
-    try {
-      const uri = `/api/servicetrack/${this.service}${track.trackId}`;
-      const response = await axios.get(uri);
-      const songModel = TypedJSON.parse(response.data, SongDetailsModel);
-      if (songModel) {
-        this.$emit("edit-song", songModel);
+      if (!title || !artist) {
+        return;
       }
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.log(e);
-    }
-    this.adding = false;
-  }
-}
+      try {
+        this.searching = true;
+        const results = await this.axiosXsrf.get(
+          `/api/song/?title=${title}&artist=${artist}`
+        );
+        this.songs = TypedJSON.parseAsArray(results.data, SongHistory);
+      } catch (e) {
+        this.songs = [];
+      }
+
+      this.searching = false;
+    },
+
+    onReset(event: Event): void {
+      event.preventDefault();
+      this.reset();
+    },
+
+    reset(): void {
+      this.title = "";
+      this.artist = "";
+      this.searching = false;
+      this.coreReset();
+    },
+
+    editSong(songId: string): void {
+      const history = this.songs?.find((s) => s.id === songId);
+      if (!history) {
+        throw new Error(
+          `Augment search in a bad state: unable to find ${songId}`
+        );
+      }
+      const model = new SongDetailsModel({
+        created: false,
+        songHistory: history,
+        filter: this.filter,
+      });
+
+      this.reset();
+      this.$emit("edit-song", model);
+    },
+
+    async searchSpotify(): Promise<void> {
+      await this.searchService("S");
+    },
+
+    async searchItunes(): Promise<void> {
+      await this.searchService("I");
+    },
+
+    coreReset(): void {
+      this.validated = false;
+      this.songs = null;
+      this.tracks = null;
+    },
+
+    async searchService(service: string): Promise<void> {
+      try {
+        this.service = service;
+        this.searching = true;
+        const results = await axios.get(
+          `/api/musicservice/?service=${service}&title=${this.title}&artist=${this.artist}`
+        );
+        this.tracks = TypedJSON.parseAsArray(results.data, TrackModel);
+      } catch (e) {
+        this.tracks = [];
+        this.service = null;
+      }
+      this.searching = false;
+    },
+
+    async addTrack(track: TrackModel): Promise<void> {
+      this.adding = true;
+      try {
+        const uri = `/api/servicetrack/${this.service}${track.trackId}`;
+        const response = await axios.get(uri);
+        const songModel = TypedJSON.parse(response.data, SongDetailsModel);
+        if (songModel) {
+          this.$emit("edit-song", songModel);
+        }
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log(e);
+      }
+      this.adding = false;
+    },
+  },
+  watch: {
+    title(): void {
+      this.coreReset();
+    },
+    artist(): void {
+      this.coreReset();
+    },
+  },
+});
 </script>
 
 <style lang="scss" scoped>

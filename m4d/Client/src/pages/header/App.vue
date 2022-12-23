@@ -7,13 +7,16 @@ import MainMenu from "@/components/MainMenu.vue";
 import AdminTools from "@/mix-ins/AdminTools";
 import { BreadCrumbItem, infoTrail } from "@/model/BreadCrumbItem";
 import "reflect-metadata";
-import { Component, Mixins } from "vue-property-decorator";
 
-@Component({ components: { MainMenu } })
-export default class App extends Mixins(AdminTools) {
-  private breadcrumbs: BreadCrumbItem[] = [
-    ...infoTrail,
-    { text: "FAQ", active: true },
-  ];
-}
+export default AdminTools.extend({
+  components: { MainMenu },
+  data() {
+    return new (class {
+      breadcrumbs: BreadCrumbItem[] = [
+        ...infoTrail,
+        { text: "FAQ", active: true },
+      ];
+    })();
+  },
+});
 </script>

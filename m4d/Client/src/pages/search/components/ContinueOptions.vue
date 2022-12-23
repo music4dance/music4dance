@@ -16,18 +16,21 @@
 <script lang="ts">
 import { SongFilter } from "@/model/SongFilter";
 import "reflect-metadata";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 
-@Component
-export default class ContinueOptions extends Vue {
-  @Prop() private readonly filter!: SongFilter;
+export default Vue.extend({
+  props: { filter: { type: Object as PropType<SongFilter>, required: true } },
+  data() {
+    return new (class {})();
+  },
+  computed: {
+    songLibrary(): string {
+      return `/song/filtersearch?filter=${this.filter.encodedQuery}`;
+    },
 
-  private get songLibrary(): string {
-    return `/song/filtersearch?filter=${this.filter.encodedQuery}`;
-  }
-
-  private get advancedSearch(): string {
-    return `/song/advancedsearchform?filter=${this.filter.encodedQuery}`;
-  }
-}
+    advancedSearch(): string {
+      return `/song/advancedsearchform?filter=${this.filter.encodedQuery}`;
+    },
+  },
+});
 </script>

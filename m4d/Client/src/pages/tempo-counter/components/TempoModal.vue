@@ -28,37 +28,42 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue from "vue";
 
-@Component
-export default class TempoModal extends Vue {
-  @Prop() private readonly identifier!: string;
-  @Prop() private readonly tempo!: number;
-  @Prop() private readonly label!: string;
+export default Vue.extend({
+  props: {
+    identifier: String,
+    tempo: Number,
+    label: String,
+  },
+  data() {
+    return new (class {
+      tempoInternal = 0;
+    })();
+  },
+  methods: {
+    initialize(): void {
+      this.tempoInternal = Number(this.tempo.toFixed(1));
+      const el = this.$refs.input as HTMLInputElement;
+      el.focus();
+      el.select();
+    },
 
-  private tempoInternal = 0;
+    submit(): void {
+      if (!this.$parent) {
+        throw new Error("Something went terribly wrong");
+      }
+      this.$parent.$emit("change-tempo", Number(this.tempoInternal));
+    },
 
-  private initialize(): void {
-    this.tempoInternal = Number(this.tempo.toFixed(1));
-    const el = this.$refs.input as HTMLInputElement;
-    el.focus();
-    el.select();
-  }
+    logKeyDown(): void {
+      // This is a kludge to prevent lastpass from screaming
+    },
 
-  private submit(): void {
-    if (!this.$parent) {
-      throw new Error("Something went terribly wrong");
-    }
-    this.$parent.$emit("change-tempo", Number(this.tempoInternal));
-  }
-
-  private logKeyDown(): void {
-    // This is a kludge to prevent lastpass from screaming
-  }
-
-  private handleSubmit(): void {
-    this.submit();
-    this.$root.$emit("bv::hide::modal", this.identifier);
-  }
-}
+    handleSubmit(): void {
+      this.submit();
+      this.$root.$emit("bv::hide::modal", this.identifier);
+    },
+  },
+});
 </script>

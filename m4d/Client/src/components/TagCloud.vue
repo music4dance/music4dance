@@ -61,7 +61,7 @@ import { SongFilter } from "@/model/SongFilter";
 import { Tag, TagBucket, TagInfo } from "@/model/Tag";
 import { TagHandler } from "@/model/TagHandler";
 import "reflect-metadata";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 import TagModal from "./TagModal.vue";
 
 class TagButton implements TagInfo {
@@ -84,49 +84,50 @@ class TagButton implements TagInfo {
   }
 }
 
-@Component({
-  components: {
-    TagModal,
+export default Vue.extend({
+  components: { TagModal },
+  props: {
+    tags: { type: Array as PropType<Tag[]>, required: true },
+    hideFilter: Boolean,
+    songFilter: { type: Object as PropType<SongFilter> },
+    user: String,
   },
-})
-export default class TagCloud extends Vue {
-  @Prop() private readonly tags!: Tag[];
-  @Prop() private readonly hideFilter?: boolean;
-  @Prop() private readonly songFilter?: SongFilter;
-  @Prop() private readonly user?: string;
-
-  private tagButtons: TagButton[] = TagButton.buttons;
-  private filter = 10;
-
-  private classesForTag(tag: TagBucket): string[] {
-    return ["cloud-" + tag.bucket];
-  }
-
-  private showModal(key: string): void {
-    this.$bvModal.show(key);
-  }
-
-  private get tagBuckets(): TagBucket[] {
-    const active = this.activeTags;
-    const tags = this.tags.filter(
-      (t) => active.includes(t.category.toLowerCase()) && t.count && t.count > 0
-    );
-    let bucketized = TagBucket.bucketize(tags);
-    if (this.filter < 10) {
-      const threshold = 10 - this.filter;
-      bucketized = TagBucket.bucketize(
-        bucketized.filter((b) => b.bucket! > threshold)
+  data() {
+    return new (class {
+      tagButtons: TagButton[] = TagButton.buttons;
+      filter = 10;
+    })();
+  },
+  computed: {
+    activeTags(): string[] {
+      return this.tagButtons.filter((b) => b.state).map((b) => b.key);
+    },
+    tagBuckets(): TagBucket[] {
+      const active = this.activeTags;
+      const tags = this.tags.filter(
+        (t) =>
+          active.includes(t.category.toLowerCase()) && t.count && t.count > 0
       );
-    }
-    return bucketized.sort((a, b) => a.value.localeCompare(b.value));
-  }
-
-  private get activeTags(): string[] {
-    return this.tagButtons.filter((b) => b.state).map((b) => b.key);
-  }
-
-  private tagHandler(tag: Tag): TagHandler {
-    return new TagHandler(tag, this.user, this.songFilter, undefined, true);
-  }
-}
+      let bucketized = TagBucket.bucketize(tags);
+      if (this.filter < 10) {
+        const threshold = 10 - this.filter;
+        bucketized = TagBucket.bucketize(
+          bucketized.filter((b) => b.bucket! > threshold)
+        );
+      }
+      return bucketized.sort((a, b) => a.value.localeCompare(b.value));
+    },
+  },
+  methods: {
+    classesForTag(tag: TagBucket): string[] {
+      return ["cloud-" + tag.bucket];
+    },
+    showModal(key: string): void {
+      this.$bvModal.show(key);
+    },
+    tagHandler(tag: Tag): TagHandler {
+      return new TagHandler(tag, this.user, this.songFilter, undefined, true);
+    },
+  },
+});
 </script>

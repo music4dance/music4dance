@@ -15,19 +15,20 @@
 
 <script lang="ts">
 import { SongFilter } from "@/model/SongFilter";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 
-@Component
-export default class SearchHeader extends Vue {
-  @Prop() private readonly filter!: SongFilter;
-  @Prop() private readonly user?: string;
-
-  private get changeLink(): string {
-    return `/song/advancedsearchform?filter=${this.filter.encodedQuery}`;
-  }
-
-  private get playListRef(): string | undefined {
-    return this.filter.getPlayListRef(this.user);
-  }
-}
+export default Vue.extend({
+  props: {
+    filter: Object as PropType<SongFilter>,
+    user: String,
+  },
+  computed: {
+    changeLink(): string {
+      return `/song/advancedsearchform?filter=${this.filter.encodedQuery}`;
+    },
+    playListRef(): string | undefined {
+      return this.filter.getPlayListRef(this.user);
+    },
+  },
+});
 </script>

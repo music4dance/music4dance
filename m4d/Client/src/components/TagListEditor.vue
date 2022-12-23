@@ -4,7 +4,7 @@
       <span class="title" v-if="userTagKeys.length">Your Tags:</span>
       <tag-category-selector
         id="songTags"
-        :tagList="getTagList()"
+        :tagList="tagList"
         chooseLabel="Add Tags"
         searchLabel="Search/Add"
         emptyLabel="No more tags to choose"
@@ -53,111 +53,108 @@ import { PropertyType } from "@/model/SongProperty";
 import { Tag } from "@/model/Tag";
 import { TaggableObject } from "@/model/TaggableObject";
 import { TagHandler } from "@/model/TagHandler";
-import { Component, Mixins, Prop } from "vue-property-decorator";
+import { PropType } from "vue";
+import mixins from "vue-typed-mixins";
 
-@Component({
-  components: {
-    TagButtonOther,
-    TagCategorySelector,
-    TagList,
+export default mixins(EnvironmentManager, AdminTools).extend({
+  components: { TagButtonOther, TagCategorySelector, TagList },
+  props: {
+    container: { type: Object as PropType<TaggableObject>, required: true },
+    filter: Object as PropType<SongFilter>,
+    user: String,
+    editor: { type: Object as PropType<SongEditor>, required: true },
+    edit: Boolean,
   },
-})
-export default class TagListEditor extends Mixins(
-  EnvironmentManager,
-  AdminTools
-) {
-  @Prop() readonly container!: TaggableObject;
-  @Prop() readonly filter?: SongFilter;
-  @Prop() readonly user?: string;
-  @Prop() readonly editor!: SongEditor;
-  @Prop() readonly edit?: boolean;
-
-  private get authenticated(): boolean {
-    return !!this.user && !!this.editor;
-  }
-
-  private getTagList(): Tag[] {
-    return this.tagDatabase.tags;
-  }
-
-  private get userTagKeys(): string[] {
-    const userTags = this.container.currentUserTags;
-    return userTags
-      ? userTags
-          .filter((t) => t.category.toLowerCase() !== "dance")
-          .map((t) => t.key)
-      : [];
-  }
-
-  private set userTagKeys(keys: string[]) {
-    // eslint-disable-next-line no-console
-    console.log(keys.join("|"));
-  }
-
-  private get otherTags(): Tag[] {
-    const userTags = this.container.currentUserTags;
-    return this.container.tags.filter(
-      (t) =>
-        !userTags.find((u) => u.key === t.key) &&
-        t.category.toLowerCase() !== "dance"
-    );
-  }
-
-  private updateTags(newKeys: string[]): void {
-    const oldKeys = this.userTagKeys;
-
-    const delta = Math.abs(newKeys.length - oldKeys.length);
-    if (delta === 0) {
-      return;
-    }
-
-    if (delta !== 1) {
-      throw new Error(
-        "Shouldn't be able to add or remove more than one tag at a time"
+  data() {
+    return new (class {})();
+  },
+  computed: {
+    userTagKeys: {
+      get: function (): string[] {
+        const userTags = this.container.currentUserTags;
+        return userTags
+          ? userTags
+              .filter((t) => t.category.toLowerCase() !== "dance")
+              .map((t) => t.key)
+          : [];
+      },
+      set: function (keys: string[]): void {
+        // eslint-disable-next-line no-console
+        console.log(keys.join("|"));
+      },
+    },
+    authenticated(): boolean {
+      return !!this.user && !!this.editor;
+    },
+    tagList(): Tag[] {
+      return this.tagDatabase.tags;
+    },
+    otherTags(): Tag[] {
+      const userTags = this.container.currentUserTags;
+      return this.container.tags.filter(
+        (t) =>
+          !userTags.find((u) => u.key === t.key) &&
+          t.category.toLowerCase() !== "dance"
       );
-    }
-    const add = newKeys.length > oldKeys.length;
-    const tag = this.keyDifference(
-      add ? newKeys : oldKeys,
-      add ? oldKeys : newKeys
-    );
-    this.editor.addProperty(
-      (add ? PropertyType.addedTags : PropertyType.removedTags) +
-        this.container.modifier,
-      tag
-    );
-    if (add) {
-      this.tagDatabase.addTag(tag);
-    }
+    },
+  },
+  methods: {
+    updateTags(newKeys: string[]): void {
+      const oldKeys = this.userTagKeys;
 
-    this.$emit("update-song");
-  }
+      const delta = Math.abs(newKeys.length - oldKeys.length);
+      if (delta === 0) {
+        return;
+      }
 
-  private addTag(tag: Tag): void {
-    this.editor.addProperty(
-      PropertyType.addedTags + this.container.modifier,
-      tag.key
-    );
-    this.$emit("update-song");
-  }
+      if (delta !== 1) {
+        throw new Error(
+          "Shouldn't be able to add or remove more than one tag at a time"
+        );
+      }
+      const add = newKeys.length > oldKeys.length;
+      const tag = this.keyDifference(
+        add ? newKeys : oldKeys,
+        add ? oldKeys : newKeys
+      );
+      this.editor.addProperty(
+        (add ? PropertyType.addedTags : PropertyType.removedTags) +
+          this.container.modifier,
+        tag
+      );
+      if (add) {
+        this.tagDatabase.addTag(tag);
+      }
 
-  private deleteTag(tag: Tag): void {
-    this.editor.addProperty(
-      PropertyType.deleteTag + this.container.modifier,
-      tag.key
-    );
-    this.$emit("update-song");
-  }
+      this.$emit("update-song");
+    },
 
-  // Returns the first string in long that doesn't exist in short
-  private keyDifference(long: string[], short: string[]): string {
-    return long.find((k) => !short.includes(k))!;
-  }
+    addTag(tag: Tag): void {
+      this.editor.addProperty(
+        PropertyType.addedTags + this.container.modifier,
+        tag.key
+      );
+      this.$emit("update-song");
+    },
 
-  private tagHandler(tag: Tag): TagHandler {
-    return new TagHandler(tag);
-  }
-}
+    deleteTag(tag: Tag): void {
+      this.editor.addProperty(
+        PropertyType.deleteTag + this.container.modifier,
+        tag.key
+      );
+      this.$emit("update-song");
+    },
+
+    // Returns the first string in long that doesn't exist in short
+    keyDifference(long: string[], short: string[]): string {
+      return long.find((k) => !short.includes(k))!;
+    },
+
+    tagHandler(tag: Tag): TagHandler {
+      return new TagHandler(tag);
+    },
+  },
+});
 </script>
 
 <style lang="scss" scoped>

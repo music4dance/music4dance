@@ -16,51 +16,54 @@
 import type { DanceStats } from "@/model/DanceStats";
 import { TempoType } from "@/model/TempoType";
 import { TypeStats } from "@/model/TypeStats";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 
-@Component
-export default class DanceName extends Vue {
-  @Prop() private dance!: DanceStats;
-  @Prop({ default: TempoType.None }) private showTempo!: TempoType;
-  @Prop() private showSynonyms?: boolean;
-  @Prop() private multiLine?: boolean;
-  @Prop() private hideLink?: boolean;
+export default Vue.extend({
+  components: {},
+  props: {
+    dance: { type: Object as PropType<DanceStats>, required: true },
+    showTempo: { type: Number, default: TempoType.None },
+    showSynonyms: Boolean,
+    multiLine: Boolean,
+    hideLink: Boolean,
+  },
+  computed: {
+    stats(): DanceStats {
+      if (!this.dance) {
+        throw new Error("Dance not initialized yet");
+      } else {
+        return this.dance;
+      }
+    },
 
-  private get stats(): DanceStats {
-    if (!this.dance) {
-      throw new Error("Dance not initialized yet");
-    } else {
-      return this.dance;
-    }
-  }
+    danceLink(): string {
+      return `/dances/${this.stats.seoName}`;
+    },
 
-  private get danceLink(): string {
-    return `/dances/${this.stats.seoName}`;
-  }
+    canShowTempo(): boolean {
+      const dance = this.stats.isGroup ? undefined : (this.stats as TypeStats);
+      return !!dance && !dance.tempoRange.isInfinite;
+    },
 
-  private get canShowTempo(): boolean {
-    const dance = this.stats.isGroup ? undefined : (this.stats as TypeStats);
-    return !!dance && !dance.tempoRange.isInfinite;
-  }
+    tempoText(): string {
+      const dance = this.stats.isGroup ? undefined : (this.stats as TypeStats);
+      if (!dance) return "";
 
-  private get tempoText(): string {
-    const dance = this.stats.isGroup ? undefined : (this.stats as TypeStats);
-    if (!dance) return "";
+      const showTempo = this.showTempo;
+      const bpm =
+        showTempo & TempoType.Beats ? `${dance.tempoRange.toString()} BPM` : "";
+      const mpm =
+        showTempo & TempoType.Measures
+          ? `${dance.tempoRange.mpm(dance.meter.numerator)} MPM`
+          : "";
 
-    const showTempo = this.showTempo;
-    const bpm =
-      showTempo & TempoType.Beats ? `${dance.tempoRange.toString()} BPM` : "";
-    const mpm =
-      showTempo & TempoType.Measures
-        ? `${dance.tempoRange.mpm(dance.meter.numerator)} MPM`
-        : "";
+      return `${bpm}${mpm && bpm ? "/" : ""}${mpm}`;
+    },
 
-    return `${bpm}${mpm && bpm ? "/" : ""}${mpm}`;
-  }
-
-  private get synonymText(): string {
-    const synonyms = this.dance.synonyms;
-    return this.showSynonyms && synonyms ? `${synonyms.join(", ")}` : "";
-  }
-}
+    synonymText(): string {
+      const synonyms = this.dance.synonyms;
+      return this.showSynonyms && synonyms ? `${synonyms.join(", ")}` : "";
+    },
+  },
+});
 </script>

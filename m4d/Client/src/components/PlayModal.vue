@@ -36,26 +36,29 @@
 import { PurchaseInfo } from "@/model/Purchase";
 import { Song } from "@/model/Song";
 import "reflect-metadata";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 
-@Component
-export default class PlayModal extends Vue {
-  @Prop() private readonly song!: Song;
+export default Vue.extend({
+  props: {
+    song: { type: Object as PropType<Song>, required: true },
+  },
+  computed: {
+    title(): string {
+      return `${this.song.title} by ${this.song.artist}`;
+    },
 
-  private get title(): string {
-    return `${this.song.title} by ${this.song.artist}`;
-  }
+    purchaseInfo(): PurchaseInfo[] {
+      return this.song.getPurchaseInfos();
+    },
 
-  private get purchaseInfo(): PurchaseInfo[] {
-    return this.song.getPurchaseInfos();
-  }
-
-  private get playerId(): string {
-    return `sample-player-${this.song.songId}`;
-  }
-
-  private onShown(): void {
-    (this.$refs.player as HTMLAudioElement).play();
-  }
-}
+    playerId(): string {
+      return `sample-player-${this.song.songId}`;
+    },
+  },
+  methods: {
+    onShown(): void {
+      (this.$refs.player as HTMLAudioElement).play();
+    },
+  },
+});
 </script>

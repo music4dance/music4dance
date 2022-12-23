@@ -84,71 +84,68 @@
 import { SongHistory } from "@/model/SongHistory";
 import { SongProperty } from "@/model/SongProperty";
 import "reflect-metadata";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 
 // TODO:
 //  - At some point may want to make a best guess at attribution for existing merge
 //  - At some point may want to have move keep date in sync (e.g. update date - but maybe with a second field?)
 
-@Component
-export default class SongHistoryLog extends Vue {
-  @Prop() private readonly history!: SongHistory;
-  @Prop() private readonly editing!: boolean;
-
-  private getVariant(prop: SongProperty): string | undefined {
-    return prop.isAction ? "primary" : undefined;
-  }
-
-  private get sortTitle(): string {
-    return this.history.isSorted ? "sorted" : "sort";
-  }
-
-  private sort(): void {
-    this.$emit("replace-history", this.history.sorted);
-  }
-
-  private get annotateTitle(): string {
-    return this.history.isAnnotated ? "annotated" : "annotate";
-  }
-
-  private annotate(): void {
-    this.$emit("replace-history", this.history.annotated);
-  }
-
-  private showFirst(prop: SongProperty, index: number): boolean {
-    if (prop.isAction) {
-      return index > 0;
-    } else {
-      return index > 0 && !this.history.properties[index - 1].isAction;
-    }
-  }
-
-  private showLast(prop: SongProperty, index: number): boolean {
-    const properties = this.history.properties;
-    if (prop.isAction) {
-      return !!properties.find((p, i) => i > index && p.isAction);
-    } else {
-      return index < properties.length - 1 && !properties[index + 1].isAction;
-    }
-  }
-
-  private showPrevious(prop: SongProperty, index: number): boolean {
-    if (prop.isAction) {
-      return index > 0;
-    } else {
-      return index > 0 && !this.history.properties[index - 1].isAction;
-    }
-  }
-
-  private showNext(prop: SongProperty, index: number): boolean {
-    if (prop.isAction) {
-      return !!this.history.properties.find((p, i) => i > index && p.isAction);
-    } else {
-      const length = this.history.properties.length;
-      return index < length - 1 && !this.history.properties[index + 1].isAction;
-    }
-  }
-}
+export default Vue.extend({
+  props: { history: Object as PropType<SongHistory>, editing: Boolean },
+  computed: {
+    sortTitle(): string {
+      return this.history.isSorted ? "sorted" : "sort";
+    },
+    annotateTitle(): string {
+      return this.history.isAnnotated ? "annotated" : "annotate";
+    },
+  },
+  methods: {
+    getVariant(prop: SongProperty): string | undefined {
+      return prop.isAction ? "primary" : undefined;
+    },
+    sort(): void {
+      this.$emit("replace-history", this.history.sorted);
+    },
+    annotate(): void {
+      this.$emit("replace-history", this.history.annotated);
+    },
+    showFirst(prop: SongProperty, index: number): boolean {
+      if (prop.isAction) {
+        return index > 0;
+      } else {
+        return index > 0 && !this.history.properties[index - 1].isAction;
+      }
+    },
+    showLast(prop: SongProperty, index: number): boolean {
+      const properties = this.history.properties;
+      if (prop.isAction) {
+        return !!properties.find((p, i) => i > index && p.isAction);
+      } else {
+        return index < properties.length - 1 && !properties[index + 1].isAction;
+      }
+    },
+    showPrevious(prop: SongProperty, index: number): boolean {
+      if (prop.isAction) {
+        return index > 0;
+      } else {
+        return index > 0 && !this.history.properties[index - 1].isAction;
+      }
+    },
+    showNext(prop: SongProperty, index: number): boolean {
+      if (prop.isAction) {
+        return !!this.history.properties.find(
+          (p, i) => i > index && p.isAction
+        );
+      } else {
+        const length = this.history.properties.length;
+        return (
+          index < length - 1 && !this.history.properties[index + 1].isAction
+        );
+      }
+    },
+  },
+});
 </script>
 
 <style lang="scss" scoped>

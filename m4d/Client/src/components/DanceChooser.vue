@@ -92,98 +92,88 @@ import { TempoType } from "@/model/TempoType";
 import { TypeStats } from "@/model/TypeStats";
 import DanceList from "@/pages/tempo-counter/components/DanceList.vue";
 import "reflect-metadata";
-import { Component, Mixins, Prop } from "vue-property-decorator";
+import { PropType } from "vue";
 
-@Component({
-  components: {
-    DanceName,
-    DanceList,
+export default EnvironmentManager.extend({
+  components: { DanceName, DanceList },
+  props: {
+    danceId: String,
+    filterIds: Array as PropType<string[]>,
+    tempo: Number,
+    numerator: Number,
+    includeGroups: Boolean,
+    hideNameLink: Boolean,
   },
-})
-export default class DanceChooser extends Mixins(EnvironmentManager) {
-  @Prop() private readonly danceId!: string;
-  @Prop() private readonly filterIds?: string[];
-  @Prop() private readonly tempo?: number;
-  @Prop() private readonly numerator?: number;
-  @Prop() private readonly includeGroups?: boolean;
-  @Prop() private readonly hideNameLink?: boolean;
+  data() {
+    return new (class {
+      nameFilter = "";
+    })();
+  },
+  computed: {
+    sortedDances(): DanceStats[] {
+      const environment = this.environment;
+      const includeGroups = this.includeGroups;
 
-  private readonly nameFilter: string = "";
-
-  private get sortedDances(): DanceStats[] {
-    const environment = this.environment;
-    const includeGroups = this.includeGroups;
-
-    return environment
-      ? this.filterAll(environment.flatStats)
-          .filter((d) => includeGroups || !d.isGroup)
-          .sort((a, b) => a.name.localeCompare(b.name))
-      : [];
-  }
-
-  private get groupedDances(): DanceStats[] {
-    const environment = this.environment;
-    return environment ? this.filterAll(environment.groupedStats, true) : [];
-  }
-
-  private get dances(): DanceStats[] {
-    const environment = this.environment;
-    return environment && environment.tree ? environment.tree : [];
-  }
-
-  private get tempoFiltered(): TypeStats[] {
-    return DanceEnvironment.filterByName(
-      this.danceTypes,
-      this.nameFilter,
-      false
-    ) as TypeStats[];
-  }
-
-  private get danceTypes(): TypeStats[] {
-    const environment = this.environment;
-    return environment && environment.dances ? environment.dances : [];
-  }
-
-  private get tempoType(): TempoType {
-    return TempoType.Measures;
-  }
-  private exists(danceId: string): boolean {
-    const filtered = this.filterIds;
-    if (!filtered) {
-      return false;
-    }
-    return !!filtered.find((id) => id === danceId);
-  }
-
-  private chooseEvent(id?: string, event?: MouseEvent): void {
-    this.choose(id, event?.ctrlKey);
-  }
-
-  private choose(id?: string, persist?: boolean): void {
-    this.$emit("choose-dance", id, persist);
-  }
-
-  private groupVariant(dance: DanceStats): string | undefined {
-    return dance.isGroup && !(this.danceId === dance.id)
-      ? "primary"
-      : undefined;
-  }
-
-  private get hasTempo(): boolean {
-    return !!this.tempo && !!this.numerator;
-  }
-
-  private filterAll(
-    dances: DanceStats[],
-    includeChildren = false
-  ): DanceStats[] {
-    return DanceEnvironment.filterByName(
-      dances,
-      this.nameFilter,
-      includeChildren
-    );
-  }
-}
+      return environment
+        ? this.filterAll(environment.flatStats)
+            .filter((d) => includeGroups || !d.isGroup)
+            .sort((a, b) => a.name.localeCompare(b.name))
+        : [];
+    },
+    groupedDances(): DanceStats[] {
+      const environment = this.environment;
+      return environment ? this.filterAll(environment.groupedStats, true) : [];
+    },
+    dances(): DanceStats[] {
+      const environment = this.environment;
+      return environment && environment.tree ? environment.tree : [];
+    },
+    tempoFiltered(): TypeStats[] {
+      return DanceEnvironment.filterByName(
+        this.danceTypes,
+        this.nameFilter,
+        false
+      ) as TypeStats[];
+    },
+    danceTypes(): TypeStats[] {
+      const environment = this.environment;
+      return environment && environment.dances ? environment.dances : [];
+    },
+    tempoType(): TempoType {
+      return TempoType.Measures;
+    },
+    hasTempo(): boolean {
+      return !!this.tempo && !!this.numerator;
+    },
+  },
+  methods: {
+    exists(danceId: string): boolean {
+      const filtered = this.filterIds;
+      if (!filtered) {
+        return false;
+      }
+      return !!filtered.find((id) => id === danceId);
+    },
+    chooseEvent(id?: string, event?: MouseEvent): void {
+      this.choose(id, event?.ctrlKey);
+    },
+    choose(id?: string, persist?: boolean): void {
+      this.$emit("choose-dance", id, persist);
+    },
+    groupVariant(dance: DanceStats): string | undefined {
+      return dance.isGroup && !(this.danceId === dance.id)
+        ? "primary"
+        : undefined;
+    },
+    filterAll(dances: DanceStats[], includeChildren = false): DanceStats[] {
+      return DanceEnvironment.filterByName(
+        dances,
+        this.nameFilter,
+        includeChildren
+      );
+    },
+  },
+});
 </script>
 
 <style lang="scss" scoped>

@@ -14,14 +14,10 @@
 </template>
 
 <script lang="ts">
-import { Component } from "vue-property-decorator";
 import TagButtonBase from "./TagButtonBase";
 import TagModal from "./TagModal.vue";
 
-@Component({
-  components: {
-    TagModal,
-  },
-})
-export default class TagButton extends TagButtonBase {}
+export default TagButtonBase.extend({
+  components: { TagModal },
+});
 </script>

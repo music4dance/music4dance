@@ -18,38 +18,42 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue from "vue";
 import IconButton from "./IconButton.vue";
 
-@Component({ components: { IconButton } })
-export default class LikeButton extends Vue {
-  @Prop() private readonly state?: boolean;
-  @Prop() private readonly authenticated!: boolean;
-  @Prop() private readonly title!: string;
-  @Prop() private readonly scale!: number;
-  @Prop() private readonly toggleBehavior?: boolean;
+export default Vue.extend({
+  components: { IconButton },
+  props: {
+    state: Boolean,
+    authenticated: Boolean,
+    title: String,
+    scale: Number,
+    toggleBehavior: Boolean,
+  },
 
-  private get undefinedTip(): string {
-    return `Click to add ${this.title} to favorites.`;
-  }
+  computed: {
+    undefinedTip(): string {
+      return `Click to add ${this.title} to favorites.`;
+    },
 
-  private get trueTip(): string {
-    return (
-      `${this.title} is in your favorites, click to ` +
-      (this.toggleBehavior ? "move to your blocked list." : "change.")
-    );
-  }
+    trueTip(): string {
+      return (
+        `${this.title} is in your favorites, click to ` +
+        (this.toggleBehavior ? "move to your blocked list." : "change.")
+      );
+    },
 
-  private get falseTip(): string {
-    return (
-      `${this.title} is in your blocked list, click to ` +
-      (this.toggleBehavior ? "remove it." : "change.")
-    );
-  }
+    falseTip(): string {
+      return (
+        `${this.title} is in your blocked list, click to ` +
+        (this.toggleBehavior ? "remove it." : "change.")
+      );
+    },
 
-  private get redirectUrl(): string {
-    const location = window.location;
-    return `/identity/account/login?returnUrl=${location.pathname}${location.search}${location.hash}`;
-  }
-}
+    redirectUrl(): string {
+      const location = window.location;
+      return `/identity/account/login?returnUrl=${location.pathname}${location.search}${location.hash}`;
+    },
+  },
+});
 </script>

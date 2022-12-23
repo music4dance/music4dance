@@ -48,61 +48,68 @@ import { TrackModel } from "@/model/TrackModel";
 import axios from "axios";
 import "reflect-metadata";
 import { TypedJSON } from "typedjson";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 import TrackItem from "./TrackItem.vue";
 
-@Component({ components: { TrackItem } })
-export default class TrackList extends Vue {
-  @Prop() private readonly song!: Song;
-  @Prop() private readonly editing?: boolean;
-  private tracks: TrackModel[] = [];
-  private error = "";
-  private title = "";
-  private artist = "";
-
-  private albumLink(album: AlbumDetails): string {
-    return `/song/album?title=${album.name}`;
-  }
-
-  private async lookup(service: string): Promise<void> {
-    try {
-      this.error = "";
-      let parameters = service ? `service=${service}&` : "";
-      const title = this.title;
-      if (title) {
-        parameters += `title=${encodeURIComponent(title)}&`;
+export default Vue.extend({
+  components: { TrackItem },
+  props: {
+    song: { type: Object as PropType<Song>, required: true },
+    editing: Boolean,
+  },
+  data() {
+    return new (class {
+      tracks: TrackModel[] = [];
+      error = "";
+      title = "";
+      artist = "";
+    })();
+  },
+  computed: {
+    newTracks(): TrackModel[] {
+      const albums = this.song.albums;
+      if (!albums) {
+        return this.tracks;
       }
-      const artist = this.artist;
-      if (artist) {
-        parameters += `artist=${encodeURIComponent(artist)}&`;
-      }
-      const results = await axios.get(
-        `/api/musicservice/${this.song.songId}?${parameters}`
+
+      return this.tracks.filter(
+        (track) =>
+          !albums.find((album) => {
+            const purchaseList = album.purchase.decode();
+            return purchaseList.find(
+              (purchase) =>
+                purchase.service === track.serviceType &&
+                purchase.songId === track.trackId
+            );
+          })
       );
-      this.tracks = TypedJSON.parseAsArray(results.data, TrackModel);
-    } catch (e: unknown) {
-      this.error = e as string;
-      this.tracks = [];
-    }
-  }
-
-  private get newTracks(): TrackModel[] {
-    const albums = this.song.albums;
-    if (!albums) {
-      return this.tracks;
-    }
-
-    return this.tracks.filter(
-      (track) =>
-        !albums.find((album) => {
-          const purchaseList = album.purchase.decode();
-          return purchaseList.find(
-            (purchase) =>
-              purchase.service === track.serviceType &&
-              purchase.songId === track.trackId
-          );
-        })
-    );
-  }
-}
+    },
+  },
+  methods: {
+    albumLink(album: AlbumDetails): string {
+      return `/song/album?title=${album.name}`;
+    },
+    async lookup(service: string): Promise<void> {
+      try {
+        this.error = "";
+        let parameters = service ? `service=${service}&` : "";
+        const title = this.title;
+        if (title) {
+          parameters += `title=${encodeURIComponent(title)}&`;
+        }
+        const artist = this.artist;
+        if (artist) {
+          parameters += `artist=${encodeURIComponent(artist)}&`;
+        }
+        const results = await axios.get(
+          `/api/musicservice/${this.song.songId}?${parameters}`
+        );
+        this.tracks = TypedJSON.parseAsArray(results.data, TrackModel);
+      } catch (e: unknown) {
+        this.error = e as string;
+        this.tracks = [];
+      }
+    },
+  },
+});
 </script>

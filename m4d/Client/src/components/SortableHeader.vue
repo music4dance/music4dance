@@ -22,36 +22,35 @@
 
 <script lang="ts">
 import { SongFilter } from "@/model/SongFilter";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 
-@Component
-export default class SortableHeader extends Vue {
-  @Prop() private readonly id!: string;
-  @Prop() private readonly title?: string;
-  @Prop() private readonly tip!: string;
-  @Prop() private readonly enableSort!: boolean;
-  @Prop() private readonly filter!: SongFilter;
+export default Vue.extend({
+  components: {},
+  props: {
+    id: { type: String, required: true },
+    title: String,
+    tip: String,
+    enableSort: Boolean,
+    filter: Object as PropType<SongFilter>,
+  },
+  computed: {
+    sortLink(): string {
+      return this.filter.changeSort(this.id).url;
+    },
 
-  private get sortLink(): string {
-    return this.filter.changeSort(this.id).url;
-  }
+    content(): string {
+      return this.title ?? this.id;
+    },
 
-  private get content(): string {
-    return this.title ?? this.id;
-  }
-
-  private get sortIcon(): string | undefined {
-    const sort = this.filter.sort;
-    if (sort.order !== this.id) {
-      return undefined;
-    }
-    const type = sort.type;
-    const direction = sort.direction === "asc" ? "down" : "down-alt";
-    return type ? `sort-${type}-${direction}` : `sort-${direction}`;
-  }
-
-  // private tipMessage(): string {
-  //     return this.tip ?? 'Empty ToolTip';
-  // }
-}
+    sortIcon(): string | undefined {
+      const sort = this.filter.sort;
+      if (sort.order !== this.id) {
+        return undefined;
+      }
+      const type = sort.type;
+      const direction = sort.direction === "asc" ? "down" : "down-alt";
+      return type ? `sort-${type}-${direction}` : `sort-${direction}`;
+    },
+  },
+});
 </script>

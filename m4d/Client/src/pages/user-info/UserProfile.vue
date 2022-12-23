@@ -49,18 +49,18 @@ import MustRegister from "@/components/MustRegister.vue";
 import AdminTools from "@/mix-ins/AdminTools";
 import { ProfileModel } from "@/model/ProfileModel";
 import "reflect-metadata";
-import { Component, Mixins, Prop } from "vue-property-decorator";
+import { PropType } from "vue";
 
-@Component({ components: { MustRegister } })
-export default class UserProfile extends Mixins(AdminTools) {
-  @Prop() private model!: ProfileModel;
-
-  private get spotifyProfile(): string {
-    return `https://open.spotify.com/user/${this.model.spotifyId}`;
-  }
-
-  private get isCurrentUser(): boolean {
-    return this.model.userName === this.userName;
-  }
-}
+export default AdminTools.extend({
+  components: { MustRegister },
+  props: { model: { type: Object as PropType<ProfileModel>, required: true } },
+  computed: {
+    spotifyProfile(): string {
+      return `https://open.spotify.com/user/${this.model.spotifyId}`;
+    },
+    isCurrentUser(): boolean {
+      return this.model.userName === this.userName;
+    },
+  },
+});
 </script>

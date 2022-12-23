@@ -15,18 +15,21 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue from "vue";
 
-@Component
-export default class MeasuresPerMinute extends Vue {
-  @Prop() private epsilonPercent!: number;
-
-  private get value(): string {
-    return this.epsilonPercent.toString();
-  }
-
-  private set value(v: string) {
-    this.$emit("change-strictness", Number(v));
-  }
-}
+export default Vue.extend({
+  props: {
+    epsilonPercent: { type: Number, required: true },
+  },
+  computed: {
+    value: {
+      get: function (): string {
+        return this.epsilonPercent.toString();
+      },
+      set: function (v: string): void {
+        this.$emit("change-strictness", Number(v));
+      },
+    },
+  },
+});
 </script>

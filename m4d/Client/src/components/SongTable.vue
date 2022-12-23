@@ -256,7 +256,7 @@ import { TagHandler } from "@/model/TagHandler";
 import SongChangeViewer from "@/pages/song/components/SongChangeViewer.vue";
 import { BvTableFieldArray } from "bootstrap-vue";
 import "reflect-metadata";
-import { Component, Mixins, Prop } from "vue-property-decorator";
+import { PropType } from "vue";
 import DanceButton from "./DanceButton.vue";
 import EchoIcon from "./EchoIcon.vue";
 import PlayCell from "./PlayCell.vue";
@@ -289,7 +289,8 @@ const textField = { key: "text" };
 const infoField = { key: "info" };
 const lengthField = { key: "length" };
 
-@Component({
+// TODONEXT: Start at SongChangeViewer
+export default AdminTools.extend({
   components: {
     DanceButton,
     EchoIcon,
@@ -298,292 +299,253 @@ const lengthField = { key: "length" };
     SortableHeader,
     TagButton,
   },
-})
-export default class SongTable extends Mixins(AdminTools) {
-  @Prop() private readonly histories!: SongHistory[];
-  @Prop() private readonly filter!: SongFilter;
-  @Prop() private readonly hideSort?: boolean;
-  @Prop() private readonly hiddenColumns?: string[];
-  @Prop() private readonly action?: string;
-  @Prop() private readonly showHistory?: boolean;
+  props: {
+    histories: { type: Array as PropType<SongHistory[]>, required: true },
+    filter: { type: Object as PropType<SongFilter>, required: true },
+    hideSort: Boolean,
+    hiddenColumns: Array as PropType<string[]>,
+    action: String,
+    showHistory: Boolean,
+  },
+  computed: {
+    songs(): SongEditor[] {
+      const userId = this.userId;
+      const userName = this.userName;
+      if (userId && userName) {
+        return this.histories.map(
+          (h) =>
+            new SongEditor(
+              this.axiosXsrf,
+              this.userName,
+              h.Deanonymize(userName, userId)
+            )
+        );
+      } else {
+        return this.histories.map(
+          (h) => new SongEditor(this.axiosXsrf, this.userName, h)
+        );
+      }
+    },
+    songMap(): Map<string, SongEditor> {
+      return new Map(this.songs.map((s) => [s.song.id, s]));
+    },
+    fields(): BvTableFieldArray {
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+      const mq = (this as any).$mq;
 
-  private get songs(): SongEditor[] {
-    const userId = this.userId;
-    const userName = this.userName;
-    if (userId && userName) {
-      return this.histories.map(
-        (h) =>
-          new SongEditor(
-            this.axiosXsrf,
-            this.userName,
-            h.Deanonymize(userName, userId)
-          )
+      const baseFields =
+        mq === "sm" || mq === "md" ? this.smallFields : this.fullFields;
+
+      return this.action ? [actionField, ...baseFields] : baseFields;
+    },
+    smallFields(): BvTableFieldArray {
+      const smallFields = [textField, infoField];
+      return this.filterHiddenFields(
+        smallFields.map((f) => this.filterSmallField(f))
       );
-    } else {
-      return this.histories.map(
-        (h) => new SongEditor(this.axiosXsrf, this.userName, h)
+    },
+    fullFields(): BvTableFieldArray {
+      const fields = [
+        playField,
+        titleField,
+        artistField,
+        trackField,
+        tempoField,
+        lengthField,
+        echoField,
+        dancesField,
+        tagsField,
+        orderField,
+      ];
+
+      const hasUser = this.hasUser;
+      const showHistory = this.showHistory;
+      const temp = this.filterHiddenFields(fields).map((f) =>
+        f.key === orderField.key && (hasUser || showHistory)
+          ? userChangeField
+          : f
       );
-    }
-  }
-
-  private get songMap(): Map<string, SongEditor> {
-    return new Map(this.songs.map((s) => [s.song.id, s]));
-  }
-
-  private get fields(): BvTableFieldArray {
-    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-    const mq = (this as any).$mq;
-
-    const baseFields =
-      mq === "sm" || mq === "md" ? this.smallFields : this.fullFields;
-
-    return this.action ? [actionField, ...baseFields] : baseFields;
-  }
-
-  private get smallFields(): BvTableFieldArray {
-    const smallFields = [textField, infoField];
-    return this.filterHiddenFields(
-      smallFields.map((f) => this.filterSmallField(f))
-    );
-  }
-
-  private get fullFields(): BvTableFieldArray {
-    const fields = [
-      playField,
-      titleField,
-      artistField,
-      trackField,
-      tempoField,
-      lengthField,
-      echoField,
-      dancesField,
-      tagsField,
-      orderField,
-    ];
-
-    const hasUser = this.hasUser;
-    const showHistory = this.showHistory;
-    const temp = this.filterHiddenFields(fields).map((f) =>
-      f.key === orderField.key && (hasUser || showHistory) ? userChangeField : f
-    );
-    if (this.isAdmin && !this.isHidden(editField.key)) {
-      return [editField, ...temp];
-    } else {
-      return temp;
-    }
-  }
-
-  private filterSmallField(field: Field): Field {
-    if (field === infoField && this.isHidden("dances")) {
-      return tagsField;
-    } else {
-      return field;
-    }
-  }
-
-  private filterHiddenFields(fields: Field[]): Field[] {
-    const hidden = this.hiddenColumns;
-    return hidden ? fields.filter((f) => !this.isHidden(f.key)) : fields;
-  }
-
-  private get likeHeader(): string[] {
-    return this.filter.singleDance ? ["likeDanceHeader"] : ["likeHeader"];
-  }
-
-  private get titleHeaderTip(): string {
-    return "Song Title: Click to sort alphabetically by title";
-  }
-
-  private songRef(song: Song): string {
-    return `/song/details/${song.songId}?filter=${this.filter.encodedQuery}`;
-  }
-
-  private get artistHeaderTip(): string {
-    return "Artist: Click to sort alphabetically by artist";
-  }
-
-  private artistRef(song: Song): string {
-    return `/song/artist/?name=${song.artist}`;
-  }
-
-  private trackNumber(song: Song): string {
-    return song.albums && song.albums.length > 0 && song.albums[0].track
-      ? song.albums[0].track.toString()
-      : "";
-  }
-
-  private get tempoHeaderTip(): string {
-    return "Tempo (Beats Per Minute): Click to sort numerically by tempo";
-  }
-
-  private get lengthHeaderTip(): string {
-    return "Duration of Song in seconds";
-  }
-
-  private tempoRef(song: Song): string {
-    return `/home/counter?numerator=4&tempo=${song.tempo}`; // TODO: smart numerator?
-  }
-
-  private tempoString(song: Song): string {
-    const tempo = song.tempo;
-    return tempo ? `@ ${Math.round(tempo)} BPM` : "";
-  }
-
-  private tempoValue(song: Song): string {
-    const tempo = song.tempo;
-    return tempo && !this.isHidden("tempo") ? `${Math.round(tempo)}` : "";
-  }
-
-  private lengthValue(song: Song): string {
-    const length = song.length;
-    return length && !this.isHidden("length") ? length.toString() : "";
-  }
-
-  private isHidden(column: string): boolean {
-    const hidden = this.hiddenColumns;
-    const col = column.toLowerCase();
-    return !!hidden && !!hidden.find((c) => c.toLowerCase() === col);
-  }
-
-  private get beatTip(): string {
-    return "Strength of the beat (fuller icons represent a stronger beat). Click to sort by strength of the beat.";
-  }
-
-  private get energyTip(): string {
-    return "Energy of the song (fuller icons represent a higher energy). Click to sort by energy.";
-  }
-
-  private get moodTip(): string {
-    return "Mood of the song (fuller icons represent a happier mood). Click to sort by mood.";
-  }
-
-  private get echoClass(): string[] {
-    const order = this.filter.sort?.order;
-    return order === "Mood" || order === "Beat" || order === "Energy"
-      ? ["sortedEchoHeader"]
-      : ["echoHeader"];
-  }
-
-  private echoLink(type: string): string {
-    return `https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#${type}`;
-  }
-
-  private get dancesHeaderTip(): string {
-    return "Dance: Click to sort by dance rating";
-  }
-
-  private dances(song: Song): Tag[] {
-    return this.danceTags(song).filter((t) =>
-      song.findDanceRatingByName(t.value)
-    );
-  }
-
-  private danceTags(song: Song): Tag[] {
-    return song.tags.filter(
-      (t) =>
-        !t.value.startsWith("!") &&
-        !t.value.startsWith("-") &&
-        t.category.toLowerCase() === "dance"
-    );
-  }
-
-  private tags(song: Song): Tag[] {
-    return song.tags.filter(
-      (t) => !t.value.startsWith("!") && t.category.toLowerCase() !== "dance"
-    );
-  }
-
-  private orderTip(song: Song): string {
-    return `Last Modified ${song.modified} (${song.modifiedOrderVerbose} ago)`;
-  }
-
-  private get orderHeaderTip(): string {
-    return `Click to sort by date ${this.orderType.toLowerCase()}`;
-  }
-
-  private get orderType(): string {
-    return this.sortOrder?.order ?? SortOrder.Created;
-  }
-
-  private get orderIcon(): string {
-    switch (this.sortOrder?.order) {
-      case SortOrder.Created:
-        return "file-earmark-plus";
-      case SortOrder.Modified:
-        return "pencil";
-      case SortOrder.Edited:
-        return "pencil-fill";
-      default:
-        return "asterisk";
-    }
-  }
-
-  private get hasUser(): boolean {
-    const query = this.filter.userQuery;
-    return !!query?.userName && query.include;
-  }
-
-  private getUserChange(history: SongHistory): SongChange | undefined {
-    if (this.showHistory) {
-      return this.sortOrder?.order == SortOrder.Comments
-        ? history.latestComment()
-        : history.latestChange();
-    } else {
-      const user = this.filterUser;
-      return history.recentUserChange(user);
-    }
-  }
-
-  private get filterUser(): string {
-    const user = this.hasUser ? this.filter.userQuery?.userName : "";
-    return user === "me" ? this.userName! : user;
-  }
-
-  private get filterDisplayName(): string {
-    const user = this.hasUser ? this.filter.userQuery.displayName : "";
-    return user === "me" ? this.userName! : user;
-  }
-
-  private get changeHeader(): string {
-    return this.showHistory
-      ? "Latest Changes"
-      : `${this.filterDisplayName}'s Changes`;
-  }
-
-  private danceHandler(tag: Tag, filter: SongFilter, song: Song): DanceHandler {
-    const danceRating = song.findDanceRatingByName(tag.value);
-    return new DanceHandler(danceRating!, tag, this.userName, filter, song);
-  }
-
-  private tagHandler(
-    tag: Tag,
-    filter?: SongFilter,
-    parent?: TaggableObject
-  ): TagHandler {
-    return new TagHandler(tag, this.userName, filter, parent);
-  }
-
-  private get sortOrder(): SongSort {
-    return this?.filter?.sort ?? new SongSort("Modified");
-  }
-
-  private get sortableDances(): boolean {
-    return !this.hideSort && this.filter.singleDance;
-  }
-
-  private onSelect(song: Song, selected: boolean): void {
-    this.$emit("song-selected", song.songId, selected);
-  }
-
-  private onAction(song: Song): void {
-    this.$emit("song-selected", song.songId, true);
-  }
-
-  private onDanceVote(editor: SongEditor, vote: DanceRatingVote): void {
-    editor.danceVote(vote);
-    editor.saveChanges();
-  }
-}
+      if (this.isAdmin && !this.isHidden(editField.key)) {
+        return [editField, ...temp];
+      } else {
+        return temp;
+      }
+    },
+    likeHeader(): string[] {
+      return this.filter.singleDance ? ["likeDanceHeader"] : ["likeHeader"];
+    },
+    titleHeaderTip(): string {
+      return "Song Title: Click to sort alphabetically by title";
+    },
+    artistHeaderTip(): string {
+      return "Artist: Click to sort alphabetically by artist";
+    },
+    tempoHeaderTip(): string {
+      return "Tempo (Beats Per Minute): Click to sort numerically by tempo";
+    },
+    lengthHeaderTip(): string {
+      return "Duration of Song in seconds";
+    },
+    beatTip(): string {
+      return "Strength of the beat (fuller icons represent a stronger beat). Click to sort by strength of the beat.";
+    },
+    energyTip(): string {
+      return "Energy of the song (fuller icons represent a higher energy). Click to sort by energy.";
+    },
+    moodTip(): string {
+      return "Mood of the song (fuller icons represent a happier mood). Click to sort by mood.";
+    },
+    echoClass(): string[] {
+      const order = this.filter.sort?.order;
+      return order === "Mood" || order === "Beat" || order === "Energy"
+        ? ["sortedEchoHeader"]
+        : ["echoHeader"];
+    },
+    dancesHeaderTip(): string {
+      return "Dance: Click to sort by dance rating";
+    },
+    orderHeaderTip(): string {
+      return `Click to sort by date ${this.orderType.toLowerCase()}`;
+    },
+    orderType(): string {
+      return this.sortOrder?.order ?? SortOrder.Created;
+    },
+    orderIcon(): string {
+      switch (this.sortOrder?.order) {
+        case SortOrder.Created:
+          return "file-earmark-plus";
+        case SortOrder.Modified:
+          return "pencil";
+        case SortOrder.Edited:
+          return "pencil-fill";
+        default:
+          return "asterisk";
+      }
+    },
+    hasUser(): boolean {
+      const query = this.filter.userQuery;
+      return !!query?.userName && query.include;
+    },
+    filterUser(): string {
+      const user = this.hasUser ? this.filter.userQuery?.userName : "";
+      return user === "me" ? this.userName! : user;
+    },
+    filterDisplayName(): string {
+      const user = this.hasUser ? this.filter.userQuery.displayName : "";
+      return user === "me" ? this.userName! : user;
+    },
+    changeHeader(): string {
+      return this.showHistory
+        ? "Latest Changes"
+        : `${this.filterDisplayName}'s Changes`;
+    },
+    sortOrder(): SongSort {
+      return this?.filter?.sort ?? new SongSort("Modified");
+    },
+    sortableDances(): boolean {
+      return !this.hideSort && this.filter.singleDance;
+    },
+  },
+  methods: {
+    getUserChange(history: SongHistory): SongChange | undefined {
+      if (this.showHistory) {
+        return this.sortOrder?.order == SortOrder.Comments
+          ? history.latestComment()
+          : history.latestChange();
+      } else {
+        const user = this.filterUser;
+        return history.recentUserChange(user);
+      }
+    },
+    echoLink(type: string): string {
+      return `https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#${type}`;
+    },
+    songRef(song: Song): string {
+      return `/song/details/${song.songId}?filter=${this.filter.encodedQuery}`;
+    },
+    filterSmallField(field: Field): Field {
+      if (field === infoField && this.isHidden("dances")) {
+        return tagsField;
+      } else {
+        return field;
+      }
+    },
+    filterHiddenFields(fields: Field[]): Field[] {
+      const hidden = this.hiddenColumns;
+      return hidden ? fields.filter((f) => !this.isHidden(f.key)) : fields;
+    },
+    artistRef(song: Song): string {
+      return `/song/artist/?name=${song.artist}`;
+    },
+    trackNumber(song: Song): string {
+      return song.albums && song.albums.length > 0 && song.albums[0].track
+        ? song.albums[0].track.toString()
+        : "";
+    },
+    tempoRef(song: Song): string {
+      return `/home/counter?numerator=4&tempo=${song.tempo}`; // TODO: smart numerator?
+    },
+    tempoString(song: Song): string {
+      const tempo = song.tempo;
+      return tempo ? `@ ${Math.round(tempo)} BPM` : "";
+    },
+    tempoValue(song: Song): string {
+      const tempo = song.tempo;
+      return tempo && !this.isHidden("tempo") ? `${Math.round(tempo)}` : "";
+    },
+    lengthValue(song: Song): string {
+      const length = song.length;
+      return length && !this.isHidden("length") ? length.toString() : "";
+    },
+    isHidden(column: string): boolean {
+      const hidden = this.hiddenColumns;
+      const col = column.toLowerCase();
+      return !!hidden && !!hidden.find((c) => c.toLowerCase() === col);
+    },
+    dances(song: Song): Tag[] {
+      return this.danceTags(song).filter((t) =>
+        song.findDanceRatingByName(t.value)
+      );
+    },
+    danceTags(song: Song): Tag[] {
+      return song.tags.filter(
+        (t) =>
+          !t.value.startsWith("!") &&
+          !t.value.startsWith("-") &&
+          t.category.toLowerCase() === "dance"
+      );
+    },
+    tags(song: Song): Tag[] {
+      return song.tags.filter(
+        (t) => !t.value.startsWith("!") && t.category.toLowerCase() !== "dance"
+      );
+    },
+    orderTip(song: Song): string {
+      return `Last Modified ${song.modified} (${song.modifiedOrderVerbose} ago)`;
+    },
+    danceHandler(tag: Tag, filter: SongFilter, song: Song): DanceHandler {
+      const danceRating = song.findDanceRatingByName(tag.value);
+      return new DanceHandler(danceRating!, tag, this.userName, filter, song);
+    },
+    tagHandler(
+      tag: Tag,
+      filter?: SongFilter,
+      parent?: TaggableObject
+    ): TagHandler {
+      return new TagHandler(tag, this.userName, filter, parent);
+    },
+    onSelect(song: Song, selected: boolean): void {
+      this.$emit("song-selected", song.songId, selected);
+    },
+    onAction(song: Song): void {
+      this.$emit("song-selected", song.songId, true);
+    },
+    onDanceVote(editor: SongEditor, vote: DanceRatingVote): void {
+      editor.danceVote(vote);
+      editor.saveChanges();
+    },
+  },
+});
 </script>
 
 <style scoped lang="scss">

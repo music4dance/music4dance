@@ -18,34 +18,36 @@ import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 import { DanceRating } from "@/model/DanceRating";
 import { DanceStats } from "@/model/DanceStats";
 import { Song } from "@/model/Song";
-import { Component, Mixins, Prop } from "vue-property-decorator";
+import { PropType } from "vue";
 
-@Component({ components: { DanceVoteButton } })
-export default class DanceVote extends Mixins(EnvironmentManager) {
-  @Prop() private readonly song!: Song;
-  @Prop() private readonly danceRating!: DanceRating;
-  @Prop() private readonly authenticated!: boolean;
-
-  private get dance(): DanceStats {
-    return this.environment.fromId(this.danceRating.danceId)!;
-  }
-
-  private get vote(): boolean | undefined {
-    return this.song.danceVote(this.danceRating.danceId);
-  }
-
-  private async upVote(): Promise<void> {
-    this.$emit(
-      "dance-vote",
-      new DanceRatingVote(this.danceRating.danceId, VoteDirection.Up)
-    );
-  }
-
-  private async downVote(): Promise<void> {
-    this.$emit(
-      "dance-vote",
-      new DanceRatingVote(this.danceRating.danceId, VoteDirection.Down)
-    );
-  }
-}
+export default EnvironmentManager.extend({
+  components: { DanceVoteButton },
+  props: {
+    song: { type: Object as PropType<Song>, required: true },
+    danceRating: { type: Object as PropType<DanceRating>, required: true },
+    authenticated: Boolean,
+  },
+  computed: {
+    dance(): DanceStats {
+      return this.environment.fromId(this.danceRating.danceId)!;
+    },
+    vote(): boolean | undefined {
+      return this.song.danceVote(this.danceRating.danceId);
+    },
+  },
+  methods: {
+    async upVote(): Promise<void> {
+      this.$emit(
+        "dance-vote",
+        new DanceRatingVote(this.danceRating.danceId, VoteDirection.Up)
+      );
+    },
+    async downVote(): Promise<void> {
+      this.$emit(
+        "dance-vote",
+        new DanceRatingVote(this.danceRating.danceId, VoteDirection.Down)
+      );
+    },
+  },
+});
 </script>

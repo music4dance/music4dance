@@ -191,59 +191,62 @@
 import DropTarget from "@/mix-ins/DropTarget";
 import { MenuContext } from "@/model/MenuContext";
 import "reflect-metadata";
-import { Component, Mixins, Prop } from "vue-property-decorator";
+import { PropType } from "vue";
 
 const renewal = "renewal-acknowledged";
 
-@Component
-export default class MainMenu extends Mixins(DropTarget) {
-  @Prop() private context!: MenuContext;
+export default DropTarget.extend({
+  props: {
+    context: { type: Object as PropType<MenuContext>, required: true },
+  },
+  data() {
+    return new (class {
+      searchString = "";
+    })();
+  },
+  computed: {
+    profileHeader(): string {
+      const context = this.context;
+      const index =
+        context.hasRole("dbAdmin") && context.indexId
+          ? ` (${context.indexId})`
+          : "";
+      return `${context.userName}${index} <img src="/images/swing-ui.png" alt="User Icon" height="30" width="30" />`;
+    },
 
-  private searchString = "";
+    songLink(): string {
+      return `/users/info/${this.context.userName}`;
+    },
 
-  private get profileHeader(): string {
-    const context = this.context;
-    const index =
-      context.hasRole("dbAdmin") && context.indexId
-        ? ` (${context.indexId})`
-        : "";
-    return `${context.userName}${index} <img src="/images/swing-ui.png" alt="User Icon" height="30" width="30" />`;
-  }
+    searchLink(): string {
+      return `/searches/?user=${this.context.userName}`;
+    },
 
-  private accountLink(type: string): string {
-    const url = window.location.pathname + window.location.search;
-    return `/identity/account/${type}?returnUrl=${url}`;
-  }
-
-  private get songLink(): string {
-    return `/users/info/${this.context.userName}`;
-  }
-
-  private get searchLink(): string {
-    return `/searches/?user=${this.context.userName}`;
-  }
-
-  private get showExpiration(): boolean {
-    return (
-      this.context.daysToExpiration !== undefined &&
-      this.context.daysToExpiration < 30 &&
-      !sessionStorage.getItem(renewal)
-    );
-  }
-
-  private onDismissed(): void {
-    sessionStorage.setItem(renewal, "true");
-  }
-
-  private search(): void {
-    event?.preventDefault();
-    window.location.href = `/search?search=${encodeURIComponent(
-      this.searchString
-    )}`;
-  }
-
-  private get isTest(): boolean {
-    return window.location.hostname.endsWith(".azurewebsites.net");
-  }
-}
+    showExpiration(): boolean {
+      return (
+        this.context.daysToExpiration !== undefined &&
+        this.context.daysToExpiration < 30 &&
+        !sessionStorage.getItem(renewal)
+      );
+    },
+    isTest(): boolean {
+      return window.location.hostname.endsWith(".azurewebsites.net");
+    },
+  },
+  methods: {
+    accountLink(type: string): string {
+      const url = window.location.pathname + window.location.search;
+      return `/identity/account/${type}?returnUrl=${url}`;
+    },
+    onDismissed(): void {
+      sessionStorage.setItem(renewal, "true");
+    },
+    search(): void {
+      event?.preventDefault();
+      window.location.href = `/search?search=${encodeURIComponent(
+        this.searchString
+      )}`;
+    },
+  },
+});
 </script>

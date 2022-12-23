@@ -10,23 +10,24 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue from "vue";
 
-@Component
-export default class AugmentInfo extends Vue {
-  @Prop() private id?: string;
+export default Vue.extend({
+  props: { id: String },
+  computed: {
+    register(): string {
+      return this.authenticate("register");
+    },
 
-  private get register(): string {
-    return this.authenticate("register");
-  }
-
-  private get login(): string {
-    return this.authenticate("login");
-  }
-
-  private authenticate(type: string): string {
-    const idParam = this.id ? `?id=${this.id}` : "";
-    return `/identity/account/${type}?returnUrl=/song/augment${idParam}`;
-  }
-}
+    login(): string {
+      return this.authenticate("login");
+    },
+  },
+  methods: {
+    authenticate(type: string): string {
+      const idParam = this.id ? `?id=${this.id}` : "";
+      return `/identity/account/${type}?returnUrl=/song/augment${idParam}`;
+    },
+  },
+});
 </script>

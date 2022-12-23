@@ -17,29 +17,31 @@
 import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 import { DanceStats } from "@/model/DanceStats";
 import "reflect-metadata";
-import { Component, Mixins, Prop } from "vue-property-decorator";
 import HolidayHelp from "./HolidayHelp.vue";
 
-@Component({
-  components: {
-    HolidayHelp,
+export default EnvironmentManager.extend({
+  components: { HolidayHelp },
+  props: {
+    dance: String,
+    count: Number,
   },
-})
-export default class HolidayDanceChooser extends Mixins(EnvironmentManager) {
-  @Prop() private readonly dance!: string;
-  @Prop() private readonly count!: number;
-
-  private get sortedDances(): DanceStats[] {
-    const dances = this.environment?.dances;
-    return dances
-      ? dances
-          .filter((d) => d.songCount > 10 && d.name !== this.dance)
-          .sort((a, b) => a.name.localeCompare(b.name))
-      : [];
-  }
-
-  private danceLink(dance: string): string {
-    return `/song/holidaymusic?dance=${dance}`;
-  }
-}
+  data() {
+    return new (class {})();
+  },
+  computed: {
+    sortedDances(): DanceStats[] {
+      const dances = this.environment?.dances;
+      return dances
+        ? dances
+            .filter((d) => d.songCount > 10 && d.name !== this.dance)
+            .sort((a, b) => a.name.localeCompare(b.name))
+        : [];
+    },
+  },
+  methods: {
+    danceLink(dance: string): string {
+      return `/song/holidaymusic?dance=${dance}`;
+    },
+  },
+});
 </script>

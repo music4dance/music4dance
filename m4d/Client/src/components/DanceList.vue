@@ -14,21 +14,25 @@
 import DanceItem from "@/components/DanceItem.vue";
 import { DanceStats } from "@/model/DanceStats";
 import { TempoType } from "@/model/TempoType";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 
-@Component({ components: { DanceItem } })
-export default class DanceList extends Vue {
-  @Prop() private dances!: DanceStats[];
-  @Prop() private flush?: boolean;
-  @Prop({ default: TempoType.None }) private showTempo!: TempoType;
-  @Prop() private showSynonyms?: boolean;
-
-  private get filteredDances(): DanceStats[] {
-    return this.dances.filter((d) => d.songCount > 0);
-  }
-
-  private danceVariant(dance: DanceStats): string {
-    return dance.isGroup ? "primary" : "light";
-  }
-}
+export default Vue.extend({
+  components: { DanceItem },
+  props: {
+    dances: { type: Array as PropType<DanceStats[]>, required: true },
+    showTempo: { type: Number, default: TempoType.None },
+    flush: Boolean,
+    showSynonyms: Boolean,
+  },
+  computed: {
+    filteredDances(): DanceStats[] {
+      return this.dances.filter((d) => d.songCount > 0);
+    },
+  },
+  methods: {
+    danceVariant(dance: DanceStats): string {
+      return dance.isGroup ? "primary" : "light";
+    },
+  },
+});
 </script>

@@ -8,15 +8,15 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue from "vue";
 
-@Component
-export default class Loader extends Vue {
-  @Prop() private loaded!: boolean;
-  @Prop() private placeholder?: string;
-
-  private get label(): string {
-    return this.placeholder ?? "Loading...";
-  }
-}
+export default Vue.extend({
+  components: {},
+  props: { loaded: Boolean, placeholder: String },
+  computed: {
+    label(): string {
+      return this.placeholder ?? "Loading...";
+    },
+  },
+});
 </script>

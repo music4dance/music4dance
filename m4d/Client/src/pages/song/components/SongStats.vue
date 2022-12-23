@@ -86,34 +86,31 @@ import EchoIcon from "@/components/EchoIcon.vue";
 import { Song } from "@/model/Song";
 import { SongProperty } from "@/model/SongProperty";
 import "reflect-metadata";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 import FieldEditor from "./FieldEditor.vue";
 
-@Component({
-  components: {
-    EchoIcon,
-    FieldEditor,
+export default Vue.extend({
+  components: { EchoIcon, FieldEditor },
+  props: {
+    song: { type: Object as PropType<Song>, required: true },
+    editing: Boolean,
+    isCreator: Boolean,
   },
-})
-export default class SongStats extends Vue {
-  @Prop() private readonly song!: Song;
-  @Prop() private readonly editing!: boolean;
-  @Prop() private readonly isCreator?: boolean;
-
-  private get modifiedFormatted(): string {
-    return SongProperty.formatDate(this.song.modified);
-  }
-
-  private get createdFormatted(): string {
-    return SongProperty.formatDate(this.song.created);
-  }
-
-  private get editedFormatted(): string {
-    return SongProperty.formatDate(this.song.edited!);
-  }
-
-  private formatEchoNest(n: number): string {
-    return (n * 100).toFixed(1).toString() + "%";
-  }
-}
+  computed: {
+    modifiedFormatted(): string {
+      return SongProperty.formatDate(this.song.modified);
+    },
+    createdFormatted(): string {
+      return SongProperty.formatDate(this.song.created);
+    },
+    editedFormatted(): string {
+      return SongProperty.formatDate(this.song.edited!);
+    },
+  },
+  methods: {
+    formatEchoNest(n: number): string {
+      return (n * 100).toFixed(1).toString() + "%";
+    },
+  },
+});
 </script>

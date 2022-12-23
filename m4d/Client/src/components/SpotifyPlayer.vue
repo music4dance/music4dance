@@ -13,15 +13,15 @@
 
 <script lang="ts">
 import "reflect-metadata";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue from "vue";
 
-@Component
-export default class SpotifyPlayer extends Vue {
-  @Prop() private readonly playlist?: string;
-
-  private get spotifyLink(): string | undefined {
-    const id = this.playlist;
-    return id ? `https://open.spotify.com/embed/playlist/${id}` : undefined;
-  }
-}
+export default Vue.extend({
+  props: { playlist: String },
+  computed: {
+    spotifyLink(): string | undefined {
+      const id = this.playlist;
+      return id ? `https://open.spotify.com/embed/playlist/${id}` : undefined;
+    },
+  },
+});
 </script>

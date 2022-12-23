@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts">
-import { Vue } from "vue-property-decorator";
+import Vue from "vue";
 import SearchNavItem from "./SearchNavItem.vue";
 
 export default Vue.extend({

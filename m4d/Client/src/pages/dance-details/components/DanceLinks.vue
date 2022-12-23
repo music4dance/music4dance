@@ -23,70 +23,70 @@
 import { jsonCompare } from "@/helpers/ObjectHelpers";
 import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 import { DanceLink } from "@/model/DanceLink";
-import { Editor } from "@/model/Editor";
 import "reflect-metadata";
-import { Component, Mixins, Model, Prop, Watch } from "vue-property-decorator";
+import { PropType } from "vue";
 import EditableLink from "./EditableLink.vue";
 
-@Component({
-  components: {
-    EditableLink,
+export default EnvironmentManager.extend({
+  components: { EditableLink },
+  model: {
+    prop: "links",
+    event: "update",
   },
-})
-export default class DanceLinks
-  extends Mixins(EnvironmentManager)
-  implements Editor
-{
-  @Model("update") readonly links!: DanceLink[];
-  @Prop() private readonly danceId!: string;
-  @Prop() private readonly editing!: boolean;
-  private initialLinks?: DanceLink[];
-
-  private mounted(): void {
+  props: {
+    links: { type: Array as PropType<DanceLink[]>, required: true },
+    danceId: { type: String, required: true },
+    editing: Boolean,
+  },
+  data() {
+    return new (class {
+      initialLinks?: DanceLink[];
+    })();
+  },
+  computed: {
+    internalLinks: {
+      get: function (): DanceLink[] {
+        return this.links;
+      },
+      set: function (value: DanceLink[]): void {
+        this.$emit("update", value);
+      },
+    },
+    isModified(): boolean {
+      return !jsonCompare(this.links, this.initialLinks);
+    },
+  },
+  methods: {
+    commit(): void {
+      this.initialLinks = this.cloneLinks(this.links);
+    },
+    onAdd(): void {
+      this.$emit("update", [
+        ...this.cloneLinks(this.links),
+        new DanceLink({ danceId: this.danceId }),
+      ]);
+    },
+    cloneLinks(value: DanceLink[]): DanceLink[] {
+      return value.map((l) => new DanceLink(l));
+    },
+    onDelete(link: DanceLink): void {
+      if (this.initialLinks) {
+        const links = this.cloneLinks(this.initialLinks).filter(
+          (l) => l.id !== link.id
+        );
+        this.$emit("update", links);
+      }
+    },
+  },
+  watch: {
+    editing(val: boolean): void {
+      if (val === false && this.initialLinks) {
+        this.$emit("update", this.cloneLinks(this.initialLinks));
+      }
+    },
+  },
+  mounted(): void {
     this.initialLinks = this.cloneLinks(this.links);
-  }
-
-  public get isModified(): boolean {
-    return !jsonCompare(this.links, this.initialLinks);
-  }
-
-  public commit(): void {
-    this.initialLinks = this.cloneLinks(this.links);
-  }
-
-  private get internalLinks(): DanceLink[] {
-    return this.links;
-  }
-
-  private set internalLinks(value: DanceLink[]) {
-    this.$emit("update", value);
-  }
-
-  @Watch("editing")
-  onEditChanged(val: boolean): void {
-    if (val === false && this.initialLinks) {
-      this.$emit("update", this.cloneLinks(this.initialLinks));
-    }
-  }
-
-  private onAdd(): void {
-    this.$emit("update", [
-      ...this.cloneLinks(this.links),
-      new DanceLink({ danceId: this.danceId }),
-    ]);
-  }
-
-  private cloneLinks(value: DanceLink[]): DanceLink[] {
-    return value.map((l) => new DanceLink(l));
-  }
-
-  private onDelete(link: DanceLink): void {
-    if (this.initialLinks) {
-      const links = this.cloneLinks(this.initialLinks).filter(
-        (l) => l.id !== link.id
-      );
-      this.$emit("update", links);
-    }
-  }
-}
+  },
+});
 </script>

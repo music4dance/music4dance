@@ -22,28 +22,27 @@ import { DanceStats } from "@/model/DanceStats";
 import { SongFilter } from "@/model/SongFilter";
 import { SongHistory } from "@/model/SongHistory";
 import "reflect-metadata";
-import { Component, Mixins, Prop } from "vue-property-decorator";
+import { PropType } from "vue";
 
-@Component({
-  components: {
-    SongTable,
+export default EnvironmentManager.extend({
+  components: { SongTable },
+  props: {
+    histories: { type: Array as PropType<SongHistory[]>, required: true },
+    filter: Object as PropType<SongFilter>,
   },
-})
-export default class TopTen extends Mixins(EnvironmentManager) {
-  @Prop() private readonly histories!: SongHistory[];
-  @Prop() private readonly filter!: SongFilter;
+  computed: {
+    danceLink(): string {
+      return `/dances/${this.danceName}`;
+    },
 
-  private get danceLink(): string {
-    return `/dances/${this.danceName}`;
-  }
+    danceName(): string {
+      const dance = this.dance;
+      return dance ? dance.name : "";
+    },
 
-  private get danceName(): string {
-    const dance = this.dance;
-    return dance ? dance.name : "";
-  }
-
-  private get dance(): DanceStats | undefined {
-    return this.environment.fromId(this.filter.dances!);
-  }
-}
+    dance(): DanceStats | undefined {
+      return this.environment.fromId(this.filter.dances!);
+    },
+  },
+});
 </script>

@@ -40,45 +40,39 @@ import { DanceModel } from "@/model/DanceModel";
 import { DanceStats } from "@/model/DanceStats";
 import { TypeStats } from "@/model/TypeStats";
 import "reflect-metadata";
-import { Component, Mixins, Prop } from "vue-property-decorator";
+import { PropType } from "vue";
 
-@Component
-export default class DanceContents extends Mixins(EnvironmentManager) {
-  @Prop() private readonly model!: DanceModel;
-
-  private get dance(): DanceStats | undefined {
-    return this.environment.fromId(this.model.danceId);
-  }
-
-  private get danceName(): string | undefined {
-    return this.dance?.name;
-  }
-
-  private get blogLink(): string | undefined {
-    const blog = this.dance?.blogTag;
-    return blog ? `https://music4dance.blog/tag/${blog}` : undefined;
-  }
-
-  private get hasPlayer(): boolean {
-    return !!this.model.spotifyPlaylist;
-  }
-
-  private get hasTopTen(): boolean {
-    const histories = this.model.histories;
-    return !!histories && !!histories.length && !this.dance?.isGroup;
-  }
-
-  private get hasReferences(): boolean {
-    return !!this.model.links && this.model.links.length > 0;
-  }
-
-  private get hasCompetitionInfo(): boolean {
-    const dance = this.dance;
-    return (
-      (!!dance &&
-        !dance.isGroup &&
-        (dance as TypeStats).competitionDances?.length) > 0
-    );
-  }
-}
+export default EnvironmentManager.extend({
+  props: { model: { type: Object as PropType<DanceModel>, required: true } },
+  computed: {
+    dance(): DanceStats | undefined {
+      return this.environment.fromId(this.model.danceId);
+    },
+    danceName(): string | undefined {
+      return this.dance?.name;
+    },
+    blogLink(): string | undefined {
+      const blog = this.dance?.blogTag;
+      return blog ? `https://music4dance.blog/tag/${blog}` : undefined;
+    },
+    hasPlayer(): boolean {
+      return !!this.model.spotifyPlaylist;
+    },
+    hasTopTen(): boolean {
+      const histories = this.model.histories;
+      return !!histories && !!histories.length && !this.dance?.isGroup;
+    },
+    hasReferences(): boolean {
+      return !!this.model.links && this.model.links.length > 0;
+    },
+    hasCompetitionInfo(): boolean {
+      const dance = this.dance;
+      return (
+        (!!dance &&
+          !dance.isGroup &&
+          (dance as TypeStats).competitionDances?.length) > 0
+      );
+    },
+  },
+});
 </script>

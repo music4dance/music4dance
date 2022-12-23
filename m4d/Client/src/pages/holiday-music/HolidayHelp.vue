@@ -40,19 +40,18 @@
 <script lang="ts">
 import { toTitleCase, wordsToKebab } from "@/helpers/StringHelpers";
 import "reflect-metadata";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue from "vue";
 
-@Component
-export default class HolidayHelp extends Vue {
-  @Prop() private readonly dance!: string;
-  @Prop() private readonly empty?: boolean;
+export default Vue.extend({
+  props: { dance: { type: String, required: true }, empty: Boolean },
+  computed: {
+    danceName(): string {
+      return toTitleCase(this.dance);
+    },
 
-  private get danceName(): string {
-    return toTitleCase(this.dance);
-  }
-
-  private get danceLink(): string {
-    return `/dances/${wordsToKebab(this.dance)}`;
-  }
-}
+    danceLink(): string {
+      return `/dances/${wordsToKebab(this.dance)}`;
+    },
+  },
+});
 </script>

@@ -19,36 +19,40 @@ import { DanceRatingVote, VoteDirection } from "@/DanceRatingDelta";
 import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 import { DanceRating } from "@/model/DanceRating";
 import { DanceStats } from "@/model/DanceStats";
-import { Component, Mixins, Prop } from "vue-property-decorator";
+import { PropType } from "vue";
 import DanceVoteButton from "./DanceVoteButton.vue";
 
-@Component({ components: { DanceVoteButton } })
-export default class DanceVoteItem extends Mixins(EnvironmentManager) {
-  @Prop() private readonly vote!: boolean | null;
-  @Prop() private readonly rating!: DanceRating;
+export default EnvironmentManager.extend({
+  components: { DanceVoteButton },
+  props: {
+    vote: Boolean,
+    rating: { type: Object as PropType<DanceRating>, required: true },
+  },
+  computed: {
+    dance(): DanceStats {
+      const id = this.rating.danceId;
+      const d = this.environment.fromId(id);
+      if (!d) {
+        throw new Error(`Couldn't find dance ${id}`);
+      }
+      return d;
+    },
+  },
+  methods: {
+    upVote(): void {
+      this.danceVote(VoteDirection.Up);
+    },
 
-  private get dance(): DanceStats {
-    const id = this.rating.danceId;
-    const d = this.environment.fromId(id);
-    if (!d) {
-      throw new Error(`Couldn't find dance ${id}`);
-    }
-    return d;
-  }
+    downVote(): void {
+      this.danceVote(VoteDirection.Down);
+    },
 
-  private upVote(): void {
-    this.danceVote(VoteDirection.Up);
-  }
-
-  private downVote(): void {
-    this.danceVote(VoteDirection.Down);
-  }
-
-  private danceVote(direction: VoteDirection): void {
-    this.$emit(
-      "dance-vote",
-      new DanceRatingVote(this.rating.danceId, direction)
-    );
-  }
-}
+    danceVote(direction: VoteDirection): void {
+      this.$emit(
+        "dance-vote",
+        new DanceRatingVote(this.rating.danceId, direction)
+      );
+    },
+  },
+});
 </script>

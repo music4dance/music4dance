@@ -17,65 +17,64 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue from "vue";
 
-@Component
-export default class VoteButton extends Vue {
-  @Prop() private readonly vote?: boolean;
-  @Prop() private readonly value!: number;
-  @Prop() private readonly redirectUrl!: string;
-  @Prop() private readonly authenticated!: boolean;
-  @Prop() private readonly mainTip!: string;
-  @Prop() private readonly signInTip!: string;
-  @Prop() private readonly upTipVote!: string;
-  @Prop() private readonly upTipVoted!: string;
-  @Prop() private readonly downTipVote!: string;
-  @Prop() private readonly downTipVoted!: string;
+export default Vue.extend({
+  props: {
+    vote: Boolean,
+    value: Number,
+    redirectUrl: String,
+    authenticated: Boolean,
+    mainTip: String,
+    signInTip: String,
+    upTipVote: String,
+    upTipVoted: String,
+    downTipVote: String,
+    downTipVoted: String,
+  },
 
-  private get upClass(): string[] {
-    return this.vote ? ["voted-up"] : ["vote-up"];
-  }
-
-  private get downClass(): string[] {
-    return this.vote === false ? ["voted-down"] : ["vote-down"];
-  }
-
-  private get upTip(): string {
-    return this.authenticated
-      ? this.vote
-        ? this.upTipVoted
-        : this.upTipVote
-      : this.signInTip;
-  }
-
-  private get downTip(): string {
-    return this.authenticated
-      ? this.vote === false
-        ? this.downTipVoted
-        : this.downTipVote
-      : this.signInTip;
-  }
-
-  private async upClick(): Promise<void> {
-    if (this.authenticated) {
-      this.$emit("up-vote");
-    } else {
-      this.login();
-    }
-  }
-
-  private async downClick(): Promise<void> {
-    if (this.authenticated) {
-      this.$emit("down-vote");
-    } else {
-      this.login();
-    }
-  }
-
-  private login(): void {
-    window.location.href = this.redirectUrl;
-  }
-}
+  computed: {
+    upClass(): string[] {
+      return this.vote ? ["voted-up"] : ["vote-up"];
+    },
+    downClass(): string[] {
+      return this.vote === false ? ["voted-down"] : ["vote-down"];
+    },
+    upTip(): string {
+      return this.authenticated
+        ? this.vote
+          ? this.upTipVoted
+          : this.upTipVote
+        : this.signInTip;
+    },
+    downTip(): string {
+      return this.authenticated
+        ? this.vote === false
+          ? this.downTipVoted
+          : this.downTipVote
+        : this.signInTip;
+    },
+  },
+  methods: {
+    async upClick(): Promise<void> {
+      if (this.authenticated) {
+        this.$emit("up-vote");
+      } else {
+        this.login();
+      }
+    },
+    async downClick(): Promise<void> {
+      if (this.authenticated) {
+        this.$emit("down-vote");
+      } else {
+        this.login();
+      }
+    },
+    login(): void {
+      window.location.href = this.redirectUrl;
+    },
+  },
+});
 </script>
 
 <style lang="scss" scoped>

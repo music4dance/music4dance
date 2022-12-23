@@ -61,80 +61,66 @@ import { DanceStats } from "@/model/DanceStats";
 import { Tag } from "@/model/Tag";
 import { TagHandler } from "@/model/TagHandler";
 import "reflect-metadata";
-import { Component } from "vue-property-decorator";
 import TagButton from "./TagButton.vue";
 import TagModalBase from "./TagModalBase";
 
-@Component({
-  components: {
-    DanceVote,
-    TagButton,
+export default TagModalBase.extend({
+  components: { DanceVote, TagButton },
+  computed: {
+    danceHandler(): DanceHandler {
+      return this.tagHandler as DanceHandler;
+    },
+    pageLink(): string {
+      return `/dances/${this.name}`;
+    },
+    includeOnly(): string {
+      return `/song/search/?dances=${this.danceHandler.danceRating?.danceId}`;
+    },
+    includeDance(): string {
+      return `${this.includeOnly}&filter=${
+        this.danceHandler.filter!.encodedQuery
+      }`;
+    },
+    name(): string {
+      return this.dance?.name ?? "";
+    },
+    maxWeight(): number {
+      return this.dance?.maxWeight ?? 0;
+    },
+    dance(): DanceStats | undefined {
+      return this.danceHandler.danceRating
+        ? this.environment.fromId(this.danceHandler.danceRating.danceId)
+        : undefined;
+    },
+    tags(): Tag[] | undefined {
+      return this.danceHandler?.danceRating?.tags;
+    },
+    spinTitle(): string {
+      return `I enjoy dancing ${this.name} to ${this.title}.`;
+    },
+    authenticated(): boolean {
+      return !!this.danceHandler.user;
+    },
+    hasFilter(): boolean {
+      const filter = this.danceHandler.filter;
+      return !!filter && !filter.isDefault(this.danceHandler.danceRating.id);
+    },
+    isFiltered(): boolean {
+      const filter = this.danceHandler.filter;
+      const id = this.danceHandler.danceRating.id;
+      return !!filter && !!filter.danceQuery.danceList.find((d) => d === id);
+    },
   },
-})
-export default class DanceModal extends TagModalBase {
-  private get danceHandler(): DanceHandler {
-    return this.tagHandler as DanceHandler;
-  }
-
-  private get pageLink(): string {
-    return `/dances/${this.name}`;
-  }
-
-  private get includeOnly(): string {
-    return `/song/search/?dances=${this.danceHandler.danceRating?.danceId}`;
-  }
-
-  private get includeDance(): string {
-    return `${this.includeOnly}&filter=${
-      this.danceHandler.filter!.encodedQuery
-    }`;
-  }
-
-  private get name(): string {
-    return this.dance?.name ?? "";
-  }
-
-  private get maxWeight(): number {
-    return this.dance?.maxWeight ?? 0;
-  }
-
-  private get dance(): DanceStats | undefined {
-    return this.danceHandler.danceRating
-      ? this.environment.fromId(this.danceHandler.danceRating.danceId)
-      : undefined;
-  }
-
-  private get tags(): Tag[] | undefined {
-    return this.danceHandler?.danceRating?.tags;
-  }
-
-  private subTagHandler(tag: Tag): TagHandler {
-    const handler = this.danceHandler;
-    return new TagHandler(
-      tag,
-      handler.user,
-      handler.filter,
-      handler.danceRating
-    );
-  }
-
-  private get spinTitle(): string {
-    return `I enjoy dancing ${this.name} to ${this.title}.`;
-  }
-
-  private get authenticated(): boolean {
-    return !!this.danceHandler.user;
-  }
-
-  private get hasFilter(): boolean {
-    const filter = this.danceHandler.filter;
-    return !!filter && !filter.isDefault(this.danceHandler.danceRating.id);
-  }
-
-  private get isFiltered(): boolean {
-    const filter = this.danceHandler.filter;
-    const id = this.danceHandler.danceRating.id;
-    return !!filter && !!filter.danceQuery.danceList.find((d) => d === id);
-  }
-}
+  methods: {
+    subTagHandler(tag: Tag): TagHandler {
+      const handler = this.danceHandler;
+      return new TagHandler(
+        tag,
+        handler.user,
+        handler.filter,
+        handler.danceRating
+      );
+    },
+  },
+});
 </script>

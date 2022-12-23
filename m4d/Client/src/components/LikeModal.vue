@@ -79,86 +79,93 @@ import DanceVoteItem from "@/components/DanceVoteItem.vue";
 import IconButton from "@/components/IconButton.vue";
 import { DanceRatingVote } from "@/DanceRatingDelta";
 import AdminTools from "@/mix-ins/AdminTools";
-import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 import { DanceRating } from "@/model/DanceRating";
 import { SongEditor } from "@/model/SongEditor";
 import "reflect-metadata";
-import { Component, Mixins, Prop } from "vue-property-decorator";
+import { PropType } from "vue";
 
-@Component({
+export default AdminTools.extend({
   components: { IconButton, DanceVoteItem },
-})
-export default class LikeModal extends Mixins(EnvironmentManager, AdminTools) {
-  @Prop() private readonly editor!: SongEditor;
-  private instance: SongEditor | null = null;
+  props: {
+    editor: { type: Object as PropType<SongEditor>, required: true },
+  },
+  data() {
+    return new (class {
+      instance: SongEditor | null = null;
+    })();
+  },
+  computed: {
+    id(): string {
+      return `like-${this.editor.songId}`;
+    },
 
-  private get id(): string {
-    return `like-${this.editor.songId}`;
-  }
+    like(): boolean | null {
+      const like = this.instance?.likeState;
+      return like === undefined ? null : like;
+    },
 
-  private get like(): boolean | null {
-    const like = this.instance?.likeState;
-    return like === undefined ? null : like;
-  }
+    favoritesText(): string {
+      return this.like === true ? "In your Favorites" : "Add to Favorites";
+    },
 
-  private get favoritesText(): string {
-    return this.like === true ? "In your Favorites" : "Add to Favorites";
-  }
+    blockedText(): string {
+      return this.like === false
+        ? "In your Blocked List"
+        : "Add to Blocked List";
+    },
 
-  private get blockedText(): string {
-    return this.like === false ? "In your Blocked List" : "Add to Blocked List";
-  }
+    removeText(): string {
+      switch (this.like) {
+        case true:
+          return "Remove from Favorites";
+        case false:
+          return "Remove from Blocked";
+        default:
+          return "Not in either list";
+      }
+    },
 
-  private get removeText(): string {
-    switch (this.like) {
-      case true:
-        return "Remove from Favorites";
-      case false:
-        return "Remove from Blocked";
-      default:
-        return "Not in either list";
-    }
-  }
+    danceRatings(): DanceRating[] {
+      const instance = this.instance;
+      return instance ? instance.song.danceRatings ?? [] : [];
+    },
 
-  private get danceRatings(): DanceRating[] {
-    const instance = this.instance;
-    return instance ? instance.song.danceRatings ?? [] : [];
-  }
+    changed(): boolean {
+      const editor = this.instance;
+      return editor ? editor.modified : false;
+    },
+  },
+  methods: {
+    getDanceVote(danceId: string): boolean | null {
+      const vote = this.instance?.song.danceVote(danceId);
+      return vote === undefined ? null : vote;
+    },
 
-  private getDanceVote(danceId: string): boolean | null {
-    const vote = this.instance?.song.danceVote(danceId);
-    return vote === undefined ? null : vote;
-  }
+    setDanceVote(vote: DanceRatingVote): void {
+      this.instance?.danceVote(vote);
+    },
 
-  private setDanceVote(vote: DanceRatingVote): void {
-    this.instance?.danceVote(vote);
-  }
+    setLike(value: boolean | null): void {
+      this.instance?.setLike(value);
+    },
 
-  private setLike(value: boolean | null): void {
-    this.instance?.setLike(value);
-  }
+    resetModal(): void {
+      this.instance = new SongEditor(
+        this.axiosXsrf,
+        this.userName,
+        this.editor.songHistory
+      );
+    },
 
-  private resetModal(): void {
-    this.instance = new SongEditor(
-      this.axiosXsrf,
-      this.userName,
-      this.editor.songHistory
-    );
-  }
+    forceNull(value?: boolean): boolean | null {
+      return value === undefined ? null : value;
+    },
 
-  private forceNull(value?: boolean): boolean | null {
-    return value === undefined ? null : value;
-  }
-
-  private get changed(): boolean {
-    const editor = this.instance;
-    return editor ? editor.modified : false;
-  }
-
-  private onSave(): void {
-    if (this.changed) {
-      this.editor.saveExternalChanges(this.instance!);
-    }
-  }
-}
+    onSave(): void {
+      if (this.changed) {
+        this.editor.saveExternalChanges(this.instance!);
+      }
+    },
+  },
+});
 </script>

@@ -19,23 +19,25 @@
 </template>
 
 <script lang="ts">
-import PurchaseLogo from "@/components/PurcahseLogo.vue";
 import { camelToPascal } from "@/helpers/StringHelpers";
 import "reflect-metadata";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue from "vue";
 
-@Component({ components: { PurchaseLogo } })
-export default class TrackItem extends Vue {
-  @Prop() name!: string;
-  @Prop() value!: string;
-  @Prop() canAdd?: boolean;
-
-  private get friendlyName(): string {
-    return camelToPascal(this.name);
-  }
-
-  private onAdd(): void {
-    this.$emit("add-property", this.name, this.value);
-  }
-}
+export default Vue.extend({
+  props: {
+    name: { type: String, required: true },
+    value: { type: String, required: true },
+    canAdd: Boolean,
+  },
+  computed: {
+    friendlyName(): string {
+      return camelToPascal(this.name);
+    },
+  },
+  methods: {
+    onAdd(): void {
+      this.$emit("add-property", this.name, this.value);
+    },
+  },
+});
 </script>

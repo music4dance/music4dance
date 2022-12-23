@@ -13,37 +13,39 @@
 <script lang="ts">
 import DanceButton from "@/components/DanceButton.vue";
 import TagButton from "@/components/TagButton.vue";
-import AdminTools from "@/mix-ins/AdminTools";
 import { DanceHandler } from "@/model/DanceHandler";
 import { DanceRating } from "@/model/DanceRating";
 import { Tag } from "@/model/Tag";
 import { TagHandler } from "@/model/TagHandler";
 import "reflect-metadata";
-import { Component, Mixins, Prop } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 
-@Component({ components: { DanceButton, TagButton } })
-export default class TagViewer extends Mixins(AdminTools) {
-  @Prop() private readonly tag!: Tag;
-  @Prop() private readonly added!: boolean;
-  @Prop() private readonly danceId?: string;
+export default Vue.extend({
+  components: { DanceButton, TagButton },
+  props: {
+    tag: { type: Object as PropType<Tag>, required: true },
+    added: Boolean,
+    danceId: String,
+  },
+  computed: {
+    tagHandler(): TagHandler {
+      return new TagHandler(this.tag);
+    },
 
-  private get tagHandler(): TagHandler {
-    return new TagHandler(this.tag);
-  }
+    danceHandler(): DanceHandler {
+      return new DanceHandler(
+        new DanceRating({ danceId: this.danceId }),
+        Tag.fromDanceId(this.danceId!)
+      );
+    },
 
-  private get danceHandler(): DanceHandler {
-    return new DanceHandler(
-      new DanceRating({ danceId: this.danceId }),
-      Tag.fromDanceId(this.danceId!)
-    );
-  }
+    icon(): string {
+      return this.added ? "patch-plus" : "patch-minus";
+    },
 
-  private get icon(): string {
-    return this.added ? "patch-plus" : "patch-minus";
-  }
-
-  private get variant(): string {
-    return this.added ? "success" : "danger";
-  }
-}
+    variant(): string {
+      return this.added ? "success" : "danger";
+    },
+  },
+});
 </script>

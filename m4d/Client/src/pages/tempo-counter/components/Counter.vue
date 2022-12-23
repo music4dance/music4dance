@@ -48,7 +48,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import Vue from "vue";
 import BeatsPerMinute from "./BeatsPerMinute.vue";
 import MeasuresPerMinute from "./MeasuresPerMinute.vue";
 import Strictness from "./Strictness.vue";
@@ -60,123 +60,109 @@ const average = (list: number[]) =>
     ? 0
     : list.reduce((prev, curr) => prev + curr) / list.length;
 
-@Component({
-  components: {
-    BeatsPerMinute,
-    MeasuresPerMinute,
-    Strictness,
+export default Vue.extend({
+  components: { BeatsPerMinute, MeasuresPerMinute, Strictness },
+  props: {
+    beatsPerMeasure: Number,
+    beatsPerMinute: Number,
+    measuresPerMinute: Number,
+    countMethod: String,
+    epsilonPercent: Number,
   },
-})
-export default class Counter extends Vue {
-  // Data
-  private intervals: number[] = []; // deltas between last n clicked
-  private last: number | null = null; // Last type clicked (in tics)
-  private timeout: number | null = null;
+  data() {
+    return new (class {
+      intervals: number[] = []; // deltas between last n clicked
+      last: number | null = null; // Last type clicked (in tics)
+      timeout: number | null = null;
+      countOptions = [
+        { text: "Count Measures", value: "measures" },
+        { text: "Count Beats", value: "beats" },
+      ];
+    })();
+  },
+  computed: {
+    counterTitle(): string {
+      return this.last ? "Again" : this.counterInitialTitle;
+    },
+    counterInitialTitle(): string {
+      return !this.countMeasures
+        ? "Click on each beat"
+        : "Click on Downbeat of measure " + this.beatsPerMeasure + "/4";
+    },
+    countMeasures(): boolean {
+      return this.countMethod === "measures";
+    },
+    countMethodInternal: {
+      get: function (): string {
+        return this.countMethod;
+      },
+      set: function (value: string) {
+        this.$emit("update:count-method", value);
+      },
+    },
+  },
+  watch: {
+    intervals(): void {
+      const ms = average(this.intervals);
+      const countsPerMinute = ms ? (60 * 1000) / ms : 0;
 
-  private countOptions = [
-    { text: "Count Measures", value: "measures" },
-    { text: "Count Beats", value: "beats" },
-  ];
+      this.$emit(
+        "update:beats-per-minute",
+        this.countMeasures
+          ? countsPerMinute * this.beatsPerMeasure
+          : countsPerMinute
+      );
+    },
+    countMethod(): void {
+      this.timerReset();
+    },
+  },
+  methods: {
+    countClicked(): void {
+      const current = new Date().getTime();
+      if (this.timeout) {
+        clearTimeout(this.timeout);
+      }
 
-  // Properties
-  @Prop() private beatsPerMeasure!: number;
-  @Prop() private beatsPerMinute!: number;
-  @Prop() private measuresPerMinute!: number;
-  @Prop() private countMethod!: string;
-  @Prop() private epsilonPercent!: number;
-
-  // Computed
-  private get countMeasures(): boolean {
-    return this.countMethod === "measures";
-  }
-
-  private get counterTitle(): string {
-    return this.last ? "Again" : this.counterInitialTitle;
-  }
-
-  private get counterInitialTitle(): string {
-    return !this.countMeasures
-      ? "Click on each beat"
-      : "Click on Downbeat of measure " + this.beatsPerMeasure + "/4";
-  }
-
-  private get countMethodInternal(): string {
-    return this.countMethod;
-  }
-
-  private set countMethodInternal(value: string) {
-    this.$emit("update:count-method", value);
-  }
-
-  // Methods
-  public countClicked(): void {
-    const current = new Date().getTime();
-    if (this.timeout) {
-      clearTimeout(this.timeout);
-    }
-
-    if (this.last == null) {
-      this.resetIntervals();
-    } else {
-      const delta = current - this.last;
-      if (delta > maxWait) {
+      if (this.last == null) {
         this.resetIntervals();
       } else {
-        this.intervals.push(delta);
-        if (this.intervals.length > 100) {
-          this.intervals.shift();
+        const delta = current - this.last;
+        if (delta > maxWait) {
+          this.resetIntervals();
+        } else {
+          this.intervals.push(delta);
+          if (this.intervals.length > 100) {
+            this.intervals.shift();
+          }
         }
       }
-    }
-    this.last = current;
+      this.last = current;
 
-    this.timeout = setTimeout(this.timerReset, maxWait);
-  }
+      this.timeout = setTimeout(this.timerReset, maxWait);
+    },
+    changeBeatsPerMintue(newTempo: number) {
+      this.$emit("update:beats-per-minute", newTempo);
+      this.timerReset();
+    },
+    changeMeasuresPerMintue(newTempo: number) {
+      this.$emit("update:measures-per-minute", newTempo);
+      this.timerReset();
+    },
+    changeBeatsPerMeasure(newTempo: number) {
+      this.$emit("update:beats-per-measure", newTempo);
+      this.timerReset();
+    },
+    timerReset(): void {
+      if (this.timeout) {
+        clearTimeout(this.timeout);
+      }
 
-  private changeBeatsPerMintue(newTempo: number) {
-    this.$emit("update:beats-per-minute", newTempo);
-    this.timerReset();
-  }
-
-  private changeMeasuresPerMintue(newTempo: number) {
-    this.$emit("update:measures-per-minute", newTempo);
-    this.timerReset();
-  }
-
-  private changeBeatsPerMeasure(newTempo: number) {
-    this.$emit("update:beats-per-measure", newTempo);
-    this.timerReset();
-  }
-
-  private timerReset(): void {
-    if (this.timeout) {
-      clearTimeout(this.timeout);
-    }
-
-    this.last = null;
-  }
-
-  private resetIntervals(): void {
-    this.intervals.splice(0, this.intervals.length);
-  }
-
-  // Watchers
-  @Watch("intervals")
-  private onIntervalsUpdated() {
-    const ms = average(this.intervals);
-    const countsPerMinute = ms ? (60 * 1000) / ms : 0;
-
-    this.$emit(
-      "update:beats-per-minute",
-      this.countMeasures
-        ? countsPerMinute * this.beatsPerMeasure
-        : countsPerMinute
-    );
-  }
-
-  @Watch("countMethod")
-  private onTypeChange() {
-    this.timerReset();
-  }
-}
+      this.last = null;
+    },
+    resetIntervals(): void {
+      this.intervals.splice(0, this.intervals.length);
+    },
+  },
+});
 </script>

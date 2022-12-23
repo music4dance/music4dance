@@ -114,24 +114,24 @@ exports[`TempoCounter.vue renders the tempo counter page 1`] = `
         </div>
       </div>
       <div>
-        <div class="list-group"><a href="#" target="_self" class="list-group-item d-flex justify-content-between align-items-center list-group-item-primary list-group-item-action"><span tempotype="2"><a href="/dances/castle-foxtrot">Castle Foxtrot</a> <span><!---->
+        <div class="list-group"><a href="#" target="_self" class="list-group-item d-flex justify-content-between align-items-center list-group-item-primary list-group-item-action"><span><a href="/dances/castle-foxtrot">Castle Foxtrot</a> <span><!---->
     (Slow Dance)
   </span> <span style="font-size: 0.8rem;">
-    60-100 BPM</span></span> <span class="badge badge-primary" style="display: none;">0.0 MPM fast</span></a></div>
-        <div class="list-group"><a href="#" target="_self" class="list-group-item d-flex justify-content-between align-items-center list-group-item-primary list-group-item-action"><span tempotype="2"><a href="/dances/bolero">Bolero</a> <!----> <span style="font-size: 0.8rem;">
-    96-104 BPM</span></span> <span class="badge badge-primary" style="display: none;">0.0 MPM fast</span></a></div>
-        <div class="list-group"><a href="#" target="_self" class="list-group-item d-flex justify-content-between align-items-center list-group-item-primary list-group-item-action"><span tempotype="2"><a href="/dances/rumba">Rumba</a> <!----> <span style="font-size: 0.8rem;">
-    100-144 BPM</span></span> <span class="badge badge-primary" style="display: none;">0.0 MPM fast</span></a></div>
-        <div class="list-group"><a href="#" target="_self" class="list-group-item d-flex justify-content-between align-items-center list-group-item-primary list-group-item-action"><span tempotype="2"><a href="/dances/samba">Samba</a> <!----> <span style="font-size: 0.8rem;">
-    96-104 BPM</span></span> <span class="badge badge-primary" style="display: none;">0.0 MPM fast</span></a></div>
-        <div class="list-group"><a href="#" target="_self" class="list-group-item d-flex justify-content-between align-items-center list-group-item-primary list-group-item-action"><span tempotype="2"><a href="/dances/cumbia">Cumbia</a> <!----> <span style="font-size: 0.8rem;">
-    90-110 BPM</span></span> <span class="badge badge-primary" style="display: none;">0.0 MPM fast</span></a></div>
-        <div class="list-group"><a href="#" target="_self" class="list-group-item d-flex justify-content-between align-items-center list-group-item-primary list-group-item-action"><span tempotype="2"><a href="/dances/neo-tango">Neo Tango</a> <!----> <span style="font-size: 0.8rem;">
-    60-100 BPM</span></span> <span class="badge badge-primary" style="display: none;">0.0 MPM fast</span></a></div>
-        <div class="list-group"><a href="#" target="_self" class="list-group-item d-flex justify-content-between align-items-center list-group-item-primary list-group-item-action"><span tempotype="2"><a href="/dances/blues">Blues</a> <!----> <span style="font-size: 0.8rem;">
-    40-100 BPM</span></span> <span class="badge badge-primary" style="display: none;">0.0 MPM fast</span></a></div>
-        <div class="list-group"><a href="#" target="_self" class="list-group-item d-flex justify-content-between align-items-center list-group-item-primary list-group-item-action"><span tempotype="2"><a href="/dances/motown">Motown</a> <!----> <span style="font-size: 0.8rem;">
-    80-150 BPM</span></span> <span class="badge badge-primary" style="display: none;">0.0 MPM fast</span></a></div>
+    15-25 MPM</span></span> <span class="badge badge-primary" style="display: none;">0.0 MPM fast</span></a></div>
+        <div class="list-group"><a href="#" target="_self" class="list-group-item d-flex justify-content-between align-items-center list-group-item-primary list-group-item-action"><span><a href="/dances/bolero">Bolero</a> <!----> <span style="font-size: 0.8rem;">
+    24-26 MPM</span></span> <span class="badge badge-primary" style="display: none;">0.0 MPM fast</span></a></div>
+        <div class="list-group"><a href="#" target="_self" class="list-group-item d-flex justify-content-between align-items-center list-group-item-primary list-group-item-action"><span><a href="/dances/rumba">Rumba</a> <!----> <span style="font-size: 0.8rem;">
+    25-36 MPM</span></span> <span class="badge badge-primary" style="display: none;">0.0 MPM fast</span></a></div>
+        <div class="list-group"><a href="#" target="_self" class="list-group-item d-flex justify-content-between align-items-center list-group-item-primary list-group-item-action"><span><a href="/dances/samba">Samba</a> <!----> <span style="font-size: 0.8rem;">
+    48-52 MPM</span></span> <span class="badge badge-primary" style="display: none;">0.0 MPM fast</span></a></div>
+        <div class="list-group"><a href="#" target="_self" class="list-group-item d-flex justify-content-between align-items-center list-group-item-primary list-group-item-action"><span><a href="/dances/cumbia">Cumbia</a> <!----> <span style="font-size: 0.8rem;">
+    45-55 MPM</span></span> <span class="badge badge-primary" style="display: none;">0.0 MPM fast</span></a></div>
+        <div class="list-group"><a href="#" target="_self" class="list-group-item d-flex justify-content-between align-items-center list-group-item-primary list-group-item-action"><span><a href="/dances/neo-tango">Neo Tango</a> <!----> <span style="font-size: 0.8rem;">
+    15-25 MPM</span></span> <span class="badge badge-primary" style="display: none;">0.0 MPM fast</span></a></div>
+        <div class="list-group"><a href="#" target="_self" class="list-group-item d-flex justify-content-between align-items-center list-group-item-primary list-group-item-action"><span><a href="/dances/blues">Blues</a> <!----> <span style="font-size: 0.8rem;">
+    10-25 MPM</span></span> <span class="badge badge-primary" style="display: none;">0.0 MPM fast</span></a></div>
+        <div class="list-group"><a href="#" target="_self" class="list-group-item d-flex justify-content-between align-items-center list-group-item-primary list-group-item-action"><span><a href="/dances/motown">Motown</a> <!----> <span style="font-size: 0.8rem;">
+    20-37.5 MPM</span></span> <span class="badge badge-primary" style="display: none;">0.0 MPM fast</span></a></div>
       </div>
     </div>
   </div>

@@ -14,9 +14,7 @@
 </template>
 
 <script lang="ts">
-import { Component } from "vue-property-decorator";
 import TagButtonBase from "./TagButtonBase";
 
-@Component
-export default class TagButton extends TagButtonBase {}
+export default TagButtonBase.extend({});
 </script>

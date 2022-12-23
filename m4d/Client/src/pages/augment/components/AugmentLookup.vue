@@ -76,66 +76,69 @@
 import AdminTools from "@/mix-ins/AdminTools";
 import { Service, ServiceMatcher } from "@/model/ServiceMatcher";
 import "reflect-metadata";
-import { Component, Mixins, Prop } from "vue-property-decorator";
 import AugmentSources from "./AugmentSources.vue";
 
-@Component({ components: { AugmentSources } })
-export default class AugmentLookup extends Mixins(AdminTools) {
-  @Prop() private id?: string;
-  private serviceString = "";
-  private songId = "";
-  private searching = false;
-  private failed = false;
-  private serviceMatcher = new ServiceMatcher();
+export default AdminTools.extend({
+  components: { AugmentSources },
+  props: { id: String },
+  data() {
+    return new (class {
+      serviceString = "";
+      songId = "";
+      searching = false;
+      failed = false;
+      serviceMatcher = new ServiceMatcher();
+    })();
+  },
+  computed: {
+    serviceIdState(): boolean | null {
+      return this.serviceString ? !!this.serviceId : null;
+    },
+    service(): Service | undefined {
+      return this.serviceMatcher.match(this.serviceString);
+    },
 
-  private async mounted(): Promise<void> {
+    serviceId(): string | null {
+      const service = this.service;
+      return service
+        ? this.serviceMatcher.parseId(this.serviceString, service)
+        : null;
+    },
+
+    serviceType(): string | null {
+      const service = this.service;
+      return service ? service.id : null;
+    },
+
+    serviceName(): string | null {
+      const service = this.service;
+      return service ? service.name : null;
+    },
+  },
+  methods: {
+    async findService(): Promise<void> {
+      this.searching = true;
+      const song = await this.serviceMatcher.findSong(this.serviceString);
+      this.serviceString = "";
+      if (song) {
+        this.$emit("edit-song", song);
+      } else {
+        this.failed = true;
+      }
+    },
+
+    onCancel(): void {
+      this.searching = false;
+      this.failed = false;
+    },
+  },
+  async mounted(): Promise<void> {
     this.serviceString = this.id ?? "";
     if (this.serviceString) {
       await this.findService();
     }
-  }
-
-  private get serviceIdState(): boolean | null {
-    return this.serviceString ? !!this.serviceId : null;
-  }
-
-  private async findService(): Promise<void> {
-    this.searching = true;
-    const song = await this.serviceMatcher.findSong(this.serviceString);
-    this.serviceString = "";
-    if (song) {
-      this.$emit("edit-song", song);
-    } else {
-      this.failed = true;
-    }
-  }
-
-  private onCancel(): void {
-    this.searching = false;
-    this.failed = false;
-  }
-
-  private get service(): Service | undefined {
-    return this.serviceMatcher.match(this.serviceString);
-  }
-
-  private get serviceId(): string | null {
-    const service = this.service;
-    return service
-      ? this.serviceMatcher.parseId(this.serviceString, service)
-      : null;
-  }
-
-  private get serviceType(): string | null {
-    const service = this.service;
-    return service ? service.id : null;
-  }
-
-  private get serviceName(): string | null {
-    const service = this.service;
-    return service ? service.name : null;
-  }
-}
+  },
+});
 </script>
 
 <style lang="scss" scoped>

@@ -53,8 +53,7 @@ import { TempoRange } from "@/model/TempoRange";
 import { TypeStats } from "@/model/TypeStats";
 import { BvTableFieldArray } from "bootstrap-vue";
 import "reflect-metadata";
-import { PropType } from "vue";
-import { Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 
 export default Vue.extend({
   components: { DanceName },

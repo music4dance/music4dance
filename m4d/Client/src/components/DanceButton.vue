@@ -20,30 +20,24 @@
 <script lang="ts">
 import { DanceHandler } from "@/model/DanceHandler";
 import { DanceRating } from "@/model/DanceRating";
-import { Component } from "vue-property-decorator";
 import DanceModal from "./DanceModal.vue";
 import TagButtonBase from "./TagButtonBase";
 
-@Component({
-  components: {
-    DanceModal,
+export default TagButtonBase.extend({
+  components: { DanceModal },
+  computed: {
+    danceHandler(): DanceHandler {
+      return this.tagHandler as DanceHandler;
+    },
+    danceRating(): DanceRating {
+      return this.danceHandler.danceRating;
+    },
+    weight(): number {
+      return this.danceRating ? this.danceRating.weight : 0;
+    },
+    hasTags(): boolean {
+      return this.danceRating?.tags?.length > 0;
+    },
   },
-})
-export default class DanceButton extends TagButtonBase {
-  private get danceHandler(): DanceHandler {
-    return this.tagHandler as DanceHandler;
-  }
-
-  private get danceRating(): DanceRating {
-    return this.danceHandler.danceRating;
-  }
-
-  private get weight(): number {
-    return this.danceRating ? this.danceRating.weight : 0;
-  }
-
-  private get hasTags(): boolean {
-    return this.danceRating?.tags?.length > 0;
-  }
-}
+});
 </script>

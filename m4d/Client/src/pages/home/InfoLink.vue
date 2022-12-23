@@ -5,13 +5,13 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue from "vue";
 
-@Component
-export default class InfoLink extends Vue {
-  @Prop() private text?: string;
-  @Prop() private link!: string;
-  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-  @Prop() private styles?: any;
-}
+export default Vue.extend({
+  props: {
+    text: String,
+    link: String,
+    styles: [String, Array, Object],
+  },
+});
 </script>

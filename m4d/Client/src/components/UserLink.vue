@@ -4,24 +4,24 @@
 
 <script lang="ts">
 import { UserQuery } from "@/model/UserQuery";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue from "vue";
 
-@Component
-export default class UserLink extends Vue {
-  @Prop() readonly user!: string;
+export default Vue.extend({
+  props: { user: { type: String, required: true } },
+  computed: {
+    userLink(): string {
+      return `/users/info/${this.userQuery.userName}`;
+    },
 
-  private get userLink(): string {
-    return `/users/info/${this.userQuery.userName}`;
-  }
+    userClasses(): string[] {
+      return this.userQuery.isPseudo ? ["pseudo"] : [];
+    },
 
-  private get userClasses(): string[] {
-    return this.userQuery.isPseudo ? ["pseudo"] : [];
-  }
-
-  private get userQuery(): UserQuery {
-    return new UserQuery(this.user);
-  }
-}
+    userQuery(): UserQuery {
+      return new UserQuery(this.user);
+    },
+  },
+});
 </script>
 
 <style lang="scss" scoped>

@@ -15,15 +15,11 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue from "vue";
 import TempoModal from "./TempoModal.vue";
 
-@Component({
-  components: {
-    TempoModal,
-  },
-})
-export default class BeatsPerMinute extends Vue {
-  @Prop() private beatsPerMinute!: number;
-}
+export default Vue.extend({
+  components: { TempoModal },
+  props: { beatsPerMinute: { type: Number, required: true } },
+});
 </script>

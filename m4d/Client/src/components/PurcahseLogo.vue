@@ -7,24 +7,27 @@
 <script lang="ts">
 import { PurchaseInfo } from "@/model/Purchase";
 import "reflect-metadata";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 
-@Component
-export default class PurchaseLogo extends Vue {
-  @Prop() private readonly info!: PurchaseInfo;
-  @Prop() private readonly isCharm?: boolean;
-  @Prop() private readonly styles?: string;
+export default Vue.extend({
+  components: {},
+  props: {
+    info: { type: Object as PropType<PurchaseInfo>, required: true },
+    isCharm: Boolean,
+    styles: String,
+  },
+  computed: {
+    width(): number {
+      return this.isCharm ? 110 : 32;
+    },
 
-  private get width(): number {
-    return this.isCharm ? 110 : 32;
-  }
+    height(): number {
+      return this.isCharm ? 40 : 32;
+    },
 
-  private get height(): number {
-    return this.isCharm ? 40 : 32;
-  }
-
-  private get image(): string {
-    return this.isCharm ? this.info.charm : this.info.logo;
-  }
-}
+    image(): string {
+      return this.isCharm ? this.info.charm : this.info.logo;
+    },
+  },
+});
 </script>

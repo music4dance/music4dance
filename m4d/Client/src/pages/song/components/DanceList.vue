@@ -63,49 +63,46 @@ import { SongFilter } from "@/model/SongFilter";
 import { Tag } from "@/model/Tag";
 import { TagHandler } from "@/model/TagHandler";
 import "reflect-metadata";
-import { Component, Mixins, Prop } from "vue-property-decorator";
+import { PropType } from "vue";
+import mixins from "vue-typed-mixins";
 
-@Component({
-  components: {
-    CommentEditor,
-    DanceName,
-    DanceVote,
-    TagButton,
-    TagListEditor,
+export default mixins(EnvironmentManager, AdminTools).extend({
+  components: { CommentEditor, DanceName, DanceVote, TagButton, TagListEditor },
+  props: {
+    song: { type: Object as PropType<Song>, required: true },
+    title: { type: String, required: true },
+    danceRatings: Array as PropType<DanceRating[]>,
+    user: String,
+    filter: Object as PropType<SongFilter>,
+    editor: Object as PropType<SongEditor>,
+    edit: Boolean,
   },
-})
-export default class DanceList extends Mixins(EnvironmentManager, AdminTools) {
-  @Prop() private readonly song!: Song;
-  @Prop() private readonly title!: string;
-  @Prop() private readonly danceRatings!: DanceRating[];
-  @Prop() private readonly user!: string;
-  @Prop() private readonly filter!: SongFilter;
-  @Prop() private readonly editor!: SongEditor;
-  @Prop() private readonly edit!: boolean;
+  computed: {
+    danceRatingsFiltered(): DanceRating[] {
+      const danceRatings = this.danceRatings;
+      return danceRatings ? danceRatings.filter((dr) => dr) : [];
+    },
 
-  private get danceRatingsFiltered(): DanceRating[] {
-    const danceRatings = this.danceRatings;
-    return danceRatings ? danceRatings.filter((dr) => dr) : [];
-  }
+    hasDances(): boolean {
+      return this.danceRatingsFiltered.length > 0;
+    },
+  },
+  methods: {
+    statsFromRating(dr: DanceRating): DanceStats {
+      return this.environment.fromId(dr.danceId)!;
+    },
 
-  private get hasDances(): boolean {
-    return this.danceRatingsFiltered.length > 0;
-  }
+    danceName(dr: DanceRating): string {
+      return this.statsFromRating(dr).name;
+    },
 
-  private statsFromRating(dr: DanceRating): DanceStats {
-    return this.environment.fromId(dr.danceId)!;
-  }
+    danceLink(dr: DanceRating): string {
+      return `/dances/${this.statsFromRating(dr).seoName}`;
+    },
 
-  private danceName(dr: DanceRating): string {
-    return this.statsFromRating(dr).name;
-  }
-
-  private danceLink(dr: DanceRating): string {
-    return `/dances/${this.statsFromRating(dr).seoName}`;
-  }
-
-  private subTagHandler(dr: DanceRating, tag: Tag): TagHandler {
-    return new TagHandler(tag, this.user, this.filter, dr);
-  }
-}
+    subTagHandler(dr: DanceRating, tag: Tag): TagHandler {
+      return new TagHandler(tag, this.user, this.filter, dr);
+    },
+  },
+});
 </script>

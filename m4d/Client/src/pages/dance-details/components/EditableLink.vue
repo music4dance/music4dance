@@ -5,13 +5,13 @@
     </b-col>
     <b-col sm="2">
       <b-form-input
-        v-model="link.description"
+        v-model="internalLink.description"
         @input="updateDescription($event)"
       ></b-form-input>
     </b-col>
     <b-col sm="9">
       <b-form-input
-        v-model="link.link"
+        v-model="internalLink.link"
         @input="updateLink($event)"
       ></b-form-input>
     </b-col>
@@ -27,31 +27,39 @@
 <script lang="ts">
 import { DanceLink } from "@/model/DanceLink";
 import "reflect-metadata";
-import { Component, Model, Prop, Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 
-@Component
-export default class EditableLink extends Vue {
-  @Model("update") readonly link!: DanceLink;
-  @Prop() private readonly editing!: boolean;
+export default Vue.extend({
+  model: {
+    prop: "link",
+    event: "update",
+  },
+  props: {
+    link: { type: Object as PropType<DanceLink>, required: true },
+    editing: Boolean,
+  },
+  computed: {
+    internalLink: {
+      get: function (): DanceLink {
+        return this.link;
+      },
+      set: function (value: DanceLink): void {
+        this.$emit("update", value);
+      },
+    },
+  },
+  methods: {
+    updateDescription(value: string): void {
+      this.internalLink = this.link.cloneAndModify({ description: value });
+    },
 
-  private get internalLink(): DanceLink {
-    return this.link;
-  }
+    updateLink(value: string): void {
+      this.internalLink = this.link.cloneAndModify({ link: value });
+    },
 
-  private set internalLink(value: DanceLink) {
-    this.$emit("update", value);
-  }
-
-  private updateDescription(value: string): void {
-    this.internalLink = this.link.cloneAndModify({ description: value });
-  }
-
-  private updateLink(value: string): void {
-    this.internalLink = this.link.cloneAndModify({ link: value });
-  }
-
-  private deleteLink(): void {
-    this.$emit("delete", this.link);
-  }
-}
+    deleteLink(): void {
+      this.$emit("delete", this.link);
+    },
+  },
+});
 </script>

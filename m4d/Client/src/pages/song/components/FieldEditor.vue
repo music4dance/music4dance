@@ -19,44 +19,46 @@ import AdminTools from "@/mix-ins/AdminTools";
 import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 import { SongProperty } from "@/model/SongProperty";
 import "reflect-metadata";
-import { Component, Mixins, Prop } from "vue-property-decorator";
+import mixins from "vue-typed-mixins";
 
-@Component
-export default class FieldEditor extends Mixins(
-  EnvironmentManager,
-  AdminTools
-) {
-  @Prop() private readonly name!: string;
-  @Prop() private readonly value!: string;
-  @Prop() private readonly editing!: boolean;
-  @Prop() private readonly type?: string;
-  @Prop() private readonly role?: string;
-  @Prop() private readonly isCreator?: boolean;
+export default mixins(EnvironmentManager, AdminTools).extend({
+  props: {
+    name: { type: String, required: true },
+    value: { type: String, required: true },
+    editing: Boolean,
+    type: String,
+    role: String,
+    isCreator: Boolean,
+  },
+  data() {
+    return new (class {})();
+  },
+  computed: {
+    internalValue: {
+      get: function (): string {
+        return this.value;
+      },
+      set: function (value: string): void {
+        this.$emit(
+          "update-field",
+          new SongProperty({ name: this.name, value: value })
+        );
+      },
+    },
+    isNumber(): boolean {
+      return this.type === "number";
+    },
 
-  private get internalValue(): string {
-    return this.value;
-  }
+    computedType(): string {
+      return this.type ?? "text";
+    },
 
-  private set internalValue(value: string) {
-    this.$emit(
-      "update-field",
-      new SongProperty({ name: this.name, value: value })
-    );
-  }
-
-  private get isNumber(): boolean {
-    return this.type === "number";
-  }
-
-  private get computedType(): string {
-    return this.type ?? "text";
-  }
-
-  private get hasEditPermission(): boolean {
-    const role = this.role;
-    return !!this.isCreator || (!!role && this.hasRole(role));
-  }
-}
+    hasEditPermission(): boolean {
+      const role = this.role;
+      return !!this.isCreator || (!!role && this.hasRole(role));
+    },
+  },
+});
 </script>
 
 <style lang="scss" scoped>
