@@ -1,0 +1,133 @@
+﻿@using m4dModels
+@model m4dModels.ExportInfo
+
+@{
+    ViewBag.Title = "Export Playlist";
+    var filter = new SongFilter(Model.Filter);
+    var canCreate = Model.IsAuthenticated && (Model.IsPremium || Model.IsSelf);
+    var returnUrl = $"/song/exportplaylist?filter={filter}";
+}
+
+@*TODO: We should be able to refactor this to reduce duplicate code from create spotify *@
+<div class="row">
+    <h1 class="col-sm-12">@ViewBag.Title</h1>
+</div>
+
+<div class="hr-music"></div>
+
+<div class="row">
+    <h4 class="col-sm-12">Export the results of this search: <b>@filter.Description</b></h4>
+</div>
+
+<div class="row spaced-row">
+    <div text="big-text" class="col-sm-10">
+        In order to successfully export a playlist from a music4dance search you must meet the following conditions:
+        <ol>
+            <li>
+                Be
+                <a asp-area="Identity" asp-page="/Account/Login" asp-route-ReturnUrl="@returnUrl">
+                    signed in
+                </a>
+                @if (Model.IsAuthenticated)
+                {
+                    <span class="fas fa-check-circle mx-2"></span>
+                }
+                else
+                {
+                    <text>
+                        &mdash; <a href="https://music4dance.blog/music4dance-help/account-management/">(help)</a>
+                    </text>
+                }
+            </li>
+            <li>
+                Have a <a href="/home/contribute">premium subscription</a>
+                @if (Model.IsPremium)
+                {
+                    <span class="fas fa-check-circle mx-2"></span>
+                }
+                else
+                {
+                    <text>
+                        &mdash; <a href="https://music4dance.blog/music4dance-help/subscriptions/">(help)</a>
+                    </text>
+                }
+            </li>
+            @if (!Model.IsPremium && Model.IsSelf)
+            {
+                <li>
+                    Or be downloading only your own votes and tags <span class="fas fa-check-circle mx-2"></span>
+                </li>
+            }
+        </ol>
+    </div>
+
+    <div class="col-sm-2">
+        @Html.ActionLink("Back to Search Results", ((SongFilter)ViewBag.SongFilter).TargetAction, new
+        {
+            filter = ViewBag.SongFilter
+        }, new
+        {
+            @class = "btn btn-sm btn-primary",
+            role = "button"
+        })
+    </div>
+</div>
+
+@if (canCreate)
+{
+    using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="filter" id="filter" value="@Model.Filter" />
+
+        <div class="form-group row">
+            @Html.LabelFor(model => model.Title, new
+            {
+                @class = "col-form-label col-md-1"
+            })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Title, new
+                {
+                    htmlAttributes = new
+                    {
+                        @class = "form-control"
+                    }
+                })
+                @Html.ValidationMessageFor(model => model.Title, "", new
+                {
+                    @class = "text-danger"
+                })
+            </div>
+        </div>
+
+        @if (filter.HasDances)
+        {
+            <div class="form-group row">
+                <div class="col-md form-check offset-md-1">
+                    @Html.EditorFor(model => model.IncludeSpecificDances, new
+                    {
+                        htmlAttributes = new
+                        {
+                            id = "include-specific-dances",
+                            @class = "from-check-input"
+                        }
+                    })
+                    @Html.LabelFor(model => model.IncludeSpecificDances, new
+                    {
+                        @for = "include-specific-danes",
+                        @class = "form-check-label"
+                    })
+                </div>
+            </div>
+        }
+
+        <div class="form-group row">
+            <div class="offset-md-1 col-md-10">
+                <input type="submit" value="Download" class="btn btn-primary" />
+            </div>
+        </div>
+        <div class="row">
+            <p class="col-md">Check your downloads folder for the exported file.</p>
+        </div>
+    }
+}

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -40,6 +41,20 @@ namespace m4dModels
             return $"{Value}:{Count}";
         }
 
+        private static string ClassDisplayName(string tagClass)
+        {
+            return s_classNames.TryGetValue(tagClass, out var name) ? name : "unknown";
+        }
+
+        private static readonly Dictionary<string, string> s_classNames = new(StringComparer.OrdinalIgnoreCase)
+        {
+            { "style", "style" },
+            { "tempo", "tempo" },
+            { "music", "musical genre" },
+            { "other", "other" },
+            { "dance", "dance" },
+        };
+
         #region Properties
 
         [DataMember]
@@ -53,6 +68,8 @@ namespace m4dModels
         public string TagClass =>
             Value.Contains(':') ? Value[(Value.LastIndexOf(':') + 1)..] : null;
 
+        public string Description =>
+            $"{TagValue} ({ClassDisplayName(TagClass)})";
         #endregion
 
         #region Constructors
@@ -108,7 +125,7 @@ namespace m4dModels
             }
 
             // Handle a is null case.
-            return a is null ? b is null : a.Equals(b);
+            return a?.Equals(b) ?? false;
         }
 
         public static bool operator !=(TagCount a, TagCount b)

@@ -71,53 +71,10 @@ namespace m4d.Controllers
 
         private async Task SetSpotify(IEnumerable<Search> searches, string userName)
         {
-            var exports = await MapSpotify(userName);
             foreach (var search in searches)
             {
-                var filter = search.Filter.Normalize(userName).ToString();
-                if (exports.TryGetValue(filter, out var export))
-                {
-                    search.Spotify = export.Id;
-                }
+                search.Spotify = await SpotifyFromFilter(search.Filter, userName);
             }
-        }
-
-        private async Task<Dictionary<string, SpotifyCreate>> MapSpotify(string userName)
-        {
-            var map = new Dictionary<string, SpotifyCreate>();
-            foreach (var export in await GetSpotify(userName))
-            {
-                if (export?.Info == null)
-                {
-                    continue;
-                }
-
-                var filter = new SongFilter(export.Info.Filter).Normalize(userName).ToString();
-                if (!map.ContainsKey(filter))
-                {
-                    map[filter] = export;
-                }
-            }
-            return map;
-        }
-
-        private async Task<List<SpotifyCreate>> GetSpotify(string userName)
-        {
-            if (string.IsNullOrEmpty(userName))
-            {
-                return new List<SpotifyCreate>();
-            }
-
-            var user = await UserManager.FindByNameAsync(userName);
-            if (user == null)
-            {
-                return new List<SpotifyCreate>();
-            }
-
-            var userId = user.Id;
-
-            return  Database.ActivityLog.Where(l => l.ApplicationUserId == userId).OrderByDescending(e => e.Date)
-                .Select(ex => JsonConvert.DeserializeObject<SpotifyCreate>(ex.Details)).ToList();
         }
 
         // GET: Searches/Delete/5

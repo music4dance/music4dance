@@ -5,6 +5,8 @@
     ViewData["ActivePage"] = ManageNavPages.Index;
     ViewData["UserName"] = Model.UserName;
     var ListLink = $"/users/info/{Model.UserName}";
+    var ExportLink = $"/song/exportplaylist?filter=v2-Advanced-----%2B{Model.UserName}|a";
+    var canExport = User.IsInRole(DanceMusicCoreService.DiagRole) || User.IsInRole(DanceMusicCoreService.BetaRole);
 }
 
 <h4>@ViewData["Title"]</h4>
@@ -19,6 +21,7 @@
 }
 
 <p><a href="@ListLink">Show your song lists.</a></p>
+<p><a href="@ExportLink">Export your votes and tags.</a></p>
 
 <div class="row">
     <div class="col-md-12">

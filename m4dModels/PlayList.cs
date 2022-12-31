@@ -127,6 +127,7 @@ namespace m4dModels
         public int? Count { get; set; }
     }
 
+    // TODO: refactor to SpotifyCreateInfo & ExportPlaylistInfo
     public class PlaylistCreateInfo
     {
         [Required(ErrorMessage = "Title is Required")]
@@ -139,14 +140,28 @@ namespace m4dModels
 
         public string Filter { get; set; }
 
-        [Range(5, 50, ErrorMessage = "A playlist may have between 5 and 50 songs")]
-        [Description("Number of Songs")]
-        public int Count { get; set; }
+        public virtual int Count { get; set; }
 
         // User info
         public bool IsAuthenticated { get; set; }
         public bool IsPremium { get; set; }
+    }
+
+    public class SpotifyCreateInfo : PlaylistCreateInfo
+    {
+        [Range(5, 100, ErrorMessage = "A playlist may have between 5 and 100 songs")]
+        [Display(Name = "Number of Songs")]
+        public override int Count { get; set; }
+
         public bool CanSpotify { get; set; }
+
+    }
+
+    public class ExportInfo : PlaylistCreateInfo
+    {
+        [Display(Name = "Only include the dances that I searched on")]
+        public bool IncludeSpecificDances { get; set; }
+        public bool IsSelf { get; set; }
     }
 
     public class PlayListIndex

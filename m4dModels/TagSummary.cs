@@ -47,6 +47,8 @@ namespace m4dModels
             return tags;
         }
 
+        public string Description => string.Join(";", Tags.Where(t=> t.TagClass != "Dance").Select(t => t.Description));
+
         public bool IsEmpty => string.IsNullOrWhiteSpace(Summary);
 
         #endregion

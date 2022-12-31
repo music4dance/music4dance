@@ -3834,6 +3834,7 @@ exports[`NewMusic.vue renders a new music page 1`] = `
           <div class="col-md-2">
             <div><a href="/song/advancedsearchform">New Search</a></div>
             <div><a href="/song/createspotify?filter=v2-newmusic--Created---%5C-dgsnure%7Ca">Create Spotify Playlist</a></div>
+            <!---->
           </div>
         </div>
         <!---->

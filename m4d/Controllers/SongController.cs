@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using Azure.Search.Documents;
@@ -877,7 +878,7 @@ namespace m4d.Controllers
                 Configuration, ServiceType.Spotify, User, authResult);
 
             return View(
-                new PlaylistCreateInfo
+                new SpotifyCreateInfo
                 {
                     Title = string.IsNullOrWhiteSpace(Filter.ShortDescription)
                         ? "music4dance playlist"
@@ -897,7 +898,7 @@ namespace m4d.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> CreateSpotify([FromServices]IFileProvider fileProvider,
             [Bind("Title,DescriptionPrefix,Description,Count,Filter")]
-            PlaylistCreateInfo info)
+            SpotifyCreateInfo info)
         {
             UseVue = false;
             var authResult = await HttpContext.AuthenticateAsync();
@@ -970,6 +971,76 @@ namespace m4d.Controllers
                 "SpotifyExport", user, new SpotifyCreate { Id = metadata.Id, Info = info }));
             await Database.SaveChanges();
             return View("SpotifyCreated", metadata);
+        }
+
+        [HttpGet]
+        public ActionResult ExportPlaylist()
+        {
+            HelpPage = "export-playlist";
+            UseVue = false;
+
+            var isUserOnly = IsUserOnly(Filter);
+            var userQuery = Filter.UserQuery;
+            var title = isUserOnly
+                ? $"{userQuery.UserName}'s Songs"
+                : string.IsNullOrWhiteSpace(Filter.ShortDescription)
+                    ? "music4dance playlist"
+                    : Filter.Filename;
+            return View(
+                new ExportInfo
+                {
+                    Title = title,
+                    Count = 100,
+                    Filter = Filter.ToString(),
+                    IsAuthenticated = User.Identity?.IsAuthenticated ?? false,
+                    IsPremium = User.IsInRole("premium") || User.IsInRole("trial"),
+                    IsSelf = isUserOnly 
+                });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ExportPlaylist(
+            [Bind("Title,DescriptionPrefix,IncludeSpecificDances,Count,Filter")]
+            ExportInfo info)
+        {
+            HelpPage = "export-playlist";
+            UseVue = false;
+
+            info.IsAuthenticated = User.Identity?.IsAuthenticated ?? false;
+            info.IsPremium = User.IsInRole(DanceMusicCoreService.PremiumRole) || User.IsInRole(DanceMusicCoreService.TrialRole);
+            var filter = new SongFilter(info.Filter);
+            var isUserOnly = IsUserOnly(filter);
+            info.Description = isUserOnly ? $"All of {filter.UserQuery.UserName}'s votes and tags" : filter.Description;
+            info.Count =  isUserOnly ? 5000 : 100;
+
+            if (!ModelState.IsValid)
+            {
+                return View(info);
+            }
+
+            var user = await Database.FindUser(User.Identity?.Name);
+            Database.Context.ActivityLog.Add(new ActivityLog("CsvExport", user, info));
+            await Database.SaveChanges();
+
+            var spotifyId = await SpotifyFromFilter(filter, UserName);
+            var userName = isUserOnly && User.IsInRole(DanceMusicCoreService.DiagRole)
+                ? filter.UserQuery.UserName
+                : UserName;
+            var exporter = new PlaylistExport(info, SongIndex, UserManager, _backgroundTaskQueue, spotifyId);
+            var file = info.IncludeSpecificDances
+                ? await exporter.ExportFilteredDances(userName)
+                : await exporter.Export(userName);
+
+            return File(file, "text/csv", info.Title + ".csv");
+        }
+
+        private bool IsUserOnly(SongFilter filter)
+        {
+            var isUserOnly = filter.IsUserOnly;
+            var isDefault = string.Equals(filter.UserQuery?.UserName, UserName, StringComparison.InvariantCultureIgnoreCase);
+            var isDiag = User.IsInRole(DanceMusicCoreService.DiagRole);
+            return isUserOnly && (isDefault || isDiag);
         }
 
         //

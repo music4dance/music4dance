@@ -3325,7 +3325,7 @@ namespace m4dModels
             var enumerable = dances as IList<string> ?? dances.ToList();
             var tags = TagsFromDances(enumerable);
             var added = AddTags(tags, user, stats);
-            if (added != null && !added.IsEmpty)
+            if (added is { IsEmpty: false })
             {
                 SongProperties.Add(new SongProperty(AddedTags, added.ToString()));
             }
@@ -3333,6 +3333,68 @@ namespace m4dModels
             UpdateDanceRatings(enumerable, weight);
         }
 
+        public static string CsvHeader => "SongId,Title,Artist,Length,Tempo,Meter,Dance,Votes,My Vote,Favorite,music4dance,Spotify,ITunes,Song Tags,My Song Tags,Dance Tags,My Dance Tags";
+        public static string SparseHeader => "SongId,Dance,My Vote,Favorite,music4dance,My Song Tags,My Dance Tags";
+
+        public string ToCsv(string user, bool sparse = false)
+        {
+            var lines = new StringBuilder();
+            foreach (var danceRating in DanceRatings)
+            {
+                lines.Append(CsvForDance(danceRating.DanceId, user, sparse));
+            }
+            return lines.ToString();
+        }
+
+        public string CsvForDance(string danceId, string user, bool sparse = false)
+        {
+            var danceRating = DanceRatings.FirstOrDefault(r => r.DanceId == danceId);
+            if (danceRating == null)
+            {
+                return null;
+            }
+
+            var title = Title.Replace(@"""", @"""""");
+            var artist = Artist.Replace(@"""", @"""""");
+            var meter = Meter?.ToString();
+            var danceName = Dances.Instance.DanceFromId(danceId).Name;
+            var userRating = NormalizedUserDanceRating(user, danceId);
+            var modified = ModifiedBy.LastOrDefault(m => m.UserName == user);
+            var favorite = modified?.Like == null ? "" : modified.Like.ToString();
+            var link = $"https://www.music4dance.net/song/details/{SongId}";
+            var spotify = GetPurchaseLinks("S").FirstOrDefault()?.Link;
+            var itunes = GetPurchaseLinks("I").FirstOrDefault()?.Link;
+            var songTags = TagSummary.Description;
+            var danceTags = danceRating.TagSummary.Description;
+            var mySongTags = GetUserTags(user).Description;
+            var myDanceTags = danceRating.GetUserTags(user, this).Description;
+
+            return sparse 
+                ? $"{SongId},{danceName},{userRating},{favorite},{link},{myDanceTags},{myDanceTags}{Environment.NewLine}"
+                : $"{SongId},\"{title}\",\"{artist}\",{Length},{Tempo},{meter},{danceName},{danceRating.Weight},{userRating},{favorite},{link},{spotify},{itunes},{songTags},{mySongTags},{danceTags},{myDanceTags}{Environment.NewLine}";
+        }
+
+        public Meter Meter
+        {
+            get
+            {
+                var tagSummary = TagSummary;
+                if (tagSummary.HasTag("4/4:Tempo"))
+                {
+                    return new Meter(4, 4);
+                }
+                if (tagSummary.HasTag("3/4:Tempo"))
+                {
+                    return new Meter(3, 4);
+                }
+                if (tagSummary.HasTag("2/4:Tempo"))
+                {
+                    return new Meter(2, 4);
+                }
+
+                return null;
+            }
+        }
         #endregion
 
         #region Tags

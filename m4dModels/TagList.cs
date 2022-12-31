@@ -16,7 +16,7 @@ namespace m4dModels
 
         public string Summary { get; set; }
         public List<string> Tags => Parse(Summary);
-
+        internal string Description => string.Join(";", Tags.Where(t => !t.EndsWith(":Dance")).Select(t => new TagCount(t).Description));
         #endregion
 
         #region Constructors

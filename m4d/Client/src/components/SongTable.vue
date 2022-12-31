@@ -289,7 +289,6 @@ const textField = { key: "text" };
 const infoField = { key: "info" };
 const lengthField = { key: "length" };
 
-// TODONEXT: Start at SongChangeViewer
 export default AdminTools.extend({
   components: {
     DanceButton,

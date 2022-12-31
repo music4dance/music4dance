@@ -1,4 +1,6 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Linq;
+using System;
+using System.Text.RegularExpressions;
 
 namespace m4dModels.Utilities
 {
@@ -11,5 +13,9 @@ namespace m4dModels.Utilities
         }
 
         private static readonly Regex SingleSpacify = new Regex("\\s{2,}", RegexOptions.Compiled);
+
+        public static string CleanFilename(this string filename) {
+            return new string(filename.Except(System.IO.Path.GetInvalidFileNameChars()).ToArray());
+        }
     }
 }

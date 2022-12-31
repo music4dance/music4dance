@@ -153,6 +153,58 @@ namespace m4d.Controllers
             return saved;
         }
 
+        protected async Task<string> SpotifyFromFilter(SongFilter filter, string userName)
+        {
+            var filterString = filter.Normalize(userName).ToString();
+            var map = await GetSpotifyMap(userName);
+            return map.TryGetValue(filterString, out var spotify) ? spotify.Id : null;
+        }
+
+        // I'm pretty sure this will only come through as a single userName, since this is per request
+        private async Task<Dictionary<string, SpotifyCreate>> GetSpotifyMap(string userName) =>
+            _spotifyExports ??= await MapSpotify(userName);
+        private Dictionary<string, SpotifyCreate> _spotifyExports;
+
+        private async Task<Dictionary<string, SpotifyCreate>> MapSpotify(string userName)
+        {
+            var map = new Dictionary<string, SpotifyCreate>();
+            foreach (var export in await GetSpotify(userName))
+            {
+                if (export?.Info == null)
+                {
+                    continue;
+                }
+
+                var filter = new SongFilter(export.Info.Filter).Normalize(userName).ToString();
+                if (!map.ContainsKey(filter))
+                {
+                    map[filter] = export;
+                }
+            }
+            return map;
+        }
+
+        private async Task<List<SpotifyCreate>> GetSpotify(string userName)
+        {
+            if (string.IsNullOrEmpty(userName))
+            {
+                return new List<SpotifyCreate>();
+            }
+
+            var user = await UserManager.FindByNameAsync(userName);
+            if (user == null)
+            {
+                return new List<SpotifyCreate>();
+            }
+
+            var userId = user.Id;
+
+            return Database.ActivityLog.Where(l => l.ApplicationUserId == userId).OrderByDescending(e => e.Date)
+                .Select(ex => JsonConvert.DeserializeObject<SpotifyCreate>(ex.Details)).ToList();
+        }
+
+
+
         #region AdminTaskHelpers
 
         protected void StartAdminTask(string name)

@@ -10,7 +10,6 @@ using System.IO;
 using System.Linq;
 using m4dModels;
 using Azure.Search.Documents;
-using Azure;
 
 namespace SelfCrawler
 {

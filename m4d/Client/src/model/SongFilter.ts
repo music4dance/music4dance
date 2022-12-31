@@ -134,8 +134,16 @@ export class SongFilter {
   }
 
   public getPlayListRef(user?: string): string | undefined {
+    return this.getRef("createspotify", user);
+  }
+
+  public getExportRef(user?: string): string | undefined {
+    return this.getRef("exportplaylist", user);
+  }
+
+  private getRef(type: string, user?: string): string | undefined {
     return !this.isDefaultDance(undefined, user)
-      ? `/song/createspotify?filter=${this.encodedQuery}`
+      ? `/song/${type}?filter=${this.encodedQuery}`
       : undefined;
   }
 

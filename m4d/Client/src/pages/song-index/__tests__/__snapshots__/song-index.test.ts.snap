@@ -1651,6 +1651,7 @@ exports[`SongIndex.vue renders a song index page 1`] = `
           <div class="col-md-2">
             <div><a href="/song">New Search</a></div>
             <!---->
+            <!---->
           </div>
         </div>
         <!---->

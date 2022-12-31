@@ -332,8 +332,11 @@ namespace m4dModels
             DanceQuery.Dances.Count() < 2 &&
             UserQuery.IsDefault(user);
 
-        public bool IsSingDance => IsEmptyDance && DanceQuery.Dances.Count() == 1;
+        public bool IsSingleDance => IsEmptyDance && DanceQuery?.Dances.Count() == 1;
+        public bool HasDances => (DanceQuery?.Dances)?.Any() ?? false;
 
+        public bool IsUserOnly =>
+            EmptyExcept(new[] { "Page", "Action", "User" });
 
         public string Description
         {
@@ -495,6 +498,8 @@ namespace m4dModels
                 return sb.ToString().Trim();
             }
         }
+
+        public string Filename => ShortDescription.Replace(".", "").Replace(":", "-");
 
         public SongFilter Normalize(string userName)
         {

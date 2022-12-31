@@ -19,8 +19,11 @@
         ><div><a :href="newSearch">New Search</a></div>
         <div v-if="playListRef">
           <a :href="playListRef">Create Spotify Playlist</a>
-        </div></b-col
-      >
+        </div>
+        <div v-if="exportRef">
+          <a :href="exportRef">Export to File</a>
+        </div>
+      </b-col>
     </b-row>
     <b-row v-if="isAdmin">
       <b-col>
@@ -269,6 +272,11 @@ export default AdminTools.extend({
     },
     playListRef(): string | undefined {
       return this.filter.getPlayListRef(this.userName);
+    },
+    exportRef(): string | undefined {
+      return this.hasRole("showDiagnostics") || this.hasRole("beta")
+        ? this.filter.getExportRef(this.userName)
+        : undefined;
     },
   },
   methods: {

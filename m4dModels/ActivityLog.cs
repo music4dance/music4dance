@@ -53,6 +53,6 @@ namespace m4dModels
 
     public class SpotifyCreate { 
         public string Id { get; set; }
-        public PlaylistCreateInfo Info { get; set; }
+        public SpotifyCreateInfo Info { get; set; }
     }
 }

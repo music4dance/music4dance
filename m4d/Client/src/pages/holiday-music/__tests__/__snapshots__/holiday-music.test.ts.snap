@@ -2706,6 +2706,7 @@ exports[`HolidayMusic.vue renders a holiday music page 1`] = `
             <div class="col-md-2">
               <div><a href="/song/advancedsearchform">New Search</a></div>
               <div><a href="/song/createspotify?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))">Create Spotify Playlist</a></div>
+              <!---->
             </div>
           </div>
           <!---->
