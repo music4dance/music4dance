@@ -1664,6 +1664,36 @@
     ]
   },
   {
+    "id": "SSW",
+    "name": "Single Swing",
+    "blogTag": "single-swing",
+    "meter": {
+      "numerator": 4,
+      "denominator": 4
+    },
+    "tempoRange": {
+      "min": 140.0,
+      "max": 180.0
+    },
+    "instances": [
+      {
+        "tempoRange": {
+          "min": 140.0,
+          "max": 184.0
+        },
+        "id": "SSWS",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "Social Single Swing",
+        "style": "Social",
+        "competitionOrder": 0,
+        "exceptions": []
+      }
+    ]
+  },
+  {
     "id": "JAZ",
     "name": "Jazz",
     "meter": {

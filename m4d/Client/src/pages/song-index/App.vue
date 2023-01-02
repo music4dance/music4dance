@@ -20,14 +20,14 @@
       amore general solution.
     </b-alert>
     <song-library-header
-      v-if="model.filter.isSimple(model.userName)"
+      v-if="model.filter.isSimple(userName)"
       :filter="model.filter"
-      :user="model.userName"
+      :user="userName"
     ></song-library-header>
     <search-header
       v-else
       :filter="model.filter"
-      :user="model.userName"
+      :user="userName"
     ></search-header>
     <song-table
       :histories="model.histories"
@@ -51,16 +51,16 @@ import SongFooter from "@/components/SongFooter.vue";
 import SongLibraryHeader from "@/components/SongLibraryHeader.vue";
 import SongTable from "@/components/SongTable.vue";
 import { safeEnvironment } from "@/helpers/DanceEnvironmentManager";
+import AdminTools from "@/mix-ins/AdminTools";
 import { DanceEnvironment } from "@/model/DanceEnvironment";
 import { SongFilter } from "@/model/SongFilter";
 import { SongListModel } from "@/model/SongListModel";
 import "reflect-metadata";
 import { TypedJSON } from "typedjson";
-import Vue from "vue";
 
 declare const model: string;
 
-export default Vue.extend({
+export default AdminTools.extend({
   components: {
     Page,
     SearchHeader,

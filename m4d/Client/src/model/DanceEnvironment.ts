@@ -119,12 +119,13 @@ export class DanceEnvironment {
   public static filterByName(
     dances: DanceStats[],
     nameFilter: string,
-    includeChildren = false
+    includeChildren = false,
+    includeEmpty = false
   ): DanceStats[] {
     const filter = nameFilter.toLowerCase();
     return dances.filter(
       (d) =>
-        d.songCount > 0 &&
+        (includeEmpty || d.songCount > 0) &&
         (!filter ||
           DanceEnvironment.hasString(d, filter) ||
           (includeChildren &&

@@ -85,6 +85,7 @@
 
 <script lang="ts">
 import DanceName from "@/components/DanceName.vue";
+import AdminTools from "@/mix-ins/AdminTools";
 import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 import { DanceEnvironment } from "@/model/DanceEnvironment";
 import { DanceStats } from "@/model/DanceStats";
@@ -93,8 +94,9 @@ import { TypeStats } from "@/model/TypeStats";
 import DanceList from "@/pages/tempo-counter/components/DanceList.vue";
 import "reflect-metadata";
 import { PropType } from "vue";
+import mixins from "vue-typed-mixins";
 
-export default EnvironmentManager.extend({
+export default mixins(AdminTools, EnvironmentManager).extend({
   components: { DanceName, DanceList },
   props: {
     danceId: String,
@@ -132,7 +134,8 @@ export default EnvironmentManager.extend({
       return DanceEnvironment.filterByName(
         this.danceTypes,
         this.nameFilter,
-        false
+        false,
+        this.isAdmin
       ) as TypeStats[];
     },
     danceTypes(): TypeStats[] {
@@ -169,7 +172,8 @@ export default EnvironmentManager.extend({
       return DanceEnvironment.filterByName(
         dances,
         this.nameFilter,
-        includeChildren
+        includeChildren,
+        this.isAdmin
       );
     },
   },

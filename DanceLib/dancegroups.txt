@@ -3,7 +3,7 @@
     "Name": "Swing",
     "Id" : "SWG",
     "BlogTag" : "swing",
-    "DanceIds" : ["BBA","CLS","CSG","CST","ECS","HST","JIV","JSW","WCS","LHP"]
+    "DanceIds" : ["BBA","CLS","CSG","CST","ECS","HST","JIV","JSW","WCS","LHP","SSW"]
   },
   {
     "Name": "Tango",

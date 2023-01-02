@@ -49,20 +49,21 @@ namespace DanceTests
         {
             "Slow Foxtrot: Style=(American Smooth, International Standard), Delta=()",
             "Tango (Ballroom): Style=(American Smooth, International Standard), Delta=()",
+            "Motown: Style=(Social), Delta=()",
             "Rumba: Style=(American Rhythm, International Latin), Delta=()",
             "West Coast Swing: Style=(American Rhythm), Delta=()",
+            "Argentine Tango: Style=(Social), Delta=()",
             "Bachata: Style=(Social), Delta=()",
             "Lindy Hop: Style=(Social), Delta=()",
             "Carolina Shag: Style=(Social), Delta=()",
-            "Argentine Tango: Style=(Social), Delta=()",
-            "Motown: Style=(Social), Delta=()",
             "Cha Cha: Style=(American Rhythm, International Latin), Delta=(+0.50MPM)",
             "Hustle: Style=(American Rhythm), Delta=(+1.50MPM)",
             "East Coast Swing: Style=(American Rhythm), Delta=(-2.50MPM)",
+            "Single Swing: Style=(Social), Delta=(-3.50MPM)",
             "Jive: Style=(International Latin), Delta=(-6.50MPM)",
-            "Salsa: Style=(Social), Delta=(-8.50MPM)",
             "Jump Swing: Style=(Social), Delta=(-8.50MPM)",
-            "Balboa: Style=(Social), Delta=(-8.50MPM)"
+            "Balboa: Style=(Social), Delta=(-8.50MPM)",
+            "Salsa: Style=(Social), Delta=(-8.50MPM)"
         };
 
         private readonly string[] _31HNDCA =
@@ -70,19 +71,20 @@ namespace DanceTests
             "Slow Foxtrot: Style=(American Smooth, International Standard), Delta=()",
             "Tango (Ballroom): Style=(American Smooth, International Standard), Delta=()",
             "Cha Cha: Style=(American Rhythm, International Latin), Delta=()",
+            "Motown: Style=(Social), Delta=()",
             "Rumba: Style=(American Rhythm, International Latin), Delta=()",
             "West Coast Swing: Style=(American Rhythm), Delta=()",
+            "Argentine Tango: Style=(Social), Delta=()",
             "Bachata: Style=(Social), Delta=()",
             "Lindy Hop: Style=(Social), Delta=()",
             "Carolina Shag: Style=(Social), Delta=()",
-            "Argentine Tango: Style=(Social), Delta=()",
-            "Motown: Style=(Social), Delta=()",
             "Hustle: Style=(American Rhythm), Delta=(+1.50MPM)",
             "East Coast Swing: Style=(American Rhythm), Delta=(-2.50MPM)",
+            "Single Swing: Style=(Social), Delta=(-3.50MPM)",
             "Jive: Style=(International Latin), Delta=(-6.50MPM)",
-            "Salsa: Style=(Social), Delta=(-8.50MPM)",
             "Jump Swing: Style=(Social), Delta=(-8.50MPM)",
-            "Balboa: Style=(Social), Delta=(-8.50MPM)"
+            "Balboa: Style=(Social), Delta=(-8.50MPM)",
+            "Salsa: Style=(Social), Delta=(-8.50MPM)",
         };
 
 
@@ -99,7 +101,8 @@ namespace DanceTests
             "Argentine Tango: Style=(Social), Delta=()",
             "Motown: Style=(Social), Delta=()",
             "Hustle: Style=(American Rhythm), Delta=(+1.50MPM)",
-            "East Coast Swing: Style=(American Rhythm), Delta=(-2.50MPM)"
+            "East Coast Swing: Style=(American Rhythm), Delta=(-2.50MPM)",
+            "Single Swing: Style=(Social), Delta=(-3.50MPM)",
         };
 
 
