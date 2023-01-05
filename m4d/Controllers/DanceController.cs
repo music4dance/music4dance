@@ -106,7 +106,7 @@ namespace m4d.Controllers
             HelpPage = "dance-details";
 
             var ds = stats.FromName(dance);
-            var dbDance = Database.Dances.FirstOrDefault(d => d.Id == ds.DanceId);
+            var dbDance = ds == null ? null : Database.Dances.FirstOrDefault(d => d.Id == ds.DanceId);
 
             if (dbDance == null)
             {

@@ -172,7 +172,7 @@ namespace m4dModels
 
             foreach (var group in Groups)
             {
-                group.Children = group.DanceGroup.DanceIds.Select(id => Map[id]).ToList();
+                group.Children = group.DanceGroup.DanceIds.Where(id => Map.ContainsKey(id)).Select(id => Map[id]).ToList();
                 group.SongTags = TagAccumulator.MergeSummaries(
                     group.Children.Select(c => c.SongTags));
                 // TODO: At some point we should as azure search for this, since 
@@ -269,10 +269,7 @@ namespace m4dModels
                 await instance.FixupStats(database, false);
             }
             
-            DanceLibrary.Dances.Reset(
-                DanceLibrary.Dances.Load(
-                    instance.Dances.Select(d => d.DanceType).ToList(),
-                    instance.Groups.Select(d => d.DanceGroup).ToList()));
+            DanceLibrary.Dances.Reset(DanceLibrary.Dances.Load());
 
             return instance;
         }
