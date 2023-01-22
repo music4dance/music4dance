@@ -1667,6 +1667,11 @@
     "id": "SSW",
     "name": "Single Swing",
     "blogTag": "single-swing",
+    "synonyms": [
+      "Single-time Swing",
+      "East Coast Single Swing",
+      "Jitterbug"
+    ],
     "meter": {
       "numerator": 4,
       "denominator": 4

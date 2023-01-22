@@ -386,7 +386,6 @@ namespace m4d.Controllers
                 if (!exists)
                 {
                     playlist = new PlayList();
-                    Database.PlayLists.Add(playlist);
                 }
 
                 playlist.Type = PlayListType.SpotifyFromSearch;
@@ -398,6 +397,12 @@ namespace m4d.Controllers
                 playlist.Created = DateTime.Now;
                 playlist.Updated = DateTime.Now;
                 playlist.User = UserName;
+
+                if (!exists)
+                {
+                    Database.PlayLists.Add(playlist);
+                }
+
             }
         }
 
