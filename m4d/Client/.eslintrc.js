@@ -9,7 +9,6 @@ module.exports = {
         "eslint:recommended",
         "@vue/typescript/recommended",
         "@vue/prettier",
-        "@vue/prettier/@typescript-eslint",
     ],
     parserOptions: {
         parser: "@typescript-eslint/parser",
@@ -19,6 +18,7 @@ module.exports = {
         "no-debugger": process.env.NODE_ENV === "production" ? "error" : "warn",
         "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/no-use-before-define": "off",
+        "vue/multi-word-component-names": "off",
         "prettier/prettier": [
             "error",
             {

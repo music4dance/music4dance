@@ -102,7 +102,7 @@
           </sortable-header>
         </div>
       </template>
-      <template v-slot:cell(echo)="data" style="width: 100px">
+      <template v-slot:cell(echo)="data">
         <echo-icon
           :value="data.item.song.danceability"
           type="beat"
