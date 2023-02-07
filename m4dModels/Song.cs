@@ -20,8 +20,11 @@ using static System.Char;
 
 namespace m4dModels
 {
-    public static class FieldNames {
-
+    public enum ExportLevel
+    {
+        Sparse,
+        Personal,
+        Global
     }
 
     [DataContract]
@@ -3333,20 +3336,33 @@ namespace m4dModels
             UpdateDanceRatings(enumerable, weight);
         }
 
-        public static string CsvHeader => "SongId,Title,Artist,Length,Tempo,Meter,Dance,Votes,My Vote,Favorite,music4dance,Spotify,ITunes,Song Tags,My Song Tags,Dance Tags,My Dance Tags";
-        public static string SparseHeader => "SongId,Dance,My Vote,Favorite,music4dance,My Song Tags,My Dance Tags";
+        public static string GetCsvHeader(ExportLevel level)
+        {
+            switch (level)
+            {
+                case ExportLevel.Sparse:
+                    return "SongId,Dance,My Vote,Favorite,music4dance,My Song Tags,My Dance Tags";
+                case ExportLevel.Personal:
+                    return
+                        "SongId,Title,Artist,Length,Tempo,Meter,Dance,Votes,My Vote,Favorite,music4dance,Spotify,ITunes,Song Tags,My Song Tags,Dance Tags,My Dance Tags";
+                case ExportLevel.Global:
+                    return
+                        "SongId,Title,Artist,Length,Tempo,Meter,Dance,Votes,Beat,Energy,Mood,Song Tags, Dance Tags,Sample";
+            }
+            throw new ArgumentException($"{level} is invalid ", nameof(level));
+        }
 
-        public string ToCsv(string user, bool sparse = false)
+        public string ToCsv(string user, ExportLevel level = ExportLevel.Personal)
         {
             var lines = new StringBuilder();
             foreach (var danceRating in DanceRatings)
             {
-                lines.Append(CsvForDance(danceRating.DanceId, user, sparse));
+                lines.Append(CsvForDance(danceRating.DanceId, user, level));
             }
             return lines.ToString();
         }
 
-        public string CsvForDance(string danceId, string user, bool sparse = false)
+        public string CsvForDance(string danceId, string user, ExportLevel level = ExportLevel.Personal)
         {
             var danceRating = DanceRatings.FirstOrDefault(r => r.DanceId == danceId);
             if (danceRating == null)
@@ -3354,24 +3370,35 @@ namespace m4dModels
                 return null;
             }
 
+            var isUser = level != ExportLevel.Global;
             var title = Title.Replace(@"""", @"""""");
             var artist = Artist.Replace(@"""", @"""""");
             var meter = Meter?.ToString();
             var danceName = Dances.Instance.DanceFromId(danceId).Name;
-            var userRating = NormalizedUserDanceRating(user, danceId);
-            var modified = ModifiedBy.LastOrDefault(m => m.UserName == user);
+            var userRating = isUser ? NormalizedUserDanceRating(user, danceId) : 0;
+            var modified = isUser ? ModifiedBy.LastOrDefault(m => m.UserName == user) : null;
             var favorite = modified?.Like == null ? "" : modified.Like.ToString();
             var link = $"https://www.music4dance.net/song/details/{SongId}";
             var spotify = GetPurchaseLinks("S").FirstOrDefault()?.Link;
             var itunes = GetPurchaseLinks("I").FirstOrDefault()?.Link;
             var songTags = TagSummary.Description;
             var danceTags = danceRating.TagSummary.Description;
-            var mySongTags = GetUserTags(user).Description;
-            var myDanceTags = danceRating.GetUserTags(user, this).Description;
+            var mySongTags = isUser ? GetUserTags(user).Description : null;
+            var myDanceTags = isUser ? danceRating.GetUserTags(user, this).Description : null;
 
-            return sparse 
-                ? $"{SongId},{danceName},{userRating},{favorite},{link},{myDanceTags},{myDanceTags}{Environment.NewLine}"
-                : $"{SongId},\"{title}\",\"{artist}\",{Length},{Tempo},{meter},{danceName},{danceRating.Weight},{userRating},{favorite},{link},{spotify},{itunes},{songTags},{mySongTags},{danceTags},{myDanceTags}{Environment.NewLine}";
+            switch (level)
+            {
+                case ExportLevel.Sparse:
+                    return
+                        $"{SongId},{danceName},{userRating},{favorite},{link},{myDanceTags},{myDanceTags}{Environment.NewLine}";
+                case ExportLevel.Personal:
+                    return
+                        $"{SongId},\"{title}\",\"{artist}\",{Length},{Tempo},{meter},{danceName},{danceRating.Weight},{userRating},{favorite},{link},{spotify},{itunes},{songTags},{mySongTags},{danceTags},{myDanceTags}{Environment.NewLine}";
+                case ExportLevel.Global:
+                    return
+                        $"{SongId},\"{title}\",\"{artist}\",{Length},{Tempo},{meter},{danceName},{danceRating.Weight},{Danceability},{Energy},{Valence},{songTags},{danceTags},{Sample},{Environment.NewLine}";
+            }
+            throw new ArgumentException($"{level} is invalid ", nameof(level));
         }
 
         public Meter Meter

@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using m4d.Areas.Identity;
 using m4d.Scrapers;
+using m4d.Services;
 using m4d.Utilities;
 using m4d.ViewModels;
 using m4dModels;
@@ -51,13 +52,16 @@ namespace m4d.Controllers
     {
         public AdminController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
-            IDanceStatsManager danceStatsManager, IConfiguration configuration, ILogger<AdminController> logger) :
+            IDanceStatsManager danceStatsManager, IConfiguration configuration, ILogger<AdminController> logger, IBackgroundTaskQueue queue
+            ) :
             base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
         {
             _logger = logger;
+            _backgroundTaskQueue = queue;
         }
 
         private readonly ILogger<AdminController> _logger;
+        private readonly IBackgroundTaskQueue _backgroundTaskQueue;
 
         #region Commands
 
@@ -1027,6 +1031,31 @@ namespace m4d.Controllers
             return File(stream, "text/plain", $"tail-{dt.Year:d4}-{dt.Month:d2}-{dt.Day:d2}.txt");
         }
 
+
+        //
+        // Get: //BackupTail
+        [Authorize(Roles = "showDiagnostics")]
+        public async Task<ActionResult> ExportCsv()
+        {
+            var rawFilter = new RawSearch { ODataFilter = "Sample ne null and Sample ne '.' and DanceTags/any()" };
+            var exporter = new PlaylistExport(
+                new ExportInfo
+                {
+                    Title = "Full music4dance export",
+                    Filter = new SongFilter(rawFilter).ToString(),
+                    Count = -1,
+                    Description = "Please do not distribute this file publicly and remember to credit music4dance.net in any derived work. " +
+                    $"Copyright © {DateTime.Now.Year} by music4dance.net",
+                    IsPremium = true,
+                    IsSelf = true,
+                }, SongIndex, UserManager, _backgroundTaskQueue);
+
+            var bytes = await exporter.ExportFilteredDances(UserName);
+            var stream = new MemoryStream(bytes);
+
+            var dt = DateTime.Now;
+            return File(stream, "text/csv", $"songs-{dt.Year:d4}-{dt.Month:d2}-{dt.Day:d2}.csv");
+        }
 
         //
         // Get: //RestoreDatabase

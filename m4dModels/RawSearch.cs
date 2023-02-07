@@ -79,8 +79,8 @@ namespace m4dModels
                 QueryType = IsLucene ? SearchQueryType.Full : SearchQueryType.Simple,
                 Filter = ODataFilter,
                 IncludeTotalCount = true,
-                Skip = ((Page ?? 1) - 1) * pageSize,
-                Size = pageSize ?? 25,
+                Skip = pageSize == -1 ? 0 :((Page ?? 1) - 1) * pageSize,
+                Size = (pageSize == -1) ? null : pageSize ?? 25,
             };
             ret.SearchFields.AddRange(fields);
             ret.OrderBy.AddRange(order);
