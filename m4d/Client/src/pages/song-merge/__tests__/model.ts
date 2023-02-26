@@ -200,7 +200,7 @@ export const model = {
         {
           name: "Sample",
           value:
-            "https://p.scdn.co/mp3-preview/f5da92dfa692558d777d35ca812a24a5b0242134?cid=***REMOVED***",
+            "https://p.scdn.co/mp3-preview/f5da92dfa692558d777d35ca812a24a5b0242134?cid=e6dc118cd7604cd2b8bd0a979a18e6f8",
         },
       ],
     },
