@@ -16,7 +16,7 @@ const song = {
   artist: "Michael Gamble",
   length: 208,
   sample:
-    "https://p.scdn.co/mp3-preview/1002783fec8075c0b3ca970a91381d7227971fb6?cid=***REMOVED***",
+    "https://p.scdn.co/mp3-preview/1002783fec8075c0b3ca970a91381d7227971fb6?cid=e6dc118cd7604cd2b8bd0a979a18e6f8",
   danceability: 0.65,
   energy: 0.247,
   valence: 0.858,

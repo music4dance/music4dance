@@ -491,7 +491,7 @@ export const model = {
         {
           name: "Sample",
           value:
-            "https://p.scdn.co/mp3-preview/f047b4e25dba9c1bbe63db48a67ec3dd0df2217d?cid=***REMOVED***",
+            "https://p.scdn.co/mp3-preview/f047b4e25dba9c1bbe63db48a67ec3dd0df2217d?cid=e6dc118cd7604cd2b8bd0a979a18e6f8",
         },
       ],
     },
@@ -642,7 +642,7 @@ export const model = {
         {
           name: "Sample",
           value:
-            "https://p.scdn.co/mp3-preview/46917b27a504ee92b79bd5462a2fe45e61d6cb39?cid=***REMOVED***",
+            "https://p.scdn.co/mp3-preview/46917b27a504ee92b79bd5462a2fe45e61d6cb39?cid=e6dc118cd7604cd2b8bd0a979a18e6f8",
         },
       ],
     },
@@ -798,7 +798,7 @@ export const model = {
         {
           name: "Sample",
           value:
-            "https://p.scdn.co/mp3-preview/6199f639ba777ff76cbc196cf24627025fd9c7a2?cid=***REMOVED***",
+            "https://p.scdn.co/mp3-preview/6199f639ba777ff76cbc196cf24627025fd9c7a2?cid=e6dc118cd7604cd2b8bd0a979a18e6f8",
         },
       ],
     },
@@ -1654,7 +1654,7 @@ export const model = {
         {
           name: "Sample",
           value:
-            "https://p.scdn.co/mp3-preview/1292cbd6fb97fe3fbd54a76c9b94f00f19dc77e3?cid=***REMOVED***",
+            "https://p.scdn.co/mp3-preview/1292cbd6fb97fe3fbd54a76c9b94f00f19dc77e3?cid=e6dc118cd7604cd2b8bd0a979a18e6f8",
         },
         {
           name: ".Edit",
@@ -3011,7 +3011,7 @@ export const model = {
         {
           name: "Sample",
           value:
-            "https://p.scdn.co/mp3-preview/ffcb013786489200b1aa2de74fbb08f038260be7?cid=***REMOVED***",
+            "https://p.scdn.co/mp3-preview/ffcb013786489200b1aa2de74fbb08f038260be7?cid=e6dc118cd7604cd2b8bd0a979a18e6f8",
         },
         {
           name: ".Edit",
@@ -3205,7 +3205,7 @@ export const model = {
         {
           name: "Sample",
           value:
-            "https://p.scdn.co/mp3-preview/87a0ecab4c1c3a4f643c8d6f2b212f523246fc6b?cid=***REMOVED***",
+            "https://p.scdn.co/mp3-preview/87a0ecab4c1c3a4f643c8d6f2b212f523246fc6b?cid=e6dc118cd7604cd2b8bd0a979a18e6f8",
         },
         {
           name: ".Edit",

@@ -135,7 +135,7 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
           </div></span>
         </div>
         <div class="col-md-4"><audio controls="controls" class="mx-auto">
-            <source src="https://p.scdn.co/mp3-preview/f5da92dfa692558d777d35ca812a24a5b0242134?cid=***REMOVED***" type="audio/mpeg">
+            <source src="https://p.scdn.co/mp3-preview/f5da92dfa692558d777d35ca812a24a5b0242134?cid=e6dc118cd7604cd2b8bd0a979a18e6f8" type="audio/mpeg">
             Your browser does not support audio.
           </audio>
           <div>
@@ -1159,7 +1159,7 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
               <div class="list-group-item d-flex justify-content-between subprop">
-                Sample=https://p.scdn.co/mp3-preview/f5da92dfa692558d777d35ca812a24a5b0242134?cid=***REMOVED***
+                Sample=https://p.scdn.co/mp3-preview/f5da92dfa692558d777d35ca812a24a5b0242134?cid=e6dc118cd7604cd2b8bd0a979a18e6f8
                 <div role="group" class="btn-group"><button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="person plus fill" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-person-plus-fill b-icon bi">
                       <g>
                         <path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"></path>

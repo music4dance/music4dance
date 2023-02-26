@@ -406,7 +406,7 @@ export const model = {
         {
           name: "Sample",
           value:
-            "https://p.scdn.co/mp3-preview/6b24d967152a93a93c40013b1d91894750c25ed9?cid=***REMOVED***",
+            "https://p.scdn.co/mp3-preview/6b24d967152a93a93c40013b1d91894750c25ed9?cid=e6dc118cd7604cd2b8bd0a979a18e6f8",
         },
       ],
     },
@@ -1183,7 +1183,7 @@ export const model = {
         {
           name: "Sample",
           value:
-            "https://p.scdn.co/mp3-preview/6ab6388bbb01c20df8c92ef804bc52949b097539?cid=***REMOVED***",
+            "https://p.scdn.co/mp3-preview/6ab6388bbb01c20df8c92ef804bc52949b097539?cid=e6dc118cd7604cd2b8bd0a979a18e6f8",
         },
         {
           name: ".Edit",
@@ -2092,7 +2092,7 @@ export const model = {
         {
           name: "Sample",
           value:
-            "https://p.scdn.co/mp3-preview/b834007dae76250cb5c672ec408779c8ef929afd?cid=***REMOVED***",
+            "https://p.scdn.co/mp3-preview/b834007dae76250cb5c672ec408779c8ef929afd?cid=e6dc118cd7604cd2b8bd0a979a18e6f8",
         },
       ],
     },
@@ -3722,7 +3722,7 @@ export const model = {
         {
           name: "Sample",
           value:
-            "https://p.scdn.co/mp3-preview/7b21857d3491dfff794d3ded4bab5df6acad400e?cid=***REMOVED***",
+            "https://p.scdn.co/mp3-preview/7b21857d3491dfff794d3ded4bab5df6acad400e?cid=e6dc118cd7604cd2b8bd0a979a18e6f8",
         },
         {
           name: ".Edit",

@@ -505,7 +505,7 @@ export const model = {
       {
         name: "Sample",
         value:
-          "https://p.scdn.co/mp3-preview/8eaa547fb68f457612ac09d2e17925e35ae1defb?cid=***REMOVED***",
+          "https://p.scdn.co/mp3-preview/8eaa547fb68f457612ac09d2e17925e35ae1defb?cid=e6dc118cd7604cd2b8bd0a979a18e6f8",
       },
       {
         name: ".Edit",
