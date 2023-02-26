@@ -18,7 +18,7 @@ namespace m4d.Utilities
         private readonly IBackgroundTaskQueue _queue;
         private readonly string _spotifyId;
 
-        public PlaylistExport(ExportInfo info, SongIndex songIndex, UserManager<ApplicationUser> userManager, IBackgroundTaskQueue queue, string spotifyId)
+        public PlaylistExport(ExportInfo info, SongIndex songIndex, UserManager<ApplicationUser> userManager, IBackgroundTaskQueue queue, string spotifyId = null)
         {
             _info = info;
             _songIndex = songIndex;
@@ -30,7 +30,7 @@ namespace m4d.Utilities
 
         public async Task<byte[]> Export(string userName)
         {
-            return await ExportInternal(userName, song => song.ToCsv(userName, IsSparse));
+            return await ExportInternal(userName, song => song.ToCsv(userName, ExportLevel));
         }
 
         public async Task<byte[]> ExportFilteredDances(string userName)
@@ -44,7 +44,7 @@ namespace m4d.Utilities
             return await ExportInternal(userName,
                 song =>
                 {
-                    return string.Join("", danceIds.Select(id => song.CsvForDance(id, userName, IsSparse)));
+                    return string.Join("", danceIds.Select(id => song.CsvForDance(id, userName, ExportLevel)));
                 });
         }
 
@@ -54,7 +54,7 @@ namespace m4d.Utilities
             try
             {
                 var results = await FindSongs(userName, _info.Count);
-                csv.AppendLine(IsSparse ? Song.SparseHeader : Song.CsvHeader);
+                csv.AppendLine(Song.GetCsvHeader(ExportLevel));
 
                 foreach (var song in results.Songs)
                 {
@@ -65,8 +65,11 @@ namespace m4d.Utilities
                 {
                     csv.AppendLine();
                     csv.AppendLine($"\"Exported from https://www.music4dance.net on {DateTime.Now:f} - {_info.Description}\"");
-                    csv.AppendLine(
-                        $"Created by search:,\"https://www.music4dance.net/song/filtersearch?filter={_filter.ToString()}\"");
+                    if (_info.Count > 0)
+                    {
+                        csv.AppendLine(
+                            $"Created by search:,\"https://www.music4dance.net/song/filtersearch?filter={_filter.ToString()}\"");
+                    }
                     if (_spotifyId != null)
                     {
                         csv.AppendLine($"Spotify Playlist:,\"https://open.spotify.com/playlist/{_spotifyId}\"");
@@ -93,6 +96,6 @@ namespace m4d.Utilities
             return results;
         }
 
-        private bool IsSparse => !_info.IsPremium;
+        private ExportLevel ExportLevel => _info.IsPremium ? (_info.Count == -1 ? ExportLevel.Global : ExportLevel.Personal) : ExportLevel.Sparse;
     }
 }

@@ -229,6 +229,9 @@
             from = (DateTime.Now - new TimeSpan(1, 0, 0, 0)).ToShortDateString()
         })
     </li>
+    <li>
+        @Html.ActionLink("Export to CSV", "ExportCsv")
+    </li>
 
     <h3>Backup Delta</h3>
     using (Html.BeginForm("BackupDelta", "Admin", FormMethod.Post, new

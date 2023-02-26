@@ -338,7 +338,7 @@ export default AdminTools.extend({
       const my = user === "me" ? "my" : user + "'s";
       const i = user === "me" ? "I have" : user + " has";
 
-      var items = [
+      const items = [
         { text: `Include all songs in ${my} favorites`, value: "IL" },
         { text: `Exclude all songs in ${my} favorites`, value: "XL" },
         { text: `Include all songs ${i} tagged`, value: "IT" },
