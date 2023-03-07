@@ -1677,8 +1677,8 @@
       "denominator": 4
     },
     "tempoRange": {
-      "min": 140.0,
-      "max": 180.0
+      "min": 152.0,
+      "max": 176.0
     },
     "instances": [
       {
