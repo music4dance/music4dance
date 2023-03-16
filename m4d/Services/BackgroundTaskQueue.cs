@@ -20,7 +20,7 @@ public class BackgroundTaskQueue : IBackgroundTaskQueue
     private readonly ConcurrentQueue<Func<IServiceScopeFactory, CancellationToken, Task>> _items = new();
 
     // Holds the current count of tasks in the queue.
-    private readonly SemaphoreSlim _signal = new SemaphoreSlim(0);
+    private readonly SemaphoreSlim _signal = new(0);
 
     public void EnqueueTask(Func<IServiceScopeFactory, CancellationToken, Task> task)
     {

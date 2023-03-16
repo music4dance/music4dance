@@ -256,7 +256,7 @@ namespace m4d.Controllers
         //
         // GET: /Song/RawSearchForm
         [AllowAnonymous]
-        public ActionResult RawSearchForm([FromServices]IDanceStatsManager danceStatsManager)
+        public ActionResult RawSearchForm()
         {
             HelpPage = "advanced-search";
 
@@ -269,7 +269,6 @@ namespace m4d.Controllers
         // GET: /Song/RawSearch
         [AllowAnonymous]
         public async Task<ActionResult> RawSearch(
-            [FromServices]IDanceStatsManager danceStatsManager,
             [Bind(
                 "SearchText,ODataFilter,SortFields,SearchFields,Description,IsLucene,CruftFilter")]
             RawSearch rawSearch)
