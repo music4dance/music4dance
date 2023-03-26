@@ -1,7 +1,8 @@
 ﻿@model IEnumerable<m4dModels.Search>
 
 @{
-	var showDetails = ViewData.ContainsKey("ShowDetails") ? ViewBag.ShowDetails : false;
+    var showDetails = ViewData.ContainsKey("ShowDetails") ? ViewBag.ShowDetails : false;
+    var sort = ViewData.ContainsKey("Sort") ? ViewBag.Sort : null;
 }
 
 <table class="table table-striped table-songs col-sm">
@@ -53,7 +54,8 @@
                 {
                     id = item.Id,
                     user = item.ApplicationUser?.UserName,
-                    showDetails
+                    showDetails,
+                    sort
                 },new
                 {
                     role = "button",
