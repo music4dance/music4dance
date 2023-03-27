@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace m4d.Controllers
 {
@@ -21,8 +22,8 @@ namespace m4d.Controllers
         public ApplicationUsersController(DanceMusicContext context,
             UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
             ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-            IConfiguration configuration) :
-            base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
+            IConfiguration configuration, ILogger<ApplicationUsersController> logger) :
+            base(context, userManager, roleManager, searchService, danceStatsManager, configuration, logger)
         {
         }
 
@@ -149,7 +150,7 @@ namespace m4d.Controllers
                 }
                 catch (Exception ex)
                 {
-                    Trace.WriteLine(ex.Message);
+                    Logger.LogError(ex.Message);
                     ModelState.AddModelError(
                         "",
                         @"Unable to save changes. Try again, and if the problem persists, please <a href='https://music4dance.blog/feedback/'>report the issue</a>.");

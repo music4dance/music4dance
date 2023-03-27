@@ -6,10 +6,11 @@ using m4d.Utilities;
 using m4dModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Build.Framework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Stripe;
+using Microsoft.Extensions.Logging;
 
 namespace m4d.APIControllers
 {
@@ -24,8 +25,8 @@ namespace m4d.APIControllers
     {
         public RecomputeController(DanceMusicContext context,
             UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
-            ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, IConfiguration configuration) :
-            base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
+            ISearchServiceManager searchService, IDanceStatsManager danceStatsManager, IConfiguration configuration, ILogger<RecomputeController> logger) :
+            base(context, userManager, roleManager, searchService, danceStatsManager, configuration, logger)
         {
         }
 
@@ -33,7 +34,7 @@ namespace m4d.APIControllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get([FromServices]IServiceScopeFactory serviceScopeFactory, string id)
         {
-            if (!TokenRequirement.Authorize(Request, _configuration))
+            if (!TokenRequirement.Authorize(Request, Configuration))
             {
                 return Unauthorized();
             }
@@ -61,9 +62,7 @@ namespace m4d.APIControllers
             }
 
 
-            Trace.WriteLineIf(
-                TraceLevels.General.TraceInfo,
-                $"RecomputeController: id = {id}, changed = true, message = {message}");
+            Logger.LogInformation($"RecomputeController: id = {id}, changed = true, message = {message}");
             return Ok(new { changed = true, message });
         }
 
@@ -86,7 +85,7 @@ namespace m4d.APIControllers
             return message;
         }
 
-        private static async Task<string> DoHandleSubscriptions(IServiceScopeFactory serviceScopeFactory)
+        private async Task<string> DoHandleSubscriptions(IServiceScopeFactory serviceScopeFactory)
         {
             var message = "Updated Subscriptions.";
             try
@@ -103,7 +102,7 @@ namespace m4d.APIControllers
                     if (await userManager.IsInRoleAsync(user, DanceMusicCoreService.PremiumRole))
                     {
                         await userManager.RemoveFromRoleAsync(user, DanceMusicCoreService.PremiumRole);
-                        Trace.WriteLine($"Remove: {user.UserName}");
+                        Logger.LogInformation($"Remove: {user.UserName}");
                     }
                 }
                 Complete("Updated Subscriptions.");

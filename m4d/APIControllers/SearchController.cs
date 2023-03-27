@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
 using m4dModels;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace m4d.APIControllers
 {
@@ -23,8 +23,8 @@ namespace m4d.APIControllers
 
         public SearchController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
-            IDanceStatsManager danceStatsManager, IConfiguration configuration, IServer server) :
-            base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
+            IDanceStatsManager danceStatsManager, IConfiguration configuration, IServer server, ILogger<SearchController> logger) :
+            base(context, userManager, roleManager, searchService, danceStatsManager, configuration, logger)
         {
             _searchServiceManager = new SearchServiceManager(configuration);
             _server = server;
@@ -33,8 +33,7 @@ namespace m4d.APIControllers
         [HttpGet]
         public async Task<IActionResult> Get(string search)
         {
-            Trace.WriteLine(
-                $"Enter Search: {search}, User = {User.Identity?.Name}");
+            Logger.LogInformation($"Enter Search: {search}, User = {User.Identity?.Name}");
 
             if (string.IsNullOrWhiteSpace(search))
             {

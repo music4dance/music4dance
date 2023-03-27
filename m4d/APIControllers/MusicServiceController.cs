@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 using m4dModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Build.Framework;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace m4d.APIControllers
 {
@@ -20,8 +22,8 @@ namespace m4d.APIControllers
         public MusicServiceController(DanceMusicContext context,
             UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
             ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-            IConfiguration configuration) :
-            base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
+            IConfiguration configuration, ILogger<MusicServiceController> logger) :
+            base(context, userManager, roleManager, searchService, danceStatsManager, configuration, logger)
         {
         }
 
@@ -76,15 +78,11 @@ namespace m4d.APIControllers
             }
             catch (WebException e)
             {
-                Trace.WriteLineIf(
-                    TraceLevels.General.TraceError,
-                    $"GetServiceTracks Failed: {e.Message}");
+                Logger.LogError($"GetServiceTracks Failed: {e.Message}");
 
                 if (e.Message.Contains("Unauthorized"))
                 {
-                    Trace.WriteLineIf(
-                        TraceLevels.General.TraceError,
-                        "!!!!!AUTHORIZATION FAILED!!!!!");
+                    Logger.LogError("!!!!!AUTHORIZATION FAILED!!!!!");
                 }
             }
 

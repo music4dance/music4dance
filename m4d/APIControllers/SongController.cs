@@ -11,7 +11,9 @@ using m4dModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Build.Framework;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace m4d.APIControllers
 {
@@ -22,8 +24,8 @@ namespace m4d.APIControllers
     {
         public SongController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
-            IDanceStatsManager danceStatsManager, IConfiguration configuration) :
-            base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
+            IDanceStatsManager danceStatsManager, IConfiguration configuration, ILogger<SongController> logger) :
+            base(context, userManager, roleManager, searchService, danceStatsManager, configuration, logger)
         {
         }
 
@@ -32,7 +34,7 @@ namespace m4d.APIControllers
         public async Task<IActionResult> Get([FromServices] IMapper mapper,
             string search = null, string title = null, string artist = null, string filter = null)
         {
-            Trace.WriteLine(
+            Logger.LogInformation(
                 $"Enter Search: Search = { search }, Title = {title}, Artist={artist}, Filter = {filter}, User = {User.Identity?.Name}");
 
             IEnumerable<Song> songs;
@@ -72,7 +74,7 @@ namespace m4d.APIControllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get([FromServices]IMapper mapper, Guid id)
         {
-            Trace.WriteLine($"Enter Patch: SongId = {id}, User = {User.Identity?.Name}");
+            Logger.LogInformation($"Enter Patch: SongId = {id}, User = {User.Identity?.Name}");
 
             var song = await SongIndex.FindSong(id);
             return song == null
@@ -86,7 +88,7 @@ namespace m4d.APIControllers
         public async Task<IActionResult> Patch([FromServices]IMapper mapper, Guid id,
             [FromBody]SongHistory history)
         {
-            Trace.WriteLine($"Enter Patch: SongId = {id}, User = {User.Identity?.Name}");
+            Logger.LogInformation($"Enter Patch: SongId = {id}, User = {User.Identity?.Name}");
             if (User.Identity == null || !User.Identity.IsAuthenticated)
             {
                 return StatusCode((int)HttpStatusCode.Forbidden);
@@ -111,7 +113,7 @@ namespace m4d.APIControllers
         public async Task<IActionResult> Put([FromServices]IMapper mapper, Guid id,
             [FromBody]SongHistory history)
         {
-            Trace.WriteLine($"Enter Patch: SongId = {id}, User = {User.Identity?.Name}");
+            Logger.LogInformation($"Enter Patch: SongId = {id}, User = {User.Identity?.Name}");
             if (User.Identity == null || !User.Identity.IsAuthenticated)
             {
                 return StatusCode((int)HttpStatusCode.Forbidden);
@@ -133,7 +135,7 @@ namespace m4d.APIControllers
         public async Task<IActionResult> Post([FromServices]IMapper mapper,
             [FromBody]SongHistory history)
         {
-            Trace.WriteLine($"Enter Post: User = {User.Identity?.Name}");
+            Logger.LogInformation($"Enter Post: User = {User.Identity?.Name}");
             if (User.Identity == null || !User.Identity.IsAuthenticated)
             {
                 return StatusCode((int)HttpStatusCode.Forbidden);

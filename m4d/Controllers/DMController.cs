@@ -11,6 +11,7 @@ using m4dModels.Utilities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
 
@@ -30,13 +31,14 @@ namespace m4d.Controllers
         public DanceMusicController(
             DanceMusicContext context, UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
-            IDanceStatsManager danceStatsManager, IConfiguration configuration)
+            IDanceStatsManager danceStatsManager, IConfiguration configuration, ILogger logger = null)
         {
             Database =
                 new DanceMusicService(context, userManager, searchService, danceStatsManager);
             SearchService = searchService;
             DanceStatsManager = danceStatsManager;
             Configuration = configuration;
+            Logger = logger;
         }
 
         protected bool UseVue { get; set; } = false;
@@ -50,6 +52,8 @@ namespace m4d.Controllers
         protected ISearchServiceManager SearchService { get; }
 
         protected IDanceStatsManager DanceStatsManager { get; }
+
+        protected ILogger Logger { get; }
 
         protected UserManager<ApplicationUser> UserManager => Database.UserManager;
 

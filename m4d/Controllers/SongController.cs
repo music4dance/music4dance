@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 
 namespace m4d.Controllers
@@ -797,9 +798,7 @@ namespace m4d.Controllers
                                     continue;
                                 }
 
-                                Trace.WriteLineIf(
-                                    TraceLevels.General.TraceInfo,
-                                    $"{tried} songs tried.");
+                                Logger.LogInformation($"{tried} songs tried.");
                             }
 
                             await dms.SongIndex.UpdateAzureIndex(succeeded.Concat(failed), dms);
@@ -959,7 +958,7 @@ namespace m4d.Controllers
             }
             catch (Exception e)
             {
-                Trace.WriteLineIf(TraceLevels.General.TraceError, e.Message);
+                Logger.LogError(e.Message);
                 ViewBag.StatusMessage =
                     $"Unable to create a playlist at this time.  Please report the issue. ({e.Message})";
                 return View("Error");
@@ -1300,20 +1299,16 @@ namespace m4d.Controllers
                                             continue;
                                         }
 
-                                        Trace.WriteLineIf(
-                                            TraceLevels.General.TraceInfo,
-                                            $"{tried} songs tried.");
+                                        Logger.LogInformation($"{tried} songs tried.");
                                     }
                                     catch (AbortBatchException e)
                                     {
-                                        Trace.WriteLine(
-                                            $"Aborted Batch Process at {DateTime.Now}: {e.Message}");
+                                        Logger.LogWarning($"Aborted Batch Process at {DateTime.Now}: {e.Message}");
                                         break;
                                     }
                                     catch (Exception e)
                                     {
-                                        Trace.WriteLine(
-                                            $"{song.Title} by {song.Artist} failed with: {e.Message}");
+                                        Logger.LogError($"{song.Title} by {song.Artist} failed with: {e.Message}");
                                     }
                                 }
 
@@ -1495,8 +1490,6 @@ namespace m4d.Controllers
                 }
             }
 
-            Trace.Write($"Tags={tags}\r\n");
-
             return song.EditSongTags(spotify.ApplicationUser, tags, dms.DanceStats);
         }
 
@@ -1543,12 +1536,12 @@ namespace m4d.Controllers
                             }
                         }
 
-                        Trace.WriteLine($"Removing: {link.Link}");
+                        Logger.LogInformation($"Removing: {link.Link}");
                     }
                 }
                 catch (Exception e)
                 {
-                    Trace.WriteLine($"Link {link.Link} threw {e.Message}");
+                    Logger.LogError($"Link {link.Link} threw {e.Message}");
                 }
             }
 
@@ -1557,7 +1550,7 @@ namespace m4d.Controllers
                 return false;
             }
 
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Removed: {del.Count}");
+            Logger.LogInformation($"Removed: {del.Count}");
 
             foreach (var prop in del)
             {
@@ -1655,7 +1648,7 @@ namespace m4d.Controllers
                 return false;
             }
 
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Removed: {del.Count}");
+            Logger.LogInformation($"Removed: {del.Count}");
 
             foreach (var prop in del)
             {
@@ -1681,7 +1674,7 @@ namespace m4d.Controllers
                 return false;
             }
 
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Removed: {del.Count}");
+            Logger.LogInformation($"Removed: {del.Count}");
 
             foreach (var prop in del)
             {
@@ -1691,7 +1684,7 @@ namespace m4d.Controllers
             return true;
         }
 
-        private static bool CleanOrphanedAlbums(ICollection<SongProperty> props)
+        private bool CleanOrphanedAlbums(ICollection<SongProperty> props)
         {
             var del = new List<SongProperty>();
             // Check every purchase link and make sure it's still valid
@@ -1712,7 +1705,7 @@ namespace m4d.Controllers
                 return false;
             }
 
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Removed: {del.Count}");
+            Logger.LogInformation($"Removed: {del.Count}");
 
             foreach (var prop in del)
             {
@@ -1759,9 +1752,7 @@ namespace m4d.Controllers
                         }
                         else if (cluster.Count == 1)
                         {
-                            Trace.WriteLineIf(
-                                TraceLevels.General.TraceInfo,
-                                $"Bad Merge: {cluster[0].Title}");
+                            Logger.LogInformation($"Bad Merge: {cluster[0].Title}");
                         }
 
                         cluster = new List<Song> { song };

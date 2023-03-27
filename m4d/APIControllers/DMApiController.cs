@@ -4,6 +4,7 @@ using m4dModels.Utilities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace m4d.APIControllers
 {
@@ -11,7 +12,8 @@ namespace m4d.APIControllers
     public class DanceMusicApiController : ControllerBase
     {
         protected DanceMusicService Database { get; }
-        protected readonly IConfiguration _configuration;
+        protected IConfiguration Configuration;
+        protected ILogger Logger { get; }
 
         private MusicServiceManager _musicServiceManager;
 
@@ -19,16 +21,17 @@ namespace m4d.APIControllers
             // ReSharper disable once UnusedParameter.Local
             UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
             ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-            IConfiguration configuration)
+            IConfiguration configuration, ILogger logger = null)
         {
             Database =
                 new DanceMusicService(context, userManager, searchService, danceStatsManager);
             DanceStatsManager = danceStatsManager;
-            _configuration = configuration;
+            Configuration = configuration;
+            Logger = logger;
         }
 
         protected MusicServiceManager MusicServiceManager =>
-            _musicServiceManager ??= new MusicServiceManager(_configuration);
+            _musicServiceManager ??= new MusicServiceManager(Configuration);
 
         protected DanceMusicContext Context => Database.Context;
         protected SongIndex SongIndex => Database.SongIndex;

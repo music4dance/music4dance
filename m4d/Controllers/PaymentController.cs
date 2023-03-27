@@ -8,8 +8,8 @@ using Stripe;
 using Stripe.Checkout;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace m4d.Controllers
 {
@@ -30,6 +30,12 @@ namespace m4d.Controllers
             HelpPage = "subscriptions";
 
             var user = await UserManager.GetUserAsync(User);
+            if (user == null)
+            {
+                var message = "CreateCheckoutSession called by anonymous user";
+                Logger.LogError(message);
+                throw new Exception(message);
+            }
 
             if (IsFraudDetected(user) || !IsCommerceEnabled())
             {
@@ -114,15 +120,12 @@ namespace m4d.Controllers
             var sessionService = new SessionService();
             var session = sessionService.Get(session_id);
 
-            //var customerService = new CustomerService();
-            //var customer = customerService.Get(session.CustomerId);
-
             var user = await UserManager.GetUserAsync(User);
             if (user != null && session.PaymentStatus == "paid")
             {
-                Trace.WriteLine(session.ToJson());
+                Logger.LogInformation(session.ToJson());
 
-                var amount = ((decimal)session.AmountTotal) / 100;
+                var amount = ((decimal)(session.AmountTotal ?? 0)) / 100;
 
                 // TODO: Not sure why LineItems don't come through
 
@@ -165,16 +168,14 @@ namespace m4d.Controllers
 
                 return View(purchase);
             }
-            else
-            {
-                return View("Cancel");
-            }
+
+            return View("Cancel");
         }
 
         public async Task<IActionResult> Cancel(string session_id)
         {
             var sessionService = new SessionService();
-            var session = sessionService.Get(session_id);
+            var session = await sessionService.GetAsync(session_id);
 
             var user = await UserManager.GetUserAsync(User);
             if (user != null)
@@ -183,7 +184,7 @@ namespace m4d.Controllers
                 await UserManager.UpdateAsync(user);
             }
 
-            Trace.WriteLine(session.ToJson());
+            Logger.LogInformation(session.ToJson());
             Database.Context.ActivityLog.Add(new ActivityLog("FailedPurchase", user, session.ToJson()));
             await Database.SaveChanges();
 

@@ -54,13 +54,11 @@ namespace m4d.Controllers
             RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
             IDanceStatsManager danceStatsManager, IConfiguration configuration, ILogger<AdminController> logger, IBackgroundTaskQueue queue
             ) :
-            base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
+            base(context, userManager, roleManager, searchService, danceStatsManager, configuration, logger)
         {
-            _logger = logger;
             _backgroundTaskQueue = queue;
         }
 
-        private readonly ILogger<AdminController> _logger;
         private readonly IBackgroundTaskQueue _backgroundTaskQueue;
 
         #region Commands
@@ -126,7 +124,7 @@ namespace m4d.Controllers
         [Authorize(Roles = "dbAdmin")]
         public ActionResult UpdateWarning(string message = null)
         {
-            _logger.LogInformation($"Changed UpdateWarning to: {message}");
+            Logger.LogInformation($"Changed UpdateWarning to: {message}");
             GlobalState.UpdateMessage = message?.CleanWhitespace();
             return View("InitializationTasks");
         }
@@ -252,7 +250,7 @@ namespace m4d.Controllers
             TraceLevels.SetGeneralLevel(tl);
 
             ViewBag.Success = true;
-            ViewBag.Message = $"Trace level set: {tl.ToString()}";
+            ViewBag.Message = $"Trace level set: {tl}";
 
             return View("Results");
         }
@@ -264,12 +262,12 @@ namespace m4d.Controllers
         {
             ViewBag.Name = "Test Trace";
 
-            var logEnabled = _logger.IsEnabled(level);
+            var logEnabled = Logger.IsEnabled(level);
 
             ViewBag.Success = true;
             ViewBag.Message = $"Trace message sent: '{message}'.  LogLevel is enabled = {logEnabled}";
 
-            _logger.Log(level, $"Test Log via Logger: {level}");
+            Logger.Log(level, $"Test Log via Logger: {level}");
             Console.WriteLine($"Test Log via Console: {level}");
             switch (level)
             {
@@ -291,7 +289,7 @@ namespace m4d.Controllers
         // Get: //SetSearchIdx
         public ActionResult SetSearchIdx(string id)
         {
-            _logger.LogInformation($"Set Search Index: '{id}'");
+            Logger.LogInformation($"Set Search Index: '{id}'");
             SearchService.DefaultId = id;
 
             DanceStatsManager.LoadFromAzure(Database, id);
@@ -313,10 +311,10 @@ namespace m4d.Controllers
 
                 foreach (var facet in facets)
                 {
-                    Trace.WriteLine($"------------------{facet.Key}----------------");
+                    Logger.LogInformation($"------------------{facet.Key}----------------");
                     foreach (var value in facet.Value)
                     {
-                        Trace.WriteLine($"{value.Value}: {value.Count}");
+                        Logger.LogInformation($"{value.Value}: {value.Count}");
                     }
                 }
 
@@ -1081,7 +1079,7 @@ namespace m4d.Controllers
         public ActionResult UpdateDatabase(string state = null)
         {
             // CORETODO: Do we need this?
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Updating Database");
+            Logger.LogInformation("Updating Database");
             //var configuration = new Configuration();
             //var migrator = new DbMigrator(configuration);
             //migrator.Update(state);
@@ -1133,16 +1131,16 @@ namespace m4d.Controllers
 
             if (delete)
             {
-                Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Deleting Database");
+                Logger.LogInformation("Deleting Database");
                 context.Database.EnsureDeleted();
             }
 
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, $"Migrating to {targetMigration}");
+            Logger.LogInformation($"Migrating to {targetMigration}");
             migrator.Migrate(targetMigration);
 
             ReseedDb(userManager, roleManager);
 
-            Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting RestoreDB");
+            Logger.LogInformation("Exiting RestoreDB");
         }
 
         private void ReseedDb(UserManager<ApplicationUser> userManager,

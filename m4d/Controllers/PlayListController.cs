@@ -12,9 +12,11 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Build.Framework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging;
 
 namespace m4d.Controllers
 {
@@ -23,8 +25,8 @@ namespace m4d.Controllers
         public PlayListController(DanceMusicContext context,
             UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
             ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-            IConfiguration configuration) :
-            base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
+            IConfiguration configuration, ILogger<PlayListController> logger) :
+            base(context, userManager, roleManager, searchService, danceStatsManager, configuration, logger)
         {
         }
 
@@ -356,9 +358,7 @@ namespace m4d.Controllers
                     Tags = "-Fake:Tempo"
                 };
 
-                Trace.WriteLineIf(
-                    TraceLevels.General.TraceInfo,
-                    $"BulkCreateTopN: {name}, {description}, {search}");
+                Logger.LogInformation($"BulkCreateTopN: {name}, {description}, {search}");
 
                 if (metadata == null)
                 {
@@ -369,9 +369,7 @@ namespace m4d.Controllers
 
                 if (metadata == null)
                 {
-                    Trace.WriteLineIf(
-                        TraceLevels.General.TraceError,
-                        $"BulkCreateTopN:Unable to create playlist {name}");
+                    Logger.LogError($"BulkCreateTopN:Unable to create playlist {name}");
                     continue;
                 }
 
@@ -431,9 +429,7 @@ namespace m4d.Controllers
 
                 var search = SongFilter.CreateHolidayFilter(ds.DanceName);
 
-                Trace.WriteLineIf(
-                    TraceLevels.General.TraceInfo,
-                    $"BulkCreateHoliday: {name}, {description}, {search}");
+                Logger.LogInformation($"BulkCreateHoliday: {name}, {description}, {search}");
 
                 metadata ??= await MusicServiceManager.CreatePlaylist(
                     MusicService.GetService(ServiceType.Spotify), User, name, description,
@@ -441,9 +437,7 @@ namespace m4d.Controllers
 
                 if (metadata == null)
                 {
-                    Trace.WriteLineIf(
-                        TraceLevels.General.TraceError,
-                        $"BulkCreateHoliday:Unable to create playlist {name}");
+                    Logger.LogError($"BulkCreateHoliday:Unable to create playlist {name}");
                     continue;
                 }
 
