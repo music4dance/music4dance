@@ -4,7 +4,6 @@ using m4d.Areas.Identity;
 using m4dModels;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -84,6 +83,7 @@ namespace m4d
                 {
                     logging.ClearProviders();
                     logging.AddConsole();
+                    logging.AddDebug();
                     logging.AddAzureWebAppDiagnostics();
                 });
 

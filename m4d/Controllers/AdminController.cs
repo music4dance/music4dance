@@ -264,26 +264,28 @@ namespace m4d.Controllers
         {
             ViewBag.Name = "Test Trace";
 
+            var logEnabled = _logger.IsEnabled(level);
+
             ViewBag.Success = true;
-            ViewBag.Message = $"Trace message sent: '{message}'";
+            ViewBag.Message = $"Trace message sent: '{message}'.  LogLevel is enabled = {logEnabled}";
 
             _logger.Log(level, $"Test Log via Logger: {level}");
-            //switch (level)
-            //{
-            //    case LogLevel.Error:
-            //        Trace.TraceError("Test Log via Diagnostic Trace: Error");
-            //        break;
-            //    case LogLevel.Warning:
-            //        Trace.TraceWarning("Test Log via Diagnostic Trace: Warning");
-            //        break;
-            //    case LogLevel.Information:
-            //        Trace.TraceInformation("Test Log via Diagnostic Trace: Info");
-            //        break;
-            //}
+            Console.WriteLine($"Test Log via Console: {level}");
+            switch (level)
+            {
+                case LogLevel.Error:
+                    Trace.TraceError("Test Log via Diagnostic Trace: Error");
+                    break;
+                case LogLevel.Warning:
+                    Trace.TraceWarning("Test Log via Diagnostic Trace: Warning");
+                    break;
+                case LogLevel.Information:
+                    Trace.TraceInformation("Test Log via Diagnostic Trace: Info");
+                    break;
+            }
 
             return View("Results");
         }
-
 
         //
         // Get: //SetSearchIdx

@@ -142,8 +142,6 @@ namespace m4d
                 });
 
             var appRoot = Environment.WebRootPath;
-            var appData = Path.Combine(appRoot, "AppData");
-
             services.AddSingleton<ISearchServiceManager>(new SearchServiceManager(Configuration));
             services.AddSingleton<IDanceStatsManager>(new DanceStatsManager(appRoot));
 
