@@ -699,10 +699,13 @@ namespace m4d.Utilities
         private string GetEncodedImage(IFileProvider fileProvider, string path)
         {
             var fullPath = fileProvider.GetFileInfo(path).PhysicalPath;
-
-            using var image = Image.Load(fullPath, out var format);
+            if (fullPath == null)
+            {
+                throw new ArgumentException($"Invalid path name: {path}", nameof(path));
+            }
+            using var image = Image.Load(fullPath);
             using var m = new MemoryStream();
-            image.Save(m, format);
+            image.Save(m, image.Metadata.DecodedImageFormat);
             var imageBytes = m.ToArray();
             var base64String = Convert.ToBase64String(imageBytes);
             return base64String;
