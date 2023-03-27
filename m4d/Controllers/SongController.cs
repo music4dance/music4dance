@@ -961,7 +961,7 @@ namespace m4d.Controllers
             {
                 Trace.WriteLineIf(TraceLevels.General.TraceError, e.Message);
                 ViewBag.StatusMessage =
-                    "Unable to create a playlist at this time.  Please report the issue.";
+                    $"Unable to create a playlist at this time.  Please report the issue. ({e.Message})";
                 return View("Error");
             }
 
