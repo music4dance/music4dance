@@ -1,77 +1,34 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using m4dModels;
-using Azure.Search.Documents;
 
 namespace SelfCrawler
 {
-
-    [TestClass]
-    public class Crawler : IDisposable
+    internal class Crawler<T> : IDisposable
     {
-        private const string _root = "https://localhost:5001";
+        private readonly string _root;
         private const string _altRoot = "https://www.music4dance.net";
 
         private readonly IWebDriver _driver;
-        private readonly ISearchServiceManager _searchServiceManager;
 
-        public Crawler()
+        public Crawler(string root = "https://localhost:5001")
         {
             var chromeOptions = new ChromeOptions();
             chromeOptions.AddArguments("--ignore-certificate-errors");
+            chromeOptions.SetLoggingPreference(LogType.Browser, LogLevel.All);
             _driver = new ChromeDriver(chromeOptions);
-            _searchServiceManager = new SearchServiceManager(GetIConfiguration());
+            _root = root;
         }
-
         public void Dispose()
         {
             _driver.Quit();
             _driver.Dispose();
         }
 
-        [TestMethod]
-        public void CrawlAndStore()
-        {
-            var pages = CrawlPages();
-            SavePages(pages);
-            UploadPages(pages);
-        }
-
-        [TestMethod]
-        public void Crawl()
-        {
-            var pages = CrawlPages();
-            SavePages(pages);
-        }
-
-        [TestMethod]
-        public void LoadAndStore()
-        {
-            var pages = LoadPages();
-            UploadPages(pages);
-        }
-
-        [TestMethod]
-        public void SinglePage()
-        {
-            var url = "/home/readinglist";
-            var page = CrawlPage(url);
-            var pages = new List<PageSearch>() { page.GetEncoded() };
-            var client = CreateSearchClient();
-            var indexResults = client.UploadDocuments(pages);
-            Console.WriteLine(indexResults.Value);
-        }
-
-
-        private List<PageSearch> CrawlPages()
+        public List<T> CrawlPages(Func<string, string, IWebDriver, T> crawl)
         {
             _driver.Navigate().GoToUrl($"{_root}/home/sitemap");
 
@@ -92,69 +49,32 @@ namespace SelfCrawler
                 references.Add(RemoveRoot(reference));
             }
 
-            var pages = references.Select(r => CrawlPage(r));
+            var pages = references.Select(p => crawl(p, _root, _driver));
 
             return pages.ToList();
         }
 
-        private void UploadPages(List<PageSearch> pages)
+        public T SinglePage(Func<string, string, IWebDriver, T> crawl, string url)
+        {
+            return crawl(url, _root, _driver);
+        }
+
+        public IWebElement? TryFindElement(By by)
         {
             try
             {
-                var client = CreateSearchClient();
-                var indexResults = client.UploadDocuments(pages.Select(p => p.GetEncoded()));
-                Console.WriteLine(indexResults.Value);
+                return _driver.FindElement(by);
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine(ex.Message);
+                return null;
             }
         }
 
-        private void SavePages(List<PageSearch> pages)
+        public bool IsSelfReference(string url)
         {
-            var results = JsonConvert.SerializeObject(pages, Formatting.Indented, CamelCaseSerializerSettings);
-            File.WriteAllText(@"C:\Temp\SearchIndex.json", results);
-        }
-
-        private List<PageSearch> LoadPages()
-        {
-            var text = File.ReadAllText(@"C:\Temp\SearchIndex.json");
-            return JsonConvert.DeserializeObject<List<PageSearch>>(text);
-        }
-
-        // TODOSOON: 2/21/22
-        //  Consider adding dance aliasing (maybe not right now)
-        private PageSearch CrawlPage(string relativePath)
-        {
-            _driver.Navigate().GoToUrl($"{_root}{relativePath}?flat=true");
-            string? description = null;
-            var descriptionElement = TryFindElement(By.CssSelector("meta[name='description']"));
-            if (descriptionElement != null)
-            {
-               description = descriptionElement.GetDomAttribute("content");
-            }
-            var title = _driver.Title.Replace(@" - Music4Dance: Shall we dance...to music?", "");
-            var content = TryFindElement(By.Id("body-content"));
-            if (content == null)
-            {
-                Console.WriteLine($"{relativePath} has no body-content");
-                content = TryFindElement(By.TagName("body"));
-            }
-            var body = content?.Text.Replace(@"\r\n", " ").Replace("\r\n"," ");
-
-            if (relativePath == "/")
-            {
-                relativePath = "/home";
-            }
-
-            return new PageSearch
-            {
-                Url = relativePath.Trim('/'),
-                Title = title,
-                Description = description,
-                Content = body
-            };
+            return url.StartsWith(_root, StringComparison.OrdinalIgnoreCase) ||
+                url.StartsWith(_altRoot, StringComparison.OrdinalIgnoreCase);
         }
 
         private string RemoveRoot(string url)
@@ -169,41 +89,6 @@ namespace SelfCrawler
                 return url.Substring(_altRoot.Length);
             }
             return url;
-        }
-
-        protected static readonly JsonSerializerSettings CamelCaseSerializerSettings = new()
-        {
-            NullValueHandling = NullValueHandling.Ignore,
-            DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate,
-            ContractResolver = new DefaultContractResolver
-            {
-                NamingStrategy = new CamelCaseNamingStrategy()
-            }
-        };
-
-        protected IWebElement TryFindElement(By by)
-        {
-            try
-            {
-                return _driver.FindElement(by);
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        public static IConfiguration GetIConfiguration()
-        {
-            return new ConfigurationBuilder()
-                .AddUserSecrets("60050f39-d7c1-4b33-8b65-1e6cbb538661")
-                .AddEnvironmentVariables()
-                .Build();
-        }
-
-        private SearchClient CreateSearchClient(string id = "freep")
-        {
-            return _searchServiceManager.GetInfo(id).AdminClient;
         }
     }
 }

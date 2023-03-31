@@ -42,6 +42,7 @@ namespace m4dModels
 
         public virtual bool IsSearchable => true;
         public virtual bool ShowInProfile => true;
+        public string Domain => string.IsNullOrWhiteSpace(AssociateLink) ? null : new Uri(AssociateLink).DnsSafeHost;
         protected string AssociateLink { get; set; }
         protected string SearchRequest { get; set; }
         protected string TrackRequest { get; set; }

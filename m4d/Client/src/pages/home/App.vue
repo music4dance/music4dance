@@ -181,7 +181,7 @@ export default Vue.extend({
           type: "music",
           tryIt: "/identity/account/register",
           docs: "/tag-editing/",
-          posts: "lets-tag-some-songs/",
+          posts: "/lets-tag-some-songs/",
         },
         {
           title: "Find holiday music to dance to.",
