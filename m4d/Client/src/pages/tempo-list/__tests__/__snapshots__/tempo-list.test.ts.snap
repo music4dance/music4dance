@@ -650,15 +650,21 @@ exports[`TempoList.vue renders the tempo list page 1`] = `
         <div class="col">
           <p>
             Dancesport Tempi are pulled from the WDSF rulles:
-            <a href="http://www.worlddancesport.org/Rule/Athlete/Competition">
+            <a href="http://www.worlddancesport.org/Rule/Athlete/Competition" target="_blank">
               http://www.worlddancesport.org/Rule/Athlete/Competition</a>
             and the USADance rules:
-            <a href="https://usadance.org/general/custom.asp?page=Rules">https://usadance.org/general/custom.asp?page=Rules</a>
+            <a href="https://usadance.org/general/custom.asp?page=Rules" target="_blank">https://usadance.org/general/custom.asp?page=Rules</a>
           </p>
           <p>
             NDCA (National Dance Council of America) Tempi are pulled from here:
-            <a href="https://www.ndca.org/pages/ndca_rule_book/Default.asp">http://ndca.org/pages/ndca_rule_book/</a>
+            <a href="https://www.ndca.org/pages/ndca_rule_book/Default.asp" target="_blank">http://ndca.org/pages/ndca_rule_book/</a>
           </p>
+          <p>Some other sites with useful tempo information:</p>
+          <ul>
+            <li><a href="http://www.superdancing.com/tempo.asp" target="_blank">www.superdancing.com</a></li>
+            <li><a href="https://www.hollywoodballroomdc.com/recommended-tempos-for-dance-music/" target="_blank">www.hollywoodballroomdc.com</a></li>
+            <li><a href="https://www.centralhome.com/ballroomcountry/temp.htm" target="_blank">www.centralhome.com</a></li>
+          </ul>
           <p>
             If there are other organizations that you would like to see included
             in this list, please

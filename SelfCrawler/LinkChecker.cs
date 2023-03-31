@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using m4dModels;
-using static System.Net.WebRequestMethods;
 
 namespace SelfCrawler
 {
@@ -42,7 +41,9 @@ namespace SelfCrawler
             @"stripe.com",
             @"www.dreamstime.com",
             @"www.linkedin.com",
-            @"www.abscdj.com"
+            @"www.abscdj.com",
+            @"usadance.org"
+
         };
 
         public LinkChecker()
@@ -67,7 +68,7 @@ namespace SelfCrawler
         [TestMethod]
         public void CheckPageForBrokenLinks()
         {
-            var url = "/dances/carolina-shag";
+            var url = "/home/tempi";
             var result = _crawler.SinglePage(CrawlPage, url);
             ShowManualTests();
             Assert.IsTrue(result);
