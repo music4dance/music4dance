@@ -69,6 +69,12 @@
               :href="batchUrlBase('batchUpdateService', -1, 'serviceType=I')"
               >iTunes</b-dropdown-item
             >
+            <b-dropdown-item :href="batchUrlBase('batchEchoNest', -1)"
+              >EchoNest</b-dropdown-item
+            >
+            <b-dropdown-item :href="batchUrlBase('batchSamples', -1)"
+              >Samples</b-dropdown-item
+            >
             <b-dropdown-item>User Tags (deprecated)</b-dropdown-item>
             <b-dropdown-item>Tags (deprecated)</b-dropdown-item>
             <b-dropdown-item>Tag Summaries</b-dropdown-item>

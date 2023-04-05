@@ -39,8 +39,8 @@ namespace m4d.Controllers
         public SongController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
             IDanceStatsManager danceStatsManager, LinkGenerator linkGenerator,
-            IConfiguration configuration, IMapper mapper, IBackgroundTaskQueue queue) :
-            base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
+            IConfiguration configuration, IMapper mapper, IBackgroundTaskQueue queue, ILogger<SongController> logger) :
+            base(context, userManager, roleManager, searchService, danceStatsManager, configuration, logger)
         {
             HelpPage = "song-list";
             UseVue = true;

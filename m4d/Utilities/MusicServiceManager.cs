@@ -44,14 +44,25 @@ namespace m4d.Utilities
 
                 if (await UpdateSongAndService(dms, sd, service))
                 {
-                    if (service.Id == ServiceType.Spotify)
-                    {
-                        await GetEchoData(dms, sd);
-                        await GetSampleData(dms, sd);
-                    }
-
+                    await UpdateAudioData(dms, service, sd);
                     changed = true;
                 }
+            }
+
+            return changed;
+        }
+
+        public async Task<bool> UpdateAudioData(DanceMusicCoreService dms, MusicService service, Song sd)
+        {
+            var changed = false;
+            if (service.Id == ServiceType.Spotify  && (sd.Tempo == null || sd.Danceability == null))
+            {
+                changed |= await GetEchoData(dms, sd);
+            }
+
+            if ((service.Id == ServiceType.Spotify || service.Id == ServiceType.ITunes) && sd.Sample == null)
+            {
+                changed |= await GetSampleData(dms, sd);
             }
 
             return changed;
@@ -427,6 +438,7 @@ namespace m4d.Utilities
 
             await UpdateSongAndServices(dms, song);
             await UpdateFromTracks(dms, song, new List<ServiceTrack> { track });
+            await UpdateAudioData(dms, service, song);
 
             if (found)
             {
