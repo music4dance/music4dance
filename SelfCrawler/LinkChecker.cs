@@ -13,13 +13,15 @@ namespace SelfCrawler
     [TestClass]
     public class LinkChecker : IDisposable
     {
-        public TestContext TestContext { get; set; }
+        public TestContext? TestContext { get; set; }
 
-        private readonly Crawler<bool> _crawler;
+        private Crawler<bool>? _crawler;
         private readonly HttpClient _client = new ();
         private readonly HashSet<string> _knownGood = new();
         private readonly HashSet<string> _manualTest = new();
-        private int _errorCount = 0;
+        private int _errorCount;
+
+        private static readonly string _testUrl = @"https://m4d-linux.azurewebsites.net/";
 
         private readonly string[] _knownLogs = 
         {
@@ -46,28 +48,47 @@ namespace SelfCrawler
 
         };
 
-        public LinkChecker()
-        {
-            _crawler = new Crawler<bool>();
-            //_crawler = new Crawler<bool>("https://m4d-linux.azurewebsites.net/");
-        }
 
         public void Dispose()
         {
-            _crawler.Dispose();
+            _crawler?.Dispose();
         }
 
         [TestMethod]
-        public void CheckSiteForBrokenLinks()
+        public void CheckLocalSiteForBrokenLinks()
         {
+            CheckSiteForBrokenLinks(new Crawler<bool>());
+        }
+
+        [TestMethod]
+        public void CheckLocalPageForBrokenLinks()
+        {
+            CheckPageForBrokenLinks(new Crawler<bool>());
+        }
+
+        [TestMethod]
+        public void CheckTestSiteForBrokenLinks()
+        {
+            CheckSiteForBrokenLinks(new Crawler<bool>(_testUrl));
+        }
+
+        [TestMethod]
+        public void CheckTestPageForBrokenLinks()
+        {
+            CheckPageForBrokenLinks(new Crawler<bool>(_testUrl));
+        }
+
+        private void CheckSiteForBrokenLinks(Crawler<bool> crawler)
+        {
+            _crawler = crawler;
             var results = _crawler.CrawlPages(CrawlPage);
             ShowManualTests();
             Assert.IsTrue(results.All(r => r));
         }
 
-        [TestMethod]
-        public void CheckPageForBrokenLinks()
+        private void CheckPageForBrokenLinks(Crawler<bool> crawler)
         {
+            _crawler = crawler;
             var url = "/home/tempi";
             var result = _crawler.SinglePage(CrawlPage, url);
             ShowManualTests();
@@ -78,7 +99,7 @@ namespace SelfCrawler
         {
             driver.Navigate().GoToUrl($"{root}{relativePath}?flat=true");
 
-            return CheckLogs(relativePath, driver) && CheckLinks(relativePath, root, driver);
+            return CheckLogs(relativePath, driver) && CheckLinks(relativePath, driver);
         }
 
         private bool CheckLogs(string relativePath, IWebDriver driver)
@@ -88,10 +109,10 @@ namespace SelfCrawler
 
             if (logEntries.Any())
             {
-                TestContext.WriteLine($"FAILED (LOGS): {relativePath}");
+                TestContext?.WriteLine($"FAILED (LOGS): {relativePath}");
                 foreach (var logEntry in logEntries)
                 {
-                    TestContext.WriteLine($"{logEntry.Level}: {logEntry.Message}");
+                    TestContext?.WriteLine($"{logEntry.Level}: {logEntry.Message}");
                 }
 
                 _errorCount += logEntries.Count;
@@ -111,22 +132,22 @@ namespace SelfCrawler
             return _knownLogs.Any(log.Contains);
         }
 
-        private bool CheckLinks(string relativePath, string root, IWebDriver driver)
+        private bool CheckLinks(string relativePath, IWebDriver driver)
         {
             var references = driver.FindElements(By.TagName("a"));
             Assert.IsNotNull(references);
-            var errors = CheckElements(references, "href", root);
+            var errors = CheckElements(references, "href");
 
             var images = driver.FindElements(By.TagName("img"));
             Assert.IsNotNull(images);
-            errors = errors.Concat(CheckElements(images, "src", root)).ToList();
+            errors = errors.Concat(CheckElements(images, "src")).ToList();
 
             if (errors.Any())
             {
-                TestContext.WriteLine($"FAILED (LINKS): {relativePath}");
+                TestContext?.WriteLine($"FAILED (LINKS): {relativePath}");
                 foreach (var error in errors)
                 {
-                    TestContext.WriteLine(error);
+                    TestContext?.WriteLine(error);
                 }
 
                 _errorCount += errors.Count();
@@ -141,12 +162,13 @@ namespace SelfCrawler
             return true;
         }
 
-        private IEnumerable<string> CheckElements(IReadOnlyCollection<IWebElement> elements, string attribute, string root)
+        private IEnumerable<string> CheckElements(IReadOnlyCollection<IWebElement> elements, string attribute)
         {
             var errors = new List<string>();
             foreach (var element in elements)
             {
                 var reference = element.GetDomProperty(attribute);
+                Debug.Assert(_crawler != null, nameof(_crawler) + " != null");
                 if (string.IsNullOrWhiteSpace(reference) || _crawler.IsSelfReference(reference)
                     || IsServiceReference(reference) || _knownGood.Contains(reference) ||
                     reference.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase))
@@ -195,7 +217,7 @@ namespace SelfCrawler
                 }
             }
 
-            if (reference.Contains("ws-na.amazon-adsystem.com", StringComparison.OrdinalIgnoreCase))
+            if (reference.Contains("-na.amazon-adsystem.com", StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }
@@ -205,10 +227,10 @@ namespace SelfCrawler
 
         private void ShowManualTests()
         {
-            TestContext.WriteLine("----- MANUAL TESTS -----");
+            TestContext?.WriteLine("----- MANUAL TESTS -----");
             foreach (var url in _manualTest)
             {
-                TestContext.WriteLine(url);
+                TestContext?.WriteLine(url);
             }
         }
 
