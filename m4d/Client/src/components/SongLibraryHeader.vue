@@ -111,13 +111,17 @@ export default Vue.extend({
   },
   methods: {
     search(): void {
-      window.location.href = `/song/filterSearch?filter=${this.filter.encodedQuery}`;
+      const filter = this.filter.clone();
+      filter.searchString = this.searchString;
+      filter.page = undefined;
+      window.location.href = `/song/filterSearch?filter=${filter.encodedQuery}`;
     },
     chooseDance(danceId?: string): void {
       const filter = this.filter.clone();
       filter.dances = danceId;
       filter.sortOrder = "Dances";
       filter.page = undefined;
+      filter.searchString = this.searchString;
       window.location.href = `/song/filterSearch?filter=${filter.encodedQuery}`;
     },
   },
