@@ -142,7 +142,7 @@ namespace m4d.Controllers
             foreach (var song in modified)
             {
                 AdminMonitor.UpdateTask("UpdateService", i);
-                await MusicServiceManager.UpdateSongAndServices(dms, song, true);
+                await MusicServiceManager.UpdateSongAndServices(dms, song);
                 i += 1;
             }
 
