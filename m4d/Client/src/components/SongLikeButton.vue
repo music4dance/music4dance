@@ -2,7 +2,7 @@
   <like-button
     :state="state"
     :authenticated="!!user"
-    :title="this.song.title"
+    :title="song.title"
     :scale="scale"
     :toggleBehavior="toggleBehavior"
     @click-like="onClick"

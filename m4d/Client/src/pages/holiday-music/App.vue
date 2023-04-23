@@ -20,7 +20,7 @@
       <song-table
         :histories="model.histories"
         :filter="model.filter"
-        :hideSort="model.hideSort"
+        :hideSort="true"
         :hiddenColumns="['Track']"
       ></song-table>
       <song-footer :model="model" :href="pageLink"></song-footer>

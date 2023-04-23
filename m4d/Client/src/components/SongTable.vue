@@ -15,9 +15,7 @@
         ></b-form-checkbox>
       </template>
       <template v-slot:cell(action)="data">
-        <b-button @click="onAction(data.item.song, $event)">{{
-          action
-        }}</b-button>
+        <b-button @click="onAction(data.item.song)">{{ action }}</b-button>
       </template>
       <template v-slot:head(play)>
         <div :class="likeHeader">Like/Play</div>

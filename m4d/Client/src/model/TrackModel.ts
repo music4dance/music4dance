@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
+import { AudioData } from "./AudioData";
 import { ServiceType } from "./Purchase";
 
 export enum ServiceName {
@@ -33,8 +34,14 @@ export class TrackModel {
   @jsonMember public isPlayable?: boolean;
   @jsonArrayMember(String) public availableMarkets?: string[];
   @jsonMember public sampleUrl?: string;
+  @jsonMember public audioData?: AudioData;
 
   public get serviceType(): ServiceType {
     return this.service[0].toLowerCase() as ServiceType;
   }
+}
+
+@jsonObject
+export class EnhancedTrackModel extends TrackModel {
+  @jsonMember public songId?: string;
 }

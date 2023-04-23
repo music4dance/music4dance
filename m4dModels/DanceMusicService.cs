@@ -573,20 +573,18 @@ namespace m4dModels
                 string name = null;
                 string description = null;
 
-                var type = PlayListType.SongsFromSpotify;
-
                 if (cells.Length < 3)
                 {
                     continue;
                 }
 
+                Enum.TryParse(cells[1], out PlayListType type);
+
                 // m4dId
                 var userId = cells[0];
 
-
                 // This is a special case for SongFromSpotify [m4did,DanceTags,url]
-                if ((cells.Length == 3 || cells.Length == 4) &&
-                    type == PlayListType.SongsFromSpotify)
+                if ((cells.Length == 3 || cells.Length == 4))
                 {
                     var r = new Regex(
                         @"https://open.spotify.com/(user/(?<user>[a-z0-9-]*)/)?playlist/(?<id>[a-z0-9]*)",
@@ -608,13 +606,6 @@ namespace m4dModels
                     if (cells.Length < 5)
                     {
                         continue;
-                    }
-
-                    // Type
-                    // TODO: Once this is published to the server, we can get rid of this check for legacy type "Spotify"
-                    if (!string.Equals(cells[1], "Spotify"))
-                    {
-                        Enum.TryParse(cells[1], out type);
                     }
 
                     // Dance/tags
@@ -1087,6 +1078,16 @@ namespace m4dModels
             }
 
             await SongIndex.SaveSongs(songs);
+        }
+
+        public async Task<ApplicationUser> AddPseudoUser(string userName, string email)
+        {
+            var user = await FindOrAddUser(userName, DanceMusicCoreService.PseudoRole);
+            user.Email = email;
+            user.EmailConfirmed = true;
+            user.Privacy = 255;
+            await Context.SaveChangesAsync();
+            return user;
         }
 
         private void AddRole(string id, string role)

@@ -41,15 +41,18 @@ namespace m4dModels
             {
                 var rg = url.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
 
-                if (rg.Length != 6)
+                if (rg.Length == 4)
                 {
-                    return null;
+                    var id = rg[3];
+                    return $"https://api.spotify.com/v1/playlists/{id}";
                 }
+                else if (rg.Length == 6)
+                {
+                    var user = rg[3];
+                    var id = rg[5];
 
-                var user = rg[3];
-                var id = rg[5];
-
-                return $"https://api.spotify.com/v1/users/{user}/playlists/{id}";
+                    return $"https://api.spotify.com/v1/users/{user}/playlists/{id}";
+                }
             }
 
             return null;
@@ -208,6 +211,11 @@ namespace m4dModels
         {
             var alias = email.Split('@')[0];
             return $"https://open.spotify.com/user/{alias}/playlist/{playList.Id}";
+        }
+
+        public override string BuildPlayListLink(string id)
+        {
+            return $"https://open.spotify.com/playlist/{id}";
         }
 
         private async Task<string[]> BuildGenres(dynamic track, Func<string, Task<dynamic>> getResult)

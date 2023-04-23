@@ -489,6 +489,20 @@ public partial class DanceMusicCoreService : IDisposable
         await SaveChanges();
     }
 
+    public async Task AddPlaylist(string id, PlayListType type, string user, string tags)
+    {
+        var playlist = new PlayList
+        {
+            Id = id,
+            Type = type,
+            User = user,
+            Data1 = tags,
+            Created = DateTime.Now,
+        };
+        PlayLists.Add(playlist);
+        await SaveChanges();
+    }
+
     #endregion
 
     #region User

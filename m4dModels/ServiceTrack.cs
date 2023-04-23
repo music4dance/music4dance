@@ -64,6 +64,10 @@ namespace m4dModels
         [DataMember]
         public string[] AvailableMarkets { get; set; }
 
+        [DataMember]
         public string SampleUrl { get; set; }
+
+        [DataMember]
+        public EchoTrack AudioData { get; set; }
     }
 }

@@ -16,6 +16,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
 using SixLabors.ImageSharp;
+using Stripe;
 using TagList = m4dModels.TagList;
 
 namespace m4d.Utilities
@@ -400,11 +401,18 @@ namespace m4d.Utilities
 
             if (service.Id != ServiceType.Amazon)
             {
-                var request = service.BuildTrackRequest(id);
-                var results = await GetMusicServiceResults(request, service);
-                ret = await service.ParseTrackResults(
-                    results,
-                    (Func<string, Task<dynamic>>)(req => GetMusicServiceResults(req, service)));
+                try
+                {
+                    var request = service.BuildTrackRequest(id);
+                    var results = await GetMusicServiceResults(request, service);
+                    ret = await service.ParseTrackResults(
+                        results,
+                        (Func<string, Task<dynamic>>)(req => GetMusicServiceResults(req, service)));
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine($"Failed to get track ${id} from ${service.Name}: {ex.Message}");
+                }
             }
 
             if (s_trackCache.Count > 10000)
@@ -451,7 +459,7 @@ namespace m4d.Utilities
         private static readonly Dictionary<string, ServiceTrack> s_trackCache = new();
 
         public async Task<GenericPlaylist> LookupPlaylist(MusicService service, string url,
-            IEnumerable<string> oldTrackList, IPrincipal principal = null)
+            IEnumerable<string> oldTrackList = null, IPrincipal principal = null)
         {
             var results =
                 await GetMusicServiceResults(service.BuildLookupRequest(url), service, principal);
@@ -460,8 +468,10 @@ namespace m4d.Utilities
                 return null;
             }
 
-            var name = results.name;
-            var description = results.description;
+            var name = results.name.ToString();
+            var description = results.description.ToString();
+            var ownerId = results.owner?.id?.ToString();
+            var ownerName = results.owner?.display_name?.ToString();
 
             IList<ServiceTrack> tracks = await service.ParseSearchResults(
                 results,
@@ -489,14 +499,27 @@ namespace m4d.Utilities
 
             return new GenericPlaylist
             {
-                Name = name.ToString(),
-                Description = description.ToString(),
+                Name = name,
+                Description = description,
+                OwnerId = ownerId,
+                OwnerName = ownerName,
                 Tracks = tracks
             };
         }
 
+        public async Task<GenericPlaylist> LookupPlaylistWithAudioData(MusicService service, string url,
+            IEnumerable<string> oldTrackList = null, IPrincipal principal = null)
+        {
+            var playlist = await LookupPlaylist(service, url, oldTrackList, principal);
+            if (playlist != null && service.Id == ServiceType.Spotify)
+            {
+                await FillEchoTracks(playlist);
+            }
+            return playlist;
+        }
+
         // TODO: Handle services other than spotify
-        public async Task<List<PlaylistMetadata>> GetPlaylists(MusicService service, IPrincipal principal)
+            public async Task<List<PlaylistMetadata>> GetPlaylists(MusicService service, IPrincipal principal)
         {
             if (service.Id != ServiceType.Spotify)
             {
@@ -522,6 +545,70 @@ namespace m4d.Utilities
 
             return playlists;
         }
+
+        public async Task<ServiceUser> LookupServiceUser(MusicService service, string id, IPrincipal principal = null)
+        {
+            if (service.Id != ServiceType.Spotify)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(service),
+                    "LookupServiceUser currently only supports Spotify");
+            }
+
+            try
+            {
+                var userResults = await GetMusicServiceResults(
+                    $"https://api.spotify.com/v1/users/{id}", service, principal);
+                if (userResults == null)
+                {
+                    return null;
+                }
+
+                var user = new ServiceUser
+                {
+                    Id = id,
+                    Name = userResults.display_name,
+                    Playlists = await GetUserPlaylists(service, id, principal)
+                };
+
+                return user;
+            }
+            catch (Exception ex)
+            {
+                Trace.Write($"Unable to look up user {id} on {service.Name}: {ex.Message}");
+                return null;
+            }
+        }
+
+        private async Task<List<SimplePlaylist>> GetUserPlaylists(MusicService service, string id,
+            IPrincipal principal = null)
+        {
+            var url = $"https://api.spotify.com/v1/users/{id}/playlists";
+            var playlist = new List<SimplePlaylist>();
+            while (url != null)
+            {
+                var results = await GetMusicServiceResults(url, service, principal);
+                if (results == null)
+                {
+                    url = null;
+                }
+                else
+                {
+                    url = results.next;
+                    foreach (var item in results.items)
+                        playlist.Add(new SimplePlaylist
+                        {
+                            Id = item.id,
+                            Name = item.name,
+                            Description = item.description,
+                            TrackCount = item.tracks.total,
+                            Owner = item.owner?.id,
+                        });
+                }
+            }
+            return playlist;
+        }
+
 
         private List<PlaylistMetadata> ParsePlaylistResults(dynamic results)
         {
@@ -554,7 +641,7 @@ namespace m4d.Utilities
         public virtual async Task<EchoTrack> LookupEchoTrack(string id, MusicService service)
         {
             var request =
-                $"https://api.spotify.com/v1/audio-features/{id}"; //$"http://developer.echonest.com/api/v4/track/profile?api_key=B0SEV0FNKNEOHGFB0&format=json&id=spotify:track:{id}&bucket=audio_summary";
+                $"https://api.spotify.com/v1/audio-features/{id}"; 
             try
             {
                 var results = await GetMusicServiceResults(request, service);
@@ -567,6 +654,39 @@ namespace m4d.Utilities
                     $"Error looking up echo track {id}: {e.Message}");
                 return null;
             }
+        }
+
+        public virtual async Task FillEchoTracks(GenericPlaylist playlist)
+        {
+            const int chunkSize = 10;
+            try
+            {
+                var c = playlist.Tracks.Count;
+                var service = MusicService.GetService(ServiceType.Spotify);
+                for (var i = 0; i < playlist.Tracks.Count; i += chunkSize)
+                {
+                    var ids = string.Join(',', playlist.Tracks.Skip(i).Take(chunkSize).Select(t => t.TrackId));
+                    Trace.WriteLine($"Tracks: {ids}");
+                    var request = $"https://api.spotify.com/v1/audio-features?ids={ids}";
+
+                    var results = await GetMusicServiceResults(request, service);
+                    var audio = results.audio_features;
+
+                    for (var j = 0; j < int.Min(chunkSize, c-i); j++)
+                    {
+                        var track = playlist.Tracks[i+j];
+                        var echoTrack = audio[j];
+                        track.AudioData = EchoTrack.BuildEchoTrack(echoTrack);
+                    }
+                }
+            }
+            catch (WebException e)
+            {
+                Trace.WriteLineIf(
+                    TraceLevels.General.TraceError,
+                    $"Error looking up echo tracks: {e.Message}");
+            }
+
         }
 
         #endregion

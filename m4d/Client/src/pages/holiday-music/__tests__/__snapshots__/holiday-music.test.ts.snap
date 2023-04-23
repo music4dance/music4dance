@@ -30,6 +30,8 @@ exports[`HolidayMusic.vue renders a holiday music page 1`] = `
               <ul tabindex="-1" aria-labelledby="tools-menu__BV_toggle_" id="tools-menu__BV_toggle_menu_" class="dropdown-menu">
                 <li role="presentation"><a role="menuitem" href="/home/counter" target="_self" class="dropdown-item">Tempo Counter</a></li>
                 <li role="presentation"><a role="menuitem" href="/home/tempi" target="_self" class="dropdown-item">Tempi (Tempos)</a></li>
+                <li role="presentation"><a role="menuitem" href="/song/advancedsearchform" target="_self" class="dropdown-item">Advanced Search</a></li>
+                <!---->
               </ul>
             </li>
             <li class="nav-item b-nav-dropdown dropdown"><a role="button" aria-haspopup="true" aria-expanded="false" href="#" target="_self" class="nav-link dropdown-toggle"><span>Info</span></a>
@@ -82,19 +84,19 @@ exports[`HolidayMusic.vue renders a holiday music page 1`] = `
                 <th role="columnheader" scope="col" aria-colindex="1" class="">
                   <div class="likeHeader">Like/Play</div>
                 </th>
-                <th role="columnheader" scope="col" aria-colindex="2" class=""><span><span><a href="/song/holidaymusic?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))-Title" id="Title">Title <!----></a> <!----></span></span></th>
-                <th role="columnheader" scope="col" aria-colindex="3" class=""><span><span><a href="/song/holidaymusic?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))-Artist" id="Artist">Artist <!----></a> <!----></span></span></th>
-                <th role="columnheader" scope="col" aria-colindex="4" class=""><span><span><a href="/song/holidaymusic?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))-Tempo" id="Tempo">Tempo (BPM) <!----></a> <!----></span></span></th>
+                <th role="columnheader" scope="col" aria-colindex="2" class=""><span><span>Title</span></span></th>
+                <th role="columnheader" scope="col" aria-colindex="3" class=""><span><span>Artist</span></span></th>
+                <th role="columnheader" scope="col" aria-colindex="4" class=""><span><span>Tempo (BPM)</span></span></th>
                 <th role="columnheader" scope="col" aria-colindex="5" class=""><span><span>Length</span></span></th>
                 <th role="columnheader" scope="col" aria-colindex="6" class="">
-                  <div class="echoHeader"><span><span><a href="/song/holidaymusic?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))-Beat" id="Beat"><img src="/images/icons/beat-10.png" width="25" height="25"> <!----></a> <!----></span></span> <span><span><a href="/song/holidaymusic?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))-Energy" id="Energy"><img src="/images/icons/energy-10.png" width="25" height="25"> <!----></a> <!----></span></span> <span><span><a href="/song/holidaymusic?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))-Mood" id="Mood"><img src="/images/icons/mood-10.png" width="25" height="25"> <!----></a> <!----></span></span></div>
+                  <div class="echoHeader"><span><span><img src="/images/icons/beat-10.png" width="25" height="25"></span></span> <span><span><img src="/images/icons/energy-10.png" width="25" height="25"></span></span> <span><span><img src="/images/icons/mood-10.png" width="25" height="25"></span></span></div>
                 </th>
                 <th role="columnheader" scope="col" aria-colindex="7" class=""><span><span>Dances</span></span></th>
                 <th role="columnheader" scope="col" aria-colindex="8" class="">
                   <div>Tags</div>
                 </th>
                 <th role="columnheader" scope="col" aria-colindex="9" class="">
-                  <div class="orderHeader"><span><span><a href="/song/holidaymusic?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))-Created" id="Created"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="asterisk" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-asterisk b-icon bi"><g><path d="M8 0a1 1 0 0 1 1 1v5.268l4.562-2.634a1 1 0 1 1 1 1.732L10 8l4.562 2.634a1 1 0 1 1-1 1.732L9 9.732V15a1 1 0 1 1-2 0V9.732l-4.562 2.634a1 1 0 1 1-1-1.732L6 8 1.438 5.366a1 1 0 0 1 1-1.732L7 6.268V1a1 1 0 0 1 1-1z"></path></g></svg> <!----></a> <!----></span></span></div>
+                  <div class="orderHeader"><span><span><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="asterisk" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-asterisk b-icon bi"><g><path d="M8 0a1 1 0 0 1 1 1v5.268l4.562-2.634a1 1 0 1 1 1 1.732L10 8l4.562 2.634a1 1 0 1 1-1 1.732L9 9.732V15a1 1 0 1 1-2 0V9.732l-4.562 2.634a1 1 0 1 1-1-1.732L6 8 1.438 5.366a1 1 0 0 1 1-1.732L7 6.268V1a1 1 0 0 1 1-1z"></path></g></svg></span></span></div>
                 </th>
               </tr>
             </thead>

@@ -66,6 +66,11 @@ namespace m4d.Controllers
             return Vue("Resume", "David W. Gray's Resume", "resume");
         }
 
+        public IActionResult SpotifyExplorer()
+        {
+            return Vue("Spotify Explorer", "Tools to look at spotify users and playlists with a music4dance lense", "spotify-explorer", danceEnvironment: true);
+        }
+
         public IActionResult TermsOfService()
         {
             return View();

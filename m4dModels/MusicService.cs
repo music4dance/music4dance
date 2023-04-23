@@ -125,6 +125,11 @@ namespace m4dModels
             return null;
         }
 
+        public virtual string BuildPlayListLink(string id)
+        {
+            return null;
+        }
+
         public string BuildTrackRequest(string id, string region = null)
         {
             var ret = BuildRequest(TrackRequest, id);

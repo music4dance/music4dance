@@ -66,6 +66,9 @@ module.exports = {
         "song-merge": {
             entry: "src/pages/song-merge/main.ts",
         },
+        "spotify-explorer": {
+            entry: "src/pages/spotify-explorer/main.ts",
+        },
         "tag-index": {
             entry: "src/pages/tag-index/main.ts",
         },
@@ -84,8 +87,8 @@ module.exports = {
     },
     configureWebpack: (config) => {
         if (process.env.NODE_ENV === "production") {
-            config.output.filename = "js/[name].prod01A.js";
-            config.output.chunkFilename = "js/[name].prod01A.js";
+            config.output.filename = "js/[name].prod01B.js";
+            config.output.chunkFilename = "js/[name].prod01B.js";
         } else {
             config.output.filename = "js/[name].local.js";
             config.output.chunkFilename = "js/[name].local.js";

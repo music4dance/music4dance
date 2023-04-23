@@ -30,6 +30,8 @@ exports[`NewMusic.vue renders a new music page 1`] = `
               <ul tabindex="-1" aria-labelledby="tools-menu__BV_toggle_" id="tools-menu__BV_toggle_menu_" class="dropdown-menu">
                 <li role="presentation"><a role="menuitem" href="/home/counter" target="_self" class="dropdown-item">Tempo Counter</a></li>
                 <li role="presentation"><a role="menuitem" href="/home/tempi" target="_self" class="dropdown-item">Tempi (Tempos)</a></li>
+                <li role="presentation"><a role="menuitem" href="/song/advancedsearchform" target="_self" class="dropdown-item">Advanced Search</a></li>
+                <!---->
               </ul>
             </li>
             <li class="nav-item b-nav-dropdown dropdown"><a role="button" aria-haspopup="true" aria-expanded="false" href="#" target="_self" class="nav-link dropdown-toggle"><span>Info</span></a>

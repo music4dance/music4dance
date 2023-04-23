@@ -11,7 +11,7 @@ export default Vue.extend({
     })();
   },
   methods: {
-    async checkServiceAndWarn(input: string): Promise<void> {
+    async checkServiceAndAdd(input: string, warn?: boolean): Promise<void> {
       const matcher = this.serviceMatcher;
       const service = matcher.match(input);
       if (!service) {
@@ -20,19 +20,25 @@ export default Vue.extend({
       const found = await this.checkService(input);
 
       if (!found) {
-        const okay = await this.$bvModal.msgBoxConfirm(
-          `It looks like you may have tried to search by ${service.name} id for a song not in the music4dance catalog.
+        let okay = false;
+        if (!warn) {
+          okay = await this.$bvModal.msgBoxConfirm(
+            `It looks like you may have tried to search by ${service.name} id for a song not in the music4dance catalog.
          Would you like to add the song?`,
-          {
-            title: "Music Service Search?",
-            okTitle: "Add Song",
-          }
-        );
+            {
+              title: "Music Service Search?",
+              okTitle: "Add Song",
+            }
+          );
+        }
         if (okay) {
           const id = matcher.parseId(input, service);
           window.location.href = `/song/augment?id=${id}`;
         }
       }
+    },
+    async checkServiceAndWarn(input: string): Promise<void> {
+      return this.checkServiceAndAdd(input, true);
     },
     async checkService(input: string): Promise<boolean> {
       const matcher = this.serviceMatcher;

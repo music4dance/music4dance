@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -81,13 +80,7 @@ namespace m4d.Controllers
                 return View(applicationUser);
             }
 
-            var user = await Database.FindOrAddUser(
-                applicationUser.UserName,
-                DanceMusicCoreService.PseudoRole);
-            user.Email = applicationUser.Email;
-            user.EmailConfirmed = true;
-            user.Privacy = 255;
-            await Context.SaveChangesAsync();
+            await Database.AddPseudoUser(applicationUser.UserName, applicationUser.Email);
             return RedirectToAction("Index");
         }
 

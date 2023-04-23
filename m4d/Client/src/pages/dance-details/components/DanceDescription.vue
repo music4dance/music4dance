@@ -38,9 +38,6 @@ export default EnvironmentManager.extend({
     danceId: { type: String, required: true },
     editing: Boolean,
   },
-  data() {
-    return new (class {})();
-  },
   computed: {
     descriptionInternal: {
       get: function (): string {

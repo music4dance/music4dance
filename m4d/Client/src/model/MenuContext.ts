@@ -16,6 +16,7 @@ export class MenuContext implements MenuContextInterface {
   public roles?: string[];
   public indexId?: string;
   public expiration?: Date;
+  public updateMessage?: string;
   public xsrfToken?: string;
 
   public constructor(init?: MenuContextInterface) {
@@ -36,6 +37,10 @@ export class MenuContext implements MenuContextInterface {
 
   public get canEdit(): boolean {
     return !!this.roles?.find((r) => r === "canEdit");
+  }
+
+  public get isBeta(): boolean {
+    return !!this.roles?.find((r) => r === "beta");
   }
 
   public hasRole(role: string): boolean {

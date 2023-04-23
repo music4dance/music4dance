@@ -63,6 +63,14 @@
               >Tempo Counter</b-dropdown-item
             >
             <b-dropdown-item href="/home/tempi">Tempi (Tempos)</b-dropdown-item>
+            <b-dropdown-item href="/song/advancedsearchform"
+              >Advanced Search</b-dropdown-item
+            >
+            <b-dropdown-item
+              v-if="context.isBeta || context.isAdmin"
+              href="/home/spotifyexplorer"
+              >Spotify Explorer</b-dropdown-item
+            >
           </b-nav-item-dropdown>
           <b-nav-item-dropdown text="Info">
             <b-dropdown-item :href="context.helpLink">Help</b-dropdown-item>
@@ -165,7 +173,7 @@
       @dismissed="onDismissed"
     >
       Your premium subcription will expire in
-      {{ Math.round(context.daysToExpiration) }}
+      {{ Math.round(context.daysToExpiration || 0) }}
       day(s). Please
       <a href="/home/contribute" class="alert-link">click here</a> to renew.
       Thanks for your continued support.

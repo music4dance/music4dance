@@ -1,8 +1,8 @@
 <template>
   <div>
     <p>
-      Add a song by entering an ID or URL from ITunes or Spotify and clicking
-      the <b>Find</b> button
+      Add a song by entering an ID or URL from ITunes or Spotify (or dragging
+      the song into the text box) and clicking the <b>Find</b> button
     </p>
     <b-form inline v-show="!searching">
       <b-input-group>

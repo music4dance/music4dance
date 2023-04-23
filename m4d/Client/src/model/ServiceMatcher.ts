@@ -1,6 +1,8 @@
 import axios from "axios";
 import "reflect-metadata";
 import { TypedJSON } from "typedjson";
+import { PlaylistModel } from "./PlaylistModel";
+import { ServiceUser } from "./ServiceUser";
 import { SongDetailsModel } from "./SongDetailsModel";
 
 export interface Service {
@@ -44,11 +46,36 @@ export class ServiceMatcher {
     if (!rgx) {
       throw new Error(`Invalid id ${id}: No regex found for ${service.name}`);
     }
-    const match = rgx.exec(id);
-    if (!match) {
+    const ret = this.parse([rgx], id);
+
+    if (!ret) {
       throw new Error(`Invalid id ${id}: No match found for ${service.name}`);
     }
 
+    return ret;
+  }
+
+  public parsePlaylist(id: string): string | null {
+    const patterns = [
+      /https:\/\/open\.spotify\.com\/playlist\/([a-z0-9]{22})/gi,
+    ];
+    return this.parse(patterns, id);
+  }
+
+  public parseUser(id: string): string | null {
+    const patterns = [/https:\/\/open\.spotify\.com\/user\/([^?/]*)/gi];
+    return this.parse(patterns, id);
+  }
+
+  private parse(patterns: RegExp[], id: string): string | null {
+    const rgx = patterns.find((r) => id.match(r));
+    if (!rgx) {
+      return null;
+    }
+    const match = rgx.exec(id);
+    if (!match) {
+      return null;
+    }
     return match[1];
   }
 
@@ -64,6 +91,40 @@ export class ServiceMatcher {
         const response = await axios.get(uri);
         const songModel = TypedJSON.parse(response.data, SongDetailsModel);
         return songModel;
+      } catch (e) {
+        // Swallow errors
+      }
+    }
+    return undefined;
+  }
+
+  public async findSpotifyPlaylist(
+    serviceString: string
+  ): Promise<PlaylistModel | undefined> {
+    const id = this.parsePlaylist(serviceString);
+    if (id) {
+      try {
+        const uri = `/api/serviceplaylist/s${id}`;
+        const response = await axios.get(uri);
+        const trackModel = TypedJSON.parse(response.data, PlaylistModel);
+        return trackModel;
+      } catch (e) {
+        // Swallow errors
+      }
+    }
+    return undefined;
+  }
+
+  public async findSpotifyUser(
+    serviceString: string
+  ): Promise<ServiceUser | undefined> {
+    const id = this.parseUser(serviceString);
+    if (id) {
+      try {
+        const uri = `/api/serviceuser/s${id}`;
+        const response = await axios.get(uri);
+        const userModel = TypedJSON.parse(response.data, ServiceUser);
+        return userModel;
       } catch (e) {
         // Swallow errors
       }
