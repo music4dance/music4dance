@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -401,6 +402,70 @@ namespace m4dModels.Tests
             Assert.AreEqual(
                 "3/4:Tempo:1|Argentine Tango:Dance:1|DWTS:Other:1|Episode 9:Other:1|International:Music:1|Latin:Music:2|Season 20:Other:1|Tango Vals:Dance:1|United States:Other:1|World:Music:1",
                 song.TagSummary.ToString());
+        }
+
+        [TestMethod]
+        public async Task AdminAddUserProperties()
+        {
+            var service = await GetService();
+            const string init =
+                @".Create=	User=Amstl|P	Time=11/27/2021 09:01:22	Title=Santa Claus Is Comin' To Town - (Cha Cha Cha / 32 BPM)	Artist=Tanz Orchester Klaus Hallen	Length=217	Album:00=Christmas	Track:00=3	Tag+=Cha Cha:Dance	DanceRating=CHA+1	Purchase:00:SA=7jy1ckFTNouRlg7PfTBrCc	Purchase:00:SS=1eUvYOYBDuTBX9uStaCXfB	.Edit=	User=batch-i|P	Time=11/27/2021 09:01:23	Purchase:00:IS=504512032	Purchase:00:IA=504512003	Tag+=Pop:Music	.Edit=	User=Amstl|P	Time=11/27/2021 09:02:53	Tag+=Rumba:Dance	DanceRating=RMB+1	.Edit=	User=batch-s|P	Time=04/04/2023 16:58:27	Tempo=128.0	Danceability=0.803	Energy=0.591	Valence=0.935	Tag+=4/4:Tempo";
+            var song = new Song();
+            await song.Load(init, service);
+
+            Trace.WriteLine(song.TagSummary);
+            Assert.AreEqual(@"4/4:Tempo:1|Cha Cha:Dance:1|Pop:Music:1|Rumba:Dance:1", song.TagSummary.ToString());
+
+            bool changed = await song.AdminAddUserProperties("Amstl|P",
+                new[] { new SongProperty(Song.AddedTags, "Holiday:Other|Christmas:Other") },
+                service);
+
+            Assert.IsTrue(changed);
+
+            Trace.WriteLine(song.TagSummary);
+            Assert.AreEqual(@"4/4:Tempo:1|Cha Cha:Dance:1|Christmas:Other:1|Holiday:Other:1|Pop:Music:1|Rumba:Dance:1", song.TagSummary.ToString());
+        }
+
+        [TestMethod]
+        public async Task AdminAddUserPropertiesEnd()
+        {
+            var service = await GetService();
+            const string init =
+                @".Create=	User=Amstl|P	Time=11/27/2021 09:01:22	Title=Santa Claus Is Comin' To Town - (Cha Cha Cha / 32 BPM)	Artist=Tanz Orchester Klaus Hallen	Length=217	Album:00=Christmas	Track:00=3	Tag+=Cha Cha:Dance	DanceRating=CHA+1	Purchase:00:SA=7jy1ckFTNouRlg7PfTBrCc	Purchase:00:SS=1eUvYOYBDuTBX9uStaCXfB";
+            var song = new Song();
+            await song.Load(init, service);
+
+            Trace.WriteLine(song.TagSummary);
+            Assert.AreEqual(@"Cha Cha:Dance:1", song.TagSummary.ToString());
+
+            bool changed = await song.AdminAddUserProperties("Amstl|P",
+                new[] { new SongProperty(Song.AddedTags, "Holiday:Other|Christmas:Other") },
+                service);
+            Assert.IsTrue(changed);
+
+            Trace.WriteLine(song.TagSummary);
+            Assert.AreEqual(@"Cha Cha:Dance:1|Christmas:Other:1|Holiday:Other:1", song.TagSummary.ToString());
+        }
+
+        [TestMethod]
+        public async Task AdminAddUserPropertiesDuplicate()
+        {
+            var service = await GetService();
+            const string init =
+                @".Create=	User=Amstl|P	Time=11/27/2021 09:01:22	Title=Santa Claus Is Comin' To Town - (Cha Cha Cha / 32 BPM)	Artist=Tanz Orchester Klaus Hallen	Length=217	Album:00=Christmas	Track:00=3	Tag+=Cha Cha:Dance	DanceRating=CHA+1	Purchase:00:SA=7jy1ckFTNouRlg7PfTBrCc	Purchase:00:SS=1eUvYOYBDuTBX9uStaCXfB	Tag+=Holiday:Other|Christmas:Other";
+            var song = new Song();
+            await song.Load(init, service);
+
+            Trace.WriteLine(song.TagSummary);
+            Assert.AreEqual(@"Cha Cha:Dance:1|Christmas:Other:1|Holiday:Other:1", song.TagSummary.ToString());
+
+            bool changed = await song.AdminAddUserProperties("Amstl|P",
+                new[] { new SongProperty(Song.AddedTags, "Holiday:Other|Christmas:Other") },
+                service);
+            Assert.IsFalse(changed);
+
+            Trace.WriteLine(song.TagSummary);
+            Assert.AreEqual(@"Cha Cha:Dance:1|Christmas:Other:1|Holiday:Other:1", song.TagSummary.ToString());
         }
 
         [TestMethod]

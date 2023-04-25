@@ -195,10 +195,10 @@ namespace m4dModels.Tests
             var deltas = new List<List<int>>
             {
                 new() { 1, 4, 5, 23 },
-                new() { 17, 135, 152, 197 },
-                new() { 2, 2, 13, 18 },
+                new() { 17, 135, 152, 186 },
+                new() { 2, 2, 13, 15 },
                 new() { 0, 2, 2, 8 },
-                new() { 4, 8, 11, 22 }
+                new() { 4, 8, 11, 19 }
             };
 
             for (var index = 0; index < songs.Count; index++)

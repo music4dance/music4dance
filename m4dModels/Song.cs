@@ -1900,6 +1900,56 @@ namespace m4dModels
             return true;
         }
 
+        public async Task<bool> AdminAddUserProperties(string userName, IEnumerable<SongProperty> properties, DanceMusicCoreService database)
+        {
+            // Filter to the properties that aren't already set
+            var props = properties.Where(p => !HasUserProperty(userName, p)).ToList();
+            if (props.Count == 0)
+            {
+                return false;
+            }
+
+            // Find the first user block of properties
+            var idx = SongProperties.FindIndex(p => p.BaseName == UserField && p.Value == userName);
+            if (idx == -1)
+            {
+                return false; 
+            }
+            // Find the last index
+            idx = SongProperties.FindIndex(idx, p => p.IsAction);
+            if (idx == -1)
+            {
+                idx = SongProperties.Count;
+            }
+            // Insert each of the properties after the index
+            foreach (var prop in props)
+            {
+                SongProperties.Insert(idx++, prop);
+            }
+            // Wrap this in a SongIndex method to save the songs
+            // Is there a way to abstract out SongController BatchAdminExecute so we can use it in playlist controller?
+            await Reload(new List<SongProperty>(SongProperties), database);
+
+            return true;
+        }
+
+        private bool HasUserProperty(string userName, SongProperty property)
+        {
+            var inUser = false;
+            foreach (var prop in SongProperties)
+            {
+                if (prop.BaseName == UserField)
+                {
+                    inUser = userName == prop.Value;
+                }
+                else if (inUser && property == prop)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public async Task<bool> ExpandTags(DanceMusicCoreService database)
         {
             var changed = false;
@@ -2724,12 +2774,10 @@ namespace m4dModels
                 }
 
                 var val = prop.ObjectValue;
-                if (val is not int)
+                if (val is not int current)
                 {
                     continue;
                 }
-
-                var current = (int)val;
 
                 if (count == 0)
                 {

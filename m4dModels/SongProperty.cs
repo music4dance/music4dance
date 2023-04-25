@@ -7,9 +7,48 @@ using System.Text;
 
 namespace m4dModels
 {
-    public class SongProperty
+    public class SongProperty : IEquatable<SongProperty>
     {
         #region Overrides
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as SongProperty);
+        }
+
+        public bool Equals(SongProperty other)
+        {
+            return other is not null &&
+                   Name == other.Name &&
+                   (Value == other.Value || TagsEqual(other));
+        }
+
+        private bool TagsEqual(SongProperty other)
+        {
+            if (!(IsTag && other.IsTag))
+            {
+                return false;
+            }
+
+            return new TagList(Value).ToString() == new TagList(other.Value).ToString();
+        }
+
+        private bool IsTag => BaseName == Song.AddedTags || BaseName == Song.RemovedTags;
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Name, Value);
+        }
+
+        public static bool operator ==(SongProperty left, SongProperty right)
+        {
+            return EqualityComparer<SongProperty>.Default.Equals(left, right);
+        }
+
+        public static bool operator !=(SongProperty left, SongProperty right)
+        {
+            return !(left == right);
+        }
+
 
         public override string ToString()
         {
@@ -345,7 +384,6 @@ namespace m4dModels
 
             return name;
         }
-
         #endregion
     }
 }

@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
+using Stripe;
 
 namespace m4d.Controllers
 {
@@ -549,10 +550,9 @@ namespace m4d.Controllers
                     return $"UpdateSongsFromSpotify {playlist.Id}: Empty Playlist";
                 }
 
-                var tags = playlist.Tags.Split(new[] { "|||" }, 2, StringSplitOptions.None);
+                var (danceTags, songTags) = GetTags(playlist);
                 var newSongs = await dms.SongIndex.SongsFromTracks(
-                    await Database.FindUser(playlist.User), tracks, tags[0],
-                    tags.Length > 1 ? tags[1] : string.Empty);
+                    await Database.FindUser(playlist.User), tracks, danceTags, songTags);
 
                 AdminMonitor.UpdateTask("Starting Merge");
                 var results = await dms.SongIndex.MatchSongs(
@@ -567,6 +567,12 @@ namespace m4d.Controllers
             {
                 return $"UpdateSongsFromSpotify {playlist.Id}: Failed={e.Message}";
             }
+        }
+
+        private (string danceTags, string songTags) GetTags(PlayList playlist)
+        {
+            var tags = playlist.Tags.Split(new[] { "|||" }, 2, StringSplitOptions.None);
+            return (tags[0], tags.Length > 1 ? tags[1] : string.Empty);
         }
 
         private async Task<string> UpdateSpotifyFromSearch(PlayList playlist,
@@ -703,6 +709,60 @@ namespace m4d.Controllers
                         dms.Dispose();
                     }
                 });
+
+            return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
+        }
+
+        // GET: UpdateAll
+        [Authorize(Roles = "dbAdmin")]
+        public async Task<ActionResult> FixHoliday()
+        {
+            if (!AdminMonitor.StartTask("UpdateAllPlayLists"))
+            {
+                throw new AdminTaskException(
+                    "F failed to start because there is already an admin task running");
+            }
+
+            var service = MusicService.GetService(ServiceType.Spotify);
+
+            var playlists = Database.PlayLists
+                .Where(p => p.Data1.Contains("||Holiday:Other") && !p.Data1.Contains("|||"))
+                .AsAsyncEnumerable();
+            var i = 0;
+            await foreach (var playlist in playlists)
+            {
+                AdminMonitor.UpdateTask($"Playlist {playlist.Id}", i++);
+                playlist.Data1 = playlist.Data1.Replace("||Holiday:Other", "|||Holiday:Other");
+                var user = $"{playlist.User}|P";
+                var (_, songTags) = GetTags(playlist);
+                if (string.IsNullOrEmpty(songTags))
+                {
+                    throw new Exception(
+                        $"{playlist.Id} isn't properly formed Holiday playlist: ${playlist.Tags}");
+                }
+
+                var props = new[] { new SongProperty(Song.AddedTags, songTags) };
+                var songs = new List<Song>();
+                foreach (var id in playlist.Data2.Split("|"))
+                {
+                    var song = await Database.SongIndex.GetSongFromService(service, id);
+                    if (song == null)
+                    {
+                        Trace.WriteLine($"{id} from {playlist.Id} not found");
+                    }
+                    else if (await song.AdminAddUserProperties(user, props, Database))
+                    {
+                        songs.Add(song);
+                    }
+                }
+
+                var ids = string.Join(",", songs.Select(s => s.SongId));
+                Trace.WriteLine($"{playlist.Id}: {ids}");
+
+                await Database.SaveChanges();
+                await Database.SongIndex.SaveSongs(songs);
+
+            }
 
             return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
         }
