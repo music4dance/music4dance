@@ -934,22 +934,23 @@ namespace m4d.Controllers
                 return View("Info");
             }
 
-            PlaylistMetadata metadata;
+            PlaylistMetadata metadata = null;
 
             try
             {
+                Logger.LogInformation($"CreateSpotify: {LogCreateInfo(info)}");
                 var p = await AzureParmsFromFilter(filter, info.Count);
                 p.IncludeTotalCount = true;
                 var results = await new SongSearch(
                     filter, UserName, true, SongIndex, UserManager, _backgroundTaskQueue, info.Count).Search();
 
-                var tracks = results.Songs.Select(s => s.GetPurchaseId(ServiceType.Spotify));
-
+                var tracks = results?.Songs?.Select(s => s.GetPurchaseId(ServiceType.Spotify));
                 var service = MusicService.GetService(ServiceType.Spotify);
                 metadata = await MusicServiceManager.CreatePlaylist(
                     service, User, info.Title,
                     $"{info.DescriptionPrefix} {filter.Description}", fileProvider);
 
+                Logger.LogInformation($"CreateSpotify: {LogMetaData(metadata)}");
                 if (!await MusicServiceManager.SetPlaylistTracks(service, User, metadata.Id, tracks))
                 {
                     ViewBag.StatusMessage = "Unable to set the playlist tracks.";
@@ -958,9 +959,10 @@ namespace m4d.Controllers
             }
             catch (Exception e)
             {
-                Logger.LogError(e.Message);
-                ViewBag.StatusMessage =
-                    $"Unable to create a playlist at this time.  Please report the issue. ({e.Message})";
+                var metaString = LogMetaData(metadata);
+                var message = $"Unable to create a Spotify playlist at this time.  Please report the issue. ({e.Message}) {metaString}";
+                Logger.LogError(e, message);
+                ViewBag.StatusMessage = message;
                 return View("Error");
             }
 
@@ -969,6 +971,26 @@ namespace m4d.Controllers
                 "SpotifyExport", user, new SpotifyCreate { Id = metadata.Id, Info = info }));
             await Database.SaveChanges();
             return View("SpotifyCreated", metadata);
+        }
+
+        private string LogMetaData(PlaylistMetadata metadata)
+        {
+            var metaString = "MetaData = null";
+            if (metadata != null)
+            {
+                metaString = $"MetaData = {{Id: {metadata.Id}, Name: {metadata.Name}, Description: {metadata.Description}, Link: {metadata.Link}, Reference: {metadata.Reference}, Count: {metadata.Count ?? -1}}}";
+            }
+            return metaString;
+        }
+
+        private string LogCreateInfo(SpotifyCreateInfo info)
+        {
+            var infoString = "SpotifyCreateInfo = null";
+            if (info != null)
+            {
+                infoString = $"SpotifyCreateInfo = {{Title: {info.Title}, DescriptionPrefix: {info.DescriptionPrefix}, Description: {info.Description}, Filter: {info.Filter}, Count: {info.Count}, IsAuthenticated: {info.IsAuthenticated}, IsPremium: {info.IsPremium}, CanSpotify: {info.CanSpotify}}}";
+            }
+            return infoString;
         }
 
         [HttpGet]

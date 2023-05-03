@@ -70,7 +70,7 @@
     <WCFMetadata Include="Connected Services" />
   </ItemGroup>
   <Target Name="vue-client" AfterTargets="AfterBuild">
-    <Exec Command="yarn" WorkingDirectory="Client"></Exec>
+    <Exec Command="yarn install --network-timeout=300000" WorkingDirectory="Client"></Exec>
     <Exec Command="yarn run build" WorkingDirectory="Client" Condition="'$(Configuration)' == 'Release'"></Exec>
     <Exec Command="yarn run build:dev" WorkingDirectory="Client" Condition="'$(Configuration)' == 'Debug'"></Exec>
     <Exec Command="yarn run styles" WorkingDirectory="Client"></Exec>

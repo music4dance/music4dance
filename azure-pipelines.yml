@@ -16,7 +16,7 @@ steps:
 - task: NodeTool@0
   inputs:
     versionSpec: '16.x'
-- script: yarn install --network-timeout=30000
+- script: yarn install --network-timeout=300000
   displayName: 'Install Yarn'
   workingDirectory: m4d/Client/
   

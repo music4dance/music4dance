@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using m4dModels;
 using Microsoft.AspNetCore.Identity;
@@ -15,16 +16,14 @@ namespace m4d.Utilities
         private static readonly Dictionary<string, UserInfo> s_cachedIds =
             new(StringComparer.OrdinalIgnoreCase);
 
+        private static SemaphoreSlim s_semaphore = new SemaphoreSlim(1, 1);
+
         private static DateTime CacheTime { get; set; }
 
         public static async Task<IReadOnlyDictionary<string, UserInfo>> GetUserNameDictionary(
             UserManager<ApplicationUser> userManager)
         {
-            if (s_cachedUsers.Count == 0)
-            {
-                await BuildDictionaries(userManager);
-            }
-
+            await BuildDictionaries(userManager);
             return s_cachedUsers;
         }
 
@@ -41,11 +40,7 @@ namespace m4d.Utilities
         public static async Task<IReadOnlyDictionary<string, UserInfo>> GetUserIdDictionary(
             UserManager<ApplicationUser> userManager)
         {
-            if (s_cachedUsers.Count == 0)
-            {
-                await BuildDictionaries(userManager);
-            }
-
+            await BuildDictionaries(userManager);
             return s_cachedIds;
         }
 
@@ -162,7 +157,25 @@ namespace m4d.Utilities
             return id;
         }
 
+
+        // TODO:  implment AsyncLock class https://www.hanselman.com/blog/comparing-two-techniques-in-net-asynchronous-coordination-primitives
         private static async Task BuildDictionaries(UserManager<ApplicationUser> userManager)
+        {
+            await s_semaphore.WaitAsync();
+            try
+            {
+                if (s_cachedUsers.Count == 0)
+                {
+                    await InternalBuildDictionaries(userManager);
+                }
+            }
+            finally
+            {
+                s_semaphore.Release();
+            }
+        }
+
+        private static async Task InternalBuildDictionaries(UserManager<ApplicationUser> userManager)
         {
             foreach (var user in userManager.Users)
             {

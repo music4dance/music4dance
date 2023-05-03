@@ -23,7 +23,7 @@
     }
 }
 
-@if ((TraceLevels.General.TraceVerbose || User.IsInRole("showDiagnostics")) && exception != null)
+@if ((TraceLevels.General.TraceVerbose || User.IsInRole("showDiagnostics") || User.IsInRole("beta")) && exception != null)
 {
     var hresult = "0x" + exception.HResult.ToString("X8");
     <p><b>Exception:</b>@exception.Message (@hresult)</p>
