@@ -14,9 +14,9 @@ using DanceLibrary;
 using m4dModels;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SixLabors.ImageSharp;
-using Stripe;
 using TagList = m4dModels.TagList;
 
 namespace m4d.Utilities
@@ -30,6 +30,8 @@ namespace m4d.Utilities
         }
 
         private IConfiguration Configuration { get; }
+
+        private static readonly ILogger Logger = ApplicationLogging.CreateLogger<AdmAuthentication>();
 
         public async Task<bool> UpdateSongAndServices(DanceMusicCoreService dms, Song sd,
             bool crossRetry = false)
@@ -411,7 +413,7 @@ namespace m4d.Utilities
                 }
                 catch (Exception ex)
                 {
-                    Trace.WriteLine($"Failed to get track ${id} from ${service.Name}: {ex.Message}");
+                    Logger.LogInformation($"Failed to get track ${id} from ${service.Name}: {ex.Message}");
                 }
             }
 
@@ -575,7 +577,7 @@ namespace m4d.Utilities
             }
             catch (Exception ex)
             {
-                Trace.Write($"Unable to look up user {id} on {service.Name}: {ex.Message}");
+                Logger.LogWarning($"Unable to look up user {id} on {service.Name}: {ex.Message}");
                 return null;
             }
         }
@@ -649,9 +651,7 @@ namespace m4d.Utilities
             }
             catch (WebException e)
             {
-                Trace.WriteLineIf(
-                    TraceLevels.General.TraceError,
-                    $"Error looking up echo track {id}: {e.Message}");
+                Logger.LogError(e, $"Error looking up echo track {id}: {e.Message}");
                 return null;
             }
         }
@@ -666,7 +666,6 @@ namespace m4d.Utilities
                 for (var i = 0; i < playlist.Tracks.Count; i += chunkSize)
                 {
                     var ids = string.Join(',', playlist.Tracks.Skip(i).Take(chunkSize).Select(t => t.TrackId));
-                    Trace.WriteLine($"Tracks: {ids}");
                     var request = $"https://api.spotify.com/v1/audio-features?ids={ids}";
 
                     var results = await GetMusicServiceResults(request, service);
@@ -682,9 +681,7 @@ namespace m4d.Utilities
             }
             catch (WebException e)
             {
-                Trace.WriteLineIf(
-                    TraceLevels.General.TraceError,
-                    $"Error looking up echo tracks: {e.Message}");
+                Logger.LogError(e, $"Error looking up echo tracks: {e.Message}");
             }
 
         }
@@ -929,7 +926,7 @@ namespace m4d.Utilities
             }
             catch (Exception e)
             {
-                Trace.TraceWarning(
+                Logger.LogError(e,
                     $"Hard failure searching for {title} by {artist} on {service.Name}: {e.Message}");
                 return new List<ServiceTrack>();
             }
@@ -1017,9 +1014,7 @@ namespace m4d.Utilities
                         var statusCode = (int)r.StatusCode;
                         if (statusCode == 429)
                         {
-                            Trace.WriteLineIf(
-                                TraceLevels.General.TraceInfo,
-                                "Exceeded EchoNest Limits: Caught");
+                            Logger.LogInformation("Exceeded EchoNest Limits: Caught");
                             Thread.Sleep(15 * 1000);
                             continue;
                         }
@@ -1030,7 +1025,9 @@ namespace m4d.Utilities
                             {
                                 Trace.WriteLineIf(
                                     TraceLevels.General.TraceInfo,
-                                    $"Exceeded Itunes Limits: {5 - retries} {req.RequestUri}");
+                                    $"Exceeded " +
+                                    $"Itunes" +
+                                    $" Limits: {5 - retries} {req.RequestUri}");
                                 Thread.Sleep(60 * 1000);
                                 continue;
                             }
@@ -1141,7 +1138,7 @@ namespace m4d.Utilities
             }
             catch (WebException we)
             {
-                Trace.WriteLine(we.Message);
+                Logger.LogError(we, $"Unable to perform {request} on {input}");
                 return null;
             }
 

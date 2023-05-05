@@ -238,6 +238,7 @@ namespace m4d.Controllers
         {
             UserMapper.Clear();
             UsersController.ClearCache();
+            AdmAuthentication.Clear();
             return await Index();
         }
 

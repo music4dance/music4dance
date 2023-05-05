@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using Azure.Search.Documents;
@@ -963,6 +962,7 @@ namespace m4d.Controllers
                 var message = $"Unable to create a Spotify playlist at this time.  Please report the issue. ({e.Message}) {metaString}";
                 Logger.LogError(e, message);
                 ViewBag.StatusMessage = message;
+                ViewBag.Exception = e;
                 return View("Error");
             }
 
