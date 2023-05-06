@@ -32,6 +32,9 @@ namespace m4d.Utilities
         [DataMember]
         public int expires_in { get; set; }
 
+        [DataMember]
+        public string refresh_token { get; set; }
+
         public virtual TimeSpan ExpiresIn => TimeSpan.FromSeconds(int.Max(0, expires_in - 60));
     }
 
@@ -54,7 +57,7 @@ namespace m4d.Utilities
         {
         }
 
-        protected abstract string RequestFormat { get; }
+        protected abstract string RequestBody { get; }
         protected virtual string RequestExtra => string.Empty;
         protected abstract string RequestUrl { get; }
 
@@ -92,7 +95,6 @@ namespace m4d.Utilities
             renewer.Dispose();
         }
 
-        private string _request;
         protected AccessToken Token { get; set; }
 
         private async Task<AccessToken> CreateToken()
@@ -101,16 +103,13 @@ namespace m4d.Utilities
 
             //Prepare OAuth request 
             using var webRequest = new HttpRequestMessage(HttpMethod.Post, RequestUrl);
-            //webRequest.Headers.Add("ContentType", "application/x-www-form-urlencoded");
 
             var svcCredentials =
                 Convert.ToBase64String(Encoding.ASCII.GetBytes(ClientId + ":" + ClientSecret));
             webRequest.Headers.Add("Authorization", "Basic " + svcCredentials);
 
-            var request = _request ?? (_request = string.Format(
-                RequestFormat,
-                Uri.EscapeDataString(ClientId), Uri.EscapeDataString(ClientSecret))) + RequestExtra;
-            webRequest.Content = new StringContent(request, Encoding.UTF8, "application/x-www-form-urlencoded");
+            var content = RequestBody + RequestExtra;
+            webRequest.Content = new StringContent(content, Encoding.UTF8, "application/x-www-form-urlencoded");
 
             try
             {
@@ -125,6 +124,15 @@ namespace m4d.Utilities
                 {
                     Logger.LogError("Failed to create Token (null token)");
                 }
+
+                var refreshToken = token?.refresh_token;
+                if (!string.IsNullOrEmpty(refreshToken) && RefreshToken != refreshToken)
+                {
+                    // TODO: Remove once we've gotten spotify auth refresh working again
+                    Logger.LogInformation($"Replacing refreshToken {RefreshToken} with {refreshToken}");
+                    RefreshToken = refreshToken;
+                }
+
                 return token;
             }
             catch (Exception e)
@@ -144,15 +152,11 @@ namespace m4d.Utilities
             AccessTokenRenewer?.Dispose();
         }
 
-        public static bool HasAccess(IConfiguration configuration,
+        public static async Task<bool> HasAccess(IConfiguration configuration,
             ServiceType serviceType, IPrincipal principal = null,
             AuthenticateResult authResult = null)
         {
-            var service = SetupService(configuration, serviceType, principal, authResult);
-            if (service == null)
-            {
-                return false;
-            }
+            var service = await SetupService(configuration, serviceType, principal, authResult);
             return service is SpotUserAuthentication;
         }
 
@@ -160,11 +164,11 @@ namespace m4d.Utilities
             ServiceType serviceType, IPrincipal principal = null,
             AuthenticateResult authResult = null)
         {
-            var service = SetupService(configuration, serviceType, principal, authResult);
+            var service = await SetupService(configuration, serviceType, principal, authResult);
             return service == null ? null : await service.GetAccessString();
         }
 
-        private static AdmAuthentication SetupService(IConfiguration configuration,
+        private static async Task<AdmAuthentication> SetupService(IConfiguration configuration,
             ServiceType serviceType, IPrincipal principal = null,
             AuthenticateResult authResult = null)
         {
@@ -181,7 +185,7 @@ namespace m4d.Utilities
 
                 if (authResult?.Properties != null)
                 {
-                    auth = TryCreate(configuration, serviceType, authResult);
+                    auth = await TryCreate(configuration, serviceType, authResult);
                     if (auth != null)
                     {
                         s_users[userName] = auth;
@@ -200,7 +204,7 @@ namespace m4d.Utilities
             return auth;
         }
 
-        public static AdmAuthentication TryCreate(IConfiguration configuration,
+        public static async Task<AdmAuthentication> TryCreate(IConfiguration configuration,
             ServiceType serviceType, AuthenticateResult authResult)
         {
             if (authResult == null || authResult.Properties == null)
@@ -216,12 +220,7 @@ namespace m4d.Utilities
             var now = DateTime.Now;
             var expiresAt = authResult.Properties.GetTokenValue("expires_at");
             var expiresIn = DateTime.Parse(expiresAt) - now;
-
-            var token = new AccessToken
-            {
-                access_token = accessToken,
-                expires_in = (int)expiresIn.TotalSeconds
-            };
+            AdmAuthentication auth;
 
             var refreshToken = authResult.Properties.GetTokenValue("refresh_token");
 
@@ -231,7 +230,6 @@ namespace m4d.Utilities
                 return null;
             }
 
-            AdmAuthentication auth;
             if (serviceType == ServiceType.Spotify)
             {
                 Logger.LogInformation("Creating Spotify User Token");
@@ -245,21 +243,27 @@ namespace m4d.Utilities
                 return null;
             }
 
-            auth.Token = token;
             if (expiresIn.TotalSeconds < 0)
             {
                 Logger.LogWarning("Refresh token expired during create");
-                expiresIn = new TimeSpan(0);
-                auth.Token = null;
+                await auth.GetAccessToken();
             }
+            else
+            {
+                auth.Token = new AccessToken
+                {
+                    access_token = accessToken,
+                    expires_in = (int)expiresIn.TotalSeconds
+                };
 
-            // TODO: Get rid of this once the Spotify bug is squashed
-            var json = JsonConvert.SerializeObject(auth.Token, Formatting.Indented);
-            Logger.LogInformation($"Created Token: {json}");
+                // TODO: Get rid of this once the Spotify bug is squashed
+                var json = JsonConvert.SerializeObject(auth.Token, Formatting.Indented);
+                Logger.LogInformation($"Created Token: {json}");
 
-            Logger.LogInformation($"Creating TokenRenewer (2): {expiresIn}");
-            auth.AccessTokenRenewer =
-                new Timer(auth.OnTokenExpiredCallback, auth, expiresIn, Timeout.InfiniteTimeSpan);
+                Logger.LogInformation($"Creating TokenRenewer (2): {expiresIn}");
+                auth.AccessTokenRenewer =
+                    new Timer(auth.OnTokenExpiredCallback, auth, expiresIn, Timeout.InfiniteTimeSpan);
+            }
 
             return auth;
         }

@@ -871,7 +871,7 @@ namespace m4d.Controllers
             UseVue = false;
 
             var authResult = await HttpContext.AuthenticateAsync();
-            var canSpotify = AdmAuthentication.HasAccess(
+            var canSpotify = await AdmAuthentication.HasAccess(
                 Configuration, ServiceType.Spotify, User, authResult);
 
             return View(

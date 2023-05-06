@@ -14,7 +14,7 @@ namespace m4d.Utilities
 
         protected override string Client => "spotify";
 
-        protected override string RequestFormat => "grant_type=client_credentials";
+        protected override string RequestBody => "grant_type=client_credentials";
         protected override string RequestUrl => "https://accounts.spotify.com/api/token";
 
         protected override string GetServiceId(IPrincipal principal)
@@ -36,9 +36,10 @@ namespace m4d.Utilities
         {
         }
 
-        protected override string RequestExtra =>
-            "&refresh_token=" + HttpUtility.UrlEncode(RefreshToken);
+        protected override string RequestExtra => string.IsNullOrWhiteSpace(RefreshToken) 
+            ? string.Empty
+            : $"&refresh_token={HttpUtility.UrlEncode(RefreshToken)}";
 
-        protected override string RequestFormat => "grant_type=refresh_token";
+        protected override string RequestBody => "grant_type=refresh_token";
     }
 }
