@@ -69,7 +69,7 @@
             <b-dropdown-item
               v-if="context.isBeta || context.isAdmin"
               href="/home/spotifyexplorer"
-              >Spotify Explorer</b-dropdown-item
+              >Spotify Explorer (BETA)</b-dropdown-item
             >
           </b-nav-item-dropdown>
           <b-nav-item-dropdown text="Info">

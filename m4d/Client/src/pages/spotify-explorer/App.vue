@@ -150,7 +150,7 @@ export default mixins(AdminTools, DropTarget).extend({
           await this.findUser();
           break;
         case ServiceObjectKind.Track:
-          this.checkServiceAndAdd(serviceString);
+          this.checkServiceAndWarn(serviceString);
           break;
         default:
           throw new Error(`Invalid Service Kind: {this.serviceKind}`);

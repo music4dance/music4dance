@@ -8,11 +8,11 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
 using m4dModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace m4d.Utilities
 {
@@ -32,7 +32,7 @@ namespace m4d.Utilities
         [DataMember]
         public int expires_in { get; set; }
 
-        public virtual TimeSpan ExpiresIn => TimeSpan.FromSeconds(expires_in - 60);
+        public virtual TimeSpan ExpiresIn => TimeSpan.FromSeconds(int.Max(0, expires_in - 60));
     }
 
     public abstract class CoreAuthentication
@@ -70,9 +70,9 @@ namespace m4d.Utilities
             }
 
             Token = await CreateToken();
-            AccessTokenRenewer ??= new Timer(
-                OnTokenExpiredCallback, this, Token.ExpiresIn,
-                Token.ExpiresIn);
+            Logger.LogInformation($"Creating TokenRenewer (1): {Token.ExpiresIn}");
+            AccessTokenRenewer = new Timer(
+                OnTokenExpiredCallback, this, Token.ExpiresIn, Timeout.InfiniteTimeSpan);
 
             return Token;
         }
@@ -115,10 +115,13 @@ namespace m4d.Utilities
             try
             {
                 using var webResponse = await HttpClientHelper.Client.SendAsync(webRequest);
-                var serializer = new DataContractJsonSerializer(typeof(AccessToken));
-                //Get deserialized object from JSON stream
-                var token = (AccessToken)serializer.ReadObject(await webResponse.Content.ReadAsStreamAsync());
-                if (string.IsNullOrWhiteSpace(token.access_token))
+                var result = await webResponse.Content.ReadAsStringAsync();
+
+                // TODO: Get rid of this once the Spotify bug is squashed
+                Logger.LogInformation($"Created Token: {result}");
+
+                var token = JsonConvert.DeserializeObject<AccessToken>(result);
+                if (string.IsNullOrWhiteSpace(token?.access_token))
                 {
                     Logger.LogError("Failed to create Token (null token)");
                 }
@@ -250,6 +253,11 @@ namespace m4d.Utilities
                 auth.Token = null;
             }
 
+            // TODO: Get rid of this once the Spotify bug is squashed
+            var json = JsonConvert.SerializeObject(auth.Token, Formatting.Indented);
+            Logger.LogInformation($"Created Token: {json}");
+
+            Logger.LogInformation($"Creating TokenRenewer (2): {expiresIn}");
             auth.AccessTokenRenewer =
                 new Timer(auth.OnTokenExpiredCallback, auth, expiresIn, Timeout.InfiniteTimeSpan);
 

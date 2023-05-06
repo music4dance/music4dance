@@ -21,7 +21,7 @@ export default Vue.extend({
 
       if (!found) {
         let okay = false;
-        if (!warn) {
+        if (warn) {
           okay = await this.$bvModal.msgBoxConfirm(
             `It looks like you may have tried to search by ${service.name} id for a song not in the music4dance catalog.
          Would you like to add the song?`,

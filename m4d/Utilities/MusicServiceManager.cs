@@ -31,7 +31,7 @@ namespace m4d.Utilities
 
         private IConfiguration Configuration { get; }
 
-        private static readonly ILogger Logger = ApplicationLogging.CreateLogger<AdmAuthentication>();
+        private static readonly ILogger Logger = ApplicationLogging.CreateLogger<MusicServiceManager>();
 
         public async Task<bool> UpdateSongAndServices(DanceMusicCoreService dms, Song sd,
             bool crossRetry = false)
