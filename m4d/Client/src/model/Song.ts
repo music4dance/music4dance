@@ -1,6 +1,6 @@
 import { DanceRatingDelta } from "@/DanceRatingDelta";
-import { enumKeys } from "@helpers/enumKeys";
 import { pascalToCamel } from "@helpers/StringHelpers";
+import { enumKeys } from "@helpers/enumKeys";
 import { timeOrder, timeOrderVerbose } from "@helpers/timeHelpers";
 import "reflect-metadata";
 import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
@@ -12,8 +12,8 @@ import { PurchaseInfo, ServiceType } from "./Purchase";
 import { SongHistory } from "./SongHistory";
 import { PropertyType, SongProperty } from "./SongProperty";
 import { Tag } from "./Tag";
-import { TaggableObject } from "./TaggableObject";
 import { TagList } from "./TagList";
+import { TaggableObject } from "./TaggableObject";
 
 declare const environment: DanceEnvironment;
 

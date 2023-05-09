@@ -66,12 +66,8 @@ export default EnvironmentManager.extend({
       return !!this.model.links && this.model.links.length > 0;
     },
     hasCompetitionInfo(): boolean {
-      const dance = this.dance;
-      return (
-        (!!dance &&
-          !dance.isGroup &&
-          (dance as TypeStats).competitionDances?.length) > 0
-      );
+      const dance = this.dance as TypeStats;
+      return !!dance && !dance.isGroup && dance.competitionDances?.length > 0;
     },
   },
 });

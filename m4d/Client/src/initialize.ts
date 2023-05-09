@@ -3,8 +3,8 @@ import Vue, { VueConstructor } from "vue";
 import VueMq from "vue-mq";
 import VueShowdown from "vue-showdown";
 import VueTour from "vue-tour";
-import { loadPreloads } from "./loadPreloads";
 import { Preloads } from "./Preloads";
+import { loadPreloads } from "./loadPreloads";
 
 require("vue-tour/dist/vue-tour.css");
 

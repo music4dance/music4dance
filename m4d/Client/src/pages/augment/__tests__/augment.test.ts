@@ -1,5 +1,5 @@
-import { testPageAsync } from "@/helpers/TestHelpers";
 import { Preloads } from "@/Preloads";
+import { testPageAsync } from "@/helpers/TestHelpers";
 import App from "../App.vue";
 
 describe("Augment.vue", () => {
