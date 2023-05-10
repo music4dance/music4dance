@@ -17,7 +17,7 @@
       >
         <feature-link
           v-for="feature in features"
-          :key="feature.link"
+          :key="feature.title"
           :info="feature"
         ></feature-link>
       </div>

@@ -13,7 +13,7 @@
     <b-icon-pencil v-else></b-icon-pencil>
     <template v-if="!oneUser">
       {{ action }} by
-      <user-link :user="this.change.user"></user-link>
+      <user-link :user="change.user"></user-link>
     </template>
     on
     {{ formattedDate }}

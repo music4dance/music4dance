@@ -6,11 +6,11 @@
       ref="description"
     >
     </mark-down-editor>
-    <div id="tempo-info" v-if="!dance.isGroup && numerator != 1">
+    <div id="tempo-info" v-if="!isGroup && numerator != 1">
       <h2>Tempo Information</h2>
       <p>
         The {{ danceName }} is generally danced to music in a
-        {{ dance.meter.toString() }} meter {{ rangeText }} {{ bpmText }} ({{
+        {{ meter.toString() }} meter {{ rangeText }} {{ bpmText }} ({{
           mpmText
         }}). <a :href="tempoFilter.url">Click here</a> to see a list of
         {{ danceName }} songs {{ rangeText }} {{ mpmText }}.
@@ -25,7 +25,9 @@ import MarkDownEditor from "@/components/MarkDownEditor.vue";
 import TempiLink from "@/components/TempiLink.vue";
 import EnvironmentManager from "@/mix-ins/EnvironmentManager";
 import { DanceStats } from "@/model/DanceStats";
+import { DanceType } from "@/model/DanceType";
 import { Editor } from "@/model/Editor";
+import { Meter } from "@/model/Meter";
 import { SongFilter } from "@/model/SongFilter";
 import { TempoRange } from "@/model/TempoRange";
 import { TypeStats } from "@/model/TypeStats";
@@ -53,20 +55,19 @@ export default EnvironmentManager.extend({
     editor(): Editor {
       return this.$refs.description as unknown as Editor;
     },
-
     dance(): DanceStats | undefined {
       return this.environment.fromId(this.danceId);
     },
-
+    danceType(): DanceType | undefined {
+      return this.dance as DanceType | undefined;
+    },
     danceName(): string | undefined {
       return this.dance?.name;
     },
-
     rangeText(): string {
       const tempo = this.typeStats?.tempoRange;
       return tempo && tempo.min === tempo.max ? "at" : "between";
     },
-
     tempoFilter(): SongFilter {
       const tempo = this.tempoRange;
       const filter = new SongFilter();
@@ -77,20 +78,19 @@ export default EnvironmentManager.extend({
 
       return filter;
     },
-
     tempoRange(): TempoRange | undefined {
       return this.typeStats?.tempoRange;
     },
-
     bpmText(): string {
       const tempo = this.tempoRange;
       return `${tempo ? tempo.toString(" and ") : ""} beats per minute`;
     },
-
-    numerator(): number {
-      return this.typeStats?.meter.numerator ?? 0;
+    meter(): Meter {
+      return this.typeStats?.meter ?? Meter.EmptyMeter;
     },
-
+    numerator(): number {
+      return this.meter.numerator;
+    },
     mpmText(): string {
       const tempo = this.tempoRange;
       const numerator = this.numerator;
@@ -98,7 +98,6 @@ export default EnvironmentManager.extend({
         tempo ? tempo.mpm(numerator, " and ") : ""
       } measures per minute`;
     },
-
     typeStats(): TypeStats | undefined {
       if (this.dance?.isGroup) {
         throw new Error(
@@ -106,6 +105,10 @@ export default EnvironmentManager.extend({
         );
       }
       return this.dance as TypeStats;
+    },
+    isGroup(): boolean {
+      const dance = this.dance;
+      return !!dance && dance.isGroup;
     },
   },
   methods: {

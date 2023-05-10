@@ -89,7 +89,7 @@ export default Vue.extend({
     albumLink(album: AlbumDetails): string {
       return `/song/album?title=${album.name}`;
     },
-    async lookup(service: string): Promise<void> {
+    async lookup(service?: string): Promise<void> {
       try {
         this.error = "";
         let parameters = service ? `service=${service}&` : "";

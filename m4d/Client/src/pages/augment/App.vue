@@ -44,7 +44,7 @@
     </b-row>
     <div v-else>
       <b-alert show variant="success">
-        <div v-if="songModel.created">
+        <div v-if="songModel && songModel.created">
           <b>Create Song:</b> This song is new to music4dance, please fill in
           missing fields and click <b>Add Song</b> to add this song to the
           catalog. Remember, you must vote on at least one dance to add this
@@ -59,7 +59,7 @@
         :model="songModel"
         :environment="environment"
         :startEditing="true"
-        :creating="songModel.created"
+        :creating="songModel && songModel.created"
         @song-saved="reset(true)"
         @cancel-changes="reset(false)"
       ></song-core>

@@ -25,20 +25,10 @@
           @add-property="addProperty"
         ></track-field>
         <track-field name="album" :value="track.album"></track-field>
-        <track-field
-          name="track"
-          :value="track.trackNumber.toString()"
-        ></track-field>
+        <track-field name="track" :value="indexString"></track-field>
         <track-field
           name="length"
-          :value="track.duration.toString()"
-          :canAdd="enableProperties"
-          @add-property="addProperty"
-        ></track-field>
-        <track-field
-          v-if="track.tempo"
-          name="tempo"
-          :value="track.tempo.toString()"
+          :value="durationString"
           :canAdd="enableProperties"
           @add-property="addProperty"
         ></track-field>
@@ -70,6 +60,14 @@ export default Vue.extend({
       const track = this.track;
       const type = track.service[0].toLowerCase() as ServiceType;
       return PurchaseInfo.Build(type, track.collectionId, track.trackId)!;
+    },
+    indexString(): string {
+      const track = this.track;
+      return track && track.trackNumber ? track.trackNumber.toString() : "";
+    },
+    durationString(): string {
+      const track = this.track;
+      return track && track.duration ? track.duration.toString() : "";
     },
   },
   methods: {

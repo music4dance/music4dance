@@ -138,7 +138,7 @@ exports[`DanceDetails.vue renders a dance details page 1`] = `
               </div>
             </div>
           </div>
-          <div id="top-ten" class="row">
+          <div id="top-ten" class="row" username="">
             <div class="col">
               <hr>
               <h2>

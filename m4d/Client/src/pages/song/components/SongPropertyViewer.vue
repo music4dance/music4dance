@@ -8,16 +8,17 @@
     >
     </comment-viewer>
     <span v-else-if="isTempo"> tempo = {{ property.value }} BPM</span>
-    <component
-      v-else
-      v-for="(tag, index) in tags"
-      :key="index"
-      :is="viewer(tag)"
-      :tag="tag"
-      :added="isAdd"
-      :danceId="danceId"
-    >
-    </component>
+    <div v-else>
+      <component
+        v-for="(tag, index) in tags"
+        :key="index"
+        :is="viewer(tag)"
+        :tag="tag"
+        :added="isAdd"
+        :danceId="danceId"
+      >
+      </component>
+    </div>
   </div>
 </template>
 

@@ -41,7 +41,7 @@
           v-if="!isGroup"
           :histories="model.histories"
           :filter="model.filter"
-          :userName="model.userName"
+          :userName="userName"
         ></top-ten>
         <spotify-player :playlist="model.spotifyPlaylist"></spotify-player>
         <dance-reference :danceId="model.danceId"></dance-reference>

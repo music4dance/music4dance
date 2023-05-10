@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-list-group v-for="ds in orderedDances" v-bind:key="ds.danceId">
+    <b-list-group v-for="ds in orderedDances" v-bind:key="ds.dance.id">
       <dance-item
         :dance="ds"
         :tempoType="tempoType"

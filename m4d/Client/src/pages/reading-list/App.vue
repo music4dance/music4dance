@@ -2,7 +2,7 @@ a
 <template>
   <page id="app" title="Reading List" :breadcrumbs="breadcrumbs">
     <div v-if="flattened">
-      <div v-for="category in categories" :key="category.key">
+      <div v-for="category in categories" :key="category.type">
         {{ category.title }}
         <category :category="category"></category>
       </div>

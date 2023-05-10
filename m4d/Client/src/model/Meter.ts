@@ -9,4 +9,11 @@ export class Meter {
   public toString(): string {
     return `${this.numerator}/${this.denominator}`;
   }
+
+  public static get EmptyMeter(): Meter {
+    const meter = new Meter();
+    meter.numerator = 0;
+    meter.denominator = 0;
+    return meter;
+  }
 }
