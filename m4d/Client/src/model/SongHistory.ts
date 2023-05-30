@@ -88,6 +88,9 @@ export class SongHistory {
     });
   }
 
+  // Since we use unique indices for album names per song, we have to remap those indices
+  //  to a global space that covers all the albums.  This algortithm first creates a list
+  //  of all unique albums (by name) and then renames all album properties with the new indices
   private static fixupAlbums(histories: SongHistory[]): void {
     const songs = histories.map((h) => Song.fromHistory(h));
     const albums: AlbumMap[] = [];
@@ -123,6 +126,7 @@ export class SongHistory {
   }
 
   private fixupAlbums(albums: AlbumMap[]): void {
+    const songId = this.id;
     const idxMap = albums
       .filter((a) => !!a.songs.find((s) => s.song.songId === this.id))
       .map((a) => ({
@@ -130,20 +134,25 @@ export class SongHistory {
         oldIdx: a.songs.find((s) => s.song.songId === this.id)!.index,
       }));
 
+    let fail = 0;
     this.properties.forEach((p) => {
       const index = p.safeIndex;
       if (index !== undefined) {
         const map = idxMap.find((m) => m.oldIdx === index);
         if (!map) {
-          throw Error("Failed to find album map in fixupAlbums");
-        }
-        if (map.newIdx !== map.oldIdx) {
+          // eslint-disable-next-line no-console
+          console.log(`Unable to album index ${index} for song ${songId}`);
+          fail += 1;
+        } else if (map.newIdx !== map.oldIdx) {
           p.name = SongProperty.BuildIndexName(
             p.baseName,
             map.newIdx,
             p.qualifier
           );
         }
+      }
+      if (fail) {
+        throw new Error(`Album fixup failed for ${fail} times`);
       }
     });
   }
