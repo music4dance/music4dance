@@ -417,6 +417,11 @@ export class SongEditor {
     history.splice(insertAt, 0, ...removed);
   }
 
+  public insertProperty(index: number, prop: string): void {
+    const history = this.setupHistory(index);
+    history.splice(index, 0, SongProperty.FromString(prop));
+  }
+
   private setupHistory(index: number): SongProperty[] {
     this.checkAdmin(index);
     this.modified = true;

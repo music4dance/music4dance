@@ -57,7 +57,10 @@ export default Vue.extend({
   },
   methods: {
     onShown(): void {
-      (this.$refs.player as HTMLAudioElement).play();
+      const player = this.$refs.player as HTMLAudioElement;
+      if (player) {
+        player.play();
+      }
     },
   },
 });

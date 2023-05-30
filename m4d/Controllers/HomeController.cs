@@ -95,7 +95,7 @@ namespace m4d.Controllers
             return Vue(
                 "Counter",
                 "A web application to measure the tempo of a song and match it with styles of dance.",
-                "tempo-counter", new TempoCounterModel { Numerator = numerator, Tempo = tempo },
+                "tempo-counter", new TempoCounterModel { Numerator = numerator, Tempo = tempo }, "tempo-counter",
                 danceEnvironment:true);
         }
 
@@ -114,6 +114,7 @@ namespace m4d.Controllers
                     Organizations = ConvertParameter(organizations),
                     Meters = ConvertParameter(meters),
                 },
+                "dance-tempi",
                 danceEnvironment:true);
         }
 

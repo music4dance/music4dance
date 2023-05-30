@@ -205,7 +205,8 @@
             @move-property-down="safeEditor.movePropertyDown($event)"
             @move-property-first="safeEditor.movePropertyFirst($event)"
             @move-property-last="safeEditor.movePropertyLast($event)"
-            @replace-history="onReplaceHistory"
+            @insert-property="onInsertSongProperty"
+            @replace-history="onReplaceHistory($event)"
           >
           </song-history-log>
         </div>
@@ -533,6 +534,10 @@ export default AdminTools.extend({
 
     addTrack(track: TrackModel): void {
       this.editor?.addAlbumFromTrack(track);
+    },
+
+    onInsertSongProperty(index: number, prop: string): void {
+      this.safeEditor.insertProperty(index, prop);
     },
 
     leaveWarning(event: BeforeUnloadEvent): void {

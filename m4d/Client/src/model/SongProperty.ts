@@ -115,6 +115,14 @@ export class SongProperty {
     return modifier ? `${start}:${modifier}` : start;
   }
 
+  public static FromString(s: string): SongProperty {
+    const cells = s.split("=");
+    return new SongProperty({
+      name: cells[0],
+      value: cells.length > 1 ? cells[1] : undefined,
+    });
+  }
+
   public constructor(init?: Partial<SongProperty>) {
     Object.assign(this, init);
   }

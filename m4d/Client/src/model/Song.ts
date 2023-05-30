@@ -354,8 +354,11 @@ export class Song extends TaggableObject {
           break;
         default:
           if (!property.isAction) {
-            /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-            (this as any)[pascalToCamel(baseName)] = property.valueTyped;
+            const value = property.valueTyped;
+            if (value !== ".") {
+              /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+              (this as any)[pascalToCamel(baseName)] = value;
+            }
           }
           break;
       }

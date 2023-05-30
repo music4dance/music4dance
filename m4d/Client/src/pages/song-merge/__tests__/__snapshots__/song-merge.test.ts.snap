@@ -297,7 +297,8 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
-                    </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button>
+                    </svg></button>
+                  <!----> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button>
                 </div>
               </div>
               <div class="list-group-item d-flex justify-content-between subprop">
@@ -322,6 +323,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                     </svg></button> <button type="button" class="btn btn-primary btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="chevron bar down" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-chevron-bar-down b-icon bi">
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
+                      </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
                       </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
@@ -348,6 +353,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
+                      </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
               <div class="list-group-item d-flex justify-content-between subprop">
@@ -372,6 +381,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                     </svg></button> <button type="button" class="btn btn-primary btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="chevron bar down" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-chevron-bar-down b-icon bi">
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
+                      </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
                       </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
@@ -398,6 +411,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
+                      </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
               <div class="list-group-item d-flex justify-content-between subprop">
@@ -423,6 +440,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
+                      </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
               <div class="list-group-item d-flex justify-content-between subprop">
@@ -447,6 +468,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                     </svg></button> <button type="button" class="btn btn-primary btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="chevron bar down" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-chevron-bar-down b-icon bi">
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
+                      </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
                       </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
@@ -473,6 +498,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
+                      </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
               <div class="list-group-item d-flex justify-content-between subprop">
@@ -497,6 +526,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                     </svg></button> <button type="button" class="btn btn-primary btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="chevron bar down" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-chevron-bar-down b-icon bi">
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
+                      </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
                       </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
@@ -523,6 +556,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
+                      </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
               <div class="list-group-item d-flex justify-content-between list-group-item-primary">
@@ -544,7 +581,8 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
-                    </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button>
+                    </svg></button>
+                  <!----> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button>
                 </div>
               </div>
               <div class="list-group-item d-flex justify-content-between subprop">
@@ -570,6 +608,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
+                      </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
               <div class="list-group-item d-flex justify-content-between subprop">
@@ -594,6 +636,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                     </svg></button> <button type="button" class="btn btn-primary btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="chevron bar down" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-chevron-bar-down b-icon bi">
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
+                      </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
                       </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
@@ -620,6 +666,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
+                      </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
               <div class="list-group-item d-flex justify-content-between subprop">
@@ -644,6 +694,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                     </svg></button> <button type="button" class="btn btn-primary btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="chevron bar down" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-chevron-bar-down b-icon bi">
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
+                      </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
                       </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
@@ -670,6 +724,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
+                      </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
               <div class="list-group-item d-flex justify-content-between list-group-item-primary">
@@ -691,7 +749,8 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
-                    </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button>
+                    </svg></button>
+                  <!----> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button>
                 </div>
               </div>
               <div class="list-group-item d-flex justify-content-between subprop">
@@ -716,6 +775,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                     </svg></button> <button type="button" class="btn btn-primary btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="chevron bar down" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-chevron-bar-down b-icon bi">
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
+                      </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
                       </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
@@ -742,6 +805,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
+                      </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
               <div class="list-group-item d-flex justify-content-between subprop">
@@ -766,6 +833,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                     </svg></button> <button type="button" class="btn btn-primary btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="chevron bar down" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-chevron-bar-down b-icon bi">
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
+                      </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
                       </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
@@ -792,6 +863,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
+                      </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
               <div class="list-group-item d-flex justify-content-between list-group-item-primary">
@@ -813,7 +888,8 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
-                    </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button>
+                    </svg></button>
+                  <!----> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button>
                 </div>
               </div>
               <div class="list-group-item d-flex justify-content-between subprop">
@@ -838,6 +914,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                     </svg></button> <button type="button" class="btn btn-primary btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="chevron bar down" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-chevron-bar-down b-icon bi">
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
+                      </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
                       </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
@@ -864,6 +944,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
+                      </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
               <div class="list-group-item d-flex justify-content-between subprop">
@@ -889,6 +973,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
+                      </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
               <div class="list-group-item d-flex justify-content-between list-group-item-primary">
@@ -910,7 +998,8 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
-                    </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button>
+                    </svg></button>
+                  <!----> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button>
                 </div>
               </div>
               <div class="list-group-item d-flex justify-content-between subprop">
@@ -935,6 +1024,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                     </svg></button> <button type="button" class="btn btn-primary btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="chevron bar down" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-chevron-bar-down b-icon bi">
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
+                      </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
                       </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
@@ -961,6 +1054,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
+                      </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
               <div class="list-group-item d-flex justify-content-between subprop">
@@ -985,6 +1082,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                     </svg></button> <button type="button" class="btn btn-primary btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="chevron bar down" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-chevron-bar-down b-icon bi">
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
+                      </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
                       </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
@@ -1011,6 +1112,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
+                      </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
               <div class="list-group-item d-flex justify-content-between subprop">
@@ -1035,6 +1140,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                     </svg></button> <button type="button" class="btn btn-primary btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="chevron bar down" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-chevron-bar-down b-icon bi">
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
+                      </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
                       </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
@@ -1061,6 +1170,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
+                      </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
               <div class="list-group-item d-flex justify-content-between subprop">
@@ -1086,6 +1199,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
+                      </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
               <div class="list-group-item d-flex justify-content-between list-group-item-primary">
@@ -1107,7 +1224,8 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
-                    </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button>
+                    </svg></button>
+                  <!----> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button>
                 </div>
               </div>
               <div class="list-group-item d-flex justify-content-between subprop">
@@ -1132,6 +1250,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                     </svg></button> <button type="button" class="btn btn-primary btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="chevron bar down" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-chevron-bar-down b-icon bi">
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
+                      </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
                       </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
@@ -1158,6 +1280,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
+                      </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
               <div class="list-group-item d-flex justify-content-between subprop">
@@ -1183,6 +1309,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
+                      </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
               <div class="list-group-item d-flex justify-content-between list-group-item-primary">
@@ -1204,7 +1334,8 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
-                    </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button>
+                    </svg></button>
+                  <!----> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button>
                 </div>
               </div>
               <div class="list-group-item d-flex justify-content-between subprop">
@@ -1229,6 +1360,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                     </svg></button> <button type="button" class="btn btn-primary btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="chevron bar down" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-chevron-bar-down b-icon bi">
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
+                      </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
                       </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
@@ -1255,6 +1390,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
+                      </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
               <div class="list-group-item d-flex justify-content-between subprop">
@@ -1279,6 +1418,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                     </svg></button> <button type="button" class="btn btn-primary btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="chevron bar down" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-chevron-bar-down b-icon bi">
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
+                      </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
                       </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
@@ -1305,6 +1448,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
+                      </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
               <div class="list-group-item d-flex justify-content-between subprop">
@@ -1329,6 +1476,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                     </svg></button> <button type="button" class="btn btn-primary btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="chevron bar down" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-chevron-bar-down b-icon bi">
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
+                      </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
                       </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
@@ -1355,6 +1506,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
+                      </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
               <div class="list-group-item d-flex justify-content-between subprop">
@@ -1379,6 +1534,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                     </svg></button> <button type="button" class="btn btn-primary btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="chevron bar down" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-chevron-bar-down b-icon bi">
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
+                      </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
                       </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
@@ -1405,6 +1564,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
+                      </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
               <div class="list-group-item d-flex justify-content-between subprop">
@@ -1429,6 +1592,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                     </svg></button> <button type="button" class="btn btn-primary btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="chevron bar down" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-chevron-bar-down b-icon bi">
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
+                      </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
                       </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
@@ -1455,6 +1622,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
+                      </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
               <div class="list-group-item d-flex justify-content-between list-group-item-primary">
@@ -1476,7 +1647,8 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
-                    </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button>
+                    </svg></button>
+                  <!----> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button>
                 </div>
               </div>
               <div class="list-group-item d-flex justify-content-between subprop">
@@ -1502,6 +1674,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
                       </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
+                      </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>
               <div class="list-group-item d-flex justify-content-between subprop">
@@ -1526,6 +1702,10 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
                     </svg></button> <button type="button" disabled="disabled" class="btn btn-primary btn-sm disabled"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="chevron bar down" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-chevron-bar-down b-icon bi">
                       <g>
                         <path fill-rule="evenodd" d="M3.646 4.146a.5.5 0 0 1 .708 0L8 7.793l3.646-3.647a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708zM1 11.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"></path>
+                      </g>
+                    </svg></button> <button type="button" class="btn btn-success btn-sm"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="node plus" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-node-plus b-icon bi">
+                      <g>
+                        <path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
                       </g>
                     </svg></button> <button type="button" aria-label="Close" class="close ml-2 text-danger">×</button></div>
               </div>

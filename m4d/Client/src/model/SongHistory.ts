@@ -361,11 +361,7 @@ export class SongHistory {
     const rows = s.split("\t");
 
     return rows.map((row) => {
-      const cells = row.split("=");
-      return new SongProperty({
-        name: cells[0],
-        value: cells.length > 1 ? cells[1] : undefined,
-      });
+      return SongProperty.FromString(row);
     });
   }
 }

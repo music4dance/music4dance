@@ -69,6 +69,14 @@
           >
             <b-icon-chevron-bar-down></b-icon-chevron-bar-down>
           </b-button>
+          <b-button
+            v-if="!property.isAction"
+            size="sm"
+            variant="success"
+            @click="insertNew(index)"
+          >
+            <b-icon-node-plus></b-icon-node-plus>
+          </b-button>
           <b-button-close
             text-variant="danger"
             class="ml-2"
@@ -143,6 +151,12 @@ export default Vue.extend({
           index < length - 1 && !this.history.properties[index + 1].isAction
         );
       }
+    },
+    insertNew(index: number): void {
+      const prop = prompt("Enter the property", "Name=Value");
+      this.$emit("insert-property", index, prop);
+      // eslint-disable-next-line no-console
+      console.log(prop);
     },
   },
 });
