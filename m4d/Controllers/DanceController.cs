@@ -148,6 +148,7 @@ namespace m4d.Controllers
             };
             var rows = new List<TagRowGroup>();
 
+            var emptyCounts = columns.Select(c => 0).ToList();
             foreach (var group in stats.Groups)
             {
                 var row = BuildTagRow(columns, group);
@@ -156,7 +157,7 @@ namespace m4d.Controllers
                     var groupRow = new TagRowGroup
                     {
                         Dance = row.Dance,
-                        Counts = row.Counts
+                        Counts = emptyCounts
                     };
                     rows.Add(groupRow);
 
