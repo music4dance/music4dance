@@ -23,7 +23,7 @@
       <a href="/Song/Index/">music catalog</a>. More details on how to do that
       are available on this
       <a
-        href="https://music4dance.blog/wedding-music-part-i-can-we-dance-the-foxtrot-to-our-song/"
+        href="https://music4dance.blog/wed-like-to-dance-a-real-partner-dance-as-the-first-dance-at-our-wedding-part-i-we-already-chose-our-song"
         >blog post</a
       >. If we haven't cataloged your song yet,
       <a href="https://music4dance.blog/feedback/">let us know</a>
@@ -33,14 +33,13 @@
       If you know what dance style you would like to dance, but haven't found
       the perfect song yet, you can do that kind of search as well.
       <a
-        href="https://music4dance.blog/wedding-music-part-ii-were-learning-to-rumba-help-us-find-a-good-song-for-our-first-dance/"
+        href="https://music4dance.blog/wed-like-to-dance-a-real-partner-dance-as-the-first-dance-at-our-wedding-part-ii-we-already-chose-our-dance/"
       >
         Read the post</a
       >
       on how to do that, or just click on one of the quick links below. Each
-      number links to a list of songs that have can be danced to the style
-      specified by the row and have also been tagged with the text in the column
-      heading.
+      number links to a list of songs that can be danced to the style specified
+      by the row and have also been tagged with the text in the column heading.
     </p>
     <p>
       If you're looking for a slow dance for your wedding, try browsing the
@@ -60,7 +59,7 @@
       <a href="https://music4dance.blog/lets-tag-some-songs/"
         >tag the songs you like</a
       >
-      and have us remember your favorites while you're playing with options.
+      and keep track of your favorites while you're playing with options.
     </p>
 
     <div style="margin: 0 auto; max-width: 800px">
