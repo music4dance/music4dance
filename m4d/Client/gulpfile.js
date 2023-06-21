@@ -28,9 +28,15 @@ function bootstrap4() {
 //   );
 // }
 
-function fontawesome() {
+// function fontawesome() {
+//     return gulp
+//         .src("./node_modules/@fortawesome/fontawesome-free/webfonts/*.*")
+//         .pipe(gulp.dest(rootPath("fonts/")));
+// }
+
+function bootstrapIcons() {
     return gulp
-        .src("./node_modules/@fortawesome/fontawesome-free/webfonts/*.*")
+        .src("./node_modules/bootstrap-icons/font/fonts/bootstrap-icons.*")
         .pipe(gulp.dest(rootPath("fonts/")));
 }
 
@@ -93,14 +99,14 @@ function rootPath(fragment) {
 }
 
 exports.bootstrap = bootstrap4;
-exports.fontawesome = fontawesome;
+exports.bootstrapIcons = bootstrapIcons;
 exports.authButtons = authButtons;
 exports.dances = dances;
 exports.assets = assets;
 exports.scripts = scripts;
 exports.build = gulp.parallel(
     bootstrap4,
-    fontawesome,
+    bootstrapIcons,
     authButtons,
     dances,
     assets,

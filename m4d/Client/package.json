@@ -13,11 +13,11 @@
     "styles": "gulp build"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.15.3",
     "@types/showdown": "^1.9.3",
     "@types/uuid": "^9.0.1",
     "axios": "^0.21.1",
     "bootstrap": "^4.5.3",
+    "bootstrap-icons": "^1.10.5",
     "bootstrap-vue": "^2.16.0",
     "core-js": "^3.6.5",
     "date-fns": "^2.16.1",

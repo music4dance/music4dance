@@ -2,42 +2,39 @@
 $dance-light: lighten($dance-primary, 40%);
 
 $theme-colors: (
-    primary: $dance-primary, 
-    info: $dance-light, 
-    music: #24A092, 
-    tempo: #001671, 
-    style: #E25828, 
+    primary: $dance-primary,
+    info: $dance-light,
+    music: #24a092,
+    tempo: #001671,
+    style: #e25828,
     other: #995600,
     tools: #001671,
     blog: #995600,
-    dance: #FF9900,
+    dance: #ff9900,
 );
 
-$contribute-color: #DF5930;
-$contribute-light: lighten($contribute-color,40%);
+$contribute-color: #df5930;
+$contribute-light: lighten($contribute-color, 40%);
 $blog-color: #995600;
-$blog-light: lighten($blog-color,40%);
+$blog-light: lighten($blog-color, 40%);
 $tools-color: #001671;
-$tools-light: lighten($tools-color,40%);
-$music-color: #24A092;
-$music-light: lighten($music-color,40%);
-$admin-color: #862A08;
-$admin-light: lighten($admin-color,40%);
+$tools-light: lighten($tools-color, 40%);
+$music-color: #24a092;
+$music-light: lighten($music-color, 40%);
+$admin-color: #862a08;
+$admin-light: lighten($admin-color, 40%);
 
 $link-color: blue;
 
 $navbar-dark-color: rgba(white, 1);
 $navbar-dark-hover-color: rgba(white, 0.75);
-$navbar-dark-active-color: rgba(white, .5);
+$navbar-dark-active-color: rgba(white, 0.5);
 
-$fa-font-path: "/fonts";
-@import "fontawesome.scss";
-@import "solid.scss";
 @import "bootstrap.scss";
 @import "../../node_modules/bootstrap-vue/src/index.scss";
 
 footer {
-    margin: 1rem
+    margin: 1rem;
 }
 .list-clean {
     list-style-type: none;
@@ -73,7 +70,7 @@ footer {
     min-height: 30rem;
     background-size: 25rem 30rem;
     background-repeat: no-repeat;
-    background-position: center
+    background-position: center;
 }
 
 .center-block {
@@ -150,7 +147,7 @@ a.admin {
 
 /* Styles for tag matrix table */
 .tag-matrix-group {
-    font-weight: bold
+    font-weight: bold;
 }
 
 .tag-matrix-item {
@@ -160,41 +157,41 @@ a.admin {
 /* Tag Cloud */
 
 .cloud-0 {
-    font-size: 80%
+    font-size: 80%;
 }
 
 .cloud-1 {
-    font-size: 90%
+    font-size: 90%;
 }
 
 .cloud-2 {
-    font-size: 100%
+    font-size: 100%;
 }
 
 .cloud-3 {
-    font-size: 110%
+    font-size: 110%;
 }
 
 .cloud-4 {
-    font-size: 120%
+    font-size: 120%;
 }
 
 .cloud-5 {
-    font-size: 130%
+    font-size: 130%;
 }
 
 .cloud-6 {
-    font-size: 140%
+    font-size: 140%;
 }
 
 .cloud-7 {
-    font-size: 150%
+    font-size: 150%;
 }
 
 .cloud-8 {
-    font-size: 160%
+    font-size: 160%;
 }
 
 .cloud-9 {
-    font-size: 170%
+    font-size: 170%;
 }

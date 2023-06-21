@@ -104,8 +104,8 @@ namespace m4d.Controllers
 
         public override ViewResult View(string viewName, object model)
         {
-            ViewBag.Help = HelpPage;
-            ViewBag.UseView = UseVue;
+            ViewData["Help"] = HelpPage;
+            ViewData["UseView"] = UseVue;
             return base.View(viewName, model);
         }
 

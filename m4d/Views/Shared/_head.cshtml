@@ -27,6 +27,9 @@
     }
     var searchIndex = _searchService.DefaultId.Last();
     var hideAds = ViewData.TryGetValue("HideAds", out var hideAdsObj) && (hideAdsObj as bool?).Value;
+    var hasIcons = ViewData.TryGetValue("HasIcons", out var hasIconsObj) && (hasIconsObj as bool?).Value;
+    var styleModifier = hasIcons ? "wicons" : "";
+    var styleSheet = $"/css/site{styleModifier}.css";
 }
 
 @functions{
@@ -75,7 +78,7 @@
 <link rel="shortcut icon" href="~/images/favicon.png"/>
 <link href="//fonts.googleapis.com/css?family=Source+Sans+Pro|Merienda:700" rel="stylesheet" type="text/css">
 
-<link rel="stylesheet" href="/css/site.css"/>
+    <link rel="stylesheet" href=@styleSheet />
 
 <script>
     var menuContext = {

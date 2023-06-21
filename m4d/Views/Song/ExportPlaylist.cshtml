@@ -2,6 +2,7 @@
 @model m4dModels.ExportInfo
 
 @{
+    ViewData["HasIcons"] = true;
     ViewBag.Title = "Export Playlist";
     var filter = new SongFilter(Model.Filter);
     var canCreate = Model.IsAuthenticated && (Model.IsPremium || Model.IsSelf);
@@ -30,7 +31,7 @@
                 </a>
                 @if (Model.IsAuthenticated)
                 {
-                    <span class="fas fa-check-circle mx-2"></span>
+                    <i class="bi-check-circle text-success mx-2"></i>
                 }
                 else
                 {
@@ -43,7 +44,7 @@
                 Have a <a href="/home/contribute">premium subscription</a>
                 @if (Model.IsPremium)
                 {
-                    <span class="fas fa-check-circle mx-2"></span>
+                    <i class="bi-check-circle text-success mx-2"></i>
                 }
                 else
                 {
