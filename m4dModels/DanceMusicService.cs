@@ -578,7 +578,10 @@ namespace m4dModels
                     continue;
                 }
 
-                Enum.TryParse(cells[1], out PlayListType type);
+                if (!Enum.TryParse(cells[1], out PlayListType type))
+                {
+                    type = PlayListType.SongsFromSpotify;
+                }
 
                 // m4dId
                 var userId = cells[0];
