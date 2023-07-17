@@ -246,17 +246,19 @@ export default Vue.extend({
       };
     },
     headLinks(): Link[] {
-      const blogEntries = this.model.blogEntries;
-      const headLinks: Link[] = [blogEntries[blogEntries.length - 1].link];
+      const blogEntries = this.blogEntries;
+      const headLinks: Link[] = [this.newestEntry.link];
 
       const used = new Set<number>();
       seed(window.seedNumber ?? Date.now());
       while (headLinks.length < 4) {
         const idx = Math.floor(random() * (blogEntries.length - 2));
-        if (used.has(idx)) {
+        const entry = blogEntries[idx];
+        if (entry.oneTime || used.has(idx)) {
           continue;
         }
-        headLinks.push(blogEntries[idx].link);
+        used.add(idx);
+        headLinks.push(entry.link);
       }
 
       headLinks.push({
@@ -270,6 +272,14 @@ export default Vue.extend({
       });
 
       return headLinks;
+    },
+    blogEntries(): SiteMapEntry[] {
+      return this.model.blogEntries.flatMap((entry) => entry.children ?? []);
+    },
+    newestEntry(): SiteMapEntry {
+      return this.blogEntries.reduce((acc, curr) =>
+        (acc.order ?? 0) > (curr.order ?? 0) ? acc : curr
+      );
     },
     tourSteps(): TourStep[] {
       return [

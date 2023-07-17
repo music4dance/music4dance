@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using DanceLibrary;
 using Microsoft.Extensions.FileProviders;
 
@@ -15,6 +16,7 @@ namespace m4d.ViewModels
         public virtual bool OneTime { get; set; }
         public virtual bool Crawl { get; set; }
         public virtual IEnumerable<SiteMapEntry> Children { get; set; }
+        public virtual int Order { get; set; }
 
         public string FullPath => MakeFullPath(Reference);
 
@@ -65,19 +67,23 @@ namespace m4d.ViewModels
             var path = fileProvider.GetFileInfo($"/wwwroot/content/{filename}.txt").PhysicalPath;
             var lines = File.ReadAllLines(path);
             var family = new Stack<List<SiteMapEntry>>();
+            var depths = new Stack<int>();
+            depths.Push(0);
+
             family.Push(new List<SiteMapEntry>());
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var line in lines)
             {
                 var parts = line.Split('\t').ToList();
                 var curdepth = 0;
-                var depth = family.Count - 1;
 
                 while (parts.Count > 0 && string.IsNullOrWhiteSpace(parts[0]))
                 {
                     parts.RemoveAt(0);
                     curdepth += 1;
                 }
+
+                var depth = depths.Peek();
 
                 if (Math.Abs(curdepth - depth) > 1)
                 {
@@ -87,26 +93,43 @@ namespace m4d.ViewModels
                 if (curdepth > depth)
                 {
                     family.Push(new List<SiteMapEntry>());
+                    depths.Push(curdepth);
                 }
                 else if (curdepth < depth)
                 {
-                    var t = family.Pop();
-                    family.Peek()[family.Peek().Count - 1].Children = t;
+                    AddLevel(family);
+                    depths.Pop();
                 }
 
+                if (parts.Count <= 4 || !int.TryParse(parts[4], out var order))
+                {
+                    order = 0;
+                }
                 family.Peek().Add(
                     new SiteMapEntry
                     {
                         Title = parts[0],
                         Reference = parts.Count > 1 ? parts[1] : null,
                         Description = parts.Count > 2 ? parts[2] : null,
-                        OneTime = parts.Count > 3 && parts[3] == "OneTime"
+                        OneTime = parts.Count > 3 && !string.IsNullOrWhiteSpace(parts[3]),
+                        Order = order
                     });
             }
 
+            if (family.Count > 1)
+            {
+                AddLevel(family);
+            }
             Children = family.Pop();
         }
+
+        private static void AddLevel(Stack<List<SiteMapEntry>> family)
+        {
+            var t = family.Pop();
+            family.Peek()[family.Peek().Count - 1].Children = t;
+        }
     }
+
 
     public class SiteMapCategory
     {
@@ -125,6 +148,8 @@ namespace m4d.ViewModels
             .Select(d => new SiteMapDance(d));
     }
 
+    // TODONEXT: Make ontime/archive just disappear (other than if it's the most recent post)
+    // Get the home page to reflect the new information
     public static class SiteMapInfo
     {
         public static void ReloadCategories(IFileProvider fileProvider)

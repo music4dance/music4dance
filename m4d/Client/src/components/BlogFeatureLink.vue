@@ -8,6 +8,13 @@
       <span v-html="entry.description"></span>
       <a :href="entry.fullPath" style="margin-left: 0.5em">[Read more]</a>
     </div>
+    <div v-if="entry.children">
+      <blog-feature-link
+        v-for="child in entry.children"
+        :entry="child"
+        :key="child.order"
+      ></blog-feature-link>
+    </div>
   </div>
 </template>
 
@@ -17,6 +24,7 @@ import "reflect-metadata";
 import Vue, { PropType } from "vue";
 
 export default Vue.extend({
+  name: "blog-feature-link",
   props: {
     entry: {
       type: Object as PropType<SiteMapEntry>,

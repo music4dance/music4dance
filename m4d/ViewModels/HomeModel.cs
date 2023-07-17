@@ -11,7 +11,7 @@ namespace m4d.ViewModels
         public HomeModel(IEnumerable<SiteMapCategory> siteMapCategories)
         {
             BlogEntries = siteMapCategories.First(c => c.Name == "Info").Entries
-                .First(e => e.Title == "Blog").Children.Where(e => !e.OneTime).ToList();
+                .First(e => e.Title == "Blog").Children.ToList();
 
             Dances = new List<DanceClass>(
                 new[]

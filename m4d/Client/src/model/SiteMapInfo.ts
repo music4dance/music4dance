@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { jsonMember, jsonObject } from "typedjson";
+import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
 import { Link } from "./Link";
 
 @jsonObject
@@ -7,7 +7,9 @@ export class SiteMapEntry {
   @jsonMember public title!: string;
   @jsonMember public reference!: string;
   @jsonMember public description!: string;
-  @jsonMember public oneTime!: boolean;
+  @jsonMember public oneTime?: boolean;
+  @jsonMember public order?: number;
+  @jsonArrayMember(SiteMapEntry) public children?: SiteMapEntry[];
 
   public get link(): Link {
     return { text: this.title, link: this.fullPath };
