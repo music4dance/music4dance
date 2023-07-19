@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using m4d.APIControllers;
 using m4d.ViewModels;
 using m4dModels;
 using Microsoft.AspNetCore.Diagnostics;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging;
 
 namespace m4d.Controllers
 {
@@ -15,8 +17,8 @@ namespace m4d.Controllers
     {
         public HomeController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
-            IDanceStatsManager danceStatsManager, IConfiguration configuration) :
-            base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
+            IDanceStatsManager danceStatsManager, IConfiguration configuration, ILogger<MusicServiceController> logger) :
+            base(context, userManager, roleManager, searchService, danceStatsManager, configuration, logger)
         {
         }
 

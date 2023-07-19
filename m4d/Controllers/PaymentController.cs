@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using m4d.APIControllers;
 
 namespace m4d.Controllers
 {
@@ -18,8 +19,8 @@ namespace m4d.Controllers
     {
         public PaymentController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
-            IDanceStatsManager danceStatsManager, IConfiguration configuration) :
-            base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
+            IDanceStatsManager danceStatsManager, IConfiguration configuration, ILogger<MusicServiceController> logger) :
+            base(context, userManager, roleManager, searchService, danceStatsManager, configuration, logger)
         {
             StripeConfiguration.ApiKey = configuration["Authentication:Stripe:SecretKey"];
         }
