@@ -92,26 +92,7 @@ namespace DanceLibrary {
                 return ResourceManager.GetString("DanceGroups", resourceCulture);
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
-        ///&lt;Dances&gt;
-        ///  &lt;DanceType Name=&quot;Waltz&quot; Meter=&quot;3/4&quot;&gt;
-        ///    &lt;DanceInstance Style=&quot;American Smooth&quot; MinTempo=&quot;28&quot; MaxTempo=&quot;30&quot;&gt;
-        ///      &lt;DanceException Organization=&quot;NDCA&quot; Level=&quot;Bronze&quot; MinTempo=&quot;30&quot; MaxTempo=&quot;32&quot;/&gt;
-        ///    &lt;/DanceInstance&gt;
-        ///    &lt;DanceInstance Style=&quot;International Standard&quot; MinTempo=&quot;28&quot; MaxTempo=&quot;30&quot;&gt;
-        ///      &lt;DanceException Organization=&quot;NDCA&quot; Competitor=&quot;Professional,Amateur&quot; Tempo=&quot;28&quot;/&gt;
-        ///    &lt;/DanceInstance&gt;
-        ///  &lt;/DanceType&gt;
-        ///  &lt;DanceType Name=&quot;Foxtrot&quot; Me [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string Dances {
-            get {
-                return ResourceManager.GetString("Dances", resourceCulture);
-            }
-        }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to [
         ///  {
@@ -140,9 +121,9 @@ namespace DanceLibrary {
         ///        ]
         ///      } [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string JsonDances {
+        internal static string Dances {
             get {
-                return ResourceManager.GetString("JsonDances", resourceCulture);
+                return ResourceManager.GetString("Dances", resourceCulture);
             }
         }
     }

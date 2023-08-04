@@ -331,8 +331,8 @@ namespace DanceLibrary
         public bool CalculateBeatMatch(decimal tempo, decimal epsilon, out decimal delta,
             out decimal deltaPercent, out decimal median)
         {
-            var b = new Tempo(tempo, new TempoType(TempoKind.BPM)); // Tempo in beats per minute
-            var t = b.Convert(new TempoType(TempoKind.MPM, Meter));
+            var b = new Tempo(tempo, new TempoType(TempoKind.Bpm)); // Tempo in beats per minute
+            var t = b.Convert(new TempoType(TempoKind.Mpm, Meter));
 
             return CalculateTempoMatch(t.Rate, epsilon, out delta, out deltaPercent, out median);
         }
@@ -658,7 +658,7 @@ namespace DanceLibrary
 
     public class Dances
     {
-        private static readonly JsonSerializerSettings _settings = new()
+        private static readonly JsonSerializerSettings s_settings = new()
         {
             NullValueHandling = NullValueHandling.Ignore,
             DefaultValueHandling = DefaultValueHandling.Ignore
@@ -947,7 +947,7 @@ namespace DanceLibrary
 
         private static List<T> LoadFromJson<T>(string json)
         {
-            return JsonConvert.DeserializeObject<List<T>>(json, _settings);
+            return JsonConvert.DeserializeObject<List<T>>(json, s_settings);
         }
 
         public static Dances Load(string typesJson, string groupsJson)
@@ -962,7 +962,7 @@ namespace DanceLibrary
         {
             var dances = new Dances();
 
-            dances.LoadDances(danceTypes ?? LoadFromJson<DanceType>(DanceLibrary.JsonDances));
+            dances.LoadDances(danceTypes ?? LoadFromJson<DanceType>(DanceLibrary.Dances));
             dances.LoadGroups(danceGroups ?? LoadFromJson<DanceGroup>(DanceLibrary.DanceGroups));
 
             return dances;

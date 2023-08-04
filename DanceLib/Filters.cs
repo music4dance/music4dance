@@ -39,7 +39,7 @@ namespace DanceLibrary
 
     public class FilterObject
     {
-        private static readonly Dictionary<string, FilterObject> _filters =
+        private static readonly Dictionary<string, FilterObject> s_filters =
             new();
 
         private readonly List<FilterItem> _sortedValues = new();
@@ -51,14 +51,14 @@ namespace DanceLibrary
 
         static FilterObject()
         {
-            _filters[Tags.Style] = new FilterObject(
+            s_filters[Tags.Style] = new FilterObject(
                 Tags.Style,
                 new[]
                 {
                     "International Standard", "International Latin", "American Smooth",
                     "American Rhythm", "Social", "Performance"
                 }, new string[] { null, null, null, null, null, null });
-            _filters[Tags.Organization] = new FilterObject(
+            s_filters[Tags.Organization] = new FilterObject(
                 Tags.Organization,
                 new[] { "NDCA", "DanceSport", "Ad-Hoc" },
                 new[]
@@ -66,11 +66,11 @@ namespace DanceLibrary
                     "National Dance Council of America (NDCA)",
                     "International DanceSport Federation (IDSF)", "No Offical Organization"
                 });
-            _filters[Tags.Competitor] = new FilterObject(
+            s_filters[Tags.Competitor] = new FilterObject(
                 Tags.Competitor,
                 new[] { "Professional", "Amateur", "ProAm" },
                 new[] { null, null, "Pro/Am" });
-            _filters[Tags.Level] = new FilterObject(
+            s_filters[Tags.Level] = new FilterObject(
                 Tags.Level,
                 new[] { "Bronze", "Silver", "Gold" }, new string[] { null, null, null });
         }
@@ -107,13 +107,13 @@ namespace DanceLibrary
 
         public static void SetValue(string type, string name, bool value)
         {
-            var fo = _filters[type];
+            var fo = s_filters[type];
             fo.SetValue(name, value);
         }
 
         public static bool GetValue(string type, string name)
         {
-            var fo = _filters[type];
+            var fo = s_filters[type];
             if (name == Tags.All)
             {
                 var ret = false;
@@ -150,7 +150,7 @@ namespace DanceLibrary
                 return true;
             }
 
-            var fo = _filters[name];
+            var fo = s_filters[name];
             foreach (var fi in fo._sortedValues)
             {
                 if (fi.Value && !values.Contains(fi.Name))
@@ -184,13 +184,13 @@ namespace DanceLibrary
 
         public static ReadOnlyCollection<FilterItem> GetFilter(string type)
         {
-            return new ReadOnlyCollection<FilterItem>(_filters[type]._sortedValues);
+            return new ReadOnlyCollection<FilterItem>(s_filters[type]._sortedValues);
         }
 
         public static void ReadState(TextReader t)
         {
             // TODO: Make this robust against old state
-            foreach (var fo in _filters.Values)
+            foreach (var fo in s_filters.Values)
             {
                 var s = t.ReadLine();
                 fo.TryParse(s);
@@ -209,7 +209,7 @@ namespace DanceLibrary
         /// <param name="value">The direction to set all of the values</param>
         public static void SetAll(bool value)
         {
-            foreach (var fo in _filters.Values)
+            foreach (var fo in s_filters.Values)
             {
                 fo.SetTypeValues(value);
             }
@@ -221,7 +221,7 @@ namespace DanceLibrary
         /// <param name="value">The direction to set all of the values</param>
         public static void SetAll(string type, bool value)
         {
-            var fo = _filters[type];
+            var fo = s_filters[type];
             fo.SetTypeValues(value);
         }
 
@@ -252,7 +252,7 @@ namespace DanceLibrary
 
         public static void WriteState(TextWriter t)
         {
-            foreach (var fo in _filters.Values)
+            foreach (var fo in s_filters.Values)
             {
                 var s = fo.ToString();
                 t.WriteLine(s);

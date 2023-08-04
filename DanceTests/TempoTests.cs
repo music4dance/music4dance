@@ -1,6 +1,5 @@
 ﻿using DanceLibrary;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Diagnostics.CodeAnalysis;
 
 
 namespace DanceTests
@@ -8,9 +7,9 @@ namespace DanceTests
     [TestClass]
     public class TempoTests
     {
-        private readonly Tempo _bps = new(1.81M, new TempoType(TempoKind.BPS));
-        private readonly Tempo _bpm = new(50M, new TempoType(TempoKind.BPM));
-        private readonly Tempo _mpm = new(25, new TempoType(TempoKind.MPM, new Meter(4, 4)));
+        private readonly Tempo _bps = new(1.81M, new TempoType(TempoKind.Bps));
+        private readonly Tempo _bpm = new(50M, new TempoType(TempoKind.Bpm));
+        private readonly Tempo _mpm = new(25, new TempoType(TempoKind.Mpm, new Meter(4, 4)));
 
         [TestMethod]
         public void TempoConstructors()
@@ -46,10 +45,10 @@ namespace DanceTests
         [TestMethod]
         public void TempoConversion()
         {
-            var mpm34 = _mpm.Convert(new TempoType(TempoKind.MPM, new Meter(3, 4)));
+            var mpm34 = _mpm.Convert(new TempoType(TempoKind.Mpm, new Meter(3, 4)));
             Assert.AreEqual(25M * 4M / 3M, mpm34.Rate);
 
-            var bps = _mpm.Convert(new TempoType(TempoKind.BPS));
+            var bps = _mpm.Convert(new TempoType(TempoKind.Bps));
             Assert.AreEqual(_mpm.Rate * 4 / 60, bps.Rate);
         }
 

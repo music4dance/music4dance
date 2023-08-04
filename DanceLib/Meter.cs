@@ -9,6 +9,8 @@ namespace DanceLibrary
     /// </summary>
     public class Meter
     {
+        // TODO: Consider subclassing exceptions rather thant testing against strings
+
         public static readonly string MeterSyntaxError =
             "Meter must be in the format {positive integer}/{positive integer}";
 
@@ -122,7 +124,7 @@ namespace DanceLibrary
             }
 
             // Handle a is null case☺.
-            return a is null ? b is null : a.Equals(b);
+            return a?.Equals(b) ?? false;
         }
 
         public static bool operator !=(Meter a, Meter b)

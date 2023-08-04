@@ -162,7 +162,6 @@ namespace DanceLibrary
 
         #region Properties
 
-        // This is a read only property
         public decimal Length { get; }
 
         public int Minutes => (int)(Length / 60);
@@ -191,7 +190,7 @@ namespace DanceLibrary
 
         public override bool Equals(object obj)
         {
-            return obj is SongDuration other ? CompareTo(other) == 0 : false;
+            return obj is SongDuration other && CompareTo(other) == 0;
         }
 
         public override int GetHashCode()
@@ -294,10 +293,10 @@ namespace DanceLibrary
 
         public static IEnumerable<SongDuration> GetStandarDurations()
         {
-            return _durations;
+            return s_durations;
         }
 
-        private static readonly SongDuration[] _durations =
+        private static readonly SongDuration[] s_durations =
         {
             new SongDuration(30M), new SongDuration(60M), new SongDuration(90M),
             new SongDuration(120M), new SongDuration(150M), new SongDuration(180M),

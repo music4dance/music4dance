@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
-
-namespace DanceLibrary
+﻿namespace DanceLibrary
 {
     public enum DurationKind
     {
@@ -11,22 +8,8 @@ namespace DanceLibrary
         Minute = 3
     };
 
-    public class DurationType : IConversand
+    public class DurationType
     {
-        static DurationType()
-        {
-            s_commonDurations = new List<DurationType>(4);
-            s_commonDurations.Add(new DurationType(DurationKind.Beat));
-            s_commonDurations.Add(new DurationType(DurationKind.Measure));
-            s_commonDurations.Add(new DurationType(DurationKind.Second));
-            s_commonDurations.Add(new DurationType(DurationKind.Minute));
-        }
-
-        public static DurationType FromKind(DurationKind dk)
-        {
-            return s_commonDurations[(int)dk];
-        }
-
         #region Constructors
 
         public DurationType(DurationKind dk)
@@ -60,7 +43,6 @@ namespace DanceLibrary
 
         #endregion
 
-
         #region Properties
 
         public DurationKind DurationKind => _dk;
@@ -82,20 +64,9 @@ namespace DanceLibrary
         #endregion
 
         #region Operators
-
-        public static implicit operator DurationKind(DurationType dt)
-        {
-            return dt.DurationKind;
-        }
-
-        public static implicit operator DurationType(DurationKind dk)
-        {
-            return s_commonDurations[(int)dk];
-        }
-
         public override bool Equals(object obj)
         {
-            return obj is not DurationType duration ? false : _dk == duration._dk;
+            return obj is DurationType duration && _dk == duration._dk;
         }
 
         public override int GetHashCode()
@@ -105,20 +76,6 @@ namespace DanceLibrary
 
         #endregion
 
-        public static ReadOnlyCollection<DurationType> CommonDurations =>
-            new(s_commonDurations);
-
         private readonly DurationKind _dk;
-
-        private static readonly List<DurationType> s_commonDurations;
-
-        // Implement IConversand
-        public Kind Kind => Kind.Duration;
-
-        public string Name => ToString();
-
-        public string Label => TypeName;
-
-        public static string TypeName => "Duration";
     }
 }

@@ -8,7 +8,7 @@ namespace DanceLibrary
         public static readonly string PositiveDecimalRate =
             "Tempo must start with a positive integer";
 
-        private static readonly TempoType _bps = new(TempoKind.BPS, null);
+        private static readonly TempoType s_bps = new(TempoKind.Bps, null);
 
         public Tempo(decimal rate, TempoType tempoType)
         {
@@ -16,7 +16,7 @@ namespace DanceLibrary
             TempoType = tempoType;
         }
 
-        public Tempo(decimal bpm) : this(bpm, new TempoType(TempoKind.BPM, null))
+        public Tempo(decimal bpm) : this(bpm, new TempoType(TempoKind.Bpm, null))
         {
         }
 
@@ -51,9 +51,6 @@ namespace DanceLibrary
             TempoType = new TempoType(typeString);
         }
 
-        public static Tempo DefaultTempo { get; } =
-            new Tempo(32M, new TempoType(TempoKind.MPM, new Meter(4, 4)));
-
         public decimal SecondsPerBeat
         {
             get
@@ -68,7 +65,7 @@ namespace DanceLibrary
             get
             {
                 var spb = SecondsPerBeat;
-                return TempoType.TempoKind == TempoKind.MPM ? spb * TempoType.Meter.Numerator : spb;
+                return TempoType.TempoKind == TempoKind.Mpm ? spb * TempoType.Meter.Numerator : spb;
             }
         }
 
@@ -86,9 +83,9 @@ namespace DanceLibrary
 
             switch (tempoType.TempoKind)
             {
-                case TempoKind.BPS: return normalized;
-                case TempoKind.BPM: return new Tempo(normalized.Rate * 60, tempoType);
-                case TempoKind.MPM:
+                case TempoKind.Bps: return normalized;
+                case TempoKind.Bpm: return new Tempo(normalized.Rate * 60, tempoType);
+                case TempoKind.Mpm:
                     return new Tempo(normalized.Rate * 60 / tempoType.Meter.Numerator, tempoType);
                 default:
                     Debug.Assert(false);
@@ -100,9 +97,9 @@ namespace DanceLibrary
         {
             switch (TempoType.TempoKind)
             {
-                case TempoKind.BPS: return this;
-                case TempoKind.BPM: return new Tempo(Rate / 60, _bps);
-                case TempoKind.MPM: return new Tempo(Rate * TempoType.Meter.Numerator / 60, _bps);
+                case TempoKind.Bps: return this;
+                case TempoKind.Bpm: return new Tempo(Rate / 60, s_bps);
+                case TempoKind.Mpm: return new Tempo(Rate * TempoType.Meter.Numerator / 60, s_bps);
                 default:
                     Debug.Assert(false);
                     return null;
@@ -117,7 +114,7 @@ namespace DanceLibrary
         public override bool Equals(object obj)
         {
             var tempo = obj as Tempo;
-            return tempo == null ? false : TempoType == tempo.TempoType && Rate == tempo.Rate;
+            return tempo != null && (TempoType == tempo.TempoType && Rate == tempo.Rate);
         }
 
         public override int GetHashCode()
@@ -134,7 +131,7 @@ namespace DanceLibrary
             }
 
             // Handle a is null case☺.
-            return a is null ? b is null : a.Equals(b);
+            return a?.Equals(b) ?? false;
         }
 
         public static bool operator !=(Tempo a, Tempo b)

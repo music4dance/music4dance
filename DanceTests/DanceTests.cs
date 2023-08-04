@@ -1,8 +1,6 @@
 ﻿using DanceLibrary;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 
 namespace DanceTests
 {
@@ -118,7 +116,7 @@ namespace DanceTests
         {
             var succeeded = true;
 
-            var tempo = new Tempo(rate, new TempoType(TempoKind.MPM, meter));
+            var tempo = new Tempo(rate, new TempoType(TempoKind.Mpm, meter));
             var dances = _dances.DancesFiltered(tempo, epsilon);
 
             var i = 0;

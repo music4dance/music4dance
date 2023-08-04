@@ -16,33 +16,17 @@ namespace DanceTests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void InvalidConstructorZero()
         {
-            try
-            {
-                new TempoRange(0, 0);
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                return;
-            }
-
-            Assert.Fail();
+            var range = new TempoRange(0, 0);
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
         public void InvalidConstructorOrder()
         {
-            try
-            {
-                new TempoRange(26.0M, 22.0M);
-            }
-            catch (ArgumentException)
-            {
-                return;
-            }
-
-            Assert.Fail();
+            var range = new TempoRange(26.0M, 22.0M);
         }
 
         [TestMethod]
@@ -65,11 +49,11 @@ namespace DanceTests
 
             var t1 = new TempoRange(20.4M, 100.003M);
             var s1 = t1.ToString();
-            Equals(s1, "20.4-100");
+            Assert.AreEqual(s1, "20.40-100");
 
             var t2 = new TempoRange(25.01M, 25.01M);
             var s2 = t2.ToString();
-            Equals(s2, "25.01");
+            Assert.AreEqual(s2, "25.01");
         }
 
         [TestMethod]

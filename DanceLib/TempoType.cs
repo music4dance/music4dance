@@ -1,37 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using Newtonsoft.Json;
 
 namespace DanceLibrary
 {
     public enum TempoKind
     {
-        BPM,
-        MPM,
-        BPS
+        Bpm,
+        Mpm,
+        Bps
     }
 
     /// <summary>
     ///     Represents a rate with a labe (MPM, BPM, BPS), in other word a tempo
     ///     This is an immutable class
     /// </summary>
-    public class TempoType : IConversand
+    public class TempoType
     {
         public static readonly string TempoSyntaxError = "Sytax error in tempo";
-
-
-        private static readonly List<TempoType> s_commonTempi;
-
-        static TempoType()
-        {
-            s_commonTempi = new List<TempoType>(5);
-            s_commonTempi.Add(new TempoType(TempoKind.BPM));
-            s_commonTempi.Add(new TempoType(TempoKind.BPS));
-            s_commonTempi.Add(new TempoType(TempoKind.MPM, new Meter(2, 4)));
-            s_commonTempi.Add(new TempoType(TempoKind.MPM, new Meter(3, 4)));
-            s_commonTempi.Add(new TempoType(TempoKind.MPM, new Meter(4, 4)));
-        }
 
         private TempoType()
         {
@@ -56,7 +41,7 @@ namespace DanceLibrary
         {
             if (string.IsNullOrEmpty(s))
             {
-                TempoKind = TempoKind.BPM;
+                TempoKind = TempoKind.Bpm;
                 return;
             }
 
@@ -69,7 +54,7 @@ namespace DanceLibrary
 
             if (string.Equals(fields[0], "BPS", StringComparison.OrdinalIgnoreCase))
             {
-                TempoKind = TempoKind.BPS;
+                TempoKind = TempoKind.Bps;
                 if (fields.Length > 1)
                 {
                     throw new ArgumentOutOfRangeException(TempoSyntaxError);
@@ -77,7 +62,7 @@ namespace DanceLibrary
             }
             else if (string.Equals(fields[0], "BPM", StringComparison.OrdinalIgnoreCase))
             {
-                TempoKind = TempoKind.BPM;
+                TempoKind = TempoKind.Bpm;
                 if (fields.Length > 1)
                 {
                     throw new ArgumentOutOfRangeException(TempoSyntaxError);
@@ -85,7 +70,7 @@ namespace DanceLibrary
             }
             else
             {
-                TempoKind = TempoKind.MPM;
+                TempoKind = TempoKind.Mpm;
                 if (string.Equals(fields[0], "MPM", StringComparison.OrdinalIgnoreCase))
                 {
                     if (fields.Length != 2)
@@ -117,19 +102,15 @@ namespace DanceLibrary
         public Meter Meter { get; }
 
         [JsonIgnore]
-        public static ReadOnlyCollection<TempoType> CommonTempi =>
-            new(s_commonTempi);
-
-        [JsonIgnore]
         public static string TypeName => "Tempo";
 
         public override string ToString()
         {
             switch (TempoKind)
             {
-                case TempoKind.BPM: return "BPM";
-                case TempoKind.BPS: return "BPS";
-                case TempoKind.MPM: return $"MPM {Meter}";
+                case TempoKind.Bpm: return "BPM";
+                case TempoKind.Bps: return "BPS";
+                case TempoKind.Mpm: return $"MPM {Meter}";
                 default:
                     System.Diagnostics.Debug.Assert(false);
                     return "#ERROR#";
@@ -139,7 +120,7 @@ namespace DanceLibrary
         public override bool Equals(object obj)
         {
             var tempo = obj as TempoType;
-            return tempo == null ? false : TempoKind == tempo.TempoKind && Meter == tempo.Meter;
+            return tempo != null && (TempoKind == tempo.TempoKind && Meter == tempo.Meter);
         }
 
         public override int GetHashCode()
@@ -162,23 +143,12 @@ namespace DanceLibrary
             }
 
             // Handle a is null case☺.
-            return a is null ? b is null : a.Equals(b);
+            return a?.Equals(b) ?? false;
         }
 
         public static bool operator !=(TempoType a, TempoType b)
         {
             return !(a == b);
         }
-
-
-        #region IConversand Implementation
-
-        public Kind Kind => Kind.Tempo;
-
-        public string Name => ToString();
-
-        public string Label => TypeName;
-
-        #endregion
     }
 }
