@@ -96,6 +96,14 @@ namespace m4d.Controllers
             return View("Diagnostics");
         }
 
+        //
+        // GET: /Admin/DumpCleanupCount
+        [Authorize(Roles = "showDiagnostics")]
+        public ActionResult DumpCleanupCount()
+        {
+            Song.DumpCleanupCount();
+            return View("Diagnostics");
+        }
 
         //
         // GET: /Admin/InitializaitonTasks

@@ -18,6 +18,9 @@ namespace m4dModels
                 throw new ArgumentNullException(modInfo);
             }
 
+            // When we change a dance rating from one dance to another, we also need to change the tags on top
+            //  of it to the new dance.  Adding two extra modifiers to change TAG+:OLD to TAG+:NEW+ and TAG-:OLD to TAG-:NEW
+            //  make that happen
             var ratingTags = modifier.Properties.Where(
                     p => p.Action == PropertyAction.ReplaceValue && p.Name == Song.DanceRatingField)
                 .SelectMany(
@@ -34,8 +37,9 @@ namespace m4dModels
         {
             return new PropertyModifier
             {
-                Action = PropertyAction.ReplaceName, Name = $"Tag{type}:{modifier.Value}",
-                Replace = $"Tag{type}:{modifier.Replace}"
+                // TODO: Dance tags are currently always 3 characters, might be better to take the substring up to the "+"
+                Action = PropertyAction.ReplaceName, Name = $"Tag{type}:{modifier.Value.Substring(0,3)}",
+                Replace = $"Tag{type}:{modifier.Replace.Substring(0,3)}"
             };
         }
     }

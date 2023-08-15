@@ -51,7 +51,12 @@ namespace m4d.Controllers
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
             var user = UserName;
-            var filterString = filterContext.HttpContext.Request.Query["filter"];
+            var request = filterContext.HttpContext.Request;
+            var filterString = request.Query["filter"];
+            if (string.IsNullOrWhiteSpace(filterString) && request.Method.Equals("POST", StringComparison.OrdinalIgnoreCase))
+            {
+                filterString = filterContext.HttpContext.Request.Form["filter"];
+            }
             if (!string.IsNullOrEmpty(filterString))
             {
                 Filter = new SongFilter(filterString);
@@ -704,19 +709,19 @@ namespace m4d.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
-        public async Task<ActionResult> BatchCorrectTempo(SongFilter filter,
+        public async Task<ActionResult> BatchCorrectTempo(
             decimal multiplier = 0.5M,
-            string user = null, int max = 1000)
+            string user = null)
         {
             var applicationUser = user == null
                 ? new ApplicationUser("tempo-bot", true)
                 : await Database.FindOrAddUser(user);
 
             return BatchAdminExecute(
-                filter,
+                Filter,
                 async (dms, song) =>
                     await dms.SongIndex.CorrectTempoSong(song, applicationUser, multiplier),
-                "BatchCorrectTempo", max);
+                "BatchCorrectTempo");
         }
 
         //
@@ -724,31 +729,29 @@ namespace m4d.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
-        public async Task<ActionResult> BatchAdminEdit(string properties,
-            string user = null,
-            int max = 1000)
+        public async Task<ActionResult> BatchAdminEdit(SongFilter filter, string properties, string user = null)
         {
             Debug.Assert(User.Identity != null, "User.Identity != null");
             var applicationUser = await Database.FindUser(user ?? UserName);
             return BatchAdminExecute(
                 Filter, (dms, song) =>
-                    dms.SongIndex.AdminAppendSong(song, applicationUser, properties), "BatchAdminEdit", max);
+                    dms.SongIndex.AdminAppendSong(song, applicationUser, properties), "BatchAdminEdit");
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult BatchAdminModify(string properties, int max = 10000)
+        public ActionResult BatchAdminModify(string properties)
         {
             return BatchAdminExecute(
                 Filter,
                 (dms, song) => dms.SongIndex.AdminModifySong(song, properties),
-                "BatchAdminModify", max);
+                "BatchAdminModify");
         }
 
 
         private ActionResult BatchAdminExecute(SongFilter filter,
-            Func<DanceMusicCoreService, Song, Task<bool>> act, string name, int max)
+            Func<DanceMusicCoreService, Song, Task<bool>> act, string name)
         {
             if (!ModelState.IsValid || filter.IsEmpty)
             {
@@ -768,8 +771,7 @@ namespace m4d.Controllers
                         try
                         {
                             var results = await dms.SongIndex.Search(
-                                filter, max, CruftFilter.AllCruft);
-                            var songs = results.Songs;
+                                filter, 1000, CruftFilter.AllCruft); var songs = results.Songs;
 
                             var processed = 0;
 
@@ -1230,14 +1232,13 @@ namespace m4d.Controllers
         }
 
         [Authorize(Roles = "dbAdmin")]
-        public ActionResult BatchCleanupProperties(string type = "S")
+        public ActionResult BatchCleanupProperties(string type = "OYSMPNE")
         {
             return BatchProcess(
-                 (dms, song) =>
-                    Task.FromResult(
-                        song.CleanupProperties(Database, type)
+                 async (dms, song) =>
+                     await song.CleanupProperties(dms, type)
                             ? song
-                            : null));
+                            : null);
         }
 
         [Authorize(Roles = "dbAdmin")]
@@ -1250,8 +1251,18 @@ namespace m4d.Controllers
                         : null);
         }
 
+        [Authorize(Roles = "dbAdmin")]
+        public ActionResult CheckProperties()
+        {
+            return BatchProcess(
+                async (dms, song) =>
+                    await dms.SongIndex.CheckProperties(song)
+                        ? null
+                        : song, preview: true);
+        }
+
         private ActionResult BatchProcess(
-            Func<DanceMusicCoreService, Song, Task<Song>> act, int count = -1)
+            Func<DanceMusicCoreService, Song, Task<Song>> act, int count = -1, bool preview = false)
         {
             try
             {
@@ -1334,7 +1345,7 @@ namespace m4d.Controllers
                                     }
                                 }
 
-                                if (save.Count > 0)
+                                if (!preview && save.Count > 0)
                                 {
                                     dms.SongIndex.SaveSongsImmediate(save);
                                 }

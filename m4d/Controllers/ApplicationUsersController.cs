@@ -116,7 +116,7 @@ namespace m4d.Controllers
 
             var applicationUser = await Context.Users.FindAsync(id);
 
-            var oldUserName = applicationUser.UserName;
+            var oldUserName = applicationUser.DecoratedName;
             var oldSubscriptionLevel = applicationUser.SubscriptionLevel;
 
             // TODO: Verify that this works
@@ -129,10 +129,10 @@ namespace m4d.Controllers
             {
                 try
                 {
-                    if (!string.Equals(oldUserName, applicationUser.UserName))
+                    if (!string.Equals(oldUserName, applicationUser.DecoratedName))
                     {
                         applicationUser.NormalizedUserName = applicationUser.UserName.ToUpper();
-                        await Database.ChangeUserName(oldUserName, applicationUser.UserName);
+                        await Database.ChangeUserName(oldUserName, applicationUser.DecoratedName);
                     }
 
                     await UpdateSubscriptionRole(

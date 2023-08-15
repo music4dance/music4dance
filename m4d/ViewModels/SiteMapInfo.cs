@@ -148,8 +148,6 @@ namespace m4d.ViewModels
             .Select(d => new SiteMapDance(d));
     }
 
-    // TODONEXT: Make ontime/archive just disappear (other than if it's the most recent post)
-    // Get the home page to reflect the new information
     public static class SiteMapInfo
     {
         public static void ReloadCategories(IFileProvider fileProvider)

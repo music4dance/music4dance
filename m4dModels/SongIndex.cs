@@ -134,12 +134,12 @@ public abstract class SongIndex
 
     public async Task<IList<Song>> SongsFromTracks(ApplicationUser user,
         IEnumerable<ServiceTrack> tracks,
-        string multiDance, string songTags)
+        string multiDance, string songTags, string playlist)
     {
         return await CreateSongs(
             tracks.Where(
                 track => !string.IsNullOrEmpty(track.Artist)), user, multiDance,
-            songTags);
+            songTags, playlist);
     }
 
     public async Task<Song> GetSongFromService(MusicService service, string id)
@@ -239,10 +239,10 @@ public abstract class SongIndex
 
     public async Task<List<Song>> CreateSongs(
         IEnumerable<ServiceTrack> tracks,
-        ApplicationUser user, string multiDance, string songTags)
+        ApplicationUser user, string multiDance, string songTags, string playlist)
     {
         return await CreateSongs(
-            tracks, t => Song.CreateFromTrack(user, t, multiDance, songTags, DanceMusicService));
+            tracks, t => Song.CreateFromTrack(user, t, multiDance, songTags, playlist, DanceMusicService));
     }
 
     public async Task<Song> EditSong(ApplicationUser user, Song edit,
@@ -274,6 +274,11 @@ public abstract class SongIndex
     {
         await song.Reload(DanceMusicService);
         return true;
+    }
+
+    public async Task<bool> CheckProperties(Song song)
+    {
+        return await song.CheckProperties();
     }
 
     public async Task DeleteSong(ApplicationUser user, Song song)
@@ -491,7 +496,7 @@ public abstract class SongIndex
         song.CreateAlbums(albums);
 
         song = await Song.Create(song.SongId, song.SongProperties, DanceMusicService);
-        song.CleanupProperties(DanceMusicService);
+        await song.CleanupProperties(DanceMusicService, "RE");
 
         await SaveSong(song);
 

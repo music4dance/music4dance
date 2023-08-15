@@ -143,6 +143,7 @@ namespace m4d.Controllers
             {
                 AdminMonitor.UpdateTask("UpdateService", i);
                 await MusicServiceManager.UpdateSongAndServices(dms, song);
+                await song.CleanupProperties(dms, "EY");
                 i += 1;
             }
 

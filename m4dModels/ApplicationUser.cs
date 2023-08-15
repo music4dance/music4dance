@@ -49,13 +49,7 @@ namespace m4dModels
         public bool IsSpotify =>
             Email.EndsWith("@spotify.com", StringComparison.OrdinalIgnoreCase);
 
-        public string EmailAlias
-        {
-            get
-            {
-                return string.IsNullOrWhiteSpace(Email) || !Email.Contains('@') ? null : Email[..Email.IndexOf('@')];
-            }
-        }
+        public string EmailAlias => string.IsNullOrWhiteSpace(Email) || !Email.Contains('@') ? null : Email[..Email.IndexOf('@')];
 
         public bool IsConfirmed => EmailConfirmed && !IsPseudo;
 

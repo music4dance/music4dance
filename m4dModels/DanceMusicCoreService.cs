@@ -514,6 +514,12 @@ public partial class DanceMusicCoreService : IDisposable
 
     public async Task<ApplicationUser> FindUser(string name)
     {
+        var idx = name.IndexOf('|');
+        if (idx != -1)
+        {
+            name = name.Substring(0, idx);
+        }
+
         if (UserCache.TryGetValue(name, out var user))
         {
             return user;

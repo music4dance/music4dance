@@ -55,6 +55,9 @@
             <b-dropdown-item :href="batchUrl('batchreloadsongs', -1)"
               >Reload</b-dropdown-item
             >
+            <b-dropdown-item :href="batchUrl('checkproperties', -1)"
+              >Check Properties</b-dropdown-item
+            >
           </b-dropdown>
           <b-dropdown right text="Download" class="mx-1 mb-1">
             <b-dropdown-item :href="batchUrl('downloadJson', -1, 'S')"

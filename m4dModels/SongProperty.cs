@@ -292,16 +292,18 @@ namespace m4dModels
 
             foreach (var cell in cells)
             {
-                var values = cell.Split('=');
+                var idx = cell.IndexOf('=');
 
-                if (values.Length == 2)
+                if (idx != -1)
                 {
-                    var p = values[1];
+                    var p = cell.Substring(idx+1);
                     if (p.Contains("\u001a"))
                     {
                         p = p.Replace("\u001aT", "\t").Replace("\u001aR", "\r\n");
                     }
-                    properties.Add(new SongProperty(values[0], p));
+
+                    var name = cell.Substring(0, idx);
+                    properties.Add(new SongProperty(name, p));
                 }
                 else
                 {

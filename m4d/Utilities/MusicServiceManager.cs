@@ -760,7 +760,7 @@ namespace m4d.Utilities
             ServiceTrack track = null;
             // First try Spotify
             var ids = edit.GetPurchaseIds(spotify);
-            var user = await dms.FindUser("batch-s");
+            var user = await dms.FindUser("batch-s|P");
             foreach (var id in ids)
             {
                 track = await GetMusicServiceTrack(id, spotify);
@@ -780,7 +780,7 @@ namespace m4d.Utilities
                     track = await GetMusicServiceTrack(id, itunes);
                     if (track?.SampleUrl != null)
                     {
-                        user = await dms.FindUser("batch-i");
+                        user = await dms.FindUser("batch-i|P");
                         break;
                     }
                 }
