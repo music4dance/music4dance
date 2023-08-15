@@ -48,7 +48,7 @@ function authButtons() {
 
 function dances() {
     return gulp
-        .src("../../DanceLib/*.txt")
+        .src("../../DanceLib/*.json")
         .pipe(gulp.dest(rootPath("content/")));
 }
 

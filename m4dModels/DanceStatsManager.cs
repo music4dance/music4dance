@@ -154,8 +154,8 @@ namespace m4dModels
 
         private async Task InitializeDanceLibrary()
         {
-            var dancesJson = await File.ReadAllTextAsync(Path.Combine(Content, "dances.txt"));
-            var groupsJson = await File.ReadAllTextAsync(Path.Combine(Content, "dancegroups.txt"));
+            var dancesJson = await File.ReadAllTextAsync(Path.Combine(Content, "dances.json"));
+            var groupsJson = await File.ReadAllTextAsync(Path.Combine(Content, "dancegroups.json"));
             DanceLibrary.Dances.Reset(DanceLibrary.Dances.Load(dancesJson, groupsJson));
 
         }
