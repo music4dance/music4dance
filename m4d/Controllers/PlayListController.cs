@@ -551,7 +551,6 @@ namespace m4d.Controllers
                 }
 
                 var (danceTags, songTags) = GetTags(playlist);
-                // TODONEXT: make sure playlist.Id works.  Consider retrofitting?
                 var newSongs = await dms.SongIndex.SongsFromTracks(
                     await Database.FindUser(playlist.User), tracks, danceTags, songTags, playlist.Id);
 
