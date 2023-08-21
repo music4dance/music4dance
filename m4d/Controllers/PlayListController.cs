@@ -33,9 +33,9 @@ namespace m4d.Controllers
 
         // GET: PlayLists
         [Authorize(Roles = "dbAdmin")]
-        public IActionResult Index(PlayListType type = PlayListType.SongsFromSpotify)
+        public IActionResult Index(PlayListType type = PlayListType.SongsFromSpotify, string user = null)
         {
-            return View(GetIndex(type));
+            return View(user == null ? GetIndex(type) : GetUserIndex(type, user));
         }
 
         // GET: PlayLists/Details/5
@@ -791,6 +791,17 @@ namespace m4d.Controllers
             {
                 Type = type,
                 PlayLists = Database.PlayLists.Where(p => p.Type == type).OrderBy(p => p.User)
+                    .ToList()
+            };
+        }
+
+        private PlayListIndex GetUserIndex(PlayListType type, string user)
+        {
+            return new()
+            {
+                Type = type,
+                PlayLists = Database.PlayLists.Where(p => p.Type == type && p.User == user)
+                    .OrderBy(p => p.Id)
                     .ToList()
             };
         }

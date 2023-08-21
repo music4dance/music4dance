@@ -351,6 +351,11 @@
         @Html.ActionLink("Edit", "Edit", new
         {
             id = item.User.Id
+        }),
+        @Html.ActionLink("Playlists", "Index","Playlist", new
+        {
+            type = PlayListType.SongsFromSpotify,
+            user = item.User.UserName
         })
 
         @*
