@@ -2514,13 +2514,14 @@ namespace m4dModels
 
         private void TruncateProperty(string name, string value = null)
         {
-            var prop = SongProperties.Last();
+            var i = SongProperties.Count - 1;
+            var prop = SongProperties[i];
             if (prop.Name != name || value != null && prop.Value != value)
             {
                 return;
             }
 
-            SongProperties.Remove(prop);
+            SongProperties.RemoveAt(i);
         }
 
         private bool UpdatePurchaseInfo(Song edit, bool additive = false)
@@ -3271,11 +3272,12 @@ namespace m4dModels
 
         private bool FixupProperties(string name, Func<SongProperty, string> fixup)
         {
-            var deleted = new List<SongProperty>();
+            var deleted = new List<int>();
 
             var changed = false;
-            foreach (var prop in SongProperties)
+            for (var i = 0; i < SongProperties.Count; i++)
             {
+                var prop = SongProperties[i];
                 if (prop.BaseName != name)
                 {
                     continue;
@@ -3284,7 +3286,7 @@ namespace m4dModels
                 var value = fixup(prop);
                 if (value == null)
                 {
-                    deleted.Add(prop);
+                    deleted.Add(i);
                 }
                 else if (value != prop.Value)
                 {
@@ -3293,9 +3295,10 @@ namespace m4dModels
                 }
             }
 
+            deleted.Reverse();
             foreach (var del in deleted)
             {
-                SongProperties.Remove(del);
+                SongProperties.RemoveAt(del);
             }
 
             return deleted.Count > 0 || changed;
