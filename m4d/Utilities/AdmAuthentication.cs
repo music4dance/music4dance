@@ -209,11 +209,13 @@ namespace m4d.Utilities
         {
             if (authResult == null || authResult.Properties == null)
             {
+                Logger.LogWarning("Attempting to create auth without authResult.Properties");
                 return null;
             }
             var accessToken = authResult.Properties.GetTokenValue("access_token");
             if (string.IsNullOrWhiteSpace(accessToken))
             {
+                Logger.LogWarning("Failed to fetch an access token");
                 return null;
             }
 
@@ -240,6 +242,7 @@ namespace m4d.Utilities
             }
             else
             {
+                Logger.LogInformation($"Haven't implemented creating user token for {serviceType}");
                 return null;
             }
 
