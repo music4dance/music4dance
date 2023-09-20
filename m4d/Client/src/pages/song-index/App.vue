@@ -32,7 +32,7 @@
     <song-table
       :histories="model.histories"
       :filter="filter"
-      :hideSort="true"
+      :hideSort="false"
       :hiddenColumns="hiddenColumns"
       @song-selected="selectSong"
     ></song-table>
