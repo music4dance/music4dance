@@ -244,7 +244,7 @@ namespace m4d.Controllers
         [SuppressMessage("ReSharper", "InconsistentNaming")]
         [Authorize(Roles = "dbAdmin")]
         public async Task<ActionResult> BulkCreate([FromServices]IFileProvider fileProvider,
-            PlayListType type, string flavor = "TopN")
+            string flavor = "TopN")
         {
             await SpotifyAuthorization();
 
@@ -261,7 +261,8 @@ namespace m4d.Controllers
                     await BulkCreateTopN(oldS, oldM, fileProvider);
                     break;
                 case "Holiday":
-                    await BulkCreateHoliday(oldS, oldM, fileProvider);
+                case "Halloween":
+                    await BulkCreateHoliday(oldS, oldM, fileProvider, flavor.ToLower());
                     break;
             }
 
@@ -405,18 +406,22 @@ namespace m4d.Controllers
             }
         }
 
+        // TODONEXT: Generate the Halloween playlists in spotify.
+
         private async Task BulkCreateHoliday(IReadOnlyDictionary<string, PlaylistMetadata> oldS,
-            IReadOnlyDictionary<string, PlayList> oldM, IFileProvider fileProvider)
+            IReadOnlyDictionary<string, PlayList> oldM, IFileProvider fileProvider, string occassion)
         {
+            var title = char.ToUpper(occassion[0]) + occassion.Substring(1);
+
             foreach (var ds in Database.DanceStats.Dances)
             {
                 var dt = ds.DanceType;
-                if (dt != null || ds.SongCount < 25)
+                if (dt == null || ds.SongCount < 25)
                 {
                     continue;
                 }
 
-                var name = $"Holiday {ds.DanceName}";
+                var name = $"{title} {ds.DanceName}";
 
                 oldS.TryGetValue(name, out var metadata);
                 var m4dExists = oldM.ContainsKey(name);
@@ -426,11 +431,11 @@ namespace m4d.Controllers
                     continue;
                 }
 
-                var description = $"{ds.DanceName} Dance Holiday songs from music4dance.net";
+                var description = $"{ds.DanceName} Dance {title} songs from music4dance.net";
 
-                var search = SongFilter.CreateHolidayFilter(ds.DanceName);
+                var search = SongFilter.CreateHolidayFilter(occassion, ds.DanceName);
 
-                Logger.LogInformation($"BulkCreateHoliday: {name}, {description}, {search}");
+                Logger.LogInformation($"BulkCreate{title}: {name}, {description}, {search}");
 
                 metadata ??= await MusicServiceManager.CreatePlaylist(
                     MusicService.GetService(ServiceType.Spotify), User, name, description,
@@ -438,7 +443,7 @@ namespace m4d.Controllers
 
                 if (metadata == null)
                 {
-                    Logger.LogError($"BulkCreateHoliday:Unable to create playlist {name}");
+                    Logger.LogError($"BulkCreate{title}:Unable to create playlist {name}");
                     continue;
                 }
 
@@ -471,45 +476,6 @@ namespace m4d.Controllers
                 }
             }
         }
-
-        // GET: BulkFix
-        [Authorize(Roles = "dbAdmin")]
-        public async Task<ActionResult> BulkFix([FromServices] IFileProvider fileProvider,
-            PlayListType type, string flavor = "TopN")
-        {
-            switch (flavor)
-            {
-                case "TopN":
-                    //BulkFixTopN(oldS, oldM, fileProvider);
-                    break;
-                case "Holiday":
-                    BulkFixHoliday(fileProvider);
-                    break;
-            }
-
-            await Database.SaveChanges();
-
-            return View("Index", GetIndex(PlayListType.SpotifyFromSearch));
-        }
-
-        private void BulkFixHoliday(IFileProvider fileProvider)
-        {
-            const string prefix = "Holiday ";
-            var playlists = Database.PlayLists.Where(p => p.Type == PlayListType.SpotifyFromSearch && p.Name.StartsWith(prefix)).ToList();
-            foreach (var playlist in playlists)
-            {
-                var name = playlist.Name.Substring(prefix.Length);
-                var dance = Database.DanceStats.FromName(name);
-                if (dance == null)
-                {
-                    continue;
-                }
-
-                playlist.Search = SongFilter.CreateHolidayFilter(dance.DanceName).ToString();
-
-            }
-        }
-
 
         private async Task<string> DoUpdate(string id, string email, DanceMusicCoreService dms,
             IPrincipal principal)
@@ -709,60 +675,6 @@ namespace m4d.Controllers
                         dms.Dispose();
                     }
                 });
-
-            return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
-        }
-
-        // GET: UpdateAll
-        [Authorize(Roles = "dbAdmin")]
-        public async Task<ActionResult> FixHoliday()
-        {
-            if (!AdminMonitor.StartTask("UpdateAllPlayLists"))
-            {
-                throw new AdminTaskException(
-                    "F failed to start because there is already an admin task running");
-            }
-
-            var service = MusicService.GetService(ServiceType.Spotify);
-
-            var playlists = Database.PlayLists
-                .Where(p => p.Data1.Contains("||Holiday:Other") && !p.Data1.Contains("|||"))
-                .AsAsyncEnumerable();
-            var i = 0;
-            await foreach (var playlist in playlists)
-            {
-                AdminMonitor.UpdateTask($"Playlist {playlist.Id}", i++);
-                playlist.Data1 = playlist.Data1.Replace("||Holiday:Other", "|||Holiday:Other");
-                var user = $"{playlist.User}|P";
-                var (_, songTags) = GetTags(playlist);
-                if (string.IsNullOrEmpty(songTags))
-                {
-                    throw new Exception(
-                        $"{playlist.Id} isn't properly formed Holiday playlist: ${playlist.Tags}");
-                }
-
-                var props = new[] { new SongProperty(Song.AddedTags, songTags) };
-                var songs = new List<Song>();
-                foreach (var id in playlist.Data2.Split("|"))
-                {
-                    var song = await Database.SongIndex.GetSongFromService(service, id);
-                    if (song == null)
-                    {
-                        Trace.WriteLine($"{id} from {playlist.Id} not found");
-                    }
-                    else if (await song.AdminAddUserProperties(user, props, Database))
-                    {
-                        songs.Add(song);
-                    }
-                }
-
-                var ids = string.Join(",", songs.Select(s => s.SongId));
-                Trace.WriteLine($"{playlist.Id}: {ids}");
-
-                await Database.SaveChanges();
-                await Database.SongIndex.SaveSongs(songs);
-
-            }
 
             return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
         }

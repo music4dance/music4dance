@@ -22,6 +22,7 @@ import HolidayHelp from "./HolidayHelp.vue";
 export default EnvironmentManager.extend({
   components: { HolidayHelp },
   props: {
+    occassion: String,
     dance: String,
     count: Number,
   },
@@ -40,7 +41,7 @@ export default EnvironmentManager.extend({
   },
   methods: {
     danceLink(dance: string): string {
-      return `/song/holidaymusic?dance=${dance}`;
+      return `/song/holidaymusic?occassion=${this.occassion}&dance=${dance}`;
     },
   },
 });

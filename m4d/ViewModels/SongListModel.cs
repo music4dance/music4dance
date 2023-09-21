@@ -14,6 +14,8 @@ namespace m4d.ViewModels
 
     public class HolidaySongListModel : SongListModel
     {
+        public string Occassion { get; set; }
+        public string Description { get; set; }
         public string Dance { get; set; }
         public string PlayListId { get; set; }
     }

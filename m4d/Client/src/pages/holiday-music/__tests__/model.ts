@@ -12566,6 +12566,8 @@ export const model = {
     page: 1,
     tags: "",
   },
+  occassion: "holiday",
+  description: '"Holiday" or "Christmas"',
   count: 707,
   rawCount: 0,
 };

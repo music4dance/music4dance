@@ -7,15 +7,14 @@
       <p v-if="model.dance">
         This page includes a list of all of the
         <a :href="danceLink">{{ danceName }}</a> music on the site that has been
-        tagged as "Holiday" or "Christmas". Click
-        <a href="/song/holidaymusic">here</a> to see holiday music for all dance
-        styles.
+        tagged as {{ model.description }}. Click <a :href="allLink">here</a> to
+        see {{ model.occassion }} music for all dance styles.
       </p>
       <p v-else>
         This page includes a list of all of the
         <a href="/dances/ballroom-competition-categories">Ballroom</a> and other
         <a href="/dances">partner dance</a> music on the site that has been
-        tagged as "Holiday" or "Christmas".
+        tagged as {{ model.description }}.
       </p>
       <song-table
         :histories="model.histories"
@@ -27,6 +26,7 @@
     </div>
     <spotify-player :playlist="model.playListId"></spotify-player>
     <holiday-dance-chooser
+      :occassion="model.occassion"
       :dance="model.dance"
       :count="model.count"
     ></holiday-dance-chooser>
@@ -71,13 +71,21 @@ export default Vue.extend({
   },
   computed: {
     title(): string {
+      const occassion = this.occassion;
       return this.model.dance
-        ? `Holiday ${toTitleCase(this.model.dance)} Music`
-        : "Holiday Dance Music";
+        ? `${occassion} ${toTitleCase(this.model.dance)} Music`
+        : `${occassion} Dance Music`;
+    },
+    occassion(): string {
+      return toTitleCase(this.model.occassion);
+    },
+    allLink(): string {
+      const occassion = this.model.occassion;
+      return `/song/holidaymusic?occassion=${occassion}`;
     },
     pageLink(): string {
       const dance = this.model.dance;
-      return dance ? `/song/holidaymusic?dance=${dance}` : "/song/holidaymusic";
+      return dance ? `${this.allLink}&dance=${dance}` : this.allLink;
     },
     danceLink(): string {
       return `/dances/${this.seoDanceName}`;
@@ -92,9 +100,9 @@ export default Vue.extend({
     },
     breadcrumbs(): BreadCrumbItem[] {
       const breadcrumbs = [homeCrumb, songCrumb];
-      const text = "Holiday Music";
+      const text = `${this.occassion} Music`;
       if (this.model.dance) {
-        breadcrumbs.push({ text, href: "/song/holidaymusic" });
+        breadcrumbs.push({ text, href: this.allLink });
         breadcrumbs.push({ text: toTitleCase(this.model.dance), active: true });
       } else {
         breadcrumbs.push({ text, active: true });

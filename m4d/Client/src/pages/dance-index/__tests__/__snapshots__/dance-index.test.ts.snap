@@ -22,7 +22,7 @@ exports[`DanceIndex.vue renders the dance index page 1`] = `
                 <li role="presentation" class="nav-subitem"><a role="menuitem" href="/song/newmusic" target="_self" class="dropdown-item">New Music</a></li>
                 <li role="presentation"><a role="menuitem" href="/dances/wedding-music" target="_self" class="dropdown-item">Wedding</a></li>
                 <li role="presentation"><a role="menuitem" href="/song/holidaymusic" target="_self" class="dropdown-item">Holiday</a></li>
-                <li role="presentation"><a role="menuitem" href="/song/addtags/?tags=%2BHalloween%3AOther" target="_self" class="dropdown-item">Halloween</a></li>
+                <li role="presentation"><a role="menuitem" href="/song/holidaymusic?occassion=halloween" target="_self" class="dropdown-item">Halloween</a></li>
                 <li role="presentation"><a role="menuitem" href="/tag" target="_self" class="dropdown-item">Tags</a></li>
               </ul>
             </li>

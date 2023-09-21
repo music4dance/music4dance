@@ -113,13 +113,15 @@ namespace m4d.Controllers
         }
 
         [AllowAnonymous]
-        public async Task<ActionResult> HolidayMusic(string dance = null, int page = 1)
+        public async Task<ActionResult> HolidayMusic(string occassion="holiday", string dance = null, int page = 1)
         {
-            Filter = SongFilter.CreateHolidayFilter(dance, page);
+            Filter = SongFilter.CreateHolidayFilter(occassion, dance, page);
             HelpPage = Filter.IsSimple ? "song-list" : "advanced-search";
 
             try
             {
+                var title = char.ToUpper(occassion[0]) + occassion.Substring(1);
+
                 if (!Filter.IsEmptyBot &&
                     SpiderManager.CheckAnySpiders(Request.Headers[HeaderNames.UserAgent]))
                 {
@@ -134,7 +136,7 @@ namespace m4d.Controllers
                 if (!string.IsNullOrWhiteSpace(dance))
                 {
                     var ds = Database.DanceStats.FromName(dance);
-                    var name = $"Holiday {ds.DanceName}";
+                    var name = $"{title} {ds.DanceName}";
                     var playlist = Database.PlayLists.FirstOrDefault(
                         p => p.Name == name && p.Type == PlayListType.SpotifyFromSearch);
                     playListId = playlist?.Id;
@@ -145,18 +147,20 @@ namespace m4d.Controllers
                     .Select(s => UserMapper.AnonymizeHistory(s.GetHistory(_mapper), dictionary))
                     .ToList();
                 return Vue(
-                    "Holiday Dance Music", 
-                    "Help finding holiday dance music for partner dancing - Foxtrot, Waltz, Swing and others.", 
+                    $"{title} Dance Music",
+                    "Help finding holiday dance music for partner dancing - Foxtrot, Waltz, Swing and others.",
                     "holiday-music",
                      new HolidaySongListModel
-                    {
-                        Histories = histories,
-                        Filter = _mapper.Map<SongFilterSparse>(Filter),
-                        Count = (int)results.TotalCount,
-                        Dance = dance,
-                        PlayListId = playListId,
-                    },
-                    danceEnvironment:true);
+                     {
+                         Occassion = occassion,
+                         Description = occassion == "halloween" ? @"""Halloween""" : @"""Holiday"" or ""Christmas""",
+                         Histories = histories,
+                         Filter = _mapper.Map<SongFilterSparse>(Filter),
+                         Count = (int)results.TotalCount,
+                         Dance = dance,
+                         PlayListId = playListId,
+                     },
+                    danceEnvironment: true);
             }
             catch (RedirectException ex)
             {

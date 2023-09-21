@@ -53,7 +53,7 @@
               >Wedding</b-dropdown-item
             >
             <b-dropdown-item href="/song/holidaymusic">Holiday</b-dropdown-item>
-            <b-dropdown-item href="/song/addtags/?tags=%2BHalloween%3AOther"
+            <b-dropdown-item href="/song/holidaymusic?occassion=halloween"
               >Halloween</b-dropdown-item
             >
             <b-dropdown-item href="/tag">Tags</b-dropdown-item>

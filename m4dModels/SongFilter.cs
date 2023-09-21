@@ -246,6 +246,10 @@ namespace m4dModels
         {
             get
             {
+                if (IsRaw)
+                {
+                    return string.IsNullOrEmpty(SortOrder) ? new List<string>() : SortOrder.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                }
                 var sort = SongSort;
 
                 switch (sort.Id)
@@ -531,18 +535,21 @@ namespace m4dModels
                 : new SongFilter($"Index-----\\-{userName}|h");
         }
 
-        public static SongFilter CreateHolidayFilter(string dance = null, int page = 1)
+        public static SongFilter CreateHolidayFilter(string occassion = "holiday", string dance = null, int page = 1)
         {
-            const string holidayFilter =
-                "((OtherTags/any(t: t eq 'Holiday') or GenreTags/any(t: t eq 'Christmas' or t eq 'Holiday')) and OtherTags/all(t: t ne 'Halloween'))";
+            string holidayFilter = (occassion == "halloween")
+                ? "(OtherTags/any(t: t eq 'Halloween'))"
+                : "((OtherTags/any(t: t eq 'Holiday') or GenreTags/any(t: t eq 'Christmas' or t eq 'Holiday')) and OtherTags/all(t: t ne 'Halloween'))";
 
             string danceFilter = null;
+            string danceSort = null;
             if (!string.IsNullOrWhiteSpace(dance))
             {
                 var d = DanceLibrary.Dances.Instance.DanceFromName(dance);
                 if (d != null)
                 {
                     danceFilter = $"(DanceTags/any(t: t eq '{dance}'))";
+                    danceSort = $"dance_{d.Id} desc";
                 }
             }
 
@@ -554,7 +561,9 @@ namespace m4dModels
                 "holidaymusic",
                 new RawSearch
                 {
-                    ODataFilter = odata, Page = page,
+                    ODataFilter = odata,
+                    SortFields = danceSort,
+                    Page = page,
                     Flags = danceFilter == null ? "" : "singleDance"
                 }
             );

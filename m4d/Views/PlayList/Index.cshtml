@@ -14,23 +14,20 @@
         <p>
             @Html.ActionLink("Create New", "Create", new
             {
-                Model.Type
+            Model.Type
             })
         </p>
         <p>
             @Html.ActionLink("Restore All", "RestoreAll", new
             {
-                Model.Type
+            Model.Type
             })
         </p>
         <p>
             @Html.ActionLink("Update All", "UpdateAll", new
             {
-                Model.Type
+            Model.Type
             })
-        </p>
-        <p>
-            @Html.ActionLink("Fix Holiday", "FixHoliday")
         </p>
     </div>
     <div class="col-sm-3">
@@ -38,18 +35,18 @@
         {
             <p>
                 @Html.ActionLink("SongsFromSpotify", "Index", new
-                {
-                    Type = PlayListType.SongsFromSpotify
-                })
+            {
+            Type = PlayListType.SongsFromSpotify
+            })
             </p>
         }
         @if (Model.Type != PlayListType.SpotifyFromSearch)
         {
             <p>
                 @Html.ActionLink("SpotifyFromSearch", "Index", new
-                {
-                    Type = PlayListType.SpotifyFromSearch
-                })
+            {
+            Type = PlayListType.SpotifyFromSearch
+            })
             </p>
         }
     </div>
@@ -57,34 +54,27 @@
         @if (Model.Type == PlayListType.SpotifyFromSearch)
         {
             <p>
-                @Html.ActionLink("Create", "BulkCreate", new
+                @Html.ActionLink("Creat TopN", "BulkCreate", new
                 {
                     Type = PlayListType.SpotifyFromSearch,
                     Flavor = "TopN"
                 })
-				|
-                @Html.ActionLink("Fix", "BulkFix", new
-                {
-                    Type = PlayListType.SpotifyFromSearch,
-                    Flavor = "TopN"
-                })
-				Dance Playlists
             </p>
             <p>
-                @Html.ActionLink("Create", "BulkCreate", new
+                @Html.ActionLink("Create Holiday", "BulkCreate", new
                 {
                     Type = PlayListType.SpotifyFromSearch,
                     Flavor = "Holiday"
                 })
-				|
-                @Html.ActionLink("Fix", "BulkFix", new
-                {
-                    Type = PlayListType.SpotifyFromSearch,
-                    Flavor = "Holiday"
-                })
-				Holiday Playlists
             </p>
-			<p>
+            <p>
+                @Html.ActionLink("Create Halloween", "BulkCreate", new
+                {
+                    Type = PlayListType.SpotifyFromSearch,
+                    Flavor = "Halloween"
+                })
+            </p>
+            <p>
                 @Html.ActionLink("Statistics", "Statistics")
             </p>
         }
@@ -117,9 +107,9 @@
         <tr>
             <td>
                 @Html.ActionLink(item.Id, "Details", new
-                {
-                    id = item.Id
-                })
+            {
+            id = item.Id
+            })
             </td>
             <td>
                 @Html.ActionLink(item.User, "Index", new { user = item.User })
@@ -156,28 +146,28 @@
             </td>
             <td>
                 @Html.ActionLink("Update", "Update", new
-                {
-                    id = item.Id
-                }) |
+            {
+            id = item.Id
+            }) |
                 @Html.ActionLink("Edit", "Edit", new
-                {
-                    id = item.Id
-                }) |
+            {
+            id = item.Id
+            }) |
                 @Html.ActionLink("Details", "Details", new
-                {
-                    id = item.Id
-                }) |
+            {
+            id = item.Id
+            }) |
                 @Html.ActionLink("Delete", "Delete", new
-                {
-                    id = item.Id
-                })
+            {
+            id = item.Id
+            })
                 @if (item.Updated.HasValue && string.IsNullOrWhiteSpace(item.Data2))
                 {
                     <span> | </span>
                     @Html.ActionLink("Restore", "Restore", new
-                    {
-                        id = item.Id
-                    })
+            {
+            id = item.Id
+            })
                 }
             </td>
         </tr>
