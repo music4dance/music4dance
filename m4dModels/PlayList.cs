@@ -156,7 +156,6 @@ namespace m4dModels
         public override int Count { get; set; }
 
         public bool CanSpotify { get; set; }
-
     }
 
     public class ExportInfo : PlaylistCreateInfo

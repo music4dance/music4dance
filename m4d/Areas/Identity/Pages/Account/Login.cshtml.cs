@@ -40,6 +40,8 @@ namespace m4d.Areas.Identity.Pages.Account
 
         public string ReturnUrl { get; set; }
 
+        public string Provider { get; set; }
+
         [TempData]
         public string ErrorMessage { get; set; }
 
@@ -57,7 +59,7 @@ namespace m4d.Areas.Identity.Pages.Account
             public bool RememberMe { get; set; }
         }
 
-        public async Task OnGetAsync(string returnUrl = null)
+        public async Task OnGetAsync(string returnUrl = null, string provider = null)
         {
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -72,6 +74,8 @@ namespace m4d.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
             ReturnUrl = returnUrl;
+
+            Provider = provider;
         }
 
 

@@ -7,6 +7,16 @@
 }
 
 <h1>@ViewData["Title"]</h1>
+@if (Model.Provider == "Spotify")
+{
+    <div class="alert alert-primary" role="alert">
+        You have been redirected to this page because you are asking music4dance to communicate with Spotify,
+        but you aren't signed in through Spotify. Please click the "Sign in with Spotify" button below and accept
+        the Spotify permissions requested (if asked). You should then be redirected back to the music4dance ation
+        that you were attempting (e.g. create a Spotify playlist).
+    </div>
+}
+
 <div class="row">
     <div class="col-md-5">
         <form id="account" method="post">

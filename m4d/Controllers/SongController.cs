@@ -871,7 +871,7 @@ namespace m4d.Controllers
 
 
         [HttpGet]
-        public async Task<ActionResult> CreateSpotify()
+        public async Task<ActionResult> CreateSpotify([FromServices] SignInManager<ApplicationUser> signInManager)
         {
             HelpPage = "spotify-playlist";
             UseVue = false;
@@ -879,6 +879,21 @@ namespace m4d.Controllers
             var authResult = await HttpContext.AuthenticateAsync();
             var canSpotify = await AdmAuthentication.HasAccess(
                 Configuration, ServiceType.Spotify, User, authResult);
+
+            if (!canSpotify)
+            {
+                var applicationUser = await UserManager.GetUserAsync(User);
+                if (applicationUser != null)
+                {
+                    var logins = await UserManager.GetLoginsAsync(applicationUser);
+                    if (logins.Any(l => l.LoginProvider == "Spotify"))
+                    {
+                        var returnUrl = Request.Path + Request.QueryString;
+                        var redirectUrl = $"/Identity/Account/Login?provider=Spotify&returnUrl={returnUrl}";
+                        return LocalRedirect(redirectUrl);
+                    }
+                }
+            }
 
             return View(
                 new SpotifyCreateInfo
