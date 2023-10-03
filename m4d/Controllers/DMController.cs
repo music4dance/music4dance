@@ -272,6 +272,11 @@ namespace m4d.Controllers
                 BuildEnvironment(danceEnvironment, tagEnvironment);
             }
 
+            if (model is string s)
+            {
+                model = s.Replace(@"'", @"\'");
+            }
+
             return View(
                 "Vue", new VueModel
                 {
