@@ -5,18 +5,9 @@
 <script lang="ts">
 import MainMenu from "@/components/MainMenu.vue";
 import AdminTools from "@/mix-ins/AdminTools";
-import { BreadCrumbItem, infoTrail } from "@/model/BreadCrumbItem";
 import "reflect-metadata";
 
 export default AdminTools.extend({
   components: { MainMenu },
-  data() {
-    return new (class {
-      breadcrumbs: BreadCrumbItem[] = [
-        ...infoTrail,
-        { text: "FAQ", active: true },
-      ];
-    })();
-  },
 });
 </script>
