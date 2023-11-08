@@ -41,7 +41,7 @@ namespace m4d.Controllers
             Logger = logger;
         }
 
-        protected bool UseVue { get; set; } = false;
+        protected UseVue UseVue { get; set; } = UseVue.No;
         public DanceMusicService Database { get; set; }
 
         protected MusicServiceManager MusicServiceManager =>
@@ -93,7 +93,7 @@ namespace m4d.Controllers
             Response.StatusCode = (int)statusCode;
             // Response.TrySkipIisCustomErrors = true;
 
-            UseVue = false;
+            UseVue = UseVue.No;
             return View("HttpError", model);
         }
 
@@ -105,7 +105,7 @@ namespace m4d.Controllers
         public override ViewResult View(string viewName, object model)
         {
             ViewData["Help"] = HelpPage;
-            ViewData["UseView"] = UseVue;
+            ViewData["UseVue"] = UseVue;
             return base.View(viewName, model);
         }
 
@@ -262,7 +262,7 @@ namespace m4d.Controllers
             bool danceEnvironment = false, bool tagEnvironment = false,
             string script = null)
         {
-            UseVue = true;
+            UseVue = UseVue.V2;
             if (!string.IsNullOrEmpty(helpPage))
             {
                 HelpPage = helpPage;
@@ -279,6 +279,39 @@ namespace m4d.Controllers
 
             return View(
                 "Vue", new VueModel
+                {
+                    Title = title,
+                    Description = description,
+                    Name = name,
+                    Script = script,
+                    Model = model,
+                });
+        }
+
+        protected ActionResult Vue3(string title, string description, string name,
+            object model = null, string helpPage = null,
+            bool danceEnvironment = false, bool tagEnvironment = false,
+            string script = null)
+        {
+            UseVue = UseVue.V3;
+            if (!string.IsNullOrEmpty(helpPage))
+            {
+                HelpPage = helpPage;
+            }
+            if (danceEnvironment || tagEnvironment)
+            {
+                BuildEnvironment(danceEnvironment, tagEnvironment);
+            }
+
+            if (model is string s)
+            {
+                model = s.Replace(@"'", @"\'");
+            }
+
+            ViewData["NoSiteCss"] = true;
+
+            return View(
+                "Vue3", new VueModel
                 {
                     Title = title,
                     Description = description,

@@ -23,13 +23,13 @@
         {
             <p class="big-text">
                 Thank you for your continued support of the music4dance effort. We hope you continue to enjoy the benefits of 
-                <a href="https://music4dance.blog/music4dance-help/subscriptions/"></a>premium,
+                <a href="https://music4dance.blog/music4dance-help/subscriptions/"></a>premium
                 with its ad-free experience, 
                 <a href="https://music4dance.blog/music4dance-help/bonus-content/">
-                    bonus content.
-                </a> and
+                    bonus content
+                </a>, and
                 <a href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/spotify-playlist/">
-                    spotify integration
+                    Spotify integration
                 </a>.
             </p>
         }
@@ -45,7 +45,7 @@
                     bonus content.
                 </a> and
                 <a href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/spotify-playlist/">
-                    creating a spotify playlist
+                    creating a Spotify playlist
                 </a> from search results.
             </p>
         }
@@ -74,7 +74,7 @@
                     <button type="submit" class="btn btn-primary">@(Model.CurrentPremium ? "Renew" : "Purchase") Subscription</button>
                 </div>
             }
-            <p class="ml-2">The next page you see will be a <a href="https://www.stripe.com">Stripe</a> checkout
+            <p class="ml-2 mt-2">The next page you see will be a <a href="https://www.stripe.com">Stripe</a> checkout
                 form with a @annualPrice annual subscription charge.</p>
 
             <h2>Donate</h2>
@@ -82,19 +82,26 @@
             using (Html.BeginForm("CreateCheckoutSession", "Payment", FormMethod.Post, new
             {
                 id = "contribute",
-                @class = "form-inline"
+                @class = "row row-cols-sm-auto g-3"
             }))
             {
                 @Html.AntiForgeryToken()
 
-                <input type="hidden" name="kind" value="Donation"/>
-                <div class="form-group">
-                    <label for="purchase-amount">Amount:</label>
-                    $<input type="text" name="amount" min="1.00" max="9999" step="0.01" value="5.00" class="form-control" id="donate-amount"/>
+                <input type="hidden" name="kind" value="Donation" />
+                <div class="col">
+                    <label for="purchase-amount" class="col-form-label">Amount:</label>
+                </div>
+                <div class="col">
+                    <div class="input-group">
+                        <div class="input-group-text ml-2">$</div>
+                        <input type="text" name="amount" min="1.00" max="9999" step="0.01" value="5.00" class="form-control" id="donate-amount"/>
+                    </div>
+                </div>
+                <div clas="col-auto">
                     <button type="submit" class="btn btn-primary">Donate</button>
                 </div>
             }
-            <p class="ml-2">The next page you see will be a <a href="https://www.stripe.com">Stripe</a> checkout
+            <p class="ml-2 mt-2">The next page you see will be a <a href="https://www.stripe.com">Stripe</a> checkout
                 form with your dontion amount.</p>
             <p>If you would prefer to pay via paypal, please <a href="https://music4dance.blog/feedback/">contact us</a>
             and we'll send you a paypal link</p>

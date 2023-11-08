@@ -9,8 +9,8 @@
     var canExport = User.IsInRole(DanceMusicCoreService.DiagRole) || User.IsInRole(DanceMusicCoreService.BetaRole);
 }
 
-<h4>@ViewData["Title"]</h4>
-<partial name="_StatusMessage" model="Model.StatusMessage" />
+<h3>@ViewData["Title"]</h3>
+<partial name="_StatusMessage" for="StatusMessage" />
 
 <p class="big-text">Welcome @Model.UserName!</p>
 
@@ -20,15 +20,17 @@
     <p class="big-text">You have been a premium subscriber to music4dance since @Model.SubscriptionStart.Value.ToString("d").  Your current subscription ends on @Model.SubscriptionEnd.Value.ToString("d").</p>
 }
 
-<p><a href="@ListLink">Show your song lists.</a></p>
-<p><a href="@ExportLink">Export your votes and tags.</a></p>
+<div class=row>
+    <p><a href="@ListLink">Show your song lists.</a></p>
+    <p><a href="@ExportLink">Export your votes and tags.</a></p>
+</div>
 
 <div class="row">
-    <div class="col-md-12">
+    <div class="col-md-6">
 
         <form id="profile-form" method="post">
-            <div asp-validation-summary="All" class="text-danger"></div>
-            <div class="form-horizontal">
+            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+            <div class="form-floating mb-3">
                 <div class="row">
                     <h4 class="col-md-12">Privacy:</h4>
                 </div>
@@ -77,16 +79,17 @@
                                 <input id="contact@(item.Key)"
                                        type="checkbox"
                                        name="Input.ContactSelection"
+                                       class="form-check-input"
                                        value="@item.Key"
                                        @(Model.Input.ContactSelection.Contains(item.Key) ? "checked" : "")/>
-                                <label for="contact@(item.Key)">@item.Value</label>
+                                <label for="contact@(item.Key)" class="form-check-label">@item.Value</label>
                             </li>
                         }
                     </ul>
                     <p>Please note that the above settings do not apply to the music4dance blog.  You can sign up to be notified of new blog post on the blog site - <a href="https://music4dance.blog">music4dance.blog</a>. On desktop look for the subscrib button in the left bar, on mobile click the follow button at the bottom of your screen.</p>
                 </div>
 
-                <div class="form-group row">
+                <div class="form-check row">
                     <h4 class="col-md-12">Music Service:</h4>
                     <ul class="col-md-11 col-md-offset-1 list-clean">
                         @foreach (var item in Model.ServiceOptions)
@@ -95,9 +98,10 @@
                                 <input id="service@(item.Key)"
                                        type="checkbox"
                                        name="Input.ServiceSelection"
+                                       class="form-check-input"
                                        value="@item.Key"
                                        @(Model.Input.ServiceSelection.Contains(item.Key) ? "checked" : "")/>
-                                <label for="service@(item.Key)">@item.Value</label>
+                                <label for="service@(item.Key)" class="form-check-label">@item.Value</label>
                             </li>
                         }
                     </ul>
@@ -112,7 +116,7 @@
                 </div>
 
             </div>
-            <button id="update-profile-button" type="submit" class="btn btn-primary">Save</button>
+            <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
         </form>
     </div>
 </div>

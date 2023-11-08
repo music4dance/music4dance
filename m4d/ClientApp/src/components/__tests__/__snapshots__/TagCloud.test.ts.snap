@@ -1,0 +1,89 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`TagCloud.vue > Renders a simple tag cloud 1`] = `
+"<div data-v-dff412d7=\\"\\">
+  <div data-v-dff412d7=\\"\\" class=\\"row\\" style=\\"margin-bottom: 0.5rem;\\">
+    <div data-v-dff412d7=\\"\\" class=\\"btn-group btn-group-sm col-sm\\" role=\\"group\\" aria-label=\\"Group\\"><button data-v-dff412d7=\\"\\" class=\\"btn btn-md btn-style active\\" aria-pressed=\\"true\\" autocomplete=\\"off\\" type=\\"button\\" id=\\"filter-style\\"><svg data-v-dff412d7=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+          <path fill=\\"currentColor\\" d=\\"M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v8A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1h-3zm0 1h3a.5.5 0 0 1 .5.5V3H6v-.5a.5.5 0 0 1 .5-.5zm1.886 6.914L15 7.151V12.5a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5V7.15l6.614 1.764a1.5 1.5 0 0 0 .772 0zM1.5 4h13a.5.5 0 0 1 .5.5v1.616L8.129 7.948a.5.5 0 0 1-.258 0L1 6.116V4.5a.5.5 0 0 1 .5-.5z\\"></path>
+        </svg> style <svg data-v-dff412d7=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+          <g fill=\\"currentColor\\">
+            <path d=\\"M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z\\"></path>
+            <path d=\\"M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417L5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z\\"></path>
+          </g>
+        </svg></button><button data-v-dff412d7=\\"\\" class=\\"btn btn-md btn-tempo active\\" aria-pressed=\\"true\\" autocomplete=\\"off\\" type=\\"button\\" id=\\"filter-tempo\\"><svg data-v-dff412d7=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+          <g fill=\\"currentColor\\">
+            <path d=\\"M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z\\"></path>
+            <path d=\\"M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z\\"></path>
+          </g>
+        </svg> tempo <svg data-v-dff412d7=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+          <g fill=\\"currentColor\\">
+            <path d=\\"M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z\\"></path>
+            <path d=\\"M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417L5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z\\"></path>
+          </g>
+        </svg></button><button data-v-dff412d7=\\"\\" class=\\"btn btn-md btn-music active\\" aria-pressed=\\"true\\" autocomplete=\\"off\\" type=\\"button\\" id=\\"filter-music\\"><svg data-v-dff412d7=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+          <g fill=\\"currentColor\\">
+            <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2z\\"></path>
+            <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3h1z\\"></path>
+            <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1V2.82z\\"></path>
+            <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5z\\"></path>
+          </g>
+        </svg> musical genre <svg data-v-dff412d7=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+          <g fill=\\"currentColor\\">
+            <path d=\\"M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z\\"></path>
+            <path d=\\"M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417L5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z\\"></path>
+          </g>
+        </svg></button><button data-v-dff412d7=\\"\\" class=\\"btn btn-md btn-other active\\" aria-pressed=\\"true\\" autocomplete=\\"off\\" type=\\"button\\" id=\\"filter-other\\"><svg data-v-dff412d7=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+          <g fill=\\"currentColor\\">
+            <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0zm-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0z\\"></path>
+            <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1zm0 5.586l7 7L13.586 9l-7-7H2v4.586z\\"></path>
+          </g>
+        </svg> other <svg data-v-dff412d7=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+          <g fill=\\"currentColor\\">
+            <path d=\\"M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z\\"></path>
+            <path d=\\"M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417L5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z\\"></path>
+          </g>
+        </svg></button></div>
+    <div data-v-dff412d7=\\"\\" style=\\"width: 250px;\\" class=\\"mx-auto col-sm\\"><input data-v-dff412d7=\\"\\" id=\\"strictness\\" class=\\"form-range\\" type=\\"range\\" min=\\"2\\" max=\\"10\\" step=\\"1\\"><label data-v-dff412d7=\\"\\" for=\\"strictness\\" class=\\"d-flex justify-content-between\\" style=\\"margin-bottom: 0px; margin-top: -0.75rem;\\"><span data-v-dff412d7=\\"\\">less</span><span data-v-dff412d7=\\"\\" class=\\"ml-auto\\">more</span></label></div>
+  </div>
+  <div data-v-dff412d7=\\"\\"><a data-v-dff412d7=\\"\\" class=\\"badge text-bg-other text-decoration-none cloud-3\\" href=\\"#\\" target=\\"_self\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\" role=\\"button\\"><svg data-v-dff412d7=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+        <g fill=\\"currentColor\\">
+          <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0zm-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0z\\"></path>
+          <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1zm0 5.586l7 7L13.586 9l-7-7H2v4.586z\\"></path>
+        </g>
+      </svg>1940S</a><a data-v-dff412d7=\\"\\" class=\\"badge text-bg-style text-decoration-none cloud-6\\" href=\\"#\\" target=\\"_self\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\" role=\\"button\\"><svg data-v-dff412d7=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+        <path fill=\\"currentColor\\" d=\\"M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v8A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1h-3zm0 1h3a.5.5 0 0 1 .5.5V3H6v-.5a.5.5 0 0 1 .5-.5zm1.886 6.914L15 7.151V12.5a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5V7.15l6.614 1.764a1.5 1.5 0 0 0 .772 0zM1.5 4h13a.5.5 0 0 1 .5.5v1.616L8.129 7.948a.5.5 0 0 1-.258 0L1 6.116V4.5a.5.5 0 0 1 .5-.5z\\"></path>
+      </svg>Contemporary</a><a data-v-dff412d7=\\"\\" class=\\"badge text-bg-music text-decoration-none cloud-0\\" href=\\"#\\" target=\\"_self\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\" role=\\"button\\"><svg data-v-dff412d7=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+        <g fill=\\"currentColor\\">
+          <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2z\\"></path>
+          <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3h1z\\"></path>
+          <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1V2.82z\\"></path>
+          <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5z\\"></path>
+        </g>
+      </svg>Jazz</a></div>
+  <!--teleport start-->
+  <!--teleport end-->
+</div>"
+`;
+
+exports[`TagCloud.vue > Renders a tag cloud without filters 1`] = `
+"<div data-v-dff412d7=\\"\\">
+  <!--v-if-->
+  <div data-v-dff412d7=\\"\\"><a data-v-dff412d7=\\"\\" class=\\"badge text-bg-other text-decoration-none cloud-3\\" href=\\"#\\" target=\\"_self\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\" role=\\"button\\"><svg data-v-dff412d7=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+        <g fill=\\"currentColor\\">
+          <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0zm-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0z\\"></path>
+          <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1zm0 5.586l7 7L13.586 9l-7-7H2v4.586z\\"></path>
+        </g>
+      </svg>1940S</a><a data-v-dff412d7=\\"\\" class=\\"badge text-bg-style text-decoration-none cloud-6\\" href=\\"#\\" target=\\"_self\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\" role=\\"button\\"><svg data-v-dff412d7=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+        <path fill=\\"currentColor\\" d=\\"M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v8A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1h-3zm0 1h3a.5.5 0 0 1 .5.5V3H6v-.5a.5.5 0 0 1 .5-.5zm1.886 6.914L15 7.151V12.5a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5V7.15l6.614 1.764a1.5 1.5 0 0 0 .772 0zM1.5 4h13a.5.5 0 0 1 .5.5v1.616L8.129 7.948a.5.5 0 0 1-.258 0L1 6.116V4.5a.5.5 0 0 1 .5-.5z\\"></path>
+      </svg>Contemporary</a><a data-v-dff412d7=\\"\\" class=\\"badge text-bg-music text-decoration-none cloud-0\\" href=\\"#\\" target=\\"_self\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\" role=\\"button\\"><svg data-v-dff412d7=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+        <g fill=\\"currentColor\\">
+          <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2z\\"></path>
+          <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3h1z\\"></path>
+          <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1V2.82z\\"></path>
+          <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5z\\"></path>
+        </g>
+      </svg>Jazz</a></div>
+  <!--teleport start-->
+  <!--teleport end-->
+</div>"
+`;

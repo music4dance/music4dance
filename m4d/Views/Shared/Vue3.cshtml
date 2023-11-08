@@ -1,0 +1,55 @@
+﻿@using m4d.ViewModels
+@using Vite.AspNetCore.Abstractions
+@inject IViteManifest Manifest;
+@model VueModel
+
+@{
+    ViewData["Title"] = Model.Title;
+    ViewData["Description"] = Model.Description;
+    var vueModel = Model.Model;
+    if (vueModel is string)
+    {
+        vueModel = $"'{vueModel}'";
+    }
+
+    var converterModel = Model.Model != null
+        ? new ObjectConverterModel
+                {
+                    Name = "model_",
+                    Model = vueModel
+                }
+        : null;
+}
+
+@functions
+{
+    private string Base => "vclient";
+}
+
+<environment include="Development">
+    @{ string devEntry = $"/src/pages/{Model.Name}/main.ts"; }
+    <script type="module" src="@devEntry"></script>
+    @if (Model.Model != null)
+    {
+        @section Scripts {
+            <partial name="_jsonCamelCase" model="@converterModel"/>
+        }
+    }
+</environment>
+
+<environment include="Production">
+    @section Styles {
+        <partial name="_vue-css" model="Model.Name"/>
+    }
+
+    @section Scripts {
+        @if (Model.Model != null)
+        {
+            <partial name="_jsonCamelCase" model="@converterModel" />
+        }
+        <script type="module" src="/@Manifest[$"{Base}/src/pages/{Model.Name}/main.ts"]!.File"></script>
+    }
+</environment>
+
+<div id="app"></div>
+

@@ -37,7 +37,13 @@ function bootstrap4() {
 function bootstrapIcons() {
     return gulp
         .src("./node_modules/bootstrap-icons/font/fonts/bootstrap-icons.*")
-        .pipe(gulp.dest(rootPath("fonts/")));
+        .pipe(gulp.dest(rootPath("css/fonts/")));
+}
+
+function bootstrapIconsCss() {
+    return gulp
+        .src("./node_modules/bootstrap-icons/font/*.css")
+        .pipe(gulp.dest(rootPath("css/")));
 }
 
 function authButtons() {
@@ -64,6 +70,9 @@ var deps = {
         "dist/*": "",
     },
     "jquery-validation": {
+        "dist/*": "",
+    },
+    "jquery-validation-unobtrusive": {
         "dist/*": "",
     },
     markdowndeep: {
@@ -100,6 +109,7 @@ function rootPath(fragment) {
 
 exports.bootstrap = bootstrap4;
 exports.bootstrapIcons = bootstrapIcons;
+exports.bootstrapIconsCss = bootstrapIconsCss;
 exports.authButtons = authButtons;
 exports.dances = dances;
 exports.assets = assets;
@@ -107,6 +117,7 @@ exports.scripts = scripts;
 exports.build = gulp.parallel(
     bootstrap4,
     bootstrapIcons,
+    bootstrapIconsCss,
     authButtons,
     dances,
     assets,

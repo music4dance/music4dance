@@ -19,8 +19,6 @@ namespace m4d.Controllers
             IConfiguration configuration) :
             base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
         {
-            // HelpPage = "song-list";
-            UseVue = true;
         }
 
         // GET: Users/Info/username
@@ -56,7 +54,10 @@ namespace m4d.Controllers
                 s_userCache[id] = profile;
             }
 
-            return View(profile);
+            return Vue3($"Info for {id}", 
+                $"Favorites and song lists for {id}", 
+                "user-info", 
+                profile, "account-management");
         }
 
         public static void ClearCache()

@@ -1,0 +1,80 @@
+@import "../node_modules/bootstrap-styles/scss/functions";
+
+$dance-primary: #001671;
+$dance-light: lighten($dance-primary, 40%);
+$primary: $dance-primary;
+$info: $dance-light;
+
+$custom-theme-colors: (
+  music: #24a092,
+  tempo: #001671,
+  style: #e25828,
+  other: #995600,
+);
+
+$navbar-dark-color: white;
+$navbar-dark-hover-color: rgba(white, 0.8);
+$navbar-dark-active-color: rgba(white, 0.9);
+$navbar-dark-disabled-color: rgba(white, 0.4);
+$navbar-dark-icon-color: $navbar-dark-color;
+
+@import "../node_modules/bootstrap-styles/scss/variables";
+@import "../node_modules/bootstrap-styles/scss/variables-dark";
+
+$theme-colors: map-merge($theme-colors, $custom-theme-colors);
+
+@import "../node_modules/bootstrap-styles/scss/maps";
+@import "../node_modules/bootstrap-styles/scss/mixins";
+@import "../node_modules/bootstrap-styles/scss/utilities";
+
+// Layout & components
+@import "../node_modules/bootstrap-styles/scss/root";
+@import "../node_modules/bootstrap-styles/scss/reboot";
+@import "../node_modules/bootstrap-styles/scss/type";
+@import "../node_modules/bootstrap-styles/scss/images";
+@import "../node_modules/bootstrap-styles/scss/containers";
+@import "../node_modules/bootstrap-styles/scss/grid";
+@import "../node_modules/bootstrap-styles/scss/tables";
+@import "../node_modules/bootstrap-styles/scss/forms";
+@import "../node_modules/bootstrap-styles/scss/buttons";
+@import "../node_modules/bootstrap-styles/scss/transitions";
+@import "../node_modules/bootstrap-styles/scss/dropdown";
+@import "../node_modules/bootstrap-styles/scss/button-group";
+@import "../node_modules/bootstrap-styles/scss/nav";
+@import "../node_modules/bootstrap-styles/scss/navbar";
+@import "../node_modules/bootstrap-styles/scss/card";
+@import "../node_modules/bootstrap-styles/scss/accordion";
+@import "../node_modules/bootstrap-styles/scss/breadcrumb";
+@import "../node_modules/bootstrap-styles/scss/pagination";
+@import "../node_modules/bootstrap-styles/scss/badge";
+@import "../node_modules/bootstrap-styles/scss/alert";
+@import "../node_modules/bootstrap-styles/scss/progress";
+@import "../node_modules/bootstrap-styles/scss/list-group";
+@import "../node_modules/bootstrap-styles/scss/close";
+@import "../node_modules/bootstrap-styles/scss/toasts";
+@import "../node_modules/bootstrap-styles/scss/modal";
+@import "../node_modules/bootstrap-styles/scss/tooltip";
+@import "../node_modules/bootstrap-styles/scss/popover";
+@import "../node_modules/bootstrap-styles/scss/carousel";
+@import "../node_modules/bootstrap-styles/scss/spinners";
+@import "../node_modules/bootstrap-styles/scss/offcanvas";
+@import "../node_modules/bootstrap-styles/scss/placeholders";
+
+// Helpers
+@import "../node_modules/bootstrap-styles/scss/helpers";
+
+// Utilities
+@import "../node_modules/bootstrap-styles/scss/utilities/api";
+
+@import "bootstrap-vue-next/dist/bootstrap-vue-next.css";
+
+.nav-subitem {
+  padding-left: 1rem;
+}
+
+// :root {
+//   --bs-music-rgb: 36, 160, 146;
+//   --bs-tempo-rgb: 0, 22, 113;
+//   --bs-style-rgb: 226, 88, 40;
+//   --bs-other-rgb: 153, 86, 0;
+// }

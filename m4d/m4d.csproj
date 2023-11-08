@@ -60,6 +60,7 @@
     <PackageReference Include="System.ServiceModel.NetTcp" Version="6.0.0" />
     <PackageReference Include="System.ServiceModel.Primitives" Version="6.0.0" />
     <PackageReference Include="System.ServiceModel.Security" Version="6.0.0" />
+    <PackageReference Include="Vite.AspNetCore" Version="1.10.1" />
     <PackageReference Include="X.PagedList.Mvc.Core" Version="8.4.7" />
   </ItemGroup>
   <ItemGroup>
@@ -75,6 +76,11 @@
     <Exec Command="yarn run build:dev" WorkingDirectory="Client" Condition="'$(Configuration)' == 'Debug'"></Exec>
     <Exec Command="yarn run styles" WorkingDirectory="Client"></Exec>
   </Target>
+  <Target Name="vite-client" AfterTargets="AfterBuild">
+    <Exec Command="yarn install --network-timeout=300000" WorkingDirectory="ClientApp"></Exec>
+    <Exec Command="yarn run build" WorkingDirectory="ClientApp" Condition="'$(Configuration)' == 'Release'"></Exec>
+  </Target>
+
   <Target Name="clean-client" AfterTargets="Clean">
     <RemoveDir Directories="wwwroot" />
   </Target>

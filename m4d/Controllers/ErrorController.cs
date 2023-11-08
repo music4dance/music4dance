@@ -20,7 +20,7 @@ namespace m4d.Controllers
         [Route("/Error/{status}")]
         public ActionResult Index(int status)
         {
-            ViewBag.UseView = false;
+            ViewBag.UseVue = false;
 
             var error = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
             var isAjaxRequest = error?.Path.Contains("/api", StringComparison.OrdinalIgnoreCase) ??

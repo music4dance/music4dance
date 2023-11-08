@@ -42,7 +42,6 @@ namespace m4d.Controllers
             base(context, userManager, roleManager, searchService, danceStatsManager, configuration, logger)
         {
             HelpPage = "song-list";
-            UseVue = true;
             _linkGenerator = linkGenerator;
             _mapper = mapper;
             _backgroundTaskQueue = queue;
@@ -270,7 +269,6 @@ namespace m4d.Controllers
             HelpPage = "advanced-search";
 
             ViewBag.AzureIndexInfo = Database.SongIndex.GetIndex();
-            UseVue = false;
             return View(new RawSearch(Filter is { IsRaw: true } ? Filter : null));
         }
 
@@ -685,7 +683,6 @@ namespace m4d.Controllers
         public async Task<ActionResult> Delete(Guid id)
         {
             var song = await SongIndex.FindSong(id);
-            UseVue = false;
             return song == null
                 ? ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.")
                 : View(song);
@@ -874,7 +871,6 @@ namespace m4d.Controllers
         public async Task<ActionResult> CreateSpotify([FromServices] SignInManager<ApplicationUser> signInManager)
         {
             HelpPage = "spotify-playlist";
-            UseVue = false;
 
             var authResult = await HttpContext.AuthenticateAsync();
             var canSpotify = await AdmAuthentication.HasAccess(
@@ -918,7 +914,6 @@ namespace m4d.Controllers
             [Bind("Title,DescriptionPrefix,Description,Count,Filter")]
             SpotifyCreateInfo info)
         {
-            UseVue = false;
             var authResult = await HttpContext.AuthenticateAsync();
             var canSpotify = (await AdmAuthentication.GetServiceAuthorization(
                 Configuration, ServiceType.Spotify, User, authResult)) != null;
@@ -1018,7 +1013,6 @@ namespace m4d.Controllers
         public ActionResult ExportPlaylist()
         {
             HelpPage = "export-playlist";
-            UseVue = false;
 
             var isUserOnly = IsUserOnly(Filter);
             var userQuery = Filter.UserQuery;
@@ -1046,7 +1040,6 @@ namespace m4d.Controllers
             ExportInfo info)
         {
             HelpPage = "export-playlist";
-            UseVue = false;
 
             info.IsAuthenticated = User.Identity?.IsAuthenticated ?? false;
             info.IsPremium = User.IsInRole(DanceMusicCoreService.PremiumRole) || User.IsInRole(DanceMusicCoreService.TrialRole);
@@ -1438,7 +1431,6 @@ namespace m4d.Controllers
 
         private ActionResult HandleRedirect(RedirectException redirect)
         {
-            UseVue = false;
             var model = redirect.Model;
             if (redirect.View == "Login" && model is SongFilter filter)
             {
@@ -1842,7 +1834,6 @@ namespace m4d.Controllers
         {
             var sm = new SongMerge(songs.ToList(), Database.DanceStats);
 
-            UseVue = false;
             return View("Merge", sm);
         }
 

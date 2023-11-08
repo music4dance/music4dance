@@ -22,6 +22,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Serialization;
 using Owl.reCAPTCHA;
+using Vite.AspNetCore.Extensions;
 
 namespace m4d
 {
@@ -65,12 +66,6 @@ namespace m4d
                     option.CompatibilityMode = PasswordHasherCompatibilityMode.IdentityV2);
 
             services.AddResponseCaching();
-
-            var builder = services.AddMvc();
-
-#if DEBUG
-            builder.AddRazorRuntimeCompilation();
-#endif
 
             var physicalProvider = Environment.ContentRootFileProvider;
             var embeddedProvider = new EmbeddedFileProvider(Assembly.GetEntryAssembly());
@@ -161,6 +156,8 @@ namespace m4d
                 typeof(SongPropertyProfile),
                 typeof(TagProfile));
 
+            services.AddViteServices();
+
             services.AddHostedService<DanceStatsHostedService>();
         }
 
@@ -170,6 +167,7 @@ namespace m4d
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseViteDevMiddleware();
             }
             else
             {

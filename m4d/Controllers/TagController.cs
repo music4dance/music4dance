@@ -27,7 +27,7 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public IActionResult Index()
         {
-            return Vue(
+            return Vue3(
                 "Tag Cloud",
                 "Explore songs based on musical genre, tempo, style and other tags.",
                 "tag-index",

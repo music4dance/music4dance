@@ -34,7 +34,7 @@ namespace m4d.Controllers
 
         public IActionResult FAQ()
         {
-            return Vue("FAQ", "Frequently Asked Questions about Music4Dance and the answers.", "faq", danceEnvironment: true);
+            return Vue3("FAQ", "Frequently Asked Questions about Music4Dance and the answers.", "faq", danceEnvironment: true);
         }
 
         public IActionResult Info()
@@ -59,13 +59,13 @@ namespace m4d.Controllers
 
         public IActionResult About()
         {
-            return Vue(
+            return Vue3(
                 "About music4Dance", "About the music4dance project an it's creator", "about");
         }
 
         public IActionResult Resume()
         {
-            return Vue("Resume", "David W. Gray's Resume", "resume");
+            return Vue3("Resume", "David W. Gray's Resume", "resume");
         }
 
         public IActionResult SpotifyExplorer()
@@ -86,7 +86,7 @@ namespace m4d.Controllers
         public IActionResult ReadingList()
         {
             ViewBag.HideAds = true;
-            return Vue(
+            return Vue3(
                 "Reading List",
                 "Some fun and interesting reading related to dance in one way or another",
                 "reading-list");

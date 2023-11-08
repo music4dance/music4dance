@@ -1,0 +1,13 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        @await RenderSectionAsync("styles", false)
+        <partial name="_head"/>
+    </head>
+    <body>
+        @RenderBody()
+
+        <partial name="_environmentWriter"/>
+        @await RenderSectionAsync("scripts", false)
+    </body>
+</html>

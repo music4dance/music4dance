@@ -45,7 +45,7 @@ namespace m4d.Controllers
             base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
         {
             _mapper = mapper;
-            UseVue = true;
+            UseVue = UseVue.V2;
         }
 
         // GET: Dances/{dance}
@@ -118,7 +118,7 @@ namespace m4d.Controllers
 
             if (ds.SongCount == 0)
             {
-                UseVue = false;
+                UseVue = UseVue.No;
                 return View("emptydance", ds);
             }
 

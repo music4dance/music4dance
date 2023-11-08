@@ -406,8 +406,6 @@ namespace m4d.Controllers
             }
         }
 
-        // TODONEXT: Generate the Halloween playlists in spotify.
-
         private async Task BulkCreateHoliday(IReadOnlyDictionary<string, PlaylistMetadata> oldS,
             IReadOnlyDictionary<string, PlayList> oldM, IFileProvider fileProvider, string occassion)
         {

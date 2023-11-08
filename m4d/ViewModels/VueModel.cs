@@ -8,4 +8,6 @@
         public string Script { get; set; }
         public object Model { get; set; }
     }
+
+    public enum UseVue {No, V2, V3}
 }

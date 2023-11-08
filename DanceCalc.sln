@@ -24,7 +24,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "m4dModels", "m4dModels\m4dM
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "m4dModels.Tests", "m4dModels.Tests\m4dModels.Tests.csproj", "{F5F4E269-036A-4E92-AABD-84BB21E942B5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SelfCrawler", "SelfCrawler\SelfCrawler.csproj", "{64243D76-39CF-4F31-899B-0CBD5A2B2B26}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SelfCrawler", "SelfCrawler\SelfCrawler.csproj", "{64243D76-39CF-4F31-899B-0CBD5A2B2B26}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
