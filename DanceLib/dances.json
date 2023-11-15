@@ -835,8 +835,8 @@
       "wc swing"
     ],
     "tempoRange": {
-      "min": 112.0,
-      "max": 128.0
+      "min": 80.0,
+      "max": 130.0
     },
     "organizations": [
       "DanceSport",
@@ -856,6 +856,21 @@
         "name": "American West Coast Swing",
         "style": "American Rhythm",
         "competitionGroup": "Ballroom",
+        "competitionOrder": 0,
+        "exceptions": []
+      },
+      {
+        "tempoRange": {
+          "min": 80.0,
+          "max": 130.0
+        },
+        "id": "WCSS",
+        "meter": {
+          "numerator": 4,
+          "denominator": 4
+        },
+        "name": "Social West Coast Swing",
+        "style": "Social",
         "competitionOrder": 0,
         "exceptions": []
       }

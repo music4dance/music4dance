@@ -13,6 +13,7 @@ export interface Book {
   others?: Link[];
   review?: string;
   notes?: string;
+  website?: Link;
 }
 
 export interface Link {

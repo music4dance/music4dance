@@ -16,9 +16,30 @@ const books: Book[] = [
     kindle: "https://amzn.to/2ZKMWRS",
     paperback: "https://amzn.to/2zH4uDQ",
     review: "https://music4dance.blog/2019/08/24/hear-the-beat-feel-the-music/",
+    website: {
+      text: "ihatetodance.com",
+      ref: "https://ihatetodance.com/",
+    },
     notes:
       "This is a great read for those dancers that don’t have a musical background and are struggling with “musicality.”",
     image: `<a href="https://www.amazon.com/Hear-Beat-Feel-Music-Remarkable-ebook/dp/B07DPVFY6V?crid=1MIHB6FI75J8D&keywords=hear+the+beat+feel+the+music&qid=1566677512&s=gateway&sprefix=hear+the+music%2C+feel%2Caps%2C202&sr=8-1&linkCode=li2&tag=msc4dnc-20&linkId=9018732b1d509231e2a4a75b3ba9835f&language=en_US&ref_=as_li_ss_il" target="_blank"><img border="0" src="//ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B07DPVFY6V&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=msc4dnc-20&language=en_US" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=msc4dnc-20&language=en_US&l=li2&o=1&a=B07DPVFY6V" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />`,
+  },
+  {
+    type: BookType.Education,
+    title: "Every Man's Survival Guide to Ballroom Dancing",
+    subtitle:
+      "Ace Your Wedding Dance and Keep Cool on a Cruise, at a Formal, and in Dance Classes Paperback",
+    author: "James Joseph",
+    kindle: "https://amzn.to/47j07NO",
+    paperback: "https://amzn.to/3ugpKA4",
+    review: "https://music4dance.blog/2016/10/31/feel-the-beat/",
+    website: {
+      text: "ihatetodance.com",
+      ref: "https://ihatetodance.com/",
+    },
+    notes:
+      "This is the book I wish I had when I first started dancing as a somewhat socially awkward 20 something.  This book lays out some solid advice about how to behave on the dance floor and general etiquitte in various dance environments on top of instructions on how to dance to music.",
+    image: `<a href="https://www.amazon.com/Every-Survival-Guide-Ballroom-Dancing-ebook/dp/B007MPUSAI?_encoding=UTF8&qid=1477934551&sr=8-1&linkCode=li2&tag=msc4dnc-20&linkId=2d6bdcb5ad34244ae733daaa6e5592b6&language=en_US&ref_=as_li_ss_il" target="_blank"><img border="0" src="//ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B007MPUSAI&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=msc4dnc-20&language=en_US" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=msc4dnc-20&language=en_US&l=li2&o=1&a=B007MPUSAI" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />`,
   },
   {
     type: BookType.Education,

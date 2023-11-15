@@ -9,6 +9,9 @@ const props = defineProps<{
 const links = computed(() => {
   const links: Link[] = [];
   const book = props.book;
+  if (book.website) {
+    links.push({ text: book.website.text, ref: book.website.ref });
+  }
   if (book.kindle) {
     links.push({ text: `${book.title} (Kindle)`, ref: book.kindle });
   }
