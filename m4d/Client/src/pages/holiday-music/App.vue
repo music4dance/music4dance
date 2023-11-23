@@ -21,6 +21,7 @@
         :filter="model.filter"
         :hideSort="true"
         :hiddenColumns="['Track']"
+        @song-selected="selectSong"
       ></song-table>
       <song-footer :model="model" :href="pageLink"></song-footer>
     </div>
@@ -30,11 +31,13 @@
       :dance="model.dance"
       :count="model.count"
     ></holiday-dance-chooser>
+    <admin-footer :model="model" :selected="selected"></admin-footer>
   </page>
 </template>
 
 <script lang="ts">
 import Page from "@/components/Page.vue";
+import AdminFooter from "@/components/AdminFooter.vue";
 import SongFooter from "@/components/SongFooter.vue";
 import SongTable from "@/components/SongTable.vue";
 import SpotifyPlayer from "@/components/SpotifyPlayer.vue";
@@ -45,14 +48,15 @@ import { DanceEnvironment } from "@/model/DanceEnvironment";
 import { HolidaySongListModel } from "@/model/HolidaySongListModel";
 import "reflect-metadata";
 import { TypedJSON } from "typedjson";
-import Vue from "vue";
 import HolidayDanceChooser from "./HolidayDanceChooser.vue";
 import HolidayHelp from "./HolidayHelp.vue";
+import SongSelector from "@/mix-ins/SongSelector";
 
 declare const model: string;
 
-export default Vue.extend({
+export default SongSelector.extend({
   components: {
+    AdminFooter,
     HolidayDanceChooser,
     HolidayHelp,
     Page,

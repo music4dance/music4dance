@@ -2678,40 +2678,37 @@ exports[`HolidayMusic.vue renders a holiday music page 1`] = `
             <!---->
           </table>
         </div>
-        <div>
-          <div class="row">
-            <div class="col-md-8">
-              <nav aria-hidden="false" aria-label="Pagination">
-                <ul aria-disabled="false" class="pagination b-pagination">
-                  <!---->
-                  <li aria-hidden="true" class="page-item disabled"><span aria-label="Go to previous page" aria-disabled="true" class="page-link">‹</span></li>
-                  <!---->
-                  <!---->
-                  <li class="page-item active"><a aria-label="Go to page 1" aria-current="page" href="/song/holidaymusic?occassion=holiday&amp;page=1" target="_self" class="page-link">1</a></li>
-                  <li class="page-item"><a aria-label="Go to page 2" href="/song/holidaymusic?occassion=holiday&amp;page=2" target="_self" class="page-link">2</a></li>
-                  <li class="page-item"><a aria-label="Go to page 3" href="/song/holidaymusic?occassion=holiday&amp;page=3" target="_self" class="page-link">3</a></li>
-                  <li class="page-item bv-d-xs-down-none"><a aria-label="Go to page 4" href="/song/holidaymusic?occassion=holiday&amp;page=4" target="_self" class="page-link">4</a></li>
-                  <li class="page-item bv-d-xs-down-none"><a aria-label="Go to page 5" href="/song/holidaymusic?occassion=holiday&amp;page=5" target="_self" class="page-link">5</a></li>
-                  <li class="page-item bv-d-xs-down-none"><a aria-label="Go to page 6" href="/song/holidaymusic?occassion=holiday&amp;page=6" target="_self" class="page-link">6</a></li>
-                  <li class="page-item bv-d-xs-down-none"><a aria-label="Go to page 7" href="/song/holidaymusic?occassion=holiday&amp;page=7" target="_self" class="page-link">7</a></li>
-                  <li class="page-item bv-d-xs-down-none"><a aria-label="Go to page 8" href="/song/holidaymusic?occassion=holiday&amp;page=8" target="_self" class="page-link">8</a></li>
-                  <li class="page-item bv-d-xs-down-none"><a aria-label="Go to page 9" href="/song/holidaymusic?occassion=holiday&amp;page=9" target="_self" class="page-link">9</a></li>
-                  <li role="separator" class="page-item disabled bv-d-xs-down-none"><span class="page-link">…</span></li>
-                  <li class="page-item"><a aria-label="Go to page 29" href="/song/holidaymusic?occassion=holiday&amp;page=29" target="_self" class="page-link">29</a></li>
-                  <li class="page-item"><a aria-label="Go to next page" href="/song/holidaymusic?occassion=holiday&amp;page=2" target="_self" class="page-link">›</a></li>
-                  <!---->
-                </ul>
-              </nav>
-            </div>
-            <div class="col-md-2">Page 1 of 29 (707 songs
-              found)</div>
-            <div class="col-md-2">
-              <div><a href="/song/advancedsearchform">New Search</a></div>
-              <div><a href="/song/createspotify?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))">Create Spotify Playlist</a></div>
-              <!---->
-            </div>
+        <div class="row">
+          <div class="col-md-8">
+            <nav aria-hidden="false" aria-label="Pagination">
+              <ul aria-disabled="false" class="pagination b-pagination">
+                <!---->
+                <li aria-hidden="true" class="page-item disabled"><span aria-label="Go to previous page" aria-disabled="true" class="page-link">‹</span></li>
+                <!---->
+                <!---->
+                <li class="page-item active"><a aria-label="Go to page 1" aria-current="page" href="/song/holidaymusic?occassion=holiday&amp;page=1" target="_self" class="page-link">1</a></li>
+                <li class="page-item"><a aria-label="Go to page 2" href="/song/holidaymusic?occassion=holiday&amp;page=2" target="_self" class="page-link">2</a></li>
+                <li class="page-item"><a aria-label="Go to page 3" href="/song/holidaymusic?occassion=holiday&amp;page=3" target="_self" class="page-link">3</a></li>
+                <li class="page-item bv-d-xs-down-none"><a aria-label="Go to page 4" href="/song/holidaymusic?occassion=holiday&amp;page=4" target="_self" class="page-link">4</a></li>
+                <li class="page-item bv-d-xs-down-none"><a aria-label="Go to page 5" href="/song/holidaymusic?occassion=holiday&amp;page=5" target="_self" class="page-link">5</a></li>
+                <li class="page-item bv-d-xs-down-none"><a aria-label="Go to page 6" href="/song/holidaymusic?occassion=holiday&amp;page=6" target="_self" class="page-link">6</a></li>
+                <li class="page-item bv-d-xs-down-none"><a aria-label="Go to page 7" href="/song/holidaymusic?occassion=holiday&amp;page=7" target="_self" class="page-link">7</a></li>
+                <li class="page-item bv-d-xs-down-none"><a aria-label="Go to page 8" href="/song/holidaymusic?occassion=holiday&amp;page=8" target="_self" class="page-link">8</a></li>
+                <li class="page-item bv-d-xs-down-none"><a aria-label="Go to page 9" href="/song/holidaymusic?occassion=holiday&amp;page=9" target="_self" class="page-link">9</a></li>
+                <li role="separator" class="page-item disabled bv-d-xs-down-none"><span class="page-link">…</span></li>
+                <li class="page-item"><a aria-label="Go to page 29" href="/song/holidaymusic?occassion=holiday&amp;page=29" target="_self" class="page-link">29</a></li>
+                <li class="page-item"><a aria-label="Go to next page" href="/song/holidaymusic?occassion=holiday&amp;page=2" target="_self" class="page-link">›</a></li>
+                <!---->
+              </ul>
+            </nav>
           </div>
-          <!---->
+          <div class="col-md-2">Page 1 of 29 (707 songs
+            found)</div>
+          <div class="col-md-2">
+            <div><a href="/song/advancedsearchform">New Search</a></div>
+            <div><a href="/song/createspotify?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))">Create Spotify Playlist</a></div>
+            <!---->
+          </div>
         </div>
       </div>
       <!---->
@@ -2719,6 +2716,7 @@ exports[`HolidayMusic.vue renders a holiday music page 1`] = `
         <!---->
         <p>Choose a dance style to filter the holiday music to that style</p> <a href="/song/holidaymusic?occassion=holiday&amp;dance=Argentine Tango" target="_self" class="btn btn-primary" style="margin: 0.25em;">Argentine Tango</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Bachata" target="_self" class="btn btn-primary" style="margin: 0.25em;">Bachata</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Blues" target="_self" class="btn btn-primary" style="margin: 0.25em;">Blues</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Bolero" target="_self" class="btn btn-primary" style="margin: 0.25em;">Bolero</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Carolina Shag" target="_self" class="btn btn-primary" style="margin: 0.25em;">Carolina Shag</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Castle Foxtrot" target="_self" class="btn btn-primary" style="margin: 0.25em;">Castle Foxtrot</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Cha Cha" target="_self" class="btn btn-primary" style="margin: 0.25em;">Cha Cha</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Charleston" target="_self" class="btn btn-primary" style="margin: 0.25em;">Charleston</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Contemporary" target="_self" class="btn btn-primary" style="margin: 0.25em;">Contemporary</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Country Two Step" target="_self" class="btn btn-primary" style="margin: 0.25em;">Country Two Step</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Cross-step Waltz" target="_self" class="btn btn-primary" style="margin: 0.25em;">Cross-step Waltz</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Cumbia" target="_self" class="btn btn-primary" style="margin: 0.25em;">Cumbia</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=East Coast Swing" target="_self" class="btn btn-primary" style="margin: 0.25em;">East Coast Swing</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Freestyle" target="_self" class="btn btn-primary" style="margin: 0.25em;">Freestyle</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Hustle" target="_self" class="btn btn-primary" style="margin: 0.25em;">Hustle</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Jazz" target="_self" class="btn btn-primary" style="margin: 0.25em;">Jazz</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Jive" target="_self" class="btn btn-primary" style="margin: 0.25em;">Jive</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Jump Swing" target="_self" class="btn btn-primary" style="margin: 0.25em;">Jump Swing</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Lindy Hop" target="_self" class="btn btn-primary" style="margin: 0.25em;">Lindy Hop</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Mambo" target="_self" class="btn btn-primary" style="margin: 0.25em;">Mambo</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Merengue" target="_self" class="btn btn-primary" style="margin: 0.25em;">Merengue</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Milonga" target="_self" class="btn btn-primary" style="margin: 0.25em;">Milonga</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Motown" target="_self" class="btn btn-primary" style="margin: 0.25em;">Motown</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Neo Tango" target="_self" class="btn btn-primary" style="margin: 0.25em;">Neo Tango</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Night Club Two Step" target="_self" class="btn btn-primary" style="margin: 0.25em;">Night Club Two Step</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Paso Doble" target="_self" class="btn btn-primary" style="margin: 0.25em;">Paso Doble</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Peabody" target="_self" class="btn btn-primary" style="margin: 0.25em;">Peabody</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Quickstep" target="_self" class="btn btn-primary" style="margin: 0.25em;">Quickstep</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Rumba" target="_self" class="btn btn-primary" style="margin: 0.25em;">Rumba</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Salsa" target="_self" class="btn btn-primary" style="margin: 0.25em;">Salsa</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Samba" target="_self" class="btn btn-primary" style="margin: 0.25em;">Samba</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Slow Foxtrot" target="_self" class="btn btn-primary" style="margin: 0.25em;">Slow Foxtrot</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Slow Waltz" target="_self" class="btn btn-primary" style="margin: 0.25em;">Slow Waltz</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Tango (Ballroom)" target="_self" class="btn btn-primary" style="margin: 0.25em;">Tango (Ballroom)</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Tango Vals" target="_self" class="btn btn-primary" style="margin: 0.25em;">Tango Vals</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=Viennese Waltz" target="_self" class="btn btn-primary" style="margin: 0.25em;">Viennese Waltz</a><a href="/song/holidaymusic?occassion=holiday&amp;dance=West Coast Swing" target="_self" class="btn btn-primary" style="margin: 0.25em;">West Coast Swing</a>
       </div>
+      <!---->
     </div>
   </div>
   <div id="footer-content">

@@ -11,24 +11,27 @@
       :filter="model.filter"
       :hideSort="true"
       :hiddenColumns="hidden"
+      @song-selected="selectSong"
     ></song-table>
+    <admin-footer :model="model" :selected="selected"></admin-footer>
   </page>
 </template>
 
 <script lang="ts">
 import Page from "@/components/Page.vue";
 import SongTable from "@/components/SongTable.vue";
+import AdminFooter from "@/components/AdminFooter.vue";
 import { safeEnvironment } from "@/helpers/DanceEnvironmentManager";
 import { AlbumModel } from "@/model/AlbumModel";
 import { DanceEnvironment } from "@/model/DanceEnvironment";
 import "reflect-metadata";
 import { TypedJSON } from "typedjson";
-import Vue from "vue";
+import SongSelector from "@/mix-ins/SongSelector";
 
 declare const model: string;
 
-export default Vue.extend({
-  components: { Page, SongTable },
+export default SongSelector.extend({
+  components: { AdminFooter, Page, SongTable },
   data() {
     return new (class {
       model: AlbumModel = TypedJSON.parse(model, AlbumModel)!;

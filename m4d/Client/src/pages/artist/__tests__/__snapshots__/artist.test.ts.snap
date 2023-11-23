@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`NewMusic.vue renders a new music page 1`] = `
+exports[`Artist.vue renders a new music page 1`] = `
 <div>
   <div>
     <!---->
@@ -66,6 +66,26 @@ exports[`NewMusic.vue renders a new music page 1`] = `
   <div id="body-content" class="container-fluid body-content">
     <h1>Artist: Ricky Martin</h1>
     <div>
+      <p>
+        62 Ricky Martin songs with suggestions for
+        dances to dance to them:
+        <span><!----><a href="/dances/samba">Samba</a><span>,
+      </span></span><span><!----><a href="/dances/merengue">Merengue</a><span>,
+      </span></span><span><!----><a href="/dances/night-club-two-step">Night Club Two Step</a><span>,
+      </span></span><span><!----><a href="/dances/viennese-waltz">Viennese Waltz</a><span>,
+      </span></span><span><!----><a href="/dances/rumba">Rumba</a><span>,
+      </span></span><span><!----><a href="/dances/cha-cha">Cha Cha</a><span>,
+      </span></span><span><!----><a href="/dances/salsa">Salsa</a><span>,
+      </span></span><span><!----><a href="/dances/mambo">Mambo</a><span>,
+      </span></span><span><!----><a href="/dances/bachata">Bachata</a><span>,
+      </span></span><span><!----><a href="/dances/bolero">Bolero</a><span>,
+      </span></span><span><!----><a href="/dances/hustle">Hustle</a><span>,
+      </span></span><span><!----><a href="/dances/cumbia">Cumbia</a><span>,
+      </span></span><span><!----><a href="/dances/west-coast-swing">West Coast Swing</a><span>,
+      </span></span><span><!----><a href="/dances/carolina-shag">Carolina Shag</a><span>,
+      </span></span><span><span> and </span><a href="/dances/lindy-hop">Lindy Hop</a>
+        <!----></span>
+      </p>
       <div>
         <table role="table" aria-busy="false" aria-colcount="7" class="table b-table table-striped table-hover table-borderless">
           <!---->
@@ -4141,6 +4161,7 @@ exports[`NewMusic.vue renders a new music page 1`] = `
           <!---->
         </table>
       </div>
+      <!---->
     </div>
   </div>
   <div id="footer-content">

@@ -3912,41 +3912,39 @@ exports[`NewMusic.vue renders a new music page 1`] = `
           <!---->
         </table>
       </div>
-      <div>
-        <div class="row">
-          <div class="col-md-8">
-            <nav aria-hidden="false" aria-label="Pagination">
-              <ul aria-disabled="false" class="pagination b-pagination">
-                <!---->
-                <li aria-hidden="true" class="page-item disabled"><span aria-label="Go to previous page" aria-disabled="true" class="page-link">‹</span></li>
-                <!---->
-                <!---->
-                <li class="page-item active"><a aria-label="Go to page 1" aria-current="page" href="/song/newmusic?filter=v2-newmusic--Created---%5C-dgsnure%7Ca&amp;page=1" target="_self" class="page-link">1</a></li>
-                <li class="page-item"><a aria-label="Go to page 2" href="/song/newmusic?filter=v2-newmusic--Created---%5C-dgsnure%7Ca&amp;page=2" target="_self" class="page-link">2</a></li>
-                <li class="page-item"><a aria-label="Go to page 3" href="/song/newmusic?filter=v2-newmusic--Created---%5C-dgsnure%7Ca&amp;page=3" target="_self" class="page-link">3</a></li>
-                <li class="page-item bv-d-xs-down-none"><a aria-label="Go to page 4" href="/song/newmusic?filter=v2-newmusic--Created---%5C-dgsnure%7Ca&amp;page=4" target="_self" class="page-link">4</a></li>
-                <li class="page-item bv-d-xs-down-none"><a aria-label="Go to page 5" href="/song/newmusic?filter=v2-newmusic--Created---%5C-dgsnure%7Ca&amp;page=5" target="_self" class="page-link">5</a></li>
-                <li class="page-item bv-d-xs-down-none"><a aria-label="Go to page 6" href="/song/newmusic?filter=v2-newmusic--Created---%5C-dgsnure%7Ca&amp;page=6" target="_self" class="page-link">6</a></li>
-                <li class="page-item bv-d-xs-down-none"><a aria-label="Go to page 7" href="/song/newmusic?filter=v2-newmusic--Created---%5C-dgsnure%7Ca&amp;page=7" target="_self" class="page-link">7</a></li>
-                <li class="page-item bv-d-xs-down-none"><a aria-label="Go to page 8" href="/song/newmusic?filter=v2-newmusic--Created---%5C-dgsnure%7Ca&amp;page=8" target="_self" class="page-link">8</a></li>
-                <li class="page-item bv-d-xs-down-none"><a aria-label="Go to page 9" href="/song/newmusic?filter=v2-newmusic--Created---%5C-dgsnure%7Ca&amp;page=9" target="_self" class="page-link">9</a></li>
-                <li role="separator" class="page-item disabled bv-d-xs-down-none"><span class="page-link">…</span></li>
-                <li class="page-item"><a aria-label="Go to page 1235" href="/song/newmusic?filter=v2-newmusic--Created---%5C-dgsnure%7Ca&amp;page=1235" target="_self" class="page-link">1235</a></li>
-                <li class="page-item"><a aria-label="Go to next page" href="/song/newmusic?filter=v2-newmusic--Created---%5C-dgsnure%7Ca&amp;page=2" target="_self" class="page-link">›</a></li>
-                <!---->
-              </ul>
-            </nav>
-          </div>
-          <div class="col-md-2">Page 1 of 1235 (30870 songs
-            found)</div>
-          <div class="col-md-2">
-            <div><a href="/song/advancedsearchform">New Search</a></div>
-            <div><a href="/song/createspotify?filter=v2-newmusic--Created---%5C-dgsnure%7Ca">Create Spotify Playlist</a></div>
-            <!---->
-          </div>
+      <div class="row">
+        <div class="col-md-8">
+          <nav aria-hidden="false" aria-label="Pagination">
+            <ul aria-disabled="false" class="pagination b-pagination">
+              <!---->
+              <li aria-hidden="true" class="page-item disabled"><span aria-label="Go to previous page" aria-disabled="true" class="page-link">‹</span></li>
+              <!---->
+              <!---->
+              <li class="page-item active"><a aria-label="Go to page 1" aria-current="page" href="/song/newmusic?filter=v2-newmusic--Created---%5C-dgsnure%7Ca&amp;page=1" target="_self" class="page-link">1</a></li>
+              <li class="page-item"><a aria-label="Go to page 2" href="/song/newmusic?filter=v2-newmusic--Created---%5C-dgsnure%7Ca&amp;page=2" target="_self" class="page-link">2</a></li>
+              <li class="page-item"><a aria-label="Go to page 3" href="/song/newmusic?filter=v2-newmusic--Created---%5C-dgsnure%7Ca&amp;page=3" target="_self" class="page-link">3</a></li>
+              <li class="page-item bv-d-xs-down-none"><a aria-label="Go to page 4" href="/song/newmusic?filter=v2-newmusic--Created---%5C-dgsnure%7Ca&amp;page=4" target="_self" class="page-link">4</a></li>
+              <li class="page-item bv-d-xs-down-none"><a aria-label="Go to page 5" href="/song/newmusic?filter=v2-newmusic--Created---%5C-dgsnure%7Ca&amp;page=5" target="_self" class="page-link">5</a></li>
+              <li class="page-item bv-d-xs-down-none"><a aria-label="Go to page 6" href="/song/newmusic?filter=v2-newmusic--Created---%5C-dgsnure%7Ca&amp;page=6" target="_self" class="page-link">6</a></li>
+              <li class="page-item bv-d-xs-down-none"><a aria-label="Go to page 7" href="/song/newmusic?filter=v2-newmusic--Created---%5C-dgsnure%7Ca&amp;page=7" target="_self" class="page-link">7</a></li>
+              <li class="page-item bv-d-xs-down-none"><a aria-label="Go to page 8" href="/song/newmusic?filter=v2-newmusic--Created---%5C-dgsnure%7Ca&amp;page=8" target="_self" class="page-link">8</a></li>
+              <li class="page-item bv-d-xs-down-none"><a aria-label="Go to page 9" href="/song/newmusic?filter=v2-newmusic--Created---%5C-dgsnure%7Ca&amp;page=9" target="_self" class="page-link">9</a></li>
+              <li role="separator" class="page-item disabled bv-d-xs-down-none"><span class="page-link">…</span></li>
+              <li class="page-item"><a aria-label="Go to page 1235" href="/song/newmusic?filter=v2-newmusic--Created---%5C-dgsnure%7Ca&amp;page=1235" target="_self" class="page-link">1235</a></li>
+              <li class="page-item"><a aria-label="Go to next page" href="/song/newmusic?filter=v2-newmusic--Created---%5C-dgsnure%7Ca&amp;page=2" target="_self" class="page-link">›</a></li>
+              <!---->
+            </ul>
+          </nav>
         </div>
-        <!---->
+        <div class="col-md-2">Page 1 of 1235 (30870 songs
+          found)</div>
+        <div class="col-md-2">
+          <div><a href="/song/advancedsearchform">New Search</a></div>
+          <div><a href="/song/createspotify?filter=v2-newmusic--Created---%5C-dgsnure%7Ca">Create Spotify Playlist</a></div>
+          <!---->
+        </div>
       </div>
+      <!---->
     </div>
   </div>
   <div id="footer-content">

@@ -23,13 +23,17 @@
       :hideSort="true"
       :hiddenColumns="['length', 'track']"
       :showHistory="true"
+      @song-selected="selectSong"
     ></song-table>
     <song-footer :model="model"></song-footer>
+    <admin-footer :model="model" :selected="selected"></admin-footer>
   </page>
 </template>
 
 <script lang="ts">
 import Page from "@/components/Page.vue";
+import AdminFooter from "@/components/AdminFooter.vue";
+
 import SongFooter from "@/components/SongFooter.vue";
 import SongTable from "@/components/SongTable.vue";
 import { safeEnvironment } from "@/helpers/DanceEnvironmentManager";
@@ -39,12 +43,13 @@ import { SongListModel } from "@/model/SongListModel";
 import { SortOrder } from "@/model/SongSort";
 import "reflect-metadata";
 import { TypedJSON } from "typedjson";
-import Vue from "vue";
+import SongSelector from "@/mix-ins/SongSelector";
 
 declare const model: string;
 
-export default Vue.extend({
+export default SongSelector.extend({
   components: {
+    AdminFooter,
     Page,
     SongFooter,
     SongTable,

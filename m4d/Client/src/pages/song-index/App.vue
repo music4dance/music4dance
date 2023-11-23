@@ -36,17 +36,15 @@
       :hiddenColumns="hiddenColumns"
       @song-selected="selectSong"
     ></song-table>
-    <song-footer
-      :model="model"
-      :canShowImplicitMessage="true"
-      :selected="selected"
-    ></song-footer>
+    <song-footer :model="model"></song-footer>
+    <admin-footer :model="model" :selected="selected"></admin-footer>
   </page>
 </template>
 
 <script lang="ts">
 import Page from "@/components/Page.vue";
 import SearchHeader from "@/components/SearchHeader.vue";
+import AdminFooter from "@/components/AdminFooter.vue";
 import SongFooter from "@/components/SongFooter.vue";
 import SongLibraryHeader from "@/components/SongLibraryHeader.vue";
 import SongTable from "@/components/SongTable.vue";
@@ -57,11 +55,14 @@ import { SongFilter } from "@/model/SongFilter";
 import { SongListModel } from "@/model/SongListModel";
 import "reflect-metadata";
 import { TypedJSON } from "typedjson";
+import mixins from "vue-typed-mixins";
+import SongSelector from "@/mix-ins/SongSelector";
 
 declare const model: string;
 
-export default AdminTools.extend({
+export default mixins(AdminTools, SongSelector).extend({
   components: {
+    AdminFooter,
     Page,
     SearchHeader,
     SongFooter,
@@ -72,7 +73,6 @@ export default AdminTools.extend({
   data() {
     return new (class {
       model: SongListModel = TypedJSON.parse(model, SongListModel)!;
-      selected: string[] = [];
       environment: DanceEnvironment = safeEnvironment();
     })();
   },
@@ -87,17 +87,6 @@ export default AdminTools.extend({
     hiddenColumns(): string[] {
       const columns = this.model.hiddenColumns;
       return columns ? columns : ["length", "track"];
-    },
-  },
-  methods: {
-    selectSong(songId: string, selected: boolean): void {
-      if (selected) {
-        if (!this.selected.find((s) => s === songId)) {
-          this.selected.push(songId);
-        }
-      } else {
-        this.selected = this.selected.filter((s) => s !== songId);
-      }
     },
   },
 });
