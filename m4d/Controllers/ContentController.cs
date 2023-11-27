@@ -1,6 +1,7 @@
 ﻿using m4dModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 
 namespace m4d.Controllers
@@ -10,8 +11,8 @@ namespace m4d.Controllers
         public ContentController(DanceMusicContext context,
             UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
             ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-            IConfiguration configuration, ILogger logger = null) :
-            base(context, userManager, roleManager, searchService, danceStatsManager, configuration, logger)
+            IConfiguration configuration, IFileProvider fileProvider, ILogger logger = null) :
+            base(context, userManager, roleManager, searchService, danceStatsManager, configuration, fileProvider, logger)
         {
         }
     }

@@ -38,8 +38,8 @@ namespace m4d.Controllers
         public SongController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
             IDanceStatsManager danceStatsManager, LinkGenerator linkGenerator,
-            IConfiguration configuration, IMapper mapper, IBackgroundTaskQueue queue, ILogger<SongController> logger) :
-            base(context, userManager, roleManager, searchService, danceStatsManager, configuration, logger)
+            IConfiguration configuration, IMapper mapper, IBackgroundTaskQueue queue, IFileProvider fileProvider, ILogger<SongController> logger) :
+            base(context, userManager, roleManager, searchService, danceStatsManager, configuration, fileProvider, logger)
         {
             HelpPage = "song-list";
             _linkGenerator = linkGenerator;

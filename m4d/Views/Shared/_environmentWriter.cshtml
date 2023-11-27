@@ -1,11 +1,18 @@
 ﻿@{
+    // INT-TODO: Get ride of DanceEnvironment when all vue2 pages are co
     ViewData.TryGetValue("DanceEnvironment", out var environment);
+    ViewData.TryGetValue("DanceDatabase", out var danceDatabase);
     ViewData.TryGetValue("TagDatabase", out var tagDatabase);
 }
 
 @if (environment != null)
 {
     <script>var environmentJson = @Html.Raw(environment)</script>
+}
+
+@if (danceDatabase != null)
+{
+    <script>var danceDatabaseJson = @Html.Raw(danceDatabase)</script>
 }
 
 @if (tagDatabase != null)

@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 
 namespace m4d.Controllers
@@ -21,8 +22,8 @@ namespace m4d.Controllers
         public ApplicationUsersController(DanceMusicContext context,
             UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
             ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-            IConfiguration configuration, ILogger<ApplicationUsersController> logger) :
-            base(context, userManager, roleManager, searchService, danceStatsManager, configuration, logger)
+            IConfiguration configuration, IFileProvider fileProvider, ILogger<ApplicationUsersController> logger) :
+            base(context, userManager, roleManager, searchService, danceStatsManager, configuration, fileProvider, logger)
         {
         }
 

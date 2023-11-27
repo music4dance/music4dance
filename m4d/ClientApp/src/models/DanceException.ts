@@ -1,11 +1,17 @@
 import { jsonMember, jsonObject } from "typedjson";
 import { DanceObject } from "./DanceObject";
+import { assign } from "@/helpers/ObjectHelpers";
 
 @jsonObject
 export class DanceException extends DanceObject {
   @jsonMember(String) public organization!: string;
-  @jsonMember(String) public competitor!: string;
-  @jsonMember(String) public level!: string;
+  @jsonMember(String) public competitor: string = "All";
+  @jsonMember(String) public level: string = "All";
+
+  public constructor(init?: Partial<DanceException>) {
+    super();
+    assign(this, init);
+  }
 
   public matchesFilter(filter: string): boolean {
     const parts = filter.split("-");

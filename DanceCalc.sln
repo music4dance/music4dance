@@ -18,7 +18,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "m4d", "m4d\m4d.csproj", "{6
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DanceLibrary", "DanceLib\DanceLibrary.csproj", "{42BCF520-E4FA-49EF-835A-9356BEA244B4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DanceTests", "DanceTests\DanceTests.csproj", "{888558AB-D289-45C0-9D72-4B08794F9693}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DanceLibrary.Tests", "DanceTests\DanceLibrary.Tests.csproj", "{888558AB-D289-45C0-9D72-4B08794F9693}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "m4dModels", "m4dModels\m4dModels.csproj", "{5E8ADCF3-C6DA-482D-B4A7-3F266F4AF20E}"
 EndProject

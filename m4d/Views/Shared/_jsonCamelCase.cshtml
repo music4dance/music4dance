@@ -10,12 +10,17 @@
     }
     else
     {
-        var jsonSerializerSettings = new JsonSerializerSettings
-        {
-            ContractResolver = new CamelCasePropertyNamesContractResolver(),
-            NullValueHandling = NullValueHandling.Ignore
-        };
-        json = JsonConvert.SerializeObject(Model.Model, Formatting.Indented, jsonSerializerSettings);        
+        var jsonSerializerSettings = Model.PreserveCase
+        ? new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore
+            }
+        : new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                NullValueHandling = NullValueHandling.Ignore
+            };
+        json = JsonConvert.SerializeObject(Model.Model, Formatting.Indented, jsonSerializerSettings);
     }
 }
 

@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.FileProviders;
 
 namespace m4d.Controllers
 {
@@ -41,8 +42,8 @@ namespace m4d.Controllers
 
         public DanceController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
-            IDanceStatsManager danceStatsManager, IConfiguration configuration, IMapper mapper) :
-            base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
+            IDanceStatsManager danceStatsManager, IConfiguration configuration, IMapper mapper, IFileProvider fileProvider) :
+            base(context, userManager, roleManager, searchService, danceStatsManager, configuration, fileProvider)
         {
             _mapper = mapper;
             UseVue = UseVue.V2;
@@ -52,15 +53,17 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult Index(string dance)
         {
-            BuildEnvironment(danceEnvironment: true);
+            BuildEnvironment3(FileProvider, danceEnvironment: true);
             if (string.IsNullOrWhiteSpace(dance))
             {
-                return Vue(
+                return Vue3(
                     "Dance Style Index",
                     "A list of partner dancing styles, including Ballroom, Salsa, Swing, and Tango.",
                     "dance-index",
+                    DanceStatsManager.Instance.GetCounts(),
                     helpPage: "dance-styles",
-                    danceEnvironment: true
+                    danceEnvironment: true,
+                    preserveCase: true
                 );
             }
 

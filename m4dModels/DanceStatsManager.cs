@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Azure.Search.Documents.Models;
 using DanceLibrary;
@@ -27,25 +25,23 @@ namespace m4dModels
             LoadFromAzure(DanceMusicCoreService dms, string source = "default");
 
         Task Initialize(DanceMusicCoreService dms);
+
+        Task InitializeDanceLibrary();
     }
 
 
     public class DanceStatsManager : IDanceStatsManager
     {
-        private const string FileName = "dance-environment";
-
         public DanceStatsManager()
         {
         }
 
-        public DanceStatsManager(string appRoot)
+        public DanceStatsManager(IDanceStatsFileManager fileManager)
         {
-            AppRoot = appRoot;
+            FileManager = fileManager;
         }
 
-        private string AppRoot { get; }
-        private string AppData => Path.Combine(AppRoot, "AppData");
-        private string Content => Path.Combine(AppRoot, "content");
+        private IDanceStatsFileManager FileManager { get; }
         public DateTime LastUpdate { get; private set; }
         public string Source { get; private set; }
 
@@ -104,29 +100,22 @@ namespace m4dModels
 
         private async Task<DanceStatsInstance> LoadFromAppData(DanceMusicCoreService dms)
         {
-            if (AppData == null)
+            var json = await FileManager.GetStats();
+            if (json == null)
             {
                 return null;
             }
-
-            var path = Path.Combine(AppData, $"{FileName}.json");
-            if (!File.Exists(path))
-            {
-                return null;
-            }
-
             await InitializeDanceLibrary();
             LastUpdate = DateTime.Now;
             Source = "AppData";
-            Instance = await DanceStatsInstance.LoadFromJson(
-                await File.ReadAllTextAsync(path), dms);
+            Instance = await DanceStatsInstance.LoadFromJson(json, dms, this);
             return Instance;
         }
 
         public async Task<DanceStatsInstance> LoadFromJson(string json, DanceMusicCoreService dms)
         {
             Source = "Json";
-            Instance = await DanceStatsInstance.LoadFromJson(json, dms);
+            Instance = await DanceStatsInstance.LoadFromJson(json, dms, this);
             return Instance;
         }
 
@@ -143,7 +132,7 @@ namespace m4dModels
 
             LastUpdate = DateTime.Now;
             Source = "Azure";
-            SaveToAppData(instance);
+            await SaveToAppData(instance);
 
             Instance = instance;
             // This will save any tag types that were created via the load from azure
@@ -152,25 +141,15 @@ namespace m4dModels
             return instance;
         }
 
-        private async Task InitializeDanceLibrary()
+        public async Task InitializeDanceLibrary()
         {
-            var dancesJson = await File.ReadAllTextAsync(Path.Combine(Content, "dances.json"));
-            var groupsJson = await File.ReadAllTextAsync(Path.Combine(Content, "dancegroups.json"));
-            DanceLibrary.Dances.Reset(DanceLibrary.Dances.Load(dancesJson, groupsJson));
-
+            DanceLibrary.Dances.Reset(
+                DanceLibrary.Dances.Load(await FileManager.GetDances(), await FileManager.GetGroups()));
         }
 
-        private void SaveToAppData(DanceStatsInstance instance)
+        private Task SaveToAppData(DanceStatsInstance instance)
         {
-            if (AppData == null)
-            {
-                return;
-            }
-
-            var json = instance.SaveToJson();
-            var path = Path.Combine(AppData, $"{FileName}.json");
-            Directory.CreateDirectory(AppData);
-            File.WriteAllText(path, json, Encoding.UTF8);
+            return FileManager.WriteStats(instance.SaveToJson());
         }
 
         private async Task<Dictionary<string, long>> GetSongCounts(DanceMusicCoreService dms,

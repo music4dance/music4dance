@@ -17,8 +17,8 @@ namespace m4d.Controllers
     {
         public HomeController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
-            IDanceStatsManager danceStatsManager, IConfiguration configuration, ILogger<MusicServiceController> logger) :
-            base(context, userManager, roleManager, searchService, danceStatsManager, configuration, logger)
+            IDanceStatsManager danceStatsManager, IConfiguration configuration, IFileProvider fileProvider, ILogger<MusicServiceController> logger) :
+            base(context, userManager, roleManager, searchService, danceStatsManager, configuration, fileProvider, logger)
         {
         }
 

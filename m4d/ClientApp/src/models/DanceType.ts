@@ -3,23 +3,40 @@ import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
 import { DanceInstance } from "./DanceInstance";
 import { DanceObject } from "./DanceObject";
 import { TempoRange } from "./TempoRange";
+import { assign } from "@/helpers/ObjectHelpers";
 
-@jsonObject
+@jsonObject({ onDeserialized: "onDeserialized" })
 export class DanceType extends DanceObject {
   @jsonArrayMember(String) public organizations!: string[];
   @jsonMember(String) public link!: string;
   @jsonArrayMember(DanceInstance) public instances!: DanceInstance[];
 
+  public constructor(init?: Partial<DanceType>) {
+    super();
+    if (init) {
+      assign(this, init);
+      this.onDeserialized();
+    }
+  }
+
+  private onDeserialized(): void {
+    if (this.instances) {
+      for (const inst of this.instances) {
+        inst.danceType = this;
+      }
+    }
+  }
+
   public get styles(): string[] {
     return this.instances.map((inst) => inst.style);
   }
 
-  public get seoName(): string {
-    return wordsToKebab(this.name);
-  }
-
   public get competitionDances(): DanceInstance[] {
     return this.instances.filter((inst) => inst.competitionGroup);
+  }
+
+  public get tempoRange(): TempoRange {
+    return this.instances.map((d) => d.tempoRange).reduce((acc, inst) => acc.combine(inst));
   }
 
   public filteredStyles(filter: string[]): string[] {

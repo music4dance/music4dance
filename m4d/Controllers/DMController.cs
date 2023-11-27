@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Security.Principal;
 using System.Threading.Tasks;
+using System.Web;
 using m4d.Utilities;
 using m4d.ViewModels;
 using m4dModels;
@@ -11,9 +13,11 @@ using m4dModels.Utilities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace m4d.Controllers
 {
@@ -31,7 +35,8 @@ namespace m4d.Controllers
         public DanceMusicController(
             DanceMusicContext context, UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
-            IDanceStatsManager danceStatsManager, IConfiguration configuration, ILogger logger = null)
+            IDanceStatsManager danceStatsManager, IConfiguration configuration, IFileProvider fileProvider,
+            ILogger logger = null)
         {
             Database =
                 new DanceMusicService(context, userManager, searchService, danceStatsManager);
@@ -39,6 +44,7 @@ namespace m4d.Controllers
             DanceStatsManager = danceStatsManager;
             Configuration = configuration;
             Logger = logger;
+            FileProvider = fileProvider;
         }
 
         protected UseVue UseVue { get; set; } = UseVue.No;
@@ -54,6 +60,8 @@ namespace m4d.Controllers
         protected IDanceStatsManager DanceStatsManager { get; }
 
         protected ILogger Logger { get; }
+
+        protected IFileProvider FileProvider { get; }
 
         protected UserManager<ApplicationUser> UserManager => Database.UserManager;
 
@@ -257,6 +265,53 @@ namespace m4d.Controllers
             }
         }
 
+        protected void BuildEnvironment3(IFileProvider fileProvider, bool danceEnvironment = false, bool tagDatabase = false)
+        {
+            if (danceEnvironment)
+            {
+                if (s_danceDatabaseCache == null)
+                {
+                    var dancesJson = ReadJsonFile(fileProvider, "dances");
+                    var groupsJson = ReadJsonFile(fileProvider, "danceGroups");
+                    var library = new JObject(new JProperty("dances", dancesJson), new JProperty("groups", groupsJson));
+                    s_danceDatabaseCache = library.ToString();
+                }
+                ViewData["DanceDatabase"] = s_danceDatabaseCache;
+            }
+            if (tagDatabase)
+            {
+                s_tagDatabaseCache ??= Database.DanceStats.GetJsonTagDatabse();
+                ViewData["TagDatabase"] = s_danceDatabaseCache;
+            }
+        }
+
+        private JArray ReadJsonFile(IFileProvider fileProvider, string name)
+        {
+            var path = fileProvider.GetFileInfo($"/wwwroot/content/{name}.json").PhysicalPath;
+            if (path == null)
+            {
+                throw new Exception($"Unable to find file {name}.json");
+            }
+            using var reader = System.IO.File.OpenText(path);
+            return (JArray)JToken.ReadFrom(new JsonTextReader(reader));
+        }
+
+        protected string GetSongCountsJson()
+        {
+            var counts = DanceStatsManager.Instance.GetCounts();
+            var json =  JsonConvert.SerializeObject(counts, Formatting.Indented, CamelCaseSerializerSettings);
+            return json;
+        }
+
+        internal static void ClearCache()
+        {
+            s_danceDatabaseCache = null;
+            s_tagDatabaseCache = null;
+        }
+
+        private static string s_danceDatabaseCache = null;
+        private static string s_tagDatabaseCache = null;
+
         protected ActionResult Vue(string title, string description, string name,
             object model = null, string helpPage = null,
             bool danceEnvironment = false, bool tagEnvironment = false,
@@ -291,7 +346,7 @@ namespace m4d.Controllers
         protected ActionResult Vue3(string title, string description, string name,
             object model = null, string helpPage = null,
             bool danceEnvironment = false, bool tagEnvironment = false,
-            string script = null)
+            string script = null, bool preserveCase = false)
         {
             UseVue = UseVue.V3;
             if (!string.IsNullOrEmpty(helpPage))
@@ -300,7 +355,7 @@ namespace m4d.Controllers
             }
             if (danceEnvironment || tagEnvironment)
             {
-                BuildEnvironment(danceEnvironment, tagEnvironment);
+                BuildEnvironment3(FileProvider, danceEnvironment, tagEnvironment);
             }
 
             if (model is string s)
@@ -318,6 +373,7 @@ namespace m4d.Controllers
                     Name = name,
                     Script = script,
                     Model = model,
+                    PreserveCase = preserveCase
                 });
         }
 

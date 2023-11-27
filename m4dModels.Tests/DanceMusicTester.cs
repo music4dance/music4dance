@@ -54,7 +54,30 @@ namespace m4dModels.Tests
         }
     }
 
-    public class DanceMusicTester
+    public class TestDSFileManager : IDanceStatsFileManager
+    {
+        public Task<string> GetDances()
+        {
+            return DanceMusicTester.ReadResourceFile("test-dances.json");
+        }
+
+        public Task<string> GetGroups()
+        {
+            return DanceMusicTester.ReadResourceFile("test-groups.json");
+        }
+
+        public Task<string> GetStats()
+        {
+            return DanceMusicTester.ReadResourceFile("dancestatistics.txt");
+        }
+
+        public Task WriteStats(string stats)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public static class DanceMusicTester
     {
         public static string ReplaceTime(string s)
         {
@@ -95,29 +118,6 @@ namespace m4dModels.Tests
             {
                 Trace.WriteLine(prop.ToString());
             }
-        }
-
-        private static async Task<DanceStatsInstance> GetDanceStats(
-            DanceStatsManager manager = null)
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-            var resourceName = assembly.GetManifestResourceNames()
-                .Single(str => str.EndsWith("dancestatistics.txt"));
-
-            string json;
-            using (var stream = assembly.GetManifestResourceStream(resourceName))
-            {
-                Assert.IsNotNull(stream);
-                using var reader = new StreamReader(stream);
-                json = await reader.ReadToEndAsync();
-            }
-
-            var instance = manager == null
-                ? await DanceStatsInstance.LoadFromJson(json, null)
-                : await manager.LoadFromJson(json, null);
-            Assert.IsNotNull(instance);
-
-            return instance;
         }
 
         public static async Task<DanceMusicService> CreateService(string name)
@@ -168,14 +168,15 @@ namespace m4dModels.Tests
                 new RoleLogger()
             );
 
-            var manager = new DanceStatsManager(null);
-            GetDanceStats(manager).Wait();
+            var manager = new DanceStatsManager(new TestDSFileManager());
 
             var songIndex = new Mock<FlatSongIndex>();
-            songIndex.Setup(m => m.UpdateIndex(new List<string>())).ReturnsAsync(true);
             var service = new DanceMusicService(context, userManager, null, manager, songIndex.Object);
+            songIndex.Setup(m => m.UpdateIndex(new List<string>())).ReturnsAsync(true);
             songIndex.Setup(m => m.DanceMusicService).Returns(service);
-            manager.Instance.FixupStats(service, false).Wait();
+            await manager.Initialize(service);
+            songIndex.Setup(m => m.DanceMusicService).Returns(service);
+            await manager.Instance.FixupStats(service, false);
 
             await SeedRoles(roleManager);
 
@@ -215,12 +216,13 @@ namespace m4dModels.Tests
 
         public static async Task<DanceMusicService> CreatePopulatedService(string name)
         {
+            // TODO: Should be able to make these happen in parallel
             var service = await CreateService(name);
 
-            var users = ReadResource("test-users.txt");
-            var dances = ReadResource(@"test-dances.txt");
-            var tags = ReadResource(@"test-tags.txt");
-            var searches = ReadResource(@"test-searches.txt");
+            var users = await ReadResourceList("test-users.txt");
+            var dances = await ReadResourceList(@"test-dances.txt");
+            var tags = await ReadResourceList(@"test-tags.txt");
+            var searches = await ReadResourceList(@"test-searches.txt");
 
             await service.LoadUsers(users);
             await service.LoadDances(dances);
@@ -230,7 +232,7 @@ namespace m4dModels.Tests
             return service;
         }
 
-        private static List<string> ReadResource(string name)
+        internal static async Task<string> ReadResourceFile(string name)
         {
             var assembly = Assembly.GetExecutingAssembly();
             var resourceName = assembly.GetManifestResourceNames()
@@ -238,7 +240,13 @@ namespace m4dModels.Tests
 
             using var stream = assembly.GetManifestResourceStream(resourceName);
             using var reader = new StreamReader(stream);
-            return reader.ReadToEnd().Split(
+            return await reader.ReadToEndAsync();
+        }
+
+        internal static async Task<List<string>> ReadResourceList(string name)
+        {
+            var text = await ReadResourceFile(name);
+            return text.Split(
                 Environment.NewLine.ToCharArray(),
                 StringSplitOptions.RemoveEmptyEntries).ToList();
         }

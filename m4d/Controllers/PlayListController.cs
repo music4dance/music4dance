@@ -26,8 +26,8 @@ namespace m4d.Controllers
         public PlayListController(DanceMusicContext context,
             UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
             ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-            IConfiguration configuration, ILogger<PlayListController> logger) :
-            base(context, userManager, roleManager, searchService, danceStatsManager, configuration, logger)
+            IConfiguration configuration, IFileProvider fileProvider, ILogger<PlayListController> logger) :
+            base(context, userManager, roleManager, searchService, danceStatsManager, configuration, fileProvider, logger)
         {
         }
 

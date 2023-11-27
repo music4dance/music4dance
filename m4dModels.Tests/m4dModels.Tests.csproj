@@ -8,7 +8,9 @@
 
   <ItemGroup>
     <None Remove="TestData\dancestatistics.txt" />
+    <None Remove="TestData\test-dances.json" />
     <None Remove="TestData\test-dances.txt" />
+    <None Remove="TestData\test-groups.json" />
     <None Remove="TestData\test-searches.txt" />
     <None Remove="TestData\test-songs.txt" />
     <None Remove="TestData\test-tags.txt" />
@@ -16,6 +18,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="TestData\test-groups.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TestData\test-dances.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="TestData\dancestatistics.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>

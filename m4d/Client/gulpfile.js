@@ -52,12 +52,6 @@ function authButtons() {
         .pipe(gulp.dest(rootPath("css/")));
 }
 
-function dances() {
-    return gulp
-        .src("../../DanceLib/*.json")
-        .pipe(gulp.dest(rootPath("content/")));
-}
-
 function assets() {
     return gulp.src("./assets/**/*").pipe(gulp.dest(rootPath("")));
 }
@@ -111,7 +105,6 @@ exports.bootstrap = bootstrap4;
 exports.bootstrapIcons = bootstrapIcons;
 exports.bootstrapIconsCss = bootstrapIconsCss;
 exports.authButtons = authButtons;
-exports.dances = dances;
 exports.assets = assets;
 exports.scripts = scripts;
 exports.build = gulp.parallel(
@@ -119,7 +112,6 @@ exports.build = gulp.parallel(
     bootstrapIcons,
     bootstrapIconsCss,
     authButtons,
-    dances,
     assets,
     scripts
 );

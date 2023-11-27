@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
 
 namespace m4d.Controllers
@@ -19,8 +20,8 @@ namespace m4d.Controllers
         public SearchesController(DanceMusicContext context,
             UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
             ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-            IConfiguration configuration) :
-            base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
+            IConfiguration configuration, IFileProvider fileProvider) :
+            base(context, userManager, roleManager, searchService, danceStatsManager, configuration, fileProvider)
         {
             HelpPage = "saved-searches";
         }

@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.FileProviders;
 
 namespace m4d.Controllers
 {
@@ -17,8 +18,8 @@ namespace m4d.Controllers
     {
         public TagController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
-            IDanceStatsManager danceStatsManager, IConfiguration configuration) :
-            base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
+            IDanceStatsManager danceStatsManager, IConfiguration configuration, IFileProvider fileProvider) :
+            base(context, userManager, roleManager, searchService, danceStatsManager, configuration, fileProvider)
         {
             HelpPage = "tag-cloud";
         }

@@ -138,7 +138,7 @@ namespace m4d
 
             var appRoot = Environment.WebRootPath;
             services.AddSingleton<ISearchServiceManager>(new SearchServiceManager(Configuration));
-            services.AddSingleton<IDanceStatsManager>(new DanceStatsManager(appRoot));
+            services.AddSingleton<IDanceStatsManager>(new DanceStatsManager(new DanceStatsFileManager(appRoot)));
 
             services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
             services.AddHostedService<BackgroundQueueHostedService>();

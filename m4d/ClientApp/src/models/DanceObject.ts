@@ -6,10 +6,19 @@ import { TempoRange } from "./TempoRange";
 @jsonObject
 export class DanceObject extends NamedObject {
   @jsonMember(Meter) public meter!: Meter;
-  @jsonMember(TempoRange) public tempoRange!: TempoRange;
+  @jsonMember(TempoRange, { name: "tempoRange" }) public internalTempoRange!: TempoRange;
   @jsonMember(String) public blogTag?: string;
 
+  public get tempoRange(): TempoRange {
+    return this.internalTempoRange;
+  }
+
+  public constructor(init?: Partial<DanceObject>) {
+    super();
+    Object.assign(this, init);
+  }
+
   public get baseId(): string {
-    return this.id.substr(0, 3);
+    return this.id.substring(0, 3);
   }
 }

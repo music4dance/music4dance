@@ -1,9 +1,19 @@
+import { wordsToKebab } from "@/helpers/StringHelpers";
 import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
 
 @jsonObject
 export class NamedObject {
-  @jsonMember(String) public id!: string;
-  @jsonMember(String) public name!: string;
+  @jsonMember(String, { name: "id" }) public internalId!: string;
+  @jsonMember(String, { name: "name" }) public internalName!: string;
+
+  public get id(): string {
+    return this.internalId;
+  }
+
+  public get name(): string {
+    return this.internalName;
+  }
+
   @jsonMember(String) public description?: string;
   @jsonArrayMember(String) public synonyms?: string[];
   @jsonArrayMember(String) public searchonyms?: string[];
@@ -11,6 +21,10 @@ export class NamedObject {
   public isMatch(s: string): boolean {
     const t = NamedObject.normalize(s);
     return !!this.normalizedNames.find((n) => n === t);
+  }
+
+  public get seoName(): string {
+    return wordsToKebab(this.name);
   }
 
   private get normalizedNames(): string[] {

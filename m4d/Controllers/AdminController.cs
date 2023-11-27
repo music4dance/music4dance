@@ -52,9 +52,10 @@ namespace m4d.Controllers
     {
         public AdminController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
-            IDanceStatsManager danceStatsManager, IConfiguration configuration, ILogger<AdminController> logger, IBackgroundTaskQueue queue
+            IDanceStatsManager danceStatsManager, IConfiguration configuration, ILogger<AdminController> logger,
+            IBackgroundTaskQueue queue, IFileProvider fileProvider
             ) :
-            base(context, userManager, roleManager, searchService, danceStatsManager, configuration, logger)
+            base(context, userManager, roleManager, searchService, danceStatsManager, configuration, fileProvider, logger)
         {
             _backgroundTaskQueue = queue;
         }

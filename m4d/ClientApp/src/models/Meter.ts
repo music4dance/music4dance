@@ -5,6 +5,11 @@ export class Meter {
   @jsonMember(Number) public numerator!: number;
   @jsonMember(Number) public denominator!: number;
 
+  constructor(numerator = 0, denominator = 0) {
+    this.numerator = numerator;
+    this.denominator = denominator;
+  }
+
   public toString(): string {
     return `${this.numerator}/${this.denominator}`;
   }

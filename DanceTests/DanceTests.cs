@@ -1,6 +1,10 @@
 ﻿using DanceLibrary;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace DanceTests
 {
@@ -10,10 +14,24 @@ namespace DanceTests
         private Dances _dances;
 
         [TestInitialize]
-        public void InitializeDances()
+        public async Task InitializeDances()
         {
-            _dances = Dances.Instance;
+            _dances = Dances.Load(
+                await ReadResourceFile("test-dances.json"),
+                await ReadResourceFile("test-groups.json"));
         }
+
+        private static async Task<string> ReadResourceFile(string name)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var resourceName = assembly.GetManifestResourceNames()
+                .Single(str => str.EndsWith(name));
+
+            using var stream = assembly.GetManifestResourceStream(resourceName);
+            using var reader = new StreamReader(stream);
+            return await reader.ReadToEndAsync();
+        }
+
 
         private readonly string[] _51HAll =
         {

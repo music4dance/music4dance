@@ -2,6 +2,7 @@
 using m4dModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 
 namespace m4d.Controllers
@@ -12,8 +13,9 @@ namespace m4d.Controllers
 
         public CommerceController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
-            IDanceStatsManager danceStatsManager, IConfiguration configuration, ILogger<MusicServiceController> logger) :
-            base(context, userManager, roleManager, searchService, danceStatsManager, configuration, logger)
+            IDanceStatsManager danceStatsManager, IConfiguration configuration,
+            IFileProvider fileProvider, ILogger<MusicServiceController> logger) :
+            base(context, userManager, roleManager, searchService, danceStatsManager, configuration, fileProvider, logger)
         {
         }
 

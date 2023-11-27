@@ -2,13 +2,37 @@ import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
 import { DanceException } from "./DanceException";
 import { DanceObject } from "./DanceObject";
 import { TempoRange } from "./TempoRange";
+import type { DanceType } from "./DanceType";
+import { assign } from "@/helpers/ObjectHelpers";
 
 @jsonObject
 export class DanceInstance extends DanceObject {
   @jsonMember(String) public style!: string;
   @jsonMember(String) public competitionGroup!: string;
-  @jsonMember(Number) public compititionOrder!: number;
+  @jsonMember(Number) public competitionOrder!: number;
   @jsonArrayMember(DanceException) public exceptions!: DanceException[];
+  public danceType!: DanceType;
+
+  public constructor(init?: Partial<DanceInstance>) {
+    super();
+    assign(this, init);
+  }
+
+  public get id(): string {
+    return this.danceType.id + this.styleId;
+  }
+
+  public get name(): string {
+    return this.shortStyle + " " + this.danceType.name;
+  }
+
+  public get shortStyle(): string {
+    return this.style.split(" ")[0];
+  }
+
+  public get styleId(): string {
+    return this.shortStyle.substring(0, 1);
+  }
 
   public filteredTempo(organizations: string[]): TempoRange | undefined {
     if (!organizations.length) {

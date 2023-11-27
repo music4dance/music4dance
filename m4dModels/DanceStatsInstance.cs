@@ -99,6 +99,11 @@ namespace m4dModels
             return Groups.Select(t => new DanceGroupSparse(t));
         }
 
+        public IReadOnlyDictionary<string, long> GetCounts()
+        {
+            return Dances.ToDictionary(d => d.DanceId,  d => d.SongCount);
+        }
+
         public async Task FixupStats(DanceMusicCoreService dms, bool reloadSongs,
             string source = "default")
         {
@@ -249,7 +254,7 @@ namespace m4dModels
         }
 
         public static async Task<DanceStatsInstance> LoadFromJson(string json,
-            DanceMusicCoreService database)
+            DanceMusicCoreService database, IDanceStatsManager manager = null)
         {
             var settings = new JsonSerializerSettings
             {
@@ -268,8 +273,9 @@ namespace m4dModels
             {
                 await instance.FixupStats(database, false);
             }
-            
-            DanceLibrary.Dances.Reset(DanceLibrary.Dances.Load());
+
+            manager ??= database.DanceStatsManager;
+            await manager.InitializeDanceLibrary();
 
             return instance;
         }
