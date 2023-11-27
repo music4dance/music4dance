@@ -1,4 +1,6 @@
-﻿namespace m4d.ViewModels
+﻿using System;
+
+namespace m4d.ViewModels
 {
     public enum PurchaseKind
     {
@@ -37,5 +39,6 @@
         public bool IsAuthenticated { get; set; }
         public bool FraudDetected { get; set; }
         public bool CurrentPremium { get; set; }
+        public DateTime? PremiumExpiration { get; set; }
     }
 }

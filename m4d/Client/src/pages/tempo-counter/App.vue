@@ -36,6 +36,7 @@ import DanceList from "./components/DanceList.vue";
 interface TempoModel {
   numerator?: number;
   tempo?: number;
+  count?: string;
 }
 
 declare const model: TempoModel;
@@ -48,7 +49,7 @@ export default Vue.extend({
       environment?: DanceEnvironment = safeEnvironment();
       beatsPerMeasure = model.numerator ?? 4;
       beatsPerMinute = model.tempo ?? 0;
-      countMethod = "measures";
+      countMethod = model.count ?? "measures";
       epsilonPercent = 5;
     })();
   },

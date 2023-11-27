@@ -92,12 +92,14 @@ namespace m4d.Controllers
                 "reading-list");
         }
 
-        public IActionResult Counter(int? numerator = null, decimal? tempo = null)
+        public IActionResult Counter(int? numerator = null, decimal? tempo = null, string count="measures")
         {
             return Vue(
                 "Counter",
                 "A web application to measure the tempo of a song and match it with styles of dance.",
-                "tempo-counter", new TempoCounterModel { Numerator = numerator, Tempo = tempo }, "tempo-counter",
+                "tempo-counter",
+                new TempoCounterModel { Numerator = numerator, Tempo = tempo, Count = count },
+                "tempo-counter",
                 danceEnvironment:true);
         }
 
@@ -167,6 +169,7 @@ namespace m4d.Controllers
                 CommerceEnabled = IsCommerceEnabled(),
                 IsAuthenticated = User.Identity.IsAuthenticated,
                 CurrentPremium  = await Database.UserManager.IsInRoleAsync(user, DanceMusicCoreService.PremiumRole),
+                PremiumExpiration = user.SubscriptionEnd,
                 FraudDetected = IsFraudDetected(user),
             };
         }
