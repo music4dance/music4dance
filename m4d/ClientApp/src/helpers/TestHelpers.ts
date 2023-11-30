@@ -6,9 +6,9 @@ import { loadDancesFromString } from "@/helpers/DanceLoader";
 // @ts-ignore
 import tagDatabaseJson from "@/assets/tags.json";
 // @ts-ignore
-import dancesJson from "../../../../DanceLib/dances.json";
+import dancesJson from "@/assets/dances.json";
 // @ts-ignore
-import groupsJson from "../../../../DanceLib/dancegroups.json";
+import groupsJson from "@/assets/dancegroups.json";
 declare global {
   interface Window {
     model_: unknown;
