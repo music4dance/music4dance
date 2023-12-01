@@ -1,7 +1,12 @@
 ﻿@using m4d.Controllers
 @using m4d.Utilities;
-@using m4d.ViewModels
+@using m4dModels
+@using Microsoft.AspNetCore.Identity
+
 @model m4d.ViewModels.PurchaseModel
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery _xsrf
+@inject UserManager<ApplicationUser> _userManager
+@using m4d.ViewModels
 
 @{
     ViewBag.Title = "Thank You!";
@@ -22,7 +27,8 @@
 
     var level = @SubscriptionLevelDescription.FindSubscriptionLevel(Model.Amount);
     var donationAmount = Model.Amount - level.Price;
-    var marketing = GlobalState.Marketing;
+    var user = await _userManager.GetUserAsync(User);
+    var marketing = GlobalState.GetMarketing(user, Context.Request.Path);
 }
 
 <h1>@ViewBag.Title</h1>

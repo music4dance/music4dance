@@ -1,6 +1,9 @@
-﻿@using m4d.Controllers
-@using m4d.Utilities;
+﻿@using Microsoft.AspNetCore.Identity;
+@using m4d.Controllers
+@using m4d.Utilities
 @using m4d.ViewModels
+@using m4dModels;
+@inject UserManager<ApplicationUser> _userManager
 @model ContributeModel
 
 @{
@@ -9,6 +12,8 @@
 
     ViewBag.BreadCrumbs = BreadCrumbItem.BuildInfoTrail(ViewBag.Title);
     var annualPrice = $"${CommerceController.AnnualSubscription:N2}";
+    var user = await _userManager.GetUserAsync(User);
+    var marketing = GlobalState.GetMarketing(user, Context.Request.Path);
 }
 <div id="fb-root"></div>
 <script async defer crossorigin="anonymous"
@@ -20,9 +25,9 @@
 @if (Model.CommerceEnabled)
 {
     <h2>@(Model.CurrentPremium ? "Renew your" : "Purchase a") Subscription</h2>
-        @if(GlobalState.Marketing.Enabled)
+        @if(marketing.Enabled)
         {
-            <div class="alert alert-success" role="alert">@Html.Raw(GlobalState.Marketing.Notice)</div>
+            <div class="alert alert-success" role="alert">@Html.Raw(marketing.Notice)</div>
         }
         @if (Model.CurrentPremium)
         {

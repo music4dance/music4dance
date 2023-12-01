@@ -18,10 +18,11 @@
     string userId = "";
     string expiration = null;
     var roles = DanceMusicCoreService.UserRoles(User);
+    ApplicationUser user = null;
     if (User.Identity.IsAuthenticated)
     {
         userName = User.Identity.Name;
-        var user = await _userManager.GetUserAsync(User);
+        user = await _userManager.GetUserAsync(User);
         userId = user.Privacy == 0 ? user.Id : "";
         expiration = roles.Contains(DanceMusicCoreService.PremiumRole) ? user.SubscriptionEnd.ToString() : null;
     }
@@ -30,7 +31,8 @@
     var hasIcons = ViewData.TryGetValue("HasIcons", out var hasIconsObj) && (hasIconsObj as bool?).Value;
     var styleModifier = hasIcons ? "wicons" : "";
     var styleSheet = ViewData.ContainsKey("NoSiteCss") ? null : $"/css/site{styleModifier}.css";
-    var marketingMessage = GlobalState.Marketing.Enabled ? GlobalState.Marketing.Banner : String.Empty;
+    var marketing = GlobalState.GetMarketing(user, Context.Request.Path);
+    var marketingMessage = marketing.Enabled ? marketing.Banner : String.Empty;
 }
 
 @functions{
