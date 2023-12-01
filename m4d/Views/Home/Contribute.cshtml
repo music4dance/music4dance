@@ -1,4 +1,5 @@
 ﻿@using m4d.Controllers
+@using m4d.Utilities;
 @using m4d.ViewModels
 @model ContributeModel
 
@@ -19,6 +20,10 @@
 @if (Model.CommerceEnabled)
 {
     <h2>@(Model.CurrentPremium ? "Renew your" : "Purchase a") Subscription</h2>
+        @if(GlobalState.Marketing.Enabled)
+        {
+            <div class="alert alert-success" role="alert">@Html.Raw(GlobalState.Marketing.Notice)</div>
+        }
         @if (Model.CurrentPremium)
         {
             <p class="big-text">
@@ -65,21 +70,14 @@
         }
         else
         {
-            using (Html.BeginForm("CreateCheckoutSession", "Payment", FormMethod.Post, new
+            foreach (var level in SubscriptionLevelDescription.SubscriptionLevels)
             {
-                id = "purchase",
-                @class = "form-inline"
-            }))
-            {
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="kind" value="Purchase"/>
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary">@(Model.CurrentPremium ? "Renew" : "Purchase") Subscription</button>
-                </div>
+                <partial name="_paymentButton" model="level" />
             }
+
             <p class="ml-2 mt-2">The next page you see will be a <a href="https://www.stripe.com">Stripe</a> checkout
-                form with a @annualPrice annual subscription charge. If you would like to donate a different amount,
-                please use the donate form below. Any donation above @annualPrice will include a premium subscription.
+                form with a subscription charge of the amount you chose above. If you would like to donate a different amount,
+                please use the donate form below.
             </p>
 
             <h2>Donate</h2>
@@ -107,7 +105,8 @@
                 </div>
             }
             <p class="ml-2 mt-2">The next page you see will be a <a href="https://www.stripe.com">Stripe</a> checkout
-                form with your dontion amount. Any donation above @annualPrice will include a premium subscription.
+                form with your donation amount. Any donation above the <b>Basic</b> subcription price of @annualPrice
+                will include a subscription at the level covered by your donation amount.
             </p>
             <p>If you would prefer to pay via paypal, please <a href="https://music4dance.blog/feedback/">contact us</a>
             and we'll send you a paypal link</p>

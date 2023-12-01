@@ -9,9 +9,10 @@ namespace m4dModels
     {
         None = 0,
         Trial = 1,
-        Silver = 2,
-        Gold = 3,
-        Platinum = 4
+        Basic = 2,
+        Bronze = 3,
+        Silver = 4,
+        Gold = 5
     }
 
     // You can add profile data for the user by adding more properties to your ApplicationUser class, please visit http://go.microsoft.com/fwlink/?LinkID=317594 to learn more.

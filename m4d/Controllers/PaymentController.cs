@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using m4d.APIControllers;
 using Microsoft.Extensions.FileProviders;
+using m4d.Utilities;
 
 namespace m4d.Controllers
 {
@@ -23,7 +24,8 @@ namespace m4d.Controllers
             IDanceStatsManager danceStatsManager, IConfiguration configuration, IFileProvider fileProvider, ILogger<MusicServiceController> logger) :
             base(context, userManager, roleManager, searchService, danceStatsManager, configuration, fileProvider, logger)
         {
-            StripeConfiguration.ApiKey = configuration["Authentication:Stripe:SecretKey"];
+            var test = GlobalState.UseTestKeys ? "Test" : "";
+            StripeConfiguration.ApiKey = configuration[$"Authentication:Stripe{test}:SecretKey"];
         }
 
         [HttpPost]
@@ -48,25 +50,25 @@ namespace m4d.Controllers
             var donationAmount = amount;
             if (kind == PurchaseKind.Purchase || amount > AnnualSubscription)
             {
-                lineItems.Add(new SessionLineItemOptions
+                var level = SubscriptionLevelDescription.FindSubscriptionLevel(amount);
+                if (level != null)
                 {
-                    PriceData = new SessionLineItemPriceDataOptions
+                    lineItems.Add(new SessionLineItemOptions
                     {
-                        UnitAmount = (int) (AnnualSubscription * 100),
-                        Currency = "usd",
-                        ProductData = new SessionLineItemPriceDataProductDataOptions
+                        PriceData = new SessionLineItemPriceDataOptions
                         {
-                            Name = "Subscription",
-                            Description = "music4dance premium -  1 year"
-                        }
-                    },
-                    Quantity = 1,
-                });
+                            UnitAmount = (int)(level.Price * 100),
+                            Currency = "usd",
+                            ProductData = new SessionLineItemPriceDataProductDataOptions
+                            {
+                                Name = $"{level.Name} Subscription",
+                                Description = "music4dance premium -  1 year"
+                            }
+                        },
+                        Quantity = 1,
+                    });
 
-                if (amount > AnnualSubscription)
-                {
-                    donationAmount -= AnnualSubscription;
-                    kind = PurchaseKind.Purchase;
+                    donationAmount -= level.Price;
                 }
             }
 
@@ -131,13 +133,15 @@ namespace m4d.Controllers
 
                 // TODO: Not sure why LineItems don't come through
 
-                var kindString = amount < AnnualSubscription ? "Donation" : "Purchase";
-                if (session.Metadata != null)
-                {
-                    session.Metadata.TryGetValue("kind", out kindString);
-                }
+                //var kindString = amount < AnnualSubscription ? "Donation" : "Purchase";
+                //if (session.Metadata != null)
+                //{
+                //    session.Metadata.TryGetValue("kind", out kindString);
+                //}
 
-                var kind = kindString.Equals("Purchase", StringComparison.OrdinalIgnoreCase) ? PurchaseKind.Purchase : PurchaseKind.Donation;
+                //var kind = kindString.Equals("Purchase", StringComparison.OrdinalIgnoreCase) ? PurchaseKind.Purchase : PurchaseKind.Donation;
+
+                var kind = amount < AnnualSubscription ? PurchaseKind.Donation : PurchaseKind.Purchase;
                 if (kind == PurchaseKind.Purchase)
                 {
                     DateTime? start = DateTime.Now;
@@ -148,12 +152,16 @@ namespace m4d.Controllers
 
                     user.SubscriptionStart ??= start;
                     user.SubscriptionEnd = start.Value.AddYears(1);
-                    user.SubscriptionLevel = SubscriptionLevel.Silver;
+                    user.SubscriptionLevel = SubscriptionLevelDescription.FindSubscriptionLevel(amount).Level;
                     user.LifetimePurchased += amount;
 
                     await UserManager.AddToRoleAsync(user, DanceMusicCoreService.PremiumRole);
 
                     await signInManager.RefreshSignInAsync(user);
+                }
+                else
+                {
+                    user.LifetimePurchased += amount;
                 }
 
 

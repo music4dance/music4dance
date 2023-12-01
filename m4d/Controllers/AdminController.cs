@@ -138,6 +138,13 @@ namespace m4d.Controllers
             return View("InitializationTasks");
         }
 
+        [HttpGet]
+        public ActionResult ToggleTestKeys()
+        {
+            GlobalState.UseTestKeys = !GlobalState.UseTestKeys;
+            return View("InitializationTasks");
+        }
+
         //
         // GET: /Admin/UploadBackup
         [Authorize(Roles = "dbAdmin")]

@@ -79,6 +79,7 @@ exports[`MainMenu.vue renders the main menu with admin options 1`] = `
     </transition-stub>
   </nav>
   <!---->
+  <!---->
   <form id="logoutForm" action="/identity/account/logout" method="post" style="height: 0px;"><input name="__RequestVerificationToken" type="hidden"> <input type="hidden" name="returnUrl" value="/"> <button id="logout" type="submit" class="btn btn-link"></button></form>
 </div>
 `;
@@ -141,6 +142,7 @@ exports[`MainMenu.vue renders the main menu with default options 1`] = `
       </div>
     </transition-stub>
   </nav>
+  <!---->
   <!---->
   <form id="logoutForm" action="/identity/account/logout" method="post" style="height: 0px;"><input name="__RequestVerificationToken" type="hidden"> <input type="hidden" name="returnUrl" value="/"> <button id="logout" type="submit" class="btn btn-link"></button></form>
 </div>

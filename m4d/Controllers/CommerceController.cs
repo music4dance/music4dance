@@ -4,12 +4,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 
 namespace m4d.Controllers
 {
+
     public class CommerceController : DanceMusicController
     {
-        public const decimal AnnualSubscription = 15.0M;
+        public static decimal AnnualSubscription = SubscriptionLevelDescription.SubscriptionLevels.Last().Price;
 
         public CommerceController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,

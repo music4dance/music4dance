@@ -30,6 +30,7 @@
     var hasIcons = ViewData.TryGetValue("HasIcons", out var hasIconsObj) && (hasIconsObj as bool?).Value;
     var styleModifier = hasIcons ? "wicons" : "";
     var styleSheet = ViewData.ContainsKey("NoSiteCss") ? null : $"/css/site{styleModifier}.css";
+    var marketingMessage = GlobalState.Marketing.Enabled ? GlobalState.Marketing.Banner : String.Empty;
 }
 
 @functions{
@@ -97,6 +98,7 @@
         indexId: '@searchIndex',
         expiration: @Html.Raw(expiration == null ? "undefined" : $"new Date('{expiration}')"),
         updateMessage: '@GlobalState.UpdateMessage',
+        marketingMessage: "@Html.Raw(@marketingMessage)",
         xsrfToken: '@GetAntiXsrfRequestToken()'
     };
 </script>

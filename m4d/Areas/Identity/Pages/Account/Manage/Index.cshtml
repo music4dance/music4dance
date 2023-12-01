@@ -17,7 +17,7 @@
 <p class="big-text">You have been a member of the music4dance community since @Model.MemberSince.ToString("d").</p>
 @if (Model.SubscriptionLevel != SubscriptionLevel.None && Model.SubscriptionStart.HasValue && Model.SubscriptionEnd.HasValue)
 {
-    <p class="big-text">You have been a premium subscriber to music4dance since @Model.SubscriptionStart.Value.ToString("d").  Your current subscription ends on @Model.SubscriptionEnd.Value.ToString("d").</p>
+    <p class="big-text">You have been a premium subscriber to music4dance since @Model.SubscriptionStart.Value.ToString("d").  Your current @Model.SubscriptionLevel.ToString() subscription ends on @Model.SubscriptionEnd.Value.ToString("d").</p>
 }
 
 <div class=row>

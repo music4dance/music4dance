@@ -60,6 +60,7 @@ exports[`NewMusic.vue renders a new music page 1`] = `
       </transition-stub>
     </nav>
     <!---->
+    <!---->
     <form id="logoutForm" action="/identity/account/logout" method="post" style="height: 0px;"><input name="__RequestVerificationToken" type="hidden" value="FOO"> <input type="hidden" name="returnUrl" value="/"> <button id="logout" type="submit" class="btn btn-link"></button></form>
   </div>
   <!---->

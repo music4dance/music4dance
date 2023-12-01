@@ -165,12 +165,21 @@
       </b-collapse>
     </b-navbar>
     <b-alert
+      v-if="showMarketing"
+      show
+      variant="success"
+      style="margin-bottom: 0"
+      dismissible
+      @dismissed="onDismissed('marketing-acknowledged')"
+      ><span v-html="context.marketingMessage"></span
+    ></b-alert>
+    <b-alert
       variant="warning"
       show
       dismissible
       v-if="showExpiration"
       style="margin-bottom: 0"
-      @dismissed="onDismissed"
+      @dismissed="onDismissed('renewal-acknowledged')"
     >
       Your premium subcription will expire in
       {{ Math.round(context.daysToExpiration || 0) }}
@@ -202,6 +211,7 @@ import "reflect-metadata";
 import { PropType } from "vue";
 
 const renewal = "renewal-acknowledged";
+const marketing = "marketing-acknowledged";
 
 export default DropTarget.extend({
   props: {
@@ -237,6 +247,13 @@ export default DropTarget.extend({
         !sessionStorage.getItem(renewal)
       );
     },
+
+    showMarketing(): boolean {
+      return (
+        !!this.context.marketingMessage && !sessionStorage.getItem(marketing)
+      );
+    },
+
     isTest(): boolean {
       return window.location.hostname.endsWith(".azurewebsites.net");
     },
@@ -246,8 +263,8 @@ export default DropTarget.extend({
       const url = window.location.pathname + window.location.search;
       return `/identity/account/${type}?returnUrl=${url}`;
     },
-    onDismissed(): void {
-      sessionStorage.setItem(renewal, "true");
+    onDismissed(name: string): void {
+      sessionStorage.setItem(name, "true");
     },
     search(): void {
       event?.preventDefault();

@@ -5,10 +5,14 @@ import { checkServiceAndWarn } from "@/helpers/DropTarget";
 import logo from "@/assets/images/header-logo.png";
 import dancers from "@/assets/images/swing-ui.png";
 
-const renewal = "renewal-acknowledged";
+const renewalTag = "renewal-acknowledged";
+const marketingTag = "marketing-acknowledged";
 
 const props = defineProps<{ context: MenuContext }>();
-let searchString = ref<string>("");
+const searchString = ref<string>("");
+
+const renewal = ref(!sessionStorage.getItem(renewalTag));
+const marketing = ref(!sessionStorage.getItem(marketingTag));
 
 const songIndex = computed(() => {
   const context = props.context;
@@ -31,7 +35,15 @@ const showExpiration = computed(() => {
   return (
     props.context.daysToExpiration !== undefined &&
     props.context.daysToExpiration < 30 &&
-    !sessionStorage.getItem(renewal)
+    !sessionStorage.getItem(renewalTag)
+  );
+});
+
+const showMarketing = computed(() => {
+  return (
+    props.context.marketingMessage &&
+    props.context.marketingMessage.length > 0 &&
+    !sessionStorage.getItem(marketingTag)
   );
 });
 
@@ -44,8 +56,8 @@ function accountLink(type: string): string {
   return `/identity/account/${type}?returnUrl=${url}`;
 }
 
-function onDismissed(): void {
-  sessionStorage.setItem(renewal, "true");
+function onDismissed(target: string): void {
+  sessionStorage.setItem(target, "true");
 }
 
 function search(): void {
@@ -63,9 +75,10 @@ function search(): void {
     >
     <BAlert
       v-if="context.updateMessage"
-      :model-value="true"
+      v-model="renewal"
       variant="danger"
       style="margin-bottom: 0"
+      dismissable
       >{{ context.updateMessage }}</BAlert
     >
     <BNavbar id="mainMenu" data-bs-theme="dark" variant="primary" toggleable="lg">
@@ -182,12 +195,21 @@ function search(): void {
       </BCollapse>
     </BNavbar>
     <BAlert
-      v-if="showExpiration"
-      variant="warning"
-      :model-value="true"
+      v-if="showMarketing"
+      v-model="marketing"
+      variant="success"
       dismissible
       style="margin-bottom: 0"
-      @dismissed="onDismissed"
+      @update:modelValue="onDismissed(marketingTag)"
+      ><span v-html="context.marketingMessage"></span
+    ></BAlert>
+    <BAlert
+      v-if="showExpiration"
+      variant="warning"
+      v-model="renewal"
+      dismissible
+      style="margin-bottom: 0"
+      @update:modelValue="onDismissed(renewalTag)"
     >
       Your premium subcription will expire in
       {{ Math.round(context.daysToExpiration || 0) }}

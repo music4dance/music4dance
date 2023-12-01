@@ -6,6 +6,7 @@ export interface MenuContextInterface {
   indexId?: string;
   expiration?: Date;
   updateMessage?: string;
+  marketingMessage?: string;
   xsrfToken?: string;
 }
 
@@ -17,6 +18,7 @@ export class MenuContext implements MenuContextInterface {
   public indexId?: string;
   public expiration?: Date;
   public updateMessage?: string;
+  public marketingMessage?: string;
   public xsrfToken?: string;
 
   public constructor(init?: MenuContextInterface) {

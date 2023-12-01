@@ -67,6 +67,8 @@ namespace m4d
 
             services.AddResponseCaching();
 
+            GlobalState.SetMarketing( Configuration.GetSection("Configuration:Marketing"));
+
             var physicalProvider = Environment.ContentRootFileProvider;
             var embeddedProvider = new EmbeddedFileProvider(Assembly.GetEntryAssembly());
             var compositeProvider = new CompositeFileProvider(physicalProvider, embeddedProvider);

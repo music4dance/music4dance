@@ -1,0 +1,16 @@
+﻿@using m4d.Controllers
+@model SubscriptionLevelDescription
+
+@using (Html.BeginForm("CreateCheckoutSession", "Payment", FormMethod.Post, new
+{
+    id = "purchase",
+    @class = "form-inline"
+}))
+{
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="kind" value="Purchase"/>
+    <input type="hidden" name="amount" value="@Model.Price"/>
+    <div class="form-group mb-2">
+        <button type="submit" class="btn btn-primary">@Model.Name Subscription - $@Model.Price.ToString("0.00")</button>
+    </div>
+}
