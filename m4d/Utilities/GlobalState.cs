@@ -50,7 +50,7 @@ namespace m4d.Utilities
 
             var showBanner = true;
             var path = page.ToLowerInvariant();
-            if ((user != null && user.SubscriptionLevel >= SubscriptionLevel.Bronze && user.SubscriptionEnd > new DateTime(23, 11, 30)) ||
+            if ((user != null && user.SubscriptionLevel >= SubscriptionLevel.Bronze && user.SubscriptionEnd > new DateTime(2024, 11, 30)) ||
                 path.Contains("/contribute") || path.Contains("/payment/"))
             {
                 showBanner = false;

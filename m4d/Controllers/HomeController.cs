@@ -132,12 +132,12 @@ namespace m4d.Controllers
             return RedirectPermanent("https://music4dance.blog/music4dance-help/tempo-counter/");
         }
 
-        public async Task<IActionResult> Contribute()
+        public async Task<IActionResult> Contribute(bool recaptchaFailed = false)
         {
             HelpPage = "subscriptions";
 
             var user = await UserManager.GetUserAsync(User);
-            return View(await GetContributeModel(user));
+            return View(await GetContributeModel(user, recaptchaFailed));
         }
 
         public IActionResult Error()
@@ -152,7 +152,7 @@ namespace m4d.Controllers
                 });
         }
 
-        private async Task<ContributeModel> GetContributeModel(ApplicationUser user)
+        private async Task<ContributeModel> GetContributeModel(ApplicationUser user, bool recaptchaFailed = false)
         {
             if (User.Identity == null)
             {
@@ -163,15 +163,16 @@ namespace m4d.Controllers
                 ? new ContributeModel
                 {
                     CommerceEnabled = IsCommerceEnabled(),
+                    RecaptchaFailed = recaptchaFailed
                 }
                 : new ContributeModel
-            {
-                CommerceEnabled = IsCommerceEnabled(),
-                IsAuthenticated = User.Identity.IsAuthenticated,
-                CurrentPremium  = await Database.UserManager.IsInRoleAsync(user, DanceMusicCoreService.PremiumRole),
-                PremiumExpiration = user.SubscriptionEnd,
-                FraudDetected = IsFraudDetected(user),
-            };
+                {
+                    CommerceEnabled = IsCommerceEnabled(),
+                    IsAuthenticated = User.Identity.IsAuthenticated,
+                    CurrentPremium  = await Database.UserManager.IsInRoleAsync(user, DanceMusicCoreService.PremiumRole),
+                    PremiumExpiration = user.SubscriptionEnd,
+                    FraudDetected = IsFraudDetected(user),
+                };
         }
 
 

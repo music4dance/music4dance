@@ -21,6 +21,7 @@ namespace m4dModels
         public ApplicationUser()
         {
             StartDate = DateTime.Now;
+            CanContact = ContactStatus.Default;
         }
 
         public ApplicationUser(string userName, bool pseudo = false) : this()
@@ -191,7 +192,7 @@ namespace m4dModels
 
         public static string[] ContactStrings { get; } =
         {
-            @"I would be interested in participating in email or surveys to help improve music4dance",
+            @"I would be interested in participating in email or surveys to help improve music4dance including the <a href=""https://music4dance.blog"">music4dance blog</a>",
             @"I am interested in occasional promotional emails from music4dance partners",
             @"I am interested in occasional promotional emails from music4dance"
         };

@@ -40,5 +40,6 @@ namespace m4d.ViewModels
         public bool FraudDetected { get; set; }
         public bool CurrentPremium { get; set; }
         public DateTime? PremiumExpiration { get; set; }
+        public bool RecaptchaFailed { get; set; }
     }
 }

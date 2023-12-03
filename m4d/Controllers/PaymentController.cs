@@ -1,6 +1,5 @@
 ﻿using m4d.ViewModels;
 using m4dModels;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -13,42 +12,62 @@ using Microsoft.Extensions.Logging;
 using m4d.APIControllers;
 using Microsoft.Extensions.FileProviders;
 using m4d.Utilities;
+using Owl.reCAPTCHA;
+using Owl.reCAPTCHA.v2;
 
 namespace m4d.Controllers
 {
-    [Authorize]
     public class PaymentController : CommerceController
     {
+        private readonly IreCAPTCHASiteVerifyV2 _siteVerify;
+
         public PaymentController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
-            IDanceStatsManager danceStatsManager, IConfiguration configuration, IFileProvider fileProvider, ILogger<MusicServiceController> logger) :
+            IDanceStatsManager danceStatsManager, IConfiguration configuration, IFileProvider fileProvider, ILogger<MusicServiceController> logger,
+            IreCAPTCHASiteVerifyV2 siteVerify) :
             base(context, userManager, roleManager, searchService, danceStatsManager, configuration, fileProvider, logger)
         {
             var test = GlobalState.UseTestKeys ? "Test" : "";
             StripeConfiguration.ApiKey = configuration[$"Authentication:Stripe{test}:SecretKey"];
+            _siteVerify = siteVerify;
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateCheckoutSession(decimal amount, PurchaseKind kind)
+        public async Task<IActionResult> CreateCheckoutSession(decimal amount, PurchaseKind kind, string recaptchaToken=null)
         {
             HelpPage = "subscriptions";
 
             var user = await UserManager.GetUserAsync(User);
             if (user == null)
             {
-                var message = "CreateCheckoutSession called by anonymous user";
-                Logger.LogError(message);
-                throw new Exception(message);
-            }
+                if (kind == PurchaseKind.Purchase)
+                {
+                    var message = "CreateCheckoutSession purchase called by anonymous user";
+                    Logger.LogError(message);
+                    throw new Exception(message);
+                }
 
-            if (IsFraudDetected(user) || !IsCommerceEnabled())
+                // Otherwise, this is an anonymous donation so need to verify recaptcha
+                var response = await _siteVerify.Verify(
+                    new reCAPTCHASiteVerifyRequest
+                    {
+                        Response = recaptchaToken,
+                        RemoteIp = HttpContext.Connection.RemoteIpAddress.ToString()
+                    });
+
+                if (!response.Success)
+                {
+                    return RedirectToAction("Contribute", "Home", new { recaptchaFailed = true});
+                }
+            }
+            else if (IsFraudDetected(user) || !IsCommerceEnabled())
             {
                 return Redirect("/Home/Contribute");
             }
 
             var lineItems = new List<SessionLineItemOptions>();
             var donationAmount = amount;
-            if (kind == PurchaseKind.Purchase || amount > AnnualSubscription)
+            if (kind == PurchaseKind.Purchase || (amount > AnnualSubscription && user != null))
             {
                 var level = SubscriptionLevelDescription.FindSubscriptionLevel(amount);
                 if (level != null)
@@ -92,7 +111,7 @@ namespace m4d.Controllers
 
             var options = new SessionCreateOptions
             {
-                CustomerEmail = user.Email,
+                CustomerEmail = user?.Email,
                 Metadata = new Dictionary<string, string>
                 {
                     { "kind", kind==PurchaseKind.Purchase ? "Purchase" : "Donation" }
@@ -125,7 +144,7 @@ namespace m4d.Controllers
             var session = sessionService.Get(session_id);
 
             var user = await UserManager.GetUserAsync(User);
-            if (user != null && session.PaymentStatus == "paid")
+            if (session.PaymentStatus == "paid")
             {
                 Logger.LogInformation(session.ToJson());
 
@@ -141,35 +160,43 @@ namespace m4d.Controllers
 
                 //var kind = kindString.Equals("Purchase", StringComparison.OrdinalIgnoreCase) ? PurchaseKind.Purchase : PurchaseKind.Donation;
 
-                var kind = amount < AnnualSubscription ? PurchaseKind.Donation : PurchaseKind.Purchase;
-                if (kind == PurchaseKind.Purchase)
+                var kind = amount < AnnualSubscription || user == null ? PurchaseKind.Donation : PurchaseKind.Purchase;
+                string email = null;
+                if (user != null)
                 {
-                    DateTime? start = DateTime.Now;
-                    if (user.SubscriptionEnd != null && user.SubscriptionEnd > start)
+                    if (kind == PurchaseKind.Purchase)
                     {
-                        start = user.SubscriptionEnd;
+                        DateTime? start = DateTime.Now;
+                        if (user.SubscriptionEnd != null && user.SubscriptionEnd > start)
+                        {
+                            start = user.SubscriptionEnd;
+                        }
+
+                        user.SubscriptionStart ??= start;
+                        user.SubscriptionEnd = start.Value.AddYears(1);
+                        user.SubscriptionLevel = SubscriptionLevelDescription.FindSubscriptionLevel(amount).Level;
+                        user.LifetimePurchased += amount;
+
+                        await UserManager.AddToRoleAsync(user, DanceMusicCoreService.PremiumRole);
+
+                        await signInManager.RefreshSignInAsync(user);
                     }
-
-                    user.SubscriptionStart ??= start;
-                    user.SubscriptionEnd = start.Value.AddYears(1);
-                    user.SubscriptionLevel = SubscriptionLevelDescription.FindSubscriptionLevel(amount).Level;
-                    user.LifetimePurchased += amount;
-
-                    await UserManager.AddToRoleAsync(user, DanceMusicCoreService.PremiumRole);
-
-                    await signInManager.RefreshSignInAsync(user);
+                    else
+                    {
+                        user.LifetimePurchased += amount;
+                    }
                 }
                 else
                 {
-                    user.LifetimePurchased += amount;
+                    email = session.CustomerDetails?.Email;
                 }
-
 
                 var purchase = new PurchaseModel
                 {
                     Kind = kind,
                     Amount = amount,
-                    User = user.UserName,
+                    User = user?.UserName ?? "Anonymous Donation",
+                    Email = email ?? user?.Email,
                     Confirmation = session.Id
                 };
 

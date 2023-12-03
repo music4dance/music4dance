@@ -26,7 +26,8 @@
     };
 
     var level = @SubscriptionLevelDescription.FindSubscriptionLevel(Model.Amount);
-    var donationAmount = Model.Amount - level.Price;
+    var purchase = level == null ? 0.0M : level.Price;
+    var donationAmount = Model.Amount - purchase;
     var user = await _userManager.GetUserAsync(User);
     var marketing = GlobalState.GetMarketing(user, Context.Request.Path);
 }
@@ -35,6 +36,7 @@
 
 @if (Model.Kind == PurchaseKind.Purchase)
 {
+    <h2>Subscription Information</h2>
     <p class="big-text">Thank you for purchasing an annual @level.Name subscription to music4dance.net.
         This entitles you to a one year subscription with an ad free experience as well as
         <a href="https://music4dance.blog/music4dance-help/subscriptions/" target="_blank">
@@ -43,16 +45,9 @@
         Remember that you must log in as <b>@Model.User</b> in order to turn off the advertisements.
     </p>
 
-    @if (marketing.Enabled && Model.Amount >= 25.0M)
-    {
-        <p>You are also entitled to an electronic copy of @marketing.Product.Name.  In order to 
-        download the book, please follow this link
-        <a href="@marketing.Product.Link" target="_blank">@marketing.Product.Link</a> and use this 
-        password <b>@marketing.Product.Password</b></p>
-    }
-
     if (donationAmount > 0)
     {
+        <h2>Thank You!</h2>
         <p class="big-text">Also, thank you for the generous additional donation of $@(donationAmount)</p>
     }
 }
@@ -61,12 +56,27 @@ else
     <p class="big-text">Thank you for donating $@(Model.Amount.ToString("F2")) to music4dance.net.</p>
 }
 
+@if (marketing.Enabled && Model.Amount >= 25.0M)
+{
+    <h2>Download Instruction</h2>
+    <p>
+        You are also entitled to an electronic (.EPUB) copy of @marketing.Product.Name.
+        In order to download the book, please:
+    </p>
+    <ul>
+        <li>Follow this link: <a href="@marketing.Product.Link" target="_blank">@marketing.Product.Link</a></li>
+        <li>Use this password: <b>@marketing.Product.Password</b></li>
+    </ul>
+    <p>
+        If you are a Kindle user you can use <a href="https://www.amazon.com/gp/sendtokindle/" target="_blank">Send to Kindle</a> to
+        load the .EPUB file onto your device.  Most other e-readers should be able to read the .EPUB file directly and there are
+        a number of open source and commercial applications that can read .EPUB files on your computer.
+    </p>
+}
+
 <p class="big-text">Your confirmation code is <b>@Model.Confirmation</b></p>
 
-@if (Model.Kind == PurchaseKind.Donation || Model.Amount > CommerceController.AnnualSubscription)
-{
-    <p class="big-text">Your donation will help us continue to improve the web site and catalog.</p>
-}
+<p class="big-text">Your contribution will help us continue to improve the web site and catalog.</p>
 
 <p class="big-text">Any questions about how subscriptions or donations work, how transactions are processed securely or anything else related to this transaction? Please check out our <a href="https://music4dance.blog/music4dance-help/subscriptions/" target="_blank">help page.</a>
     or ask directly at <a href="mailto:info@music4dance.net">info@music4dance.net</a>.

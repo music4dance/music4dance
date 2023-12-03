@@ -4,6 +4,7 @@
 @using m4d.ViewModels
 @using m4dModels;
 @inject UserManager<ApplicationUser> _userManager
+@addTagHelper *, Owl.reCAPTCHA
 @model ContributeModel
 
 @{
@@ -24,11 +25,11 @@
 
 @if (Model.CommerceEnabled)
 {
+    @if (marketing.Enabled)
+    {
+        <div class="alert alert-success" role="alert">@Html.Raw(marketing.Notice)</div>
+    }
     <h2>@(Model.CurrentPremium ? "Renew your" : "Purchase a") Subscription</h2>
-        @if(marketing.Enabled)
-        {
-            <div class="alert alert-success" role="alert">@Html.Raw(marketing.Notice)</div>
-        }
         @if (Model.CurrentPremium)
         {
             <p class="big-text">
@@ -50,7 +51,7 @@
         {
             <p class="big-text">
                 We appreciate any amount that you're willing to contribute to the music4dance effort.
-                Anyone who contributes @annualPrice or more receives a year of our
+                Anyone who purchases a <b>Basic</b> subscription (@annualPrice) or higher receives a year of our
                 <a href="https://music4dance.blog/music4dance-help/subscriptions/"></a>premium subscription,
                 which always gives you an ad-free experience. We will also be experimenting with specific
                 premium features such as
@@ -84,51 +85,63 @@
                 form with a subscription charge of the amount you chose above. If you would like to donate a different amount,
                 please use the donate form below.
             </p>
-
-            <h2>Donate</h2>
-
-            using (Html.BeginForm("CreateCheckoutSession", "Payment", FormMethod.Post, new
-            {
-                id = "contribute",
-                @class = "row row-cols-sm-auto g-3"
-            }))
-            {
-                @Html.AntiForgeryToken()
-
-                <input type="hidden" name="kind" value="Donation" />
-                <div class="col">
-                    <label for="purchase-amount" class="col-form-label">Amount:</label>
-                </div>
-                <div class="col">
-                    <div class="input-group">
-                        <div class="input-group-text ml-2">$</div>
-                        <input type="text" name="amount" min="1.00" max="9999" step="0.01" value="5.00" class="form-control" id="donate-amount"/>
-                    </div>
-                </div>
-                <div clas="col-auto">
-                    <button type="submit" class="btn btn-primary">Donate</button>
-                </div>
-            }
-            <p class="ml-2 mt-2">The next page you see will be a <a href="https://www.stripe.com">Stripe</a> checkout
-                form with your donation amount. Any donation above the <b>Basic</b> subcription price of @annualPrice
-                will include a subscription at the level covered by your donation amount.
-            </p>
-            <p>If you would prefer to pay via paypal, please <a href="https://music4dance.blog/feedback/">contact us</a>
-            and we'll send you a paypal link</p>
         }
     }
     else
     {
         <p class="big-text">
-            You must be logged in to purchase a subscription or donate, please
+            You must be logged in to purchase a subscription, please
             <a id="login" asp-area="Identity" asp-page="/Account/Login" asp-route-ReturnUrl="/Home/Contribute">log in</a> or
             <a id="register" asp-area="Identity" asp-page="/Account/Register" asp-route-ReturnUrl="/Home/Contribute">register</a>.
         </p>
-        <p>We used to allow donations without creating an account, but that left us exposed to <a href="https://stripe.com/docs/card-testing">card testing attacks</a>.
-            So we're going to have to ask you to register before donating to avoid malicious use of this site to hack innocent people's credit cards.  If you would
-            prefer to donate without creating an account or if you would prefer to pay via paypal, please <a href="https://music4dance.blog/feedback/">contact us</a>
+        <p>If you would prefer to pay via paypal, please <a href="https://music4dance.blog/feedback/">contact us</a>
             and we'll send you a paypal link</p>
     }
+
+    <h2>Donate</h2>
+
+    using (Html.BeginForm("CreateCheckoutSession", "Payment", FormMethod.Post, new
+    {
+        id = "contribute",
+        @class = "row row-cols-sm-auto g-3"
+    }))
+    {
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" name="kind" value="Donation" />
+        <div class="col">
+            <label for="purchase-amount" class="col-form-label">Amount:</label>
+        </div>
+        <div class="col">
+            <div class="input-group">
+                <div class="input-group-text ml-2">$</div>
+                <input type="text" name="amount" min="1.00" max="9999" step="0.01" value="5.00" class="form-control" id="donate-amount" />
+            </div>
+            @if (!Model.IsAuthenticated)
+            {
+                <input id="Input_RecaptchaToken" name="RecaptchaToken" type="hidden" />
+                <div class="form-floating mt-3 is-invalid">
+                    <recaptcha-div-v2 callback="recaptchaCallback" />
+                </div>
+                @if (Model.RecaptchaFailed)
+                {
+                    <div class="invalid-feedback">Please check the "I'm not a Robot" box.</div>
+                }
+            }
+        </div>
+        <div clas="col-auto">
+            <button type="submit" class="btn btn-primary">Donate</button>
+        </div>
+    }
+    <p class="ml-2 mt-2">
+        The next page you see will be a <a href="https://www.stripe.com">Stripe</a> checkout
+        form with your donation amount. Any donation above the <b>Basic</b> subcription price of @annualPrice
+        will include a subscription at the level covered by your donation amount.
+    </p>
+    <p>
+        If you would prefer to pay via paypal, please <a href="https://music4dance.blog/feedback/">contact us</a>
+        and we'll send you a paypal link
+    </p>
 
     <p class="big-text">Any questions about how subscriptions or donations work, how transactions are processed securely or anything else related to this transaction? Please check out our <a href="https://music4dance.blog/music4dance-help/subscriptions/" target="_blank">help page.</a></p>
 
@@ -168,3 +181,12 @@ else
         <li>Or <a href="https://music4dance.blog/feedback/">contact us</a> if you would like to suggest a topic for a post or are interested in writing a guest post</li>
     </ul>
 </ul>
+
+ @section Scripts {
+    <recaptcha-script-v2 />
+    <script>
+        function recaptchaCallback(token) {
+            document.getElementById("Input_RecaptchaToken").value = token;
+        }
+    </script>
+}
