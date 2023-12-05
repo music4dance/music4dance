@@ -36,6 +36,7 @@ namespace m4d.Controllers
         public async Task<IActionResult> CreateCheckoutSession(decimal amount, PurchaseKind kind, string recaptchaToken=null)
         {
             HelpPage = "subscriptions";
+            ViewBag.HideAds = true;
 
             var user = await UserManager.GetUserAsync(User);
             if (user == null)
@@ -136,9 +137,20 @@ namespace m4d.Controllers
                 .Replace("%7B", "{").Replace("%7D", "}");
         }
 
+        private static HashSet<string> _completedSessions = new ();
+
         public async Task<IActionResult> Success([FromServices] SignInManager<ApplicationUser> signInManager, string session_id)
         {
             HelpPage = "subscriptions";
+            ViewBag.HideAds = true;
+
+            // This is likely due to a reload/back button - just re-show the success page
+            //  without doing anything else
+            var duplicate = _completedSessions.Contains(session_id);
+            if (duplicate)
+            {
+                Logger.LogInformation($"Duplicate session_id: {session_id}");
+            }
 
             var sessionService = new SessionService();
             var session = sessionService.Get(session_id);
@@ -164,26 +176,29 @@ namespace m4d.Controllers
                 string email = null;
                 if (user != null)
                 {
-                    if (kind == PurchaseKind.Purchase)
+                    if (!duplicate)
                     {
-                        DateTime? start = DateTime.Now;
-                        if (user.SubscriptionEnd != null && user.SubscriptionEnd > start)
+                        if (kind == PurchaseKind.Purchase)
                         {
-                            start = user.SubscriptionEnd;
+                            DateTime? start = DateTime.Now;
+                            if (user.SubscriptionEnd != null && user.SubscriptionEnd > start)
+                            {
+                                start = user.SubscriptionEnd;
+                            }
+
+                            user.SubscriptionStart ??= start;
+                            user.SubscriptionEnd = start.Value.AddYears(1);
+                            user.SubscriptionLevel = SubscriptionLevelDescription.FindSubscriptionLevel(amount).Level;
+                            user.LifetimePurchased += amount;
+
+                            await UserManager.AddToRoleAsync(user, DanceMusicCoreService.PremiumRole);
+
+                            await signInManager.RefreshSignInAsync(user);
                         }
-
-                        user.SubscriptionStart ??= start;
-                        user.SubscriptionEnd = start.Value.AddYears(1);
-                        user.SubscriptionLevel = SubscriptionLevelDescription.FindSubscriptionLevel(amount).Level;
-                        user.LifetimePurchased += amount;
-
-                        await UserManager.AddToRoleAsync(user, DanceMusicCoreService.PremiumRole);
-
-                        await signInManager.RefreshSignInAsync(user);
-                    }
-                    else
-                    {
-                        user.LifetimePurchased += amount;
+                        else
+                        {
+                            user.LifetimePurchased += amount;
+                        }
                     }
                 }
                 else
@@ -200,9 +215,13 @@ namespace m4d.Controllers
                     Confirmation = session.Id
                 };
 
-                Database.Context.ActivityLog.Add(new ActivityLog("Purchase", user, purchase));
-                await Database.SaveChanges();
+                if (!duplicate)
+                {
+                    Database.Context.ActivityLog.Add(new ActivityLog("Purchase", user, purchase));
+                    await Database.SaveChanges();
+                }
 
+                _completedSessions.Add(session_id);
                 return View(purchase);
             }
 
@@ -211,6 +230,8 @@ namespace m4d.Controllers
 
         public async Task<IActionResult> Cancel(string session_id)
         {
+            ViewBag.HideAds = true;
+
             var sessionService = new SessionService();
             var session = await sessionService.GetAsync(session_id);
 

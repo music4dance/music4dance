@@ -68,6 +68,7 @@ exports[`MainMenu.vue > Renders MainMenu for an anonymous user 1`] = `
     </div>
   </nav>
   <!--v-if-->
+  <!--v-if-->
   <form id=\\"logoutForm\\" action=\\"/identity/account/logout\\" method=\\"post\\" style=\\"height: 0px;\\"><input name=\\"__RequestVerificationToken\\" type=\\"hidden\\"><input type=\\"hidden\\" name=\\"returnUrl\\" value=\\"/\\"><button id=\\"logout\\" type=\\"submit\\" class=\\"btn btn-link\\"></button></form>
 </div>"
 `;

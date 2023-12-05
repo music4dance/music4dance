@@ -135,6 +135,7 @@ namespace m4d.Controllers
         public async Task<IActionResult> Contribute(bool recaptchaFailed = false)
         {
             HelpPage = "subscriptions";
+            ViewBag.HideAds = true;
 
             var user = await UserManager.GetUserAsync(User);
             return View(await GetContributeModel(user, recaptchaFailed));
