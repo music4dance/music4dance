@@ -1,3 +1,4 @@
+import { loadTestDances } from "./LoadTestDances";
 import { mount } from "@vue/test-utils";
 import { expect, vi } from "vitest";
 import { MenuContext } from "@/models/MenuContext";
@@ -5,18 +6,10 @@ import { loadTagsFromString } from "@/helpers/TagLoader";
 import { loadDancesFromString } from "@/helpers/DanceLoader";
 // @ts-ignore
 import tagDatabaseJson from "@/assets/tags.json";
-// @ts-ignore
-import dancesJson from "@/assets/dances.json";
-// @ts-ignore
-import groupsJson from "@/assets/dancegroups.json";
 declare global {
   interface Window {
     model_: unknown;
   }
-}
-
-export function getDanceJson(): string {
-  return JSON.stringify({ dances: dancesJson, groups: groupsJson });
 }
 
 vi.mock("@/helpers/GetMenuContext.ts", () => {
@@ -33,7 +26,7 @@ vi.mock("@/helpers/TagEnvironmentManager.ts", () => {
 
 vi.mock("@/helpers/DanceEnvironmentManager.ts", () => {
   return {
-    safeDanceDatabase: vi.fn(() => loadDancesFromString(getDanceJson())),
+    safeDanceDatabase: vi.fn(() => loadDancesFromString(loadTestDances())),
   };
 });
 

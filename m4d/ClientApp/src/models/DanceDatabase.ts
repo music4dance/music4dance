@@ -41,6 +41,10 @@ export class DanceDatabase {
     return this.flattened.filter((x) => x.name.toLowerCase().includes(n));
   }
 
+  public fromId(id: string): NamedObject | undefined {
+    return this.all.find((x) => x.id === id);
+  }
+
   private onDeserialized(): void {
     for (const group of this.groups) {
       group.dances = group.danceIds.map((id) => this.dances.find((d) => d.id === id)!);

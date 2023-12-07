@@ -281,7 +281,7 @@ namespace m4d.Controllers
             if (tagDatabase)
             {
                 s_tagDatabaseCache ??= Database.DanceStats.GetJsonTagDatabse();
-                ViewData["TagDatabase"] = s_danceDatabaseCache;
+                ViewData["TagDatabase"] = s_tagDatabaseCache;
             }
         }
 

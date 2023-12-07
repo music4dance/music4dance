@@ -32,6 +32,7 @@ namespace m4d.Controllers
                 "Tag Cloud",
                 "Explore songs based on musical genre, tempo, style and other tags.",
                 "tag-index",
+                danceEnvironment: true,
                 tagEnvironment: true);
         }
 

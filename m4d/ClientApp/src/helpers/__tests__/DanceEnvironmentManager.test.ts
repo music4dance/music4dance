@@ -1,10 +1,10 @@
+import { loadTestDances } from "../LoadTestDances";
 import { DanceDatabase } from "@/models/DanceDatabase";
-import { getDanceJson } from "../TestHelpers";
 import { describe, expect, test } from "vitest";
 
 describe("DanceDatabase.ts", () => {
   test("loads dances", () => {
-    const json = getDanceJson();
+    const json = loadTestDances();
     expect(json).toBeDefined();
     const database = DanceDatabase.load(json);
     expect(database).toBeDefined();

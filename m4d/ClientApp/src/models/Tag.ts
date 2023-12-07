@@ -1,8 +1,8 @@
 import { jsonMember, jsonObject, TypedJSON } from "typedjson";
-import { DanceEnvironment } from "./DanceEnvironment";
+import { DanceDatabase } from "@/models/DanceDatabase";
 import { type ColorVariant } from "bootstrap-vue-next";
 
-declare const environment: DanceEnvironment;
+declare const danceDatabase: DanceDatabase;
 
 export enum TagCategory {
   Style = "Style",
@@ -66,7 +66,7 @@ export class Tag {
   }
 
   public static fromDanceId(id: string): Tag {
-    return Tag.fromParts(environment.fromId(id)!.name, TagCategory.Dance);
+    return Tag.fromParts(danceDatabase.fromId(id)!.name, TagCategory.Dance);
   }
 
   public static fromKey(key: string, count?: number): Tag {

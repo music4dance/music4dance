@@ -4,14 +4,13 @@ import { loadDancesFromString } from "./DanceLoader";
 declare global {
   interface Window {
     danceDatabaseJson?: string;
+    danceDatabase: DanceDatabase | undefined;
   }
 }
 
-let danceDatabase: DanceDatabase | undefined;
-
 export function safeDanceDatabase(): DanceDatabase {
-  if (danceDatabase) {
-    return danceDatabase;
+  if (window.danceDatabase) {
+    return window.danceDatabase;
   }
 
   if (!window.danceDatabaseJson) {
@@ -20,7 +19,7 @@ export function safeDanceDatabase(): DanceDatabase {
 
   const db = loadDancesFromString(window.danceDatabaseJson);
   if (db) {
-    danceDatabase = db;
+    window.danceDatabase = db;
     return db;
   }
   throw new Error("Dance Database not loaded as expected");
