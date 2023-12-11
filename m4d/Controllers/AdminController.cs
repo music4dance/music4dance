@@ -1176,6 +1176,11 @@ namespace m4d.Controllers
             ViewData["SearchIdx"] = SearchService.DefaultId;
             ViewData["StatsUpdateTime"] = DanceStatsManager.LastUpdate;
             ViewData["StatsUpdateSource"] = DanceStatsManager.Source;
+#if DEBUG
+            ViewData["Debug"] = true;
+#else
+            ViewData["Debug"] = false;
+#endif
         }
 
 

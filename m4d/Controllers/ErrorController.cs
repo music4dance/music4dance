@@ -1,4 +1,5 @@
 ﻿using System;
+using m4d.ViewModels;
 using m4dModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
@@ -20,7 +21,7 @@ namespace m4d.Controllers
         [Route("/Error/{status}")]
         public ActionResult Index(int status)
         {
-            ViewBag.UseVue = false;
+            ViewBag.UseVue = UseVue.No;
 
             var error = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
             var isAjaxRequest = error?.Path.Contains("/api", StringComparison.OrdinalIgnoreCase) ??
