@@ -1,0 +1,29 @@
+# ASP.NET Core
+# Build and test ASP.NET Core projects targeting .NET Core.
+# Add steps that run tests, create a NuGet package, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  BuildConfiguration: 'Release'
+
+steps:
+- script: dotnet build --configuration $(BuildConfiguration)
+  displayName: 'dotnet build $(BuildConfiguration)'
+- task: DotNetCoreCLI@2
+  displayName: publish web project
+  inputs:
+    command: 'publish'
+    publishWebProjects: true
+    configuration: $(BuildConfiguration)
+    arguments: -r linux-x64 --self-contained
+- task: AzureWebApp@1
+  displayName: deploy
+  inputs:
+    azureSubscription: 'm4d-release'
+    appType: 'webAppLinux'
+    appName: 'msc4dnc'
+    package: '$(System.DefaultWorkingDirectory)/**/*.zip'
