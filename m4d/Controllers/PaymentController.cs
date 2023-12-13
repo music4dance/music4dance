@@ -14,6 +14,7 @@ using Microsoft.Extensions.FileProviders;
 using m4d.Utilities;
 using Owl.reCAPTCHA;
 using Owl.reCAPTCHA.v2;
+using Microsoft.AspNetCore.Http;
 
 namespace m4d.Controllers
 {
@@ -126,7 +127,7 @@ namespace m4d.Controllers
             var service = new SessionService();
             var session = service.Create(options);
 
-            Response.Headers.Add("Location", session.Url);
+            Response.Headers.Append("Location", session.Url);
             return new StatusCodeResult(303);
         }
 

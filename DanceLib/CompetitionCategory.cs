@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -30,11 +31,13 @@ public class CompetitionCategory
         ? DanceCategoryType.International
         : DanceCategoryType.American;
 
+    [JsonIgnore]
     public string CanonicalName => BuildCanonicalName(Name);
-    public string FullRoundName => $"{Name} {(Round.Count == 4 ? "four" : "five")} dance round";
+    [JsonIgnore]
+    public string FullRoundName => $"{Name} {(_round.Count == 4 ? "four" : "five")} dance round";
 
-    public IList<DanceInstance> Round => _round;
-    public IList<DanceInstance> Extras => _extra;
+    public IReadOnlyList<string> Round => _round.Select(d => d.Id).ToList();
+    public IReadOnlyList<string> Extras => _extra.Select(d => d.Id).ToList();
 
     internal static void RegisterDanceInstance(DanceInstance dance)
     {

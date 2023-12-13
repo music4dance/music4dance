@@ -5,12 +5,15 @@ import "bootstrap-vue-next";
 
 declare module "bootstrap-vue-next/dist/src/types" {
   export interface BaseColorVariant {
-    style: unknown;
-    tempo: unknown;
     music: unknown;
+    tempo: unknown;
+    style: unknown;
     other: unknown;
+    tools: unknown;
+    blog: unknown;
     dance: unknown;
   }
+
   export interface BaseButtonVariant {
     "outline-style": unknown;
     "outline-tempo": unknown;

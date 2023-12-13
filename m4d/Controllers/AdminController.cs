@@ -213,6 +213,7 @@ namespace m4d.Controllers
             ViewBag.Name = "ClearSongCache";
 
             await DanceStatsManager.ClearCache(Database, reloadFromStore);
+            DanceMusicController.ClearJsonCache();
             UsersController.ClearCache();
 
             ViewBag.Success = true;

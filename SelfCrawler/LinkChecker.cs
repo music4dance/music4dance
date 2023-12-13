@@ -29,7 +29,9 @@ namespace SelfCrawler
             @"""Download the Vue Devtools extension for a better development experience",
             @"""You are running Vue in development mode.",
             @"""[BootstrapVue warn]: tooltip - The provided target is no valid HTML element.""",
-            @"https://ir-na.amazon-adsystem.com"
+            @"https://ir-na.amazon-adsystem.com",
+            "[vite] connecting",
+            "[vite] connected",
         };
 
         // TODO: Rather than adding manual tests, see if we can get selenium to test if the

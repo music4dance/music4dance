@@ -64,6 +64,7 @@ namespace m4dModels
 
             builder.Entity<ApplicationUser>().Property(u => u.Region).HasMaxLength(2);
             builder.Entity<ApplicationUser>().Property(u => u.ServicePreference).HasMaxLength(10);
+            builder.Entity<ApplicationUser>().Property(u => u.LifetimePurchased).HasPrecision(18,2);
 
             builder.Entity<Search>().Property(u => u.Query).IsRequired();
             builder.Entity<Search>().Ignore(u => u.Filter);

@@ -66,7 +66,10 @@ export class DanceInstance extends DanceObject {
   }
 
   private exceptionsFromOrganization(organizations: string[]): DanceException[] {
-    return this.exceptions.filter((e) => organizations.find((o) => e.matchesFilter(o)));
+    const exceptions = this.exceptions;
+    return exceptions
+      ? this.exceptions.filter((e) => organizations.find((o) => e.matchesFilter(o)))
+      : [];
   }
 
   public get shortName(): string {

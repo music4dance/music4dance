@@ -303,7 +303,7 @@ namespace m4d.Controllers
             return json;
         }
 
-        internal static void ClearCache()
+        internal static void ClearJsonCache()
         {
             s_danceDatabaseCache = null;
             s_tagDatabaseCache = null;

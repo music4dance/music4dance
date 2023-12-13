@@ -2,6 +2,7 @@ import { DanceType } from "./DanceType";
 import { DanceGroup } from "./DanceGroup";
 import { TypedJSON, jsonArrayMember, jsonObject } from "typedjson";
 import type { NamedObject } from "./NamedObject";
+import type { DanceInstance } from "./DanceInstance";
 
 TypedJSON.setGlobalConfig({
   errorHandler: (e) => {
@@ -34,6 +35,18 @@ export class DanceDatabase {
 
   public get flattened(): NamedObject[] {
     return this.groups.reduce((acc, x) => [...acc, x, ...x.dances], [] as NamedObject[]);
+  }
+
+  public danceFromId(id: string): DanceType | undefined {
+    return this.dances.find((d) => d.id === id);
+  }
+
+  public instanceFromId(id: string): DanceInstance | undefined {
+    const dance = this.danceFromId(id.substring(0, 3));
+    if (!dance) {
+      return undefined;
+    }
+    return dance?.instances.find((i) => i.id === id);
   }
 
   public filterByName(name: string): NamedObject[] {

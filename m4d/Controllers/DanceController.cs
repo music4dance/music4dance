@@ -72,7 +72,7 @@ namespace m4d.Controllers
                 dance, "ballroom-competition-categories",
                 StringComparison.OrdinalIgnoreCase))
             {
-                return Vue(
+                return Vue3(
                     "Ballroom Competition Categories",
                     "An overview of competitive ballroom categories along with tempo ranges and song lists.",
                     "ballroom-index",
@@ -96,7 +96,7 @@ namespace m4d.Controllers
             var category = CompetitionGroupModel.Get(CompetitionCategory.Ballroom, dance);
             if (category != null)
             {
-                return Vue(
+                return Vue3(
                     category.CurrentCategoryName,
                     $"A description of the competition dance category {category.CurrentCategoryName} along with tempo ranges and song lists.",
                     "competition-category",
