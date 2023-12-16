@@ -85,10 +85,10 @@ function getTagHandler(tag: Tag): TagHandler {
       <BButtonGroup size="sm" class="col-sm">
         <BButton
           v-for="btn in tagButtons"
-          :key="btn.key"
           :id="'filter-' + btn.key"
-          :variant="btn.variant"
+          :key="btn.key"
           v-model:pressed="btn.state"
+          :variant="btn.variant"
         >
           <TagIcon :name="btn.iconName" />
           {{ btn.description }}
@@ -122,8 +122,8 @@ function getTagHandler(tag: Tag): TagHandler {
         style="margin-inline-end: 0.25em; margin-bottom: 0.25em"
         :class="classesForTag(tag)"
         href="#"
-        @click="showModal(tag.key)"
         role="button"
+        @click="showModal(tag.key)"
       >
         <TagIcon :name="tag.icon!" />{{ tag.value }}
       </BBadge>

@@ -38,7 +38,7 @@ const formattedText = computed(() => {
     </span>
     <IBiPencil v-else></IBiPencil>
     <span class="px-1"></span>
-    <a :href="url" v-html="formattedText" class="ms-1"></a>
+    <a :href="url" class="ms-1" v-html="formattedText"></a>
     <span v-if="include"> ({{ count }})</span>
   </li>
 </template>

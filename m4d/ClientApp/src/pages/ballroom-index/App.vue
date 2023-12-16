@@ -9,8 +9,8 @@ import { CompetitionCategory, CompetitionGroup } from "@/models/Competition";
 import { TypedJSON } from "typedjson";
 
 declare const model_: string;
-const breadcrumbs: BreadCrumbItem[] = [...danceTrail, { text: "Ballroom", active: true }];
 const group = TypedJSON.parse(model_, CompetitionGroup)!;
+const breadcrumbs: BreadCrumbItem[] = [...danceTrail, { text: "Ballroom", active: true }];
 
 function categoryLink(category: CompetitionCategory): string {
   return `/dances/${category.canonicalName}`;

@@ -138,7 +138,7 @@ function search(): void {
             <BDropdownItem href="/home/credits">Credits</BDropdownItem>
           </BNavItemDropdown>
           <BNavItem id="contribute-menu" right href="/home/contribute">Contribute</BNavItem>
-          <BNavItemDropdown id="admin-menu" text="Admin" v-if="context.isAdmin">
+          <BNavItemDropdown v-if="context.isAdmin" id="admin-menu" text="Admin">
             <BDropdownItem href="/admin">Index</BDropdownItem>
             <BDropdownItem href="/applicationusers">Users</BDropdownItem>
             <BDropdownItem href="/activitylog">Activity Log</BDropdownItem>
@@ -200,16 +200,16 @@ function search(): void {
       variant="success"
       dismissible
       style="margin-bottom: 0"
-      @update:modelValue="onDismissed(marketingTag)"
+      @update:model-value="onDismissed(marketingTag)"
       ><span v-html="context.marketingMessage"></span
     ></BAlert>
     <BAlert
       v-if="showExpiration"
-      variant="warning"
       v-model="renewal"
+      variant="warning"
       dismissible
       style="margin-bottom: 0"
-      @update:modelValue="onDismissed(renewalTag)"
+      @update:model-value="onDismissed(renewalTag)"
     >
       Your premium subcription will expire in
       {{ Math.round(context.daysToExpiration || 0) }}

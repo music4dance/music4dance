@@ -83,7 +83,7 @@ namespace m4d.Controllers
 
             if (string.Equals(dance, "wedding-music", StringComparison.OrdinalIgnoreCase))
             {
-                return Vue(
+                return Vue3(
                     "Wedding Dance Music",
                     "Help finding wedding dance music: First Dance, Mother/Son, Father/Daughter - Foxtrot, Waltz, Swing and others.",
                     "wedding-dance-music",

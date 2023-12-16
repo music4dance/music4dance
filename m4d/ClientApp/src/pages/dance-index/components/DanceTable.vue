@@ -21,8 +21,8 @@ const filteredDances = computed(() => {
     <BInputGroup class="mb-2">
       <BFormInput
         id="bvt-dance-filter"
-        type="text"
         v-model="nameFilter"
+        type="text"
         placeholder="Filter Dances"
         autofocus
       ></BFormInput>
@@ -31,8 +31,8 @@ const filteredDances = computed(() => {
     <DanceList
       :dances="filteredDances"
       :flush="false"
-      :showTempo="showTempo"
-      :showSynonyms="true"
+      :show-tempo="showTempo"
+      :show-synonyms="true"
     />
   </div>
 </template>

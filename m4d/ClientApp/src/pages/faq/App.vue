@@ -10,7 +10,7 @@ const breadcrumbs: BreadCrumbItem[] = [...infoTrail, { text: "FAQ", active: true
     <div role="tablist">
       <BCard no-body class="mb-1">
         <BCardHeader header-tag="header" class="p-1" role="tab">
-          <BButton block v-b-toggle.accordion-1 variant="primary">
+          <BButton v-b-toggle.accordion-1 block variant="primary">
             Where can I find songs that work with the dance style I'm currently practicing?
           </BButton>
         </BCardHeader>
@@ -54,7 +54,7 @@ const breadcrumbs: BreadCrumbItem[] = [...infoTrail, { text: "FAQ", active: true
 
       <BCard no-body class="mb-1">
         <BCardHeader header-tag="header" class="p-1" role="tab">
-          <BButton block v-b-toggle.accordion-2 variant="primary">
+          <BButton v-b-toggle.accordion-2 block variant="primary">
             What dance styles work with the song I'm listening to or a specific song that I know of?
           </BButton>
         </BCardHeader>
@@ -98,7 +98,7 @@ const breadcrumbs: BreadCrumbItem[] = [...infoTrail, { text: "FAQ", active: true
 
       <BCard no-body class="mb-1">
         <BCardHeader header-tag="header" class="p-1" role="tab">
-          <BButton block v-b-toggle.accordion-3 variant="primary"
+          <BButton v-b-toggle.accordion-3 block variant="primary"
             >Why should I sign up with Music4Dance?</BButton
           >
         </BCardHeader>
@@ -134,7 +134,7 @@ const breadcrumbs: BreadCrumbItem[] = [...infoTrail, { text: "FAQ", active: true
 
       <BCard no-body class="mb-1">
         <BCardHeader header-tag="header" class="p-1" role="tab">
-          <BButton block v-b-toggle.accordion-4 variant="primary">
+          <BButton v-b-toggle.accordion-4 block variant="primary">
             I can't find the song I'm looking for, what should I do?
           </BButton>
         </BCardHeader>
@@ -161,7 +161,7 @@ const breadcrumbs: BreadCrumbItem[] = [...infoTrail, { text: "FAQ", active: true
 
       <BCard no-body class="mb-1">
         <BCardHeader header-tag="header" class="p-1" role="tab">
-          <BButton block v-b-toggle.accordion-5 variant="primary">
+          <BButton v-b-toggle.accordion-5 block variant="primary">
             I'm a competition Ballroom dancer, how can music4dance help me find music?
           </BButton>
         </BCardHeader>
@@ -192,7 +192,7 @@ const breadcrumbs: BreadCrumbItem[] = [...infoTrail, { text: "FAQ", active: true
 
       <BCard no-body class="mb-1">
         <BCardHeader header-tag="header" class="p-1" role="tab">
-          <BButton block v-b-toggle.accordion-6 variant="primary">
+          <BButton v-b-toggle.accordion-6 block variant="primary">
             I want to find a great song for my first dance at my wedding, where should I look?
           </BButton>
         </BCardHeader>
@@ -228,7 +228,7 @@ const breadcrumbs: BreadCrumbItem[] = [...infoTrail, { text: "FAQ", active: true
 
       <BCard no-body class="mb-1">
         <BCardHeader header-tag="header" class="p-1" role="tab">
-          <BButton block v-b-toggle.accordion-7 variant="primary">
+          <BButton v-b-toggle.accordion-7 block variant="primary">
             Not finding the answer to your question or want to give us feedback?
           </BButton>
         </BCardHeader>

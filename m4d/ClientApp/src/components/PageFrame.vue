@@ -34,7 +34,7 @@ onMounted(() => {
 <template>
   <div>
     <MainMenu :context="menuContext"></MainMenu>
-    <nav aria-label="breadcrumb" v-if="breadcrumbs">
+    <nav v-if="breadcrumbs" aria-label="breadcrumb">
       <BBreadcrumb :items="breadcrumbs" style="padding: 0.25rem 0.5rem"></BBreadcrumb>
     </nav>
     <div id="body-content" class="container-fluid body-content">

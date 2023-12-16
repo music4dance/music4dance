@@ -68,20 +68,20 @@ function getTagLink(modifier: string, exclusive: boolean): string {
   <BModal
     :id="handler.id"
     :model-value="visible"
-    @update:model-value="$emit('update', $event)"
     :header-bg-variant="tag.variant"
     header-text-variant="light"
     hide-footer
+    @update:model-value="$emit('update', $event)"
   >
-    <template v-slot:title><TagIcon :name="tag.icon!" />&nbsp;{{ title }} </template>
+    <template #title><TagIcon :name="tag.icon!" />&nbsp;{{ title }} </template>
     <!-- <template v-slot:title>Help Me!</template> -->
     <BListGroup>
-      <BListGroupItem :href="includeTag" variant="success" v-if="hasFilter">
+      <BListGroupItem v-if="hasFilter" :href="includeTag" variant="success">
         <span v-if="singleDance"> List all {{ danceName }} </span>
         <span v-else> Filter the list to include only </span>
         songs tagged as <em>{{ tag.value }}</em>
       </BListGroupItem>
-      <BListGroupItem :href="excludeTag" variant="danger" v-if="hasFilter">
+      <BListGroupItem v-if="hasFilter" :href="excludeTag" variant="danger">
         <span v-if="singleDance"> List all {{ danceName }} </span>
         <span v-else> Filter the list to include only </span>
         songs <b>not</b> tagged as

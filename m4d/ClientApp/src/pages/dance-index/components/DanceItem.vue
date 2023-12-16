@@ -31,7 +31,7 @@ const songCount = computed(() => {
 
 <template>
   <div class="d-flex justify-content-between">
-    <DanceName :dance="dance" :showTempo="showTempo" :showSynonyms="showSynonyms" />
+    <DanceName :dance="dance" :show-tempo="showTempo" :show-synonyms="showSynonyms" />
     <div>
       <b-badge v-if="songCount" :href="countLink" :variant="variant" style="line-height: 1.5"
         >songs ({{ songCount }})</b-badge

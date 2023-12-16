@@ -60,8 +60,8 @@ const links = computed(() => {
       <UserLink
         v-for="(link, index) in links"
         :key="index"
-        :userName="model.userName"
-        :displayName="model.displayName"
+        :user-name="model.userName"
+        :display-name="model.displayName"
         :text="link.text"
         :type="link.type"
         :include="link.include"

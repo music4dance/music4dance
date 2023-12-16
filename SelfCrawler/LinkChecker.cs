@@ -50,6 +50,11 @@ namespace SelfCrawler
 
         };
 
+        public LinkChecker()
+        {
+            _client.DefaultRequestHeaders.Add("User-Agent", "Music4Dance.net Link Checker");
+            _client.Timeout = TimeSpan.FromMinutes(5);
+        }
 
         public void Dispose()
         {
@@ -91,7 +96,7 @@ namespace SelfCrawler
         private void CheckPageForBrokenLinks(Crawler<bool> crawler)
         {
             _crawler = crawler;
-            var url = "/home/tempi";
+            var url = "/home/readinglist";
             var result = _crawler.SinglePage(CrawlPage, url);
             ShowManualTests();
             Assert.IsTrue(result);

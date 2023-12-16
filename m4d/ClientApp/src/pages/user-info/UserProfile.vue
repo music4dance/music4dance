@@ -28,7 +28,7 @@ const isCurrentUser = computed(() => {
     <MustRegister
       v-else-if="!menuContext.isAuthenticated"
       title="You must be registerd and logged in to view other user's profiles."
-      :menuContext="menuContext"
+      :menu-context="menuContext"
     >
     </MustRegister>
     <div v-else-if="model.isPseudo">

@@ -23,7 +23,7 @@ function danceVariant(dance: NamedObject): ColorVariant {
 <template>
   <BListGroup :flush="flush">
     <BListGroupItem v-for="(dance, idx) in dances" :key="idx" :variant="danceVariant(dance)">
-      <DanceItem :dance="dance" :showTempo="showTempo" />
+      <DanceItem :dance="dance" :show-tempo="showTempo" />
     </BListGroupItem>
   </BListGroup>
 </template>

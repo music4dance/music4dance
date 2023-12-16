@@ -3,8 +3,7 @@ import { wordsToKebab } from "@/helpers/StringHelpers";
 import { DanceInstance } from "@/models/DanceInstance";
 import { Meter } from "@/models/Meter";
 import { TempoRange } from "@/models/TempoRange";
-import type { TableItem } from "bootstrap-vue-next";
-import type { TableField } from "bootstrap-vue-next";
+import type { TableItem, TableField } from "bootstrap-vue-next";
 import { computed } from "vue";
 
 const props = defineProps<{
@@ -55,39 +54,37 @@ const isMixed = computed(() => {
 // INT-TODO: We should be able to use TableField<DanceInstance> but it doesn't work
 // until at the least the bsv table types are templated
 // : TableField<DanceInstance>[]
-const fields = computed(() => {
-  return [
-    {
-      key: "name",
-      formatter: (item: any) => name(item),
-    },
-    {
-      key: "mpm",
-      label: "MPM",
-    },
-    {
-      key: "dancesport",
-      label: "DanceSport",
-    },
-    {
-      key: "ndca-1",
-      label: ndcaATitle.value,
-    },
-    {
-      key: "ndca-2",
-      label: ndcaBTitle.value,
-    },
-    {
-      key: "tempoRange",
-      label: "BPM",
-      formatter: (value: TempoRange) => value.toString(),
-    },
-    {
-      key: "meter",
-      formatter: (value: Meter) => value.toString(),
-    },
-  ];
-}) as unknown as TableField[];
+const fields = [
+  {
+    key: "name",
+    formatter: (item: any) => name(item),
+  },
+  {
+    key: "mpm",
+    label: "MPM",
+  },
+  {
+    key: "dancesport",
+    label: "DanceSport",
+  },
+  {
+    key: "ndca-1",
+    label: ndcaATitle.value,
+  },
+  {
+    key: "ndca-2",
+    label: ndcaBTitle.value,
+  },
+  {
+    key: "tempoRange",
+    label: "BPM",
+    formatter: (value: TempoRange) => value.toString(),
+  },
+  {
+    key: "meter",
+    formatter: (value: Meter) => value.toString(),
+  },
+] as unknown as TableField[];
 
 function name(dance: DanceInstance): string {
   return props.useFullName ? dance.name : dance.shortName;
@@ -127,30 +124,30 @@ function formatFilteredTempo(item: TableItem, filter: string): string {
   <div>
     <h4 v-if="title">{{ title }}</h4>
     <BTable striped hover :items="danceTable" :fields="fields" responsive>
-      <template v-slot:cell(name)="data">
+      <template #cell(name)="data">
         <a :href="danceLink(data.item as unknown as DanceInstance)">{{ data.value }}</a>
       </template>
-      <template v-slot:cell(mpm)="data">
+      <template #cell(mpm)="data">
         <a :href="defaultTempoLink(data.item as unknown as DanceInstance)">{{
           formatMPMValue(data.item)
         }}</a>
       </template>
-      <template v-slot:cell(dancesport)="data">
+      <template #cell(dancesport)="data">
         <a :href="filteredTempoLink(data.item as unknown as DanceInstance, 'dancesport')">{{
           formatFilteredTempo(data.item, "dancesport")
         }}</a>
       </template>
-      <template v-slot:cell(ndca-1)="data">
+      <template #cell(ndca-1)="data">
         <a :href="filteredTempoLink(data.item as unknown as DanceInstance, 'ndca-1')">{{
           formatFilteredTempo(data.item, "ndca-1")
         }}</a>
       </template>
-      <template v-slot:cell(ndca-2)="data">
+      <template #cell(ndca-2)="data">
         <a :href="filteredTempoLink(data.item as unknown as DanceInstance, 'ndca-2')">{{
           formatFilteredTempo(data.item, "ndca-2")
         }}</a>
       </template>
-      <template v-slot:cell(tempoRange)="data">
+      <template #cell(tempoRange)="data">
         <a :href="defaultTempoLink(data.item as unknown as DanceInstance)">{{ data.value }}</a>
       </template>
     </BTable>

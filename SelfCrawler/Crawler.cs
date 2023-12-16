@@ -3,10 +3,30 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace SelfCrawler
 {
+    public static class DriverHelpers
+    {
+        public static void SetTimeouts(this IWebDriver driver, TimeSpan timeout)
+        {
+            var timeouts = driver.Manage().Timeouts();
+            timeouts.PageLoad = timeout;
+            timeouts.AsynchronousJavaScript = timeout;
+            timeouts.ImplicitWait = timeout;
+        }
+
+        public static void LogTimeouts(this IWebDriver driver)
+        {
+            var timeouts = driver.Manage().Timeouts();
+            Debug.WriteLine($"PageLoad: {timeouts.PageLoad}");
+            Debug.WriteLine($"AsynchronousJavaScript: {timeouts.AsynchronousJavaScript}");
+            Debug.WriteLine($"ImplicitWait: {timeouts.ImplicitWait}");
+        }
+    }
+
     internal class Crawler<T> : IDisposable
     {
         private readonly string _root;
@@ -21,7 +41,11 @@ namespace SelfCrawler
             chromeOptions.SetLoggingPreference(LogType.Browser, LogLevel.All);
             _driver = new ChromeDriver(chromeOptions);
             _root = root;
+            _driver.LogTimeouts();
+            _driver.SetTimeouts(TimeSpan.FromMinutes(5));
+            _driver.LogTimeouts();
         }
+
         public void Dispose()
         {
             _driver.Quit();

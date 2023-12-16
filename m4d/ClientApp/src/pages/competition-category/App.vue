@@ -31,27 +31,27 @@ const groupLink = computed(
 
 <template>
   <PageFrame id="app" :title="category.name" :breadcrumbs="breadcrumbs">
-    <ballroom-list :name="category.name"></ballroom-list>
-    <competition-category-table
+    <BallroomList :name="category.name"></BallroomList>
+    <CompetitionCategoryTable
       :dances="category.round"
       :title="category.fullRoundTitle"
-    ></competition-category-table>
-    <competition-category-table
+    ></CompetitionCategoryTable>
+    <CompetitionCategoryTable
       v-if="category.extras"
       :dances="category.extras"
       :title="category.extraDancesTitle"
-    ></competition-category-table>
+    ></CompetitionCategoryTable>
     <div>
       Other categories of <a :href="groupLink">{{ groupTitle }}</a> are:
       <ul>
-        <li v-for="category in model.otherCategories" :key="category.name">
-          <link-category :name="category.name"></link-category>
+        <li v-for="cat in model.otherCategories" :key="cat.name">
+          <LinkCategory :name="cat.name"></LinkCategory>
         </li>
       </ul>
     </div>
     <dl>
-      <tempi-link></tempi-link>
-      <blog-tag-link title="Ballroom" tag="ballroom"></blog-tag-link>
+      <TempiLink></TempiLink>
+      <BlogTagLink title="Ballroom" tag="ballroom"></BlogTagLink>
     </dl>
   </PageFrame>
 </template>
