@@ -1,0 +1,101 @@
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OpenQA.Selenium;
+using System;
+using System.Linq;
+using System.Net.Http;
+
+namespace SelfCrawler;
+
+
+[TestClass]
+public class ErrorChecker : PageChecker, IDisposable
+{
+    private readonly string[] _knownLogs =
+    {
+        @"""Ads are paused""",
+        @"""Download the Vue Devtools extension for a better development experience",
+        @"""You are running Vue in development mode.",
+        @"""[BootstrapVue warn]: tooltip - The provided target is no valid HTML element.""",
+        @"https://ir-na.amazon-adsystem.com",
+        "[vite] connecting",
+        "[vite] connected",
+    };
+
+    // TODO: Rather than adding manual tests, see if we can get selenium to test if the
+    //  URL is live - https://stackoverflow.com/questions/6509628/how-to-get-http-response-code-using-selenium-webdriver
+    private readonly string[] _hardenedSites =
+    {
+        @"www.ehow.com",
+        @"duetdancestudio.com",
+        @"www.hulu.com",
+        @"www.olympic.org",
+        @"stripe.com",
+        @"www.dreamstime.com",
+        @"www.linkedin.com",
+        @"www.abscdj.com",
+        @"usadance.org"
+
+    };
+
+    [TestMethod]
+    public void CheckLocalSiteForErrors()
+    {
+        Assert.IsTrue(CheckSite(new Crawler<bool>()));
+    }
+
+    [TestMethod]
+    public void CheckLocalPageForErrors()
+    {
+        Assert.IsTrue(CheckPage(new Crawler<bool>()));
+    }
+
+    [TestMethod]
+    public void CheckTestSiteForErrors()
+    {
+        Assert.IsTrue(CheckSite(new Crawler<bool>(_testUrl)));
+    }
+
+    [TestMethod]
+    public void CheckTestPageForErrors()
+    {
+        Assert.IsTrue(CheckPage(new Crawler<bool>(_testUrl)));
+    }
+
+    protected override bool CrawlPage(string relativePath, string root, IWebDriver driver)
+    {
+        driver.Navigate().GoToUrl($"{root}{relativePath}?flat=true");
+
+        return CheckLogs(relativePath, driver);
+    }
+
+    // TODO: Do we wnat to make LinkChecker also check logs?
+    private bool CheckLogs(string relativePath, IWebDriver driver)
+    {
+        var logs = driver.Manage().Logs;
+        var logEntries = logs.GetLog(LogType.Browser).Where(l => !IsKnownLog(l.Message)).ToList();
+
+        if (logEntries.Any())
+        {
+            TestContext?.WriteLine($"FAILED (LOGS): {relativePath}");
+            foreach (var logEntry in logEntries)
+            {
+                TestContext?.WriteLine($"{logEntry.Level}: {logEntry.Message}");
+            }
+
+            ErrorCount += logEntries.Count;
+            if (ErrorCount > 100)
+            {
+                throw new Exception(
+                    $"Something is very wrong, stopping at {ErrorCount} errors");
+            }
+            return false;
+        }
+
+        return true;
+    }
+
+    private bool IsKnownLog(string log)
+    {
+        return _knownLogs.Any(log.Contains);
+    }
+}

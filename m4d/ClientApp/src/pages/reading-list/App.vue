@@ -231,7 +231,7 @@ const flattened = computed(() => {
     <div v-if="flattened">
       <div v-for="category in categories" :key="category.type">
         {{ category.title }}
-        <ReadingCategory :category="category" />
+        <ReadingCategory :category="category" :hide-images="true" />
       </div>
     </div>
     <BTabs v-else>
@@ -262,6 +262,7 @@ const flattened = computed(() => {
       </p>
     </div>
     <iframe
+      v-if="!flattened"
       src="//rcm-na.amazon-adsystem.com/e/cm?o=1&p=12&l=ur1&category=audibleplus&banner=0MG2XKQ7PYPP84NBNFR2&f=ifr&lc=pf4&linkID=20e48696049a1c82b9a4f031746f4339&t=msc4dnc-20&tracking_id=msc4dnc-20"
       width="300"
       height="250"
@@ -273,6 +274,7 @@ const flattened = computed(() => {
       sandbox="allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"
     ></iframe>
     <iframe
+      v-if="!flattened"
       src="//rcm-na.amazon-adsystem.com/e/cm?o=1&p=12&l=ur1&category=primemusic&banner=0Y451P54C03XJ9ZRPK82&f=ifr&lc=pf4&linkID=d2af141871b51c4f9ec4ce1e95a3b479&t=msc4dnc-20&tracking_id=msc4dnc-20"
       width="300"
       height="250"

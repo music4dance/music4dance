@@ -4,6 +4,7 @@ import { BookCategory } from "../models/BookCategory";
 
 defineProps<{
   category: BookCategory;
+  hideImages?: boolean;
 }>();
 </script>
 
@@ -11,7 +12,7 @@ defineProps<{
   <div>
     <h3 class="category-description">{{ category.description }}</h3>
     <div v-for="book in category.books" :key="book.title">
-      <BookComponent :book="book"></BookComponent>
+      <BookComponent :book="book" :hide-images="hideImages"></BookComponent>
     </div>
   </div>
 </template>

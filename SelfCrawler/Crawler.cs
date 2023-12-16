@@ -21,13 +21,14 @@ namespace SelfCrawler
         public static void LogTimeouts(this IWebDriver driver)
         {
             var timeouts = driver.Manage().Timeouts();
+
             Debug.WriteLine($"PageLoad: {timeouts.PageLoad}");
             Debug.WriteLine($"AsynchronousJavaScript: {timeouts.AsynchronousJavaScript}");
             Debug.WriteLine($"ImplicitWait: {timeouts.ImplicitWait}");
         }
     }
 
-    internal class Crawler<T> : IDisposable
+    public class Crawler<T> : IDisposable
     {
         private readonly string _root;
         private const string _altRoot = "https://www.music4dance.net";
@@ -39,10 +40,12 @@ namespace SelfCrawler
             var chromeOptions = new ChromeOptions();
             chromeOptions.AddArguments("--ignore-certificate-errors");
             chromeOptions.SetLoggingPreference(LogType.Browser, LogLevel.All);
-            _driver = new ChromeDriver(chromeOptions);
+            chromeOptions.PageLoadStrategy = PageLoadStrategy.None;
+            _driver = new ChromeDriver(
+                ChromeDriverService.CreateDefaultService(), chromeOptions, TimeSpan.FromMinutes(2));
             _root = root;
             _driver.LogTimeouts();
-            _driver.SetTimeouts(TimeSpan.FromMinutes(5));
+            _driver.SetTimeouts(TimeSpan.FromMinutes(2));
             _driver.LogTimeouts();
         }
 
