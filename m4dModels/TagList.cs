@@ -122,10 +122,8 @@ namespace m4dModels
         public IList<string> StripType()
         {
             return Summary == null
-                ? new List<string>()
-                : Summary.Contains(':')
-                ? Tags.Select(tag => tag[..tag.IndexOf(':')]).ToList()
-                : new List<string>();
+                ? []
+                : Tags.Select(StripTagType).ToList();
         }
 
         public IList<string> StripQualifier()
@@ -135,9 +133,14 @@ namespace m4dModels
 
         public IList<string> Strip()
         {
-            return Summary != null && Summary.Contains(':')
-                ? Tags.Select(tag => TrimQualifier(tag[..tag.IndexOf(':')])).ToList()
-                : new List<string>();
+            return Summary != null
+                ? Tags.Select(tag => TrimQualifier(StripTagType(tag))).ToList()
+                : [];
+        }
+
+        private static string StripTagType(string tag)
+        {
+            return tag.Contains(':') ? tag[..tag.IndexOf(':')] : tag;
         }
 
         public TagList AddQualifier(char q)

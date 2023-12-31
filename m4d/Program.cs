@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -49,8 +50,8 @@ namespace m4d
 
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
-            var builder = Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(
+            var builder = Host.CreateDefaultBuilder(args);
+            builder.ConfigureWebHostDefaults(
                     webBuilder => webBuilder
                         .ConfigureAppConfiguration(
                             (hostingContext, config) =>
@@ -73,7 +74,9 @@ namespace m4d
                                                     new Uri(settings["AppConfig:Endpoint"]),
                                                     credentials)
                                                 .ConfigureKeyVault(
-                                                    kv => { kv.SetCredential(credentials); }));
+                                                    kv => { kv.SetCredential(credentials); })
+                                                .Select(KeyFilter.Any, LabelFilter.Null)
+                                                .Select(KeyFilter.Any, environment));
                                 }
                             })
                         .UseStartup<Startup>());

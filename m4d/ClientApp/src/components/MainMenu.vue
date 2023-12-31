@@ -105,7 +105,7 @@ function search(): void {
               >&nbsp;&nbsp;Tango</BDropdownItem
             >
             <BDropdownItem href="/dances/country" class="nav-subitem"
-              >&nbsp;&nbsp;Country Western</BDropdownItem
+              >&nbsp;&nbsp;Country</BDropdownItem
             >
             <BDropdownItem href="/song">Song Library</BDropdownItem>
             <BDropdownItem href="/song/advancedsearchform" class="nav-subitem"

@@ -17,11 +17,7 @@ const breadcrumbs: BreadCrumbItem[] = [
   { text: model?.currentCategory.name ?? "Error", active: true },
 ];
 
-const category = computed(() => {
-  console.log("Entering Category");
-  const temp = model?.currentCategory ?? new CompetitionCategory();
-  return temp;
-});
+const category = computed(() => model?.currentCategory ?? new CompetitionCategory());
 
 const groupTitle = computed(() => `competition ${model?.group.name.toLowerCase()} dancing`);
 const groupLink = computed(

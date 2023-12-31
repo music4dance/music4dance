@@ -39,6 +39,9 @@
             <b-dropdown-item href="/dances/tango" class="nav-subitem"
               >Tango</b-dropdown-item
             >
+            <b-dropdown-item href="/dances/country" class="nav-subitem"
+              >Country</b-dropdown-item
+            >
             <b-dropdown-item href="/song">Song Library</b-dropdown-item>
             <b-dropdown-item href="/song/advancedsearchform" class="nav-subitem"
               >Advanced Search</b-dropdown-item

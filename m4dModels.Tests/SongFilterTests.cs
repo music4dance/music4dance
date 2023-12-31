@@ -1,12 +1,20 @@
 ﻿using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Web;
+using System.Threading.Tasks;
 
 namespace m4dModels.Tests
 {
     [TestClass]
     public class SongFilterTests
     {
+        [ClassInitialize]
+        public static void ClassInitialize(TestContext _)
+        {
+            var t = DanceMusicTester.LoadDances().Result;
+            Trace.WriteLine($"Loaded dances = {t}");
+        }
+
         // TODO: after spending the time writing these test it occurs to me that a more robust way of doing this would
         //  be to create a couple of static objects using json-like constructor syntax and go the other way, that way
         //  the tests would be resilient to changing the encoding scheme - so take the time to rework this if I ever
@@ -100,7 +108,7 @@ namespace m4dModels.Tests
             Trace.WriteLine(f2.Description);
 
             Assert.AreEqual(
-                @"All Swing songs containing the text ""Goodman"", available on ITunes, having tempo between 50 and 150 beats per minute, having length between 30 and 90 seconds.",
+                @"All Swing songs containing the text ""Goodman"", available on ITunes, including tag Pop, having tempo between 50 and 150 beats per minute, having length between 30 and 90 seconds.",
                 f1.Description);
             Assert.AreEqual(
                 @"All Swing songs available on ITunes, having length between 30 and 90 seconds.",
@@ -176,9 +184,9 @@ namespace m4dModels.Tests
             return s;
         }
 
-        private const string F1 = @"Index-SWG-Album-Goodman-X-.-50-150-1-%2BPop%3AMusic";
+        private const string F1 = @"Index-SWG-Album-Goodman-X-.-50-150-1-+Pop:Music";
         private const string F2 = @"Index-SWG-.-.-I";
-        private const string F1V2 = @"v2-Index-SWG-Album-Goodman-I-.-50-150-30-90-1-%2BPop%3AMusic";
+        private const string F1V2 = @"v2-Index-SWG-Album-Goodman-I-.-50-150-30-90-1-+Pop:Music";
         private const string F2V2= @"v2-Index-SWG-.-.-I-.-.-.-30-90";
     }
 }

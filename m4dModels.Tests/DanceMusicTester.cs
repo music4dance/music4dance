@@ -79,6 +79,15 @@ namespace m4dModels.Tests
 
     public static class DanceMusicTester
     {
+        public async static Task<bool> LoadDances()
+        {
+            var files = new TestDSFileManager();
+            DanceLibrary.Dances.Reset(
+                DanceLibrary.Dances.Load(
+                    await files.GetDances(), await files.GetGroups()));
+            return true;
+        }
+
         public static string ReplaceTime(string s)
         {
             if (string.IsNullOrWhiteSpace(s))

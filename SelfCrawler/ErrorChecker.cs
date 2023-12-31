@@ -2,7 +2,6 @@
 using OpenQA.Selenium;
 using System;
 using System.Linq;
-using System.Net.Http;
 
 namespace SelfCrawler;
 

@@ -16,6 +16,7 @@ exports[`UserInfo.vue renders a user info page 1`] = `
                 <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/latin" target="_self" class="dropdown-item">Latin</a></li>
                 <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/swing" target="_self" class="dropdown-item">Swing</a></li>
                 <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/tango" target="_self" class="dropdown-item">Tango</a></li>
+                <li role="presentation" class="nav-subitem"><a role="menuitem" href="/dances/country" target="_self" class="dropdown-item">Country</a></li>
                 <li role="presentation"><a role="menuitem" href="/song" target="_self" class="dropdown-item">Song Library</a></li>
                 <li role="presentation" class="nav-subitem"><a role="menuitem" href="/song/advancedsearchform" target="_self" class="dropdown-item">Advanced Search</a></li>
                 <li role="presentation" class="nav-subitem"><a role="menuitem" href="/song/augment" target="_self" class="dropdown-item">Add Song</a></li>

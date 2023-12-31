@@ -40,7 +40,6 @@ namespace SelfCrawler
             var chromeOptions = new ChromeOptions();
             chromeOptions.AddArguments("--ignore-certificate-errors");
             chromeOptions.SetLoggingPreference(LogType.Browser, LogLevel.All);
-            chromeOptions.PageLoadStrategy = PageLoadStrategy.None;
             _driver = new ChromeDriver(
                 ChromeDriverService.CreateDefaultService(), chromeOptions, TimeSpan.FromMinutes(2));
             _root = root;
