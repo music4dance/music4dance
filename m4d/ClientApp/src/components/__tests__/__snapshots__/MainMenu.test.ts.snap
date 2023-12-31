@@ -17,6 +17,7 @@ exports[`MainMenu.vue > Renders MainMenu for an anonymous user 1`] = `
                 <li role=\\"presentation\\"><a class=\\"dropdown-item text-undefined\\" href=\\"/dances/latin\\" target=\\"_self\\" role=\\"menuitem\\">&nbsp;&nbsp;Latin</a></li>
                 <li role=\\"presentation\\"><a class=\\"dropdown-item text-undefined\\" href=\\"/dances/swing\\" target=\\"_self\\" role=\\"menuitem\\">&nbsp;&nbsp;Swing</a></li>
                 <li role=\\"presentation\\"><a class=\\"dropdown-item text-undefined\\" href=\\"/dances/tango\\" target=\\"_self\\" role=\\"menuitem\\">&nbsp;&nbsp;Tango</a></li>
+                <li role=\\"presentation\\"><a class=\\"dropdown-item text-undefined\\" href=\\"/dances/country\\" target=\\"_self\\" role=\\"menuitem\\">&nbsp;&nbsp;Country Western</a></li>
                 <li role=\\"presentation\\"><a class=\\"dropdown-item text-undefined\\" href=\\"/song\\" target=\\"_self\\" role=\\"menuitem\\">Song Library</a></li>
                 <li role=\\"presentation\\"><a class=\\"dropdown-item text-undefined\\" href=\\"/song/advancedsearchform\\" target=\\"_self\\" role=\\"menuitem\\">&nbsp;&nbsp;Advanced Search</a></li>
                 <li role=\\"presentation\\"><a class=\\"dropdown-item text-undefined\\" href=\\"/song/augment\\" target=\\"_self\\" role=\\"menuitem\\">&nbsp;&nbsp;Add Song</a></li>

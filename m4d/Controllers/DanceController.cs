@@ -81,6 +81,17 @@ namespace m4d.Controllers
                 );
             }
 
+            if (string.Equals(
+                dance, "country",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                return Vue3(
+                    "Country Western Categories",
+                    "Should music4dance add more Country Western Dances?.",
+                    "country"
+                );
+            }
+
             if (string.Equals(dance, "wedding-music", StringComparison.OrdinalIgnoreCase))
             {
                 return Vue3(

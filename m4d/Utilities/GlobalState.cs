@@ -26,6 +26,8 @@ namespace m4d.Utilities
         public bool Enabled { get; set; }
         public string Banner { get; set; }
         public string Notice { get; set;}
+        public DateTime? Start { get; set; }
+        public DateTime? End { get; set; }
         public MarketingProduct Product { get; set; }
     }
 
@@ -44,6 +46,12 @@ namespace m4d.Utilities
         public static MarketingInfo GetMarketing(ApplicationUser user, string page)
         {
             if (Marketing == null || !Marketing.Enabled)
+            {
+                return new MarketingInfo();
+            }
+
+            if (Marketing.Start.HasValue && Marketing.Start.Value > DateTime.Now ||
+                Marketing.End.HasValue && Marketing.End.Value < DateTime.Now)
             {
                 return new MarketingInfo();
             }
