@@ -24,7 +24,7 @@ namespace m4d.Controllers
 
         public IActionResult Index([FromServices] IFileProvider fileProvider)
         {
-            return Vue(
+            return Vue3(
                 "Home Page",
                 "music4dance.net is an online music catalog, tool and educational resource to help Ballroom, Salsa, Swing, Tango and other dancers find fun and exciting music.",
                 "home",

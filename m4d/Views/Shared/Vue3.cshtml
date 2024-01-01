@@ -22,6 +22,11 @@
         : null;
 }
 
+@if (Model.Script != null)
+{
+    <partial name="@Model.Script" />
+}
+
 <environment include="Development">
     @{ string devEntry = $"/src/pages/{Model.Name}/main.ts"; }
     <script type="module" src="@devEntry"></script>

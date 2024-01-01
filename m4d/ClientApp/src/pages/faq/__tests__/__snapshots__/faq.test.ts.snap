@@ -141,7 +141,7 @@ exports[`Faq > Renders Faq Page 1`] = `
   <div id=\\"footer-content\\">
     <hr>
     <footer>
-      <p> © 2023 - <a href=\\"https://www.music4dance.net\\">Music4Dance.net</a> - <a href=\\"https://www.music4dance.net/home/sitemap\\">Site Map</a> - <a href=\\"https://www.music4dance.net/home/termsofservice\\">Terms of Service</a> - <a href=\\"https://www.music4dance.net/home/privacypolicy\\">Privacy Policy</a> - <a href=\\"https://www.music4dance.net/home/credits\\">Credits</a> - <a>Help</a></p>
+      <p> © 2024 - <a href=\\"https://www.music4dance.net\\">Music4Dance.net</a> - <a href=\\"https://www.music4dance.net/home/sitemap\\">Site Map</a> - <a href=\\"https://www.music4dance.net/home/termsofservice\\">Terms of Service</a> - <a href=\\"https://www.music4dance.net/home/privacypolicy\\">Privacy Policy</a> - <a href=\\"https://www.music4dance.net/home/credits\\">Credits</a> - <a>Help</a></p>
     </footer>
   </div>
 </div>"

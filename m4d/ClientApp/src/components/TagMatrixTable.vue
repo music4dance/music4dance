@@ -5,8 +5,6 @@ import DanceName from "./DanceName.vue";
 import type { TableField, TableItem } from "bootstrap-vue-next";
 import { NamedObject } from "@/models/NamedObject";
 
-// TODONEXT:
-//  See if we can get linter to fix up templates
 const props = defineProps({
   matrix: TagMatrix,
 });
