@@ -60,8 +60,30 @@ exports[`Faq > Renders Faq Page 1`] = `
               <!---->
               <!---->
               <p class=\\"card-text\\">
-              <p> It's Free! You'll be able to edit tags on songs and Music4Dance will remember the songs you like, edited, or even disliked. You'll alo be able to <a href=\\"https://music4dance.blog/music4dance-help/tag-editing/\\">tag songs</a>, <a href=\\"https://music4dance.blog/music4dance-help/dance-tags/\\">vote on the dancability of songs</a> and <a href=\\"https://music4dance.blog/music4dance-help/add-songs/\\">add your own songs</a>. <a href=\\"/identity/account/register\\">Register today!</a> We are always working on new features for our site and special features for our registered users. </p>
+              <p><b>It's Free!</b> You'll be able to edit tags on songs and Music4Dance will remember the songs you like, edited, or even disliked. You'll alo be able to <a href=\\"https://music4dance.blog/music4dance-help/tag-editing/\\">tag songs</a>, <a href=\\"https://music4dance.blog/music4dance-help/dance-tags/\\">vote on the dancability of songs</a> and <a href=\\"https://music4dance.blog/music4dance-help/add-songs/\\">add your own songs</a>. <a href=\\"/identity/account/register\\">Register today!</a> We are always working on new features for our site and special features for our registered users. </p>
               <p> Once you've signed up, please consider <a href=\\"https://music4dance.blog/music4dance-help/subscriptions/\\">purchasing a premium</a> subscriptions. This is one of the ways that you can help <a href=\\"/home/contribute\\">support the music4dance project</a> (and you never have to look at ads on the site again - well, at least as long as your subscription lasts). </p>
+              </p>
+            </div>
+          </div>
+          <!---->
+          <!---->
+        </div>
+        <div class=\\"card mb-1\\">
+          <!---->
+          <!---->
+          <div class=\\"card-header p-1\\" header-tag=\\"header\\" role=\\"tab\\"><button class=\\"btn btn-md btn-primary btn-block collapsed\\" type=\\"button\\" aria-controls=\\"accordion-3b\\" aria-expanded=\\"false\\">Why should I purchase a subscription to music4dance.net?</button></div>
+          <div id=\\"accordion-3b\\" class=\\"collapse\\" is-nav=\\"false\\" accordion=\\"my-accordion\\" role=\\"tabpanel\\">
+            <div class=\\"card-body\\">
+              <!---->
+              <!---->
+              <p class=\\"card-text\\">
+              <p><a href=\\"https://music4dance.blog/music4dance-help/subscriptions/\\">Purchasing a premium subscription</a> is one of the ways that you can help <a href=\\"/home/contribute\\">support the music4dance project.</a> It currently costs us more to keep the website running than we collect in advertising, referal and subscription fees. So if you enjoy using this site, please consider purchasing a <a href=\\"/home/contribute\\">subscription or donating</a>. </p>
+              <p> There are some additional <a href=\\"https://music4dance.blog/music4dance-help/subscriptions/\\">perks</a> that come with a subscription: </p>
+              <ul>
+                <li>Advertisements are removed.</li>
+                <li> You will have access to Access to <a href=\\"https://music4dance.blog/music4dance-help/bonus-content/\\">bonus content</a> – songs that we weren’t able to match to a publisher or songs that have not yet been tagged with a dance style. </li>
+                <li> You can <a href=\\"https://music4dance.blog/2019/09/22/create-a-spotify-playlist/\\">create a Spotify playlists</a> from search results. </li>
+              </ul>
               </p>
             </div>
           </div>
@@ -113,6 +135,23 @@ exports[`Faq > Renders Faq Page 1`] = `
               <p class=\\"card-text\\">
               <p> Check out the <a href=\\"/dances/wedding-music\\">wedding page</a> for information to help you get started, or you can go to the <a href=\\"/song/advancedsearchform\\">advanced search</a> page and look for songs that are tagged as First Dance and/or Wedding. </p>
               <p> If you would like more information check out our related blog posts. <a href=\\"https://music4dance.blog/wedding-music-part-i-can-we-dance-the-foxtrot-to-our-song/\\"> Wedding Music Part I: Can we dance the Foxtrot to our song?</a> and <a href=\\"https://music4dance.blog/wedding-music-part-ii-were-learning-to-rumba-help-us-find-a-good-song-for-our-first-dance/\\"> Wedding Music Part II: We’re learning to Rumba, help us find a good song for our first dance</a></p>
+              </p>
+            </div>
+          </div>
+          <!---->
+          <!---->
+        </div>
+        <div class=\\"card mb-1\\">
+          <!---->
+          <!---->
+          <div class=\\"card-header p-1\\" header-tag=\\"header\\" role=\\"tab\\"><button class=\\"btn btn-md btn-primary btn-block collapsed\\" type=\\"button\\" aria-controls=\\"accordion-update\\" aria-expanded=\\"false\\"> Why are some pages styled differently than others? </button></div>
+          <div id=\\"accordion-update\\" class=\\"collapse\\" is-nav=\\"false\\" accordion=\\"my-accordion\\" role=\\"tabpanel\\">
+            <div class=\\"card-body\\">
+              <!---->
+              <!---->
+              <p class=\\"card-text\\">
+              <p> We're currently migrating from vue.js 2.0 to vue.js 3.0 and <a href=\\"https://bootstrap-vue.org/\\" target=\\"_blank\\">bootstrap-vue</a> to <a href=\\"https://bootstrap-vue-next.github.io/bootstrap-vue-next/\\" target=\\"_blank\\">bootstrap-vue-next</a>. The new pages should look very close to the old ones, but can be readily identified by the fact that the drop-down menus are rendered white text on a black background. We would appreciate your help as we roll the changes out. Please <a href=\\"https://music4dance.blog/bug-report/\\" target=\\"_blank\\">report any bugs you find</a> and we'll do our best to keep the site stable. </p>
+              <p> This kind of update is occassionaly necessary to keep the site running. In this case, vue.js 2.0 is <a href=\\"https://v2.vuejs.org/eol/\\">no longer supported</a>. So we're forced to do a significant rewrite of the site to upgrade to Vue.js 3.0. This (and other similar updates) are quite time-consuming, so please consider <a href=\\"/home/contribute\\">subscribing or donating</a> to support these efforts. </p>
               </p>
             </div>
           </div>

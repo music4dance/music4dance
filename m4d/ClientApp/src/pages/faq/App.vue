@@ -106,8 +106,8 @@ const breadcrumbs: BreadCrumbItem[] = [...infoTrail, { text: "FAQ", active: true
           <BCardBody>
             <BCardText>
               <p>
-                It's Free! You'll be able to edit tags on songs and Music4Dance will remember the
-                songs you like, edited, or even disliked. You'll alo be able to
+                <b>It's Free!</b> You'll be able to edit tags on songs and Music4Dance will remember
+                the songs you like, edited, or even disliked. You'll alo be able to
                 <a href="https://music4dance.blog/music4dance-help/tag-editing/">tag songs</a>,
                 <a href="https://music4dance.blog/music4dance-help/dance-tags/"
                   >vote on the dancability of songs</a
@@ -127,6 +127,53 @@ const breadcrumbs: BreadCrumbItem[] = [...infoTrail, { text: "FAQ", active: true
                 (and you never have to look at ads on the site again - well, at least as long as
                 your subscription lasts).
               </p>
+            </BCardText>
+          </BCardBody>
+        </BCollapse>
+      </BCard>
+
+      <BCard no-body class="mb-1">
+        <BCardHeader header-tag="header" class="p-1" role="tab">
+          <BButton v-b-toggle.accordion-3b block variant="primary"
+            >Why should I purchase a subscription to music4dance.net?</BButton
+          >
+        </BCardHeader>
+        <BCollapse id="accordion-3b" accordion="my-accordion" role="tabpanel">
+          <BCardBody>
+            <BCardText>
+              <p>
+                <a href="https://music4dance.blog/music4dance-help/subscriptions/"
+                  >Purchasing a premium subscription</a
+                >
+                is one of the ways that you can help
+                <a href="/home/contribute">support the music4dance project.</a> It currently costs
+                us more to keep the website running than we collect in advertising, referal and
+                subscription fees. So if you enjoy using this site, please consider purchasing a
+                <a href="/home/contribute">subscription or donating</a>.
+              </p>
+              <p>
+                There are some additional
+                <a href="https://music4dance.blog/music4dance-help/subscriptions/">perks</a> that
+                come with a subscription:
+              </p>
+              <ul>
+                <li>Advertisements are removed.</li>
+                <li>
+                  You will have access to Access to
+                  <a href="https://music4dance.blog/music4dance-help/bonus-content/"
+                    >bonus content</a
+                  >
+                  – songs that we weren’t able to match to a publisher or songs that have not yet
+                  been tagged with a dance style.
+                </li>
+                <li>
+                  You can
+                  <a href="https://music4dance.blog/2019/09/22/create-a-spotify-playlist/"
+                    >create a Spotify playlists</a
+                  >
+                  from search results.
+                </li>
+              </ul>
             </BCardText>
           </BCardBody>
         </BCollapse>
@@ -225,7 +272,39 @@ const breadcrumbs: BreadCrumbItem[] = [...infoTrail, { text: "FAQ", active: true
           </BCardBody>
         </BCollapse>
       </BCard>
-
+      <BCard no-body class="mb-1">
+        <BCardHeader header-tag="header" class="p-1" role="tab">
+          <BButton v-b-toggle.accordion-update block variant="primary">
+            Why are some pages styled differently than others?
+          </BButton>
+        </BCardHeader>
+        <BCollapse id="accordion-update" accordion="my-accordion" role="tabpanel">
+          <BCardBody>
+            <BCardText>
+              <p>
+                We're currently migrating from vue.js 2.0 to vue.js 3.0 and
+                <a href="https://bootstrap-vue.org/" target="_blank">bootstrap-vue</a> to
+                <a href="https://bootstrap-vue-next.github.io/bootstrap-vue-next/" target="_blank"
+                  >bootstrap-vue-next</a
+                >. The new pages should look very close to the old ones, but can be readily
+                identified by the fact that the drop-down menus are rendered white text on a black
+                background. We would appreciate your help as we roll the changes out. Please
+                <a href="https://music4dance.blog/bug-report/" target="_blank"
+                  >report any bugs you find</a
+                >
+                and we'll do our best to keep the site stable.
+              </p>
+              <p>
+                This kind of update is occassionaly necessary to keep the site running. In this
+                case, vue.js 2.0 is <a href="https://v2.vuejs.org/eol/">no longer supported</a>. So
+                we're forced to do a significant rewrite of the site to upgrade to Vue.js 3.0. This
+                (and other similar updates) are quite time-consuming, so please consider
+                <a href="/home/contribute">subscribing or donating</a> to support these efforts.
+              </p>
+            </BCardText>
+          </BCardBody>
+        </BCollapse>
+      </BCard>
       <BCard no-body class="mb-1">
         <BCardHeader header-tag="header" class="p-1" role="tab">
           <BButton v-b-toggle.accordion-7 block variant="primary">
