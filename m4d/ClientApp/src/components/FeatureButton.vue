@@ -35,9 +35,9 @@ const safeVariant = computed(() => {
 </script>
 
 <template>
-  <b-button v-if="link" :variant="safeVariant" size="sm" style="margin-left: 1em" :href="reference">
+  <BButton v-if="link" :variant="safeVariant" size="sm" style="margin-left: 1em" :href="reference">
     <IBiPlay v-if="type == 'play'" /><IBiFileText v-else-if="type == 'docs'" /><IBiPencilSquare
       v-else
     />&nbsp;{{ title }}
-  </b-button>
+  </BButton>
 </template>

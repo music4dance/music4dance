@@ -70,7 +70,7 @@ function tagLink(key: string): string {
 <template>
   <div>
     <!-- INT-TODO: Add back in foot-clone -->
-    <b-table striped hover :items="rows" :fields="fields" responsive>
+    <BTable striped hover :items="rows" :fields="fields" responsive>
       <template #head(dance)="data">{{ data.field.label }}</template>
 
       <template #head()="data">
@@ -92,16 +92,16 @@ function tagLink(key: string): string {
 
       <template #cell()="data">
         <!-- INT-TODO: should be able to use data.value rather than calling countFromKey -->
-        <b-button
+        <BButton
           v-if="countFromKey(data.field.key, data.item as unknown as TagRow) !== '0'"
           variant="primary"
           size="sm"
           :href="danceTagLink(data.item as unknown as TagRow, data.field)"
         >
           {{ countFromKey(data.field.key, data.item as unknown as TagRow) }}
-        </b-button>
+        </BButton>
       </template>
-    </b-table>
+    </BTable>
   </div>
 </template>
 

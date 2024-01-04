@@ -21,30 +21,30 @@ exports[`Home > Renders the Home Page 1`] = `
                       <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
                     </g>
                   </svg> We’d like to dance a \\"real\\" partner dance as the first dance at our wedding (Part II: We already chose our dance)</a></li>
-              <li data-v-8758b3c2=\\"\\"><a data-v-8758b3c2=\\"\\" href=\\"https://music4dance.blog/new-feature-saving-and-sharing-searches/\\"><svg data-v-8758b3c2=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+              <li data-v-8758b3c2=\\"\\"><a data-v-8758b3c2=\\"\\" href=\\"https://music4dance.blog/how-do-i-find-the-latest-music-added-to-music4dance/\\"><svg data-v-8758b3c2=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <g fill=\\"currentColor\\">
                       <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
                       <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
                       <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
                       <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
                     </g>
-                  </svg> New Feature: Saving and Sharing Searches</a></li>
-              <li data-v-8758b3c2=\\"\\"><a data-v-8758b3c2=\\"\\" href=\\"https://music4dance.blog/how-do-you-like-to-see-lists-of-music-to-dance-to/\\"><svg data-v-8758b3c2=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                  </svg> How do I find the latest music added to music4dance?</a></li>
+              <li data-v-8758b3c2=\\"\\"><a data-v-8758b3c2=\\"\\" href=\\"https://music4dance.blog/ask-music4dance-why-am-i-listed-as-anonymous/\\"><svg data-v-8758b3c2=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <g fill=\\"currentColor\\">
                       <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
                       <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
                       <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
                       <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
                     </g>
-                  </svg> How do you like to see lists of music to dance to?</a></li>
-              <li data-v-8758b3c2=\\"\\"><a data-v-8758b3c2=\\"\\" href=\\"https://music4dance.blog/who-else-likes-to-dance-to-this-song-and-what-do-they-dance-to-it/\\"><svg data-v-8758b3c2=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                  </svg> Ask music4dance: Why am I listed as Anonymous?</a></li>
+              <li data-v-8758b3c2=\\"\\"><a data-v-8758b3c2=\\"\\" href=\\"https://music4dance.blog/new-feature-searching-for-only-the-songs-that-someone-has-voted-for/\\"><svg data-v-8758b3c2=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <g fill=\\"currentColor\\">
                       <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
                       <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
                       <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
                       <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
                     </g>
-                  </svg> Who else likes to dance to this song (and what do they dance to it)?</a></li>
+                  </svg> New Feature: Searching for only the songs that someone has voted for</a></li>
               <li data-v-8758b3c2=\\"\\"><a data-v-8758b3c2=\\"\\" href=\\"/home/counter\\"><svg data-v-8758b3c2=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <g fill=\\"currentColor\\">
                       <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>

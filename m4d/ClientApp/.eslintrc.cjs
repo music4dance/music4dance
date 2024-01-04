@@ -11,7 +11,11 @@ module.exports = {
   ],
   rules: {
     "vue/no-v-html": "off",
-    "vue/component-name-in-template-casing": ["error", "PascalCase"],
+    "vue/component-name-in-template-casing": [
+      "error",
+      "PascalCase",
+      { registeredComponentsOnly: false },
+    ],
   },
   parserOptions: {
     ecmaVersion: "latest",

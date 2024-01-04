@@ -294,7 +294,7 @@ namespace m4d.Controllers
         [AllowAnonymous]
         public ActionResult AdvancedSearchForm()
         {
-            return Vue(
+            return Vue3(
                 "Advanced Search",
                 $"music4dance advanced song search form: {Filter.Description}",
                 "advanced-search", helpPage: "advanced-search",

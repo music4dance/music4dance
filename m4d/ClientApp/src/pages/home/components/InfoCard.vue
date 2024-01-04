@@ -3,7 +3,6 @@ import BlogTagLink from "@/components/BlogTagLink.vue";
 import { type Link } from "@/models/Link";
 import InfoLink from "./InfoLink.vue";
 
-// TODONEXT: add test
 export interface CardInfo {
   title: Link;
   image: string;

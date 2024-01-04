@@ -218,6 +218,7 @@ namespace m4d.ViewModels
                                 }
                             }
                         },
+                        new() { Title = "Country Western Dance Music", Reference = "dances/country", Crawl = true },
                         new() { Title = "Wedding Music", Reference = "dances/wedding-music", Crawl = true },
                         new() { Title = "Holiday Music", Reference = "song/holidaymusic", Crawl = true },
                         new()

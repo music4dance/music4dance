@@ -1,7 +1,8 @@
-import { DanceEnvironment } from "./DanceEnvironment";
-import type { DanceStats } from "./DanceStats";
+import type { DanceDatabase } from "./DanceDatabase";
+import { DanceGroup } from "./DanceGroup";
+import type { NamedObject } from "./NamedObject";
 
-declare const environment: DanceEnvironment;
+declare const danceDatabase: DanceDatabase;
 
 export class DanceQueryBase {
   public get danceList(): string[] {
@@ -12,8 +13,8 @@ export class DanceQueryBase {
     return false;
   }
 
-  public get dances(): DanceStats[] {
-    return this.danceList.map((id) => environment!.fromId(id)!);
+  public get dances(): NamedObject[] {
+    return this.danceList.map((id) => danceDatabase.fromId(id)!);
   }
 
   public get danceNames(): string[] {
@@ -21,7 +22,7 @@ export class DanceQueryBase {
   }
 
   public get singleDance(): boolean {
-    return this.danceList.length === 1 && !this.dances[0].isGroup;
+    return this.danceList.length === 1 && !DanceGroup.isGroup(this.dances[0]);
   }
 
   public get isSimple(): boolean {

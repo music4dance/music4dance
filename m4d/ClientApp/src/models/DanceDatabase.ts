@@ -58,6 +58,10 @@ export class DanceDatabase {
     return this.all.find((x) => x.id === id);
   }
 
+  public fromName(name: string): NamedObject | undefined {
+    return this.all.find((x) => x.name === name);
+  }
+
   private onDeserialized(): void {
     for (const group of this.groups) {
       group.dances = group.danceIds.map((id) => this.dances.find((d) => d.id === id)!);

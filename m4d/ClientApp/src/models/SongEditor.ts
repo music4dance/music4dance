@@ -1,12 +1,12 @@
 import { DanceRatingDelta, DanceRatingVote, VoteDirection } from "./DanceRatingDelta";
 import type { AxiosInstance } from "axios";
-import { DanceEnvironment } from "./DanceEnvironment";
+import type { DanceDatabase } from "./DanceDatabase";
 import { Song } from "./Song";
 import { SongHistory } from "./SongHistory";
 import { PropertyType, type PropertyValue, SongProperty } from "./SongProperty";
 import { TrackModel } from "./TrackModel";
 
-declare const environment: DanceEnvironment;
+declare const danceDatabase: DanceDatabase;
 
 export class SongEditor {
   public songId: string;
@@ -214,7 +214,7 @@ export class SongEditor {
   }
 
   private setVoteProperties(danceId: string, positive?: boolean, negative?: boolean): void {
-    const posTag = `${environment.fromId(danceId)!.name}:Dance`;
+    const posTag = `${danceDatabase.fromId(danceId)!.name}:Dance`;
     const negTag = "!" + posTag;
 
     if (positive === true) {

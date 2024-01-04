@@ -1,10 +1,10 @@
 import { jsonMember, jsonObject } from "typedjson";
-import { DanceEnvironment } from "./DanceEnvironment";
-import type { DanceStats } from "./DanceStats";
+import type { DanceDatabase } from "./DanceDatabase";
 import { Tag, TagCategory } from "./Tag";
 import { TaggableObject } from "./TaggableObject";
+import type { NamedObject } from "./NamedObject";
 
-declare const environment: DanceEnvironment;
+declare const danceDatabase: DanceDatabase;
 
 @jsonObject
 export class DanceRating extends TaggableObject {
@@ -17,7 +17,7 @@ export class DanceRating extends TaggableObject {
     }
     const decorated = tag.value.match(/^[!\-+].*/);
     const value = decorated ? tag.value.substr(1) : tag.value;
-    const dance = environment.fromName(value);
+    const dance = danceDatabase.fromName(value);
     if (!dance) {
       throw new Error(`Couldn't find dance ${value}`);
     }
@@ -44,18 +44,18 @@ export class DanceRating extends TaggableObject {
   }
 
   public get positiveTag(): Tag {
-    return Tag.fromParts(this.stats.name, TagCategory.Dance);
+    return Tag.fromParts(this.dance.name, TagCategory.Dance);
   }
 
   public get negativeTag(): Tag {
-    return Tag.fromParts("!" + this.stats.name, TagCategory.Dance);
+    return Tag.fromParts("!" + this.dance.name, TagCategory.Dance);
   }
 
   public get description(): string {
-    return environment.fromId(this.danceId)!.name;
+    return danceDatabase.fromId(this.danceId)!.name;
   }
 
-  public get stats(): DanceStats {
-    return environment.fromId(this.danceId)!;
+  public get dance(): NamedObject {
+    return danceDatabase.fromId(this.danceId)!;
   }
 }
