@@ -19,11 +19,22 @@ export class DanceInstance extends DanceObject {
     // First - if any choice doesn't have an explicit exception,
     //  just return the instance tempo range
     const excs = this.exceptionsFromOrganization(organizations);
-    if (excs.length !== organizations.length) {
+    if (!excs.length) {
       return this.tempoRange;
     }
 
-    let ret: TempoRange | undefined;
+    // INT-TODO: We can simplify this if we get rid of the second part of the organization
+    // If there is an organization that isn't included in the exceptions, include the instance tempo range
+    const includeTop = !!organizations
+      .map((o) => o.split("-")[0])
+      .find(
+        (o) =>
+          !excs.find(
+            (e) => e.organization.toLocaleLowerCase() === o.toLocaleLowerCase()
+          )
+      );
+    let ret: TempoRange | undefined = includeTop ? this.tempoRange : undefined;
+
     for (const exc of excs) {
       if (!exc.tempoRange) {
         continue;

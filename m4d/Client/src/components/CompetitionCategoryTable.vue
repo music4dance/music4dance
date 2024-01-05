@@ -13,27 +13,13 @@
           data.value
         }}</a>
       </template>
-      <template v-slot:cell(ndca-1)="data">
-        <a :href="filteredTempoLink(data.item, 'ndca-1')">{{ data.value }}</a>
-      </template>
-      <template v-slot:cell(ndca-2)="data">
-        <a :href="filteredTempoLink(data.item, 'ndca-2')">{{ data.value }}</a>
+      <template v-slot:cell(ndca)="data">
+        <a :href="filteredTempoLink(data.item, 'ndca')">{{ data.value }}</a>
       </template>
       <template v-slot:cell(tempoRange)="data">
         <a :href="defaultTempoLink(data.item)">{{ data.value }}</a>
       </template>
     </b-table>
-    <p v-if="isMixed">
-      (*) A short explanation of the NDCA (<a
-        href="https://www.ndca.org/pages/ndca_rule_book/Default.asp"
-        >National Dance Council of America)</a
-      >
-      columns: For American style dances the "A" column contains Tempi for
-      Silver and Gold levels while the "B" column contains Tempi for Bronze
-      level. For International style dances the "A" column contains Tempi for
-      Professional and Amateur couples while the "B" column contains Tempi for
-      Pro/Am couples.
-    </p>
   </div>
 </template>
 
@@ -78,16 +64,10 @@ export default Vue.extend({
             item.filteredTempo(["dancesport"])!.mpm(item.meter.numerator),
         },
         {
-          key: "ndca-1",
-          label: this.ndcaATitle,
+          key: "ndca",
+          label: "NDCA",
           formatter: (value: null, key: string, item: DanceInstance) =>
-            item.filteredTempo(["ndca-1"])!.mpm(item.meter.numerator),
-        },
-        {
-          key: "ndca-2",
-          label: this.ndcaBTitle,
-          formatter: (value: null, key: string, item: DanceInstance) =>
-            item.filteredTempo(["ndca-2"])!.mpm(item.meter.numerator),
+            item.filteredTempo(["ndca"])!.mpm(item.meter.numerator),
         },
         {
           key: "tempoRange",
@@ -99,40 +79,6 @@ export default Vue.extend({
           formatter: (value: Meter) => value.toString(),
         },
       ];
-    },
-    ndcaATitle(): string {
-      const family = this.styleFamily;
-      switch (family) {
-        case "American":
-          return "NDCA Silver/Gold";
-        case "International":
-          return "NDCA Professional or Amateur";
-        default:
-          return "NDCA A(*)";
-      }
-    },
-    ndcaBTitle(): string {
-      const family = this.styleFamily;
-      switch (family) {
-        case "American":
-          return "NDCA Bronze";
-        case "International":
-          return "NDCA Pro/Am";
-        default:
-          return "NDCA B(*)";
-      }
-    },
-    styleFamily(): string {
-      if (!this.dances || this.dances.length === 0) {
-        return "both";
-      }
-      const family = this.dances[0].styleFamily;
-      return this.dances.every((d) => d.styleFamily === family)
-        ? family
-        : "Both";
-    },
-    isMixed(): boolean {
-      return this.styleFamily === "Both";
     },
   },
   methods: {

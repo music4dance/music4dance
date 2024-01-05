@@ -115,7 +115,7 @@ exports[`CompetitionCategory.vue renders a competition category page 1`] = `
         <div>
           <h4>An American Smooth four dance round consists of the following:</h4>
           <div class="table-responsive">
-            <table role="table" aria-busy="false" aria-colcount="7" class="table b-table table-striped table-hover">
+            <table role="table" aria-busy="false" aria-colcount="6" class="table b-table table-striped table-hover">
               <!---->
               <!---->
               <thead role="rowgroup" class="">
@@ -131,15 +131,12 @@ exports[`CompetitionCategory.vue renders a competition category page 1`] = `
                     <div>DanceSport</div>
                   </th>
                   <th role="columnheader" scope="col" aria-colindex="4" class="">
-                    <div>NDCA Silver/Gold</div>
+                    <div>NDCA</div>
                   </th>
                   <th role="columnheader" scope="col" aria-colindex="5" class="">
-                    <div>NDCA Bronze</div>
-                  </th>
-                  <th role="columnheader" scope="col" aria-colindex="6" class="">
                     <div>BPM</div>
                   </th>
-                  <th role="columnheader" scope="col" aria-colindex="7" class="">
+                  <th role="columnheader" scope="col" aria-colindex="6" class="">
                     <div>Meter</div>
                   </th>
                 </tr>
@@ -151,36 +148,32 @@ exports[`CompetitionCategory.vue renders a competition category page 1`] = `
                   <td aria-colindex="2" role="cell" class=""><a href="/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90">28-30</a></td>
                   <td aria-colindex="3" role="cell" class=""><a href="/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90">28-30</a></td>
                   <td aria-colindex="4" role="cell" class=""><a href="/song/advancedsearch?dances=SWZ&amp;tempomin=90&amp;tempomax=96">30-32</a></td>
-                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90">28-30</a></td>
-                  <td aria-colindex="6" role="cell" class=""><a href="/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90">84-90</a></td>
-                  <td aria-colindex="7" role="cell" class="">3/4</td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90">84-90</a></td>
+                  <td aria-colindex="6" role="cell" class="">3/4</td>
                 </tr>
                 <tr role="row" class="">
                   <td aria-colindex="1" role="cell" class=""><a href="tango-(ballroom)">Tango (Ballroom)</a></td>
                   <td aria-colindex="2" role="cell" class=""><a href="/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=120">30</a></td>
                   <td aria-colindex="3" role="cell" class=""><a href="/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=120">30</a></td>
                   <td aria-colindex="4" role="cell" class=""><a href="/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=128">30-32</a></td>
-                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=120">30</a></td>
-                  <td aria-colindex="6" role="cell" class=""><a href="/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=120">120</a></td>
-                  <td aria-colindex="7" role="cell" class="">4/4</td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=120">120</a></td>
+                  <td aria-colindex="6" role="cell" class="">4/4</td>
                 </tr>
                 <tr role="row" class="">
                   <td aria-colindex="1" role="cell" class=""><a href="slow-foxtrot">Slow Foxtrot</a></td>
                   <td aria-colindex="2" role="cell" class=""><a href="/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=136">30-34</a></td>
                   <td aria-colindex="3" role="cell" class=""><a href="/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=128">30-32</a></td>
-                  <td aria-colindex="4" role="cell" class=""><a href="/song/advancedsearch?dances=SFT&amp;tempomin=128&amp;tempomax=136">32-34</a></td>
-                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=120">30</a></td>
-                  <td aria-colindex="6" role="cell" class=""><a href="/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=136">120-136</a></td>
-                  <td aria-colindex="7" role="cell" class="">4/4</td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=136">30-34</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=136">120-136</a></td>
+                  <td aria-colindex="6" role="cell" class="">4/4</td>
                 </tr>
                 <tr role="row" class="">
                   <td aria-colindex="1" role="cell" class=""><a href="viennese-waltz">Viennese Waltz</a></td>
                   <td aria-colindex="2" role="cell" class=""><a href="/song/advancedsearch?dances=VWZ&amp;tempomin=159&amp;tempomax=162">53-54</a></td>
                   <td aria-colindex="3" role="cell" class=""><a href="/song/advancedsearch?dances=VWZ&amp;tempomin=159&amp;tempomax=162">53-54</a></td>
                   <td aria-colindex="4" role="cell" class=""><a href="/song/advancedsearch?dances=VWZ&amp;tempomin=162&amp;tempomax=162">54</a></td>
-                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=VWZ&amp;tempomin=159&amp;tempomax=162">53-54</a></td>
-                  <td aria-colindex="6" role="cell" class=""><a href="/song/advancedsearch?dances=VWZ&amp;tempomin=159&amp;tempomax=162">159-162</a></td>
-                  <td aria-colindex="7" role="cell" class="">3/4</td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=VWZ&amp;tempomin=159&amp;tempomax=162">159-162</a></td>
+                  <td aria-colindex="6" role="cell" class="">3/4</td>
                 </tr>
                 <!---->
                 <!---->
@@ -188,7 +181,6 @@ exports[`CompetitionCategory.vue renders a competition category page 1`] = `
               <!---->
             </table>
           </div>
-          <!---->
         </div>
       </div>
       <div>
@@ -196,7 +188,7 @@ exports[`CompetitionCategory.vue renders a competition category page 1`] = `
         <div>
           <h4>An International Standard five dance round consists of the following:</h4>
           <div class="table-responsive">
-            <table role="table" aria-busy="false" aria-colcount="7" class="table b-table table-striped table-hover">
+            <table role="table" aria-busy="false" aria-colcount="6" class="table b-table table-striped table-hover">
               <!---->
               <!---->
               <thead role="rowgroup" class="">
@@ -212,15 +204,12 @@ exports[`CompetitionCategory.vue renders a competition category page 1`] = `
                     <div>DanceSport</div>
                   </th>
                   <th role="columnheader" scope="col" aria-colindex="4" class="">
-                    <div>NDCA Professional or Amateur</div>
+                    <div>NDCA</div>
                   </th>
                   <th role="columnheader" scope="col" aria-colindex="5" class="">
-                    <div>NDCA Pro/Am</div>
-                  </th>
-                  <th role="columnheader" scope="col" aria-colindex="6" class="">
                     <div>BPM</div>
                   </th>
-                  <th role="columnheader" scope="col" aria-colindex="7" class="">
+                  <th role="columnheader" scope="col" aria-colindex="6" class="">
                     <div>Meter</div>
                   </th>
                 </tr>
@@ -231,46 +220,41 @@ exports[`CompetitionCategory.vue renders a competition category page 1`] = `
                   <td aria-colindex="1" role="cell" class=""><a href="slow-waltz">Slow Waltz</a></td>
                   <td aria-colindex="2" role="cell" class=""><a href="/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90">28-30</a></td>
                   <td aria-colindex="3" role="cell" class=""><a href="/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90">28-30</a></td>
-                  <td aria-colindex="4" role="cell" class=""><a href="/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90">28-30</a></td>
-                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=84">28</a></td>
-                  <td aria-colindex="6" role="cell" class=""><a href="/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90">84-90</a></td>
-                  <td aria-colindex="7" role="cell" class="">3/4</td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=84">28</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90">84-90</a></td>
+                  <td aria-colindex="6" role="cell" class="">3/4</td>
                 </tr>
                 <tr role="row" class="">
                   <td aria-colindex="1" role="cell" class=""><a href="tango-(ballroom)">Tango (Ballroom)</a></td>
                   <td aria-colindex="2" role="cell" class=""><a href="/song/advancedsearch?dances=TGO&amp;tempomin=128&amp;tempomax=128">32</a></td>
                   <td aria-colindex="3" role="cell" class=""><a href="/song/advancedsearch?dances=TGO&amp;tempomin=124&amp;tempomax=132">31-33</a></td>
                   <td aria-colindex="4" role="cell" class=""><a href="/song/advancedsearch?dances=TGO&amp;tempomin=128&amp;tempomax=128">32</a></td>
-                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=TGO&amp;tempomin=128&amp;tempomax=128">32</a></td>
-                  <td aria-colindex="6" role="cell" class=""><a href="/song/advancedsearch?dances=TGO&amp;tempomin=128&amp;tempomax=128">128</a></td>
-                  <td aria-colindex="7" role="cell" class="">4/4</td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=TGO&amp;tempomin=128&amp;tempomax=128">128</a></td>
+                  <td aria-colindex="6" role="cell" class="">4/4</td>
                 </tr>
                 <tr role="row" class="">
                   <td aria-colindex="1" role="cell" class=""><a href="viennese-waltz">Viennese Waltz</a></td>
                   <td aria-colindex="2" role="cell" class=""><a href="/song/advancedsearch?dances=VWZ&amp;tempomin=168&amp;tempomax=174">56-58</a></td>
                   <td aria-colindex="3" role="cell" class=""><a href="/song/advancedsearch?dances=VWZ&amp;tempomin=174&amp;tempomax=180">58-60</a></td>
                   <td aria-colindex="4" role="cell" class=""><a href="/song/advancedsearch?dances=VWZ&amp;tempomin=168&amp;tempomax=174">56-58</a></td>
-                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=VWZ&amp;tempomin=168&amp;tempomax=174">56-58</a></td>
-                  <td aria-colindex="6" role="cell" class=""><a href="/song/advancedsearch?dances=VWZ&amp;tempomin=168&amp;tempomax=174">168-174</a></td>
-                  <td aria-colindex="7" role="cell" class="">3/4</td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=VWZ&amp;tempomin=168&amp;tempomax=174">168-174</a></td>
+                  <td aria-colindex="6" role="cell" class="">3/4</td>
                 </tr>
                 <tr role="row" class="">
                   <td aria-colindex="1" role="cell" class=""><a href="slow-foxtrot">Slow Foxtrot</a></td>
                   <td aria-colindex="2" role="cell" class=""><a href="/song/advancedsearch?dances=SFT&amp;tempomin=112&amp;tempomax=120">28-30</a></td>
                   <td aria-colindex="3" role="cell" class=""><a href="/song/advancedsearch?dances=SFT&amp;tempomin=112&amp;tempomax=120">28-30</a></td>
                   <td aria-colindex="4" role="cell" class=""><a href="/song/advancedsearch?dances=SFT&amp;tempomin=112&amp;tempomax=120">28-30</a></td>
-                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=SFT&amp;tempomin=112&amp;tempomax=120">28-30</a></td>
-                  <td aria-colindex="6" role="cell" class=""><a href="/song/advancedsearch?dances=SFT&amp;tempomin=112&amp;tempomax=120">112-120</a></td>
-                  <td aria-colindex="7" role="cell" class="">4/4</td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=SFT&amp;tempomin=112&amp;tempomax=120">112-120</a></td>
+                  <td aria-colindex="6" role="cell" class="">4/4</td>
                 </tr>
                 <tr role="row" class="">
                   <td aria-colindex="1" role="cell" class=""><a href="quickstep">Quickstep</a></td>
                   <td aria-colindex="2" role="cell" class=""><a href="/song/advancedsearch?dances=QST&amp;tempomin=192&amp;tempomax=208">48-52</a></td>
                   <td aria-colindex="3" role="cell" class=""><a href="/song/advancedsearch?dances=QST&amp;tempomin=200&amp;tempomax=208">50-52</a></td>
                   <td aria-colindex="4" role="cell" class=""><a href="/song/advancedsearch?dances=QST&amp;tempomin=192&amp;tempomax=208">48-52</a></td>
-                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=QST&amp;tempomin=192&amp;tempomax=208">48-52</a></td>
-                  <td aria-colindex="6" role="cell" class=""><a href="/song/advancedsearch?dances=QST&amp;tempomin=192&amp;tempomax=208">192-208</a></td>
-                  <td aria-colindex="7" role="cell" class="">4/4</td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=QST&amp;tempomin=192&amp;tempomax=208">192-208</a></td>
+                  <td aria-colindex="6" role="cell" class="">4/4</td>
                 </tr>
                 <!---->
                 <!---->
@@ -278,7 +262,6 @@ exports[`CompetitionCategory.vue renders a competition category page 1`] = `
               <!---->
             </table>
           </div>
-          <!---->
         </div>
       </div>
       <div>
@@ -286,7 +269,7 @@ exports[`CompetitionCategory.vue renders a competition category page 1`] = `
         <div>
           <h4>An American Rhythm five dance round consists of the following:</h4>
           <div class="table-responsive">
-            <table role="table" aria-busy="false" aria-colcount="7" class="table b-table table-striped table-hover">
+            <table role="table" aria-busy="false" aria-colcount="6" class="table b-table table-striped table-hover">
               <!---->
               <!---->
               <thead role="rowgroup" class="">
@@ -302,15 +285,12 @@ exports[`CompetitionCategory.vue renders a competition category page 1`] = `
                     <div>DanceSport</div>
                   </th>
                   <th role="columnheader" scope="col" aria-colindex="4" class="">
-                    <div>NDCA Silver/Gold</div>
+                    <div>NDCA</div>
                   </th>
                   <th role="columnheader" scope="col" aria-colindex="5" class="">
-                    <div>NDCA Bronze</div>
-                  </th>
-                  <th role="columnheader" scope="col" aria-colindex="6" class="">
                     <div>BPM</div>
                   </th>
-                  <th role="columnheader" scope="col" aria-colindex="7" class="">
+                  <th role="columnheader" scope="col" aria-colindex="6" class="">
                     <div>Meter</div>
                   </th>
                 </tr>
@@ -322,45 +302,40 @@ exports[`CompetitionCategory.vue renders a competition category page 1`] = `
                   <td aria-colindex="2" role="cell" class=""><a href="/song/advancedsearch?dances=CHA&amp;tempomin=120&amp;tempomax=120">30</a></td>
                   <td aria-colindex="3" role="cell" class=""><a href="/song/advancedsearch?dances=CHA&amp;tempomin=120&amp;tempomax=120">30</a></td>
                   <td aria-colindex="4" role="cell" class=""><a href="/song/advancedsearch?dances=CHA&amp;tempomin=120&amp;tempomax=120">30</a></td>
-                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=CHA&amp;tempomin=120&amp;tempomax=120">30</a></td>
-                  <td aria-colindex="6" role="cell" class=""><a href="/song/advancedsearch?dances=CHA&amp;tempomin=120&amp;tempomax=120">120</a></td>
-                  <td aria-colindex="7" role="cell" class="">4/4</td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=CHA&amp;tempomin=120&amp;tempomax=120">120</a></td>
+                  <td aria-colindex="6" role="cell" class="">4/4</td>
                 </tr>
                 <tr role="row" class="">
                   <td aria-colindex="1" role="cell" class=""><a href="rumba">Rumba</a></td>
                   <td aria-colindex="2" role="cell" class=""><a href="/song/advancedsearch?dances=RMB&amp;tempomin=120&amp;tempomax=144">30-36</a></td>
                   <td aria-colindex="3" role="cell" class=""><a href="/song/advancedsearch?dances=RMB&amp;tempomin=120&amp;tempomax=136">30-34</a></td>
-                  <td aria-colindex="4" role="cell" class=""><a href="/song/advancedsearch?dances=RMB&amp;tempomin=120&amp;tempomax=128">30-32</a></td>
-                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=RMB&amp;tempomin=128&amp;tempomax=144">32-36</a></td>
-                  <td aria-colindex="6" role="cell" class=""><a href="/song/advancedsearch?dances=RMB&amp;tempomin=120&amp;tempomax=144">120-144</a></td>
-                  <td aria-colindex="7" role="cell" class="">4/4</td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/song/advancedsearch?dances=RMB&amp;tempomin=120&amp;tempomax=144">30-36</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=RMB&amp;tempomin=120&amp;tempomax=144">120-144</a></td>
+                  <td aria-colindex="6" role="cell" class="">4/4</td>
                 </tr>
                 <tr role="row" class="">
                   <td aria-colindex="1" role="cell" class=""><a href="east-coast-swing">East Coast Swing</a></td>
                   <td aria-colindex="2" role="cell" class=""><a href="/song/advancedsearch?dances=ECS&amp;tempomin=136&amp;tempomax=144">34-36</a></td>
                   <td aria-colindex="3" role="cell" class=""><a href="/song/advancedsearch?dances=ECS&amp;tempomin=136&amp;tempomax=144">34-36</a></td>
-                  <td aria-colindex="4" role="cell" class=""><a href="/song/advancedsearch?dances=ECS&amp;tempomin=136&amp;tempomax=144">34-36</a></td>
-                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=ECS&amp;tempomin=144&amp;tempomax=144">36</a></td>
-                  <td aria-colindex="6" role="cell" class=""><a href="/song/advancedsearch?dances=ECS&amp;tempomin=136&amp;tempomax=144">136-144</a></td>
-                  <td aria-colindex="7" role="cell" class="">4/4</td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/song/advancedsearch?dances=ECS&amp;tempomin=144&amp;tempomax=144">36</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=ECS&amp;tempomin=136&amp;tempomax=144">136-144</a></td>
+                  <td aria-colindex="6" role="cell" class="">4/4</td>
                 </tr>
                 <tr role="row" class="">
                   <td aria-colindex="1" role="cell" class=""><a href="bolero">Bolero</a></td>
                   <td aria-colindex="2" role="cell" class=""><a href="/song/advancedsearch?dances=BOL&amp;tempomin=96&amp;tempomax=104">24-26</a></td>
                   <td aria-colindex="3" role="cell" class=""><a href="/song/advancedsearch?dances=BOL&amp;tempomin=96&amp;tempomax=104">24-26</a></td>
-                  <td aria-colindex="4" role="cell" class=""><a href="/song/advancedsearch?dances=BOL&amp;tempomin=96&amp;tempomax=104">24-26</a></td>
-                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=BOL&amp;tempomin=96&amp;tempomax=96">24</a></td>
-                  <td aria-colindex="6" role="cell" class=""><a href="/song/advancedsearch?dances=BOL&amp;tempomin=96&amp;tempomax=104">96-104</a></td>
-                  <td aria-colindex="7" role="cell" class="">4/4</td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/song/advancedsearch?dances=BOL&amp;tempomin=96&amp;tempomax=96">24</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=BOL&amp;tempomin=96&amp;tempomax=104">96-104</a></td>
+                  <td aria-colindex="6" role="cell" class="">4/4</td>
                 </tr>
                 <tr role="row" class="">
                   <td aria-colindex="1" role="cell" class=""><a href="mambo">Mambo</a></td>
                   <td aria-colindex="2" role="cell" class=""><a href="/song/advancedsearch?dances=MBO&amp;tempomin=188&amp;tempomax=204">47-51</a></td>
                   <td aria-colindex="3" role="cell" class=""><a href="/song/advancedsearch?dances=MBO&amp;tempomin=188&amp;tempomax=204">47-51</a></td>
-                  <td aria-colindex="4" role="cell" class=""><a href="/song/advancedsearch?dances=MBO&amp;tempomin=192&amp;tempomax=204">48-51</a></td>
-                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=MBO&amp;tempomin=188&amp;tempomax=188">47</a></td>
-                  <td aria-colindex="6" role="cell" class=""><a href="/song/advancedsearch?dances=MBO&amp;tempomin=188&amp;tempomax=204">188-204</a></td>
-                  <td aria-colindex="7" role="cell" class="">4/4</td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/song/advancedsearch?dances=MBO&amp;tempomin=188&amp;tempomax=204">47-51</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=MBO&amp;tempomin=188&amp;tempomax=204">188-204</a></td>
+                  <td aria-colindex="6" role="cell" class="">4/4</td>
                 </tr>
                 <!---->
                 <!---->
@@ -368,7 +343,6 @@ exports[`CompetitionCategory.vue renders a competition category page 1`] = `
               <!---->
             </table>
           </div>
-          <!---->
         </div>
       </div>
       <div>
@@ -376,7 +350,7 @@ exports[`CompetitionCategory.vue renders a competition category page 1`] = `
         <div>
           <h4>An International Latin five dance round consists of the following:</h4>
           <div class="table-responsive">
-            <table role="table" aria-busy="false" aria-colcount="7" class="table b-table table-striped table-hover">
+            <table role="table" aria-busy="false" aria-colcount="6" class="table b-table table-striped table-hover">
               <!---->
               <!---->
               <thead role="rowgroup" class="">
@@ -392,15 +366,12 @@ exports[`CompetitionCategory.vue renders a competition category page 1`] = `
                     <div>DanceSport</div>
                   </th>
                   <th role="columnheader" scope="col" aria-colindex="4" class="">
-                    <div>NDCA Professional or Amateur</div>
+                    <div>NDCA</div>
                   </th>
                   <th role="columnheader" scope="col" aria-colindex="5" class="">
-                    <div>NDCA Pro/Am</div>
-                  </th>
-                  <th role="columnheader" scope="col" aria-colindex="6" class="">
                     <div>BPM</div>
                   </th>
-                  <th role="columnheader" scope="col" aria-colindex="7" class="">
+                  <th role="columnheader" scope="col" aria-colindex="6" class="">
                     <div>Meter</div>
                   </th>
                 </tr>
@@ -412,45 +383,40 @@ exports[`CompetitionCategory.vue renders a competition category page 1`] = `
                   <td aria-colindex="2" role="cell" class=""><a href="/song/advancedsearch?dances=CHA&amp;tempomin=124&amp;tempomax=124">31</a></td>
                   <td aria-colindex="3" role="cell" class=""><a href="/song/advancedsearch?dances=CHA&amp;tempomin=120&amp;tempomax=128">30-32</a></td>
                   <td aria-colindex="4" role="cell" class=""><a href="/song/advancedsearch?dances=CHA&amp;tempomin=124&amp;tempomax=124">31</a></td>
-                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=CHA&amp;tempomin=124&amp;tempomax=124">31</a></td>
-                  <td aria-colindex="6" role="cell" class=""><a href="/song/advancedsearch?dances=CHA&amp;tempomin=124&amp;tempomax=124">124</a></td>
-                  <td aria-colindex="7" role="cell" class="">4/4</td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=CHA&amp;tempomin=124&amp;tempomax=124">124</a></td>
+                  <td aria-colindex="6" role="cell" class="">4/4</td>
                 </tr>
                 <tr role="row" class="">
                   <td aria-colindex="1" role="cell" class=""><a href="samba">Samba</a></td>
                   <td aria-colindex="2" role="cell" class=""><a href="/song/advancedsearch?dances=SMB&amp;tempomin=96&amp;tempomax=104">48-52</a></td>
                   <td aria-colindex="3" role="cell" class=""><a href="/song/advancedsearch?dances=SMB&amp;tempomin=100&amp;tempomax=104">50-52</a></td>
                   <td aria-colindex="4" role="cell" class=""><a href="/song/advancedsearch?dances=SMB&amp;tempomin=96&amp;tempomax=100">48-50</a></td>
-                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=SMB&amp;tempomin=100&amp;tempomax=100">50</a></td>
-                  <td aria-colindex="6" role="cell" class=""><a href="/song/advancedsearch?dances=SMB&amp;tempomin=96&amp;tempomax=104">96-104</a></td>
-                  <td aria-colindex="7" role="cell" class="">2/4</td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=SMB&amp;tempomin=96&amp;tempomax=104">96-104</a></td>
+                  <td aria-colindex="6" role="cell" class="">2/4</td>
                 </tr>
                 <tr role="row" class="">
                   <td aria-colindex="1" role="cell" class=""><a href="rumba">Rumba</a></td>
                   <td aria-colindex="2" role="cell" class=""><a href="/song/advancedsearch?dances=RMB&amp;tempomin=100&amp;tempomax=108">25-27</a></td>
                   <td aria-colindex="3" role="cell" class=""><a href="/song/advancedsearch?dances=RMB&amp;tempomin=100&amp;tempomax=108">25-27</a></td>
-                  <td aria-colindex="4" role="cell" class=""><a href="/song/advancedsearch?dances=RMB&amp;tempomin=108&amp;tempomax=108">27</a></td>
-                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=RMB&amp;tempomin=104&amp;tempomax=104">26</a></td>
-                  <td aria-colindex="6" role="cell" class=""><a href="/song/advancedsearch?dances=RMB&amp;tempomin=100&amp;tempomax=108">100-108</a></td>
-                  <td aria-colindex="7" role="cell" class="">4/4</td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/song/advancedsearch?dances=RMB&amp;tempomin=104&amp;tempomax=108">26-27</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=RMB&amp;tempomin=100&amp;tempomax=108">100-108</a></td>
+                  <td aria-colindex="6" role="cell" class="">4/4</td>
                 </tr>
                 <tr role="row" class="">
                   <td aria-colindex="1" role="cell" class=""><a href="paso-doble">Paso Doble</a></td>
                   <td aria-colindex="2" role="cell" class=""><a href="/song/advancedsearch?dances=PDL&amp;tempomin=120&amp;tempomax=124">60-62</a></td>
                   <td aria-colindex="3" role="cell" class=""><a href="/song/advancedsearch?dances=PDL&amp;tempomin=120&amp;tempomax=124">60-62</a></td>
                   <td aria-colindex="4" role="cell" class=""><a href="/song/advancedsearch?dances=PDL&amp;tempomin=120&amp;tempomax=124">60-62</a></td>
-                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=PDL&amp;tempomin=120&amp;tempomax=124">60-62</a></td>
-                  <td aria-colindex="6" role="cell" class=""><a href="/song/advancedsearch?dances=PDL&amp;tempomin=120&amp;tempomax=124">120-124</a></td>
-                  <td aria-colindex="7" role="cell" class="">2/4</td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=PDL&amp;tempomin=120&amp;tempomax=124">120-124</a></td>
+                  <td aria-colindex="6" role="cell" class="">2/4</td>
                 </tr>
                 <tr role="row" class="">
                   <td aria-colindex="1" role="cell" class=""><a href="jive">Jive</a></td>
                   <td aria-colindex="2" role="cell" class=""><a href="/song/advancedsearch?dances=JIV&amp;tempomin=152&amp;tempomax=176">38-44</a></td>
                   <td aria-colindex="3" role="cell" class=""><a href="/song/advancedsearch?dances=JIV&amp;tempomin=168&amp;tempomax=176">42-44</a></td>
-                  <td aria-colindex="4" role="cell" class=""><a href="/song/advancedsearch?dances=JIV&amp;tempomin=152&amp;tempomax=176">38-44</a></td>
-                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=JIV&amp;tempomin=176&amp;tempomax=176">44</a></td>
-                  <td aria-colindex="6" role="cell" class=""><a href="/song/advancedsearch?dances=JIV&amp;tempomin=152&amp;tempomax=176">152-176</a></td>
-                  <td aria-colindex="7" role="cell" class="">4/4</td>
+                  <td aria-colindex="4" role="cell" class=""><a href="/song/advancedsearch?dances=JIV&amp;tempomin=176&amp;tempomax=176">44</a></td>
+                  <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=JIV&amp;tempomin=152&amp;tempomax=176">152-176</a></td>
+                  <td aria-colindex="6" role="cell" class="">4/4</td>
                 </tr>
                 <!---->
                 <!---->
@@ -458,7 +424,6 @@ exports[`CompetitionCategory.vue renders a competition category page 1`] = `
               <!---->
             </table>
           </div>
-          <!---->
         </div>
       </div>
       <dl>

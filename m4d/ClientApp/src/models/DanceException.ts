@@ -18,21 +18,7 @@ export class DanceException extends DanceObject {
 
   public matchesFilter(filter: string): boolean {
     const parts = filter.split("-");
-    if (this.organization.toLowerCase() !== parts[0].toLowerCase()) {
-      return false;
-    }
-    if (parts.length === 1) {
-      return true;
-    }
-    if (parts[1] === "1" && (this.level === "Bronze" || this.competitor === "ProAm")) {
-      return true;
-    }
-    if (
-      parts[1] === "2" &&
-      (this.level === "Silver,Gold" || this.competitor === "Professional,Amateur")
-    ) {
-      return true;
-    }
-    return false;
+    // INT-TODO: We're ignoring the second part for now, but we should just get rid of it completely
+    return this.organization.toLowerCase() === parts[0].toLowerCase();
   }
 }

@@ -49,12 +49,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                   </th>
                   <th scope=\\"col\\" class=\\"table-undefined\\">
                     <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>NDCA Silver/Gold</div>
-                    </div>
-                  </th>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>NDCA Bronze</div>
+                      <div>NDCA</div>
                     </div>
                   </th>
                   <th scope=\\"col\\" class=\\"table-undefined\\">
@@ -86,9 +81,6 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href=\\"/song/advancedsearch?dances=SWZ&amp;tempomin=90&amp;tempomax=96\\">30-32</a>
                   </td>
                   <td class=\\"table-undefined\\">
-                    <!----><a href=\\"/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90\\">28-30</a>
-                  </td>
-                  <td class=\\"table-undefined\\">
                     <!----><a href=\\"/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90\\">84-90</a>
                   </td>
                   <td class=\\"table-undefined\\">
@@ -110,9 +102,6 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href=\\"/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=128\\">30-32</a>
                   </td>
                   <td class=\\"table-undefined\\">
-                    <!----><a href=\\"/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=120\\">30</a>
-                  </td>
-                  <td class=\\"table-undefined\\">
                     <!----><a href=\\"/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=120\\">120</a>
                   </td>
                   <td class=\\"table-undefined\\">
@@ -131,10 +120,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=128\\">30-32</a>
                   </td>
                   <td class=\\"table-undefined\\">
-                    <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=128&amp;tempomax=136\\">32-34</a>
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=120\\">30</a>
+                    <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=136\\">30-34</a>
                   </td>
                   <td class=\\"table-undefined\\">
                     <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=136\\">120-136</a>
@@ -158,9 +144,6 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href=\\"/song/advancedsearch?dances=VWZ&amp;tempomin=162&amp;tempomax=162\\">54</a>
                   </td>
                   <td class=\\"table-undefined\\">
-                    <!----><a href=\\"/song/advancedsearch?dances=VWZ&amp;tempomin=159&amp;tempomax=162\\">53-54</a>
-                  </td>
-                  <td class=\\"table-undefined\\">
                     <!----><a href=\\"/song/advancedsearch?dances=VWZ&amp;tempomin=159&amp;tempomax=162\\">159-162</a>
                   </td>
                   <td class=\\"table-undefined\\">
@@ -175,7 +158,6 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
               <!---->
             </table>
           </div>
-          <!--v-if-->
         </div>
       </div>
       <div>
@@ -204,12 +186,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                   </th>
                   <th scope=\\"col\\" class=\\"table-undefined\\">
                     <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>NDCA Professional or Amateur</div>
-                    </div>
-                  </th>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>NDCA Pro/Am</div>
+                      <div>NDCA</div>
                     </div>
                   </th>
                   <th scope=\\"col\\" class=\\"table-undefined\\">
@@ -230,9 +207,6 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                 <tr class=\\"\\">
                   <td class=\\"table-undefined\\">
                     <!----><a href=\\"slow-waltz\\">International Slow Waltz</a>
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!----><a href=\\"/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90\\">28-30</a>
                   </td>
                   <td class=\\"table-undefined\\">
                     <!----><a href=\\"/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90\\">28-30</a>
@@ -265,9 +239,6 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href=\\"/song/advancedsearch?dances=TGO&amp;tempomin=128&amp;tempomax=128\\">32</a>
                   </td>
                   <td class=\\"table-undefined\\">
-                    <!----><a href=\\"/song/advancedsearch?dances=TGO&amp;tempomin=128&amp;tempomax=128\\">32</a>
-                  </td>
-                  <td class=\\"table-undefined\\">
                     <!----><a href=\\"/song/advancedsearch?dances=TGO&amp;tempomin=128&amp;tempomax=128\\">128</a>
                   </td>
                   <td class=\\"table-undefined\\">
@@ -289,9 +260,6 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href=\\"/song/advancedsearch?dances=VWZ&amp;tempomin=168&amp;tempomax=174\\">56-58</a>
                   </td>
                   <td class=\\"table-undefined\\">
-                    <!----><a href=\\"/song/advancedsearch?dances=VWZ&amp;tempomin=168&amp;tempomax=174\\">56-58</a>
-                  </td>
-                  <td class=\\"table-undefined\\">
                     <!----><a href=\\"/song/advancedsearch?dances=VWZ&amp;tempomin=168&amp;tempomax=174\\">168-174</a>
                   </td>
                   <td class=\\"table-undefined\\">
@@ -302,9 +270,6 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                 <tr class=\\"\\">
                   <td class=\\"table-undefined\\">
                     <!----><a href=\\"slow-foxtrot\\">International Slow Foxtrot</a>
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=112&amp;tempomax=120\\">28-30</a>
                   </td>
                   <td class=\\"table-undefined\\">
                     <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=112&amp;tempomax=120\\">28-30</a>
@@ -337,9 +302,6 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href=\\"/song/advancedsearch?dances=QST&amp;tempomin=192&amp;tempomax=208\\">48-52</a>
                   </td>
                   <td class=\\"table-undefined\\">
-                    <!----><a href=\\"/song/advancedsearch?dances=QST&amp;tempomin=192&amp;tempomax=208\\">48-52</a>
-                  </td>
-                  <td class=\\"table-undefined\\">
                     <!----><a href=\\"/song/advancedsearch?dances=QST&amp;tempomin=192&amp;tempomax=208\\">192-208</a>
                   </td>
                   <td class=\\"table-undefined\\">
@@ -354,7 +316,6 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
               <!---->
             </table>
           </div>
-          <!--v-if-->
         </div>
       </div>
       <div>
@@ -383,12 +344,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                   </th>
                   <th scope=\\"col\\" class=\\"table-undefined\\">
                     <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>NDCA Silver/Gold</div>
-                    </div>
-                  </th>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>NDCA Bronze</div>
+                      <div>NDCA</div>
                     </div>
                   </th>
                   <th scope=\\"col\\" class=\\"table-undefined\\">
@@ -420,9 +376,6 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href=\\"/song/advancedsearch?dances=CHA&amp;tempomin=120&amp;tempomax=120\\">30</a>
                   </td>
                   <td class=\\"table-undefined\\">
-                    <!----><a href=\\"/song/advancedsearch?dances=CHA&amp;tempomin=120&amp;tempomax=120\\">30</a>
-                  </td>
-                  <td class=\\"table-undefined\\">
                     <!----><a href=\\"/song/advancedsearch?dances=CHA&amp;tempomin=120&amp;tempomax=120\\">120</a>
                   </td>
                   <td class=\\"table-undefined\\">
@@ -441,10 +394,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href=\\"/song/advancedsearch?dances=RMB&amp;tempomin=120&amp;tempomax=136\\">30-34</a>
                   </td>
                   <td class=\\"table-undefined\\">
-                    <!----><a href=\\"/song/advancedsearch?dances=RMB&amp;tempomin=120&amp;tempomax=128\\">30-32</a>
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!----><a href=\\"/song/advancedsearch?dances=RMB&amp;tempomin=128&amp;tempomax=144\\">32-36</a>
+                    <!----><a href=\\"/song/advancedsearch?dances=RMB&amp;tempomin=120&amp;tempomax=144\\">30-36</a>
                   </td>
                   <td class=\\"table-undefined\\">
                     <!----><a href=\\"/song/advancedsearch?dances=RMB&amp;tempomin=120&amp;tempomax=144\\">120-144</a>
@@ -457,9 +407,6 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                 <tr class=\\"\\">
                   <td class=\\"table-undefined\\">
                     <!----><a href=\\"east-coast-swing\\">American East Coast Swing</a>
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!----><a href=\\"/song/advancedsearch?dances=ECS&amp;tempomin=136&amp;tempomax=144\\">34-36</a>
                   </td>
                   <td class=\\"table-undefined\\">
                     <!----><a href=\\"/song/advancedsearch?dances=ECS&amp;tempomin=136&amp;tempomax=144\\">34-36</a>
@@ -489,9 +436,6 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href=\\"/song/advancedsearch?dances=BOL&amp;tempomin=96&amp;tempomax=104\\">24-26</a>
                   </td>
                   <td class=\\"table-undefined\\">
-                    <!----><a href=\\"/song/advancedsearch?dances=BOL&amp;tempomin=96&amp;tempomax=104\\">24-26</a>
-                  </td>
-                  <td class=\\"table-undefined\\">
                     <!----><a href=\\"/song/advancedsearch?dances=BOL&amp;tempomin=96&amp;tempomax=96\\">24</a>
                   </td>
                   <td class=\\"table-undefined\\">
@@ -513,10 +457,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href=\\"/song/advancedsearch?dances=MBO&amp;tempomin=188&amp;tempomax=204\\">47-51</a>
                   </td>
                   <td class=\\"table-undefined\\">
-                    <!----><a href=\\"/song/advancedsearch?dances=MBO&amp;tempomin=192&amp;tempomax=204\\">48-51</a>
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!----><a href=\\"/song/advancedsearch?dances=MBO&amp;tempomin=188&amp;tempomax=188\\">47</a>
+                    <!----><a href=\\"/song/advancedsearch?dances=MBO&amp;tempomin=188&amp;tempomax=204\\">47-51</a>
                   </td>
                   <td class=\\"table-undefined\\">
                     <!----><a href=\\"/song/advancedsearch?dances=MBO&amp;tempomin=188&amp;tempomax=204\\">188-204</a>
@@ -533,7 +474,6 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
               <!---->
             </table>
           </div>
-          <!--v-if-->
         </div>
       </div>
       <div>
@@ -562,12 +502,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                   </th>
                   <th scope=\\"col\\" class=\\"table-undefined\\">
                     <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>NDCA Professional or Amateur</div>
-                    </div>
-                  </th>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>NDCA Pro/Am</div>
+                      <div>NDCA</div>
                     </div>
                   </th>
                   <th scope=\\"col\\" class=\\"table-undefined\\">
@@ -599,9 +534,6 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href=\\"/song/advancedsearch?dances=CHA&amp;tempomin=124&amp;tempomax=124\\">31</a>
                   </td>
                   <td class=\\"table-undefined\\">
-                    <!----><a href=\\"/song/advancedsearch?dances=CHA&amp;tempomin=124&amp;tempomax=124\\">31</a>
-                  </td>
-                  <td class=\\"table-undefined\\">
                     <!----><a href=\\"/song/advancedsearch?dances=CHA&amp;tempomin=124&amp;tempomax=124\\">124</a>
                   </td>
                   <td class=\\"table-undefined\\">
@@ -623,9 +555,6 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href=\\"/song/advancedsearch?dances=SMB&amp;tempomin=96&amp;tempomax=100\\">48-50</a>
                   </td>
                   <td class=\\"table-undefined\\">
-                    <!----><a href=\\"/song/advancedsearch?dances=SMB&amp;tempomin=100&amp;tempomax=100\\">50</a>
-                  </td>
-                  <td class=\\"table-undefined\\">
                     <!----><a href=\\"/song/advancedsearch?dances=SMB&amp;tempomin=96&amp;tempomax=104\\">96-104</a>
                   </td>
                   <td class=\\"table-undefined\\">
@@ -644,10 +573,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href=\\"/song/advancedsearch?dances=RMB&amp;tempomin=100&amp;tempomax=108\\">25-27</a>
                   </td>
                   <td class=\\"table-undefined\\">
-                    <!----><a href=\\"/song/advancedsearch?dances=RMB&amp;tempomin=108&amp;tempomax=108\\">27</a>
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!----><a href=\\"/song/advancedsearch?dances=RMB&amp;tempomin=104&amp;tempomax=104\\">26</a>
+                    <!----><a href=\\"/song/advancedsearch?dances=RMB&amp;tempomin=104&amp;tempomax=108\\">26-27</a>
                   </td>
                   <td class=\\"table-undefined\\">
                     <!----><a href=\\"/song/advancedsearch?dances=RMB&amp;tempomin=100&amp;tempomax=108\\">100-108</a>
@@ -660,9 +586,6 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                 <tr class=\\"\\">
                   <td class=\\"table-undefined\\">
                     <!----><a href=\\"paso-doble\\">International Paso Doble</a>
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!----><a href=\\"/song/advancedsearch?dances=PDL&amp;tempomin=120&amp;tempomax=124\\">60-62</a>
                   </td>
                   <td class=\\"table-undefined\\">
                     <!----><a href=\\"/song/advancedsearch?dances=PDL&amp;tempomin=120&amp;tempomax=124\\">60-62</a>
@@ -692,9 +615,6 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href=\\"/song/advancedsearch?dances=JIV&amp;tempomin=168&amp;tempomax=176\\">42-44</a>
                   </td>
                   <td class=\\"table-undefined\\">
-                    <!----><a href=\\"/song/advancedsearch?dances=JIV&amp;tempomin=152&amp;tempomax=176\\">38-44</a>
-                  </td>
-                  <td class=\\"table-undefined\\">
                     <!----><a href=\\"/song/advancedsearch?dances=JIV&amp;tempomin=176&amp;tempomax=176\\">44</a>
                   </td>
                   <td class=\\"table-undefined\\">
@@ -712,7 +632,6 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
               <!---->
             </table>
           </div>
-          <!--v-if-->
         </div>
       </div>
       <div>

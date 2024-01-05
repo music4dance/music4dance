@@ -867,7 +867,7 @@ exports[`DanceDetails.vue renders a dance details page 1`] = `
           <div>
             <h4>Competition Tempo Information</h4>
             <div class="table-responsive">
-              <table role="table" aria-busy="false" aria-colcount="7" class="table b-table table-striped table-hover">
+              <table role="table" aria-busy="false" aria-colcount="6" class="table b-table table-striped table-hover">
                 <!---->
                 <!---->
                 <thead role="rowgroup" class="">
@@ -883,15 +883,12 @@ exports[`DanceDetails.vue renders a dance details page 1`] = `
                       <div>DanceSport</div>
                     </th>
                     <th role="columnheader" scope="col" aria-colindex="4" class="">
-                      <div>NDCA Silver/Gold</div>
+                      <div>NDCA</div>
                     </th>
                     <th role="columnheader" scope="col" aria-colindex="5" class="">
-                      <div>NDCA Bronze</div>
-                    </th>
-                    <th role="columnheader" scope="col" aria-colindex="6" class="">
                       <div>BPM</div>
                     </th>
-                    <th role="columnheader" scope="col" aria-colindex="7" class="">
+                    <th role="columnheader" scope="col" aria-colindex="6" class="">
                       <div>Meter</div>
                     </th>
                   </tr>
@@ -902,10 +899,9 @@ exports[`DanceDetails.vue renders a dance details page 1`] = `
                     <td aria-colindex="1" role="cell" class=""><a href="bolero">American Bolero</a></td>
                     <td aria-colindex="2" role="cell" class=""><a href="/song/advancedsearch?dances=BOL&amp;tempomin=96&amp;tempomax=104">24-26</a></td>
                     <td aria-colindex="3" role="cell" class=""><a href="/song/advancedsearch?dances=BOL&amp;tempomin=96&amp;tempomax=104">24-26</a></td>
-                    <td aria-colindex="4" role="cell" class=""><a href="/song/advancedsearch?dances=BOL&amp;tempomin=96&amp;tempomax=104">24-26</a></td>
-                    <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=BOL&amp;tempomin=96&amp;tempomax=96">24</a></td>
-                    <td aria-colindex="6" role="cell" class=""><a href="/song/advancedsearch?dances=BOL&amp;tempomin=96&amp;tempomax=104">96-104</a></td>
-                    <td aria-colindex="7" role="cell" class="">4/4</td>
+                    <td aria-colindex="4" role="cell" class=""><a href="/song/advancedsearch?dances=BOL&amp;tempomin=96&amp;tempomax=96">24</a></td>
+                    <td aria-colindex="5" role="cell" class=""><a href="/song/advancedsearch?dances=BOL&amp;tempomin=96&amp;tempomax=104">96-104</a></td>
+                    <td aria-colindex="6" role="cell" class="">4/4</td>
                   </tr>
                   <!---->
                   <!---->
@@ -913,7 +909,6 @@ exports[`DanceDetails.vue renders a dance details page 1`] = `
                 <!---->
               </table>
             </div>
-            <!---->
           </div>
         </div>
       </div>

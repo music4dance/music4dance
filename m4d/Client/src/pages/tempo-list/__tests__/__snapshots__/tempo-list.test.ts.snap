@@ -153,7 +153,7 @@ exports[`TempoList.vue renders the tempo list page 1`] = `
           </ul>
         </div>
         <div id="dropdown-form" class="dropdown b-dropdown col-md btn-group" style="margin-bottom: 8px;">
-          <!----><button id="dropdown-form__BV_toggle_" aria-haspopup="menu" aria-expanded="false" type="button" class="btn dropdown-toggle btn-primary">No Oranizations</button>
+          <!----><button id="dropdown-form__BV_toggle_" aria-haspopup="menu" aria-expanded="false" type="button" class="btn dropdown-toggle btn-primary">No Organizations</button>
           <ul role="menu" tabindex="-1" aria-labelledby="dropdown-form__BV_toggle_" class="dropdown-menu">
             <li role="presentation">
               <form tabindex="-1" class="b-dropdown-form">
@@ -166,8 +166,7 @@ exports[`TempoList.vue renders the tempo list page 1`] = `
                   <div>
                     <div role="group" tabindex="-1" class="bv-no-focus-ring">
                       <div class="custom-control custom-checkbox"><input type="checkbox" name="temp" class="custom-control-input" value="dancesport"><label class="custom-control-label"><span>DanceSport</span></label></div>
-                      <div class="custom-control custom-checkbox"><input type="checkbox" name="temp" class="custom-control-input" value="ndca-1"><label class="custom-control-label"><span>NDCA (Silver/Gold or Professional/Amateur)</span></label></div>
-                      <div class="custom-control custom-checkbox"><input type="checkbox" name="temp" class="custom-control-input" value="ndca-2"><label class="custom-control-label"><span>NDCA (Bronze or ProAm)</span></label></div>
+                      <div class="custom-control custom-checkbox"><input type="checkbox" name="temp" class="custom-control-input" value="ndca"><label class="custom-control-label"><span>NDCA</span></label></div>
                     </div>
                     <!---->
                     <!---->
@@ -301,8 +300,8 @@ exports[`TempoList.vue renders the tempo list page 1`] = `
                 <tr role="row" class="">
                   <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/cha-cha">Cha Cha</a> <!----> <!----></span></td>
                   <td aria-colindex="2" role="cell" class="">4/4</td>
-                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-CHA-Tempo-.-.-.-480-496">120-124</a></td>
-                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-CHA-Tempo-.-.-.-480-496">30-31</a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-CHA-Tempo-.-.-.-480-512">120-128</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-CHA-Tempo-.-.-.-480-512">30-32</a></td>
                   <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Latin">Latin</a></td>
                   <td aria-colindex="6" role="cell" class=""><span><!----> <a href="https://www.music4dance.net/dances/american-rhythm">
           American Rhythm
@@ -391,8 +390,8 @@ exports[`TempoList.vue renders the tempo list page 1`] = `
                 <tr role="row" class="">
                   <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/jive">Jive</a> <!----> <!----></span></td>
                   <td aria-colindex="2" role="cell" class="">4/4</td>
-                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-JIV-Tempo-.-.-.-608-704">152-176</a></td>
-                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-JIV-Tempo-.-.-.-608-704">38-44</a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-JIV-Tempo-.-.-.-672-704">168-176</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-JIV-Tempo-.-.-.-672-704">42-44</a></td>
                   <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Swing">Swing</a></td>
                   <td aria-colindex="6" role="cell" class=""><span><!----> <a href="https://www.music4dance.net/dances/international-latin">
           International Latin
@@ -585,8 +584,8 @@ exports[`TempoList.vue renders the tempo list page 1`] = `
                     <!----></span>
                   </td>
                   <td aria-colindex="2" role="cell" class="">3/4</td>
-                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-SWZ-Tempo-.-.-.-252-270">84-90</a></td>
-                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-SWZ-Tempo-.-.-.-252-270">28-30</a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-SWZ-Tempo-.-.-.-252-288">84-96</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-SWZ-Tempo-.-.-.-252-288">28-32</a></td>
                   <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Waltz">Waltz</a></td>
                   <td aria-colindex="6" role="cell" class=""><span><!----> <a href="https://www.music4dance.net/dances/american-smooth">
           American Smooth
@@ -597,8 +596,8 @@ exports[`TempoList.vue renders the tempo list page 1`] = `
                 <tr role="row" class="">
                   <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/tango-(ballroom)">Tango (Ballroom)</a> <!----> <!----></span></td>
                   <td aria-colindex="2" role="cell" class="">4/4</td>
-                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-TGO-Tempo-.-.-.-480-512">120-128</a></td>
-                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-TGO-Tempo-.-.-.-480-512">30-32</a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-TGO-Tempo-.-.-.-480-528">120-132</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-TGO-Tempo-.-.-.-480-528">30-33</a></td>
                   <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Tango">Tango</a></td>
                   <td aria-colindex="6" role="cell" class=""><span><!----> <a href="https://www.music4dance.net/dances/american-smooth">
           American Smooth
@@ -619,8 +618,8 @@ exports[`TempoList.vue renders the tempo list page 1`] = `
                 <tr role="row" class="">
                   <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column"><span><a href="/dances/viennese-waltz">Viennese Waltz</a> <!----> <!----></span></td>
                   <td aria-colindex="2" role="cell" class="">3/4</td>
-                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-VWZ-Tempo-.-.-.-477-522">159-174</a></td>
-                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-VWZ-Tempo-.-.-.-477-522">53-58</a></td>
+                  <td aria-colindex="3" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-VWZ-Tempo-.-.-.-477-540">159-180</a></td>
+                  <td aria-colindex="4" role="cell" class=""><a href="https://www.music4dance.net/song/?&amp;filter=Index-VWZ-Tempo-.-.-.-477-540">53-60</a></td>
                   <td aria-colindex="5" role="cell" class=""><a href="https://www.music4dance.net/dances/Waltz">Waltz</a></td>
                   <td aria-colindex="6" role="cell" class=""><span><!----> <a href="https://www.music4dance.net/dances/american-smooth">
           American Smooth

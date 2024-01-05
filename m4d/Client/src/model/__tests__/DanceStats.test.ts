@@ -307,15 +307,10 @@ describe("dance stats loading", () => {
   it("should filter tempo by organization (rumba)", () => {
     const rumba = loadRumba()!;
 
-    const americanNDCA1 = rumba!.filteredTempo(["american-rhythm"], ["ndca-1"]);
-    expect(americanNDCA1).toBeDefined();
-    expect(americanNDCA1!.min).toEqual(30);
-    expect(americanNDCA1!.max).toEqual(32);
-
-    const americanNDCA2 = rumba!.filteredTempo(["american-rhythm"], ["ndca-2"]);
-    expect(americanNDCA2).toBeDefined();
-    expect(americanNDCA2!.min).toEqual(32);
-    expect(americanNDCA2!.max).toEqual(36);
+    const americanNDCA = rumba!.filteredTempo(["american-rhythm"], ["ndca"]);
+    expect(americanNDCA).toBeDefined();
+    expect(americanNDCA!.min).toEqual(30);
+    expect(americanNDCA!.max).toEqual(36);
 
     const americanDanceSport = rumba!.filteredTempo(
       ["american-rhythm"],
@@ -349,13 +344,13 @@ describe("dance stats loading", () => {
 
     const all = bolero!.filteredTempo(
       ["american-rhythm", "international-latin"],
-      ["DanceSport", "ndca-1", "ndca-2"]
+      ["DanceSport", "ndca"]
     );
     expect(all).toBeDefined();
     expect(all!.min).toEqual(24);
     expect(all!.max).toEqual(26);
 
-    const ndca2 = bolero!.filteredTempo([], ["ndca-2"]);
+    const ndca2 = bolero!.filteredTempo([], ["ndca"]);
     expect(ndca2).toBeDefined();
     expect(ndca2!.min).toEqual(24);
     expect(ndca2!.max).toEqual(24);
@@ -371,11 +366,11 @@ describe("dance stats loading", () => {
 
     const all = cha!.filteredTempo(
       ["american-rhythm", "international-latin"],
-      ["DanceSport", "ndca-1", "ndca-2"]
+      ["DanceSport", "ndca"]
     );
     expect(all).toBeDefined();
     expect(all!.min).toEqual(30);
-    expect(all!.max).toEqual(31);
+    expect(all!.max).toEqual(32);
 
     const danceSport = cha!.filteredTempo(
       ["international-latin"],

@@ -15,42 +15,6 @@ const props = defineProps<{
 // INT-TODO: This computed is purely to force the cast, shouldn't be necessary
 const danceTable = computed(() => props.dances as unknown as TableItem[]);
 
-const styleFamily = computed(() => {
-  if (!props.dances || props.dances.length === 0) {
-    return "both";
-  }
-  const family = props.dances[0].styleFamily;
-  return props.dances.every((d) => d.styleFamily === family) ? family : "Both";
-});
-
-const ndcaATitle = computed(() => {
-  const family = styleFamily.value;
-  switch (family) {
-    case "American":
-      return "NDCA Silver/Gold";
-    case "International":
-      return "NDCA Professional or Amateur";
-    default:
-      return "NDCA A(*)";
-  }
-});
-
-const ndcaBTitle = computed(() => {
-  const family = styleFamily.value;
-  switch (family) {
-    case "American":
-      return "NDCA Bronze";
-    case "International":
-      return "NDCA Pro/Am";
-    default:
-      return "NDCA B(*)";
-  }
-});
-
-const isMixed = computed(() => {
-  return styleFamily.value === "Both";
-});
-
 // INT-TODO: We should be able to use TableField<DanceInstance> but it doesn't work
 // until at the least the bsv table types are templated
 // : TableField<DanceInstance>[]
@@ -68,12 +32,8 @@ const fields = [
     label: "DanceSport",
   },
   {
-    key: "ndca-1",
-    label: ndcaATitle.value,
-  },
-  {
-    key: "ndca-2",
-    label: ndcaBTitle.value,
+    key: "ndca",
+    label: "NDCA",
   },
   {
     key: "tempoRange",
@@ -107,7 +67,8 @@ function filteredTempoLink(dance: DanceInstance, filter: string): string {
 }
 
 // INT-TODO: There is something funky going on with formatting the fields that are MPM temporanges
-//  so I'm just going to do it manually for now
+//  so I'm just going to do it manually for now.  My guess is that the formatter isn't being called
+//  for slots values.
 
 function formatMPMValue(item: TableItem): string {
   const dance = item as unknown as DanceInstance;
@@ -137,29 +98,14 @@ function formatFilteredTempo(item: TableItem, filter: string): string {
           formatFilteredTempo(data.item, "dancesport")
         }}</a>
       </template>
-      <template #cell(ndca-1)="data">
-        <a :href="filteredTempoLink(data.item as unknown as DanceInstance, 'ndca-1')">{{
-          formatFilteredTempo(data.item, "ndca-1")
-        }}</a>
-      </template>
-      <template #cell(ndca-2)="data">
-        <a :href="filteredTempoLink(data.item as unknown as DanceInstance, 'ndca-2')">{{
-          formatFilteredTempo(data.item, "ndca-2")
+      <template #cell(ndca)="data">
+        <a :href="filteredTempoLink(data.item as unknown as DanceInstance, 'ndca')">{{
+          formatFilteredTempo(data.item, "ndca")
         }}</a>
       </template>
       <template #cell(tempoRange)="data">
         <a :href="defaultTempoLink(data.item as unknown as DanceInstance)">{{ data.value }}</a>
       </template>
     </BTable>
-    <p v-if="isMixed">
-      (*) A short explanation of the NDCA (<a
-        href="https://www.ndca.org/pages/ndca_rule_book/Default.asp"
-        >National Dance Council of America)</a
-      >
-      columns: For American style dances the "A" column contains Tempi for Silver and Gold levels
-      while the "B" column contains Tempi for Bronze level. For International style dances the "A"
-      column contains Tempi for Professional and Amateur couples while the "B" column contains Tempi
-      for Pro/Am couples.
-    </p>
   </div>
 </template>

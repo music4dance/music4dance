@@ -48,12 +48,7 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
                 </th>
                 <th scope=\\"col\\" class=\\"table-undefined\\">
                   <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                    <div>NDCA Silver/Gold</div>
-                  </div>
-                </th>
-                <th scope=\\"col\\" class=\\"table-undefined\\">
-                  <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                    <div>NDCA Bronze</div>
+                    <div>NDCA</div>
                   </div>
                 </th>
                 <th scope=\\"col\\" class=\\"table-undefined\\">
@@ -85,9 +80,6 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
                   <!----><a href=\\"/song/advancedsearch?dances=SWZ&amp;tempomin=90&amp;tempomax=96\\">30-32</a>
                 </td>
                 <td class=\\"table-undefined\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90\\">28-30</a>
-                </td>
-                <td class=\\"table-undefined\\">
                   <!----><a href=\\"/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90\\">84-90</a>
                 </td>
                 <td class=\\"table-undefined\\">
@@ -109,9 +101,6 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
                   <!----><a href=\\"/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=128\\">30-32</a>
                 </td>
                 <td class=\\"table-undefined\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=120\\">30</a>
-                </td>
-                <td class=\\"table-undefined\\">
                   <!----><a href=\\"/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=120\\">120</a>
                 </td>
                 <td class=\\"table-undefined\\">
@@ -130,10 +119,7 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
                   <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=128\\">30-32</a>
                 </td>
                 <td class=\\"table-undefined\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=128&amp;tempomax=136\\">32-34</a>
-                </td>
-                <td class=\\"table-undefined\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=120\\">30</a>
+                  <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=136\\">30-34</a>
                 </td>
                 <td class=\\"table-undefined\\">
                   <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=136\\">120-136</a>
@@ -157,9 +143,6 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
                   <!----><a href=\\"/song/advancedsearch?dances=VWZ&amp;tempomin=162&amp;tempomax=162\\">54</a>
                 </td>
                 <td class=\\"table-undefined\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=VWZ&amp;tempomin=159&amp;tempomax=162\\">53-54</a>
-                </td>
-                <td class=\\"table-undefined\\">
                   <!----><a href=\\"/song/advancedsearch?dances=VWZ&amp;tempomin=159&amp;tempomax=162\\">159-162</a>
                 </td>
                 <td class=\\"table-undefined\\">
@@ -174,7 +157,6 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
             <!---->
           </table>
         </div>
-        <!--v-if-->
       </div>
       <div>
         <h4>Other dances categorized as American Smooth, although they aren't part of the competition round, are:</h4>
@@ -200,12 +182,7 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
                 </th>
                 <th scope=\\"col\\" class=\\"table-undefined\\">
                   <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                    <div>NDCA Silver/Gold</div>
-                  </div>
-                </th>
-                <th scope=\\"col\\" class=\\"table-undefined\\">
-                  <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                    <div>NDCA Bronze</div>
+                    <div>NDCA</div>
                   </div>
                 </th>
                 <th scope=\\"col\\" class=\\"table-undefined\\">
@@ -237,9 +214,6 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
                   <!----><a href=\\"/song/advancedsearch?dances=PBD&amp;tempomin=240&amp;tempomax=248\\">60-62</a>
                 </td>
                 <td class=\\"table-undefined\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=PBD&amp;tempomin=240&amp;tempomax=248\\">60-62</a>
-                </td>
-                <td class=\\"table-undefined\\">
                   <!----><a href=\\"/song/advancedsearch?dances=PBD&amp;tempomin=240&amp;tempomax=248\\">240-248</a>
                 </td>
                 <td class=\\"table-undefined\\">
@@ -254,7 +228,6 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
             <!---->
           </table>
         </div>
-        <!--v-if-->
       </div>
       <div> Other categories of <a href=\\"/dances/ballroom-competition-categories\\">competition ballroom dancing</a> are: <ul>
           <li><a href=\\"/dances/international-standard\\">International Standard</a></li>

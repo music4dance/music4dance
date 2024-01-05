@@ -21,7 +21,7 @@
       ></checked-list>
       <checked-list
         class="col-md"
-        type="Oranization"
+        type="Organization"
         :options="organizationOptions"
         v-model="organizations"
       ></checked-list>
@@ -135,8 +135,7 @@ export default Vue.extend({
     const allMeters = valuesFromOptions(meterOptions);
     const organizationOptions = [
       { text: "DanceSport", value: "dancesport" },
-      { text: "NDCA (Silver/Gold or Professional/Amateur)", value: "ndca-1" },
-      { text: "NDCA (Bronze or ProAm)", value: "ndca-2" },
+      { text: "NDCA", value: "ndca" },
     ];
     const allOrganizations = valuesFromOptions(organizationOptions);
     return new (class {
