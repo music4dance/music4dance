@@ -77,7 +77,7 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
                   <!----><a href=\\"/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90\\">28-30</a>
                 </td>
                 <td class=\\"table-undefined\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=SWZ&amp;tempomin=90&amp;tempomax=96\\">30-32</a>
+                  <!----><a href=\\"/song/advancedsearch?dances=SWZ&amp;tempomin=90&amp;tempomax=90\\">30</a>
                 </td>
                 <td class=\\"table-undefined\\">
                   <!----><a href=\\"/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90\\">84-90</a>
@@ -98,7 +98,7 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
                   <!----><a href=\\"/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=120\\">30</a>
                 </td>
                 <td class=\\"table-undefined\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=128\\">30-32</a>
+                  <!----><a href=\\"/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=120\\">30</a>
                 </td>
                 <td class=\\"table-undefined\\">
                   <!----><a href=\\"/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=120\\">120</a>
@@ -113,16 +113,16 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
                   <!----><a href=\\"slow-foxtrot\\">American Slow Foxtrot</a>
                 </td>
                 <td class=\\"table-undefined\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=136\\">30-34</a>
+                  <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=128\\">30-32</a>
                 </td>
                 <td class=\\"table-undefined\\">
                   <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=128\\">30-32</a>
                 </td>
                 <td class=\\"table-undefined\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=136\\">30-34</a>
+                  <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=120\\">30</a>
                 </td>
                 <td class=\\"table-undefined\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=136\\">120-136</a>
+                  <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=128\\">120-128</a>
                 </td>
                 <td class=\\"table-undefined\\">
                   <!---->4/4
@@ -140,7 +140,7 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
                   <!----><a href=\\"/song/advancedsearch?dances=VWZ&amp;tempomin=159&amp;tempomax=162\\">53-54</a>
                 </td>
                 <td class=\\"table-undefined\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=VWZ&amp;tempomin=162&amp;tempomax=162\\">54</a>
+                  <!----><a href=\\"/song/advancedsearch?dances=VWZ&amp;tempomin=159&amp;tempomax=159\\">53</a>
                 </td>
                 <td class=\\"table-undefined\\">
                   <!----><a href=\\"/song/advancedsearch?dances=VWZ&amp;tempomin=159&amp;tempomax=162\\">159-162</a>
@@ -205,16 +205,16 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
                   <!----><a href=\\"peabody\\">American Peabody</a>
                 </td>
                 <td class=\\"table-undefined\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=PBD&amp;tempomin=240&amp;tempomax=248\\">60-62</a>
+                  <!----><a href=\\"/song/advancedsearch?dances=PBD&amp;tempomin=240&amp;tempomax=240\\">60</a>
                 </td>
                 <td class=\\"table-undefined\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=PBD&amp;tempomin=240&amp;tempomax=248\\">60-62</a>
+                  <!----><a href=\\"/song/advancedsearch?dances=PBD&amp;tempomin=240&amp;tempomax=240\\">60</a>
                 </td>
                 <td class=\\"table-undefined\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=PBD&amp;tempomin=240&amp;tempomax=248\\">60-62</a>
+                  <!----><a href=\\"/song/advancedsearch?dances=PBD&amp;tempomin=240&amp;tempomax=240\\">60</a>
                 </td>
                 <td class=\\"table-undefined\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=PBD&amp;tempomin=240&amp;tempomax=248\\">240-248</a>
+                  <!----><a href=\\"/song/advancedsearch?dances=PBD&amp;tempomin=240&amp;tempomax=240\\">240</a>
                 </td>
                 <td class=\\"table-undefined\\">
                   <!---->4/4

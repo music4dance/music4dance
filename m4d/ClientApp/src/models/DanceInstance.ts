@@ -4,13 +4,14 @@ import { DanceObject } from "./DanceObject";
 import { TempoRange } from "./TempoRange";
 import type { DanceType } from "./DanceType";
 import { assign } from "@/helpers/ObjectHelpers";
+import type { Meter } from "./Meter";
 
 @jsonObject
 export class DanceInstance extends DanceObject {
   @jsonMember(String) public style!: string;
   @jsonMember(String) public competitionGroup!: string;
   @jsonMember(Number) public competitionOrder!: number;
-  @jsonArrayMember(DanceException) public exceptions!: DanceException[];
+  @jsonArrayMember(DanceException) public exceptions: DanceException[] = [];
   public danceType!: DanceType;
 
   public constructor(init?: Partial<DanceInstance>) {
@@ -24,6 +25,10 @@ export class DanceInstance extends DanceObject {
 
   public get name(): string {
     return this.shortStyle + " " + this.danceType.name;
+  }
+
+  public get meter(): Meter {
+    return this.danceType.meter;
   }
 
   public get shortStyle(): string {

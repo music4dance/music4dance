@@ -9,6 +9,9 @@ public class DanceType : DanceObject
 {
     public DanceType()
     {
+        Groups = [];
+        Organizations = [];
+        Instances = [];
     }
 
     public DanceType(DanceType other)
@@ -21,11 +24,9 @@ public class DanceType : DanceObject
         Synonyms = other.Synonyms;
         Searchonyms = other.Searchonyms;
         Organizations = other.Organizations;
+        Groups = other.Groups;
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage(
-        "Microsoft.Usage",
-        "CA2214:DoNotCallOverridableMethodsInConstructors")]
     [JsonConstructor]
     public DanceType(string name, Meter meter, string[] organizations,
         DanceInstance[] instances)
@@ -34,15 +35,23 @@ public class DanceType : DanceObject
         Meter = meter;
         Instances = new List<DanceInstance>(instances);
 
-        if (organizations != null)
-        {
-            Organizations = new List<string>(organizations);
-        }
+        Organizations = organizations == null ? [] :new List<string>(organizations);
 
         foreach (var instance in instances)
         {
             instance.DanceType = this;
         }
+    }
+
+    public DanceType Reduce(IEnumerable<DanceInstance> instances) {
+        var other = MemberwiseClone() as DanceType;
+        other.Instances = new List<DanceInstance>(instances);
+        foreach (var instance in other.Instances)
+        {
+            instance.DanceType = other;
+        }
+
+        return other;
     }
 
     public sealed override string Id { get; set; }
@@ -80,6 +89,10 @@ public class DanceType : DanceObject
 
     public List<DanceInstance> Instances { get; set; }
 
+    // Virtual for Moq
+    [JsonIgnore]
+    public virtual IList<DanceGroup> Groups { get; }
+
     public Uri Link { get; set; }
 
     public override bool Equals(object obj)
@@ -91,4 +104,6 @@ public class DanceType : DanceObject
     {
         return Name.GetHashCode();
     }
+
+    public bool ShouldSerializeTempoRange() => false;
 }

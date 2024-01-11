@@ -23,14 +23,10 @@ namespace DanceLibrary
         }
 
         [JsonConstructor]
-        public TempoType(TempoKind kind, Meter meter)
+        public TempoType(TempoKind kind, Meter meter = null)
         {
             TempoKind = kind;
             Meter = meter;
-        }
-
-        public TempoType(TempoKind kind) : this(kind, null)
-        {
         }
 
         /// <summary>

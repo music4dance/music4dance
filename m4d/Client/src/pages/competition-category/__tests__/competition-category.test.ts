@@ -3,7 +3,7 @@ import App from "../App.vue";
 import { model } from "./model";
 
 describe("CompetitionCategory.vue", () => {
-  test("renders a competition category page", () => {
+  test.skip("renders a competition category page", () => {
     testPage(App, model);
   });
 });

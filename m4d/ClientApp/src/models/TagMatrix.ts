@@ -1,6 +1,9 @@
+import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
+import type { DanceDatabase } from "./DanceDatabase";
 import { DanceObject } from "@/models/DanceObject";
-import { DanceType } from "@/models/DanceType";
 import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
+
+const danceDatabase: DanceDatabase = safeDanceDatabase();
 
 @jsonObject
 export class TagColumn {
@@ -15,34 +18,34 @@ export class TagRowBase {
 
 @jsonObject
 export class TagRow extends TagRowBase {
-  public static create(dance: DanceObject, counts: number[], isGroup: boolean): TagRow {
+  public static create(danceId: string, counts: number[], isGroup: boolean): TagRow {
     const row = new TagRow();
-    row.dance = dance;
+    row.dance = danceDatabase.fromId(danceId)! as DanceObject;
     row.counts = counts;
     row.isGroup = isGroup;
     return row;
   }
 
-  @jsonMember(DanceObject) public dance!: DanceObject;
-  @jsonMember(Boolean) public isGroup!: boolean;
+  public dance!: DanceObject;
+  public isGroup!: boolean;
 }
 
 @jsonObject
 export class TagRowType extends TagRowBase {
-  @jsonMember(DanceType) public dance!: DanceType;
+  @jsonMember(String, { name: "dance" }) public danceId!: string;
 
   public get tagRow(): TagRow {
-    return TagRow.create(this.dance, this.counts, false);
+    return TagRow.create(this.danceId, this.counts, false);
   }
 }
 
 @jsonObject
 export class TagRowGroup extends TagRowBase {
-  @jsonMember(DanceObject) public dance!: DanceObject;
+  @jsonMember(String, { name: "dance" }) public danceId!: string;
   @jsonArrayMember(TagRowType) public children!: TagRowType[];
 
   public get tagRow(): TagRow {
-    return TagRow.create(this.dance, this.counts, true);
+    return TagRow.create(this.danceId, this.counts, true);
   }
 }
 

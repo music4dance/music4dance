@@ -14,14 +14,14 @@ public class CompetitionCategory
     public const string Ballroom = "Ballroom";
 
     private static readonly Dictionary<string, List<CompetitionCategory>> s_mapGroups =
-        new();
+        [];
 
     private static readonly Dictionary<string, CompetitionCategory> s_mapCategories =
-        new();
+        [];
 
-    private readonly List<DanceInstance> _extra = new();
+    private readonly List<DanceInstance> _extra = [];
 
-    private readonly List<DanceInstance> _round = new();
+    private readonly List<DanceInstance> _round = [];
 
     public string Name { get; private set; }
     public string Group { get; private set; }
@@ -83,7 +83,7 @@ public class CompetitionCategory
             return categories;
         }
 
-        categories = new List<CompetitionCategory>();
+        categories = [];
         s_mapGroups[name] = categories;
         return categories;
     }

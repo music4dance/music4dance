@@ -29,6 +29,7 @@ export class DanceEnvironment {
   }
 
   public rehydrate(): void {
+    this.dances?.forEach((d) => d.onDeserialized());
     this.tree = this.groups?.map((g) => new GroupStats(g, this.dances!));
     this.statsIdMap = new Map<string, DanceStats>(
       this.dances?.map((d) => [d.id, d])

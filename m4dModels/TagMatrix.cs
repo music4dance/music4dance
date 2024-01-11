@@ -17,7 +17,7 @@ namespace m4dModels
 
     public class TagRow
     {
-        public DanceObject Dance { get; set; }
+        public string Dance { get; set; }
         public List<int> Counts { get; set; }
     }
 

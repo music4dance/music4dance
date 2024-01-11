@@ -32,7 +32,6 @@ const dances = [
               min: 90.0,
               max: 96.0,
             },
-            level: "Bronze",
           },
         ],
       },
@@ -55,7 +54,6 @@ const dances = [
               min: 84.0,
               max: 84.0,
             },
-            competitor: "Professional,Amateur",
           },
         ],
       },
@@ -91,7 +89,6 @@ const dances = [
               min: 128.0,
               max: 136.0,
             },
-            level: "Bronze",
           },
           {
             organization: "NDCA",
@@ -99,7 +96,6 @@ const dances = [
               min: 120.0,
               max: 120.0,
             },
-            level: "Silver,Gold",
           },
           {
             organization: "DanceSport",

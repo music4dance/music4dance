@@ -201,7 +201,7 @@ namespace m4d.Controllers
             }
 
             return counts.Any(c => c > 0)
-                ? new TagRow { Dance = dance.DanceObject, Counts = counts }
+                ? new TagRow { Dance = dance.DanceId, Counts = counts }
                 : null;
         }
     }

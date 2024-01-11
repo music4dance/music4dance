@@ -55,12 +55,12 @@ exports[`DanceIndex > Renders dance-index Page 1`] = `
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
-            <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/hustle\\">Hustle</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">112-120 BPM/28-30 MPM</span></span>
+            <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/hustle\\">Hustle</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">120 BPM/30 MPM</span></span>
               <div><a class=\\"badge text-bg-secondary text-decoration-none\\" href=\\"/song/index?filter=.-OOX,HST-Dances\\" target=\\"_self\\" style=\\"line-height: 1.5;\\">songs (939)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" href=\\"/dances/hustle\\" target=\\"_self\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
-            <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/jive\\">Jive</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">152-176 BPM/38-44 MPM</span></span>
+            <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/jive\\">Jive</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">168-176 BPM/42-44 MPM</span></span>
               <div><a class=\\"badge text-bg-secondary text-decoration-none\\" href=\\"/song/index?filter=.-OOX,JIV-Dances\\" target=\\"_self\\" style=\\"line-height: 1.5;\\">songs (1135)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" href=\\"/dances/jive\\" target=\\"_self\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
@@ -92,7 +92,7 @@ exports[`DanceIndex > Renders dance-index Page 1`] = `
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
-            <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/tango-(ballroom)\\">Tango (Ballroom)</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">120-128 BPM/30-32 MPM</span></span>
+            <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/tango-(ballroom)\\">Tango (Ballroom)</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">120-132 BPM/30-33 MPM</span></span>
               <div><a class=\\"badge text-bg-secondary text-decoration-none\\" href=\\"/song/index?filter=.-OOX,TGO-Dances\\" target=\\"_self\\" style=\\"line-height: 1.5;\\">songs (1269)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" href=\\"/dances/tango-(ballroom)\\" target=\\"_self\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
@@ -134,7 +134,7 @@ exports[`DanceIndex > Renders dance-index Page 1`] = `
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
-            <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/viennese-waltz\\">Viennese Waltz</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">159-174 BPM/53-58 MPM</span></span>
+            <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/viennese-waltz\\">Viennese Waltz</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">159-190 BPM/53-63.3 MPM</span></span>
               <div><a class=\\"badge text-bg-secondary text-decoration-none\\" href=\\"/song/index?filter=.-OOX,VWZ-Dances\\" target=\\"_self\\" style=\\"line-height: 1.5;\\">songs (1848)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" href=\\"/dances/viennese-waltz\\" target=\\"_self\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
@@ -156,17 +156,17 @@ exports[`DanceIndex > Renders dance-index Page 1`] = `
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
-            <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/slow-foxtrot\\">Slow Foxtrot</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">112-136 BPM/28-34 MPM</span></span>
+            <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/slow-foxtrot\\">Slow Foxtrot</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">112-128 BPM/28-32 MPM</span></span>
               <div><a class=\\"badge text-bg-secondary text-decoration-none\\" href=\\"/song/index?filter=.-OOX,SFT-Dances\\" target=\\"_self\\" style=\\"line-height: 1.5;\\">songs (2703)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" href=\\"/dances/slow-foxtrot\\" target=\\"_self\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
-            <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/quickstep\\">Quickstep</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">192-208 BPM/48-52 MPM</span></span>
+            <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/quickstep\\">Quickstep</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">200-208 BPM/50-52 MPM</span></span>
               <div><a class=\\"badge text-bg-secondary text-decoration-none\\" href=\\"/song/index?filter=.-OOX,QST-Dances\\" target=\\"_self\\" style=\\"line-height: 1.5;\\">songs (1188)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" href=\\"/dances/quickstep\\" target=\\"_self\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
-            <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/peabody\\">Peabody</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">240-248 BPM/60-62 MPM</span></span>
+            <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/peabody\\">Peabody</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">240 BPM/60 MPM</span></span>
               <div><a class=\\"badge text-bg-secondary text-decoration-none\\" href=\\"/song/index?filter=.-OOX,PBD-Dances\\" target=\\"_self\\" style=\\"line-height: 1.5;\\">songs (134)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" href=\\"/dances/peabody\\" target=\\"_self\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
@@ -188,17 +188,17 @@ exports[`DanceIndex > Renders dance-index Page 1`] = `
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
-            <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/cha-cha\\">Cha Cha</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">120-124 BPM/30-31 MPM</span></span>
+            <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/cha-cha\\">Cha Cha</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">120-128 BPM/30-32 MPM</span></span>
               <div><a class=\\"badge text-bg-secondary text-decoration-none\\" href=\\"/song/index?filter=.-OOX,CHA-Dances\\" target=\\"_self\\" style=\\"line-height: 1.5;\\">songs (18442)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" href=\\"/dances/cha-cha\\" target=\\"_self\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
-            <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/mambo\\">Mambo</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">188-204 BPM/47-51 MPM</span></span>
+            <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/mambo\\">Mambo</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">188 BPM/47 MPM</span></span>
               <div><a class=\\"badge text-bg-secondary text-decoration-none\\" href=\\"/song/index?filter=.-OOX,MBO-Dances\\" target=\\"_self\\" style=\\"line-height: 1.5;\\">songs (753)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" href=\\"/dances/mambo\\" target=\\"_self\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
-            <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/rumba\\">Rumba</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">100-144 BPM/25-36 MPM</span></span>
+            <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/rumba\\">Rumba</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">100-124 BPM/25-31 MPM</span></span>
               <div><a class=\\"badge text-bg-secondary text-decoration-none\\" href=\\"/song/index?filter=.-OOX,RMB-Dances\\" target=\\"_self\\" style=\\"line-height: 1.5;\\">songs (3094)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" href=\\"/dances/rumba\\" target=\\"_self\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>

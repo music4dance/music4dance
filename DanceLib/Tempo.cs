@@ -69,6 +69,8 @@ namespace DanceLibrary
             }
         }
 
+        public decimal BeatsPerMinute => Convert(new TempoType(TempoKind.Bpm)).Rate;
+
         public decimal Rate { get; }
         public TempoType TempoType { get; }
 

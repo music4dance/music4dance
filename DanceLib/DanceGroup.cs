@@ -7,9 +7,6 @@ namespace DanceLibrary;
 
 public sealed class DanceGroup : DanceObject
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage(
-        "Microsoft.Usage",
-        "CA2214:DoNotCallOverridableMethodsInConstructors")]
     [JsonConstructor]
     public DanceGroup(string name, string id, string[] danceIds)
     {
@@ -24,10 +21,16 @@ public sealed class DanceGroup : DanceObject
 
     public override string Name { get; set; }
 
+    // INT-TODO: Dance Groups really don't need meter, we should
+    // reconsider the DanceObject hierarchy.
     public override Meter Meter
     {
         get
         {
+            if (Members == null)
+            {
+                return new Meter(1,1);
+            }
             Debug.Assert(Members.Count > 0);
             return Members[0].Meter;
         }
@@ -61,5 +64,7 @@ public sealed class DanceGroup : DanceObject
     public List<string> DanceIds { get; set; }
 
     [JsonIgnore]
-    public IList<DanceObject> Members => Dances.Instance.FromIds(DanceIds);
+    public IList<DanceObject> Members { get; private set; }
+
+    public bool ShouldSerializeMeter() => false;
 }

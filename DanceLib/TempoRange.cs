@@ -89,17 +89,16 @@ namespace DanceLibrary
 
         public decimal CalculateDelta(decimal tempo)
         {
-            decimal delta = 0;
-            if (tempo > Max)
-            {
-                delta = tempo - Max;
-            }
-            else if (tempo < Min)
-            {
-                delta = tempo - Min;
-            }
+            return tempo > Max 
+                ? tempo - Max
+                : tempo < Min
+                    ? tempo - Min
+                    : 0;
+        }
 
-            return delta;
+        public decimal CalculateDeltaPercent(decimal tempo)
+        {
+            return CalculateDelta(tempo) * 100 / (tempo >= Max ? Max : Min);
         }
 
         public TempoRange Include(TempoRange other)

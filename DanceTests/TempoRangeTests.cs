@@ -77,6 +77,35 @@ namespace DanceTests
         }
 
         [TestMethod]
+        public void TestDeltaPercentFromPoint()
+        {
+            var t = new TempoRange(100, 100);
+            var d1 = t.CalculateDeltaPercent(100);
+            Assert.AreEqual(0M, d1);
+
+            var d2 = t.CalculateDeltaPercent(110);
+            Assert.AreEqual(10M, d2);
+
+            var d3 = t.CalculateDeltaPercent(90);
+            Assert.AreEqual(-10M, d3);
+        }
+
+        [TestMethod]
+        public void TestDeltaPercentFromRange()
+        {
+            var t = new TempoRange(90, 100);
+            var d1 = t.CalculateDeltaPercent(100);
+            Assert.AreEqual(0M, d1);
+
+            var d2 = t.CalculateDeltaPercent(110);
+            Assert.AreEqual(10M, d2);
+
+            var d3 = t.CalculateDeltaPercent(90);
+            Assert.AreEqual(0M, d3);
+        }
+
+
+        [TestMethod]
         public void TestInclude()
         {
             var t1 = new TempoRange(24, 24);

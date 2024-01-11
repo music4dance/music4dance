@@ -136,7 +136,7 @@ exports[`WeddingDanceMusic.vue renders a wedding dance music page 1`] = `
                 <!---->
                 <tr role="row" class="">
                   <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
-                    <div class="tag-matrix-group"><a href="/dances/swing"><span><a href="/dances/undefined">Swing</a> <!----> <!----></span></a></div>
+                    <div class="tag-matrix-group"><a href="/dances/swing"><span><a href="/dances/swing">Swing</a> <!----> <!----></span></a></div>
                   </td>
                   <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,SWG-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
                       358
@@ -306,7 +306,7 @@ exports[`WeddingDanceMusic.vue renders a wedding dance music page 1`] = `
                 </tr>
                 <tr role="row" class="">
                   <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
-                    <div class="tag-matrix-group"><a href="/dances/tango"><span><a href="/dances/undefined">Tango</a> <!----> <!----></span></a></div>
+                    <div class="tag-matrix-group"><a href="/dances/tango"><span><a href="/dances/tango">Tango</a> <!----> <!----></span></a></div>
                   </td>
                   <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,TNG-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
                       21
@@ -395,7 +395,7 @@ exports[`WeddingDanceMusic.vue renders a wedding dance music page 1`] = `
                 </tr>
                 <tr role="row" class="">
                   <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
-                    <div class="tag-matrix-group"><a href="/dances/waltz"><span><a href="/dances/undefined">Waltz</a> <!----> <!----></span></a></div>
+                    <div class="tag-matrix-group"><a href="/dances/waltz"><span><a href="/dances/waltz">Waltz</a> <!----> <!----></span></a></div>
                   </td>
                   <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,WLZ-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
                       209
@@ -479,7 +479,7 @@ exports[`WeddingDanceMusic.vue renders a wedding dance music page 1`] = `
                 </tr>
                 <tr role="row" class="">
                   <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
-                    <div class="tag-matrix-group"><a href="/dances/foxtrot"><span><a href="/dances/undefined">Foxtrot</a> <!----> <!----></span></a></div>
+                    <div class="tag-matrix-group"><a href="/dances/foxtrot"><span><a href="/dances/foxtrot">Foxtrot</a> <!----> <!----></span></a></div>
                   </td>
                   <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,FXT-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
                       501
@@ -565,7 +565,7 @@ exports[`WeddingDanceMusic.vue renders a wedding dance music page 1`] = `
                 </tr>
                 <tr role="row" class="">
                   <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
-                    <div class="tag-matrix-group"><a href="/dances/latin"><span><a href="/dances/undefined">Latin</a> <!----> <!----></span></a></div>
+                    <div class="tag-matrix-group"><a href="/dances/latin"><span><a href="/dances/latin">Latin</a> <!----> <!----></span></a></div>
                   </td>
                   <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,LTN-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
                       488
@@ -727,7 +727,7 @@ exports[`WeddingDanceMusic.vue renders a wedding dance music page 1`] = `
                 </tr>
                 <tr role="row" class="">
                   <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
-                    <div class="tag-matrix-group"><a href="/dances/other"><span><a href="/dances/undefined">Other</a> <!----> <!----></span></a></div>
+                    <div class="tag-matrix-group"><a href="/dances/other"><span><a href="/dances/other">Other</a> <!----> <!----></span></a></div>
                   </td>
                   <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,MSC-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
                       145
@@ -823,7 +823,7 @@ exports[`WeddingDanceMusic.vue renders a wedding dance music page 1`] = `
                 </tr>
                 <tr role="row" class="">
                   <td role="cell" aria-colindex="1" class="table-b-table-default b-table-sticky-column">
-                    <div class="tag-matrix-group"><a href="/dances/performance"><span><a href="/dances/undefined">Performance</a> <!----> <!----></span></a></div>
+                    <div class="tag-matrix-group"><a href="/dances/performance"><span><a href="/dances/performance">Performance</a> <!----> <!----></span></a></div>
                   </td>
                   <td aria-colindex="2" role="cell" class=""><a href="/Song/?filter=Index-OOX,PRF-Dances-.-.-.-.-.-.-+Wedding:Other" target="_self" class="btn btn-primary btn-sm">
                       21

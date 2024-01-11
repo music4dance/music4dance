@@ -8,8 +8,6 @@ import { assign } from "@/helpers/ObjectHelpers";
 @jsonObject
 export class DanceException extends DanceObject {
   @jsonMember(String) public organization!: string;
-  @jsonMember(String) public competitor: string = "All";
-  @jsonMember(String) public level: string = "All";
 
   public constructor(init?: Partial<DanceException>) {
     super();
@@ -17,8 +15,6 @@ export class DanceException extends DanceObject {
   }
 
   public matchesFilter(filter: string): boolean {
-    const parts = filter.split("-");
-    // INT-TODO: We're ignoring the second part for now, but we should just get rid of it completely
-    return this.organization.toLowerCase() === parts[0].toLowerCase();
+    return this.organization.toLowerCase() === filter.toLowerCase();
   }
 }
