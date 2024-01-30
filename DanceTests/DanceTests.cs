@@ -15,6 +15,8 @@ namespace DanceTests
             await InitializeDances();
         }
 
+        // TODO: Figure out how to use the same test data that we're using
+        // in the typescript tests.
         private readonly string[] _206Default =
         {
             "Quickstep: Style=(International Standard), Delta=()",
@@ -44,7 +46,7 @@ namespace DanceTests
             "Mambo: Style=(American Rhythm), Delta=(+4.50MPM)",
         };
 
-        private readonly string[] _126HDS =
+        private readonly string[] _126DS =
         {
             "Slow Foxtrot: Style=(American Smooth, International Standard), Delta=()",
             "Tango (Ballroom): Style=(American Smooth, International Standard), Delta=()",
@@ -53,7 +55,7 @@ namespace DanceTests
             "East Coast Swing: Style=(American Rhythm), Delta=(-2.50MPM)",
         };
 
-        private readonly string[] _126HNDCA =
+        private readonly string[] _126NDCA =
         {
             "Tango (Ballroom): Style=(American Smooth, International Standard), Delta=()",
             "West Coast Swing: Style=(American Rhythm, Social), Delta=()",
@@ -142,7 +144,7 @@ namespace DanceTests
         {
             CompareDanceOrder(
                 new DanceFilter(meter: new Meter(4, 4), organizations: ["DanceSport"]),
-                new Tempo(126M), 10, _126HDS);
+                new Tempo(126M), 10, _126DS);
         }
 
         [TestMethod]
@@ -150,7 +152,7 @@ namespace DanceTests
         {
             CompareDanceOrder(
                 new DanceFilter(meter: new Meter(4, 4), organizations: ["NDCA"]),
-                new Tempo(126M), 10, _126HNDCA);
+                new Tempo(126M), 10, _126NDCA);
         }
 
 

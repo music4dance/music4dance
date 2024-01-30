@@ -2736,6 +2736,5 @@ exports[`HolidayMusic.vue renders a holiday music page 1`] = `
       </p>
     </footer>
   </div>
-  <!---->
 </div>
 `;

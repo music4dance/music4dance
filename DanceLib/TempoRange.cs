@@ -110,7 +110,6 @@ namespace DanceLibrary
                     Math.Max(Max, other.Max));
         }
 
-
         public override string ToString()
         {
             return Min == Max ? MinString : $"{MinString}-{MaxString}";

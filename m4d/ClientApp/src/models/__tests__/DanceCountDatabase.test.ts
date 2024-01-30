@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest";
-import { DanceDatabase } from "../DanceDatabase";
+import { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
 import { loadCountDatabase } from "@/helpers/TestDatabase";
 import { DanceTypeCount } from "../DanceTypeCount";
-import { DanceGroup } from "../DanceGroup";
+import { DanceGroup } from "@/models/DanceDatabase/DanceGroup";
 
 describe("DanceCountDatabase.ts", () => {
   test("Loads a simple DanceCountDatabase", () => {

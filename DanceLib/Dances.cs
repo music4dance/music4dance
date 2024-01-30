@@ -4,7 +4,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-// NEXTSTEPS: Get filtering working as non-static methods
+// NEXTSTEPS:
 //  audit use of static DanceLibrary.Instance
 //  Reconsider FilterDances - Should it build a new Dances object?
 //    If so we also need to rework Reduces so that FilterDances would be
@@ -116,6 +116,11 @@ namespace DanceLibrary
             {
                 _allDanceObjects.Add(dg);
                 _danceDictionary.Add(dg.Id, dg);
+                dg.Members = FromIds(dg.DanceIds);
+                foreach (var member in dg.Members.Where(m => m is DanceType))
+                {
+                    (member as DanceType).Groups.Add(dg);
+                }
             }
         }
 

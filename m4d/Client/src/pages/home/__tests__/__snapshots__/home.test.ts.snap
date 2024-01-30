@@ -1466,8 +1466,5 @@ exports[`Home.vue renders the home page 1`] = `
       </p>
     </footer>
   </div>
-  <div class="v-tour">
-    <!---->
-  </div>
 </div>
 `;

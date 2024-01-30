@@ -64,7 +64,7 @@ public sealed class DanceGroup : DanceObject
     public List<string> DanceIds { get; set; }
 
     [JsonIgnore]
-    public IList<DanceObject> Members { get; private set; }
+    public IList<DanceObject> Members { get; set; }
 
     public bool ShouldSerializeMeter() => false;
 }

@@ -693,6 +693,5 @@ exports[`TempoList.vue renders the tempo list page 1`] = `
       </p>
     </footer>
   </div>
-  <!---->
 </div>
 `;

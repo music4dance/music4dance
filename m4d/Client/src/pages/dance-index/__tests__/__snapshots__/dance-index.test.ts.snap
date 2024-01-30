@@ -418,6 +418,5 @@ exports[`DanceIndex.vue renders the dance index page 1`] = `
       </p>
     </footer>
   </div>
-  <!---->
 </div>
 `;

@@ -1675,6 +1675,5 @@ exports[`SongIndex.vue renders a song index page 1`] = `
       </p>
     </footer>
   </div>
-  <!---->
 </div>
 `;

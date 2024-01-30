@@ -143,6 +143,5 @@ exports[`UserInfo.vue renders a user info page 1`] = `
       </p>
     </footer>
   </div>
-  <!---->
 </div>
 `;

@@ -16,24 +16,9 @@ public class ErrorChecker : PageChecker, IDisposable
         @"""You are running Vue in development mode.",
         @"""[BootstrapVue warn]: tooltip - The provided target is no valid HTML element.""",
         @"https://ir-na.amazon-adsystem.com",
-        "[vite] connecting",
-        "[vite] connected",
-    };
-
-    // TODO: Rather than adding manual tests, see if we can get selenium to test if the
-    //  URL is live - https://stackoverflow.com/questions/6509628/how-to-get-http-response-code-using-selenium-webdriver
-    private readonly string[] _hardenedSites =
-    {
-        @"www.ehow.com",
-        @"duetdancestudio.com",
-        @"www.hulu.com",
-        @"www.olympic.org",
-        @"stripe.com",
-        @"www.dreamstime.com",
-        @"www.linkedin.com",
-        @"www.abscdj.com",
-        @"usadance.org"
-
+        @"[vite] connecting",
+        @"[vite] connected",
+        @"Third-party cookie will be blocked"
     };
 
     [TestMethod]

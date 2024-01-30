@@ -4,7 +4,7 @@ import { enumKeys } from "@/helpers/enumKeys";
 import { timeOrder, timeOrderVerbose } from "@/helpers/timeHelpers";
 import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
 import { AlbumDetails } from "./AlbumDetails";
-import type { DanceDatabase } from "./DanceDatabase";
+import type { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
 import { DanceRating } from "./DanceRating";
 import { ModifiedRecord } from "./ModifiedRecord";
 import { PurchaseInfo, ServiceType } from "./Purchase";

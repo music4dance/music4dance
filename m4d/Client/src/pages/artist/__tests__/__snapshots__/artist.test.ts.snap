@@ -4181,6 +4181,5 @@ exports[`Artist.vue renders a new music page 1`] = `
       </p>
     </footer>
   </div>
-  <!---->
 </div>
 `;

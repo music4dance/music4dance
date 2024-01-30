@@ -926,6 +926,5 @@ exports[`WeddingDanceMusic.vue renders a wedding dance music page 1`] = `
       </p>
     </footer>
   </div>
-  <!---->
 </div>
 `;

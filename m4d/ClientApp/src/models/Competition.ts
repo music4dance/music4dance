@@ -1,6 +1,6 @@
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { wordsToKebab } from "@/helpers/StringHelpers";
-import { DanceInstance } from "@/models/DanceInstance";
+import { DanceInstance } from "@/models/DanceDatabase/DanceInstance";
 import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
 
 const danceDatabase = safeDanceDatabase();

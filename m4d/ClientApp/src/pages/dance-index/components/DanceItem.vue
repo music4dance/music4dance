@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import DanceName from "@/components/DanceName.vue";
-import type { NamedObject } from "@/models/NamedObject";
-import { DanceGroup } from "@/models/DanceGroup";
+import type { NamedObject } from "@/models/DanceDatabase/NamedObject";
+import { DanceGroup } from "@/models/DanceDatabase/DanceGroup";
 import type { DanceTypeCount } from "@/models/DanceTypeCount";
-import type { TempoType } from "@/models/TempoType";
+import type { TempoType } from "@/models/DanceDatabase/TempoType";
 
 const props = defineProps<{
   dance: NamedObject;

@@ -1091,6 +1091,5 @@ exports[`Album.vue renders an album page 1`] = `
       </p>
     </footer>
   </div>
-  <!---->
 </div>
 `;

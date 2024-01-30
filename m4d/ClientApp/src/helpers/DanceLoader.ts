@@ -1,4 +1,4 @@
-import { DanceDatabase } from "@/models/DanceDatabase";
+import { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
 
 export function loadDancesFromString(s: string): DanceDatabase {
   const db = DanceDatabase.load(s);

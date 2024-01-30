@@ -267,6 +267,5 @@ exports[`Resume.vue renders the resume page 1`] = `
       </p>
     </footer>
   </div>
-  <!---->
 </div>
 `;

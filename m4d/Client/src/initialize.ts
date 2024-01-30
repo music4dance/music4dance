@@ -2,11 +2,8 @@ import { BootstrapVue, BootstrapVueIcons } from "bootstrap-vue";
 import Vue, { VueConstructor } from "vue";
 import VueMq from "vue-mq";
 import VueShowdown from "vue-showdown";
-import VueTour from "vue-tour";
 import { Preloads } from "./Preloads";
 import { loadPreloads } from "./loadPreloads";
-
-require("vue-tour/dist/vue-tour.css");
 
 export async function initializeAsync(
   app: VueConstructor<Vue>,
@@ -25,7 +22,6 @@ export function initialize(app: VueConstructor<Vue>): void {
 function coreInitialize(app: VueConstructor<Vue>): void {
   Vue.config.productionTip = false;
 
-  Vue.use(VueTour);
   Vue.use(BootstrapVue);
   Vue.use(BootstrapVueIcons);
   Vue.use(VueShowdown, { flavor: "vanilla" });

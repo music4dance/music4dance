@@ -349,6 +349,5 @@ exports[`Faq.vue renders the FAQ page 1`] = `
       </p>
     </footer>
   </div>
-  <!---->
 </div>
 `;

@@ -1,4 +1,4 @@
-import { DanceDatabase } from "@/models/DanceDatabase";
+import { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
 import { loadDancesFromString } from "./DanceLoader";
 
 declare global {

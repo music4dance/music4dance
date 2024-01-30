@@ -1,5 +1,5 @@
 import { loadTestDances } from "../LoadTestDances";
-import { DanceDatabase } from "@/models/DanceDatabase";
+import { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
 import { describe, expect, test } from "vitest";
 
 describe("DanceDatabase.ts", () => {

@@ -1,5 +1,5 @@
 <template>
-  <page id="home" :tourSteps="tourSteps">
+  <page id="home">
     <b-card-group deck>
       <info-card id="fun" :card="funCard">
         <div style="padding: 0.25em 1em">
@@ -73,7 +73,6 @@ import Page from "@/components/Page.vue";
 import { FeatureInfo } from "@/model/FeatureInfo";
 import { Link } from "@/model/Link";
 import { SiteMapEntry } from "@/model/SiteMapInfo";
-import { TourStep } from "@/model/VueTour";
 import { random, seed } from "@helpers/Random";
 import "reflect-metadata";
 import { jsonArrayMember, jsonObject, TypedJSON } from "typedjson";
@@ -280,22 +279,6 @@ export default Vue.extend({
       return this.blogEntries.reduce((acc, curr) =>
         (acc.order ?? 0) > (curr.order ?? 0) ? acc : curr
       );
-    },
-    tourSteps(): TourStep[] {
-      return [
-        {
-          target: "#fun-info",
-          content: "Discover random things about music and dance",
-        },
-        {
-          target: "#tools-menu",
-          content: "Tempo counter and smart table of dance tempos",
-        },
-        {
-          target: "#contribute-menu",
-          content: "Please consider contributing to music4dance",
-        },
-      ];
     },
   },
   methods: {

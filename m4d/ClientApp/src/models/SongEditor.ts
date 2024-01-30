@@ -1,6 +1,6 @@
 import { DanceRatingDelta, DanceRatingVote, VoteDirection } from "./DanceRatingDelta";
 import type { AxiosInstance } from "axios";
-import type { DanceDatabase } from "./DanceDatabase";
+import type { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
 import { Song } from "./Song";
 import { SongHistory } from "./SongHistory";
 import { PropertyType, type PropertyValue, SongProperty } from "./SongProperty";

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { wordsToKebab } from "@/helpers/StringHelpers";
-import { DanceInstance } from "@/models/DanceInstance";
-import { Meter } from "@/models/Meter";
-import { TempoRange } from "@/models/TempoRange";
+import { DanceInstance } from "@/models/DanceDatabase/DanceInstance";
+import { Meter } from "@/models/DanceDatabase/Meter";
+import { TempoRange } from "@/models/DanceDatabase/TempoRange";
 import type { TableItem, TableField } from "bootstrap-vue-next";
 import { computed } from "vue";
 

@@ -480,6 +480,5 @@ exports[`Song.vue renders a song page 1`] = `
       </p>
     </footer>
   </div>
-  <!---->
 </div>
 `;

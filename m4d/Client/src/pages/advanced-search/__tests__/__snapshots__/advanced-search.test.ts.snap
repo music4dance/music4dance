@@ -341,6 +341,5 @@ exports[`AdvancedSearch.vue renders the advanced search page 1`] = `
       </p>
     </footer>
   </div>
-  <!---->
 </div>
 `;

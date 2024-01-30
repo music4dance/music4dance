@@ -116,6 +116,5 @@ exports[`Augment.vue renders the augment page 1`] = `
       </p>
     </footer>
   </div>
-  <!---->
 </div>
 `;

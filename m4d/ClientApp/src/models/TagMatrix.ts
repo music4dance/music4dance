@@ -1,6 +1,6 @@
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
-import type { DanceDatabase } from "./DanceDatabase";
-import { DanceObject } from "@/models/DanceObject";
+import type { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
+import { DanceObject } from "@/models/DanceDatabase/DanceObject";
 import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
 
 const danceDatabase: DanceDatabase = safeDanceDatabase();

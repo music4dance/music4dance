@@ -1811,6 +1811,5 @@ exports[`SongMerge.vue renders a song merge page 1`] = `
     </p>
   </footer>
 </div>
-<!---->
 </div>
 `;

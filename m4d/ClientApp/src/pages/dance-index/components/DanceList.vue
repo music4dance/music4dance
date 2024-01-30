@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import DanceItem from "./DanceItem.vue";
-import { DanceGroup } from "@/models/DanceGroup";
-import type { NamedObject } from "@/models/NamedObject";
-import { TempoType } from "@/models/TempoType";
+import { DanceGroup } from "@/models/DanceDatabase/DanceGroup";
+import type { NamedObject } from "@/models/DanceDatabase/NamedObject";
+import { TempoType } from "@/models/DanceDatabase/TempoType";
 import { type ColorVariant } from "bootstrap-vue-next";
 
 withDefaults(

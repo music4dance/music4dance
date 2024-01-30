@@ -1,6 +1,6 @@
 import { DanceQueryBase } from "./DanceQueryBase";
-import type { DanceDatabase } from "./DanceDatabase";
-import type { NamedObject } from "./NamedObject";
+import type { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
+import type { NamedObject } from "@/models/DanceDatabase/NamedObject";
 
 declare const danceDatabase: DanceDatabase;
 

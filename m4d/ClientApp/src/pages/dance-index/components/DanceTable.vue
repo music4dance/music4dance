@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { DanceCountDatabase } from "@/models/DanceCountDatabase";
-import { TempoType } from "@/models/TempoType";
+import { TempoType } from "@/models/DanceDatabase/TempoType";
 import { ref, computed } from "vue";
 import DanceList from "./DanceList.vue";
 

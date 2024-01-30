@@ -1,5 +1,5 @@
 import { jsonMember, jsonObject, TypedJSON } from "typedjson";
-import { DanceDatabase } from "@/models/DanceDatabase";
+import { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
 import { type ColorVariant } from "bootstrap-vue-next";
 
 declare const danceDatabase: DanceDatabase;

@@ -11,7 +11,7 @@ import { getMenuContext } from "@/helpers/GetMenuContext";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { safeTagDatabase } from "@/helpers/TagEnvironmentManager";
 import { computed, ref, onMounted } from "vue";
-import type { DanceDatabase } from "@/models/DanceDatabase";
+import type { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
 import { checkServiceAndWarn } from "@/helpers/DropTarget";
 
 interface SortOption {

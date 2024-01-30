@@ -33,12 +33,6 @@
         </p>
       </footer>
     </div>
-    <v-tour
-      v-if="tourSteps"
-      name="defaultTour"
-      :steps="tourSteps"
-      :callbacks="tourCallbacks"
-    ></v-tour>
   </div>
 </template>
 
@@ -48,8 +42,6 @@ import AdminTools from "@/mix-ins/AdminTools";
 import { BreadCrumbItem } from "@/model/BreadCrumbItem";
 import { DanceEnvironment } from "@/model/DanceEnvironment";
 import { TagDatabase } from "@/model/TagDatabase";
-import { TourManager } from "@/model/TourManager";
-import { TourCallbacks } from "@/model/VueTour";
 import { PropType } from "vue";
 import MainMenu from "./MainMenu.vue";
 
@@ -60,7 +52,6 @@ export default AdminTools.extend({
     title: String,
     help: String,
     breadcrumbs: Array as PropType<BreadCrumbItem[]>,
-    tourSteps: Array,
   },
   data() {
     return new (class {
@@ -75,39 +66,9 @@ export default AdminTools.extend({
     year(): string {
       return new Date().getFullYear().toString();
     },
-    tourCallbacks(): TourCallbacks {
-      return {
-        onSkip: this.skipTour,
-        onFinish: this.finishTour,
-      };
-    },
-    tourManager(): TourManager | undefined {
-      return undefined;
-      //return this.tourSteps && this.id ? TourManager.loadTours() : undefined;
-    },
-  },
-  methods: {
-    skipTour(): void {
-      const tourManager = this.tourManager;
-      if (tourManager) {
-        tourManager.skipTour(this.id!);
-      }
-    },
-    finishTour(): void {
-      const tourManager = this.tourManager;
-      if (tourManager) {
-        tourManager.completeTour(this.id!);
-      }
-    },
   },
   created() {
     this.$emit("loaded");
-  },
-  mounted(): void {
-    const tourManager = this.tourManager;
-    if (tourManager && tourManager?.showTour(this.id!)) {
-      this.$tours["defaultTour"].start();
-    }
   },
 });
 </script>

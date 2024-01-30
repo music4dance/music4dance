@@ -1,11 +1,11 @@
 import { describe, expect, test } from "vitest";
 import { mount } from "@vue/test-utils";
 import DanceName from "@/components/DanceName.vue";
-import { TempoType } from "@/models/TempoType";
-import { DanceGroup } from "@/models/DanceGroup";
-import { DanceType } from "@/models/DanceType";
-import { TempoRange } from "@/models/TempoRange";
-import { Meter } from "@/models/Meter";
+import { TempoType } from "@/models/DanceDatabase/TempoType";
+import { DanceGroup } from "@/models/DanceDatabase/DanceGroup";
+import { DanceType } from "@/models/DanceDatabase/DanceType";
+import { TempoRange } from "@/models/DanceDatabase/TempoRange";
+import { Meter } from "@/models/DanceDatabase/Meter";
 
 const dance = new DanceType({
   name: "test-dance",

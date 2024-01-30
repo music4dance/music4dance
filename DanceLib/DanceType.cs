@@ -29,7 +29,7 @@ public class DanceType : DanceObject
 
     [JsonConstructor]
     public DanceType(string name, Meter meter, string[] organizations,
-        DanceInstance[] instances)
+        DanceInstance[] instances) : this()
     {
         Name = name;
         Meter = meter;

@@ -1,8 +1,8 @@
 import { jsonMember, jsonObject } from "typedjson";
-import type { DanceDatabase } from "./DanceDatabase";
+import type { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
 import { Tag, TagCategory } from "./Tag";
 import { TaggableObject } from "./TaggableObject";
-import type { NamedObject } from "./NamedObject";
+import type { NamedObject } from "./DanceDatabase/NamedObject";
 
 declare const danceDatabase: DanceDatabase;
 

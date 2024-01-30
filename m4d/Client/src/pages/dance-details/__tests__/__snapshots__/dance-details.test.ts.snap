@@ -2505,6 +2505,5 @@ exports[`DanceDetails.vue renders a dance details page 1`] = `
       </p>
     </footer>
   </div>
-  <!---->
 </div>
 `;

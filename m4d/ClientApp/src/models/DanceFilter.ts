@@ -1,5 +1,5 @@
 export interface DanceFilter {
-  styles: string[];
   meters: string[];
+  styles: string[];
   types: string[];
 }

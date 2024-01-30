@@ -20081,6 +20081,5 @@ exports[`TagIndex.vue renders the tag index page 1`] = `
       </p>
     </footer>
   </div>
-  <!---->
 </div>
 `;

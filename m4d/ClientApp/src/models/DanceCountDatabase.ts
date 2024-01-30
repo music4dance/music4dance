@@ -1,7 +1,7 @@
-import type { NamedObject } from "./NamedObject";
-import { DanceDatabase } from "./DanceDatabase";
-import { DanceType } from "./DanceType";
-import { DanceGroup } from "./DanceGroup";
+import type { NamedObject } from "@/models/DanceDatabase/NamedObject";
+import { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
+import { DanceType } from "@/models/DanceDatabase/DanceType";
+import { DanceGroup } from "@/models/DanceDatabase/DanceGroup";
 import { DanceTypeCount } from "./DanceTypeCount";
 
 export class DanceCountDatabase extends DanceDatabase {

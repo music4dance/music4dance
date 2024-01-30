@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { TempoType } from "@/models/TempoType";
-import { TypeStats } from "@/models/TypeStats";
-import type { NamedObject } from "@/models/NamedObject";
+import { TempoType } from "@/models/DanceDatabase/TempoType";
+import { DanceType } from "@/models/DanceDatabase/DanceType";
+import type { NamedObject } from "@/models/DanceDatabase/NamedObject";
 import { computed } from "vue";
-import { DanceGroup } from "@/models/DanceGroup";
+import { DanceGroup } from "@/models/DanceDatabase/DanceGroup";
 
 const props = withDefaults(
   defineProps<{
@@ -26,12 +26,12 @@ const danceLink = computed(() => {
 });
 
 const canShowTempo = computed(() => {
-  const dance = DanceGroup.isGroup(props.dance) ? undefined : (props.dance as TypeStats);
+  const dance = DanceGroup.isGroup(props.dance) ? undefined : (props.dance as DanceType);
   return !!dance && !dance.tempoRange.isInfinite;
 });
 
 const tempoText = computed(() => {
-  const dance = DanceGroup.isGroup(props.dance) ? undefined : (props.dance as TypeStats);
+  const dance = DanceGroup.isGroup(props.dance) ? undefined : (props.dance as DanceType);
   if (!dance) return "";
 
   const showTempo = props.showTempo;

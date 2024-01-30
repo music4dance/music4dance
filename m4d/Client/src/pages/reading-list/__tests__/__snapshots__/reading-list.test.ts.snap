@@ -395,6 +395,5 @@ exports[`About.vue renders the about page 1`] = `
       </p>
     </footer>
   </div>
-  <!---->
 </div>
 `;

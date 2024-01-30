@@ -154,6 +154,5 @@ exports[`TempoCounter.vue renders the tempo counter page 1`] = `
       </p>
     </footer>
   </div>
-  <!---->
 </div>
 `;

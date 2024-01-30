@@ -1,4 +1,4 @@
-import { DanceType } from "./DanceType";
+import { DanceType } from "@/models/DanceDatabase/DanceType";
 
 export class DanceTypeCount extends DanceType {
   public constructor(

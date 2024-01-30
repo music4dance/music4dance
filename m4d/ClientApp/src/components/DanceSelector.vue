@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import TagSelector from "@/components/TagSelector.vue";
-import { NamedObject } from "@/models/NamedObject";
+import { NamedObject } from "@/models/DanceDatabase/NamedObject";
 
 const model = defineModel<string[]>();
 const props = defineProps<{

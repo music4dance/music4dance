@@ -5,7 +5,6 @@ import { createLocalVue, mount } from "@vue/test-utils";
 import { BootstrapVue, BootstrapVueIcons } from "bootstrap-vue";
 import { VueConstructor } from "vue";
 import VueShowdown from "vue-showdown";
-import VueTour from "vue-tour";
 
 declare global {
   interface Window {
@@ -77,7 +76,6 @@ function setupVue(): VueConstructor {
   const localVue = createLocalVue();
   localVue.use(BootstrapVue);
   localVue.use(BootstrapVueIcons);
-  localVue.use(VueTour);
   localVue.use(VueShowdown, { flavor: "vanilla" });
 
   return localVue;
