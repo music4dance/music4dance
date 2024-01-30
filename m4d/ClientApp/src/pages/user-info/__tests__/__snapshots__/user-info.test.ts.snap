@@ -5,8 +5,8 @@ exports[`User Info > Renders User Info Page 1`] = `
   <nav aria-label=\\"breadcrumb\\">
     <nav aria-label=\\"breadcrumb\\" style=\\"padding: 0.25rem 0.5rem;\\">
       <ol class=\\"breadcrumb\\">
-        <li class=\\"breadcrumb-item\\"><a class=\\"\\" href=\\"/\\" target=\\"_self\\">music4dance</a></li>
-        <li class=\\"breadcrumb-item\\"><a class=\\"\\" href=\\"/home/info\\" target=\\"_self\\">Info</a></li>
+        <li class=\\"breadcrumb-item\\"><a class=\\"\\" href=\\"/\\">music4dance</a></li>
+        <li class=\\"breadcrumb-item\\"><a class=\\"\\" href=\\"/home/info\\">Info</a></li>
         <li class=\\"breadcrumb-item active\\"><span aria-current=\\"location\\">User Profile</span></li>
       </ol>
     </nav>

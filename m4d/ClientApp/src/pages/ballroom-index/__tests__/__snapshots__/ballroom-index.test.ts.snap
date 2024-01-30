@@ -5,8 +5,8 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
   <nav aria-label=\\"breadcrumb\\">
     <nav aria-label=\\"breadcrumb\\" style=\\"padding: 0.25rem 0.5rem;\\">
       <ol class=\\"breadcrumb\\">
-        <li class=\\"breadcrumb-item\\"><a class=\\"\\" href=\\"/\\" target=\\"_self\\">music4dance</a></li>
-        <li class=\\"breadcrumb-item\\"><a class=\\"\\" href=\\"/dances\\" target=\\"_self\\">Dances</a></li>
+        <li class=\\"breadcrumb-item\\"><a class=\\"\\" href=\\"/\\">music4dance</a></li>
+        <li class=\\"breadcrumb-item\\"><a class=\\"\\" href=\\"/dances\\">Dances</a></li>
         <li class=\\"breadcrumb-item active\\"><span aria-current=\\"location\\">Ballroom</span></li>
       </ol>
     </nav>
@@ -27,126 +27,114 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
         <h2><a href=\\"/dances/american-smooth\\">American Smooth</a></h2>
         <div>
           <h4>An American Smooth four dance round consists of the following:</h4>
-          <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" sortdesc=\\"false\\" sortinternal=\\"true\\" selectable=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"single\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" currentpage=\\"1\\">
+          <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" sortdesc=\\"false\\" selectable=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" noselectonclick=\\"false\\" sortcompareoptions=\\"[object Object]\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
             <table class=\\"table b-table table-hover table-striped\\">
-              <thead>
+              <thead class=\\"\\">
                 <!---->
-                <tr>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>Name</div>
-                    </div>
+                <tr class=\\"\\">
+                  <th scope=\\"col\\" class=\\"\\">Name
+                    <!---->
                   </th>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>MPM</div>
-                    </div>
+                  <th scope=\\"col\\" class=\\"\\">MPM
+                    <!---->
                   </th>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>DanceSport</div>
-                    </div>
+                  <th scope=\\"col\\" class=\\"\\">DanceSport
+                    <!---->
                   </th>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>NDCA</div>
-                    </div>
+                  <th scope=\\"col\\" class=\\"\\">NDCA
+                    <!---->
                   </th>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>BPM</div>
-                    </div>
+                  <th scope=\\"col\\" class=\\"\\">BPM
+                    <!---->
                   </th>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>Meter</div>
-                    </div>
+                  <th scope=\\"col\\" class=\\"\\">Meter
+                    <!---->
                   </th>
                 </tr>
                 <!---->
               </thead>
-              <tbody>
+              <tbody class=\\"\\">
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"slow-waltz\\">American Slow Waltz</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90\\">28-30</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90\\">28-30</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=SWZ&amp;tempomin=90&amp;tempomax=90\\">30</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90\\">84-90</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->3/4
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"tango-(ballroom)\\">American Tango (Ballroom)</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=120\\">30</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=120\\">30</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=120\\">30</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=120\\">120</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->4/4
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"slow-foxtrot\\">American Slow Foxtrot</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=128\\">30-32</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=128\\">30-32</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=120\\">30</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=128\\">120-128</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->4/4
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"viennese-waltz\\">American Viennese Waltz</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=VWZ&amp;tempomin=159&amp;tempomax=162\\">53-54</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=VWZ&amp;tempomin=159&amp;tempomax=162\\">53-54</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=VWZ&amp;tempomin=159&amp;tempomax=159\\">53</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=VWZ&amp;tempomin=159&amp;tempomax=162\\">159-162</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->3/4
                   </td>
                 </tr>
@@ -164,147 +152,135 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
         <h2><a href=\\"/dances/international-standard\\">International Standard</a></h2>
         <div>
           <h4>An International Standard five dance round consists of the following:</h4>
-          <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" sortdesc=\\"false\\" sortinternal=\\"true\\" selectable=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"single\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" currentpage=\\"1\\">
+          <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" sortdesc=\\"false\\" selectable=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" noselectonclick=\\"false\\" sortcompareoptions=\\"[object Object]\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
             <table class=\\"table b-table table-hover table-striped\\">
-              <thead>
+              <thead class=\\"\\">
                 <!---->
-                <tr>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>Name</div>
-                    </div>
+                <tr class=\\"\\">
+                  <th scope=\\"col\\" class=\\"\\">Name
+                    <!---->
                   </th>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>MPM</div>
-                    </div>
+                  <th scope=\\"col\\" class=\\"\\">MPM
+                    <!---->
                   </th>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>DanceSport</div>
-                    </div>
+                  <th scope=\\"col\\" class=\\"\\">DanceSport
+                    <!---->
                   </th>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>NDCA</div>
-                    </div>
+                  <th scope=\\"col\\" class=\\"\\">NDCA
+                    <!---->
                   </th>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>BPM</div>
-                    </div>
+                  <th scope=\\"col\\" class=\\"\\">BPM
+                    <!---->
                   </th>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>Meter</div>
-                    </div>
+                  <th scope=\\"col\\" class=\\"\\">Meter
+                    <!---->
                   </th>
                 </tr>
                 <!---->
               </thead>
-              <tbody>
+              <tbody class=\\"\\">
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"slow-waltz\\">International Slow Waltz</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90\\">28-30</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90\\">28-30</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=SWZ&amp;tempomin=87&amp;tempomax=87\\">29</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90\\">84-90</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->3/4
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"tango-(ballroom)\\">International Tango (Ballroom)</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=TGO&amp;tempomin=124&amp;tempomax=132\\">31-33</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=TGO&amp;tempomin=128&amp;tempomax=128\\">32</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=TGO&amp;tempomin=124&amp;tempomax=132\\">31-33</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=TGO&amp;tempomin=124&amp;tempomax=132\\">124-132</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->4/4
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"viennese-waltz\\">International Viennese Waltz</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=VWZ&amp;tempomin=174&amp;tempomax=190\\">58-63.3</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=VWZ&amp;tempomin=174&amp;tempomax=190\\">58-63.3</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=VWZ&amp;tempomin=174&amp;tempomax=174\\">58</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=VWZ&amp;tempomin=174&amp;tempomax=190\\">174-190</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->3/4
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"slow-foxtrot\\">International Slow Foxtrot</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=112&amp;tempomax=120\\">28-30</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=112&amp;tempomax=120\\">28-30</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=112&amp;tempomax=112\\">28</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=112&amp;tempomax=120\\">112-120</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->4/4
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"quickstep\\">International Quickstep</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=QST&amp;tempomin=200&amp;tempomax=208\\">50-52</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=QST&amp;tempomin=200&amp;tempomax=208\\">50-52</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=QST&amp;tempomin=200&amp;tempomax=200\\">50</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=QST&amp;tempomin=200&amp;tempomax=208\\">200-208</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->4/4
                   </td>
                 </tr>
@@ -322,147 +298,135 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
         <h2><a href=\\"/dances/american-rhythm\\">American Rhythm</a></h2>
         <div>
           <h4>An American Rhythm five dance round consists of the following:</h4>
-          <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" sortdesc=\\"false\\" sortinternal=\\"true\\" selectable=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"single\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" currentpage=\\"1\\">
+          <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" sortdesc=\\"false\\" selectable=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" noselectonclick=\\"false\\" sortcompareoptions=\\"[object Object]\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
             <table class=\\"table b-table table-hover table-striped\\">
-              <thead>
+              <thead class=\\"\\">
                 <!---->
-                <tr>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>Name</div>
-                    </div>
+                <tr class=\\"\\">
+                  <th scope=\\"col\\" class=\\"\\">Name
+                    <!---->
                   </th>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>MPM</div>
-                    </div>
+                  <th scope=\\"col\\" class=\\"\\">MPM
+                    <!---->
                   </th>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>DanceSport</div>
-                    </div>
+                  <th scope=\\"col\\" class=\\"\\">DanceSport
+                    <!---->
                   </th>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>NDCA</div>
-                    </div>
+                  <th scope=\\"col\\" class=\\"\\">NDCA
+                    <!---->
                   </th>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>BPM</div>
-                    </div>
+                  <th scope=\\"col\\" class=\\"\\">BPM
+                    <!---->
                   </th>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>Meter</div>
-                    </div>
+                  <th scope=\\"col\\" class=\\"\\">Meter
+                    <!---->
                   </th>
                 </tr>
                 <!---->
               </thead>
-              <tbody>
+              <tbody class=\\"\\">
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"cha-cha\\">American Cha Cha</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=CHA&amp;tempomin=120&amp;tempomax=120\\">30</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=CHA&amp;tempomin=120&amp;tempomax=120\\">30</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=CHA&amp;tempomin=120&amp;tempomax=120\\">30</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=CHA&amp;tempomin=120&amp;tempomax=120\\">120</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->4/4
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"rumba\\">American Rumba</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=RMB&amp;tempomin=120&amp;tempomax=124\\">30-31</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=RMB&amp;tempomin=120&amp;tempomax=124\\">30-31</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=RMB&amp;tempomin=124&amp;tempomax=124\\">31</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=RMB&amp;tempomin=120&amp;tempomax=124\\">120-124</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->4/4
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"east-coast-swing\\">American East Coast Swing</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=ECS&amp;tempomin=136&amp;tempomax=144\\">34-36</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=ECS&amp;tempomin=136&amp;tempomax=144\\">34-36</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=ECS&amp;tempomin=140&amp;tempomax=140\\">35</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=ECS&amp;tempomin=136&amp;tempomax=144\\">136-144</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->4/4
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"bolero\\">American Bolero</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=BOL&amp;tempomin=96&amp;tempomax=104\\">24-26</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=BOL&amp;tempomin=96&amp;tempomax=104\\">24-26</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=BOL&amp;tempomin=96&amp;tempomax=96\\">24</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=BOL&amp;tempomin=96&amp;tempomax=104\\">96-104</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->4/4
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"mambo\\">American Mambo</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=MBO&amp;tempomin=188&amp;tempomax=188\\">47</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=MBO&amp;tempomin=188&amp;tempomax=188\\">47</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=MBO&amp;tempomin=188&amp;tempomax=188\\">47</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=MBO&amp;tempomin=188&amp;tempomax=188\\">188</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->4/4
                   </td>
                 </tr>
@@ -480,147 +444,135 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
         <h2><a href=\\"/dances/international-latin\\">International Latin</a></h2>
         <div>
           <h4>An International Latin five dance round consists of the following:</h4>
-          <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" sortdesc=\\"false\\" sortinternal=\\"true\\" selectable=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"single\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" currentpage=\\"1\\">
+          <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" sortdesc=\\"false\\" selectable=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" noselectonclick=\\"false\\" sortcompareoptions=\\"[object Object]\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
             <table class=\\"table b-table table-hover table-striped\\">
-              <thead>
+              <thead class=\\"\\">
                 <!---->
-                <tr>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>Name</div>
-                    </div>
+                <tr class=\\"\\">
+                  <th scope=\\"col\\" class=\\"\\">Name
+                    <!---->
                   </th>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>MPM</div>
-                    </div>
+                  <th scope=\\"col\\" class=\\"\\">MPM
+                    <!---->
                   </th>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>DanceSport</div>
-                    </div>
+                  <th scope=\\"col\\" class=\\"\\">DanceSport
+                    <!---->
                   </th>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>NDCA</div>
-                    </div>
+                  <th scope=\\"col\\" class=\\"\\">NDCA
+                    <!---->
                   </th>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>BPM</div>
-                    </div>
+                  <th scope=\\"col\\" class=\\"\\">BPM
+                    <!---->
                   </th>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>Meter</div>
-                    </div>
+                  <th scope=\\"col\\" class=\\"\\">Meter
+                    <!---->
                   </th>
                 </tr>
                 <!---->
               </thead>
-              <tbody>
+              <tbody class=\\"\\">
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"cha-cha\\">International Cha Cha</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=CHA&amp;tempomin=120&amp;tempomax=128\\">30-32</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=CHA&amp;tempomin=120&amp;tempomax=128\\">30-32</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=CHA&amp;tempomin=124&amp;tempomax=124\\">31</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=CHA&amp;tempomin=120&amp;tempomax=128\\">120-128</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->4/4
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"samba\\">International Samba</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=SMB&amp;tempomin=100&amp;tempomax=104\\">50-52</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=SMB&amp;tempomin=100&amp;tempomax=104\\">50-52</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=SMB&amp;tempomin=100&amp;tempomax=100\\">50</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=SMB&amp;tempomin=100&amp;tempomax=104\\">100-104</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->2/4
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"rumba\\">International Rumba</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=RMB&amp;tempomin=100&amp;tempomax=108\\">25-27</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=RMB&amp;tempomin=100&amp;tempomax=108\\">25-27</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=RMB&amp;tempomin=100&amp;tempomax=100\\">25</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=RMB&amp;tempomin=100&amp;tempomax=108\\">100-108</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->4/4
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"paso-doble\\">International Paso Doble</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=PDL&amp;tempomin=120&amp;tempomax=124\\">60-62</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=PDL&amp;tempomin=120&amp;tempomax=124\\">60-62</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=PDL&amp;tempomin=110&amp;tempomax=110\\">55</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=PDL&amp;tempomin=120&amp;tempomax=124\\">120-124</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->2/4
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"jive\\">International Jive</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=JIV&amp;tempomin=168&amp;tempomax=176\\">42-44</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=JIV&amp;tempomin=168&amp;tempomax=176\\">42-44</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=JIV&amp;tempomin=172&amp;tempomax=172\\">43</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!----><a href=\\"/song/advancedsearch?dances=JIV&amp;tempomin=168&amp;tempomax=176\\">168-176</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->4/4
                   </td>
                 </tr>
@@ -637,14 +589,14 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
       <div>
         <div>
           <div><img src=\\"/images/icons/tools.png\\" alt=\\"tools\\" width=\\"24\\" height=\\"24\\"> Explore relationships between the meter and tempi of different dance styles and find songs that match.</div>
-          <div class=\\"ms-3 my-1\\"><a class=\\"btn btn-sm btn-tools\\" href=\\"https://www.music4dance.net/home/tempi\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+          <div class=\\"ms-3 my-1\\"><a class=\\"btn btn-sm btn-tools\\" href=\\"https://www.music4dance.net/home/tempi\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                 <path fill=\\"currentColor\\" d=\\"M10.804 8L5 4.633v6.734zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696z\\"></path>
-              </svg>&nbsp;Try It!</a><a class=\\"btn btn-sm btn-tools\\" href=\\"https://music4dance.blog/music4dance-help/dance-tempi/\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+              </svg>&nbsp;Try It!</a><a class=\\"btn btn-sm btn-tools\\" href=\\"https://music4dance.blog/music4dance-help/dance-tempi/\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                 <g fill=\\"currentColor\\">
                   <path d=\\"M5 4a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm-.5 2.5A.5.5 0 0 1 5 6h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5M5 8a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm0 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1z\\"></path>
                   <path d=\\"M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1\\"></path>
                 </g>
-              </svg>&nbsp;Documentation</a><a class=\\"btn btn-sm btn-tools\\" href=\\"https://music4dance.blog/tag/tempo/\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+              </svg>&nbsp;Documentation</a><a class=\\"btn btn-sm btn-tools\\" href=\\"https://music4dance.blog/tag/tempo/\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                 <g fill=\\"currentColor\\">
                   <path d=\\"M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z\\"></path>
                   <path fill-rule=\\"evenodd\\" d=\\"M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z\\"></path>

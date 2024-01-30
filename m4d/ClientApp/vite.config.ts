@@ -54,12 +54,16 @@ export default defineConfig({
 //  path being src/pages/*/main.ts - then return a template for the main.ts file
 function AutoEndpoints(): Plugin {
   const main = `import 'vite/modulepreload-polyfill'
-import '@/scss/styles.scss'
 
 import { createApp } from 'vue'
+import {createBootstrap} from 'bootstrap-vue-next'
 import App from '{app}'
 
-createApp(App).mount('#app')
+import '@/scss/styles.scss'
+
+const app = createApp(App);
+app.use(createBootstrap());
+app.mount('#app')
 `;
 
   return {

@@ -5,8 +5,8 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
   <nav aria-label=\\"breadcrumb\\">
     <nav aria-label=\\"breadcrumb\\" style=\\"padding: 0.25rem 0.5rem;\\">
       <ol class=\\"breadcrumb\\">
-        <li class=\\"breadcrumb-item\\"><a class=\\"\\" href=\\"/\\" target=\\"_self\\">music4dance</a></li>
-        <li class=\\"breadcrumb-item\\"><a class=\\"\\" href=\\"/dances\\" target=\\"_self\\">Dances</a></li>
+        <li class=\\"breadcrumb-item\\"><a class=\\"\\" href=\\"/\\">music4dance</a></li>
+        <li class=\\"breadcrumb-item\\"><a class=\\"\\" href=\\"/dances\\">Dances</a></li>
         <li class=\\"breadcrumb-item active\\"><span aria-current=\\"location\\">WeddingDanceMusic</span></li>
       </ol>
     </nav>
@@ -22,135 +22,99 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
       <div style=\\"margin: 0px auto; max-width: 800px;\\">
         <div data-v-3bbd14d4=\\"\\">
           <!-- INT-TODO: Add back in foot-clone -->
-          <div data-v-3bbd14d4=\\"\\" class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" sortdesc=\\"false\\" sortinternal=\\"true\\" selectable=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"single\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" currentpage=\\"1\\">
+          <div data-v-3bbd14d4=\\"\\" class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" sortdesc=\\"false\\" selectable=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" noselectonclick=\\"false\\" sortcompareoptions=\\"[object Object]\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
             <table class=\\"table b-table table-hover table-striped\\">
-              <thead>
+              <thead class=\\"\\">
                 <!---->
-                <tr>
-                  <th scope=\\"col\\" class=\\"table-undefined b-table-sticky-column\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div>Dance Style</div>
-                    </div>
-                  </th>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div><a data-v-3bbd14d4=\\"\\" href=\\"/Song/?filter=Index-.-.-.-.-.-.-.-.-+Wedding:Other\\">Wedding</a></div>
-                    </div>
-                  </th>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div><a data-v-3bbd14d4=\\"\\" href=\\"/Song/?filter=Index-.-.-.-.-.-.-.-.-+First Dance:Other\\">First Dance</a></div>
-                    </div>
-                  </th>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div><a data-v-3bbd14d4=\\"\\" href=\\"/Song/?filter=Index-.-.-.-.-.-.-.-.-+Mother Son:Other\\">Mother/<wbr>Son</a></div>
-                    </div>
-                  </th>
-                  <th scope=\\"col\\" class=\\"table-undefined\\">
-                    <div class=\\"d-inline-flex flex-nowrap align-items-center gap-1\\">
-                      <div><a data-v-3bbd14d4=\\"\\" href=\\"/Song/?filter=Index-.-.-.-.-.-.-.-.-+Father Daughter:Other\\">Father/<wbr>Daughter</a></div>
-                    </div>
-                  </th>
+                <tr class=\\"\\">
+                  <th scope=\\"col\\" class=\\"b-table-sticky-column\\">Dance Style</th>
+                  <th scope=\\"col\\" class=\\"\\"><a data-v-3bbd14d4=\\"\\" href=\\"/Song/?filter=Index-.-.-.-.-.-.-.-.-+Wedding:Other\\">Wedding</a></th>
+                  <th scope=\\"col\\" class=\\"\\"><a data-v-3bbd14d4=\\"\\" href=\\"/Song/?filter=Index-.-.-.-.-.-.-.-.-+First Dance:Other\\">First Dance</a></th>
+                  <th scope=\\"col\\" class=\\"\\"><a data-v-3bbd14d4=\\"\\" href=\\"/Song/?filter=Index-.-.-.-.-.-.-.-.-+Mother Son:Other\\">Mother/<wbr>Son</a></th>
+                  <th scope=\\"col\\" class=\\"\\"><a data-v-3bbd14d4=\\"\\" href=\\"/Song/?filter=Index-.-.-.-.-.-.-.-.-+Father Daughter:Other\\">Father/<wbr>Daughter</a></th>
                 </tr>
                 <!---->
               </thead>
-              <tbody>
+              <tbody class=\\"\\">
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-group\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/swing\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/swing\\">Swing</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/balboa\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/balboa\\">Balboa</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BBA-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">1</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BBA-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">1</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BBA-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">1</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BBA-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">1</a>
                   </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/carolina-shag\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/carolina-shag\\">Carolina Shag</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSG-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">17</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSG-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">17</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSG-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">17</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSG-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">17</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSG-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\" target=\\"_self\\">3</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSG-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">3</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSG-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\" target=\\"_self\\">3</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSG-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">3</a>
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/charleston\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/charleston\\">Charleston</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CST-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">3</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CST-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">3</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CST-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">4</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CST-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">4</a>
                   </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/east-coast-swing\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/east-coast-swing\\">East Coast Swing</a><span><br> (Triple Swing, East Coast) </span>
@@ -158,26 +122,26 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                       </a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,ECS-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">106</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,ECS-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">106</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,ECS-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">91</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,ECS-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">91</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,ECS-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\" target=\\"_self\\">16</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,ECS-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">16</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,ECS-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\" target=\\"_self\\">16</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,ECS-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">16</a>
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/hustle\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/hustle\\">Hustle</a><span><br> (Street Swing, Disco Fox) </span>
@@ -185,74 +149,70 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                       </a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,HST-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">56</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,HST-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">56</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,HST-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">39</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,HST-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">39</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,HST-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\" target=\\"_self\\">6</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,HST-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">6</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,HST-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\" target=\\"_self\\">6</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,HST-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">6</a>
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/jive\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/jive\\">Jive</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JIV-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">38</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JIV-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">38</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JIV-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">36</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JIV-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">36</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JIV-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\" target=\\"_self\\">6</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JIV-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">6</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JIV-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\" target=\\"_self\\">6</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JIV-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">6</a>
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/jump-swing\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/jump-swing\\">Jump Swing</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JSW-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">2</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JSW-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">2</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JSW-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">2</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JSW-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">2</a>
                   </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/west-coast-swing\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/west-coast-swing\\">West Coast Swing</a><span><br> (West Coast) </span>
@@ -260,26 +220,26 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                       </a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,WCS-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">158</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,WCS-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">158</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,WCS-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">131</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,WCS-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">131</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,WCS-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\" target=\\"_self\\">8</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,WCS-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">8</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,WCS-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\" target=\\"_self\\">11</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,WCS-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">11</a>
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/lindy-hop\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/lindy-hop\\">Lindy Hop</a><span><br> (Swing, Jitterbug) </span>
@@ -287,26 +247,26 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                       </a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,LHP-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">52</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,LHP-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">52</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,LHP-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">45</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,LHP-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">45</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,LHP-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\" target=\\"_self\\">5</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,LHP-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">5</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,LHP-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\" target=\\"_self\\">5</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,LHP-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">5</a>
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/single-swing\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/single-swing\\">Single Swing</a><span><br> (Single-time Swing, East Coast Single Swing, Jitterbug) </span>
@@ -314,68 +274,52 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                       </a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SSW-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">10</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SSW-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">10</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SSW-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">9</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SSW-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">9</a>
                   </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-group\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/tango\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/tango\\">Tango</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/tango-(ballroom)\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/tango-(ballroom)\\">Tango (Ballroom)</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,TGO-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">15</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,TGO-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">15</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,TGO-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">13</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,TGO-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">13</a>
                   </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/argentine-tango\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/argentine-tango\\">Argentine Tango</a><span><br> (Tango Argentino) </span>
@@ -383,141 +327,121 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                       </a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,ATN-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">3</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,ATN-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">3</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,ATN-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">3</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,ATN-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">3</a>
                   </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/neo-tango\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/neo-tango\\">Neo Tango</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,NTN-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">2</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,NTN-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">2</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,NTN-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">2</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,NTN-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">2</a>
                   </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/milonga\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/milonga\\">Milonga</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MGA-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">1</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MGA-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">1</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MGA-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">1</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MGA-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">1</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MGA-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\" target=\\"_self\\">1</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MGA-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">1</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MGA-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\" target=\\"_self\\">1</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MGA-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">1</a>
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/tango-vals\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/tango-vals\\">Tango Vals</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,TGV-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">2</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,TGV-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">2</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,TGV-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">2</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,TGV-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">2</a>
                   </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-group\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/waltz\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/waltz\\">Waltz</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/cross-step-waltz\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/cross-step-waltz\\">Cross-step Waltz</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSW-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">4</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSW-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">4</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSW-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">3</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSW-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">3</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSW-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\" target=\\"_self\\">1</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSW-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">1</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSW-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\" target=\\"_self\\">1</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSW-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">1</a>
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/slow-waltz\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/slow-waltz\\">Slow Waltz</a><span><br> (Waltz) </span>
@@ -525,95 +449,83 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                       </a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SWZ-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">100</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SWZ-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">100</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SWZ-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">92</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SWZ-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">92</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SWZ-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\" target=\\"_self\\">13</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SWZ-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">13</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SWZ-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\" target=\\"_self\\">18</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SWZ-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">18</a>
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/viennese-waltz\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/viennese-waltz\\">Viennese Waltz</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,VWZ-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">108</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,VWZ-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">108</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,VWZ-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">101</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,VWZ-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">101</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,VWZ-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\" target=\\"_self\\">12</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,VWZ-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">12</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,VWZ-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\" target=\\"_self\\">13</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,VWZ-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">13</a>
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/tango-vals\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/tango-vals\\">Tango Vals</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,TGV-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">2</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,TGV-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">2</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,TGV-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">2</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,TGV-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">2</a>
                   </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-group\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/foxtrot\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/foxtrot\\">Foxtrot</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/castle-foxtrot\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/castle-foxtrot\\">Castle Foxtrot</a><span><br> (Slow Dance) </span>
@@ -621,26 +533,26 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                       </a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CFT-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">320</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CFT-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">320</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CFT-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">294</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CFT-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">294</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CFT-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\" target=\\"_self\\">48</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CFT-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">48</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CFT-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\" target=\\"_self\\">51</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CFT-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">51</a>
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/slow-foxtrot\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/slow-foxtrot\\">Slow Foxtrot</a><span><br> (Foxtrot) </span>
@@ -648,49 +560,45 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                       </a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SFT-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">182</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SFT-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">182</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SFT-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">169</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SFT-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">169</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SFT-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\" target=\\"_self\\">19</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SFT-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">19</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SFT-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\" target=\\"_self\\">22</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SFT-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">22</a>
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/quickstep\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/quickstep\\">Quickstep</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,QST-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">17</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,QST-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">17</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,QST-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">16</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,QST-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">16</a>
                   </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/peabody\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/peabody\\">Peabody</a><span><br> (One Step) </span>
@@ -698,520 +606,468 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                       </a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,PBD-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">1</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,PBD-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">1</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,PBD-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">1</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,PBD-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">1</a>
                   </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-group\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/latin\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/latin\\">Latin</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/bolero\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/bolero\\">Bolero</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BOL-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">72</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BOL-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">72</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BOL-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">66</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BOL-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">66</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BOL-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\" target=\\"_self\\">13</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BOL-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">13</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BOL-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\" target=\\"_self\\">11</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BOL-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">11</a>
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/cha-cha\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/cha-cha\\">Cha Cha</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CHA-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">155</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CHA-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">155</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CHA-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">119</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CHA-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">119</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CHA-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\" target=\\"_self\\">20</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CHA-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">20</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CHA-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\" target=\\"_self\\">20</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CHA-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">20</a>
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/mambo\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/mambo\\">Mambo</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MBO-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">14</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MBO-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">14</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MBO-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">13</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MBO-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">13</a>
                   </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/rumba\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/rumba\\">Rumba</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,RMB-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">264</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,RMB-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">264</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,RMB-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">249</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,RMB-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">249</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,RMB-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\" target=\\"_self\\">29</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,RMB-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">29</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,RMB-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\" target=\\"_self\\">31</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,RMB-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">31</a>
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/paso-doble\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/paso-doble\\">Paso Doble</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,PDL-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">3</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,PDL-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">3</a>
                   </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/samba\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/samba\\">Samba</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SMB-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">17</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SMB-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">17</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SMB-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">10</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SMB-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">10</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SMB-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\" target=\\"_self\\">3</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SMB-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">3</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SMB-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\" target=\\"_self\\">3</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SMB-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">3</a>
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/salsa\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/salsa\\">Salsa</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SLS-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">21</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SLS-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">21</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SLS-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">17</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SLS-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">17</a>
                   </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/bachata\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/bachata\\">Bachata</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BCH-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">5</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BCH-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">5</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BCH-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">4</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BCH-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">4</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BCH-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\" target=\\"_self\\">2</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BCH-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">2</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BCH-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\" target=\\"_self\\">2</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BCH-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">2</a>
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/cumbia\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/cumbia\\">Cumbia</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CMB-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">3</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CMB-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">3</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CMB-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">2</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CMB-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">2</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CMB-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\" target=\\"_self\\">1</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CMB-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">1</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CMB-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\" target=\\"_self\\">1</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CMB-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">1</a>
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/merengue\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/merengue\\">Merengue</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MRG-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">9</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MRG-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">9</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MRG-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">8</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MRG-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">8</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MRG-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\" target=\\"_self\\">2</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MRG-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">2</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MRG-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\" target=\\"_self\\">2</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MRG-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">2</a>
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-group\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/other\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/other\\">Other</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/blues\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/blues\\">Blues</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BLU-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">28</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BLU-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">28</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BLU-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">26</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BLU-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">26</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BLU-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\" target=\\"_self\\">4</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BLU-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">4</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BLU-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\" target=\\"_self\\">5</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BLU-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">5</a>
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/country-two-step\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/country-two-step\\">Country Two Step</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,C2S-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">7</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,C2S-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">7</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,C2S-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">5</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,C2S-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">5</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,C2S-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\" target=\\"_self\\">1</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,C2S-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">1</a>
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/motown\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/motown\\">Motown</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MWT-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">17</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MWT-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">17</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MWT-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">16</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MWT-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">16</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MWT-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\" target=\\"_self\\">6</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MWT-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">6</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MWT-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\" target=\\"_self\\">6</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MWT-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">6</a>
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/night-club-two-step\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/night-club-two-step\\">Night Club Two Step</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,NC2-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">97</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,NC2-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">97</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,NC2-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">87</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,NC2-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">87</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,NC2-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\" target=\\"_self\\">9</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,NC2-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">9</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,NC2-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\" target=\\"_self\\">14</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,NC2-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">14</a>
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/polka\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/polka\\">Polka</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,PLK-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">1</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,PLK-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">1</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,PLK-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">1</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,PLK-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">1</a>
                   </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-group\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/performance\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/performance\\">Performance</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/contemporary\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/contemporary\\">Contemporary</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CNT-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">12</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CNT-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">12</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CNT-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">10</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CNT-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">10</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CNT-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\" target=\\"_self\\">2</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CNT-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">2</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CNT-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\" target=\\"_self\\">2</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CNT-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">2</a>
                   </td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/freestyle\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/freestyle\\">Freestyle</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,FST-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">6</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,FST-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">6</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,FST-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">4</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,FST-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">4</a>
                   </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
-                  <td class=\\"table-undefined\\">
-                    <!---->
-                  </td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
+                  <td scope=\\"col\\" class=\\"\\"></td>
                 </tr>
                 <!---->
                 <tr class=\\"\\">
-                  <td class=\\"table-undefined b-table-sticky-column\\">
+                  <td scope=\\"col\\" class=\\"b-table-sticky-column\\">
                     <!---->
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\">
                       <!-- INT-TODO: Should be able to remove this case if we get generic tables --><a data-v-3bbd14d4=\\"\\" href=\\"/dances/jazz\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/jazz\\">Jazz</a><!--v-if--><!--v-if--></span></a>
                     </div>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JAZ-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\" target=\\"_self\\">7</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JAZ-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">7</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JAZ-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\" target=\\"_self\\">5</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JAZ-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">5</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JAZ-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\" target=\\"_self\\">2</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JAZ-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">2</a>
                   </td>
-                  <td class=\\"table-undefined\\">
+                  <td scope=\\"col\\" class=\\"\\">
                     <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JAZ-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\" target=\\"_self\\">2</a>
+                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JAZ-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">2</a>
                   </td>
                 </tr>
                 <!---->

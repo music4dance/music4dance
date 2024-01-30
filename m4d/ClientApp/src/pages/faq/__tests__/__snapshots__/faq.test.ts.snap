@@ -5,8 +5,8 @@ exports[`Faq > Renders Faq Page 1`] = `
   <nav aria-label=\\"breadcrumb\\">
     <nav aria-label=\\"breadcrumb\\" style=\\"padding: 0.25rem 0.5rem;\\">
       <ol class=\\"breadcrumb\\">
-        <li class=\\"breadcrumb-item\\"><a class=\\"\\" href=\\"/\\" target=\\"_self\\">music4dance</a></li>
-        <li class=\\"breadcrumb-item\\"><a class=\\"\\" href=\\"/home/info\\" target=\\"_self\\">Info</a></li>
+        <li class=\\"breadcrumb-item\\"><a class=\\"\\" href=\\"/\\">music4dance</a></li>
+        <li class=\\"breadcrumb-item\\"><a class=\\"\\" href=\\"/home/info\\">Info</a></li>
         <li class=\\"breadcrumb-item active\\"><span aria-current=\\"location\\">FAQ</span></li>
       </ol>
     </nav>
@@ -18,8 +18,9 @@ exports[`Faq > Renders Faq Page 1`] = `
         <div class=\\"card mb-1\\">
           <!---->
           <!---->
-          <div class=\\"card-header p-1\\" header-tag=\\"header\\" role=\\"tab\\"><button class=\\"btn btn-md btn-primary btn-block collapsed\\" type=\\"button\\" aria-controls=\\"accordion-1\\" aria-expanded=\\"false\\"> Where can I find songs that work with the dance style I'm currently practicing? </button></div>
-          <div id=\\"accordion-1\\" class=\\"collapse show\\" is-nav=\\"false\\" accordion=\\"my-accordion\\" role=\\"tabpanel\\">
+          <!---->
+          <div class=\\"card-header p-1\\" header-tag=\\"header\\" role=\\"tab\\"><button class=\\"btn btn-md btn-primary collapsed\\" type=\\"button\\" block=\\"\\" aria-controls=\\"accordion-1\\" aria-expanded=\\"false\\"> Where can I find songs that work with the dance style I'm currently practicing? </button></div>
+          <div id=\\"accordion-1\\" class=\\"collapse\\" is-nav=\\"false\\" accordion=\\"my-accordion\\" role=\\"tabpanel\\">
             <div class=\\"card-body\\">
               <!---->
               <!---->
@@ -36,7 +37,8 @@ exports[`Faq > Renders Faq Page 1`] = `
         <div class=\\"card mb-1\\">
           <!---->
           <!---->
-          <div class=\\"card-header p-1\\" header-tag=\\"header\\" role=\\"tab\\"><button class=\\"btn btn-md btn-primary btn-block collapsed\\" type=\\"button\\" aria-controls=\\"accordion-2\\" aria-expanded=\\"false\\"> What dance styles work with the song I'm listening to or a specific song that I know of? </button></div>
+          <!---->
+          <div class=\\"card-header p-1\\" header-tag=\\"header\\" role=\\"tab\\"><button class=\\"btn btn-md btn-primary collapsed\\" type=\\"button\\" block=\\"\\" aria-controls=\\"accordion-2\\" aria-expanded=\\"false\\"> What dance styles work with the song I'm listening to or a specific song that I know of? </button></div>
           <div id=\\"accordion-2\\" class=\\"collapse\\" is-nav=\\"false\\" accordion=\\"my-accordion\\" role=\\"tabpanel\\">
             <div class=\\"card-body\\">
               <!---->
@@ -54,7 +56,8 @@ exports[`Faq > Renders Faq Page 1`] = `
         <div class=\\"card mb-1\\">
           <!---->
           <!---->
-          <div class=\\"card-header p-1\\" header-tag=\\"header\\" role=\\"tab\\"><button class=\\"btn btn-md btn-primary btn-block collapsed\\" type=\\"button\\" aria-controls=\\"accordion-3\\" aria-expanded=\\"false\\">Why should I sign up with Music4Dance?</button></div>
+          <!---->
+          <div class=\\"card-header p-1\\" header-tag=\\"header\\" role=\\"tab\\"><button class=\\"btn btn-md btn-primary collapsed\\" type=\\"button\\" block=\\"\\" aria-controls=\\"accordion-3\\" aria-expanded=\\"false\\">Why should I sign up with Music4Dance?</button></div>
           <div id=\\"accordion-3\\" class=\\"collapse\\" is-nav=\\"false\\" accordion=\\"my-accordion\\" role=\\"tabpanel\\">
             <div class=\\"card-body\\">
               <!---->
@@ -71,7 +74,8 @@ exports[`Faq > Renders Faq Page 1`] = `
         <div class=\\"card mb-1\\">
           <!---->
           <!---->
-          <div class=\\"card-header p-1\\" header-tag=\\"header\\" role=\\"tab\\"><button class=\\"btn btn-md btn-primary btn-block collapsed\\" type=\\"button\\" aria-controls=\\"accordion-3b\\" aria-expanded=\\"false\\">Why should I purchase a subscription to music4dance.net?</button></div>
+          <!---->
+          <div class=\\"card-header p-1\\" header-tag=\\"header\\" role=\\"tab\\"><button class=\\"btn btn-md btn-primary collapsed\\" type=\\"button\\" block=\\"\\" aria-controls=\\"accordion-3b\\" aria-expanded=\\"false\\">Why should I purchase a subscription to music4dance.net?</button></div>
           <div id=\\"accordion-3b\\" class=\\"collapse\\" is-nav=\\"false\\" accordion=\\"my-accordion\\" role=\\"tabpanel\\">
             <div class=\\"card-body\\">
               <!---->
@@ -93,7 +97,8 @@ exports[`Faq > Renders Faq Page 1`] = `
         <div class=\\"card mb-1\\">
           <!---->
           <!---->
-          <div class=\\"card-header p-1\\" header-tag=\\"header\\" role=\\"tab\\"><button class=\\"btn btn-md btn-primary btn-block collapsed\\" type=\\"button\\" aria-controls=\\"accordion-4\\" aria-expanded=\\"false\\"> I can't find the song I'm looking for, what should I do? </button></div>
+          <!---->
+          <div class=\\"card-header p-1\\" header-tag=\\"header\\" role=\\"tab\\"><button class=\\"btn btn-md btn-primary collapsed\\" type=\\"button\\" block=\\"\\" aria-controls=\\"accordion-4\\" aria-expanded=\\"false\\"> I can't find the song I'm looking for, what should I do? </button></div>
           <div id=\\"accordion-4\\" class=\\"collapse\\" is-nav=\\"false\\" accordion=\\"my-accordion\\" role=\\"tabpanel\\">
             <div class=\\"card-body\\">
               <!---->
@@ -110,7 +115,8 @@ exports[`Faq > Renders Faq Page 1`] = `
         <div class=\\"card mb-1\\">
           <!---->
           <!---->
-          <div class=\\"card-header p-1\\" header-tag=\\"header\\" role=\\"tab\\"><button class=\\"btn btn-md btn-primary btn-block collapsed\\" type=\\"button\\" aria-controls=\\"accordion-5\\" aria-expanded=\\"false\\"> I'm a competition Ballroom dancer, how can music4dance help me find music? </button></div>
+          <!---->
+          <div class=\\"card-header p-1\\" header-tag=\\"header\\" role=\\"tab\\"><button class=\\"btn btn-md btn-primary collapsed\\" type=\\"button\\" block=\\"\\" aria-controls=\\"accordion-5\\" aria-expanded=\\"false\\"> I'm a competition Ballroom dancer, how can music4dance help me find music? </button></div>
           <div id=\\"accordion-5\\" class=\\"collapse\\" is-nav=\\"false\\" accordion=\\"my-accordion\\" role=\\"tabpanel\\">
             <div class=\\"card-body\\">
               <!---->
@@ -127,7 +133,8 @@ exports[`Faq > Renders Faq Page 1`] = `
         <div class=\\"card mb-1\\">
           <!---->
           <!---->
-          <div class=\\"card-header p-1\\" header-tag=\\"header\\" role=\\"tab\\"><button class=\\"btn btn-md btn-primary btn-block collapsed\\" type=\\"button\\" aria-controls=\\"accordion-6\\" aria-expanded=\\"false\\"> I want to find a great song for my first dance at my wedding, where should I look? </button></div>
+          <!---->
+          <div class=\\"card-header p-1\\" header-tag=\\"header\\" role=\\"tab\\"><button class=\\"btn btn-md btn-primary collapsed\\" type=\\"button\\" block=\\"\\" aria-controls=\\"accordion-6\\" aria-expanded=\\"false\\"> I want to find a great song for my first dance at my wedding, where should I look? </button></div>
           <div id=\\"accordion-6\\" class=\\"collapse\\" is-nav=\\"false\\" accordion=\\"my-accordion\\" role=\\"tabpanel\\">
             <div class=\\"card-body\\">
               <!---->
@@ -144,7 +151,8 @@ exports[`Faq > Renders Faq Page 1`] = `
         <div class=\\"card mb-1\\">
           <!---->
           <!---->
-          <div class=\\"card-header p-1\\" header-tag=\\"header\\" role=\\"tab\\"><button class=\\"btn btn-md btn-primary btn-block collapsed\\" type=\\"button\\" aria-controls=\\"accordion-update\\" aria-expanded=\\"false\\"> Why are some pages styled differently than others? </button></div>
+          <!---->
+          <div class=\\"card-header p-1\\" header-tag=\\"header\\" role=\\"tab\\"><button class=\\"btn btn-md btn-primary collapsed\\" type=\\"button\\" block=\\"\\" aria-controls=\\"accordion-update\\" aria-expanded=\\"false\\"> Why are some pages styled differently than others? </button></div>
           <div id=\\"accordion-update\\" class=\\"collapse\\" is-nav=\\"false\\" accordion=\\"my-accordion\\" role=\\"tabpanel\\">
             <div class=\\"card-body\\">
               <!---->
@@ -161,7 +169,8 @@ exports[`Faq > Renders Faq Page 1`] = `
         <div class=\\"card mb-1\\">
           <!---->
           <!---->
-          <div class=\\"card-header p-1\\" header-tag=\\"header\\" role=\\"tab\\"><button class=\\"btn btn-md btn-primary btn-block collapsed\\" type=\\"button\\" aria-controls=\\"accordion-7\\" aria-expanded=\\"false\\"> Not finding the answer to your question or want to give us feedback? </button></div>
+          <!---->
+          <div class=\\"card-header p-1\\" header-tag=\\"header\\" role=\\"tab\\"><button class=\\"btn btn-md btn-primary collapsed\\" type=\\"button\\" block=\\"\\" aria-controls=\\"accordion-7\\" aria-expanded=\\"false\\"> Not finding the answer to your question or want to give us feedback? </button></div>
           <div id=\\"accordion-7\\" class=\\"collapse\\" is-nav=\\"false\\" accordion=\\"my-accordion\\" role=\\"tabpanel\\">
             <div class=\\"card-body\\">
               <!---->
