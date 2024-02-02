@@ -6,6 +6,7 @@ import { RawDanceQuery } from "./RawDanceQuery";
 import { SongSort, SortOrder } from "./SongSort";
 import { TagList } from "./TagList";
 import { UserQuery } from "./UserQuery";
+import { KeywordQuery } from "./KeywordQuery";
 
 const subChar = "\u001a";
 const scRegEx = new RegExp(subChar, "g");
@@ -136,6 +137,10 @@ export class SongFilter {
     return action.startsWith("azure+raw") || action === "holidaymusic";
   }
 
+  public get keywordQuery(): KeywordQuery {
+    return new KeywordQuery(this.searchString);
+  }
+
   public get danceQuery(): DanceQueryBase {
     return this.isRaw ? new RawDanceQuery(this.dances, this.tags) : new DanceQuery(this.dances);
   }
@@ -193,6 +198,7 @@ export class SongFilter {
         "dances",
         "page",
       ]) &&
+      !this.keywordQuery.isLucene &&
       this.danceQuery.isSimple &&
       this.userQuery.isDefault(user) &&
       !this.sortOrder?.startsWith(SortOrder.Comments)
@@ -243,11 +249,7 @@ export class SongFilter {
   }
 
   private get describeKeywords(): string {
-    if (!this.searchString) {
-      return "";
-    }
-
-    return `containing the text "${this.searchString}"`;
+    return this.keywordQuery.description;
   }
 
   private get describePurchase(): string {

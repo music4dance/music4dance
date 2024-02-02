@@ -932,6 +932,9 @@ public abstract class SongIndex
     public async Task<SearchResults> Search(
         string search, SearchOptions parameters, CruftFilter cruft = CruftFilter.NoCruft)
     {
+        // Strip of the Lucene syntax indicator
+        search = new KeywordQuery(search).Keywords;
+
         try
         {
             var response = await DoSearch(search, parameters, cruft);
@@ -1110,11 +1113,11 @@ public abstract class SongIndex
         var order = filter.ODataSort;
         var odataFilter = filter.GetOdataFilter(DanceMusicService);
 
+        var useLucene = filter.KeywordQuery.IsLucene;
         var ret = new SearchOptions
         {
-            QueryType =
-                SearchQueryType
-                    .Simple, // filter.IsSimple ? SearchQueryType.Simple : SearchQueryType.Full,
+            QueryType = useLucene ? SearchQueryType.Full : SearchQueryType.Simple,
+            SearchMode = useLucene ? SearchMode.All : SearchMode.Any,
             Filter = odataFilter,
             IncludeTotalCount = true,
             Size = pageSize,

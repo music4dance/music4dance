@@ -2,7 +2,7 @@
   <div>
     <h1>Search Results</h1>
     <h3>
-      {{ filter.description }}
+      {{ description }}
       <b-button :href="changeLink" variant="primary" class="mx-1"
         >Change</b-button
       >
@@ -25,6 +25,9 @@ export default Vue.extend({
   computed: {
     changeLink(): string {
       return `/song/advancedsearchform?filter=${this.filter.encodedQuery}`;
+    },
+    description(): string {
+      return this.filter.description;
     },
     playListRef(): string | undefined {
       return this.filter.getPlayListRef(this.user);

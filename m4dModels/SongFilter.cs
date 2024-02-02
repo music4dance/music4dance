@@ -144,7 +144,7 @@ namespace m4dModels
         private static string ReadCell(List<string> cells, int index)
         {
             var ret = cells.Count > index ? cells[index] : null;
-            return ret = string.IsNullOrWhiteSpace(ret) || ret == "." ? null : ret;
+            return string.IsNullOrWhiteSpace(ret) || ret == "." ? null : ret;
         }
 
         private static decimal? ReadDecimal(List<string> cells, int index)
@@ -233,6 +233,7 @@ namespace m4dModels
         }
         public bool DescriptionOverride => IsRaw && !string.IsNullOrWhiteSpace(Purchase);
 
+        public KeywordQuery KeywordQuery => new(SearchString);
         public DanceQuery DanceQuery => new(IsRaw ? null : Dances);
         public UserQuery UserQuery => new(User);
         public SongSort SongSort => new(SortOrder);
@@ -367,7 +368,7 @@ namespace m4dModels
 
                 if (!string.IsNullOrWhiteSpace(SearchString))
                 {
-                    sb.AppendFormat(" containing the text \"{0}\"", SearchString);
+                    sb.AppendFormat(" {0}", KeywordQuery.Description);
                     separator = CommaSeparator;
                 }
 
@@ -455,7 +456,7 @@ namespace m4dModels
 
                 if (!string.IsNullOrWhiteSpace(SearchString))
                 {
-                    sb.AppendFormat("\"{0}\" ", SearchString);
+                    sb.AppendFormat("{0} ", KeywordQuery.ShortDescription);
                 }
 
                 if (TempoMin.HasValue && TempoMax.HasValue)

@@ -62,6 +62,7 @@ declare module 'vue' {
     IBiAward: typeof import('~icons/bi/award')['default']
     IBiBoxArrowUpRight: typeof import('~icons/bi/box-arrow-up-right')['default']
     IBiBriefcase: typeof import('~icons/bi/briefcase')['default']
+    IBiCaretDown: typeof import('~icons/bi/caret-down')['default']
     IBiCheckCircle: typeof import('~icons/bi/check-circle')['default']
     IBiCircle: typeof import('~icons/bi/circle')['default']
     IBiClock: typeof import('~icons/bi/clock')['default']

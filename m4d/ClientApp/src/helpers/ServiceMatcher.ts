@@ -27,11 +27,11 @@ const services: Service[] = [
 //   we'll want the contructor to specificy what services to handle
 export class ServiceMatcher {
   public match(serviceString: string): Service | undefined {
-    return services.find((s) => this.matchService(serviceString, s));
+    return serviceString ? services.find((s) => this.matchService(serviceString, s)) : undefined;
   }
 
   private matchService(id: string, service: Service): boolean {
-    return service.rgx.some((rgx) => id.match(rgx));
+    return id ? service.rgx.some((rgx) => id.match(rgx)) : false;
   }
 
   public parseId(id: string, service: Service): string {

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import DanceSelector from "@/components/DanceSelector.vue";
+import KeywordEditor from "./components/KeywordEditor.vue";
 import PageFrame from "@/components/PageFrame.vue";
 import TagCategorySelector from "@/components/TagCategorySelector.vue";
 import { DanceQuery } from "@/models/DanceQuery";
@@ -12,7 +13,6 @@ import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { safeTagDatabase } from "@/helpers/TagEnvironmentManager";
 import { computed, ref, onMounted } from "vue";
 import type { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
-import { checkServiceAndWarn } from "@/helpers/DropTarget";
 
 interface SortOption {
   text: string;
@@ -22,7 +22,6 @@ interface SortOption {
 const context = getMenuContext();
 const danceDB: DanceDatabase = safeDanceDatabase();
 
-const keywordsInput = ref<HTMLInputElement | null>(null);
 const allDances = danceDB.all;
 
 const tagDatabase = safeTagDatabase();
@@ -219,12 +218,6 @@ function extractTags(tags: string, include: boolean): string[] {
   return filtered;
 }
 
-onMounted(() => {
-  if (keywordsInput.value) {
-    keywordsInput.value.focus();
-  }
-});
-
 async function onSubmit(): Promise<void> {
   const form = document.getElementById("advanced-search") as HTMLFormElement;
 
@@ -296,16 +289,7 @@ function onReset(evt: Event): void {
         @submit.stop.prevent="onSubmit"
         @reset="onReset"
       >
-        <BFormGroup id="search-string-group" label="Keywords:" label-for="search-string">
-          <BFormInput
-            id="search-string"
-            ref="keywordsInput"
-            v-model="keyWords"
-            type="text"
-            placeholder="Enter Keywords from title, artist, etc... OR a Spotify or Apple share link"
-            @input="checkServiceAndWarn"
-          ></BFormInput>
-        </BFormGroup>
+        <KeywordEditor id="search-string-group" v-model="keyWords" />
 
         <BFormGroup id="dance-group" label="Dances:">
           <div style="border: 1px solid #ced4da; boder-radius: 0.25rem">

@@ -1,4 +1,3 @@
-import "reflect-metadata";
 import { jsonMember, jsonObject } from "typedjson";
 import { DanceQuery } from "./DanceQuery";
 import { DanceQueryBase } from "./DanceQueryBase";
@@ -7,6 +6,7 @@ import { RawDanceQuery } from "./RawDanceQuery";
 import { SongSort, SortOrder } from "./SongSort";
 import { TagList } from "./TagList";
 import { UserQuery } from "./UserQuery";
+import { KeywordQuery } from "./KeywordQuery";
 
 const subChar = "\u001a";
 const scRegEx = new RegExp(subChar, "g");
@@ -70,20 +70,20 @@ export class SongFilter {
     return val ? Number.parseFloat(val) : undefined;
   }
 
-  @jsonMember public version?: number = 1;
-  @jsonMember public action?: string = "index";
-  @jsonMember public searchString?: string;
-  @jsonMember public dances?: string;
-  @jsonMember public sortOrder?: string;
-  @jsonMember public purchase?: string;
-  @jsonMember public user?: string;
-  @jsonMember public tempoMin?: number;
-  @jsonMember public tempoMax?: number;
-  @jsonMember public lengthMin?: number;
-  @jsonMember public lengthMax?: number;
-  @jsonMember public page?: number;
-  @jsonMember public tags?: string;
-  @jsonMember public level?: number;
+  @jsonMember(Number) public version?: number = 1;
+  @jsonMember(String) public action?: string = "index";
+  @jsonMember(String) public searchString?: string;
+  @jsonMember(String) public dances?: string;
+  @jsonMember(String) public sortOrder?: string;
+  @jsonMember(String) public purchase?: string;
+  @jsonMember(String) public user?: string;
+  @jsonMember(Number) public tempoMin?: number;
+  @jsonMember(Number) public tempoMax?: number;
+  @jsonMember(Number) public lengthMin?: number;
+  @jsonMember(Number) public lengthMax?: number;
+  @jsonMember(Number) public page?: number;
+  @jsonMember(String) public tags?: string;
+  @jsonMember(Number) public level?: number;
 
   public clone(): SongFilter {
     return SongFilter.buildFilter(this.query);
@@ -152,6 +152,10 @@ export class SongFilter {
     return action.startsWith("azure+raw") || action === "holidaymusic";
   }
 
+  public get keywordQuery(): KeywordQuery {
+    return new KeywordQuery(this.searchString);
+  }
+
   public get danceQuery(): DanceQueryBase {
     return this.isRaw
       ? new RawDanceQuery(this.dances, this.tags)
@@ -211,6 +215,7 @@ export class SongFilter {
         "dances",
         "page",
       ]) &&
+      !this.keywordQuery.isLucene &&
       this.danceQuery.isSimple &&
       this.userQuery.isDefault(user) &&
       !this.sortOrder?.startsWith(SortOrder.Comments)
@@ -261,11 +266,7 @@ export class SongFilter {
   }
 
   private get describeKeywords(): string {
-    if (!this.searchString) {
-      return "";
-    }
-
-    return `containing the text "${this.searchString}"`;
+    return this.keywordQuery.description;
   }
 
   private get describePurchase(): string {
