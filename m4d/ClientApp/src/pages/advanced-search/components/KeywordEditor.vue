@@ -4,6 +4,7 @@ import { KeywordQuery } from "@/models/KeywordQuery";
 import { computed, onMounted, ref, type VNodeRef } from "vue";
 
 const props = defineProps({ modelValue: { type: String, required: true } });
+const advanced = defineModel<boolean>("advanced");
 const emit = defineEmits(["update:modelValue"]);
 
 const keywordsInput = ref<VNodeRef | null>(null);
@@ -14,8 +15,6 @@ const everywhere = computed(() => keywordQuery.getField("Everywhere"));
 const title = computed(() => keywordQuery.getField("Title"));
 const artist = computed(() => keywordQuery.getField("Artist"));
 const albums = computed(() => keywordQuery.getField("Albums"));
-
-const forceFields = ref(false);
 
 const model = [
   {
@@ -28,7 +27,7 @@ const model = [
   { name: "Albums", model: albums, description: "Enter part of an album name" },
 ];
 
-const showFields = computed(() => keywordQuery.isLucene || forceFields.value);
+const showFields = computed(() => keywordQuery.isLucene || advanced.value);
 const visibleModel = computed(() => (showFields.value ? model : model.slice(0, 1)));
 
 onMounted(() => {
@@ -73,7 +72,7 @@ const updateModel = async (key: string, value: string) => {
       size="sm"
       variant="outline-secondary"
       class="float-end"
-      @click="forceFields = true"
+      @click="advanced = true"
       ><IBiCaretDown /> more <IBiCaretDown
     /></BButton>
   </BFormGroup>

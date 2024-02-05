@@ -11,7 +11,7 @@ import { UserQuery } from "@/models/UserQuery";
 import { getMenuContext } from "@/helpers/GetMenuContext";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { safeTagDatabase } from "@/helpers/TagEnvironmentManager";
-import { computed, ref, onMounted } from "vue";
+import { computed, ref } from "vue";
 import type { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
 
 interface SortOption {
@@ -30,6 +30,7 @@ const danceQueryInit = new DanceQuery(filter.dances);
 
 var showDiagnostics = getShowDiagnostics();
 var keyWords = ref(filter.searchString ?? "");
+var advancedText = ref(false);
 var dances = ref(danceQueryInit.danceList);
 var danceConnector = ref(danceQueryInit.isExclusive ? "all" : "any");
 
@@ -253,6 +254,7 @@ function onReset(evt: Event): void {
   const userName = isAnonymous.value ? user : displayUser;
 
   keyWords.value = "";
+  advancedText.value = false;
   dances.value = [];
   danceConnector.value = "any";
   includeTags.value = [];
@@ -289,7 +291,11 @@ function onReset(evt: Event): void {
         @submit.stop.prevent="onSubmit"
         @reset="onReset"
       >
-        <KeywordEditor id="search-string-group" v-model="keyWords" />
+        <KeywordEditor
+          id="search-string-group"
+          v-model="keyWords"
+          v-model:advanced="advancedText"
+        />
 
         <BFormGroup id="dance-group" label="Dances:">
           <div style="border: 1px solid #ced4da; boder-radius: 0.25rem">
