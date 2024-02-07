@@ -1,0 +1,55 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`CheckedList.vue > renders a simple checked list with all values checked (snapshot) 1`] = `
+"<div class=\\"btn-group\\" style=\\"margin-bottom: 8px;\\"><button class=\\"btn btn-md btn-primary dropdown-toggle\\" type=\\"button\\" id=\\"dropdown-form\\" aria-expanded=\\"false\\" aria-haspopup=\\"menu\\">All tests</button>
+  <!---->
+  <ul style=\\"position: absolute; left: 0px; top: 0px; display: none;\\" class=\\"dropdown-menu show\\" aria-labelledby=\\"dropdown-form\\" role=\\"menu\\">
+    <li role=\\"presentation\\">
+      <form class=\\"px-4 py-3\\">
+        <div class=\\"form-check\\"><input id=\\"test-all\\" aria-describedby=\\"selected\\" aria-controls=\\"selected\\" data-test=\\"select-all\\" class=\\"form-check-input\\" type=\\"checkbox\\" value=\\"true\\"><label for=\\"test-all\\" class=\\"form-check-label\\">Un-select All</label></div>
+        <hr>
+        <fieldset class=\\"\\" id=\\"__BVID__843474___BV___\\">
+          <!---->
+          <div class=\\"\\">
+            <div id=\\"test-group\\" role=\\"group\\" class=\\"btn-group-md bv-no-focus-ring\\" tabindex=\\"-1\\" data-test=\\"checkbox-group\\">
+              <div class=\\"form-check\\"><input id=\\"__BVID__016026___BV_form-check__\\" class=\\"form-check-input\\" type=\\"checkbox\\" name=\\"temp\\" value=\\"first-option\\"><label for=\\"__BVID__016026___BV_form-check__\\" class=\\"form-check-label\\"><span>First Option</span></label></div>
+              <div class=\\"form-check\\"><input id=\\"__BVID__092157___BV_form-check__\\" class=\\"form-check-input\\" type=\\"checkbox\\" name=\\"temp\\" value=\\"second-option\\"><label for=\\"__BVID__092157___BV_form-check__\\" class=\\"form-check-label\\"><span>Second Option</span></label></div>
+              <div class=\\"form-check\\"><input id=\\"__BVID__753942___BV_form-check__\\" class=\\"form-check-input\\" type=\\"checkbox\\" name=\\"temp\\" value=\\"third-option\\"><label for=\\"__BVID__753942___BV_form-check__\\" class=\\"form-check-label\\"><span>Third Option</span></label></div>
+            </div>
+            <!---->
+            <!---->
+            <!---->
+          </div>
+        </fieldset>
+      </form>
+    </li>
+  </ul>
+</div>"
+`;
+
+exports[`CheckedList.vue > renders a simple checked list with no values checked (snapshot) 1`] = `
+"<div class=\\"btn-group\\" style=\\"margin-bottom: 8px;\\"><button class=\\"btn btn-md btn-primary dropdown-toggle\\" type=\\"button\\" id=\\"dropdown-form\\" aria-expanded=\\"false\\" aria-haspopup=\\"menu\\">No tests</button>
+  <!---->
+  <ul style=\\"position: absolute; left: 0px; top: 0px; display: none;\\" class=\\"dropdown-menu show\\" aria-labelledby=\\"dropdown-form\\" role=\\"menu\\">
+    <li role=\\"presentation\\">
+      <form class=\\"px-4 py-3\\">
+        <div class=\\"form-check\\"><input id=\\"test-all\\" aria-describedby=\\"selected\\" aria-controls=\\"selected\\" data-test=\\"select-all\\" class=\\"form-check-input\\" type=\\"checkbox\\" value=\\"true\\"><label for=\\"test-all\\" class=\\"form-check-label\\">Select All</label></div>
+        <hr>
+        <fieldset class=\\"\\" id=\\"__BVID__373777___BV___\\">
+          <!---->
+          <div class=\\"\\">
+            <div id=\\"test-group\\" role=\\"group\\" class=\\"btn-group-md bv-no-focus-ring\\" tabindex=\\"-1\\" data-test=\\"checkbox-group\\">
+              <div class=\\"form-check\\"><input id=\\"__BVID__487684___BV_form-check__\\" class=\\"form-check-input\\" type=\\"checkbox\\" name=\\"temp\\" value=\\"first-option\\"><label for=\\"__BVID__487684___BV_form-check__\\" class=\\"form-check-label\\"><span>First Option</span></label></div>
+              <div class=\\"form-check\\"><input id=\\"__BVID__392589___BV_form-check__\\" class=\\"form-check-input\\" type=\\"checkbox\\" name=\\"temp\\" value=\\"second-option\\"><label for=\\"__BVID__392589___BV_form-check__\\" class=\\"form-check-label\\"><span>Second Option</span></label></div>
+              <div class=\\"form-check\\"><input id=\\"__BVID__672126___BV_form-check__\\" class=\\"form-check-input\\" type=\\"checkbox\\" name=\\"temp\\" value=\\"third-option\\"><label for=\\"__BVID__672126___BV_form-check__\\" class=\\"form-check-label\\"><span>Third Option</span></label></div>
+            </div>
+            <!---->
+            <!---->
+            <!---->
+          </div>
+        </fieldset>
+      </form>
+    </li>
+  </ul>
+</div>"
+`;

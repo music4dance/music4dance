@@ -38,7 +38,7 @@ export class DanceFilter {
   }
 
   private matchGroups(type: DanceType): boolean {
-    return this.groups === undefined || type.groups.some((g) => this.groups!.includes(g.id));
+    return this.groups === undefined || type.groups.some((g) => this.groups!.includes(g.name));
   }
 
   private matchOrganizations(type: DanceType): boolean {

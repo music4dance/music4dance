@@ -2,6 +2,9 @@ import { describe, expect, test } from "vitest";
 import { DanceGroup } from "../DanceGroup";
 import { DanceDatabase } from "../DanceDatabase";
 import { loadDatabase } from "@/helpers/TestDatabase";
+import { loadDancesFromString } from "@/helpers/DanceLoader";
+import { loadTestDances } from "@/helpers/LoadTestDances";
+import { DanceFilter } from "../DanceFilter";
 
 describe("DanceDatabase.ts", () => {
   test("Loads a simple DanceDatabase", () => {
@@ -37,5 +40,23 @@ describe("DanceDatabase.ts", () => {
   test("isGroup returns false for types", () => {
     const group = loadDatabase().dances[0];
     expect(DanceGroup.isGroup(group)).toBe(false);
+  });
+
+  test("style returns all styles for types", () => {
+    const styles = loadDatabase().styles;
+    expect(styles).toBeDefined();
+    expect(styles.length).toBe(2);
+    expect(styles).toContain("American Smooth");
+    expect(styles).toContain("International Standard");
+  });
+
+  test("style returns all styles for types in full DB", () => {
+    const fullDB = loadDancesFromString(loadTestDances());
+    const groups = fullDB.groups.map((g) => g.name).filter((n) => n !== "Performance");
+    const db = fullDB.filter(new DanceFilter({ groups: groups }));
+    const styles = db.styles;
+
+    expect(styles).toBeDefined();
+    expect(styles.length).toBe(5);
   });
 });

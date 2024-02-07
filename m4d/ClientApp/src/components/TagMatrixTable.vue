@@ -2,7 +2,7 @@
 import { wordsToKebab } from "@/helpers/StringHelpers";
 import { TagMatrix, TagRow } from "@/models/TagMatrix";
 import DanceName from "./DanceName.vue";
-import type { TableField, TableItem } from "bootstrap-vue-next";
+import type { TableField, TableFieldRaw, TableItem } from "bootstrap-vue-next";
 import { NamedObject } from "@/models/DanceDatabase/NamedObject";
 
 const props = defineProps({
@@ -16,10 +16,10 @@ const groupClass = "tag-matrix-group";
 const itemClass = "tag-matrix-item";
 
 // INT-TODO: Get rid of this once we have generic tables
-const rows = props.matrix!.list as unknown as TableItem[];
+const rows = props.matrix!.list as TableItem<TagRow>[];
 
-function buildFields(): TableField[] {
-  const fields: TableField[] = [
+function buildFields(): Exclude<TableFieldRaw<TagRow>, string>[] {
+  const fields: Exclude<TableFieldRaw<TagRow>, string>[] = [
     {
       key: "dance",
       label: "Dance Style",
@@ -34,8 +34,7 @@ function buildFields(): TableField[] {
     fields.push({
       key: column.tag,
       label: column.title.replace("/", "/<wbr>"),
-      // INT-TODO: Use this once formatted value gets passed to template
-      //formatter: (key: unknown, item: any) => countFromKey(key as string, item),
+      formatter: (key: unknown, item: any) => countFromKey(key as string, item),
     });
   }
 
@@ -79,8 +78,7 @@ function tagLink(key: string): string {
 
       <template #cell(dance)="data">
         <div :class="data.item.isGroup ? groupClass : itemClass">
-          <!-- INT-TODO: Should be able to remove this case if we get generic tables -->
-          <a :href="danceLink(data.item as unknown as TagRow)">
+          <a :href="danceLink(data.item)">
             <DanceName
               :dance="toNamedObject(data.item.dance)"
               :show-synonyms="true"
@@ -93,12 +91,12 @@ function tagLink(key: string): string {
       <template #cell()="data">
         <!-- INT-TODO: should be able to use data.value rather than calling countFromKey -->
         <BButton
-          v-if="countFromKey(data.field.key, data.item as unknown as TagRow) !== '0'"
+          v-if="countFromKey(data.field.key, data.item) !== '0'"
           variant="primary"
           size="sm"
-          :href="danceTagLink(data.item as unknown as TagRow, data.field)"
+          :href="danceTagLink(data.item, data.field)"
         >
-          {{ countFromKey(data.field.key, data.item as unknown as TagRow) }}
+          {{ countFromKey(data.field.key, data.item) }}
         </BButton>
       </template>
     </BTable>

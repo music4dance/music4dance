@@ -83,11 +83,20 @@ export class DanceDatabase {
       .sort((a, b) => a.deltaPercentAbsolute - b.deltaPercentAbsolute);
   }
 
+  // TODO: Can we generalize this?
   public get styles(): string[] {
-    //return this.dances.reduce((acc, x) => [...acc, ...x.styles], [] as string[]).sort();
     return [
       ...this.dances.reduce((acc, x) => {
-        x.styles.forEach((s) => acc.add(s));
+        x.styles?.forEach((s) => acc.add(s));
+        return acc;
+      }, new Set<string>()),
+    ].sort();
+  }
+
+  public get organizations(): string[] {
+    return [
+      ...this.dances.reduce((acc, x) => {
+        x.organizations?.forEach((s) => acc.add(s));
         return acc;
       }, new Set<string>()),
     ].sort();

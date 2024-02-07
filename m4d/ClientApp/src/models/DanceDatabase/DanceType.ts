@@ -8,7 +8,7 @@ import type { DanceGroup } from "./DanceGroup";
 
 @jsonObject({ onDeserialized: "onDeserialized" })
 export class DanceType extends DanceObject {
-  @jsonArrayMember(String) public organizations: string[] = [];
+  @jsonArrayMember(String) public organizations: string[] = ["Unaffiliated"];
   @jsonMember(String) public link!: string;
   @jsonArrayMember(DanceInstance) public instances: DanceInstance[] = [];
   public groups: DanceGroup[] = [];

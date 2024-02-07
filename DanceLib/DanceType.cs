@@ -35,7 +35,7 @@ public class DanceType : DanceObject
         Meter = meter;
         Instances = new List<DanceInstance>(instances);
 
-        Organizations = organizations == null ? [] :new List<string>(organizations);
+        Organizations = organizations == null ? ["Unaffiliated"] :new List<string>(organizations);
 
         foreach (var instance in instances)
         {

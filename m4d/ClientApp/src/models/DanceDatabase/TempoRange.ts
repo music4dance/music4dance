@@ -1,6 +1,4 @@
-import { isThisMinute } from "date-fns";
 import { jsonMember, jsonObject } from "typedjson";
-import { textSpanIntersectsWithTextSpan } from "typescript";
 
 @jsonObject
 export class TempoRange {
@@ -19,18 +17,26 @@ export class TempoRange {
     );
   }
 
-  public bpm(numerator: number, separator = "-"): string {
+  public bpm(numerator: number = 1, separator = "-"): string {
     return (
       this.formatTempo(this.min * numerator) +
       (this.min === this.max ? "" : separator + this.formatTempo(this.max * numerator))
     );
   }
 
-  public mpm(numerator: number, separator = "-"): string {
+  public formatBPM(numerator = 1, separator = "-"): string {
+    return `${this.bpm(numerator, separator)} BPM`;
+  }
+
+  public mpm(numerator: number = 1, separator = "-"): string {
     return (
       this.formatTempo(this.min / numerator) +
       (this.min === this.max ? "" : separator + this.formatTempo(this.max / numerator))
     );
+  }
+
+  public formatMPM(numerator = 1, separator = "-"): string {
+    return `${this.bpm(numerator, separator)} MPM`;
   }
 
   public calculateDelta(tempo: number): number {

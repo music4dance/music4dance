@@ -48,7 +48,7 @@ namespace DanceLibrary
         // TODO: These two function could share a common implementation
         internal bool MatchGroups(DanceType type)
         {
-            return Groups.Count == 0 || type.Groups.Any(g => Groups.Contains(g.Id));
+            return Groups.Count == 0 || type.Groups.Any(g => Groups.Contains(g.Name));
         }
 
         internal bool MatchOrganizations(DanceType type)

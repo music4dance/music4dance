@@ -106,7 +106,7 @@ namespace m4d.Controllers
         public IActionResult Tempi(List<string> styles, List<string> types,
             List<string> organizations, List<string> meters)
         {
-
+            //return Vue3(
             return Vue(
                 "Tempos",
                 "A web application to show the relationship between different dance tempos.",
