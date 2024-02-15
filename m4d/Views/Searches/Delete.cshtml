@@ -4,29 +4,29 @@
 @{
     ViewBag.Title = "Delete";
 
-    ViewData["BreadCrumbs"] = new List<BreadCrumbItem>
+ViewData["BreadCrumbs"] = new List<BreadCrumbItem>
+{
+    BreadCrumbItem.HomeItem,
+    new()
     {
-        BreadCrumbItem.HomeItem,
-        new()
-        {
-            Title = Model.ApplicationUser.UserName,
-            Link = "/Identity/Account/Manage"
-        },
-        new()
-        {
-            Title = "Searches",
-            Link = "/Searches",
-        },
-        new()
-        {
-            Title = ViewBag.Title,
-            Active = true
-        }
-    };
+        Title = Model.ApplicationUser.UserName,
+        Link = "/Identity/Account/Manage"
+    },
+    new()
+    {
+        Title = "Searches",
+        Link = "/Searches",
+    },
+    new()
+    {
+        Title = ViewBag.Title,
+        Active = true
+    }
+};
 
-    var sort = ViewBag.Sort;
-    var showDetails = ViewBag.ShowDetails;
-    var user = ViewBag.User;
+var sort = ViewBag.Sort;
+var showDetails = ViewBag.ShowDetails;
+var user = ViewBag.User;
 }
 
 
@@ -38,12 +38,12 @@
     <p>@Model.Filter.Description</p>
 
     @using (Html.BeginForm())
-    {
-        @Html.AntiForgeryToken()
+{
+    @Html.AntiForgeryToken()
 
-        <div class="form-actions no-color">
+    <div class="form-actions no-color">
             <input type="submit" value="Delete" class="btn btn-danger"/> |
             @Html.ActionLink("Back to Search", "Index", new { sort, showDetails, user})
         </div>
-    }
+}
 </div>

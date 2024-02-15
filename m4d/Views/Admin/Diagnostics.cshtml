@@ -7,7 +7,7 @@
 
 @{
     ViewBag.Title = "Logging";
-    ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
+ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
 }
 
 <p>Start Time = <b>@SpiderManager.StartTime.ToString(CultureInfo.CurrentCulture)</b></p>
@@ -45,49 +45,49 @@
 <ul>
     <li>
         @Html.ActionLink("Turn Tracing Off", "SetTraceLevel", "Admin", new
-        {
-            level = 0
-        }, null)
+    {
+        level = 0
+    }, null)
     </li>
     <li>
         @Html.ActionLink("Trace Error", "SetTraceLevel", "Admin", new
-        {
-            level = 1
-        }, null)
+    {
+        level = 1
+    }, null)
         @Html.ActionLink("Test Trace", "TestTrace", "Admin", new
-        {
-        message = "Nothing Special", level=4
-        }, null)
+    {
+    message = "Nothing Special", level=4
+    }, null)
     </li>
     <li>
         @Html.ActionLink("Trace Warning", "SetTraceLevel", "Admin", new
-        {
-            level = 2
-        }, null)
+    {
+        level = 2
+    }, null)
         @Html.ActionLink("Test Trace", "TestTrace", "Admin", new
-        {
-            message = "Nothing Special", level=3
-        }, null)
+    {
+        message = "Nothing Special", level=3
+    }, null)
     </li>
     <li>
         @Html.ActionLink("Trace Info", "SetTraceLevel", "Admin", new
-        {
-            level = 3
-        }, null)
+    {
+        level = 3
+    }, null)
         @Html.ActionLink("Test Trace", "TestTrace", "Admin", new
-        {
-            message = "Nothing Special", level=2
-        }, null)
+    {
+        message = "Nothing Special", level=2
+    }, null)
     </li>
     <li>
         @Html.ActionLink("Trace Verbose", "SetTraceLevel", "Admin", new
-        {
-            level = 4
-        }, null)
+    {
+        level = 4
+    }, null)
         @Html.ActionLink("Test Trace", "TestTrace", "Admin", new
-        {
-            message = "Nothing Special", level=1
-        }, null)
+    {
+        message = "Nothing Special", level=1
+    }, null)
     </li>
 </ul>
 
@@ -98,21 +98,21 @@
 <ul>
     <li>
         @Html.ActionLink("Songs sorted by Modified date", "sort", "song", new
-        {
-            sortOrder = "Modified_desc"
-        }, null)
+    {
+        sortOrder = "Modified_desc"
+    }, null)
     </li>
     <li>
         @Html.ActionLink("Songs sorted by Created date", "sort", "song", new
-        {
-            sortOrder = "Created_desc"
-        }, null)
+    {
+        sortOrder = "Created_desc"
+    }, null)
     </li>
     <li>
         @Html.ActionLink("All Songs", "filtersearch", "Song", new
-        {
-            filter = "Advanced----------3"
-        })
+    {
+        filter = "Advanced----------3"
+    })
     </li>
 </ul>
 
@@ -135,18 +135,18 @@
 <p>Source = @ViewBag.StatsUpdateSource, Time=@ViewBag.StatsUpdateTime</p>
 <ul>
     @foreach (var id in SearchService.GetAvailableIds())
+{
+    if (SearchService.DefaultId == id)
     {
-        if (SearchService.DefaultId == id)
-        {
-            continue;
-        }
-        <li>
-            @Html.ActionLink(id, "SetSearchIdx", "Admin", new
-            {
-                id
-            }, null)
-        </li>
+        continue;
     }
+    <li>
+            @Html.ActionLink(id, "SetSearchIdx", "Admin", new
+        {
+            id
+        }, null)
+        </li>
+}
     <li>Enviroment: @SearchService.RawEnvironment</li>
 </ul>
 
@@ -154,9 +154,9 @@
 <h3>Tag Duplicates</h3>
 <ul>
     @foreach (var key in TagManager.Duplicates)
-    {
-        <li>@key</li>
-    }
+{
+    <li>@key</li>
+}
 </ul>
 
 <hr />

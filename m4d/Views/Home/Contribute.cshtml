@@ -9,12 +9,12 @@
 
 @{
     ViewBag.Title = "Contribute";
-    ViewBag.Description = "How to contribute to music4dance.net";
+ViewBag.Description = "How to contribute to music4dance.net";
 
-    ViewBag.BreadCrumbs = BreadCrumbItem.BuildInfoTrail(ViewBag.Title);
-    var annualPrice = $"${CommerceController.AnnualSubscription:N2}";
-    var user = await _userManager.GetUserAsync(User);
-    var marketing = GlobalState.GetMarketing(user, Context.Request.Path);
+ViewBag.BreadCrumbs = BreadCrumbItem.BuildInfoTrail(ViewBag.Title);
+var annualPrice = $"${CommerceController.AnnualSubscription:N2}";
+var user = await _userManager.GetUserAsync(User);
+var marketing = GlobalState.GetMarketing(user, Context.Request.Path);
 }
 <div id="fb-root"></div>
 <script async defer crossorigin="anonymous"
@@ -26,13 +26,13 @@
 @if (Model.CommerceEnabled)
 {
     @if (marketing.Enabled)
-    {
-        <div class="alert alert-success" role="alert">@Html.Raw(marketing.Notice)</div>
-    }
+{
+    <div class="alert alert-success" role="alert">@Html.Raw(marketing.Notice)</div>
+}
     <h2>@(Model.CurrentPremium ? "Renew your" : "Purchase a") Subscription</h2>
-        @if (Model.CurrentPremium)
-        {
-            <p class="big-text">
+    @if (Model.CurrentPremium)
+    {
+        <p class="big-text">
                 Thank you for your continued support of the music4dance effort. We hope you continue to enjoy the benefits of 
                 <a href="https://music4dance.blog/music4dance-help/subscriptions/"></a>premium
                 with its ad-free experience, 
@@ -46,10 +46,10 @@
                 <a href="/identity/account/manage">@Model.PremiumExpiration</a>.
                 Renewing now will extend your subscription for another year.
             </p>
-        }
-        else
-        {
-            <p class="big-text">
+    }
+    else
+    {
+        <p class="big-text">
                 We appreciate any amount that you're willing to contribute to the music4dance effort.
                 Anyone who purchases a <b>Basic</b> subscription (@annualPrice) or higher receives a year of our
                 <a href="https://music4dance.blog/music4dance-help/subscriptions/"></a>premium subscription,
@@ -62,77 +62,78 @@
                     creating a Spotify playlist
                 </a> from search results.
             </p>
-        }
+    }
 
-    if (Model.IsAuthenticated)
+if (Model.IsAuthenticated)
+{
+    if (Model.FraudDetected)
     {
-        if (Model.FraudDetected)
-        {
-            <p class="big-text">
+        <p class="big-text">
                 There have been a number of failed credit card charge attempts on this account.  This is generally an indication
                 of attempted credit card fraud.  If that's not the case here, please contact us at
                 <a href="mailto:info@music4dance.net">info@music4dance.net</a> and we'll look into unblocking your account.
             </p>
-        }
-        else
-        {
-            foreach (var level in SubscriptionLevelDescription.SubscriptionLevels)
-            {
-                <partial name="_paymentButton" model="level" />
-            }
-
-            <p class="ml-2 mt-2">The next page you see will be a <a href="https://www.stripe.com">Stripe</a> checkout
-                form with a subscription charge of the amount you chose above. If you would like to donate a different amount,
-                please use the donate form below.
-            </p>
-        }
     }
     else
     {
-        <p class="big-text">
+        foreach (var level in SubscriptionLevelDescription.SubscriptionLevels)
+        {
+            <partial name="_paymentButton" model="level" />
+        }
+
+        <p class="ml-2 mt-2">The next page you see will be a <a href="https://www.stripe.com">Stripe</a> checkout
+                form with a subscription charge of the amount you chose above. If you would like to donate a different amount,
+                please use the donate form below.
+            </p>
+    }
+}
+else
+{
+    <p class="big-text">
             You must be logged in to purchase a subscription, please
             <a id="login" asp-area="Identity" asp-page="/Account/Login" asp-route-ReturnUrl="/Home/Contribute">log in</a> or
             <a id="register" asp-area="Identity" asp-page="/Account/Register" asp-route-ReturnUrl="/Home/Contribute">register</a>.
         </p>
-        <p>If you would prefer to pay via paypal, please <a href="https://music4dance.blog/feedback/">contact us</a>
+        
+    <p>If you would prefer to pay via paypal, please <a href="https://music4dance.blog/feedback/">contact us</a>
             and we'll send you a paypal link</p>
-    }
+}
 
     <h2>Donate</h2>
 
-    using (Html.BeginForm("CreateCheckoutSession", "Payment", FormMethod.Post, new
-    {
-        id = "contribute",
-        @class = "row row-cols-sm-auto g-3"
-    }))
-    {
-        @Html.AntiForgeryToken()
+using (Html.BeginForm("CreateCheckoutSession", "Payment", FormMethod.Post, new
+{
+    id = "contribute",
+    @class = "row row-cols-sm-auto g-3"
+}))
+{
+    @Html.AntiForgeryToken()
 
-        <input type="hidden" name="kind" value="Donation" />
-        <div class="col">
+    <input type="hidden" name="kind" value="Donation" />
+    <div class="col">
             <label for="purchase-amount" class="col-form-label">Amount:</label>
         </div>
-        <div class="col">
+    <div class="col">
             <div class="input-group">
                 <div class="input-group-text ml-2">$</div>
                 <input type="text" name="amount" min="1.00" max="9999" step="0.01" value="5.00" class="form-control" id="donate-amount" />
             </div>
             @if (!Model.IsAuthenticated)
-            {
-                <input id="Input_RecaptchaToken" name="RecaptchaToken" type="hidden" />
-                <div class="form-floating mt-3 is-invalid">
+        {
+            <input id="Input_RecaptchaToken" name="RecaptchaToken" type="hidden" />
+            <div class="form-floating mt-3 is-invalid">
                     <recaptcha-div-v2 callback="recaptchaCallback" />
                 </div>
-                @if (Model.RecaptchaFailed)
-                {
-                    <div class="invalid-feedback">Please check the "I'm not a Robot" box.</div>
-                }
+            @if (Model.RecaptchaFailed)
+            {
+                <div class="invalid-feedback">Please check the "I'm not a Robot" box.</div>
             }
+        }
         </div>
-        <div clas="col-auto">
+    <div clas="col-auto">
             <button type="submit" class="btn btn-primary">Donate</button>
         </div>
-    }
+}
     <p class="ml-2 mt-2">
         The next page you see will be a <a href="https://www.stripe.com">Stripe</a> checkout
         form with your donation amount. Any donation above the <b>Basic</b> subcription price of @annualPrice

@@ -1,10 +1,10 @@
 ﻿@using m4d.ViewModels
 @{
     if (string.IsNullOrWhiteSpace(ViewBag.Title))
-    {
-        ViewBag.Title = "Info";
-    }
-    ViewBag.BreadCrumbs = BreadCrumbItem.BuildInfoTrail(ViewBag.Title);
+{
+    ViewBag.Title = "Info";
+}
+ViewBag.BreadCrumbs = BreadCrumbItem.BuildInfoTrail(ViewBag.Title);
 }
 
 <h2>@ViewBag.Title:</h2>

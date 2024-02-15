@@ -2,7 +2,7 @@
 @model m4dModels.PremiumRedirect
 @{
     ViewBag.Title = $"The {Model.FeatureType} you selected requires a premium membership";
-    ViewBag.BreadCrumbs = BreadCrumbItem.BuildContributeTrail("Premium Required");
+ViewBag.BreadCrumbs = BreadCrumbItem.BuildContributeTrail("Premium Required");
 }
 
 <h1>@ViewBag.Title</h1>

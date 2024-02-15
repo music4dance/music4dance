@@ -1,10 +1,8 @@
 ﻿using m4d.Utilities;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Logging;
 using SendGrid;
 using SendGrid.Helpers.Mail;
-using System.Threading.Tasks;
 
 namespace m4d.Services;
 

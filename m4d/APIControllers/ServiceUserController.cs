@@ -1,74 +1,67 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using m4dModels;
+﻿using m4dModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 
-namespace m4d.APIControllers
+namespace m4d.APIControllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class ServiceUserController : DanceMusicApiController
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class ServiceUserController : DanceMusicApiController
+    private static readonly Dictionary<string, ServiceUser> s_cache = new();
+
+    public ServiceUserController(DanceMusicContext context,
+        UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
+        ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+        IConfiguration configuration, ILogger<ServiceUserController> logger) :
+        base(context, userManager, roleManager, searchService, danceStatsManager, configuration, logger)
     {
-        private static readonly Dictionary<string, ServiceUser> s_cache = new();
+    }
 
-        public ServiceUserController(DanceMusicContext context,
-            UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
-            ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-            IConfiguration configuration, ILogger<ServiceUserController> logger) :
-            base(context, userManager, roleManager, searchService, danceStatsManager, configuration, logger)
+    [HttpGet("{id}")]
+    public async Task<IActionResult> Get(string id)
+    {
+        if (string.IsNullOrWhiteSpace(id) || id.Length < 2)
         {
+            return BadRequest("Invalid Id");
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(string id)
+        if (s_cache.TryGetValue(id, out var serviceUser))
         {
-            if (string.IsNullOrWhiteSpace(id) || id.Length < 2)
-            {
-                return BadRequest("Invalid Id");
-            }
-
-            if (s_cache.TryGetValue(id, out var serviceUser))
-            {
-                return JsonCamelCase(serviceUser);
-            }
-
-            var service = MusicService.GetService(id[0]);
-            var userId = id.Substring(1);
-
-            try
-            {
-                serviceUser = await MusicServiceManager.LookupServiceUser(
-                    service, userId);
-
-                await FillLocalPlaylists(serviceUser.Playlists);
-
-                s_cache[id] = serviceUser;
-                return JsonCamelCase(serviceUser);
-            }
-            catch (Exception e)
-            {
-                Logger.LogError($"serviceUserLookup Failed: {e.Message}");
-                return BadRequest(e.Message);
-            }
+            return JsonCamelCase(serviceUser);
         }
 
-        private async Task FillLocalPlaylists(IList<SimplePlaylist> playlists)
+        var service = MusicService.GetService(id[0]);
+        var userId = id.Substring(1);
+
+        try
         {
-            // For spotify, we use the bare spotify id for our id (which we should probably fix at some point).
-            var ids = playlists.Select(x => x.Id);
-            var list = await Database.PlayLists.Where(
-                    p => p.Type == PlayListType.SongsFromSpotify && ids.Contains(p.Id)).Select(p => p.Id).ToListAsync();
-            var m4d = list.ToHashSet();
-            foreach (var playlist in playlists.Where(p => m4d.Contains(p.Id)))
-            {
-                playlist.Music4danceId = playlist.Id;
-            }
+            serviceUser = await MusicServiceManager.LookupServiceUser(
+                service, userId);
+
+            await FillLocalPlaylists(serviceUser.Playlists);
+
+            s_cache[id] = serviceUser;
+            return JsonCamelCase(serviceUser);
+        }
+        catch (Exception e)
+        {
+            Logger.LogError($"serviceUserLookup Failed: {e.Message}");
+            return BadRequest(e.Message);
+        }
+    }
+
+    private async Task FillLocalPlaylists(IList<SimplePlaylist> playlists)
+    {
+        // For spotify, we use the bare spotify id for our id (which we should probably fix at some point).
+        var ids = playlists.Select(x => x.Id);
+        var list = await Database.PlayLists.Where(
+                p => p.Type == PlayListType.SongsFromSpotify && ids.Contains(p.Id)).Select(p => p.Id).ToListAsync();
+        var m4d = list.ToHashSet();
+        foreach (var playlist in playlists.Where(p => m4d.Contains(p.Id)))
+        {
+            playlist.Music4danceId = playlist.Id;
         }
     }
 }

@@ -3,7 +3,7 @@
 
 @{
     ViewBag.Title = $"{Model.Id} Description";
-    ViewBag.BreadCrumbs = BreadCrumbItem.BuildUsersTrail(ViewBag.Title);
+ViewBag.BreadCrumbs = BreadCrumbItem.BuildUsersTrail(ViewBag.Title);
 }
 
 <h1>@ViewBag.Title</h1>
@@ -15,8 +15,8 @@
 <p></p>
 <p>
     @Html.ActionLink("Edit", "Edit", new
-    {
-        id = Model.Id
-    }) |
+{
+    id = Model.Id
+}) |
     @Html.ActionLink("Back to List", "Index")
 </p>

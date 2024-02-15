@@ -7,23 +7,23 @@
 
 @{
     ViewBag.Title = "Users";
-    var users = Model.Values.ToList();
+var users = Model.Values.ToList();
 
-    var registeredUsers = users.Count(u => !u.IsPseudo);
-    var confirmedUsers = users.Count(u => u.IsConfirmed);
+var registeredUsers = users.Count(u => !u.IsPseudo);
+var confirmedUsers = users.Count(u => u.IsConfirmed);
 
-    var deletedUsers = users.Count(u => u.User.UserName.StartsWith("DEL:"));
-    var hasServicePreference = users.Count(u => !string.IsNullOrEmpty(u.User.ServicePreference));
+var deletedUsers = users.Count(u => u.User.UserName.StartsWith("DEL:"));
+var hasServicePreference = users.Count(u => !string.IsNullOrEmpty(u.User.ServicePreference));
 
-    var showUnconfirmed = ViewBag.ShowUnconfirmed;
-    var showPseudo = ViewBag.ShowPseudo;
-    var hidePrivate = ViewBag.HidePrivate;
-    var filteredUsers = users.Where(u =>
-        (u.User.EmailConfirmed || showUnconfirmed) && 
-            (!u.User.IsPseudo || showPseudo) && 
-            (u.User.Privacy == 255 || !hidePrivate)).ToList();
+var showUnconfirmed = ViewBag.ShowUnconfirmed;
+var showPseudo = ViewBag.ShowPseudo;
+var hidePrivate = ViewBag.HidePrivate;
+var filteredUsers = users.Where(u =>
+    (u.User.EmailConfirmed || showUnconfirmed) && 
+        (!u.User.IsPseudo || showPseudo) && 
+        (u.User.Privacy == 255 || !hidePrivate)).ToList();
 
-    ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
+ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
 }
 
 <h2>User Administrator</h2>
@@ -48,143 +48,143 @@
 
     <div class="col-md-3">
         @foreach (var role in RoleManager.Roles)
-        {
-            <p><b>@role.Name</b>: @users.Count(u => u.Roles.Any(r => r == role.Name))</p>
-        }
+    {
+        <p><b>@role.Name</b>: @users.Count(u => u.Roles.Any(r => r == role.Name))</p>
+    }
     </div>
 
     <div class="col-md-3">
         @foreach (var logIn in new List<string>
-        {
-            "Microsoft",
-            "Spotify",
-            "Facebook",
-            "Google"
-        })
-        {
-            <p><b>@logIn</b>: @users.Count(u => u.Logins.Any(l => l == logIn))</p>
-        }
+    {
+        "Microsoft",
+        "Spotify",
+        "Facebook",
+        "Google"
+    })
+    {
+        <p><b>@logIn</b>: @users.Count(u => u.Logins.Any(l => l == logIn))</p>
+    }
     </div>
 
     <div class="col-md-3">
         <p>
             @Html.ActionLink("New Pseudo User", "Create", "ApplicationUsers", null, new
+        {
+            @class = "btn btn-primary",
+            role = "button"
+        })
+        </p>
+        @if (ViewBag.ShowUnconfirmed)
+    {
+        <p>
+                @Html.ActionLink("Hide Unconfirmed", "Index", new
+            {
+                showUnconfirmed = false,
+                showPseudo = showPseudo,
+                hidePrivate = hidePrivate
+            }, new
             {
                 @class = "btn btn-primary",
                 role = "button"
             })
-        </p>
-        @if (ViewBag.ShowUnconfirmed)
-        {
-            <p>
-                @Html.ActionLink("Hide Unconfirmed", "Index", new
-                {
-                    showUnconfirmed = false,
-                    showPseudo = showPseudo,
-                    hidePrivate = hidePrivate
-                }, new
-                {
-                    @class = "btn btn-primary",
-                    role = "button"
-                })
             </p>
-        }
-        else
-        {
-            <p>
+    }
+    else
+    {
+        <p>
                 @Html.ActionLink("Show Unconfirmed", "Index", new
-                {
-                    showUnconfirmed = true,
-                    showPseudo = showPseudo,
-                    hidePrivate = hidePrivate
-                }, new
-                {
-                    @class = "btn btn-primary",
-                    role = "button"
-                })
+            {
+                showUnconfirmed = true,
+                showPseudo = showPseudo,
+                hidePrivate = hidePrivate
+            }, new
+            {
+                @class = "btn btn-primary",
+                role = "button"
+            })
             </p>
-        }
+    }
         @if (ViewBag.ShowPseudo)
-        {
-            <p>
+    {
+        <p>
                 @Html.ActionLink("Hide Pseudo", "Index", new
-                {
-                    showPseudo = false,
-                    showUnconfirmed = showUnconfirmed,
-                    hidePrivate = hidePrivate
-                }, new
-                {
-                    @class = "btn btn-primary",
-                    role = "button"
-                })
+            {
+                showPseudo = false,
+                showUnconfirmed = showUnconfirmed,
+                hidePrivate = hidePrivate
+            }, new
+            {
+                @class = "btn btn-primary",
+                role = "button"
+            })
             </p>
-        }
-        else
-        {
-            <p>
+    }
+    else
+    {
+        <p>
                 @Html.ActionLink("Show Pseudo", "Index", new
-                {
-                    showPseudo = true,
-                    showUnconfirmed = showUnconfirmed,
-                    hidePrivate = hidePrivate
-                }, new
-                {
-                    @class = "btn btn-primary",
-                    role = "button"
-                })
+            {
+                showPseudo = true,
+                showUnconfirmed = showUnconfirmed,
+                hidePrivate = hidePrivate
+            }, new
+            {
+                @class = "btn btn-primary",
+                role = "button"
+            })
             </p>
-        }
+    }
         @if (ViewBag.HidePrivate)
-        {
-            <p>
+    {
+        <p>
                 @Html.ActionLink("Show Private", "Index", new
-                {
-                    hidePrivate = false,
-                    showPseudo = showPseudo,
-                    showUnconfirmed = showUnconfirmed
-                }, new
-                {
-                    @class = "btn btn-primary",
-                    role = "button"
-                })
+            {
+                hidePrivate = false,
+                showPseudo = showPseudo,
+                showUnconfirmed = showUnconfirmed
+            }, new
+            {
+                @class = "btn btn-primary",
+                role = "button"
+            })
             </p>
-        }
-        else
-        {
-            <p>
+    }
+    else
+    {
+        <p>
                 @Html.ActionLink("Hide Private", "Index", new
-                {
-                    hidePrivate = true,
-                    showPseudo = showPseudo,
-                    showUnconfirmed = showUnconfirmed
-                }, new
-                {
-                    @class = "btn btn-primary",
-                    role = "button"
-                })
+            {
+                hidePrivate = true,
+                showPseudo = showPseudo,
+                showUnconfirmed = showUnconfirmed
+            }, new
+            {
+                @class = "btn btn-primary",
+                role = "button"
+            })
             </p>
-        }
+    }
 
         <p>
             @Html.ActionLink("Clear Cache", "ClearCache", "ApplicationUsers", null, new
-            {
-                @class = "btn btn-secondary",
-                role = "button"
-            })
+        {
+            @class = "btn btn-secondary",
+            role = "button"
+        })
         </p>
         <p>
             @Html.ActionLink("Voting Results", "VotingResults", "ApplicationUsers", null, new
-            {
-                @class = "btn btn-primary",
-                role = "button"
-            })
+        {
+            @class = "btn btn-primary",
+            role = "button"
+        })
         </p>
         <p>
             @Html.ActionLink("Premium", "PremiumUsers", "ApplicationUsers", null, new
-            {
-                @class = "btn btn-primary",
-                role = "button"
-            })
+        {
+            @class = "btn btn-primary",
+            role = "button"
+        })
         </p>
     </div>
 
@@ -195,18 +195,18 @@
         <th>Service</th><th>Users</th><th>%u</th><th>%p</th>
     </tr>
     @foreach (var service in MusicService.GetServices())
+{
+    var sid = new string(service.CID, 1);
+    var c = users.Count(u => u.User.ServicePreference != null && u.User.ServicePreference.Contains(sid));
+    if (c == 0)
     {
-        var sid = new string(service.CID, 1);
-        var c = users.Count(u => u.User.ServicePreference != null && u.User.ServicePreference.Contains(sid));
-        if (c == 0)
-        {
-            continue;
-        }
+        continue;
+    }
 
-        <tr>
+    <tr>
             <td>@service.Name</td><td>@c</td><td>@(((double)c / registeredUsers).ToString("0.##%"))</td><td>@(((double)c / hasServicePreference).ToString("0.##%"))</td>
         </tr>
-    }
+}
     <tr>
         <td>none</td><td>@(registeredUsers - hasServicePreference)</td><td>@(((double)(registeredUsers - hasServicePreference) / registeredUsers).ToString("0.##%"))</td>
     </tr>
@@ -265,8 +265,8 @@
     </tr>
 
     @foreach (var item in filteredUsers.OrderByDescending(u => u.User.LastActive > u.User.StartDate ? u.User.LastActive : u.User.StartDate).ToList())
-    {
-        var fontStyle = item.IsPseudo ? "font-style:italic" : "font-style:normal";
+{
+    var fontStyle = item.IsPseudo ? "font-style:italic" : "font-style:normal";
 <tr>
     @*
         <td>
@@ -290,12 +290,12 @@
     </td>
     <td>
         @Html.ActionLink(item.User.UserName, "Details", new
-        {
-            id = item.User.Id
-        }, new
-        {
-            style = fontStyle
-        })
+    {
+        id = item.User.Id
+    }, new
+    {
+        style = fontStyle
+    })
         <br />
         @Html.DisplayFor(modelItem => item.User.Email)
     </td>
@@ -303,13 +303,13 @@
         @item.User.StartDate.ToString("d")
         <br />
         @if (item.User.LastActive == DateTime.Parse("1/1/1900"))
-        {
-            @:Never
-        }
-        else
-        {
-            @item.User.LastActive.ToString("d")
-        }
+    {
+        @:Never
+    }
+    else
+    {
+        @item.User.LastActive.ToString("d")
+    }
 
     </td>
     <td>
@@ -331,32 +331,32 @@
     <td>@Html.Raw(string.Join("<br />", item.Logins))</td>
     <td>
         @Html.ActionLink("List Songs", "FilterUser", "Song", new
-        {
-            user = item.User.UserName
-        }, null),
+    {
+        user = item.User.UserName
+    }, null),
         @Html.ActionLink("List Searches", "Index", "Searches", new
-        {
-            user = item.User.UserName,
-            showDetails = true,
-            sort = "recent"
-        }, null) <br />
+    {
+        user = item.User.UserName,
+        showDetails = true,
+        sort = "recent"
+    }, null) <br />
         @Html.ActionLink("Change Roles", "ChangeRoles", new
-        {
-            id = item.User.Id
-        }) <br />
+    {
+        id = item.User.Id
+    }) <br />
         @Html.ActionLink("Delete", "Delete", new
-        {
-            id = item.User.Id
-        }),
+    {
+        id = item.User.Id
+    }),
         @Html.ActionLink("Edit", "Edit", new
-        {
-            id = item.User.Id
-        }),
+    {
+        id = item.User.Id
+    }),
         @Html.ActionLink("Playlists", "Index","Playlist", new
-        {
-            type = PlayListType.SongsFromSpotify,
-            user = item.User.UserName
-        })
+    {
+        type = PlayListType.SongsFromSpotify,
+        user = item.User.UserName
+    })
 
         @*
             @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
@@ -364,5 +364,5 @@
         *@
     </td>
 </tr>
-    }
+}
 </table>

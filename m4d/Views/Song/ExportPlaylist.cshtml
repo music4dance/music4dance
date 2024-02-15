@@ -3,10 +3,10 @@
 
 @{
     ViewData["HasIcons"] = true;
-    ViewBag.Title = "Export Playlist";
-    var filter = new SongFilter(Model.Filter);
-    var canCreate = Model.IsAuthenticated && (Model.IsPremium || Model.IsSelf);
-    var returnUrl = $"/song/exportplaylist?filter={filter}";
+ViewBag.Title = "Export Playlist";
+var filter = new SongFilter(Model.Filter);
+var canCreate = Model.IsAuthenticated && (Model.IsPremium || Model.IsSelf);
+var returnUrl = $"/song/exportplaylist?filter={filter}";
 }
 
 @*TODO: We should be able to refactor this to reduce duplicate code from create spotify *@
@@ -30,105 +30,105 @@
                     signed in
                 </a>
                 @if (Model.IsAuthenticated)
-                {
-                    <i class="bi-check-circle text-success mx-2"></i>
-                }
-                else
-                {
-                    <text>
+            {
+                <i class="bi-check-circle text-success mx-2"></i>
+            }
+            else
+            {
+                <text>
                         &mdash; <a href="https://music4dance.blog/music4dance-help/account-management/">(help)</a>
                     </text>
-                }
+            }
             </li>
             <li>
                 Have a <a href="/home/contribute">premium subscription</a>
                 @if (Model.IsPremium)
-                {
-                    <i class="bi-check-circle text-success mx-2"></i>
-                }
-                else
-                {
-                    <text>
+            {
+                <i class="bi-check-circle text-success mx-2"></i>
+            }
+            else
+            {
+                <text>
                         &mdash; <a href="https://music4dance.blog/music4dance-help/subscriptions/">(help)</a>
                     </text>
-                }
+            }
             </li>
             @if (!Model.IsPremium && Model.IsSelf)
-            {
-                <li>
+        {
+            <li>
                     Or be downloading only your own votes and tags <span class="fas fa-check-circle mx-2"></span>
                 </li>
-            }
+        }
         </ol>
     </div>
 
     <div class="col-sm-2">
         @Html.ActionLink("Back to Search Results", ((SongFilter)ViewBag.SongFilter).TargetAction, new
-        {
-            filter = ViewBag.SongFilter
-        }, new
-        {
-            @class = "btn btn-sm btn-primary",
-            role = "button"
-        })
+    {
+        filter = ViewBag.SongFilter
+    }, new
+    {
+        @class = "btn btn-sm btn-primary",
+        role = "button"
+    })
     </div>
 </div>
 
 @if (canCreate)
 {
-    using (Html.BeginForm())
-    {
-        @Html.AntiForgeryToken()
-        <input type="hidden" name="filter" id="filter" value="@Model.Filter" />
+using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="filter" id="filter" value="@Model.Filter" />
 
-        <div class="form-group row">
+    <div class="form-group row">
             @Html.LabelFor(model => model.Title, new
-            {
-                @class = "col-form-label col-md-1"
-            })
+        {
+            @class = "col-form-label col-md-1"
+        })
             <div class="col-md-10">
                 @Html.EditorFor(model => model.Title, new
+            {
+                htmlAttributes = new
                 {
-                    htmlAttributes = new
-                    {
-                        @class = "form-control"
-                    }
-                })
+                    @class = "form-control"
+                }
+            })
                 @Html.ValidationMessageFor(model => model.Title, "", new
-                {
-                    @class = "text-danger"
-                })
+            {
+                @class = "text-danger"
+            })
             </div>
         </div>
 
-        @if (filter.HasDances)
-        {
-            <div class="form-group row">
+    @if (filter.HasDances)
+    {
+        <div class="form-group row">
                 <div class="col-md form-check offset-md-1">
                     @Html.EditorFor(model => model.IncludeSpecificDances, new
+                {
+                    htmlAttributes = new
                     {
-                        htmlAttributes = new
-                        {
-                            id = "include-specific-dances",
-                            @class = "from-check-input"
-                        }
-                    })
+                        id = "include-specific-dances",
+                        @class = "from-check-input"
+                    }
+                })
                     @Html.LabelFor(model => model.IncludeSpecificDances, new
-                    {
-                        @for = "include-specific-danes",
-                        @class = "form-check-label"
-                    })
+                {
+                    @for = "include-specific-danes",
+                    @class = "form-check-label"
+                })
                 </div>
             </div>
-        }
+    }
 
-        <div class="form-group row">
+    <div class="form-group row">
             <div class="offset-md-1 col-md-10">
                 <input type="submit" value="Download" class="btn btn-primary" />
             </div>
         </div>
-        <div class="row">
+    <div class="row">
             <p class="col-md">Check your downloads folder for the exported file.</p>
         </div>
-    }
+}
 }

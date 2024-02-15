@@ -2,45 +2,45 @@
 @inject IViteManifest Manifest;
 @model string
 @functions{
-    // Returns a list of css files from a single manifest entry
-    private List<string> CssFromManifest(string key)
+// Returns a list of css files from a single manifest entry
+private List<string> CssFromManifest(string key)
+{
+    var node = Manifest[key];
+    if (node == null)
     {
-        var node = Manifest[key];
-        if (node == null)
-        {
-            return new List<string>();
-        }
-
-        var files = node.Css?.ToList() ?? new List<string>();
-
-        var imports = node.Imports;
-        if (imports == null)
-        {
-            return files;
-        }
-
-        foreach (var import in imports)
-        {
-            files.AddRange(CssFromManifest(import));
-        }
-        return files.Distinct().ToList();
+        return new List<string>();
     }
 
-    private string Base => "vclient";
-    private string ProdCss => Manifest[$"{Base}/style.css"]?.File;
+    var files = node.Css?.ToList() ?? new List<string>();
+
+    var imports = node.Imports;
+    if (imports == null)
+    {
+        return files;
+    }
+
+    foreach (var import in imports)
+    {
+        files.AddRange(CssFromManifest(import));
+    }
+    return files.Distinct().ToList();
+}
+
+private string Base => "vclient";
+private string ProdCss => Manifest[$"{Base}/style.css"]?.File;
 }
 
 @if (ProdCss != null)
 {
-    // This will pull in the main css file (which exists if cssCodeSplit=false)
+// This will pull in the main css file (which exists if cssCodeSplit=false)
     <link rel="stylesheet" href="/@ProdCss">
 }
 else {
-    // This pulls in the all the related css files(which exist if cssCodeSplit = true)
-    var cssFiles = CssFromManifest($"{Base}/src/pages/{Model}/main.ts");
+// This pulls in the all the related css files(which exist if cssCodeSplit = true)
+var cssFiles = CssFromManifest($"{Base}/src/pages/{Model}/main.ts");
 
-    foreach (var file in cssFiles)
-    {
-        <link rel="stylesheet" href="/@file">
-    }
+foreach (var file in cssFiles)
+{
+    <link rel="stylesheet" href="/@file">
+}
 }

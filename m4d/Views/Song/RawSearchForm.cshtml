@@ -3,7 +3,7 @@
 
 @{
     ViewBag.Title = "Raw Search";
-    ViewBag.BreadCrumbs = BreadCrumbItem.BuildSongLibraryTrail(ViewBag.Title);
+ViewBag.BreadCrumbs = BreadCrumbItem.BuildSongLibraryTrail(ViewBag.Title);
 }
 
 @using (Html.BeginForm("RawSearch", "Song"))
@@ -14,139 +14,139 @@
         <h1>Raw Search</h1>
         <hr/>
         @Html.ValidationSummary(true, "", new
-        {
-            @class = "text-danger"
-        })
+    {
+        @class = "text-danger"
+    })
 
         <div class="form-group">
             @Html.LabelFor(model => model.SearchText, new
-            {
-                @class = "control-label col-md-2"
-            })
+        {
+            @class = "control-label col-md-2"
+        })
             <div class="col-md-10">
                 @Html.EditorFor(model => model.SearchText, new
+            {
+                htmlAttributes = new
                 {
-                    htmlAttributes = new
-                    {
-                        @class = "form-control wide-text-control"
-                    }
-                })
+                    @class = "form-control wide-text-control"
+                }
+            })
                 @Html.ValidationMessageFor(model => model.SearchText, "", new
-                {
-                    @class = "text-danger"
-                })
+            {
+                @class = "text-danger"
+            })
             </div>
         </div>
 
         <div class="form-group">
             @Html.LabelFor(model => model.ODataFilter, new
-            {
-                @class = "control-label col-md-2"
-            })
+        {
+            @class = "control-label col-md-2"
+        })
             <div class="col-md-10">
                 @Html.EditorFor(model => model.ODataFilter, new
+            {
+                htmlAttributes = new
                 {
-                    htmlAttributes = new
-                    {
-                        @class = "form-control wide-text-control"
-                    }
-                })
+                    @class = "form-control wide-text-control"
+                }
+            })
                 @Html.ValidationMessageFor(model => model.ODataFilter, "", new
-                {
-                    @class = "text-danger"
-                })
+            {
+                @class = "text-danger"
+            })
             </div>
         </div>
 
         <div class="form-group">
             @Html.LabelFor(model => model.SortFields, new
-            {
-                @class = "control-label col-md-2"
-            })
+        {
+            @class = "control-label col-md-2"
+        })
             <div class="col-md-10">
                 @Html.EditorFor(model => model.SortFields, new
+            {
+                htmlAttributes = new
                 {
-                    htmlAttributes = new
-                    {
-                        @class = "form-control wide-text-control"
-                    }
-                })
+                    @class = "form-control wide-text-control"
+                }
+            })
                 @Html.ValidationMessageFor(model => model.SortFields, "", new
-                {
-                    @class = "text-danger"
-                })
+            {
+                @class = "text-danger"
+            })
             </div>
         </div>
 
         <div class="form-group">
             @Html.LabelFor(model => model.SearchFields, new
-            {
-                @class = "control-label col-md-2"
-            })
+        {
+            @class = "control-label col-md-2"
+        })
             <div class="col-md-10">
                 @Html.EditorFor(model => model.SearchFields, new
+            {
+                htmlAttributes = new
                 {
-                    htmlAttributes = new
-                    {
-                        @class = "form-control wide-text-control"
-                    }
-                })
+                    @class = "form-control wide-text-control"
+                }
+            })
                 @Html.ValidationMessageFor(model => model.SearchFields, "", new
-                {
-                    @class = "text-danger"
-                })
+            {
+                @class = "text-danger"
+            })
             </div>
         </div>
 
         <div class="form-group">
             @Html.LabelFor(model => model.Description, new
-            {
-                @class = "control-label col-md-2"
-            })
+        {
+            @class = "control-label col-md-2"
+        })
             <div class="col-md-10">
                 @Html.EditorFor(model => model.Description, new
+            {
+                htmlAttributes = new
                 {
-                    htmlAttributes = new
-                    {
-                        @class = "form-control wide-text-control"
-                    }
-                })
+                    @class = "form-control wide-text-control"
+                }
+            })
                 @Html.ValidationMessageFor(model => model.Description, "", new
-                {
-                    @class = "text-danger"
-                })
+            {
+                @class = "text-danger"
+            })
             </div>
         </div>
 
         <div class="form-group">
             @Html.LabelFor(model => model.CruftFilter, new
-            {
-                @class = "control-label col-md-2"
-            })
+        {
+            @class = "control-label col-md-2"
+        })
             <div class="col-md-10">
                 <div class="checkbox">
                     @Html.EditorFor(model => model.CruftFilter)
                     @Html.ValidationMessageFor(model => model.CruftFilter, "", new
-                    {
-                        @class = "text-danger"
-                    })
+                {
+                    @class = "text-danger"
+                })
                 </div>
             </div>
         </div>
 
         <div class="form-check col-md-11 ml-3">
             @Html.EditorFor(model => model.IsLucene,
-                new
-                {
-                    htmlAttributes = new
-                    {
-                        @class = "form-check-input"
-                    }
-                })
-            @Html.LabelFor(model => model.IsLucene, new
+            new
             {
-                @class = "form-check-label"
+                htmlAttributes = new
+                {
+                    @class = "form-check-input"
+                }
             })
+            @Html.LabelFor(model => model.IsLucene, new
+        {
+            @class = "form-check-label"
+        })
         </div>
 
         <div class="form-group mt-2">
@@ -168,8 +168,8 @@
                     <td>Field</td><td>Datatype</td><td>Searchable</td><td>Sortable</td><td>Filterable</td><td>Facetable</td>
                 </tr>
                 @foreach (var field in ViewBag.AzureIndexInfo.Fields)
-                {
-                    <tr>
+            {
+                <tr>
                         <td>@field.Name</td>
                         <td>@field.Type</td>
                         <td>@field.IsSearchable</td>
@@ -177,7 +177,7 @@
                         <td>@field.IsFilterable</td>
                         <td>@field.IsFacetable</td>
                     </tr>
-                }
+            }
                 </tbody>
             </table>
         </div>

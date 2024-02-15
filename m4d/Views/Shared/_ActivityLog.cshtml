@@ -21,8 +21,8 @@
     </thead>
 
     @foreach (var item in Model)
-    {
-        <tr>
+{
+    <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Id)
             </td>
@@ -31,13 +31,13 @@
             </td>
             <td>
                 @if (item.User != null)
-                {
-                    @Html.DisplayFor(modelItem => item.User.UserName)
-                }
-                else
-                {
-                    <span>no user</span>
-                }
+            {
+                @Html.DisplayFor(modelItem => item.User.UserName)
+            }
+            else
+            {
+                <span>no user</span>
+            }
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Action)
@@ -46,5 +46,5 @@
                 @Html.DisplayFor(modelItem => item.Details)
             </td>
         </tr>
-    }
+}
 </table>

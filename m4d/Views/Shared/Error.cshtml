@@ -3,49 +3,49 @@
 
 @{
     ViewBag.Title = "Error";
-    Exception exception = ViewBag.Exception;
-    ViewBag.BreadCrumbs = BreadCrumbItem.BuildInfoTrail(ViewBag.Title);
+Exception exception = ViewBag.Exception;
+ViewBag.BreadCrumbs = BreadCrumbItem.BuildInfoTrail(ViewBag.Title);
 }
 
 <h2 class="text-danger">Error:</h2>
 @{
     if (!string.IsNullOrEmpty(ViewBag.errorMessage))
-    {
-        <p class="text-danger">@Html.Raw(ViewBag.errorMessage)</p>
-    }
-    else if (!string.IsNullOrEmpty(ViewBag.StatusMessage))
-    {
-        <p class="text-danger">@Html.Raw(ViewBag.StatusMessage)</p>
-    }
-    else
-    {
-        <p class="text-danger">An error occurred while processing your request.</p>
-    }
+{
+    <p class="text-danger">@Html.Raw(ViewBag.errorMessage)</p>
+}
+else if (!string.IsNullOrEmpty(ViewBag.StatusMessage))
+{
+    <p class="text-danger">@Html.Raw(ViewBag.StatusMessage)</p>
+}
+else
+{
+    <p class="text-danger">An error occurred while processing your request.</p>
+}
 }
 
 @if ((TraceLevels.General.TraceVerbose || User.IsInRole("showDiagnostics") || User.IsInRole("beta")) && exception != null)
 {
-    var hresult = "0x" + exception.HResult.ToString("X8");
+var hresult = "0x" + exception.HResult.ToString("X8");
     <p><b>Exception:</b>@exception.Message (@hresult)</p>
-    if (exception.InnerException != null)
-    {
-        <p>
+if (exception.InnerException != null)
+{
+    <p>
             <b>Inner Exception:</b>@exception.InnerException.Message
         </p>
-    }
+}
     <p>
         <b>Target Site:</b>@exception.TargetSite
     </p>
 
     <h3>Stack Trace:</h3>
-    var frames = exception.StackTrace.Split(new[]
-    {
-        '\n'
-    }, StringSplitOptions.RemoveEmptyEntries);
+var frames = exception.StackTrace.Split(new[]
+{
+    '\n'
+}, StringSplitOptions.RemoveEmptyEntries);
     <ul>
         @foreach (var s in frames)
-        {
-            <li>@s</li>
-        }
+    {
+        <li>@s</li>
+    }
     </ul>
 }

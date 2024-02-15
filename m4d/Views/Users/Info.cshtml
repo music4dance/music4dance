@@ -2,15 +2,15 @@
 @using m4d.ViewModels
 
     @{
-        ViewBag.Title = $"Info for {Model.UserName}";
-        ViewBag.Description = $"Favorites and song lists for {Model.UserName}";
-        ViewBag.VueName = "user-info";
+    ViewBag.Title = $"Info for {Model.UserName}";
+    ViewBag.Description = $"Favorites and song lists for {Model.UserName}";
+    ViewBag.VueName = "user-info";
 
-        var converterModel = new ObjectConverterModel
-        {
-            Name = "model",
-            Model = Model
-        };
+    var converterModel = new ObjectConverterModel
+    {
+        Name = "model",
+        Model = Model
+    };
     }
 
     <div id="app"></div>

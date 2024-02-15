@@ -17,118 +17,118 @@
             <th></th>
             @{ var i = 0; }
             @foreach (var item in Model.Songs)
-            {
-                <th>Candidate # @(i + 1)</th>
-                i = i + 1;
-            }
+        {
+            <th>Candidate # @(i + 1)</th>
+            i = i + 1;
+        }
         </tr>
         @foreach (var spm in Model.Properties)
-        {
-            <tr>
+    {
+        <tr>
                 <th>@spm.Name</th>
                 @{ i = 0; }
                 @foreach (var value in spm.Values)
+            {
+                var primaryClick = string.Empty;
+                if (spm.AllowAlternates)
                 {
-                    var primaryClick = string.Empty;
-                    if (spm.AllowAlternates)
-                    {
-                        primaryClick = "onclick=\"PrimaryChanged(" + i.ToString() + ")\"";
-                    }
-                    <td>
+                    primaryClick = "onclick=\"PrimaryChanged(" + i.ToString() + ")\"";
+                }
+                <td>
                         @if (spm.Selection != -1)
+                    {
+                        var Checked = "";
+                        if (spm.Selection == i)
                         {
-                            var Checked = "";
-                            if (spm.Selection == i)
-                            {
-                                Checked = "Checked";
-                            }
-                            <input type="radio" style="width: auto; background-color: inherit" name="@spm.Name" value="@i" @Html.Raw(primaryClick) @Checked/>
+                            Checked = "Checked";
                         }
+                        <input type="radio" style="width: auto; background-color: inherit" name="@spm.Name" value="@i" @Html.Raw(primaryClick) @Checked/>
+                    }
 
                         @if (value == null)
+                    {
+                        <b>null</b>
+                    }
+                    else if (!spm.AllowAlternates)
+                    {
+                        @value.ToString()
+                        ;
+                    }
+                    else
+                    {
+                        var alternates = (value as string).Split('|');
+                        var first = true;
+                        foreach (var alternate in alternates)
                         {
-                            <b>null</b>
-                        }
-                        else if (!spm.AllowAlternates)
-                        {
-                            @value.ToString()
-                            ;
-                        }
-                        else
-                        {
-                            var alternates = (value as string).Split('|');
-                            var first = true;
-                            foreach (var alternate in alternates)
+                            if (!first)
                             {
-                                if (!first)
+                                <br/>
+                                <input type="radio" style="width: auto; background-color: inherit" name="@spm.Name" value="@i" @Html.Raw(primaryClick)/>
+                            }
+                            @alternate
+                            if (spm.Selection != -1)
+                            {
+                                var name = spm.Name + "_" + i.ToString();
+                                var Checked = "";
+                                if (spm.Selection != i)
                                 {
-                                    <br/>
-                                    <input type="radio" style="width: auto; background-color: inherit" name="@spm.Name" value="@i" @Html.Raw(primaryClick)/>
+                                    Checked = "Checked";
                                 }
-                                @alternate
-                                if (spm.Selection != -1)
-                                {
-                                    var name = spm.Name + "_" + i.ToString();
-                                    var Checked = "";
-                                    if (spm.Selection != i)
-                                    {
-                                        Checked = "Checked";
-                                    }
-                                    <text>(Alternate
+                                <text>(Alternate
                                         <input id="@name" name="@name" type="checkbox" @Checked>
                                         )</text>
-                                }
-                                i = i + 1;
-                                first = false;
-
-                                primaryClick = "onclick=\"PrimaryChanged(" + i.ToString() + ")\"";
                             }
+                            i = i + 1;
+                            first = false;
+
+                            primaryClick = "onclick=\"PrimaryChanged(" + i.ToString() + ")\"";
                         }
-                    </td>
-                    if (!spm.AllowAlternates)
-                    {
-                        i = i + 1;
                     }
+                    </td>
+                if (!spm.AllowAlternates)
+                {
+                    i = i + 1;
                 }
+            }
             </tr>
-        }
+    }
         <tr>
             <th>Dances</th>
             <td>
                 @{
-                    var idx = 0;
-                    foreach (var dm in Model.Ratings)
+                var idx = 0;
+                foreach (var dm in Model.Ratings)
+                {
+                    var label = dm.DanceName + " (" + dm.Weight.ToString() + ")";
+                    var name = "Dance-" + dm.DanceId + "-" + dm.Weight;
+                    var isChecked = "";
+                    if (dm.Keep)
                     {
-                        var label = dm.DanceName + " (" + dm.Weight.ToString() + ")";
-                        var name = "Dance-" + dm.DanceId + "-" + dm.Weight;
-                        var isChecked = "";
-                        if (dm.Keep)
-                        {
-                            isChecked = "checked";
-                        }
-
-                        if (dm.SongIdx > idx)
-                        {
-                            idx += 1;
-                            @:</td><td>
-                        }
-                        <input id="@name" name="@name" type="checkbox" @isChecked/>
-                        @label
+                        isChecked = "checked";
                     }
+
+                    if (dm.SongIdx > idx)
+                    {
+                        idx += 1;
+                        @:</td><td>
+                    }
+                    <input id="@name" name="@name" type="checkbox" @isChecked/>
+                    @label
                 }
+            }
             </td>
         </tr>
         <tr>
             <th>Tags</th>
             @foreach (var song in Model.Songs)
-            {
-                <td>
+        {
+            <td>
                     @foreach (var tag in song.TagSummary.Tags)
-                    {
-                        <span> @tag </span>
-                    }
+                {
+                    <span> @tag </span>
+                }
                 </td>
-            }
+        }
         </tr>
     </table>
 
@@ -140,13 +140,13 @@
     <input name="Commit" type="submit" value="Cancel" class="btn btn-small btn-primary"/>
 
     @Html.ActionLink("Back to Search Results", ((SongFilter)ViewBag.SongFilter).TargetAction, new
-    {
-        filter = ViewBag.SongFilter
-    }, new
-    {
-        @class = "btn btn-small btn-primary",
-        role = "button"
-    })
+{
+    filter = ViewBag.SongFilter
+}, new
+{
+    @class = "btn btn-small btn-primary",
+    role = "button"
+})
 }
 
 @section Scripts
@@ -154,12 +154,8 @@
     @{
         var scripts = new ScriptModel
         {
-            DevelopmentFiles = new[]
-            {
-                "merge"
-            }
+            DevelopmentFiles = new[] {"merge"}
         };
     }
-
     <partial name="_scriptInclude" model="@scripts"/>
 }

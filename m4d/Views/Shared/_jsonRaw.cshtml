@@ -4,10 +4,10 @@
 
 @{
     var jsonSerializerSettings = new JsonSerializerSettings
-    {
-        ContractResolver = new CamelCasePropertyNamesContractResolver()
-    };
-    var json = JsonConvert.SerializeObject(Model, Formatting.Indented, jsonSerializerSettings);
+{
+    ContractResolver = new CamelCasePropertyNamesContractResolver()
+};
+var json = JsonConvert.SerializeObject(Model, Formatting.Indented, jsonSerializerSettings);
 }
 
 @Html.Raw(json)

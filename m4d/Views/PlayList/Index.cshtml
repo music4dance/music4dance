@@ -4,7 +4,7 @@
 
 @{
     ViewBag.Title = $"{Model.Type} PlayList Index";
-    ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
+ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
 }
 
 <h1>@ViewBag.Title</h1>
@@ -13,71 +13,74 @@
     <div class="col-sm-3">
         <p>
             @Html.ActionLink("Create New", "Create", new
-            {
-            Model.Type
-            })
+        {
+        Model.Type
+        })
         </p>
         <p>
             @Html.ActionLink("Restore All", "RestoreAll", new
-            {
-            Model.Type
-            })
+        {
+        Model.Type
+        })
         </p>
         <p>
             @Html.ActionLink("Update All", "UpdateAll", new
-            {
-            Model.Type
-            })
+        {
+        Model.Type
+        })
         </p>
     </div>
     <div class="col-sm-3">
         @if (Model.Type != PlayListType.SongsFromSpotify)
-        {
-            <p>
+    {
+        <p>
                 @Html.ActionLink("SongsFromSpotify", "Index", new
-            {
-            Type = PlayListType.SongsFromSpotify
-            })
-            </p>
-        }
-        @if (Model.Type != PlayListType.SpotifyFromSearch)
         {
-            <p>
-                @Html.ActionLink("SpotifyFromSearch", "Index", new
-            {
-            Type = PlayListType.SpotifyFromSearch
-            })
+        Type = PlayListType.SongsFromSpotify
+        })
             </p>
-        }
+    }
+        @if (Model.Type != PlayListType.SpotifyFromSearch)
+    {
+        <p>
+                @Html.ActionLink("SpotifyFromSearch", "Index", new
+        {
+        Type = PlayListType.SpotifyFromSearch
+        })
+            </p>
+    }
     </div>
     <div class="col-sm-3">
         @if (Model.Type == PlayListType.SpotifyFromSearch)
-        {
-            <p>
+    {
+        <p>
                 @Html.ActionLink("Creat TopN", "BulkCreate", new
-                {
-                    Type = PlayListType.SpotifyFromSearch,
-                    Flavor = "TopN"
-                })
+            {
+                Type = PlayListType.SpotifyFromSearch,
+                Flavor = "TopN"
+            })
             </p>
-            <p>
+            
+        <p>
                 @Html.ActionLink("Create Holiday", "BulkCreate", new
-                {
-                    Type = PlayListType.SpotifyFromSearch,
-                    Flavor = "Holiday"
-                })
+            {
+                Type = PlayListType.SpotifyFromSearch,
+                Flavor = "Holiday"
+            })
             </p>
-            <p>
+            
+        <p>
                 @Html.ActionLink("Create Halloween", "BulkCreate", new
-                {
-                    Type = PlayListType.SpotifyFromSearch,
-                    Flavor = "Halloween"
-                })
+            {
+                Type = PlayListType.SpotifyFromSearch,
+                Flavor = "Halloween"
+            })
             </p>
-            <p>
+            
+        <p>
                 @Html.ActionLink("Statistics", "Statistics")
             </p>
-        }
+    }
     </div>
 </div>
 
@@ -89,13 +92,13 @@
         <th>Name</th>
         <th>Description</th>
         @if (Model.HasData1)
-        {
-            <th>@Model.Data1Name</th>
-        }
+    {
+        <th>@Model.Data1Name</th>
+    }
         @if (Model.HasData2)
-        {
-            <th>@Model.Data2Name</th>
-        }
+    {
+        <th>@Model.Data2Name</th>
+    }
         <th>Created</th>
         <th>Updated</th>
         <th>Deleted</th>
@@ -103,13 +106,13 @@
     </tr>
 
     @foreach (var item in Model.PlayLists)
-    {
-        <tr>
+{
+    <tr>
             <td>
                 @Html.ActionLink(item.Id, "Details", new
-            {
-            id = item.Id
-            })
+        {
+        id = item.Id
+        })
             </td>
             <td>
                 @Html.ActionLink(item.User, "Index", new { user = item.User })
@@ -124,17 +127,17 @@
                 @Html.DisplayFor(modelItem => item.Description)
             </td>
             @if (Model.HasData1)
-            {
-                <td>
+        {
+            <td>
                     @(string.IsNullOrEmpty(item.Data1) ? "" : item.Data1.Substring(0, Math.Min(item.Data1.Length, 50)))
                 </td>
-            }
+        }
             @if (Model.HasData2)
-            {
-                <td>
+        {
+            <td>
                     @(string.IsNullOrEmpty(item.Data2) ? "" : item.Data2.Substring(0, Math.Min(item.Data2.Length, 50)))
                 </td>
-            }
+        }
             <td>
                 @Html.DisplayFor(modelItem => item.Created)
             </td>
@@ -146,31 +149,31 @@
             </td>
             <td>
                 @Html.ActionLink("Update", "Update", new
-            {
-            id = item.Id
-            }) |
+        {
+        id = item.Id
+        }) |
                 @Html.ActionLink("Edit", "Edit", new
-            {
-            id = item.Id
-            }) |
+        {
+        id = item.Id
+        }) |
                 @Html.ActionLink("Details", "Details", new
-            {
-            id = item.Id
-            }) |
+        {
+        id = item.Id
+        }) |
                 @Html.ActionLink("Delete", "Delete", new
-            {
-            id = item.Id
-            })
+        {
+        id = item.Id
+        })
                 @if (item.Updated.HasValue && string.IsNullOrWhiteSpace(item.Data2))
-                {
-                    <span> | </span>
-                    @Html.ActionLink("Restore", "Restore", new
             {
-            id = item.Id
-            })
-                }
+                <span> | </span>
+                @Html.ActionLink("Restore", "Restore", new
+        {
+        id = item.Id
+        })
+            }
             </td>
         </tr>
-    }
+}
 
 </table>

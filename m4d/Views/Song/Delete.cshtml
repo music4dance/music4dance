@@ -62,12 +62,12 @@
     <p>
         <input type="submit" value="Delete"/> |
         @Html.ActionLink("Back to Search Results", ((SongFilter)ViewBag.SongFilter).TargetAction, new
-        {
-            filter = ViewBag.SongFilter
-        }, new
-        {
-            @class = "btn btn-ml btn-primary",
-            role = "button"
-        })
+    {
+        filter = ViewBag.SongFilter
+    }, new
+    {
+        @class = "btn btn-ml btn-primary",
+        role = "button"
+    })
     </p>
 }

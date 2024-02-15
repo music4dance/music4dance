@@ -1,15 +1,15 @@
 ﻿@using m4d.ViewModels
 @{
     ViewBag.Title = "Administration";
-    ViewBag.BreadCrumbs = new List<BreadCrumbItem>
+ViewBag.BreadCrumbs = new List<BreadCrumbItem>
+{
+    BreadCrumbItem.HomeItem,
+    new()
     {
-        BreadCrumbItem.HomeItem,
-        new()
-        {
-            Title = ViewBag.Title,
-            Active = true
-        }
-    };
+        Title = ViewBag.Title,
+        Active = true
+    }
+};
 }
 
 <h1>@ViewBag.Title</h1>

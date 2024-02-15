@@ -10,26 +10,26 @@
 
 @{
     ViewBag.Title = "Thank You!";
-    ViewBag.BreadCrumbs = new List<BreadCrumbItem>
+ViewBag.BreadCrumbs = new List<BreadCrumbItem>
+{
+    BreadCrumbItem.HomeItem,
+    new()
     {
-        BreadCrumbItem.HomeItem,
-        new()
-        {
-            Title = "Contribute",
-            Link = "/Home/Contribute"
-        },
-        new()
-        {
-            Title = ViewBag.Title,
-            Active = true
-        }
-    };
+        Title = "Contribute",
+        Link = "/Home/Contribute"
+    },
+    new()
+    {
+        Title = ViewBag.Title,
+        Active = true
+    }
+};
 
-    var level = @SubscriptionLevelDescription.FindSubscriptionLevel(Model.Amount);
-    var purchase = level == null ? 0.0M : level.Price;
-    var donationAmount = Model.Amount - purchase;
-    var user = await _userManager.GetUserAsync(User);
-    var marketing = GlobalState.GetMarketing(user, Context.Request.Path);
+var level = @SubscriptionLevelDescription.FindSubscriptionLevel(Model.Amount);
+var purchase = level == null ? 0.0M : level.Price;
+var donationAmount = Model.Amount - purchase;
+var user = await _userManager.GetUserAsync(User);
+var marketing = GlobalState.GetMarketing(user, Context.Request.Path);
 }
 
 <h1>@ViewBag.Title</h1>
@@ -45,11 +45,11 @@
         Remember that you must log in as <b>@Model.User</b> in order to turn off the advertisements.
     </p>
 
-    if (donationAmount > 0)
-    {
-        <h2>Thank You!</h2>
-        <p class="big-text">Also, thank you for the generous additional donation of $@(donationAmount)</p>
-    }
+if (donationAmount > 0)
+{
+    <h2>Thank You!</h2>
+    <p class="big-text">Also, thank you for the generous additional donation of $@(donationAmount)</p>
+}
 }
 else
 {

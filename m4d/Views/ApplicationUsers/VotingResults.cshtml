@@ -3,7 +3,7 @@
 
 @{
     ViewBag.Title = "UsageIndex";
-    ViewBag.BreadCrumbs = BreadCrumbItem.BuildUsersTrail(ViewBag.Title);
+ViewBag.BreadCrumbs = BreadCrumbItem.BuildUsersTrail(ViewBag.Title);
 }
 
 <h2>Song Voting Records</h2>
@@ -27,29 +27,29 @@
     </tr>
 
     @foreach (var item in Model)
-    {
-        <tr>
+{
+    <tr>
             <td>
                 @if (item.User == null)
-                {
-                    <b>@Html.DisplayFor(modelItem => item.UserId) (invalid)</b>
-                }
-                else if (item.User.IsPseudo)
-                {
-                    <i>
+            {
+                <b>@Html.DisplayFor(modelItem => item.UserId) (invalid)</b>
+            }
+            else if (item.User.IsPseudo)
+            {
+                <i>
                         @Html.ActionLink(item.UserId, "FilterUser", "Song", new
-                        {
-                            user = item.UserId
-                        }, null)
-                    </i>
-                }
-                else
-                {
-                    @Html.ActionLink(item.UserId, "FilterUser", "Song", new
                     {
                         user = item.UserId
                     }, null)
-                }
+                    </i>
+            }
+            else
+            {
+                @Html.ActionLink(item.UserId, "FilterUser", "Song", new
+                {
+                    user = item.UserId
+                }, null)
+            }
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Votes)
@@ -61,5 +61,5 @@
                 @Html.DisplayFor(modelItem => item.Hates)
             </td>
         </tr>
-    }
+}
 </table>

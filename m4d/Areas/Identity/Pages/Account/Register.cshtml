@@ -2,7 +2,7 @@
 @model RegisterModel
 @{
     ViewData["HasIcons"] = true;
-    ViewData["Title"] = "Register";
+ViewData["Title"] = "Register";
 }
 @addTagHelper *, Owl.reCAPTCHA
 
@@ -40,12 +40,12 @@
                 <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
             </div>
             @if (Model.UseCaptcha)
-            {
-                <input id="Input_RecaptchaToken" name="Input.RecaptchaToken" type="hidden" />
-                <div class="form-floating mb-3">
+        {
+            <input id="Input_RecaptchaToken" name="Input.RecaptchaToken" type="hidden" />
+            <div class="form-floating mb-3">
                     <recaptcha-div-v2 callback="recaptchaCallback" />
                 </div>
-            }
+        }
             <button type="submit" class="btn btn-primary">Register</button>
         </form>
     </div>
@@ -72,12 +72,12 @@
         <link rel="stylesheet" href="~/css/auth-buttons.min.css" asp-append-version="true" />
     </environment>
     @if (Model.UseCaptcha)
-    {
-        <recaptcha-script-v2 />
-        <script>
+{
+    <recaptcha-script-v2 />
+    <script>
             function recaptchaCallback(token) {
                 document.getElementById("Input_RecaptchaToken").value = token;
             }
         </script>
-    }
+}
 }

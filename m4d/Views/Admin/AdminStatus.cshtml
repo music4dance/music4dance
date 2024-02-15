@@ -3,7 +3,7 @@
 
 @{
     ViewBag.Title = "Long Running Task Status";
-    ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
+ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
 }
 
 <h1>@ViewBag.Title: @(Model.IsRunning ? "Running" : Model.Succeeded ? "Succeeded" : "Failed")</h1>
@@ -17,23 +17,23 @@
 @if (!Model.IsRunning && Model.Exception != null)
 {
     <p>Execption: @Model.Exception.Message</p>
-    if (Model.Exception.InnerException != null)
-    {
-        <p>Inner: @Model.Exception.InnerException.Message</p>
-    }
+if (Model.Exception.InnerException != null)
+{
+    <p>Inner: @Model.Exception.InnerException.Message</p>
+}
 
-    if (!string.IsNullOrEmpty(Model.Exception.StackTrace))
+if (!string.IsNullOrEmpty(Model.Exception.StackTrace))
+{
+    <h3>Stack Trace:</h3>
+    var frames = Model.Exception.StackTrace.Split(new[]
     {
-        <h3>Stack Trace:</h3>
-        var frames = Model.Exception.StackTrace.Split(new[]
-        {
-            '\n'
-        }, StringSplitOptions.RemoveEmptyEntries);
-        <ul>
+        '\n'
+    }, StringSplitOptions.RemoveEmptyEntries);
+    <ul>
             @foreach (var s in frames)
-            {
-                <li>@s</li>
-            }
+        {
+            <li>@s</li>
+        }
         </ul>
-    }
+}
 }

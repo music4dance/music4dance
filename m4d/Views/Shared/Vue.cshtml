@@ -3,21 +3,21 @@
 
 @{
     ViewBag.Title = Model.Title;
-    ViewBag.Description = Model.Description;
-    ViewBag.VueName = Model.Name;
-    var vueModel = Model.Model;
-    if (vueModel is string)
-    {
-        vueModel = $"'{vueModel}'";
-    }
+ViewBag.Description = Model.Description;
+ViewBag.VueName = Model.Name;
+var vueModel = Model.Model;
+if (vueModel is string)
+{
+    vueModel = $"'{vueModel}'";
+}
 
-    var converterModel = Model.Model != null
-        ? new ObjectConverterModel
-        {
-            Name = "model",
-            Model = vueModel
-        }
-        : null;
+var converterModel = Model.Model != null
+    ? new ObjectConverterModel
+    {
+        Name = "model",
+        Model = vueModel
+    }
+    : null;
 }
 
 @if (Model.Script != null)

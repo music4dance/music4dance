@@ -1,56 +1,54 @@
-﻿using System.Collections.Generic;
-using DanceLibrary;
+﻿using DanceLibrary;
 using Newtonsoft.Json;
 
-namespace m4d.ViewModels
+namespace m4d.ViewModels;
+
+public class DanceMapping
 {
-    public class DanceMapping
+    public DanceMapping(string title = null, string name = null)
     {
-        public DanceMapping(string title = null, string name = null)
-        {
-            Title = title;
-            Name = name ?? DanceObject.SeoFriendly(title);
-        }
-
-        public virtual string Name { get; }
-        public virtual string Title { get; }
-
-        public virtual string Controller => "dances";
-
-        public virtual string QueryString => Parameters == null ? null : $"filter={Parameters}";
-
-        [JsonIgnore]
-        public virtual string Parameters => null;
+        Title = title;
+        Name = name ?? DanceObject.SeoFriendly(title);
     }
 
-    public class DanceClass
+    public virtual string Name { get; }
+    public virtual string Title { get; }
+
+    public virtual string Controller => "dances";
+
+    public virtual string QueryString => Parameters == null ? null : $"filter={Parameters}";
+
+    [JsonIgnore]
+    public virtual string Parameters => null;
+}
+
+public class DanceClass
+{
+    public List<DanceMapping> Dances;
+    public string Image;
+    public string Title;
+    public string TopDance;
+    public virtual string FullTitle => "Music for " + Title + " Dancers";
+}
+
+public class WeddingDanceClass : DanceClass
+{
+    public override string FullTitle => "Music for Wedding Dances";
+}
+
+public class WeddingDanceMapping : DanceMapping
+{
+    private readonly string _tag;
+
+    public WeddingDanceMapping(string tag)
     {
-        public List<DanceMapping> Dances;
-        public string Image;
-        public string Title;
-        public string TopDance;
-        public virtual string FullTitle => "Music for " + Title + " Dancers";
+        _tag = tag;
     }
 
-    public class WeddingDanceClass : DanceClass
-    {
-        public override string FullTitle => "Music for Wedding Dances";
-    }
+    public override string Title => _tag.Contains("Dance") ? _tag : _tag.Replace(' ', '/');
 
-    public class WeddingDanceMapping : DanceMapping
-    {
-        private readonly string _tag;
+    public override string Name => "index";
+    public override string Controller => "song";
 
-        public WeddingDanceMapping(string tag)
-        {
-            _tag = tag;
-        }
-
-        public override string Title => _tag.Contains("Dance") ? _tag : _tag.Replace(' ', '/');
-
-        public override string Name => "index";
-        public override string Controller => "song";
-
-        public override string Parameters => $"Index-.-.-.-.-.-.-.-1-+{_tag}:Other";
-    }
+    public override string Parameters => $"Index-.-.-.-.-.-.-.-1-+{_tag}:Other";
 }

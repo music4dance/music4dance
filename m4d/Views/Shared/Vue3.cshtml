@@ -5,21 +5,21 @@
 
 @{
     ViewData["Title"] = Model.Title;
-    ViewData["Description"] = Model.Description;
-    var vueModel = Model.Model;
-    if (vueModel is string)
-    {
-        vueModel = $"'{vueModel}'";
-    }
+ViewData["Description"] = Model.Description;
+var vueModel = Model.Model;
+if (vueModel is string)
+{
+    vueModel = $"'{vueModel}'";
+}
 
-    var converterModel = Model.Model != null
-        ? new ObjectConverterModel
-                {
-                    Name = "model_",
-                    Model = vueModel,
-                    PreserveCase = Model.PreserveCase,
-                }
-        : null;
+var converterModel = Model.Model != null
+    ? new ObjectConverterModel
+            {
+                Name = "model_",
+                Model = vueModel,
+                PreserveCase = Model.PreserveCase,
+            }
+    : null;
 }
 
 @if (Model.Script != null)
@@ -31,11 +31,11 @@
     @{ string devEntry = $"/src/pages/{Model.Name}/main.ts"; }
     <script type="module" src="@devEntry"></script>
     @if (Model.Model != null)
-    {
-        @section Scripts {
+{
+    @section Scripts {
             <partial name="_jsonCamelCase" model="@converterModel"/>
         }
-    }
+}
 </environment>
 
 <environment exclude="Development">
@@ -45,9 +45,9 @@
 
     @section Scripts {
         @if (Model.Model != null)
-        {
-            <partial name="_jsonCamelCase" model="@converterModel" />
-        }
+    {
+        <partial name="_jsonCamelCase" model="@converterModel" />
+    }
         <script type="module" src="/@Manifest[$"vclient/src/pages/{Model.Name}/main.ts"]!.File"></script>
     }
 </environment>

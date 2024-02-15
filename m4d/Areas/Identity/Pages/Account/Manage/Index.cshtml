@@ -2,11 +2,11 @@
 @model IndexModel
 @{
     ViewData["Title"] = "Profile";
-    ViewData["ActivePage"] = ManageNavPages.Index;
-    ViewData["UserName"] = Model.UserName;
-    var ListLink = $"/users/info/{Model.UserName}";
-    var ExportLink = $"/song/exportplaylist?filter=v2-Advanced-----%2B{Model.UserName}|a";
-    var canExport = User.IsInRole(DanceMusicCoreService.DiagRole) || User.IsInRole(DanceMusicCoreService.BetaRole);
+ViewData["ActivePage"] = ManageNavPages.Index;
+ViewData["UserName"] = Model.UserName;
+var ListLink = $"/users/info/{Model.UserName}";
+var ExportLink = $"/song/exportplaylist?filter=v2-Advanced-----%2B{Model.UserName}|a";
+var canExport = User.IsInRole(DanceMusicCoreService.DiagRole) || User.IsInRole(DanceMusicCoreService.BetaRole);
 }
 
 <h3>@ViewData["Title"]</h3>
@@ -40,8 +40,8 @@
                         <label asp-for="Input.PublicProfile"></label>
                     </div>
                     @if (Model.Input.PublicProfile)
-                    {
-                <p>
+                {
+            <p>
                     Thank you for sharing your profile.  This will allow
                     other members of the music4dance community see the
                     songs that you've tagged and learn.  If you have other
@@ -51,9 +51,9 @@
                         feedback
                     </a>
                 </p> }
-                            else
-                            {
-                <p>
+                        else
+                        {
+            <p>
                     Please consider sharing your profile.  This will allow
                     other members of the music4dance community see the
                     songs that you've tagged and learn.  The only information
@@ -74,8 +74,8 @@
                     <h4 class="col-md-12">Contact:</h4>
                     <ul class="col-md-11 col-md-offset-1 list-clean">
                         @foreach (var item in Model.ContactOptions)
-                        {
-                            <li>
+                    {
+                        <li>
                                 <input id="contact@(item.Key)"
                                        type="checkbox"
                                        name="Input.ContactSelection"
@@ -84,7 +84,7 @@
                                        @(Model.Input.ContactSelection.Contains(item.Key) ? "checked" : "")/>
                                 <label for="contact@(item.Key)" class="form-check-label">@Html.Raw(item.Value)</label>
                             </li>
-                        }
+                    }
                     </ul>
                 </div>
 
@@ -92,8 +92,8 @@
                     <h4 class="col-md-12">Music Service:</h4>
                     <ul class="col-md-11 col-md-offset-1 list-clean">
                         @foreach (var item in Model.ServiceOptions)
-                        {
-                            <li>
+                    {
+                        <li>
                                 <input id="service@(item.Key)"
                                        type="checkbox"
                                        name="Input.ServiceSelection"
@@ -102,7 +102,7 @@
                                        @(Model.Input.ServiceSelection.Contains(item.Key) ? "checked" : "")/>
                                 <label for="service@(item.Key)" class="form-check-label">@item.Value</label>
                             </li>
-                        }
+                    }
                     </ul>
                 </div>
 

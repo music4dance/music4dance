@@ -3,8 +3,8 @@
 
 @using (Html.BeginForm("CreateCheckoutSession", "Payment", FormMethod.Post, new
 {
-    id = "purchase",
-    @class = "form-inline"
+id = "purchase",
+@class = "form-inline"
 }))
 {
     @Html.AntiForgeryToken()

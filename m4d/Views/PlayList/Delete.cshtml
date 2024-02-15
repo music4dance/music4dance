@@ -3,7 +3,7 @@
 
 @{
     ViewBag.Title = "Delete";
-    ViewBag.BreadCrumbs = BreadCrumbItem.BuildUsersTrail(ViewBag.Title);
+ViewBag.BreadCrumbs = BreadCrumbItem.BuildUsersTrail(ViewBag.Title);
 }
 
 <h1>@ViewBag</h1>
@@ -14,12 +14,12 @@
     <partial name="_playlistDetails" model="@Model"/>
 
     @using (Html.BeginForm())
-    {
-        @Html.AntiForgeryToken()
+{
+    @Html.AntiForgeryToken()
 
-        <div class="form-actions no-color">
+    <div class="form-actions no-color">
             <input type="submit" value="Delete" class="btn btn-primary"/> |
             @Html.ActionLink("Back to List", "Index")
         </div>
-    }
+}
 </div>

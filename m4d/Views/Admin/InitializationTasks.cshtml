@@ -5,7 +5,7 @@
 
 @{
     ViewBag.Title = "InitializationTasks";
-    ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
+ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
 }
 
 <h3>Search Indexing</h3>
@@ -13,27 +13,27 @@
     <li>Default: @Html.ActionLink("Reset", "ResetSearchIdx")</li>
     <li>
         BasicA: @Html.ActionLink("Reset", "ResetSearchIdx", new
-                {
-                    id = "basica"
-                }, null)
+            {
+                id = "basica"
+            }, null)
     </li>
     <li>
         BasicB: @Html.ActionLink("Reset", "ResetSearchIdx", new
-                {
-                    id = "basicb"
-                }, null)
+            {
+                id = "basicb"
+            }, null)
     </li>
     <li>
         BasicC: @Html.ActionLink("Reset", "ResetSearchIdx", new
-                {
-                    id = "basicc"
-                }, null)
+            {
+                id = "basicc"
+            }, null)
     </li>
     <li>
         Backup: @Html.ActionLink("Reset", "ResetSearchIdx", new
-                {
-                    id = "backup"
-                }, null)
+            {
+                id = "backup"
+            }, null)
     </li>
 </ul>
 
@@ -45,9 +45,9 @@
             <li>@Html.ActionLink("From Store", "ClearSongCache")</li>
             <li>
                 @Html.ActionLink("From File", "ClearSongCache", new
-                {
-                    reloadFromStore = false
-                }, null)
+            {
+                reloadFromStore = false
+            }, null)
             </li>
         </ul>
     </li>
@@ -57,27 +57,27 @@
 
 <h3>Update Warning</h3>
 @using (Html.BeginForm("UpdateWarning", "Admin", FormMethod.Post, new
-    {
-    enctype = "multipart/form-data"
-    }))
+{
+enctype = "multipart/form-data"
+}))
 {
     @Html.AntiForgeryToken()
     @if (string.IsNullOrWhiteSpace(GlobalState.UpdateMessage))
-    {
-        <textarea name="message" id="mesage" rows="4" cols="100">
+{
+    <textarea name="message" id="mesage" rows="4" cols="100">
             We are in the process of upgrading the music4dance.net infrastructure.
             You should still be able to use the site to browse and search but please
             hold off doing any editing or registering an account until this banner disappears.
             Thanks!
         </textarea>
-        <input type="submit" name="submit" id="Update" value="Update"/>
-    }
-    else
-    {
-        <p>Current Update: @GlobalState.UpdateMessage</p>
-        <input type="hidden" name="message" id="message" value=""/>
-        <input type="submit" name="clear" id="cear" value="Clear" />
-    }
+    <input type="submit" name="submit" id="Update" value="Update"/>
+}
+else
+{
+    <p>Current Update: @GlobalState.UpdateMessage</p>
+    <input type="hidden" name="message" id="message" value=""/>
+    <input type="submit" name="clear" id="cear" value="Clear" />
+}
 }
 
 <h3>Test Keys</h3>
@@ -91,9 +91,9 @@
 <ul>
     <li>
         @Html.ActionLink("Cleanup Properties", "CleanupProperties", new
-        {
-            count = 100
-        }, null)
+    {
+        count = 100
+    }, null)
     </li>
 </ul>
 
@@ -101,42 +101,42 @@
 <ul>
     <li>
         @Html.ActionLink("Merge Candidates - Similar Title", "MergeCandidates", "Song", new
-        {
-            level = 2
-        }, null)
+    {
+        level = 2
+    }, null)
     </li>
     <li>
         @Html.ActionLink("Merge Candidates - Similar (Title + Artist) + All else equal", "MergeCandidates", "Song", new
-        {
-            level = 1
-        }, null)
+    {
+        level = 1
+    }, null)
     </li>
     <li>
         @Html.ActionLink("Merge Candidates - Similar (Title + Artist + Length) + All else equal", "MergeCandidates", "Song", new
-        {
-            level = 3
-        }, null)
+    {
+        level = 3
+    }, null)
     </li>
     <li>
         @Html.ActionLink("Merge Candidates - Similar Title + All else equal", "MergeCandidates", "Song", new
-        {
-            level = 0
-        }, null)
+    {
+        level = 0
+    }, null)
     </li>
     <li>@Html.ActionLink("Finish Merge Session", "ClearMergeCache", "Song")</li>
     <li>
         @Html.ActionLink("AutoMerge", "MergeCandidates", "Song", new
-        {
-            level = 3,
-            autocommit = true
-        }, null)
+    {
+        level = 3,
+        autocommit = true
+    }, null)
     </li>
 </ul>
 
 <h4>Merge Songs</h4>
 @using (Html.BeginForm("BulkEdit", "Song", FormMethod.Post, new
 {
-    enctype = "multipart/form-data"
+enctype = "multipart/form-data"
 }))
 {
     @Html.AntiForgeryToken()
@@ -156,8 +156,8 @@
 <h3>Old Tasks</h3>
 <ul>
     @if (User.IsInRole("dbAdmin"))
-    {
-        <li>@Html.ActionLink("Restore the Datbase", "RestoreDatabase")</li>
-        <li>@Html.ActionLink("Rerun seed function", "Reseed")</li>
-    }
+{
+    <li>@Html.ActionLink("Restore the Datbase", "RestoreDatabase")</li>
+    <li>@Html.ActionLink("Rerun seed function", "Reseed")</li>
+}
 </ul>

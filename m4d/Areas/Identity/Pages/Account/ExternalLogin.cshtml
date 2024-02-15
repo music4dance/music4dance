@@ -15,9 +15,9 @@
     You've successfully authenticated with <strong>@Model.ProviderDisplayName</strong>.
     Please enter a user name
     @if (needEmail)
-    {
-        <text>and email</text>
-    }
+{
+    <text>and email</text>
+}
     for this site below and click the Register button to finish
     logging in.
 </p>
@@ -32,15 +32,15 @@
                 <span asp-validation-for="Input.UserName" class="text-danger"></span>
             </div>
             @if (needEmail)
-            {
-                <input asp-for="Input.Email" class="form-control" />
-                <label asp-for="Input.Email" class="form-label"></label>
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
-            }
-            else
-            {
-                <input id="Input_Email" name="Input.Email" type="hidden" value="@Model.Input.Email"/>
-            }
+        {
+            <input asp-for="Input.Email" class="form-control" />
+            <label asp-for="Input.Email" class="form-label"></label>
+            <span asp-validation-for="Input.Email" class="text-danger"></span>
+        }
+        else
+        {
+            <input id="Input_Email" name="Input.Email" type="hidden" value="@Model.Input.Email"/>
+        }
             <button type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
         </form>
     </div>

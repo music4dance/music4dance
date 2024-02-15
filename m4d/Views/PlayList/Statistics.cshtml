@@ -4,7 +4,7 @@
 
 @{
     ViewBag.Title = "Spotify PlayList Statistics";
-    ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
+ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
 }
 
 <h1>@ViewBag.Title</h1>
@@ -23,8 +23,8 @@
 
 	<tbody>
     @foreach (var item in Model)
-    {
-        <tr>
+{
+    <tr>
 			<td>@item.Id</td>
 			<td>@item.Name</td>
 			<td>@item.Count</td>
@@ -32,7 +32,7 @@
 			<td>@item.Link</td>
 			<td>@item.Reference</td>
 		</tr>
-    }
+}
 	</tbody>
 
 </table>

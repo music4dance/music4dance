@@ -2,13 +2,13 @@
 
 @{
     var showDetails = ViewData.ContainsKey("ShowDetails") ? ViewBag.ShowDetails : false;
-    var sort = ViewData.ContainsKey("Sort") ? ViewBag.Sort : null;
+var sort = ViewData.ContainsKey("Sort") ? ViewBag.Sort : null;
 }
 
 <table class="table table-striped table-songs col-sm">
     @if (showDetails)
-    {
-        <tr>
+{
+    <tr>
             <th scope="col">
                 Search
             </th>
@@ -28,66 +28,66 @@
                 @Html.DisplayNameFor(model => model.Modified)
             </th>
         </tr>
-    }
+}
 
     @foreach (var item in Model)
+{
+    var userName = item.ApplicationUser?.UserName ?? "anonymous";
+    var t = item.Filter;
+    if (t.IsAzure == false)
     {
-        var userName = item.ApplicationUser?.UserName ?? "anonymous";
-        var t = item.Filter;
-        if (t.IsAzure == false)
-        {
-            t.Action = "Advanced";
-        }
+        t.Action = "Advanced";
+    }
 
-        <tr>
+    <tr>
             <td>
                 @Html.ActionLink("Search", "Index", "Song", new
-                {
-                    filter = t
-                },new
-                {
-                    role = "button",
-                    @class = "btn btn-success"
-                })
+            {
+                filter = t
+            },new
+            {
+                role = "button",
+                @class = "btn btn-success"
+            })
                 &nbsp;
                 @Html.ActionLink("Delete", "Delete", "Searches", new
-                {
-                    id = item.Id,
-                    user = item.ApplicationUser?.UserName,
-                    showDetails,
-                    sort
-                },new
-                {
-                    role = "button",
-                    @class = "btn btn-danger"
-                })
+            {
+                id = item.Id,
+                user = item.ApplicationUser?.UserName,
+                showDetails,
+                sort
+            },new
+            {
+                role = "button",
+                @class = "btn btn-danger"
+            })
 
                 @if (!string.IsNullOrWhiteSpace(item.Spotify))
-                {
-                    var r = $"https://open.spotify.com/playlist/{item.Spotify}";
-                    <a href="@r" target="_blank"><img src="/images/icons/spotify-logo.png" alt="Spotify Playlist" width="24" height="24"/></a>
-                }
+            {
+                var r = $"https://open.spotify.com/playlist/{item.Spotify}";
+                <a href="@r" target="_blank"><img src="/images/icons/spotify-logo.png" alt="Spotify Playlist" width="24" height="24"/></a>
+            }
 
                 @t.Description
             </td>
             @if (showDetails)
-            {
-                <td>
+        {
+            <td>
                     @Html.DisplayFor(modelItem => item.Query)
                 </td>
-                <td>
+            <td>
                     @userName
                 </td>
-                <td>
+            <td>
                     @Html.DisplayFor(modelItem => item.Count)
                 </td>
-                <td>
+            <td>
                     @Html.DisplayFor(modelItem => item.Created)
                 </td>
-                <td>
+            <td>
                     @Html.DisplayFor(modelItem => item.Modified)
                 </td>
-            }
+        }
         </tr>
-    }
+}
 </table>

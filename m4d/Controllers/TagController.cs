@@ -1,204 +1,198 @@
-﻿using System;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using System.Net;
 using m4d.ViewModels;
 using m4dModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 
-namespace m4d.Controllers
+namespace m4d.Controllers;
+
+public class TagController : DanceMusicController
 {
-    public class TagController : DanceMusicController
+    public TagController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
+        RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
+        IDanceStatsManager danceStatsManager, IConfiguration configuration, IFileProvider fileProvider) :
+        base(context, userManager, roleManager, searchService, danceStatsManager, configuration, fileProvider)
     {
-        public TagController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
-            IDanceStatsManager danceStatsManager, IConfiguration configuration, IFileProvider fileProvider) :
-            base(context, userManager, roleManager, searchService, danceStatsManager, configuration, fileProvider)
+        HelpPage = "tag-cloud";
+    }
+
+    // GET: Tag
+    [AllowAnonymous]
+    public IActionResult Index()
+    {
+        return Vue3(
+            "Tag Cloud",
+            "Explore songs based on musical genre, tempo, style and other tags.",
+            "tag-index",
+            danceEnvironment: true,
+            tagEnvironment: true);
+    }
+
+    [Authorize(Roles = "dbAdmin")]
+    public IActionResult List()
+    {
+        var model = Database.OrderedTagGroups;
+         return View(model);
+    }
+
+    // GET: Tag/Details/5
+    public IActionResult Details(string id)
+    {
+        var code = GetTag(id, out var tagGroup);
+        if (HttpStatusCode.OK != code)
         {
-            HelpPage = "tag-cloud";
+            return StatusCode((int)code);
         }
 
-        // GET: Tag
-        [AllowAnonymous]
-        public IActionResult Index()
+        return View(tagGroup);
+    }
+
+    private void SetupPrimary()
+    {
+        var tagGroups = Database.OrderedTagGroups.ToList();
+        var nullT = new TagGroup();
+        tagGroups.Insert(0, nullT);
+        ViewBag.PrimaryId = new SelectList(tagGroups, "Key", "Key", string.Empty);
+    }
+
+    // GET: Tag/Edit/5
+    [Authorize(Roles ="dbAdmin")]
+    public IActionResult Edit(string id)
+    {
+        var code = GetTag(id, out var tagGroup);
+        if (HttpStatusCode.OK != code)
         {
-            return Vue3(
-                "Tag Cloud",
-                "Explore songs based on musical genre, tempo, style and other tags.",
-                "tag-index",
-                danceEnvironment: true,
-                tagEnvironment: true);
+            return StatusCode((int)code);
         }
 
-        [Authorize(Roles = "dbAdmin")]
-        public IActionResult List()
+        return GetEditor(tagGroup);
+    }
+
+    private IActionResult GetEditor(TagGroup tagGroup)
+    {
+        ViewBag.PrimaryId = new SelectList(Database.OrderedTagGroups,
+            "Key", "Key", tagGroup.PrimaryId ?? tagGroup.Key);
+        return View("Edit", new TagGroupView(tagGroup));
+    }
+
+    // POST: Tag/Edit/5
+    // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+    // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+    [Authorize(Roles = "dbAdmin")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit([Bind("Key,PrimaryId")]TagGroup tagGroup,
+        string newKey)
+    {
+        // The tagGroup coming in is the original tagGroup with a possibly edited Primary Key
+        //  newKey is the key typed into the key field
+        if (!ModelState.IsValid)
         {
-            var model = Database.OrderedTagGroups;
-             return View(model);
-        }
-
-        // GET: Tag/Details/5
-        public IActionResult Details(string id)
-        {
-            var code = GetTag(id, out var tagGroup);
-            if (HttpStatusCode.OK != code)
-            {
-                return StatusCode((int)code);
-            }
-
-            return View(tagGroup);
-        }
-
-        private void SetupPrimary()
-        {
-            var tagGroups = Database.OrderedTagGroups.ToList();
-            var nullT = new TagGroup();
-            tagGroups.Insert(0, nullT);
-            ViewBag.PrimaryId = new SelectList(tagGroups, "Key", "Key", string.Empty);
-        }
-
-        // GET: Tag/Edit/5
-        [Authorize(Roles ="dbAdmin")]
-        public IActionResult Edit(string id)
-        {
-            var code = GetTag(id, out var tagGroup);
-            if (HttpStatusCode.OK != code)
-            {
-                return StatusCode((int)code);
-            }
-
             return GetEditor(tagGroup);
         }
 
-        private IActionResult GetEditor(TagGroup tagGroup)
+        if (!Database.TagMap.TryGetValue(tagGroup.Key, out var oldTag))
         {
-            ViewBag.PrimaryId = new SelectList(Database.OrderedTagGroups,
-                "Key", "Key", tagGroup.PrimaryId ?? tagGroup.Key);
-            return View("Edit", new TagGroupView(tagGroup));
+            throw new ArgumentOutOfRangeException(nameof(newKey));
         }
 
-        // POST: Tag/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [Authorize(Roles = "dbAdmin")]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([Bind("Key,PrimaryId")]TagGroup tagGroup,
-            string newKey)
+        if (tagGroup.Key != newKey && oldTag.PrimaryId != null && tagGroup.PrimaryId != oldTag.PrimaryId)
         {
-            // The tagGroup coming in is the original tagGroup with a possibly edited Primary Key
-            //  newKey is the key typed into the key field
-            if (!ModelState.IsValid)
-            {
-                return GetEditor(tagGroup);
-            }
-
-            if (!Database.TagMap.TryGetValue(tagGroup.Key, out var oldTag))
-            {
-                throw new ArgumentOutOfRangeException(nameof(newKey));
-            }
-
-            if (tagGroup.Key != newKey && oldTag.PrimaryId != null && tagGroup.PrimaryId != oldTag.PrimaryId)
-            {
-                ModelState.AddModelError("PrimaryId", "Can't change both the Key and the PrimaryKey at the same time");
-                return GetEditor(tagGroup);
-            }
-            else if (tagGroup.Key != newKey)
-            {
-                if (await Database.RenameTag(tagGroup, newKey))
-                {
-                    return RedirectToAction("List");
-                }
-            }
-            else if (tagGroup.PrimaryId != oldTag.PrimaryId)
-            {
-                if (await Database.SetPrimaryTag(tagGroup, tagGroup.PrimaryId))
-                {
-                    return RedirectToAction("List");
-                }
-            }
-
+            ModelState.AddModelError("PrimaryId", "Can't change both the Key and the PrimaryKey at the same time");
             return GetEditor(tagGroup);
         }
-
-        // GET: Tag/Delete/5
-        [Authorize(Roles = "dbAdmin")]
-        public ActionResult Delete(string id)
+        else if (tagGroup.Key != newKey)
         {
-            var code = GetTag(id, out var tagGroup);
-            if (HttpStatusCode.OK != code)
+            if (await Database.RenameTag(tagGroup, newKey))
             {
-                return StatusCode((int)code);
+                return RedirectToAction("List");
             }
-
-            if (string.IsNullOrWhiteSpace(tagGroup.PrimaryId))
+        }
+        else if (tagGroup.PrimaryId != oldTag.PrimaryId)
+        {
+            if (await Database.SetPrimaryTag(tagGroup, tagGroup.PrimaryId))
             {
-                return StatusCode((int)HttpStatusCode.NotAcceptable);
+                return RedirectToAction("List");
             }
-
-            return View(tagGroup);
         }
 
-        // POST: Tag/Delete/5
-        [HttpPost]
-        [ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "dbAdmin")]
-        public async Task<ActionResult> DeleteConfirmed(string id)
-        {
-            var tagGroup = await Database.TagGroups.FindAsync(TagGroup.TagDecode(id));
-            if (tagGroup == null || string.IsNullOrWhiteSpace(tagGroup.PrimaryId))
-            {
-                return StatusCode((int)HttpStatusCode.NotAcceptable);
-            }
-            Database.DanceStats.TagManager.DeleteTagGroup(tagGroup.Key);
-            Database.TagGroups.Remove(tagGroup);
-            await Database.SaveChanges();
+        return GetEditor(tagGroup);
+    }
 
-            return RedirectToAction("List");
+    // GET: Tag/Delete/5
+    [Authorize(Roles = "dbAdmin")]
+    public ActionResult Delete(string id)
+    {
+        var code = GetTag(id, out var tagGroup);
+        if (HttpStatusCode.OK != code)
+        {
+            return StatusCode((int)code);
         }
 
-        [Authorize(Roles = "dbAdmin")]
-        public async Task<ActionResult> CleanupTags()
+        if (string.IsNullOrWhiteSpace(tagGroup.PrimaryId))
         {
-            var tagMap = Database.DanceStats.TagManager.TagMap;
-            var delete = Database.TagGroups.AsEnumerable()
-                .Where(t => !tagMap.ContainsKey(t.Key) || !tagMap[t.Key].IsConected)
-                .ToList();
-
-            foreach (var tag in delete)
-            {
-                Database.Context.RemoveRange(delete);
-            }
-            await Database.SaveChanges();
-
-            return RedirectToAction("List");
+            return StatusCode((int)HttpStatusCode.NotAcceptable);
         }
 
-        private HttpStatusCode GetTag(string id, out TagGroup tag)
+        return View(tagGroup);
+    }
+
+    // POST: Tag/Delete/5
+    [HttpPost]
+    [ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> DeleteConfirmed(string id)
+    {
+        var tagGroup = await Database.TagGroups.FindAsync(TagGroup.TagDecode(id));
+        if (tagGroup == null || string.IsNullOrWhiteSpace(tagGroup.PrimaryId))
         {
-            tag = null;
-
-            if (id == null)
-            {
-                return HttpStatusCode.BadRequest;
-            }
-
-            var decoded = TagGroup.TagDecode(id);
-            tag = Database.TagGroups.Find(decoded);
-
-            if (tag == null && !Database.DanceStats.TagManager.TagMap.TryGetValue(decoded, out tag))
-            {
-                return HttpStatusCode.NotFound;
-            }
-
-            return HttpStatusCode.OK;
+            return StatusCode((int)HttpStatusCode.NotAcceptable);
         }
+        Database.DanceStats.TagManager.DeleteTagGroup(tagGroup.Key);
+        Database.TagGroups.Remove(tagGroup);
+        await Database.SaveChanges();
+
+        return RedirectToAction("List");
+    }
+
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> CleanupTags()
+    {
+        var tagMap = Database.DanceStats.TagManager.TagMap;
+        var delete = Database.TagGroups.AsEnumerable()
+            .Where(t => !tagMap.ContainsKey(t.Key) || !tagMap[t.Key].IsConected)
+            .ToList();
+
+        foreach (var tag in delete)
+        {
+            Database.Context.RemoveRange(delete);
+        }
+        await Database.SaveChanges();
+
+        return RedirectToAction("List");
+    }
+
+    private HttpStatusCode GetTag(string id, out TagGroup tag)
+    {
+        tag = null;
+
+        if (id == null)
+        {
+            return HttpStatusCode.BadRequest;
+        }
+
+        var decoded = TagGroup.TagDecode(id);
+        tag = Database.TagGroups.Find(decoded);
+
+        if (tag == null && !Database.DanceStats.TagManager.TagMap.TryGetValue(decoded, out tag))
+        {
+            return HttpStatusCode.NotFound;
+        }
+
+        return HttpStatusCode.OK;
     }
 }

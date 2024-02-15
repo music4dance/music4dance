@@ -3,20 +3,20 @@
 
 @{
     if (!ViewData.TryGetValue("VueName", out var baseName))
-    {
-        throw new Exception("Vue view must define a VueName");
-    }
-    string jsFile = $"/client/js/{baseName}.*.js";
-    string cssFile = $"/client/css/{baseName}.css";
+{
+    throw new Exception("Vue view must define a VueName");
+}
+string jsFile = $"/client/js/{baseName}.*.js";
+string cssFile = $"/client/css/{baseName}.css";
 }
 
 <!DOCTYPE html>
 <html>
     <head>
     @if (_fileProvider.GetFileInfo($"/wwwroot/client/css/{baseName}.css").Exists)
-    {
-        <link rel="stylesheet" href="@cssFile" asp-append-version="true" />
-    }
+{
+    <link rel="stylesheet" href="@cssFile" asp-append-version="true" />
+}
     @await RenderSectionAsync("styles", false)
     <partial name="_head"/>
     </head>

@@ -1,18 +1,17 @@
 ﻿using m4dModels;
 
-namespace m4d.ViewModels
+namespace m4d.ViewModels;
+
+public class TagGroupView : TagGroup
 {
-    public class TagGroupView : TagGroup
+    public TagGroupView()
     {
-        public TagGroupView()
-        {
-        }
-
-        public TagGroupView(TagGroup tt) : base(tt)
-        {
-            NewKey = tt.Key;
-        }
-
-        public string NewKey { get; set; }
     }
+
+    public TagGroupView(TagGroup tt) : base(tt)
+    {
+        NewKey = tt.Key;
+    }
+
+    public string NewKey { get; set; }
 }

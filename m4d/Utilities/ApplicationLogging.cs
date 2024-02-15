@@ -1,12 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
+﻿namespace m4d.Utilities;
 
-namespace m4d.Utilities
+internal static class ApplicationLogging
 {
-    internal static class ApplicationLogging
-    {
-        internal static ILoggerFactory LoggerFactory { get; set; }// = new LoggerFactory();
-        internal static ILogger CreateLogger<T>() => LoggerFactory.CreateLogger<T>();
-        internal static ILogger CreateLogger(string categoryName) => LoggerFactory.CreateLogger(categoryName);
+    internal static ILoggerFactory LoggerFactory { get; set; }// = new LoggerFactory();
+    internal static ILogger CreateLogger<T>() => LoggerFactory.CreateLogger<T>();
+    internal static ILogger CreateLogger(string categoryName) => LoggerFactory.CreateLogger(categoryName);
 
-    }
 }

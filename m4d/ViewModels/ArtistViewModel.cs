@@ -1,29 +1,26 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
 using m4dModels;
 
-namespace m4d.ViewModels
+namespace m4d.ViewModels;
+
+public class ArtistViewModel : SongListModel
 {
-    public class ArtistViewModel : SongListModel
+    [Key]
+    public string Artist { get; set; }
+
+    public static async Task<ArtistViewModel> Create(
+        string name,
+        IMapper mapper,
+        CruftFilter cruft, DanceMusicService dms)
     {
-        [Key]
-        public string Artist { get; set; }
+        var list = (await dms.SongIndex.FindArtist(name, cruft)).Take(500);
 
-        public static async Task<ArtistViewModel> Create(
-            string name,
-            IMapper mapper,
-            CruftFilter cruft, DanceMusicService dms)
+        return new ArtistViewModel
         {
-            var list = (await dms.SongIndex.FindArtist(name, cruft)).Take(500);
-
-            return new ArtistViewModel
-            {
-                Artist = name,
-                Filter = mapper.Map<SongFilterSparse>(new SongFilter { Action = "Artist" }),
-                Histories = list.Select(s => s.GetHistory(mapper)).ToList()
-            };
-        }
+            Artist = name,
+            Filter = mapper.Map<SongFilterSparse>(new SongFilter { Action = "Artist" }),
+            Histories = list.Select(s => s.GetHistory(mapper)).ToList()
+        };
     }
 }

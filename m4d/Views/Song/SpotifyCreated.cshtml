@@ -3,7 +3,7 @@
 
 @{
     ViewBag.Title = "Spotify Playlist";
-    var playUrl = "https://open.spotify.com/embed/playlist/" + Model.Id;
+var playUrl = "https://open.spotify.com/embed/playlist/" + Model.Id;
 }
 
 <div class="row">
@@ -23,13 +23,13 @@
         <a href="https://open.spotify.com/user/ebo1rk39vp51kkyjps45eobph?si=31df6fc12cf04a64">Follow music4dance on Spotify</a>.
         <p>
             @Html.ActionLink("Back to Search Results", ((SongFilter)ViewBag.SongFilter).TargetAction, new
-            {
-                filter = ViewBag.SongFilter
-            }, new
-            {
-                @class = "btn btn-small btn-primary",
-                role = "button"
-            })
+        {
+            filter = ViewBag.SongFilter
+        }, new
+        {
+            @class = "btn btn-small btn-primary",
+            role = "button"
+        })
         </p>
     </div>
 </div>

@@ -4,34 +4,34 @@
 
 @{
     ViewBag.Title = "My Searches";
-    SongFilter filter = ViewData.ContainsKey("SongFilter") ?
-        ViewBag.SongFilter : SongFilter.GetDefault(User.Identity.Name);
-    var admin = User.IsInRole("showDiagnostics");
-    var showDetails = ViewData.ContainsKey("ShowDetails") ? ViewBag.ShowDetails : false;
-    var sort = ViewData.ContainsKey("Sort") ? ViewBag.Sort : "";
-    var recentActive = "disabled btn-primary";
-    var popularActive = string.Empty;
-    if (string.Equals(sort, "recent"))
-    {
-        recentActive = string.Empty;
-        popularActive = "disabled btn-primary";
-    }
-    var userName = ViewBag.User;
+SongFilter filter = ViewData.ContainsKey("SongFilter") ?
+    ViewBag.SongFilter : SongFilter.GetDefault(User.Identity.Name);
+var admin = User.IsInRole("showDiagnostics");
+var showDetails = ViewData.ContainsKey("ShowDetails") ? ViewBag.ShowDetails : false;
+var sort = ViewData.ContainsKey("Sort") ? ViewBag.Sort : "";
+var recentActive = "disabled btn-primary";
+var popularActive = string.Empty;
+if (string.Equals(sort, "recent"))
+{
+    recentActive = string.Empty;
+    popularActive = "disabled btn-primary";
+}
+var userName = ViewBag.User;
 
-    ViewData["BreadCrumbs"] = new List<BreadCrumbItem>
+ViewData["BreadCrumbs"] = new List<BreadCrumbItem>
+{
+    BreadCrumbItem.HomeItem,
+    new()
     {
-        BreadCrumbItem.HomeItem,
-        new()
-        {
-            Title = userName,
-            Link = "/Identity/Account/Manage"
-        },
-        new()
-        {
-            Title = ViewBag.Title,
-            Active = true
-        }
-    };
+        Title = userName,
+        Link = "/Identity/Account/Manage"
+    },
+    new()
+    {
+        Title = ViewBag.Title,
+        Active = true
+    }
+};
 }
 
 <h1>@ViewBag.Title</h1>
@@ -39,47 +39,47 @@
 <div class="row">
     <p class="col-sm">
         @Html.ActionLink("Basic Search", "index", "song", new
-        {
-            user = userName
-        }, new
-        {
-            id = "saved-search"
-        })
+    {
+        user = userName
+    }, new
+    {
+        id = "saved-search"
+    })
     </p>
     <p class="col-sm" style="text-align: right; padding-right: 20px">
         @Html.ActionLink("Advanced Search", "advancedsearchform", "song", new
-        {
-            filter
-        }, new
-        {
-            id = "advanced-search"
-        })
+    {
+        filter
+    }, new
+    {
+        id = "advanced-search"
+    })
     </p>
 </div>
 
 <div class="row" style="margin-bottom: 10px">
     <div class="btn-group btn-group-justified col-sm" role="group" aria-label="...">
         @Html.ActionLink("Most Popular", "Index", "Searches", new
-        {
-            showDetails,
-            user = userName,
-            filter
-        }, new
-        {
-            role = "button",
-            @class = "btn btn-default " + recentActive
-        })
+    {
+        showDetails,
+        user = userName,
+        filter
+    }, new
+    {
+        role = "button",
+        @class = "btn btn-default " + recentActive
+    })
         @Html.ActionLink("Most Recent", "Index", "Searches", new
-        {
-            showDetails,
-            user = userName,
-            sort = "recent",
-            filter
-        }, new
-        {
-            role = "button",
-            @class = "btn btn-default " + popularActive
-        })
+    {
+        showDetails,
+        user = userName,
+        sort = "recent",
+        filter
+    }, new
+    {
+        role = "button",
+        @class = "btn btn-default " + popularActive
+    })
     </div>
 </div>
 
@@ -90,9 +90,9 @@
 @if (admin)
 {
     @Html.ActionLink("Toggle Details", "Index", "Searches", new
-    {
-        showDetails = !showDetails,
-        user = userName,
-        sort
-    }, null)
+{
+    showDetails = !showDetails,
+    user = userName,
+    sort
+}, null)
 }

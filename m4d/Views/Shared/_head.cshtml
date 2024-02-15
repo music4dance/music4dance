@@ -8,38 +8,38 @@
 
 @{
     var userAgent = Context.Request.Headers.UserAgent.ToString().ToLower();
-    var help = "https://music4dance.blog/music4dance-help/";
-    if (!string.IsNullOrEmpty(ViewBag.Help))
-    {
-        help = string.Format("https://music4dance.blog/music4dance-help/{0}/", ViewBag.Help);
-    }
+var help = "https://music4dance.blog/music4dance-help/";
+if (!string.IsNullOrEmpty(ViewBag.Help))
+{
+    help = string.Format("https://music4dance.blog/music4dance-help/{0}/", ViewBag.Help);
+}
 
-    string userName = "";
-    string userId = "";
-    string expiration = null;
-    var roles = DanceMusicCoreService.UserRoles(User);
-    ApplicationUser user = null;
-    if (User.Identity.IsAuthenticated)
-    {
-        userName = User.Identity.Name;
-        user = await _userManager.GetUserAsync(User);
-        userId = user.Privacy == 0 ? user.Id : "";
-        expiration = roles.Contains(DanceMusicCoreService.PremiumRole) ? user.SubscriptionEnd.ToString() : null;
-    }
-    var searchIndex = _searchService.DefaultId.Last();
-    var hideAds = ViewData.TryGetValue("HideAds", out var hideAdsObj) && (hideAdsObj as bool?).Value;
-    var hasIcons = ViewData.TryGetValue("HasIcons", out var hasIconsObj) && (hasIconsObj as bool?).Value;
-    var styleModifier = hasIcons ? "wicons" : "";
-    var styleSheet = ViewData.ContainsKey("NoSiteCss") ? null : $"/css/site{styleModifier}.css";
-    var marketing = GlobalState.GetMarketing(user, Context.Request.Path);
-    var marketingMessage = marketing.Enabled ? marketing.Banner : String.Empty;
+string userName = "";
+string userId = "";
+string expiration = null;
+var roles = DanceMusicCoreService.UserRoles(User);
+ApplicationUser user = null;
+if (User.Identity.IsAuthenticated)
+{
+    userName = User.Identity.Name;
+    user = await _userManager.GetUserAsync(User);
+    userId = user.Privacy == 0 ? user.Id : "";
+    expiration = roles.Contains(DanceMusicCoreService.PremiumRole) ? user.SubscriptionEnd.ToString() : null;
+}
+var searchIndex = _searchService.DefaultId.Last();
+var hideAds = ViewData.TryGetValue("HideAds", out var hideAdsObj) && (hideAdsObj as bool?).Value;
+var hasIcons = ViewData.TryGetValue("HasIcons", out var hasIconsObj) && (hasIconsObj as bool?).Value;
+var styleModifier = hasIcons ? "wicons" : "";
+var styleSheet = ViewData.ContainsKey("NoSiteCss") ? null : $"/css/site{styleModifier}.css";
+var marketing = GlobalState.GetMarketing(user, Context.Request.Path);
+var marketingMessage = marketing.Enabled ? marketing.Banner : String.Empty;
 }
 
 @functions{
-    public string GetAntiXsrfRequestToken()
-    {
-        return _xsrf.GetAndStoreTokens(Context).RequestToken;
-    }
+public string GetAntiXsrfRequestToken()
+{
+    return _xsrf.GetAndStoreTokens(Context).RequestToken;
+}
 }
 
 @if (!hideAds && !User.IsInRole("premium") && !userAgent.Contains("googlebot") )

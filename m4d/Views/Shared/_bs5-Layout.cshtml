@@ -5,11 +5,11 @@
 
 @{
     var help = "https://music4dance.blog/music4dance-help/";
-    if (!string.IsNullOrEmpty(ViewBag.Help))
-    {
-        help = string.Format("https://music4dance.blog/music4dance-help/{0}/", ViewBag.Help);
-    }
-    ViewData["NoSiteCss"] = true;
+if (!string.IsNullOrEmpty(ViewBag.Help))
+{
+    help = string.Format("https://music4dance.blog/music4dance-help/{0}/", ViewBag.Help);
+}
+ViewData["NoSiteCss"] = true;
 }
 <!DOCTYPE html>
 @{
@@ -40,22 +40,22 @@
 
 @if (ViewBag.BreadCrumbs != null)
 {
-    List<BreadCrumbItem> breadCrumbs = ViewBag.BreadCrumbs;
+List<BreadCrumbItem> breadCrumbs = ViewBag.BreadCrumbs;
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb" style="padding: .25rem .5rem">
             @foreach (var item in breadCrumbs)
+        {
+            if (item.Active.HasValue && item.Active.Value)
             {
-                if (item.Active.HasValue && item.Active.Value)
-                {
-                    <li class="breadcrumb-item active" aria-current="page">@item.Title</li>
-                }
-                else
-                {
-                    <li class="breadcrumb-item">
+                <li class="breadcrumb-item active" aria-current="page">@item.Title</li>
+            }
+            else
+            {
+                <li class="breadcrumb-item">
                         <a href="@item.Link">@item.Title</a>
                     </li>
-                }
             }
+        }
         </ol>
     </nav>
 }

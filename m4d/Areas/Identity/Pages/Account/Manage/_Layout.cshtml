@@ -2,12 +2,12 @@
 @{
     Layout = "/Views/Shared/_bs5-Layout.cshtml";
 
-    ViewData["BreadCrumbs"] = new List<BreadCrumbItem>
-    {
-        BreadCrumbItem.HomeItem,
-        new() { Title = ViewBag.UserName, Link = "/Identity/Account/Manage" },
-        new() { Title = ViewBag.Title, Active = true }
-    };
+ViewData["BreadCrumbs"] = new List<BreadCrumbItem>
+{
+    BreadCrumbItem.HomeItem,
+    new() { Title = ViewBag.UserName, Link = "/Identity/Account/Manage" },
+    new() { Title = ViewBag.Title, Active = true }
+};
 }
 
 <h1>Manage your account</h1>

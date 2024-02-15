@@ -1,71 +1,68 @@
-﻿using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using m4d.ViewModels;
 using m4dModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 
-namespace m4d.APIControllers
+namespace m4d.APIControllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class ServiceTrackController : DanceMusicApiController
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class ServiceTrackController : DanceMusicApiController
-    {
-        private readonly IMapper _mapper;
+    private readonly IMapper _mapper;
 
-        public ServiceTrackController(DanceMusicContext context,
-            UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager,
-            ISearchServiceManager searchService,
-            IDanceStatsManager danceStatsManager,
-            IConfiguration configuration,
-            IMapper mapper) :
-            base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
+    public ServiceTrackController(DanceMusicContext context,
+        UserManager<ApplicationUser> userManager,
+        RoleManager<IdentityRole> roleManager,
+        ISearchServiceManager searchService,
+        IDanceStatsManager danceStatsManager,
+        IConfiguration configuration,
+        IMapper mapper) :
+        base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
+    {
+        _mapper = mapper;
+    }
+
+    // GET api/<controller>
+    [HttpGet("{id}")]
+    public async Task<IActionResult> Get(string id, bool localOnly=false)
+    {
+        if (string.IsNullOrWhiteSpace(id) || id.Length < 2)
         {
-            _mapper = mapper;
+            return BadRequest("Invalid Id");
         }
 
-        // GET api/<controller>
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(string id, bool localOnly=false)
+        var service = MusicService.GetService(id[0]);
+        id = service.NormalizeId(id.Substring(1));
+
+        var user = await Database.UserManager.GetUserAsync(User);
+        // Find a song associate with the service id
+        var song = await SongIndex.GetSongFromService(service, id);
+        var created = false;
+
+        if (song == null && !localOnly)
         {
-            if (string.IsNullOrWhiteSpace(id) || id.Length < 2)
-            {
-                return BadRequest("Invalid Id");
-            }
-
-            var service = MusicService.GetService(id[0]);
-            id = service.NormalizeId(id.Substring(1));
-
-            var user = await Database.UserManager.GetUserAsync(User);
-            // Find a song associate with the service id
-            var song = await SongIndex.GetSongFromService(service, id);
-            var created = false;
-
-            if (song == null && !localOnly)
-            {
-                song = await MusicServiceManager.CreateSong(Database, user, id, service);
-                if (song != null)
-                {
-                    created = await SongIndex.FindSong(song.SongId) == null;
-                }
-            }
-
+            song = await MusicServiceManager.CreateSong(Database, user, id, service);
             if (song != null)
             {
-                return JsonCamelCase(
-                    new SongDetailsModel
-                    {
-                        Created = created,
-                        Title = song.Title,
-                        SongHistory = song.GetHistory(_mapper)
-                    });
+                created = await SongIndex.FindSong(song.SongId) == null;
             }
-
-            // If that fails, the ID is bad.
-
-            return NotFound();
         }
+
+        if (song != null)
+        {
+            return JsonCamelCase(
+                new SongDetailsModel
+                {
+                    Created = created,
+                    Title = song.Title,
+                    SongHistory = song.GetHistory(_mapper)
+                });
+        }
+
+        // If that fails, the ID is bad.
+
+        return NotFound();
     }
 }

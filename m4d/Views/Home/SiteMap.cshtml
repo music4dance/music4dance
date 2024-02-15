@@ -4,9 +4,9 @@
 
 @{
     ViewBag.Title = "Site Map";
-    ViewBag.Description = "music4dance site map";
+ViewBag.Description = "music4dance site map";
 
-    ViewBag.BreadCrumbs = BreadCrumbItem.BuildInfoTrail(ViewBag.Title);
+ViewBag.BreadCrumbs = BreadCrumbItem.BuildInfoTrail(ViewBag.Title);
 }
 
 
@@ -14,34 +14,34 @@
 
 <div class="row">
     @foreach (var type in new[]
-    {
-        "music", "info", "tools"
-    })
-    {
-        <div class="col-md">
+{
+    "music", "info", "tools"
+})
+{
+    <div class="col-md">
             @foreach (var category in Model.Where(c => c.Type == type))
-            {
-                <h2>@category.Name</h2>
-                <ul>
+        {
+            <h2>@category.Name</h2>
+            <ul>
                     @foreach (var entry in category.Entries)
-                    {
-                        <li>
+                {
+                    <li>
                             @if (entry is SiteMapDance dance)
+                        {
+                            <span>@dance.Title: <a href="@dance.FullPath" class="m4d-content">Info</a>, <a href="@dance.CatalogFullPath">List</a></span>
+                        }
+                        else
+                        {
+                            <partial name="_SiteMapEntry" model="new Tuple<SiteMapEntry, string>(entry, type)"/>
+                            if (category.Type == "tools" && entry.Description != null)
                             {
-                                <span>@dance.Title: <a href="@dance.FullPath" class="m4d-content">Info</a>, <a href="@dance.CatalogFullPath">List</a></span>
+                                <span>: @entry.Description</span>
                             }
-                            else
-                            {
-                                <partial name="_SiteMapEntry" model="new Tuple<SiteMapEntry, string>(entry, type)"/>
-                                if (category.Type == "tools" && entry.Description != null)
-                                {
-                                    <span>: @entry.Description</span>
-                                }
-                            }
+                        }
                         </li>
-                    }
+                }
                 </ul>
-            }
+        }
         </div>
-    }
+}
 </div>

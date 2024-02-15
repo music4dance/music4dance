@@ -4,24 +4,24 @@
 
 @{
     string json = null;
-    if (Model.Model is string)
-    {
-        json = Model.Model as string;
-    }
-    else
-    {
-        var jsonSerializerSettings = Model.PreserveCase
-        ? new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore
-            }
-        : new JsonSerializerSettings
-            {
-                ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                NullValueHandling = NullValueHandling.Ignore
-            };
-        json = JsonConvert.SerializeObject(Model.Model, Formatting.Indented, jsonSerializerSettings);
-    }
+if (Model.Model is string)
+{
+    json = Model.Model as string;
+}
+else
+{
+    var jsonSerializerSettings = Model.PreserveCase
+    ? new JsonSerializerSettings
+        {
+            NullValueHandling = NullValueHandling.Ignore
+        }
+    : new JsonSerializerSettings
+        {
+            ContractResolver = new CamelCasePropertyNamesContractResolver(),
+            NullValueHandling = NullValueHandling.Ignore
+        };
+    json = JsonConvert.SerializeObject(Model.Model, Formatting.Indented, jsonSerializerSettings);
+}
 }
 
 <script>var @Model.Name = @Html.Raw(json);</script>

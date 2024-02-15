@@ -3,27 +3,27 @@
 
 @{
     var entry = Model.Item1;
-    var type = Model.Item2;
-    var crawl = entry.Crawl ? "class=m4d-content" : "";
+var type = Model.Item2;
+var crawl = entry.Crawl ? "class=m4d-content" : "";
 
-    if (string.IsNullOrWhiteSpace(entry.FullPath))
-    {
-        <b>@entry.Title</b>
-    }
-    else
-    {
-        <a href='@entry.FullPath' @crawl>@entry.Title</a>
-    }
-    if (entry.Children != null)
-    {
-        <ul>
+if (string.IsNullOrWhiteSpace(entry.FullPath))
+{
+    <b>@entry.Title</b>
+}
+else
+{
+    <a href='@entry.FullPath' @crawl>@entry.Title</a>
+}
+if (entry.Children != null)
+{
+    <ul>
             @foreach (var child in entry.Children)
-            {
-                <li>
+        {
+            <li>
                     <partial name="_SiteMapEntry" model="new Tuple<SiteMapEntry, string>(child, type)"/>
                 </li>
-            }
+        }
         </ul>
-    }
+}
 
 }

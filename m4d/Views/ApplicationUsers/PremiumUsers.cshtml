@@ -4,7 +4,7 @@
 
 @{
     ViewBag.Title = "Premium Users";
-    ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
+ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
 }
 
 <h2>User Administrator</h2>
@@ -34,8 +34,8 @@
     </tr>
 
     @foreach (var item in Model.OrderByDescending(u => u.User.SubscriptionEnd).ToList())
-    {
-        <tr>
+{
+    <tr>
             <td>
                 @Html.ActionLink(item.User.UserName, "Details", new{id = item.User.Id})
                 <br />
@@ -45,9 +45,9 @@
                 @item.User.StartDate.ToString("d")
                 <br />
                 @if (item.User.LastActive != DateTime.Parse("1/1/0001"))
-                {
-                    @item.User.LastActive.ToString("d")
-                }
+            {
+                @item.User.LastActive.ToString("d")
+            }
             </td>
             <td>
                 @item.User.SubscriptionStart?.ToString("d")
@@ -60,28 +60,28 @@
             <td>@Html.Raw(string.Join("<br />", item.Roles))</td>
             <td>
                 @Html.ActionLink("List Songs", "FilterUser", "Song", new
-                {
-                    user = item.User.UserName
-                }, null),
+            {
+                user = item.User.UserName
+            }, null),
                 @Html.ActionLink("List Searches", "Index", "Searches", new
-                {
-                    user = item.User.UserName,
-                    showDetails = true,
-                    sort = "recent"
-                }, null) <br />
+            {
+                user = item.User.UserName,
+                showDetails = true,
+                sort = "recent"
+            }, null) <br />
                 @Html.ActionLink("Change Roles", "ChangeRoles", new
-                {
-                    id = item.User.Id
-                }) <br />
+            {
+                id = item.User.Id
+            }) <br />
                 @Html.ActionLink("Delete", "Delete", new
-                {
-                    id = item.User.Id
-                }),
+            {
+                id = item.User.Id
+            }),
                 @Html.ActionLink("Edit", "Edit", new
-                {
-                    id = item.User.Id
-                })
+            {
+                id = item.User.Id
+            })
             </td>
         </tr>
-        }
+    }
 </table>

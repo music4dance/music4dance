@@ -1,95 +1,272 @@
-using System;
-using Azure.Identity;
-using m4d.Areas.Identity;
-using m4dModels;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using m4dModels;
+using m4d.Areas.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Azure.Identity;
+using Vite.AspNetCore.Extensions;
+using Microsoft.AspNetCore.Rewrite;
+using m4d.Utilities;
+using m4d.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.Extensions.FileProviders;
+using System.Reflection;
+using m4d.ViewModels;
+using Newtonsoft.Json.Serialization;
+using Owl.reCAPTCHA;
 
-namespace m4d
+Console.WriteLine("Entering Main");
+
+var builder = WebApplication.CreateBuilder(args);
+var connectionString = builder.Configuration.GetConnectionString("DanceMusicContextConnection") ?? throw new InvalidOperationException("Connection string 'DanceMusicContexstConnection' not found.");
+
+var services = builder.Services;
+var environment = builder.Environment;
+var configuration = builder.Configuration;
+
+var logging = builder.Logging;
+logging.ClearProviders();
+logging.AddConsole();
+logging.AddAzureWebAppDiagnostics();
+
+Console.WriteLine($"Environment: {environment.EnvironmentName}");
+
+if (!environment.IsDevelopment())
 {
-    public class Program
+    var credentials = new ManagedIdentityCredential();
+    configuration.AddAzureAppConfiguration(options =>
     {
-        public static void Main(string[] args)
+        options.Connect(
+            new Uri(configuration["AppConfig:Endpoint"]),
+            credentials)
+        .ConfigureKeyVault(
+            kv => { kv.SetCredential(credentials); })
+        .Select(KeyFilter.Any, LabelFilter.Null)
+        .Select(KeyFilter.Any, environment.EnvironmentName);
+        //options.Connect(configuration["ConnectionStrings:AppConfig"])
+        //    .ConfigureRefresh(refresh =>
+        //    {
+        //        refresh.Register("TestApp:Settings:Sentinel", refreshAll: true)
+        //            .SetCacheExpiration(TimeSpan.FromSeconds(5));
+        //    });
+    });
+}
+
+services.AddDbContext<DanceMusicContext>(options => options.UseSqlServer(connectionString));
+
+services.AddDefaultIdentity<ApplicationUser>(
+        options =>
         {
-            Console.WriteLine("Entering Main");
-            try
-            {
-                var host = CreateHostBuilder(args).Build();
+            options.SignIn.RequireConfirmedAccount = true;
+            options.User.RequireUniqueEmail = true;
+            options.User.AllowedUserNameCharacters = string.Empty;
+        })
+    .AddUserValidator<UsernameValidator<ApplicationUser>>()
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<DanceMusicContext>();
 
-                var env = host.Services.GetRequiredService<IWebHostEnvironment>();
-                using var scope = host.Services.CreateScope();
-                var serviceProvider = scope.ServiceProvider;
+// Add services to the container.
+services.AddControllersWithViews();
 
-                using var context =
-                    scope.ServiceProvider.GetRequiredService<DanceMusicContext>();
-                context.Database.Migrate();
+services.Configure<CookiePolicyOptions>(
+    options =>
+    {
+        // This lambda determines whether user consent for non-essential cookies is needed for a given request.
+        options.CheckConsentNeeded = context => true;
+        options.MinimumSameSitePolicy = SameSiteMode.None;
+    });
 
-                if (env.IsDevelopment())
-                {
-                    var userManager =
-                        serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-                    var roleManager =
-                        serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-                    IdentityHostingStartup.SeedData(userManager, roleManager);
-                }
+services.ConfigureApplicationCookie(
+    options =>
+    {
+        options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+        options.Cookie.Name = "music4dance";
+        options.Cookie.HttpOnly = true;
+        options.ExpireTimeSpan = TimeSpan.FromDays(1);
+        options.LoginPath = "/Identity/Account/Login";
+        options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
+        options.SlidingExpiration = true;
+    });
 
-                host.Run();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-            Console.WriteLine("Exiting Main");
-        }
+services.Configure<PasswordHasherOptions>(
+    option =>
+        option.CompatibilityMode = PasswordHasherCompatibilityMode.IdentityV2);
 
-        public static IHostBuilder CreateHostBuilder(string[] args)
+services.AddResponseCaching();
+
+GlobalState.SetMarketing(configuration.GetSection("Configuration:Marketing"));
+
+var physicalProvider = environment.ContentRootFileProvider;
+var embeddedProvider = new EmbeddedFileProvider(Assembly.GetEntryAssembly());
+var compositeProvider = new CompositeFileProvider(physicalProvider, embeddedProvider);
+services.AddSingleton<IFileProvider>(compositeProvider);
+
+services.AddTransient<IEmailSender, EmailSender>();
+var sendGrid = configuration.GetSection("Authentication:SendGrid");
+services.Configure<AuthMessageSenderOptions>(options => sendGrid.Bind(options));
+
+services.Configure<AuthorizationOptions>(
+    options =>
+    {
+        options.AddPolicy(
+            "TokenAuthorization",
+            policy => policy.AddRequirements(new TokenRequirement(configuration)));
+    });
+
+services.AddAuthentication()
+    .AddGoogle(
+        options =>
         {
-            var builder = Host.CreateDefaultBuilder(args);
-            builder.ConfigureWebHostDefaults(
-                    webBuilder => webBuilder
-                        .ConfigureAppConfiguration(
-                            (hostingContext, config) =>
-                            {
-                                var environment =
-                                    Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-                                Console.WriteLine($"Environment: {environment}");
+            var googleAuthNSection =
+                configuration.GetSection("Authentication:Google");
 
-                                var isDevelopment = environment == Environments.Development;
+            options.ClientId = googleAuthNSection["ClientId"];
+            options.ClientSecret = googleAuthNSection["ClientSecret"];
+        })
+    .AddFacebook(
+        options =>
+        {
+            options.AppId = configuration["Authentication:Facebook:ClientId"];
+            options.AppSecret = configuration["Authentication:Facebook:ClientSecret"];
+            options.Scope.Add("email");
+            options.Fields.Add("name");
+            options.Fields.Add("email");
+        })
+    .AddSpotify(
+        options =>
+        {
+            options.ClientId = configuration["Authentication:Spotify:ClientId"];
+            options.ClientSecret = configuration["Authentication:Spotify:ClientSecret"];
 
-                                if (!isDevelopment)
-                                {
-                                    Console.WriteLine("Getting Configuration");
-                                    var settings = config.Build();
-                                    var credentials = new ManagedIdentityCredential();
+            options.Scope.Add("user-read-email");
+            options.Scope.Add("playlist-modify-public");
+            options.Scope.Add("ugc-image-upload");
+            //options.Scope.Add("user-read-playback-state");
+            //options.Scope.Add("user-read-playback-position");
 
-                                    config.AddAzureAppConfiguration(
-                                        options =>
-                                            options.Connect(
-                                                    new Uri(settings["AppConfig:Endpoint"]),
-                                                    credentials)
-                                                .ConfigureKeyVault(
-                                                    kv => { kv.SetCredential(credentials); })
-                                                .Select(KeyFilter.Any, LabelFilter.Null)
-                                                .Select(KeyFilter.Any, environment));
-                                }
-                            })
-                        .UseStartup<Startup>());
+            //options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
+            //options.ClaimActions.MapJsonKey("urn:google:locale", "locale", "string");
 
-            builder.ConfigureLogging(
-                logging =>
-                {
-                    logging.ClearProviders();
-                    logging.AddConsole();
-                    logging.AddAzureWebAppDiagnostics();
-                });
+            options.SaveTokens = true;
 
-            return builder;
-        }
+            options.Events.OnCreatingTicket = cxt =>
+            {
+                var tokens = cxt.Properties.GetTokens().ToList();
+                cxt.Properties.StoreTokens(tokens);
+
+                return Task.CompletedTask;
+            };
+        });
+
+services.AddreCAPTCHAV2(
+    x =>
+    {
+        x.SiteKey = configuration["Authentication:reCAPTCHA:SiteKey"];
+        x.SiteSecret = configuration["Authentication:reCAPTCHA:SecretKey"];
+    });
+
+var appRoot = environment.WebRootPath;
+services.AddSingleton<ISearchServiceManager>(new SearchServiceManager(configuration));
+services.AddSingleton<IDanceStatsManager>(new DanceStatsManager(new DanceStatsFileManager(appRoot)));
+
+services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
+services.AddHostedService<BackgroundQueueHostedService>();
+
+services.AddControllers().AddNewtonsoftJson()
+    .AddNewtonsoftJson(
+        options =>
+        {
+            options.SerializerSettings.ContractResolver =
+                new DefaultContractResolver();
+        });
+
+services.AddAutoMapper(
+    typeof(SongFilterProfile),
+    typeof(SongPropertyProfile),
+    typeof(TagProfile));
+
+services.AddViteServices();
+
+services.AddHostedService<DanceStatsHostedService>();
+
+var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var sp = scope.ServiceProvider;
+    sp.GetRequiredService<DanceMusicContext>().Database.Migrate();
+
+    if (environment.IsDevelopment())
+    {
+        var userManager = sp.GetRequiredService<UserManager<ApplicationUser>>();
+        var roleManager = sp.GetRequiredService<RoleManager<IdentityRole>>();
+        UserManagerHelpers.SeedData(userManager, roleManager);
     }
 }
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+    app.UseViteDevMiddleware();
+}
+else
+{
+    app.UseExceptionHandler("/Error");
+    app.UseStatusCodePagesWithReExecute("/Error/{0}");
+    app.UseHsts();
+}
+
+app.UseHttpsRedirection();
+var options = new RewriteOptions();
+options.AddRedirectToHttps();
+options.AddRedirectToWwwPermanent("music4dance.net");
+app.UseRewriter(options);
+app.UseStaticFiles();
+app.UseRouting();
+
+app.UseAuthorization();
+app.UseResponseCaching();
+
+app.Use(
+    async (cxt, next) =>
+    {
+        var url = cxt.Request.Path.Value;
+        var blog = "/blog";
+        if (url != null)
+        {
+            var idx = url?.IndexOf(blog) ?? -1;
+            if (idx != -1)
+            {
+                var path = url.Substring(idx + blog.Length);
+                cxt.Response.Redirect($"https://music4dance.blog{path}");
+                return;
+            }
+        }
+
+        await next();
+    });
+
+app.MapControllerRoute(
+    "Dances",
+    "dances/{group}/{dance}",
+    new { controller = "dance", action = "GroupRedirect" });
+app.MapControllerRoute(
+    "DanceEdit",
+    "dances/edit",
+    new { controller = "dance", action = "edit" });
+app.MapControllerRoute(
+    "DanceGroup",
+    "dances/{dance?}",
+    new { controller = "dance", action = "index" });
+app.MapControllerRoute(
+    "default",
+    "{controller=Home}/{action=Index}/{id?}");
+app.MapRazorPages();
+
+ApplicationLogging.LoggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
+
+app.Run();

@@ -2,27 +2,27 @@
 
 @{
     if (!Model.ExternalLogins.Any())
-    {
-        <div>
+{
+    <div>
             <p>Somethings went wrong! Please go back and try another way to sign in.</p>
             @*<p>There are no external authentication services configured. See <a href="http://go.microsoft.com/fwlink/?LinkId=313242">this article</a>
                 for details on setting up this ASP.NET application to support signing in via external services.</p>*@
             @*ReSharper disable once RedundantAnonymousTypePropertyName *@
         </div>
-    }
-    else
-    {
-        <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+}
+else
+{
+    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
             <div id="socialLoginList">
                 <ul class="list-unstyled">
                     @foreach (var login in Model.ExternalLogins)
-                    {
-                        //<button type="submit" class="btn btn-default" id="@p.AuthenticationType" name="provider" value="@p.AuthenticationType" title="Sign in using your @p.Caption account">@p.AuthenticationType</button>
-                        var type = login.Name.ToLower();
-                        <li style="margin: 1em"><button type="submit" class="btn-auth btn-@type large" id="@login.Name" name="provider" value="@login.Name" title="Sign in using your @login.DisplayName account">Sign in with <b>@login.DisplayName</b></button></li>
-                    }
+                {
+                    //<button type="submit" class="btn btn-default" id="@p.AuthenticationType" name="provider" value="@p.AuthenticationType" title="Sign in using your @p.Caption account">@p.AuthenticationType</button>
+                    var type = login.Name.ToLower();
+                    <li style="margin: 1em"><button type="submit" class="btn-auth btn-@type large" id="@login.Name" name="provider" value="@login.Name" title="Sign in using your @login.DisplayName account">Sign in with <b>@login.DisplayName</b></button></li>
+                }
                 </ul>
             </div>
         </form>
-    }
+}
 }

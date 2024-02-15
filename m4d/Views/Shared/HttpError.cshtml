@@ -3,7 +3,7 @@
 @model m4dModels.ErrorModel
 @{
     ViewBag.Title = "Error";
-    ViewBag.BreadCrumbs = BreadCrumbItem.BuildInfoTrail(ViewBag.Title);
+ViewBag.BreadCrumbs = BreadCrumbItem.BuildInfoTrail(ViewBag.Title);
 }
 
 <h2>Error</h2>
@@ -32,28 +32,28 @@
 @if ((TraceLevels.General.TraceVerbose || User.IsInRole("showDiagnostics")) && Model?.Exception != null)
 {
     <p><b>Exception:</b>@Model.Exception.Message (@Model.HttpStatusCode)</p>
-    if (Model.Exception.InnerException != null)
-    {
-        <p>
+if (Model.Exception.InnerException != null)
+{
+    <p>
             <b>Inner Exception:</b>@Model.Exception.InnerException.Message
         </p>
-    }
+}
     <p>
         <b>Target Site:</b>@Model.Exception.TargetSite
     </p>
 
     @if (Model.Exception?.StackTrace != null)
+{
+    <h3>Stack Trace:</h3>
+    var frames = Model.Exception.StackTrace.Split(new[]
     {
-        <h3>Stack Trace:</h3>
-        var frames = Model.Exception.StackTrace.Split(new[]
-        {
-            '\n'
-        }, StringSplitOptions.RemoveEmptyEntries);
-        <ul>
+        '\n'
+    }, StringSplitOptions.RemoveEmptyEntries);
+    <ul>
             @foreach (var s in frames)
-            {
-                <li>@s</li>
-            }
+        {
+            <li>@s</li>
+        }
         </ul>
-    }
+}
 }

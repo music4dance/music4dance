@@ -4,8 +4,8 @@
 
 @{
     ViewBag.Title = "Tag List";
-    ViewBag.Description = "Explore songs based on musical genre, tempo, style and other tags.";
-    ViewBag.SongFilter = SongFilter.GetDefault(User.Identity.Name);
+ViewBag.Description = "Explore songs based on musical genre, tempo, style and other tags.";
+ViewBag.SongFilter = SongFilter.GetDefault(User.Identity.Name);
 }
 <h1>@ViewBag.Title</h1>
 
@@ -32,18 +32,18 @@
         </tr>
 
         @foreach (var item in Model)
-        {
-            var item1 = item;
-            <tr>
+    {
+        var item1 = item;
+        <tr>
                 <td>
                     @Html.ActionLink(item.Key, "tags", "song", new
-                    {
-                        tags = item.Key
-                    }, null)
+                {
+                    tags = item.Key
+                }, null)
                     @if (item.IsConected)
-                    {
-                        <b>*</b>
-                    }
+                {
+                    <b>*</b>
+                }
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item1.Count)
@@ -53,37 +53,37 @@
                 </td>
                 <td>
                     @if (item.Children != null && item.Children.Count > 0)
+                {
+                    var separator = "";
+                    foreach (var child in item.Children)
                     {
-                        var separator = "";
-                        foreach (var child in item.Children)
-                        {
-                            @separator
-                            @child.Key
-                            separator = ",";
-                        }
+                        @separator
+                        @child.Key
+                        separator = ",";
                     }
+                }
                 </td>
 
                 <td>
                     @Html.ActionLink("Edit", "Edit", new
-                    {
-                        id = item.EncodedKey
-                    }) |
+                {
+                    id = item.EncodedKey
+                }) |
                     @Html.ActionLink("Details", "Details", new
+                {
+                    id = item.EncodedKey
+                })
+                    @if (!string.IsNullOrWhiteSpace(item.PrimaryId))
+                {
+                    <text>|</text>
+                    @Html.ActionLink("Delete", "Delete", new
                     {
                         id = item.EncodedKey
-                    })
-                    @if (!string.IsNullOrWhiteSpace(item.PrimaryId))
-                    {
-                        <text>|</text>
-                        @Html.ActionLink("Delete", "Delete", new
-                        {
-                            id = item.EncodedKey
-                        })                        
-                    }
+                    })                        
+                }
                 </td>
             </tr>
-        }
+    }
     </table>
 }
 
@@ -92,10 +92,7 @@
     @{
         var scripts = new ScriptModel
         {
-            DevelopmentFiles = new[]
-            {
-                "musicservice"
-            }
+            DevelopmentFiles = new[] {"musicservice"}
         };
     }
 

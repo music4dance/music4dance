@@ -1,7 +1,7 @@
 ﻿@using m4d.ViewModels
 @{
     ViewBag.Title = "Scraping";
-    ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
+ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
 }
 
 <hr/>
@@ -10,45 +10,45 @@
 <ul>
     <li>
         @Html.ActionLink("Century", "ScrapeDances", new
-        {
-            id = "Century"
-        })
+    {
+        id = "Century"
+    })
     </li>
     <li>
         @Html.ActionLink("DanceForum", "ScrapeDances", new
-        {
-            id = "danceforums"
-        })
+    {
+        id = "danceforums"
+    })
     </li>
     <li>
         @Html.ActionLink("DWTS", "ScrapeDances", new
-        {
-            id = "dwts"
-        })
+    {
+        id = "dwts"
+    })
     </li>
     <li>
         @Html.ActionLink("WDW", "ScrapeDances", new
-        {
-            id = "WDW"
-        })
+    {
+        id = "WDW"
+    })
     </li>
     <li>
         @Html.ActionLink("***REMOVED***", "ScrapeDances", new
-        {
-            id = "WW",
-            parameter = "Last Dance"
-        })
+    {
+        id = "WW",
+        parameter = "Last Dance"
+    })
     </li>
     <li>
         @Html.ActionLink("***REMOVED***", "ScrapeDances", new
-        {
-            id = "georgewendy"
-        })
+    {
+        id = "georgewendy"
+    })
     </li>
     <li>
         @Html.ActionLink("***REMOVED***", "ScrapeDances", new
-        {
-            id = "musicmills"
-        })
+    {
+        id = "musicmills"
+    })
     </li>
 </ul>
