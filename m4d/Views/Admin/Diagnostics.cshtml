@@ -1,9 +1,12 @@
 ﻿@using System.Globalization
+@using Microsoft.FeatureManagement
 @using m4d.Utilities
 @using m4d.ViewModels
 @using m4dModels
 @using System
-@inject ISearchServiceManager SearchService;
+@inject ISearchServiceManager SearchService
+@inject IConfiguration Configuration
+@inject IFeatureManager FeatureManager
 
 @{
     ViewBag.Title = "Logging";
@@ -38,6 +41,12 @@ ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
         <b>Version:</b>@Environment.Version
     </li>
     <li><b>Build Flavor:</b> @(ViewBag.Debug ? "Debug" : "Release")</li>
+    <li>
+        Sentinel: @Configuration["Configuration:Sentinel"]
+    </li>
+    <li>
+        CaptcahEnabled: @Configuration["Configuration:Registration:CaptchaEnabled"]
+    </li>
 </ul>
 
 <hr />
@@ -92,6 +101,15 @@ ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
 </ul>
 
 <h4>@Html.ActionLink("Thow an Exception", "ThrowException", "Admin")</h4>
+
+<hr />
+<h3>Features</h3>
+<ul>
+    @await foreach (var feature in FeatureManager.GetFeatureNamesAsync())
+    {
+        <li>@feature == @await FeatureManager.IsEnabledAsync(feature)</li>
+    }
+</ul>
 
 <hr />
 <h3>History</h3>

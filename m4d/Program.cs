@@ -17,6 +17,13 @@ using System.Reflection;
 using m4d.ViewModels;
 using Newtonsoft.Json.Serialization;
 using Owl.reCAPTCHA;
+using Microsoft.FeatureManagement;
+
+
+//  TODONEXT: Feature flags: https://learn.microsoft.com/en-us/azure/azure-app-configuration/quickstart-feature-flag-aspnet-core?tabs=core6x
+//  Captcha, what else? Maybe the marking info? Beta, etc.
+//  See if feature flag can take extra payload, like the marketing info
+//  Tiem to clean up TransformTagKey?
 
 Console.WriteLine("Entering Main");
 
@@ -34,6 +41,8 @@ logging.AddAzureWebAppDiagnostics();
 
 Console.WriteLine($"Environment: {environment.EnvironmentName}");
 
+builder.Services.AddFeatureManagement();
+
 if (!environment.IsDevelopment())
 {
     var credentials = new ManagedIdentityCredential();
@@ -44,15 +53,19 @@ if (!environment.IsDevelopment())
             credentials)
         .ConfigureKeyVault(
             kv => { kv.SetCredential(credentials); })
+        .UseFeatureFlags(featureFlagOptions => {
+            featureFlagOptions.CacheExpirationInterval = TimeSpan.FromMinutes(5);
+        })
         .Select(KeyFilter.Any, LabelFilter.Null)
-        .Select(KeyFilter.Any, environment.EnvironmentName);
-        //options.Connect(configuration["ConnectionStrings:AppConfig"])
-        //    .ConfigureRefresh(refresh =>
-        //    {
-        //        refresh.Register("TestApp:Settings:Sentinel", refreshAll: true)
-        //            .SetCacheExpiration(TimeSpan.FromSeconds(5));
-        //    });
+        .Select(KeyFilter.Any, environment.EnvironmentName)
+        .ConfigureRefresh(refresh =>
+        {
+            refresh.Register("Configuration:Sentinel", environment.EnvironmentName, refreshAll: true)
+                .SetCacheExpiration(TimeSpan.FromMinutes(5));
+        });
     });
+
+    services.AddAzureAppConfiguration();
 }
 
 services.AddDbContext<DanceMusicContext>(options => options.UseSqlServer(connectionString));
@@ -194,6 +207,16 @@ services.AddHostedService<DanceStatsHostedService>();
 
 var app = builder.Build();
 
+if (!environment.IsDevelopment())
+{
+    app.UseAzureAppConfiguration();
+}
+
+app.Logger.LogInformation("Builder Built");
+app.Logger.LogInformation($"Environment = {environment.EnvironmentName}");
+var sentinel = configuration["Configuration:Sentinel"];
+app.Logger.LogInformation($"Sentinel = {sentinel}");
+
 using (var scope = app.Services.CreateScope())
 {
     var sp = scope.ServiceProvider;
@@ -208,6 +231,8 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
+app.Logger.LogInformation(@"Configuring request pipeline");
+
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -249,6 +274,8 @@ app.Use(
 
         await next();
     });
+
+app.Logger.LogInformation(@"Mapping Routes");
 
 app.MapControllerRoute(
     "Dances",

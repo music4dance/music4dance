@@ -15,6 +15,7 @@ namespace m4d.Controllers;
 public class PaymentController : CommerceController
 {
     private readonly IreCAPTCHASiteVerifyV2 _siteVerify;
+    public bool UseCaptcha => _siteVerify != null;
 
     public PaymentController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
         RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
@@ -24,7 +25,10 @@ public class PaymentController : CommerceController
     {
         var test = GlobalState.UseTestKeys ? "Test" : "";
         StripeConfiguration.ApiKey = configuration[$"Authentication:Stripe{test}:SecretKey"];
-        _siteVerify = siteVerify;
+        if (GlobalState.UseCaptcha(configuration))
+        {
+            _siteVerify = siteVerify;
+        }
     }
 
     [HttpPost]
@@ -44,16 +48,19 @@ public class PaymentController : CommerceController
             }
 
             // Otherwise, this is an anonymous donation so need to verify recaptcha
-            var response = await _siteVerify.Verify(
-                new reCAPTCHASiteVerifyRequest
-                {
-                    Response = recaptchaToken,
-                    RemoteIp = HttpContext.Connection.RemoteIpAddress.ToString()
-                });
-
-            if (!response.Success)
+            if (UseCaptcha)
             {
-                return RedirectToAction("Contribute", "Home", new { recaptchaFailed = true});
+                var response = await _siteVerify.Verify(
+                    new reCAPTCHASiteVerifyRequest
+                    {
+                        Response = recaptchaToken,
+                        RemoteIp = HttpContext.Connection.RemoteIpAddress.ToString()
+                    });
+
+                if (!response.Success)
+                {
+                    return RedirectToAction("Contribute", "Home", new { recaptchaFailed = true });
+                }
             }
         }
         else if (IsFraudDetected(user) || !IsCommerceEnabled())

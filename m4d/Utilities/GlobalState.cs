@@ -41,7 +41,13 @@ public static class GlobalState
         Marketing = configurationSection.Get<MarketingInfo>();
     }
 
-    public static MarketingInfo GetMarketing(ApplicationUser user, string page)
+    public static bool UseCaptcha(IConfiguration configuration)
+    {
+        var captcha = configuration["Configuration:Registration:CaptchaEnabled"];
+        return !string.IsNullOrEmpty(captcha) && bool.TryParse(captcha, out var enabled) && enabled;
+    }
+
+     public static MarketingInfo GetMarketing(ApplicationUser user, string page)
     {
         if (Marketing == null || !Marketing.Enabled)
         {

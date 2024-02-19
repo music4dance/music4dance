@@ -48,6 +48,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="8.0.2" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
+    <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="3.1.1" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="owl" Version="1.0.5407.37498" />

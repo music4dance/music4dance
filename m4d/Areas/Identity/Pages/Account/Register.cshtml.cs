@@ -4,6 +4,7 @@
 
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using m4d.Utilities;
 using m4dModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -38,9 +39,7 @@ public class RegisterModel : PageModel
         _signInManager = signInManager;
         _logger = logger;
         _emailSender = emailSender;
-        var captcha = configuration["Configuration:Registration:CaptchaEnabled"];
-        if (!string.IsNullOrEmpty(captcha) && bool.TryParse(captcha, out var enabled) &&
-            enabled)
+        if (GlobalState.UseCaptcha(configuration))
         {
             _siteVerify = siteVerify;
         }
