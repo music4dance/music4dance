@@ -23,41 +23,23 @@ public class SongController : ContentController
 
     private readonly LinkGenerator _linkGenerator;
     private readonly IMapper _mapper;
-    private readonly IBackgroundTaskQueue _backgroundTaskQueue;
     private SongFilter Filter { get; set; }
 
-    public SongController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
-        RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
-        IDanceStatsManager danceStatsManager, LinkGenerator linkGenerator,
-        IConfiguration configuration, IMapper mapper, IBackgroundTaskQueue queue, IFileProvider fileProvider, ILogger<SongController> logger) :
-        base(context, userManager, roleManager, searchService, danceStatsManager, configuration, fileProvider, logger)
+    public SongController(
+        DanceMusicContext context, UserManager<ApplicationUser> userManager,
+        ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+        IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
+        ILogger<SongController> logger, LinkGenerator linkGenerator, IMapper mapper) :
+        base(context, userManager, searchService, danceStatsManager, configuration, fileProvider, backroundTaskQueue, logger)
     {
         HelpPage = "song-list";
         _linkGenerator = linkGenerator;
         _mapper = mapper;
-        _backgroundTaskQueue = queue;
     }
 
     public override void OnActionExecuting(ActionExecutingContext filterContext)
     {
-        var user = UserName;
-        var request = filterContext.HttpContext.Request;
-        var filterString = request.Query["filter"];
-        if (string.IsNullOrWhiteSpace(filterString) && request.Method.Equals("POST", StringComparison.OrdinalIgnoreCase))
-        {
-            filterString = filterContext.HttpContext.Request.Form["filter"];
-        }
-        if (!string.IsNullOrEmpty(filterString))
-        {
-            Filter = new SongFilter(filterString);
-        }
-        else
-        {
-            Filter = SongFilter.GetDefault(user);
-            filterContext.ActionArguments["filter"] = Filter;
-        }
-
-        ViewBag.SongFilter = Filter;
+        ViewBag.SongFilter = Filter = GetFilterFromContext(filterContext);
         base.OnActionExecuting(filterContext);
     }
 
@@ -119,7 +101,7 @@ public class SongController : ContentController
             }
 
             var results = await new SongSearch(
-                Filter, UserName, IsPremium(), SongIndex, UserManager, _backgroundTaskQueue).Search();
+                Filter, UserName, IsPremium(), SongIndex, UserManager, TaskQueue).Search();
 
             string playListId = null;
 
@@ -209,7 +191,7 @@ public class SongController : ContentController
                 throw new RedirectException("BotFilter", Filter);
             }
 
-            var results = await new SongSearch(Filter, UserName, IsPremium(), SongIndex, UserManager, _backgroundTaskQueue).Search();
+            var results = await new SongSearch(Filter, UserName, IsPremium(), SongIndex, UserManager, TaskQueue).Search();
             return await FormatResults(results);
         }
         catch (RedirectException ex)
@@ -948,12 +930,12 @@ public class SongController : ContentController
             var p = await AzureParmsFromFilter(filter, info.Count);
             p.IncludeTotalCount = true;
             var results = await new SongSearch(
-                filter, UserName, true, SongIndex, UserManager, _backgroundTaskQueue, info.Count).Search();
+                filter, UserName, true, SongIndex, UserManager, TaskQueue, info.Count).Search();
 
             var tracks = results?.Songs?.Select(s => s.GetPurchaseId(ServiceType.Spotify));
             var service = MusicService.GetService(ServiceType.Spotify);
             metadata = await MusicServiceManager.CreatePlaylist(
-                service, User, info.Title,
+                service, User, await GetLoginKey("Spotify"), info.Title,
                 $"{info.DescriptionPrefix} {filter.Description}", fileProvider);
 
             Logger.LogInformation($"CreateSpotify: {LogMetaData(metadata)}");
@@ -1052,7 +1034,7 @@ public class SongController : ContentController
         var userName = isUserOnly && User.IsInRole(DanceMusicCoreService.DiagRole)
             ? filter.UserQuery.UserName
             : UserName;
-        var exporter = new PlaylistExport(info, SongIndex, UserManager, _backgroundTaskQueue, spotifyId);
+        var exporter = new PlaylistExport(info, SongIndex, UserManager, TaskQueue, spotifyId);
         var file = info.IncludeSpecificDances
             ? await exporter.ExportFilteredDances(userName)
             : await exporter.Export(userName);

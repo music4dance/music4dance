@@ -9,10 +9,6 @@ import DanceList from "./components/DanceList.vue";
 import { DanceFilter } from "@/models/DanceDatabase/DanceFilter";
 import { Meter } from "@/models/DanceDatabase/Meter";
 
-// TODONEXT: Figure out what's going on with sorting
-//   Clean up links & formatting for tempo ranges, some of this should move to temporange class
-//   and the rest should end up in a helper
-// Fix typeing issue in App.vue
 // TODO: Clean up the CheckboxOptions structures
 // Consider disabling checkboxes that don't make sense for the current selection
 interface TempoListModel {

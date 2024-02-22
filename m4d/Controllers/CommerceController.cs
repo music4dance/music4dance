@@ -1,4 +1,5 @@
 ﻿using m4d.APIControllers;
+using m4d.Services;
 using m4dModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.FileProviders;
@@ -10,11 +11,12 @@ public class CommerceController : DanceMusicController
 {
     public static decimal AnnualSubscription = SubscriptionLevelDescription.SubscriptionLevels.Last().Price;
 
-    public CommerceController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
-        RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
-        IDanceStatsManager danceStatsManager, IConfiguration configuration,
-        IFileProvider fileProvider, ILogger<MusicServiceController> logger) :
-        base(context, userManager, roleManager, searchService, danceStatsManager, configuration, fileProvider, logger)
+    public CommerceController(
+        DanceMusicContext context, UserManager<ApplicationUser> userManager,
+        ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+        IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
+        ILogger logger) :
+        base(context, userManager, searchService, danceStatsManager, configuration, fileProvider, backroundTaskQueue, logger)
     {
     }
 

@@ -38,7 +38,7 @@
         Login(s)
     </div>
     <div class="col-sm-9">
-        @string.Join(", ", logins)
+        @string.Join("; ", logins.Select(l => $"Provider: {l.LoginProvider}, Name: {l.ProviderDisplayName}, Key: {l.ProviderKey}"))
     </div>
 </div>
 <div class="row">

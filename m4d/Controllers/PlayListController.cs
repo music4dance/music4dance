@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Security.Principal;
+using m4d.Services;
 using m4d.Utilities;
 using m4dModels;
 using Microsoft.AspNetCore.Authentication;
@@ -14,11 +15,12 @@ namespace m4d.Controllers;
 
 public class PlayListController : DanceMusicController
 {
-    public PlayListController(DanceMusicContext context,
-        UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
+    public PlayListController(
+        DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-        IConfiguration configuration, IFileProvider fileProvider, ILogger<PlayListController> logger) :
-        base(context, userManager, roleManager, searchService, danceStatsManager, configuration, fileProvider, logger)
+        IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
+        ILogger<PlayListController> logger) :
+        base(context, userManager, searchService, danceStatsManager, configuration, fileProvider, backroundTaskQueue, logger)
     {
     }
 
@@ -356,7 +358,8 @@ public class PlayListController : DanceMusicController
             if (metadata == null)
             {
                 metadata = await MusicServiceManager.CreatePlaylist(
-                    MusicService.GetService(ServiceType.Spotify), User, name, description,
+                    MusicService.GetService(ServiceType.Spotify), User, 
+                    await GetLoginKey("Spotify"), name, description,
                     fileProvider);
             }
 
@@ -427,7 +430,8 @@ public class PlayListController : DanceMusicController
             Logger.LogInformation($"BulkCreate{title}: {name}, {description}, {search}");
 
             metadata ??= await MusicServiceManager.CreatePlaylist(
-                MusicService.GetService(ServiceType.Spotify), User, name, description,
+                MusicService.GetService(ServiceType.Spotify), 
+                User, await GetLoginKey("Spotify"), name, description,
                 fileProvider);
 
             if (metadata == null)

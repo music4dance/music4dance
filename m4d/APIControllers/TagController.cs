@@ -10,11 +10,11 @@ public class TagController : DanceMusicApiController
 {
     private readonly DanceStatsInstance _statistics;
 
-    public TagController(DanceMusicContext context,
-        UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
+    public TagController(
+        DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-        IConfiguration configuration) :
-        base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
+        IConfiguration configuration, ILogger<TagController> logger) :
+        base(context, userManager, searchService, danceStatsManager, configuration, logger)
     {
         _statistics = DanceStatsManager.Instance;
     }

@@ -17,7 +17,7 @@ public class DanceMusicApiController : ControllerBase
 
     public DanceMusicApiController(DanceMusicContext context,
         // ReSharper disable once UnusedParameter.Local
-        UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
+        UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
         IConfiguration configuration, ILogger logger = null)
     {

@@ -117,6 +117,8 @@ public partial class DanceMusicCoreService : IDisposable
 
     public DbSet<ActivityLog> ActivityLog => Context.ActivityLog;
 
+    //public DbSet<UsageLog> UsageLog => Context.UsageLog;
+
     public async Task<int> SaveChanges()
     {
         return await Context.SaveChangesAsync();

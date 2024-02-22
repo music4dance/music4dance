@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using m4d.Services;
 using m4d.Utilities;
 using m4dModels;
 using Microsoft.AspNetCore.Authorization;
@@ -13,11 +14,12 @@ namespace m4d.Controllers;
 //[RequireHttps]
 public class ApplicationUsersController : DanceMusicController
 {
-    public ApplicationUsersController(DanceMusicContext context,
-        UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
+    public ApplicationUsersController(
+        DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-        IConfiguration configuration, IFileProvider fileProvider, ILogger<ApplicationUsersController> logger) :
-        base(context, userManager, roleManager, searchService, danceStatsManager, configuration, fileProvider, logger)
+        IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
+        ILogger<ApplicationUsersController> logger) :
+        base(context, userManager, searchService, danceStatsManager, configuration, fileProvider, backroundTaskQueue, logger)
     {
     }
 

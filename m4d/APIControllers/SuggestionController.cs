@@ -8,11 +8,11 @@ namespace m4d.APIControllers;
 [Route("api/[controller]")]
 public class SuggestionController : DanceMusicApiController
 {
-    public SuggestionController(DanceMusicContext context,
-        UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
+    public SuggestionController(
+        DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-        IConfiguration configuration) :
-        base(context, userManager, roleManager, searchService, danceStatsManager, configuration)
+        IConfiguration configuration, ILogger<SuggestionController> logger) :
+        base(context, userManager, searchService, danceStatsManager, configuration, logger)
     {
     }
 

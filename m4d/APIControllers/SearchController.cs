@@ -15,10 +15,11 @@ public class SearchController : DanceMusicApiController
     private readonly ISearchServiceManager _searchServiceManager;
     private readonly IServer _server;
 
-    public SearchController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
-        RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
-        IDanceStatsManager danceStatsManager, IConfiguration configuration, IServer server, ILogger<SearchController> logger) :
-        base(context, userManager, roleManager, searchService, danceStatsManager, configuration, logger)
+    public SearchController(
+        DanceMusicContext context, UserManager<ApplicationUser> userManager,
+        ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+        IConfiguration configuration, IServer server, ILogger<SearchController> logger) :
+        base(context, userManager, searchService, danceStatsManager, configuration, logger)
     {
         _searchServiceManager = new SearchServiceManager(configuration);
         _server = server;

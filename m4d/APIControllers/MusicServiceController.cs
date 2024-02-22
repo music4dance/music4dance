@@ -12,11 +12,11 @@ public class MusicServiceController : DanceMusicApiController
     // ReSharper disable once InconsistentNaming
     private static readonly Dictionary<string, IList<ServiceTrack>> s_cache = new();
 
-    public MusicServiceController(DanceMusicContext context,
-        UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
+    public MusicServiceController(
+        DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
         IConfiguration configuration, ILogger<MusicServiceController> logger) :
-        base(context, userManager, roleManager, searchService, danceStatsManager, configuration, logger)
+        base(context, userManager, searchService, danceStatsManager, configuration, logger)
     {
     }
 

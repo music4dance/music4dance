@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using m4d.Services;
 using m4d.ViewModels;
 using m4dModels;
 using Microsoft.AspNetCore.Identity;
@@ -11,11 +12,12 @@ public class UsersController : DanceMusicController
 {
     private static readonly Dictionary<string, UserProfile> s_userCache = new();
 
-    public UsersController(DanceMusicContext context,
-        UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
+    public UsersController(
+        DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-        IConfiguration configuration, IFileProvider fileProvider) :
-        base(context, userManager, roleManager, searchService, danceStatsManager, configuration, fileProvider)
+        IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
+        ILogger logger) :
+        base(context, userManager, searchService, danceStatsManager, configuration, fileProvider, backroundTaskQueue, logger)
     {
     }
 

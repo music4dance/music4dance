@@ -41,17 +41,14 @@ public class SetupDiagnosticsAttribute : ActionFilterAttribute
 [SetupDiagnostics]
 public class AdminController : DanceMusicController
 {
-    public AdminController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
-        RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
-        IDanceStatsManager danceStatsManager, IConfiguration configuration, ILogger<AdminController> logger,
-        IBackgroundTaskQueue queue, IFileProvider fileProvider
-        ) :
-        base(context, userManager, roleManager, searchService, danceStatsManager, configuration, fileProvider, logger)
+    public AdminController(
+        DanceMusicContext context, UserManager<ApplicationUser> userManager,
+        ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+        IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
+        ILogger<AdminController> logger) :
+        base(context, userManager, searchService, danceStatsManager, configuration, fileProvider, backroundTaskQueue, logger)
     {
-        _backgroundTaskQueue = queue;
     }
-
-    private readonly IBackgroundTaskQueue _backgroundTaskQueue;
 
     #region Commands
 
@@ -1056,7 +1053,7 @@ public class AdminController : DanceMusicController
                 $"Copyright © {DateTime.Now.Year} by music4dance.net",
                 IsPremium = true,
                 IsSelf = true,
-            }, SongIndex, UserManager, _backgroundTaskQueue);
+            }, SongIndex, UserManager, TaskQueue);
 
         var bytes = await exporter.ExportFilteredDances(UserName);
         var stream = new MemoryStream(bytes);

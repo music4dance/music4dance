@@ -19,12 +19,6 @@ using Newtonsoft.Json.Serialization;
 using Owl.reCAPTCHA;
 using Microsoft.FeatureManagement;
 
-
-//  TODONEXT: Feature flags: https://learn.microsoft.com/en-us/azure/azure-app-configuration/quickstart-feature-flag-aspnet-core?tabs=core6x
-//  Captcha, what else? Maybe the marking info? Beta, etc.
-//  See if feature flag can take extra payload, like the marketing info
-//  Tiem to clean up TransformTagKey?
-
 Console.WriteLine("Entering Main");
 
 var builder = WebApplication.CreateBuilder(args);

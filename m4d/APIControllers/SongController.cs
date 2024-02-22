@@ -14,10 +14,11 @@ namespace m4d.APIControllers;
 [ValidateAntiForgeryToken]
 public class SongController : DanceMusicApiController
 {
-    public SongController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
-        RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
-        IDanceStatsManager danceStatsManager, IConfiguration configuration, ILogger<SongController> logger) :
-        base(context, userManager, roleManager, searchService, danceStatsManager, configuration, logger)
+    public SongController(
+        DanceMusicContext context, UserManager<ApplicationUser> userManager,
+        ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+        IConfiguration configuration, ILogger<SongController> logger) :
+        base(context, userManager, searchService, danceStatsManager, configuration, logger)
     {
     }
 

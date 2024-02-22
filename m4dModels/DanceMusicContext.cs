@@ -49,6 +49,7 @@ namespace m4dModels
             builder.Entity<Search>().ToTable("Searches");
             builder.Entity<TagGroup>().ToTable("TagGroups");
             builder.Entity<ActivityLog>().ToTable("ActivityLog");
+            //builder.Entity<UsageLog>().ToTable("UsageLog");
 
             builder.Entity<Dance>().Property(dance => dance.Id).HasMaxLength(5);
             builder.Entity<Dance>().Ignore(dance => dance.Info);
@@ -69,6 +70,7 @@ namespace m4dModels
             builder.Entity<Search>().Property(u => u.Query).IsRequired();
             builder.Entity<Search>().Ignore(u => u.Filter);
 
+            //builder.Entity<UsageLog>().Property(u => u.UsageId).IsRequired();
             // Customize the ASP.NET Identity model and override the defaults if needed.
             // For example, you can rename the ASP.NET Identity table names and more.
             // Add your customizations after calling base.OnModelCreating(builder);
@@ -118,6 +120,8 @@ namespace m4dModels
         public DbSet<Search> Searches { get; set; }
         public DbSet<PlayList> PlayLists { get; set; }
         public DbSet<ActivityLog> ActivityLog { get; set; }
+
+        //public DbSet<UsageLog> UsageLog { get; set; }
         #endregion
     }
 }

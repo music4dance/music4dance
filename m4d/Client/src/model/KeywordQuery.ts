@@ -1,8 +1,3 @@
-// TODONEXT: Move this to old codebase & manually test
-//  Move to C#
-//  Should we add the ability to hide the more advanced keywords fields?
-
-//  Move over the other model tests
 const regex = /(?<field>Artist|Title|Albums):\((?<search>[^)]*)\)/g;
 
 export class KeywordQuery {

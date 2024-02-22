@@ -1,4 +1,5 @@
-﻿using m4dModels;
+﻿using m4d.Services;
+using m4dModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.FileProviders;
@@ -7,11 +8,12 @@ namespace m4d.Controllers;
 
 public class SearchController : DanceMusicController
 {
-    public SearchController(DanceMusicContext context,
-        UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
+    public SearchController(
+        DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-        IConfiguration configuration, IFileProvider fileProvider) :
-        base(context, userManager, roleManager, searchService, danceStatsManager, configuration, fileProvider)
+        IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
+        ILogger<SearchController> logger) :
+        base(context, userManager, searchService, danceStatsManager, configuration, fileProvider, backroundTaskQueue, logger)
     {
         //HelpPage = "song-list";
     }

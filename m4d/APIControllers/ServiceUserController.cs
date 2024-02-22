@@ -11,11 +11,11 @@ public class ServiceUserController : DanceMusicApiController
 {
     private static readonly Dictionary<string, ServiceUser> s_cache = new();
 
-    public ServiceUserController(DanceMusicContext context,
-        UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
+    public ServiceUserController(
+        DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
         IConfiguration configuration, ILogger<ServiceUserController> logger) :
-        base(context, userManager, roleManager, searchService, danceStatsManager, configuration, logger)
+        base(context, userManager, searchService, danceStatsManager, configuration, logger)
     {
     }
 

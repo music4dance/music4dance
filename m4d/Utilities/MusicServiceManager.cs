@@ -522,7 +522,7 @@ public class MusicServiceManager
         }
 
         var results = await GetMusicServiceResults(
-            "https://api.spotify.com/v1/me/playlists", service,
+            "https://api.spotify.com/v1/playlists", service,
             principal);
 
         if (results == null)
@@ -787,7 +787,7 @@ public class MusicServiceManager
 
     // TODO: Handle services other than spotify
     public async Task<PlaylistMetadata> CreatePlaylist(MusicService service, IPrincipal principal,
-        string name, string description, IFileProvider fileProvider)
+        string key, string name, string description, IFileProvider fileProvider)
     {
         dynamic obj = new
         {
@@ -796,7 +796,7 @@ public class MusicServiceManager
         };
         var inputs = JsonConvert.SerializeObject(obj);
         var response = await MusicServiceAction(
-            "https://api.spotify.com/v1/me/playlists", inputs,
+            $"https://api.spotify.com/v1/users/{key}/playlists", inputs,
             HttpMethod.Post, service, principal);
 
         if (response == null)

@@ -343,6 +343,8 @@ namespace m4dModels
         public bool IsUserOnly =>
             EmptyExcept(new[] { "Page", "Action", "User" });
 
+        public bool IsDefault => EmptyExcept(new[] { "User" });
+
         public string Description
         {
             get

@@ -1,4 +1,5 @@
 ﻿using System.Security.Authentication;
+using m4d.Services;
 using m4dModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -11,11 +12,12 @@ namespace m4d.Controllers;
 [Authorize]
 public class SearchesController : DanceMusicController
 {
-    public SearchesController(DanceMusicContext context,
-        UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
+    public SearchesController(
+        DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-        IConfiguration configuration, IFileProvider fileProvider) :
-        base(context, userManager, roleManager, searchService, danceStatsManager, configuration, fileProvider)
+        IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
+        ILogger<SearchesController> logger) :
+        base(context, userManager, searchService, danceStatsManager, configuration, fileProvider, backroundTaskQueue, logger)
     {
         HelpPage = "saved-searches";
     }

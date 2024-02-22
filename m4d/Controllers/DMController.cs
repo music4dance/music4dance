@@ -1,11 +1,13 @@
 ﻿using System.Net;
 using System.Security.Principal;
+using m4d.Services;
 using m4d.Utilities;
 using m4d.ViewModels;
 using m4dModels;
 using m4dModels.Utilities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
@@ -26,8 +28,8 @@ public class DanceMusicController : Controller
 
     public DanceMusicController(
         DanceMusicContext context, UserManager<ApplicationUser> userManager,
-        RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
-        IDanceStatsManager danceStatsManager, IConfiguration configuration, IFileProvider fileProvider,
+        ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+        IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backgroundTaskQueue,
         ILogger logger = null)
     {
         Database =
@@ -37,6 +39,47 @@ public class DanceMusicController : Controller
         Configuration = configuration;
         Logger = logger;
         FileProvider = fileProvider;
+        TaskQueue = backgroundTaskQueue;
+    }
+
+    //public override void OnActionExecuting(ActionExecutingContext filterContext)
+    //{
+    //    var filter = GetFilterFromContext(filterContext);
+    //    if (filter.IsDefault)
+    //    {
+    //        filter = null;
+    //    }
+
+    //    // TODONEXT: Spit this out to the usage log in the background - and
+    //    //  make sure that's under filter flags - also need to make sure that
+    //    //  we're creating the DB migration for the usage log - we should also
+    //    //  see if the previous code can run against the DB
+    //    // Also get m4dlinux running against the test db
+    //    base.OnActionExecuting(filterContext);
+    //}
+
+    protected SongFilter GetFilterFromContext(ActionExecutingContext context)
+    {
+        var user = UserName;
+        var request = context.HttpContext.Request;
+        var filterString = request.Query["filter"];
+        SongFilter filter = null;
+
+        if (string.IsNullOrWhiteSpace(filterString) && request.Method.Equals("POST", StringComparison.OrdinalIgnoreCase))
+        {
+            filterString = context.HttpContext.Request.Form["filter"];
+        }
+        if (!string.IsNullOrEmpty(filterString))
+        {
+            filter = new SongFilter(filterString);
+        }
+        else
+        {
+            filter = SongFilter.GetDefault(user);
+            context.ActionArguments["filter"] = filter;
+        }
+
+        return filter;
     }
 
     protected UseVue UseVue { get; set; } = UseVue.No;
@@ -54,6 +97,7 @@ public class DanceMusicController : Controller
     protected ILogger Logger { get; }
 
     protected IFileProvider FileProvider { get; }
+    protected IBackgroundTaskQueue TaskQueue { get; }
 
     protected UserManager<ApplicationUser> UserManager => Database.UserManager;
 
@@ -206,6 +250,13 @@ public class DanceMusicController : Controller
 
         return Database.ActivityLog.Where(l => l.ApplicationUserId == userId).OrderByDescending(e => e.Date)
             .Select(ex => JsonConvert.DeserializeObject<SpotifyCreate>(ex.Details)).ToList();
+    }
+
+    protected async Task<string> GetLoginKey(string name)
+    {
+        var user = await UserManager.FindByNameAsync(UserName);
+        var services = await UserManager.GetLoginsAsync(user);
+        return services.FirstOrDefault(s => s.LoginProvider == name)?.ProviderKey;
     }
 
 

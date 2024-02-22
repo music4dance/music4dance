@@ -9,6 +9,7 @@ using Microsoft.Extensions.FileProviders;
 using m4d.Utilities;
 using Owl.reCAPTCHA;
 using Owl.reCAPTCHA.v2;
+using m4d.Services;
 
 namespace m4d.Controllers;
 
@@ -17,11 +18,12 @@ public class PaymentController : CommerceController
     private readonly IreCAPTCHASiteVerifyV2 _siteVerify;
     public bool UseCaptcha => _siteVerify != null;
 
-    public PaymentController(DanceMusicContext context, UserManager<ApplicationUser> userManager,
-        RoleManager<IdentityRole> roleManager, ISearchServiceManager searchService,
-        IDanceStatsManager danceStatsManager, IConfiguration configuration, IFileProvider fileProvider, ILogger<MusicServiceController> logger,
-        IreCAPTCHASiteVerifyV2 siteVerify) :
-        base(context, userManager, roleManager, searchService, danceStatsManager, configuration, fileProvider, logger)
+    public PaymentController(
+        DanceMusicContext context, UserManager<ApplicationUser> userManager,
+        ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+        IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
+        ILogger<PaymentController> logger, IreCAPTCHASiteVerifyV2 siteVerify) :
+        base(context, userManager, searchService, danceStatsManager, configuration, fileProvider, backroundTaskQueue, logger)
     {
         var test = GlobalState.UseTestKeys ? "Test" : "";
         StripeConfiguration.ApiKey = configuration[$"Authentication:Stripe{test}:SecretKey"];
@@ -247,7 +249,6 @@ public class PaymentController : CommerceController
         Logger.LogInformation(session.ToJson());
         Database.Context.ActivityLog.Add(new ActivityLog("FailedPurchase", user, session.ToJson()));
         await Database.SaveChanges();
-
 
         return RedirectToAction("Contribute", "Home");
     }

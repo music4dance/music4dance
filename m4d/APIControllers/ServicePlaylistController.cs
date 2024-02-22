@@ -11,11 +11,11 @@ namespace m4d.APIControllers;
 public class ServicePlaylistController : DanceMusicApiController
 {
     private static readonly Dictionary<string, GenericPlaylist> s_cache = new();
-    public ServicePlaylistController(DanceMusicContext context,
-        UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
+    public ServicePlaylistController(
+        DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
         IConfiguration configuration, ILogger<ServicePlaylistController> logger) :
-        base(context, userManager, roleManager, searchService, danceStatsManager, configuration, logger)
+        base(context, userManager, searchService, danceStatsManager, configuration, logger)
     {
     }
 
