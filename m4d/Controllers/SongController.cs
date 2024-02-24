@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.FeatureManagement;
 using Microsoft.Net.Http.Headers;
 
 namespace m4d.Controllers;
@@ -29,18 +30,20 @@ public class SongController : ContentController
         DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
         IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-        ILogger<SongController> logger, LinkGenerator linkGenerator, IMapper mapper) :
-        base(context, userManager, searchService, danceStatsManager, configuration, fileProvider, backroundTaskQueue, logger)
+        IFeatureManager featureManager, ILogger<SongController> logger, LinkGenerator linkGenerator, IMapper mapper) :
+        base(context, userManager, searchService, danceStatsManager, configuration,
+            fileProvider, backroundTaskQueue, featureManager, logger)
     {
         HelpPage = "song-list";
         _linkGenerator = linkGenerator;
         _mapper = mapper;
     }
 
-    public override void OnActionExecuting(ActionExecutingContext filterContext)
+    public override async Task OnActionExecutionAsync(
+        ActionExecutingContext context, ActionExecutionDelegate next)
     {
-        ViewBag.SongFilter = Filter = GetFilterFromContext(filterContext);
-        base.OnActionExecuting(filterContext);
+        ViewBag.SongFilter = Filter = GetFilterFromContext(context);
+        await base.OnActionExecutionAsync(context, next);
     }
 
     private CruftFilter DefaultCruftFilter()

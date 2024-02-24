@@ -4,5 +4,6 @@
     {
         public const string ActivityLogging = "ActivityLogging";
         public const string Captcha = "Captcha";
+        public const string UsageLogging = "UsageLogging";
     }
 }

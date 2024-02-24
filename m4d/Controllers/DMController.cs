@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.FeatureManagement;
 using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -30,33 +31,94 @@ public class DanceMusicController : Controller
         DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
         IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backgroundTaskQueue,
-        ILogger logger = null)
+        IFeatureManager featureManager, ILogger logger)
     {
         Database =
             new DanceMusicService(context, userManager, searchService, danceStatsManager);
         SearchService = searchService;
         DanceStatsManager = danceStatsManager;
         Configuration = configuration;
-        Logger = logger;
         FileProvider = fileProvider;
         TaskQueue = backgroundTaskQueue;
+        FeatureManager = featureManager;
+        Logger = logger;
     }
 
-    //public override void OnActionExecuting(ActionExecutingContext filterContext)
-    //{
-    //    var filter = GetFilterFromContext(filterContext);
-    //    if (filter.IsDefault)
-    //    {
-    //        filter = null;
-    //    }
+    public override async Task OnActionExecutionAsync(
+        ActionExecutingContext context, ActionExecutionDelegate next)
+    {
+        var usageId = GetUsageId();
+        var time = DateTime.Now;
+        var userAgent = Request.Headers[HeaderNames.UserAgent];
+        var userExpiration = await UserExpiration.Create(UserName, UserManager);
+        ViewData["UserExpiration"] = userExpiration;
 
-    //    // TODONEXT: Spit this out to the usage log in the background - and
-    //    //  make sure that's under filter flags - also need to make sure that
-    //    //  we're creating the DB migration for the usage log - we should also
-    //    //  see if the previous code can run against the DB
-    //    // Also get m4dlinux running against the test db
-    //    base.OnActionExecuting(filterContext);
-    //}
+        await next();
+
+        if (SpiderManager.CheckAnySpiders(userAgent) ||
+            await FeatureManager.IsEnabledAsync(FeatureFlags.UsageLogging))
+        {
+            return;
+        }
+
+        var filter = GetFilterFromContext(context);
+        if (filter.IsDefault)
+        {
+            filter = null;
+        }
+        var filterString = filter?.ToString();
+        var page = Request.Path;
+        var query = Request.QueryString.ToString();
+        var user = userExpiration.User;
+
+        var usage = new UsageLog
+        {
+            UsageId = usageId,
+            UserName = user?.UserName,
+            Date = time,
+            Page = page,
+            Query = query,
+            Filter = filterString,
+            UserAgent = userAgent
+        };
+
+        TaskQueue.EnqueueTask(
+            async (serviceScopeFactory, cancellationToken) =>
+            {
+                try
+                {
+                    using var scope = serviceScopeFactory.CreateScope();
+                    var context = scope.ServiceProvider.GetRequiredService<DanceMusicContext>();
+
+                    Thread.Sleep(TimeSpan.FromMinutes(1));
+                    await context.UsageLog.AddAsync(usage);
+                    if (user != null)
+                    {
+                        // Need to get the user from the context to update it
+                        user = await context.Users.FindAsync(user.Id);
+                        user.LastActive = time;
+                        // TODONEXT: Get this working
+                        user.HitCount += 1;
+                    }
+                    await context.SaveChangesAsync(cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"Unable to log usage {ex.Message}");
+                }
+            });
+    }
+
+    private string GetUsageId()
+    {
+        Request.Cookies.TryGetValue("Usage", out var usageId);
+        if (string.IsNullOrEmpty(usageId))
+        {
+            usageId = Guid.NewGuid().ToString("D");
+            Response.Cookies.Append("Usage", usageId);
+        }
+        return usageId;
+    }
 
     protected SongFilter GetFilterFromContext(ActionExecutingContext context)
     {
@@ -97,6 +159,7 @@ public class DanceMusicController : Controller
     protected ILogger Logger { get; }
 
     protected IFileProvider FileProvider { get; }
+    protected IFeatureManager FeatureManager { get;}
     protected IBackgroundTaskQueue TaskQueue { get; }
 
     protected UserManager<ApplicationUser> UserManager => Database.UserManager;

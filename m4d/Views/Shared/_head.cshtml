@@ -1,4 +1,5 @@
 ﻿@using m4d.Utilities
+@using m4d.ViewModels
 @using m4dModels
 @using Microsoft.AspNetCore.Identity
 @using Newtonsoft.Json
@@ -8,31 +9,31 @@
 
 @{
     var userAgent = Context.Request.Headers.UserAgent.ToString().ToLower();
-var help = "https://music4dance.blog/music4dance-help/";
-if (!string.IsNullOrEmpty(ViewBag.Help))
-{
-    help = string.Format("https://music4dance.blog/music4dance-help/{0}/", ViewBag.Help);
-}
+    var help = "https://music4dance.blog/music4dance-help/";
+    if (!string.IsNullOrEmpty(ViewBag.Help))
+    {
+        help = string.Format("https://music4dance.blog/music4dance-help/{0}/", ViewBag.Help);
+    }
 
-string userName = "";
-string userId = "";
-string expiration = null;
-var roles = DanceMusicCoreService.UserRoles(User);
-ApplicationUser user = null;
-if (User.Identity.IsAuthenticated)
-{
-    userName = User.Identity.Name;
-    user = await _userManager.GetUserAsync(User);
-    userId = user.Privacy == 0 ? user.Id : "";
-    expiration = roles.Contains(DanceMusicCoreService.PremiumRole) ? user.SubscriptionEnd.ToString() : null;
-}
-var searchIndex = _searchService.DefaultId.Last();
-var hideAds = ViewData.TryGetValue("HideAds", out var hideAdsObj) && (hideAdsObj as bool?).Value;
-var hasIcons = ViewData.TryGetValue("HasIcons", out var hasIconsObj) && (hasIconsObj as bool?).Value;
-var styleModifier = hasIcons ? "wicons" : "";
-var styleSheet = ViewData.ContainsKey("NoSiteCss") ? null : $"/css/site{styleModifier}.css";
-var marketing = GlobalState.GetMarketing(user, Context.Request.Path);
-var marketingMessage = marketing.Enabled ? marketing.Banner : String.Empty;
+    var roles = DanceMusicCoreService.UserRoles(User);
+    var userExpiration = ViewData["UserExpiration"] as UserExpiration;
+    if (userExpiration == null)
+    {
+        // This is the case for account pages where I can't get to the controller
+        //  maybe I should try setting a global controller
+        userExpiration = await UserExpiration.Create(User.Identity.Name, _userManager);
+    }
+    var user = userExpiration.User;
+    var userName = user?.UserName ?? "";
+    var userId = user?.Privacy == 0 ? user?.Id : "";
+    var expiration = userExpiration.ExpirationString;
+    var searchIndex = _searchService.DefaultId.Last();
+    var hideAds = ViewData.TryGetValue("HideAds", out var hideAdsObj) && (hideAdsObj as bool?).Value;
+    var hasIcons = ViewData.TryGetValue("HasIcons", out var hasIconsObj) && (hasIconsObj as bool?).Value;
+    var styleModifier = hasIcons ? "wicons" : "";
+    var styleSheet = ViewData.ContainsKey("NoSiteCss") ? null : $"/css/site{styleModifier}.css";
+    var marketing = GlobalState.GetMarketing(user, Context.Request.Path);
+    var marketingMessage = marketing.Enabled ? marketing.Banner : String.Empty;
 }
 
 @functions{

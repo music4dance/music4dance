@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.FeatureManagement;
 
 namespace m4d.Controllers;
 
@@ -14,8 +15,9 @@ public class HomeController : CommerceController
         DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
         IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-        ILogger<HomeController> logger) :
-        base(context, userManager, searchService, danceStatsManager, configuration, fileProvider, backroundTaskQueue, logger)
+        IFeatureManager featureManager, ILogger<HomeController> logger) :
+        base(context, userManager, searchService, danceStatsManager, configuration,
+            fileProvider, backroundTaskQueue, featureManager, logger)
     {
     }
 

@@ -10,6 +10,7 @@ using m4d.Utilities;
 using Owl.reCAPTCHA;
 using Owl.reCAPTCHA.v2;
 using m4d.Services;
+using Microsoft.FeatureManagement;
 
 namespace m4d.Controllers;
 
@@ -21,9 +22,10 @@ public class PaymentController : CommerceController
     public PaymentController(
         DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-        IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
+        IConfiguration configuration, IFileProvider fileProvider,
+        IBackgroundTaskQueue backroundTaskQueue, IFeatureManager featureManager,
         ILogger<PaymentController> logger, IreCAPTCHASiteVerifyV2 siteVerify) :
-        base(context, userManager, searchService, danceStatsManager, configuration, fileProvider, backroundTaskQueue, logger)
+        base(context, userManager, searchService, danceStatsManager, configuration, fileProvider, backroundTaskQueue, featureManager, logger)
     {
         var test = GlobalState.UseTestKeys ? "Test" : "";
         StripeConfiguration.ApiKey = configuration[$"Authentication:Stripe{test}:SecretKey"];

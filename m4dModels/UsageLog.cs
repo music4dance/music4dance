@@ -11,4 +11,5 @@ public class UsageLog
     public string Page { get; set; }
     public string Query { get; set; }
     public string Filter { get; set; }
+    public string UserAgent { get; set; }
 }

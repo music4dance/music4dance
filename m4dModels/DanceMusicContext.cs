@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
+using Microsoft.Extensions.Azure;
 
 namespace m4dModels
 {
@@ -49,7 +50,7 @@ namespace m4dModels
             builder.Entity<Search>().ToTable("Searches");
             builder.Entity<TagGroup>().ToTable("TagGroups");
             builder.Entity<ActivityLog>().ToTable("ActivityLog");
-            //builder.Entity<UsageLog>().ToTable("UsageLog");
+            builder.Entity<UsageLog>().ToTable("UsageLog");
 
             builder.Entity<Dance>().Property(dance => dance.Id).HasMaxLength(5);
             builder.Entity<Dance>().Ignore(dance => dance.Info);
@@ -66,11 +67,22 @@ namespace m4dModels
             builder.Entity<ApplicationUser>().Property(u => u.Region).HasMaxLength(2);
             builder.Entity<ApplicationUser>().Property(u => u.ServicePreference).HasMaxLength(10);
             builder.Entity<ApplicationUser>().Property(u => u.LifetimePurchased).HasPrecision(18,2);
+            builder.Entity<ApplicationUser>().Property(u => u.HitCount).HasDefaultValue(0);
 
             builder.Entity<Search>().Property(u => u.Query).IsRequired();
             builder.Entity<Search>().Ignore(u => u.Filter);
 
-            //builder.Entity<UsageLog>().Property(u => u.UsageId).IsRequired();
+            builder.Entity<UsageLog>().Property(u => u.UsageId).IsRequired();
+            builder.Entity<UsageLog>().Property(u => u.UsageId).HasMaxLength(40);
+            builder.Entity<UsageLog>().Property(u => u.UserName);
+            builder.Entity<UsageLog>().Property(u => u.Page).HasMaxLength(100);
+            builder.Entity<UsageLog>().Property(u => u.Query).HasMaxLength(256);
+            builder.Entity<UsageLog>().Property(u => u.Filter).HasMaxLength(256);
+            builder.Entity<UsageLog>().Property(u => u.UserAgent).HasMaxLength(256);
+
+            builder.Entity<UsageLog>().HasIndex(u => u.UserName);
+            builder.Entity<UsageLog>().HasIndex(u => u.UsageId);
+
             // Customize the ASP.NET Identity model and override the defaults if needed.
             // For example, you can rename the ASP.NET Identity table names and more.
             // Add your customizations after calling base.OnModelCreating(builder);
@@ -121,7 +133,7 @@ namespace m4dModels
         public DbSet<PlayList> PlayLists { get; set; }
         public DbSet<ActivityLog> ActivityLog { get; set; }
 
-        //public DbSet<UsageLog> UsageLog { get; set; }
+        public DbSet<UsageLog> UsageLog { get; set; }
         #endregion
     }
 }

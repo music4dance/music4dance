@@ -216,23 +216,6 @@ ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
 <h3>Users</h3>
 <table class="table table-striped">
     <tr>
-        @*
-        <th>
-            @Html.DisplayNameFor(model => model.PasswordHash)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.SecurityStamp)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.PhoneNumber)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.PhoneNumberConfirmed)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.TwoFactorEnabled)
-        </th>
-        *@
         <th>
             EC
         </th>
@@ -259,6 +242,9 @@ ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
         <th>
             $
         </th>
+        <th>
+            HC
+        </th>
         <th>Roles</th>
         <th>Logins</th>
         <th></th>
@@ -268,23 +254,6 @@ ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
 {
     var fontStyle = item.IsPseudo ? "font-style:italic" : "font-style:normal";
 <tr>
-    @*
-        <td>
-            @Html.DisplayFor(modelItem => item.PasswordHash)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.SecurityStamp)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.PhoneNumber)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.PhoneNumberConfirmed)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.TwoFactorEnabled)
-        </td>
-    *@
     <td>
         @Html.DisplayFor(modelItem => item.User.EmailConfirmed)
     </td>
@@ -326,6 +295,9 @@ ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
     </td>
     <td>
         @Html.DisplayFor(modelItem => item.User.LifetimePurchased)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.User.HitCount)
     </td>
     <td>@Html.Raw(string.Join("<br />", item.Roles))</td>
     <td>@Html.Raw(string.Join("<br />", item.Logins))</td>

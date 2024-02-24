@@ -101,6 +101,7 @@ namespace m4dModels
 
         public int FailedCardAttempts { get; set; }
         public decimal LifetimePurchased { get; set; }
+        public int HitCount { get; set; }
 
         // Everything below here are computed properties
 

@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.FeatureManagement;
 
 namespace m4d.Controllers;
 
@@ -45,8 +46,9 @@ public class AdminController : DanceMusicController
         DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
         IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-        ILogger<AdminController> logger) :
-        base(context, userManager, searchService, danceStatsManager, configuration, fileProvider, backroundTaskQueue, logger)
+        IFeatureManager featureManager, ILogger<ActivityLogController> logger) :
+        base(context, userManager, searchService, danceStatsManager, configuration,
+            fileProvider, backroundTaskQueue, featureManager, logger)
     {
     }
 
