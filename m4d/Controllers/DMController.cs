@@ -90,14 +90,12 @@ public class DanceMusicController : Controller
                     using var scope = serviceScopeFactory.CreateScope();
                     var context = scope.ServiceProvider.GetRequiredService<DanceMusicContext>();
 
-                    Thread.Sleep(TimeSpan.FromMinutes(1));
                     await context.UsageLog.AddAsync(usage);
                     if (user != null)
                     {
                         // Need to get the user from the context to update it
                         user = await context.Users.FindAsync(user.Id);
                         user.LastActive = time;
-                        // TODONEXT: Get this working
                         user.HitCount += 1;
                     }
                     await context.SaveChangesAsync(cancellationToken);
