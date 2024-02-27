@@ -230,7 +230,7 @@ app.Logger.LogInformation(@"Configuring request pipeline");
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
-    app.UseViteDevMiddleware();
+    app.UseViteDevelopmentServer(true);
 }
 else
 {
