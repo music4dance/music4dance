@@ -33,7 +33,7 @@ private string ProdCss => Manifest[$"{Base}/style.css"]?.File;
 @if (ProdCss != null)
 {
 // This will pull in the main css file (which exists if cssCodeSplit=false)
-    <link rel="stylesheet" href="/@ProdCss">
+    <link rel="stylesheet" href="/vclient/@ProdCss">
 }
 else {
 // This pulls in the all the related css files(which exist if cssCodeSplit = true)
@@ -41,6 +41,6 @@ var cssFiles = CssFromManifest($"{Base}/src/pages/{Model}/main.ts");
 
 foreach (var file in cssFiles)
 {
-    <link rel="stylesheet" href="/@file">
+    <link rel="stylesheet" href="/vclient/@file">
 }
 }

@@ -12,7 +12,7 @@ exports[`MainMenu.vue > Renders MainMenu for an anonymous user 1`] = `
             <div class=\\"btn-group\\"><button class=\\"btn btn-md btn-link nav-link dropdown-toggle\\" type=\\"button\\" id=\\"music-menu\\" aria-expanded=\\"false\\" aria-haspopup=\\"menu\\">Music</button>
               <!---->
               <!--teleport start-->
-              <ul style=\\"position: absolute; left: 0px; top: 0px; display: none;\\" class=\\"dropdown-menu show overflow-auto\\" aria-labelledby=\\"music-menu\\" role=\\"menu\\">
+              <ul style=\\"position: absolute; left: 0px; top: 0px; display: none;\\" class=\\"dropdown-menu overflow-auto\\" aria-labelledby=\\"music-menu\\" role=\\"menu\\">
                 <li role=\\"presentation\\"><a class=\\"dropdown-item\\" href=\\"/dances\\" role=\\"menuitem\\">Dances</a></li>
                 <li role=\\"presentation\\" class=\\"nav-subitem\\"><a class=\\"dropdown-item\\" href=\\"/dances/ballroom-competition-categories\\" role=\\"menuitem\\">&nbsp;&nbsp;Ballroom</a></li>
                 <li role=\\"presentation\\" class=\\"nav-subitem\\"><a class=\\"dropdown-item\\" href=\\"/dances/latin\\" role=\\"menuitem\\">&nbsp;&nbsp;Latin</a></li>
@@ -35,7 +35,7 @@ exports[`MainMenu.vue > Renders MainMenu for an anonymous user 1`] = `
             <div class=\\"btn-group\\"><button class=\\"btn btn-md btn-link nav-link dropdown-toggle\\" type=\\"button\\" id=\\"tools-menu\\" aria-expanded=\\"false\\" aria-haspopup=\\"menu\\">Tools</button>
               <!---->
               <!--teleport start-->
-              <ul style=\\"position: absolute; left: 0px; top: 0px; display: none;\\" class=\\"dropdown-menu show overflow-auto\\" aria-labelledby=\\"tools-menu\\" role=\\"menu\\">
+              <ul style=\\"position: absolute; left: 0px; top: 0px; display: none;\\" class=\\"dropdown-menu overflow-auto\\" aria-labelledby=\\"tools-menu\\" role=\\"menu\\">
                 <li role=\\"presentation\\"><a class=\\"dropdown-item\\" href=\\"/home/counter\\" role=\\"menuitem\\">Tempo Counter</a></li>
                 <li role=\\"presentation\\"><a class=\\"dropdown-item\\" href=\\"/home/tempi\\" role=\\"menuitem\\">Tempi (Tempos)</a></li>
                 <li role=\\"presentation\\"><a class=\\"dropdown-item\\" href=\\"/song/advancedsearchform\\" role=\\"menuitem\\">Advanced Search</a></li>
@@ -48,7 +48,7 @@ exports[`MainMenu.vue > Renders MainMenu for an anonymous user 1`] = `
             <div class=\\"btn-group\\"><button class=\\"btn btn-md btn-link nav-link dropdown-toggle\\" type=\\"button\\" id=\\"info\\" aria-expanded=\\"false\\" aria-haspopup=\\"menu\\">Info</button>
               <!---->
               <!--teleport start-->
-              <ul style=\\"position: absolute; left: 0px; top: 0px; display: none;\\" class=\\"dropdown-menu show overflow-auto\\" aria-labelledby=\\"info\\" role=\\"menu\\">
+              <ul style=\\"position: absolute; left: 0px; top: 0px; display: none;\\" class=\\"dropdown-menu overflow-auto\\" aria-labelledby=\\"info\\" role=\\"menu\\">
                 <li role=\\"presentation\\"><a class=\\"dropdown-item\\" href=\\"https://music4dance.blog/music4dance-help/\\" role=\\"menuitem\\">Help</a></li>
                 <li role=\\"presentation\\"><a class=\\"dropdown-item\\" href=\\"https://music4dance.blog/\\" role=\\"menuitem\\">Blog</a></li>
                 <li role=\\"presentation\\"><a class=\\"dropdown-item\\" href=\\"/home/faq\\" role=\\"menuitem\\">FAQ</a></li>

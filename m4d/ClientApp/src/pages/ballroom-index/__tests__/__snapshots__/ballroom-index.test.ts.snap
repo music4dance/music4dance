@@ -27,7 +27,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
         <h2><a href=\\"/dances/american-smooth\\">American Smooth</a></h2>
         <div>
           <h4>An American Smooth four dance round consists of the following:</h4>
-          <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" sortdesc=\\"false\\" selectable=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" noselectonclick=\\"false\\" sortcompareoptions=\\"[object Object]\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
+          <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" sortdesc=\\"false\\" selectable=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" nolocalsorting=\\"false\\" noselectonclick=\\"false\\" sortcompareoptions=\\"[object Object]\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
             <table class=\\"table b-table table-hover table-striped\\">
               <thead class=\\"\\">
                 <!---->
@@ -152,7 +152,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
         <h2><a href=\\"/dances/international-standard\\">International Standard</a></h2>
         <div>
           <h4>An International Standard five dance round consists of the following:</h4>
-          <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" sortdesc=\\"false\\" selectable=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" noselectonclick=\\"false\\" sortcompareoptions=\\"[object Object]\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
+          <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" sortdesc=\\"false\\" selectable=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" nolocalsorting=\\"false\\" noselectonclick=\\"false\\" sortcompareoptions=\\"[object Object]\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
             <table class=\\"table b-table table-hover table-striped\\">
               <thead class=\\"\\">
                 <!---->
@@ -298,7 +298,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
         <h2><a href=\\"/dances/american-rhythm\\">American Rhythm</a></h2>
         <div>
           <h4>An American Rhythm five dance round consists of the following:</h4>
-          <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" sortdesc=\\"false\\" selectable=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" noselectonclick=\\"false\\" sortcompareoptions=\\"[object Object]\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
+          <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" sortdesc=\\"false\\" selectable=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" nolocalsorting=\\"false\\" noselectonclick=\\"false\\" sortcompareoptions=\\"[object Object]\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
             <table class=\\"table b-table table-hover table-striped\\">
               <thead class=\\"\\">
                 <!---->
@@ -444,7 +444,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
         <h2><a href=\\"/dances/international-latin\\">International Latin</a></h2>
         <div>
           <h4>An International Latin five dance round consists of the following:</h4>
-          <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" sortdesc=\\"false\\" selectable=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" noselectonclick=\\"false\\" sortcompareoptions=\\"[object Object]\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
+          <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" sortdesc=\\"false\\" selectable=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" nolocalsorting=\\"false\\" noselectonclick=\\"false\\" sortcompareoptions=\\"[object Object]\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
             <table class=\\"table b-table table-hover table-striped\\">
               <thead class=\\"\\">
                 <!---->

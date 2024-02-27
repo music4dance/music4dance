@@ -26,7 +26,7 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
       </div>
       <div>
         <h4>An American Smooth four dance round consists of the following:</h4>
-        <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" sortdesc=\\"false\\" selectable=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" noselectonclick=\\"false\\" sortcompareoptions=\\"[object Object]\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
+        <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" sortdesc=\\"false\\" selectable=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" nolocalsorting=\\"false\\" noselectonclick=\\"false\\" sortcompareoptions=\\"[object Object]\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
           <table class=\\"table b-table table-hover table-striped\\">
             <thead class=\\"\\">
               <!---->
@@ -148,7 +148,7 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
       </div>
       <div>
         <h4>Other dances categorized as American Smooth, although they aren't part of the competition round, are:</h4>
-        <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" sortdesc=\\"false\\" selectable=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" noselectonclick=\\"false\\" sortcompareoptions=\\"[object Object]\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
+        <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" sortdesc=\\"false\\" selectable=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" nolocalsorting=\\"false\\" noselectonclick=\\"false\\" sortcompareoptions=\\"[object Object]\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
           <table class=\\"table b-table table-hover table-striped\\">
             <thead class=\\"\\">
               <!---->
