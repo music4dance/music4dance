@@ -36,10 +36,10 @@ const fields: Exclude<TableFieldRaw<DanceType>, string>[] = [
     key: "bpm",
     label: "BPM",
     sortable: true,
-    // sortByFormatted: (_value: unknown, _key?: LiteralUnion<keyof DanceType>, item?: DanceType) =>
-    //   item?.tempoRange.min.toLocaleString("en", {
-    //     minimumIntegerDigits: 4,
-    //   }) ?? "",
+    sortByFormatted: (_value: unknown, _key?: LiteralUnion<keyof DanceType>, item?: DanceType) =>
+      item?.tempoRange.min.toLocaleString("en", {
+        minimumIntegerDigits: 4,
+      }) ?? "",
     formatter: (_value: unknown, _key?: LiteralUnion<keyof DanceType>, item?: DanceType) =>
       item?.tempoRange.toString() ?? "",
   },
@@ -47,10 +47,10 @@ const fields: Exclude<TableFieldRaw<DanceType>, string>[] = [
     key: "mpm",
     label: "MPM",
     sortable: true,
-    // sortByFormatted: (value: TempoRange, key: string, item: DanceType) =>
-    //   item.tempoRange.min.toLocaleString("en", {
-    //     minimumIntegerDigits: 4,
-    //   }),
+    sortByFormatted: (_value: unknown, key?: LiteralUnion<keyof DanceType>, item?: DanceType) =>
+      item?.tempoRange.min.toLocaleString("en", {
+        minimumIntegerDigits: 4,
+      }) ?? "",
     formatter: (_value: unknown, _key?: LiteralUnion<keyof DanceType>, item?: DanceType) =>
       item?.tempoRange.mpm(item?.meter.numerator) ?? "",
   },
@@ -58,6 +58,7 @@ const fields: Exclude<TableFieldRaw<DanceType>, string>[] = [
     key: "groupName",
     label: "Type",
     sortable: true,
+    sortByFormatted: true,
     formatter: (_value: unknown, _key?: LiteralUnion<keyof DanceType>, item?: DanceType) =>
       item!.groups!.map((g) => g.name).join(", "),
   },

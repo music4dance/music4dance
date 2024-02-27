@@ -105,8 +105,7 @@ public IActionResult Index([FromServices] IFileProvider fileProvider)
     public IActionResult Tempi(List<string> styles, List<string> types,
         List<string> organizations, List<string> meters)
     {
-        //return Vue3(
-        return Vue(
+        return Vue3(
             "Tempos",
             "A web application to show the relationship between different dance tempos.",
             "tempo-list",
