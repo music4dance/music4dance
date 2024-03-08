@@ -98,7 +98,7 @@ public class SongController : ContentController
             var title = char.ToUpper(occassion[0]) + occassion.Substring(1);
 
             if (!Filter.IsEmptyBot &&
-                SpiderManager.CheckAnySpiders(Request.Headers[HeaderNames.UserAgent]))
+                SpiderManager.CheckAnySpiders(Request.Headers[HeaderNames.UserAgent], Configuration))
             {
                 throw new RedirectException("BotFilter", Filter);
             }
@@ -189,7 +189,7 @@ public class SongController : ContentController
         try
         {
             if (!Filter.IsEmptyBot &&
-                SpiderManager.CheckAnySpiders(Request.Headers[HeaderNames.UserAgent]))
+                SpiderManager.CheckAnySpiders(Request.Headers[HeaderNames.UserAgent], Configuration))
             {
                 throw new RedirectException("BotFilter", Filter);
             }

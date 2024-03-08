@@ -26,6 +26,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "m4dModels.Tests", "m4dModel
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SelfCrawler", "SelfCrawler\SelfCrawler.csproj", "{64243D76-39CF-4F31-899B-0CBD5A2B2B26}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "m4d.Tests", "m4d.Tests\m4d.Tests.csproj", "{DE278FF9-7282-4218-B6D5-AC5263BE843F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -108,6 +110,18 @@ Global
 		{64243D76-39CF-4F31-899B-0CBD5A2B2B26}.Release|ARM.Build.0 = Release|Any CPU
 		{64243D76-39CF-4F31-899B-0CBD5A2B2B26}.Release|x86.ActiveCfg = Release|Any CPU
 		{64243D76-39CF-4F31-899B-0CBD5A2B2B26}.Release|x86.Build.0 = Release|Any CPU
+		{DE278FF9-7282-4218-B6D5-AC5263BE843F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE278FF9-7282-4218-B6D5-AC5263BE843F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE278FF9-7282-4218-B6D5-AC5263BE843F}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{DE278FF9-7282-4218-B6D5-AC5263BE843F}.Debug|ARM.Build.0 = Debug|Any CPU
+		{DE278FF9-7282-4218-B6D5-AC5263BE843F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DE278FF9-7282-4218-B6D5-AC5263BE843F}.Debug|x86.Build.0 = Debug|Any CPU
+		{DE278FF9-7282-4218-B6D5-AC5263BE843F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE278FF9-7282-4218-B6D5-AC5263BE843F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE278FF9-7282-4218-B6D5-AC5263BE843F}.Release|ARM.ActiveCfg = Release|Any CPU
+		{DE278FF9-7282-4218-B6D5-AC5263BE843F}.Release|ARM.Build.0 = Release|Any CPU
+		{DE278FF9-7282-4218-B6D5-AC5263BE843F}.Release|x86.ActiveCfg = Release|Any CPU
+		{DE278FF9-7282-4218-B6D5-AC5263BE843F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

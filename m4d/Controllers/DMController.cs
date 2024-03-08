@@ -55,7 +55,7 @@ public class DanceMusicController : Controller
 
         await next();
 
-        if (SpiderManager.CheckAnySpiders(userAgent) ||
+        if (SpiderManager.CheckAnySpiders(userAgent, Configuration) ||
             await FeatureManager.IsEnabledAsync(FeatureFlags.UsageLogging))
         {
             return;
@@ -216,7 +216,7 @@ public class DanceMusicController : Controller
 
     public ActionResult CheckSpiders()
     {
-        return SpiderManager.CheckBadSpiders(Request.Headers[HeaderNames.UserAgent])
+        return SpiderManager.CheckBadSpiders(Request.Headers[HeaderNames.UserAgent], Configuration)
             ? View("BotWarning")
             : null;
     }

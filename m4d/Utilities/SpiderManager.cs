@@ -2,22 +2,40 @@
 
 namespace m4d.Utilities;
 
+public class BotFilterInfo
+{
+    public const string SectionName = "Configuration:BotFilter";
+
+    public string ExcludeTokens { get; set; }
+    public string ExcludeFragments { get; set; }
+    public string BadFragments { get; set; }
+
+    public IReadOnlyList<string> ExcludeTokenList => ListFromString(ExcludeTokens);
+    public IReadOnlyList<string> ExcludeFragmentList => ListFromString(ExcludeFragments);
+    public IReadOnlyList<string> BadFragmentList => ListFromString(BadFragments);
+
+    private static IReadOnlyList<string> ListFromString(string value) =>
+        value != null 
+        ? value.Split(';',StringSplitOptions.RemoveEmptyEntries|StringSplitOptions.TrimEntries) 
+        : new List<string>();
+}
+
 public static class SpiderManager
 {
     public static DateTime StartTime { get; } = DateTime.Now;
     public static TimeSpan UpTime => DateTime.Now - StartTime;
 
-    public static bool CheckAnySpiders(string userAgent)
+    public static bool CheckAnySpiders(string userAgent, IConfiguration configuration)
     {
-        return CheckSpiders(userAgent, false);
+        return CheckSpiders(userAgent, false, configuration);
     }
 
-    public static bool CheckBadSpiders(string userAgent)
+    public static bool CheckBadSpiders(string userAgent, IConfiguration configuration)
     {
-        return CheckSpiders(userAgent, true);
+        return CheckSpiders(userAgent, true, configuration);
     }
 
-    private static bool CheckSpiders(string userAgent, bool badOnly)
+    private static bool CheckSpiders(string userAgent, bool badOnly, IConfiguration configuration)
     {
         if (string.IsNullOrWhiteSpace(userAgent))
         {
@@ -26,8 +44,11 @@ public static class SpiderManager
         }
 
         var agent = userAgent.ToLower();
+        var botFilter = configuration
+            .GetSection(BotFilterInfo.SectionName).Get<BotFilterInfo>();
 
-        if (!agent.Contains("spider") && !agent.Contains("bot"))
+        if (!botFilter.ExcludeFragmentList.Any(agent.Contains) &&
+            !botFilter.ExcludeTokenList.Any(t => agent.Equals(t)))
         {
             return false;
         }
@@ -42,7 +63,7 @@ public static class SpiderManager
             s_botHits[agent] = count + 1;
         }
 
-        return !badOnly || s_badBots.Any(s => agent.Contains(s));
+        return !badOnly || botFilter.BadFragmentList.Any(agent.Contains);
     }
 
     public static IEnumerable<BotHitModel> CreateBotReport()
@@ -56,6 +77,4 @@ public static class SpiderManager
     private static readonly Dictionary<string, long> s_botHits = new();
 
     public static int EmptyAgents { get; set; }
-
-    private static readonly HashSet<string> s_badBots = new() { "baiduspider" };
 }

@@ -113,7 +113,7 @@ services.AddSingleton<IFileProvider>(compositeProvider);
 
 services.AddTransient<IEmailSender, EmailSender>();
 var sendGrid = configuration.GetSection("Authentication:SendGrid");
-services.Configure<AuthMessageSenderOptions>(options => sendGrid.Bind(options));
+services.Configure<AuthMessageSenderOptions>(sendGrid.Bind);
 
 services.Configure<AuthorizationOptions>(
     options =>
