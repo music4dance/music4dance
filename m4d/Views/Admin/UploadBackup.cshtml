@@ -84,6 +84,18 @@ using (Html.BeginForm("ReloadDatabase", "Admin", FormMethod.Post, new
     <input type="submit" name="reloadDatabase" id="Admin" value="Admin"/>
 }
 
+    <h3>Load Usage Data</h3>
+using (Html.BeginForm("LoadUsage", "Admin", FormMethod.Post, new
+{
+    enctype = "multipart/form-data"
+}))
+{
+    @Html.AntiForgeryToken();
+    <input type="file" name="FileUpload" />
+    <br />
+    <input type="submit" name="reloadDatabase" id="Load" value="Load" />
+}
+
     <h3>Reload the Index</h3>
 using (Html.BeginForm("LoadIdx", "Admin", FormMethod.Post, new
 {

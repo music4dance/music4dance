@@ -1,0 +1,48 @@
+﻿@using m4d.ViewModels
+@using m4dModels
+@model IEnumerable<m4dModels.UsageLog>
+
+@{
+    ViewBag.Title = "Usage Log";
+
+    var days = ViewData["days"] as int?;
+    var user = ViewData["user"] as string;
+    var usageId = ViewData["usageId"] as string;
+
+    var breadCrumbs = new List<BreadCrumbItem>
+    {
+        BreadCrumbItem.AdminItem,
+        new() { Title = ViewBag.Title, Link = "/usagelog" },
+    };
+
+    if (days != null)
+    {
+        breadCrumbs.Add(new() { Title = $"Days={days}", Active = true });
+    }
+    else if (user != null)
+    {
+        breadCrumbs.Add(new() { Title = $"User={user}", Active = true });
+    }
+    else if (usageId != null)
+    {
+        breadCrumbs.Add(new() { Title = $"UsageId={usageId}", Active = true });
+    }
+    else
+    {
+        breadCrumbs.RemoveAt(1);
+        breadCrumbs.Add(new()
+            {
+                Title = ViewBag.Title,
+                Active = true
+            }
+        );
+    }
+
+    ViewData["BreadCrumbs"] = breadCrumbs;
+}
+
+<h1>@ViewBag.Title</h1>
+
+<div class="row">
+	<partial name="_UsageLog" model="Model" />
+</div>

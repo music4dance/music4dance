@@ -1,0 +1,86 @@
+﻿@using UAParser
+@model IEnumerable<m4dModels.UsageLog>
+
+@{
+    var parser = Parser.GetDefault();
+}
+
+<table style="table-layout:fixed" class="table table-striped table-songs col-sm">
+    <thead>
+        <tr>
+            <th scope="col" style="width:11em">
+                @Html.DisplayNameFor(model => model.Date)
+            </th>
+            <th scope="col" style="width:20em">
+                @Html.DisplayNameFor(model => model.UsageId)
+            </th>
+            <th scope="col" style="width:8em">
+                @Html.DisplayNameFor(model => model.UserName)
+            </th>
+            <th scope="col" style="width:10em">
+                @Html.DisplayNameFor(model => model.Page)
+            </th>
+            <th scope="col" style="width:10em">
+                @Html.DisplayNameFor(model => model.Query)
+            </th>
+            <th scope="col" style="width:5em">
+                @Html.DisplayNameFor(model => model.Filter)
+            </th>
+            <th scope="col" style="width:5em">
+                Device
+            </th>
+            <th scope="col" style="width:5em">
+                Browser
+            </th>
+            <th scope="col">
+                @Html.DisplayNameFor(model => model.UserAgent)
+            </th>
+        </tr>
+    </thead>
+
+    @foreach (var item in Model)
+    {
+        var ci = parser.Parse(item.UserAgent);
+        <tr>
+            <td>
+                @item.Date.LocalDateTime.ToString()
+            </td>
+            <td>
+                @if (!string.IsNullOrEmpty(item.UsageId))
+                {
+                    @Html.ActionLink(item.UsageId, "Index", new
+                        {
+                            usageId = item.UsageId
+                        })
+                }
+            </td>
+            <td>
+                @if (!string.IsNullOrEmpty(item.UserName) && item.UserName != "NULL")
+                {
+                    @Html.ActionLink(item.UserName, "Index", new
+                        {
+                            user = item.UserName
+                        })
+                }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Page)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Query)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Filter)
+            </td>
+            <td>
+                @ci.Device
+            </td>
+            <td>
+                @ci.UA.Family
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserAgent)
+            </td>
+        </tr>
+    }
+</table>

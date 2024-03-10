@@ -145,6 +145,7 @@ function search(): void {
             <BDropdownItem href="/admin">Index</BDropdownItem>
             <BDropdownItem href="/applicationusers">Users</BDropdownItem>
             <BDropdownItem href="/activitylog">Activity Log</BDropdownItem>
+            <BDropdownItem href="/usagelog">Usage Log</BDropdownItem>
             <BDropdownItem href="/tag/list">Tags</BDropdownItem>
             <BDropdownItem href="/admin/diagnostics">Diagnostics</BDropdownItem>
             <BDropdownItem href="/admin/initializationTasks"

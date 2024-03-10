@@ -324,8 +324,12 @@ ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
     {
         id = item.User.Id
     }),
-        @Html.ActionLink("Playlists", "Index","Playlist", new
+        @Html.ActionLink("Usage", "Index", "UsageLog", new
     {
+        user = item.User.UserName
+    }),
+        @Html.ActionLink("Playlists", "Index", "Playlist", new
+{
         type = PlayListType.SongsFromSpotify,
         user = item.User.UserName
     })

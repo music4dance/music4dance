@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
+using System.Globalization;
 using System.Net.Mime;
 using System.Text;
+using CsvHelper;
 using m4d.Areas.Identity;
 using m4d.Scrapers;
 using m4d.Services;
@@ -12,6 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.FileProviders;
@@ -529,6 +532,43 @@ public class AdminController : DanceMusicController
         lines.RemoveRange(0, i);
 
         return ret;
+    }
+
+    //
+    // Post: //LoadUsage
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> LoadUsage(IFormFile fileUpload)
+    {
+        try
+        {
+            StartAdminTask("UploadUsage");
+            AdminMonitor.UpdateTask("UploadFile");
+
+            //await Database.UsageLog.ExecuteDeleteAsync();
+            await Database.Context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE UsageLog");
+            await Database.Context.SaveChangesAsync();
+
+            using var stream = fileUpload.OpenReadStream();
+            using var tr = new StreamReader(stream);
+            using var csv = new CsvReader(tr, CultureInfo.InvariantCulture);
+
+            var records = csv.GetRecords<UsageLog>();
+            var count = 0;
+            foreach (var record in records)
+            {
+                record.Id = 0;
+                Database.UsageLog.Add(record);
+                count += 1;
+            }
+            await Database.Context.SaveChangesAsync();
+            return CompleteAdminTask(true, $"Usage Loaded: {count} records");
+        }
+        catch (Exception e)
+        {
+            return FailAdminTask($"UploadUsage: {e.Message}", e);
+        }
     }
 
     //
