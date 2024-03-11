@@ -17,14 +17,11 @@
             <th scope="col" style="width:8em">
                 @Html.DisplayNameFor(model => model.UserName)
             </th>
-            <th scope="col" style="width:10em">
-                @Html.DisplayNameFor(model => model.Page)
+            <th scope="col" style="width:25em">
+                @Html.DisplayNameFor(model => model.Page)/@Html.DisplayNameFor(model => model.Query)/@Html.DisplayNameFor(model => model.Filter)
             </th>
-            <th scope="col" style="width:10em">
-                @Html.DisplayNameFor(model => model.Query)
-            </th>
-            <th scope="col" style="width:5em">
-                @Html.DisplayNameFor(model => model.Filter)
+            <th scope="col" style="width:25em">
+                @Html.DisplayNameFor(model => model.Referrer)
             </th>
             <th scope="col" style="width:5em">
                 Device
@@ -65,12 +62,19 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Page)
+                @if (!string.IsNullOrEmpty(item.Query))
+                {
+                    <br/>
+                    @Html.DisplayFor(modelItem => item.Query)
+                }
+                @if (!string.IsNullOrEmpty(item.Filter))
+                {
+                    <br />
+                    @Html.DisplayFor(modelItem => item.Filter)
+                }
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Query)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Filter)
+                @Html.DisplayFor(modelItem => item.Referrer)
             </td>
             <td>
                 @ci.Device

@@ -71,6 +71,8 @@ public class DanceMusicController : Controller
         var query = Request.QueryString.ToString();
         var user = userExpiration.User;
 
+        var referrer = Request.GetTypedHeaders().Referer?.ToString();
+
         var usage = new UsageLog
         {
             UsageId = usageId,
@@ -79,6 +81,7 @@ public class DanceMusicController : Controller
             Page = page,
             Query = query,
             Filter = filterString,
+            Referrer = referrer,
             UserAgent = userAgent
         };
 

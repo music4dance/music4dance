@@ -78,6 +78,7 @@ namespace m4dModels
             builder.Entity<UsageLog>().Property(u => u.Page).HasMaxLength(100);
             builder.Entity<UsageLog>().Property(u => u.Query).HasMaxLength(256);
             builder.Entity<UsageLog>().Property(u => u.Filter).HasMaxLength(256);
+            builder.Entity<UsageLog>().Property(u => u.Referrer).HasMaxLength(1024);
             builder.Entity<UsageLog>().Property(u => u.UserAgent).HasMaxLength(256);
 
             builder.Entity<UsageLog>().HasIndex(u => u.UserName);

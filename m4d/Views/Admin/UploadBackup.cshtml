@@ -84,8 +84,10 @@ using (Html.BeginForm("ReloadDatabase", "Admin", FormMethod.Post, new
     <input type="submit" name="reloadDatabase" id="Admin" value="Admin"/>
 }
 
+<environment exclude="Production">
+
     <h3>Load Usage Data</h3>
-using (Html.BeginForm("LoadUsage", "Admin", FormMethod.Post, new
+@using (Html.BeginForm("LoadUsage", "Admin", FormMethod.Post, new
 {
     enctype = "multipart/form-data"
 }))
@@ -95,6 +97,7 @@ using (Html.BeginForm("LoadUsage", "Admin", FormMethod.Post, new
     <br />
     <input type="submit" name="reloadDatabase" id="Load" value="Load" />
 }
+</environment>
 
     <h3>Reload the Index</h3>
 using (Html.BeginForm("LoadIdx", "Admin", FormMethod.Post, new
