@@ -93,6 +93,7 @@ declare module 'vue' {
     TempiLink: typeof import('./src/components/TempiLink.vue')['default']
   }
   export interface ComponentCustomProperties {
+    vBModal: typeof import('bootstrap-vue-next')['vBModal']
     vBToggle: typeof import('bootstrap-vue-next')['vBToggle']
   }
 }

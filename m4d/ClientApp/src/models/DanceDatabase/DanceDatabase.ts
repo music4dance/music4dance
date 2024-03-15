@@ -76,8 +76,11 @@ export class DanceDatabase {
   }
 
   public filterDances(filter: DanceFilter, tempo: number, epsilon: number): DanceOrder[] {
-    return filter
-      .filter(this.dances)
+    return DanceDatabase.filterTempo(filter.filter(this.dances), tempo, epsilon);
+  }
+
+  public static filterTempo(dances: DanceType[], tempo: number, epsilon: number): DanceOrder[] {
+    return dances
       .map((dance) => DanceOrder.create(dance, tempo))
       .filter((order) => order.deltaPercentAbsolute < epsilon)
       .sort((a, b) => a.deltaPercentAbsolute - b.deltaPercentAbsolute);

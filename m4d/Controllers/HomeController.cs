@@ -91,9 +91,9 @@ public IActionResult Index([FromServices] IFileProvider fileProvider)
             "reading-list");
     }
 
-    public IActionResult Counter(int? numerator = null, decimal? tempo = null, string count="measures")
+    public IActionResult Counter(int? numerator = null, decimal? tempo = null, string count="beats")
     {
-        return Vue(
+        return Vue3(
             "Counter",
             "A web application to measure the tempo of a song and match it with styles of dance.",
             "tempo-counter",

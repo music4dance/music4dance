@@ -11,7 +11,6 @@ import { NamedObject } from "@/models/DanceDatabase/NamedObject";
 
 const props = defineProps<{
   dances: DanceType[];
-
   hideNameLink?: boolean;
 }>();
 

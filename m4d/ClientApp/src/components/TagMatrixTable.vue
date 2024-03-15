@@ -2,7 +2,7 @@
 import { wordsToKebab } from "@/helpers/StringHelpers";
 import { TagMatrix, TagRow } from "@/models/TagMatrix";
 import DanceName from "./DanceName.vue";
-import type { TableField, TableFieldRaw, TableItem } from "bootstrap-vue-next";
+import type { TableFieldRaw, TableItem } from "bootstrap-vue-next";
 import { NamedObject } from "@/models/DanceDatabase/NamedObject";
 
 const props = defineProps({
