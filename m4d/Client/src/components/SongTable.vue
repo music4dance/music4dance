@@ -472,7 +472,7 @@ export default AdminTools.extend({
       return hidden ? fields.filter((f) => !this.isHidden(f.key)) : fields;
     },
     artistRef(song: Song): string {
-      return `/song/artist/?name=${song.artist}`;
+      return `/song/artist/?name=${encodeURIComponent(song.artist)}`;
     },
     trackNumber(song: Song): string {
       return song.albums && song.albums.length > 0 && song.albums[0].track

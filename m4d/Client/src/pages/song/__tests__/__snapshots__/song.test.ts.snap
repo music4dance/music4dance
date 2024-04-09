@@ -233,107 +233,107 @@ exports[`Song.vue renders a song page 1`] = `
               <div class="card-header text-primary">Albums</div>
               <div class="list-group list-group-flush">
                 <div class="list-group-item">
-                  <!----> <a href="/song/album?title=Music You Heard in Christmas Movies">Music You Heard in Christmas Movies</a> <span>
+                  <!----> <a href="/song/album?title=Music%20You%20Heard%20in%20Christmas%20Movies">Music You Heard in Christmas Movies</a> <span>
         (Track 26)</span> <span class="mx-2"><a href="https://www.amazon.com/gp/product/B00QI0ZE2A/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=B00QI0ZE2A&amp;linkCode=as2&amp;tag=msc4dnc-20" target="blank"><img src="/images/icons/Amazon-logo.png" width="32" height="32" alt="Find it on Amazon"></a><a href="https://open.spotify.com/track/2SVUJQfhNxFx6dMK1JivFw" target="blank"><img src="/images/icons/Spotify-logo.png" width="32" height="32" alt="Find it on Spotify"></a></span>
                 </div>
                 <div class="list-group-item">
-                  <!----> <a href="/song/album?title=Rock and Roll Christmas Vol. 2">Rock and Roll Christmas Vol. 2</a> <span>
+                  <!----> <a href="/song/album?title=Rock%20and%20Roll%20Christmas%20Vol.%202">Rock and Roll Christmas Vol. 2</a> <span>
         (Track 8)</span> <span class="mx-2"><a href="https://www.amazon.com/gp/product/B01M9H237U/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=B01M9H237U&amp;linkCode=as2&amp;tag=msc4dnc-20" target="blank"><img src="/images/icons/Amazon-logo.png" width="32" height="32" alt="Find it on Amazon"></a></span>
                 </div>
                 <div class="list-group-item">
-                  <!----> <a href="/song/album?title=Christmas Themes from Film &amp; TV">Christmas Themes from Film &amp; TV</a> <span>
+                  <!----> <a href="/song/album?title=Christmas%20Themes%20from%20Film%20%26%20TV">Christmas Themes from Film &amp; TV</a> <span>
         (Track 26)</span> <span class="mx-2"><a href="https://www.amazon.com/gp/product/B00HJCYQHA/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=B00HJCYQHA&amp;linkCode=as2&amp;tag=msc4dnc-20" target="blank"><img src="/images/icons/Amazon-logo.png" width="32" height="32" alt="Find it on Amazon"></a></span>
                 </div>
                 <div class="list-group-item">
-                  <!----> <a href="/song/album?title=Santa Claus Is Coming: O! Holy Night">Santa Claus Is Coming: O! Holy Night</a> <span>
+                  <!----> <a href="/song/album?title=Santa%20Claus%20Is%20Coming%3A%20O!%20Holy%20Night">Santa Claus Is Coming: O! Holy Night</a> <span>
         (Track 7)</span> <span class="mx-2"><a href="https://www.amazon.com/gp/product/B077BS6K6L/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=B077BS6K6L&amp;linkCode=as2&amp;tag=msc4dnc-20" target="blank"><img src="/images/icons/Amazon-logo.png" width="32" height="32" alt="Find it on Amazon"></a></span>
                 </div>
                 <div class="list-group-item">
-                  <!----> <a href="/song/album?title=The Christmas Music Anthology, Vol. 2">The Christmas Music Anthology, Vol. 2</a> <span>
+                  <!----> <a href="/song/album?title=The%20Christmas%20Music%20Anthology%2C%20Vol.%202">The Christmas Music Anthology, Vol. 2</a> <span>
         (Track 15)</span> <span class="mx-2"><a href="https://www.amazon.com/gp/product/B0172APZSW/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=B0172APZSW&amp;linkCode=as2&amp;tag=msc4dnc-20" target="blank"><img src="/images/icons/Amazon-logo.png" width="32" height="32" alt="Find it on Amazon"></a></span>
                 </div>
                 <div class="list-group-item">
-                  <!----> <a href="/song/album?title=Christmas Songs &amp; Carols for Kids">Christmas Songs &amp; Carols for Kids</a> <span>
+                  <!----> <a href="/song/album?title=Christmas%20Songs%20%26%20Carols%20for%20Kids">Christmas Songs &amp; Carols for Kids</a> <span>
         (Track 30)</span> <span class="mx-2"><a href="https://www.amazon.com/gp/product/B00FN2N9KI/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=B00FN2N9KI&amp;linkCode=as2&amp;tag=msc4dnc-20" target="blank"><img src="/images/icons/Amazon-logo.png" width="32" height="32" alt="Find it on Amazon"></a></span>
                 </div>
                 <div class="list-group-item">
-                  <!----> <a href="/song/album?title=Christmas Jazz &amp; Blues">Christmas Jazz &amp; Blues</a> <span>
+                  <!----> <a href="/song/album?title=Christmas%20Jazz%20%26%20Blues">Christmas Jazz &amp; Blues</a> <span>
         (Track 22)</span> <span class="mx-2"><a href="https://www.amazon.com/gp/product/B00WTJNQMO/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=B00WTJNQMO&amp;linkCode=as2&amp;tag=msc4dnc-20" target="blank"><img src="/images/icons/Amazon-logo.png" width="32" height="32" alt="Find it on Amazon"></a></span>
                 </div>
                 <div class="list-group-item">
-                  <!----> <a href="/song/album?title=Christmas Jazz &amp; Holiday Blues">Christmas Jazz &amp; Holiday Blues</a> <span>
+                  <!----> <a href="/song/album?title=Christmas%20Jazz%20%26%20Holiday%20Blues">Christmas Jazz &amp; Holiday Blues</a> <span>
         (Track 24)</span> <span class="mx-2"><a href="https://www.amazon.com/gp/product/B00R1UT7XS/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=B00R1UT7XS&amp;linkCode=as2&amp;tag=msc4dnc-20" target="blank"><img src="/images/icons/Amazon-logo.png" width="32" height="32" alt="Find it on Amazon"></a></span>
                 </div>
                 <div class="list-group-item">
-                  <!----> <a href="/song/album?title=111 Superhits for Christmas">111 Superhits for Christmas</a> <span>
+                  <!----> <a href="/song/album?title=111%20Superhits%20for%20Christmas">111 Superhits for Christmas</a> <span>
         (Track 63)</span> <span class="mx-2"><a href="https://www.amazon.com/gp/product/B00A502CNI/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=B00A502CNI&amp;linkCode=as2&amp;tag=msc4dnc-20" target="blank"><img src="/images/icons/Amazon-logo.png" width="32" height="32" alt="Find it on Amazon"></a></span>
                 </div>
                 <div class="list-group-item">
-                  <!----> <a href="/song/album?title=Have a Merry Chess Christmas">Have a Merry Chess Christmas</a> <span>
+                  <!----> <a href="/song/album?title=Have%20a%20Merry%20Chess%20Christmas">Have a Merry Chess Christmas</a> <span>
         (Track 2)</span> <span class="mx-2"><a href="https://itunes.apple.com/album/id3444107?i=3444085&amp;uo=4&amp;at=11lwtf" target="blank"><img src="/images/icons/ITunes-logo.png" width="32" height="32" alt="Find it on ITunes"></a><a href="https://open.spotify.com/track/1haofRgjpVfOyTVWnjJRND" target="blank"><img src="/images/icons/Spotify-logo.png" width="32" height="32" alt="Find it on Spotify"></a></span>
                 </div>
                 <div class="list-group-item">
-                  <!----> <a href="/song/album?title=Hey Santa Claus (Remastered) - Single">Hey Santa Claus (Remastered) - Single</a> <span>
+                  <!----> <a href="/song/album?title=Hey%20Santa%20Claus%20(Remastered)%20-%20Single">Hey Santa Claus (Remastered) - Single</a> <span>
         (Track 1)</span> <span class="mx-2"><a href="https://itunes.apple.com/album/id728468912?i=728469048&amp;uo=4&amp;at=11lwtf" target="blank"><img src="/images/icons/ITunes-logo.png" width="32" height="32" alt="Find it on ITunes"></a></span>
                 </div>
                 <div class="list-group-item">
-                  <!----> <a href="/song/album?title=The Flamingos Meet the Moonglows On the Dusty Road of Hits">The Flamingos Meet the Moonglows On the Dusty Road of Hits</a> <span>
+                  <!----> <a href="/song/album?title=The%20Flamingos%20Meet%20the%20Moonglows%20On%20the%20Dusty%20Road%20of%20Hits">The Flamingos Meet the Moonglows On the Dusty Road of Hits</a> <span>
         (Track 14)</span> <span class="mx-2"><a href="https://www.amazon.com/gp/product/B075SRKCTY/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=B075SRKCTY&amp;linkCode=as2&amp;tag=msc4dnc-20" target="blank"><img src="/images/icons/Amazon-logo.png" width="32" height="32" alt="Find it on Amazon"></a><a href="https://itunes.apple.com/album/id1287637678?i=1287638088&amp;uo=4&amp;at=11lwtf" target="blank"><img src="/images/icons/ITunes-logo.png" width="32" height="32" alt="Find it on ITunes"></a><a href="https://open.spotify.com/track/63U46WrPmssaK6FJ3s2bqe" target="blank"><img src="/images/icons/Spotify-logo.png" width="32" height="32" alt="Find it on Spotify"></a></span>
                 </div>
                 <div class="list-group-item">
-                  <!----> <a href="/song/album?title=Rockin' Little Christmas">Rockin' Little Christmas</a> <span>
+                  <!----> <a href="/song/album?title=Rockin'%20Little%20Christmas">Rockin' Little Christmas</a> <span>
         (Track 3)</span> <span class="mx-2"><a href="https://www.amazon.com/gp/product/B0188QMXW0/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=B0188QMXW0&amp;linkCode=as2&amp;tag=msc4dnc-20" target="blank"><img src="/images/icons/Amazon-logo.png" width="32" height="32" alt="Find it on Amazon"></a><a href="https://itunes.apple.com/album/id1060829872?i=1060829882&amp;uo=4&amp;at=11lwtf" target="blank"><img src="/images/icons/ITunes-logo.png" width="32" height="32" alt="Find it on ITunes"></a><a href="https://open.spotify.com/track/2SVUJQfhNxFx6dMK1JivFw" target="blank"><img src="/images/icons/Spotify-logo.png" width="32" height="32" alt="Find it on Spotify"></a></span>
                 </div>
                 <div class="list-group-item">
-                  <!----> <a href="/song/album?title=Blues, Blues Christmas, Vol. 2">Blues, Blues Christmas, Vol. 2</a> <span>
+                  <!----> <a href="/song/album?title=Blues%2C%20Blues%20Christmas%2C%20Vol.%202">Blues, Blues Christmas, Vol. 2</a> <span>
         (Track 6)</span> <span class="mx-2"><a href="https://itunes.apple.com/album/id571763538?i=571764009&amp;uo=4&amp;at=11lwtf" target="blank"><img src="/images/icons/ITunes-logo.png" width="32" height="32" alt="Find it on ITunes"></a></span>
                 </div>
                 <div class="list-group-item">
-                  <!----> <a href="/song/album?title=Christmas Soul Xmas Hits">Christmas Soul Xmas Hits</a> <span>
+                  <!----> <a href="/song/album?title=Christmas%20Soul%20Xmas%20Hits">Christmas Soul Xmas Hits</a> <span>
         (Track 13)</span> <span class="mx-2"><a href="https://itunes.apple.com/album/id584018042?i=584018108&amp;uo=4&amp;at=11lwtf" target="blank"><img src="/images/icons/ITunes-logo.png" width="32" height="32" alt="Find it on ITunes"></a></span>
                 </div>
                 <div class="list-group-item">
-                  <!----> <a href="/song/album?title=The Soul of Christmas">The Soul of Christmas</a> <span>
+                  <!----> <a href="/song/album?title=The%20Soul%20of%20Christmas">The Soul of Christmas</a> <span>
         (Track 11)</span> <span class="mx-2"><a href="https://itunes.apple.com/album/id1033755426?i=1033755652&amp;uo=4&amp;at=11lwtf" target="blank"><img src="/images/icons/ITunes-logo.png" width="32" height="32" alt="Find it on ITunes"></a><a href="https://open.spotify.com/track/718UQ9gjNraVN8DJjMRSBV" target="blank"><img src="/images/icons/Spotify-logo.png" width="32" height="32" alt="Find it on Spotify"></a></span>
                 </div>
                 <div class="list-group-item">
-                  <!----> <a href="/song/album?title=Christmas Jukebox Hits">Christmas Jukebox Hits</a> <span>
+                  <!----> <a href="/song/album?title=Christmas%20Jukebox%20Hits">Christmas Jukebox Hits</a> <span>
         (Track 39)</span> <span class="mx-2"><a href="https://itunes.apple.com/album/id1052695722?i=1052695826&amp;uo=4&amp;at=11lwtf" target="blank"><img src="/images/icons/ITunes-logo.png" width="32" height="32" alt="Find it on ITunes"></a><a href="https://open.spotify.com/track/5RvrWQQriRaWYw5p017l5u" target="blank"><img src="/images/icons/Spotify-logo.png" width="32" height="32" alt="Find it on Spotify"></a></span>
                 </div>
                 <div class="list-group-item">
-                  <!----> <a href="/song/album?title=Golden Oldies Christmas">Golden Oldies Christmas</a> <span>
+                  <!----> <a href="/song/album?title=Golden%20Oldies%20Christmas">Golden Oldies Christmas</a> <span>
         (Track 27)</span> <span class="mx-2"><a href="https://itunes.apple.com/album/id1052703984?i=1052704503&amp;uo=4&amp;at=11lwtf" target="blank"><img src="/images/icons/ITunes-logo.png" width="32" height="32" alt="Find it on ITunes"></a><a href="https://open.spotify.com/track/3GexSXtgYzVASpaFldJn65" target="blank"><img src="/images/icons/Spotify-logo.png" width="32" height="32" alt="Find it on Spotify"></a></span>
                 </div>
                 <div class="list-group-item">
-                  <!----> <a href="/song/album?title=Christmas Doo Wop &amp; Pop, Vol. 3">Christmas Doo Wop &amp; Pop, Vol. 3</a> <span>
+                  <!----> <a href="/song/album?title=Christmas%20Doo%20Wop%20%26%20Pop%2C%20Vol.%203">Christmas Doo Wop &amp; Pop, Vol. 3</a> <span>
         (Track 9)</span> <span class="mx-2"><a href="https://open.spotify.com/track/6os63j2QsOkmN7wxn4bljQ" target="blank"><img src="/images/icons/Spotify-logo.png" width="32" height="32" alt="Find it on Spotify"></a></span>
                 </div>
                 <div class="list-group-item">
-                  <!----> <a href="/song/album?title=100 Christmas">100 Christmas</a> <span>
+                  <!----> <a href="/song/album?title=100%20Christmas">100 Christmas</a> <span>
         (Track 75)</span> <span class="mx-2"><a href="https://open.spotify.com/track/39X3Qq6LKG2pGzkWDs1MSu" target="blank"><img src="/images/icons/Spotify-logo.png" width="32" height="32" alt="Find it on Spotify"></a></span>
                 </div>
                 <div class="list-group-item">
-                  <!----> <a href="/song/album?title=White Christmas">White Christmas</a> <span>
+                  <!----> <a href="/song/album?title=White%20Christmas">White Christmas</a> <span>
         (Track 15)</span> <span class="mx-2"><a href="https://www.amazon.com/gp/product/B00GLFD7IU/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=B00GLFD7IU&amp;linkCode=as2&amp;tag=msc4dnc-20" target="blank"><img src="/images/icons/Amazon-logo.png" width="32" height="32" alt="Find it on Amazon"></a></span>
                 </div>
                 <div class="list-group-item">
-                  <!----> <a href="/song/album?title=Christmas Silver Bells, Vol. 2">Christmas Silver Bells, Vol. 2</a> <span>
+                  <!----> <a href="/song/album?title=Christmas%20Silver%20Bells%2C%20Vol.%202">Christmas Silver Bells, Vol. 2</a> <span>
         (Track 1)</span> <span class="mx-2"><a href="https://www.amazon.com/gp/product/B07DWLXHRN/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=B07DWLXHRN&amp;linkCode=as2&amp;tag=msc4dnc-20" target="blank"><img src="/images/icons/Amazon-logo.png" width="32" height="32" alt="Find it on Amazon"></a></span>
                 </div>
                 <div class="list-group-item">
-                  <!----> <a href="/song/album?title=Christmas Dreaming">Christmas Dreaming</a> <span>
+                  <!----> <a href="/song/album?title=Christmas%20Dreaming">Christmas Dreaming</a> <span>
         (Track 11)</span> <span class="mx-2"><a href="https://www.amazon.com/gp/product/B0768D3YVW/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=B0768D3YVW&amp;linkCode=as2&amp;tag=msc4dnc-20" target="blank"><img src="/images/icons/Amazon-logo.png" width="32" height="32" alt="Find it on Amazon"></a></span>
                 </div>
                 <div class="list-group-item">
-                  <!----> <a href="/song/album?title=The Best Spanish Guitar Music Of All Time">The Best Spanish Guitar Music Of All Time</a> <span>
+                  <!----> <a href="/song/album?title=The%20Best%20Spanish%20Guitar%20Music%20Of%20All%20Time">The Best Spanish Guitar Music Of All Time</a> <span>
         (Track 9)</span> <span class="mx-2"><a href="https://www.amazon.com/gp/product/B00PHIOV32/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=B00PHIOV32&amp;linkCode=as2&amp;tag=msc4dnc-20" target="blank"><img src="/images/icons/Amazon-logo.png" width="32" height="32" alt="Find it on Amazon"></a></span>
                 </div>
                 <div class="list-group-item">
-                  <!----> <a href="/song/album?title=Christmas Ratpack">Christmas Ratpack</a> <span>
+                  <!----> <a href="/song/album?title=Christmas%20Ratpack">Christmas Ratpack</a> <span>
         (Track 1)</span> <span class="mx-2"><a href="https://www.amazon.com/gp/product/B00BAN4BYM/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=B00BAN4BYM&amp;linkCode=as2&amp;tag=msc4dnc-20" target="blank"><img src="/images/icons/Amazon-logo.png" width="32" height="32" alt="Find it on Amazon"></a></span>
                 </div>
                 <div class="list-group-item">
-                  <!----> <a href="/song/album?title=GR8CD8020 Christmas Legends Vol. 2">GR8CD8020 Christmas Legends Vol. 2</a> <span>
+                  <!----> <a href="/song/album?title=GR8CD8020%20Christmas%20Legends%20Vol.%202">GR8CD8020 Christmas Legends Vol. 2</a> <span>
         (Track 7)</span> <span class="mx-2"><a href="https://www.amazon.com/gp/product/B00AH06XN6/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=B00AH06XN6&amp;linkCode=as2&amp;tag=msc4dnc-20" target="blank"><img src="/images/icons/Amazon-logo.png" width="32" height="32" alt="Find it on Amazon"></a></span>
                 </div>
               </div>

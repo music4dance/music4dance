@@ -40,7 +40,7 @@ export default SongSelector.extend({
   },
   computed: {
     artistRef(): string {
-      return `/song/artist?name=${this.model.artist}`;
+      return `/song/artist?name=${encodeURIComponent(this.model.artist || "")}`;
     },
     hidden(): string[] {
       return this.model.artist ? ["Artist"] : [];

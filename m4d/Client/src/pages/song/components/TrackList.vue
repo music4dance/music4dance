@@ -87,7 +87,7 @@ export default Vue.extend({
   },
   methods: {
     albumLink(album: AlbumDetails): string {
-      return `/song/album?title=${album.name}`;
+      return `/song/album?title=${encodeURIComponent(album.name || "")}`;
     },
     async lookup(service?: string): Promise<void> {
       try {
