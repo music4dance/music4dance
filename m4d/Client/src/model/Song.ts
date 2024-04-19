@@ -260,6 +260,7 @@ export class Song extends TaggableObject {
     properties: SongProperty[],
     currentUser?: string
   ): void {
+    const isUserModified = new Set<string>();
     let created = true;
     let creator = true;
     let user: string;
@@ -353,11 +354,27 @@ export class Song extends TaggableObject {
           creator = false;
           break;
         default:
-          if (!property.isAction) {
+          {
+            if (property.isAction) {
+              break;
+            }
+
             const value = property.valueTyped;
-            if (value !== ".") {
-              /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-              (this as any)[pascalToCamel(baseName)] = value;
+            if (value === ".") {
+              break;
+            }
+
+            // Don't allow bot values to overwrite user values
+            const wasUser = isUserModified.has(baseName);
+            if (wasUser && pseudo) {
+              break;
+            }
+
+            /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+            (this as any)[pascalToCamel(baseName)] = value;
+
+            if (!pseudo) {
+              isUserModified.add(baseName);
             }
           }
           break;

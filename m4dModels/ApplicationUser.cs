@@ -46,10 +46,10 @@ namespace m4dModels
         public bool IsPseudo => IsM4d || IsSpotify;
 
         public bool IsM4d =>
-            Email.EndsWith("@music4dance.net", StringComparison.OrdinalIgnoreCase);
+            Email?.EndsWith("@music4dance.net", StringComparison.OrdinalIgnoreCase) ?? false;
 
         public bool IsSpotify =>
-            Email.EndsWith("@spotify.com", StringComparison.OrdinalIgnoreCase);
+            Email?.EndsWith("@spotify.com", StringComparison.OrdinalIgnoreCase) ?? false;
 
         public string EmailAlias => string.IsNullOrWhiteSpace(Email) || !Email.Contains('@') ? null : Email[..Email.IndexOf('@')];
 

@@ -1438,6 +1438,8 @@ namespace m4dModels
 
             var drDelete = new List<DanceRating>();
 
+            HashSet<string> isUserModified = new();
+
             foreach (var prop in properties)
             {
                 var bn = prop.BaseName;
@@ -1570,11 +1572,27 @@ namespace m4dModels
 
                         break;
                     default:
-                        // All of the simple properties we can just set
-                        if (!prop.IsAction)
+                        // All of the simple properties we can just set except
+                        //  for the ones that are bots overriding user values
+                        if (prop.IsAction )
                         {
-                            var pi = GetType().GetProperty(bn);
-                            pi?.SetValue(this, prop.ObjectValue);
+                            break;
+                        }
+
+                        var isUser = !currentModified?.ApplicationUser?.IsPseudo ?? false;
+                        var wasUser = isUserModified.Contains(bn);
+
+                        if (wasUser && !isUser)
+                        {
+                            break;
+                        }
+
+                        var pi = GetType().GetProperty(bn);
+                        pi?.SetValue(this, prop.ObjectValue);
+
+                        if (isUser)
+                        {
+                            isUserModified.Add(bn);
                         }
 
                         break;

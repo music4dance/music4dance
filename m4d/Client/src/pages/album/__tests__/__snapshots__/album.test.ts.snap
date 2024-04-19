@@ -153,7 +153,7 @@ exports[`Album.vue renders an album page 1`] = `
               <td aria-colindex="4" role="cell" class="">
                 2
               </td>
-              <td aria-colindex="5" role="cell" class=""><a href="/home/counter?numerator=4&amp;tempo=136.6">137</a></td>
+              <td aria-colindex="5" role="cell" class=""><a href="/home/counter?numerator=4&amp;tempo=136.5">137</a></td>
               <td aria-colindex="6" role="cell" class="">
                 308
               </td>
@@ -642,12 +642,12 @@ exports[`Album.vue renders an album page 1`] = `
             </tr>
             <tr role="row" class="">
               <td aria-colindex="1" role="cell" class=""><span><!----> <a href="#" role="button"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="heart" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-heart b-icon bi text-secondary" style="font-size: 175%;"><g><path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"></path></g></svg></a> <a href="#" role="button" class="ml-1"><svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="b-iconstack b-icon bi" style="font-size: 175%;"><g><svg viewBox="0 0 16 16" fill="currentColor" class="bi-circle b-icon bi"><g><g><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"></path></g></g></svg> <svg viewBox="0 0 16 16" fill="currentColor" class="bi-play-fill b-icon bi"><g><g transform="translate(1 0)"><g><path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"></path></g></g></g></svg></g></svg></a> <!----> <!----></span></td>
-              <td aria-colindex="2" role="cell" class=""><a href="/song/details/036b2b84-f7de-4b37-8b42-c428a8a8f2b9?filter=v2-Album">La Copa de la Vida (La Cancion Oficial de la Copa Mundial, Francia '98)</a></td>
+              <td aria-colindex="2" role="cell" class=""><a href="/song/details/036b2b84-f7de-4b37-8b42-c428a8a8f2b9?filter=v2-Album">La Copa De La Vida</a></td>
               <td aria-colindex="3" role="cell" class=""><a href="/song/artist/?name=Ricky%20Martin">Ricky Martin</a></td>
               <td aria-colindex="4" role="cell" class="">
                 8
               </td>
-              <td aria-colindex="5" role="cell" class=""><a href="/home/counter?numerator=4&amp;tempo=127">127</a></td>
+              <td aria-colindex="5" role="cell" class=""><a href="/home/counter?numerator=4&amp;tempo=120.9">121</a></td>
               <td aria-colindex="6" role="cell" class="">
                 275
               </td>
@@ -1012,7 +1012,7 @@ exports[`Album.vue renders an album page 1`] = `
               <td aria-colindex="4" role="cell" class="">
                 1
               </td>
-              <td aria-colindex="5" role="cell" class=""><a href="/home/counter?numerator=4&amp;tempo=123.1">123</a></td>
+              <td aria-colindex="5" role="cell" class=""><a href="/home/counter?numerator=4&amp;tempo=123.2">123</a></td>
               <td aria-colindex="6" role="cell" class="">
                 188
               </td>
