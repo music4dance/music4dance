@@ -23,6 +23,13 @@ function buildDance(exceptions?: DanceException[]): DanceType {
 }
 
 describe("DanceType.ts", () => {
+  test.skip("toJson serializes correctly", () => {
+    const dance = buildDance();
+    //const json = (dance as unknown as any).toJSON();
+    const json = JSON.stringify(dance);
+    console.log(json);
+  });
+
   test("seo-name is correct", () => {
     const dance = buildDance();
     expect(dance.seoName).toBe("slow-waltz");

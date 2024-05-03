@@ -1,8 +1,9 @@
 import { wordsToKebab } from "@/helpers/StringHelpers";
 import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
+import { SerializableObject } from "../SerializableObject";
 
 @jsonObject
-export class NamedObject {
+export class NamedObject extends SerializableObject {
   @jsonMember(String, { name: "id" }) public internalId!: string;
   @jsonMember(String, { name: "name" }) public internalName!: string;
 
@@ -24,17 +25,18 @@ export class NamedObject {
   }
 
   public get seoName(): string {
-    return wordsToKebab(this.name);
+    return this.name ? wordsToKebab(this.name) : "???";
   }
 
   private get normalizedNames(): string[] {
-    const r = [
-      NamedObject.normalize(this.id),
-      NamedObject.normalize(this.name),
-      ...NamedObject.normalizedArray(this.synonyms),
-      ...NamedObject.normalizedArray(this.searchonyms),
-    ];
-    return r;
+    return this.id && this.name
+      ? [
+          NamedObject.normalize(this.id),
+          NamedObject.normalize(this.name),
+          ...NamedObject.normalizedArray(this.synonyms),
+          ...NamedObject.normalizedArray(this.searchonyms),
+        ]
+      : [];
   }
 
   private static normalizedArray(rg: string[] | undefined): string[] {

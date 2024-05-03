@@ -26,7 +26,7 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
       </div>
       <div>
         <h4>An American Smooth four dance round consists of the following:</h4>
-        <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" sortdesc=\\"false\\" selectable=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" nolocalsorting=\\"false\\" noselectonclick=\\"false\\" sortcompareoptions=\\"[object Object]\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
+        <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" mustsort=\\"false\\" nosortreset=\\"false\\" selectable=\\"false\\" multisort=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" nolocalsorting=\\"false\\" noselectonclick=\\"false\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
           <table class=\\"table b-table table-hover table-striped\\">
             <thead class=\\"\\">
               <!---->
@@ -59,16 +59,16 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
                   <!----><a href=\\"slow-waltz\\">American Slow Waltz</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90\\">28-30</a>
+                  <!----><a href=\\"/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90&amp;sortorder=Dances\\">28-30</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90\\">28-30</a>
+                  <!----><a href=\\"/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90&amp;sortorder=Dances\\">28-30</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=SWZ&amp;tempomin=90&amp;tempomax=90\\">30</a>
+                  <!----><a href=\\"/song/advancedsearch?dances=SWZ&amp;tempomin=90&amp;tempomax=90&amp;sortorder=Dances\\">30</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90\\">84-90</a>
+                  <!----><a href=\\"/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90&amp;sortorder=Dances\\">84-90</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
                   <!---->3/4
@@ -80,16 +80,16 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
                   <!----><a href=\\"tango-(ballroom)\\">American Tango (Ballroom)</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=120\\">30</a>
+                  <!----><a href=\\"/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=120&amp;sortorder=Dances\\">30</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=120\\">30</a>
+                  <!----><a href=\\"/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=120&amp;sortorder=Dances\\">30</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=120\\">30</a>
+                  <!----><a href=\\"/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=120&amp;sortorder=Dances\\">30</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=120\\">120</a>
+                  <!----><a href=\\"/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=120&amp;sortorder=Dances\\">120</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
                   <!---->4/4
@@ -101,16 +101,16 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
                   <!----><a href=\\"slow-foxtrot\\">American Slow Foxtrot</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=128\\">30-32</a>
+                  <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=128&amp;sortorder=Dances\\">30-32</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=128\\">30-32</a>
+                  <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=128&amp;sortorder=Dances\\">30-32</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=120\\">30</a>
+                  <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=120&amp;sortorder=Dances\\">30</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=128\\">120-128</a>
+                  <!----><a href=\\"/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=128&amp;sortorder=Dances\\">120-128</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
                   <!---->4/4
@@ -122,16 +122,16 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
                   <!----><a href=\\"viennese-waltz\\">American Viennese Waltz</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=VWZ&amp;tempomin=159&amp;tempomax=162\\">53-54</a>
+                  <!----><a href=\\"/song/advancedsearch?dances=VWZ&amp;tempomin=159&amp;tempomax=162&amp;sortorder=Dances\\">53-54</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=VWZ&amp;tempomin=159&amp;tempomax=162\\">53-54</a>
+                  <!----><a href=\\"/song/advancedsearch?dances=VWZ&amp;tempomin=159&amp;tempomax=162&amp;sortorder=Dances\\">53-54</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=VWZ&amp;tempomin=159&amp;tempomax=159\\">53</a>
+                  <!----><a href=\\"/song/advancedsearch?dances=VWZ&amp;tempomin=159&amp;tempomax=159&amp;sortorder=Dances\\">53</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=VWZ&amp;tempomin=159&amp;tempomax=162\\">159-162</a>
+                  <!----><a href=\\"/song/advancedsearch?dances=VWZ&amp;tempomin=159&amp;tempomax=162&amp;sortorder=Dances\\">159-162</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
                   <!---->3/4
@@ -148,7 +148,7 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
       </div>
       <div>
         <h4>Other dances categorized as American Smooth, although they aren't part of the competition round, are:</h4>
-        <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" sortdesc=\\"false\\" selectable=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" nolocalsorting=\\"false\\" noselectonclick=\\"false\\" sortcompareoptions=\\"[object Object]\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
+        <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" mustsort=\\"false\\" nosortreset=\\"false\\" selectable=\\"false\\" multisort=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" nolocalsorting=\\"false\\" noselectonclick=\\"false\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
           <table class=\\"table b-table table-hover table-striped\\">
             <thead class=\\"\\">
               <!---->
@@ -181,16 +181,16 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
                   <!----><a href=\\"peabody\\">American Peabody</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=PBD&amp;tempomin=240&amp;tempomax=240\\">60</a>
+                  <!----><a href=\\"/song/advancedsearch?dances=PBD&amp;tempomin=240&amp;tempomax=240&amp;sortorder=Dances\\">60</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=PBD&amp;tempomin=240&amp;tempomax=240\\">60</a>
+                  <!----><a href=\\"/song/advancedsearch?dances=PBD&amp;tempomin=240&amp;tempomax=240&amp;sortorder=Dances\\">60</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=PBD&amp;tempomin=240&amp;tempomax=240\\">60</a>
+                  <!----><a href=\\"/song/advancedsearch?dances=PBD&amp;tempomin=240&amp;tempomax=240&amp;sortorder=Dances\\">60</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a href=\\"/song/advancedsearch?dances=PBD&amp;tempomin=240&amp;tempomax=240\\">240</a>
+                  <!----><a href=\\"/song/advancedsearch?dances=PBD&amp;tempomin=240&amp;tempomax=240&amp;sortorder=Dances\\">240</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
                   <!---->4/4

@@ -33,7 +33,7 @@ const groupLink = computed(
       :title="category.fullRoundTitle"
     ></CompetitionCategoryTable>
     <CompetitionCategoryTable
-      v-if="category.extras"
+      v-if="category.extras && category.extras.length > 0"
       :dances="category.extras"
       :title="category.extraDancesTitle"
     ></CompetitionCategoryTable>

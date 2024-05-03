@@ -51,19 +51,19 @@ describe("CheckedList.vue", () => {
       attachTo: document.body,
       propsData: { type: "test", options: optionsA, modelValue: [] },
       "onUpdate:model-value": (e: CheckboxValue[]) => {
-        console.log("onUpdate:modelValue", JSON.stringify(e));
+        //console.log("onUpdate:modelValue", JSON.stringify(e));
         wrapper.setProps({ modelValue: e });
       },
     });
 
-    const all = wrapper.get("input[data-test='select-all']");
-    console.log("Initial classes:", all.classes().join(", "));
+    //const all = wrapper.get("input[data-test='select-all']");
+    //console.log("Initial classes:", all.classes().join(", "));
 
     const items = wrapper.findAll("#test-group input");
     expect(items[0].attributes("checked")).toBeFalsy();
     await items[0].trigger("click");
-    const emits = wrapper.emitted("update:modelValue");
-    console.log("Emits:", JSON.stringify(emits));
+    //const emits = wrapper.emitted("update:modelValue");
+    //console.log("Emits:", JSON.stringify(emits));
     expect(items[0].attributes("checked")).toBeTruthy();
 
     expect(getTextForParent(wrapper, "input[data-test='select-all']")).toBe("Select All");

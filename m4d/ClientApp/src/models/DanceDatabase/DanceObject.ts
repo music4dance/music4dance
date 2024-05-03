@@ -23,6 +23,6 @@ export class DanceObject extends NamedObject {
   }
 
   public get baseId(): string {
-    return this.id.substring(0, 3);
+    return this.id?.substring(0, 3);
   }
 }

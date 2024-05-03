@@ -108,15 +108,15 @@ function compareDanceOrder(
     if (expected != null) {
       if (i < expected.length) {
         const match = s === expected[i];
-        if (!match) {
-          console.log("");
-        }
+        // if (!match) {
+        //   console.log("");
+        // }
 
         succeeded = succeeded && match;
       }
     }
 
-    console.log(`"${s}",`);
+    //console.log(`"${s}",`);
 
     i += 1;
   }
@@ -125,7 +125,7 @@ function compareDanceOrder(
     expect(i).toEqual(expected.length);
   }
 
-  console.log("------");
+  //console.log("------");
 
   expect(succeeded).toBe(true);
 }

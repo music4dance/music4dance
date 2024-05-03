@@ -22,7 +22,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
       <div style=\\"margin: 0px auto; max-width: 800px;\\">
         <div data-v-3bbd14d4=\\"\\">
           <!-- INT-TODO: Add back in foot-clone -->
-          <div data-v-3bbd14d4=\\"\\" class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" sortdesc=\\"false\\" selectable=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" nolocalsorting=\\"false\\" noselectonclick=\\"false\\" sortcompareoptions=\\"[object Object]\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
+          <div data-v-3bbd14d4=\\"\\" class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" mustsort=\\"false\\" nosortreset=\\"false\\" selectable=\\"false\\" multisort=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" nolocalsorting=\\"false\\" noselectonclick=\\"false\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
             <table class=\\"table b-table table-hover table-striped\\">
               <thead class=\\"\\">
                 <!---->

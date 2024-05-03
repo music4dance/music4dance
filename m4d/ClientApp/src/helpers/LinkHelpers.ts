@@ -8,7 +8,7 @@ export function danceLink(dance: DanceInstance): string {
 }
 
 export function tempoLink(dance: DanceInstance | DanceType, tempo: TempoRange): string {
-  return `/song/advancedsearch?dances=${dance.baseId}&tempomin=${tempo.min}&tempomax=${tempo.max}`;
+  return `/song/advancedsearch?dances=${dance.baseId}&tempomin=${tempo.min}&tempomax=${tempo.max}&sortorder=Dances`;
 }
 
 export function defaultTempoLink(dance: DanceInstance | DanceType): string {

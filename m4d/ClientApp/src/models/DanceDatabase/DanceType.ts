@@ -13,6 +13,8 @@ export class DanceType extends DanceObject {
   @jsonArrayMember(DanceInstance) public instances: DanceInstance[] = [];
   public groups: DanceGroup[] = [];
 
+  public static excludeKeys = ["groups"];
+
   public constructor(init?: Partial<DanceType>) {
     super();
     if (init) {

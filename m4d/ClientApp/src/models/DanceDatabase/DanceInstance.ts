@@ -14,6 +14,8 @@ export class DanceInstance extends DanceObject {
   @jsonArrayMember(DanceException) public exceptions: DanceException[] = [];
   public danceType!: DanceType;
 
+  public static excludeKeys = ["danceType"];
+
   public constructor(init?: Partial<DanceInstance>) {
     super();
     assign(this, init);

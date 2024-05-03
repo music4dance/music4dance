@@ -4,6 +4,7 @@ import { TagMatrix, TagRow } from "@/models/TagMatrix";
 import DanceName from "./DanceName.vue";
 import type { TableFieldRaw, TableItem } from "bootstrap-vue-next";
 import { NamedObject } from "@/models/DanceDatabase/NamedObject";
+import type { LiteralUnion } from "@/helpers/bsvn-types";
 
 const props = defineProps({
   matrix: TagMatrix,
@@ -53,16 +54,16 @@ function danceLink(row: TagRow): string {
   return `/dances/${wordsToKebab(row.dance.name)}`;
 }
 
-function danceTagLink(row: TagRow, field: { key: string }): string {
-  return `/Song/?filter=Index-OOX,${row.dance.id}-Dances-.-.-.-.-.-.-+${field.key}`;
+function danceTagLink(key: string, row: TagRow): string {
+  return `/Song/?filter=Index-OOX,${row.dance.id}-Dances-.-.-.-.-.-.-+${key}`;
 }
 
 function toNamedObject(obj: unknown): NamedObject {
   return obj as NamedObject;
 }
 
-function tagLink(key: string): string {
-  return `/Song/?filter=Index-.-.-.-.-.-.-.-.-+${key}`;
+function tagLink(key: LiteralUnion<string | number | symbol>): string {
+  return `/Song/?filter=Index-.-.-.-.-.-.-.-.-+${String(key)}`;
 }
 </script>
 
@@ -91,12 +92,12 @@ function tagLink(key: string): string {
       <template #cell()="data">
         <!-- INT-TODO: should be able to use data.value rather than calling countFromKey -->
         <BButton
-          v-if="countFromKey(data.field.key, data.item) !== '0'"
+          v-if="countFromKey(data.field.key as string, data.item) !== '0'"
           variant="primary"
           size="sm"
-          :href="danceTagLink(data.item, data.field)"
+          :href="danceTagLink(data.field.key as string, data.item)"
         >
-          {{ countFromKey(data.field.key, data.item) }}
+          {{ countFromKey(data.field.key as string, data.item) }}
         </BButton>
       </template>
     </BTable>
