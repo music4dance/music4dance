@@ -23,6 +23,7 @@ function categoryLink(category: CompetitionCategory): string {
       One of the
       <a
         href="https://music4dance.blog/question-1-im-learning-to-cha-cha-where-is-some-great-music-for-practicing/"
+        target="_blank"
       >
         core ideas</a
       >
@@ -30,9 +31,11 @@ function categoryLink(category: CompetitionCategory): string {
       build playlists for competitions rounds. This page is a central location to start a search for
       songs for your own playlists based on the tempo definitions of competition ballroom dance
       established by
-      <a href="http://www.worlddancesport.org/Rule/Athlete/Competition">World Dance Council</a>
+      <a href="http://www.worlddancesport.org/Rule/Athlete/Competition" target="_blank"
+        >World Dance Council</a
+      >
       and
-      <a href="https://www.ndca.org/pages/ndca_rule_book/Default.asp"
+      <a href="https://www.ndca.org/pages/ndca_rule_book/Default.asp" target="_blank"
         >National Dance Council of America</a
       >
       and our database of songs.
@@ -44,6 +47,7 @@ function categoryLink(category: CompetitionCategory): string {
       <CompetitionCategoryTable
         :dances="category.round"
         :title="category.fullRoundTitle"
+        :use-full-name="false"
       ></CompetitionCategoryTable>
     </div>
     <div>

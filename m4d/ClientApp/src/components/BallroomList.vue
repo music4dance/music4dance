@@ -7,11 +7,15 @@ defineProps<{ name?: string }>();
     <p>
       <slot>
         {{ name }} is a category of
-        <a href="/dances/ballroom-competition-categories">competition ballroom dancing</a>
+        <a href="/dances/ballroom-competition-categories" target="_blank"
+          >competition ballroom dancing</a
+        >
         that is defined by the
-        <a href="http://www.worlddancesport.org/Rule/Athlete/Competition">World Dance Council</a>
+        <a href="http://www.worlddancesport.org/Rule/Athlete/Competition" target="_blank"
+          >World Dance Council</a
+        >
         and
-        <a href="https://www.ndca.org/pages/ndca_rule_book/Default.asp"
+        <a href="https://www.ndca.org/pages/ndca_rule_book/Default.asp" target="_blank"
           >National Dance Council of America</a
         >.
       </slot>
@@ -26,6 +30,7 @@ defineProps<{ name?: string }>();
         Read our
         <a
           href="https://music4dance.blog/im-a-competition-ballroom-dancer-can-i-find-practice-songs-that-are-a-specific-tempo/"
+          target="_blank"
         >
           blog post</a
         >

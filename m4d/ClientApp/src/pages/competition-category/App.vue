@@ -31,11 +31,13 @@ const groupLink = computed(
     <CompetitionCategoryTable
       :dances="category.round"
       :title="category.fullRoundTitle"
+      :use-full-name="false"
     ></CompetitionCategoryTable>
     <CompetitionCategoryTable
       v-if="category.extras && category.extras.length > 0"
       :dances="category.extras"
       :title="category.extraDancesTitle"
+      :use-full-name="false"
     ></CompetitionCategoryTable>
     <div>
       Other categories of <a :href="groupLink">{{ groupTitle }}</a> are:

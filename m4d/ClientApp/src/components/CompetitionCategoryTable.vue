@@ -27,22 +27,20 @@ const fields: Exclude<TableFieldRaw<DanceInstance>, string>[] = [
     formatter: (item: any) => name(item),
   },
   {
-    key: "mpm",
-    label: "MPM",
+    key: "dancesport_mpm",
+    label: "DanceSport (MPM)",
   },
   {
-    key: "dancesport",
-    label: "DanceSport",
+    key: "dancesport_bpm",
+    label: "DanceSport (BPM)",
   },
   {
-    key: "ndca",
-    label: "NDCA",
+    key: "ndca_mpm",
+    label: "NDCA (MPM)",
   },
   {
-    key: "tempoRange",
-    label: "BPM",
-    formatter: (_value: unknown, _key?: LiteralUnion<keyof DanceInstance>, item?: DanceInstance) =>
-      di(item).tempoRange.toString(),
+    key: "ndca_bpm",
+    label: "NDCA (BPM)",
   },
   {
     key: "meter",
@@ -66,18 +64,14 @@ function di(dance?: DanceInstance): DanceInstance {
   return d;
 }
 
-// INT-TODO: There is something funky going on with formatting the fields that are MPM tempo ranges
-//  so I'm just going to do it manually for now.  My guess is that the formatter isn't being called
-//  for slots values.
-
-function formatMPMValue(dance: DanceInstance): string {
-  return di(dance).tempoRange.mpm(dance.meter.numerator) as string;
-}
-
 // The DaneInstance coming in is a flattened version, so we'll retrieve the real one
 //  INT-TODO: Probably neeed to declare an IDanceInstance or something
-function formatFilteredTempo(dance: DanceInstance, filter: string): string {
+function formatFilteredMpm(dance: DanceInstance, filter: string): string {
   return di(dance).filteredTempo([filter])!.mpm(dance.meter.numerator);
+}
+
+function formatFilteredBpm(dance: DanceInstance, filter: string): string {
+  return di(dance).filteredTempo([filter])!.toString();
 }
 </script>
 
@@ -86,19 +80,26 @@ function formatFilteredTempo(dance: DanceInstance, filter: string): string {
     <h4 v-if="title">{{ title }}</h4>
     <BTable striped hover :items="danceTable" :fields="fields" responsive>
       <template #cell(name)="data">
-        <a :href="danceLink(data.item)">{{ data.value }}</a>
+        <a :href="danceLink(data.item)">{{ name(data.item) }}</a>
       </template>
-      <template #cell(mpm)="data">
-        <a :href="defaultTempoLink(di(data.item))">{{ formatMPMValue(data.item) }}</a>
-      </template>
-      <template #cell(dancesport)="data">
+      <template #cell(dancesport_mpm)="data">
         <a :href="filteredTempoLink(di(data.item), 'dancesport')">{{
-          formatFilteredTempo(data.item, "dancesport")
+          formatFilteredMpm(data.item, "dancesport")
         }}</a>
       </template>
-      <template #cell(ndca)="data">
+      <template #cell(dancesport_bpm)="data">
+        <a :href="filteredTempoLink(di(data.item), 'dancesport')">{{
+          formatFilteredBpm(data.item, "dancesport")
+        }}</a>
+      </template>
+      <template #cell(ndca_mpm)="data">
         <a :href="filteredTempoLink(di(data.item), 'ndca')">{{
-          formatFilteredTempo(data.item, "ndca")
+          formatFilteredMpm(data.item, "ndca")
+        }}</a>
+      </template>
+      <template #cell(ndca_bpm)="data">
+        <a :href="filteredTempoLink(di(data.item), 'ndca')">{{
+          formatFilteredBpm(data.item, "ndca")
         }}</a>
       </template>
       <template #cell(tempoRange)="data">
