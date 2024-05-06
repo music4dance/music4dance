@@ -36,12 +36,10 @@ export const model = {
           oneTime: false,
           crawl: false,
           order: 3,
-          fullPath:
-            "https://music4dance.blog/the-two-questions-that-inspired-music4dance",
+          fullPath: "https://music4dance.blog/the-two-questions-that-inspired-music4dance",
         },
         {
-          title:
-            "Question 1: I’m learning to Cha Cha, where is some great music for practicing?",
+          title: "Question 1: I’m learning to Cha Cha, where is some great music for practicing?",
           reference:
             "blog/question-1-im-learning-to-cha-cha-where-is-some-great-music-for-practicing",
           description:
@@ -53,12 +51,9 @@ export const model = {
             "https://music4dance.blog/question-1-im-learning-to-cha-cha-where-is-some-great-music-for-practicing",
         },
         {
-          title:
-            "Question 2: What dance styles can I dance to my favorite song(s)?",
-          reference:
-            "blog/question-2-what-dance-styles-can-i-dance-to-my-favorite-songs",
-          description:
-            "One of the things that amazes me about the best dance teachers...",
+          title: "Question 2: What dance styles can I dance to my favorite song(s)?",
+          reference: "blog/question-2-what-dance-styles-can-i-dance-to-my-favorite-songs",
+          description: "One of the things that amazes me about the best dance teachers...",
           oneTime: false,
           crawl: false,
           order: 5,
@@ -73,8 +68,7 @@ export const model = {
           oneTime: true,
           crawl: false,
           order: 7,
-          fullPath:
-            "https://music4dance.blog/help-how-would-you-group-this-dance-style",
+          fullPath: "https://music4dance.blog/help-how-would-you-group-this-dance-style",
         },
         {
           title: "Documentation for the song list",
@@ -88,8 +82,7 @@ export const model = {
         },
         {
           title: "Documentation for the Tempo Counter and Tempi (tempos) tools",
-          reference:
-            "blog/documentation-for-the-tempo-counter-and-tempi-tempos-tools",
+          reference: "blog/documentation-for-the-tempo-counter-and-tempi-tempos-tools",
           description:
             "One of the things that was difficult for me as a beginning ballroom dancer (even though I had decent amount of musical background) was to judge the tempo of a song…",
           oneTime: true,
@@ -119,8 +112,7 @@ export const model = {
           fullPath: "https://music4dance.blog/lets-tag-some-songs",
         },
         {
-          title:
-            "If you like to dance Cha-Cha to a song does that mean you “like” that song?",
+          title: "If you like to dance Cha-Cha to a song does that mean you “like” that song?",
           reference:
             "blog/if-you-like-to-dance-cha-cha-to-a-song-does-that-mean-you-like-that-song",
           description:
@@ -156,8 +148,7 @@ export const model = {
         },
         {
           title: "Mobile First improvements to the music4dance website",
-          reference:
-            "blog/mobile-first-improvements-to-the-music4dance-website/",
+          reference: "blog/mobile-first-improvements-to-the-music4dance-website/",
           description:
             "Most of the time that I use music4dance it’s on desktop computer, but I certainly want access to all of what it can do on my phone and tablet...",
           oneTime: true,
@@ -178,8 +169,7 @@ export const model = {
         },
         {
           title: "Oops, I didn't mean to throw that needle into the haystack…",
-          reference:
-            "blog/oops-i-didnt-mean-to-throw-that-needle-into-the-haystack/",
+          reference: "blog/oops-i-didnt-mean-to-throw-that-needle-into-the-haystack/",
           description:
             "Oh, These Dark Eyes by <i>Tango No. 9</i> is in the <a href='https://www.music4dance.net/song/'>music4dance catalog</a>, but it wasn't even showing up on the first page...",
           oneTime: true,
@@ -190,15 +180,13 @@ export const model = {
         },
         {
           title: "How do I find the latest music added to music4dance?",
-          reference:
-            "blog/how-do-i-find-the-latest-music-added-to-music4dance/",
+          reference: "blog/how-do-i-find-the-latest-music-added-to-music4dance/",
           description:
             "I'm adding new music just about every week, so if you're a frequent visitor to music4dance how can you see what is new..",
           oneTime: false,
           crawl: false,
           order: 37,
-          fullPath:
-            "https://music4dance.blog/how-do-i-find-the-latest-music-added-to-music4dance/",
+          fullPath: "https://music4dance.blog/how-do-i-find-the-latest-music-added-to-music4dance/",
         },
         {
           title: "Share Your Favorite Searches",
@@ -218,8 +206,7 @@ export const model = {
           oneTime: true,
           crawl: false,
           order: 39,
-          fullPath:
-            "https://music4dance.blog/where-did-all-the-collegiate-shag-music-go/",
+          fullPath: "https://music4dance.blog/where-did-all-the-collegiate-shag-music-go/",
         },
         {
           title: "Farewell to Groove Music",
@@ -249,8 +236,7 @@ export const model = {
           oneTime: false,
           crawl: false,
           order: 51,
-          fullPath:
-            "https://music4dance.blog/please-support-www-music4dance-net/",
+          fullPath: "https://music4dance.blog/please-support-www-music4dance-net/",
         },
         {
           title: "Check out our new Bonus Content Feature",
@@ -260,8 +246,7 @@ export const model = {
           oneTime: false,
           crawl: false,
           order: 52,
-          fullPath:
-            "https://music4dance.blog/check-out-our-new-bonus-content-feature/",
+          fullPath: "https://music4dance.blog/check-out-our-new-bonus-content-feature/",
         },
         {
           title: "Music for Dance Through the Decades",
@@ -271,14 +256,11 @@ export const model = {
           oneTime: false,
           crawl: false,
           order: 53,
-          fullPath:
-            "https://music4dance.blog/music-for-dance-through-the-decades/",
+          fullPath: "https://music4dance.blog/music-for-dance-through-the-decades/",
         },
         {
-          title:
-            'Farewell to the "Sign in with Microsoft" option on music4dance',
-          reference:
-            "blog/farewell-to-the-sign-in-with-microsoft-option-on-music4dance/",
+          title: 'Farewell to the "Sign in with Microsoft" option on music4dance',
+          reference: "blog/farewell-to-the-sign-in-with-microsoft-option-on-music4dance/",
           description:
             "Microsoft has moved to a new sign-in protocol and our current system for signing in with a Microsoft account started failing...",
           oneTime: true,
@@ -295,8 +277,7 @@ export const model = {
           oneTime: false,
           crawl: false,
           order: 55,
-          fullPath:
-            "https://music4dance.blog/announcing-a-musci4dance-bug-bounty/",
+          fullPath: "https://music4dance.blog/announcing-a-musci4dance-bug-bounty/",
         },
         {
           title: "The music4dance Blog Just Moved",
@@ -319,10 +300,8 @@ export const model = {
           fullPath: "https://music4dance.blog/create-a-spotify-playlist/",
         },
         {
-          title:
-            "Ask music4dance: Can I export music4dance playlists to play locally?",
-          reference:
-            "blog/ask-music4dance-can-i-export-music4dance-playlist-to-play-locally/",
+          title: "Ask music4dance: Can I export music4dance playlists to play locally?",
+          reference: "blog/ask-music4dance-can-i-export-music4dance-playlist-to-play-locally/",
           description:
             'I’ve been thinking about the concept of <a href="https://www.music4dance.net">music4dance</a> since long before streaming services like <a href="spotify.com">Spotify</a> existed, so the idea of generating playlists...',
           oneTime: false,
@@ -339,8 +318,7 @@ export const model = {
           oneTime: true,
           crawl: false,
           order: 64,
-          fullPath:
-            "https://music4dance.blog/where-is-that-feature-i-asked-about/",
+          fullPath: "https://music4dance.blog/where-is-that-feature-i-asked-about/",
         },
         {
           title: "Tempo Counter (Revisited)",
@@ -380,8 +358,7 @@ export const model = {
           oneTime: true,
           crawl: false,
           order: 68,
-          fullPath:
-            "https://music4dance.blog/what-is-your-favorite-music4dance-feature/",
+          fullPath: "https://music4dance.blog/what-is-your-favorite-music4dance-feature/",
         },
         {
           title: "How do you like to see lists of music to dance to?",
@@ -391,14 +368,11 @@ export const model = {
           oneTime: false,
           crawl: false,
           order: 70,
-          fullPath:
-            "https://music4dance.blog/how-do-you-like-to-see-lists-of-music-to-dance-to/",
+          fullPath: "https://music4dance.blog/how-do-you-like-to-see-lists-of-music-to-dance-to/",
         },
         {
-          title:
-            "Who else likes to dance to this song (and what do they dance to it)?",
-          reference:
-            "blog/who-else-likes-to-dance-to-this-song-and-what-do-they-dance-to-it/",
+          title: "Who else likes to dance to this song (and what do they dance to it)?",
+          reference: "blog/who-else-likes-to-dance-to-this-song-and-what-do-they-dance-to-it/",
           description:
             'As I browse the <a href="https://www.music4dance.net/song">music4dance catalog</a> and find a song I like, it’s nice to be able to see who added it and use that as a way to find other songs that I might like.  To this end...',
           oneTime: false,
@@ -409,15 +383,13 @@ export const model = {
         },
         {
           title: "New Feature: Adding Songs to the music4dance Catalog",
-          reference:
-            "blog/new-feature-adding-songs-to-the-music4dance-catalog/",
+          reference: "blog/new-feature-adding-songs-to-the-music4dance-catalog/",
           description:
             'I\'m excited to announce that I\'ve nearly completed a feature that will let you <a href="https://www.music4dance.net/song/augment">add songs</a> to the <a href="https://www.music4dance.net/song">music4dance catalog</a>.  I\'ve documented the feature <a href="https://music4dance.blog/music4dance-help/add-songs/">here</a>...  ',
           oneTime: false,
           crawl: false,
           order: 77,
-          fullPath:
-            "https://music4dance.blog/new-feature-adding-songs-to-the-music4dance-catalog/",
+          fullPath: "https://music4dance.blog/new-feature-adding-songs-to-the-music4dance-catalog/",
         },
         {
           title:
@@ -444,8 +416,7 @@ export const model = {
         },
         {
           title: "New Feature: More ways to see what's going on at music4dance",
-          reference:
-            "blog/new-feature-more-ways-to-see-whats-going-on-at-music4dance/",
+          reference: "blog/new-feature-more-ways-to-see-whats-going-on-at-music4dance/",
           description:
             'One of my goals for <a href="https://www.music4dance.net">music4dance</a> is to build a system that people can use to share their knowledge of partner dance music with others.  I probably spent too much time early on in this project...',
           oneTime: false,
@@ -462,14 +433,11 @@ export const model = {
           oneTime: false,
           crawl: false,
           order: 84,
-          fullPath:
-            "https://music4dance.blog/ask-music4dance-why-am-i-listed-as-anonymous/",
+          fullPath: "https://music4dance.blog/ask-music4dance-why-am-i-listed-as-anonymous/",
         },
         {
-          title:
-            "Ask music4dance: Should you add a Single Swing Dance category?",
-          reference:
-            "blog/ask-music4dance-should-you-add-a-single-swing-dance-category/",
+          title: "Ask music4dance: Should you add a Single Swing Dance category?",
+          reference: "blog/ask-music4dance-should-you-add-a-single-swing-dance-category/",
           description:
             '<a href="https://www.music4dance.net/users/info/arne">Arne</a> had <a href="https://music4dance.blog/2022/02/20/new-feature-searching-for-a-song-from-spotify-or-itunes/">another</a> great question: I see Single Swing being danced a lot these days.  Should music4dance add another <a href="https://www.music4dance.net/dances/swing">swing category</a>? Is Single Swing...',
           oneTime: false,
@@ -486,8 +454,7 @@ export const model = {
           oneTime: false,
           crawl: false,
           order: 90,
-          fullPath:
-            "https://music4dance.blog/new-feature-saving-and-sharing-searches/",
+          fullPath: "https://music4dance.blog/new-feature-saving-and-sharing-searches/",
         },
         {
           title: "Beta Feature: Export to a file",
@@ -497,14 +464,11 @@ export const model = {
           oneTime: false,
           crawl: false,
           order: 95,
-          fullPath:
-            "https://music4dance.blog/holiday-music-for-partner-dancing-2022/",
+          fullPath: "https://music4dance.blog/holiday-music-for-partner-dancing-2022/",
         },
         {
-          title:
-            "Would you like more content on music4dance.net? If so, what kind?",
-          reference:
-            "blog/would-you-like-more-content-on-music4dance-net-if-so-what-kind/",
+          title: "Would you like more content on music4dance.net? If so, what kind?",
+          reference: "blog/would-you-like-more-content-on-music4dance-net-if-so-what-kind/",
           description:
             '<a href="https://ballroomdj.org/">Brad’s</a> comment on my <a href="https://music4dance.blog/2023/01/29/new-dance-single-swing/">Single Swing post</a> made me realize that I’ve done a bunch of research on dancing and dance music that I haven’t effectively conveyed on the site or the blog. He pointed me to a <a href="http://www.superdancing.com/tempo.asp">site</a> that listed tempo values for <a href="https://www.music4dance.net/dances/single-swing">Single Swing</a>...',
           oneTime: false,
@@ -529,14 +493,14 @@ export const model = {
           title:
             "I'm a competition ballroom dancer, can I find practice songs that are a specific tempo?",
           reference:
-            "blog/im-a-competition-ballroom-dancer-can-i-find-practice-songs-that-are-a-specific-tempo",
+            "blog/im-a-ballroom-dancer-can-i-find-practice-songs-that-are-at-competition-tempo-revisited",
           description:
             "The quick answer to this question is yes, definitely!First, many of the songs in our catalog have been tagged with a tempo, so it is easy...",
           oneTime: false,
           crawl: false,
           order: 14,
           fullPath:
-            "https://music4dance.blog/im-a-competition-ballroom-dancer-can-i-find-practice-songs-that-are-a-specific-tempo",
+            "https://music4dance.blog/im-a-ballroom-dancer-can-i-find-practice-songs-that-are-at-competition-tempo-revisited",
         },
         {
           title:
@@ -553,8 +517,7 @@ export const model = {
         },
         {
           title: "I am learning the Foxtrot, where can I find some music?",
-          reference:
-            "blog/i-am-learning-the-foxtrot-where-can-i-find-some-music",
+          reference: "blog/i-am-learning-the-foxtrot-where-can-i-find-some-music",
           description:
             "The quick answer is to just <a href='https://www.music4dance.net/song/search?dances=FXT'>click this link</a> where you will find a list of over a thousand songs...",
           oneTime: false,
@@ -565,8 +528,7 @@ export const model = {
         },
         {
           title: "Searching for music to dance to just got a whole lot easier",
-          reference:
-            "blog/searching-for-music-to-dance-to-just-got-a-whole-lot-easier",
+          reference: "blog/searching-for-music-to-dance-to-just-got-a-whole-lot-easier",
           description:
             "I have been adding capabilities to the music4dance advanced search control as they are suggested and as time permits.  And it got a bit out of control, so to speak...",
           oneTime: true,
@@ -577,8 +539,7 @@ export const model = {
         },
         {
           title: "Are there songs that you never want to dance to again?",
-          reference:
-            "blog/are-there-songs-that-you-never-want-to-dance-to-again",
+          reference: "blog/are-there-songs-that-you-never-want-to-dance-to-again",
           description:
             "I have been adding capabilities to the music4dance advanced search control as they are suggested and as time permits.  And it got a bit out of control, so to speak...",
           oneTime: false,
@@ -588,8 +549,7 @@ export const model = {
             "https://music4dance.blog/are-there-songs-that-you-never-want-to-dance-to-again",
         },
         {
-          title:
-            "What if I just want to search for songs on music4dance like I do on Google?",
+          title: "What if I just want to search for songs on music4dance like I do on Google?",
           reference:
             "blog/what-if-i-just-want-to-search-for-songs-on-music4dance-like-i-do-on-google/",
           description:
@@ -601,12 +561,10 @@ export const model = {
             "https://music4dance.blog/what-if-i-just-want-to-search-for-songs-on-music4dance-like-i-do-on-google/",
         },
         {
-          title:
-            "Search like Google Part II: Autocomplete, Filter by Dance Style and Sorting",
+          title: "Search like Google Part II: Autocomplete, Filter by Dance Style and Sorting",
           reference:
             "blog/search-like-google-part-ii-autocomplete-filter-by-dance-style-and-sorting",
-          description:
-            "Auto-complete is something everyone expects when searching...",
+          description: "Auto-complete is something everyone expects when searching...",
           oneTime: false,
           crawl: false,
           order: 27,
@@ -614,10 +572,8 @@ export const model = {
             "https://music4dance.blog/search-like-google-part-ii-autocomplete-filter-by-dance-style-and-sorting",
         },
         {
-          title:
-            "Search like Google Part III: Advanced Search - The Best of Both Worlds?",
-          reference:
-            "blog/search-like-google-part-iii-advanced-search-the-best-of-both-worlds",
+          title: "Search like Google Part III: Advanced Search - The Best of Both Worlds?",
+          reference: "blog/search-like-google-part-iii-advanced-search-the-best-of-both-worlds",
           description:
             "I've just updated the music4dance site with the remaining features for our search beta...",
           oneTime: false,
@@ -634,19 +590,16 @@ export const model = {
           oneTime: true,
           crawl: false,
           order: 30,
-          fullPath:
-            "https://music4dance.blog/search-like-google-is-now-the-default",
+          fullPath: "https://music4dance.blog/search-like-google-is-now-the-default",
         },
         {
           title: "Finding the latest music on music4dance (take 2)",
           reference: "blog/finding-the-latest-music-on-music4dance-take-2/",
-          description:
-            "There are enough people that visit music4dance regularly that I thought...",
+          description: "There are enough people that visit music4dance regularly that I thought...",
           oneTime: false,
           crawl: false,
           order: 47,
-          fullPath:
-            "https://music4dance.blog/finding-the-latest-music-on-music4dance-take-2/",
+          fullPath: "https://music4dance.blog/finding-the-latest-music-on-music4dance-take-2/",
         },
         {
           title:
@@ -662,8 +615,7 @@ export const model = {
             "https://music4dance.blog/ask-music4dance-why-dont-you-have-info-about-musical-genres-like-you-do-about-dance-styles/",
         },
         {
-          title:
-            'Ask music4Dance: How do I find a "Pop Rock" song to dance a Slow Foxtrot to?',
+          title: 'Ask music4Dance: How do I find a "Pop Rock" song to dance a Slow Foxtrot to?',
           reference:
             "blog/ask-music4dance-how-do-i-find-a-pop-rock-song-to-dance-a-slow-foxtrot-to/",
           description:
@@ -686,8 +638,7 @@ export const model = {
         },
         {
           title: "New Feature: Searching for a Song from Soptify or ITunes",
-          reference:
-            "blog/new-feature-searching-for-a-song-from-spotify-or-itunes/",
+          reference: "blog/new-feature-searching-for-a-song-from-spotify-or-itunes/",
           description:
             'A new member of the <a href="https://www.music4dance.net">music4dance</a> community, <a href="https://www.music4dance.net/users/info/arne">Arne</a>, pointed out that he expected to be able to search by Spotify Id. Furthermore, he figured out how to do that...',
           oneTime: false,
@@ -704,14 +655,11 @@ export const model = {
           oneTime: false,
           crawl: false,
           order: 89,
-          fullPath:
-            "https://music4dance.blog/new-feature-filter-by-song-length/",
+          fullPath: "https://music4dance.blog/new-feature-filter-by-song-length/",
         },
         {
-          title:
-            "New Feature: Searching for only the songs that someone has voted for",
-          reference:
-            "blog/new-feature-searching-for-only-the-songs-that-someone-has-voted-for/",
+          title: "New Feature: Searching for only the songs that someone has voted for",
+          reference: "blog/new-feature-searching-for-only-the-songs-that-someone-has-voted-for/",
           description:
             '<a href="https://www.music4dance.net/users/info/arne">Arne</a> pointed out the other day that it would be useful to be able to build a playlist for just the songs that he had <a href="https://music4dance.blog/music4dance-help/dance-tags/">voted</a> for dancing <a href="https://www.music4dance.net/dances/cha-cha">Cha Cha</a>. I scratched my head a bit...',
           oneTime: false,
@@ -737,15 +685,13 @@ export const model = {
     {
       title: "Special Occasions",
       reference: "blog/category/special-occasions",
-      description:
-        "Searching for music related to special occasions (Holidays, Weddings, etc.)",
+      description: "Searching for music related to special occasions (Holidays, Weddings, etc.)",
       oneTime: false,
       crawl: false,
       children: [
         {
           title: "Wedding Music Part I: Can we dance the Foxtrot to our song?",
-          reference:
-            "blog/wedding-music-part-i-can-we-dance-the-foxtrot-to-our-song",
+          reference: "blog/wedding-music-part-i-can-we-dance-the-foxtrot-to-our-song",
           description:
             "When did you first learn to dance? For many people it was so that they could dance at their wedding...",
           oneTime: true,
@@ -775,8 +721,7 @@ export const model = {
           oneTime: false,
           crawl: false,
           order: 46,
-          fullPath:
-            "https://music4dance.blog/holiday-music-for-partner-dancing/",
+          fullPath: "https://music4dance.blog/holiday-music-for-partner-dancing/",
         },
         {
           title: "Holiday Music for Partner Dancing (Take 2)",
@@ -786,8 +731,7 @@ export const model = {
           oneTime: false,
           crawl: false,
           order: 50,
-          fullPath:
-            "https://music4dance.blog/holiday-music-for-partner-dancing-take-2/",
+          fullPath: "https://music4dance.blog/holiday-music-for-partner-dancing-take-2/",
         },
         {
           title: "Holiday Music for Partner Dancing 2019",
@@ -797,8 +741,7 @@ export const model = {
           oneTime: false,
           crawl: false,
           order: 61,
-          fullPath:
-            "https://music4dance.blog/holiday-music-for-partner-dancing-2019/",
+          fullPath: "https://music4dance.blog/holiday-music-for-partner-dancing-2019/",
         },
         {
           title: "Are you looking for Halloween Music to dance to?",
@@ -808,8 +751,7 @@ export const model = {
           oneTime: false,
           crawl: false,
           order: 69,
-          fullPath:
-            "https://music4dance.blog/are-you-looking-for-halloween-music-to-dance-to/",
+          fullPath: "https://music4dance.blog/are-you-looking-for-halloween-music-to-dance-to/",
         },
         {
           title: "Holiday Music for Partner Dancing 2020",
@@ -819,8 +761,7 @@ export const model = {
           oneTime: false,
           crawl: false,
           order: 71,
-          fullPath:
-            "https://music4dance.blog/holiday-music-for-partner-dancing-2020/",
+          fullPath: "https://music4dance.blog/holiday-music-for-partner-dancing-2020/",
         },
         {
           title: "Holiday Music for Partner Dancing 2021",
@@ -830,13 +771,11 @@ export const model = {
           oneTime: false,
           crawl: false,
           order: 81,
-          fullPath:
-            "https://music4dance.blog/holiday-music-for-partner-dancing-2021/",
+          fullPath: "https://music4dance.blog/holiday-music-for-partner-dancing-2021/",
         },
         {
           title: "Valentine's Day Edition: Love Songs that We Love to Dance to",
-          reference:
-            "blog/valentines-day-edition-love-songs-that-we-love-to-dance-to/",
+          reference: "blog/valentines-day-edition-love-songs-that-we-love-to-dance-to/",
           description:
             'I’ve been making an effort to tag songs and write sophisticated searches to find good songs for <a href="https://www.music4dance.net/song/holidaymusic">holiday dances</a>. The <a href="http://www.music4dance.net/song">music4dance catalog</a> is set up for this kind of search. Not only that, but I’ve always really enjoyed doing exhibition pieces for holiday parties...',
           oneTime: false,
@@ -853,8 +792,7 @@ export const model = {
           oneTime: false,
           crawl: false,
           order: 94,
-          fullPath:
-            "https://music4dance.blog/holiday-music-for-partner-dancing-2022/",
+          fullPath: "https://music4dance.blog/holiday-music-for-partner-dancing-2022/",
         },
         {
           title:
@@ -912,8 +850,7 @@ export const model = {
           oneTime: false,
           crawl: false,
           order: 8,
-          fullPath:
-            "https://music4dance.blog/the-dancing-with-the-stars-solution",
+          fullPath: "https://music4dance.blog/the-dancing-with-the-stars-solution",
         },
         {
           title: "Top Songs of 2015 --  And what to dance to them.",
@@ -923,8 +860,7 @@ export const model = {
           oneTime: false,
           crawl: false,
           order: 20,
-          fullPath:
-            "https://music4dance.blog/top-songs-of-2015-and-what-to-dance-to-them",
+          fullPath: "https://music4dance.blog/top-songs-of-2015-and-what-to-dance-to-them",
         },
         {
           title: "What are Your Favorite Song to Dance Bachata?",
@@ -934,13 +870,11 @@ export const model = {
           oneTime: false,
           crawl: false,
           order: 22,
-          fullPath:
-            "https://music4dance.blog/what-are-your-favorite-song-to-dance-bachata",
+          fullPath: "https://music4dance.blog/what-are-your-favorite-song-to-dance-bachata",
         },
         {
           title: "What are your favorite Prince songs for partner dancing?",
-          reference:
-            "blog/what-are-your-favorite-prince-songs-for-partner-dancing",
+          reference: "blog/what-are-your-favorite-prince-songs-for-partner-dancing",
           description:
             "I, like many, am mourning and listening to Prince's music. Over and over again...",
           oneTime: false,
@@ -961,15 +895,13 @@ export const model = {
         },
         {
           title: "Farewell to Rio 2016, but we'll always have The Samba",
-          reference:
-            "blog/farewell-to-rio-2016-but-well-always-have-the-samba/",
+          reference: "blog/farewell-to-rio-2016-but-well-always-have-the-samba/",
           description:
             "Now that the 2016 <a href='https://www.olympic.org'>Olympics</a> are over and the <a href='https://www.paralympic.org/'>Paralympics</a> are wrapping up,",
           oneTime: false,
           crawl: false,
           order: 33,
-          fullPath:
-            "https://music4dance.blog/farewell-to-rio-2016-but-well-always-have-the-samba/",
+          fullPath: "https://music4dance.blog/farewell-to-rio-2016-but-well-always-have-the-samba/",
         },
         {
           title: "Dancing With The Stars, Revisited",
@@ -979,8 +911,7 @@ export const model = {
           oneTime: false,
           crawl: false,
           order: 34,
-          fullPath:
-            "https://music4dance.blog/dancing-with-the-stars-revisited/",
+          fullPath: "https://music4dance.blog/dancing-with-the-stars-revisited/",
         },
         {
           title: "What is a Fake Waltz?",
@@ -1020,8 +951,7 @@ export const model = {
           oneTime: false,
           crawl: false,
           order: 44,
-          fullPath:
-            "https://music4dance.blog/tango-argentine-tango-ballroom-tango-oh-my/",
+          fullPath: "https://music4dance.blog/tango-argentine-tango-ballroom-tango-oh-my/",
         },
         {
           title: "Dance Pride",
@@ -1047,10 +977,8 @@ export const model = {
             "https://music4dance.blog/ask-music4dance-why-is-the-tempo-that-youre-listing-for-ricky-martins-casi-un-bolero-wrong/",
         },
         {
-          title:
-            "Ask music4dance: Why is a song tagged with the wrong dance style?",
-          reference:
-            "blog/ask-music4dance-why-is-a-song-tagged-with-the-wrong-dance-style/",
+          title: "Ask music4dance: Why is a song tagged with the wrong dance style?",
+          reference: "blog/ask-music4dance-why-is-a-song-tagged-with-the-wrong-dance-style/",
           description:
             'Variations on that question make up a significant amount of the <a href="https://music4dance.blog/feedback/">feedback</a> I get here at <a href="https://www.music4dance.net">music4dance</a>.  The first answer to these questions is that <a href="https://www.music4dance.net">music4dance</a> is crowd-sourced.  So someone...',
           oneTime: false,
@@ -1099,8 +1027,7 @@ export const model = {
           oneTime: false,
           crawl: false,
           order: 48,
-          fullPath:
-            "https://music4dance.blog/book-review-the-meaning-of-tango/",
+          fullPath: "https://music4dance.blog/book-review-the-meaning-of-tango/",
         },
         {
           title: "Beautiful Dance",
@@ -1130,8 +1057,7 @@ export const model = {
           oneTime: false,
           crawl: false,
           order: 75,
-          fullPath:
-            "https://music4dance.blog/book-review-partner-dance-success/",
+          fullPath: "https://music4dance.blog/book-review-partner-dance-success/",
         },
         {
           title: "Dance in Science Fiction and Fantasy",
@@ -1141,8 +1067,7 @@ export const model = {
           oneTime: false,
           crawl: false,
           order: 78,
-          fullPath:
-            "https://music4dance.blog/dance-in-science-fiction-and-fantasy/",
+          fullPath: "https://music4dance.blog/dance-in-science-fiction-and-fantasy/",
         },
         {
           title: "Dance as Language",
@@ -1155,10 +1080,8 @@ export const model = {
           fullPath: "https://music4dance.blog/dance-as-language/",
         },
         {
-          title:
-            "Book Review: Swingin' at the Savoy: The Memoir of a Jazz Dancer",
-          reference:
-            "blog/book-review-swingin-the-savoy-the-memoir-of-a-jazz-dancer/",
+          title: "Book Review: Swingin' at the Savoy: The Memoir of a Jazz Dancer",
+          reference: "blog/book-review-swingin-the-savoy-the-memoir-of-a-jazz-dancer/",
           description:
             '<a href="https://amzn.to/3RXnS6t">Swingin’ at the Savoy</a> is a beautiful memoir of one of the greatest <a href="https://www.music4dance.net/dances/lindy-hop">Lindy Hop</a> dancers of all time. Ms. Miller was not only one of the dancers that defined Lindy Hop, but as Lindy Hop faded for a while post World War II, she launched a career as a Jazz Dancer....',
           oneTime: false,
@@ -1175,8 +1098,7 @@ export const model = {
           oneTime: false,
           crawl: false,
           order: 92,
-          fullPath:
-            "https://music4dance.blog/book-review-how-to-read-music-in-30-days/",
+          fullPath: "https://music4dance.blog/book-review-how-to-read-music-in-30-days/",
         },
       ],
       order: 0,

@@ -29,7 +29,7 @@ defineProps<{ name?: string }>();
       <li>
         Read our
         <a
-          href="https://music4dance.blog/im-a-competition-ballroom-dancer-can-i-find-practice-songs-that-are-a-specific-tempo/"
+          href="https://music4dance.blog/im-a-ballroom-dancer-can-i-find-practice-songs-that-are-at-competition-tempo-revisited/"
           target="_blank"
         >
           blog post</a

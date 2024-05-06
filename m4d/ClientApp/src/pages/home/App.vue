@@ -82,7 +82,8 @@ const musicFeatures: FeatureInfo[] = [
     type: "music",
     tryIt: "/dances/ballroom-competition-categories",
     docs: "/dance-category/",
-    posts: "/im-a-competition-ballroom-dancer-can-i-find-practice-songs-that-are-a-specific-tempo/",
+    posts:
+      "im-a-ballroom-dancer-can-i-find-practice-songs-that-are-at-competition-tempo-revisited/",
     menu: ["Music", "Dances", "Ballroom"],
   },
   {

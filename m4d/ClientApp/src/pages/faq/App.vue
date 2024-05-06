@@ -226,7 +226,7 @@ const breadcrumbs: BreadCrumbItem[] = [...infoTrail, { text: "FAQ", active: true
               <p>
                 If you would like more information check out our related blog post.
                 <a
-                  href="https://music4dance.blog/im-a-competition-ballroom-dancer-can-i-find-practice-songs-that-are-a-specific-tempo/"
+                  href="https://music4dance.blogim-a-ballroom-dancer-can-i-find-practice-songs-that-are-at-competition-tempo-revisited/"
                 >
                   I'm a competition ballroom dancer, can I find practice songs that are a specific
                   tempo?</a
