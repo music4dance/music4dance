@@ -88,8 +88,9 @@ function dt(dance?: DanceType): DanceType {
   if (!dance) {
     throw new Error("Dance undefined");
   }
-  const d = danceDB.danceFromId(dance.internalId);
+  const d = danceDB.danceFromId(dance.id);
   if (!d) {
+    console.log("dance", dance);
     throw new Error(`Dance not found: ${dance.internalId}`);
   }
   return d;
@@ -124,7 +125,6 @@ function formatType(dance: DanceType): string {
 
 <template>
   <div>
-    <div>{{ sortBy }}</div>
     <BTable
       v-model:sort-by="sortBy"
       striped
