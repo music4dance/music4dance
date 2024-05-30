@@ -2,14 +2,21 @@
 using m4dModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.FeatureManagement;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.View;
 
 namespace m4d.Controllers;
 
+public class UsageModel
+{
+    public DateTime LastUpdate { get; set; }
+    public List<UsageSummary> Summaries { get; set; }
+}
 public class UsageLogController : DanceMusicController
 {
+    private static UsageModel s_model;
+
     public UsageLogController(
         DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
@@ -22,28 +29,70 @@ public class UsageLogController : DanceMusicController
     }
 
     // GET: UsageLogs
-    public IActionResult Index(string user = null, string usageId = null, int days = 0)
+    public IActionResult Index()
+    {
+        var model = s_model ?? new UsageModel
+            {
+                Summaries = Context.UsageSummary
+                    .FromSqlRaw("SELECT [UsageId], MAX([UserName]) as UserName, MIN([Date]) as MinDate, MAX([Date]) as MaxDate, COUNT(*) as Hits FROM dbo.UsageLog GROUP BY [UsageId] HAVING COUNT(*) > 5 ORDER BY Hits DESC").ToList(),
+                LastUpdate = DateTime.Now,
+            };
+        s_model = model;
+
+        return View(model);
+    }
+
+    // GET: UsageLogs/DayLog
+    public IActionResult DayLog(int days = 0)
     {
         IQueryable<UsageLog> log = Database.Context.UsageLog;
-
-        if (!string.IsNullOrEmpty(user))
-        {
-            log = log.Where(l => l.UserName == user);
-            ViewData["user"] = user;
-        }
-
-        if (!string.IsNullOrEmpty(usageId))
-        {
-            log = log.Where(l => l.UsageId == usageId);
-            ViewData["usageId"] = usageId;
-        }
 
         if (days > 0)
         {
             log = log.Where(l => l.Date < DateTimeOffset.Now.AddDays(-days));
-            ViewData["days"] = days;
+        }
+        ViewData["days"] = days;
+
+        return View(log.OrderByDescending(l => l.Id).Take(5000));
+    }
+
+    // GET: UsageLogs/UserLog
+    public IActionResult UserLog(string user)
+    {
+        if (user == null)
+        {
+            return NotFound();
         }
 
-        return View(log.OrderByDescending(l => l.Id).Take(1000));
+        ViewData["user"] = user;
+
+        return View(Database.Context.UsageLog
+            .Where(l => l.UserName == user)
+            .OrderByDescending(l => l.Id)
+            .Take(5000));
     }
+
+    // GET: UsageLogs/IdLog
+    public IActionResult IdLog(string usageId)
+    {
+        if (usageId == null)
+        {
+            return NotFound();
+        }
+
+        ViewData["usageId"] = usageId;
+
+        return View(Database.Context.UsageLog
+            .Where(l => l.UsageId == usageId)
+            .OrderByDescending(l => l.Id)
+            .Take(5000));
+    }
+
+    // GET: UsageLogs/ClearCache
+    public IActionResult ClearCache()
+    {
+        s_model = null;
+        return RedirectToAction("Index");
+    }
+
 }

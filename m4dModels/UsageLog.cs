@@ -14,3 +14,12 @@ public class UsageLog
     public string Referrer { get; set; }
     public string UserAgent { get; set; }
 }
+public class UsageSummary
+{
+    public string UsageId { get; set; }
+    public string UserName { get; set; }
+    public DateTimeOffset MinDate { get; set; }
+    public DateTimeOffset MaxDate { get; set; }
+    public int Hits { get; set; }
+
+}

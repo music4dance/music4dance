@@ -45,7 +45,7 @@
             <td>
                 @if (!string.IsNullOrEmpty(item.UsageId))
                 {
-                    @Html.ActionLink(item.UsageId, "Index", new
+                    @Html.ActionLink(item.UsageId, "IdLog", new
                         {
                             usageId = item.UsageId
                         })
@@ -54,7 +54,7 @@
             <td>
                 @if (!string.IsNullOrEmpty(item.UserName) && item.UserName != "NULL")
                 {
-                    @Html.ActionLink(item.UserName, "Index", new
+                    @Html.ActionLink(item.UserName, "UserLog", new
                         {
                             user = item.UserName
                         })

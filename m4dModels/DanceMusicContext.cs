@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
-using Microsoft.Extensions.Azure;
 
 namespace m4dModels
 {
@@ -51,6 +50,7 @@ namespace m4dModels
             builder.Entity<TagGroup>().ToTable("TagGroups");
             builder.Entity<ActivityLog>().ToTable("ActivityLog");
             builder.Entity<UsageLog>().ToTable("UsageLog");
+            builder.Entity<UsageSummary>().HasNoKey();
 
             builder.Entity<Dance>().Property(dance => dance.Id).HasMaxLength(5);
             builder.Entity<Dance>().Ignore(dance => dance.Info);
@@ -135,6 +135,7 @@ namespace m4dModels
         public DbSet<ActivityLog> ActivityLog { get; set; }
 
         public DbSet<UsageLog> UsageLog { get; set; }
+        public DbSet<UsageSummary> UsageSummary { get; set; }
         #endregion
     }
 }

@@ -1,48 +1,137 @@
 ﻿@using m4d.ViewModels
-@using m4dModels
-@model IEnumerable<m4dModels.UsageLog>
+@model m4d.Controllers.UsageModel
 
 @{
     ViewBag.Title = "Usage Log";
-
-    var days = ViewData["days"] as int?;
-    var user = ViewData["user"] as string;
-    var usageId = ViewData["usageId"] as string;
+    var items = Model.Summaries;
 
     var breadCrumbs = new List<BreadCrumbItem>
     {
         BreadCrumbItem.AdminItem,
-        new() { Title = ViewBag.Title, Link = "/usagelog" },
+        new() { Title = ViewBag.Title, Active=true },
     };
-
-    if (days != null)
-    {
-        breadCrumbs.Add(new() { Title = $"Days={days}", Active = true });
-    }
-    else if (user != null)
-    {
-        breadCrumbs.Add(new() { Title = $"User={user}", Active = true });
-    }
-    else if (usageId != null)
-    {
-        breadCrumbs.Add(new() { Title = $"UsageId={usageId}", Active = true });
-    }
-    else
-    {
-        breadCrumbs.RemoveAt(1);
-        breadCrumbs.Add(new()
-            {
-                Title = ViewBag.Title,
-                Active = true
-            }
-        );
-    }
 
     ViewData["BreadCrumbs"] = breadCrumbs;
 }
 
 <h1>@ViewBag.Title</h1>
 
+<div class="row my-1">
+    <div class="col">
+        Days:
+    </div>
+    <div class="col">
+        @Html.ActionLink("Today", "DayLog", "UsageLog", new
+            {
+                day = 0
+            }, 
+            new
+            {
+                @class = "btn btn-secondary",
+                role = "button"
+            })
+    </div>
+    <div class="col">
+        @Html.ActionLink("Yesterday", "DayLog", "UsageLog", new
+            {
+                day = -1
+            }, 
+            new {
+                @class = "btn btn-secondary",
+                role = "button"
+            })
+    </div>
+    <div class="col">
+        @Html.ActionLink("-2", "DayLog", "UsageLog", new
+        {
+            day = -2
+        },
+        new
+        {
+            @class = "btn btn-secondary",
+            role = "button"
+        })
+    </div>
+</div>
+
+<div class="row my-1">
+    <div class="col">Summary:</div>
+    <div class="col">
+        Count = @items.Count()
+    </div>
+    <div class="col">
+        Last Refresh = @Model.LastUpdate.ToString()
+    </div>
+    <div class="col">
+        @Html.ActionLink("Clear Cache", "ClearCache", "UsageLog", null, new
+            {
+                @class = "btn btn-primary",
+                role = "button"
+            })
+    </div>
+</div>
+
+</div>
+
 <div class="row">
-	<partial name="_UsageLog" model="Model" />
+    <div class="col">
+    <table style="table-layout:fixed" class="table table-striped table-songs col-sm">
+        <thead>
+            <tr>
+                <th scope="col" style="width:2em">
+                    @Html.DisplayNameFor(model => model.Summaries[0].Hits)
+                </th>
+                <th scope="col" style="width:12em">
+                    @Html.DisplayNameFor(model => model.Summaries[0].UsageId)
+                </th>
+                <th scope="col" style="width:6em">
+                    @Html.DisplayNameFor(model => model.Summaries[0].UserName)
+                </th>
+                <th scope="col" style="width:2em">
+                    Days
+                </th>
+                <th scope="col" style="width:8em">
+                    @Html.DisplayNameFor(model => model.Summaries[0].MinDate)
+                </th>
+                <th scope="col" style="width:8em">
+                    @Html.DisplayNameFor(model => model.Summaries[0].MaxDate)
+                </th>
+            </tr>
+        </thead>
+
+        @foreach (var item in items)
+        {
+            <tr>
+                <td>@item.Hits</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(item.UsageId))
+                    {
+                        @Html.ActionLink(item.UsageId, "IdLog", new
+                            {
+                                usageId = item.UsageId
+                            })
+                    }
+                </td>
+                <td>
+                    @if (!string.IsNullOrEmpty(item.UserName) && item.UserName != "NULL")
+                    {
+                        @Html.ActionLink(item.UserName, "UserLog", new
+                            {
+                                user = item.UserName
+                            })
+                    }
+                </td>
+                <td>
+                    @(((item.MaxDate.LocalDateTime - item.MinDate.LocalDateTime).Days + 1).ToString())
+                </td>
+                <td>
+                    @item.MinDate.LocalDateTime.ToString()
+                </td>
+                <td>
+                    @item.MaxDate.LocalDateTime.ToString()
+                </td>
+            </tr>
+        }
+    </table>
+    </div>
 </div>

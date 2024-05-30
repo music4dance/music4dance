@@ -324,7 +324,7 @@ ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
     {
         id = item.User.Id
     }),
-        @Html.ActionLink("Usage", "Index", "UsageLog", new
+        @Html.ActionLink("Usage", "UserLog", "UsageLog", new
     {
         user = item.User.UserName
     }),

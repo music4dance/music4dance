@@ -18,6 +18,7 @@ using m4d.ViewModels;
 using Newtonsoft.Json.Serialization;
 using Owl.reCAPTCHA;
 using Microsoft.FeatureManagement;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 Console.WriteLine("Entering Main");
 
@@ -77,6 +78,11 @@ services.AddDefaultIdentity<ApplicationUser>(
 
 // Add services to the container.
 services.AddControllersWithViews();
+
+services.Configure<KestrelServerOptions>(options =>
+{
+    options.Limits.MaxRequestBodySize = 1000000000; // 1GB
+});
 
 services.Configure<CookiePolicyOptions>(
     options =>

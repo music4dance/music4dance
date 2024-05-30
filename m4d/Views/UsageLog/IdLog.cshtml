@@ -1,0 +1,26 @@
+﻿@using m4d.ViewModels
+@using m4dModels
+@model IEnumerable<m4dModels.UsageLog>
+
+@{
+    ViewBag.Title = "Usage Log (Id)";
+
+    var usageId = ViewData["usageId"] as string;
+    var items = Model.ToList();
+
+    var breadCrumbs = new List<BreadCrumbItem>
+    {
+        BreadCrumbItem.AdminItem,
+        new() { Title = ViewBag.Title, Link = "/usagelog" },
+        new() { Title = $"UsageId={usageId}", Active = true }
+    };
+
+    ViewData["BreadCrumbs"] = breadCrumbs;
+}
+
+<h1>@ViewBag.Title</h1>
+<p>Count = @items.Count()</p>
+
+<div class="row">
+	<partial name="_UsageLog" model="items" />
+</div>

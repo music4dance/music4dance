@@ -550,9 +550,10 @@ public class AdminController : DanceMusicController
             await Database.Context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE UsageLog");
             await Database.Context.SaveChangesAsync();
 
+            var config = new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture) { Delimiter = "\t", Mode = CsvMode.NoEscape };
             using var stream = fileUpload.OpenReadStream();
             using var tr = new StreamReader(stream);
-            using var csv = new CsvReader(tr, CultureInfo.InvariantCulture);
+            using var csv = new CsvReader(tr, config);
 
             var records = csv.GetRecords<UsageLog>();
             var count = 0;
