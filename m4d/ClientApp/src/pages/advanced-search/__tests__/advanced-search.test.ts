@@ -23,7 +23,7 @@ describe("AdvancedSearch.vue", () => {
     });
   });
 
-  test.skip("renders the advanced search page", async () => {
+  test("renders the advanced search page", async () => {
     testPageSnapshot(App);
   });
 });

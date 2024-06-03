@@ -10,6 +10,7 @@ exports[`Home > Renders the Home Page 1`] = `
         <div data-v-8758b3c2=\\"\\" class=\\"card border-primary\\" id=\\"fun-info\\" style=\\"margin-bottom: 1rem; min-width: 25rem;\\">
           <!---->
           <!---->
+          <!---->
           <div data-v-8758b3c2=\\"\\" class=\\"text-bg-primary card-header\\"><a data-v-8758b3c2=\\"\\" href=\\"https://music4dance.blog/\\" style=\\"color: white; font-size: 1.5rem;\\">Fun with Music for All Kinds of Dancers</a></div>
           <div data-v-8758b3c2=\\"\\" style=\\"background-image: url(/images/shadows/fun-bkg.png);\\" class=\\"home-card-background\\">
             <ul data-v-8758b3c2=\\"\\" class=\\"home-list\\" style=\\"padding-left: 3rem; text-indent: -2rem;\\">
@@ -21,30 +22,30 @@ exports[`Home > Renders the Home Page 1`] = `
                       <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
                     </g>
                   </svg> We’d like to dance a \\"real\\" partner dance as the first dance at our wedding (Part II: We already chose our dance)</a></li>
-              <li data-v-8758b3c2=\\"\\"><a data-v-8758b3c2=\\"\\" href=\\"https://music4dance.blog/how-do-i-find-the-latest-music-added-to-music4dance/\\"><svg data-v-8758b3c2=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+              <li data-v-8758b3c2=\\"\\"><a data-v-8758b3c2=\\"\\" href=\\"https://music4dance.blog/dance-as-language/\\"><svg data-v-8758b3c2=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <g fill=\\"currentColor\\">
                       <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
                       <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
                       <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
                       <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
                     </g>
-                  </svg> How do I find the latest music added to music4dance?</a></li>
-              <li data-v-8758b3c2=\\"\\"><a data-v-8758b3c2=\\"\\" href=\\"https://music4dance.blog/ask-music4dance-why-am-i-listed-as-anonymous/\\"><svg data-v-8758b3c2=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                  </svg> Dance as Language</a></li>
+              <li data-v-8758b3c2=\\"\\"><a data-v-8758b3c2=\\"\\" href=\\"https://music4dance.blog/musicians-for-dancers/\\"><svg data-v-8758b3c2=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <g fill=\\"currentColor\\">
                       <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
                       <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
                       <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
                       <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
                     </g>
-                  </svg> Ask music4dance: Why am I listed as Anonymous?</a></li>
-              <li data-v-8758b3c2=\\"\\"><a data-v-8758b3c2=\\"\\" href=\\"https://music4dance.blog/new-feature-searching-for-only-the-songs-that-someone-has-voted-for/\\"><svg data-v-8758b3c2=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                  </svg> Musicians for Dancers</a></li>
+              <li data-v-8758b3c2=\\"\\"><a data-v-8758b3c2=\\"\\" href=\\"https://music4dance.blog/are-there-songs-that-you-never-want-to-dance-to-again\\"><svg data-v-8758b3c2=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <g fill=\\"currentColor\\">
                       <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
                       <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
                       <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
                       <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
                     </g>
-                  </svg> New Feature: Searching for only the songs that someone has voted for</a></li>
+                  </svg> Are there songs that you never want to dance to again?</a></li>
               <li data-v-8758b3c2=\\"\\"><a data-v-8758b3c2=\\"\\" href=\\"/home/counter\\"><svg data-v-8758b3c2=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <g fill=\\"currentColor\\">
                       <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
@@ -91,6 +92,7 @@ exports[`Home > Renders the Home Page 1`] = `
         <div data-v-8758b3c2=\\"\\" class=\\"card border-primary\\" id=\\"ballroom-info\\" style=\\"margin-bottom: 1rem; min-width: 25rem;\\">
           <!---->
           <!---->
+          <!---->
           <div data-v-8758b3c2=\\"\\" class=\\"text-bg-primary card-header\\"><a data-v-8758b3c2=\\"\\" href=\\"/dances/ballroom-competition-categories\\" style=\\"color: white; font-size: 1.5rem;\\">Music for Ballroom Dancers</a></div>
           <div data-v-8758b3c2=\\"\\" style=\\"background-image: url(/images/shadows/ballroom-bkg.png);\\" class=\\"home-card-background\\">
             <ul data-v-8758b3c2=\\"\\" class=\\"home-list\\" style=\\"padding-left: 3rem; text-indent: -2rem;\\">
@@ -135,6 +137,7 @@ exports[`Home > Renders the Home Page 1`] = `
           <!---->
         </div>
         <div data-v-8758b3c2=\\"\\" class=\\"card border-primary\\" id=\\"swing-info\\" style=\\"margin-bottom: 1rem; min-width: 25rem;\\">
+          <!---->
           <!---->
           <!---->
           <div data-v-8758b3c2=\\"\\" class=\\"text-bg-primary card-header\\"><a data-v-8758b3c2=\\"\\" href=\\"/dances/swing\\" style=\\"color: white; font-size: 1.5rem;\\">Music for Swing Dancers</a></div>
@@ -213,6 +216,7 @@ exports[`Home > Renders the Home Page 1`] = `
           <!---->
         </div>
         <div data-v-8758b3c2=\\"\\" class=\\"card border-primary\\" id=\\"latin-info\\" style=\\"margin-bottom: 1rem; min-width: 25rem;\\">
+          <!---->
           <!---->
           <!---->
           <div data-v-8758b3c2=\\"\\" class=\\"text-bg-primary card-header\\"><a data-v-8758b3c2=\\"\\" href=\\"/dances/latin\\" style=\\"color: white; font-size: 1.5rem;\\">Music for Latin Dancers</a></div>
@@ -301,6 +305,7 @@ exports[`Home > Renders the Home Page 1`] = `
         <div data-v-8758b3c2=\\"\\" class=\\"card border-primary\\" id=\\"tango-info\\" style=\\"margin-bottom: 1rem; min-width: 25rem;\\">
           <!---->
           <!---->
+          <!---->
           <div data-v-8758b3c2=\\"\\" class=\\"text-bg-primary card-header\\"><a data-v-8758b3c2=\\"\\" href=\\"/dances/tango\\" style=\\"color: white; font-size: 1.5rem;\\">Music for Tango Dancers</a></div>
           <div data-v-8758b3c2=\\"\\" style=\\"background-image: url(/images/shadows/tango-bkg.png);\\" class=\\"home-card-background\\">
             <ul data-v-8758b3c2=\\"\\" class=\\"home-list\\" style=\\"padding-left: 3rem; text-indent: -2rem;\\">
@@ -345,6 +350,7 @@ exports[`Home > Renders the Home Page 1`] = `
           <!---->
         </div>
         <div data-v-8758b3c2=\\"\\" class=\\"card border-primary\\" id=\\"wedding-info\\" style=\\"margin-bottom: 1rem; min-width: 25rem;\\">
+          <!---->
           <!---->
           <!---->
           <div data-v-8758b3c2=\\"\\" class=\\"text-bg-primary card-header\\"><a data-v-8758b3c2=\\"\\" href=\\"/dances/wedding-music\\" style=\\"color: white; font-size: 1.5rem;\\">Music for Wedding Dances</a></div>
@@ -411,14 +417,14 @@ exports[`Home > Renders the Home Page 1`] = `
           <div class=\\"row col\\" style=\\"display: block; margin-left: 1rem;\\">
             <div>
               <div><img src=\\"/images/icons/music.png\\" alt=\\"music\\" width=\\"24\\" height=\\"24\\"> Find songs to dance a specific dance style.</div>
-              <div class=\\"ms-3 my-1\\"><a class=\\"btn btn-sm btn-music\\" href=\\"https://www.music4dance.net/dance\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+              <div class=\\"ms-3 my-1\\"><a class=\\"btn btn-sm btn-music\\" href=\\"https://www.music4dance.net/dance\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <path fill=\\"currentColor\\" d=\\"M10.804 8L5 4.633v6.734zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696z\\"></path>
-                  </svg>&nbsp;Try It!</a><a class=\\"btn btn-sm btn-music\\" href=\\"https://music4dance.blog/music4dance-help/dance-styles-help/\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                  </svg>&nbsp;Try It!</a><a class=\\"btn btn-sm btn-music\\" href=\\"https://music4dance.blog/music4dance-help/dance-styles-help/\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <g fill=\\"currentColor\\">
                       <path d=\\"M5 4a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm-.5 2.5A.5.5 0 0 1 5 6h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5M5 8a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm0 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1z\\"></path>
                       <path d=\\"M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1\\"></path>
                     </g>
-                  </svg>&nbsp;Documentation</a><a class=\\"btn btn-sm btn-music\\" href=\\"https://music4dance.blog/question-1-im-learning-to-cha-cha-where-is-some-great-music-for-practicing/\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                  </svg>&nbsp;Documentation</a><a class=\\"btn btn-sm btn-music\\" href=\\"https://music4dance.blog/question-1-im-learning-to-cha-cha-where-is-some-great-music-for-practicing/\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <g fill=\\"currentColor\\">
                       <path d=\\"M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z\\"></path>
                       <path fill-rule=\\"evenodd\\" d=\\"M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z\\"></path>
@@ -428,10 +434,10 @@ exports[`Home > Renders the Home Page 1`] = `
             </div>
             <div>
               <div><img src=\\"/images/icons/music.png\\" alt=\\"music\\" width=\\"24\\" height=\\"24\\"> Find the most recently added songs</div>
-              <div class=\\"ms-3 my-1\\"><a class=\\"btn btn-sm btn-music\\" href=\\"https://www.music4dance.net/song/newmusic?type=Created\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+              <div class=\\"ms-3 my-1\\"><a class=\\"btn btn-sm btn-music\\" href=\\"https://www.music4dance.net/song/newmusic?type=Created\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <path fill=\\"currentColor\\" d=\\"M10.804 8L5 4.633v6.734zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696z\\"></path>
                   </svg>&nbsp;Try It!</a>
-                <!--v-if--><a class=\\"btn btn-sm btn-music\\" href=\\"https://music4dance.blog/tag/new-music/\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                <!--v-if--><a class=\\"btn btn-sm btn-music\\" href=\\"https://music4dance.blog/tag/new-music/\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <g fill=\\"currentColor\\">
                       <path d=\\"M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z\\"></path>
                       <path fill-rule=\\"evenodd\\" d=\\"M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z\\"></path>
@@ -442,14 +448,14 @@ exports[`Home > Renders the Home Page 1`] = `
             </div>
             <div>
               <div><img src=\\"/images/icons/music.png\\" alt=\\"music\\" width=\\"24\\" height=\\"24\\"> Find out what dance styles can be danced to a song.</div>
-              <div class=\\"ms-3 my-1\\"><a class=\\"btn btn-sm btn-music\\" href=\\"https://www.music4dance.net/song\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+              <div class=\\"ms-3 my-1\\"><a class=\\"btn btn-sm btn-music\\" href=\\"https://www.music4dance.net/song\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <path fill=\\"currentColor\\" d=\\"M10.804 8L5 4.633v6.734zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696z\\"></path>
-                  </svg>&nbsp;Try It!</a><a class=\\"btn btn-sm btn-music\\" href=\\"https://music4dance.blog/music4dance-help/song-list/\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                  </svg>&nbsp;Try It!</a><a class=\\"btn btn-sm btn-music\\" href=\\"https://music4dance.blog/music4dance-help/song-list/\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <g fill=\\"currentColor\\">
                       <path d=\\"M5 4a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm-.5 2.5A.5.5 0 0 1 5 6h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5M5 8a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm0 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1z\\"></path>
                       <path d=\\"M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1\\"></path>
                     </g>
-                  </svg>&nbsp;Documentation</a><a class=\\"btn btn-sm btn-music\\" href=\\"https://music4dance.blog/wedding-music-part-i-can-we-dance-the-foxtrot-to-our-song/\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                  </svg>&nbsp;Documentation</a><a class=\\"btn btn-sm btn-music\\" href=\\"https://music4dance.blog/wedding-music-part-i-can-we-dance-the-foxtrot-to-our-song/\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <g fill=\\"currentColor\\">
                       <path d=\\"M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z\\"></path>
                       <path fill-rule=\\"evenodd\\" d=\\"M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z\\"></path>
@@ -459,14 +465,14 @@ exports[`Home > Renders the Home Page 1`] = `
             </div>
             <div>
               <div><img src=\\"/images/icons/music.png\\" alt=\\"music\\" width=\\"24\\" height=\\"24\\"> Start with a musical genre (or other tags) and find songs to dance a particular style.</div>
-              <div class=\\"ms-3 my-1\\"><a class=\\"btn btn-sm btn-music\\" href=\\"https://www.music4dance.net/tag\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+              <div class=\\"ms-3 my-1\\"><a class=\\"btn btn-sm btn-music\\" href=\\"https://www.music4dance.net/tag\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <path fill=\\"currentColor\\" d=\\"M10.804 8L5 4.633v6.734zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696z\\"></path>
-                  </svg>&nbsp;Try It!</a><a class=\\"btn btn-sm btn-music\\" href=\\"https://music4dance.blog/music4dance-help/tag-cloud/\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                  </svg>&nbsp;Try It!</a><a class=\\"btn btn-sm btn-music\\" href=\\"https://music4dance.blog/music4dance-help/tag-cloud/\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <g fill=\\"currentColor\\">
                       <path d=\\"M5 4a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm-.5 2.5A.5.5 0 0 1 5 6h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5M5 8a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm0 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1z\\"></path>
                       <path d=\\"M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1\\"></path>
                     </g>
-                  </svg>&nbsp;Documentation</a><a class=\\"btn btn-sm btn-music\\" href=\\"https://music4dance.blog/tag/tag/\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                  </svg>&nbsp;Documentation</a><a class=\\"btn btn-sm btn-music\\" href=\\"https://music4dance.blog/tag/tag/\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <g fill=\\"currentColor\\">
                       <path d=\\"M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z\\"></path>
                       <path fill-rule=\\"evenodd\\" d=\\"M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z\\"></path>
@@ -476,10 +482,10 @@ exports[`Home > Renders the Home Page 1`] = `
             </div>
             <div>
               <div><img src=\\"/images/icons/music.png\\" alt=\\"music\\" width=\\"24\\" height=\\"24\\"> Find wedding songs and match them with dance styles.</div>
-              <div class=\\"ms-3 my-1\\"><a class=\\"btn btn-sm btn-music\\" href=\\"https://www.music4dance.net/dances/wedding-music\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+              <div class=\\"ms-3 my-1\\"><a class=\\"btn btn-sm btn-music\\" href=\\"https://www.music4dance.net/dances/wedding-music\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <path fill=\\"currentColor\\" d=\\"M10.804 8L5 4.633v6.734zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696z\\"></path>
                   </svg>&nbsp;Try It!</a>
-                <!--v-if--><a class=\\"btn btn-sm btn-music\\" href=\\"https://music4dance.blog/tag/wedding/\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                <!--v-if--><a class=\\"btn btn-sm btn-music\\" href=\\"https://music4dance.blog/tag/wedding/\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <g fill=\\"currentColor\\">
                       <path d=\\"M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z\\"></path>
                       <path fill-rule=\\"evenodd\\" d=\\"M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z\\"></path>
@@ -490,14 +496,14 @@ exports[`Home > Renders the Home Page 1`] = `
             </div>
             <div>
               <div><img src=\\"/images/icons/music.png\\" alt=\\"music\\" width=\\"24\\" height=\\"24\\"> Find songs that match competition tempo ranges.</div>
-              <div class=\\"ms-3 my-1\\"><a class=\\"btn btn-sm btn-music\\" href=\\"https://www.music4dance.net/dances/ballroom-competition-categories\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+              <div class=\\"ms-3 my-1\\"><a class=\\"btn btn-sm btn-music\\" href=\\"https://www.music4dance.net/dances/ballroom-competition-categories\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <path fill=\\"currentColor\\" d=\\"M10.804 8L5 4.633v6.734zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696z\\"></path>
-                  </svg>&nbsp;Try It!</a><a class=\\"btn btn-sm btn-music\\" href=\\"https://music4dance.blog/music4dance-help/dance-category/\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                  </svg>&nbsp;Try It!</a><a class=\\"btn btn-sm btn-music\\" href=\\"https://music4dance.blog/music4dance-help/dance-category/\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <g fill=\\"currentColor\\">
                       <path d=\\"M5 4a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm-.5 2.5A.5.5 0 0 1 5 6h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5M5 8a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm0 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1z\\"></path>
                       <path d=\\"M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1\\"></path>
                     </g>
-                  </svg>&nbsp;Documentation</a><a class=\\"btn btn-sm btn-music\\" href=\\"https://music4dance.blog/im-a-competition-ballroom-dancer-can-i-find-practice-songs-that-are-a-specific-tempo/\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                  </svg>&nbsp;Documentation</a><a class=\\"btn btn-sm btn-music\\" href=\\"https://music4dance.blogim-a-ballroom-dancer-can-i-find-practice-songs-that-are-at-competition-tempo-revisited/\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <g fill=\\"currentColor\\">
                       <path d=\\"M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z\\"></path>
                       <path fill-rule=\\"evenodd\\" d=\\"M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z\\"></path>
@@ -507,14 +513,14 @@ exports[`Home > Renders the Home Page 1`] = `
             </div>
             <div>
               <div><img src=\\"/images/icons/music.png\\" alt=\\"music\\" width=\\"24\\" height=\\"24\\"> Vote on what style you would dance to any song in our catalog.</div>
-              <div class=\\"ms-3 my-1\\"><a class=\\"btn btn-sm btn-music\\" href=\\"https://www.music4dance.net/identity/account/register\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+              <div class=\\"ms-3 my-1\\"><a class=\\"btn btn-sm btn-music\\" href=\\"https://www.music4dance.net/identity/account/register\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <path fill=\\"currentColor\\" d=\\"M10.804 8L5 4.633v6.734zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696z\\"></path>
-                  </svg>&nbsp;Try It!</a><a class=\\"btn btn-sm btn-music\\" href=\\"https://music4dance.blog/music4dance-help/dance-tags/\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                  </svg>&nbsp;Try It!</a><a class=\\"btn btn-sm btn-music\\" href=\\"https://music4dance.blog/music4dance-help/dance-tags/\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <g fill=\\"currentColor\\">
                       <path d=\\"M5 4a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm-.5 2.5A.5.5 0 0 1 5 6h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5M5 8a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm0 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1z\\"></path>
                       <path d=\\"M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1\\"></path>
                     </g>
-                  </svg>&nbsp;Documentation</a><a class=\\"btn btn-sm btn-music\\" href=\\"https://music4dance.blog/tag/vote/\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                  </svg>&nbsp;Documentation</a><a class=\\"btn btn-sm btn-music\\" href=\\"https://music4dance.blog/tag/vote/\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <g fill=\\"currentColor\\">
                       <path d=\\"M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z\\"></path>
                       <path fill-rule=\\"evenodd\\" d=\\"M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z\\"></path>
@@ -524,14 +530,14 @@ exports[`Home > Renders the Home Page 1`] = `
             </div>
             <div>
               <div><img src=\\"/images/icons/music.png\\" alt=\\"music\\" width=\\"24\\" height=\\"24\\"> Tag songs to create your own ways of making song lists.</div>
-              <div class=\\"ms-3 my-1\\"><a class=\\"btn btn-sm btn-music\\" href=\\"https://www.music4dance.net/identity/account/register\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+              <div class=\\"ms-3 my-1\\"><a class=\\"btn btn-sm btn-music\\" href=\\"https://www.music4dance.net/identity/account/register\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <path fill=\\"currentColor\\" d=\\"M10.804 8L5 4.633v6.734zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696z\\"></path>
-                  </svg>&nbsp;Try It!</a><a class=\\"btn btn-sm btn-music\\" href=\\"https://music4dance.blog/music4dance-help/tag-editing/\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                  </svg>&nbsp;Try It!</a><a class=\\"btn btn-sm btn-music\\" href=\\"https://music4dance.blog/music4dance-help/tag-editing/\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <g fill=\\"currentColor\\">
                       <path d=\\"M5 4a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm-.5 2.5A.5.5 0 0 1 5 6h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5M5 8a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm0 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1z\\"></path>
                       <path d=\\"M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1\\"></path>
                     </g>
-                  </svg>&nbsp;Documentation</a><a class=\\"btn btn-sm btn-music\\" href=\\"https://music4dance.blog/lets-tag-some-songs/\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                  </svg>&nbsp;Documentation</a><a class=\\"btn btn-sm btn-music\\" href=\\"https://music4dance.blog/lets-tag-some-songs/\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <g fill=\\"currentColor\\">
                       <path d=\\"M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z\\"></path>
                       <path fill-rule=\\"evenodd\\" d=\\"M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z\\"></path>
@@ -541,10 +547,10 @@ exports[`Home > Renders the Home Page 1`] = `
             </div>
             <div>
               <div><img src=\\"/images/icons/music.png\\" alt=\\"music\\" width=\\"24\\" height=\\"24\\"> Find holiday music to dance to.</div>
-              <div class=\\"ms-3 my-1\\"><a class=\\"btn btn-sm btn-music\\" href=\\"https://www.music4dance.net/song/holidaymusic\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+              <div class=\\"ms-3 my-1\\"><a class=\\"btn btn-sm btn-music\\" href=\\"https://www.music4dance.net/song/holidaymusic\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <path fill=\\"currentColor\\" d=\\"M10.804 8L5 4.633v6.734zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696z\\"></path>
                   </svg>&nbsp;Try It!</a>
-                <!--v-if--><a class=\\"btn btn-sm btn-music\\" href=\\"https://music4dance.blog/tag/holiday/\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                <!--v-if--><a class=\\"btn btn-sm btn-music\\" href=\\"https://music4dance.blog/tag/holiday/\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <g fill=\\"currentColor\\">
                       <path d=\\"M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z\\"></path>
                       <path fill-rule=\\"evenodd\\" d=\\"M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z\\"></path>
@@ -560,14 +566,14 @@ exports[`Home > Renders the Home Page 1`] = `
           <div class=\\"row col\\" style=\\"display: block; margin-left: 1rem;\\">
             <div>
               <div><img src=\\"/images/icons/tools.png\\" alt=\\"tools\\" width=\\"24\\" height=\\"24\\"> Use our tempo counter tool to find the tempo of a song and match it to dance styles.</div>
-              <div class=\\"ms-3 my-1\\"><a class=\\"btn btn-sm btn-tools\\" href=\\"https://www.music4dance.net/home/counter\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+              <div class=\\"ms-3 my-1\\"><a class=\\"btn btn-sm btn-tools\\" href=\\"https://www.music4dance.net/home/counter\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <path fill=\\"currentColor\\" d=\\"M10.804 8L5 4.633v6.734zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696z\\"></path>
-                  </svg>&nbsp;Try It!</a><a class=\\"btn btn-sm btn-tools\\" href=\\"https://music4dance.blog/music4dance-help/tempo-counter/\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                  </svg>&nbsp;Try It!</a><a class=\\"btn btn-sm btn-tools\\" href=\\"https://music4dance.blog/music4dance-help/tempo-counter/\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <g fill=\\"currentColor\\">
                       <path d=\\"M5 4a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm-.5 2.5A.5.5 0 0 1 5 6h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5M5 8a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm0 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1z\\"></path>
                       <path d=\\"M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1\\"></path>
                     </g>
-                  </svg>&nbsp;Documentation</a><a class=\\"btn btn-sm btn-tools\\" href=\\"https://music4dance.blog/question-2-what-dance-styles-can-i-dance-to-my-favorite-songs/\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                  </svg>&nbsp;Documentation</a><a class=\\"btn btn-sm btn-tools\\" href=\\"https://music4dance.blog/question-2-what-dance-styles-can-i-dance-to-my-favorite-songs/\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <g fill=\\"currentColor\\">
                       <path d=\\"M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z\\"></path>
                       <path fill-rule=\\"evenodd\\" d=\\"M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z\\"></path>
@@ -577,14 +583,14 @@ exports[`Home > Renders the Home Page 1`] = `
             </div>
             <div>
               <div><img src=\\"/images/icons/tools.png\\" alt=\\"tools\\" width=\\"24\\" height=\\"24\\"> Explore relationships between the meter and tempi of different dance styles and find songs that match.</div>
-              <div class=\\"ms-3 my-1\\"><a class=\\"btn btn-sm btn-tools\\" href=\\"https://www.music4dance.net/home/tempi\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+              <div class=\\"ms-3 my-1\\"><a class=\\"btn btn-sm btn-tools\\" href=\\"https://www.music4dance.net/home/tempi\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <path fill=\\"currentColor\\" d=\\"M10.804 8L5 4.633v6.734zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696z\\"></path>
-                  </svg>&nbsp;Try It!</a><a class=\\"btn btn-sm btn-tools\\" href=\\"https://music4dance.blog/music4dance-help/dance-tempi/\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                  </svg>&nbsp;Try It!</a><a class=\\"btn btn-sm btn-tools\\" href=\\"https://music4dance.blog/music4dance-help/dance-tempi/\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <g fill=\\"currentColor\\">
                       <path d=\\"M5 4a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm-.5 2.5A.5.5 0 0 1 5 6h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5M5 8a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm0 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1z\\"></path>
                       <path d=\\"M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1\\"></path>
                     </g>
-                  </svg>&nbsp;Documentation</a><a class=\\"btn btn-sm btn-tools\\" href=\\"https://music4dance.blog/tag/tempo/\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                  </svg>&nbsp;Documentation</a><a class=\\"btn btn-sm btn-tools\\" href=\\"https://music4dance.blog/tag/tempo/\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <g fill=\\"currentColor\\">
                       <path d=\\"M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z\\"></path>
                       <path fill-rule=\\"evenodd\\" d=\\"M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z\\"></path>
@@ -594,14 +600,14 @@ exports[`Home > Renders the Home Page 1`] = `
             </div>
             <div>
               <div><img src=\\"/images/icons/tools.png\\" alt=\\"tools\\" width=\\"24\\" height=\\"24\\"> Use our advanced search tool to find songs to dance to based one tempo, tags, dance style, and more.</div>
-              <div class=\\"ms-3 my-1\\"><a class=\\"btn btn-sm btn-tools\\" href=\\"https://www.music4dance.net/song/advancedsearchform\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+              <div class=\\"ms-3 my-1\\"><a class=\\"btn btn-sm btn-tools\\" href=\\"https://www.music4dance.net/song/advancedsearchform\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <path fill=\\"currentColor\\" d=\\"M10.804 8L5 4.633v6.734zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696z\\"></path>
-                  </svg>&nbsp;Try It!</a><a class=\\"btn btn-sm btn-tools\\" href=\\"https://music4dance.blog/music4dance-help/advanced-search/\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                  </svg>&nbsp;Try It!</a><a class=\\"btn btn-sm btn-tools\\" href=\\"https://music4dance.blog/music4dance-help/advanced-search/\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <g fill=\\"currentColor\\">
                       <path d=\\"M5 4a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm-.5 2.5A.5.5 0 0 1 5 6h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5M5 8a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm0 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1z\\"></path>
                       <path d=\\"M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1\\"></path>
                     </g>
-                  </svg>&nbsp;Documentation</a><a class=\\"btn btn-sm btn-tools\\" href=\\"https://music4dance.blog/tag/search/\\" role=\\"button\\" target=\\"_self\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                  </svg>&nbsp;Documentation</a><a class=\\"btn btn-sm btn-tools\\" href=\\"https://music4dance.blog/tag/search/\\" role=\\"button\\" style=\\"margin-left: 1em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                     <g fill=\\"currentColor\\">
                       <path d=\\"M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z\\"></path>
                       <path fill-rule=\\"evenodd\\" d=\\"M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z\\"></path>
@@ -774,7 +780,7 @@ exports[`Home > Renders the Home Page 1`] = `
             <div>
               <div style=\\"margin-left: 2em;\\">
                 <div class=\\"info\\"><img src=\\"/vclient/src/assets/images/icons/info.png\\" alt=\\"info\\" width=\\"24\\" height=\\"24\\"> I'm a competition ballroom dancer, can I find practice songs that are a specific tempo?</div>
-                <div style=\\"margin-left: 2em;\\"><span>The quick answer to this question is yes, definitely!First, many of the songs in our catalog have been tagged with a tempo, so it is easy...</span><a href=\\"https://music4dance.blog/im-a-competition-ballroom-dancer-can-i-find-practice-songs-that-are-a-specific-tempo\\" style=\\"margin-left: 0.5em;\\">[Read more]</a></div>
+                <div style=\\"margin-left: 2em;\\"><span>The quick answer to this question is yes, definitely!First, many of the songs in our catalog have been tagged with a tempo, so it is easy...</span><a href=\\"https://music4dance.blog/im-a-ballroom-dancer-can-i-find-practice-songs-that-are-at-competition-tempo-revisited\\" style=\\"margin-left: 0.5em;\\">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style=\\"margin-left: 2em;\\">

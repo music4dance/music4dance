@@ -6,6 +6,8 @@ import { loadTagsFromString } from "@/helpers/TagLoader";
 import { loadDancesFromString } from "@/helpers/DanceLoader";
 // @ts-ignore
 import tagDatabaseJson from "@/assets/tags.json";
+import { createBootstrap } from "bootstrap-vue-next";
+
 declare global {
   interface Window {
     model_: unknown;
@@ -30,13 +32,34 @@ vi.mock("@/helpers/DanceEnvironmentManager.ts", () => {
   };
 });
 
-export function testPageSnapshot(App: any, model?: unknown): void {
+let currentId = 1;
+
+// TODO NEXT: What is App? Can we type it more specifically? Does it actually have a provide function?
+export function testPageSnapshot(app: unknown, model?: unknown): void {
+  const bsvn = createBootstrap({
+    plugins: {
+      id: {
+        getId: () => (currentId++).toString().padStart(4, "0"),
+        // getId: () => {
+        //   const id = `M4D-${(currentId++).toString().padStart(4, "0")}`;
+        //   console.log("ID:", id);
+        //   return id;
+        // },
+      },
+    },
+  });
+
   if (model) {
     window.model_ = model;
   }
-  const wrapper = mount(App, {
+  //app.provide(idPluginKey, () => `${Math.random().toString().slice(2, 8)}__PROVIDED__`);
+  const wrapper = mount(app, {
     props: {},
-    global: { stubs: { MainMenu: { template: "<span>MainMenu</span>" } } },
+    global: {
+      stubs: { MainMenu: { template: "<span>MainMenu</span>" } },
+      config: {},
+      plugins: [bsvn],
+    },
   });
   expect(wrapper.html()).toMatchSnapshot();
 }

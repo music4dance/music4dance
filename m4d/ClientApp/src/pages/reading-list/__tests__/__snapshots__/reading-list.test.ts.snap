@@ -5,8 +5,8 @@ exports[`About > Render the Readling List Page 1`] = `
   <nav aria-label=\\"breadcrumb\\">
     <nav aria-label=\\"breadcrumb\\" style=\\"padding: 0.25rem 0.5rem;\\">
       <ol class=\\"breadcrumb\\">
-        <li class=\\"breadcrumb-item\\"><a class=\\"\\" href=\\"/\\" target=\\"_self\\">music4dance</a></li>
-        <li class=\\"breadcrumb-item\\"><a class=\\"\\" href=\\"/home/info\\" target=\\"_self\\">Info</a></li>
+        <li class=\\"breadcrumb-item\\"><a class=\\"\\" href=\\"/\\">music4dance</a></li>
+        <li class=\\"breadcrumb-item\\"><a class=\\"\\" href=\\"/home/info\\">Info</a></li>
         <li class=\\"breadcrumb-item active\\"><span aria-current=\\"location\\">Reading List</span></li>
       </ol>
     </nav>
@@ -16,15 +16,12 @@ exports[`About > Render the Readling List Page 1`] = `
     <div>
       <div data-v-b13604e2=\\"\\" class=\\"tabs\\">
         <!---->
+        <!---->
         <div class=\\"\\">
-          <ul class=\\"nav nav-tabs\\" role=\\"tablist\\">
-            <li class=\\"nav-item\\" role=\\"presentation\\"><button id=\\"__BVID__952698___BV_tab__\\" class=\\"nav-link\\" data-bs-toggle=\\"tab\\" data-bs-target=\\"#__BVID__040134___BV___\\" role=\\"tab\\" aria-controls=\\"__BVID__040134___BV___\\" aria-selected=\\"false\\">Learning to Dance</button></li>
-            <li class=\\"nav-item\\" role=\\"presentation\\"><button id=\\"__BVID__059486___BV_tab__\\" class=\\"nav-link\\" data-bs-toggle=\\"tab\\" data-bs-target=\\"#__BVID__855925___BV___\\" role=\\"tab\\" aria-controls=\\"__BVID__855925___BV___\\" aria-selected=\\"false\\">Dance History</button></li>
-            <li class=\\"nav-item\\" role=\\"presentation\\"><button id=\\"__BVID__517953___BV_tab__\\" class=\\"nav-link\\" data-bs-toggle=\\"tab\\" data-bs-target=\\"#__BVID__091266___BV___\\" role=\\"tab\\" aria-controls=\\"__BVID__091266___BV___\\" aria-selected=\\"false\\">Dance in Fiction</button></li>
-          </ul>
+          <ul class=\\"nav nav-tabs\\" role=\\"tablist\\" aria-orientation=\\"horizontal\\"></ul>
         </div>
         <div class=\\"tab-content\\">
-          <div data-v-b13604e2=\\"\\" id=\\"__BVID__040134___BV___\\" class=\\"tab-pane fade\\" role=\\"tabpanel\\" aria-labelledby=\\"__BVID__952698___BV_tab__\\">
+          <div data-v-b13604e2=\\"\\" id=\\"bvt-0\\" class=\\"tab-pane fade _getter __v_isRef __v_isReadonly _getter __v_isRef __v_isReadonly\\" role=\\"tabpanel\\" aria-labelledby=\\"__BVID__0001___BV_tab__\\">
             <div data-v-8ea0c2bf=\\"\\" data-v-b13604e2=\\"\\">
               <h3 data-v-8ea0c2bf=\\"\\" class=\\"category-description\\">Books about learning to dance and to become a better dancer</h3>
               <div data-v-8ea0c2bf=\\"\\">
@@ -38,11 +35,31 @@ exports[`About > Render the Readling List Page 1`] = `
                     <div data-v-e38168e7=\\"\\"><a href=\\"https://www.amazon.com/Hear-Beat-Feel-Music-Remarkable-ebook/dp/B07DPVFY6V?crid=1MIHB6FI75J8D&amp;keywords=hear+the+beat+feel+the+music&amp;qid=1566677512&amp;s=gateway&amp;sprefix=hear+the+music%2C+feel%2Caps%2C202&amp;sr=8-1&amp;linkCode=li2&amp;tag=msc4dnc-20&amp;linkId=9018732b1d509231e2a4a75b3ba9835f&amp;language=en_US&amp;ref_=as_li_ss_il\\" target=\\"_blank\\"><img border=\\"0\\" src=\\"//ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&amp;ASIN=B07DPVFY6V&amp;Format=_SL160_&amp;ID=AsinImage&amp;MarketPlace=US&amp;ServiceVersion=20070822&amp;WS=1&amp;tag=msc4dnc-20&amp;language=en_US\\"></a><img src=\\"https://ir-na.amazon-adsystem.com/e/ir?t=msc4dnc-20&amp;language=en_US&amp;l=li2&amp;o=1&amp;a=B07DPVFY6V\\" width=\\"1\\" height=\\"1\\" border=\\"0\\" alt=\\"\\" style=\\"border:none !important; margin:0px !important;\\"></div>
                     <div data-v-e38168e7=\\"\\">
                       <ul data-v-e38168e7=\\"\\" style=\\"list-style-type: none;\\">
+                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://ihatetodance.com/\\" target=\\"_blank\\">ihatetodance.com</a></li>
                         <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/2ZKMWRS\\" target=\\"_blank\\">Hear the Beat, Feel the Music (Kindle)</a></li>
                         <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/2zH4uDQ\\" target=\\"_blank\\">Hear the Beat, Feel the Music (Paperback)</a></li>
                         <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://music4dance.blog/2019/08/24/hear-the-beat-feel-the-music/\\" target=\\"_blank\\">Review</a></li>
                       </ul>
                       <div data-v-e38168e7=\\"\\" class=\\"notes\\">This is a great read for those dancers that don’t have a musical background and are struggling with “musicality.”</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div data-v-8ea0c2bf=\\"\\">
+                <div data-v-e38168e7=\\"\\" data-v-8ea0c2bf=\\"\\">
+                  <hr data-v-e38168e7=\\"\\">
+                  <h2 data-v-e38168e7=\\"\\" class=\\"title\\">Every Man's Survival Guide to Ballroom Dancing<span data-v-e38168e7=\\"\\"> : Ace Your Wedding Dance and Keep Cool on a Cruise, at a Formal, and in Dance Classes Paperback</span></h2>
+                  <div data-v-e38168e7=\\"\\">by James Joseph</div>
+                  <div data-v-e38168e7=\\"\\" style=\\"display: flex;\\" class=\\"mt-2\\">
+                    <div data-v-e38168e7=\\"\\"><a href=\\"https://www.amazon.com/Every-Survival-Guide-Ballroom-Dancing-ebook/dp/B007MPUSAI?_encoding=UTF8&amp;qid=1477934551&amp;sr=8-1&amp;linkCode=li2&amp;tag=msc4dnc-20&amp;linkId=2d6bdcb5ad34244ae733daaa6e5592b6&amp;language=en_US&amp;ref_=as_li_ss_il\\" target=\\"_blank\\"><img border=\\"0\\" src=\\"//ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&amp;ASIN=B007MPUSAI&amp;Format=_SL160_&amp;ID=AsinImage&amp;MarketPlace=US&amp;ServiceVersion=20070822&amp;WS=1&amp;tag=msc4dnc-20&amp;language=en_US\\"></a><img src=\\"https://ir-na.amazon-adsystem.com/e/ir?t=msc4dnc-20&amp;language=en_US&amp;l=li2&amp;o=1&amp;a=B007MPUSAI\\" width=\\"1\\" height=\\"1\\" border=\\"0\\" alt=\\"\\" style=\\"border:none !important; margin:0px !important;\\"></div>
+                    <div data-v-e38168e7=\\"\\">
+                      <ul data-v-e38168e7=\\"\\" style=\\"list-style-type: none;\\">
+                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://ihatetodance.com/\\" target=\\"_blank\\">ihatetodance.com</a></li>
+                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/47j07NO\\" target=\\"_blank\\">Every Man's Survival Guide to Ballroom Dancing (Kindle)</a></li>
+                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/3ugpKA4\\" target=\\"_blank\\">Every Man's Survival Guide to Ballroom Dancing (Paperback)</a></li>
+                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://music4dance.blog/2016/10/31/feel-the-beat/\\" target=\\"_blank\\">Review</a></li>
+                      </ul>
+                      <div data-v-e38168e7=\\"\\" class=\\"notes\\">This is the book I wish I had when I first started dancing as a somewhat socially awkward 20 something. This book lays out some solid advice about how to behave on the dance floor and general etiquitte in various dance environments on top of instructions on how to dance to music.</div>
                     </div>
                   </div>
                 </div>
@@ -139,7 +156,7 @@ exports[`About > Render the Readling List Page 1`] = `
               </div>
             </div>
           </div>
-          <div data-v-b13604e2=\\"\\" id=\\"__BVID__855925___BV___\\" class=\\"tab-pane fade\\" role=\\"tabpanel\\" aria-labelledby=\\"__BVID__059486___BV_tab__\\">
+          <div data-v-b13604e2=\\"\\" id=\\"bvt-1\\" class=\\"tab-pane fade _getter __v_isRef __v_isReadonly _getter __v_isRef __v_isReadonly\\" role=\\"tabpanel\\" aria-labelledby=\\"__BVID__0002___BV_tab__\\">
             <div data-v-8ea0c2bf=\\"\\" data-v-b13604e2=\\"\\">
               <h3 data-v-8ea0c2bf=\\"\\" class=\\"category-description\\">Books about dance history and the social impact of dance</h3>
               <div data-v-8ea0c2bf=\\"\\">
@@ -215,7 +232,7 @@ exports[`About > Render the Readling List Page 1`] = `
               </div>
             </div>
           </div>
-          <div data-v-b13604e2=\\"\\" id=\\"__BVID__091266___BV___\\" class=\\"tab-pane fade\\" role=\\"tabpanel\\" aria-labelledby=\\"__BVID__517953___BV_tab__\\">
+          <div data-v-b13604e2=\\"\\" id=\\"bvt-2\\" class=\\"tab-pane fade _getter __v_isRef __v_isReadonly _getter __v_isRef __v_isReadonly\\" role=\\"tabpanel\\" aria-labelledby=\\"__BVID__0003___BV_tab__\\">
             <div data-v-8ea0c2bf=\\"\\" data-v-b13604e2=\\"\\">
               <h3 data-v-8ea0c2bf=\\"\\" class=\\"category-description\\">Books that celebrate dance in fiction</h3>
               <div data-v-8ea0c2bf=\\"\\">
@@ -278,7 +295,7 @@ exports[`About > Render the Readling List Page 1`] = `
               </div>
             </div>
           </div>
-          <!---->
+          <div class=\\"tab-pane active\\"></div>
         </div>
       </div>
       <div data-v-b13604e2=\\"\\">
@@ -291,7 +308,7 @@ exports[`About > Render the Readling List Page 1`] = `
   <div id=\\"footer-content\\">
     <hr>
     <footer>
-      <p> © 2023 - <a href=\\"https://www.music4dance.net\\">Music4Dance.net</a> - <a href=\\"https://www.music4dance.net/home/sitemap\\">Site Map</a> - <a href=\\"https://www.music4dance.net/home/termsofservice\\">Terms of Service</a> - <a href=\\"https://www.music4dance.net/home/privacypolicy\\">Privacy Policy</a> - <a href=\\"https://www.music4dance.net/home/credits\\">Credits</a> - <a>Help</a></p>
+      <p> © 2024 - <a href=\\"https://www.music4dance.net\\">Music4Dance.net</a> - <a href=\\"https://www.music4dance.net/home/sitemap\\">Site Map</a> - <a href=\\"https://www.music4dance.net/home/termsofservice\\">Terms of Service</a> - <a href=\\"https://www.music4dance.net/home/privacypolicy\\">Privacy Policy</a> - <a href=\\"https://www.music4dance.net/home/credits\\">Credits</a> - <a>Help</a></p>
     </footer>
   </div>
 </div>"
