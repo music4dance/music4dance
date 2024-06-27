@@ -26,6 +26,7 @@ public class UsageLogController : DanceMusicController
             fileProvider, backroundTaskQueue, featureManager, logger)
     {
         HelpPage = "song-list";
+        context.Database.SetCommandTimeout(1000);
     }
 
     // GET: UsageLogs
