@@ -4,7 +4,7 @@ using m4d.Areas.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using Azure.Identity;
-using Vite.AspNetCore.Extensions;
+using Vite.AspNetCore;
 using Microsoft.AspNetCore.Rewrite;
 using m4d.Utilities;
 using m4d.Services;
