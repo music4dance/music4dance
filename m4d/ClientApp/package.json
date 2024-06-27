@@ -9,7 +9,7 @@
     "test:unit": "vitest",
     "test:ui": "vitest --ui --api 9527",
     "build-only": "vite build",
-    "type-check": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
+    "type-check": "vue-tsc --build --force",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "format": "prettier --write src/"
   },
@@ -38,7 +38,7 @@
     "@vue/eslint-config-prettier": "^8.0.0",
     "@vue/eslint-config-typescript": "^12.0.0",
     "@vue/test-utils": "^2.4.1",
-    "@vue/tsconfig": "^0.4.0",
+    "@vue/tsconfig": "^0.5.1",
     "eslint": "^8.49.0",
     "eslint-plugin-vue": "^9.17.0",
     "fast-glob": "^3.3.1",
@@ -46,13 +46,14 @@
     "npm-run-all2": "^6.0.6",
     "prettier": "^3.0.3",
     "sass": "^1.68.0",
-    "typescript": "~5.0.2",
+    "typescript": "~5.4.5",
     "unplugin-icons": "^0.17.1",
     "unplugin-vue-components": "^0.25.2",
     "vite": "^4.4.9",
     "vite-plugin-inspect": "^0.7.40",
     "vite-plugin-mkcert": "^1.16.0",
     "vitest": "^0.34.4",
-    "vue-tsc": "^1.8.11"
-  }
+    "vue-tsc": "^2.0.5"
+  },
+  "packageManager": "yarn@1.22.19+sha1.4ba7fc5c6e704fce2066ecbfb0b0d8976fe62447"
 }

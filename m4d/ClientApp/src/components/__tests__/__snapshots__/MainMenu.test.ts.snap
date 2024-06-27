@@ -66,7 +66,7 @@ exports[`MainMenu.vue > Renders MainMenu for an anonymous user 1`] = `
         </ul>
         <ul class=\\"navbar-nav ms-auto\\">
           <li class=\\"d-flex flex-row align-items-center flex-wrap\\">
-            <form id=\\"search\\" class=\\"d-flex\\"><input id=\\"search-text\\" class=\\"form-control form-control-sm me-sm-2\\" type=\\"text\\" placeholder=\\"Search\\"><button class=\\"btn btn-sm btn-secondary disabled mx-2 my-2 my-sm-0\\" disabled=\\"\\" type=\\"submit\\">Search</button></form>
+            <form id=\\"search\\" class=\\"d-flex\\"><input id=\\"search-text\\" class=\\"form-control form-control-sm me-sm-2\\" type=\\"text\\" placeholder=\\"Search\\" value=\\"\\"><button class=\\"btn btn-sm btn-secondary disabled mx-2 my-2 my-sm-0\\" disabled=\\"\\" type=\\"submit\\">Search</button></form>
           </li>
           <li class=\\"nav-item\\" right=\\"\\"><a class=\\"nav-link\\" href=\\"/identity/account/register?returnUrl=/\\">Register</a></li>
           <li class=\\"nav-item\\" right=\\"\\"><a class=\\"nav-link\\" href=\\"/identity/account/login?returnUrl=/\\">Login</a></li>

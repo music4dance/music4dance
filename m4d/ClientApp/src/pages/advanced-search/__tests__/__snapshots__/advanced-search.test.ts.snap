@@ -12,7 +12,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
           <div class=\\"mb-3\\" id=\\"search-string-group\\" role=\\"group\\"><label id=\\"__BVID__0001___BV__BV_label___\\" for=\\"search-string\\" class=\\"form-label d-block\\">Keywords:</label>
             <div class=\\"\\">
               <div class=\\"input-group mb-1\\" role=\\"group\\">
-                <!----><input id=\\"search-everywhere\\" class=\\"form-control\\" type=\\"text\\" placeholder=\\"Enter artist, title, etc. OR a Spotify or Apple share link\\">
+                <!----><input id=\\"search-everywhere\\" class=\\"form-control\\" type=\\"text\\" placeholder=\\"Enter artist, title, etc. OR a Spotify or Apple share link\\" value=\\"Love\\">
                 <!---->
               </div><button class=\\"btn btn-sm btn-outline-secondary rounded-0 float-end\\" type=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                   <path fill=\\"currentColor\\" d=\\"M3.204 5h9.592L8 10.481zm-.753.659l4.796 5.48a1 1 0 0 0 1.506 0l4.796-5.48c.566-.647.106-1.659-.753-1.659H3.204a1 1 0 0 0-.753 1.659\\"></path>
@@ -44,7 +44,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
                         <li role=\\"presentation\\">
                           <form class=\\"dropdown-item-text\\">
                             <div class=\\"row d-flex flex-wrap mb-0\\" id=\\"__BVID__0008___BV___\\" role=\\"group\\"><label class=\\"col-md-auto col-form-label col-form-label col-form-label-sm\\" id=\\"__BVID__0007___BV__BV_label___\\" for=\\"tag-search-input\\">Search Dances</label>
-                              <div class=\\"col\\"><input id=\\"__BVID__0009___BV_input__\\" class=\\"form-control form-control-sm\\" type=\\"search\\" autocomplete=\\"off\\">
+                              <div class=\\"col\\"><input id=\\"__BVID__0009___BV_input__\\" class=\\"form-control form-control-sm\\" type=\\"search\\" autocomplete=\\"off\\" value=\\"\\">
                                 <!---->
                                 <!---->
                                 <!---->
@@ -142,7 +142,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
                       <li role=\\"presentation\\">
                         <form class=\\"dropdown-item-text\\">
                           <div class=\\"row d-flex flex-wrap mb-0\\" id=\\"__BVID__0017___BV___\\" role=\\"group\\"><label class=\\"col-md-auto col-form-label col-form-label col-form-label-sm\\" id=\\"__BVID__0016___BV__BV_label___\\" for=\\"tag-search-input\\">Search Tags</label>
-                            <div class=\\"col\\"><input id=\\"__BVID__0018___BV_input__\\" class=\\"form-control form-control-sm\\" type=\\"search\\" autocomplete=\\"off\\">
+                            <div class=\\"col\\"><input id=\\"__BVID__0018___BV_input__\\" class=\\"form-control form-control-sm\\" type=\\"search\\" autocomplete=\\"off\\" value=\\"\\">
                               <!---->
                               <!---->
                               <!---->
@@ -182,7 +182,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
                       <li role=\\"presentation\\">
                         <form class=\\"dropdown-item-text\\">
                           <div class=\\"row d-flex flex-wrap mb-0\\" id=\\"__BVID__0023___BV___\\" role=\\"group\\"><label class=\\"col-md-auto col-form-label col-form-label col-form-label-sm\\" id=\\"__BVID__0022___BV__BV_label___\\" for=\\"tag-search-input\\">Search Tags</label>
-                            <div class=\\"col\\"><input id=\\"__BVID__0024___BV_input__\\" class=\\"form-control form-control-sm\\" type=\\"search\\" autocomplete=\\"off\\">
+                            <div class=\\"col\\"><input id=\\"__BVID__0024___BV_input__\\" class=\\"form-control form-control-sm\\" type=\\"search\\" autocomplete=\\"off\\" value=\\"\\">
                               <!---->
                               <!---->
                               <!---->
@@ -211,7 +211,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
               <fieldset class=\\"\\" id=\\"tempo-range\\">
                 <!---->
                 <div class=\\"\\">
-                  <div class=\\"d-flex\\"><input id=\\"tempo-min\\" class=\\"form-control\\" type=\\"number\\" min=\\"0\\" max=\\"400\\" style=\\"width: 6rem;\\"><span class=\\"mx-2 pt-2\\">to</span><input id=\\"tempo-max\\" class=\\"form-control\\" type=\\"number\\" min=\\"0\\" max=\\"400\\" style=\\"width: 6rem;\\">
+                  <div class=\\"d-flex\\"><input id=\\"tempo-min\\" class=\\"form-control\\" type=\\"number\\" min=\\"0\\" max=\\"400\\" style=\\"width: 6rem;\\" value=\\"0\\"><span class=\\"mx-2 pt-2\\">to</span><input id=\\"tempo-max\\" class=\\"form-control\\" type=\\"number\\" min=\\"0\\" max=\\"400\\" style=\\"width: 6rem;\\" value=\\"400\\">
                     <div class=\\"invalid-feedback\\">Tempos must be between 0 and 400 BPM</div>
                   </div>
                   <!---->
@@ -229,7 +229,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
               <fieldset class=\\"\\" id=\\"length-range\\">
                 <!---->
                 <div class=\\"\\">
-                  <div class=\\"d-flex\\"><input id=\\"length-min\\" class=\\"form-control\\" type=\\"number\\" min=\\"0\\" max=\\"600\\" style=\\"width: 6rem;\\"><span class=\\"mx-2 pt-2\\">to</span><input id=\\"length-max\\" class=\\"form-control\\" type=\\"number\\" min=\\"0\\" max=\\"600\\" style=\\"width: 6rem;\\">
+                  <div class=\\"d-flex\\"><input id=\\"length-min\\" class=\\"form-control\\" type=\\"number\\" min=\\"0\\" max=\\"600\\" style=\\"width: 6rem;\\" value=\\"0\\"><span class=\\"mx-2 pt-2\\">to</span><input id=\\"length-max\\" class=\\"form-control\\" type=\\"number\\" min=\\"0\\" max=\\"600\\" style=\\"width: 6rem;\\" value=\\"600\\">
                     <div class=\\"invalid-feedback\\">Length must be between 0 and 600 seconds</div>
                   </div>
                   <!---->
@@ -244,7 +244,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
           </div>
           <div class=\\"\\" id=\\"activity-group\\" role=\\"group\\"><label id=\\"__BVID__0027___BV__BV_label___\\" for=\\"activity\\" class=\\"form-label d-block\\">By User:</label>
             <div class=\\"\\">
-              <div class=\\"d-flex\\"><input id=\\"user\\" class=\\"form-control mr-2\\" type=\\"text\\" placeholder=\\"UserName or me\\" style=\\"width: 10rem;\\"><select id=\\"activity\\" class=\\"form-select\\">
+              <div class=\\"d-flex\\"><input id=\\"user\\" class=\\"form-control mr-2\\" type=\\"text\\" placeholder=\\"UserName or me\\" style=\\"width: 10rem;\\" value=\\"\\"><select id=\\"activity\\" class=\\"form-select\\">
                   <option value=\\"NT\\">Don't filter on user activity</option>
                 </select></div>
               <!---->

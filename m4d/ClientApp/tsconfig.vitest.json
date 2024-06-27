@@ -8,6 +8,7 @@
     "allowSyntheticDefaultImports": true,
     "types": ["node", "jsdom"],
     "esModuleInterop": true,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   }
 }
