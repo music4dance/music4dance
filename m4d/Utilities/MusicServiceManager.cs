@@ -1116,8 +1116,7 @@ public class MusicServiceManager
         {
             using var response = await HttpClientHelper.Client.SendAsync(req);
 
-            if (response.StatusCode == HttpStatusCode.Created ||
-                response.StatusCode == HttpStatusCode.Accepted)
+            if (response.IsSuccessStatusCode)
             {
                 responseString = await response.Content.ReadAsStringAsync();
             }
