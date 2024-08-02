@@ -1,8 +1,9 @@
-import { describe, expect, test } from "vitest";
+import { beforeAll, describe, expect, test } from "vitest";
 import { VueWrapper, mount } from "@vue/test-utils";
 import CheckedList from "../CheckedList.vue";
 import { optionsFromText, textFromOptions, valuesFromOptions } from "@/models/CheckboxTypes";
 import { type CheckboxValue } from "bootstrap-vue-next";
+import { mockResizObserver } from "@/helpers/TestHelpers";
 
 const textA = ["First Option", "Second Option", "Third Option"];
 const optionsA = optionsFromText(textA);
@@ -17,6 +18,10 @@ function getTextForParent(wrapper: VueWrapper, selector: string): string {
 }
 
 describe("CheckedList.vue", () => {
+  beforeAll(() => {
+    mockResizObserver();
+  });
+
   test("verify the options setup", () => {
     expect(optionsA).toBeDefined();
     expect(optionsA.length).toBe(3);

@@ -1,20 +1,22 @@
 <script setup lang="ts">
-import { checkServiceAndWarn } from "@/helpers/DropTarget";
+import { useDropTarget } from "@/composables/useDropTarget";
 import { KeywordQuery } from "@/models/KeywordQuery";
-import { computed, onMounted, ref, type VNodeRef } from "vue";
+import type { BFormInput } from "bootstrap-vue-next";
+import { computed } from "vue";
+import SuggestionList from "@/components/SuggestionList.vue";
 
 const props = defineProps({ modelValue: { type: String, required: true } });
 const advanced = defineModel<boolean>("advanced");
 const emit = defineEmits(["update:modelValue"]);
 
-const keywordsInput = ref<VNodeRef | null>(null);
+const { checkServiceAndWarn } = useDropTarget();
 
-const keywordQuery = new KeywordQuery(props.modelValue);
+const keywordQuery = computed(() => new KeywordQuery(props.modelValue));
 
-const everywhere = computed(() => keywordQuery.getField("Everywhere"));
-const title = computed(() => keywordQuery.getField("Title"));
-const artist = computed(() => keywordQuery.getField("Artist"));
-const albums = computed(() => keywordQuery.getField("Albums"));
+const everywhere = computed(() => keywordQuery.value.getField("Everywhere"));
+const title = computed(() => keywordQuery.value.getField("Title"));
+const artist = computed(() => keywordQuery.value.getField("Artist"));
+const albums = computed(() => keywordQuery.value.getField("Albums"));
 
 const model = [
   {
@@ -27,15 +29,8 @@ const model = [
   { name: "Albums", model: albums, description: "Enter part of an album name" },
 ];
 
-const showFields = computed(() => keywordQuery.isLucene || advanced.value);
+const showFields = computed(() => keywordQuery.value.isLucene || advanced.value);
 const visibleModel = computed(() => (showFields.value ? model : model.slice(0, 1)));
-
-onMounted(() => {
-  if (keywordsInput?.value?.$el) {
-    const first = keywordsInput.value.$el.getElementsByTagName("input")[0];
-    first.focus();
-  }
-});
 
 const updateModel = async (key: string, value: string) => {
   await checkServiceAndWarn(value);
@@ -44,27 +39,25 @@ const updateModel = async (key: string, value: string) => {
 </script>
 
 <template>
-  <BFormGroup
-    id="search-string-group"
-    ref="keywordsInput"
-    label="Keywords:"
-    label-for="search-string"
-    class="mb-3"
-  >
+  <BFormGroup id="search-string-group" label="Keywords:" label-for="search-string" class="mb-3">
     <BInputGroup
-      v-for="item in visibleModel"
+      v-for="(item, index) in visibleModel"
       :key="item.name"
       :append="showFields ? item.name : undefined"
       class="mb-1"
     >
       <BFormInput
         :id="`search-${item.name.toLowerCase()}`"
-        ref="keywordsInput"
         :model-value="item.model.value"
         type="text"
         :placeholder="item.description"
+        :autofocus="index === 0"
+        debounce="100"
+        :autocomplete="index === 0 ? 'off' : 'false'"
+        :list="index === 0 ? 'auto-complete' : undefined"
         @update:model-value="updateModel(item.name, $event as string)"
       ></BFormInput>
+      <SuggestionList v-if="index === 0" id="auto-complete" :search="everywhere" />
     </BInputGroup>
     <BButton
       v-if="!showFields"

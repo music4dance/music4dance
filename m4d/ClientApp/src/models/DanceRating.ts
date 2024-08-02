@@ -1,10 +1,8 @@
 import { jsonMember, jsonObject } from "typedjson";
-import type { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
 import { Tag, TagCategory } from "./Tag";
 import { TaggableObject } from "./TaggableObject";
 import type { NamedObject } from "./DanceDatabase/NamedObject";
-
-declare const danceDatabase: DanceDatabase;
+import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 
 @jsonObject
 export class DanceRating extends TaggableObject {
@@ -17,7 +15,7 @@ export class DanceRating extends TaggableObject {
     }
     const decorated = tag.value.match(/^[!\-+].*/);
     const value = decorated ? tag.value.substr(1) : tag.value;
-    const dance = danceDatabase.fromName(value);
+    const dance = safeDanceDatabase().fromName(value);
     if (!dance) {
       throw new Error(`Couldn't find dance ${value}`);
     }
@@ -52,10 +50,10 @@ export class DanceRating extends TaggableObject {
   }
 
   public get description(): string {
-    return danceDatabase.fromId(this.danceId)!.name;
+    return safeDanceDatabase().fromId(this.danceId)!.name;
   }
 
   public get dance(): NamedObject {
-    return danceDatabase.fromId(this.danceId)!;
+    return safeDanceDatabase().fromId(this.danceId)!;
   }
 }

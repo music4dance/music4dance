@@ -3,8 +3,8 @@ import { computed } from "vue";
 import DanceName from "@/components/DanceName.vue";
 import type { NamedObject } from "@/models/DanceDatabase/NamedObject";
 import { DanceGroup } from "@/models/DanceDatabase/DanceGroup";
-import type { DanceTypeCount } from "@/models/DanceTypeCount";
 import type { TempoType } from "@/models/DanceDatabase/TempoType";
+import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 
 const props = defineProps<{
   dance: NamedObject;
@@ -25,7 +25,9 @@ const variant = computed(() => {
 });
 
 const songCount = computed(() => {
-  return DanceGroup.isGroup(props.dance) ? undefined : (props.dance as DanceTypeCount).count;
+  return DanceGroup.isGroup(props.dance)
+    ? undefined
+    : safeDanceDatabase().getSongCount(props.dance.id);
 });
 </script>
 

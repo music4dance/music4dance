@@ -5,9 +5,9 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
   <nav aria-label=\\"breadcrumb\\">
     <nav aria-label=\\"breadcrumb\\" style=\\"padding: 0.25rem 0.5rem;\\">
       <ol class=\\"breadcrumb\\">
-        <li class=\\"breadcrumb-item\\"><a class=\\"\\" href=\\"/\\">music4dance</a></li>
-        <li class=\\"breadcrumb-item\\"><a class=\\"\\" href=\\"/dances\\">Dances</a></li>
-        <li class=\\"breadcrumb-item\\"><a class=\\"\\" href=\\"/dances/ballroom-competition-categories\\">Ballroom</a></li>
+        <li class=\\"breadcrumb-item\\"><a class=\\"\\" replace=\\"false\\" href=\\"/\\">music4dance</a></li>
+        <li class=\\"breadcrumb-item\\"><a class=\\"\\" replace=\\"false\\" href=\\"/dances\\">Dances</a></li>
+        <li class=\\"breadcrumb-item\\"><a class=\\"\\" replace=\\"false\\" href=\\"/dances/ballroom-competition-categories\\">Ballroom</a></li>
         <li class=\\"breadcrumb-item active\\"><span aria-current=\\"location\\">American Smooth</span></li>
       </ol>
     </nav>
@@ -26,7 +26,7 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
       </div>
       <div>
         <h4>An American Smooth four dance round consists of the following:</h4>
-        <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" mustsort=\\"false\\" nosortreset=\\"false\\" selectable=\\"false\\" multisort=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" nolocalsorting=\\"false\\" noselectonclick=\\"false\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
+        <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" mustsort=\\"false\\" selectable=\\"false\\" multisort=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" nolocalsorting=\\"false\\" noselectonclick=\\"false\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
           <table class=\\"table b-table table-hover table-striped\\">
             <thead class=\\"\\">
               <!---->
@@ -148,7 +148,7 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
       </div>
       <div>
         <h4>Other dances categorized as American Smooth, although they aren't part of the competition round, are:</h4>
-        <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" mustsort=\\"false\\" nosortreset=\\"false\\" selectable=\\"false\\" multisort=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" nolocalsorting=\\"false\\" noselectonclick=\\"false\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
+        <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" mustsort=\\"false\\" selectable=\\"false\\" multisort=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" nolocalsorting=\\"false\\" noselectonclick=\\"false\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
           <table class=\\"table b-table table-hover table-striped\\">
             <thead class=\\"\\">
               <!---->

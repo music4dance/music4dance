@@ -1,5 +1,5 @@
 import { describe, test } from "vitest";
-import { testPageSnapshot } from "@/helpers/TestHelpers";
+import { testPageSnapshot } from "@/helpers/TestPageSnapshot";
 import App from "../App.vue";
 
 describe("About", () => {

@@ -1,0 +1,232 @@
+[
+  {
+    "id": "SWZ",
+    "songCount": 1705,
+    "maxWeight": 38
+  },
+  {
+    "id": "CSW",
+    "songCount": 56,
+    "maxWeight": 4
+  },
+  {
+    "id": "CFT",
+    "songCount": 490,
+    "maxWeight": 9
+  },
+  {
+    "id": "SFT",
+    "songCount": 2818,
+    "maxWeight": 27
+  },
+  {
+    "id": "TGO",
+    "songCount": 1303,
+    "maxWeight": 23
+  },
+  {
+    "id": "PBD",
+    "songCount": 134,
+    "maxWeight": 4
+  },
+  {
+    "id": "VWZ",
+    "songCount": 1932,
+    "maxWeight": 32
+  },
+  {
+    "id": "QST",
+    "songCount": 1244,
+    "maxWeight": 13
+  },
+  {
+    "id": "BOL",
+    "songCount": 726,
+    "maxWeight": 12
+  },
+  {
+    "id": "CHA",
+    "songCount": 20762,
+    "maxWeight": 27
+  },
+  {
+    "id": "MBO",
+    "songCount": 757,
+    "maxWeight": 6
+  },
+  {
+    "id": "JIV",
+    "songCount": 1203,
+    "maxWeight": 23
+  },
+  {
+    "id": "RMB",
+    "songCount": 3186,
+    "maxWeight": 16
+  },
+  {
+    "id": "ECS",
+    "songCount": 2294,
+    "maxWeight": 16
+  },
+  {
+    "id": "WCS",
+    "songCount": 10260,
+    "maxWeight": 15
+  },
+  {
+    "id": "HST",
+    "songCount": 970,
+    "maxWeight": 11
+  },
+  {
+    "id": "MRG",
+    "songCount": 989,
+    "maxWeight": 6
+  },
+  {
+    "id": "PDL",
+    "songCount": 189,
+    "maxWeight": 5
+  },
+  {
+    "id": "SMB",
+    "songCount": 1582,
+    "maxWeight": 20
+  },
+  {
+    "id": "PLK",
+    "songCount": 272,
+    "maxWeight": 2
+  },
+  {
+    "id": "SLS",
+    "songCount": 8772,
+    "maxWeight": 9
+  },
+  {
+    "id": "BCH",
+    "songCount": 1390,
+    "maxWeight": 11
+  },
+  {
+    "id": "NC2",
+    "songCount": 690,
+    "maxWeight": 5
+  },
+  {
+    "id": "C2S",
+    "songCount": 155,
+    "maxWeight": 3
+  },
+  {
+    "id": "CMB",
+    "songCount": 1320,
+    "maxWeight": 6
+  },
+  {
+    "id": "LHP",
+    "songCount": 1391,
+    "maxWeight": 22
+  },
+  {
+    "id": "CST",
+    "songCount": 467,
+    "maxWeight": 4
+  },
+  {
+    "id": "CSG",
+    "songCount": 185,
+    "maxWeight": 4
+  },
+  {
+    "id": "CLS",
+    "songCount": 303,
+    "maxWeight": 3
+  },
+  {
+    "id": "ATN",
+    "songCount": 408,
+    "maxWeight": 7
+  },
+  {
+    "id": "TGV",
+    "songCount": 134,
+    "maxWeight": 3
+  },
+  {
+    "id": "NTN",
+    "songCount": 67,
+    "maxWeight": 2
+  },
+  {
+    "id": "MGA",
+    "songCount": 76,
+    "maxWeight": 3
+  },
+  {
+    "id": "BSN",
+    "songCount": 87,
+    "maxWeight": 3
+  },
+  {
+    "id": "JSW",
+    "songCount": 171,
+    "maxWeight": 6
+  },
+  {
+    "id": "BLU",
+    "songCount": 1177,
+    "maxWeight": 4
+  },
+  {
+    "id": "MWT",
+    "songCount": 104,
+    "maxWeight": 2
+  },
+  {
+    "id": "BBA",
+    "songCount": 509,
+    "maxWeight": 5
+  },
+  {
+    "id": "SSW",
+    "songCount": 198,
+    "maxWeight": 4
+  },
+  {
+    "id": "JAZ",
+    "songCount": 73,
+    "maxWeight": 3
+  },
+  {
+    "id": "CNT",
+    "songCount": 72,
+    "maxWeight": 2
+  },
+  {
+    "id": "BLT"
+  },
+  {
+    "id": "BDW"
+  },
+  {
+    "id": "TAP"
+  },
+  {
+    "id": "HHP"
+  },
+  {
+    "id": "BWD",
+    "songCount": 1,
+    "maxWeight": 1
+  },
+  {
+    "id": "DSC"
+  },
+  {
+    "id": "FST",
+    "songCount": 67,
+    "maxWeight": 1
+  }
+]

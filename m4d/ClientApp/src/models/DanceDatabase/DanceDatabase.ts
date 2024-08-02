@@ -5,6 +5,7 @@ import type { NamedObject } from "./NamedObject";
 import type { DanceInstance } from "./DanceInstance";
 import type { DanceFilter } from "./DanceFilter";
 import { DanceOrder } from "./DanceOrder";
+import { DanceMetrics } from "./DanceMetrics";
 
 TypedJSON.setGlobalConfig({
   errorHandler: (e) => {
@@ -18,6 +19,7 @@ TypedJSON.setGlobalConfig({
 export class DanceDatabase {
   @jsonArrayMember(DanceType) dances!: DanceType[];
   @jsonArrayMember(DanceGroup) groups!: DanceGroup[];
+  @jsonArrayMember(DanceMetrics) metrics!: DanceMetrics[];
 
   public constructor(init?: Partial<DanceDatabase>) {
     Object.assign(this, init);
@@ -37,6 +39,12 @@ export class DanceDatabase {
 
   public get flattened(): NamedObject[] {
     return this.groups.reduce((acc, x) => [...acc, x, ...x.dances], [] as NamedObject[]);
+  }
+
+  public get flatGroups(): NamedObject[] {
+    return this.groups
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .flatMap((group) => [group, ...group.dances.sort((a, b) => a.name.localeCompare(b.name))]);
   }
 
   public danceFromId(id: string): DanceType | undefined {
@@ -62,6 +70,30 @@ export class DanceDatabase {
 
   public fromName(name: string): NamedObject | undefined {
     return this.all.find((x) => x.name === name);
+  }
+
+  public fromSynonym(name: string): NamedObject | undefined {
+    const d = this.fromName(name);
+    if (d) return d;
+
+    const n = this.flattened.find((x) => x.isMatch(name));
+    return n ? this.fromId(n.id) : undefined;
+  }
+
+  public metricsFromId(id: string): DanceMetrics {
+    const metrics = this.metrics.find((m) => m.id === id);
+    if (!metrics) {
+      throw new Error(`No metrics found for id ${id}`);
+    }
+    return metrics;
+  }
+
+  public getSongCount(id: string): number {
+    return this.metricsFromId(id).songCount;
+  }
+
+  public getMaxWeight(id: string): number {
+    return this.metricsFromId(id).maxWeight;
   }
 
   public filter(filter: DanceFilter): DanceDatabase {
@@ -103,6 +135,24 @@ export class DanceDatabase {
         return acc;
       }, new Set<string>()),
     ].sort();
+  }
+
+  public static filterByName(
+    dances: NamedObject[],
+    nameFilter: string,
+    includeChildren = false,
+    includeEmpty = false,
+  ): NamedObject[] {
+    const filter = nameFilter.toLowerCase();
+    return dances.filter(
+      (d) =>
+        includeEmpty &&
+        (!filter ||
+          d.hasString(filter) ||
+          (includeChildren &&
+            DanceGroup.isGroup(d) &&
+            (d as DanceGroup).dances.find((c) => c.hasString(filter)))),
+    );
   }
 
   private onDeserialized(): void {

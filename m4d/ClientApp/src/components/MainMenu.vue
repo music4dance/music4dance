@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { MenuContext } from "@/models/MenuContext";
 import { computed, ref } from "vue";
-import { checkServiceAndWarn } from "@/helpers/DropTarget";
+import { useDropTarget } from "@/composables/useDropTarget";
 import logo from "@/assets/images/header-logo.png";
 import dancers from "@/assets/images/swing-ui.png";
+
+const { checkServiceAndWarn } = useDropTarget();
 
 const renewalTag = "renewal-acknowledged";
 const marketingTag = "marketing-acknowledged";
@@ -68,6 +70,7 @@ function search(): void {
 
 <template>
   <div>
+    <BModalOrchestrator />
     <BAlert v-if="isTest" :model-value="true" variant="warning" style="margin-bottom: 0"
       >This is a TEST site. Please navigate to
       <a href="https://www.music4dance.net" class="alert-link">wwww.music4dance.net</a>
@@ -166,8 +169,10 @@ function search(): void {
               v-model="searchString"
               size="sm"
               class="me-sm-2"
+              list="auto-complete"
+              autocomplete="off"
               placeholder="Search"
-              @input="checkServiceAndWarn"
+              @input="checkServiceAndWarn($event.target.value)"
             ></BFormInput>
             <BButton
               size="sm"
@@ -175,7 +180,7 @@ function search(): void {
               type="submit"
               :disabled="!searchString.trim()"
               >Search</BButton
-            >
+            ><SuggestionList id="auto-complete" :search="searchString" />
           </BNavForm>
           <template v-if="context.userName">
             <BNavItemDropdown>

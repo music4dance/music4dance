@@ -4,15 +4,12 @@ import { computed } from "vue";
 import TagIcon from "./TagIcon.vue";
 
 const props = defineProps<{
-  visible: boolean;
-  // INT-TODO: For some reason typescript is generating an error on thi in TagCloud if
+  // INT-TODO: For some reason typescript is generating an error on this in TagCloud if
   //  I enforce the type
   tagHandler: TagHandler | any;
 }>();
 
-defineEmits<{
-  update: [value: boolean];
-}>();
+const modelValue = defineModel<boolean>({ default: false });
 
 const handler = computed(() => props.tagHandler);
 
@@ -67,11 +64,10 @@ function getTagLink(modifier: string, exclusive: boolean): string {
 <template>
   <BModal
     :id="handler.id"
-    :model-value="visible"
+    v-model="modelValue"
     :header-bg-variant="tag.variant"
     header-text-variant="light"
     hide-footer
-    @update:model-value="$emit('update', $event)"
   >
     <template #title><TagIcon :name="tag.icon!" />&nbsp;{{ title }} </template>
     <!-- <template v-slot:title>Help Me!</template> -->

@@ -1,8 +1,6 @@
-import type { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
 import { DanceGroup } from "@/models/DanceDatabase/DanceGroup";
 import type { NamedObject } from "@/models/DanceDatabase/NamedObject";
-
-declare const danceDatabase: DanceDatabase;
+import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 
 export class DanceQueryBase {
   public get danceList(): string[] {
@@ -14,7 +12,7 @@ export class DanceQueryBase {
   }
 
   public get dances(): NamedObject[] {
-    return this.danceList.map((id) => danceDatabase.fromId(id)!);
+    return this.danceList.map((id) => safeDanceDatabase().fromId(id)!);
   }
 
   public get danceNames(): string[] {

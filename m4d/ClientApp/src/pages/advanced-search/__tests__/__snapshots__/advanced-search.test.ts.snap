@@ -12,7 +12,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
           <div class=\\"mb-3\\" id=\\"search-string-group\\" role=\\"group\\"><label id=\\"__BVID__0001___BV__BV_label___\\" for=\\"search-string\\" class=\\"form-label d-block\\">Keywords:</label>
             <div class=\\"\\">
               <div class=\\"input-group mb-1\\" role=\\"group\\">
-                <!----><input id=\\"search-everywhere\\" class=\\"form-control\\" type=\\"text\\" placeholder=\\"Enter artist, title, etc. OR a Spotify or Apple share link\\" value=\\"Love\\">
+                <!----><input id=\\"search-everywhere\\" class=\\"form-control\\" type=\\"text\\" placeholder=\\"Enter artist, title, etc. OR a Spotify or Apple share link\\" autocomplete=\\"off\\" list=\\"auto-complete\\" value=\\"Love\\"><datalist id=\\"auto-complete\\"></datalist>
                 <!---->
               </div><button class=\\"btn btn-sm btn-outline-secondary rounded-0 float-end\\" type=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                   <path fill=\\"currentColor\\" d=\\"M3.204 5h9.592L8 10.481zm-.753.659l4.796 5.48a1 1 0 0 0 1.506 0l4.796-5.48c.566-.647.106-1.659-.753-1.659H3.204a1 1 0 0 0-.753 1.659\\"></path>
@@ -34,7 +34,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
                     <li class=\\"list-inline-item\\"><span id=\\"__BVID__0004___BV___\\" title=\\"Bolero\\" class=\\"badge b-form-tag d-inline-flex align-items-center mw-100 text-bg-primary\\" aria-labelledby=\\"__BVID__0004___BV___taglabel__\\" data-bs-theme=\\"dark\\"><span id=\\"__BVID__0004___BV___taglabel__\\" class=\\"b-form-tag-content flex-grow-1 text-truncate\\">Bolero</span><button type=\\"button\\" class=\\"btn-close b-form-tag-remove\\" aria-label=\\"Remove tag\\" aria-keyshortcuts=\\"Delete\\" aria-describedby=\\"__BVID__0004___BV___taglabel__\\"></button></span></li>
                     <li class=\\"list-inline-item\\"><span id=\\"__BVID__0005___BV___\\" title=\\"Rumba\\" class=\\"badge b-form-tag d-inline-flex align-items-center mw-100 text-bg-primary\\" aria-labelledby=\\"__BVID__0005___BV___taglabel__\\" data-bs-theme=\\"dark\\"><span id=\\"__BVID__0005___BV___taglabel__\\" class=\\"b-form-tag-content flex-grow-1 text-truncate\\">Rumba</span><button type=\\"button\\" class=\\"btn-close b-form-tag-remove\\" aria-label=\\"Remove tag\\" aria-keyshortcuts=\\"Delete\\" aria-describedby=\\"__BVID__0005___BV___taglabel__\\"></button></span></li>
                   </ul>
-                  <div class=\\"btn-group tag-dropdown\\" block=\\"\\"><button class=\\"btn btn-sm btn-outline-secondary dropdown-toggle\\" type=\\"button\\" id=\\"__BVID__0006___BV_dropdown__\\" aria-expanded=\\"false\\" aria-haspopup=\\"menu\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                  <div class=\\"dropdown tag-dropdown\\" block=\\"\\"><button class=\\"btn btn-sm btn-outline-secondary dropdown-toggle\\" type=\\"button\\" id=\\"__BVID__0006___BV_dropdown__\\" aria-expanded=\\"false\\" aria-haspopup=\\"menu\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                         <path fill=\\"currentColor\\" d=\\"M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0\\"></path>
                       </svg> Choose Dances</button>
                     <!---->
@@ -44,7 +44,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
                         <li role=\\"presentation\\">
                           <form class=\\"dropdown-item-text\\">
                             <div class=\\"row d-flex flex-wrap mb-0\\" id=\\"__BVID__0008___BV___\\" role=\\"group\\"><label class=\\"col-md-auto col-form-label col-form-label col-form-label-sm\\" id=\\"__BVID__0007___BV__BV_label___\\" for=\\"tag-search-input\\">Search Dances</label>
-                              <div class=\\"col\\"><input id=\\"__BVID__0009___BV_input__\\" class=\\"form-control form-control-sm\\" type=\\"search\\" autocomplete=\\"off\\" value=\\"\\">
+                              <div class=\\"col\\"><input id=\\"__BVID__0009___BV_input__\\" class=\\"form-control form-control-sm\\" type=\\"search\\" autocomplete=\\"off\\" trim=\\"\\" value=\\"\\">
                                 <!---->
                                 <!---->
                                 <!---->
@@ -132,7 +132,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
               <div id=\\"include-tags\\" class=\\"b-form-tags form-control h-auto mb-2\\" role=\\"group\\" tabindex=\\"-1\\" style=\\"border-style: hidden;\\"><output id=\\"__BVID__0014___BV___selected_tags__\\" class=\\"visually-hidden\\" for=\\"__BVID__0014___BV___input__\\" aria-live=\\"off\\" aria-atomic=\\"true\\" aria-relevant=\\"additions text\\"></output>
                 <div id=\\"__BVID__0014___BV___removed_tags__\\" role=\\"status\\" aria-live=\\"off\\" aria-atomic=\\"true\\" class=\\"visually-hidden\\"> (Tag removed) </div>
                 <!--v-if-->
-                <div class=\\"btn-group tag-dropdown\\" block=\\"\\"><button class=\\"btn btn-sm btn-outline-secondary dropdown-toggle\\" type=\\"button\\" id=\\"__BVID__0015___BV_dropdown__\\" aria-expanded=\\"false\\" aria-haspopup=\\"menu\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                <div class=\\"dropdown tag-dropdown\\" block=\\"\\"><button class=\\"btn btn-sm btn-outline-secondary dropdown-toggle\\" type=\\"button\\" id=\\"__BVID__0015___BV_dropdown__\\" aria-expanded=\\"false\\" aria-haspopup=\\"menu\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                       <path fill=\\"currentColor\\" d=\\"M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0\\"></path>
                     </svg> Choose Tags to Include</button>
                   <!---->
@@ -142,7 +142,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
                       <li role=\\"presentation\\">
                         <form class=\\"dropdown-item-text\\">
                           <div class=\\"row d-flex flex-wrap mb-0\\" id=\\"__BVID__0017___BV___\\" role=\\"group\\"><label class=\\"col-md-auto col-form-label col-form-label col-form-label-sm\\" id=\\"__BVID__0016___BV__BV_label___\\" for=\\"tag-search-input\\">Search Tags</label>
-                            <div class=\\"col\\"><input id=\\"__BVID__0018___BV_input__\\" class=\\"form-control form-control-sm\\" type=\\"search\\" autocomplete=\\"off\\" value=\\"\\">
+                            <div class=\\"col\\"><input id=\\"__BVID__0018___BV_input__\\" class=\\"form-control form-control-sm\\" type=\\"search\\" autocomplete=\\"off\\" trim=\\"\\" value=\\"\\">
                               <!---->
                               <!---->
                               <!---->
@@ -172,7 +172,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
               <div id=\\"exclude-tags\\" class=\\"b-form-tags form-control h-auto mb-2\\" role=\\"group\\" tabindex=\\"-1\\" style=\\"border-style: hidden;\\"><output id=\\"__BVID__0020___BV___selected_tags__\\" class=\\"visually-hidden\\" for=\\"__BVID__0020___BV___input__\\" aria-live=\\"off\\" aria-atomic=\\"true\\" aria-relevant=\\"additions text\\"></output>
                 <div id=\\"__BVID__0020___BV___removed_tags__\\" role=\\"status\\" aria-live=\\"off\\" aria-atomic=\\"true\\" class=\\"visually-hidden\\"> (Tag removed) </div>
                 <!--v-if-->
-                <div class=\\"btn-group tag-dropdown\\" block=\\"\\"><button class=\\"btn btn-sm btn-outline-secondary dropdown-toggle\\" type=\\"button\\" id=\\"__BVID__0021___BV_dropdown__\\" aria-expanded=\\"false\\" aria-haspopup=\\"menu\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                <div class=\\"dropdown tag-dropdown\\" block=\\"\\"><button class=\\"btn btn-sm btn-outline-secondary dropdown-toggle\\" type=\\"button\\" id=\\"__BVID__0021___BV_dropdown__\\" aria-expanded=\\"false\\" aria-haspopup=\\"menu\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                       <path fill=\\"currentColor\\" d=\\"M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0\\"></path>
                     </svg> Choose Tags to Exclude</button>
                   <!---->
@@ -182,7 +182,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
                       <li role=\\"presentation\\">
                         <form class=\\"dropdown-item-text\\">
                           <div class=\\"row d-flex flex-wrap mb-0\\" id=\\"__BVID__0023___BV___\\" role=\\"group\\"><label class=\\"col-md-auto col-form-label col-form-label col-form-label-sm\\" id=\\"__BVID__0022___BV__BV_label___\\" for=\\"tag-search-input\\">Search Tags</label>
-                            <div class=\\"col\\"><input id=\\"__BVID__0024___BV_input__\\" class=\\"form-control form-control-sm\\" type=\\"search\\" autocomplete=\\"off\\" value=\\"\\">
+                            <div class=\\"col\\"><input id=\\"__BVID__0024___BV_input__\\" class=\\"form-control form-control-sm\\" type=\\"search\\" autocomplete=\\"off\\" trim=\\"\\" value=\\"\\">
                               <!---->
                               <!---->
                               <!---->
@@ -211,7 +211,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
               <fieldset class=\\"\\" id=\\"tempo-range\\">
                 <!---->
                 <div class=\\"\\">
-                  <div class=\\"d-flex\\"><input id=\\"tempo-min\\" class=\\"form-control\\" type=\\"number\\" min=\\"0\\" max=\\"400\\" style=\\"width: 6rem;\\" value=\\"0\\"><span class=\\"mx-2 pt-2\\">to</span><input id=\\"tempo-max\\" class=\\"form-control\\" type=\\"number\\" min=\\"0\\" max=\\"400\\" style=\\"width: 6rem;\\" value=\\"400\\">
+                  <div class=\\"d-flex\\"><input id=\\"tempo-min\\" class=\\"form-control\\" type=\\"number\\" min=\\"0\\" max=\\"400\\" number=\\"\\" style=\\"width: 6rem;\\" value=\\"0\\"><span class=\\"mx-2 pt-2\\">to</span><input id=\\"tempo-max\\" class=\\"form-control\\" type=\\"number\\" min=\\"0\\" max=\\"400\\" number=\\"\\" style=\\"width: 6rem;\\" value=\\"400\\">
                     <div class=\\"invalid-feedback\\">Tempos must be between 0 and 400 BPM</div>
                   </div>
                   <!---->
@@ -229,7 +229,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
               <fieldset class=\\"\\" id=\\"length-range\\">
                 <!---->
                 <div class=\\"\\">
-                  <div class=\\"d-flex\\"><input id=\\"length-min\\" class=\\"form-control\\" type=\\"number\\" min=\\"0\\" max=\\"600\\" style=\\"width: 6rem;\\" value=\\"0\\"><span class=\\"mx-2 pt-2\\">to</span><input id=\\"length-max\\" class=\\"form-control\\" type=\\"number\\" min=\\"0\\" max=\\"600\\" style=\\"width: 6rem;\\" value=\\"600\\">
+                  <div class=\\"d-flex\\"><input id=\\"length-min\\" class=\\"form-control\\" type=\\"number\\" min=\\"0\\" max=\\"600\\" number=\\"\\" style=\\"width: 6rem;\\" value=\\"0\\"><span class=\\"mx-2 pt-2\\">to</span><input id=\\"length-max\\" class=\\"form-control\\" type=\\"number\\" min=\\"0\\" max=\\"600\\" number=\\"\\" style=\\"width: 6rem;\\" value=\\"600\\">
                     <div class=\\"invalid-feedback\\">Length must be between 0 and 600 seconds</div>
                   </div>
                   <!---->

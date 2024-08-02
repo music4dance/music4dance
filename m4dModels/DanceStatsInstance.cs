@@ -99,9 +99,23 @@ namespace m4dModels
             return Groups.Select(t => new DanceGroupSparse(t));
         }
 
+        // TODONEXT: Transform this inot more general DanceMetrics
+        //  For now, that includes song counts a max votes
+        //  Pipe that down to the client based on a new parameter to the vu3
+        //  function.
         public IReadOnlyDictionary<string, long> GetCounts()
         {
             return Dances.ToDictionary(d => d.DanceId,  d => d.SongCount);
+        }
+
+        public IReadOnlyDictionary<string, DanceMetrics> GetMetrics()
+        {
+            return Dances.ToDictionary(d => d.DanceId, d => new DanceMetrics
+            {
+                Id = d.DanceId,
+                SongCount = d.SongCount,
+                MaxWeight = d.MaxWeight
+            });
         }
 
         public async Task FixupStats(DanceMusicCoreService dms, bool reloadSongs,
@@ -251,6 +265,17 @@ namespace m4dModels
             name = DanceObject.SeoFriendly(name);
             var stats = Dances.Concat(Groups).FirstOrDefault(sc => string.Equals(sc.SeoName, name));
             return stats;
+        }
+
+        public List<Song> ListFromCache(IEnumerable<string> ids)
+        {
+            var songs = ids.Select(id => _cache.FindSongDetails(new Guid(id))).ToList();
+            if (songs.Count != ids.Count())
+            {
+                Trace.WriteLine($"Failed to find all songs in cache: {string.Join(",", ids)}");
+                return null;
+            }
+            return songs;
         }
 
         public static async Task<DanceStatsInstance> LoadFromJson(string json,

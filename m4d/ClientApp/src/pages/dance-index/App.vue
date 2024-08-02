@@ -1,6 +1,6 @@
 <template>
   <PageFrame id="app" title="Dance Styles" :breadcrumbs="breadcrumbs">
-    <DanceTable :dances="danceCountDatabase"></DanceTable>
+    <DanceTable :dances="dances"></DanceTable>
     <h2 class="mt-2">Other Resources:</h2>
     <p id="competition">
       Check out our more traditional ballroom competition categories including
@@ -35,14 +35,8 @@ import PageFrame from "@/components/PageFrame.vue";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { type BreadCrumbItem, homeCrumb } from "@/models/BreadCrumbItem";
 import DanceTable from "./components/DanceTable.vue";
-import { computed } from "vue";
-import { DanceCountDatabase } from "@/models/DanceCountDatabase";
-
-declare const model_: Record<string, number>;
 
 const breadcrumbs: BreadCrumbItem[] = [homeCrumb, { text: "Dances", active: true }];
 
-const danceCountDatabase = computed(() => {
-  return new DanceCountDatabase(safeDanceDatabase(), model_);
-});
+const dances = safeDanceDatabase();
 </script>

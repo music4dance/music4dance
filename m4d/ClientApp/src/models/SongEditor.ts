@@ -1,12 +1,10 @@
 import { DanceRatingDelta, DanceRatingVote, VoteDirection } from "./DanceRatingDelta";
 import type { AxiosInstance } from "axios";
-import type { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
 import { Song } from "./Song";
 import { SongHistory } from "./SongHistory";
 import { PropertyType, type PropertyValue, SongProperty } from "./SongProperty";
 import { TrackModel } from "./TrackModel";
-
-declare const danceDatabase: DanceDatabase;
+import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 
 export class SongEditor {
   public songId: string;
@@ -15,12 +13,12 @@ export class SongEditor {
   private user?: string;
   public modified: boolean;
   public admin: boolean; // Requires put rather than patch
-  public axios: AxiosInstance;
+  public axios?: AxiosInstance;
   // These are initializers to mollify linting, shouldn't be necessary
   public initialSong: Song = new Song();
   private initialHistory: SongHistory = new SongHistory();
 
-  public constructor(axios: AxiosInstance, user?: string, history?: SongHistory) {
+  public constructor(axios?: AxiosInstance, user?: string, history?: SongHistory) {
     history = history ? history : new SongHistory();
     this.songId = history.id;
     this.properties = [...history.properties];
@@ -30,6 +28,10 @@ export class SongEditor {
     this.admin = false;
     this.setInitials(history, user);
     this.axios = axios;
+  }
+
+  public clone(): SongEditor {
+    return new SongEditor(this.axios, this.user, this.history);
   }
 
   private setInitials(history: SongHistory, user?: string): void {
@@ -72,7 +74,7 @@ export class SongEditor {
     });
   }
 
-  public async saveExternalChanges(other: SongEditor): Promise<void> {
+  public getExternalChanges(other: SongEditor): SongHistory {
     // Verify that we're asking to save changes from a clone
     if (this.modified) {
       throw new Error("Attempting to add changes to an active editor");
@@ -81,12 +83,24 @@ export class SongEditor {
       throw new Error("Attempting to save from an unrelated editor");
     }
 
-    other.editHistory.properties.forEach((p) => this.history.properties.push(p));
+    return other.editHistory;
+  }
+
+  public async saveExternalChanges(other: SongEditor): Promise<void> {
+    this.getExternalChanges(other).properties.forEach((p) => this.history.properties.push(p));
 
     return await this.saveChanges();
   }
 
+  public async appendHistory(history: SongHistory): Promise<void> {
+    this.properties.push(...history.properties);
+    await this.saveChanges();
+  }
+
   public async saveChanges(): Promise<void> {
+    if (!this.axios) {
+      throw new Error("No axios instance available to save changes");
+    }
     try {
       const admin = this.admin;
       const history = admin ? this.history : this.editHistory;
@@ -105,6 +119,9 @@ export class SongEditor {
   }
 
   public async create(): Promise<void> {
+    if (!this.axios) {
+      throw new Error("No axios instance available to save changes");
+    }
     try {
       await this.axios.post("/api/song/", this.songHistory);
       this.commit();
@@ -214,7 +231,7 @@ export class SongEditor {
   }
 
   private setVoteProperties(danceId: string, positive?: boolean, negative?: boolean): void {
-    const posTag = `${danceDatabase.fromId(danceId)!.name}:Dance`;
+    const posTag = `${safeDanceDatabase().fromId(danceId)!.name}:Dance`;
     const negTag = "!" + posTag;
 
     if (positive === true) {

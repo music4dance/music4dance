@@ -1,3 +1,6 @@
+import type { AxiosInstance } from "axios";
+import axios from "axios";
+
 export interface MenuContextInterface {
   helpLink?: string;
   userName?: string;
@@ -64,5 +67,11 @@ export class MenuContext implements MenuContextInterface {
 
   public getAccountLink(page: string): string {
     return `/identity/account/${page}?returnUrl=${window.location.pathname}?${window.location.search}`;
+  }
+
+  public get axiosXsrf(): AxiosInstance {
+    return axios.create({
+      headers: { RequestVerificationToken: this.xsrfToken },
+    });
   }
 }

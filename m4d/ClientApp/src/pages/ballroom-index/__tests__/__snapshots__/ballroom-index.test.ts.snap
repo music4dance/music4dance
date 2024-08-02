@@ -5,8 +5,8 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
   <nav aria-label=\\"breadcrumb\\">
     <nav aria-label=\\"breadcrumb\\" style=\\"padding: 0.25rem 0.5rem;\\">
       <ol class=\\"breadcrumb\\">
-        <li class=\\"breadcrumb-item\\"><a class=\\"\\" href=\\"/\\">music4dance</a></li>
-        <li class=\\"breadcrumb-item\\"><a class=\\"\\" href=\\"/dances\\">Dances</a></li>
+        <li class=\\"breadcrumb-item\\"><a class=\\"\\" replace=\\"false\\" href=\\"/\\">music4dance</a></li>
+        <li class=\\"breadcrumb-item\\"><a class=\\"\\" replace=\\"false\\" href=\\"/dances\\">Dances</a></li>
         <li class=\\"breadcrumb-item active\\"><span aria-current=\\"location\\">Ballroom</span></li>
       </ol>
     </nav>
@@ -27,7 +27,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
         <h2><a href=\\"/dances/american-smooth\\">American Smooth</a></h2>
         <div>
           <h4>An American Smooth four dance round consists of the following:</h4>
-          <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" mustsort=\\"false\\" nosortreset=\\"false\\" selectable=\\"false\\" multisort=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" nolocalsorting=\\"false\\" noselectonclick=\\"false\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
+          <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" mustsort=\\"false\\" selectable=\\"false\\" multisort=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" nolocalsorting=\\"false\\" noselectonclick=\\"false\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
             <table class=\\"table b-table table-hover table-striped\\">
               <thead class=\\"\\">
                 <!---->
@@ -152,7 +152,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
         <h2><a href=\\"/dances/international-standard\\">International Standard</a></h2>
         <div>
           <h4>An International Standard five dance round consists of the following:</h4>
-          <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" mustsort=\\"false\\" nosortreset=\\"false\\" selectable=\\"false\\" multisort=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" nolocalsorting=\\"false\\" noselectonclick=\\"false\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
+          <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" mustsort=\\"false\\" selectable=\\"false\\" multisort=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" nolocalsorting=\\"false\\" noselectonclick=\\"false\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
             <table class=\\"table b-table table-hover table-striped\\">
               <thead class=\\"\\">
                 <!---->
@@ -298,7 +298,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
         <h2><a href=\\"/dances/american-rhythm\\">American Rhythm</a></h2>
         <div>
           <h4>An American Rhythm five dance round consists of the following:</h4>
-          <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" mustsort=\\"false\\" nosortreset=\\"false\\" selectable=\\"false\\" multisort=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" nolocalsorting=\\"false\\" noselectonclick=\\"false\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
+          <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" mustsort=\\"false\\" selectable=\\"false\\" multisort=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" nolocalsorting=\\"false\\" noselectonclick=\\"false\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
             <table class=\\"table b-table table-hover table-striped\\">
               <thead class=\\"\\">
                 <!---->
@@ -444,7 +444,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
         <h2><a href=\\"/dances/international-latin\\">International Latin</a></h2>
         <div>
           <h4>An International Latin five dance round consists of the following:</h4>
-          <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" mustsort=\\"false\\" nosortreset=\\"false\\" selectable=\\"false\\" multisort=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" nolocalsorting=\\"false\\" noselectonclick=\\"false\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
+          <div class=\\"table-responsive\\" noproviderpaging=\\"false\\" noprovidersorting=\\"false\\" noproviderfiltering=\\"false\\" mustsort=\\"false\\" selectable=\\"false\\" multisort=\\"false\\" stickyselect=\\"false\\" selecthead=\\"true\\" selectmode=\\"multi\\" selectionvariant=\\"primary\\" busy=\\"false\\" busyloadingtext=\\"Loading...\\" perpage=\\"Infinity\\" currentpage=\\"1\\" nolocalsorting=\\"false\\" noselectonclick=\\"false\\" selecteditems=\\"\\" nosortableicon=\\"false\\" aria-busy=\\"false\\">
             <table class=\\"table b-table table-hover table-striped\\">
               <thead class=\\"\\">
                 <!---->

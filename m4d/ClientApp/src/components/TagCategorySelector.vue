@@ -35,13 +35,13 @@ function variantFromKey(key: string): ColorVariant {
 }
 
 function iconFromKey(key: string): string {
-  return Tag.TagInfo.get(variantFromKey(key))!.iconName;
+  return Tag.tagInfo.get(variantFromKey(key))!.iconName;
 }
 
 function descriptionFromOption(option: ListOption): string {
   const ret =
     `${option.text.startsWith("+") ? option.text.substring(1) : option.text} ` +
-    `(${Tag.TagInfo.get(variantFromKey(option.value))!.description})`;
+    `(${Tag.tagInfo.get(variantFromKey(option.value))!.description})`;
   return ret;
 }
 

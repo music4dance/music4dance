@@ -4,7 +4,6 @@ import { enumKeys } from "@/helpers/enumKeys";
 import { timeOrder, timeOrderVerbose } from "@/helpers/timeHelpers";
 import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
 import { AlbumDetails } from "./AlbumDetails";
-import type { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
 import { DanceRating } from "./DanceRating";
 import { ModifiedRecord } from "./ModifiedRecord";
 import { PurchaseInfo, ServiceType } from "./Purchase";
@@ -13,8 +12,7 @@ import { PropertyType, SongProperty } from "./SongProperty";
 import { Tag } from "./Tag";
 import { TagList } from "./TagList";
 import { TaggableObject } from "./TaggableObject";
-
-declare const danceDatabase: DanceDatabase;
+import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 
 @jsonObject
 export class Song extends TaggableObject {
@@ -153,7 +151,7 @@ export class Song extends TaggableObject {
   }
 
   public findDanceRatingByName(name: string): DanceRating | undefined {
-    const ds = danceDatabase!.fromName(name)!;
+    const ds = safeDanceDatabase().fromName(name)!;
     return this.findDanceRatingById(ds.id);
   }
 
@@ -494,7 +492,7 @@ export class Song extends TaggableObject {
     taggable.deleteTag(tag);
 
     if (tag.category === "Dance") {
-      const ds = danceDatabase!.fromName(tag.value)!;
+      const ds = safeDanceDatabase()!.fromName(tag.value)!;
       this.removeDanceRating(ds.id);
     }
   }

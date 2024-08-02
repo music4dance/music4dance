@@ -3,6 +3,7 @@ import { DanceDatabase } from "../DanceDatabase/DanceDatabase";
 import { SongFilter } from "../SongFilter";
 import { beforeAll, describe, expect, it } from "vitest";
 import { loadDancesFromString } from "@/helpers/DanceLoader";
+import { setupTestEnvironment } from "@/helpers/TestHelpers";
 
 const simple = "Advanced--Modified";
 const basic = "Advanced--Modified---\\-me|h";
@@ -15,6 +16,8 @@ declare global {
     danceDatabase: DanceDatabase | undefined;
   }
 }
+
+setupTestEnvironment();
 
 describe("song filter", () => {
   beforeAll(() => {

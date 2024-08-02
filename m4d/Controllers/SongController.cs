@@ -34,6 +34,7 @@ public class SongController : ContentController
         base(context, userManager, searchService, danceStatsManager, configuration,
             fileProvider, backroundTaskQueue, featureManager, logger)
     {
+        UseVue = UseVue.V2;
         HelpPage = "song-list";
         _linkGenerator = linkGenerator;
         _mapper = mapper;
@@ -60,6 +61,7 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> Search(string searchString, string dances)
     {
+        UseVue = UseVue.V3;
         return await AzureSearch(searchString, 0, dances);
     }
 
@@ -67,6 +69,7 @@ public class SongController : ContentController
     public async Task<ActionResult> NewMusic(string type = null, int? page = null)
     {
         Filter.Action = "newmusic";
+        UseVue = UseVue.V3;
         if (type != null)
         {
             Filter.SortOrder = type;
@@ -92,6 +95,7 @@ public class SongController : ContentController
     {
         Filter = SongFilter.CreateHolidayFilter(occassion, dance, page);
         HelpPage = Filter.IsSimple ? "song-list" : "advanced-search";
+        UseVue = UseVue.V3;
 
         try
         {
@@ -147,6 +151,7 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> AzureSearch(string searchString, int page = 1, string dances = null)
     {
+        UseVue = UseVue.V3;
         if (string.IsNullOrWhiteSpace(dances))
         {
             dances = null;
@@ -223,17 +228,34 @@ public class SongController : ContentController
         var histories = songs.Select(
             s =>
                 UserMapper.AnonymizeHistory(s.GetHistory(_mapper), dictionary)).ToList();
-            
-        return Vue("Songs for Dancing", $"music4dance catalog: {Filter.Description}", Filter.VueName,
-            new SongListModel
-            {
-                Histories = histories,
-                Filter = _mapper.Map<SongFilterSparse>(Filter),
-                Count = totalSongs ?? songs.Count,
-                RawCount = rawCount ?? totalSongs ?? songs.Count,
-                HiddenColumns = hiddenColumns
-            },
-            danceEnvironment: true);
+
+        switch (UseVue)
+        {
+            case UseVue.V2:
+                return Vue("Songs for Dancing", $"music4dance catalog: {Filter.Description}", Filter.VueName,
+                    new SongListModel
+                    {
+                        Histories = histories,
+                        Filter = _mapper.Map<SongFilterSparse>(Filter),
+                        Count = totalSongs ?? songs.Count,
+                        RawCount = rawCount ?? totalSongs ?? songs.Count,
+                        HiddenColumns = hiddenColumns
+                    },
+                    danceEnvironment: true);
+            case UseVue.V3:
+                return Vue3("Songs for Dancing", $"music4dance catalog: {Filter.Description}", Filter.VueName,
+                    new SongListModel
+                    {
+                        Histories = histories,
+                        Filter = _mapper.Map<SongFilterSparse>(Filter),
+                        Count = totalSongs ?? songs.Count,
+                        RawCount = rawCount ?? totalSongs ?? songs.Count,
+                        HiddenColumns = hiddenColumns
+                    },
+                    danceEnvironment: true);
+            default:
+                throw new Exception("Unknown UseVue value");
+        }
     }
 
 
@@ -256,6 +278,7 @@ public class SongController : ContentController
             "SearchText,ODataFilter,SortFields,SearchFields,Description,IsLucene,CruftFilter")]
         RawSearch rawSearch)
     {
+        UseVue = UseVue.No;
         HelpPage = "advanced-search";
 
         Filter = new SongFilter(rawSearch);
@@ -280,6 +303,7 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> FilterSearch()
     {
+        UseVue = UseVue.V3;
         return await DoAzureSearch();
     }
 
@@ -291,6 +315,7 @@ public class SongController : ContentController
         decimal? tempoMax = null, string user = null, string sortOrder = null,
         string sortDirection = null, ICollection<int> bonusContent = null)
     {
+        UseVue = UseVue.V3;
         if (!Filter.IsAdvanced)
         {
             Filter.Action = Filter.IsAzure ? "azure+advanced" : "Advanced";
@@ -399,6 +424,7 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> Sort(string sortOrder)
     {
+        UseVue = UseVue.V3;
         Filter.SortOrder = SongSort.DoSort(sortOrder, Filter.SortOrder);
 
         return await DoAzureSearch();
@@ -407,6 +433,7 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> FilterUser(string user)
     {
+        UseVue = UseVue.V3;
         Filter.User = string.IsNullOrWhiteSpace(user) ? null : user;
         return await DoAzureSearch();
     }
@@ -414,6 +441,7 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> FilterService(ICollection<string> services)
     {
+        UseVue = UseVue.V3;
         var purchase = string.Empty;
         if (services != null)
         {
@@ -433,6 +461,7 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> FilterTempo(decimal? tempoMin, decimal? tempoMax)
     {
+        UseVue = UseVue.V3;
         if (Filter.TempoMin == tempoMin && Filter.TempoMax == tempoMax)
         {
             return await DoAzureSearch();
@@ -451,6 +480,7 @@ public class SongController : ContentController
     public async Task<ActionResult> Index(string id = null, int? page = null,
         string purchase = null)
     {
+        UseVue = UseVue.V3;
         if (id != null && Dances.Instance.DanceFromId(id) != null)
         {
             Filter.Dances = id.ToUpper();
@@ -480,12 +510,14 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> Advanced(int? page, string purchase)
     {
+        UseVue = UseVue.V3;
         return await Index( null, page, purchase);
     }
 
     [AllowAnonymous]
     public async Task<ActionResult> Tags(string tags)
     {
+        UseVue = UseVue.V3;
         Filter.Tags = null;
         Filter.Page = null;
 
@@ -504,6 +536,7 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> AddTags(string tags)
     {
+        UseVue = UseVue.V3;
         var add = new m4dModels.TagList(tags);
         var old = new m4dModels.TagList(Filter.Tags);
 
@@ -519,6 +552,7 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> RemoveTags(string tags)
     {
+        UseVue = UseVue.V3;
         var sub = new m4dModels.TagList(tags);
         var old = new m4dModels.TagList(Filter.Tags);
         var ret = old.Subtract(sub);
@@ -587,7 +621,7 @@ public class SongController : ContentController
             {
                 var model = await AlbumViewModel.Create(
                     title, _mapper, DefaultCruftFilter(), Database);
-                return Vue(
+                return Vue3(
                     $"Album: {title}", $"Songs for dancing on {title}", "album",
                     model, danceEnvironment: true);
             }
@@ -613,7 +647,7 @@ public class SongController : ContentController
         {
             var model = await ArtistViewModel.Create(
                 name, _mapper, DefaultCruftFilter(), Database);
-            return Vue(
+            return Vue3(
                 $"Artist: {name}", $"Songs for dancing by {name}", "artist",
                 model, danceEnvironment:true);
         }
@@ -637,6 +671,7 @@ public class SongController : ContentController
     [Authorize(Roles = "dbAdmin")]
     public async Task<ActionResult> UpdateSongAndServices(Guid id)
     {
+        UseVue = UseVue.No;
         var song = await SongIndex.FindSong(id);
         if (song == null)
         {
@@ -658,6 +693,7 @@ public class SongController : ContentController
     [Authorize(Roles = "dbAdmin")]
     public async Task<ActionResult> Delete(Guid id)
     {
+        UseVue = UseVue.No;
         var song = await SongIndex.FindSong(id);
         return song == null
             ? ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.")
@@ -690,6 +726,7 @@ public class SongController : ContentController
         decimal multiplier = 0.5M,
         string user = null)
     {
+        UseVue = UseVue.No;
         var applicationUser = user == null
             ? new ApplicationUser("tempo-bot", true)
             : await Database.FindOrAddUser(user);
@@ -708,6 +745,7 @@ public class SongController : ContentController
     [Authorize(Roles = "dbAdmin")]
     public async Task<ActionResult> BatchAdminEdit(SongFilter filter, string properties, string user = null)
     {
+        UseVue = UseVue.No;
         Debug.Assert(User.Identity != null, "User.Identity != null");
         var applicationUser = await Database.FindUser(user ?? UserName);
         return BatchAdminExecute(
@@ -720,6 +758,7 @@ public class SongController : ContentController
     [Authorize(Roles = "dbAdmin")]
     public ActionResult BatchAdminModify(string properties)
     {
+        UseVue = UseVue.No;
         return BatchAdminExecute(
             Filter,
             (dms, song) => dms.SongIndex.AdminModifySong(song, properties),
@@ -807,6 +846,7 @@ public class SongController : ContentController
 
     public async Task<ActionResult> CleanupAlbums(Guid id, SongFilter filter)
     {
+        UseVue = UseVue.No;
         var user = await Database.FindUser(User.Identity?.Name);
 
         var song = await SongIndex.FindSong(id);
@@ -828,6 +868,7 @@ public class SongController : ContentController
     [Authorize]
     public async Task<ActionResult> UndoUserChanges(Guid id, string userName = null)
     {
+        UseVue = UseVue.No;
         if (userName == null)
         {
             userName = User.Identity?.Name;
@@ -846,6 +887,7 @@ public class SongController : ContentController
     [HttpGet]
     public async Task<ActionResult> CreateSpotify([FromServices] SignInManager<ApplicationUser> signInManager)
     {
+        UseVue = UseVue.No;
         HelpPage = "spotify-playlist";
 
         var authResult = await HttpContext.AuthenticateAsync();
@@ -890,6 +932,7 @@ public class SongController : ContentController
         [Bind("Title,DescriptionPrefix,Description,Count,Filter")]
         SpotifyCreateInfo info)
     {
+        UseVue = UseVue.No;
         var authResult = await HttpContext.AuthenticateAsync();
         var canSpotify = (await AdmAuthentication.GetServiceAuthorization(
             Configuration, ServiceType.Spotify, User, authResult)) != null;
@@ -988,6 +1031,7 @@ public class SongController : ContentController
     [HttpGet]
     public ActionResult ExportPlaylist()
     {
+        UseVue = UseVue.No;
         HelpPage = "export-playlist";
 
         var isUserOnly = IsUserOnly(Filter);
@@ -1015,6 +1059,7 @@ public class SongController : ContentController
         [Bind("Title,DescriptionPrefix,IncludeSpecificDances,Count,Filter")]
         ExportInfo info)
     {
+        UseVue = UseVue.No;
         HelpPage = "export-playlist";
 
         info.IsAuthenticated = User.Identity?.IsAuthenticated ?? false;
@@ -1058,6 +1103,7 @@ public class SongController : ContentController
     [Authorize(Roles = "dbAdmin")]
     public async Task<ActionResult> MergeCandidates(int? page, int? level, bool? autoCommit)
     {
+        UseVue = UseVue.No;
         Filter.Action = "MergeCandidates";
 
         if (page.HasValue)
@@ -1087,6 +1133,7 @@ public class SongController : ContentController
     [Authorize(Roles = "dbAdmin")]
     public ActionResult ClearMergeCache()
     {
+        UseVue = UseVue.No;
         Database.ClearMergeCandidates();
         ViewBag.Success = true;
         ViewBag.Message = "Merge Cache Cleared";
@@ -1099,6 +1146,7 @@ public class SongController : ContentController
     [Authorize(Roles = "dbAdmin")]
     public async Task<ActionResult> UpdateRatings(Guid id)
     {
+        UseVue = UseVue.No;
         var song = await SongIndex.FindSong(id);
         if (song == null)
         {
@@ -1122,6 +1170,7 @@ public class SongController : ContentController
     [Authorize(Roles = "dbAdmin")]
     public async Task<ActionResult> BulkEdit(Guid[] selectedSongs, string action)
     {
+        UseVue = UseVue.No;
         var songs = await SongIndex.FindSongs(selectedSongs);
 
         switch (action)
@@ -1175,6 +1224,7 @@ public class SongController : ContentController
     public async Task<ActionResult> CleanMusicServices(SongFilter filter, Guid id,
         string type = "S")
     {
+        UseVue = UseVue.No;
         var song = await SongIndex.FindSong(id);
         if (song == null)
         {
@@ -1197,6 +1247,7 @@ public class SongController : ContentController
     [Authorize(Roles = "dbAdmin")]
     public ActionResult BatchUpdateService(string serviceType)
     {
+        UseVue = UseVue.No;
         var service = MusicService.GetService(serviceType);
         var musicServiceManager = MusicServiceManager;
         return BatchProcess(
@@ -1216,12 +1267,14 @@ public class SongController : ContentController
     [Authorize(Roles = "dbAdmin")]
     public ActionResult BatchCleanService(string type = "D", int count = -1)
     {
+        UseVue = UseVue.No;
         return BatchProcess((dms, song) => CleanMusicServiceSong(song, dms, type));
     }
 
     [Authorize(Roles = "dbAdmin")]
     public ActionResult BatchCleanupProperties(string type = "OYSMPNE")
     {
+        UseVue = UseVue.No;
         return BatchProcess(
              async (dms, song) =>
                  await song.CleanupProperties(dms, type)
@@ -1232,6 +1285,7 @@ public class SongController : ContentController
     [Authorize(Roles = "dbAdmin")]
     public ActionResult BatchReloadSongs()
     {
+        UseVue = UseVue.No;
         return BatchProcess(
             async (dms, song) =>
                 await dms.SongIndex.ReloadSong(song)
@@ -1242,6 +1296,7 @@ public class SongController : ContentController
     [Authorize(Roles = "dbAdmin")]
     public ActionResult CheckProperties()
     {
+        UseVue = UseVue.No;
         return BatchProcess(
             async (dms, song) =>
                 await dms.SongIndex.CheckProperties(song)
@@ -1369,6 +1424,7 @@ public class SongController : ContentController
     [Authorize(Roles = "dbAdmin")]
     public ActionResult BatchSamples()
     {
+        UseVue = UseVue.No;
         return BatchProcess(
             async (dms, song) =>
                 await MusicServiceManager.GetSampleData(dms, song)
@@ -1379,6 +1435,7 @@ public class SongController : ContentController
     [Authorize(Roles = "dbAdmin")]
     public ActionResult BatchEchoNest()
     {
+        UseVue = UseVue.No;
         // TODO: Consider re-instating the option to only lookup songs w/o tempo or beat info
         return BatchProcess(
             async (dms, song) =>
@@ -1452,6 +1509,7 @@ public class SongController : ContentController
     private async Task<Song> CleanMusicServiceSong(Song song, DanceMusicCoreService dms,
         string type = "X")
     {
+        UseVue = UseVue.No;
         var props = new List<SongProperty>(song.SongProperties);
 
         var changed = false;
@@ -1584,6 +1642,7 @@ public class SongController : ContentController
     public async Task<IActionResult> DownloadJson(SongFilter filter, string type = "S",
         int count = 1)
     {
+        UseVue = UseVue.No;
         var p = await AzureParmsFromFilter(filter, 1000);
         p.IncludeTotalCount = true;
 
@@ -1789,6 +1848,7 @@ public class SongController : ContentController
 
     private async Task<Song> AutoMerge(List<Song> songs, ApplicationUser user)
     {
+        UseVue = UseVue.No;
         // These songs are coming from "light loading", so need to reload the full songs before merging
         songs = (await SongIndex.FindSongs(songs.Select(s => s.SongId))).ToList();
 

@@ -23,6 +23,6 @@ public class SearchController : DanceMusicController
     // GET: Search
     public IActionResult Index(string search)
     {
-        return Vue("music4dance search results", "music4dance search results", "search", search);
+        return Vue3("music4dance search results", "music4dance search results", "search", search, danceEnvironment: true);
     }
 }

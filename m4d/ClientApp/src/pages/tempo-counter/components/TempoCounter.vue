@@ -32,7 +32,7 @@ const countMethod = defineModel<CountMethod>("countMethod", { required: true });
 
 const intervals = ref<number[]>([]); // deltas between last n clicked
 const last = ref<number | null>(null); // Last type clicked (in tics)
-const state = ref<ClickState>(ClickState.Initial);
+const state = ref<ClickState>(beatsPerMeasure.value ? ClickState.Done : ClickState.Initial);
 
 const countOptions = [
   { text: "Count Beats", value: "beats" },
@@ -52,12 +52,18 @@ const countMeasures = computed(() => {
 });
 
 watchEffect(() => {
-  const ms = average(intervals.value);
-  const countsPerMinute = ms ? (60 * 1000) / ms : 0;
+  if (state.value === ClickState.Done && intervals.value.length === 0) {
+    // This is the case where a tempo is passed in
+    beatsPerMinute.value = measuresPerMinute.value * beatsPerMeasure.value;
+  } else {
+    // And this is the normal case where the user is clicking
+    const ms = average(intervals.value);
+    const countsPerMinute = ms ? (60 * 1000) / ms : 0;
 
-  beatsPerMinute.value = countMeasures.value
-    ? countsPerMinute * beatsPerMeasure.value
-    : countsPerMinute;
+    beatsPerMinute.value = countMeasures.value
+      ? countsPerMinute * beatsPerMeasure.value
+      : countsPerMinute;
+  }
 });
 
 watch(countMethod, () => {
@@ -143,6 +149,11 @@ function timerReset(): void {
         @update:model-value="timerReset"
       />
       <StrictSlider v-model="epsilonPercent" class="col-sm-3" />
+    </div>
+    <div class="row">
+      <div class="col-sm-4">BPM: {{ beatsPerMinute.toFixed(1) }}</div>
+      <div class="col-sm-4">MPM: {{ measuresPerMinute.toFixed(1) }}</div>
+      <div class="col-sm-4">METER: {{ beatsPerMeasure }}/4</div>
     </div>
   </div>
 </template>

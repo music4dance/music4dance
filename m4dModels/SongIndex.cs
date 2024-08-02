@@ -789,7 +789,7 @@ public abstract class SongIndex
     #region Index Update
     public async Task SaveSong(Song song, string id = "default")
     {
-        await SaveSongs(new[] { song }, id);
+        await SaveSongs([song], id);
     }
 
     [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]

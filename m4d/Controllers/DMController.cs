@@ -25,6 +25,9 @@ public class DanceMusicController : Controller
         ContractResolver = new StatsContractResolver(true, true)
     };
 
+    protected static readonly JsonSerializer CamelCaseSerializer = 
+        JsonSerializer.Create(CamelCaseSerializerSettings);
+
     private MusicServiceManager _musicServiceManager;
 
     public DanceMusicController(
@@ -380,7 +383,11 @@ public class DanceMusicController : Controller
             {
                 var dancesJson = ReadJsonFile(fileProvider, "dances");
                 var groupsJson = ReadJsonFile(fileProvider, "danceGroups");
-                var library = new JObject(new JProperty("dances", dancesJson), new JProperty("groups", groupsJson));
+                var metricsJson = JArray.FromObject(Database.DanceStats.GetMetrics().Values, CamelCaseSerializer);
+                var library = new JObject(
+                    new JProperty("dances", dancesJson),
+                    new JProperty("groups", groupsJson),
+                    new JProperty("metrics", metricsJson));
                 s_danceDatabaseCache = library.ToString();
             }
             ViewData["DanceDatabase"] = s_danceDatabaseCache;
@@ -401,13 +408,6 @@ public class DanceMusicController : Controller
         }
         using var reader = System.IO.File.OpenText(path);
         return (JArray)JToken.ReadFrom(new JsonTextReader(reader));
-    }
-
-    protected string GetSongCountsJson()
-    {
-        var counts = DanceStatsManager.Instance.GetCounts();
-        var json =  JsonConvert.SerializeObject(counts, Formatting.Indented, CamelCaseSerializerSettings);
-        return json;
     }
 
     internal static void ClearJsonCache()

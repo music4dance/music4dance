@@ -235,12 +235,7 @@ const flattened = computed(() => {
       </div>
     </div>
     <BTabs v-else>
-      <BTab
-        v-for="category in categories"
-        :id="'bvt-' + category.type"
-        :key="category.type"
-        :title="category.title"
-      >
+      <BTab v-for="category in categories" :key="category.type" :title="category.title">
         <ReadingCategory :category="category" />
       </BTab>
     </BTabs>

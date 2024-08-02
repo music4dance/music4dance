@@ -9,10 +9,18 @@ import { BootstrapVueNextResolver } from "unplugin-vue-components/resolvers";
 import Inspect from "vite-plugin-inspect";
 import fg from "fast-glob";
 import Icons from "unplugin-icons/vite";
-import IconsResolve from "unplugin-icons/resolver";
+import IconsResolver from "unplugin-icons/resolver";
 
 // @ts-ignore
 import appsettingsDev from "../appsettings.Development.json";
+
+interface VuePlugin {
+  name: string;
+  library: string;
+  config: unknown;
+}
+
+type VuePluginMap = Record<string, [VuePlugin]>;
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -20,9 +28,17 @@ export default defineConfig({
     Inspect({ build: true, outputDir: ".vite-inspect" }),
     vue(),
     mkcert(),
-    AutoEndpoints(),
+    AutoEndpoints({
+      "dance-details": [
+        {
+          name: "VueShowdownPlugin",
+          library: "vue-showdown",
+          config: { flavor: "vanilla" },
+        },
+      ],
+    }),
     Components({
-      resolvers: [BootstrapVueNextResolver(), IconsResolve()],
+      resolvers: [BootstrapVueNextResolver(), IconsResolver()],
       dts: true,
     }),
     Icons({ compiler: "vue3", autoInstall: true }),
@@ -41,6 +57,16 @@ export default defineConfig({
     emptyOutDir: true,
     manifest: true,
     cssCodeSplit: false,
+    rollupOptions: {
+      output: {
+        experimentalMinChunkSize: 2048,
+        manualChunks: {
+          vue: ["vue"],
+          showdown: ["vue-showdown"],
+          bsvn: ["bootstrap-vue-next"],
+        },
+      },
+    },
   },
   resolve: {
     alias: {
@@ -52,17 +78,19 @@ export default defineConfig({
 // This plugin will find all files matching the pattern src/pages/*/App.vue
 //  and make endpoints with the 'name' being the replacement for the *. and the
 //  path being src/pages/*/main.ts - then return a template for the main.ts file
-function AutoEndpoints(): Plugin {
+function AutoEndpoints(config: VuePluginMap): Plugin {
   const main = `import 'vite/modulepreload-polyfill'
 
 import { createApp } from 'vue'
-import {createBootstrap} from 'bootstrap-vue-next'
+import { createBootstrap } from 'bootstrap-vue-next'
+{imports}
 import App from '{app}'
 
 import '@/scss/styles.scss'
 
 const app = createApp(App);
 app.use(createBootstrap());
+{configs}
 app.mount('#app')
 `;
 
@@ -97,7 +125,22 @@ app.mount('#app')
 
       id = normalizePath(id);
       const app = id.replace(/.*\/src\//, "@/").replace("main.ts", "App.vue");
-      return main.replace("{app}", app);
+      let pluginImports = "";
+      let pluginConfigs = "";
+      const name = id.replace(/.*\/src\/pages\//, "").replace("/main.ts", "");
+      if (config[name]) {
+        const plugins = config[name];
+        pluginImports = plugins
+          .map((plugin) => `import { ${plugin.name} } from '${plugin.library}'`)
+          .join("\n");
+        pluginConfigs = plugins
+          .map((plugin) => `app.use(${plugin.name}, ${JSON.stringify(plugin.config)})`)
+          .join("\n");
+      }
+      return main
+        .replace("{app}", app)
+        .replace("{imports}", pluginImports)
+        .replace("{configs}", pluginConfigs);
     },
   };
 }

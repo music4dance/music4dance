@@ -28,7 +28,8 @@ public IActionResult Index([FromServices] IFileProvider fileProvider)
             "music4dance.net is an online music catalog, tool and educational resource to help Ballroom, Salsa, Swing, Tango and other dancers find fun and exciting music.",
             "home",
             new HomeModel(SiteMapInfo.GetCategories(fileProvider)),
-            script: "_fbLike");
+            script: "_fbLike",
+            danceEnvironment: true);
     }
 
     public IActionResult FAQ()

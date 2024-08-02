@@ -1,8 +1,6 @@
 import { DanceQueryBase } from "./DanceQueryBase";
-import type { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
 import type { NamedObject } from "@/models/DanceDatabase/NamedObject";
-
-declare const danceDatabase: DanceDatabase;
+import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 
 const danceEx = /DanceTags\/(any|all)\([^']*'(.*?)'/i;
 
@@ -25,7 +23,7 @@ export class RawDanceQuery extends DanceQueryBase {
   // INT-TODO: this used to be danceStats and returned a danceStats object
   public get dances(): NamedObject[] {
     const dance = this.parseDance;
-    return dance ? [danceDatabase.fromName(dance)!] : [];
+    return dance ? [safeDanceDatabase().fromName(dance)!] : [];
   }
 
   private get parseDance(): string | undefined {

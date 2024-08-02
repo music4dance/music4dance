@@ -68,7 +68,6 @@ const fields: Exclude<TableFieldRaw<DanceType>, string>[] = [
     sortable: true,
     sortByFormatted: true,
     formatter: (_value: unknown, _key?: LiteralUnion<keyof DanceType>, item?: DanceType) => {
-      console.log("item", item);
       return item!.styles.join(", ") ?? "";
     },
   },

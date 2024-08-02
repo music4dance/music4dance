@@ -5,8 +5,8 @@ exports[`About > Render the Readling List Page 1`] = `
   <nav aria-label=\\"breadcrumb\\">
     <nav aria-label=\\"breadcrumb\\" style=\\"padding: 0.25rem 0.5rem;\\">
       <ol class=\\"breadcrumb\\">
-        <li class=\\"breadcrumb-item\\"><a class=\\"\\" href=\\"/\\">music4dance</a></li>
-        <li class=\\"breadcrumb-item\\"><a class=\\"\\" href=\\"/home/info\\">Info</a></li>
+        <li class=\\"breadcrumb-item\\"><a class=\\"\\" replace=\\"false\\" href=\\"/\\">music4dance</a></li>
+        <li class=\\"breadcrumb-item\\"><a class=\\"\\" replace=\\"false\\" href=\\"/home/info\\">Info</a></li>
         <li class=\\"breadcrumb-item active\\"><span aria-current=\\"location\\">Reading List</span></li>
       </ol>
     </nav>
@@ -21,7 +21,7 @@ exports[`About > Render the Readling List Page 1`] = `
           <ul class=\\"nav nav-tabs\\" role=\\"tablist\\" aria-orientation=\\"horizontal\\"></ul>
         </div>
         <div class=\\"tab-content\\">
-          <div data-v-b13604e2=\\"\\" id=\\"bvt-0\\" class=\\"tab-pane fade _getter __v_isRef __v_isReadonly _getter __v_isRef __v_isReadonly\\" role=\\"tabpanel\\" aria-labelledby=\\"__BVID__0001___BV_tab__\\">
+          <div data-v-b13604e2=\\"\\" id=\\"__BVID__0001___BV_tabpane__\\" class=\\"tab-pane fade\\" role=\\"tabpanel\\" aria-labelledby=\\"__BVID__0002___BV_tab__\\">
             <div data-v-8ea0c2bf=\\"\\" data-v-b13604e2=\\"\\">
               <h3 data-v-8ea0c2bf=\\"\\" class=\\"category-description\\">Books about learning to dance and to become a better dancer</h3>
               <div data-v-8ea0c2bf=\\"\\">
@@ -154,7 +154,7 @@ exports[`About > Render the Readling List Page 1`] = `
               </div>
             </div>
           </div>
-          <div data-v-b13604e2=\\"\\" id=\\"bvt-1\\" class=\\"tab-pane fade _getter __v_isRef __v_isReadonly _getter __v_isRef __v_isReadonly\\" role=\\"tabpanel\\" aria-labelledby=\\"__BVID__0002___BV_tab__\\">
+          <div data-v-b13604e2=\\"\\" id=\\"__BVID__0003___BV_tabpane__\\" class=\\"tab-pane fade\\" role=\\"tabpanel\\" aria-labelledby=\\"__BVID__0004___BV_tab__\\">
             <div data-v-8ea0c2bf=\\"\\" data-v-b13604e2=\\"\\">
               <h3 data-v-8ea0c2bf=\\"\\" class=\\"category-description\\">Books about dance history and the social impact of dance</h3>
               <div data-v-8ea0c2bf=\\"\\">
@@ -230,7 +230,7 @@ exports[`About > Render the Readling List Page 1`] = `
               </div>
             </div>
           </div>
-          <div data-v-b13604e2=\\"\\" id=\\"bvt-2\\" class=\\"tab-pane fade _getter __v_isRef __v_isReadonly _getter __v_isRef __v_isReadonly\\" role=\\"tabpanel\\" aria-labelledby=\\"__BVID__0003___BV_tab__\\">
+          <div data-v-b13604e2=\\"\\" id=\\"__BVID__0005___BV_tabpane__\\" class=\\"tab-pane fade\\" role=\\"tabpanel\\" aria-labelledby=\\"__BVID__0006___BV_tab__\\">
             <div data-v-8ea0c2bf=\\"\\" data-v-b13604e2=\\"\\">
               <h3 data-v-8ea0c2bf=\\"\\" class=\\"category-description\\">Books that celebrate dance in fiction</h3>
               <div data-v-8ea0c2bf=\\"\\">

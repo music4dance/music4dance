@@ -28,6 +28,11 @@ export class NamedObject extends SerializableObject {
     return this.name ? wordsToKebab(this.name) : "???";
   }
 
+  public hasString(s: string): boolean {
+    const l = s.toLowerCase();
+    return this.normalizedNames.find((n) => n.includes(l)) !== undefined;
+  }
+
   private get normalizedNames(): string[] {
     return this.id && this.name
       ? [

@@ -1,65 +1,29 @@
 import { loadTestDances } from "./LoadTestDances";
-import { mount } from "@vue/test-utils";
-import { expect, vi } from "vitest";
-import { MenuContext } from "@/models/MenuContext";
-import { loadTagsFromString } from "@/helpers/TagLoader";
-import { loadDancesFromString } from "@/helpers/DanceLoader";
 // @ts-ignore
 import tagDatabaseJson from "@/assets/tags.json";
-import { createBootstrap } from "bootstrap-vue-next";
-
 declare global {
   interface Window {
-    model_: unknown;
+    danceDatabaseJson?: string;
+    tagDatabaseJson?: string;
   }
 }
 
-vi.mock("@/helpers/GetMenuContext.ts", () => {
-  return {
-    getMenuContext: vi.fn(() => new MenuContext()),
+export const setupTestEnvironment = () => {
+  window.danceDatabaseJson = loadTestDances();
+  window.tagDatabaseJson = JSON.stringify(tagDatabaseJson);
+};
+
+export const mockResizObserver = () => {
+  // @ts-ignore
+  window.ResizeObserver = class ResizeObserver {
+    observe() {
+      // do nothing
+    }
+    unobserve() {
+      // do nothing
+    }
+    disconnect() {
+      // do nothing
+    }
   };
-});
-
-vi.mock("@/helpers/TagEnvironmentManager.ts", () => {
-  return {
-    safeTagDatabase: vi.fn(() => loadTagsFromString(JSON.stringify(tagDatabaseJson))),
-  };
-});
-
-vi.mock("@/helpers/DanceEnvironmentManager.ts", () => {
-  return {
-    safeDanceDatabase: vi.fn(() => loadDancesFromString(loadTestDances())),
-  };
-});
-
-let currentId = 1;
-
-// TODO NEXT: What is App? Can we type it more specifically? Does it actually have a provide function?
-export function testPageSnapshot(app: unknown, model?: unknown): void {
-  const bsvn = createBootstrap({
-    plugins: {
-      id: {
-        getId: () => (currentId++).toString().padStart(4, "0"),
-        // getId: () => {
-        //   const id = `M4D-${(currentId++).toString().padStart(4, "0")}`;
-        //   console.log("ID:", id);
-        //   return id;
-        // },
-      },
-    },
-  });
-
-  if (model) {
-    window.model_ = model;
-  }
-  //app.provide(idPluginKey, () => `${Math.random().toString().slice(2, 8)}__PROVIDED__`);
-  const wrapper = mount(app, {
-    props: {},
-    global: {
-      stubs: { MainMenu: { template: "<span>MainMenu</span>" } },
-      config: {},
-      plugins: [bsvn],
-    },
-  });
-  expect(wrapper.html()).toMatchSnapshot();
-}
+};

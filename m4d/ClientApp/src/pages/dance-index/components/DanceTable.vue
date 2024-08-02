@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { DanceCountDatabase } from "@/models/DanceCountDatabase";
 import { TempoType } from "@/models/DanceDatabase/TempoType";
 import { ref, computed } from "vue";
 import DanceList from "./DanceList.vue";
+import type { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
 
 const props = defineProps<{
-  dances: DanceCountDatabase;
+  dances: DanceDatabase;
 }>();
 
 const nameFilter = ref("");
@@ -26,7 +26,7 @@ const filteredDances = computed(() => {
         placeholder="Filter Dances"
         autofocus
       ></BFormInput>
-      <BInputGroupAppend is-text><IBiSearch /></BInputGroupAppend>
+      <span><IBiSearch /></span>
     </BInputGroup>
     <DanceList
       :dances="filteredDances"

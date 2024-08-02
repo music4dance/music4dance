@@ -1,8 +1,6 @@
 import { jsonMember, jsonObject, TypedJSON } from "typedjson";
-import { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
 import { type ColorVariant } from "bootstrap-vue-next";
-
-declare const danceDatabase: DanceDatabase;
+import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 
 export enum TagCategory {
   Style = "Style",
@@ -54,8 +52,8 @@ export class Tag {
     return count ? key + `:${count}` : key;
   }
 
-  public static get TagInfo(): Map<string, TagInfo> {
-    return this.tagInfo;
+  public static get tagInfo(): Map<string, TagInfo> {
+    return this._tagInfo;
   }
 
   public static fromString(key: string): Tag {
@@ -66,7 +64,7 @@ export class Tag {
   }
 
   public static fromDanceId(id: string): Tag {
-    return Tag.fromParts(danceDatabase.fromId(id)!.name, TagCategory.Dance);
+    return Tag.fromParts(safeDanceDatabase().fromId(id)!.name, TagCategory.Dance);
   }
 
   public static fromKey(key: string, count?: number): Tag {
@@ -81,7 +79,7 @@ export class Tag {
     return [...Tag.tagInfo.keys()];
   }
 
-  private static tagInfo = new Map<string, TagInfo>([
+  private static _tagInfo = new Map<string, TagInfo>([
     ["style", { iconName: "briefcase", description: "style" }],
     ["tempo", { iconName: "clock", description: "tempo" }],
     ["music", { iconName: "music-note-list", description: "musical genre" }],

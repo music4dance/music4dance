@@ -122,6 +122,20 @@ namespace m4dModels
             SongIds = _topSongs.Select(s => s.SongId.ToString()).ToList();
         }
 
+        public bool RefreshTopSongs(DanceStatsInstance stats)
+        {
+            if (SongIds == null || !SongIds.Any())
+            {
+                return true;
+            }
+            var songs = stats.ListFromCache(SongIds);
+            if (songs == null) {
+                return false;
+            }
+            _topSongs = songs;
+            return true;
+        }
+
         public void RestoreTopSongs(SongCache songs)
         {
             _topSongs = SongIds.Select(id => songs.FindSongDetails(new Guid(id))).ToList();

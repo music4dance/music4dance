@@ -11,7 +11,7 @@ class TagButton implements TagInfo {
   public static get buttons() {
     return Tag.tagKeys
       .filter((t) => t !== "dance")
-      .map((t) => new TagButton(t, Tag.TagInfo.get(t)!));
+      .map((t) => new TagButton(t, Tag.tagInfo.get(t)!));
   }
 
   public key: string;
@@ -131,11 +131,7 @@ function getTagHandler(tag: Tag): TagHandler {
     <div v-else>
       <h4>Please select one or more tag classes (style, tempo, musical genre, oother)</h4>
     </div>
-    <TagModal
-      :visible="modalVisible"
-      :tag-handler="currentTag"
-      @update="modalVisible = $event"
-    ></TagModal>
+    <TagModal v-model="modalVisible" :tag-handler="currentTag"></TagModal>
   </div>
 </template>
 

@@ -62,8 +62,8 @@ export class SongSort {
     }
   }
 
-  public get type(): string {
-    switch (this.order) {
+  public static getOrderType(order?: string): string {
+    switch (order) {
       case SortOrder.Tempo:
       case SortOrder.Beat:
       case SortOrder.Mood:
@@ -77,6 +77,10 @@ export class SongSort {
       default:
         return "alpha";
     }
+  }
+
+  public get type(): string {
+    return SongSort.getOrderType(this.order);
   }
 
   public get description(): string {

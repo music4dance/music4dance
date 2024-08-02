@@ -47,7 +47,7 @@ public class DanceController : ContentController
             configuration, fileProvider, backroundTaskQueue, featureManager, logger)
     {
         _mapper = mapper;
-        UseVue = UseVue.V2;
+        UseVue = UseVue.V3;
     }
 
     // GET: Dances/{dance}
@@ -137,7 +137,7 @@ public class DanceController : ContentController
             return View("emptydance", ds);
         }
 
-        return Vue(
+        return Vue3(
             $"music4dance catalog: {ds.DanceName} Page",
             $"{ds.DanceName} Information, Top Ten List, and Resources.",
             "dance-details",

@@ -35,7 +35,7 @@ function buildFields(): Exclude<TableFieldRaw<TagRow>, string>[] {
     fields.push({
       key: column.tag,
       label: column.title.replace("/", "/<wbr>"),
-      formatter: (key: unknown, item: any) => countFromKey(key as string, item),
+      formatter: (_value: unknown, key: unknown, item: any) => countFromKey(key as string, item),
     });
   }
 

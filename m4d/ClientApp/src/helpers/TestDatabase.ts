@@ -1,5 +1,4 @@
 import { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
-import { DanceCountDatabase } from "@/models/DanceCountDatabase";
 
 const dances = [
   {
@@ -134,10 +133,4 @@ const groups = [
 export function loadDatabase(): DanceDatabase {
   const db = { dances: dances, groups: groups };
   return DanceDatabase.load(JSON.stringify(db));
-}
-
-const counts = { SWZ: 37, SFT: 109 };
-
-export function loadCountDatabase(): DanceCountDatabase {
-  return new DanceCountDatabase(loadDatabase(), counts);
 }

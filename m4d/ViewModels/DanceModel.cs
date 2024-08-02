@@ -12,6 +12,12 @@ public class DanceModel : SongListModel
         DanceName = dance.Name;
         Description = dance.Description;
         Links = ds.DanceLinks;
+        SongTags = ds.SongTags;
+        if (!ds.RefreshTopSongs(database.DanceStats))
+        {
+            database.ActivityLog.Add(
+                new ActivityLog("RefreshTopN", null, new { danceId = ds.DanceId }));
+        }
         if (ds.TopSongs != null)
         {
             var songs = ds.TopSongs.ToList();
@@ -25,5 +31,6 @@ public class DanceModel : SongListModel
     public string DanceName { get; set; }
     public string Description { get; set; }
     public string SpotifyPlaylist { get; set; }
+    public TagSummary SongTags { get; set; }
     public List<DanceLink> Links { get; set; }
 }
