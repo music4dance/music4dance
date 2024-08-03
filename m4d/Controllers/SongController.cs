@@ -1358,10 +1358,6 @@ public class SongController : ContentController
                                     if (songT != null)
                                     {
                                         changed.Add(songT.SongId);
-                                    }
-
-                                    if (songT != null)
-                                    {
                                         save.Add(songT);
                                     }
 
@@ -1402,7 +1398,7 @@ public class SongController : ContentController
 
                         AdminMonitor.CompleteTask(
                             true,
-                            $"BatchProcess: Completed={tried <= count}, Succeeded={changed.Count} - ({string.Join(",", changed)})");
+                            $"BatchProcess: Completed={tried <= count || count == -1}, Succeeded={changed.Count} - ({string.Join(",", changed)})");
                     }
                     catch (Exception e)
                     {

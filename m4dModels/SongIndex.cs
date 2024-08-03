@@ -475,11 +475,11 @@ public abstract class SongIndex
         foreach (var from in songs)
         {
             await song.UpdateProperties(
-                from.SongProperties, DanceMusicService, new[]
-                {
+                from.SongProperties, DanceMusicService,
+                [
                     Song.FailedLookup, Song.AlbumField, Song.TrackField, Song.PublisherField,
                     Song.PurchaseField, Song.AlbumListField, Song.AlbumOrder, Song.AlbumPromote
-                });
+                ]);
             await DeleteSong(user, from);
         }
 
