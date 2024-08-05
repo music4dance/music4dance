@@ -787,7 +787,7 @@ public class SongController : ContentController
                     try
                     {
                         var results = await dms.SongIndex.Search(
-                            filter, 1000, CruftFilter.AllCruft); var songs = results.Songs;
+                            filter, 2000, CruftFilter.AllCruft); var songs = results.Songs;
 
                         var processed = 0;
 
@@ -1272,7 +1272,7 @@ public class SongController : ContentController
     }
 
     [Authorize(Roles = "dbAdmin")]
-    public ActionResult BatchCleanupProperties(string type = "OYSMPNE")
+    public ActionResult BatchCleanupProperties(string type = "OBGIYSMPNE")
     {
         UseVue = UseVue.No;
         return BatchProcess(

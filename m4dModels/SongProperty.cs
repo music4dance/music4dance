@@ -237,6 +237,7 @@ namespace m4dModels
 
         public bool IsComplex => IsComplexName(Name);
         public bool IsAction => IsActionName(Name);
+        public bool IsEdit => BaseName == Song.EditCommand || BaseName == Song.CreateCommand;
 
         public bool IsNull => string.IsNullOrWhiteSpace(Value);
 
@@ -305,11 +306,14 @@ namespace m4dModels
                     var name = cell.Substring(0, idx);
                     properties.Add(new SongProperty(name, p));
                 }
+                else if (cell.StartsWith("."))
+                {
+                    properties.Add(new SongProperty(cell));
+                }
                 else
                 {
                     Trace.WriteLineIf(
-                        TraceLevels.General.TraceError, "Bad SongProperty: {0}",
-                        cell);
+                        TraceLevels.General.TraceError, $"Bad SongProperty: {cell}");
                 }
             }
         }

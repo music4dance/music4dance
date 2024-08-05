@@ -696,8 +696,6 @@ namespace m4dModels
             odata = CombineFilter(odata, GetTagFilter(dms));
             odata = CombineFilter(odata, GetCommentsFilter());
 
-
-            Trace.WriteLine($"ODataFilter: {odata}");
             return odata;
         }
 
@@ -714,7 +712,7 @@ namespace m4dModels
             var length = Version == 2 ? $"{Format(LengthMin.ToString())}-{Format(LengthMax.ToString())}-" : "";
             var ret = $"{version}{Action}-{Dances}-{Format(SortOrder)}-{Format(SearchString)}-{Format(Purchase)}-{Format(User)}-" +
                 $"{Format(TempoMin.ToString())}-{Format(TempoMax.ToString())}-{length}{Format(Page.ToString())}-{Format(Tags)}-{Format(Level.ToString())}";
-            var clean = ret.TrimEnd(new char [] { '.', '-' });
+            var clean = ret.TrimEnd(['.', '-']);
             return string.Equals(clean, "index", StringComparison.OrdinalIgnoreCase) ? "" : clean;
         }
 

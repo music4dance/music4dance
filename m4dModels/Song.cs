@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -316,6 +317,7 @@ namespace m4dModels
         public const string CreateCommand = ".Create";
         public const string EditCommand = ".Edit";
         public const string DeleteCommand = ".Delete";
+        public const string UndoCommand = ".Undo";
         public const string MergeCommand = ".Merge";
         public const string FailedLookup = ".FailedLookup";
         public const string NoSongId = ".NoSongId"; // Pseudo action for serialization
@@ -535,22 +537,57 @@ namespace m4dModels
 
         public async Task<bool> CheckProperties()
         {
+            var result = await CheckPropertiesInternal();
+            if (!result)
+            {
+                Trace.WriteLineIf(
+                    TraceLevels.General.TraceError,
+                    $"Invalid Song: {SongId}");
+            }
+            return result;
+        }
+
+        private async Task<bool> CheckPropertiesInternal()
+        {
+            var failed = false;
+
+            if (DanceRatings.Any(dr => dr.TagSummary.Tags.Any(t => t.TagClass == "Music")))
+            {
+                Trace.WriteLine($"Dance/Genre Conflict {SongId}");
+                failed = true;
+            }
+
+            if (DanceRatings.Any(dr => s_groupIds.Contains(dr.DanceId)))
+            {
+                var ids = string.Join(",", s_groupIds.Where(gid => DanceRatings.Any(dr => dr.DanceId == gid)));
+                Trace.WriteLine(
+                    $"Invalid Group: {SongId}, DanceIds: {ids}");
+                failed = true;
+            }
+
             for (var i = 0; i < SongProperties.Count; i++)
             {
-                switch (SongProperties[i].BaseName)
+                var name = SongProperties[i].BaseName;
+                switch (name)
                 {
                     case CreateCommand:
                     case EditCommand:
                         if (!CheckHeader(i))
                         {
-                            return false;
+                            Trace.WriteLineIf(
+                                TraceLevels.General.TraceError,
+                                $"Invalid Song: {SongId}, Name: {name}, Index: {i}");
+                            failed = true;
                         }
                         i += 2;
                         break;
                     case UserField:
                         if (i == 0 || !CheckHeader(i - 1))
                         {
-                            return false;
+                            Trace.WriteLineIf(
+                                TraceLevels.General.TraceError,
+                                $"Invalid Song: {SongId}, Name: {name}, Index: {i}");
+                            failed = true;
                         }
 
                         i += 1;
@@ -558,53 +595,53 @@ namespace m4dModels
                     case TimeField:
                         if (i < 2 || CheckHeader(i - 2))
                         {
-                            return false;
+                            Trace.WriteLineIf(
+                                TraceLevels.General.TraceError,
+                                $"Invalid Song: {SongId}, Name: {name}, Index: {i}");
+                            failed = true;
                         }
+                        break;
+                    case FailedLookup:
+                        Trace.WriteLineIf(
+                            TraceLevels.General.TraceError,
+                            $"Invalid Song: {SongId}, Name: {name}, Index: {i}");
+                        failed = true;
                         break;
                 }
             }
 
-            return await Task.FromResult(true);
+            return await Task.FromResult(!failed);
         }
 
-        private static readonly string[] CommandField = { CreateCommand, EditCommand };
+        private static readonly string[] CommandField = { CreateCommand, EditCommand, UndoCommand };
         private static readonly string[] UserFieldList = { UserField };
         private static readonly string[] TimeFieldList = { TimeField };
 
-        private bool CheckHeader(int i)
+        private bool CheckHeader(int i) =>
+            CheckHeaderCUT(i) || CheckHeaderCTU(i);
+
+        private bool CheckHeaderCUT(int i) =>
+            CheckHeaderBase(i, [CommandField, UserFieldList, TimeFieldList]);
+
+        private bool CheckHeaderCTU(int i) =>
+            CheckHeaderBase(i, [CommandField, TimeFieldList, UserFieldList]);
+
+        private bool CheckHeaderBase(int i, IEnumerable<IEnumerable<string>> fields)
         {
             var props = SongProperties;
             var count = SongProperties.Count;
 
-            if (!CheckField(i, CommandField))
+            foreach (var field in fields)
             {
-                return false;
-            }
+                if (!CheckField(i, field))
+                {
+                    return false;
+                }
 
-            i += 1;
-            if (!CheckField(i, UserFieldList))
-            {
-                return false;
-            }
-
-            i += 1;
-            if (i == count)
-            {
-                return false;
-            }
-            if (props[i].BaseName == OwnerHash)
-            {
                 i += 1;
             }
-
-            if (!CheckField(i, TimeFieldList))
-            {
-                return false;
-            }
-
             return true;
         }
-
 
         private bool CheckField(int i, IEnumerable<string> names)
         {
@@ -2798,6 +2835,187 @@ namespace m4dModels
             return true;
         }
 
+        private (bool, int) HandleOneMerge(int i, string command)
+        {
+            var props = SongProperties;
+            var iStart = i;
+            var changed = false;
+
+            while (i < props.Count && props[i].BaseName == MergeCommand)
+            {
+                i += 1;
+            }
+
+            var wellFormed = false;
+            if (i != iStart && !props[i].IsAction)
+            {
+                for (var j = 0; j < 2; j++)
+                {
+                    if (props[i + j].BaseName != UserField && props[i + j].BaseName != TimeField)
+                    {
+                        break;
+                    }
+                    if (props[i + j + 1].IsAction)
+                    {
+                        wellFormed = true;
+                        break;
+                    }
+                }
+
+                if (!wellFormed)
+                {
+                    props.Insert(i, new SongProperty { Name = command });
+                    changed = true;
+                    i += 1;
+                }
+            }
+
+            return (changed, i - iStart);
+        }
+
+        public bool FixupMerges()
+        {
+            var props = SongProperties;
+            bool changed = false;
+
+            var i = 0;
+            while (i < props.Count)
+            {
+                while (i < props.Count && props[i].BaseName != MergeCommand)
+                {
+                    i += 1;
+                }
+                var (chng, cnt) = HandleOneMerge(i, i == 0 ? CreateCommand : EditCommand);
+                changed |= chng;
+                i += cnt;
+            }
+            return changed;
+        }
+
+        private (bool, int) HandleOneEditTime(int i, string command)
+        {
+            var props = SongProperties;
+            var count = props.Count;
+            var iStart = i;
+
+            if (i + 2 >= count)
+            {
+                return (false, 1);
+            }
+
+            i += 1;
+            var p1 = props[i];
+            var p2 = props[i + 1];
+
+            if (p1.BaseName == TimeField && p2.BaseName == UserField ||
+                p2.BaseName == TimeField && p1.BaseName == UserField)
+            {
+                return (false, 2);
+            }
+
+            if (p1.BaseName == UserField)
+            {
+                i += 1;
+            }
+
+            var iInsert = i;
+
+            string time = null;
+            var passedAction = false;
+
+            while (i < count)
+            {
+                if (props[i].IsAction)
+                {
+                    passedAction = true;
+                }
+                else if (props[i].BaseName == TimeField)
+                {
+                    time = props[i].Value;
+                    if (!passedAction)
+                    {
+                        props.RemoveAt(i);
+                    }
+                    break;
+                }
+                i += 1;
+            }
+
+            if (time == null)
+            {
+                i -= 1;
+                while (i > 0)
+                {
+                    if (props[i].BaseName == TimeField)
+                    {
+                        time = props[i].Value;
+                        break;
+                    }
+                    i -= 1;
+                }
+            }
+
+            if (time == null)
+            {
+                Trace.WriteLineIf(TraceLevels.General.TraceWarning, $"No time found for {SongId}");
+                return (false, i - iStart);
+            }
+
+            props.Insert(iInsert, new SongProperty { Name = TimeField, Value = time });
+            return (true, i - iStart);
+        }
+
+        public bool FixupTime()
+        {
+            var props = SongProperties;
+            bool changed = false;
+
+            var i = 0;
+            while (i < props.Count)
+            {
+                while (i < props.Count && !props[i].IsEdit)
+                {
+                    i += 1;
+                }
+                var (chng, cnt) = HandleOneEditTime(i, i == 0 ? CreateCommand : EditCommand);
+                changed |= chng;
+                i += cnt;
+            }
+            return changed;
+        }
+
+        public bool AddSpotifyTag()
+        {
+            var props = SongProperties;
+            var c = props.Count;
+            var changed = false;
+
+            for (var i = 0; i < c - 2; i++)
+            {
+                if (props[i].IsEdit)
+                {
+                    var hasUser = false;
+                    for (var j = i + 1; j < c && !props[j].IsAction; j++)
+                    {
+                        if (props[j].BaseName == UserField)
+                        {
+                            hasUser = true;
+                        }
+                    }
+
+                    if (!hasUser)
+                    {
+                        props.Insert(i + 1, new SongProperty(UserField, "batch-s|P"));
+                        i += 1;
+                        changed = true;
+                    }
+                }
+            }
+
+            return changed;
+        }
+
+
         public bool RemoveOwner()
         {
             bool changed = false;
@@ -2822,7 +3040,8 @@ namespace m4dModels
             {
                 var prop = props[i];
                 var value = prop.Value;
-                if (s_emptyNames.Contains(prop.BaseName) && (string.IsNullOrWhiteSpace(value) || value == "."))
+                if ((s_emptyNames.Contains(prop.BaseName) && (string.IsNullOrWhiteSpace(value) || value == "."))
+                    || prop.BaseName == FailedLookup)
                 {
                     props.RemoveAt(i);
                     changed = true;
@@ -3370,19 +3589,6 @@ namespace m4dModels
                     prop => new TagList(prop.Value).ConvertToPrimary(dms).ToString());
         }
 
-        private void CheckInvalidProperty()
-        {
-            if (DanceRatings.Any(dr => dr.TagSummary.Tags.Any(t => t.TagClass == "Music")))
-            {
-                Trace.WriteLine($"Dance/Genre Conflict {SongId}");
-            }
-
-            if (DanceRatings.Any(dr => s_groupIds.Contains(dr.DanceId)))
-            {
-                Trace.WriteLine($"Invalid Group: {SongId}");
-            }
-        }
-
         private static HashSet<string> s_groupIds = new()
             { "MSC", "TNG", "SWG", "WLZ" };
 
@@ -3405,6 +3611,9 @@ namespace m4dModels
                     case 'A':
                         changed |= HandleCleanupCount(action,CleanupAlbums());
                         break;
+                    case 'B':
+                        changed |= HandleCleanupCount(action, AddSpotifyTag());
+                        break;
                     case 'C':
                         changed |= HandleCleanupCount(action,FixBadTagCategory());
                         break;
@@ -3414,8 +3623,11 @@ namespace m4dModels
                     case 'E':
                         changed |= HandleCleanupCount(action, RemoveEmptyEdits());
                         break;
+                    case 'G':
+                        changed |= HandleCleanupCount(action, FixupMerges());
+                        break;
                     case 'I':
-                        CheckInvalidProperty();
+                        changed |= HandleCleanupCount(action, FixupTime());
                         break;
                     case 'L':
                         changed |= HandleCleanupCount(action, FixupLengths());
@@ -3803,7 +4015,7 @@ namespace m4dModels
 
             if (tobj == null)
             {
-                Trace.WriteLine($"Bad tag on {Title} by {Artist}");
+                Trace.WriteLine($"Bad tag on {Title} by {Artist} with {qualifier} ({SongId}");
                 return new TagList();
             }
 
