@@ -70,7 +70,7 @@ public IActionResult Index([FromServices] IFileProvider fileProvider)
 
     public IActionResult SpotifyExplorer()
     {
-        return Vue("Spotify Explorer", "Tools to look at spotify users and playlists with a music4dance lense", "spotify-explorer", danceEnvironment: true);
+        return Vue3("Spotify Explorer", "Tools to look at spotify users and playlists with a music4dance lense", "spotify-explorer", danceEnvironment: true);
     }
 
     public IActionResult TermsOfService()

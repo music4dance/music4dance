@@ -2411,7 +2411,7 @@ exports[`Song Index > renders a song index page 1`] = `
           <!--v-if-->
         </div>
       </div>
-      <div model=\\"[object Object]\\" selected=\\"\\">Admin Footer</div>
+      <!--v-if-->
     </div>
   </div>
   <div id=\\"footer-content\\">
