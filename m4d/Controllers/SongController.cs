@@ -125,7 +125,7 @@ public class SongController : ContentController
             var histories = results.Songs
                 .Select(s => UserMapper.AnonymizeHistory(s.GetHistory(_mapper), dictionary))
                 .ToList();
-            return Vue(
+            return Vue3(
                 $"{title} Dance Music",
                 "Help finding holiday dance music for partner dancing - Foxtrot, Waltz, Swing and others.",
                 "holiday-music",

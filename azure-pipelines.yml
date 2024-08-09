@@ -4,52 +4,60 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
 trigger:
-- master
+  - master
 
 pool:
-  vmImage: 'windows-2022'
+  vmImage: "windows-2022"
 
 variables:
-  buildConfiguration: 'Release'
+  buildConfiguration: "Release"
 
 steps:
-- task: NodeTool@0
-  inputs:
-    versionSpec: '18.x'
-- script: yarn install --network-timeout=300000
-  displayName: 'Install Yarn'
-  workingDirectory: m4d/Client/
-  
-- task: DotNetCoreCLI@2
-  displayName: dotnet restore
-  inputs:
-    command: restore
-    projects: '**/*.csproj'
-    includeNuGetOrg: true
+  - task: NodeTool@0
+    inputs:
+      versionSpec: "18.x"
 
-- script: dotnet build --configuration $(buildConfiguration)
-  displayName: 'dotnet build $(buildConfiguration)'
+  - script: corepack enable
+    displayName: "Enable Corepack"
 
-- task: VSTest@2
-  inputs:
-    testSelector: 'testAssemblies'
-    testAssemblyVer2: |
-      **\*Tests.dll
-      !**\ref\**
-      !**\*TestAdapter.dll
-      !**\obj\**
-    searchFolder: '$(System.DefaultWorkingDirectory)'
+  - script: yarn config set globalFolder "$(Agent.BuildDirectory)\Yarn\Berry"
+    displayName: "Set Yarn global folder"
+    workingDirectory: m4d/ClientApp/
 
-- script: yarn install
-  displayName: 'Install Yarn'
-  workingDirectory: m4d/Client/
+  - script: yarn install --network-timeout=300000
+    displayName: "Install Yarn for Client"
+    workingDirectory: m4d/Client/
 
-- script: yarn run test:unit --reporters jest-junit
-  displayName: 'Run unit tests'
-  workingDirectory: m4d/Client/
+  - script: yarn install --network-timeout=300000
+    displayName: "Install Yarn for ClientApp"
+    workingDirectory: m4d/ClientApp/
 
-- task: PublishTestResults@2
-  condition: succeededOrFailed()
-  inputs:
-    testRunner: JUnit
-    testResultsFiles: '**/junit.xml'
+  - task: DotNetCoreCLI@2
+    displayName: dotnet restore
+    inputs:
+      command: restore
+      projects: "**/*.csproj"
+      includeNuGetOrg: true
+
+  - script: dotnet build --configuration $(buildConfiguration)
+    displayName: "dotnet build $(buildConfiguration)"
+
+  - task: VSTest@2
+    inputs:
+      testSelector: "testAssemblies"
+      testAssemblyVer2: |
+        **\*Tests.dll
+        !**\ref\**
+        !**\*TestAdapter.dll
+        !**\obj\**
+      searchFolder: "$(System.DefaultWorkingDirectory)"
+
+  - script: yarn run test:unit --reporters jest-junit
+    displayName: "Run unit tests"
+    workingDirectory: m4d/Client/
+
+  - task: PublishTestResults@2
+    condition: succeededOrFailed()
+    inputs:
+      testRunner: JUnit
+      testResultsFiles: "**/junit.xml"

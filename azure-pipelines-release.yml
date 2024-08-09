@@ -3,26 +3,46 @@
 # Add steps that run tests, create a NuGet package, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
-
 pool:
   vmImage: ubuntu-latest
 
 variables:
-  buildConfiguration: 'Release'
+  buildConfiguration: "Release"
 
 steps:
-- script: dotnet build --configuration $(buildConfiguration)
-  displayName: 'dotnet build $(buildConfiguration)'
-- task: DotNetCoreCLI@2
-  displayName: publish web project
-  inputs:
-    command: 'publish'
-    arguments: '--configuration $(buildConfiguration)'
-    publishWebProjects: true
-- task: AzureWebApp@1
-  displayName: deploy
-  inputs:
-    azureSubscription: 'm4d-release'
-    appType: 'webAppLinux'
-    appName: 'm4d-linux'
-    package: '$(System.DefaultWorkingDirectory)/**/*.zip'
+  - task: NodeTool@0
+    inputs:
+      versionSpec: "18.x"
+
+  - script: corepack enable
+    displayName: "Enable Corepack"
+
+  - script: yarn config set globalFolder "$(Agent.BuildDirectory)\Yarn\Berry"
+    displayName: "Set Yarn global folder"
+    workingDirectory: m4d/ClientApp/
+
+  - script: yarn install --network-timeout=300000
+    displayName: "Install Yarn for Client"
+    workingDirectory: m4d/Client/
+
+  - script: yarn install --network-timeout=300000
+    displayName: "Install Yarn for ClientApp"
+    workingDirectory: m4d/ClientApp/
+
+  - script: dotnet build --configuration $(buildConfiguration)
+    displayName: "dotnet build $(buildConfiguration)"
+
+  - task: DotNetCoreCLI@2
+    displayName: publish web project
+    inputs:
+      command: "publish"
+      arguments: "--configuration $(buildConfiguration)"
+      publishWebProjects: true
+
+  - task: AzureWebApp@1
+    displayName: deploy
+    inputs:
+      azureSubscription: "m4d-release"
+      appType: "webAppLinux"
+      appName: "m4d-linux"
+      package: "$(System.DefaultWorkingDirectory)/**/*.zip"

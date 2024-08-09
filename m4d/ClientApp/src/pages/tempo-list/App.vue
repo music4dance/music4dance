@@ -81,7 +81,7 @@ const dances = computed(() => {
       ></CheckedList>
       <CheckedList v-model="types" class="col-md" type="Type" :options="typeOptions"></CheckedList>
       <CheckedList
-        v-model="meters"
+        v-model="meters as unknown as CheckboxValue[]"
         class="col-md"
         type="Meter"
         :options="meterOptions"

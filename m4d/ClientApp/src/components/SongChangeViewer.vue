@@ -2,7 +2,7 @@
 import UserLink from "./UserLink.vue";
 import { SongChange } from "@/models/SongChange";
 import { PropertyType } from "@/models/SongProperty";
-import format from "date-fns/format";
+import { format } from "date-fns";
 import SongPropertyViewer from "./SongPropertyViewer.vue";
 import type { DanceHandler } from "@/models/DanceHandler";
 import type { TagHandler } from "@/models/TagHandler";
