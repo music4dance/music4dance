@@ -95,7 +95,7 @@ const saveChanges = async () => {
         ><h1>{{ model.danceName }}</h1></BCol
       >
       <BCol v-if="menuContext.isAdmin" cols="auto">
-        <BButton v-if="editing" variant="outline-primary" class="mr-1" @click="cancelChanges"
+        <BButton v-if="editing" variant="outline-primary" class="me-1" @click="cancelChanges"
           >Cancel</BButton
         >
         <BButton v-if="editing" variant="primary" :disabled="!modified" @click="saveChanges"

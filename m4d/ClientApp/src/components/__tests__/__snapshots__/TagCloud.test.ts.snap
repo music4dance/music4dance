@@ -43,7 +43,7 @@ exports[`TagCloud.vue > Renders a simple tag cloud 1`] = `
             <path d=\\"m10.97 4.97l-.02.022l-3.473 4.425l-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05\\"></path>
           </g>
         </svg></button></div>
-    <div data-v-dff412d7=\\"\\" style=\\"width: 250px;\\" class=\\"mx-auto col-sm\\"><input data-v-dff412d7=\\"\\" id=\\"strictness\\" class=\\"form-range\\" type=\\"range\\" min=\\"2\\" max=\\"10\\" step=\\"1\\" value=\\"6\\"><label data-v-dff412d7=\\"\\" for=\\"strictness\\" class=\\"d-flex justify-content-between\\" style=\\"margin-bottom: 0px; margin-top: -0.75rem;\\"><span data-v-dff412d7=\\"\\">less</span><span data-v-dff412d7=\\"\\" class=\\"ml-auto\\">more</span></label></div>
+    <div data-v-dff412d7=\\"\\" style=\\"width: 250px;\\" class=\\"mx-auto col-sm\\"><input data-v-dff412d7=\\"\\" id=\\"strictness\\" class=\\"form-range\\" type=\\"range\\" min=\\"2\\" max=\\"10\\" step=\\"1\\" value=\\"6\\"><label data-v-dff412d7=\\"\\" for=\\"strictness\\" class=\\"d-flex justify-content-between\\" style=\\"margin-bottom: 0px; margin-top: -0.75rem;\\"><span data-v-dff412d7=\\"\\">less</span><span data-v-dff412d7=\\"\\" class=\\"ms-auto\\">more</span></label></div>
   </div>
   <div data-v-dff412d7=\\"\\"><a data-v-dff412d7=\\"\\" class=\\"badge text-bg-other text-decoration-none cloud-3\\" replace=\\"false\\" href=\\"#\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\" role=\\"button\\"><svg data-v-dff412d7=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
         <g fill=\\"currentColor\\">

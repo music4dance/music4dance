@@ -589,13 +589,12 @@ public class SongController : ContentController
         }
 
         var details = await GetSongDetails(song);
-        return Vue(details.Title, $"music4dance catalog: {details.Title} dance information", "song",
-            details, helpPage: "song-details");
+        return Vue3(details.Title, $"music4dance catalog: {details.Title} dance information", "song",
+            details, danceEnvironment: true, tagEnvironment:true, helpPage: "song-details");
     }
 
     private async Task<SongDetailsModel> GetSongDetails(Song song)
     {
-        BuildEnvironment(danceEnvironment: true, tagDatabase: true);
         return new()
         {
             Title = song.Title,

@@ -36,7 +36,7 @@ const variant = computed(() => {
       <BBadge :href="countLink" :variant="variant" style="line-height: 1.5"
         >songs ({{ danceDB.getSongCount(dance.id) }})</BBadge
       >
-      <BBadge :href="danceLink" :variant="variant" style="line-height: 1.5" class="ml-2"
+      <BBadge :href="danceLink" :variant="variant" style="line-height: 1.5" class="ms-2"
         >info</BBadge
       >
     </div>

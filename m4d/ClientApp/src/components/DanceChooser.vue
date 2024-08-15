@@ -6,17 +6,15 @@ import { computed, ref } from "vue";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import type { NamedObject } from "@/models/DanceDatabase/NamedObject";
 import { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
-import { getMenuContext } from "@/helpers/GetMenuContext";
 import { DanceGroup } from "@/models/DanceDatabase/DanceGroup";
 import type { BaseColorVariant } from "bootstrap-vue-next";
 import type { DanceType } from "@/models/DanceDatabase/DanceType";
 
 const danceDB = safeDanceDatabase();
-const menuContext = getMenuContext();
 
 const props = withDefaults(
   defineProps<{
-    danceId: string;
+    danceId?: string;
     filterIds?: string[];
     tempo?: number;
     numerator?: number;
@@ -42,7 +40,7 @@ const nameFilter = ref("");
 const danceTypes = danceDB.dances;
 
 const filterAll = (dances: NamedObject[], includeChildren = false): NamedObject[] => {
-  return DanceDatabase.filterByName(dances, nameFilter.value, includeChildren, menuContext.isAdmin);
+  return DanceDatabase.filterByName(dances, nameFilter.value, includeChildren);
 };
 
 const sortedDances = computed(() => {
@@ -56,12 +54,7 @@ const groupedDances = computed(() => {
 });
 
 const tempoFiltered = computed(() => {
-  return DanceDatabase.filterByName(
-    danceTypes,
-    nameFilter.value,
-    false,
-    menuContext.isAdmin,
-  ) as DanceType[];
+  return DanceDatabase.filterByName(danceTypes, nameFilter.value, false) as DanceType[];
 });
 
 const tempoType = TempoType.Measures;

@@ -408,7 +408,7 @@ function onReset(evt: Event): void {
               v-model="displayUser"
               placeholder="UserName or me"
               style="width: 10rem"
-              class="mr-2"
+              class="me-2"
             ></BFormInput>
             <BFormSelect
               id="activity"

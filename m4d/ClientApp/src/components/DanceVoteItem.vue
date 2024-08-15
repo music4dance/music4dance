@@ -51,6 +51,6 @@ const maxWeight = computed(() => safeDanceDatabase().getMaxWeight(dance.value.id
       @up-vote="upVote()"
       @down-vote="downVote()"
     />
-    <span class="ml-1">{{ dance.name }}</span>
+    <span class="ms-1">{{ dance.name }}</span>
   </div>
 </template>

@@ -31,48 +31,6 @@ namespace m4dModels
     [JsonConverter(typeof(ToStringJsonConverter))]
     public class Song : TaggableObject
     {
-        public IDictionary<string, IList<string>> MapProperyByUsers(string name)
-        {
-            var map = new Dictionary<string, IList<string>>();
-            var current = new List<string> { "" };
-
-            var inUsers = false;
-            foreach (var prop in SongProperties)
-            {
-                var userName = new ModifiedRecord(prop.Value).UserName;
-                if (prop.BaseName == UserField || prop.BaseName == UserProxy)
-                {
-                    if (!inUsers)
-                    {
-                        current = new List<string>();
-                        inUsers = true;
-                    }
-
-                    current.Add(userName);
-                }
-                else
-                {
-                    inUsers = false;
-                    if (prop.BaseName != name)
-                    {
-                        continue;
-                    }
-
-                    foreach (var user in current)
-                    {
-                        if (!map.TryGetValue(user, out var values))
-                        {
-                            values = new List<string>();
-                            map[user] = values;
-                        }
-
-                        values.Add(prop.Value);
-                    }
-                }
-            }
-
-            return map;
-        }
 
         public DanceRating FindRating(string id)
         {
@@ -2774,6 +2732,42 @@ namespace m4dModels
             {
                 Modified = DateTime.Now;
             }
+        }
+
+        public async Task<bool> UndoUserChanges(ApplicationUser user, DanceMusicCoreService service)
+        {
+            // Find sections that user has contributed
+            var keep = new List<SongProperty>();
+            var current = new List<SongProperty>();
+            var isUser = false;
+            foreach (var prop in SongProperties)
+            {
+                if (prop.IsAction)
+                {
+                    if (!isUser) {
+                        keep.AddRange(current);
+                    }
+                    isUser = false;
+                    current.Clear();
+                }
+                else if (prop.BaseName == UserField)
+                {
+                    isUser = prop.Value == user.DecoratedName;
+                }
+                current.Add(prop);
+            }
+            if (!isUser)
+            {
+                keep.AddRange(current);
+            }
+
+            if (keep.Count < SongProperties.Count)
+            {
+                await Reload(keep, service);
+                return true;
+            }
+
+            return false;
         }
 
         public bool RemoveEmptyEdits()

@@ -14,17 +14,18 @@ const emit = defineEmits<{
 }>();
 
 const danceHandler = new DanceHandler(DanceRating.fromTag(props.tag), props.tag.neutral);
-const icon = props.tag.positive ? "i-bi-hand-thumbs-up" : "i-bi-hand-thumbs-down";
-const color = props.tag.positive ? "green" : "red";
 </script>
 
 <template>
   <div>
-    <IBiArrowCounterclockwise v-if="!added" :style="{ color: 'red', fontSize: '.75em' }" />
-    <component :is="icon" :style="{ color: color }"></component>
+    <span class="me-2">
+      <IBiArrowCounterclockwise v-if="!added" :style="{ color: 'red', fontSize: '.75em' }" />
+      <IBiHandThumbsUp v-if="props.tag.positive" :style="{ color: 'green' }" />
+      <IBiHandThumbsDown v-else :style="{ color: 'red' }" />
+    </span>
     <DanceButton
       :dance-handler="danceHandler"
-      class="ml-2"
+      class="ms-2"
       @dance-clicked="emit('dance-clicked', $event)"
     ></DanceButton>
   </div>

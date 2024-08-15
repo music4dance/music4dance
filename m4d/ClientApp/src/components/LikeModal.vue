@@ -83,7 +83,7 @@ const onSave = (): void => {
           <LikeIcon :state="like" :scale="2"></LikeIcon>
         </BCol>
         <BCol>
-          <BButtonGroup vertical class="ml-2">
+          <BButtonGroup vertical class="ms-2">
             <BButton
               block
               variant="outline-primary"

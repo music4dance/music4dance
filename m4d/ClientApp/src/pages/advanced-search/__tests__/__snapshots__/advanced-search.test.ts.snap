@@ -244,7 +244,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
           </div>
           <div class=\\"\\" id=\\"activity-group\\" role=\\"group\\"><label id=\\"__BVID__0027___BV__BV_label___\\" for=\\"activity\\" class=\\"form-label d-block\\">By User:</label>
             <div class=\\"\\">
-              <div class=\\"d-flex\\"><input id=\\"user\\" class=\\"form-control mr-2\\" type=\\"text\\" placeholder=\\"UserName or me\\" style=\\"width: 10rem;\\" value=\\"\\"><select id=\\"activity\\" class=\\"form-select\\">
+              <div class=\\"d-flex\\"><input id=\\"user\\" class=\\"form-control me-2\\" type=\\"text\\" placeholder=\\"UserName or me\\" style=\\"width: 10rem;\\" value=\\"\\"><select id=\\"activity\\" class=\\"form-select\\">
                   <option value=\\"NT\\">Don't filter on user activity</option>
                 </select></div>
               <!---->

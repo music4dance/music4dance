@@ -11,7 +11,7 @@ const m4dLink = computed(() => `/playlist/details/${props.playlist.id}`);
 </script>
 
 <template>
-  <a v-if="playlist.music4danceId" :href="m4dLink" target="_blank" role="button" class="ml-1">
+  <a v-if="playlist.music4danceId" :href="m4dLink" target="_blank" role="button" class="ms-1">
     <NoteCircle />
   </a>
 </template>

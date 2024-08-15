@@ -21,17 +21,17 @@ const tagHandler = new TagHandler(props.tag);
 const danceHandler = props.danceId
   ? new DanceHandler(new DanceRating({ danceId: props.danceId }), Tag.fromDanceId(props.danceId))
   : undefined;
-const icon = props.added ? "i-bi-patch-plus" : "i-bi-patch-minus";
 const color = props.added ? "green" : "red";
 </script>
 
 <template>
   <div style="display: flex">
-    <component :is="icon" :style="{ color: color }" />
+    <IBiPatchPlus v-if="added" :style="{ color: color }" />
+    <IBiPatchMinus v-else :style="{ color: color }" />
     <span>
       <TagButton
         :tag-handler="tagHandler"
-        class="ml-2"
+        class="ms-2"
         @tag-clicked="emit('tag-clicked', $event)"
       ></TagButton>
       <span v-if="danceId"> on <DanceButton :dance-handler="danceHandler!"></DanceButton></span>

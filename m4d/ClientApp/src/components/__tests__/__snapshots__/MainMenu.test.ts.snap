@@ -4,6 +4,8 @@ exports[`MainMenu.vue > Renders MainMenu for an anonymous user 1`] = `
 "<div>
   <!--teleport start-->
   <!--teleport end-->
+  <!--teleport start-->
+  <!--teleport end-->
   <!--v-if-->
   <!--v-if-->
   <nav class=\\"navbar bg-primary navbar-expand-lg\\" id=\\"mainMenu\\" data-bs-theme=\\"dark\\">

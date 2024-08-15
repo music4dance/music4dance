@@ -16,19 +16,6 @@ export function useDropTarget() {
     if (!found) {
       let okay = false;
       if (warn) {
-        // INT-TODO: Figure out if there is a way to do this with BSV-Next
-        //   okay = await this.$bvModal.msgBoxConfirm(
-        //     `It looks like you may have tried to search by ${service.name} id for a song not in the music4dance catalog.
-        //  Would you like to add the song?`,
-        //     {
-        //       title: "Music Service Search?",
-        //       okTitle: "Add Song",
-        //     },
-        //   );
-
-        // TOODONEXT: change this file into a composable, see if we can use it to get access to the msgBoxConfirm modal
-        //  Looks like I've got most of this working in BSVN, but the return value is always true????
-
         okay =
           (await confirm?.({
             props: {

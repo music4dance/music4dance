@@ -9,16 +9,16 @@ const props = defineProps<{
   added?: boolean;
   danceId?: string;
 }>();
+
 const danceHandler = props.danceId
   ? new DanceHandler(new DanceRating({ danceId: props.danceId }), Tag.fromDanceId(props.danceId))
   : undefined;
-const icon = props.added ? "i-bi-patch-plus" : "i-bi-patch-minus";
-const color = props.added ? "green" : "red";
 </script>
 
 <template>
   <div style="display: flex">
-    <component :is="icon" :style="{ color: color }" />
+    <IBiPatchPlus v-if="props.added" :style="{ color: 'green' }" />
+    <IBiPatchMinus v-else :style="{ color: 'red' }" />
     <span>
       {{ comment }}
       <span v-if="danceId"> on <DanceButton :dance-handler="danceHandler!"></DanceButton></span>

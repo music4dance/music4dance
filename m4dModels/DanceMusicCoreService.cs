@@ -15,45 +15,10 @@ public partial class DanceMusicCoreService : IDisposable
     {
         var song = await SongIndex.FindSong(songId);
 
-        // Delete the songprops
-        SongProperty lastCommand = null;
-        var props = new List<SongProperty>();
-        var collect = false;
-        foreach (var prop in song.SongProperties)
+        if (await song.UndoUserChanges(user, this))
         {
-            if (prop.Name == Song.UserField)
-            {
-                collect = string.Equals(
-                    prop.Value, user.UserName,
-                    StringComparison.OrdinalIgnoreCase);
-            }
-            else if (!collect && prop.IsAction)
-            {
-                lastCommand = prop;
-            }
-
-            if (!collect)
-            {
-                continue;
-            }
-
-            if (lastCommand != null)
-            {
-                props.Add(lastCommand);
-            }
-
-            props.Add(prop);
-            lastCommand = null;
+            await SongIndex.SaveSong(song);
         }
-
-        foreach (var prop in props)
-        {
-            song.SongProperties.Remove(prop);
-        }
-
-        await SongIndex.AdminEditSong(song, song.Serialize(null));
-
-        await SongIndex.SaveSong(song);
     }
 
     #endregion

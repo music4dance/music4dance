@@ -124,8 +124,6 @@ onMounted(async () => {
     find();
   }
 });
-
-// TODONEXT: Get this working
 </script>
 
 <template>
@@ -146,7 +144,7 @@ onMounted(async () => {
           :state="serviceIdState"
           trim
           prepend="Service ID"
-          class="mr-2"
+          class="me-2"
           @input="find"
         ></BFormInput>
         <BButton variant="primary" @click="find">Find</BButton>
@@ -155,7 +153,7 @@ onMounted(async () => {
           Enter a valid Spotify Playist ID or Link
         </BFormInvalidFeedback>
       </BInputGroup>
-      <div v-if="serviceId" class="ml-2">
+      <div v-if="serviceId" class="ms-2">
         Spotify id = <b>{{ serviceId }}</b> Type =
         <b>{{ serviceKindString }}</b>
       </div>

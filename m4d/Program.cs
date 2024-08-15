@@ -36,6 +36,7 @@ logging.AddAzureWebAppDiagnostics();
 
 Console.WriteLine($"Environment: {environment.EnvironmentName}");
 
+services.AddHttpLogging(o => { });
 builder.Services.AddFeatureManagement();
 
 if (!environment.IsDevelopment())
@@ -251,6 +252,7 @@ options.AddRedirectToHttps();
 options.AddRedirectToWwwPermanent("music4dance.net");
 app.UseRewriter(options);
 app.UseStaticFiles();
+app.UseHttpLogging();
 app.UseRouting();
 
 app.UseAuthorization();

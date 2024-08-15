@@ -27,9 +27,9 @@ const hasTags = danceRating.value?.tags?.length > 0;
     style="margin-inline-end: 0.25em; margin-bottom: 0.25em"
     @click="emit('dance-clicked', danceHandler)"
   >
-    <component :is="icon"></component>
+    <TagIcon :name="icon" />
     {{ tag.value }}
     <BBadge variant="light">{{ weight }}</BBadge>
-    <IBiTagFill v-if="hasTags" style="margin-left: 0.25em"></IBiTagFill>
+    <IBiTagFill v-if="hasTags" style="margin-left: 0.25em" />
   </BButton>
 </template>

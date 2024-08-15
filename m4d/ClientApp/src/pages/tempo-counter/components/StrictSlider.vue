@@ -14,7 +14,7 @@ const model = defineModel<number>({ required: true });
       number
     ></BFormInput>
     <label for="strictness" class="d-flex justify-content-between"
-      ><span>less</span><span class="ml-auto">more</span></label
+      ><span>less</span><span class="ms-auto">more</span></label
     >
   </div>
 </template>

@@ -61,7 +61,7 @@ exports[`Album > renders an album page 1`] = `
                 <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-9337da18-44c0-41e3-8524-05c3b42f7f24\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0001___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
-                <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ml-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
+                <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
                     <path fill=\\"currentColor\\" d=\\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z\\"></path>
                   </svg></a></span>
               </td>
@@ -87,15 +87,24 @@ exports[`Album > renders an album page 1`] = `
                 <!--v-if-->
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-dance\\" type=\\"button\\" title=\\"Salsa\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <award></award> Salsa <span class=\\"badge text-bg-light\\">1</span><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"margin-left: 0.25em;\\">
+                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-dance\\" type=\\"button\\" title=\\"Salsa\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M9.669.864L8 0L6.331.864l-1.858.282l-.842 1.68l-1.337 1.32L2.6 6l-.306 1.854l1.337 1.32l.842 1.68l1.858.282L8 12l1.669-.864l1.858-.282l.842-1.68l1.337-1.32L13.4 6l.306-1.854l-1.337-1.32l-.842-1.68zm1.196 1.193l.684 1.365l1.086 1.072L12.387 6l.248 1.506l-1.086 1.072l-.684 1.365l-1.51.229L8 10.874l-1.355-.702l-1.51-.229l-.684-1.365l-1.086-1.072L3.614 6l-.25-1.506l1.087-1.072l.684-1.365l1.51-.229L8 1.126l1.356.702z\\"></path>
+                      <path d=\\"M4 11.794V16l4-1l4 1v-4.206l-2.018.306L8 13.126L6.018 12.1z\\"></path>
+                    </g>
+                  </svg> Salsa <span class=\\"badge text-bg-light\\">1</span><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"margin-left: 0.25em;\\">
                     <path fill=\\"currentColor\\" d=\\"M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0\\"></path>
-                  </svg>
-                </button>
+                  </svg></button>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Latin
+                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Latin
                   <!--v-if-->
                 </button>
               </td>
@@ -112,7 +121,7 @@ exports[`Album > renders an album page 1`] = `
                 <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-116ea88c-5a34-4cd1-8ff6-1e5215ced86c\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0002___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
-                <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ml-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
+                <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
                     <path fill=\\"currentColor\\" d=\\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z\\"></path>
                   </svg></a></span>
               </td>
@@ -148,35 +157,89 @@ exports[`Album > renders an album page 1`] = `
               </td>
               <td scope=\\"col\\" class=\\"\\"></td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"1990S\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <tag></tag> 1990S
+                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"1990S\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+                      <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+                    </g>
+                  </svg> 1990S
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-tempo\\" type=\\"button\\" title=\\"4/4\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <clock></clock> 4/4
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-tempo\\" type=\\"button\\" title=\\"4/4\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z\\"></path>
+                      <path d=\\"M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0\\"></path>
+                    </g>
+                  </svg> 4/4
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Dance Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Dance Pop
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Dance Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Dance Pop
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Latin Pop
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Latin Pop
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Latin
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Latin
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Latino\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <tag></tag> Latino
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Latino\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+                      <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+                    </g>
+                  </svg> Latino
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Mexican Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Mexican Pop
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Mexican Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Mexican Pop
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop Latino\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Pop Latino
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop Latino\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Pop Latino
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Puerto Rican Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Puerto Rican Pop
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Puerto Rican Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Puerto Rican Pop
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Tropical\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Tropical
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Tropical\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Tropical
                   <!--v-if-->
                 </button>
               </td>
@@ -193,7 +256,7 @@ exports[`Album > renders an album page 1`] = `
                 <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-9c898438-bbc1-4c58-9065-a1618ed18608\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0003___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
-                <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ml-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
+                <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
                     <path fill=\\"currentColor\\" d=\\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z\\"></path>
                   </svg></a></span>
               </td>
@@ -220,11 +283,23 @@ exports[`Album > renders an album page 1`] = `
               </td>
               <td scope=\\"col\\" class=\\"\\"></td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Latin Pop
+                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Latin Pop
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Latin
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Latin
                   <!--v-if-->
                 </button>
               </td>
@@ -241,7 +316,7 @@ exports[`Album > renders an album page 1`] = `
                 <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-dedc039e-2964-4a57-b21b-d027c45872ee\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0004___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
-                <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ml-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
+                <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
                     <path fill=\\"currentColor\\" d=\\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z\\"></path>
                   </svg></a></span>
               </td>
@@ -276,46 +351,106 @@ exports[`Album > renders an album page 1`] = `
                 </a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-dance\\" type=\\"button\\" title=\\"Bolero\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <award></award> Bolero <span class=\\"badge text-bg-light\\">11</span><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"margin-left: 0.25em;\\">
+                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-dance\\" type=\\"button\\" title=\\"Bolero\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M9.669.864L8 0L6.331.864l-1.858.282l-.842 1.68l-1.337 1.32L2.6 6l-.306 1.854l1.337 1.32l.842 1.68l1.858.282L8 12l1.669-.864l1.858-.282l.842-1.68l1.337-1.32L13.4 6l.306-1.854l-1.337-1.32l-.842-1.68zm1.196 1.193l.684 1.365l1.086 1.072L12.387 6l.248 1.506l-1.086 1.072l-.684 1.365l-1.51.229L8 10.874l-1.355-.702l-1.51-.229l-.684-1.365l-1.086-1.072L3.614 6l-.25-1.506l1.087-1.072l.684-1.365l1.51-.229L8 1.126l1.356.702z\\"></path>
+                      <path d=\\"M4 11.794V16l4-1l4 1v-4.206l-2.018.306L8 13.126L6.018 12.1z\\"></path>
+                    </g>
+                  </svg> Bolero <span class=\\"badge text-bg-light\\">11</span><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"margin-left: 0.25em;\\">
                     <path fill=\\"currentColor\\" d=\\"M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0\\"></path>
-                  </svg>
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-dance\\" type=\\"button\\" title=\\"Rumba\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <award></award> Rumba <span class=\\"badge text-bg-light\\">6</span><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"margin-left: 0.25em;\\">
+                  </svg></button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-dance\\" type=\\"button\\" title=\\"Rumba\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M9.669.864L8 0L6.331.864l-1.858.282l-.842 1.68l-1.337 1.32L2.6 6l-.306 1.854l1.337 1.32l.842 1.68l1.858.282L8 12l1.669-.864l1.858-.282l.842-1.68l1.337-1.32L13.4 6l.306-1.854l-1.337-1.32l-.842-1.68zm1.196 1.193l.684 1.365l1.086 1.072L12.387 6l.248 1.506l-1.086 1.072l-.684 1.365l-1.51.229L8 10.874l-1.355-.702l-1.51-.229l-.684-1.365l-1.086-1.072L3.614 6l-.25-1.506l1.087-1.072l.684-1.365l1.51-.229L8 1.126l1.356.702z\\"></path>
+                      <path d=\\"M4 11.794V16l4-1l4 1v-4.206l-2.018.306L8 13.126L6.018 12.1z\\"></path>
+                    </g>
+                  </svg> Rumba <span class=\\"badge text-bg-light\\">6</span><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"margin-left: 0.25em;\\">
                     <path fill=\\"currentColor\\" d=\\"M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0\\"></path>
-                  </svg>
-                </button>
+                  </svg></button>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-tempo\\" type=\\"button\\" title=\\"4/4\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <clock></clock> 4/4
+                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-tempo\\" type=\\"button\\" title=\\"4/4\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z\\"></path>
+                      <path d=\\"M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0\\"></path>
+                    </g>
+                  </svg> 4/4
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Dance Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Dance Pop
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Dance Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Dance Pop
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Instrumental\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <tag></tag> Instrumental
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Instrumental\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+                      <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+                    </g>
+                  </svg> Instrumental
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Latin Pop
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Latin Pop
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Latin
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Latin
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Mexican Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Mexican Pop
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Mexican Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Mexican Pop
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop Latino\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Pop Latino
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop Latino\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Pop Latino
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Puerto Rican Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Puerto Rican Pop
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Puerto Rican Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Puerto Rican Pop
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Spanish\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <tag></tag> Spanish
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Spanish\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+                      <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+                    </g>
+                  </svg> Spanish
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Tropical\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Tropical
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Tropical\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Tropical
                   <!--v-if-->
                 </button>
               </td>
@@ -332,7 +467,7 @@ exports[`Album > renders an album page 1`] = `
                 <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-b9b59a4d-1576-4635-bc73-0064096d7ae4\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0005___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
-                <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ml-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
+                <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
                     <path fill=\\"currentColor\\" d=\\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z\\"></path>
                   </svg></a></span>
               </td>
@@ -359,11 +494,23 @@ exports[`Album > renders an album page 1`] = `
               </td>
               <td scope=\\"col\\" class=\\"\\"></td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Latin Pop
+                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Latin Pop
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Latin
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Latin
                   <!--v-if-->
                 </button>
               </td>
@@ -380,7 +527,7 @@ exports[`Album > renders an album page 1`] = `
                 <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-b2457b84-c5b4-49cb-9bf4-0c920a9dab95\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0006___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
-                <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ml-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
+                <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
                     <path fill=\\"currentColor\\" d=\\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z\\"></path>
                   </svg></a></span>
               </td>
@@ -415,44 +562,106 @@ exports[`Album > renders an album page 1`] = `
                 </a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-dance\\" type=\\"button\\" title=\\"Salsa\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <award></award> Salsa <span class=\\"badge text-bg-light\\">2</span>
+                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-dance\\" type=\\"button\\" title=\\"Salsa\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M9.669.864L8 0L6.331.864l-1.858.282l-.842 1.68l-1.337 1.32L2.6 6l-.306 1.854l1.337 1.32l.842 1.68l1.858.282L8 12l1.669-.864l1.858-.282l.842-1.68l1.337-1.32L13.4 6l.306-1.854l-1.337-1.32l-.842-1.68zm1.196 1.193l.684 1.365l1.086 1.072L12.387 6l.248 1.506l-1.086 1.072l-.684 1.365l-1.51.229L8 10.874l-1.355-.702l-1.51-.229l-.684-1.365l-1.086-1.072L3.614 6l-.25-1.506l1.087-1.072l.684-1.365l1.51-.229L8 1.126l1.356.702z\\"></path>
+                      <path d=\\"M4 11.794V16l4-1l4 1v-4.206l-2.018.306L8 13.126L6.018 12.1z\\"></path>
+                    </g>
+                  </svg> Salsa <span class=\\"badge text-bg-light\\">2</span>
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-dance\\" type=\\"button\\" title=\\"Samba\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <award></award> Samba <span class=\\"badge text-bg-light\\">4</span>
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-dance\\" type=\\"button\\" title=\\"Samba\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M9.669.864L8 0L6.331.864l-1.858.282l-.842 1.68l-1.337 1.32L2.6 6l-.306 1.854l1.337 1.32l.842 1.68l1.858.282L8 12l1.669-.864l1.858-.282l.842-1.68l1.337-1.32L13.4 6l.306-1.854l-1.337-1.32l-.842-1.68zm1.196 1.193l.684 1.365l1.086 1.072L12.387 6l.248 1.506l-1.086 1.072l-.684 1.365l-1.51.229L8 10.874l-1.355-.702l-1.51-.229l-.684-1.365l-1.086-1.072L3.614 6l-.25-1.506l1.087-1.072l.684-1.365l1.51-.229L8 1.126l1.356.702z\\"></path>
+                      <path d=\\"M4 11.794V16l4-1l4 1v-4.206l-2.018.306L8 13.126L6.018 12.1z\\"></path>
+                    </g>
+                  </svg> Samba <span class=\\"badge text-bg-light\\">4</span>
                   <!--v-if-->
                 </button>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"1990S\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <tag></tag> 1990S
+                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"1990S\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+                      <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+                    </g>
+                  </svg> 1990S
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-tempo\\" type=\\"button\\" title=\\"4/4\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <clock></clock> 4/4
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-tempo\\" type=\\"button\\" title=\\"4/4\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z\\"></path>
+                      <path d=\\"M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0\\"></path>
+                    </g>
+                  </svg> 4/4
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Dance Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Dance Pop
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Dance Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Dance Pop
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Latin Pop
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Latin Pop
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Latin
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Latin
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Latino\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <tag></tag> Latino
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Latino\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+                      <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+                    </g>
+                  </svg> Latino
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Mexican Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Mexican Pop
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Mexican Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Mexican Pop
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop Latino\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Pop Latino
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop Latino\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Pop Latino
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Pop
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Pop
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Puerto Rican Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Puerto Rican Pop
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Puerto Rican Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Puerto Rican Pop
                   <!--v-if-->
                 </button>
               </td>
@@ -469,7 +678,7 @@ exports[`Album > renders an album page 1`] = `
                 <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-e27707d0-e9ff-4330-9f8f-a2cf8a76bdc0\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0007___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
-                <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ml-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
+                <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
                     <path fill=\\"currentColor\\" d=\\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z\\"></path>
                   </svg></a></span>
               </td>
@@ -496,11 +705,23 @@ exports[`Album > renders an album page 1`] = `
               </td>
               <td scope=\\"col\\" class=\\"\\"></td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Latin Pop
+                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Latin Pop
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Latin
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Latin
                   <!--v-if-->
                 </button>
               </td>
@@ -517,7 +738,7 @@ exports[`Album > renders an album page 1`] = `
                 <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-036b2b84-f7de-4b37-8b42-c428a8a8f2b9\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0008___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
-                <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ml-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
+                <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
                     <path fill=\\"currentColor\\" d=\\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z\\"></path>
                   </svg></a></span>
               </td>
@@ -552,26 +773,58 @@ exports[`Album > renders an album page 1`] = `
                 </a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-dance\\" type=\\"button\\" title=\\"Merengue\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <award></award> Merengue <span class=\\"badge text-bg-light\\">1</span>
+                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-dance\\" type=\\"button\\" title=\\"Merengue\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M9.669.864L8 0L6.331.864l-1.858.282l-.842 1.68l-1.337 1.32L2.6 6l-.306 1.854l1.337 1.32l.842 1.68l1.858.282L8 12l1.669-.864l1.858-.282l.842-1.68l1.337-1.32L13.4 6l.306-1.854l-1.337-1.32l-.842-1.68zm1.196 1.193l.684 1.365l1.086 1.072L12.387 6l.248 1.506l-1.086 1.072l-.684 1.365l-1.51.229L8 10.874l-1.355-.702l-1.51-.229l-.684-1.365l-1.086-1.072L3.614 6l-.25-1.506l1.087-1.072l.684-1.365l1.51-.229L8 1.126l1.356.702z\\"></path>
+                      <path d=\\"M4 11.794V16l4-1l4 1v-4.206l-2.018.306L8 13.126L6.018 12.1z\\"></path>
+                    </g>
+                  </svg> Merengue <span class=\\"badge text-bg-light\\">1</span>
                   <!--v-if-->
                 </button>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-tempo\\" type=\\"button\\" title=\\"4/4\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <clock></clock> 4/4
+                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-tempo\\" type=\\"button\\" title=\\"4/4\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z\\"></path>
+                      <path d=\\"M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0\\"></path>
+                    </g>
+                  </svg> 4/4
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Latin
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Latin
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop Latino\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Pop Latino
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop Latino\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Pop Latino
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Pop
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Pop
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Rock\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Rock
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Rock\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Rock
                   <!--v-if-->
                 </button>
               </td>
@@ -588,7 +841,7 @@ exports[`Album > renders an album page 1`] = `
                 <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-eee30b09-3c65-4a74-847d-9d53193c7952\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0009___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
-                <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ml-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
+                <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
                     <path fill=\\"currentColor\\" d=\\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z\\"></path>
                   </svg></a></span>
               </td>
@@ -615,17 +868,37 @@ exports[`Album > renders an album page 1`] = `
               </td>
               <td scope=\\"col\\" class=\\"\\"></td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"1990S\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <tag></tag> 1990S
+                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"1990S\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+                      <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+                    </g>
+                  </svg> 1990S
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Latin Pop
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Latin Pop
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Latin
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Latin
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Latino\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <tag></tag> Latino
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Latino\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+                      <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+                    </g>
+                  </svg> Latino
                   <!--v-if-->
                 </button>
               </td>
@@ -642,7 +915,7 @@ exports[`Album > renders an album page 1`] = `
                 <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-31843878-bcfe-4d85-b296-a3955b8f387d\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0010___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
-                <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ml-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
+                <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
                     <path fill=\\"currentColor\\" d=\\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z\\"></path>
                   </svg></a></span>
               </td>
@@ -669,11 +942,23 @@ exports[`Album > renders an album page 1`] = `
               </td>
               <td scope=\\"col\\" class=\\"\\"></td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Latin Pop
+                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Latin Pop
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Latin
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Latin
                   <!--v-if-->
                 </button>
               </td>
@@ -690,7 +975,7 @@ exports[`Album > renders an album page 1`] = `
                 <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-88aca21d-73d1-4ae1-8643-e98f7e90823d\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0011___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
-                <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ml-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
+                <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
                     <path fill=\\"currentColor\\" d=\\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z\\"></path>
                   </svg></a></span>
               </td>
@@ -725,20 +1010,40 @@ exports[`Album > renders an album page 1`] = `
                 </a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-dance\\" type=\\"button\\" title=\\"Cha Cha\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <award></award> Cha Cha <span class=\\"badge text-bg-light\\">3</span>
+                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-dance\\" type=\\"button\\" title=\\"Cha Cha\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M9.669.864L8 0L6.331.864l-1.858.282l-.842 1.68l-1.337 1.32L2.6 6l-.306 1.854l1.337 1.32l.842 1.68l1.858.282L8 12l1.669-.864l1.858-.282l.842-1.68l1.337-1.32L13.4 6l.306-1.854l-1.337-1.32l-.842-1.68zm1.196 1.193l.684 1.365l1.086 1.072L12.387 6l.248 1.506l-1.086 1.072l-.684 1.365l-1.51.229L8 10.874l-1.355-.702l-1.51-.229l-.684-1.365l-1.086-1.072L3.614 6l-.25-1.506l1.087-1.072l.684-1.365l1.51-.229L8 1.126l1.356.702z\\"></path>
+                      <path d=\\"M4 11.794V16l4-1l4 1v-4.206l-2.018.306L8 13.126L6.018 12.1z\\"></path>
+                    </g>
+                  </svg> Cha Cha <span class=\\"badge text-bg-light\\">3</span>
                   <!--v-if-->
                 </button>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-tempo\\" type=\\"button\\" title=\\"4/4\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <clock></clock> 4/4
+                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-tempo\\" type=\\"button\\" title=\\"4/4\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z\\"></path>
+                      <path d=\\"M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0\\"></path>
+                    </g>
+                  </svg> 4/4
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Latin
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Latin
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop Latino\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Pop Latino
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop Latino\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Pop Latino
                   <!--v-if-->
                 </button>
               </td>
@@ -755,7 +1060,7 @@ exports[`Album > renders an album page 1`] = `
                 <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-c2ebdd27-9d12-4c87-8fe0-8b76eb693319\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0012___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
-                <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ml-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
+                <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
                     <path fill=\\"currentColor\\" d=\\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z\\"></path>
                   </svg></a></span>
               </td>
@@ -782,11 +1087,23 @@ exports[`Album > renders an album page 1`] = `
               </td>
               <td scope=\\"col\\" class=\\"\\"></td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Latin Pop
+                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Latin Pop
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Latin
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Latin
                   <!--v-if-->
                 </button>
               </td>
@@ -803,7 +1120,7 @@ exports[`Album > renders an album page 1`] = `
                 <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-a1ee0081-672d-45b1-bff3-2c7c8384bce4\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0013___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
-                <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ml-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
+                <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
                     <path fill=\\"currentColor\\" d=\\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z\\"></path>
                   </svg></a></span>
               </td>
@@ -830,8 +1147,14 @@ exports[`Album > renders an album page 1`] = `
               </td>
               <td scope=\\"col\\" class=\\"\\"></td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Latin
+                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Latin
                   <!--v-if-->
                 </button>
               </td>
@@ -848,7 +1171,7 @@ exports[`Album > renders an album page 1`] = `
                 <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-791d986d-10c9-4c3d-996c-a4bf64e1d614\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0014___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
-                <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ml-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
+                <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
                     <path fill=\\"currentColor\\" d=\\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z\\"></path>
                   </svg></a></span>
               </td>
@@ -883,26 +1206,58 @@ exports[`Album > renders an album page 1`] = `
                 </a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-dance\\" type=\\"button\\" title=\\"Salsa\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <award></award> Salsa <span class=\\"badge text-bg-light\\">1</span>
+                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-dance\\" type=\\"button\\" title=\\"Salsa\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M9.669.864L8 0L6.331.864l-1.858.282l-.842 1.68l-1.337 1.32L2.6 6l-.306 1.854l1.337 1.32l.842 1.68l1.858.282L8 12l1.669-.864l1.858-.282l.842-1.68l1.337-1.32L13.4 6l.306-1.854l-1.337-1.32l-.842-1.68zm1.196 1.193l.684 1.365l1.086 1.072L12.387 6l.248 1.506l-1.086 1.072l-.684 1.365l-1.51.229L8 10.874l-1.355-.702l-1.51-.229l-.684-1.365l-1.086-1.072L3.614 6l-.25-1.506l1.087-1.072l.684-1.365l1.51-.229L8 1.126l1.356.702z\\"></path>
+                      <path d=\\"M4 11.794V16l4-1l4 1v-4.206l-2.018.306L8 13.126L6.018 12.1z\\"></path>
+                    </g>
+                  </svg> Salsa <span class=\\"badge text-bg-light\\">1</span>
                   <!--v-if-->
                 </button>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-tempo\\" type=\\"button\\" title=\\"4/4\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <clock></clock> 4/4
+                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-tempo\\" type=\\"button\\" title=\\"4/4\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z\\"></path>
+                      <path d=\\"M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0\\"></path>
+                    </g>
+                  </svg> 4/4
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"International\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> International
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"International\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> International
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Latin
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Latin
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Salsa\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Salsa
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Salsa\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Salsa
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Tropical\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Tropical
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Tropical\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Tropical
                   <!--v-if-->
                 </button>
               </td>
@@ -919,7 +1274,7 @@ exports[`Album > renders an album page 1`] = `
                 <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-427f6ff9-ef06-4d05-9cfd-393b199c76db\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0015___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
-                <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ml-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
+                <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
                     <path fill=\\"currentColor\\" d=\\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z\\"></path>
                   </svg></a></span>
               </td>
@@ -954,23 +1309,47 @@ exports[`Album > renders an album page 1`] = `
                 </a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-dance\\" type=\\"button\\" title=\\"Merengue\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <award></award> Merengue <span class=\\"badge text-bg-light\\">1</span>
+                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-dance\\" type=\\"button\\" title=\\"Merengue\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M9.669.864L8 0L6.331.864l-1.858.282l-.842 1.68l-1.337 1.32L2.6 6l-.306 1.854l1.337 1.32l.842 1.68l1.858.282L8 12l1.669-.864l1.858-.282l.842-1.68l1.337-1.32L13.4 6l.306-1.854l-1.337-1.32l-.842-1.68zm1.196 1.193l.684 1.365l1.086 1.072L12.387 6l.248 1.506l-1.086 1.072l-.684 1.365l-1.51.229L8 10.874l-1.355-.702l-1.51-.229l-.684-1.365l-1.086-1.072L3.614 6l-.25-1.506l1.087-1.072l.684-1.365l1.51-.229L8 1.126l1.356.702z\\"></path>
+                      <path d=\\"M4 11.794V16l4-1l4 1v-4.206l-2.018.306L8 13.126L6.018 12.1z\\"></path>
+                    </g>
+                  </svg> Merengue <span class=\\"badge text-bg-light\\">1</span>
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-dance\\" type=\\"button\\" title=\\"Samba\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <award></award> Samba <span class=\\"badge text-bg-light\\">2</span>
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-dance\\" type=\\"button\\" title=\\"Samba\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M9.669.864L8 0L6.331.864l-1.858.282l-.842 1.68l-1.337 1.32L2.6 6l-.306 1.854l1.337 1.32l.842 1.68l1.858.282L8 12l1.669-.864l1.858-.282l.842-1.68l1.337-1.32L13.4 6l.306-1.854l-1.337-1.32l-.842-1.68zm1.196 1.193l.684 1.365l1.086 1.072L12.387 6l.248 1.506l-1.086 1.072l-.684 1.365l-1.51.229L8 10.874l-1.355-.702l-1.51-.229l-.684-1.365l-1.086-1.072L3.614 6l-.25-1.506l1.087-1.072l.684-1.365l1.51-.229L8 1.126l1.356.702z\\"></path>
+                      <path d=\\"M4 11.794V16l4-1l4 1v-4.206l-2.018.306L8 13.126L6.018 12.1z\\"></path>
+                    </g>
+                  </svg> Samba <span class=\\"badge text-bg-light\\">2</span>
                   <!--v-if-->
                 </button>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-tempo\\" type=\\"button\\" title=\\"4/4\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <clock></clock> 4/4
+                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-tempo\\" type=\\"button\\" title=\\"4/4\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z\\"></path>
+                      <path d=\\"M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0\\"></path>
+                    </g>
+                  </svg> 4/4
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Latin Pop
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Latin Pop
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Latin
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Latin
                   <!--v-if-->
                 </button>
               </td>

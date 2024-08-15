@@ -10,7 +10,7 @@ const emit = defineEmits<{
   "tag-clicked": [tag: TagHandler];
 }>();
 
-const { icon, tag, variant, selectedIcon } = useTagButton(props.tagHandler);
+const { icon, tag, variant, isSelected } = useTagButton(props.tagHandler);
 </script>
 
 <template>
@@ -21,8 +21,8 @@ const { icon, tag, variant, selectedIcon } = useTagButton(props.tagHandler);
     style="margin-inline-end: 0.25em; margin-bottom: 0.25em"
     @click="emit('tag-clicked', tagHandler)"
   >
-    <component :is="icon"></component>
+    <TagIcon :name="icon" />
     {{ tag.value }}
-    <component :is="selectedIcon" v-if="selectedIcon" />
+    <IBiCheckCircle v-if="isSelected" />
   </BButton>
 </template>

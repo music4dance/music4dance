@@ -4,6 +4,7 @@ import { computed, ref } from "vue";
 import { useDropTarget } from "@/composables/useDropTarget";
 import logo from "@/assets/images/header-logo.png";
 import dancers from "@/assets/images/swing-ui.png";
+import { BToastOrchestrator } from "bootstrap-vue-next";
 
 const { checkServiceAndWarn } = useDropTarget();
 
@@ -71,6 +72,7 @@ function search(): void {
 <template>
   <div>
     <BModalOrchestrator />
+    <BToastOrchestrator />
     <BAlert v-if="isTest" :model-value="true" variant="warning" style="margin-bottom: 0"
       >This is a TEST site. Please navigate to
       <a href="https://www.music4dance.net" class="alert-link">wwww.music4dance.net</a>

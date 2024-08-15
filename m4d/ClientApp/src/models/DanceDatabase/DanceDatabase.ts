@@ -141,17 +141,15 @@ export class DanceDatabase {
     dances: NamedObject[],
     nameFilter: string,
     includeChildren = false,
-    includeEmpty = false,
   ): NamedObject[] {
     const filter = nameFilter.toLowerCase();
     return dances.filter(
       (d) =>
-        includeEmpty &&
-        (!filter ||
-          d.hasString(filter) ||
-          (includeChildren &&
-            DanceGroup.isGroup(d) &&
-            (d as DanceGroup).dances.find((c) => c.hasString(filter)))),
+        !filter ||
+        d.hasString(filter) ||
+        (includeChildren &&
+          DanceGroup.isGroup(d) &&
+          (d as DanceGroup).dances.find((c) => c.hasString(filter))),
     );
   }
 

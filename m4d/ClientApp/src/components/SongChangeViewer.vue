@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import SongPropertyViewer from "./SongPropertyViewer.vue";
 import type { DanceHandler } from "@/models/DanceHandler";
 import type { TagHandler } from "@/models/TagHandler";
+import { computed } from "vue";
 
 const props = defineProps<{
   change: SongChange;
@@ -17,29 +18,35 @@ const emit = defineEmits<{
   "tag-clicked": [handler: TagHandler];
 }>();
 
-const action = props.change.action === PropertyType.createdField ? "Added" : "Changed";
-const date = props.change.date;
-const formattedDate = date ? format(date, "Pp") : "<unknown>";
-const viewableProperties = props.change.properties.filter(
-  (t) =>
-    t.baseName.startsWith("Tag") ||
-    t.baseName.startsWith("Comment") ||
-    t.baseName === PropertyType.tempoField,
+const action = computed(() =>
+  props.change.action === PropertyType.createdField ? "Added" : "Changed",
+);
+const date = computed(() => props.change.date);
+const formattedDate = computed(() => (date.value ? format(date.value, "Pp") : "<unknown>"));
+const viewableProperties = computed(() =>
+  props.change.properties.filter(
+    (t) =>
+      t.baseName.startsWith("Tag") ||
+      t.baseName.startsWith("Comment") ||
+      t.baseName === PropertyType.tempoField,
+  ),
 );
 </script>
 
 <template>
   <div>
-    <IBiHeartFill v-if="change.like" style="color: red" />
-    <IBiHeartbreakFill v-else-if="change.like === false" />
-    <IBiPencil v-else></IBiPencil>
+    <span class="me-2">
+      <IBiHeartFill v-if="change.like" style="color: red" />
+      <IBiHeartbreakFill v-else-if="change.like === false" />
+      <IBiPencil v-else></IBiPencil>
+    </span>
     <template v-if="!oneUser">
       {{ action }} by
       <UserLink :user="change.user!"></UserLink>
     </template>
     on
     {{ formattedDate }}
-    <div v-for="(property, index) in viewableProperties" :key="index" class="ml-4">
+    <div v-for="(property, index) in viewableProperties" :key="index" class="ms-4">
       <SongPropertyViewer
         :property="property"
         @dance-clicked="emit('dance-clicked', $event as DanceHandler)"

@@ -41,7 +41,7 @@ const danceRating = computed(() => song.value.findDanceRatingById(danceId.value)
       :scale="1.5"
       @click-like="() => emit('show-like', song.songId)"
     ></SongLikeButton>
-    <a href="#" role="button" class="ml-1" @click="emit('show-play', song.songId)">
+    <a href="#" role="button" class="ms-1" @click="emit('show-play', song.songId)">
       <IBiPlayCircleFill class="ms-1" :style="{ fontSize: '1.5em' }" />
     </a>
   </span>

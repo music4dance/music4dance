@@ -47,5 +47,3 @@ const isDance = (tag: Tag) => tag.category === TagCategory.Dance;
     </div>
   </div>
 </template>
-import type { DanceHandler } from "@/models/DanceHandler"; import type { TagHandler } from
-"@/models/TagHandler";

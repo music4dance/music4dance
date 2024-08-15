@@ -118,7 +118,7 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
               </div><span><a id=\\"like-button-dedc039e-2964-4a57-b21b-d027c45872ee\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0001___BV_popover___placeholder\\"></span>
               <!--teleport start-->
               <!---->
-              <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ml-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
+              <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
                   <path fill=\\"currentColor\\" d=\\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z\\"></path>
                 </svg></a></span></td>
               <td scope=\\"col\\" class=\\"\\">
@@ -146,35 +146,89 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
                 </a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-tempo\\" type=\\"button\\" title=\\"4/4\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <clock></clock> 4/4
+                <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-tempo\\" type=\\"button\\" title=\\"4/4\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z\\"></path>
+                      <path d=\\"M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0\\"></path>
+                    </g>
+                  </svg> 4/4
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Dance Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Dance Pop
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Dance Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Dance Pop
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Instrumental\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <tag></tag> Instrumental
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Instrumental\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+                      <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+                    </g>
+                  </svg> Instrumental
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Latin Pop
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Latin Pop
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Latin
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Latin
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Mexican Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Mexican Pop
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Mexican Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Mexican Pop
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop Latino\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Pop Latino
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop Latino\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Pop Latino
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Puerto Rican Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Puerto Rican Pop
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Puerto Rican Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Puerto Rican Pop
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Spanish\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <tag></tag> Spanish
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Spanish\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+                      <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+                    </g>
+                  </svg> Spanish
                   <!--v-if-->
-                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Tropical\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                  <music-note-list></music-note-list> Tropical
+                </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Tropical\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                    <g fill=\\"currentColor\\">
+                      <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                      <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                      <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                    </g>
+                  </svg> Tropical
                   <!--v-if-->
                 </button>
               </td>
@@ -197,7 +251,7 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
             </div><span><a id=\\"like-button-32c26fb4-06d4-4878-9040-c69d0a1f9e96\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0002___BV_popover___placeholder\\"></span>
             <!--teleport start-->
             <!---->
-            <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ml-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
+            <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
                 <path fill=\\"currentColor\\" d=\\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z\\"></path>
               </svg></a></span></td>
             <td scope=\\"col\\" class=\\"\\">
@@ -225,17 +279,37 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
               </a>
             </td>
             <td scope=\\"col\\" class=\\"\\">
-              <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-tempo\\" type=\\"button\\" title=\\"4/4\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                <clock></clock> 4/4
+              <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-tempo\\" type=\\"button\\" title=\\"4/4\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                  <g fill=\\"currentColor\\">
+                    <path d=\\"M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z\\"></path>
+                    <path d=\\"M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0\\"></path>
+                  </g>
+                </svg> 4/4
                 <!--v-if-->
-              </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                <music-note-list></music-note-list> Latin
+              </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Latin\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                  <g fill=\\"currentColor\\">
+                    <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                    <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                    <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                    <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                  </g>
+                </svg> Latin
                 <!--v-if-->
-              </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                <music-note-list></music-note-list> Pop
+              </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                  <g fill=\\"currentColor\\">
+                    <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                    <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                    <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                    <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                  </g>
+                </svg> Pop
                 <!--v-if-->
-              </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Spanish\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-                <tag></tag> Spanish
+              </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Spanish\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                  <g fill=\\"currentColor\\">
+                    <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+                    <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+                  </g>
+                </svg> Spanish
                 <!--v-if-->
               </button>
             </td>
@@ -258,7 +332,7 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
           </div><span><a id=\\"like-button-338a8192-1681-4b00-bca5-2936d97440e9\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0003___BV_popover___placeholder\\"></span>
           <!--teleport start-->
           <!---->
-          <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ml-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
+          <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
               <path fill=\\"currentColor\\" d=\\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z\\"></path>
             </svg></a></span></td>
           <td scope=\\"col\\" class=\\"\\">
@@ -286,14 +360,30 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
             </a>
           </td>
           <td scope=\\"col\\" class=\\"\\">
-            <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-tempo\\" type=\\"button\\" title=\\"4/4\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-              <clock></clock> 4/4
+            <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-tempo\\" type=\\"button\\" title=\\"4/4\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                <g fill=\\"currentColor\\">
+                  <path d=\\"M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z\\"></path>
+                  <path d=\\"M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0\\"></path>
+                </g>
+              </svg> 4/4
               <!--v-if-->
-            </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-              <music-note-list></music-note-list> Pop
+            </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                <g fill=\\"currentColor\\">
+                  <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                  <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                  <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                  <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                </g>
+              </svg> Pop
               <!--v-if-->
-            </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Rock\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-              <music-note-list></music-note-list> Rock
+            </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Rock\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+                <g fill=\\"currentColor\\">
+                  <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                  <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                  <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                  <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+                </g>
+              </svg> Rock
               <!--v-if-->
             </button>
           </td>
@@ -316,7 +406,7 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
         </div><span><a id=\\"like-button-fd51b473-f90e-4096-92d8-525955de021d\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0004___BV_popover___placeholder\\"></span>
         <!--teleport start-->
         <!---->
-        <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ml-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
+        <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
             <path fill=\\"currentColor\\" d=\\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z\\"></path>
           </svg></a></span></td>
         <td scope=\\"col\\" class=\\"\\">
@@ -344,26 +434,62 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
           </a>
         </td>
         <td scope=\\"col\\" class=\\"\\">
-          <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-tempo\\" type=\\"button\\" title=\\"4/4\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-            <clock></clock> 4/4
+          <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-tempo\\" type=\\"button\\" title=\\"4/4\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+              <g fill=\\"currentColor\\">
+                <path d=\\"M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z\\"></path>
+                <path d=\\"M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0\\"></path>
+              </g>
+            </svg> 4/4
             <!--v-if-->
-          </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Canadian Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-            <music-note-list></music-note-list> Canadian Pop
+          </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Canadian Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+              <g fill=\\"currentColor\\">
+                <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+              </g>
+            </svg> Canadian Pop
             <!--v-if-->
-          </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Dance Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-            <music-note-list></music-note-list> Dance Pop
+          </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Dance Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+              <g fill=\\"currentColor\\">
+                <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+              </g>
+            </svg> Dance Pop
             <!--v-if-->
-          </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"First Dance\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-            <tag></tag> First Dance
+          </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"First Dance\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+              <g fill=\\"currentColor\\">
+                <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+                <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+              </g>
+            </svg> First Dance
             <!--v-if-->
-          </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-            <music-note-list></music-note-list> Pop
+          </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+              <g fill=\\"currentColor\\">
+                <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+              </g>
+            </svg> Pop
             <!--v-if-->
-          </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Vocal\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-            <music-note-list></music-note-list> Vocal
+          </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Vocal\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+              <g fill=\\"currentColor\\">
+                <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+                <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+                <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+                <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+              </g>
+            </svg> Vocal
             <!--v-if-->
-          </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Wedding\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-            <tag></tag> Wedding
+          </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Wedding\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+              <g fill=\\"currentColor\\">
+                <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+                <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+              </g>
+            </svg> Wedding
             <!--v-if-->
           </button>
         </td>
@@ -386,7 +512,7 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
       </div><span><a id=\\"like-button-1740280b-7e6f-426d-92d1-874acca8842f\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0005___BV_popover___placeholder\\"></span>
       <!--teleport start-->
       <!---->
-      <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ml-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
+      <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
           <path fill=\\"currentColor\\" d=\\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z\\"></path>
         </svg></a></span></td>
       <td scope=\\"col\\" class=\\"\\">
@@ -414,35 +540,79 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
         </a>
       </td>
       <td scope=\\"col\\" class=\\"\\">
-        <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"1980S\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-          <tag></tag> 1980S
+        <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"1980S\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+            <g fill=\\"currentColor\\">
+              <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+              <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+            </g>
+          </svg> 1980S
           <!--v-if-->
-        </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-tempo\\" type=\\"button\\" title=\\"4/4\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-          <clock></clock> 4/4
+        </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-tempo\\" type=\\"button\\" title=\\"4/4\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+            <g fill=\\"currentColor\\">
+              <path d=\\"M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z\\"></path>
+              <path d=\\"M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0\\"></path>
+            </g>
+          </svg> 4/4
           <!--v-if-->
-        </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Ballad\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-          <tag></tag> Ballad
+        </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Ballad\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+            <g fill=\\"currentColor\\">
+              <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+              <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+            </g>
+          </svg> Ballad
           <!--v-if-->
-        </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Dance Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-          <music-note-list></music-note-list> Dance Pop
+        </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Dance Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+            <g fill=\\"currentColor\\">
+              <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+              <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+              <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+              <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+            </g>
+          </svg> Dance Pop
           <!--v-if-->
-        </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"DWTS\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-          <tag></tag> DWTS
+        </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"DWTS\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+            <g fill=\\"currentColor\\">
+              <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+              <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+            </g>
+          </svg> DWTS
           <!--v-if-->
-        </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Episode 9\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-          <tag></tag> Episode 9
+        </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Episode 9\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+            <g fill=\\"currentColor\\">
+              <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+              <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+            </g>
+          </svg> Episode 9
           <!--v-if-->
-        </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Love Song\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-          <tag></tag> Love Song
+        </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Love Song\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+            <g fill=\\"currentColor\\">
+              <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+              <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+            </g>
+          </svg> Love Song
           <!--v-if-->
-        </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-          <music-note-list></music-note-list> Pop
+        </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+            <g fill=\\"currentColor\\">
+              <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+              <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+              <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+              <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+            </g>
+          </svg> Pop
           <!--v-if-->
-        </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Season 29\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-          <tag></tag> Season 29
+        </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Season 29\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+            <g fill=\\"currentColor\\">
+              <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+              <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+            </g>
+          </svg> Season 29
           <!--v-if-->
-        </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"United States\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-          <tag></tag> United States
+        </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"United States\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+            <g fill=\\"currentColor\\">
+              <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+              <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+            </g>
+          </svg> United States
           <!--v-if-->
         </button>
       </td>
@@ -465,7 +635,7 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
     </div><span><a id=\\"like-button-1ade58e9-d99f-4678-b801-ec84ef502ab5\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0006___BV_popover___placeholder\\"></span>
     <!--teleport start-->
     <!---->
-    <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ml-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
+    <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
         <path fill=\\"currentColor\\" d=\\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z\\"></path>
       </svg></a></span></td>
     <td scope=\\"col\\" class=\\"\\">
@@ -493,17 +663,35 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
       </a>
     </td>
     <td scope=\\"col\\" class=\\"\\">
-      <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-tempo\\" type=\\"button\\" title=\\"4/4\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-        <clock></clock> 4/4
+      <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-tempo\\" type=\\"button\\" title=\\"4/4\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+          <g fill=\\"currentColor\\">
+            <path d=\\"M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z\\"></path>
+            <path d=\\"M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0\\"></path>
+          </g>
+        </svg> 4/4
         <!--v-if-->
-      </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"First Dance\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-        <tag></tag> First Dance
+      </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"First Dance\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+          <g fill=\\"currentColor\\">
+            <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+            <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+          </g>
+        </svg> First Dance
         <!--v-if-->
-      </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Jazz\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-        <music-note-list></music-note-list> Jazz
+      </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Jazz\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+          <g fill=\\"currentColor\\">
+            <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+            <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+            <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+            <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+          </g>
+        </svg> Jazz
         <!--v-if-->
-      </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Wedding\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-        <tag></tag> Wedding
+      </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Wedding\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+          <g fill=\\"currentColor\\">
+            <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+            <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+          </g>
+        </svg> Wedding
         <!--v-if-->
       </button>
     </td>
@@ -526,7 +714,7 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
   </div><span><a id=\\"like-button-13018115-5049-4136-ae83-4e436e2ee2c3\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0007___BV_popover___placeholder\\"></span>
   <!--teleport start-->
   <!---->
-  <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ml-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
+  <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
       <path fill=\\"currentColor\\" d=\\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z\\"></path>
     </svg></a></span></td>
   <td scope=\\"col\\" class=\\"\\">
@@ -554,11 +742,21 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
     </a>
   </td>
   <td scope=\\"col\\" class=\\"\\">
-    <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-tempo\\" type=\\"button\\" title=\\"4/4\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-      <clock></clock> 4/4
+    <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-tempo\\" type=\\"button\\" title=\\"4/4\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+        <g fill=\\"currentColor\\">
+          <path d=\\"M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z\\"></path>
+          <path d=\\"M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0\\"></path>
+        </g>
+      </svg> 4/4
       <!--v-if-->
-    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-      <music-note-list></music-note-list> Pop
+    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+        <g fill=\\"currentColor\\">
+          <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+          <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+          <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+          <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+        </g>
+      </svg> Pop
       <!--v-if-->
     </button>
   </td>
@@ -581,7 +779,7 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
 </div><span><a id=\\"like-button-f37fe20d-f012-4d99-8362-0e159ffc510e\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0008___BV_popover___placeholder\\"></span>
 <!--teleport start-->
 <!---->
-<!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ml-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
+<!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
     <path fill=\\"currentColor\\" d=\\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z\\"></path>
   </svg></a></span></td>
 <td scope=\\"col\\" class=\\"\\">
@@ -609,26 +807,62 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
   </a>
 </td>
 <td scope=\\"col\\" class=\\"\\">
-  <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"1980S\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-    <tag></tag> 1980S
+  <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"1980S\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+      <g fill=\\"currentColor\\">
+        <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+        <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+      </g>
+    </svg> 1980S
     <!--v-if-->
-  </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-tempo\\" type=\\"button\\" title=\\"4/4\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-    <clock></clock> 4/4
+  </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-tempo\\" type=\\"button\\" title=\\"4/4\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+      <g fill=\\"currentColor\\">
+        <path d=\\"M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z\\"></path>
+        <path d=\\"M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0\\"></path>
+      </g>
+    </svg> 4/4
     <!--v-if-->
-  </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Love Song\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-    <tag></tag> Love Song
+  </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Love Song\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+      <g fill=\\"currentColor\\">
+        <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+        <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+      </g>
+    </svg> Love Song
     <!--v-if-->
-  </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-    <music-note-list></music-note-list> Pop
+  </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+      <g fill=\\"currentColor\\">
+        <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+        <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+        <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+        <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+      </g>
+    </svg> Pop
     <!--v-if-->
-  </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"R&amp;B\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-    <music-note-list></music-note-list> R&amp;B
+  </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"R&amp;B\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+      <g fill=\\"currentColor\\">
+        <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+        <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+        <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+        <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+      </g>
+    </svg> R&amp;B
     <!--v-if-->
-  </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Soul\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-    <music-note-list></music-note-list> Soul
+  </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Soul\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+      <g fill=\\"currentColor\\">
+        <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+        <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+        <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+        <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+      </g>
+    </svg> Soul
     <!--v-if-->
-  </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Soundtrack\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-    <music-note-list></music-note-list> Soundtrack
+  </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Soundtrack\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+      <g fill=\\"currentColor\\">
+        <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+        <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+        <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+        <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+      </g>
+    </svg> Soundtrack
     <!--v-if-->
   </button>
 </td>
@@ -650,7 +884,7 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
     <!--teleport end--></span></div><span><a id=\\"like-button-77ceb8f5-ab97-47b9-b5b5-71b35e5c6a58\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0009___BV_popover___placeholder\\"></span>
     <!--teleport start-->
     <!---->
-    <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ml-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
+    <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
         <path fill=\\"currentColor\\" d=\\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z\\"></path>
       </svg></a></span>
   </td>
@@ -679,44 +913,104 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
     </a>
   </td>
   <td scope=\\"col\\" class=\\"\\">
-    <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"1990S\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-      <tag></tag> 1990S
+    <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"1990S\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+        <g fill=\\"currentColor\\">
+          <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+          <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+        </g>
+      </svg> 1990S
       <!--v-if-->
-    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Ballad\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-      <tag></tag> Ballad
+    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Ballad\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+        <g fill=\\"currentColor\\">
+          <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+          <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+        </g>
+      </svg> Ballad
       <!--v-if-->
-    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Canadian Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-      <music-note-list></music-note-list> Canadian Pop
+    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Canadian Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+        <g fill=\\"currentColor\\">
+          <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+          <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+          <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+          <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+        </g>
+      </svg> Canadian Pop
       <!--v-if-->
-    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Dance Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-      <music-note-list></music-note-list> Dance Pop
+    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Dance Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+        <g fill=\\"currentColor\\">
+          <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+          <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+          <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+          <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+        </g>
+      </svg> Dance Pop
       <!--v-if-->
-    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"DWTS\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-      <tag></tag> DWTS
+    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"DWTS\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+        <g fill=\\"currentColor\\">
+          <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+          <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+        </g>
+      </svg> DWTS
       <!--v-if-->
-    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"First Dance\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-      <tag></tag> First Dance
+    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"First Dance\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+        <g fill=\\"currentColor\\">
+          <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+          <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+        </g>
+      </svg> First Dance
       <!--v-if-->
-    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-      <music-note-list></music-note-list> Pop
+    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+        <g fill=\\"currentColor\\">
+          <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+          <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+          <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+          <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+        </g>
+      </svg> Pop
       <!--v-if-->
-    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Season 28\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-      <tag></tag> Season 28
+    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Season 28\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+        <g fill=\\"currentColor\\">
+          <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+          <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+        </g>
+      </svg> Season 28
       <!--v-if-->
-    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Soundtrack\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-      <music-note-list></music-note-list> Soundtrack
+    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Soundtrack\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+        <g fill=\\"currentColor\\">
+          <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+          <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+          <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+          <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+        </g>
+      </svg> Soundtrack
       <!--v-if-->
-    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Titanic\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-      <tag></tag> Titanic
+    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Titanic\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+        <g fill=\\"currentColor\\">
+          <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+          <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+        </g>
+      </svg> Titanic
       <!--v-if-->
-    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"United States\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-      <tag></tag> United States
+    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"United States\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+        <g fill=\\"currentColor\\">
+          <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+          <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+        </g>
+      </svg> United States
       <!--v-if-->
-    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Wedding\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-      <tag></tag> Wedding
+    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Wedding\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+        <g fill=\\"currentColor\\">
+          <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+          <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+        </g>
+      </svg> Wedding
       <!--v-if-->
-    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Week 3\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-      <tag></tag> Week 3
+    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-other\\" type=\\"button\\" title=\\"Week 3\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+        <g fill=\\"currentColor\\">
+          <path d=\\"M6 4.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0a.5.5 0 0 0 1 0\\"></path>
+          <path d=\\"M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z\\"></path>
+        </g>
+      </svg> Week 3
       <!--v-if-->
     </button>
   </td>
@@ -738,7 +1032,7 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
     <!--teleport end--></span></div><span><a id=\\"like-button-0ae66a0f-049b-4236-9b6a-4c175b7182ed\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0010___BV_popover___placeholder\\"></span>
     <!--teleport start-->
     <!---->
-    <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ml-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
+    <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
         <path fill=\\"currentColor\\" d=\\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z\\"></path>
       </svg></a></span>
   </td>
@@ -758,17 +1052,41 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
     <!--v-if-->
   </td>
   <td scope=\\"col\\" class=\\"\\">
-    <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-      <music-note-list></music-note-list> Pop
+    <!----><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Pop\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+        <g fill=\\"currentColor\\">
+          <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+          <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+          <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+          <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+        </g>
+      </svg> Pop
       <!--v-if-->
-    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"R&amp;B / Soul\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-      <music-note-list></music-note-list> R&amp;B / Soul
+    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"R&amp;B / Soul\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+        <g fill=\\"currentColor\\">
+          <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+          <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+          <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+          <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+        </g>
+      </svg> R&amp;B / Soul
       <!--v-if-->
-    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Rock\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-      <music-note-list></music-note-list> Rock
+    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Rock\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+        <g fill=\\"currentColor\\">
+          <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+          <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+          <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+          <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+        </g>
+      </svg> Rock
       <!--v-if-->
-    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Soul\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\">
-      <music-note-list></music-note-list> Soul
+    </button><button data-v-a7ef304f=\\"\\" class=\\"btn btn-sm btn-music\\" type=\\"button\\" title=\\"Soul\\" style=\\"margin-inline-end: 0.25em; margin-bottom: 0.25em;\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+        <g fill=\\"currentColor\\">
+          <path d=\\"M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2s2.5.895 2.5 2\\"></path>
+          <path fill-rule=\\"evenodd\\" d=\\"M12 3v10h-1V3z\\"></path>
+          <path d=\\"M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1z\\"></path>
+          <path fill-rule=\\"evenodd\\" d=\\"M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5\\"></path>
+        </g>
+      </svg> Soul
       <!--v-if-->
     </button>
   </td>

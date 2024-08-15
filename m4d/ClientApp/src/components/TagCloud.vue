@@ -110,7 +110,7 @@ function getTagHandler(tag: Tag): TagHandler {
           class="d-flex justify-content-between"
           style="margin-bottom: 0; margin-top: -0.75rem"
         >
-          <span>less</span><span class="ml-auto">more</span>
+          <span>less</span><span class="ms-auto">more</span>
         </label>
       </div>
     </div>

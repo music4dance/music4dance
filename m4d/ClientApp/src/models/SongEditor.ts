@@ -10,7 +10,7 @@ export class SongEditor {
   public songId: string;
   private properties: SongProperty[];
   private initialCount: number;
-  private user?: string;
+  public user?: string;
   public modified: boolean;
   public admin: boolean; // Requires put rather than patch
   public axios?: AxiosInstance;
@@ -40,6 +40,7 @@ export class SongEditor {
       id: history.id,
       properties: [...history.properties],
     });
+    this.initialCount = history.properties.length;
   }
 
   public get history(): SongHistory {
@@ -312,7 +313,10 @@ export class SongEditor {
   }
 
   private isUserMerge(user: string): boolean {
-    const idx = this.lastActionIndex;
+    if (this.initialCount === this.history.properties.length) {
+      return false;
+    }
+    const idx = this.properties.findIndex((p) => p.isAction);
     if (idx === -1) {
       return false;
     }
@@ -328,17 +332,6 @@ export class SongEditor {
       }
     }
     return false;
-  }
-
-  // TODO: pull this when js/ts implement lastIndexOf
-  private get lastActionIndex(): number {
-    const props = this.properties;
-    for (let i = props.length - 1; i >= 0; i--) {
-      if (props[i].isAction) {
-        return i;
-      }
-    }
-    return -1;
   }
 
   public deleteProperty(index: number): void {

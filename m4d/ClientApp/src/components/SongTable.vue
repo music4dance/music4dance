@@ -531,7 +531,7 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
           @show-play="showPlayModal"
           @dance-vote="onDanceVote(data.item, $event)"
         ></PlayCell>
-        <a :href="songRef(data.item.song)" class="ml-1">{{ data.item.song.title }}</a>
+        <a :href="songRef(data.item.song)" class="ms-1">{{ data.item.song.title }}</a>
         <template v-if="!isHidden('artist')">
           by
           <a :href="artistRef(data.item.song)">{{ data.item.song.artist }}</a>

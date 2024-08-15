@@ -77,7 +77,7 @@ const reset = (event: Event): void => {
         ></BFormInput>
       </BFormGroup>
 
-      <BButton :disabled="disableAdd" type="submit" variant="primary" class="mr-2">Add</BButton>
+      <BButton :disabled="disableAdd" type="submit" variant="primary" class="me-2">Add</BButton>
       <BButton :disabled="disableAdd" type="reset" variant="outline-danger">Reset</BButton>
     </BForm>
   </div>

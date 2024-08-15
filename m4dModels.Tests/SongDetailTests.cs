@@ -56,9 +56,6 @@ namespace m4dModels.Tests
 
         private const string RHeader = @"Title	Artist	Album	Track	Length	SongTags	MultiDance";
 
-        private const string SQuuen =
-            @"SongId={70b993fa-f821-44c7-bf5d-6076f4fe8f17}	User=batch	Time=3/19/2014 5:03:17 PM	Title=Crazy Little Thing Called Love	Artist=Queen	Tempo=154.0	Album:0=Greatest Hits	Album:1=The Game	Album:2=Queen - Greatest Hits	User=HunterZ	User=EthanH	User=ChaseP	DanceRating=LHP+10	DanceRating=ECS+5	DanceRating=WCS+10	User=batch	Time=5/7/2014 11:30:58 AM	Length=163	Genre=Rock	Track:1=5	Purchase:1:XS=music.F9021900-0100-11DB-89CA-0019B92A3933	User=batch	Time=5/7/2014 3:32:13 PM	Album:2=Queen: Greatest Hits	Track:2=9	Purchase:2:IS=27243763	Purchase:2:IA=27243728	User=batch	Time=5/20/2014 3:46:15 PM	Track:0=9	Purchase:0:AS=D:B00138K9CM	Purchase:0:AA=D:B00138F72E	User=JuliaS	Time=6/5/2014 8:46:10 PM	DanceRating=ECS+5	User=JuliaS	Time=6/9/2014 8:13:17 PM	DanceRating=JIV+6	User=LincolnA	Time=6/23/2014 1:56:23 PM	DanceRating=SWG+6";
-
         private static readonly string[] SongData =
         {
             @"SongId={70b993fa-f821-44c7-bf5d-6076f4fe8f17}	User=batch|P	Time=3/19/2014 5:03:17 PM	Title=Crazy Little Thing Called Love	Artist=Queen	Tempo=154.0	Album:0=Greatest Hits	Album:1=The Game	Album:2=Queen - Greatest Hits	User=HunterZ|P	User=EthanH|P	User=ChaseP|P	DanceRating=LHP+10	DanceRating=ECS+5	DanceRating=WCS+10	User=batch|P	Time=5/7/2014 11:30:58 AM	Length=163	Genre=Rock	Track:1=5	Purchase:1:XS=music.F9021900-0100-11DB-89CA-0019B92A3933	User=batch|P	Time=5/7/2014 3:32:13 PM	Album:2=Queen: Greatest Hits	Track:2=9	Purchase:2:IS=27243763	Purchase:2:IA=27243728	User=batch|P	Time=5/20/2014 3:46:15 PM	Track:0=9	Purchase:0:AS=D:B00138K9CM	Purchase:0:AA=D:B00138F72E	User=JuliaS|P	Time=6/5/2014 8:46:10 PM	DanceRating=ECS+5	User=JuliaS|P	Time=6/9/2014 8:13:17 PM	DanceRating=JIV+6	User=LincolnA|P	Time=6/23/2014 1:56:23 PM	DanceRating=SWG+6	User=HunterZ|P	Time=9/4/2014 8:06:37 PM	Tag=Lindy Hop	Tag=East Coast Swing	Tag=West Coast Swing	User=EthanH|P	Time=9/4/2014 8:06:37 PM	Tag=Lindy Hop	Tag=East Coast Swing	Tag=West Coast Swing	User=ChaseP|P	Time=9/4/2014 8:06:37 PM	Tag=Lindy Hop	Tag=East Coast Swing	Tag=West Coast Swing	User=JuliaS|P	Time=9/4/2014 8:06:37 PM	Tag=East Coast Swing	Tag=Jive	User=LincolnA|P	Time=9/4/2014 8:06:37 PM	Tag=Swing	User=batch|P	Time=9/4/2014 8:06:37 PM	Tag=Rock	User=HunterZ|P	Time=9/4/2014 8:11:39 PM	Tag=Lindy Hop	Tag=East Coast Swing	Tag=West Coast Swing	User=EthanH|P	Time=9/4/2014 8:11:39 PM	Tag=Lindy Hop	Tag=East Coast Swing	Tag=West Coast Swing	User=ChaseP|P	Time=9/4/2014 8:11:39 PM	Tag=Lindy Hop	Tag=East Coast Swing	Tag=West Coast Swing	User=JuliaS|P	Time=9/4/2014 8:11:39 PM	Tag=East Coast Swing	Tag=Jive	User=LincolnA|P	Time=9/4/2014 8:11:39 PM	Tag=Swing	User=batch|P	Time=9/4/2014 8:11:39 PM	Tag=Rock",
@@ -320,31 +317,6 @@ namespace m4dModels.Tests
         //        i += 1;
         //    }
         //}
-        [TestMethod]
-        public async Task PropertyByUser()
-        {
-            var song = await Song.Create(SQuuen, await GetService());
-
-            var map = song.MapProperyByUsers(Song.DanceRatingField);
-
-            //foreach (var kv in map)
-            //{
-            //    Trace.WriteLine(string.Format("{0}:{1}",kv.Key,string.Join(",",kv.Value)));
-            //}
-
-            //HunterZ:LHP+10,ECS+5,WCS+10
-            //EthanH:LHP+10,ECS+5,WCS+10
-            //ChaseP:LHP+10,ECS+5,WCS+10
-            //JuliaS:ECS+5,JIV+6
-            //LincolnA:SWG+6
-            Assert.IsTrue(map["HunterZ"].Count == 3);
-            Assert.IsTrue(map["EthanH"].Count == 3);
-            Assert.IsTrue(map["ChaseP"].Count == 3);
-            Assert.IsTrue(map["JuliaS"].Count == 2);
-            Assert.IsTrue(map["LincolnA"].Count == 1);
-            Assert.IsFalse(map.ContainsKey("dwgray"));
-        }
-
         private static async Task ValidateLoadingRowDetails(string header, string[] rows,
             string[] expected, int dups = 0, string tags = null)
         {

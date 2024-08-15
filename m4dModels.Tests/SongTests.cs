@@ -417,7 +417,7 @@ namespace m4dModels.Tests
             Assert.AreEqual(@"4/4:Tempo:1|Cha Cha:Dance:1|Pop:Music:1|Rumba:Dance:1", song.TagSummary.ToString());
 
             bool changed = await song.AdminAddUserProperties("Amstl|P",
-                new[] { new SongProperty(Song.AddedTags, "Holiday:Other|Christmas:Other") },
+                [new SongProperty(Song.AddedTags, "Holiday:Other|Christmas:Other")],
                 service);
 
             Assert.IsTrue(changed);
@@ -439,7 +439,7 @@ namespace m4dModels.Tests
             Assert.AreEqual(@"Cha Cha:Dance:1", song.TagSummary.ToString());
 
             bool changed = await song.AdminAddUserProperties("Amstl|P",
-                new[] { new SongProperty(Song.AddedTags, "Holiday:Other|Christmas:Other") },
+                [new SongProperty(Song.AddedTags, "Holiday:Other|Christmas:Other")],
                 service);
             Assert.IsTrue(changed);
 
@@ -460,7 +460,7 @@ namespace m4dModels.Tests
             Assert.AreEqual(@"Cha Cha:Dance:1|Christmas:Other:1|Holiday:Other:1", song.TagSummary.ToString());
 
             bool changed = await song.AdminAddUserProperties("Amstl|P",
-                new[] { new SongProperty(Song.AddedTags, "Holiday:Other|Christmas:Other") },
+                [new SongProperty(Song.AddedTags, "Holiday:Other|Christmas:Other")],
                 service);
             Assert.IsFalse(changed);
 
@@ -483,5 +483,55 @@ namespace m4dModels.Tests
                 "4/4:Tempo:1|Electropop:Music:1|Pop:Music:2|Post Teen Pop:Music:1",
                 song.TagSummary.ToString());
         }
+
+        const string UndoSong = @".Create=	User=dgsnure|P	Time=03/30/2019 09:01:27	Title=all the good girls go to hell	Artist=Billie Eilish	Length=169	Album:00=WHEN WE ALL FALL ASLEEP, WHERE DO WE GO?	Track:00=5	Tag+=Cha Cha:Dance	DanceRating=CHA+1	.Edit=	User=SabrinaSkandy|P	Time=01/26/2022 03:34:57	Tag+=West Coast Swing:Dance	DanceRating=WCS+1	.Edit=	User=Charlie	Time=11-Sep-2023 07:26:08 PM	Like=true	.Edit=	User=JuliaS	Time=17-May-2024 03:09:42 PM	Like=true	.Edit=	User=Charlie	Time=15-Aug-2024 08:47:03 AM	DanceRating=CHA+1	Tag+=Cha Cha:Dance	Comment+:WCS=I real swing out to this one.";
+
+        [TestMethod]
+        public async Task UndoUser()
+        {
+            var service = await GetService();
+            var user = await service.FindUser("JuliaS");
+
+            var song = new Song();
+            await song.Load(UndoSong, service);
+
+            Assert.IsNotNull(song.FindModified(user.UserName));
+            var c = song.SongProperties.Count;
+
+            Trace.WriteLine($"---------------Predump for Song {song.SongId}");
+            DanceMusicTester.DumpSongProperties(song);
+            var success = await song.UndoUserChanges(user, service);
+            Trace.WriteLine($"---------------Postdump for Song {song.SongId}");
+            DanceMusicTester.DumpSongProperties(song);
+
+            Assert.IsTrue(success);
+
+            Assert.IsNull(song.FindModified(user.UserName));
+            Assert.AreEqual(c - 4, song.SongProperties.Count);
+        }
+
+        [TestMethod]
+        public async Task UndoUserMulti()
+        {
+            var service = await GetService();
+            var user = await service.FindUser("charlie");
+
+            var song = new Song();
+            await song.Load(UndoSong, service);
+            var c = song.SongProperties.Count;
+
+            Assert.IsNotNull(song.FindModified(user.UserName));
+
+            Trace.WriteLine($"---------------Predump for Song {song.SongId}");
+            DanceMusicTester.DumpSongProperties(song);
+            var success = await song.UndoUserChanges(user, service);
+            Trace.WriteLine($"---------------Postdump for Song {song.SongId}");
+            DanceMusicTester.DumpSongProperties(song);
+            Assert.IsTrue(success);
+
+            Assert.IsNull(song.FindModified(user.UserName));
+            Assert.AreEqual(c - 10, song.SongProperties.Count);
+        }
+
     }
 }

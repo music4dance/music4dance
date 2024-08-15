@@ -12,7 +12,7 @@ const m4dLink = computed(
 </script>
 
 <template>
-  <a :href="m4dLink" target="_blank" class="ml-1">
+  <a :href="m4dLink" target="_blank" class="ms-1">
     {{ playlist.id }}
   </a>
 </template>

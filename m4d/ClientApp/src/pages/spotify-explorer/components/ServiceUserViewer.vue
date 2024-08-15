@@ -46,7 +46,7 @@ const buildExport = (): void => {
         palceholder="UserName"
         aria-describedby="service-id-feedback"
         trim
-        class="mr-2"
+        class="me-2"
         @input="buildExport"
       ></BFormInput>
       <BButton variant="primary" @click="buildExport">Build Exports</BButton>
