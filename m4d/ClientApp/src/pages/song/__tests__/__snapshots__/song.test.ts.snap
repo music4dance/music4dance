@@ -91,7 +91,7 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
               </div>
               <!---->
               <!---->
-            </div><button class=\\"btn btn-md btn-primary collapsed\\" type=\\"button\\" aria-controls=\\"dance-chooser\\" aria-expanded=\\"false\\">Add Dance Style</button>
+            </div><button class=\\"btn btn-md btn-primary mt-2 collapsed\\" type=\\"button\\" aria-controls=\\"dance-chooser\\" aria-expanded=\\"false\\">Add Dance Style</button>
           </div>
           <div class=\\"col-md-auto\\">
             <table class=\\"table b-table table-borderless table-sm\\">

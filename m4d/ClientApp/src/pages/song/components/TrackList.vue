@@ -71,9 +71,11 @@ const lookup = async (service?: string): Promise<void> => {
         placeholder="Artist Override"
       ></BFormInput>
 
-      <BButton variant="primary" @click="lookup()">Lookup</BButton>
-      <BButton variant="outline-primary" @click="lookup('S')">Spotify</BButton>
-      <BButton variant="outline-primary" @click="lookup('I')">iTunes</BButton>
+      <div class="d-inline-flex gap-2">
+        <BButton variant="primary" @click="lookup()">Lookup</BButton>
+        <BButton variant="outline-primary" @click="lookup('S')">Spotify</BButton>
+        <BButton variant="outline-primary" @click="lookup('I')">iTunes</BButton>
+      </div>
       <BAlert v-if="error" show variant="danger" class="mt-2">{{ error }}</BAlert>
       <BAlert v-if="tracks.length > 0" show variant="success" class="mt-2">
         {{ tracks.length }} track found. {{ newTracks.length }} not already added.

@@ -659,7 +659,7 @@ public class SongController : ContentController
     [AllowAnonymous]
     public ActionResult Augment(string title = null, string artist = null, string id = null)
     {
-        return Vue("Add Song", "Add a new song to the music4dance catalog", "augment", 
+        return Vue3("Add Song", "Add a new song to the music4dance catalog", "augment", 
             new AugmentViewModel { Title = title, Artist = artist, Id = id},
             danceEnvironment: true, tagEnvironment:true, helpPage: "add-songs"
             );

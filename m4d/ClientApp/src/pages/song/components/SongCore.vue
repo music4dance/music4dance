@@ -380,7 +380,7 @@ onBeforeUnmount(() => {
           @delete-dance="onDeleteDance($event)"
           @tag-clicked="showTagModal"
         />
-        <BButton v-if="!!model.userName" v-b-modal.dance-chooser variant="primary"
+        <BButton v-if="!!model.userName" v-b-modal.dance-chooser variant="primary" class="mt-2"
           >Add Dance Style</BButton
         >
       </BCol>
