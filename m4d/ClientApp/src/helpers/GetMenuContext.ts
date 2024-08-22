@@ -1,11 +1,18 @@
 import { MenuContext, type MenuContextInterface } from "@/models/MenuContext";
 
-declare const menuContext: MenuContextInterface;
+declare global {
+  interface Window {
+    menuContext: MenuContext;
+  }
+}
+
 let menuContextObject: MenuContext | null = null;
 
 export function getMenuContext(): MenuContext {
   if (!menuContextObject) {
-    menuContextObject = new MenuContext(menuContext);
+    menuContextObject = window.menuContext
+      ? new MenuContext(window.menuContext)
+      : new MenuContext();
   }
   return menuContextObject;
 }

@@ -1102,7 +1102,7 @@ public class SongController : ContentController
     [Authorize(Roles = "dbAdmin")]
     public async Task<ActionResult> MergeCandidates(int? page, int? level, bool? autoCommit)
     {
-        UseVue = UseVue.No;
+        UseVue = UseVue.V3;
         Filter.Action = "MergeCandidates";
 
         if (page.HasValue)
@@ -1872,8 +1872,8 @@ public class SongController : ContentController
     {
         var sm = new SongMergeModel(songs.Select(s => s.GetHistory(_mapper)));
         var title = "Merge Songs";
-        return Vue(title, $"music4dance catalog: {title} dance information", "song-merge",
-            sm, helpPage: "song");
+        return Vue3(title, $"music4dance catalog: {title} dance information", "song-merge",
+            sm, helpPage: "song", danceEnvironment: true, tagEnvironment: true);
 
     }
 

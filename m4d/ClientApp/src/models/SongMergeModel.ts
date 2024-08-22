@@ -3,7 +3,7 @@ import { SongHistory } from "./SongHistory";
 
 @jsonObject
 export class SongMergeModel {
-  @jsonMember public songId!: string;
+  @jsonMember(String) public songId!: string;
   @jsonArrayMember(SongHistory) public songs!: SongHistory[];
 
   public constructor(init?: Partial<SongMergeModel>) {

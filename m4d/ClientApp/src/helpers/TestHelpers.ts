@@ -1,3 +1,4 @@
+import { MenuContext } from "@/models/MenuContext";
 import { loadTestDances } from "./LoadTestDances";
 // @ts-ignore
 import tagDatabaseJson from "@/assets/tags.json";
@@ -27,3 +28,15 @@ export const mockResizObserver = () => {
     }
   };
 };
+
+export function m4dContext(): MenuContext {
+  return new MenuContext({
+    helpLink: "https://music4dance.blog/music4dance-help/song/",
+    userName: "music4dance",
+    userId: "",
+    roles: ["showDiagnostics", "canEdit", "dbAdmin", "canTag", "premium"],
+    indexId: "c",
+    updateMessage: "",
+    xsrfToken: "FOO",
+  });
+}
