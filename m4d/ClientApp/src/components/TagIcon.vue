@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// INT-TODO: This is a hack to get around the new icon system not not taking a name parameter
 defineProps<{ name: string }>();
 </script>
 

@@ -39,7 +39,7 @@ const addProperty = (name: string, value: string) => {
   <div>
     <BRow>
       <BCol style="flex: 0 0 110px" align-self="center">
-        <PurchaseLogo :info="purchaseInfo"></PurchaseLogo>
+        <PurchaseLogo :info="purchaseInfo" />
         <img v-if="track.imageUrl" :src="track.imageUrl" class="mx-1" width="40" height="40" />
       </BCol>
       <BCol>
@@ -48,21 +48,21 @@ const addProperty = (name: string, value: string) => {
           :value="track.name"
           :can-add="enableProperties"
           @add-property="addProperty"
-        ></TrackField>
+        />
         <TrackField
           name="artist"
           :value="track.artist"
           :can-add="enableProperties"
           @add-property="addProperty"
-        ></TrackField>
-        <TrackField name="album" :value="track.album!"></TrackField>
-        <TrackField name="track" :value="indexString"></TrackField>
+        />
+        <TrackField name="album" :value="track.album!" />
+        <TrackField name="track" :value="indexString" />
         <TrackField
           name="length"
           :value="durationString"
           :can-add="enableProperties"
           @add-property="addProperty"
-        ></TrackField>
+        />
       </BCol>
       <BCol align-self="center" @click="addTrack(track)"><BButton>Add</BButton></BCol>
     </BRow>

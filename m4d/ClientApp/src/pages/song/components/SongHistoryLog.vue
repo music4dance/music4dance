@@ -151,7 +151,7 @@ const insertNew = (index: number): void => {
             text-variant="danger"
             class="ms-2"
             @click="$emit('delete-property', index)"
-          ></BCloseButton>
+          />
         </BButtonGroup>
       </BListGroupItem>
     </BListGroup>

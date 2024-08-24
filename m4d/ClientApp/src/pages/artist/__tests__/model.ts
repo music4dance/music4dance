@@ -577,8 +577,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/82d60ef9a6facf2e9569aec6e68deee4d1647259",
+          value: "https://p.scdn.co/mp3-preview/82d60ef9a6facf2e9569aec6e68deee4d1647259",
         },
         {
           name: ".Edit",
@@ -963,8 +962,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/651c11a87063af828779c3216bcd1b517b2de932",
+          value: "https://p.scdn.co/mp3-preview/651c11a87063af828779c3216bcd1b517b2de932",
         },
         {
           name: ".Edit",
@@ -1465,8 +1463,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/5fdf7aacfed97c3f3d476f58dac07b8214421acc",
+          value: "https://p.scdn.co/mp3-preview/5fdf7aacfed97c3f3d476f58dac07b8214421acc",
         },
         {
           name: ".Edit",
@@ -2331,8 +2328,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/3293d6303ca663b55d9f0d9b8108dc56e23c8b56",
+          value: "https://p.scdn.co/mp3-preview/3293d6303ca663b55d9f0d9b8108dc56e23c8b56",
         },
         {
           name: ".Edit",
@@ -2380,8 +2376,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "DWTS:Other|Episode 3:Other|Samba:Dance|Season 24:Other|United States:Other",
+          value: "DWTS:Other|Episode 3:Other|Samba:Dance|Season 24:Other|United States:Other",
         },
         {
           name: "DanceRating",
@@ -2528,8 +2523,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "DWTS:Other|Episode 8:Other|Salsa:Dance|Season 20:Other|United States:Other",
+          value: "DWTS:Other|Episode 8:Other|Salsa:Dance|Season 20:Other|United States:Other",
         },
         {
           name: "DanceRating",
@@ -2657,8 +2651,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/db9aacabd9fffc3dacfe0c2b0fecaa4786cf58be",
+          value: "https://p.scdn.co/mp3-preview/db9aacabd9fffc3dacfe0c2b0fecaa4786cf58be",
         },
         {
           name: ".Edit",
@@ -3273,8 +3266,7 @@ export const model = {
         },
         {
           name: "Title",
-          value:
-            "Tu Recuerdo (feat. La Mari De Chambao & Tommy Torres) - MTV Unplugged Version",
+          value: "Tu Recuerdo (feat. La Mari De Chambao & Tommy Torres) - MTV Unplugged Version",
         },
         {
           name: "Artist",
@@ -4078,8 +4070,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/6ab6388bbb01c20df8c92ef804bc52949b097539",
+          value: "https://p.scdn.co/mp3-preview/6ab6388bbb01c20df8c92ef804bc52949b097539",
         },
         {
           name: ".Edit",
@@ -4964,8 +4955,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/f3d309a4d8fba21f71e183e160cc94b021f613f6",
+          value: "https://p.scdn.co/mp3-preview/f3d309a4d8fba21f71e183e160cc94b021f613f6",
         },
         {
           name: ".Edit",
@@ -5178,8 +5168,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "Dance Pop:Music|Latin Pop:Music|Latin:Music|Mexican Pop:Music|Tropical:Music",
+          value: "Dance Pop:Music|Latin Pop:Music|Latin:Music|Mexican Pop:Music|Tropical:Music",
         },
         {
           name: ".Edit",
@@ -5426,8 +5415,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "Dance Pop:Music|Latin Pop:Music|Latin:Music|Mexican Pop:Music|Tropical:Music",
+          value: "Dance Pop:Music|Latin Pop:Music|Latin:Music|Mexican Pop:Music|Tropical:Music",
         },
       ],
     },
@@ -5996,8 +5984,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/e1ceb887c257cb84bbf129384db4ac7604f7bfb0",
+          value: "https://p.scdn.co/mp3-preview/e1ceb887c257cb84bbf129384db4ac7604f7bfb0",
         },
         {
           name: ".Edit",
@@ -6246,8 +6233,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/b47430ab67faf9ae432686371042e133e6d8e1b8",
+          value: "https://p.scdn.co/mp3-preview/b47430ab67faf9ae432686371042e133e6d8e1b8",
         },
         {
           name: ".Edit",
@@ -6724,8 +6710,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/b834007dae76250cb5c672ec408779c8ef929afd",
+          value: "https://p.scdn.co/mp3-preview/b834007dae76250cb5c672ec408779c8ef929afd",
         },
         {
           name: ".Edit",
@@ -6956,8 +6941,7 @@ export const model = {
       properties: [
         {
           name: ".Merge",
-          value:
-            "feba15e1-0684-40f4-a396-552b7bd8a7f7;129998fe-1aa2-460e-bb29-d553aa4fa6b5",
+          value: "feba15e1-0684-40f4-a396-552b7bd8a7f7;129998fe-1aa2-460e-bb29-d553aa4fa6b5",
         },
         {
           name: ".Edit",
@@ -7205,8 +7189,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/6fde6b3c8c375c78ed721ceb4060ae2576f215c1",
+          value: "https://p.scdn.co/mp3-preview/6fde6b3c8c375c78ed721ceb4060ae2576f215c1",
         },
         {
           name: ".Edit",
@@ -7503,8 +7486,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/e3e380e16a665efa73305acfcba7909cf25f16e8",
+          value: "https://p.scdn.co/mp3-preview/e3e380e16a665efa73305acfcba7909cf25f16e8",
         },
         {
           name: ".Edit",
@@ -8524,8 +8506,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/869d940d0a1022dbf112edd5e37f9aa113eb969f",
+          value: "https://p.scdn.co/mp3-preview/869d940d0a1022dbf112edd5e37f9aa113eb969f",
         },
         {
           name: ".Edit",
@@ -9202,8 +9183,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/464b0e971718dc7ec91c709734356570f9b44f84",
+          value: "https://p.scdn.co/mp3-preview/464b0e971718dc7ec91c709734356570f9b44f84",
         },
         {
           name: ".Edit",
@@ -9633,8 +9613,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/7b9afb9b666ac07964684711572c0c98dff69c99",
+          value: "https://p.scdn.co/mp3-preview/7b9afb9b666ac07964684711572c0c98dff69c99",
         },
         {
           name: ".Edit",
@@ -11515,8 +11494,7 @@ export const model = {
         },
         {
           name: "Title",
-          value:
-            "The Cup of Life (The Official Song of the World Cup, France '98)",
+          value: "The Cup of Life (The Official Song of the World Cup, France '98)",
         },
         {
           name: "Album:02",
@@ -11616,8 +11594,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/f4de8ed36b8b340af4a50e286cdc8ca2741a8af1",
+          value: "https://p.scdn.co/mp3-preview/f4de8ed36b8b340af4a50e286cdc8ca2741a8af1",
         },
         {
           name: ".Edit",
@@ -11907,8 +11884,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "DWTS:Other|Episode 9:Other|Salsa:Dance|Season 29:Other|United States:Other",
+          value: "DWTS:Other|Episode 9:Other|Salsa:Dance|Season 29:Other|United States:Other",
         },
         {
           name: "DanceRating",
@@ -11941,8 +11917,7 @@ export const model = {
       properties: [
         {
           name: ".Merge",
-          value:
-            "be7aadbe-72c3-4854-997c-680db18ac06c;d6ea226f-1b1c-477e-ab1f-941fb8910611",
+          value: "be7aadbe-72c3-4854-997c-680db18ac06c;d6ea226f-1b1c-477e-ab1f-941fb8910611",
         },
         {
           name: ".Edit",
@@ -12203,8 +12178,7 @@ export const model = {
         },
         {
           name: "Title",
-          value:
-            "La Copa de la Vida (La Cancion Oficial de la Copa Mundial, Francia '98)",
+          value: "La Copa de la Vida (La Cancion Oficial de la Copa Mundial, Francia '98)",
         },
         {
           name: "Tag+",
@@ -12316,8 +12290,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/7d1522c5bcdc6d860b1e2e003c8f7b121b6c989b",
+          value: "https://p.scdn.co/mp3-preview/7d1522c5bcdc6d860b1e2e003c8f7b121b6c989b",
         },
         {
           name: ".Edit",
@@ -13290,8 +13263,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/fa25b05d49793889922e7eff52a07fbb2b7db774",
+          value: "https://p.scdn.co/mp3-preview/fa25b05d49793889922e7eff52a07fbb2b7db774",
         },
         {
           name: ".Edit",
@@ -13560,8 +13532,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/b52ca4a0fdc801f99676a1ed8206c0e0edc9952d",
+          value: "https://p.scdn.co/mp3-preview/b52ca4a0fdc801f99676a1ed8206c0e0edc9952d",
         },
         {
           name: ".Edit",
@@ -14042,8 +14013,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "Dance Pop:Music|Latin Pop:Music|Latin:Music|Mexican Pop:Music|Tropical:Music",
+          value: "Dance Pop:Music|Latin Pop:Music|Latin:Music|Mexican Pop:Music|Tropical:Music",
         },
       ],
     },
@@ -14443,8 +14413,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/36d5dbe367796a8873146e9108bdb961d8db17f3",
+          value: "https://p.scdn.co/mp3-preview/36d5dbe367796a8873146e9108bdb961d8db17f3",
         },
         {
           name: ".Edit",
@@ -15213,8 +15182,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/dae26980a04de4162fbefae54438d9e977292648",
+          value: "https://p.scdn.co/mp3-preview/dae26980a04de4162fbefae54438d9e977292648",
         },
         {
           name: ".Edit",
@@ -15440,8 +15408,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "DWTS:Other|Salsa:Dance|Season 27:Other|United States:Other|Week 4:Other",
+          value: "DWTS:Other|Salsa:Dance|Season 27:Other|United States:Other|Week 4:Other",
         },
         {
           name: "DanceRating",

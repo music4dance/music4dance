@@ -92,19 +92,12 @@ function getTagHandler(tag: Tag): TagHandler {
         >
           <TagIcon :name="btn.iconName" />
           {{ btn.description }}
-          <IBiCheckCircle v-if="btn.state"></IBiCheckCircle>
-          <IBiCircle v-else></IBiCircle>
+          <IBiCheckCircle v-if="btn.state" />
+          <IBiCircle v-else />
         </BButton>
       </BButtonGroup>
       <div style="width: 250px" class="mx-auto col-sm">
-        <BFormInput
-          id="strictness"
-          v-model="filter"
-          type="range"
-          min="2"
-          max="10"
-          step="1"
-        ></BFormInput>
+        <BFormInput id="strictness" v-model="filter" type="range" min="2" max="10" step="1" />
         <label
           for="strictness"
           class="d-flex justify-content-between"
@@ -131,7 +124,7 @@ function getTagHandler(tag: Tag): TagHandler {
     <div v-else>
       <h4>Please select one or more tag classes (style, tempo, musical genre, oother)</h4>
     </div>
-    <TagModal v-model="modalVisible" :tag-handler="currentTag"></TagModal>
+    <TagModal v-model="modalVisible" :tag-handler="currentTag" />
   </div>
 </template>
 

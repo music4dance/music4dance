@@ -21,7 +21,7 @@ const danceName = dance ? dance.name : "";
         :filter="filter"
         :hide-sort="true"
         :hidden-columns="['dances', 'length', 'order', 'track']"
-      ></SongTable>
+      />
     </BCol>
   </BRow>
 </template>

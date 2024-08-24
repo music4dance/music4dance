@@ -48,7 +48,7 @@ const onPageClick = (event: BvEvent, pageNum: number) => {
         first-number
         last-number
         @page-click="onPageClick"
-      ></BPagination>
+      />
     </BCol>
     <BCol md="2">Page {{ pageNumber }} of {{ pageCount }} ({{ model.count }} songs found)</BCol>
     <BCol md="2"

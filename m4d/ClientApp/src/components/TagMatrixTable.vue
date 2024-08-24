@@ -16,7 +16,6 @@ const groupClass = "tag-matrix-group";
 
 const itemClass = "tag-matrix-item";
 
-// INT-TODO: Get rid of this once we have generic tables
 const rows = props.matrix!.list as TableItem<TagRow>[];
 
 function buildFields(): Exclude<TableFieldRaw<TagRow>, string>[] {
@@ -74,7 +73,7 @@ function tagLink(key: LiteralUnion<string | number | symbol>): string {
       <template #head(dance)="data">{{ data.field.label }}</template>
 
       <template #head()="data">
-        <a :href="tagLink(data.field.key)" v-html="data.field.label"></a>
+        <a :href="tagLink(data.field.key)" v-html="data.field.label" />
       </template>
 
       <template #cell(dance)="data">
@@ -84,13 +83,12 @@ function tagLink(key: LiteralUnion<string | number | symbol>): string {
               :dance="toNamedObject(data.item.dance)"
               :show-synonyms="true"
               :multi-line="true"
-            ></DanceName>
+            />
           </a>
         </div>
       </template>
 
       <template #cell()="data">
-        <!-- INT-TODO: should be able to use data.value rather than calling countFromKey -->
         <BButton
           v-if="countFromKey(data.field.key as string, data.item) !== '0'"
           variant="primary"

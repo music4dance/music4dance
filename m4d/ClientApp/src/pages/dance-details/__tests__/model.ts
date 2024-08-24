@@ -406,8 +406,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/6ab6388bbb01c20df8c92ef804bc52949b097539",
+          value: "https://p.scdn.co/mp3-preview/6ab6388bbb01c20df8c92ef804bc52949b097539",
         },
         {
           name: ".Edit",
@@ -1054,8 +1053,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/3084926445bc503536b684fb93f938832978c2a9",
+          value: "https://p.scdn.co/mp3-preview/3084926445bc503536b684fb93f938832978c2a9",
         },
         {
           name: ".Edit",
@@ -1492,8 +1490,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/9cbf5972598bf538282503cb6da9e916521514ea",
+          value: "https://p.scdn.co/mp3-preview/9cbf5972598bf538282503cb6da9e916521514ea",
         },
         {
           name: ".Edit",
@@ -2058,8 +2055,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/43aafab4531ad90a00496cd869541388c64e8ff1",
+          value: "https://p.scdn.co/mp3-preview/43aafab4531ad90a00496cd869541388c64e8ff1",
         },
         {
           name: ".Edit",
@@ -2693,8 +2689,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/15da4e9a2be7a7784abd45789268f71b8b6b1d49",
+          value: "https://p.scdn.co/mp3-preview/15da4e9a2be7a7784abd45789268f71b8b6b1d49",
         },
         {
           name: ".Edit",
@@ -2995,8 +2990,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "DWTS:Other|Episode 9:Other|Rumba:Dance|Season 29:Other|United States:Other",
+          value: "DWTS:Other|Episode 9:Other|Rumba:Dance|Season 29:Other|United States:Other",
         },
         {
           name: "DanceRating",
@@ -3446,8 +3440,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/ba6f5ca9251430076b0fb2887ea9ec01695643d6",
+          value: "https://p.scdn.co/mp3-preview/ba6f5ca9251430076b0fb2887ea9ec01695643d6",
         },
         {
           name: ".Edit",
@@ -3904,8 +3897,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/fe35a5da0bcb2385fc1210bc7735da5f3aab1c1b",
+          value: "https://p.scdn.co/mp3-preview/fe35a5da0bcb2385fc1210bc7735da5f3aab1c1b",
         },
         {
           name: ".Edit",
@@ -4222,8 +4214,7 @@ export const model = {
         },
         {
           name: "Album:01",
-          value:
-            "Michael Jackson's This Is It (The Music That Inspired the Movie)",
+          value: "Michael Jackson's This Is It (The Music That Inspired the Movie)",
         },
         {
           name: "Track:01",
@@ -4427,8 +4418,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/39a9300bf56bd2756e674d491e8fe255bf17dc6d",
+          value: "https://p.scdn.co/mp3-preview/39a9300bf56bd2756e674d491e8fe255bf17dc6d",
         },
         {
           name: ".Edit",
@@ -5007,8 +4997,7 @@ export const model = {
         },
         {
           name: "Title",
-          value:
-            'My Heart Will Go On (Love Theme from "Titanic") (Album Version)',
+          value: 'My Heart Will Go On (Love Theme from "Titanic") (Album Version)',
         },
         {
           name: "User",
@@ -5208,8 +5197,7 @@ export const model = {
         },
         {
           name: "Title",
-          value:
-            'My Heart Will Go On (Dialogue Mix) (includes "Titanic" film dialogue)',
+          value: 'My Heart Will Go On (Dialogue Mix) (includes "Titanic" film dialogue)',
         },
         {
           name: "Track:03",
@@ -5329,8 +5317,7 @@ export const model = {
         },
         {
           name: "Album:07",
-          value:
-            "Titanic (Music from the Motion Picture) [Collector's Anniversary Edition]",
+          value: "Titanic (Music from the Motion Picture) [Collector's Anniversary Edition]",
         },
         {
           name: "Track:07",
@@ -5435,8 +5422,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/b98064ff7876dcefd0eca2fe5a5a24351cc27d5d",
+          value: "https://p.scdn.co/mp3-preview/b98064ff7876dcefd0eca2fe5a5a24351cc27d5d",
         },
         {
           name: ".Edit",
@@ -5532,8 +5518,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "DWTS:Other|Rumba:Dance|Season 28:Other|United States:Other|Week 3:Other",
+          value: "DWTS:Other|Rumba:Dance|Season 28:Other|United States:Other|Week 3:Other",
         },
         {
           name: "DanceRating",
@@ -5757,8 +5742,7 @@ export const model = {
         },
         {
           name: "Album:13",
-          value:
-            "Titanic: Original Motion Picture Soundtrack - Collector's Anniversary Edition",
+          value: "Titanic: Original Motion Picture Soundtrack - Collector's Anniversary Edition",
         },
         {
           name: "Track:13",
@@ -5814,8 +5798,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/5fcdcfe7ef20abd006bba666b4a7dff01dd5ec21",
+          value: "https://p.scdn.co/mp3-preview/5fcdcfe7ef20abd006bba666b4a7dff01dd5ec21",
         },
         {
           name: ".Edit",

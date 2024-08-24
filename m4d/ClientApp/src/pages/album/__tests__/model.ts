@@ -940,8 +940,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/6ab6388bbb01c20df8c92ef804bc52949b097539",
+          value: "https://p.scdn.co/mp3-preview/6ab6388bbb01c20df8c92ef804bc52949b097539",
         },
         {
           name: ".Edit",
@@ -1869,8 +1868,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/b834007dae76250cb5c672ec408779c8ef929afd",
+          value: "https://p.scdn.co/mp3-preview/b834007dae76250cb5c672ec408779c8ef929afd",
         },
         {
           name: ".Edit",
@@ -2238,8 +2236,7 @@ export const model = {
       properties: [
         {
           name: ".Merge",
-          value:
-            "be7aadbe-72c3-4854-997c-680db18ac06c;d6ea226f-1b1c-477e-ab1f-941fb8910611",
+          value: "be7aadbe-72c3-4854-997c-680db18ac06c;d6ea226f-1b1c-477e-ab1f-941fb8910611",
         },
         {
           name: ".Edit",
@@ -2500,8 +2497,7 @@ export const model = {
         },
         {
           name: "Title",
-          value:
-            "La Copa de la Vida (La Cancion Oficial de la Copa Mundial, Francia '98)",
+          value: "La Copa de la Vida (La Cancion Oficial de la Copa Mundial, Francia '98)",
         },
         {
           name: "Tag+",
@@ -2613,8 +2609,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/7d1522c5bcdc6d860b1e2e003c8f7b121b6c989b",
+          value: "https://p.scdn.co/mp3-preview/7d1522c5bcdc6d860b1e2e003c8f7b121b6c989b",
         },
         {
           name: ".Edit",
@@ -3169,8 +3164,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/651c11a87063af828779c3216bcd1b517b2de932",
+          value: "https://p.scdn.co/mp3-preview/651c11a87063af828779c3216bcd1b517b2de932",
         },
         {
           name: ".Edit",
@@ -3747,8 +3741,7 @@ export const model = {
       properties: [
         {
           name: ".Merge",
-          value:
-            "feba15e1-0684-40f4-a396-552b7bd8a7f7;129998fe-1aa2-460e-bb29-d553aa4fa6b5",
+          value: "feba15e1-0684-40f4-a396-552b7bd8a7f7;129998fe-1aa2-460e-bb29-d553aa4fa6b5",
         },
         {
           name: ".Edit",
@@ -3996,8 +3989,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/6fde6b3c8c375c78ed721ceb4060ae2576f215c1",
+          value: "https://p.scdn.co/mp3-preview/6fde6b3c8c375c78ed721ceb4060ae2576f215c1",
         },
         {
           name: ".Edit",

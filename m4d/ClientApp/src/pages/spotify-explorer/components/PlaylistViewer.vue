@@ -45,8 +45,8 @@ const reset = (event: Event): void => {
   <div>
     <h2>{{ model?.name }}</h2>
     <p>id = ({{ id }}), count = {{ model?.tracks?.length ?? 0 }}</p>
-    <p v-if="model?.description" v-html="model?.description"></p>
-    <TrackTable :tracks="model?.tracks ?? []"></TrackTable>
+    <p v-if="model?.description" v-html="model?.description" />
+    <TrackTable :tracks="model?.tracks ?? []" />
     <BForm v-if="context.isAdmin" @submit="submit" @reset="reset">
       <h2>Add the playlist to music4dance</h2>
       <BFormGroup
@@ -60,7 +60,7 @@ const reset = (event: Event): void => {
           v-model="danceTags"
           type="text"
           placeholder="SWZ|Slow:Style||VWZ|Fast:Style"
-        ></BFormInput>
+        />
       </BFormGroup>
       <BFormGroup
         id="songTagsGroup"
@@ -73,7 +73,7 @@ const reset = (event: Event): void => {
           v-model="songTags"
           type="text"
           placeholder="Holiday:Other|Christmas:Other"
-        ></BFormInput>
+        />
       </BFormGroup>
 
       <BButton :disabled="disableAdd" type="submit" variant="primary" class="me-2">Add</BButton>

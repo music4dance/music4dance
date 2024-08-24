@@ -40,7 +40,7 @@ const onDelete = (album: AlbumDetails): void => {
             v-for="purchase in album.purchase.decode()"
             :key="purchase.link"
             :info="purchase"
-          ></PurchaseLogo>
+          />
         </span>
       </BListGroupItem>
     </BListGroup>

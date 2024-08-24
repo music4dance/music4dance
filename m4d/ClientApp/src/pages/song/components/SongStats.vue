@@ -33,7 +33,7 @@ const formatEchoNest = (n: number): string => {
           role="isAdmin"
           type="number"
           v-bind="$attrs"
-        ></FieldEditor>
+        />
         Seconds</BTd
       >
     </BTr>
@@ -48,7 +48,7 @@ const formatEchoNest = (n: number): string => {
           role="canTag"
           type="number"
           v-bind="$attrs"
-        ></FieldEditor>
+        />
         BPM</BTd
       >
     </BTr>
@@ -60,7 +60,7 @@ const formatEchoNest = (n: number): string => {
           type="beat"
           label="beat strength"
           max-label="strongest beat"
-        ></EchoIcon>
+        />
         {{ formatEchoNest(song.danceability) }}</BTd
       >
     </BTr>
@@ -72,19 +72,14 @@ const formatEchoNest = (n: number): string => {
           type="energy"
           label="energy level"
           max-label="highest energy"
-        ></EchoIcon>
+        />
         {{ formatEchoNest(song.energy) }}</BTd
       >
     </BTr>
     <BTr v-if="song.valence">
       <BTh>Mood</BTh>
       <BTd>
-        <EchoIcon
-          :value="song.valence"
-          type="mood"
-          label="mood level"
-          max-label="happiest"
-        ></EchoIcon>
+        <EchoIcon :value="song.valence" type="mood" label="mood level" max-label="happiest" />
         {{ formatEchoNest(song.valence) }}</BTd
       >
     </BTr>

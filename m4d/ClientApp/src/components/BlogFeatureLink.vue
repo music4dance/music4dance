@@ -14,15 +14,11 @@ defineProps<{
       {{ entry.title }}
     </div>
     <div style="margin-left: 2em">
-      <span v-html="entry.description"></span>
+      <span v-html="entry.description" />
       <a :href="entry.fullPath" style="margin-left: 0.5em">[Read more]</a>
     </div>
     <div v-if="entry.children">
-      <BlogFeatureLink
-        v-for="child in entry.children"
-        :key="child.order"
-        :entry="child"
-      ></BlogFeatureLink>
+      <BlogFeatureLink v-for="child in entry.children" :key="child.order" :entry="child" />
     </div>
   </div>
 </template>

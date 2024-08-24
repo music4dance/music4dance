@@ -19,8 +19,8 @@ const menuContext: MenuContext = getMenuContext();
       >'s Profile
     </h1>
     <div>
-      <UserProfile :model="model" :menu-context="menuContext"></UserProfile>
-      <UserList :model="model"></UserList>
+      <UserProfile :model="model" :menu-context="menuContext" />
+      <UserList :model="model" />
     </div>
   </PageFrame>
 </template>

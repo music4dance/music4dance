@@ -58,11 +58,11 @@ const chooseDance = (danceId?: string): void => {
         debounce="100"
         @keyup.enter="search"
         @input="checkServiceAndWarn($event.target.value)"
-      ></BFormInput>
+      />
       <SuggestionList id="auto-complete" :search="searchString" />
 
       <BButton variant="outline-primary" @click="search">
-        <IBiSearch></IBiSearch>
+        <IBiSearch />
       </BButton>
     </BInputGroup>
     <BRow>

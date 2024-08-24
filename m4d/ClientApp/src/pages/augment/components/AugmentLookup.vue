@@ -94,7 +94,7 @@ onMounted(async () => {
           :state="serviceIdState"
           trim
           @update:model-value="checkService"
-        ></BFormInput>
+        />
         <BButton variant="primary" @click="findService">Find</BButton>
         <BFormInvalidFeedback id="service-id-feedback" :disabled="!serviceId">
           Enter a valid iTunes or Spotify id or url
@@ -105,14 +105,14 @@ onMounted(async () => {
       </div>
     </BForm>
     <BAlert :model-value="searching" variant="info">
-      <BSpinner class="me-3"></BSpinner>
+      <BSpinner class="me-3" />
       <span v-show="!failed">Searching for </span>
       <span v-show="failed">Failed to find </span>
       {{ serviceId }} on music4dance.net and {{ serviceName }}
       <BButton v-show="failed" variant="outline-warning" @click="onCancel"> Cancel</BButton>
     </BAlert>
     <br />
-    <AugmentSources></AugmentSources>
+    <AugmentSources />
     <form v-show="false" id="createSong" ref="createSong" action="/song/create" method="post">
       <input type="hidden" name="__RequestVerificationToken" :value="context.xsrfToken" />
       <input id="service" type="hidden" name="service" :value="serviceType" />

@@ -35,7 +35,7 @@ const buildExport = (): void => {
   <div>
     <h2>{{ model?.name }}</h2>
     <p>id = ({{ model?.id }}), count = {{ model?.playlists?.length ?? 0 }}</p>
-    <SimplePlaylists :playlists="model?.playlists || []"></SimplePlaylists>
+    <SimplePlaylists :playlists="model?.playlists || []" />
 
     <BInputGroup v-if="context.isAdmin">
       <label class="sr-only" for="service-id">Friendly Name:</label>
@@ -47,9 +47,9 @@ const buildExport = (): void => {
         trim
         class="me-2"
         @input="buildExport"
-      ></BFormInput>
+      />
       <BButton variant="primary" @click="buildExport">Build Exports</BButton>
     </BInputGroup>
-    <BFormTextarea id="export" v-model="exportText" rows="10" max-rows="100"></BFormTextarea>
+    <BFormTextarea id="export" v-model="exportText" rows="10" max-rows="100" />
   </div>
 </template>

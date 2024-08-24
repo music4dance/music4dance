@@ -25,8 +25,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "1966:Other|East Coast Swing:Dance|Holiday:Other|Rock And Roll:Music",
+          value: "1966:Other|East Coast Swing:Dance|Holiday:Other|Rock And Roll:Music",
         },
         {
           name: "DanceRating",
@@ -1367,8 +1366,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "Alternative:Music|Holiday:Music|Pop:Music|Rock:Music|Singer/Songwriter:Music",
+          value: "Alternative:Music|Holiday:Music|Pop:Music|Rock:Music|Singer/Songwriter:Music",
         },
         {
           name: ".Edit",
@@ -1937,8 +1935,7 @@ export const model = {
         },
         {
           name: "Album:42",
-          value:
-            "Christmas: The Collection (50 Of the Greatest Original Xmas Hits)",
+          value: "Christmas: The Collection (50 Of the Greatest Original Xmas Hits)",
         },
         {
           name: "Track:42",
@@ -2152,13 +2149,11 @@ export const model = {
       properties: [
         {
           name: ".Merge",
-          value:
-            "9d52a284-9df5-42d7-93e1-ab91f4ea8dfc;cb2f9d3c-7b59-4874-9a63-47b538bc9484",
+          value: "9d52a284-9df5-42d7-93e1-ab91f4ea8dfc;cb2f9d3c-7b59-4874-9a63-47b538bc9484",
         },
         {
           name: ".Merge",
-          value:
-            "7ca0ae39-fb13-45be-a61a-3461d4803eff;d59ec14d-752a-4e0c-9ad3-bba8bd98c9ab",
+          value: "7ca0ae39-fb13-45be-a61a-3461d4803eff;d59ec14d-752a-4e0c-9ad3-bba8bd98c9ab",
         },
         {
           name: ".Edit",
@@ -2342,8 +2337,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "Father Daughter:Other|First Dance:Other|Rumba:Dance|Wedding:Other",
+          value: "Father Daughter:Other|First Dance:Other|Rumba:Dance|Wedding:Other",
         },
         {
           name: "DanceRating",
@@ -2375,8 +2369,7 @@ export const model = {
         },
         {
           name: ".Merge",
-          value:
-            "0622d122-6d9d-4470-b737-69151edd321d;51b6aef9-8f88-4681-8f29-7ba56a0fcb3f",
+          value: "0622d122-6d9d-4470-b737-69151edd321d;51b6aef9-8f88-4681-8f29-7ba56a0fcb3f",
         },
         {
           name: ".Edit",
@@ -2465,8 +2458,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/6dc5381d0735254e9b37ceadfe96ba71e7599639",
+          value: "https://p.scdn.co/mp3-preview/6dc5381d0735254e9b37ceadfe96ba71e7599639",
         },
         {
           name: ".Edit",
@@ -2855,8 +2847,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "Classic Soul:Music|Funk:Music|Memphis Soul:Music|Motown:Music|Soul:Music",
+          value: "Classic Soul:Music|Funk:Music|Memphis Soul:Music|Motown:Music|Soul:Music",
         },
         {
           name: ".Create",
@@ -3132,8 +3123,7 @@ export const model = {
         },
         {
           name: "Album:08",
-          value:
-            "Together - The Temptations / The Four Tops (Rerecorded Version)",
+          value: "Together - The Temptations / The Four Tops (Rerecorded Version)",
         },
         {
           name: "Track:08",
@@ -3157,8 +3147,7 @@ export const model = {
         },
         {
           name: "Album:10",
-          value:
-            "Motown the Musical Originals - 14 Classic Songs That Inspired the Broadway Show!",
+          value: "Motown the Musical Originals - 14 Classic Songs That Inspired the Broadway Show!",
         },
         {
           name: "Track:10",
@@ -3174,8 +3163,7 @@ export const model = {
         },
         {
           name: "Album:11",
-          value:
-            "Motown the Musical Originals - 40 Classic Songs That Inspired the Broadway Show!",
+          value: "Motown the Musical Originals - 40 Classic Songs That Inspired the Broadway Show!",
         },
         {
           name: "Track:11",
@@ -3191,8 +3179,7 @@ export const model = {
         },
         {
           name: "Album:12",
-          value:
-            "Motown The Musical Originals - 40 Classic Songs That Inspired The Broadway Show!",
+          value: "Motown The Musical Originals - 40 Classic Songs That Inspired The Broadway Show!",
         },
         {
           name: "Track:12",
@@ -3312,8 +3299,7 @@ export const model = {
         },
         {
           name: "Album:20",
-          value:
-            "Songs From the Original Motion Picture Soundtrack a Smile Like Yours",
+          value: "Songs From the Original Motion Picture Soundtrack a Smile Like Yours",
         },
         {
           name: "Track:20",
@@ -3705,8 +3691,7 @@ export const model = {
         },
         {
           name: "Album:46",
-          value:
-            "20th Century Masters: The Millennium Collection: The Best Of The '60s",
+          value: "20th Century Masters: The Millennium Collection: The Best Of The '60s",
         },
         {
           name: "Track:46",
@@ -3811,8 +3796,7 @@ export const model = {
         },
         {
           name: "Album:52",
-          value:
-            "20th Century Masters - The Millennium Collection: Best of Motown 1960s, Vol. 1",
+          value: "20th Century Masters - The Millennium Collection: Best of Motown 1960s, Vol. 1",
         },
         {
           name: "Track:52",
@@ -3917,8 +3901,7 @@ export const model = {
         },
         {
           name: "Album:58",
-          value:
-            "The Big Chill (Original Motion Picture Soundtrack) [15th Anniversary]",
+          value: "The Big Chill (Original Motion Picture Soundtrack) [15th Anniversary]",
         },
         {
           name: "Track:58",
@@ -3942,8 +3925,7 @@ export const model = {
         },
         {
           name: "Album:59",
-          value:
-            "Born On the Fourth of July (Original Motion Picture Soundtrack)",
+          value: "Born On the Fourth of July (Original Motion Picture Soundtrack)",
         },
         {
           name: "Track:59",
@@ -3959,8 +3941,7 @@ export const model = {
         },
         {
           name: "Album:60",
-          value:
-            "Hitsville: The Making of Motown (Original Motion Picture Soundtrack) [Deluxe]",
+          value: "Hitsville: The Making of Motown (Original Motion Picture Soundtrack) [Deluxe]",
         },
         {
           name: "Track:60",
@@ -3976,8 +3957,7 @@ export const model = {
         },
         {
           name: "Album:61",
-          value:
-            "Hitsville: The Making of Motown (Original Motion Picture Soundtrack)",
+          value: "Hitsville: The Making of Motown (Original Motion Picture Soundtrack)",
         },
         {
           name: "Track:61",
@@ -4001,8 +3981,7 @@ export const model = {
         },
         {
           name: "Album:62",
-          value:
-            "Every Great Motown Song - The First 25 Years Vol. 1:The 1960's",
+          value: "Every Great Motown Song - The First 25 Years Vol. 1:The 1960's",
         },
         {
           name: "Track:62",
@@ -4444,8 +4423,7 @@ export const model = {
         },
         {
           name: "Album:07",
-          value:
-            "Christmas Songs & Xmas Hits for Kids - Childrens Festive Favourites",
+          value: "Christmas Songs & Xmas Hits for Kids - Childrens Festive Favourites",
         },
         {
           name: "Track:07",
@@ -4898,8 +4876,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "Christmas Hits:Other|Christmas Time:Other|Holiday:Other|Merry And Bright:Other",
+          value: "Christmas Hits:Other|Christmas Time:Other|Holiday:Other|Merry And Bright:Other",
         },
         {
           name: ".Edit",
@@ -4959,8 +4936,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "Adult Standards:Music|Easy Listening:Music|Lounge:Music|Vocal Jazz:Music",
+          value: "Adult Standards:Music|Easy Listening:Music|Lounge:Music|Vocal Jazz:Music",
         },
         {
           name: ".Edit",
@@ -5914,8 +5890,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/a58d416f6e969830e4db865fb604450508fa62c2",
+          value: "https://p.scdn.co/mp3-preview/a58d416f6e969830e4db865fb604450508fa62c2",
         },
         {
           name: ".Edit",
@@ -6047,8 +6022,7 @@ export const model = {
         },
         {
           name: "Album:05",
-          value:
-            "NOW That's What I Call ACM Awards 50 Years (50 Track Deluxe Edition)",
+          value: "NOW That's What I Call ACM Awards 50 Years (50 Track Deluxe Edition)",
         },
         {
           name: "Track:05",
@@ -8199,8 +8173,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "Acoustic Christmas:Other|Folksy Christmas:Other|Holiday:Other",
+          value: "Acoustic Christmas:Other|Folksy Christmas:Other|Holiday:Other",
         },
         {
           name: "Purchase:00:SA",
@@ -8543,8 +8516,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "Dance Pop:Music|Pop Dance:Music|Pop:Music|Post Teen Pop:Music",
+          value: "Dance Pop:Music|Pop Dance:Music|Pop:Music|Post Teen Pop:Music",
         },
         {
           name: ".Edit",
@@ -8709,8 +8681,7 @@ export const model = {
         },
         {
           name: "Album:00",
-          value:
-            "Christmas Music, Christmas Songs, X-Mas Feeling All Night Long",
+          value: "Christmas Music, Christmas Songs, X-Mas Feeling All Night Long",
         },
         {
           name: "Track:00",
@@ -9448,8 +9419,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "Christmas Crooners:Other|Christmas:Other|Cozy Christmas Pop:Other|Holiday:Other",
+          value: "Christmas Crooners:Other|Christmas:Other|Cozy Christmas Pop:Other|Holiday:Other",
         },
         {
           name: "Purchase:00:SA",
@@ -10945,8 +10915,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "Christmas Pop:Other|Christmas:Other|Holiday:Other|Sad Christmas Classics:Other",
+          value: "Christmas Pop:Other|Christmas:Other|Holiday:Other|Sad Christmas Classics:Other",
         },
         {
           name: "Purchase:00:SA",
@@ -11500,8 +11469,7 @@ export const model = {
         },
         {
           name: "Album:03",
-          value:
-            "Oldies But Goodies Bubblegum Hits (Re-Recorded / Remastered Versions)",
+          value: "Oldies But Goodies Bubblegum Hits (Re-Recorded / Remastered Versions)",
         },
         {
           name: "Track:03",
@@ -11533,8 +11501,7 @@ export const model = {
         },
         {
           name: "Album:06",
-          value:
-            "Movie Hit Song Soundtrack (Re-Recorded / Remastered Versions)",
+          value: "Movie Hit Song Soundtrack (Re-Recorded / Remastered Versions)",
         },
         {
           name: "Track:06",
@@ -11558,8 +11525,7 @@ export const model = {
         },
         {
           name: "Album:08",
-          value:
-            "Soft Rock Of The '70s & '80s (Re-Recorded / Remastered Versions)",
+          value: "Soft Rock Of The '70s & '80s (Re-Recorded / Remastered Versions)",
         },
         {
           name: "Track:08",
@@ -11623,8 +11589,7 @@ export const model = {
         },
         {
           name: "Album:14",
-          value:
-            "Songs From TV Commercials (Re-Recorded / Remastered Versions)",
+          value: "Songs From TV Commercials (Re-Recorded / Remastered Versions)",
         },
         {
           name: "Track:14",
@@ -11697,8 +11662,7 @@ export const model = {
         },
         {
           name: "Album:18",
-          value:
-            "The Greatest 1 Hit Wonders (Re-Recorded / Remastered Versions)",
+          value: "The Greatest 1 Hit Wonders (Re-Recorded / Remastered Versions)",
         },
         {
           name: "Track:18",
@@ -11830,8 +11794,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/c7ba2d11d1163eabade5632123c49a0128496451",
+          value: "https://p.scdn.co/mp3-preview/c7ba2d11d1163eabade5632123c49a0128496451",
         },
         {
           name: ".Edit",
@@ -12339,8 +12302,7 @@ export const model = {
         },
         {
           name: "Album:52",
-          value:
-            "Surfing Time the Essential Surf Rock Hits Featuring Jan & Dean",
+          value: "Surfing Time the Essential Surf Rock Hits Featuring Jan & Dean",
         },
         {
           name: "Track:52",

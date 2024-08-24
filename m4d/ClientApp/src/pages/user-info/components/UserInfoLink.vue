@@ -26,19 +26,17 @@ const formattedText = computed(() => {
 
 <template>
   <li class="list-clean-aligned lh-lg">
-    <IBiPatchPlus v-if="props.include"></IBiPatchPlus>
-    <IBiPatchMinus v-else></IBiPatchMinus>
-    <span class="px-1"></span>
-    <IBiHeartFill v-if="type === 'l'" class="text-danger"></IBiHeartFill>
+    <IBiPatchPlus v-if="props.include" />
+    <IBiPatchMinus v-else />
+    <span class="px-1" />
+    <IBiHeartFill v-if="type === 'l'" class="text-danger" />
     <span v-else-if="type == 'h'" class="position-relative">
-      <IBiHeartFill class=""></IBiHeartFill>
-      <IBiXCircle
-        class="text-danger position-absolute bottom-0 start-0 text-secondary"
-      ></IBiXCircle>
+      <IBiHeartFill class="" />
+      <IBiXCircle class="text-danger position-absolute bottom-0 start-0 text-secondary" />
     </span>
-    <IBiPencil v-else></IBiPencil>
-    <span class="px-1"></span>
-    <a :href="url" class="ms-1" v-html="formattedText"></a>
+    <IBiPencil v-else />
+    <span class="px-1" />
+    <a :href="url" class="ms-1" v-html="formattedText" />
     <span v-if="include"> ({{ count }})</span>
   </li>
 </template>

@@ -18,7 +18,6 @@ const songCount = computed(() => (isGroup.value ? 0 : danceDB.getSongCount(props
 <template>
   <p>
     <a :href="danceLink">Browse</a> all <b v-if="!isGroup">{{ songCount }}</b>
-    {{ dance!.name }} songs in the <a href="/">music4dance</a><span> </span>
-    <a href="/song">catalog</a>.
+    {{ dance!.name }} songs in the <a href="/">music4dance</a><span /> <a href="/song">catalog</a>.
   </p>
 </template>

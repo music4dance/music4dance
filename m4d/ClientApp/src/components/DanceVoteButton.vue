@@ -51,6 +51,5 @@ const redirectUrl = computed(
     :down-tip-voted="downTipVoted"
     @up-vote="emit('up-vote')"
     @down-vote="emit('down-vote')"
-  >
-  </VoteButton>
+  />
 </template>

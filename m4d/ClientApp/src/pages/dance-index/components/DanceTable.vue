@@ -28,7 +28,7 @@ const filteredDances = computed(() => {
         type="text"
         placeholder="Filter Dances"
         autofocus
-      ></BFormInput>
+      />
       <span><IBiSearch /></span>
     </BInputGroup>
     <DanceList

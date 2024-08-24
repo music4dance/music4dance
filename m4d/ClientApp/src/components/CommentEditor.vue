@@ -40,8 +40,8 @@ const enableEdit = (comment: UserComment): boolean => {
         :placeholder="placeholder"
         :rows="rows"
         v-bind="$attrs"
-      ></SingleCommentEditor>
-      <SingleCommentViewer v-else :comment="comment"></SingleCommentViewer>
+      />
+      <SingleCommentViewer v-else :comment="comment" />
     </div>
   </div>
 </template>

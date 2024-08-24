@@ -60,7 +60,7 @@ const downClick = async () => {
       v-b-tooltip.hover.right="{ title: upTip, id: getId() }"
       :class="upClass"
       @click="upClick"
-    ></div>
+    />
     <div v-b-tooltip.hover.right="{ title: mainTip, id: getId() }" class="vote-number">
       {{ value }}
     </div>
@@ -68,7 +68,7 @@ const downClick = async () => {
       v-b-tooltip.hover.right="{ title: downTip, id: getId() }"
       :class="downClass"
       @click="downClick"
-    ></div>
+    />
   </div>
 </template>
 

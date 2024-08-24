@@ -6,9 +6,9 @@ const search = model_;
 <template>
   <PageFrame id="app">
     <h1>Search Results: {{ search }}</h1>
-    <SongResults :search="search"></SongResults>
-    <PageResults :search="search"></PageResults>
-    <PostResults :search="search"></PostResults>
-    <HelpResults :search="search"></HelpResults>
+    <SongResults :search="search" />
+    <PageResults :search="search" />
+    <PostResults :search="search" />
+    <HelpResults :search="search" />
   </PageFrame>
 </template>

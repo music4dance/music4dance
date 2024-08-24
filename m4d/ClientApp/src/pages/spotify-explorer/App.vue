@@ -141,7 +141,7 @@ onMounted(async () => {
           prepend="Service ID"
           class="me-2"
           @input="find"
-        ></BFormInput>
+        />
         <BButton variant="primary" @click="find">Find</BButton>
         <BButton @click="clearForm">Clear</BButton>
         <BFormInvalidFeedback id="service-id-feedback" :disabled="!serviceId">
@@ -154,18 +154,8 @@ onMounted(async () => {
       </div>
     </BForm>
     <SpinLoader v-if="searching || loaded" :loaded="loaded">
-      <PlaylistViewer
-        v-if="playlist"
-        :id="serviceId!"
-        class="mt-2"
-        :model="playlist"
-      ></PlaylistViewer>
-      <ServiceUserViewer
-        v-if="serviceUser"
-        :id="serviceId"
-        class="mt-2"
-        :model="serviceUser"
-      ></ServiceUserViewer>
+      <PlaylistViewer v-if="playlist" :id="serviceId!" class="mt-2" :model="playlist" />
+      <ServiceUserViewer v-if="serviceUser" :id="serviceId" class="mt-2" :model="serviceUser" />
     </SpinLoader>
   </PageFrame>
 </template>

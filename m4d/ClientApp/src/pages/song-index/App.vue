@@ -30,16 +30,16 @@ const { songs: selected, select: selectSong } = useSongSelector();
       v-if="model.filter.isSimple(userName)"
       :filter="model.filter"
       :user="userName"
-    ></SongLibraryHeader>
-    <SearchHeader v-else :filter="model.filter" :user="context.userName"></SearchHeader>
+    />
+    <SearchHeader v-else :filter="model.filter" :user="context.userName" />
     <SongTable
       :histories="model.histories!"
       :filter="model.filter"
       :hide-sort="false"
       :hidden-columns="hiddenColumns"
       @song-selected="selectSong"
-    ></SongTable>
-    <SongFooter :model="model"></SongFooter>
-    <AdminFooter :model="model" :selected="selected"></AdminFooter>
+    />
+    <SongFooter :model="model" />
+    <AdminFooter :model="model" :selected="selected" />
   </PageFrame>
 </template>

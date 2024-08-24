@@ -17,14 +17,14 @@ const deleteLink = (): void => {
       <BCloseButton @click="deleteLink()" />
     </BCol>
     <BCol sm="2">
-      <BFormInput v-model="model.description"></BFormInput>
+      <BFormInput v-model="model.description" />
     </BCol>
     <BCol sm="9">
-      <BFormInput v-model="model.link"></BFormInput>
+      <BFormInput v-model="model.link" />
     </BCol>
   </BRow>
   <div v-else>
-    <b>{{ model.description }}: </b><span> </span>
+    <b>{{ model.description }}: </b><span />
     <a :href="model.link" target="_blank">{{ model.link }} <IBiArrowUpRight /></a>
   </div>
 </template>

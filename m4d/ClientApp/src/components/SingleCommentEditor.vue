@@ -37,8 +37,8 @@ const text = computed({
 
 <template>
   <div>
-    <BFormTextarea v-model="text" :rows="rows" :placeholder="placeholder"></BFormTextarea>
-    <div class="signature">--<UserLink :user="comment.userName"></UserLink></div>
+    <BFormTextarea v-model="text" :rows="rows" :placeholder="placeholder" />
+    <div class="signature">--<UserLink :user="comment.userName" /></div>
   </div>
 </template>
 

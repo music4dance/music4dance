@@ -36,7 +36,7 @@ const breadcrumbs = (() => {
 <template>
   <PageFrame id="app" :breadcrumbs="breadcrumbs">
     <h1>{{ title }}</h1>
-    <HolidayHelp v-if="model.count === 0" :dance="model.dance!" :empty="true"> </HolidayHelp>
+    <HolidayHelp v-if="model.count === 0" :dance="model.dance!" :empty="true" />
     <div v-else>
       <p v-if="model.dance">
         This page includes a list of all of the
@@ -56,15 +56,11 @@ const breadcrumbs = (() => {
         :hide-sort="true"
         :hidden-columns="['Track']"
         @song-selected="selectSong"
-      ></SongTable>
-      <SongFooter :model="model" :href="pageLink"></SongFooter>
+      />
+      <SongFooter :model="model" :href="pageLink" />
     </div>
-    <SpotifyPlayer v-if="model.playListId" :playlist="model.playListId"></SpotifyPlayer>
-    <HolidayDanceChooser
-      :occassion="occassion"
-      :dance="dance"
-      :count="model.count"
-    ></HolidayDanceChooser>
-    <AdminFooter :model="model" :selected="selected"></AdminFooter>
+    <SpotifyPlayer v-if="model.playListId" :playlist="model.playListId" />
+    <HolidayDanceChooser :occassion="occassion" :dance="dance" :count="model.count" />
+    <AdminFooter :model="model" :selected="selected" />
   </PageFrame>
 </template>

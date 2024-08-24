@@ -13,6 +13,6 @@ const model = defineModel<number>({ required: true });
       label="Beats Per Minute"
       :tempo="model"
       @change-tempo="model = $event"
-    ></TempoModal>
+    />
   </div>
 </template>

@@ -11,7 +11,7 @@ export class TagHandler {
     public user?: string,
     public filter?: SongFilter,
     public parent?: TaggableObject,
-    keyId?: boolean
+    keyId?: boolean,
   ) {
     this.id = keyId ? tag.key : uuidv4();
   }

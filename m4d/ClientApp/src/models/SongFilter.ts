@@ -211,7 +211,7 @@ export class SongFilter {
     //  [[not] (liked|disliked|edited) by user] sorted by [Sort Order] from [High|low] to [low|high]
 
     return this.isRaw
-      ? this.purchase ?? "Raw Search"
+      ? (this.purchase ?? "Raw Search")
       : `All${this.describePart(this.danceQuery.description)}` +
           `${this.describePart(this.describeKeywords)}` +
           `${this.describePart(this.describePurchase)}` +

@@ -114,8 +114,7 @@ const onTagClicked = (tag: TagHandler): void => {
         :key="t.key"
         :tag-handler="subTagHandler(t)"
         @tag-clicked="onTagClicked"
-      >
-      </TagButton>
+      />
     </div>
     <div v-if="danceHandler.parent">
       <DanceVote
@@ -123,7 +122,7 @@ const onTagClicked = (tag: TagHandler): void => {
         :dance-rating="rating"
         :authenticated="authenticated"
         @dance-vote="onDanceVote"
-      ></DanceVote>
+      />
       <span style="padding-inline-start: 1em"
         >I enjoy dancing <b>{{ name }}</b> to {{ title }}.</span
       >

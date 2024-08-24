@@ -9,7 +9,7 @@ const tags = safeTagDatabase().tags;
 
 <template>
   <PageFrame id="app" title="Tag Cloud" :breadcrumbs="breadcrumbs">
-    <TagCloud :tags="tags"></TagCloud>
+    <TagCloud :tags="tags" />
   </PageFrame>
 </template>
 @/helpers/TagEnvironmentManager

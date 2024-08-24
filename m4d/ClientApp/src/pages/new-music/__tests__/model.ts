@@ -119,8 +119,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "DWTS:Other|Episode 7:Other|Halloween:Other|Season 31:Other|United States:Other",
+          value: "DWTS:Other|Episode 7:Other|Halloween:Other|Season 31:Other|United States:Other",
         },
         {
           name: ".Edit",
@@ -180,8 +179,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "Adult Standards:Music|Mellow Gold:Music|New Wave Pop:Music|Soft Rock:Music",
+          value: "Adult Standards:Music|Mellow Gold:Music|New Wave Pop:Music|Soft Rock:Music",
         },
         {
           name: ".Edit",
@@ -274,8 +272,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "DWTS:Other|Episode 7:Other|Halloween:Other|Season 31:Other|United States:Other",
+          value: "DWTS:Other|Episode 7:Other|Halloween:Other|Season 31:Other|United States:Other",
         },
         {
           name: ".Edit",
@@ -352,8 +349,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "DWTS:Other|Episode 7:Other|Halloween:Other|Season 31:Other|United States:Other",
+          value: "DWTS:Other|Episode 7:Other|Halloween:Other|Season 31:Other|United States:Other",
         },
         {
           name: ".Edit",
@@ -532,8 +528,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "DWTS:Other|Episode 7:Other|Halloween:Other|Season 31:Other|United States:Other",
+          value: "DWTS:Other|Episode 7:Other|Halloween:Other|Season 31:Other|United States:Other",
         },
         {
           name: ".Edit",
@@ -683,8 +678,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "DWTS:Other|Episode 7:Other|Halloween:Other|Season 31:Other|United States:Other",
+          value: "DWTS:Other|Episode 7:Other|Halloween:Other|Season 31:Other|United States:Other",
         },
         {
           name: ".Edit",
@@ -839,8 +833,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "DWTS:Other|Episode 7:Other|Halloween:Other|Season 31:Other|United States:Other",
+          value: "DWTS:Other|Episode 7:Other|Halloween:Other|Season 31:Other|United States:Other",
         },
         {
           name: ".Edit",
@@ -1001,8 +994,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "DWTS:Other|Episode 7:Other|Halloween:Other|Season 31:Other|United States:Other",
+          value: "DWTS:Other|Episode 7:Other|Halloween:Other|Season 31:Other|United States:Other",
         },
         {
           name: ".Edit",
@@ -1792,8 +1784,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "DWTS:Other|Episode 6:Other|Season 31:Other|United States:Other",
+          value: "DWTS:Other|Episode 6:Other|Season 31:Other|United States:Other",
         },
         {
           name: ".Edit",
@@ -1853,8 +1844,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "Adult Standards:Music|Canadian Pop:Music|Jazz Pop:Music|Lounge:Music",
+          value: "Adult Standards:Music|Canadian Pop:Music|Jazz Pop:Music|Lounge:Music",
         },
         {
           name: ".Edit",
@@ -1906,8 +1896,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/8c8aedbcf92e1bbb55ebff317666c7f7640fb983?cid",
+          value: "https://p.scdn.co/mp3-preview/8c8aedbcf92e1bbb55ebff317666c7f7640fb983?cid",
         },
       ],
     },
@@ -1948,8 +1937,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "DWTS:Other|Episode 6:Other|Season 31:Other|United States:Other",
+          value: "DWTS:Other|Episode 6:Other|Season 31:Other|United States:Other",
         },
         {
           name: ".Edit",
@@ -2009,8 +1997,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "Adult Standards:Music|Canadian Pop:Music|Jazz Pop:Music|Lounge:Music",
+          value: "Adult Standards:Music|Canadian Pop:Music|Jazz Pop:Music|Lounge:Music",
         },
         {
           name: ".Edit",
@@ -2062,8 +2049,7 @@ export const model = {
         },
         {
           name: "Sample",
-          value:
-            "https://p.scdn.co/mp3-preview/3a0c8677cd9ee06e77461cdd1614827dfbc56b90?cid",
+          value: "https://p.scdn.co/mp3-preview/3a0c8677cd9ee06e77461cdd1614827dfbc56b90?cid",
         },
       ],
     },
@@ -2957,8 +2943,7 @@ export const model = {
         },
         {
           name: "Tag+",
-          value:
-            "Celtic Rock:Music|Neo Mellow:Music|Pop Rock:Music|Pop:Music|Uk Pop:Music",
+          value: "Celtic Rock:Music|Neo Mellow:Music|Pop Rock:Music|Pop:Music|Uk Pop:Music",
         },
         {
           name: ".Edit",

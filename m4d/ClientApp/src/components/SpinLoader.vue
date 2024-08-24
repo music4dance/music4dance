@@ -9,9 +9,9 @@ const label = props.placeholder ?? "Loading...";
 
 <template>
   <div>
-    <slot v-if="loaded"></slot>
+    <slot v-if="loaded" />
     <div v-else class="d-flex justify-content-center mb-3">
-      <BSpinner :label="label"></BSpinner>
+      <BSpinner :label="label" />
     </div>
   </div>
 </template>

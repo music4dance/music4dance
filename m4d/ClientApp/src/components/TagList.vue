@@ -32,6 +32,6 @@ const tagHandler = (tag: Tag): TagHandler => {
       :key="tag.key"
       :tag-handler="tagHandler(tag)"
       @tag-clicked="emit('tag-clicked', $event)"
-    ></TagButton>
+    />
   </span>
 </template>

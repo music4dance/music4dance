@@ -7,9 +7,9 @@ const props = withDefaults(defineProps<{ loaded: boolean; label?: string }>(), {
 
 <template>
   <div>
-    <slot v-if="loaded"></slot>
+    <slot v-if="loaded" />
     <div v-else class="d-flex justify-content-center mb-3">
-      <BSpinner :label="props.label"></BSpinner>
+      <BSpinner :label="props.label" />
     </div>
   </div>
 </template>

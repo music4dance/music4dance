@@ -18,10 +18,10 @@ const fields = [
 <template>
   <BTable ref="table" striped hover :items="playlists" :fields="fields">
     <template #cell(music4danceId)="data">
-      <PlaylistButton :playlist="data.item"></PlaylistButton>
+      <PlaylistButton :playlist="data.item" />
     </template>
     <template #cell(id)="data">
-      <PlaylistLink :playlist="data.item"></PlaylistLink>
+      <PlaylistLink :playlist="data.item" />
     </template>
   </BTable>
 </template>

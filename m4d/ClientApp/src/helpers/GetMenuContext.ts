@@ -1,4 +1,4 @@
-import { MenuContext, type MenuContextInterface } from "@/models/MenuContext";
+import { MenuContext } from "@/models/MenuContext";
 
 declare global {
   interface Window {

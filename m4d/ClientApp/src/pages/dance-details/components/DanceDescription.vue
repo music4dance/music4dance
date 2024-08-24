@@ -57,7 +57,7 @@ defineExpose({
         {{ rangeText }} {{ bpmText }} ({{ mpmText }}). <a :href="tempoFilter.url">Click here</a> to
         see a list of {{ danceName }} songs {{ rangeText }} {{ mpmText }}.
       </p>
-      <TempiLink></TempiLink>
+      <TempiLink />
     </div>
   </div>
 </template>

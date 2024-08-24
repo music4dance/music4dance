@@ -52,8 +52,8 @@ onMounted(async () => {
 <template>
   <div id="song-results">
     <BRow>
-      <BCol md="6" class="flex-grow"><SearchNav active="song-results"></SearchNav></BCol>
-      <BCol md="6"><ContinueOptions :filter="filter"></ContinueOptions></BCol>
+      <BCol md="6" class="flex-grow"><SearchNav active="song-results" /></BCol>
+      <BCol md="6"><ContinueOptions :filter="filter" /></BCol>
     </BRow>
     <PageLoader :loaded="loaded" placeholder="Searching for songs...">
       <div v-if="histories.length > 0">
@@ -67,8 +67,8 @@ onMounted(async () => {
           :hide-sort="true"
           :hidden-columns="['length', 'track']"
         />
-        <ShowMore v-model="extraVisible" extra-id="extra-songs"></ShowMore>
-        <ContinueOptions :filter="filter"></ContinueOptions>
+        <ShowMore v-model="extraVisible" extra-id="extra-songs" />
+        <ContinueOptions :filter="filter" />
       </div>
       <div v-else>"{{ search }}" not found in the <a href="/song">music library</a></div>
     </PageLoader>

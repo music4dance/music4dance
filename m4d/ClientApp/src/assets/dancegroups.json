@@ -1,41 +1,41 @@
 [
   {
     "name": "Swing",
-    "id" : "SWG",
-    "blogTag" : "swing",
-    "danceIds" : ["BBA","CLS","CSG","CST","ECS","HST","JIV","JSW","WCS","LHP","SSW"]
+    "id": "SWG",
+    "blogTag": "swing",
+    "danceIds": ["BBA", "CLS", "CSG", "CST", "ECS", "HST", "JIV", "JSW", "WCS", "LHP", "SSW"]
   },
   {
     "name": "Tango",
-    "id" : "TNG",
-    "blogTag" : "tango",
-    "danceIds" : ["TGO","ATN", "NTN", "MGA", "TGV"]
+    "id": "TNG",
+    "blogTag": "tango",
+    "danceIds": ["TGO", "ATN", "NTN", "MGA", "TGV"]
   },
   {
     "name": "Waltz",
-    "blogTag" : "waltz",
-    "id" : "WLZ",
-    "danceIds" : ["CSW","SWZ","VWZ", "TGV"]
+    "blogTag": "waltz",
+    "id": "WLZ",
+    "danceIds": ["CSW", "SWZ", "VWZ", "TGV"]
   },
   {
     "name": "Foxtrot",
-    "id" : "FXT",
-    "blogTag" : "foxtrot",
-    "danceIds" : ["CFT","SFT","QST","PBD"]
+    "id": "FXT",
+    "blogTag": "foxtrot",
+    "danceIds": ["CFT", "SFT", "QST", "PBD"]
   },
   {
     "name": "Latin",
-    "id" : "LTN",
-    "danceIds" : ["BOL","BSN","CHA", "MBO", "RMB", "PDL", "SMB", "SLS", "BCH", "CMB", "MRG"]
+    "id": "LTN",
+    "danceIds": ["BOL", "BSN", "CHA", "MBO", "RMB", "PDL", "SMB", "SLS", "BCH", "CMB", "MRG"]
   },
   {
     "name": "Other",
-    "id" : "MSC",
-    "danceIds" : ["BLU","C2S","MWT","NC2","PLK"]
+    "id": "MSC",
+    "danceIds": ["BLU", "C2S", "MWT", "NC2", "PLK"]
   },
   {
     "name": "Performance",
-    "id" : "PRF",
-    "danceIds" : ["BDW","BLT","BWD","CNT","DSC","FST","HHP","JAZ","TAP"]
+    "id": "PRF",
+    "danceIds": ["BDW", "BLT", "BWD", "CNT", "DSC", "FST", "HHP", "JAZ", "TAP"]
   }
 ]

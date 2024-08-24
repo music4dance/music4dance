@@ -38,7 +38,7 @@ onMounted(async () => {
 
 <template>
   <div>
-    <BSpinner v-if="songId === 'unknown'" small></BSpinner>
+    <BSpinner v-if="songId === 'unknown'" small />
     <a v-else-if="songId === 'notfound'" :href="addSong" target="_blank" role="button" class="ms-1">
       <IBiPlusCircle />
     </a>

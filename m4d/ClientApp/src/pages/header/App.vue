@@ -9,5 +9,5 @@ const context: MenuContext = getMenuContext();
   <header>
     <MainMenu :context="context" />
   </header>
-  <body></body>
+  <body />
 </template>

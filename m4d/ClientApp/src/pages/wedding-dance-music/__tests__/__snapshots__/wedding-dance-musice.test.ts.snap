@@ -64,12 +64,10 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\"><a data-v-3bbd14d4=\\"\\" href=\\"/dances/balboa\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/balboa\\">Balboa</a><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BBA-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">1</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BBA-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">1</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BBA-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">1</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BBA-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">1</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\"></td>
                   <td scope=\\"col\\" class=\\"\\"></td>
@@ -81,20 +79,16 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\"><a data-v-3bbd14d4=\\"\\" href=\\"/dances/carolina-shag\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/carolina-shag\\">Carolina Shag</a><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSG-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">17</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSG-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">17</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSG-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">17</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSG-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">17</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSG-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">3</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSG-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">3</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSG-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">3</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSG-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">3</a>
                   </td>
                 </tr>
                 <!---->
@@ -104,12 +98,10 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\"><a data-v-3bbd14d4=\\"\\" href=\\"/dances/charleston\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/charleston\\">Charleston</a><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CST-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">3</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CST-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">3</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CST-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">4</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CST-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">4</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\"></td>
                   <td scope=\\"col\\" class=\\"\\"></td>
@@ -123,20 +115,16 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                       </a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,ECS-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">106</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,ECS-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">106</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,ECS-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">91</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,ECS-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">91</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,ECS-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">16</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,ECS-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">16</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,ECS-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">16</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,ECS-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">16</a>
                   </td>
                 </tr>
                 <!---->
@@ -148,20 +136,16 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                       </a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,HST-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">56</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,HST-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">56</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,HST-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">39</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,HST-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">39</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,HST-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">6</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,HST-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">6</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,HST-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">6</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,HST-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">6</a>
                   </td>
                 </tr>
                 <!---->
@@ -171,20 +155,16 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\"><a data-v-3bbd14d4=\\"\\" href=\\"/dances/jive\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/jive\\">Jive</a><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JIV-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">38</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JIV-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">38</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JIV-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">36</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JIV-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">36</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JIV-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">6</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JIV-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">6</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JIV-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">6</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JIV-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">6</a>
                   </td>
                 </tr>
                 <!---->
@@ -194,12 +174,10 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\"><a data-v-3bbd14d4=\\"\\" href=\\"/dances/jump-swing\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/jump-swing\\">Jump Swing</a><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JSW-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">2</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JSW-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">2</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JSW-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">2</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JSW-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">2</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\"></td>
                   <td scope=\\"col\\" class=\\"\\"></td>
@@ -213,20 +191,16 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                       </a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,WCS-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">158</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,WCS-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">158</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,WCS-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">131</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,WCS-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">131</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,WCS-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">8</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,WCS-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">8</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,WCS-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">11</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,WCS-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">11</a>
                   </td>
                 </tr>
                 <!---->
@@ -238,20 +212,16 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                       </a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,LHP-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">52</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,LHP-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">52</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,LHP-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">45</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,LHP-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">45</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,LHP-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">5</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,LHP-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">5</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,LHP-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">5</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,LHP-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">5</a>
                   </td>
                 </tr>
                 <!---->
@@ -263,12 +233,10 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                       </a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SSW-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">10</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SSW-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">10</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SSW-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">9</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SSW-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">9</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\"></td>
                   <td scope=\\"col\\" class=\\"\\"></td>
@@ -291,12 +259,10 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\"><a data-v-3bbd14d4=\\"\\" href=\\"/dances/tango-(ballroom)\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/tango-(ballroom)\\">Tango (Ballroom)</a><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,TGO-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">15</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,TGO-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">15</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,TGO-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">13</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,TGO-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">13</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\"></td>
                   <td scope=\\"col\\" class=\\"\\"></td>
@@ -310,12 +276,10 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                       </a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,ATN-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">3</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,ATN-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">3</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,ATN-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">3</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,ATN-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">3</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\"></td>
                   <td scope=\\"col\\" class=\\"\\"></td>
@@ -327,12 +291,10 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\"><a data-v-3bbd14d4=\\"\\" href=\\"/dances/neo-tango\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/neo-tango\\">Neo Tango</a><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,NTN-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">2</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,NTN-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">2</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,NTN-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">2</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,NTN-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">2</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\"></td>
                   <td scope=\\"col\\" class=\\"\\"></td>
@@ -344,20 +306,16 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\"><a data-v-3bbd14d4=\\"\\" href=\\"/dances/milonga\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/milonga\\">Milonga</a><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MGA-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">1</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MGA-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">1</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MGA-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">1</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MGA-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">1</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MGA-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">1</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MGA-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">1</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MGA-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">1</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MGA-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">1</a>
                   </td>
                 </tr>
                 <!---->
@@ -367,12 +325,10 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\"><a data-v-3bbd14d4=\\"\\" href=\\"/dances/tango-vals\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/tango-vals\\">Tango Vals</a><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,TGV-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">2</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,TGV-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">2</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,TGV-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">2</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,TGV-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">2</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\"></td>
                   <td scope=\\"col\\" class=\\"\\"></td>
@@ -395,20 +351,16 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\"><a data-v-3bbd14d4=\\"\\" href=\\"/dances/cross-step-waltz\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/cross-step-waltz\\">Cross-step Waltz</a><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSW-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">4</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSW-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">4</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSW-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">3</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSW-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">3</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSW-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">1</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSW-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">1</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSW-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">1</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CSW-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">1</a>
                   </td>
                 </tr>
                 <!---->
@@ -420,20 +372,16 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                       </a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SWZ-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">100</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SWZ-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">100</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SWZ-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">92</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SWZ-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">92</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SWZ-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">13</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SWZ-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">13</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SWZ-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">18</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SWZ-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">18</a>
                   </td>
                 </tr>
                 <!---->
@@ -443,20 +391,16 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\"><a data-v-3bbd14d4=\\"\\" href=\\"/dances/viennese-waltz\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/viennese-waltz\\">Viennese Waltz</a><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,VWZ-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">108</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,VWZ-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">108</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,VWZ-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">101</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,VWZ-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">101</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,VWZ-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">12</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,VWZ-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">12</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,VWZ-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">13</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,VWZ-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">13</a>
                   </td>
                 </tr>
                 <!---->
@@ -466,12 +410,10 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\"><a data-v-3bbd14d4=\\"\\" href=\\"/dances/tango-vals\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/tango-vals\\">Tango Vals</a><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,TGV-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">2</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,TGV-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">2</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,TGV-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">2</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,TGV-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">2</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\"></td>
                   <td scope=\\"col\\" class=\\"\\"></td>
@@ -496,20 +438,16 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                       </a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CFT-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">320</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CFT-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">320</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CFT-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">294</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CFT-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">294</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CFT-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">48</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CFT-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">48</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CFT-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">51</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CFT-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">51</a>
                   </td>
                 </tr>
                 <!---->
@@ -521,20 +459,16 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                       </a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SFT-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">182</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SFT-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">182</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SFT-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">169</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SFT-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">169</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SFT-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">19</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SFT-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">19</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SFT-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">22</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SFT-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">22</a>
                   </td>
                 </tr>
                 <!---->
@@ -544,12 +478,10 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\"><a data-v-3bbd14d4=\\"\\" href=\\"/dances/quickstep\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/quickstep\\">Quickstep</a><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,QST-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">17</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,QST-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">17</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,QST-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">16</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,QST-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">16</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\"></td>
                   <td scope=\\"col\\" class=\\"\\"></td>
@@ -563,12 +495,10 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                       </a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,PBD-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">1</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,PBD-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">1</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,PBD-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">1</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,PBD-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">1</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\"></td>
                   <td scope=\\"col\\" class=\\"\\"></td>
@@ -591,20 +521,16 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\"><a data-v-3bbd14d4=\\"\\" href=\\"/dances/bolero\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/bolero\\">Bolero</a><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BOL-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">72</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BOL-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">72</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BOL-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">66</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BOL-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">66</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BOL-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">13</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BOL-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">13</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BOL-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">11</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BOL-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">11</a>
                   </td>
                 </tr>
                 <!---->
@@ -614,20 +540,16 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\"><a data-v-3bbd14d4=\\"\\" href=\\"/dances/cha-cha\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/cha-cha\\">Cha Cha</a><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CHA-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">155</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CHA-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">155</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CHA-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">119</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CHA-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">119</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CHA-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">20</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CHA-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">20</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CHA-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">20</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CHA-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">20</a>
                   </td>
                 </tr>
                 <!---->
@@ -637,12 +559,10 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\"><a data-v-3bbd14d4=\\"\\" href=\\"/dances/mambo\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/mambo\\">Mambo</a><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MBO-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">14</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MBO-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">14</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MBO-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">13</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MBO-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">13</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\"></td>
                   <td scope=\\"col\\" class=\\"\\"></td>
@@ -654,20 +574,16 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\"><a data-v-3bbd14d4=\\"\\" href=\\"/dances/rumba\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/rumba\\">Rumba</a><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,RMB-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">264</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,RMB-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">264</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,RMB-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">249</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,RMB-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">249</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,RMB-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">29</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,RMB-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">29</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,RMB-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">31</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,RMB-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">31</a>
                   </td>
                 </tr>
                 <!---->
@@ -677,8 +593,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\"><a data-v-3bbd14d4=\\"\\" href=\\"/dances/paso-doble\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/paso-doble\\">Paso Doble</a><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,PDL-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">3</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,PDL-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">3</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\"></td>
                   <td scope=\\"col\\" class=\\"\\"></td>
@@ -691,20 +606,16 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\"><a data-v-3bbd14d4=\\"\\" href=\\"/dances/samba\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/samba\\">Samba</a><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SMB-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">17</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SMB-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">17</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SMB-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">10</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SMB-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">10</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SMB-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">3</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SMB-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">3</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SMB-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">3</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SMB-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">3</a>
                   </td>
                 </tr>
                 <!---->
@@ -714,12 +625,10 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\"><a data-v-3bbd14d4=\\"\\" href=\\"/dances/salsa\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/salsa\\">Salsa</a><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SLS-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">21</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SLS-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">21</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SLS-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">17</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,SLS-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">17</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\"></td>
                   <td scope=\\"col\\" class=\\"\\"></td>
@@ -731,20 +640,16 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\"><a data-v-3bbd14d4=\\"\\" href=\\"/dances/bachata\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/bachata\\">Bachata</a><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BCH-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">5</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BCH-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">5</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BCH-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">4</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BCH-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">4</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BCH-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">2</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BCH-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">2</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BCH-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">2</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BCH-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">2</a>
                   </td>
                 </tr>
                 <!---->
@@ -754,20 +659,16 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\"><a data-v-3bbd14d4=\\"\\" href=\\"/dances/cumbia\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/cumbia\\">Cumbia</a><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CMB-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">3</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CMB-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">3</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CMB-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">2</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CMB-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">2</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CMB-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">1</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CMB-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">1</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CMB-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">1</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CMB-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">1</a>
                   </td>
                 </tr>
                 <!---->
@@ -777,20 +678,16 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\"><a data-v-3bbd14d4=\\"\\" href=\\"/dances/merengue\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/merengue\\">Merengue</a><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MRG-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">9</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MRG-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">9</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MRG-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">8</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MRG-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">8</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MRG-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">2</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MRG-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">2</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MRG-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">2</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MRG-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">2</a>
                   </td>
                 </tr>
                 <!---->
@@ -811,20 +708,16 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\"><a data-v-3bbd14d4=\\"\\" href=\\"/dances/blues\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/blues\\">Blues</a><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BLU-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">28</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BLU-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">28</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BLU-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">26</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BLU-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">26</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BLU-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">4</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BLU-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">4</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BLU-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">5</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,BLU-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">5</a>
                   </td>
                 </tr>
                 <!---->
@@ -834,17 +727,14 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\"><a data-v-3bbd14d4=\\"\\" href=\\"/dances/country-two-step\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/country-two-step\\">Country Two Step</a><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,C2S-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">7</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,C2S-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">7</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,C2S-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">5</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,C2S-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">5</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\"></td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,C2S-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">1</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,C2S-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">1</a>
                   </td>
                 </tr>
                 <!---->
@@ -854,20 +744,16 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\"><a data-v-3bbd14d4=\\"\\" href=\\"/dances/motown\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/motown\\">Motown</a><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MWT-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">17</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MWT-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">17</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MWT-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">16</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MWT-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">16</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MWT-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">6</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MWT-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">6</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MWT-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">6</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,MWT-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">6</a>
                   </td>
                 </tr>
                 <!---->
@@ -877,20 +763,16 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\"><a data-v-3bbd14d4=\\"\\" href=\\"/dances/night-club-two-step\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/night-club-two-step\\">Night Club Two Step</a><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,NC2-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">97</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,NC2-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">97</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,NC2-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">87</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,NC2-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">87</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,NC2-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">9</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,NC2-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">9</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,NC2-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">14</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,NC2-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">14</a>
                   </td>
                 </tr>
                 <!---->
@@ -900,12 +782,10 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\"><a data-v-3bbd14d4=\\"\\" href=\\"/dances/polka\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/polka\\">Polka</a><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,PLK-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">1</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,PLK-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">1</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,PLK-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">1</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,PLK-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">1</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\"></td>
                   <td scope=\\"col\\" class=\\"\\"></td>
@@ -928,20 +808,16 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\"><a data-v-3bbd14d4=\\"\\" href=\\"/dances/contemporary\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/contemporary\\">Contemporary</a><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CNT-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">12</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CNT-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">12</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CNT-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">10</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CNT-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">10</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CNT-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">2</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CNT-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">2</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CNT-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">2</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,CNT-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">2</a>
                   </td>
                 </tr>
                 <!---->
@@ -951,12 +827,10 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\"><a data-v-3bbd14d4=\\"\\" href=\\"/dances/freestyle\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/freestyle\\">Freestyle</a><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,FST-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">6</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,FST-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">6</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,FST-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">4</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,FST-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">4</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\"></td>
                   <td scope=\\"col\\" class=\\"\\"></td>
@@ -968,20 +842,16 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                     <div data-v-3bbd14d4=\\"\\" class=\\"tag-matrix-item\\"><a data-v-3bbd14d4=\\"\\" href=\\"/dances/jazz\\"><span data-v-3bbd14d4=\\"\\"><a href=\\"/dances/jazz\\">Jazz</a><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JAZ-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">7</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JAZ-Dances-.-.-.-.-.-.-+Wedding:Other\\" role=\\"button\\">7</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JAZ-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">5</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JAZ-Dances-.-.-.-.-.-.-+First Dance:Other\\" role=\\"button\\">5</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JAZ-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">2</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JAZ-Dances-.-.-.-.-.-.-+Mother Son:Other\\" role=\\"button\\">2</a>
                   </td>
                   <td scope=\\"col\\" class=\\"\\">
-                    <!---->
-                    <!-- INT-TODO: should be able to use data.value rather than calling countFromKey --><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JAZ-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">2</a>
+                    <!----><a data-v-3bbd14d4=\\"\\" class=\\"btn btn-sm btn-primary\\" href=\\"/Song/?filter=Index-OOX,JAZ-Dances-.-.-.-.-.-.-+Father Daughter:Other\\" role=\\"button\\">2</a>
                   </td>
                 </tr>
                 <!---->

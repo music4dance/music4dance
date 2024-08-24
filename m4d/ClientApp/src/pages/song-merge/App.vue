@@ -25,6 +25,6 @@ const songDetails = new SongDetailsModel({
 
 <template>
   <PageFrame id="app">
-    <SongCore :model="songDetails" :startEditing="true" :creating="true"></SongCore>
+    <SongCore :model="songDetails" :start-editing="true" :creating="true" />
   </PageFrame>
 </template>

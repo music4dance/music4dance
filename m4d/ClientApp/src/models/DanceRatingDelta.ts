@@ -13,12 +13,13 @@ export class DanceRatingDelta {
     return new DanceRatingDelta(groups[1], Number.parseInt(groups[2], 10));
   }
 
-  constructor(readonly danceId: string, readonly delta: number) {}
+  constructor(
+    readonly danceId: string,
+    readonly delta: number,
+  ) {}
 
   public toString(): string {
-    return `${this.danceId}${this.delta < 0 ? "-" : "+"}${Math.abs(
-      this.delta
-    )}`;
+    return `${this.danceId}${this.delta < 0 ? "-" : "+"}${Math.abs(this.delta)}`;
   }
 }
 
@@ -28,5 +29,8 @@ export enum VoteDirection {
 }
 
 export class DanceRatingVote {
-  constructor(readonly danceId: string, readonly direction: VoteDirection) {}
+  constructor(
+    readonly danceId: string,
+    readonly direction: VoteDirection,
+  ) {}
 }

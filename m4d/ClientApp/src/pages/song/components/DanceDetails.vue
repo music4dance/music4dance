@@ -63,10 +63,10 @@ const danceLink = (dr: DanceRating): string => {
           :dance-rating="dr"
           :authenticated="!!user"
           v-bind="$attrs"
-        ></DanceVote>
+        />
         <a :href="danceLink(dr)"
-          ><DanceName :dance="danceFromRating(dr)" :show-synonyms="true"></DanceName
-        ></a>
+          ><DanceName :dance="danceFromRating(dr)" :show-synonyms="true"
+        /></a>
         <span v-if="dr.tags" style="margin-left: 0.25rem; line-height: 2.75rem">
           <TagListEditor
             :container="dr"
@@ -77,7 +77,7 @@ const danceLink = (dr: DanceRating): string => {
             @update-song="$emit('update-song')"
             @tag-clicked="$emit('tag-clicked', $event)"
             @edit="$emit('edit')"
-          ></TagListEditor>
+          />
         </span>
         <CommentEditor
           :container="dr"
@@ -86,7 +86,7 @@ const danceLink = (dr: DanceRating): string => {
           :rows="3"
           placeholder="Please add a note on why you voted for/against dancing this dance to this song"
           v-bind="$attrs"
-        ></CommentEditor> </BListGroupItem
+        /> </BListGroupItem
     ></BListGroup>
   </BCard>
 </template>

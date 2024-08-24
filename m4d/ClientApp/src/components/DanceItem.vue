@@ -15,8 +15,6 @@ const props = withDefaults(
   { showTempo: TempoType.None, showSynonyms: false },
 );
 
-const danceDB = safeDanceDatabase();
-
 const isGroup = computed(() => DanceGroup.isGroup(props.dance));
 const danceLink = computed(() => {
   return `/dances/${props.dance.seoName}`;
@@ -36,7 +34,7 @@ const songCount = computed(() => {
 
 <template>
   <div class="d-flex justify-content-between">
-    <DanceName :dance="dance" :show-tempo="showTempo" :show-synonyms="showSynonyms"></DanceName>
+    <DanceName :dance="dance" :show-tempo="showTempo" :show-synonyms="showSynonyms" />
     <div>
       <BBadge v-if="songCount" :href="countLink" :variant="variant" style="line-height: 1.5"
         >songs ({{ songCount }})</BBadge

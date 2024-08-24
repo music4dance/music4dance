@@ -30,6 +30,6 @@ const meterDescription = computed(() => {
       label="Measures Per Minute"
       :tempo="model"
       @change-tempo="model = $event"
-    ></TempoModal>
+    />
   </div>
 </template>

@@ -105,7 +105,7 @@ const tagHandler = (tag: Tag): TagHandler => {
         search-label="Search/Add"
         empty-label="No more tags to choose"
         :add-categories="container.categories"
-      ></TagCategorySelector>
+      />
       <span v-if="otherTags.length" class="title mr-2">Other's Tags:</span>
       <span>
         <TagButtonOther
@@ -113,7 +113,7 @@ const tagHandler = (tag: Tag): TagHandler => {
           :key="tag.key"
           :tag-handler="tagHandler(tag)"
           @change-tag="addTag"
-        ></TagButtonOther>
+        />
       </span>
       <div v-if="context.canEdit">
         <span v-if="otherTags.length" class="title mr-2">Remove Tags:</span>
@@ -123,7 +123,7 @@ const tagHandler = (tag: Tag): TagHandler => {
           :tag-handler="tagHandler(tag)"
           :is-delete="true"
           @change-tag="deleteTag"
-        ></TagButtonOther>
+        />
       </div>
     </div>
     <span v-else>

@@ -20,7 +20,6 @@ export class RawDanceQuery extends DanceQueryBase {
     return !!this.flagList.find((f) => f.toLowerCase() === "singledance");
   }
 
-  // INT-TODO: this used to be danceStats and returned a danceStats object
   public get dances(): NamedObject[] {
     const dance = this.parseDance;
     return dance ? [safeDanceDatabase().fromName(dance)!] : [];

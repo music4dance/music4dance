@@ -44,8 +44,7 @@ function focus(): void {
           step=".1"
           min="0"
           max="500"
-        >
-        </BFormInput>
+        />
       </BFormGroup>
     </form>
   </BModal>

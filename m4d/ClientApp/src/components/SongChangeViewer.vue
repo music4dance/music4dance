@@ -38,11 +38,11 @@ const viewableProperties = computed(() =>
     <span class="me-2">
       <IBiHeartFill v-if="change.like" style="color: red" />
       <IBiHeartbreakFill v-else-if="change.like === false" />
-      <IBiPencil v-else></IBiPencil>
+      <IBiPencil v-else />
     </span>
     <template v-if="!oneUser">
       {{ action }} by
-      <UserLink :user="change.user!"></UserLink>
+      <UserLink :user="change.user!" />
     </template>
     on
     {{ formattedDate }}
@@ -51,7 +51,7 @@ const viewableProperties = computed(() =>
         :property="property"
         @dance-clicked="emit('dance-clicked', $event as DanceHandler)"
         @tag-clicked="emit('tag-clicked', $event as TagHandler)"
-      ></SongPropertyViewer>
+      />
     </div>
   </div>
 </template>

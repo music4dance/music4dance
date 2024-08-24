@@ -4,15 +4,7 @@ const model = defineModel<number>({ required: true });
 
 <template>
   <div style="margin-bottom: 1rem; width: 250px" class="mx-auto">
-    <BFormInput
-      id="strictness"
-      v-model="model"
-      type="range"
-      min="0"
-      max="20"
-      step="0.5"
-      number
-    ></BFormInput>
+    <BFormInput id="strictness" v-model="model" type="range" min="0" max="20" step="0.5" number />
     <label for="strictness" class="d-flex justify-content-between"
       ><span>less</span><span class="ms-auto">more</span></label
     >

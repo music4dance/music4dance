@@ -105,7 +105,7 @@ function toggleAll(checked: CheckboxValue | CheckboxValue[]): any {
           name="temp"
           stacked
           data-test="checkbox-group"
-        ></BFormCheckboxGroup>
+        />
       </BFormGroup>
     </BDropdownForm>
   </BDropdown>

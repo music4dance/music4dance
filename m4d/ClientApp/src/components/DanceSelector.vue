@@ -22,6 +22,5 @@ const danceOptions = props.danceList
     empty-label="No more dances to choose"
     variant="primary"
     class="mt-2"
-  >
-  </TagSelector>
+  />
 </template>

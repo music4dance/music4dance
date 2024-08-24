@@ -186,10 +186,10 @@ function onOptionClick(option: ListOption, addTag: (opt: string) => void): void 
                 :formatter="tagFormatter"
                 trim
                 @keyup.enter.prevent.stop="onEnter(addTag)"
-              ></BFormInput>
+              />
             </BFormGroup>
           </BDropdownForm>
-          <BDropdownDivider></BDropdownDivider>
+          <BDropdownDivider />
           <BDropdownText v-if="availableOptions.length === 0">
             {{ emptyLabel }}
           </BDropdownText>

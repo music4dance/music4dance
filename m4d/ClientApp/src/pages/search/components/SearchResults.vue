@@ -48,16 +48,16 @@ const hasExtra = computed(() => {
 <template>
   <div :id="id">
     <hr />
-    <SearchNav :active="id"></SearchNav>
-    <div class="my-3"></div>
+    <SearchNav :active="id" />
+    <div class="my-3" />
     <SpinLoader :loaded="loaded" :placeholder="placeholder">
-      <slot></slot>
-      <ResultItem v-for="entry in initialEntries" :key="entry.url" :entry="entry"></ResultItem>
+      <slot />
+      <ResultItem v-for="entry in initialEntries" :key="entry.url" :entry="entry" />
       <div v-if="hasExtra">
         <BCollapse :id="extraId" v-model="extraVisible">
-          <ResultItem v-for="entry in extraEntries" :key="entry.url" :entry="entry"></ResultItem>
+          <ResultItem v-for="entry in extraEntries" :key="entry.url" :entry="entry" />
         </BCollapse>
-        <ShowMore v-model="extraVisible" :extra-id="extraId"></ShowMore>
+        <ShowMore v-model="extraVisible" :extra-id="extraId" />
       </div>
       <div v-if="safeEntries.length === 0">
         {{ emptyText }}

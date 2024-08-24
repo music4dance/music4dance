@@ -70,28 +70,23 @@ const dances = computed(() => {
 <template>
   <PageFrame id="app">
     <div class="row">
-      <CheckedList
-        v-model="styles"
-        class="col-md"
-        type="Style"
-        :options="styleOptions"
-      ></CheckedList>
-      <CheckedList v-model="types" class="col-md" type="Type" :options="typeOptions"></CheckedList>
+      <CheckedList v-model="styles" class="col-md" type="Style" :options="styleOptions" />
+      <CheckedList v-model="types" class="col-md" type="Type" :options="typeOptions" />
       <CheckedList
         v-model="meters as unknown as CheckboxValue[]"
         class="col-md"
         type="Meter"
         :options="meterOptions"
-      ></CheckedList>
+      />
       <CheckedList
         v-model="organizations"
         class="col-md"
         type="Organization"
         :options="organizationOptions"
-      ></CheckedList>
+      />
     </div>
     <div class="row">
-      <TempoList class="col-md" :dances="dances"></TempoList>
+      <TempoList class="col-md" :dances="dances" />
     </div>
     <div class="row">
       <div class="col">

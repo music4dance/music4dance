@@ -27,6 +27,6 @@ const danceHandler = new DanceHandler(DanceRating.fromTag(props.tag), props.tag.
       :dance-handler="danceHandler"
       class="ms-2"
       @dance-clicked="emit('dance-clicked', $event)"
-    ></DanceButton>
+    />
   </div>
 </template>

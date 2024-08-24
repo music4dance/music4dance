@@ -34,6 +34,5 @@ const maxWeight = computed(() => safeDanceDatabase().getMaxWeight(danceId.value)
     :max-vote="maxWeight"
     @up-vote="upVote"
     @down-vote="downVote"
-  >
-  </DanceVoteButton>
+  />
 </template>

@@ -43,11 +43,11 @@ function categoryLink(category: CompetitionCategory): string {
         :dances="category.round"
         :title="category.fullRoundTitle"
         :use-full-name="false"
-      ></CompetitionCategoryTable>
+      />
     </div>
     <div>
       <TempiLink />
-      <BlogTagLink title="Ballroom" tag="ballroom"></BlogTagLink>
+      <BlogTagLink title="Ballroom" tag="ballroom" />
     </div>
   </PageFrame>
 </template>

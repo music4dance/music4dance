@@ -34,13 +34,13 @@ const danceRating = computed(() => song.value.findDanceRatingById(danceId.value)
       :authenticated="!!context.userName"
       style="margin-right: 0.25em"
       @dance-vote="emit('dance-vote', $event)"
-    ></DanceVote>
+    />
     <SongLikeButton
       :song="song"
       :user="context.userName!"
       :scale="1.5"
       @click-like="() => emit('show-like', song.songId)"
-    ></SongLikeButton>
+    />
     <a href="#" role="button" class="ms-1" @click="emit('show-play', song.songId)">
       <IBiPlayCircleFill class="ms-1" :style="{ fontSize: '1.5em' }" />
     </a>

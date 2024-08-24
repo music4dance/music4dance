@@ -111,7 +111,7 @@ function formatType(dance: DanceType): string {
       responsive
     >
       <template #cell(name)="data">
-        <DanceName :dance="data.item" :show-synonyms="true"></DanceName>
+        <DanceName :dance="data.item" :show-synonyms="true" />
       </template>
       <template #cell(groupName)="data">
         <a :href="groupLink(data.item)">{{ formatType(data.item) }}</a>

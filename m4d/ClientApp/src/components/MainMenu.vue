@@ -91,7 +91,7 @@ function search(): void {
         <img :src="logo" height="40" title="music4dance" />
       </BNavbarBrand>
 
-      <BNavbarToggle id="drop-toggle" target="nav-collapse"></BNavbarToggle>
+      <BNavbarToggle id="drop-toggle" target="nav-collapse" />
 
       <BCollapse id="nav-collapse" is-nav>
         <BNavbarNav>
@@ -175,7 +175,7 @@ function search(): void {
               autocomplete="off"
               placeholder="Search"
               @input="checkServiceAndWarn($event.target.value)"
-            ></BFormInput>
+            />
             <BButton
               size="sm"
               class="mx-2 my-2 my-sm-0"
@@ -212,8 +212,8 @@ function search(): void {
       dismissible
       style="margin-bottom: 0"
       @update:model-value="onDismissed(marketingTag)"
-      ><span v-html="context.marketingMessage"></span
-    ></BAlert>
+      ><span v-html="context.marketingMessage"
+    /></BAlert>
     <BAlert
       v-if="showExpiration"
       v-model="renewal"
@@ -231,7 +231,7 @@ function search(): void {
     <form id="logoutForm" action="/identity/account/logout" method="post" style="height: 0">
       <input name="__RequestVerificationToken" type="hidden" :value="context.xsrfToken" />
       <input type="hidden" name="returnUrl" value="/" />
-      <button id="logout" type="submit" class="btn btn-link"></button>
+      <button id="logout" type="submit" class="btn btn-link" />
     </form>
   </div>
 </template>

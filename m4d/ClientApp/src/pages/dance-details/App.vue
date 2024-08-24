@@ -98,7 +98,7 @@ const saveChanges = async () => {
     </BRow>
     <BRow>
       <BCol md="2" order-md="2">
-        <DanceContents :model="model"></DanceContents>
+        <DanceContents :model="model" />
       </BCol>
       <BCol md="10" order-md="1">
         <DanceDescription
@@ -106,22 +106,21 @@ const saveChanges = async () => {
           v-model="description"
           :dance-id="model.danceId"
           :editing="editing"
-        >
-        </DanceDescription>
+        />
         <TopTen
           v-if="!isGroup"
           :histories="histories"
           :filter="model.filter"
           :user-name="menuContext.userName"
-        ></TopTen>
-        <SpotifyPlayer :playlist="model.spotifyPlaylist"></SpotifyPlayer>
-        <DanceReference :dance-id="model.danceId"></DanceReference>
+        />
+        <SpotifyPlayer :playlist="model.spotifyPlaylist" />
+        <DanceReference :dance-id="model.danceId" />
         <div v-if="isGroup">
           <hr />
           <h2 id="dance-styles">
             Dances that are grouped into the {{ model.danceName }} category:
           </h2>
-          <DanceList :dances="dances" :show-tempo="TempoType.Both"></DanceList>
+          <DanceList :dances="dances" :show-tempo="TempoType.Both" />
         </div>
       </BCol>
     </BRow>
@@ -132,17 +131,12 @@ const saveChanges = async () => {
           title="Competition Tempo Information"
           :dances="competitionInfo"
           :use-full-name="true"
-        ></CompetitionCategoryTable>
+        />
       </BCol>
     </BRow>
     <BRow v-if="hasReferences || editing">
       <BCol>
-        <DanceLinks
-          ref="danceLinks"
-          v-model="links"
-          :editing="editing"
-          :dance-id="model.danceId"
-        ></DanceLinks>
+        <DanceLinks ref="danceLinks" v-model="links" :editing="editing" :dance-id="model.danceId" />
       </BCol>
     </BRow>
     <BRow>
@@ -154,7 +148,7 @@ const saveChanges = async () => {
           :user="menuContext.userName"
           :song-filter="model.filter"
           :hide-filter="!showTagFilter"
-        ></TagCloud>
+        />
       </BCol>
     </BRow>
   </PageFrame>

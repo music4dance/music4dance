@@ -14,6 +14,6 @@ const spotifyLink = props.playlist
       height="80"
       allowtransparency="true"
       allow="encrypted-media"
-    ></iframe>
+    />
   </section>
 </template>

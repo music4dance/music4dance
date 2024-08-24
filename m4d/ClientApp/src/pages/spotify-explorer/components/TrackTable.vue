@@ -53,7 +53,7 @@ const updateTrack = (trackId: string, songId: string): void => {
 <template>
   <BTable ref="table" striped hover :items="enhancedTracks" :fields="fields">
     <template #cell(m4d)="data">
-      <SongButton :track="data.item" @update-track="updateTrack"></SongButton>
+      <SongButton :track="data.item" @update-track="updateTrack" />
     </template>
   </BTable>
 </template>

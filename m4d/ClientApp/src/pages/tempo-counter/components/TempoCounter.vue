@@ -135,8 +135,7 @@ function timerReset(): void {
           button-variant="outline-primary"
           size="md"
           name="radio-btn-outline"
-        >
-        </BFormRadioGroup>
+        />
       </BFormGroup>
       <BeatsPerMinute v-model="beatsPerMinute" class="col-sm" @update:model-value="timerReset" />
       <MeasuresPerMinute

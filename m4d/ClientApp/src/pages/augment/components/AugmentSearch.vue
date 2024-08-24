@@ -140,7 +140,7 @@ watch([artist, title], () => {
           type="text"
           placeholder="A very danceable song"
           required
-        ></BFormInput>
+        />
         <div class="invalid-feedback">You must include a Title</div>
       </BFormGroup>
 
@@ -151,7 +151,7 @@ watch([artist, title], () => {
           type="text"
           placeholder="An amazing artist"
           required
-        ></BFormInput>
+        />
         <div class="invalid-feedback">You must include an Artist</div>
       </BFormGroup>
 
@@ -161,7 +161,7 @@ watch([artist, title], () => {
       </div>
     </BForm>
     <BAlert v-show="searching && !songs" show variant="info">
-      <BSpinner class="me-3"></BSpinner>
+      <BSpinner class="me-3" />
       <span>Searching for </span> {{ title }} by {{ artist }} in the music4dance catalog.
     </BAlert>
     <div v-if="songs && !tracks">
@@ -177,7 +177,7 @@ watch([artist, title], () => {
     </div>
     <div v-if="songs">
       <BAlert v-show="searching && songs" show variant="info">
-        <BSpinner class="me-3"></BSpinner>
+        <BSpinner class="me-3" />
         <span>Searching for </span> {{ title }} by {{ artist }} in the publisher catalog.
       </BAlert>
       <BButton variant="secondary" class="me-2" @click="searchSpotify">Search Spotify</BButton>
@@ -191,7 +191,7 @@ watch([artist, title], () => {
       action="Edit"
       :hidden-columns="['dances', 'echo', 'edit', 'order', 'play', 'tags', 'track']"
       @song-selected="editSong"
-    ></SongTable>
+    />
     <div v-if="tracks" class="my-2">
       <BAlert v-show="tracks.length" show variant="success"
         >We found some songs that may be a match. If one of the songs below is a match, please click

@@ -32,20 +32,17 @@ const computedId = function (): string {
         :link="card.title.link"
         :text="card.title.text"
         :styles="{ color: 'white', fontSize: '1.5rem' }"
-      >
-      </InfoLink>
+      />
     </BCardHeader>
 
     <div :style="{ 'background-image': image }" class="home-card-background">
       <ul class="home-list" style="padding-left: 3rem; text-indent: -2rem">
         <li v-for="item in card.items" :key="item.text">
-          <InfoLink :link="item.link">
-            <IBiMusicNoteList></IBiMusicNoteList> {{ item.text }}
-          </InfoLink>
+          <InfoLink :link="item.link"> <IBiMusicNoteList /> {{ item.text }} </InfoLink>
         </li>
       </ul>
-      <BlogTagLink v-if="card.blog" :tag="card.blog" style="margin-left: 2rem"></BlogTagLink>
-      <slot></slot>
+      <BlogTagLink v-if="card.blog" :tag="card.blog" style="margin-left: 2rem" />
+      <slot />
     </div>
   </BCard>
 </template>

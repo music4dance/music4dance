@@ -39,10 +39,7 @@ export class DanceQuery extends DanceQueryBase {
       .map((s) => s.trim())
       .filter((s) => s);
 
-    if (
-      items.length > 0 &&
-      modifiers.find((m) => m === items[0].toUpperCase())
-    ) {
+    if (items.length > 0 && modifiers.find((m) => m === items[0].toUpperCase())) {
       items.shift();
     }
 
@@ -67,9 +64,7 @@ export class DanceQuery extends DanceQueryBase {
         return `songs danceable to ${prefix} of ${dances[0]} ${connector} ${dances[1]}`;
       default: {
         const last = dances.pop();
-        return `songs danceable to ${prefix} of ${dances.join(
-          ", "
-        )} ${connector} ${last}`;
+        return `songs danceable to ${prefix} of ${dances.join(", ")} ${connector} ${last}`;
       }
     }
     return "";

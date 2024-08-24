@@ -295,11 +295,7 @@ function onReset(evt: Event): void {
 
         <BFormGroup id="dance-group" label="Dances:">
           <div style="border: 1px solid #ced4da; boder-radius: 0.25rem">
-            <DanceSelector
-              id="dance-selector"
-              v-model="dances"
-              :dance-list="allDances"
-            ></DanceSelector>
+            <DanceSelector id="dance-selector" v-model="dances" :dance-list="allDances" />
             <div class="d-flex justify-content-between w-100 mx-1 mb-2">
               <BFormRadioGroup
                 id="dance-connector"
@@ -325,7 +321,7 @@ function onReset(evt: Event): void {
             choose-label="Choose Tags to Include"
             search-label="Search Tags"
             empty-label="No more tags to choose"
-          ></TagCategorySelector>
+          />
         </BFormGroup>
 
         <BFormGroup id="exclude-tags-group" label="Exclude Tags:">
@@ -336,7 +332,7 @@ function onReset(evt: Event): void {
             choose-label="Choose Tags to Exclude"
             search-label="Search Tags"
             empty-label="No more tags to choose"
-          ></TagCategorySelector>
+          />
         </BFormGroup>
 
         <BFormGroup id="tempo-range-group" label="Tempo range (BPM):" label-for="tempo-range">
@@ -350,7 +346,7 @@ function onReset(evt: Event): void {
                 min="0"
                 max="400"
                 style="width: 6rem"
-              ></BFormInput>
+              />
               <span class="mx-2 pt-2">to</span>
               <BFormInput
                 id="tempo-max"
@@ -360,7 +356,7 @@ function onReset(evt: Event): void {
                 max="400"
                 number
                 style="width: 6rem"
-              ></BFormInput>
+              />
               <div class="invalid-feedback">Tempos must be between 0 and 400 BPM</div>
             </div>
           </BFormGroup>
@@ -381,7 +377,7 @@ function onReset(evt: Event): void {
                 min="0"
                 max="600"
                 style="width: 6rem"
-              ></BFormInput>
+              />
               <span class="mx-2 pt-2">to</span>
               <BFormInput
                 id="length-max"
@@ -391,7 +387,7 @@ function onReset(evt: Event): void {
                 max="600"
                 number
                 style="width: 6rem"
-              ></BFormInput>
+              />
               <div class="invalid-feedback">Length must be between 0 and 600 seconds</div>
             </div>
           </BFormGroup>
@@ -405,12 +401,8 @@ function onReset(evt: Event): void {
               placeholder="UserName or me"
               style="width: 10rem"
               class="me-2"
-            ></BFormInput>
-            <BFormSelect
-              id="activity"
-              v-model="computedActivity"
-              :options="activities"
-            ></BFormSelect>
+            />
+            <BFormSelect id="activity" v-model="computedActivity" :options="activities" />
           </div>
         </BFormGroup>
 
@@ -438,7 +430,7 @@ function onReset(evt: Event): void {
         </BFormGroup>
 
         <BFormGroup id="sort-group" label="Sort By:" label-for="sort">
-          <BFormSelect id="sort" v-model="sort" :options="validSortOptions" required></BFormSelect>
+          <BFormSelect id="sort" v-model="sort" :options="validSortOptions" required />
           <BFormRadioGroup id="sort-order" v-model="order" name="sort-order" class="mt-2">
             <BFormRadio value="asc"
               >Ascending (A-Z, Slow-Fast, Newest-Oldest, Shortest-Longest)</BFormRadio

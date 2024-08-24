@@ -41,7 +41,7 @@ const links = computed(() => {
     </h2>
     <div>by {{ book.author }}</div>
     <div style="display: flex" class="mt-2">
-      <div v-if="!hideImages" v-html="book.image"></div>
+      <div v-if="!hideImages" v-html="book.image" />
       <div>
         <ul style="list-style-type: none">
           <li v-for="link in links" :key="link.ref">

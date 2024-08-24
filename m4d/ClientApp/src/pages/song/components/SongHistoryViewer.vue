@@ -8,7 +8,7 @@ defineProps<{ history: SongHistory }>();
   <BCard header="Changes" header-text-variant="primary" no-body border-variant="primary">
     <BListGroup flush>
       <BListGroupItem v-for="(change, index) in history.userChanges" :key="index">
-        <SongChangeViewer :change="change"></SongChangeViewer>
+        <SongChangeViewer :change="change" />
       </BListGroupItem>
     </BListGroup>
   </BCard>

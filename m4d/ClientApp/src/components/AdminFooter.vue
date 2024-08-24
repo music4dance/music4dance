@@ -111,20 +111,15 @@ const onBulkEdit = (submit: HTMLInputElement | null): void => {
           label="User Name:"
           label-for="bea-user"
           description="User name to attribute the edits to."
-          ><BFormInput id="bea-user" v-model="editUser" name="user" required></BFormInput
-        ></BFormGroup>
+          ><BFormInput id="bea-user" v-model="editUser" name="user" required
+        /></BFormGroup>
         <BFormGroup
           id="bae-properties-group"
           label="Properties:"
           label-for="bea-properties"
           description="Properties to append to each song in the current filter."
-          ><BFormInput
-            id="bea-properties"
-            v-model="editProperties"
-            name="properties"
-            required
-          ></BFormInput
-        ></BFormGroup>
+          ><BFormInput id="bea-properties" v-model="editProperties" name="properties" required
+        /></BFormGroup>
         <BButton type="submit">Submit</BButton>
       </form>
     </BCol>
@@ -143,13 +138,8 @@ const onBulkEdit = (submit: HTMLInputElement | null): void => {
           label="Song Modifier:"
           label-for="bma-properties"
           description="A SongModifier object in JSON format"
-          ><BFormInput
-            id="bma-properties"
-            v-model="editProperties"
-            name="properties"
-            required
-          ></BFormInput
-        ></BFormGroup>
+          ><BFormInput id="bma-properties" v-model="editProperties" name="properties" required
+        /></BFormGroup>
         <BButton type="submit">Submit</BButton>
       </form>
     </BCol>
@@ -168,13 +158,8 @@ const onBulkEdit = (submit: HTMLInputElement | null): void => {
           label="Tempo Multiplier:"
           label-for="bct-multiplier"
           description="Multiplier to change each song's tempo by"
-          ><BFormInput
-            id="bct-multiplier"
-            v-model="tempoMultiplier"
-            name="multiplier"
-            required
-          ></BFormInput
-        ></BFormGroup>
+          ><BFormInput id="bct-multiplier" v-model="tempoMultiplier" name="multiplier" required
+        /></BFormGroup>
         <BButton type="submit">Submit</BButton>
       </form>
     </BCol>

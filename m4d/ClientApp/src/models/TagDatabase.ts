@@ -1,7 +1,10 @@
 import { Tag } from "./Tag";
 
 export class TagDatabase {
-  constructor(private tagList?: Tag[], private incrementalTags?: Tag[]) {}
+  constructor(
+    private tagList?: Tag[],
+    private incrementalTags?: Tag[],
+  ) {}
 
   public addTag(key: string): void {
     const keyL = key.toLowerCase();
@@ -21,10 +24,7 @@ export class TagDatabase {
         this.incrementalTags = [tag];
       }
 
-      sessionStorage.setItem(
-        "incremental-tags",
-        JSON.stringify(this.incrementalTags)
-      );
+      sessionStorage.setItem("incremental-tags", JSON.stringify(this.incrementalTags));
     }
   }
 
@@ -33,9 +33,7 @@ export class TagDatabase {
       return [];
     }
 
-    return this.incrementalTags
-      ? [...this.tagList, ...this.incrementalTags!]
-      : this.tagList;
+    return this.incrementalTags ? [...this.tagList, ...this.incrementalTags!] : this.tagList;
   }
 
   public getTag(key: string): Tag | undefined {
@@ -44,9 +42,7 @@ export class TagDatabase {
 
   private get map(): Map<string, Tag> {
     if (!this._map && this.tagList) {
-      this._map = new Map<string, Tag>(
-        this.tags.map((x) => [x.key.toLowerCase(), x])
-      );
+      this._map = new Map<string, Tag>(this.tags.map((x) => [x.key.toLowerCase(), x]));
     }
     return this._map ?? new Map<string, Tag>();
   }

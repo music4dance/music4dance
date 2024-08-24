@@ -349,7 +349,7 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
       :fields="fields"
     >
       <template #cell(edit)="data">
-        <BFormCheckbox @change="onSelect(data.item.song, $event)"></BFormCheckbox>
+        <BFormCheckbox @change="onSelect(data.item.song, $event)" />
       </template>
       <template #cell(action)="data">
         <BButton @click="onAction(data.item.song)">{{ action }}</BButton>
@@ -364,7 +364,7 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
           @show-like="showLikeModal"
           @show-play="showPlayModal"
           @dance-vote="onDanceVote(data.item, $event)"
-        ></PlayCell>
+        />
       </template>
       <template #head(title)>
         <SortableHeader
@@ -372,7 +372,7 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
           :tip="titleHeaderTip"
           :enable-sort="!hideSort"
           :filter="filter"
-        ></SortableHeader>
+        />
       </template>
       <template #cell(title)="data">
         <a :href="songRef(data.item.song)">{{ data.item.song.title }}</a>
@@ -383,7 +383,7 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
           :tip="artistHeaderTip"
           :enable-sort="!hideSort"
           :filter="filter"
-        ></SortableHeader>
+        />
       </template>
       <template #cell(artist)="data">
         <a :href="artistRef(data.item.song)">{{ data.item.song.artist }}</a>
@@ -398,7 +398,7 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
           :tip="tempoHeaderTip"
           :enable-sort="!hideSort"
           :filter="filter"
-        ></SortableHeader>
+        />
       </template>
       <template #cell(tempo)="data">
         <a :href="tempoRef(data.item.song)">{{ tempoValue(data.item.song) }}</a>
@@ -410,7 +410,7 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
           :tip="lengthHeaderTip"
           :enable-sort="false"
           :filter="filter"
-        ></SortableHeader>
+        />
       </template>
       <template #cell(length)="data">
         {{ lengthValue(data.item.song) }}
@@ -434,19 +434,19 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
           type="beat"
           label="beat strength"
           max-label="strongest beat"
-        ></EchoIcon>
+        />
         <EchoIcon
           :value="data.item.song.energy"
           type="energy"
           label="energy level"
           max-label="highest energy"
-        ></EchoIcon>
+        />
         <EchoIcon
           :value="data.item.song.valence"
           type="mood"
           label="mood level"
           max-label="happiest"
-        ></EchoIcon>
+        />
       </template>
       <template #head(dances)>
         <SortableHeader
@@ -454,7 +454,7 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
           :enable-sort="sortableDances"
           :tip="dancesHeaderTip"
           :filter="filter"
-        ></SortableHeader>
+        />
       </template>
       <template #cell(dances)="data">
         <DanceButton
@@ -463,7 +463,7 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
           :dance-handler="danceHandler(tag, filter, data.item)"
           @dance-clicked="showDanceModal(data.item, $event)"
           @dance-vote="onDanceVote(data.item, $event)"
-        ></DanceButton>
+        />
       </template>
       <template #cell(tags)="data">
         <TagButton
@@ -471,7 +471,7 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
           :key="tag.key"
           :tag-handler="tagHandler(tag, filter, data.item.song)"
           @tag-clicked="showTagModal"
-        ></TagButton>
+        />
       </template>
       <template #head(order)>
         <div class="orderHeader">
@@ -482,7 +482,7 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
             v-b-tooltip.hover.blur="{ title: orderHeaderTip, id: 'order_tip' }"
             :order="orderType"
           />
-          <SortIcon v-if="!hideSort" type="" :direction="filter.sort.direction"></SortIcon>
+          <SortIcon v-if="!hideSort" type="" :direction="filter.sort.direction" />
         </div>
       </template>
       <template #cell(order)="data">
@@ -504,7 +504,7 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
           :one-user="!showHistory"
           @dance-clicked="showDanceModal(data.item, $event)"
           @tag-clicked="showTagModal"
-        ></SongChangeViewer>
+        />
       </template>
       <template #head(text)>
         <SortableHeader
@@ -512,7 +512,7 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
           :tip="titleHeaderTip"
           :enable-sort="!hideSort"
           :filter="filter"
-        ></SortableHeader>
+        />
         <template v-if="!isHidden('artist')">
           -
           <SortableHeader
@@ -520,7 +520,7 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
             :tip="artistHeaderTip"
             :enable-sort="!hideSort"
             :filter="filter"
-          ></SortableHeader>
+          />
         </template>
       </template>
       <template #cell(text)="data">
@@ -530,7 +530,7 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
           @show-like="showLikeModal"
           @show-play="showPlayModal"
           @dance-vote="onDanceVote(data.item, $event)"
-        ></PlayCell>
+        />
         <a :href="songRef(data.item.song)" class="ms-1">{{ data.item.song.title }}</a>
         <template v-if="!isHidden('artist')">
           by
@@ -549,7 +549,7 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
           :one-user="false"
           @dance-clicked="showDanceModal(data.item, $event)"
           @tag-clicked="showTagModal"
-        ></SongChangeViewer>
+        />
       </template>
       <template #head(info)>
         <SortableHeader
@@ -557,7 +557,7 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
           :tip="dancesHeaderTip"
           :enable-sort="sortableDances"
           :filter="filter"
-        ></SortableHeader>
+        />
         - Tags
       </template>
       <template #cell(info)="data">
@@ -567,13 +567,13 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
           :dance-handler="danceHandler(tag, filter, data.item)"
           @dance-clicked="showDanceModal(data.item, $event)"
           @dance-vote="onDanceVote(data.item, $event)"
-        ></DanceButton>
+        />
         <TagButton
           v-for="tag in tags(data.item.song)"
           :key="tag.key"
           :tag-handler="tagHandler(tag, filter, data.item.song)"
           @tag-clicked="showTagModal"
-        ></TagButton>
+        />
       </template>
     </BTable>
     <ChronModal :order="orderType" @update:order="onChronOrderChanged($event)" />

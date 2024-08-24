@@ -9,7 +9,7 @@ const dances = safeDanceDatabase();
 
 <template>
   <PageFrame id="app" title="Dance Styles" :breadcrumbs="breadcrumbs">
-    <DanceTable :dances="dances"></DanceTable>
+    <DanceTable :dances="dances" />
     <h2 class="mt-2">Other Resources:</h2>
     <p id="competition">
       Check out our more traditional ballroom competition categories including

@@ -21,15 +21,14 @@ const isCurrentUser = computed(() => {
       {{ model.displayName }}'s spotify profile
       <a :href="spotifyProfile" target="_blank"
         ><span class="me-1">here</span>
-        <IBiBoxArrowUpRight style="vertical-align: top" class="fs-6"></IBiBoxArrowUpRight></a
+        <IBiBoxArrowUpRight style="vertical-align: top" class="fs-6" /></a
       >.
     </div>
     <MustRegister
       v-else-if="!menuContext.isAuthenticated"
       title="You must be registerd and logged in to view other user's profiles."
       :menu-context="menuContext"
-    >
-    </MustRegister>
+    />
     <div v-else-if="model.isPseudo">
       This is a placeholder user representing information from public lists, spotify playlist or
       libraries of friend's of music4dance.

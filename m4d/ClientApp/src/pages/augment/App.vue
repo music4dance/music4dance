@@ -72,12 +72,10 @@ const reset = (saved: boolean): void => {
         <h1>Add Song</h1>
         <BTabs v-if="canAugment" v-model="tabIndex" card>
           <BTab title="by Title"
-            ><BCardText><AugmentSearch @edit-song="editSong($event)"></AugmentSearch></BCardText
+            ><BCardText><AugmentSearch @edit-song="editSong($event)" /></BCardText
           ></BTab>
           <BTab title="by Id">
-            <BCardText
-              ><AugmentLookup :id="model.id!" @edit-song="editSong($event)"></AugmentLookup
-            ></BCardText>
+            <BCardText><AugmentLookup :id="model.id!" @edit-song="editSong($event)" /></BCardText>
           </BTab>
           <BTab v-if="context.isAdmin" title="Admin">
             <BCardText>
@@ -88,13 +86,13 @@ const reset = (saved: boolean): void => {
                   v-model="propertiesString"
                   palceholder="Song Properties TSV"
                   trim
-                ></BFormInput>
+                />
                 <BButton variant="primary" @click="adminCreate">Create</BButton>
               </BInputGroup>
             </BCardText>
           </BTab>
         </BTabs>
-        <AugmentInfo v-else :id="model.id!"> </AugmentInfo>
+        <AugmentInfo v-else :id="model.id!" />
       </BCol>
     </BRow>
     <div v-else>
@@ -115,7 +113,7 @@ const reset = (saved: boolean): void => {
         :creating="!!songModel && (songModel as SongDetailsModel).created"
         @song-saved="reset(true)"
         @cancel-changes="reset(false)"
-      ></SongCore>
+      />
     </div>
     <BRow
       ><BCol>

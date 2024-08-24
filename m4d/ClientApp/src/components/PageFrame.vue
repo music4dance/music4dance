@@ -33,15 +33,15 @@ onMounted(() => {
 
 <template>
   <div>
-    <MainMenu :context="menuContext"></MainMenu>
+    <MainMenu :context="menuContext" />
     <nav v-if="breadcrumbs" aria-label="breadcrumb">
-      <BBreadcrumb :items="breadcrumbs" style="padding: 0.25rem 0.5rem"></BBreadcrumb>
+      <BBreadcrumb :items="breadcrumbs" style="padding: 0.25rem 0.5rem" />
     </nav>
     <div id="body-content" class="container-fluid body-content">
       <h1 v-if="title">{{ title }}</h1>
-      <div v-else class="mt-2"></div>
+      <div v-else class="mt-2" />
       <PageLoader :loaded="loaded">
-        <slot></slot>
+        <slot />
       </PageLoader>
     </div>
     <div id="footer-content">

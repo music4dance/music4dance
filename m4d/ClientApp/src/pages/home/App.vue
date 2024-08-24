@@ -201,15 +201,13 @@ function computeHeadLinks(): Link[] {
         <div style="padding: 0.25em 1em">
           <div style="font-size: 1.5em">
             <a href="https://open.spotify.com/user/ebo1rk39vp51kkyjps45eobph?si=31df6fc12cf04a64"
-              ><IBiMusicNoteList></IBiMusicNoteList> Follow music4dance on Spotify</a
+              ><IBiMusicNoteList /> Follow music4dance on Spotify</a
             >
           </div>
         </div>
         <div style="padding: 0.25em 1em">
           <div style="font-size: 1.5em">
-            <a href="/home/contribute"
-              ><IBiMusicNoteList></IBiMusicNoteList> Like music4dance on Facebook</a
-            >
+            <a href="/home/contribute"><IBiMusicNoteList /> Like music4dance on Facebook</a>
           </div>
           <div
             class="fb-like"
@@ -220,33 +218,19 @@ function computeHeadLinks(): Link[] {
             data-size="small"
             data-share="true"
             style="padding-left: 1em"
-          ></div>
+          />
         </div>
       </InfoCard>
-      <InfoCard v-for="card in cards" :key="card.title.link" :card="card"></InfoCard>
+      <InfoCard v-for="card in cards" :key="card.title.link" :card="card" />
     </BCardGroup>
     <BRow>
-      <AreaIcon v-for="area in areas" :key="area.name" :area="area"></AreaIcon>
+      <AreaIcon v-for="area in areas" :key="area.name" :area="area" />
     </BRow>
     <BRow>
-      <HomeSection
-        name="Music"
-        category="music"
-        :features="musicFeatures"
-        class="col-xl"
-      ></HomeSection>
-      <HomeSection
-        name="Tools"
-        category="tools"
-        :features="toolFeatures"
-        class="col-xl"
-      ></HomeSection>
+      <HomeSection name="Music" category="music" :features="musicFeatures" class="col-xl" />
+      <HomeSection name="Tools" category="tools" :features="toolFeatures" class="col-xl" />
       <HomeSection name="Info" category="info" class="col-xl">
-        <BlogFeatureLink
-          v-for="entry in model.blogEntries"
-          :key="entry.title"
-          :entry="entry"
-        ></BlogFeatureLink>
+        <BlogFeatureLink v-for="entry in model.blogEntries" :key="entry.title" :entry="entry" />
       </HomeSection>
     </BRow>
   </PageFrame>

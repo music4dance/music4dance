@@ -38,7 +38,7 @@ const deltaMessage = computed(() => {
       :show-tempo="tempoType"
       :show-synonyms="true"
       :hide-link="hideLink"
-    ></DanceName>
+    />
     <BBadge v-show="showDelta" :variant="variant">{{ deltaMessage }}</BBadge>
   </BListGroupItem>
 </template>

@@ -24,13 +24,7 @@ const descriptionExpanded = computed(() => new DanceText(model.value).expanded()
 
 <template>
   <div>
-    <BFormTextarea
-      v-if="editing"
-      v-model="model"
-      rows="5"
-      max-rows="10"
-      debounce="100"
-    ></BFormTextarea>
+    <BFormTextarea v-if="editing" v-model="model" rows="5" max-rows="10" debounce="100" />
     <VueShowdown id="description" :markdown="descriptionExpanded" />
   </div>
 </template>

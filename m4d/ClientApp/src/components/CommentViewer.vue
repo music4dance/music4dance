@@ -21,7 +21,7 @@ const danceHandler = props.danceId
     <IBiPatchMinus v-else :style="{ color: 'red' }" />
     <span>
       {{ comment }}
-      <span v-if="danceId"> on <DanceButton :dance-handler="danceHandler!"></DanceButton></span>
+      <span v-if="danceId"> on <DanceButton :dance-handler="danceHandler!" /></span>
     </span>
   </div>
 </template>

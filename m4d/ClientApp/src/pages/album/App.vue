@@ -28,7 +28,7 @@ const hidden = computed(() => (model.artist ? ["Artist"] : []));
       :hide-sort="true"
       :hidden-columns="hidden"
       @song-selected="selectSong"
-    ></SongTable>
-    <AdminFooter :model="model" :selected="selected"></AdminFooter>
+    />
+    <AdminFooter :model="model" :selected="selected" />
   </PageFrame>
 </template>

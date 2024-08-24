@@ -56,19 +56,9 @@ const lookup = async (service?: string): Promise<void> => {
 <template>
   <BCard header="Tracks" header-text-variant="primary" no-body border-variant="primary">
     <BForm class="m-2">
-      <BFormInput
-        id="track-title"
-        v-model="title"
-        class="mb-2"
-        placeholder="Title Override"
-      ></BFormInput>
+      <BFormInput id="track-title" v-model="title" class="mb-2" placeholder="Title Override" />
 
-      <BFormInput
-        id="track-artist"
-        v-model="artist"
-        class="mb-2"
-        placeholder="Artist Override"
-      ></BFormInput>
+      <BFormInput id="track-artist" v-model="artist" class="mb-2" placeholder="Artist Override" />
 
       <div class="d-inline-flex gap-2">
         <BButton variant="primary" @click="lookup()">Lookup</BButton>

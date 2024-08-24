@@ -26,8 +26,7 @@ export const model = {
       },
       {
         name: "Tag+",
-        value:
-          "1966:Other|East Coast Swing:Dance|Holiday:Other|Rock And Roll:Music",
+        value: "1966:Other|East Coast Swing:Dance|Holiday:Other|Rock And Roll:Music",
       },
       {
         name: "DanceRating",

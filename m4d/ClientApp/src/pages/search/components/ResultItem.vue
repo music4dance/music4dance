@@ -8,11 +8,11 @@ defineProps<{
 
 <template>
   <div class="mb-1">
-    <div><a :href="entry.url" class="title" v-html="entry.title"></a></div>
+    <div><a :href="entry.url" class="title" v-html="entry.title" /></div>
     <div class="link">
       <a :href="entry.url">{{ entry.url }}</a>
     </div>
-    <div v-html="entry.description"></div>
+    <div v-html="entry.description" />
   </div>
 </template>
 

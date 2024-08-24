@@ -33,7 +33,7 @@ const danceVariant = (dance: DanceObject) => {
       :key="idx"
       :variant="danceVariant(dance)"
     >
-      <DanceItem :dance="dance" :show-tempo="showTempo"></DanceItem>
+      <DanceItem :dance="dance" :show-tempo="showTempo" />
     </BListGroupItem>
   </BListGroup>
 </template>

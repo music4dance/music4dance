@@ -7,7 +7,7 @@ export class SongChange {
     public properties: SongProperty[],
     public user?: string,
     public date?: Date,
-    public actValue?: string
+    public actValue?: string,
   ) {}
 
   public get isBatch(): boolean {
@@ -28,22 +28,16 @@ export class SongChange {
   }
 
   public get like(): boolean | undefined {
-    const likes = this.properties.filter(
-      (p) => p.baseName === PropertyType.likeTag
-    );
+    const likes = this.properties.filter((p) => p.baseName === PropertyType.likeTag);
     return likes.length ? (likes.pop()?.valueTyped as boolean) : undefined;
   }
 
   public get propertyList(): SongProperty[] {
-    const prefix = [
-      new SongProperty({ name: `.${this.action}`, value: this.actValue }),
-    ];
+    const prefix = [new SongProperty({ name: `.${this.action}`, value: this.actValue })];
 
     const user = this.user;
     if (user) {
-      prefix.push(
-        new SongProperty({ name: PropertyType.userField, value: user })
-      );
+      prefix.push(new SongProperty({ name: PropertyType.userField, value: user }));
     }
 
     const date = this.date;
@@ -52,7 +46,7 @@ export class SongChange {
         new SongProperty({
           name: PropertyType.timeField,
           value: SongProperty.formatDate(date),
-        })
+        }),
       );
     }
 

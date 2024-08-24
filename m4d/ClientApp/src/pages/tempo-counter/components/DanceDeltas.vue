@@ -46,7 +46,7 @@ const orderedDances = computed(() => {
         :tempo-type="tempoType"
         :hide-link="hideNameLink"
         v-bind="$attrs"
-      ></TempoDeltaInfo>
+      />
     </BListGroup>
   </div>
 </template>

@@ -45,7 +45,7 @@ const dances = danceIds.map((id) => danceDB.dances.find((d) => d.id === id)!);
       :hide-sort="true"
       :hidden-columns="['artist', 'length', 'track']"
       @song-selected="selectSong"
-    ></SongTable>
-    <AdminFooter :model="model" :selected="selected"></AdminFooter>
+    />
+    <AdminFooter :model="model" :selected="selected" />
   </PageFrame>
 </template>

@@ -15,7 +15,7 @@ defineProps<{
         :info="pi"
         :is-charm="true"
         styles="margin-right: .25rem; margin-bottom: .25rem"
-      ></PurchaseLogo>
+      />
     </span>
     <BButton
       v-if="filter && !filter.isEmpty"

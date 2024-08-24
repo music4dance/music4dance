@@ -6,5 +6,5 @@ defineProps<{ comment: UserComment }>();
 </script>
 
 <template>
-  <div>{{ comment.comment }} -- <UserLink :user="comment.userName"></UserLink></div>
+  <div>{{ comment.comment }} -- <UserLink :user="comment.userName" /></div>
 </template>

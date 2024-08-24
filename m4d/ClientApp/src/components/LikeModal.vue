@@ -80,7 +80,7 @@ const onSave = (): void => {
       <BRow class="mb-1"><BCol>Favorites/Blocked Lists:</BCol></BRow>
       <BRow>
         <BCol cols="3" align-self="center">
-          <LikeIcon :state="like" :scale="2"></LikeIcon>
+          <LikeIcon :state="like" :scale="2" />
         </BCol>
         <BCol>
           <BButtonGroup vertical class="ms-2">
@@ -125,8 +125,7 @@ const onSave = (): void => {
             :rating="rating"
             :vote="getDanceVote(rating.danceId)"
             @dance-vote="setDanceVote($event)"
-          >
-          </DanceVoteItem> </BCol
+          /> </BCol
       ></BRow>
     </BContainer>
   </BModal>

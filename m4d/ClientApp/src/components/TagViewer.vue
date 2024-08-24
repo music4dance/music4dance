@@ -1,12 +1,9 @@
 <script setup lang="ts">
-import DanceButton from "@/components/DanceButton.vue";
-import TagButton from "@/components/TagButton.vue";
 import { DanceHandler } from "@/models/DanceHandler";
 import { DanceRating } from "@/models/DanceRating";
 import { Tag } from "@/models/Tag";
 import { TagHandler } from "@/models/TagHandler";
 
-// INT-TODO: Where is this used? If it is used, we'll want to update TagButton
 const props = defineProps<{
   tag: Tag;
   added?: boolean;
@@ -33,8 +30,8 @@ const color = props.added ? "green" : "red";
         :tag-handler="tagHandler"
         class="ms-2"
         @tag-clicked="emit('tag-clicked', $event)"
-      ></TagButton>
-      <span v-if="danceId"> on <DanceButton :dance-handler="danceHandler!"></DanceButton></span>
+      />
+      <span v-if="danceId"> on <DanceButton :dance-handler="danceHandler!" /></span>
     </span>
   </div>
 </template>

@@ -100,12 +100,7 @@ const isGroup = (dance: NamedObject) => {
       Search All Dance Styles
     </BButton>
     <BInputGroup class="mb-2">
-      <BFormInput
-        v-model="nameFilter"
-        type="text"
-        placeholder="Filter Dances"
-        autofocus
-      ></BFormInput>
+      <BFormInput v-model="nameFilter" type="text" placeholder="Filter Dances" autofocus />
       <span><IBiSearch /></span>
     </BInputGroup>
     <BTabs>
@@ -124,7 +119,7 @@ const isGroup = (dance: NamedObject) => {
               :show-synonyms="true"
               :show-tempo="tempoType"
               :hide-link="hideNameLink"
-            ></DanceName>
+            />
           </BListGroupItem>
         </BListGroup>
       </BTab>
@@ -145,7 +140,7 @@ const isGroup = (dance: NamedObject) => {
               :show-synonyms="true"
               :show-tempo="tempoType"
               :hide-link="hideNameLink"
-            ></DanceName>
+            />
           </BListGroupItem>
         </BListGroup>
       </BTab>
@@ -158,7 +153,7 @@ const isGroup = (dance: NamedObject) => {
           :hide-name-link="true"
           :tempo-type="tempoType"
           @choose-dance="choose"
-        ></DanceList>
+        />
       </BTab>
     </BTabs>
   </BModal>

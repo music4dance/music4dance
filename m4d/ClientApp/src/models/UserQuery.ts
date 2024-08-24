@@ -38,9 +38,7 @@ export class UserQuery {
         suffix = "x";
         break;
       default:
-        throw new Error(
-          '2nd character of parts must be one of "L", "H", or "T"'
-        );
+        throw new Error('2nd character of parts must be one of "L", "H", or "T"');
     }
 
     return new UserQuery(`${prefix}${user ?? "me"}|${suffix}`);
@@ -78,9 +76,7 @@ export class UserQuery {
 
   public get userName(): string {
     const idx = this.data.indexOf("|");
-    return this.data
-      .substring(1, idx === -1 ? undefined : idx)
-      .replace(this.queryPseudo, "");
+    return this.data.substring(1, idx === -1 ? undefined : idx).replace(this.queryPseudo, "");
   }
 
   public get isAnonymous(): boolean {
@@ -106,9 +102,7 @@ export class UserQuery {
       return true;
     }
     const field = this.data?.toLowerCase();
-    return field
-      ? field === "-me|h" || field === `-${userName?.toLowerCase()}|h`
-      : !field;
+    return field ? field === "-me|h" || field === `-${userName?.toLowerCase()}|h` : !field;
   }
 
   public get description(): string {
@@ -186,9 +180,7 @@ export class UserQuery {
     }
 
     if (query.toLowerCase().endsWith(this.namePseudo)) {
-      query =
-        query.substring(0, query.length - this.namePseudo.length) +
-        this.queryPseudo;
+      query = query.substring(0, query.length - this.namePseudo.length) + this.queryPseudo;
     }
     if (query[0] !== "+" && query[0] !== "-") {
       query = "+" + query;

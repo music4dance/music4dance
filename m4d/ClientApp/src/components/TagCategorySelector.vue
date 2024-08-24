@@ -80,8 +80,8 @@ function tagFromKey(key: string): Tag {
         :variant="variantFromKey(option.value)"
         @click="onOptionClick(option, addTag)"
       >
-        <IBiPlusCircle v-if="addFromOption(option)" variant="danger" class="me-1"></IBiPlusCircle>
-        <TagIcon :name="iconFromKey(option.value)"></TagIcon>
+        <IBiPlusCircle v-if="addFromOption(option)" variant="danger" class="me-1" />
+        <TagIcon :name="iconFromKey(option.value)" />
         {{ descriptionFromOption(option) }}
       </BDropdownItemButton>
     </template>

@@ -31,7 +31,7 @@ const image: string = `/images/icons/${props.category}.png`;
     </div>
     <slot>
       <div v-if="features" class="row col" style="display: block; margin-left: 1rem">
-        <FeatureLink v-for="feature in features" :key="feature.title" :info="feature"></FeatureLink>
+        <FeatureLink v-for="feature in features" :key="feature.title" :info="feature" />
       </div>
     </slot>
   </div>

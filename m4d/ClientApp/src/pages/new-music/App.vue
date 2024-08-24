@@ -55,8 +55,8 @@ const clickCommented = (): void => {
       :hidden-columns="['length', 'track']"
       :show-history="true"
       @song-selected="selectSong"
-    ></SongTable>
-    <SongFooter :model="model"></SongFooter>
-    <AdminFooter :model="model" :selected="selected"></AdminFooter>
+    />
+    <SongFooter :model="model" />
+    <AdminFooter :model="model" :selected="selected" />
   </PageFrame>
 </template>

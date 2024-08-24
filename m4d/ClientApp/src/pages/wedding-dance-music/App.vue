@@ -60,9 +60,9 @@ const model = TypedJSON.parse(model_, TagMatrix)!;
     </p>
 
     <div style="margin: 0 auto; max-width: 800px">
-      <TagMatrixTable :matrix="model" style="idt"></TagMatrixTable>
+      <TagMatrixTable :matrix="model" style="idt" />
     </div>
 
-    <dl><BlogTagLink title="Wedding Music" tag="wedding"></BlogTagLink></dl>
+    <dl><BlogTagLink title="Wedding Music" tag="wedding" /></dl>
   </PageFrame>
 </template>

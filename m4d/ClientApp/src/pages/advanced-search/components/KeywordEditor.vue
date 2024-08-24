@@ -55,7 +55,7 @@ const updateModel = async (key: string, value: string) => {
         :autocomplete="index === 0 ? 'off' : 'false'"
         :list="index === 0 ? 'auto-complete' : undefined"
         @update:model-value="updateModel(item.name, $event as string)"
-      ></BFormInput>
+      />
       <SuggestionList v-if="index === 0" id="auto-complete" :search="everywhere" />
     </BInputGroup>
     <BButton

@@ -4,7 +4,6 @@ import type { BaseButtonVariant } from "bootstrap-vue-next";
 
 export function useTagButton(handler: TagHandler) {
   const tag = handler.tag;
-  // INT-TODO: Is there a cleaner way to do this?
   const v = tag.category.toLocaleLowerCase();
   const tagInfo = Tag.tagInfo.get(v);
   if (!tagInfo) {

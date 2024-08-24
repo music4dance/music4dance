@@ -6,9 +6,7 @@ export class TagList {
   }
 
   public static concat(a: Tag[], b: Tag[]): Tag[] {
-    const acc = new Map<string, number>(
-      a.map((t) => [t.key, t.count ?? 0] as [string, number])
-    );
+    const acc = new Map<string, number>(a.map((t) => [t.key, t.count ?? 0] as [string, number]));
     b.forEach((t) => {
       const key = t.key;
       acc.set(key, (t.count ?? 0) + (acc.get(key) ?? 0));
@@ -47,17 +45,14 @@ export class TagList {
 
   public filterCategories(categories: string[]): TagList {
     const cats = categories.map((cat) => cat.toLowerCase());
-    return TagList.build(
-      this.tags.filter((t) => cats.indexOf(t.category.toLowerCase()) === -1)
-    );
+    return TagList.build(this.tags.filter((t) => cats.indexOf(t.category.toLowerCase()) === -1));
   }
 
   public find(tag: Tag): Tag | undefined {
     const category = tag.category.toLowerCase();
     const value = tag.value.toLowerCase();
     return this.tags.find(
-      (t) =>
-        t.value.toLowerCase() === value && t.category.toLowerCase() === category
+      (t) => t.value.toLowerCase() === value && t.category.toLowerCase() === category,
     );
   }
 
@@ -67,10 +62,8 @@ export class TagList {
 
     return TagList.build(
       this.tags.filter(
-        (t) =>
-          t.value.toLowerCase() !== value &&
-          t.category.toLowerCase() !== category
-      )
+        (t) => t.value.toLowerCase() !== value && t.category.toLowerCase() !== category,
+      ),
     );
   }
 
@@ -92,7 +85,7 @@ export class TagList {
           new Tag({
             key: t.key.substr(1),
             count: t.count,
-          })
+          }),
       );
   }
 

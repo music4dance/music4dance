@@ -277,7 +277,7 @@ onBeforeUnmount(() => {
             :scale="1"
             :toggle-behavior="true"
             @click-like="onClickLike"
-          ></SongLikeButton>
+          />
           <i
             ><FieldEditor
               name="Title"
@@ -286,8 +286,7 @@ onBeforeUnmount(() => {
               :is-creator="isCreator"
               role="dbAdmin"
               @update-field="updateField($event)"
-            ></FieldEditor
-          ></i>
+          /></i>
           <span v-if="song.artist" style="font-size: 0.75em; padding-left: 0.5em"> by </span>
           <FieldEditor
             name="Artist"
@@ -320,10 +319,7 @@ onBeforeUnmount(() => {
     </BRow>
     <BRow class="mb-2">
       <BCol md="4"
-        ><PurchaseSection
-          :purchase-infos="song.getPurchaseInfos()"
-          :filter="model.filter"
-        ></PurchaseSection>
+        ><PurchaseSection :purchase-infos="song.getPurchaseInfos()" :filter="model.filter" />
       </BCol>
       <BCol md="4">
         <TagListEditor
@@ -348,7 +344,7 @@ onBeforeUnmount(() => {
           :edit="edit"
           :rows="6"
           :placeholder="commentPlaceholder"
-        ></CommentEditor>
+        />
       </BCol>
     </BRow>
     <BRow class="mb-2">
@@ -378,8 +374,7 @@ onBeforeUnmount(() => {
           :editing="editing"
           :is-creator="isCreator"
           @update-field="updateField($event)"
-        ></SongStats
-        ><BButton
+        /><BButton
           v-if="hasUserChanges && !editing"
           variant="outline-primary"
           @click="undoUserChanges"
@@ -404,7 +399,7 @@ onBeforeUnmount(() => {
           :albums="song.albums as AlbumDetails[]"
           :editing="edit"
           @delete-album="onDeleteAlbum($event)"
-        ></AlbumList>
+        />
         <div v-if="context.isAdmin" class="mt-2">
           <TrackList
             v-if="editing && context.isAdmin"
@@ -412,7 +407,7 @@ onBeforeUnmount(() => {
             :editing="edit"
             @add-track="addTrack"
             @add-property="addProperty($event)"
-          ></TrackList>
+          />
           <h3>Admin Edit</h3>
           <BFormTextarea
             id="admin-edit"
@@ -420,7 +415,7 @@ onBeforeUnmount(() => {
             :readonly="!edit"
             rows="3"
             max-rows="6"
-          ></BFormTextarea>
+          />
           <h3>Undo User Edits</h3>
           <BForm
             v-for="mb in song.modifiedBy"
@@ -454,12 +449,11 @@ onBeforeUnmount(() => {
             @move-property-last="safeEditor.movePropertyLast($event)"
             @insert-property="onInsertSongProperty"
             @replace-history="onReplaceHistory($event)"
-          >
-          </SongHistoryLog>
+          />
         </div>
       </BCol>
       <BCol v-if="model.songHistory">
-        <SongHistoryViewer :history="history as SongHistory"> </SongHistoryViewer>
+        <SongHistoryViewer :history="history as SongHistory" />
       </BCol>
     </BRow>
     <DanceChooser
@@ -469,7 +463,7 @@ onBeforeUnmount(() => {
       :hide-name-link="true"
       @choose-dance="addDance"
       @update-song="updateSong"
-    ></DanceChooser>
+    />
     <TagModal v-model="tagModalVisible" :tag-handler="currentTag" />
   </div>
 </template>

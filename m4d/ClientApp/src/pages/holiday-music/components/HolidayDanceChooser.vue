@@ -14,7 +14,7 @@ const danceLink = (dance: string) =>
 
 <template>
   <div>
-    <HolidayHelp v-if="count && count < 15" :dance="dance"></HolidayHelp>
+    <HolidayHelp v-if="count && count < 15" :dance="dance" />
     <p>Choose a dance style to filter the holiday music to that style</p>
     <BButton
       v-for="d in sortedDances"
