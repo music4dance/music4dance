@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import PageFrame from "@/components/PageFrame.vue";
-import TagCloud from "@/components/TagCloud.vue";
 import { safeTagDatabase } from "@/helpers/TagEnvironmentManager";
 import { type BreadCrumbItem, homeCrumb } from "@/models/BreadCrumbItem";
 

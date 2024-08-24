@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import PageFrame from "@/components/PageFrame.vue";
 import { SongDetailsModel } from "@/models/SongDetailsModel";
 import { TypedJSON } from "typedjson";
-import SongCore from "./components/SongCore.vue";
 
 declare const model_: string;
 const model = TypedJSON.parse(model_, SongDetailsModel)!;

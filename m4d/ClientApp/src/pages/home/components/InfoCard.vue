@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import BlogTagLink from "@/components/BlogTagLink.vue";
 import { type Link } from "@/models/Link";
-import InfoLink from "./InfoLink.vue";
 
 export interface CardInfo {
   title: Link;

@@ -3,7 +3,6 @@ import { useDropTarget } from "@/composables/useDropTarget";
 import { KeywordQuery } from "@/models/KeywordQuery";
 import type { BFormInput } from "bootstrap-vue-next";
 import { computed } from "vue";
-import SuggestionList from "@/components/SuggestionList.vue";
 
 const props = defineProps({ modelValue: { type: String, required: true } });
 const advanced = defineModel<boolean>("advanced");

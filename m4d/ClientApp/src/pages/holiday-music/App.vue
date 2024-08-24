@@ -1,11 +1,4 @@
 <script setup lang="ts">
-import PageFrame from "@/components/PageFrame.vue";
-import AdminFooter from "@/components/AdminFooter.vue";
-import SongFooter from "@/components/SongFooter.vue";
-import SongTable from "@/components/SongTable.vue";
-import SpotifyPlayer from "@/components/SpotifyPlayer.vue";
-import HolidayDanceChooser from "./HolidayDanceChooser.vue";
-import HolidayHelp from "./HolidayHelp.vue";
 import { toTitleCase, wordsToKebab } from "@/helpers/StringHelpers";
 import { homeCrumb, songCrumb } from "@/models/BreadCrumbItem";
 import { HolidaySongListModel } from "@/models/HolidaySongListModel";

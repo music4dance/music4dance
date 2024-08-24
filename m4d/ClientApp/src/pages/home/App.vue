@@ -1,16 +1,12 @@
 <script setup lang="ts">
-import BlogFeatureLink from "@/components/BlogFeatureLink.vue";
-import PageFrame from "@/components/PageFrame.vue";
 import { type FeatureInfo } from "@/models/FeatureInfo";
 import { type Link } from "@/models/Link";
 import { SiteMapEntry } from "@/models/SiteMapInfo";
 import { random, seed } from "@/helpers/Random";
 import { jsonArrayMember, jsonObject, TypedJSON } from "typedjson";
-import AreaIcon from "./components/AreaIcon.vue";
 import { type AreaInfo } from "./AreaInfo";
 import { DanceClass, DanceMapping } from "./DanceClass";
-import HomeSection from "./components/HomeSection.vue";
-import InfoCard, { type CardInfo } from "./components/InfoCard.vue";
+import { type CardInfo } from "./components/InfoCard.vue";
 
 declare global {
   interface Window {

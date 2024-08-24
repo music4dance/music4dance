@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import DanceItem from "./DanceItem.vue";
 import type { DanceType } from "@/models/DanceDatabase/DanceType";
 import { DanceFilter } from "@/models/DanceDatabase/DanceFilter";
 import { Meter } from "@/models/DanceDatabase/Meter";
@@ -42,12 +41,12 @@ const orderedDances = computed(() => {
 <template>
   <div>
     <BListGroup v-for="ds in orderedDances" :key="ds.dance.id">
-      <DanceItem
+      <TempoDeltaInfo
         :dance="ds"
         :tempo-type="tempoType"
         :hide-link="hideNameLink"
         v-bind="$attrs"
-      ></DanceItem>
+      ></TempoDeltaInfo>
     </BListGroup>
   </div>
 </template>

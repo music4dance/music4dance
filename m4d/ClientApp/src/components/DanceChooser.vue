@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import DanceName from "./DanceName.vue";
 import { TempoType } from "@/models/TempoType";
-import DanceList from "@/pages/tempo-counter/components/DanceList.vue";
+import DanceList from "@/pages/tempo-counter/components/DanceDeltas.vue";
 import { computed, ref } from "vue";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import type { NamedObject } from "@/models/DanceDatabase/NamedObject";

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { defaultTempoLink } from "@/helpers/LinkHelpers";
-import DanceName from "@/components/DanceName.vue";
 import { wordsToKebab } from "@/helpers/StringHelpers";
 import type { TableFieldRaw, BTableSortBy } from "bootstrap-vue-next";
 import type { LiteralUnion } from "@/helpers/bsvn-types";

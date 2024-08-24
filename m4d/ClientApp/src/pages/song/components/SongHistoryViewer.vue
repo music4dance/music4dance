@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { SongHistory } from "@/models/SongHistory";
-import SongChangeViewer from "@/components/SongChangeViewer.vue";
 
 defineProps<{ history: SongHistory }>();
 </script>

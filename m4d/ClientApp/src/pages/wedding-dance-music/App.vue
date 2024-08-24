@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import BlogTagLink from "@/components/BlogTagLink.vue";
-import PageFrame from "@/components/PageFrame.vue";
-import TagMatrixTable from "@/components/TagMatrixTable.vue";
 import { type BreadCrumbItem, danceTrail } from "@/models/BreadCrumbItem";
 import { TagMatrix } from "@/models/TagMatrix";
 import { TypedJSON } from "typedjson";

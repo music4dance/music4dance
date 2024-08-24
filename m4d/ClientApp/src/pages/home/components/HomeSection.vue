@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import FeatureLink from "@/components/FeatureLink.vue";
 import { type FeatureInfo } from "@/models/FeatureInfo";
 import { type Link } from "@/models/Link";
 

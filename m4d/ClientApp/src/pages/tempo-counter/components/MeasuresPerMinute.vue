@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import TempoModal from "./TempoModal.vue";
 
 const model = defineModel<number>({ required: true });
 const beatsPerMeasure = defineModel<number>("beatsPerMeasure", { required: true });

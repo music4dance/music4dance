@@ -1,20 +1,12 @@
 <script setup lang="ts">
-import CompetitionCategoryTable from "@/components/CompetitionCategoryTable.vue";
-import DanceList from "@/components/DanceList.vue";
-import DanceReference from "@/components/DanceReference.vue";
-import PageFrame from "@/components/PageFrame.vue";
-import SpotifyPlayer from "@/components/SpotifyPlayer.vue";
-import TagCloud from "@/components/TagCloud.vue";
 import { type BreadCrumbItem, danceTrail } from "@/models/BreadCrumbItem";
 import { DanceModel } from "@/models/DanceModel";
 import { SongFilter } from "@/models/SongFilter";
 import { TempoType } from "@/models/TempoType";
 import axios from "axios";
 import { TypedJSON } from "typedjson";
-import DanceContents from "./components/DanceContents.vue";
 import DanceDescription from "./components/DanceDescription.vue";
 import DanceLinks from "./components/DanceLinks.vue";
-import TopTen from "./components/TopTen.vue";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { getMenuContext } from "@/helpers/GetMenuContext";
 import { DanceGroup } from "@/models/DanceDatabase/DanceGroup";

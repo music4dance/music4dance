@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import PageFrame from "@/components/PageFrame.vue";
 import { type BreadCrumbItem, infoTrail } from "@/models/BreadCrumbItem";
 
 const breadcrumbs: BreadCrumbItem[] = [

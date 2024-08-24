@@ -1,12 +1,7 @@
 <script setup lang="ts">
-import Loader from "@/components/SpinLoader.vue";
-import SongTable from "@/components/SongTable.vue";
 import { SongFilter } from "@/models/SongFilter";
 import { SongHistory } from "@/models/SongHistory";
 import { TypedJSON } from "typedjson";
-import ContinueOptions from "./ContinueOptions.vue";
-import SearchNav from "./SearchNav.vue";
-import ShowMore from "./ShowMore.vue";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { getMenuContext } from "@/helpers/GetMenuContext";
 import { computed, onMounted, ref } from "vue";
@@ -60,7 +55,7 @@ onMounted(async () => {
       <BCol md="6" class="flex-grow"><SearchNav active="song-results"></SearchNav></BCol>
       <BCol md="6"><ContinueOptions :filter="filter"></ContinueOptions></BCol>
     </BRow>
-    <Loader :loaded="loaded" placeholder="Searching for songs...">
+    <PageLoader :loaded="loaded" placeholder="Searching for songs...">
       <div v-if="histories.length > 0">
         <p>
           Results from the
@@ -76,6 +71,6 @@ onMounted(async () => {
         <ContinueOptions :filter="filter"></ContinueOptions>
       </div>
       <div v-else>"{{ search }}" not found in the <a href="/song">music library</a></div>
-    </Loader>
+    </PageLoader>
   </div>
 </template>

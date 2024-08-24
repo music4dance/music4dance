@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { jsonCompare } from "@/helpers/ObjectHelpers";
 import { DanceLink } from "@/models/DanceLink";
-import EditableLink from "./EditableLink.vue";
 import { computed, ref } from "vue";
 
 const props = defineProps<{ danceId: string; editing: boolean }>();

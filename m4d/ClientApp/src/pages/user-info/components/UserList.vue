@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ProfileModel } from "@/models/ProfileModel";
 import { computed } from "vue";
-import UserLink from "./UserLink.vue";
 
 const props = defineProps<{ model: ProfileModel }>();
 
@@ -57,7 +56,7 @@ const links = computed(() => {
   <div>
     <h2>{{ model.displayName }}'s Song Lists</h2>
     <ul>
-      <UserLink
+      <UserInfoLink
         v-for="(link, index) in links"
         :key="index"
         :user-name="model.userName"
@@ -66,7 +65,7 @@ const links = computed(() => {
         :type="link.type"
         :include="link.include"
         :count="link.count!"
-      ></UserLink>
+      />
     </ul>
     <div>
       <p>

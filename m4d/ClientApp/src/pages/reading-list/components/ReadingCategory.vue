@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import BookComponent from "./BookComponent.vue";
 import { BookCategory } from "../models/BookCategory";
 
 defineProps<{

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { EnhancedTrackModel, TrackModel } from "@/models/TrackModel";
-import SongButton from "./SongButton.vue";
 import { TypedJSON } from "typedjson";
 import { computed, ref } from "vue";
 

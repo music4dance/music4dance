@@ -1,8 +1,4 @@
 <script setup lang="ts">
-import CommentEditor from "@/components/CommentEditor.vue";
-import DanceChooser from "@/components/DanceChooser.vue";
-import SongLikeButton from "@/components/SongLikeButton.vue";
-import TagListEditor from "@/components/TagListEditor.vue";
 import { DanceRatingVote, VoteDirection } from "@/models/DanceRatingDelta";
 import { AlbumDetails } from "@/models/AlbumDetails";
 import { DanceRating } from "@/models/DanceRating";
@@ -12,14 +8,6 @@ import { SongEditor } from "@/models/SongEditor";
 import { PropertyType, SongProperty } from "@/models/SongProperty";
 import { Tag } from "@/models/Tag";
 import { TrackModel } from "@/models/TrackModel";
-import AlbumList from "./AlbumList.vue";
-import DanceList from "./DanceList.vue";
-import FieldEditor from "./FieldEditor.vue";
-import PurchaseSection from "./PurchaseSection.vue";
-import SongHistoryLog from "./SongHistoryLog.vue";
-import SongHistoryViewer from "./SongHistoryViewer.vue";
-import SongStats from "./SongStats.vue";
-import TrackList from "./TrackList.vue";
 import { getMenuContext } from "@/helpers/GetMenuContext";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { computed, onBeforeMount, onBeforeUnmount, ref, watch } from "vue";
@@ -365,7 +353,7 @@ onBeforeUnmount(() => {
     </BRow>
     <BRow class="mb-2">
       <BCol md="4">
-        <DanceList
+        <DanceDetails
           title="Dances"
           class="mb-2"
           :song="song as Song"

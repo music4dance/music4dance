@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import PageFrame from "@/components/PageFrame.vue";
 import { type BreadCrumbItem, infoTrail } from "@/models/BreadCrumbItem";
 import { BookCategory } from "./models/BookCategory";
 import type { Book } from "./models/BookModel";
 import { BookType } from "./models/BookType";
-import ReadingCategory from "./components/ReadingCategory.vue";
 import { computed } from "vue";
 
 //  TODO: Consider pushing the Book list down from the server

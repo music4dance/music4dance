@@ -1,10 +1,4 @@
 <script setup lang="ts">
-import PageFrame from "@/components/PageFrame.vue";
-import SearchHeader from "@/components/SearchHeader.vue";
-import AdminFooter from "@/components/AdminFooter.vue";
-import SongFooter from "@/components/SongFooter.vue";
-import SongLibraryHeader from "@/components/SongLibraryHeader.vue";
-import SongTable from "@/components/SongTable.vue";
 import { getMenuContext } from "@/helpers/GetMenuContext";
 import { SongListModel } from "@/models/SongListModel";
 import { TypedJSON } from "typedjson";

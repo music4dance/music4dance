@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import NoteCircle from "@/components/NoteCircle.vue";
 import axios from "axios";
 import { EnhancedTrackModel } from "@/models/TrackModel";
 import { SongDetailsModel } from "@/models/SongDetailsModel";

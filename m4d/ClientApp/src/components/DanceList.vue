@@ -18,7 +18,7 @@ const props = withDefaults(
 const danceDB = safeDanceDatabase();
 
 const filteredDances = computed(() => {
-  return props.dances.filter((d) => danceDB.getSongCount(d.id) > 0);
+  return props.dances.filter((d) => DanceGroup.isGroup(d) || danceDB.getSongCount(d.id) > 0);
 });
 
 const danceVariant = (dance: DanceObject) => {

@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import EchoIcon from "@/components/EchoIcon.vue";
 import { Song } from "@/models/Song";
 import { SongProperty } from "@/models/SongProperty";
 import { computed } from "vue";
-import FieldEditor from "./FieldEditor.vue";
 
 defineOptions({ inheritAttrs: false });
 

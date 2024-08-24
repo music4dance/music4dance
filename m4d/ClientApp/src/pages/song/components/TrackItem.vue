@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import PurchaseLogo from "@/components/PurcahseLogo.vue";
 import { PurchaseInfo, ServiceType } from "@/models/Purchase";
 import { SongProperty } from "@/models/SongProperty";
 import { TrackModel } from "@/models/TrackModel";
-import TrackField from "./TrackField.vue";
 import { computed } from "vue";
 
 const props = defineProps<{

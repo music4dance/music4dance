@@ -5,7 +5,7 @@ import { dirname, resolve } from "path";
 import vue from "@vitejs/plugin-vue";
 import mkcert from "vite-plugin-mkcert";
 import Components from "unplugin-vue-components/vite";
-import { BootstrapVueNextResolver } from "unplugin-vue-components/resolvers";
+import { BootstrapVueNextResolver } from "bootstrap-vue-next";
 import Inspect from "vite-plugin-inspect";
 import fg from "fast-glob";
 import Icons from "unplugin-icons/vite";
@@ -38,6 +38,7 @@ export default defineConfig({
       ],
     }),
     Components({
+      globs: ["src/**/components/**/*.vue"],
       resolvers: [BootstrapVueNextResolver(), IconsResolver()],
       dts: true,
     }),

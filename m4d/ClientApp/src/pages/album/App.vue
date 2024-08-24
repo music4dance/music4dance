@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import PageFrame from "@/components/PageFrame.vue";
-import SongTable from "@/components/SongTable.vue";
-import AdminFooter from "@/components/AdminFooter.vue";
 import { AlbumModel } from "@/models/AlbumModel";
 import { TypedJSON } from "typedjson";
 import { useSongSelector } from "@/composables/useSongSelector";

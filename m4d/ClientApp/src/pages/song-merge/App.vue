@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import PageFrame from "@/components/PageFrame.vue";
 import { SongDetailsModel } from "@/models/SongDetailsModel";
 import { SongFilter } from "@/models/SongFilter";
 import { SongHistory } from "@/models/SongHistory";
 import { SongMergeModel } from "@/models/SongMergeModel";
-import SongCore from "@/pages/song/components/SongCore.vue";
 import { TypedJSON } from "typedjson";
 import { getMenuContext } from "@/helpers/GetMenuContext";
 

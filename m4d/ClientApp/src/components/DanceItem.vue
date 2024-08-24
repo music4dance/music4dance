@@ -27,14 +27,19 @@ const countLink = computed(() => {
 const variant = computed(() => {
   return isGroup.value ? "secondary" : "primary";
 });
+const songCount = computed(() => {
+  return DanceGroup.isGroup(props.dance)
+    ? undefined
+    : safeDanceDatabase().getSongCount(props.dance.id);
+});
 </script>
 
 <template>
   <div class="d-flex justify-content-between">
     <DanceName :dance="dance" :show-tempo="showTempo" :show-synonyms="showSynonyms"></DanceName>
     <div>
-      <BBadge :href="countLink" :variant="variant" style="line-height: 1.5"
-        >songs ({{ danceDB.getSongCount(dance.id) }})</BBadge
+      <BBadge v-if="songCount" :href="countLink" :variant="variant" style="line-height: 1.5"
+        >songs ({{ songCount }})</BBadge
       >
       <BBadge :href="danceLink" :variant="variant" style="line-height: 1.5" class="ms-2"
         >info</BBadge

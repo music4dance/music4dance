@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import MustRegister from "@/components/MustRegister.vue";
 import { ProfileModel } from "@/models/ProfileModel";
 import { computed } from "vue";
 import type { MenuContext } from "@/models/MenuContext";

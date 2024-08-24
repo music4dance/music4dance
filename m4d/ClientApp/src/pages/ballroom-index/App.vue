@@ -1,9 +1,4 @@
 <script setup lang="ts">
-import BallroomList from "@/components/BallroomList.vue";
-import BlogTagLink from "@/components/BlogTagLink.vue";
-import CompetitionCategoryTable from "@/components/CompetitionCategoryTable.vue";
-import PageFrame from "@/components/PageFrame.vue";
-import TempiLink from "@/components/TempiLink.vue";
 import { type BreadCrumbItem, danceTrail } from "@/models/BreadCrumbItem";
 import { CompetitionCategory, CompetitionGroup } from "@/models/Competition";
 import { TypedJSON } from "typedjson";

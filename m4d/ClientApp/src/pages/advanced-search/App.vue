@@ -1,8 +1,4 @@
 <script setup lang="ts">
-import DanceSelector from "@/components/DanceSelector.vue";
-import KeywordEditor from "./components/KeywordEditor.vue";
-import PageFrame from "@/components/PageFrame.vue";
-import TagCategorySelector from "@/components/TagCategorySelector.vue";
 import { DanceQuery } from "@/models/DanceQuery";
 import { SongFilter } from "@/models/SongFilter";
 import { SongSort, SortOrder } from "@/models/SongSort";

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import MarkDownEditor from "@/components/MarkDownEditor.vue";
-import TempiLink from "@/components/TempiLink.vue";
 import { DanceType } from "@/models/DanceDatabase/DanceType";
 import { SongFilter } from "@/models/SongFilter";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";

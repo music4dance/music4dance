@@ -1,11 +1,8 @@
 <script setup lang="ts">
-import PageFrame from "@/components/PageFrame.vue";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { type CheckboxOption, type CheckboxValue } from "bootstrap-vue-next";
 import { optionsFromText, valuesFromOptions, textFromValues } from "@/models/CheckboxTypes";
 import { computed, ref } from "vue";
-import CheckedList from "./components/CheckedList.vue";
-import DanceList from "./components/DanceList.vue";
 import { DanceFilter } from "@/models/DanceDatabase/DanceFilter";
 import { Meter } from "@/models/DanceDatabase/Meter";
 
@@ -94,7 +91,7 @@ const dances = computed(() => {
       ></CheckedList>
     </div>
     <div class="row">
-      <DanceList class="col-md" :dances="dances"></DanceList>
+      <TempoList class="col-md" :dances="dances"></TempoList>
     </div>
     <div class="row">
       <div class="col">

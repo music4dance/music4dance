@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { PlaylistModel } from "@/models/PlaylistModel";
-import TrackList from "./TrackList.vue";
 import axios from "axios";
 import { computed, ref } from "vue";
 import { getMenuContext } from "@/helpers/GetMenuContext";
@@ -47,7 +46,7 @@ const reset = (event: Event): void => {
     <h2>{{ model?.name }}</h2>
     <p>id = ({{ id }}), count = {{ model?.tracks?.length ?? 0 }}</p>
     <p v-if="model?.description" v-html="model?.description"></p>
-    <TrackList :tracks="model?.tracks ?? []"></TrackList>
+    <TrackTable :tracks="model?.tracks ?? []"></TrackTable>
     <BForm v-if="context.isAdmin" @submit="submit" @reset="reset">
       <h2>Add the playlist to music4dance</h2>
       <BFormGroup

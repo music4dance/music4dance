@@ -1,3 +1,12 @@
+<script setup lang="ts">
+import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
+import { type BreadCrumbItem, homeCrumb } from "@/models/BreadCrumbItem";
+
+const breadcrumbs: BreadCrumbItem[] = [homeCrumb, { text: "Dances", active: true }];
+
+const dances = safeDanceDatabase();
+</script>
+
 <template>
   <PageFrame id="app" title="Dance Styles" :breadcrumbs="breadcrumbs">
     <DanceTable :dances="dances"></DanceTable>
@@ -29,14 +38,3 @@
     </p>
   </PageFrame>
 </template>
-
-<script setup lang="ts">
-import PageFrame from "@/components/PageFrame.vue";
-import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
-import { type BreadCrumbItem, homeCrumb } from "@/models/BreadCrumbItem";
-import DanceTable from "./components/DanceTable.vue";
-
-const breadcrumbs: BreadCrumbItem[] = [homeCrumb, { text: "Dances", active: true }];
-
-const dances = safeDanceDatabase();
-</script>

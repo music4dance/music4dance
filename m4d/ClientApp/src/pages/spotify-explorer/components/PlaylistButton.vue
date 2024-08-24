@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import NoteCircle from "@/components/NoteCircle.vue";
 import { SimplePlaylist } from "@/models/SimplePlaylist";
 import { computed } from "vue";
 

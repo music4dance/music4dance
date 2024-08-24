@@ -1,8 +1,4 @@
 <script setup lang="ts">
-import PageFrame from "@/components/PageFrame.vue";
-import PlaylistViewer from "./components/PlaylistViewer.vue";
-import ServiceUserViewer from "./components/ServiceUserViewer.vue";
-import SpinLoader from "@/components/SpinLoader.vue";
 import { ServiceMatcher } from "@/helpers/ServiceMatcher";
 import { PlaylistModel } from "@/models/PlaylistModel";
 import { ServiceUser } from "@/models/ServiceUser";
@@ -134,8 +130,7 @@ onMounted(async () => {
       <b>Find</b> button
     </p>
     <BForm ref="form" inline autocomplete="false">
-      <BInputGroup>
-        <BFormText class="sr-only me-2" for="service-id">Service Id</BFormText>
+      <BInputGroup prepend="Service Id">
         <BFormInput
           id="service-id"
           v-model="serviceString"

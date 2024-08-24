@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ServiceMatcher } from "@/helpers/ServiceMatcher";
-import AugmentSources from "./AugmentSources.vue";
 import { getMenuContext } from "@/helpers/GetMenuContext";
 import { computed, onMounted, ref } from "vue";
 import type { SongDetailsModel } from "@/models/SongDetailsModel";

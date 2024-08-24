@@ -1,8 +1,4 @@
 <script setup lang="ts">
-import CommentEditor from "@/components/CommentEditor.vue";
-import DanceName from "@/components/DanceName.vue";
-import DanceVote from "@/components/DanceVote.vue";
-import TagListEditor from "@/components/TagListEditor.vue";
 import { DanceRating } from "@/models/DanceRating";
 import { Song } from "@/models/Song";
 import { SongEditor } from "@/models/SongEditor";

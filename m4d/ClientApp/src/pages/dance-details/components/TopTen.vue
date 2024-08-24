@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import SongTable from "@/components/SongTable.vue";
 import { SongFilter } from "@/models/SongFilter";
 import { SongHistory } from "@/models/SongHistory";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";

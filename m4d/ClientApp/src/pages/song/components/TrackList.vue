@@ -4,7 +4,6 @@ import { TrackModel } from "@/models/TrackModel";
 import axios from "axios";
 import { TypedJSON } from "typedjson";
 import { computed, ref } from "vue";
-import TrackItem from "./TrackItem.vue";
 
 const props = defineProps<{
   song: Song;

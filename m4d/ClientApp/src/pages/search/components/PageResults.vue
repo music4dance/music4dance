@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { type SearchPage } from "@/models/SearchPage";
 import axios from "axios";
-import SearchResults from "./SearchResults.vue";
 import { onMounted, ref } from "vue";
 
 const props = defineProps<{

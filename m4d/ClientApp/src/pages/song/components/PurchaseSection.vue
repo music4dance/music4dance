@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import PurchaseLogo from "@/components/PurcahseLogo.vue";
 import { PurchaseInfo } from "@/models/Purchase";
 import { SongFilter } from "@/models/SongFilter";
 

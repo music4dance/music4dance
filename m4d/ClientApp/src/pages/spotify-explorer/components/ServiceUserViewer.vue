@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { getMenuContext } from "@/helpers/GetMenuContext";
 import { ref } from "vue";
-import SimplePlaylists from "./SimplePlaylists.vue";
 import { ServiceUser } from "@/models/ServiceUser";
 
 const playlistHeader = "+++++PLAYLISTS+++++";

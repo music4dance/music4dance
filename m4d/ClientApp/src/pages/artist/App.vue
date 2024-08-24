@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import PageFrame from "@/components/PageFrame.vue";
-import SongTable from "@/components/SongTable.vue";
-import AdminFooter from "@/components/AdminFooter.vue";
 import { ArtistModel } from "@/models/ArtistModel";
 import { SongFilter } from "@/models/SongFilter";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";

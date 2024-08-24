@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import TempoModal from "./TempoModal.vue";
-
 const model = defineModel<number>({ required: true });
 </script>
 

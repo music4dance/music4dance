@@ -1,8 +1,4 @@
 <script setup lang="ts">
-import PageFrame from "@/components/PageFrame.vue";
-import AdminFooter from "@/components/AdminFooter.vue";
-import SongFooter from "@/components/SongFooter.vue";
-import SongTable from "@/components/SongTable.vue";
 import { SongFilter } from "@/models/SongFilter";
 import { SongListModel } from "@/models/SongListModel";
 import { SortOrder } from "@/models/SongSort";

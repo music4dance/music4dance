@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import SearchNavItem from "./SearchNavItem.vue";
-
 defineProps<{
   active: string;
 }>();

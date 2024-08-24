@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import PageFrame from "@/components/PageFrame.vue";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { TempoType } from "@/models/DanceDatabase/TempoType";
 import { computed, ref } from "vue";
-import TempoCounter from "./components/TempoCounter.vue";
-import DanceList from "./components/DanceList.vue";
 import type { CountMethod } from "./CountMethod";
 
 interface TempoModel {
@@ -52,7 +49,7 @@ function chooseDance(danceId: string): void {
       v-model:count-method="countMethod"
       v-model:epsilon-percent="epsilonPercent"
     />
-    <DanceList
+    <DanceDeltas
       :dances="dances"
       :beats-per-measure="beatsPerMeasure"
       :beats-per-minute="beatsPerMinute"

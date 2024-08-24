@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import SpinLoader from "@/components/SpinLoader.vue";
 import { type SearchPage } from "@/models/SearchPage";
-import ResultItem from "./ResultItem.vue";
-import SearchNav from "./SearchNav.vue";
-import ShowMore from "./ShowMore.vue";
 import { computed, ref } from "vue";
 
 const props = defineProps<{

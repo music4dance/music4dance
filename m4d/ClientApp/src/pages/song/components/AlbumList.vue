@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import PurchaseLogo from "@/components/PurcahseLogo.vue";
 import { AlbumDetails } from "@/models/AlbumDetails";
 import { getMenuContext } from "@/helpers/GetMenuContext";
 

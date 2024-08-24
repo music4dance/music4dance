@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import HolidayHelp from "./HolidayHelp.vue";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 
 const props = defineProps<{ occassion: string; dance: string; count: number }>();

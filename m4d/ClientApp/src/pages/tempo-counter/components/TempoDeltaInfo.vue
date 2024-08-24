@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import DanceName from "@/components/DanceName.vue";
 import { TempoType } from "@/models/DanceDatabase/TempoType";
 import { DanceOrder } from "@/models/DanceDatabase/DanceOrder";
 import { computed } from "vue";
 
 const props = defineProps<{ dance: DanceOrder; tempoType: number; hideLink: boolean }>();
-// TODO: default tempoType == none?
 
 const emit = defineEmits<{ "choose-dance": [danceId: string, ctrl: boolean] }>();
 const variant = computed(() => {
@@ -19,12 +17,6 @@ const variant = computed(() => {
 const showDelta = computed(() => {
   return Math.abs(props.dance.deltaMpm) >= 1.0;
 });
-
-// const meterDescription = computed(() => {
-//   return props.tempoType === TempoType.Measures
-//     ? props.dance.toString()
-//     : props.dance.toString();
-// });
 
 const deltaMessage = computed(() => {
   const measures = props.tempoType === TempoType.Measures;

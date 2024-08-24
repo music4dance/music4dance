@@ -61,7 +61,6 @@ public class DanceController : ContentController
                 "Dance Style Index",
                 "A list of partner dancing styles, including Ballroom, Salsa, Swing, and Tango.",
                 "dance-index",
-                DanceStatsManager.Instance.GetCounts(),
                 helpPage: "dance-styles",
                 danceEnvironment: true,
                 preserveCase: true
@@ -129,7 +128,6 @@ public class DanceController : ContentController
                 HttpStatusCode.NotFound,
                 $"The dance with the name = {dance} isn't defined.");
         }
-
 
         if (ds.SongCount == 0)
         {

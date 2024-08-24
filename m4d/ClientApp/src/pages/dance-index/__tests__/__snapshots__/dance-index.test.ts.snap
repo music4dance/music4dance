@@ -22,305 +22,270 @@ exports[`DanceIndex > Renders dance-index Page 1`] = `
           <div class=\\"list-group-item list-group-item-primary\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/swing\\">Swing</a><!--v-if--><!--v-if--></span>
               <div>
-                <!--v-if--><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/swing\\" style=\\"line-height: 1.5;\\">info</a>
+                <!--v-if--><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/swing\\" style=\\"line-height: 1.5;\\">info</a>
               </div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/balboa\\">Balboa</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">160-260 BPM/40-65 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,BBA-Dances\\" style=\\"line-height: 1.5;\\">songs (509)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/balboa\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,BBA-Dances\\" style=\\"line-height: 1.5;\\">songs (509)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/balboa\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/collegiate-shag\\">Collegiate Shag</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">180-200 BPM/45-50 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,CLS-Dances\\" style=\\"line-height: 1.5;\\">songs (303)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/collegiate-shag\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,CLS-Dances\\" style=\\"line-height: 1.5;\\">songs (303)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/collegiate-shag\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/carolina-shag\\">Carolina Shag</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">108-132 BPM/27-33 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,CSG-Dances\\" style=\\"line-height: 1.5;\\">songs (185)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/carolina-shag\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,CSG-Dances\\" style=\\"line-height: 1.5;\\">songs (185)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/carolina-shag\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/charleston\\">Charleston</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">200-300 BPM/50-75 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,CST-Dances\\" style=\\"line-height: 1.5;\\">songs (467)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/charleston\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,CST-Dances\\" style=\\"line-height: 1.5;\\">songs (467)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/charleston\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/east-coast-swing\\">East Coast Swing</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">136-144 BPM/34-36 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,ECS-Dances\\" style=\\"line-height: 1.5;\\">songs (2294)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/east-coast-swing\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,ECS-Dances\\" style=\\"line-height: 1.5;\\">songs (2294)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/east-coast-swing\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/hustle\\">Hustle</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">120 BPM/30 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,HST-Dances\\" style=\\"line-height: 1.5;\\">songs (970)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/hustle\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,HST-Dances\\" style=\\"line-height: 1.5;\\">songs (970)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/hustle\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/jive\\">Jive</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">168-176 BPM/42-44 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,JIV-Dances\\" style=\\"line-height: 1.5;\\">songs (1203)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/jive\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,JIV-Dances\\" style=\\"line-height: 1.5;\\">songs (1203)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/jive\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/jump-swing\\">Jump Swing</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">160-240 BPM/40-60 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,JSW-Dances\\" style=\\"line-height: 1.5;\\">songs (171)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/jump-swing\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,JSW-Dances\\" style=\\"line-height: 1.5;\\">songs (171)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/jump-swing\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/west-coast-swing\\">West Coast Swing</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">80-130 BPM/20-32.5 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,WCS-Dances\\" style=\\"line-height: 1.5;\\">songs (10260)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/west-coast-swing\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,WCS-Dances\\" style=\\"line-height: 1.5;\\">songs (10260)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/west-coast-swing\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/lindy-hop\\">Lindy Hop</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">120-180 BPM/30-45 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,LHP-Dances\\" style=\\"line-height: 1.5;\\">songs (1391)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/lindy-hop\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,LHP-Dances\\" style=\\"line-height: 1.5;\\">songs (1391)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/lindy-hop\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/single-swing\\">Single Swing</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">140-184 BPM/35-46 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,SSW-Dances\\" style=\\"line-height: 1.5;\\">songs (198)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/single-swing\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,SSW-Dances\\" style=\\"line-height: 1.5;\\">songs (198)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/single-swing\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-primary\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/tango\\">Tango</a><!--v-if--><!--v-if--></span>
               <div>
-                <!--v-if--><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/tango\\" style=\\"line-height: 1.5;\\">info</a>
+                <!--v-if--><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/tango\\" style=\\"line-height: 1.5;\\">info</a>
               </div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/tango-(ballroom)\\">Tango (Ballroom)</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">120-132 BPM/30-33 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,TGO-Dances\\" style=\\"line-height: 1.5;\\">songs (1303)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/tango-(ballroom)\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,TGO-Dances\\" style=\\"line-height: 1.5;\\">songs (1303)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/tango-(ballroom)\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/argentine-tango\\">Argentine Tango</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">112-140 BPM/28-35 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,ATN-Dances\\" style=\\"line-height: 1.5;\\">songs (408)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/argentine-tango\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,ATN-Dances\\" style=\\"line-height: 1.5;\\">songs (408)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/argentine-tango\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/neo-tango\\">Neo Tango</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">60-100 BPM/15-25 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,NTN-Dances\\" style=\\"line-height: 1.5;\\">songs (67)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/neo-tango\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,NTN-Dances\\" style=\\"line-height: 1.5;\\">songs (67)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/neo-tango\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/milonga\\">Milonga</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">176-224 BPM/44-56 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,MGA-Dances\\" style=\\"line-height: 1.5;\\">songs (76)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/milonga\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,MGA-Dances\\" style=\\"line-height: 1.5;\\">songs (76)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/milonga\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/tango-vals\\">Tango Vals</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">150-240 BPM/50-80 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,TGV-Dances\\" style=\\"line-height: 1.5;\\">songs (134)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/tango-vals\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,TGV-Dances\\" style=\\"line-height: 1.5;\\">songs (134)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/tango-vals\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-primary\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/waltz\\">Waltz</a><!--v-if--><!--v-if--></span>
               <div>
-                <!--v-if--><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/waltz\\" style=\\"line-height: 1.5;\\">info</a>
+                <!--v-if--><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/waltz\\" style=\\"line-height: 1.5;\\">info</a>
               </div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/cross-step-waltz\\">Cross-step Waltz</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">108-120 BPM/36-40 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,CSW-Dances\\" style=\\"line-height: 1.5;\\">songs (56)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/cross-step-waltz\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,CSW-Dances\\" style=\\"line-height: 1.5;\\">songs (56)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/cross-step-waltz\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/slow-waltz\\">Slow Waltz</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">84-90 BPM/28-30 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,SWZ-Dances\\" style=\\"line-height: 1.5;\\">songs (1705)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/slow-waltz\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,SWZ-Dances\\" style=\\"line-height: 1.5;\\">songs (1705)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/slow-waltz\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/viennese-waltz\\">Viennese Waltz</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">159-190 BPM/53-63.3 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,VWZ-Dances\\" style=\\"line-height: 1.5;\\">songs (1932)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/viennese-waltz\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,VWZ-Dances\\" style=\\"line-height: 1.5;\\">songs (1932)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/viennese-waltz\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/tango-vals\\">Tango Vals</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">150-240 BPM/50-80 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,TGV-Dances\\" style=\\"line-height: 1.5;\\">songs (134)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/tango-vals\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,TGV-Dances\\" style=\\"line-height: 1.5;\\">songs (134)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/tango-vals\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-primary\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/foxtrot\\">Foxtrot</a><!--v-if--><!--v-if--></span>
               <div>
-                <!--v-if--><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/foxtrot\\" style=\\"line-height: 1.5;\\">info</a>
+                <!--v-if--><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/foxtrot\\" style=\\"line-height: 1.5;\\">info</a>
               </div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/castle-foxtrot\\">Castle Foxtrot</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">60-100 BPM/15-25 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,CFT-Dances\\" style=\\"line-height: 1.5;\\">songs (490)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/castle-foxtrot\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,CFT-Dances\\" style=\\"line-height: 1.5;\\">songs (490)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/castle-foxtrot\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/slow-foxtrot\\">Slow Foxtrot</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">112-128 BPM/28-32 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,SFT-Dances\\" style=\\"line-height: 1.5;\\">songs (2818)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/slow-foxtrot\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,SFT-Dances\\" style=\\"line-height: 1.5;\\">songs (2818)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/slow-foxtrot\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/quickstep\\">Quickstep</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">200-208 BPM/50-52 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,QST-Dances\\" style=\\"line-height: 1.5;\\">songs (1244)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/quickstep\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,QST-Dances\\" style=\\"line-height: 1.5;\\">songs (1244)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/quickstep\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/peabody\\">Peabody</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">240 BPM/60 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,PBD-Dances\\" style=\\"line-height: 1.5;\\">songs (134)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/peabody\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,PBD-Dances\\" style=\\"line-height: 1.5;\\">songs (134)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/peabody\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-primary\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/latin\\">Latin</a><!--v-if--><!--v-if--></span>
               <div>
-                <!--v-if--><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/latin\\" style=\\"line-height: 1.5;\\">info</a>
+                <!--v-if--><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/latin\\" style=\\"line-height: 1.5;\\">info</a>
               </div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/bolero\\">Bolero</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">96-104 BPM/24-26 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,BOL-Dances\\" style=\\"line-height: 1.5;\\">songs (726)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/bolero\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,BOL-Dances\\" style=\\"line-height: 1.5;\\">songs (726)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/bolero\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/bossa-nova\\">Bossa Nova</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">60-90 BPM/15-22.5 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,BSN-Dances\\" style=\\"line-height: 1.5;\\">songs (87)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/bossa-nova\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,BSN-Dances\\" style=\\"line-height: 1.5;\\">songs (87)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/bossa-nova\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/cha-cha\\">Cha Cha</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">120-128 BPM/30-32 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,CHA-Dances\\" style=\\"line-height: 1.5;\\">songs (20762)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/cha-cha\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,CHA-Dances\\" style=\\"line-height: 1.5;\\">songs (20762)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/cha-cha\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/mambo\\">Mambo</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">188 BPM/47 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,MBO-Dances\\" style=\\"line-height: 1.5;\\">songs (757)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/mambo\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,MBO-Dances\\" style=\\"line-height: 1.5;\\">songs (757)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/mambo\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/rumba\\">Rumba</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">100-124 BPM/25-31 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,RMB-Dances\\" style=\\"line-height: 1.5;\\">songs (3186)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/rumba\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,RMB-Dances\\" style=\\"line-height: 1.5;\\">songs (3186)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/rumba\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/paso-doble\\">Paso Doble</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">116-124 BPM/58-62 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,PDL-Dances\\" style=\\"line-height: 1.5;\\">songs (189)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/paso-doble\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,PDL-Dances\\" style=\\"line-height: 1.5;\\">songs (189)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/paso-doble\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/samba\\">Samba</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">96-104 BPM/48-52 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,SMB-Dances\\" style=\\"line-height: 1.5;\\">songs (1582)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/samba\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,SMB-Dances\\" style=\\"line-height: 1.5;\\">songs (1582)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/samba\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/salsa\\">Salsa</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">160-220 BPM/40-55 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,SLS-Dances\\" style=\\"line-height: 1.5;\\">songs (8772)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/salsa\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,SLS-Dances\\" style=\\"line-height: 1.5;\\">songs (8772)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/salsa\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/bachata\\">Bachata</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">108-152 BPM/27-38 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,BCH-Dances\\" style=\\"line-height: 1.5;\\">songs (1390)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/bachata\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,BCH-Dances\\" style=\\"line-height: 1.5;\\">songs (1390)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/bachata\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/cumbia\\">Cumbia</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">90-110 BPM/45-55 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,CMB-Dances\\" style=\\"line-height: 1.5;\\">songs (1320)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/cumbia\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,CMB-Dances\\" style=\\"line-height: 1.5;\\">songs (1320)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/cumbia\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/merengue\\">Merengue</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">58-64 BPM/29-32 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,MRG-Dances\\" style=\\"line-height: 1.5;\\">songs (989)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/merengue\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,MRG-Dances\\" style=\\"line-height: 1.5;\\">songs (989)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/merengue\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-primary\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/other\\">Other</a><!--v-if--><!--v-if--></span>
               <div>
-                <!--v-if--><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/other\\" style=\\"line-height: 1.5;\\">info</a>
+                <!--v-if--><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/other\\" style=\\"line-height: 1.5;\\">info</a>
               </div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/blues\\">Blues</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">40-100 BPM/10-25 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,BLU-Dances\\" style=\\"line-height: 1.5;\\">songs (1177)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/blues\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,BLU-Dances\\" style=\\"line-height: 1.5;\\">songs (1177)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/blues\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/country-two-step\\">Country Two Step</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">168-200 BPM/84-100 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,C2S-Dances\\" style=\\"line-height: 1.5;\\">songs (155)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/country-two-step\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,C2S-Dances\\" style=\\"line-height: 1.5;\\">songs (155)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/country-two-step\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/motown\\">Motown</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">80-150 BPM/20-37.5 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,MWT-Dances\\" style=\\"line-height: 1.5;\\">songs (104)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/motown\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,MWT-Dances\\" style=\\"line-height: 1.5;\\">songs (104)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/motown\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/night-club-two-step\\">Night Club Two Step</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">50-92 BPM/12.5-23 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,NC2-Dances\\" style=\\"line-height: 1.5;\\">songs (690)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/night-club-two-step\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,NC2-Dances\\" style=\\"line-height: 1.5;\\">songs (690)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/night-club-two-step\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/polka\\">Polka</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">120-124 BPM/60-62 MPM</span></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,PLK-Dances\\" style=\\"line-height: 1.5;\\">songs (272)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/polka\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,PLK-Dances\\" style=\\"line-height: 1.5;\\">songs (272)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/polka\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-primary\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/performance\\">Performance</a><!--v-if--><!--v-if--></span>
               <div>
-                <!--v-if--><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/performance\\" style=\\"line-height: 1.5;\\">info</a>
-              </div>
-            </div>
-          </div>
-          <div class=\\"list-group-item list-group-item-light\\">
-            <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/broadway\\">Broadway</a><!--v-if--><!--v-if--></span>
-              <div>
-                <!--v-if--><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/broadway\\" style=\\"line-height: 1.5;\\">info</a>
-              </div>
-            </div>
-          </div>
-          <div class=\\"list-group-item list-group-item-light\\">
-            <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/ballet\\">Ballet</a><!--v-if--><!--v-if--></span>
-              <div>
-                <!--v-if--><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/ballet\\" style=\\"line-height: 1.5;\\">info</a>
+                <!--v-if--><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/performance\\" style=\\"line-height: 1.5;\\">info</a>
               </div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/bollywood\\">Bollywood</a><!--v-if--><!--v-if--></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,BWD-Dances\\" style=\\"line-height: 1.5;\\">songs (1)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/bollywood\\" style=\\"line-height: 1.5;\\">info</a></div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,BWD-Dances\\" style=\\"line-height: 1.5;\\">songs (1)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/bollywood\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/contemporary\\">Contemporary</a><!--v-if--><!--v-if--></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,CNT-Dances\\" style=\\"line-height: 1.5;\\">songs (72)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/contemporary\\" style=\\"line-height: 1.5;\\">info</a></div>
-            </div>
-          </div>
-          <div class=\\"list-group-item list-group-item-light\\">
-            <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/disco\\">Disco</a><!--v-if--><!--v-if--></span>
-              <div>
-                <!--v-if--><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/disco\\" style=\\"line-height: 1.5;\\">info</a>
-              </div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,CNT-Dances\\" style=\\"line-height: 1.5;\\">songs (72)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/contemporary\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/freestyle\\">Freestyle</a><!--v-if--><!--v-if--></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,FST-Dances\\" style=\\"line-height: 1.5;\\">songs (67)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/freestyle\\" style=\\"line-height: 1.5;\\">info</a></div>
-            </div>
-          </div>
-          <div class=\\"list-group-item list-group-item-light\\">
-            <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/hip-hop\\">Hip-Hop</a><!--v-if--><!--v-if--></span>
-              <div>
-                <!--v-if--><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/hip-hop\\" style=\\"line-height: 1.5;\\">info</a>
-              </div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,FST-Dances\\" style=\\"line-height: 1.5;\\">songs (67)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/freestyle\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
           <div class=\\"list-group-item list-group-item-light\\">
             <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/jazz\\">Jazz</a><!--v-if--><!--v-if--></span>
-              <div><a class=\\"badge text-bg-secondary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,JAZ-Dances\\" style=\\"line-height: 1.5;\\">songs (73)</a><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/jazz\\" style=\\"line-height: 1.5;\\">info</a></div>
-            </div>
-          </div>
-          <div class=\\"list-group-item list-group-item-light\\">
-            <div class=\\"d-flex justify-content-between\\"><span><a href=\\"/dances/tap\\">Tap</a><!--v-if--><!--v-if--></span>
-              <div>
-                <!--v-if--><a class=\\"badge text-bg-secondary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/tap\\" style=\\"line-height: 1.5;\\">info</a>
-              </div>
+              <div><a class=\\"badge text-bg-primary text-decoration-none\\" replace=\\"false\\" href=\\"/song/index?filter=.-OOX,JAZ-Dances\\" style=\\"line-height: 1.5;\\">songs (73)</a><a class=\\"badge text-bg-primary text-decoration-none ms-2\\" replace=\\"false\\" href=\\"/dances/jazz\\" style=\\"line-height: 1.5;\\">info</a></div>
             </div>
           </div>
         </div>

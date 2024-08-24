@@ -2,7 +2,6 @@
 import { type SearchPage } from "@/models/SearchPage";
 import { searchPageFromWordPress, type WordPressEntry } from "@/models/WordPressEntry";
 import axios from "axios";
-import SearchResults from "./SearchResults.vue";
 import { onMounted, ref } from "vue";
 
 const props = defineProps<{

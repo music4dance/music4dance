@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import MainMenu from "@/components/MainMenu.vue";
 import { MenuContext } from "@/models/MenuContext";
 import { getMenuContext } from "@/helpers/GetMenuContext";
 

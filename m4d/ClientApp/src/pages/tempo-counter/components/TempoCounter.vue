@@ -1,8 +1,5 @@
 <script setup lang="ts">
 import { computed, ref, watch, watchEffect } from "vue";
-import BeatsPerMinute from "./BeatsPerMinute.vue";
-import MeasuresPerMinute from "./MeasuresPerMinute.vue";
-import StrictSlider from "./StrictSlider.vue";
 import type { CountMethod } from "../CountMethod";
 
 /// The states for the core state machine

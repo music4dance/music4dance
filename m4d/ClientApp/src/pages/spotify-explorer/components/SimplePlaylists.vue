@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import PlaylistButton from "./PlaylistButton.vue";
-import PlaylistLink from "./PlaylistLink.vue";
 import { SimplePlaylist } from "@/models/SimplePlaylist";
 
 defineProps<{
