@@ -266,3 +266,5 @@ paket-files/
 /m4d/Properties/ServiceDependencies
 /m4d/Properties/serviceDependencies*
 /m4d/Client/src/**/*.js
+
+**/.VSCodeCounter/**
