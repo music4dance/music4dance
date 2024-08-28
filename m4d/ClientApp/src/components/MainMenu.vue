@@ -1,12 +1,9 @@
 <script setup lang="ts">
 import { MenuContext } from "@/models/MenuContext";
 import { computed, ref } from "vue";
-import { useDropTarget } from "@/composables/useDropTarget";
 import logo from "@/assets/images/header-logo.png";
 import dancers from "@/assets/images/swing-ui.png";
 import { BToastOrchestrator } from "bootstrap-vue-next";
-
-const { checkServiceAndWarn } = useDropTarget();
 
 const renewalTag = "renewal-acknowledged";
 const marketingTag = "marketing-acknowledged";
@@ -63,9 +60,10 @@ function onDismissed(target: string): void {
   sessionStorage.setItem(target, "true");
 }
 
-function search(): void {
-  event?.preventDefault();
-  window.location.href = `/search?search=${encodeURIComponent(searchString.value)}`;
+function search(s?: string): void {
+  if (s) {
+    window.location.href = `/search?search=${encodeURIComponent(s)}`;
+  }
 }
 </script>
 
@@ -165,24 +163,10 @@ function search(): void {
         </BNavbarNav>
 
         <BNavbarNav class="ms-auto">
-          <BNavForm id="search" @submit="search">
-            <BFormInput
-              id="search-text"
-              v-model="searchString"
-              size="sm"
-              class="me-sm-2"
-              list="auto-complete"
-              autocomplete="off"
-              placeholder="Search"
-              @input="checkServiceAndWarn($event.target.value)"
-            />
-            <BButton
-              size="sm"
-              class="mx-2 my-2 my-sm-0"
-              type="submit"
-              :disabled="!searchString.trim()"
-              >Search</BButton
-            ><SuggestionList id="auto-complete" :search="searchString" />
+          <BNavForm id="search">
+            <BInputGroup>
+              <SuggestionEntry id="search-text" v-model="searchString" size="sm" @search="search" />
+            </BInputGroup>
           </BNavForm>
           <template v-if="context.userName">
             <BNavItemDropdown>

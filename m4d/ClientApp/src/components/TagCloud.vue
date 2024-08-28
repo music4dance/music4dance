@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { SongFilter } from "@/models/SongFilter";
-import TagIcon from "@/components/TagIcon.vue";
 import { Tag, TagBucket, type TagInfo } from "@/models/Tag";
 import { TagHandler } from "@/models/TagHandler";
-import TagModal from "./TagModal.vue";
 import { computed, reactive, ref } from "vue";
 import { type ColorVariant } from "bootstrap-vue-next";
 

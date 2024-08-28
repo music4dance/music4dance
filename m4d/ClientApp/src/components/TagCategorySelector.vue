@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import TagSelector from "@/components/TagSelector.vue";
-import TagIcon from "./TagIcon.vue";
 import { type ListOption } from "@/models/ListOption";
 import { Tag } from "@/models/Tag";
 import type { ColorVariant } from "bootstrap-vue-next";

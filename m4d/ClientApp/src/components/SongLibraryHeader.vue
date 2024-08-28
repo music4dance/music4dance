@@ -1,17 +1,12 @@
 <script setup lang="ts">
 import { wordsToKebab } from "@/helpers/StringHelpers";
-import { useDropTarget } from "@/composables/useDropTarget";
 import { SongFilter } from "@/models/SongFilter";
-import DanceChooser from "@/components/DanceChooser.vue";
-import SuggestionList from "@/components/SuggestionList.vue";
 import { ref } from "vue";
 
 const props = defineProps<{
   filter: SongFilter;
   user?: string;
 }>();
-
-const { checkServiceAndWarn } = useDropTarget();
 
 const filter = props.filter;
 const searchString = ref<string>(filter.searchString ?? "");
@@ -46,24 +41,14 @@ const chooseDance = (danceId?: string): void => {
     <h1 style="text-align: center">Song Library</h1>
     <BInputGroup>
       <BButton v-b-modal.dance-chooser variant="outline-primary">{{ danceLabel }}</BButton>
-
-      <label class="visually-hidden" for="keywords">Title, Artist, Album, Key Words</label>
-      <BFormInput
+      <SuggestionEntry
+        id="keywords"
         v-model="searchString"
-        type="text"
-        autocomplete="off"
-        placeholder="Title, Artist, Album, Key Words"
-        list="auto-complete"
-        autofocus
-        debounce="100"
-        @keyup.enter="search"
-        @input="checkServiceAndWarn($event.target.value)"
+        label="Title, Artist, Album, Key Words"
+        placeholder="Enter part of a title, artist, album, etc."
+        :autofocus="true"
+        @search="search"
       />
-      <SuggestionList id="auto-complete" :search="searchString" />
-
-      <BButton variant="outline-primary" @click="search">
-        <IBiSearch />
-      </BButton>
     </BInputGroup>
     <BRow>
       <BCol><a :href="searches">Saved Searches</a></BCol>

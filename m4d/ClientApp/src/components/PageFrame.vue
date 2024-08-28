@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import MainMenu from "@/components/MainMenu.vue";
-import PageLoader from "./PageLoader.vue";
 import { MenuContext } from "@/models/MenuContext";
 import { getMenuContext } from "@/helpers/GetMenuContext";
 import { type BreadCrumbItem } from "@/models/BreadCrumbItem";

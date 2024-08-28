@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { TagHandler } from "@/models/TagHandler";
 import { computed } from "vue";
-import TagIcon from "./TagIcon.vue";
 
 const props = defineProps<{
   // INT-TODO: For some reason typescript is generating an error on this in TagCloud if

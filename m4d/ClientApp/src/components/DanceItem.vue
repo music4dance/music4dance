@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { TempoType } from "@/models/TempoType";
-import DanceName from "./DanceName.vue";
 import type { DanceObject } from "@/models/DanceDatabase/DanceObject";
 import { computed } from "vue";
 import { DanceGroup } from "@/models/DanceDatabase/DanceGroup";

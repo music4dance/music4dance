@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import DanceItem from "@/components/DanceItem.vue";
 import type { DanceObject } from "@/models/DanceDatabase/DanceObject";
 import { TempoType } from "@/models/TempoType";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";

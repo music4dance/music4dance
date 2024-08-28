@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import VoteButton from "./VoteButton.vue";
 
 const props = defineProps<{
   vote?: boolean;

@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import TagButtonOther from "@/components/TagButtonOther.vue";
-import TagCategorySelector from "@/components/TagCategorySelector.vue";
-import TagList from "@/components/TagList.vue";
 import { SongEditor } from "@/models/SongEditor";
 import { SongFilter } from "@/models/SongFilter";
 import { PropertyType } from "@/models/SongProperty";

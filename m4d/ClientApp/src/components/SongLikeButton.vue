@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import LikeButton from "@/components/LikeButton.vue";
 import { Song } from "@/models/Song";
 import { computed } from "vue";
 

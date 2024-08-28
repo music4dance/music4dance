@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import DanceVoteItem from "@/components/DanceVoteItem.vue";
-import LikeIcon from "@/components/LikeIcon.vue";
 import { DanceRatingVote } from "@/models/DanceRatingDelta";
 import { SongEditor } from "@/models/SongEditor";
 import { computed, ref } from "vue";

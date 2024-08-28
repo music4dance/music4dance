@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { SongFilter } from "@/models/SongFilter";
-import SortIcon from "@/components/SortIcon.vue";
 
 const props = defineProps<{
   id: string;

@@ -2,8 +2,6 @@
 import { DanceRatingVote } from "@/models/DanceRatingDelta";
 import { SongEditor } from "@/models/SongEditor";
 import { SongFilter } from "@/models/SongFilter";
-import DanceVote from "./DanceVote.vue";
-import SongLikeButton from "./SongLikeButton.vue";
 import { getMenuContext } from "@/helpers/GetMenuContext";
 import { computed } from "vue";
 

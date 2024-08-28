@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { wordsToKebab } from "@/helpers/StringHelpers";
 import { TagMatrix, TagRow } from "@/models/TagMatrix";
-import DanceName from "./DanceName.vue";
 import type { TableFieldRaw, TableItem } from "bootstrap-vue-next";
 import { NamedObject } from "@/models/DanceDatabase/NamedObject";
 import type { LiteralUnion } from "@/helpers/bsvn-types";

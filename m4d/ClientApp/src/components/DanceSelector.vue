@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import TagSelector from "@/components/TagSelector.vue";
 import { NamedObject } from "@/models/DanceDatabase/NamedObject";
 
 const model = defineModel<string[]>();
@@ -8,7 +7,7 @@ const props = defineProps<{
 }>();
 
 const danceOptions = props.danceList
-  .map((d) => ({ text: d.name, value: d.id }))
+  .map((d) => ({ text: d.displayName, value: d.id }))
   .sort((a, b) => a.text.localeCompare(b.text));
 </script>
 

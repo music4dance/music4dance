@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { DanceRatingVote, VoteDirection } from "@/models/DanceRatingDelta";
 import { DanceRating } from "@/models/DanceRating";
-import DanceVoteButton from "./DanceVoteButton.vue";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { computed } from "vue";
 

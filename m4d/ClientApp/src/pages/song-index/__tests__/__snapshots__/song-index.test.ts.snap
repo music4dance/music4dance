@@ -10,7 +10,7 @@ exports[`Song Index > renders a song index page 1`] = `
       <div>
         <h1 style=\\"text-align: center;\\">Song Library</h1>
         <div class=\\"input-group\\" role=\\"group\\">
-          <!----><button class=\\"btn link-undefined link-underline-undefined btn-md btn-outline-primary collapsed\\" type=\\"button\\" aria-controls=\\"dance-chooser\\" aria-expanded=\\"false\\">All Dances</button><label class=\\"visually-hidden\\" for=\\"keywords\\">Title, Artist, Album, Key Words</label><input id=\\"__BVID__0046___BV_input__\\" class=\\"form-control\\" type=\\"text\\" placeholder=\\"Title, Artist, Album, Key Words\\" autocomplete=\\"off\\" list=\\"auto-complete\\" value=\\"\\"><datalist id=\\"auto-complete\\"></datalist><button class=\\"btn link-undefined link-underline-undefined btn-md btn-outline-primary\\" type=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
+          <!----><button class=\\"btn link-undefined link-underline-undefined btn-md btn-outline-primary collapsed\\" type=\\"button\\" aria-controls=\\"dance-chooser\\" aria-expanded=\\"false\\">All Dances</button><label class=\\"visually-hidden\\" for=\\"keywords\\">Title, Artist, Album, Key Words</label><input id=\\"keywords\\" class=\\"form-control form-control-md\\" type=\\"text\\" placeholder=\\"Enter part of a title, artist, album, etc.\\" autocomplete=\\"off\\" list=\\"keywords-suggestions\\" value=\\"\\"><datalist id=\\"keywords-suggestions\\"></datalist><button class=\\"btn link-undefined link-underline-undefined btn-md btn-outline-secondary\\" type=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
               <path fill=\\"currentColor\\" d=\\"M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0a5.5 5.5 0 0 1 11 0\\"></path>
             </svg></button>
           <!---->
@@ -32,32 +32,32 @@ exports[`Song Index > renders a song index page 1`] = `
                 <div data-v-a7ef304f=\\"\\" class=\\"likeHeader\\">Like/Play</div>
                 <!---->
               </th>
-              <th scope=\\"col\\" class=\\"\\"><span data-v-a7ef304f=\\"\\"><span><a id=\\"Title\\" href=\\"/song/Index?filter=v2-Index--Title\\">Title<!--v-if--></a><span id=\\"__BVID__0052___BV_popover___placeholder\\"></span>
+              <th scope=\\"col\\" class=\\"\\"><span data-v-a7ef304f=\\"\\"><span><a id=\\"Title\\" href=\\"/song/Index?filter=v2-Index--Title\\">Title<!--v-if--></a><span id=\\"__BVID__0050___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span></span>
                 <!---->
               </th>
-              <th scope=\\"col\\" class=\\"\\"><span data-v-a7ef304f=\\"\\"><span><a id=\\"Artist\\" href=\\"/song/Index?filter=v2-Index--Artist\\">Artist<!--v-if--></a><span id=\\"__BVID__0053___BV_popover___placeholder\\"></span>
+              <th scope=\\"col\\" class=\\"\\"><span data-v-a7ef304f=\\"\\"><span><a id=\\"Artist\\" href=\\"/song/Index?filter=v2-Index--Artist\\">Artist<!--v-if--></a><span id=\\"__BVID__0051___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span></span>
                 <!---->
               </th>
-              <th scope=\\"col\\" class=\\"\\"><span data-v-a7ef304f=\\"\\"><span><a id=\\"Tempo\\" href=\\"/song/Index?filter=v2-Index--Tempo\\">Tempo (BPM)<!--v-if--></a><span id=\\"__BVID__0054___BV_popover___placeholder\\"></span>
+              <th scope=\\"col\\" class=\\"\\"><span data-v-a7ef304f=\\"\\"><span><a id=\\"Tempo\\" href=\\"/song/Index?filter=v2-Index--Tempo\\">Tempo (BPM)<!--v-if--></a><span id=\\"__BVID__0052___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span></span>
                 <!---->
               </th>
               <th scope=\\"col\\" class=\\"\\">
-                <div data-v-a7ef304f=\\"\\" class=\\"echoHeader\\"><span data-v-a7ef304f=\\"\\"><span><a id=\\"Beat\\" href=\\"/song/Index?filter=v2-Index--Beat\\"><img data-v-a7ef304f=\\"\\" src=\\"/vclient/src/assets/images/icons/beat-10.png\\" width=\\"25\\" height=\\"25\\"><!--v-if--></a><span id=\\"__BVID__0055___BV_popover___placeholder\\"></span>
+                <div data-v-a7ef304f=\\"\\" class=\\"echoHeader\\"><span data-v-a7ef304f=\\"\\"><span><a id=\\"Beat\\" href=\\"/song/Index?filter=v2-Index--Beat\\"><img data-v-a7ef304f=\\"\\" src=\\"/vclient/src/assets/images/icons/beat-10.png\\" width=\\"25\\" height=\\"25\\"><!--v-if--></a><span id=\\"__BVID__0053___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span></span><span data-v-a7ef304f=\\"\\"><span><a id=\\"Energy\\" href=\\"/song/Index?filter=v2-Index--Energy\\"><img data-v-a7ef304f=\\"\\" src=\\"/vclient/src/assets/images/icons/Energy-10.png\\" width=\\"25\\" height=\\"25\\"><!--v-if--></a><span id=\\"__BVID__0056___BV_popover___placeholder\\"></span>
+                  <!--teleport end--></span></span><span data-v-a7ef304f=\\"\\"><span><a id=\\"Energy\\" href=\\"/song/Index?filter=v2-Index--Energy\\"><img data-v-a7ef304f=\\"\\" src=\\"/vclient/src/assets/images/icons/Energy-10.png\\" width=\\"25\\" height=\\"25\\"><!--v-if--></a><span id=\\"__BVID__0054___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span></span><span data-v-a7ef304f=\\"\\"><span><a id=\\"Mood\\" href=\\"/song/Index?filter=v2-Index--Mood\\"><img data-v-a7ef304f=\\"\\" src=\\"/vclient/src/assets/images/icons/mood-10.png\\" width=\\"25\\" height=\\"25\\"><!--v-if--></a><span id=\\"__BVID__0057___BV_popover___placeholder\\"></span>
+                  <!--teleport end--></span></span><span data-v-a7ef304f=\\"\\"><span><a id=\\"Mood\\" href=\\"/song/Index?filter=v2-Index--Mood\\"><img data-v-a7ef304f=\\"\\" src=\\"/vclient/src/assets/images/icons/mood-10.png\\" width=\\"25\\" height=\\"25\\"><!--v-if--></a><span id=\\"__BVID__0055___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
                   <!--teleport end--></span></span>
@@ -94,7 +94,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-46157cfc-5f79-46cd-927e-7b426924ba95\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0058___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-46157cfc-5f79-46cd-927e-7b426924ba95\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0056___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -331,7 +331,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-2c8a56bb-0609-4e77-93a6-4131b64fb079\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0059___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-2c8a56bb-0609-4e77-93a6-4131b64fb079\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0057___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -494,7 +494,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-a20823ab-4478-4ae8-963e-e8de94b0d928\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0060___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-a20823ab-4478-4ae8-963e-e8de94b0d928\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0058___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -693,7 +693,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-70b88100-cd46-45dc-8175-70473f9c2b26\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0061___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-70b88100-cd46-45dc-8175-70473f9c2b26\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0059___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -975,7 +975,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-d31c0524-aa8c-4620-981d-b905f6d53a14\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0062___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-d31c0524-aa8c-4620-981d-b905f6d53a14\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0060___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -1176,7 +1176,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-6b3384e0-340f-4e0d-a877-f632ffc3d587\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0063___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-6b3384e0-340f-4e0d-a877-f632ffc3d587\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0061___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -1330,7 +1330,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-121ba515-8f4b-4c0f-941f-c8fd5de97153\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0064___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-121ba515-8f4b-4c0f-941f-c8fd5de97153\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0062___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -1541,7 +1541,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-a2ad8895-2b6f-4322-a464-e48eadd890b9\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0065___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-a2ad8895-2b6f-4322-a464-e48eadd890b9\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0063___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -1689,7 +1689,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-47780cea-bb8b-45cf-b9b0-1e17fc4073f8\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0066___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-47780cea-bb8b-45cf-b9b0-1e17fc4073f8\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0064___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -1835,7 +1835,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-431d7e0f-2419-4868-8328-889be9117f8f\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0067___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-431d7e0f-2419-4868-8328-889be9117f8f\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0065___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -2032,7 +2032,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-b861e272-18de-4381-ae5b-f6cc3838885f\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0068___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-b861e272-18de-4381-ae5b-f6cc3838885f\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0066___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -2243,7 +2243,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-177fdf55-532c-44b3-b0f8-ad8da8c0cf5e\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0069___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-177fdf55-532c-44b3-b0f8-ad8da8c0cf5e\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0067___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -2402,7 +2402,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-cc91a066-1e0b-4f6a-a8a8-ed9eadad4fb2\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0070___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-cc91a066-1e0b-4f6a-a8a8-ed9eadad4fb2\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0068___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -2611,7 +2611,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-8f39a828-617b-446b-a5fa-61a659408467\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0071___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-8f39a828-617b-446b-a5fa-61a659408467\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0069___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -2908,7 +2908,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-03b20e2d-b769-4c13-af47-d9ef54103731\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0072___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-03b20e2d-b769-4c13-af47-d9ef54103731\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0070___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -3156,7 +3156,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-0e28a93d-fbbf-4d76-a4ed-3558d0c978e3\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0073___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-0e28a93d-fbbf-4d76-a4ed-3558d0c978e3\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0071___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -3274,7 +3274,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-5378cfc5-4e8e-412f-beff-5838e79a19d5\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0074___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-5378cfc5-4e8e-412f-beff-5838e79a19d5\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0072___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -3399,7 +3399,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-c60b89f8-0697-40b1-9a41-3451427d962b\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0075___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-c60b89f8-0697-40b1-9a41-3451427d962b\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0073___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -3542,7 +3542,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-a31dba76-7db3-4cb7-b3b9-44f1e874a0a5\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0076___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-a31dba76-7db3-4cb7-b3b9-44f1e874a0a5\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0074___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -3758,7 +3758,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-d838efa3-544e-41bf-afeb-d232521aee8b\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0077___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-d838efa3-544e-41bf-afeb-d232521aee8b\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0075___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -3828,7 +3828,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-9558cc28-e625-40da-9f91-f98709419627\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0078___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-9558cc28-e625-40da-9f91-f98709419627\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0076___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -3889,7 +3889,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-cc177bfc-fd06-4e37-aff1-fc226bd6632d\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0079___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-cc177bfc-fd06-4e37-aff1-fc226bd6632d\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0077___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -3943,7 +3943,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-7f1cddf3-49d8-4f95-90c1-c53bf35f566a\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0080___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-7f1cddf3-49d8-4f95-90c1-c53bf35f566a\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0078___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -4031,7 +4031,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-eb68affb-e4ae-478c-95c7-df9c959f5707\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0081___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-eb68affb-e4ae-478c-95c7-df9c959f5707\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0079___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -4119,7 +4119,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-3c15c8c7-6b91-4347-8af9-8942b793540e\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0082___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-3c15c8c7-6b91-4347-8af9-8942b793540e\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0080___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">

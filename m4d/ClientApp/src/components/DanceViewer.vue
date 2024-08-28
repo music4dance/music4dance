@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import DanceButton from "@/components/DanceButton.vue";
 import { DanceHandler } from "@/models/DanceHandler";
 import { DanceRating } from "@/models/DanceRating";
 import { Tag } from "@/models/Tag";

@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import DanceVote from "@/components/DanceVote.vue";
 import { DanceHandler } from "@/models/DanceHandler";
 import { Tag } from "@/models/Tag";
 import { TagHandler } from "@/models/TagHandler";
-import TagButton from "./TagButton.vue";
 import { computed, ref } from "vue";
 import type { DanceRatingVote } from "@/models/DanceRatingDelta";
 import type { DanceRating } from "@/models/DanceRating";

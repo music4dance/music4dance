@@ -12,7 +12,9 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
           <div class=\\"mb-3\\" id=\\"search-string-group\\" role=\\"group\\"><label id=\\"__BVID__0001___BV__BV_label___\\" for=\\"search-string\\" class=\\"form-label d-block\\">Keywords:</label>
             <div class=\\"\\">
               <div class=\\"input-group mb-1\\" role=\\"group\\">
-                <!----><input id=\\"search-everywhere\\" class=\\"form-control\\" type=\\"text\\" placeholder=\\"Enter artist, title, etc. OR a Spotify or Apple share link\\" autocomplete=\\"off\\" list=\\"auto-complete\\" value=\\"Love\\"><datalist id=\\"auto-complete\\"></datalist>
+                <!---->
+                <!--v-if--><input id=\\"search-everywhere\\" class=\\"form-control form-control-md\\" type=\\"text\\" placeholder=\\"Enter artist, title, etc. OR a Spotify or Apple share link\\" autocomplete=\\"off\\" list=\\"search-everywhere-suggestions\\" value=\\"Love\\"><datalist id=\\"search-everywhere-suggestions\\"></datalist>
+                <!--v-if-->
                 <!---->
               </div><button class=\\"btn link-undefined link-underline-undefined btn-sm btn-outline-secondary rounded-0 float-end\\" type=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
                   <path fill=\\"currentColor\\" d=\\"M3.204 5h9.592L8 10.481zm-.753.659l4.796 5.48a1 1 0 0 0 1.506 0l4.796-5.48c.566-.647.106-1.659-.753-1.659H3.204a1 1 0 0 0-.753 1.659\\"></path>
@@ -57,7 +59,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
                         </li>
                         <!--v-if-->
                         <div>
-                          <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Argentine Tango</button></li>
+                          <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Argentine Tango (Tango Argentino)</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Balboa</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Bachata</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Broadway</button></li>
@@ -66,7 +68,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Bossa Nova</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Bollywood</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Country Two Step</button></li>
-                          <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Castle Foxtrot</button></li>
+                          <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Castle Foxtrot (Slow Dance)</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Cha Cha</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Collegiate Shag</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Cumbia</button></li>
@@ -75,15 +77,15 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Charleston</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Cross-step Waltz</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Disco</button></li>
-                          <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">East Coast Swing</button></li>
+                          <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">East Coast Swing (Triple Swing,East Coast)</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Freestyle</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Foxtrot</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Hip-Hop</button></li>
-                          <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Hustle</button></li>
+                          <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Hustle (Street Swing,Disco Fox)</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Jazz</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Jive</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Jump Swing</button></li>
-                          <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Lindy Hop</button></li>
+                          <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Lindy Hop (Swing,Jitterbug)</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Latin</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Mambo</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Milonga</button></li>
@@ -92,23 +94,23 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Motown</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Night Club Two Step</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Neo Tango</button></li>
-                          <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Peabody</button></li>
+                          <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Peabody (One Step)</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Paso Doble</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Polka</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Performance</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Quickstep</button></li>
-                          <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Slow Foxtrot</button></li>
+                          <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Slow Foxtrot (Foxtrot)</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Salsa</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Samba</button></li>
-                          <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Single Swing</button></li>
+                          <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Single Swing (Single-time Swing,East Coast Single Swing,Jitterbug)</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Swing</button></li>
-                          <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Slow Waltz</button></li>
+                          <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Slow Waltz (Waltz)</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Tap</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Tango (Ballroom)</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Tango Vals</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Tango</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Viennese Waltz</button></li>
-                          <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">West Coast Swing</button></li>
+                          <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">West Coast Swing (West Coast)</button></li>
                           <li role=\\"presentation\\"><button role=\\"menu\\" type=\\"button\\" class=\\"dropdown-item\\">Waltz</button></li>
                         </div>
                       </div>

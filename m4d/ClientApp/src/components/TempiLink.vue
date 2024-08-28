@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { type FeatureInfo } from "@/models/FeatureInfo";
-import FeatureLink from "./FeatureLink.vue";
 
 const info: FeatureInfo = {
   title:

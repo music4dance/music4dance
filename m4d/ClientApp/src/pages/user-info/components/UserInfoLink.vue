@@ -30,10 +30,7 @@ const formattedText = computed(() => {
     <IBiPatchMinus v-else />
     <span class="px-1" />
     <IBiHeartFill v-if="type === 'l'" class="text-danger" />
-    <span v-else-if="type == 'h'" class="position-relative">
-      <IBiHeartFill class="" />
-      <IBiXCircle class="text-danger position-absolute bottom-0 start-0 text-secondary" />
-    </span>
+    <IBiHeartbreakFill v-else-if="type == 'h'" />
     <IBiPencil v-else />
     <span class="px-1" />
     <a :href="url" class="ms-1" v-html="formattedText" />

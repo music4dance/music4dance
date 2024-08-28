@@ -11,14 +11,6 @@ import { SongSort, SortOrder } from "@/models/SongSort";
 import { Tag } from "@/models/Tag";
 import { TaggableObject } from "@/models/TaggableObject";
 import { TagHandler } from "@/models/TagHandler";
-import ChronModal from "./ChronModal.vue";
-import DanceModal from "./DanceModal.vue";
-import SongChangeViewer from "./SongChangeViewer.vue";
-import DanceButton from "./DanceButton.vue";
-import EchoIcon from "./EchoIcon.vue";
-import PlayCell from "./PlayCell.vue";
-import SortableHeader from "./SortableHeader.vue";
-import TagButton from "./TagButton.vue";
 import { computed, ref, watch } from "vue";
 import { getMenuContext } from "@/helpers/GetMenuContext";
 import { useWindowSize } from "@vueuse/core";
@@ -26,8 +18,6 @@ import type { TableFieldRaw } from "bootstrap-vue-next";
 import beat10 from "@/assets/images/icons/beat-10.png";
 import energy10 from "@/assets/images/icons/Energy-10.png";
 import mood10 from "@/assets/images/icons/mood-10.png";
-import OrderIcon from "./OrderIcon.vue";
-import PlayModal from "./PlayModal.vue";
 
 type SongField = Exclude<TableFieldRaw<SongEditor>, string>;
 

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { FeatureInfo } from "@/models/FeatureInfo";
-import FeatureButton from "./FeatureButton.vue";
 import { computed } from "vue";
 
 const props = defineProps<{

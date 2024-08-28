@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import TagButton from "@/components/TagButton.vue";
 import { SongFilter } from "@/models/SongFilter";
 import { Tag } from "@/models/Tag";
 import { TaggableObject } from "@/models/TaggableObject";

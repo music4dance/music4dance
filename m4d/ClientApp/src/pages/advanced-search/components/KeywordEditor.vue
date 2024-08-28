@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useDropTarget } from "@/composables/useDropTarget";
 import { KeywordQuery } from "@/models/KeywordQuery";
-import type { BFormInput } from "bootstrap-vue-next";
 import { computed } from "vue";
 
 const props = defineProps({ modelValue: { type: String, required: true } });
@@ -45,18 +44,15 @@ const updateModel = async (key: string, value: string) => {
       :append="showFields ? item.name : undefined"
       class="mb-1"
     >
-      <BFormInput
+      <SuggestionEntry
         :id="`search-${item.name.toLowerCase()}`"
         :model-value="item.model.value"
-        type="text"
         :placeholder="item.description"
         :autofocus="index === 0"
-        debounce="100"
-        :autocomplete="index === 0 ? 'off' : 'false'"
-        :list="index === 0 ? 'auto-complete' : undefined"
+        :hide-suggestions="index !== 0"
+        :hide-button="true"
         @update:model-value="updateModel(item.name, $event as string)"
       />
-      <SuggestionList v-if="index === 0" id="auto-complete" :search="everywhere" />
     </BInputGroup>
     <BButton
       v-if="!showFields"

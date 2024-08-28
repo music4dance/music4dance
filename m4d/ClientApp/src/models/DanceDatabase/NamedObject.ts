@@ -15,6 +15,14 @@ export class NamedObject extends SerializableObject {
     return this.internalName;
   }
 
+  public get hasSynonyms(): boolean {
+    return !!(this.synonyms && this.synonyms.length > 0);
+  }
+
+  public get displayName(): string {
+    return this.hasSynonyms ? `${this.name} (${this.synonyms?.join(",")})` : this.name;
+  }
+
   @jsonMember(String) public description?: string;
   @jsonArrayMember(String) public synonyms?: string[];
   @jsonArrayMember(String) public searchonyms?: string[];
