@@ -76,7 +76,6 @@ using (Html.BeginForm("ReloadDatabase", "Admin", FormMethod.Post, new
 }))
 {
     @Html.AntiForgeryToken()
-    ;
     <input type="file" name="FileUpload"/>
     <br/>
     <input type="submit" name="reloadDatabase" id="Reload" value="Reload"/>
@@ -92,7 +91,7 @@ using (Html.BeginForm("ReloadDatabase", "Admin", FormMethod.Post, new
     enctype = "multipart/form-data"
 }))
 {
-    @Html.AntiForgeryToken();
+    @Html.AntiForgeryToken()
     <input type="file" name="FileUpload" />
     <br />
     <input type="submit" name="reloadDatabase" id="Load" value="Load" />
@@ -106,7 +105,6 @@ using (Html.BeginForm("LoadIdx", "Admin", FormMethod.Post, new
 }))
 {
     @Html.AntiForgeryToken()
-    ;
     <input type="file" name="FileUpload"/>
     <br/>
     <input type="submit" name="idxName" id="basica" value="basica"/>

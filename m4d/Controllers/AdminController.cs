@@ -538,6 +538,8 @@ public class AdminController : DanceMusicController
     // Post: //LoadUsage
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [DisableRequestSizeLimit]
+    [RequestFormLimits(ValueLengthLimit = int.MaxValue, MultipartBodyLengthLimit = int.MaxValue)]
     [Authorize(Roles = "dbAdmin")]
     public async Task<ActionResult> LoadUsage(IFormFile fileUpload)
     {
