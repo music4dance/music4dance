@@ -19,7 +19,7 @@
     "@vueuse/integrations": "^10.11.1",
     "axios": "^1.7.4",
     "bootstrap-styles": "^5.3.3",
-    "bootstrap-vue-next": "^0.24.10",
+    "bootstrap-vue-next": "^0.24.11",
     "date-fns": "^3.6.0",
     "focus-trap": "^7.5.4",
     "typedjson": "^1.8.0",

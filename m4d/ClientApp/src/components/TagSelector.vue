@@ -143,13 +143,12 @@ function onOptionClick(option: ListOption, addTag: (opt: string) => void): void 
   <BFormTags v-model="model" no-outer-focus add-on-change class="mb-2" style="border-style: hidden">
     <template #default="{ tags, disabled, addTag, removeTag }">
       <ul v-if="tags.length > 0" class="list-inline d-inline-block mb-2">
-        <li v-for="tag in tags" :key="tag" class="list-inline-item">
+        <li v-for="tag in tags" :key="tag" class="list-inline-item" data-bs-theme="dark">
           <slot :tag="tag" :disabled="disabled" :remove-tag="removeTag">
             <BFormTag
               :title="titleFromTag(tag)"
               :disabled="disabled"
               :variant="safeVariant"
-              data-bs-theme="dark"
               @remove="removeTag(tag)"
               >{{ titleFromTag(tag) }}</BFormTag
             >

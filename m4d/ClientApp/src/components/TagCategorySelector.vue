@@ -67,6 +67,7 @@ function tagFromKey(key: string): Tag {
         :title="titleFromKey(tag)"
         :disabled="disabled"
         :variant="variantFromKey(tag)"
+        data-bs-theme="dark"
         @remove="removeTag(tag)"
       >
         {{ titleFromKey(tag) }}
