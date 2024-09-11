@@ -143,7 +143,7 @@ const isGroup = (dance: NamedObject) => {
         </BListGroup>
       </BTab>
       <BTab v-if="hasTempo" title="By Tempo" active>
-        <DanceList
+        <DanceDeltas
           :dances="tempoFiltered"
           :beats-per-minute="tempo"
           :beats-per-measure="numerator"

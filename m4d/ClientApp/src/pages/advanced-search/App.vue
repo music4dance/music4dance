@@ -222,9 +222,8 @@ async function onSubmit(): Promise<void> {
     const min = tempoMin.value;
     const max = tempoMax.value;
     if (min > max) {
-      const tempo = max;
       tempoMax.value = min;
-      tempoMin.value = tempo;
+      tempoMin.value = max;
     }
 
     if (lengthMin.value > lengthMax.value) {
@@ -340,9 +339,8 @@ function onReset(evt: Event): void {
             <div class="d-flex">
               <BFormInput
                 id="tempo-min"
-                v-model="tempoMin"
+                v-model.number="tempoMin"
                 type="number"
-                number
                 min="0"
                 max="400"
                 style="width: 6rem"
@@ -350,11 +348,10 @@ function onReset(evt: Event): void {
               <span class="mx-2 pt-2">to</span>
               <BFormInput
                 id="tempo-max"
-                v-model="tempoMax"
+                v-model.number="tempoMax"
                 type="number"
                 min="0"
                 max="400"
-                number
                 style="width: 6rem"
               />
               <div class="invalid-feedback">Tempos must be between 0 and 400 BPM</div>
@@ -371,9 +368,8 @@ function onReset(evt: Event): void {
             <div class="d-flex">
               <BFormInput
                 id="length-min"
-                v-model="lengthMin"
+                v-model.number="lengthMin"
                 type="number"
-                number
                 min="0"
                 max="600"
                 style="width: 6rem"
@@ -381,11 +377,10 @@ function onReset(evt: Event): void {
               <span class="mx-2 pt-2">to</span>
               <BFormInput
                 id="length-max"
-                v-model="lengthMax"
+                v-model.number="lengthMax"
                 type="number"
                 min="0"
                 max="600"
-                number
                 style="width: 6rem"
               />
               <div class="invalid-feedback">Length must be between 0 and 600 seconds</div>

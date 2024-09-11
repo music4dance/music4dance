@@ -108,13 +108,37 @@ namespace m4dModels
             SearchString = ReadCell(cells, idx++);
             Purchase = ReadCell(cells, idx++);
             User = ReadCell(cells, idx++);
-            TempoMin = ReadDecimal(cells, idx++);
-            TempoMax = ReadDecimal(cells, idx++);
+            {
+                var min = ReadDecimal(cells, idx++);
+                var max = ReadDecimal(cells, idx++);
+                if (min.HasValue && max.HasValue && min > max)
+                {
+                    TempoMin = max;
+                    TempoMax = min;
+                }
+                else
+                {
+                    TempoMin = min;
+                    TempoMax = max;
+                }
+            }
+
             if (Version > 1)
             {
-                LengthMin = ReadInt(cells, idx++);
-                LengthMax = ReadInt(cells, idx++);
+                var min = ReadInt(cells, idx++);
+                var max = ReadInt(cells, idx++);
+                if (min.HasValue && max.HasValue && min > max)
+                {
+                   LengthMin = max;
+                   LengthMax = min;
+                }
+                else
+                {
+                    LengthMin = min;
+                    LengthMax = max;
+                }
             }
+
             Page = ReadInt(cells, idx++);
             Tags = ReadCell(cells, idx++);
             Level = ReadInt(cells, idx++);
