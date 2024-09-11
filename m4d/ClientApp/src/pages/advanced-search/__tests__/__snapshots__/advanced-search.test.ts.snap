@@ -213,7 +213,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
               <fieldset class=\\"\\" id=\\"tempo-range\\">
                 <!---->
                 <div class=\\"\\">
-                  <div class=\\"d-flex\\"><input id=\\"tempo-min\\" class=\\"form-control\\" type=\\"number\\" min=\\"0\\" max=\\"400\\" number=\\"\\" style=\\"width: 6rem;\\" value=\\"0\\"><span class=\\"mx-2 pt-2\\">to</span><input id=\\"tempo-max\\" class=\\"form-control\\" type=\\"number\\" min=\\"0\\" max=\\"400\\" number=\\"\\" style=\\"width: 6rem;\\" value=\\"400\\">
+                  <div class=\\"d-flex\\"><input id=\\"tempo-min\\" class=\\"form-control\\" type=\\"number\\" min=\\"0\\" max=\\"400\\" style=\\"width: 6rem;\\" value=\\"0\\"><span class=\\"mx-2 pt-2\\">to</span><input id=\\"tempo-max\\" class=\\"form-control\\" type=\\"number\\" min=\\"0\\" max=\\"400\\" style=\\"width: 6rem;\\" value=\\"400\\">
                     <div class=\\"invalid-feedback\\">Tempos must be between 0 and 400 BPM</div>
                   </div>
                   <!---->
@@ -231,7 +231,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
               <fieldset class=\\"\\" id=\\"length-range\\">
                 <!---->
                 <div class=\\"\\">
-                  <div class=\\"d-flex\\"><input id=\\"length-min\\" class=\\"form-control\\" type=\\"number\\" min=\\"0\\" max=\\"600\\" number=\\"\\" style=\\"width: 6rem;\\" value=\\"0\\"><span class=\\"mx-2 pt-2\\">to</span><input id=\\"length-max\\" class=\\"form-control\\" type=\\"number\\" min=\\"0\\" max=\\"600\\" number=\\"\\" style=\\"width: 6rem;\\" value=\\"600\\">
+                  <div class=\\"d-flex\\"><input id=\\"length-min\\" class=\\"form-control\\" type=\\"number\\" min=\\"0\\" max=\\"600\\" style=\\"width: 6rem;\\" value=\\"0\\"><span class=\\"mx-2 pt-2\\">to</span><input id=\\"length-max\\" class=\\"form-control\\" type=\\"number\\" min=\\"0\\" max=\\"600\\" style=\\"width: 6rem;\\" value=\\"600\\">
                     <div class=\\"invalid-feedback\\">Length must be between 0 and 600 seconds</div>
                   </div>
                   <!---->
