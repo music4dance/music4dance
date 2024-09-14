@@ -30,6 +30,7 @@ exports[`MainMenu.vue > Renders MainMenu for an anonymous user 1`] = `
                 <li role=\\"presentation\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/dances/wedding-music\\" role=\\"menuitem\\">Wedding</a></li>
                 <li role=\\"presentation\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/song/holidaymusic\\" role=\\"menuitem\\">Holiday</a></li>
                 <li role=\\"presentation\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/song/holidaymusic?occassion=halloween\\" role=\\"menuitem\\">Halloween</a></li>
+                <li role=\\"presentation\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/song/holidaymusic?occassion=broadway\\" role=\\"menuitem\\">Broadway</a></li>
                 <li role=\\"presentation\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/tag\\" role=\\"menuitem\\">Tags</a></li>
               </ul>
               <!--teleport end-->

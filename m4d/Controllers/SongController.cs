@@ -125,14 +125,29 @@ public class SongController : ContentController
             var histories = results.Songs
                 .Select(s => UserMapper.AnonymizeHistory(s.GetHistory(_mapper), dictionary))
                 .ToList();
+            string description = null;
+            switch (occassion.ToLowerInvariant())
+            {
+                case "halloween":
+                    description = @"'Halloween'";
+                    break;
+                case "holiday":
+                case "christmas":
+                    description = @"'Holiday' or 'Christmas'";
+                    break;
+                case "broadway":
+                    description = @"'Broadway' or 'Broadway And Vocal' or 'Musical' or 'Show Tunes'";
+                    break;
+            }
+
             return Vue3(
                 $"{title} Dance Music",
                 "Help finding holiday dance music for partner dancing - Foxtrot, Waltz, Swing and others.",
                 "holiday-music",
                  new HolidaySongListModel
                  {
-                     Occassion = occassion,
-                     Description = occassion == "halloween" ? @"""Halloween""" : @"""Holiday"" or ""Christmas""",
+                     Occassion = occassion.ToLowerInvariant(),
+                     Description = description.Replace('\'', '"'),
                      Histories = histories,
                      Filter = _mapper.Map<SongFilterSparse>(Filter),
                      Count = (int)results.TotalCount,

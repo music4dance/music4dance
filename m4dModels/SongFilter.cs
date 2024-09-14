@@ -564,9 +564,22 @@ namespace m4dModels
 
         public static SongFilter CreateHolidayFilter(string occassion = "holiday", string dance = null, int page = 1)
         {
-            string holidayFilter = (occassion == "halloween")
-                ? "(OtherTags/any(t: t eq 'Halloween'))"
-                : "((OtherTags/any(t: t eq 'Holiday') or GenreTags/any(t: t eq 'Christmas' or t eq 'Holiday')) and OtherTags/all(t: t ne 'Halloween'))";
+            string holidayFilter = null;
+            switch (occassion.ToLowerInvariant())
+            {
+                case "halloween":
+                    holidayFilter = "OtherTags/any(t: t eq 'Halloween')";
+                    break;
+                case "holiday":
+                case "christmas":
+                    holidayFilter = "(OtherTags/any(t: t eq 'Holiday') or GenreTags/any(t: t eq 'Christmas' or t eq 'Holiday')) and OtherTags/all(t: t ne 'Halloween')";
+                    break;
+                case "broadway":
+                    holidayFilter = "GenreTags/any(t: t eq 'Broadway') or GenreTags/any(t: t eq 'Show Tunes') or GenreTags/any(t: t eq 'Musicals') or GenreTags/any(t: t eq 'Broadway And Vocal')";
+                    break;
+                default:
+                    throw new Exception($"Unknown holiday: {occassion}");
+            }
 
             string danceFilter = null;
             string danceSort = null;
@@ -575,14 +588,14 @@ namespace m4dModels
                 var d = DanceLibrary.Dances.Instance.DanceFromName(dance);
                 if (d != null)
                 {
-                    danceFilter = $"(DanceTags/any(t: t eq '{dance}'))";
+                    danceFilter = $"DanceTags/any(t: t eq '{dance}')";
                     danceSort = $"dance_{d.Id} desc";
                 }
             }
 
             var odata = string.IsNullOrWhiteSpace(dance)
                 ? holidayFilter
-                : $"{danceFilter} and {holidayFilter}";
+                : $"{danceFilter} and ({holidayFilter})";
 
             return new SongFilter(
                 "holidaymusic",

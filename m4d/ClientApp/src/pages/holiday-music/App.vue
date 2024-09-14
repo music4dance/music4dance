@@ -12,17 +12,17 @@ const { songs: selected, select: selectSong } = useSongSelector();
 const dance = model.dance ?? "";
 
 const histories = model.histories ?? [];
-const title = model.dance
-  ? `${model.occassion} ${toTitleCase(model.dance)} Music`
-  : `${model.occassion} Dance Music`;
 const occassion = toTitleCase(model.occassion);
+const title = model.dance
+  ? `${occassion} ${toTitleCase(model.dance)} Music`
+  : `${occassion} Dance Music`;
 const allLink = `/song/holidaymusic?occassion=${model.occassion}`;
 const pageLink = model.dance ? `${allLink}&dance=${model.dance}` : allLink;
 const danceLink = `/dances/${wordsToKebab(dance)}`;
 const danceName = model.dance ? toTitleCase(dance) : undefined;
 const breadcrumbs = (() => {
   const breadcrumbs = [homeCrumb, songCrumb];
-  const text = `${model.occassion} Music`;
+  const text = `${occassion} Music`;
   if (model.dance) {
     breadcrumbs.push({ text, href: allLink });
     breadcrumbs.push({ text: toTitleCase(model.dance), active: true });
@@ -60,7 +60,7 @@ const breadcrumbs = (() => {
       <SongFooter :model="model" :href="pageLink" />
     </div>
     <SpotifyPlayer v-if="model.playListId" :playlist="model.playListId" />
-    <HolidayDanceChooser :occassion="occassion" :dance="dance" :count="model.count" />
+    <HolidayDanceChooser :occassion="model.occassion" :dance="dance" :count="model.count" />
     <AdminFooter :model="model" :selected="selected" />
   </PageFrame>
 </template>
