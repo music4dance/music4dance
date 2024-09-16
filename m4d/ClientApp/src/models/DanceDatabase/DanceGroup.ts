@@ -16,6 +16,9 @@ export class DanceGroup extends NamedObject {
   //   }
 
   public static isGroup(obj: NamedObject): obj is DanceGroup {
+    if (!obj) {
+      return false;
+    }
     return (obj as DanceGroup).danceIds !== undefined;
   }
 

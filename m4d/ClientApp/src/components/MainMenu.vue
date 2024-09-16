@@ -121,9 +121,9 @@ function search(s?: string): void {
               >&nbsp;&nbsp;New Music</BDropdownItem
             >
             <BDropdownItem href="/dances/wedding-music">Wedding</BDropdownItem>
-            <BDropdownItem href="/song/holidaymusic">Holiday</BDropdownItem>
-            <BDropdownItem href="/song/holidaymusic?occassion=halloween">Halloween</BDropdownItem>
-            <BDropdownItem href="/song/holidaymusic?occassion=broadway">Broadway</BDropdownItem>
+            <BDropdownItem href="/customsearch?name=holiday">Holiday</BDropdownItem>
+            <BDropdownItem href="/customsearch?name=halloween">Halloween</BDropdownItem>
+            <BDropdownItem href="/customsearch?name=broadway">Broadway</BDropdownItem>
             <BDropdownItem href="/tag">Tags</BDropdownItem>
           </BNavItemDropdown>
           <BNavItemDropdown id="tools-menu" text="Tools">

@@ -306,7 +306,7 @@ namespace m4dModels
             {
                 var action = Action.ToLower().Replace(' ', '+');
                 return action.StartsWith("azure+raw", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(action, "holidaymusic", StringComparison.OrdinalIgnoreCase);
+                    string.Equals(action, "customsearch", StringComparison.OrdinalIgnoreCase);
             }
         }
 
@@ -562,10 +562,10 @@ namespace m4dModels
                 : new SongFilter($"Index-----\\-{userName}|h");
         }
 
-        public static SongFilter CreateHolidayFilter(string occassion = "holiday", string dance = null, int page = 1)
+        public static SongFilter CreateCustomSearchFilter(string name = "holiday", string dance = null, int page = 1)
         {
             string holidayFilter = null;
-            switch (occassion.ToLowerInvariant())
+            switch (name.ToLowerInvariant())
             {
                 case "halloween":
                     holidayFilter = "OtherTags/any(t: t eq 'Halloween')";
@@ -578,7 +578,7 @@ namespace m4dModels
                     holidayFilter = "GenreTags/any(t: t eq 'Broadway') or GenreTags/any(t: t eq 'Show Tunes') or GenreTags/any(t: t eq 'Musicals') or GenreTags/any(t: t eq 'Broadway And Vocal')";
                     break;
                 default:
-                    throw new Exception($"Unknown holiday: {occassion}");
+                    throw new Exception($"Unknown holiday: {name}");
             }
 
             string danceFilter = null;
@@ -598,7 +598,7 @@ namespace m4dModels
                 : $"{danceFilter} and ({holidayFilter})";
 
             return new SongFilter(
-                "holidaymusic",
+                "customsearch",
                 new RawSearch
                 {
                     ODataFilter = odata,

@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Net;
 using AutoMapper;
-using Azure.Search.Documents;
 using DanceLibrary;
 using m4d.Services;
 using m4d.Utilities;
@@ -11,7 +10,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.FeatureManagement;
 using Microsoft.Net.Http.Headers;
@@ -22,39 +20,17 @@ public class SongController : ContentController
 {
     private static readonly HttpClient HttpClient = new();
 
-    private readonly LinkGenerator _linkGenerator;
-    private readonly IMapper _mapper;
-    private SongFilter Filter { get; set; }
-
     public SongController(
         DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
         IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
         IFeatureManager featureManager, ILogger<SongController> logger, LinkGenerator linkGenerator, IMapper mapper) :
         base(context, userManager, searchService, danceStatsManager, configuration,
-            fileProvider, backroundTaskQueue, featureManager, logger)
+            fileProvider, backroundTaskQueue, featureManager, logger, linkGenerator, mapper)
     {
         UseVue = UseVue.V2;
         HelpPage = "song-list";
-        _linkGenerator = linkGenerator;
-        _mapper = mapper;
     }
-
-    public override async Task OnActionExecutionAsync(
-        ActionExecutingContext context, ActionExecutionDelegate next)
-    {
-        ViewBag.SongFilter = Filter = GetFilterFromContext(context);
-        await base.OnActionExecutionAsync(context, next);
-    }
-
-    private CruftFilter DefaultCruftFilter()
-    {
-        return User.IsInRole(DanceMusicCoreService.DiagRole) ||
-            User.IsInRole(DanceMusicCoreService.PremiumRole) ||
-            User.IsInRole(DanceMusicCoreService.TrialRole)
-                ? CruftFilter.AllCruft
-                : CruftFilter.NoCruft;
-    } 
 
     #region Commands
 
@@ -90,78 +66,10 @@ public class SongController : ContentController
         return await DoAzureSearch();
     }
 
+    // TODO: Make this a permanent redirect once I'm convinced it's stable
     [AllowAnonymous]
-    public async Task<ActionResult> HolidayMusic(string occassion="holiday", string dance = null, int page = 1)
-    {
-        Filter = SongFilter.CreateHolidayFilter(occassion, dance, page);
-        HelpPage = Filter.IsSimple ? "song-list" : "advanced-search";
-        UseVue = UseVue.V3;
-
-        try
-        {
-            var title = char.ToUpper(occassion[0]) + occassion.Substring(1);
-
-            if (!Filter.IsEmptyBot &&
-                SpiderManager.CheckAnySpiders(Request.Headers[HeaderNames.UserAgent], Configuration))
-            {
-                throw new RedirectException("BotFilter", Filter);
-            }
-
-            var results = await new SongSearch(
-                Filter, UserName, IsPremium(), SongIndex, UserManager, TaskQueue).Search();
-
-            string playListId = null;
-
-            if (!string.IsNullOrWhiteSpace(dance))
-            {
-                var ds = Database.DanceStats.FromName(dance);
-                var name = $"{title} {ds.DanceName}";
-                var playlist = Database.PlayLists.FirstOrDefault(
-                    p => p.Name == name && p.Type == PlayListType.SpotifyFromSearch);
-                playListId = playlist?.Id;
-            }
-
-            var dictionary = await UserMapper.GetUserNameDictionary(UserManager);
-            var histories = results.Songs
-                .Select(s => UserMapper.AnonymizeHistory(s.GetHistory(_mapper), dictionary))
-                .ToList();
-            string description = null;
-            switch (occassion.ToLowerInvariant())
-            {
-                case "halloween":
-                    description = @"'Halloween'";
-                    break;
-                case "holiday":
-                case "christmas":
-                    description = @"'Holiday' or 'Christmas'";
-                    break;
-                case "broadway":
-                    description = @"'Broadway' or 'Broadway And Vocal' or 'Musical' or 'Show Tunes'";
-                    break;
-            }
-
-            return Vue3(
-                $"{title} Dance Music",
-                "Help finding holiday dance music for partner dancing - Foxtrot, Waltz, Swing and others.",
-                "holiday-music",
-                 new HolidaySongListModel
-                 {
-                     Occassion = occassion.ToLowerInvariant(),
-                     Description = description.Replace('\'', '"'),
-                     Histories = histories,
-                     Filter = _mapper.Map<SongFilterSparse>(Filter),
-                     Count = (int)results.TotalCount,
-                     Dance = dance,
-                     PlayListId = playListId,
-                 },
-                danceEnvironment: true);
-        }
-        catch (RedirectException ex)
-        {
-            return HandleRedirect(ex);
-        }
-
-    }
+    public ActionResult HolidayMusic(string occassion = "holiday", string dance = null, int page = 1)
+        => RedirectToAction("Index", "CustomSearch", new { name = occassion, dance, page, filter = Filter });
 
     [AllowAnonymous]
     public async Task<ActionResult> AzureSearch(string searchString, int page = 1, string dances = null)
@@ -242,7 +150,7 @@ public class SongController : ContentController
         var dictionary = await UserMapper.GetUserNameDictionary(UserManager);
         var histories = songs.Select(
             s =>
-                UserMapper.AnonymizeHistory(s.GetHistory(_mapper), dictionary)).ToList();
+                UserMapper.AnonymizeHistory(s.GetHistory(Mapper), dictionary)).ToList();
 
         switch (UseVue)
         {
@@ -251,7 +159,7 @@ public class SongController : ContentController
                     new SongListModel
                     {
                         Histories = histories,
-                        Filter = _mapper.Map<SongFilterSparse>(Filter),
+                        Filter = Mapper.Map<SongFilterSparse>(Filter),
                         Count = totalSongs ?? songs.Count,
                         RawCount = rawCount ?? totalSongs ?? songs.Count,
                         HiddenColumns = hiddenColumns
@@ -262,7 +170,7 @@ public class SongController : ContentController
                     new SongListModel
                     {
                         Histories = histories,
-                        Filter = _mapper.Map<SongFilterSparse>(Filter),
+                        Filter = Mapper.Map<SongFilterSparse>(Filter),
                         Count = totalSongs ?? songs.Count,
                         RawCount = rawCount ?? totalSongs ?? songs.Count,
                         HiddenColumns = hiddenColumns
@@ -614,8 +522,8 @@ public class SongController : ContentController
         {
             Title = song.Title,
             SongHistory = await UserMapper.AnonymizeHistory(
-                song.GetHistory(_mapper), UserManager),
-            Filter = _mapper.Map<SongFilterSparse>(Filter),
+                song.GetHistory(Mapper), UserManager),
+            Filter = Mapper.Map<SongFilterSparse>(Filter),
             UserName = UserName,
         };
     }
@@ -634,7 +542,7 @@ public class SongController : ContentController
             if (!string.IsNullOrWhiteSpace(title))
             {
                 var model = await AlbumViewModel.Create(
-                    title, _mapper, DefaultCruftFilter(), Database);
+                    title, Mapper, DefaultCruftFilter(), Database);
                 return Vue3(
                     $"Album: {title}", $"Songs for dancing on {title}", "album",
                     model, danceEnvironment: true);
@@ -660,7 +568,7 @@ public class SongController : ContentController
         if (!string.IsNullOrWhiteSpace(name))
         {
             var model = await ArtistViewModel.Create(
-                name, _mapper, DefaultCruftFilter(), Database);
+                name, Mapper, DefaultCruftFilter(), Database);
             return Vue3(
                 $"Artist: {name}", $"Songs for dancing by {name}", "artist",
                 model, danceEnvironment:true);
@@ -1456,50 +1364,6 @@ public class SongController : ContentController
 
     #endregion
 
-    #region General Utilities
-
-    private async Task<SearchOptions> AzureParmsFromFilter(
-        SongFilter filter, int? pageSize = null)
-    {
-        return SongIndex.AzureParmsFromFilter(
-            await UserMapper.DeanonymizeFilter(filter, UserManager), pageSize);
-    }
-
-    private bool IsPremium()
-    {
-        return User.IsInRole(DanceMusicCoreService.PremiumRole) ||
-            User.IsInRole(DanceMusicCoreService.TrialRole) ||
-            User.IsInRole(DanceMusicCoreService.DiagRole);
-    }
-
-    private ActionResult HandleRedirect(RedirectException redirect)
-    {
-        var model = redirect.Model;
-        if (redirect.View == "Login" && model is SongFilter filter)
-        {
-            return Redirect(
-                $"/Identity/Account/Login/?ReturnUrl=/song/advancedsearchform?filter={filter}");
-        }
-
-        if (redirect.View == "RequiresPremium")
-        {
-            Filter.Level = null;
-            var redirectUrl =
-                _linkGenerator.GetUriByAction(
-                    HttpContext, "AdvancedSearchForm", "Song",
-                    new { Filter });
-            model = new PremiumRedirect
-            {
-                FeatureType = "search",
-                FeatureName = "bonus content",
-                InfoUrl = "https://music4dance.blog/?page_id=8217",
-                RedirectUrl = redirectUrl
-            };
-        }
-
-        return View(redirect.View, model);
-    }
-
     private async Task<ActionResult> Delete(IEnumerable<Song> songs, SongFilter filter)
     {
         var user = await Database.FindUser(UserName);
@@ -1511,8 +1375,6 @@ public class SongController : ContentController
 
         return RedirectToAction("Index", new { filter });
     }
-
-    #endregion
 
     #region MusicService
 
@@ -1664,7 +1526,7 @@ public class SongController : ContentController
                 return JsonCamelCase(
                     results.Songs.Select(
                             s =>
-                                UserMapper.AnonymizeHistory(s.GetHistory(_mapper), UserManager))
+                                UserMapper.AnonymizeHistory(s.GetHistory(Mapper), UserManager))
                         .ToList());
             default:
                 return JsonCamelCase(null);
@@ -1885,7 +1747,7 @@ public class SongController : ContentController
 
     private ActionResult SongMerge(IEnumerable<Song> songs)
     {
-        var sm = new SongMergeModel(songs.Select(s => s.GetHistory(_mapper)));
+        var sm = new SongMergeModel(songs.Select(s => s.GetHistory(Mapper)));
         var title = "Merge Songs";
         return Vue3(title, $"music4dance catalog: {title} dance information", "song-merge",
             sm, helpPage: "song", danceEnvironment: true, tagEnvironment: true);

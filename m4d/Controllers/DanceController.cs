@@ -36,17 +36,15 @@ public class CompetitionGroupModel
 
 public class DanceController : ContentController
 {
-    private readonly IMapper _mapper;
-
     public DanceController(
         DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
         IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-        IFeatureManager featureManager, ILogger<DanceController> logger, IMapper mapper) :
+        IFeatureManager featureManager, ILogger<DanceController> logger, LinkGenerator linkGenerator, IMapper mapper) :
         base(context, userManager, searchService, danceStatsManager,
-            configuration, fileProvider, backroundTaskQueue, featureManager, logger)
+            configuration, fileProvider, backroundTaskQueue, featureManager, logger,
+            linkGenerator, mapper)
     {
-        _mapper = mapper;
         UseVue = UseVue.V3;
     }
 
@@ -139,7 +137,7 @@ public class DanceController : ContentController
             $"music4dance catalog: {ds.DanceName} Page",
             $"{ds.DanceName} Information, Top Ten List, and Resources.",
             "dance-details",
-            new DanceModel(dbDance, Database, _mapper)
+            new DanceModel(dbDance, Database, Mapper)
         );
     }
 

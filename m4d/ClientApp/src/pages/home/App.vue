@@ -99,7 +99,7 @@ const musicFeatures: FeatureInfo[] = [
   {
     title: "Find holiday music to dance to.",
     type: "music",
-    tryIt: "/song/holidaymusic",
+    tryIt: "/song/customsearch/?name=holiday",
     posts: "/tag/holiday/",
     menu: ["Music", "Holiday"],
   },

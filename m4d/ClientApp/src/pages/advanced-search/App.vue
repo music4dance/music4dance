@@ -168,7 +168,7 @@ const songFilter = computed(() => {
     level += 2;
   }
 
-  filter.action = "Advanced";
+  filter.action = "advanced";
   filter.searchString = keyWords.value;
   filter.dances = danceQuery.query;
   filter.sortOrder = SongSort.fromParts(sort.value ?? undefined, order.value).query;

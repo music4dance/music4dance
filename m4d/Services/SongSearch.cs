@@ -99,7 +99,7 @@ public class SongSearch
 
     private async Task LogSearch(SongFilter filter)
     {
-        if (filter.IsEmptyUser(UserName) || filter.Action == "holidaymusic")
+        if (filter.IsEmptyUser(UserName) || filter.Action == "customsearch")
         {
             return;
         }

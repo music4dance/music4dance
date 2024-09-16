@@ -12522,13 +12522,13 @@ export const model = {
   ],
   filter: {
     version: 0,
-    action: "holidaymusic",
+    action: "customsearch",
     dances:
       "((OtherTags/any(t: t eq 'Holiday') or GenreTags/any(t: t eq 'Christmas' or t eq 'Holiday')) and OtherTags/all(t: t ne 'Halloween'))",
     page: 1,
     tags: "",
   },
-  occassion: "holiday",
+  name: "holiday",
   description: '"Holiday" or "Christmas"',
   count: 707,
   rawCount: 0,

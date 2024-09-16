@@ -427,7 +427,7 @@ public class PlayListController : DanceMusicController
 
             var description = $"{ds.DanceName} Dance {title} songs from music4dance.net";
 
-            var search = SongFilter.CreateHolidayFilter(occassion, ds.DanceName);
+            var search = SongFilter.CreateCustomSearchFilter(occassion, ds.DanceName);
 
             Logger.LogInformation($"BulkCreate{title}: {name}, {description}, {search}");
 

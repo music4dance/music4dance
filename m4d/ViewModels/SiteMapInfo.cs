@@ -215,12 +215,9 @@ public static class SiteMapInfo
                     },
                     new() { Title = "Country Western Dance Music", Reference = "dances/country", Crawl = true },
                     new() { Title = "Wedding Music", Reference = "dances/wedding-music", Crawl = true },
-                    new() { Title = "Holiday Music", Reference = "song/holidaymusic", Crawl = true },
-                    new()
-                    {
-                        Title = "Halloween Music",
-                        Reference = "song/addtags/?tags=%2BHalloween%3AOther"
-                    },
+                    new() { Title = "Holiday Music", Reference = "customsearch?name=holiday", Crawl = true },
+                    new() { Title = "Halloween Music", Reference = "customsearch?name=halloween", Crawl = true },
+                    new() { Title = "Broadway Music", Reference = "customsearch?name=broadway", Crawl = true },
                 }
             },
             new SiteMapDances(),

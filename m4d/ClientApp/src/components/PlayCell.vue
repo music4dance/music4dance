@@ -26,7 +26,7 @@ const danceRating = computed(() => song.value.findDanceRatingById(danceId.value)
 <template>
   <span>
     <DanceVote
-      v-if="filter.singleDance"
+      v-if="filter.singleDance && danceRating"
       :vote="editor.song.danceVote(danceId)"
       :dance-rating="danceRating"
       :authenticated="!!context.userName"

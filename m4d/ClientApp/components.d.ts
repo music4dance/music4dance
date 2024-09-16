@@ -84,6 +84,8 @@ declare module 'vue' {
     CommentViewer: typeof import('./src/components/CommentViewer.vue')['default']
     CompetitionCategoryTable: typeof import('./src/components/CompetitionCategoryTable.vue')['default']
     ContinueOptions: typeof import('./src/pages/search/components/ContinueOptions.vue')['default']
+    CustomSearchDanceChooser: typeof import('./src/pages/custom-search/components/CustomSearchDanceChooser.vue')['default']
+    CustomSearchHelp: typeof import('./src/pages/custom-search/components/CustomSearchHelp.vue')['default']
     DanceButton: typeof import('./src/components/DanceButton.vue')['default']
     DanceChooser: typeof import('./src/components/DanceChooser.vue')['default']
     DanceContents: typeof import('./src/pages/dance-details/components/DanceContents.vue')['default']

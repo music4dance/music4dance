@@ -134,7 +134,7 @@ export class SongFilter {
 
   public get isRaw(): boolean {
     const action = this.action ?? "".toLowerCase().replace(" ", "+");
-    return action.startsWith("azure+raw") || action === "holidaymusic";
+    return action.startsWith("azure+raw") || action === "customsearch";
   }
 
   public get keywordQuery(): KeywordQuery {

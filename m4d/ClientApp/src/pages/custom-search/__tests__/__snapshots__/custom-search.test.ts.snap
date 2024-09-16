@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Holiday Music > renders a holiday music page 1`] = `
+exports[`Custom Search > renders a custom search page 1`] = `
 "<div><span context=\\"[object Object]\\">MainMenu</span>
   <nav aria-label=\\"breadcrumb\\">
     <nav aria-label=\\"breadcrumb\\" style=\\"padding: 0.25rem 0.5rem;\\">
@@ -71,7 +71,7 @@ exports[`Holiday Music > renders a holiday music page 1`] = `
                     </svg></a></span>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/ee9680db-423e-47d2-851a-f08ddcbe9ff9?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Hey Santa Claus</a>
+                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/ee9680db-423e-47d2-851a-f08ddcbe9ff9?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Hey Santa Claus</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
                   <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/artist/?name=Moonglows\\">Moonglows</a>
@@ -260,7 +260,7 @@ exports[`Holiday Music > renders a holiday music page 1`] = `
                     </svg></a></span>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/dd3e4932-1a1a-416f-bd21-be46d7c9ae2c?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Fairytale of New York (feat. Kirsty MacColl)</a>
+                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/dd3e4932-1a1a-416f-bd21-be46d7c9ae2c?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Fairytale of New York (feat. Kirsty MacColl)</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
                   <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/artist/?name=The%20Pogues\\">The Pogues</a>
@@ -511,7 +511,7 @@ exports[`Holiday Music > renders a holiday music page 1`] = `
                     </svg></a></span>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/8f39a828-617b-446b-a5fa-61a659408467?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">My Girl</a>
+                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/8f39a828-617b-446b-a5fa-61a659408467?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">My Girl</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
                   <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/artist/?name=The%20Temptations\\">The Temptations</a>
@@ -760,7 +760,7 @@ exports[`Holiday Music > renders a holiday music page 1`] = `
                     </svg></a></span>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/c4738932-3874-4171-806a-9a41a9090479?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Let It Snow! Let It Snow! Let It Snow!</a>
+                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/c4738932-3874-4171-806a-9a41a9090479?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Let It Snow! Let It Snow! Let It Snow!</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
                   <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/artist/?name=Dean%20Martin\\">Dean Martin</a>
@@ -922,7 +922,7 @@ exports[`Holiday Music > renders a holiday music page 1`] = `
                     </svg></a></span>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/fa034007-870e-4e3f-97b0-66c12251ccfd?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">This Kiss</a>
+                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/fa034007-870e-4e3f-97b0-66c12251ccfd?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">This Kiss</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
                   <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/artist/?name=Faith%20Hill\\">Faith Hill</a>
@@ -1055,7 +1055,7 @@ exports[`Holiday Music > renders a holiday music page 1`] = `
                     </svg></a></span>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/131702bc-4662-4b3b-bc17-d9bf22f6debf?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Baby, It's Cold Outside</a>
+                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/131702bc-4662-4b3b-bc17-d9bf22f6debf?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Baby, It's Cold Outside</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
                   <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/artist/?name=Seth%20MacFarlane\\">Seth MacFarlane</a>
@@ -1212,7 +1212,7 @@ exports[`Holiday Music > renders a holiday music page 1`] = `
                     </svg></a></span>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/6cb0c6f8-b8a7-4636-b943-7c2e9383bb64?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Little Shepherd (Slow Waltz / 29 Bpm)</a>
+                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/6cb0c6f8-b8a7-4636-b943-7c2e9383bb64?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Little Shepherd (Slow Waltz / 29 Bpm)</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
                   <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/artist/?name=Ballroom%20Orchestra%20and%20Singers\\">Ballroom Orchestra and Singers</a>
@@ -1301,7 +1301,7 @@ exports[`Holiday Music > renders a holiday music page 1`] = `
                     </svg></a></span>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/d564f273-ea0d-4e41-b8f9-de4af61e84cb?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">The First Noel - Remastered 1999</a>
+                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/d564f273-ea0d-4e41-b8f9-de4af61e84cb?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">The First Noel - Remastered 1999</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
                   <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/artist/?name=Frank%20Sinatra\\">Frank Sinatra</a>
@@ -1374,7 +1374,7 @@ exports[`Holiday Music > renders a holiday music page 1`] = `
                     </svg></a></span>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/b4f56aef-26fa-4d6f-b193-09bd57882935?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Silent Night</a>
+                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/b4f56aef-26fa-4d6f-b193-09bd57882935?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Silent Night</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
                   <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/artist/?name=Michael%20Bubl%C3%A9\\">Michael Bublé</a>
@@ -1488,7 +1488,7 @@ exports[`Holiday Music > renders a holiday music page 1`] = `
                     </svg></a></span>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/11ae2f96-7deb-4186-8f14-a1e92483041b?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Hang a String of Lights</a>
+                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/11ae2f96-7deb-4186-8f14-a1e92483041b?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Hang a String of Lights</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
                   <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/artist/?name=Great%20Lake%20Swimmers\\">Great Lake Swimmers</a>
@@ -1596,7 +1596,7 @@ exports[`Holiday Music > renders a holiday music page 1`] = `
                     </svg></a></span>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/d6a4b680-394a-4541-b275-71ae5f9221ea?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Santa Baby</a>
+                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/d6a4b680-394a-4541-b275-71ae5f9221ea?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Santa Baby</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
                   <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/artist/?name=Ariana%20Grande\\">Ariana Grande</a>
@@ -1729,7 +1729,7 @@ exports[`Holiday Music > renders a holiday music page 1`] = `
                     </svg></a></span>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/01f8367a-4515-489d-ba40-37fd9b3d4fac?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Silent Night</a>
+                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/01f8367a-4515-489d-ba40-37fd9b3d4fac?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Silent Night</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
                   <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/artist/?name=Elenowen\\">Elenowen</a>
@@ -1786,7 +1786,7 @@ exports[`Holiday Music > renders a holiday music page 1`] = `
                     </svg></a></span>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/4f3b3aba-cd2d-4d8e-a583-911bde7f654d?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Christmas Wish</a>
+                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/4f3b3aba-cd2d-4d8e-a583-911bde7f654d?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Christmas Wish</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
                   <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/artist/?name=She%20%26%20Him\\">She &amp; Him</a>
@@ -1903,7 +1903,7 @@ exports[`Holiday Music > renders a holiday music page 1`] = `
                     </svg></a></span>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/97d9d5d7-77a0-4baf-b051-4f2acc8a3649?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Christmas Tree Farm</a>
+                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/97d9d5d7-77a0-4baf-b051-4f2acc8a3649?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Christmas Tree Farm</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
                   <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/artist/?name=Taylor%20Swift\\">Taylor Swift</a>
@@ -2052,7 +2052,7 @@ exports[`Holiday Music > renders a holiday music page 1`] = `
                     </svg></a></span>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/c8290cb1-4715-4f33-83cd-13229d493aa5?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Happy Xmas (War Is Over)</a>
+                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/c8290cb1-4715-4f33-83cd-13229d493aa5?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Happy Xmas (War Is Over)</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
                   <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/artist/?name=Urban%20Bossa%20Club\\">Urban Bossa Club</a>
@@ -2118,7 +2118,7 @@ exports[`Holiday Music > renders a holiday music page 1`] = `
                     </svg></a></span>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/0e2b4e52-464d-42a5-9ea2-0187052d84a3?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">The Little Drummer Boy</a>
+                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/0e2b4e52-464d-42a5-9ea2-0187052d84a3?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">The Little Drummer Boy</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
                   <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/artist/?name=Johnny%20Cash\\">Johnny Cash</a>
@@ -2193,7 +2193,7 @@ exports[`Holiday Music > renders a holiday music page 1`] = `
                     </svg></a></span>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/391ae78e-ac51-4e7e-8fa9-303ffa06d840?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">What's Christmas Anyway</a>
+                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/391ae78e-ac51-4e7e-8fa9-303ffa06d840?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">What's Christmas Anyway</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
                   <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/artist/?name=Darin\\">Darin</a>
@@ -2250,7 +2250,7 @@ exports[`Holiday Music > renders a holiday music page 1`] = `
                     </svg></a></span>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/48fd5f85-f607-4cc0-a882-2fe018e4911c?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Christmas Blues</a>
+                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/48fd5f85-f607-4cc0-a882-2fe018e4911c?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Christmas Blues</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
                   <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/artist/?name=Sabrina%20Claudio\\">Sabrina Claudio</a>
@@ -2380,7 +2380,7 @@ exports[`Holiday Music > renders a holiday music page 1`] = `
                     </svg></a></span>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/bac059fb-18fd-474c-881f-3d6d7d185a97?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">O Holy Night</a>
+                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/bac059fb-18fd-474c-881f-3d6d7d185a97?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">O Holy Night</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
                   <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/artist/?name=Nat%20King%20Cole\\">Nat King Cole</a>
@@ -2522,7 +2522,7 @@ exports[`Holiday Music > renders a holiday music page 1`] = `
                     </svg></a></span>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/3a1fc999-333c-400e-a8f7-a42511c1df78?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Himlen I Min Favn</a>
+                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/3a1fc999-333c-400e-a8f7-a42511c1df78?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Himlen I Min Favn</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
                   <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/artist/?name=Anne%20Vada\\">Anne Vada</a>
@@ -2604,7 +2604,7 @@ exports[`Holiday Music > renders a holiday music page 1`] = `
                     </svg></a></span>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/a04488e4-6017-4402-bb20-3c1bfd942cbd?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Sausage Rolls for Everyone</a>
+                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/a04488e4-6017-4402-bb20-3c1bfd942cbd?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Sausage Rolls for Everyone</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
                   <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/artist/?name=LadBaby\\">LadBaby</a>
@@ -2689,7 +2689,7 @@ exports[`Holiday Music > renders a holiday music page 1`] = `
                     </svg></a></span>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/ddf826e7-c016-460e-b5bc-68ccc710be33?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">You're A Mean One, Mr. Grinch</a>
+                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/ddf826e7-c016-460e-b5bc-68ccc710be33?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">You're A Mean One, Mr. Grinch</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
                   <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/artist/?name=Thurl%20Ravenscroft\\">Thurl Ravenscroft</a>
@@ -2783,7 +2783,7 @@ exports[`Holiday Music > renders a holiday music page 1`] = `
                     </svg></a></span>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/8a683aa7-b0bc-4c73-9cdd-d5f6ce4fb11a?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">christmas vacation</a>
+                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/8a683aa7-b0bc-4c73-9cdd-d5f6ce4fb11a?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">christmas vacation</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
                   <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/artist/?name=L%C3%98L%C3%98\\">LØLØ</a>
@@ -2854,7 +2854,7 @@ exports[`Holiday Music > renders a holiday music page 1`] = `
                     </svg></a></span>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/131ddc4a-f952-4986-8bf7-6c6dcaa69977?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Winter Things</a>
+                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/131ddc4a-f952-4986-8bf7-6c6dcaa69977?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Winter Things</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
                   <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/artist/?name=Ariana%20Grande\\">Ariana Grande</a>
@@ -3037,7 +3037,7 @@ exports[`Holiday Music > renders a holiday music page 1`] = `
                     </svg></a></span>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
-                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/ceb498ac-b818-490c-9606-ca3a457f609c?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">In The Summertime</a>
+                  <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/details/ceb498ac-b818-490c-9606-ca3a457f609c?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">In The Summertime</a>
                 </td>
                 <td scope=\\"col\\" class=\\"\\">
                   <!----><a data-v-a7ef304f=\\"\\" href=\\"/song/artist/?name=Mungo%20Jerry\\">Mungo Jerry</a>
@@ -3206,7 +3206,7 @@ exports[`Holiday Music > renders a holiday music page 1`] = `
           <div class=\\"col-md-2\\">Page 1 of 29 (707 songs found)</div>
           <div class=\\"col-md-2\\">
             <div><a href=\\"/song/advancedsearchform\\">New Search</a></div>
-            <div><a href=\\"/song/createspotify?filter=holidaymusic-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Create Spotify Playlist</a></div>
+            <div><a href=\\"/song/createspotify?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))\\">Create Spotify Playlist</a></div>
             <!--v-if-->
           </div>
         </div>
@@ -3214,7 +3214,7 @@ exports[`Holiday Music > renders a holiday music page 1`] = `
       <!--v-if-->
       <div>
         <!--v-if-->
-        <p>Choose a dance style to filter the holiday music to that style</p><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Argentine Tango\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Argentine Tango</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Bachata\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Bachata</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Balboa\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Balboa</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Ballet\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Ballet</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Blues\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Blues</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Bolero\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Bolero</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Bollywood\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Bollywood</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Bossa Nova\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Bossa Nova</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Broadway\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Broadway</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Carolina Shag\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Carolina Shag</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Castle Foxtrot\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Castle Foxtrot</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Cha Cha\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Cha Cha</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Charleston\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Charleston</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Collegiate Shag\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Collegiate Shag</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Contemporary\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Contemporary</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Country Two Step\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Country Two Step</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Cross-step Waltz\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Cross-step Waltz</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Cumbia\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Cumbia</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Disco\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Disco</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=East Coast Swing\\" role=\\"button\\" style=\\"margin: 0.25em;\\">East Coast Swing</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Freestyle\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Freestyle</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Hip-Hop\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Hip-Hop</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Hustle\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Hustle</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Jazz\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Jazz</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Jive\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Jive</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Jump Swing\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Jump Swing</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Lindy Hop\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Lindy Hop</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Mambo\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Mambo</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Merengue\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Merengue</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Milonga\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Milonga</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Motown\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Motown</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Neo Tango\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Neo Tango</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Night Club Two Step\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Night Club Two Step</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Paso Doble\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Paso Doble</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Peabody\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Peabody</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Polka\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Polka</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Quickstep\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Quickstep</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Rumba\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Rumba</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Salsa\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Salsa</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Samba\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Samba</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Single Swing\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Single Swing</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Slow Foxtrot\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Slow Foxtrot</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Slow Waltz\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Slow Waltz</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Tango (Ballroom)\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Tango (Ballroom)</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Tango Vals\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Tango Vals</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Tap\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Tap</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=Viennese Waltz\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Viennese Waltz</a><a class=\\"btn btn-md btn-primary\\" href=\\"/song/holidaymusic?occassion=holiday&amp;dance=West Coast Swing\\" role=\\"button\\" style=\\"margin: 0.25em;\\">West Coast Swing</a>
+        <p>Choose a dance style to filter the holiday music to that style</p><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Argentine Tango\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Argentine Tango</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Bachata\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Bachata</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Balboa\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Balboa</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Ballet\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Ballet</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Blues\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Blues</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Bolero\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Bolero</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Bollywood\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Bollywood</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Bossa Nova\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Bossa Nova</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Broadway\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Broadway</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Carolina Shag\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Carolina Shag</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Castle Foxtrot\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Castle Foxtrot</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Cha Cha\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Cha Cha</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Charleston\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Charleston</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Collegiate Shag\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Collegiate Shag</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Contemporary\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Contemporary</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Country Two Step\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Country Two Step</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Cross-step Waltz\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Cross-step Waltz</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Cumbia\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Cumbia</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Disco\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Disco</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=East Coast Swing\\" role=\\"button\\" style=\\"margin: 0.25em;\\">East Coast Swing</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Freestyle\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Freestyle</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Hip-Hop\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Hip-Hop</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Hustle\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Hustle</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Jazz\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Jazz</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Jive\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Jive</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Jump Swing\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Jump Swing</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Lindy Hop\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Lindy Hop</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Mambo\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Mambo</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Merengue\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Merengue</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Milonga\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Milonga</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Motown\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Motown</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Neo Tango\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Neo Tango</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Night Club Two Step\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Night Club Two Step</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Paso Doble\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Paso Doble</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Peabody\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Peabody</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Polka\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Polka</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Quickstep\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Quickstep</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Rumba\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Rumba</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Salsa\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Salsa</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Samba\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Samba</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Single Swing\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Single Swing</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Slow Foxtrot\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Slow Foxtrot</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Slow Waltz\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Slow Waltz</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Tango (Ballroom)\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Tango (Ballroom)</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Tango Vals\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Tango Vals</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Tap\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Tap</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=Viennese Waltz\\" role=\\"button\\" style=\\"margin: 0.25em;\\">Viennese Waltz</a><a class=\\"btn btn-md btn-primary\\" href=\\"/customsearch?name=holiday&amp;dance=West Coast Swing\\" role=\\"button\\" style=\\"margin: 0.25em;\\">West Coast Swing</a>
       </div>
       <!--v-if-->
     </div>

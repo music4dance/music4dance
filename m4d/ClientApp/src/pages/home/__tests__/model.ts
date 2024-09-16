@@ -767,7 +767,7 @@ export const model = {
           title: "Holiday Music for Partner Dancing 2021",
           reference: "blog/holiday-music-for-partner-dancing-2021/",
           description:
-            'It\'s the time of year again to talk about <a href="https://www.music4dance.net/song/holidaymusic">Holiday Music<a>....',
+            'It\'s the time of year again to talk about <a href="https://www.music4dance.net/song/customsearch?name=holiday">Holiday Music<a>....',
           oneTime: false,
           crawl: false,
           order: 81,
@@ -777,7 +777,7 @@ export const model = {
           title: "Valentine's Day Edition: Love Songs that We Love to Dance to",
           reference: "blog/valentines-day-edition-love-songs-that-we-love-to-dance-to/",
           description:
-            'I’ve been making an effort to tag songs and write sophisticated searches to find good songs for <a href="https://www.music4dance.net/song/holidaymusic">holiday dances</a>. The <a href="http://www.music4dance.net/song">music4dance catalog</a> is set up for this kind of search. Not only that, but I’ve always really enjoyed doing exhibition pieces for holiday parties...',
+            'I’ve been making an effort to tag songs and write sophisticated searches to find good songs for <a href="https://www.music4dance.net/customsearch?name=holiday">holiday dances</a>. The <a href="http://www.music4dance.net/song">music4dance catalog</a> is set up for this kind of search. Not only that, but I’ve always really enjoyed doing exhibition pieces for holiday parties...',
           oneTime: false,
           crawl: false,
           order: 85,
