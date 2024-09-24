@@ -47,7 +47,8 @@ public class ErrorChecker : PageChecker, IDisposable
 
     protected override bool CrawlPage(string relativePath, string root, IWebDriver driver)
     {
-        driver.Navigate().GoToUrl($"{root}{relativePath}?flat=true");
+        var sep = relativePath.Contains("?") ? "&" : "?";
+        driver.Navigate().GoToUrl($"{root}{relativePath}{sep}flat=true");
 
         return CheckLogs(relativePath, driver);
     }
