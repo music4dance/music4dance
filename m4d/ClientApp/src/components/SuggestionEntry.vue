@@ -64,10 +64,6 @@ watch(
   },
 );
 
-// TODONEXT: finish generalizing this (maybe call it something else - SuggestionEntry?)
-//  Handle form vs. event (just move to event?)
-//  Get advanced search working
-//  Try the dropdown...
 </script>
 
 <template>

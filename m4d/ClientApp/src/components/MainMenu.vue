@@ -125,6 +125,11 @@ function search(s?: string): void {
             <BDropdownItem href="/customsearch?name=halloween">Halloween</BDropdownItem>
             <BDropdownItem href="/customsearch?name=broadway">Broadway</BDropdownItem>
             <BDropdownItem href="/tag">Tags</BDropdownItem>
+            <BDropdownItem
+              v-if="context.isAdmin"
+              href="/Song/filtersearch?filter=Advanced----------3"
+              >All Songs</BDropdownItem
+            >
           </BNavItemDropdown>
           <BNavItemDropdown id="tools-menu" text="Tools">
             <BDropdownItem href="/home/counter">Tempo Counter</BDropdownItem>

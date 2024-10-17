@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using AutoMapper;
 using Azure.Search.Documents.Models;
@@ -287,14 +288,14 @@ namespace m4dModels
         public const string MessageData = ".Message";
 
         public static readonly string[] ScalarFields =
-        {
+        [
             TitleField, ArtistField,
             TempoField, LengthField, SampleField, DanceabilityField, EnergyField,
             ValenceField
-        };
+        ];
 
         public static readonly PropertyInfo[] ScalarProperties =
-        {
+        [
             typeof(Song).GetProperty(TitleField),
             typeof(Song).GetProperty(ArtistField),
             typeof(Song).GetProperty(TempoField),
@@ -303,7 +304,7 @@ namespace m4dModels
             typeof(Song).GetProperty(DanceabilityField),
             typeof(Song).GetProperty(EnergyField),
             typeof(Song).GetProperty(ValenceField)
-        };
+        ];
 
         public static readonly int DanceRatingCreate = 1;
         public static readonly int DanceRatingInitial = 1;
@@ -492,9 +493,9 @@ namespace m4dModels
             await Load(SongId, props, database);
         }
 
-        public async Task<bool> CheckProperties()
+        public async Task<bool> CheckProperties(DanceMusicCoreService dms)
         {
-            var result = await CheckPropertiesInternal();
+            var result = await CheckPropertiesInternal(dms);
             if (!result)
             {
                 Trace.WriteLineIf(
@@ -504,7 +505,7 @@ namespace m4dModels
             return result;
         }
 
-        private async Task<bool> CheckPropertiesInternal()
+        private async Task<bool> CheckPropertiesInternal(DanceMusicCoreService dms)
         {
             var failed = false;
 
@@ -522,9 +523,19 @@ namespace m4dModels
                 failed = true;
             }
 
+            var badDanceTags = TagSummary.GetTagSet("Dance").Where(t => Dances.Instance.AllDanceGroups.Any(g => g.Name == t.TrimStart('!')));
+            if (badDanceTags.Any())
+            {
+                Trace.WriteLine(
+                    $"Invalid Dance Tags: {SongId}, Tags: {string.Join(",", badDanceTags)}");
+                failed = true;
+            }
+
             for (var i = 0; i < SongProperties.Count; i++)
             {
-                var name = SongProperties[i].BaseName;
+                var property = SongProperties[i];
+                var name = property.BaseName;
+
                 switch (name)
                 {
                     case CreateCommand:
@@ -564,15 +575,37 @@ namespace m4dModels
                             $"Invalid Song: {SongId}, Name: {name}, Index: {i}");
                         failed = true;
                         break;
+                    case DanceRatingField:
+                        var rating = new DanceRatingDelta(property.Value);
+                        switch (rating.Delta) {
+                            case -2:
+                            case -1:
+                            case 1:
+                            case 2:
+                                break;
+                            default:
+                                Trace.WriteLineIf(
+                                    TraceLevels.General.TraceError,
+                                    $"Invalid Song: {SongId}, Name: {name}, Index: {i}, Value: {property.Value}");
+                                failed = true;
+                                break;
+                        }
+                        break;
                 }
             }
+
+            var chunked = new ChunkedSong(this);
+
+            //failed |= !await chunked.AreRatingsBalanced(dms);
+            //failed |= chunked.HasInvalidBatch();
+            //failed |= chunked.HasOrphanedVote();
 
             return await Task.FromResult(!failed);
         }
 
-        private static readonly string[] CommandField = { CreateCommand, EditCommand, UndoCommand };
-        private static readonly string[] UserFieldList = { UserField };
-        private static readonly string[] TimeFieldList = { TimeField };
+        private static readonly string[] CommandField = [CreateCommand, EditCommand, UndoCommand];
+        private static readonly string[] UserFieldList = [UserField];
+        private static readonly string[] TimeFieldList = [TimeField];
 
         private bool CheckHeader(int i) =>
             CheckHeaderCUT(i) || CheckHeaderCTU(i);
@@ -656,7 +689,7 @@ namespace m4dModels
         /// </summary>
         /// <param name="actions">Actions to include in the serialization</param>
         /// <returns></returns>
-        public string Serialize(string[] actions)
+        public string Serialize(string[] actions = null, string options=null)
         {
             if (string.IsNullOrWhiteSpace(Title) &&
                 (actions == null || !actions.Contains(SerializeDeleted)))
@@ -664,15 +697,20 @@ namespace m4dModels
                 return null;
             }
 
-            var props = SongProperty.Serialize(SongProperties, actions);
+            var props = SongProperty.Serialize(SongProperties, actions, options);
             return actions != null && actions.Contains(NoSongId)
                 ? props
-                : Serialize(SongId.ToString("B"), props);
+                : Serialize(SongId.ToString("B"), props, options);
         }
 
-        public static string Serialize(string id, string properties)
+        public string SerializeProperties(string[] actions = null, string options = null)
         {
-            return $"SongId={id}\t{properties}";
+            return SongProperty.Serialize(SongProperties, actions ?? [], options);
+        }
+
+        public static string Serialize(string id, string properties, string options = null)
+        {
+            return $"SongId={id}{SongProperty.SerializationSeparator(options)}{properties}";
         }
 
 
@@ -796,7 +834,7 @@ namespace m4dModels
                         {
                             decimal l = 0;
 
-                            if (cell.IndexOfAny(new[] { ':', 'm', 's' }) == -1 &&
+                            if (cell.IndexOfAny([':', 'm', 's']) == -1 &&
                                 decimal.TryParse(cell, out l))
                             {
                                 if (l > 1000)
@@ -1906,7 +1944,7 @@ namespace m4dModels
         {
             CreateEditProperties(user, EditCommand);
 
-            var oldProperties = Serialize(new[] { NoSongId });
+            var oldProperties = Serialize([NoSongId]);
 
             await Reload($"{oldProperties}\t{newProperties}", database);
 
@@ -1927,6 +1965,7 @@ namespace m4dModels
 
         public async Task<bool> AdminModify(string modInfo, DanceMusicCoreService database)
         {
+            var changed = false;
             var songMod = SongModifier.Build(modInfo);
 
             if (songMod == null)
@@ -1951,6 +1990,7 @@ namespace m4dModels
                                 modifier.Action == PropertyAction.ReplaceName))
                     .ToList();
 
+                changed |= modList.Count > 0;
                 foreach (var prop in modList)
                 {
                     var index = SongProperties.FindIndex(p => p == prop);
@@ -1989,7 +2029,7 @@ namespace m4dModels
 
             await CollapseTags(database);
 
-            return true;
+            return changed;
         }
 
         public async Task<bool> AdminAddUserProperties(string userName, IEnumerable<SongProperty> properties, DanceMusicCoreService database)
@@ -3044,7 +3084,30 @@ namespace m4dModels
             return changed;
         }
 
-        private static string[] s_emptyNames = { AddedTags, RemovedTags, SampleField };
+        public bool RemoveGroupVotes()
+        {
+            bool changed = false;
+            var props = SongProperties;
+            for (var i = props.Count - 1; i >= 0; i--)
+            {
+                var prop = props[i];
+                var value = prop.Value;
+                if (prop.BaseName == DanceRatingField)
+                {
+                    var rating = new DanceRatingDelta(prop.Value);
+                    if (s_groupIds.Contains(rating.DanceId))
+                    {
+                        props.RemoveAt(i);
+                        changed = true;
+                    }
+                }
+            }
+
+            return changed;
+
+        }
+
+        private static string[] s_emptyNames = [AddedTags, RemovedTags, SampleField];
 
         public bool RemoveDuplicateDurations()
         {
@@ -3102,6 +3165,43 @@ namespace m4dModels
 
             return true;
         }
+
+        public bool CleanBadBatches()
+        {
+            var chunked = new ChunkedSong(this);
+            if (!chunked.RemoveInvalidBatches())
+            {
+                return false;
+            }
+            SongProperties.Clear();
+            SongProperties.AddRange(chunked.SongProperties);
+            return true;
+        }
+
+        public async Task<bool> CleanOrphanedVotes(DanceMusicCoreService dms)
+        {
+            var chunked = new ChunkedSong(this);
+            if (!await chunked.CleanOrphanedVotes(dms, true))
+            {
+                return false;
+            }
+            SongProperties.Clear();
+            SongProperties.AddRange(chunked.SongProperties);
+            return true;
+        }
+
+        public async Task<bool> MergeChunks(DanceMusicCoreService dms)
+        {
+            var chunked = new ChunkedSong(this);
+            if (!await chunked.MergeChunks(dms))
+            {
+                return false;
+            }
+            SongProperties.Clear();
+            SongProperties.AddRange(chunked.SongProperties);
+            return true;
+        }
+
 
         public bool CleanupAlbums()
         {
@@ -3226,6 +3326,24 @@ namespace m4dModels
         public bool CleanupEchoNest()
         {
             return CleanupHeader(DanceabilityField, _ => "batch-e|P");
+        }
+
+        public bool RemoveStutters()
+        {
+            var stutter = new List<int>();
+            for (var i = 1; i < SongProperties.Count; i++)
+            {
+                if (SongProperties[i] == SongProperties[i-1])
+                {
+                    stutter.Add(i);
+                }
+            }
+            stutter.Reverse();
+            foreach (var i in stutter)
+            {
+                SongProperties.RemoveAt(i);
+            }
+            return stutter.Count > 0;
         }
 
         public async Task<bool> CleanupMissingEdits(DanceMusicCoreService dms)
@@ -3363,142 +3481,157 @@ namespace m4dModels
             public Dictionary<string, RatingTracker> Ratings { get; }
         }
 
-        public bool NormalizeRatings(int max = 1, int min = -1)
+        public bool DedupRatings()
         {
-            // This function should not semantically change the tags, but it will potentially
-            //  reduce the danceratings where there were redundant entries previously and normalize based
-            // on max/min
-
-            // For each user, keep a list of the tags and danceratings that they have applied
-            var users = new Dictionary<string, UserEdits>();
-            var remove = new List<SongProperty>();
-
-            string stats = null;
-            UserEdits currentEdits = null;
-            var changed = false;
-
-            foreach (var prop in SongProperties)
+            var chunked = new ChunkedSong(this);
+            if (!chunked.DedupRatings())
             {
-                var bn = prop.BaseName;
-                switch (prop.BaseName)
-                {
-                    case UserField:
-                    case UserProxy:
-                        if (!string.Equals(stats, prop.Value, StringComparison.OrdinalIgnoreCase))
-                        {
-                            stats = prop.Value;
-                            if (!users.TryGetValue(stats, out currentEdits))
-                            {
-                                currentEdits = new UserEdits();
-                                users[stats] = currentEdits;
-                            }
-                        }
-
-                        break;
-                    case AddedTags:
-                    case RemovedTags:
-                        var qual = prop.DanceQualifier ?? string.Empty;
-                        if (currentEdits == null)
-                        {
-                            Trace.WriteLineIf(
-                                TraceLevels.General.TraceWarning,
-                                $"Tag property {prop} comes before user.");
-                            break;
-                        }
-
-                        if (!currentEdits.UserTags.TryGetValue(qual, out var acc))
-                        {
-                            acc = new TagTracker { Property = prop };
-                            currentEdits.UserTags[qual] = acc;
-                        }
-                        else
-                        {
-                            remove.Add(prop);
-                        }
-
-                        acc.Tags = bn == AddedTags
-                            ? acc.Tags.Add(new TagList(prop.Value))
-                            : acc.Tags.Subtract(new TagList(prop.Value));
-                        break;
-                    case DanceRatingField:
-                        if (currentEdits == null)
-                        {
-                            Trace.WriteLineIf(
-                                TraceLevels.General.TraceWarning,
-                                $"DanceRating property {prop} comes before user.");
-                            break;
-                        }
-
-                        var drd = new DanceRatingDelta(prop.Value);
-                        RatingTracker rating;
-                        var delta = drd.Delta;
-
-                        // Enforce normalization of max/min values
-                        if (delta > max)
-                        {
-                            delta = max;
-                        }
-                        else if (delta < min)
-                        {
-                            delta = min;
-                        }
-
-                        if (drd.Delta != delta)
-                        {
-                            changed = true;
-                            drd.Delta = delta;
-                            prop.Value = drd.ToString();
-                        }
-
-                        if (!currentEdits.Ratings.TryGetValue(drd.DanceId, out rating))
-                        {
-                            currentEdits.Ratings[drd.DanceId] = new RatingTracker
-                                { Rating = delta, Property = prop };
-                        }
-                        else
-                        {
-                            // Keep the vote that is in the direction that is most recent for this user, then the largest value
-                            if (Math.Sign(rating.Rating) != Math.Sign(delta) ||
-                                Math.Abs(rating.Rating) <= Math.Abs(delta))
-                            {
-                                changed = true;
-                                rating.Rating = delta;
-                                rating.Property.Value = drd.ToString();
-                            }
-
-                            remove.Add(prop);
-                        }
-
-                        break;
-                }
+                return false;
             }
+            SongProperties.Clear();
+            SongProperties.AddRange(chunked.SongProperties);
+            return true;
 
-            foreach (var prop in remove)
-            {
-                SongProperties.Remove(prop);
-                changed = true;
-            }
-
-            foreach (var edit in users.Values)
-            foreach (var tracker in edit.UserTags.Values)
-            {
-                var tags = tracker.Tags.ToString();
-                if (string.Equals(tags, tracker.Property.Value))
-                {
-                    continue;
-                }
-
-                tracker.Property.Value = tags;
-                changed = true;
-            }
-
-            if (changed)
-            {
-                SetRatingsFromProperties();
-            }
-
-            return changed;
         }
+
+        //public bool NormalizeRatings(int max = 1, int min = -1)
+        //{
+        //    // This function should not semantically change the tags, but it will potentially
+        //    //  reduce the danceratings where there were redundant entries previously and normalize based
+        //    // on max/min
+
+        //    // For each user, keep a list of the tags and danceratings that they have applied
+        //    var users = new Dictionary<string, UserEdits>();
+        //    var remove = new List<int>();
+
+        //    string stats = null;
+        //    UserEdits currentEdits = null;
+        //    var changed = false;
+
+        //    for (var i = 0; i < SongProperties.Count; i++)
+        //    {
+        //        var prop = SongProperties[i];
+        //        var bn = prop.BaseName;
+        //        switch (prop.BaseName)
+        //        {
+        //            case UserField:
+        //            case UserProxy:
+        //                if (!string.Equals(stats, prop.Value, StringComparison.OrdinalIgnoreCase))
+        //                {
+        //                    stats = prop.Value;
+        //                    if (!users.TryGetValue(stats, out currentEdits))
+        //                    {
+        //                        currentEdits = new UserEdits();
+        //                        users[stats] = currentEdits;
+        //                    }
+        //                }
+
+        //                break;
+        //            case AddedTags:
+        //            case RemovedTags:
+        //                var qual = prop.DanceQualifier ?? string.Empty;
+        //                if (currentEdits == null)
+        //                {
+        //                    Trace.WriteLineIf(
+        //                        TraceLevels.General.TraceWarning,
+        //                        $"Tag property {prop} comes before user.");
+        //                    break;
+        //                }
+
+        //                if (!currentEdits.UserTags.TryGetValue(qual, out var acc))
+        //                {
+        //                    acc = new TagTracker { Property = prop };
+        //                    currentEdits.UserTags[qual] = acc;
+        //                }
+        //                else
+        //                {
+        //                    remove.Add(i);
+        //                }
+
+        //                acc.Tags = bn == AddedTags
+        //                    ? acc.Tags.Add(new TagList(prop.Value))
+        //                    : acc.Tags.Subtract(new TagList(prop.Value));
+        //                break;
+        //            case DanceRatingField:
+        //                if (currentEdits == null)
+        //                {
+        //                    Trace.WriteLineIf(
+        //                        TraceLevels.General.TraceWarning,
+        //                        $"DanceRating property {prop} comes before user.");
+        //                    break;
+        //                }
+
+        //                var drd = new DanceRatingDelta(prop.Value);
+        //                RatingTracker rating;
+        //                var delta = drd.Delta;
+
+        //                // Enforce normalization of max/min values
+        //                if (delta > max)
+        //                {
+        //                    delta = max;
+        //                }
+        //                else if (delta < min)
+        //                {
+        //                    delta = min;
+        //                }
+
+        //                if (drd.Delta != delta)
+        //                {
+        //                    changed = true;
+        //                    drd.Delta = delta;
+        //                    prop.Value = drd.ToString();
+        //                }
+
+        //                if (!currentEdits.Ratings.TryGetValue(drd.DanceId, out rating))
+        //                {
+        //                    currentEdits.Ratings[drd.DanceId] = new RatingTracker
+        //                        { Rating = delta, Property = prop };
+        //                }
+        //                else
+        //                {
+        //                    // Keep the vote that is in the direction that is most recent for this user, then the largest value
+        //                    if (Math.Sign(rating.Rating) != Math.Sign(delta) ||
+        //                        Math.Abs(rating.Rating) <= Math.Abs(delta))
+        //                    {
+        //                        changed = true;
+        //                        rating.Rating = delta;
+        //                        rating.Property.Value = drd.ToString();
+        //                    }
+
+        //                    remove.Add(i);
+        //                }
+
+        //                break;
+        //        }
+        //    }
+
+        //    remove.Reverse();
+        //    foreach (var idx in remove)
+        //    {
+        //        SongProperties.RemoveAt(idx);
+        //        changed = true;
+        //    }
+
+        //    foreach (var edit in users.Values)
+        //    foreach (var tracker in edit.UserTags.Values)
+        //    {
+        //        var tags = tracker.Tags.ToString();
+        //        if (string.Equals(tags, tracker.Property.Value))
+        //        {
+        //            continue;
+        //        }
+
+        //        tracker.Property.Value = tags;
+        //        changed = true;
+        //    }
+
+        //    if (changed)
+        //    {
+        //        SetRatingsFromProperties();
+        //    }
+
+        //    return changed;
+        //}
 
         private bool FixupProperties(string name, Func<SongProperty, string> fixup)
         {
@@ -3583,13 +3716,24 @@ namespace m4dModels
         }
 
         private static HashSet<string> s_groupIds = new()
-            { "MSC", "TNG", "SWG", "WLZ" };
+            { "MSC", "TNG", "LTN", "SWG", "WLZ" };
 
         public bool FixBadTagCategory()
         {
             return FixupProperties(
                 AddedTags,
                 prop => new TagList(prop.Value).FixBadCategory().ToString());
+        }
+
+        public bool RemoveBadDanceTags()
+        {
+            return FixupProperties(
+                AddedTags,
+                prop => { 
+                    var tags = new TagList(prop.Value).Tags
+                        .Where(t => !Dances.Instance.AllDanceGroups.Any(g => g.Name + ":Dance" == t.TrimStart('!')));
+                    return tags.Any() ? new TagList(tags).ToString() : null;
+                });
         }
 
 
@@ -3616,11 +3760,23 @@ namespace m4dModels
                     case 'E':
                         changed |= HandleCleanupCount(action, RemoveEmptyEdits());
                         break;
+                    case 'F':
+                        changed |= HandleCleanupCount(action, CleanBadBatches());
+                        break;
                     case 'G':
                         changed |= HandleCleanupCount(action, FixupMerges());
                         break;
+                    case 'H':
+                        changed |= HandleCleanupCount(action, await CleanOrphanedVotes(dms));
+                        break;
                     case 'I':
                         changed |= HandleCleanupCount(action, FixupTime());
+                        break;
+                    case 'J':
+                        changed |= HandleCleanupCount(action, RemoveBadDanceTags());
+                        break;
+                    case 'K':
+                        changed |= HandleCleanupCount(action, await MergeChunks(dms));
                         break;
                     case 'L':
                         changed |= HandleCleanupCount(action, FixupLengths());
@@ -3637,14 +3793,20 @@ namespace m4dModels
                     case 'P':
                         changed |= HandleCleanupCount(action, CleanupPurchases());
                         break;
+                    case 'Q':
+                        changed |= HandleCleanupCount(action, RemoveStutters());
+                        break;
                     case 'R':
-                        changed |= HandleCleanupCount(action, NormalizeRatings());
+                        changed |= HandleCleanupCount(action, DedupRatings());
                         break;
                     case 'S':
                         changed |= HandleCleanupCount(action, CleanupSamples());
                         break;
                     case 'T':
                         changed |= HandleCleanupCount(action, FixDuplicateTags(dms));
+                        break;
+                    case 'V':
+                        changed |= HandleCleanupCount(action, RemoveGroupVotes());
                         break;
                     case 'X':
                         changed |= HandleCleanupCount(action, RemoveTagRing(dms));
@@ -3812,11 +3974,11 @@ namespace m4dModels
             var level = 0;
             var ratings = FilteredProperties(
                 DanceRatingField, null,
-                new HashSet<string>(new[] { userName }));
+                new HashSet<string>([userName]));
             foreach (var rating in ratings.Where(p => p.Value.StartsWith(danceId)))
             {
                 var v = rating.Value;
-                var i = v.IndexOfAny(new[] { '+', '-' });
+                var i = v.IndexOfAny(['+', '-']);
                 if (i == -1 || !int.TryParse(v[i..], out var t))
                 {
                     continue;
@@ -4293,7 +4455,7 @@ namespace m4dModels
 
         public static int GetNextAlbumIndex(ICollection<AlbumDetails> albums)
         {
-            int[] ret = { 0 };
+            int[] ret = [0];
             foreach (var ad in albums.Where(ad => ad.Index >= ret[0]))
             {
                 ret[0] = ad.Index + 1;
@@ -4331,10 +4493,9 @@ namespace m4dModels
         public static List<AlbumDetails> BuildAlbumInfo(IEnumerable<SongProperty> properties)
         {
             var names = new List<string>(
-                new[]
-                {
+                [
                     AlbumField, PublisherField, TrackField, PurchaseField, AlbumPromote, AlbumOrder
-                });
+                ]);
 
             // First build a hashtable of index->albuminfo, maintaining the total number and the
             // high water mark of indexed albums
@@ -5012,7 +5173,7 @@ namespace m4dModels
         }
 
         private static readonly char[] Digits =
-            { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '-' };
+            ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '-'];
 
         private static string TruncateAlbum(string album, char delimiter)
         {
@@ -5059,7 +5220,7 @@ namespace m4dModels
         }
 
         protected static string[] Ignore =
-        {
+        [
             "A",
             "AT",
             "AND",
@@ -5070,10 +5231,10 @@ namespace m4dModels
             "THE",
             "THAT",
             "THIS"
-        };
+        ];
 
         private static readonly string[] ArtIgnore =
-            { "BAND", "FEAT", "FEATURING", "HIS", "HER", "ORCHESTRA", "WITH" };
+            ["BAND", "FEAT", "FEATURING", "HIS", "HER", "ORCHESTRA", "WITH"];
 
         private static readonly HashSet<string> ArtistIgnore =
             new(Ignore.Concat(ArtIgnore));

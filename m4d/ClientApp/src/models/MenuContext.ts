@@ -11,6 +11,9 @@ export interface MenuContextInterface {
   updateMessage?: string;
   marketingMessage?: string;
   xsrfToken?: string;
+  isLocal?: boolean;
+  isTest?: boolean;
+  isProduction?: boolean;
 }
 
 export class MenuContext implements MenuContextInterface {
@@ -73,5 +76,15 @@ export class MenuContext implements MenuContextInterface {
     return axios.create({
       headers: { RequestVerificationToken: this.xsrfToken },
     });
+  }
+
+  public get isLocal(): boolean {
+    return window.location.hostname === "localhost";
+  }
+  public get isTest(): boolean {
+    return window.location.hostname.endsWith(".azurewebsites.net");
+  }
+  public get isProduction(): boolean {
+    return window.location.hostname === "www.music4dance.net";
   }
 }

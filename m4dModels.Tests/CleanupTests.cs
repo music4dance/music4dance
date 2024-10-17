@@ -77,8 +77,6 @@ namespace m4dModels.Tests
         private const string SongWithEmpties =
             @".Create=	User=DanielLibatique|P	Time=09/23/2017 22:19:48	Title=TestT	Artist=TestA	Album:00=TestLP	Track:00=1	Tag+=Slow Waltz:Dance	DanceRating=SWZ+1	Tag+:SWZ=	.Edit=	User=batch-s|P	Time=09/23/2017 22:41:28	Sample=.";
 
-
-
         public CleanupTests()
         {
             General = new TraceSwitch("General", "All Tests", "Info");
@@ -120,49 +118,49 @@ namespace m4dModels.Tests
             }
         }
 
-        [TestMethod]
-        public async Task CleanRatings()
-        {
-            var dms = await DanceMusicTester.CreateService("Cleanup");
+        //[TestMethod]
+        //public async Task CleanRatings()
+        //{
+        //    var dms = await DanceMusicTester.CreateService("Cleanup");
 
-            var songs = new List<Song>
-            {
-                await Song.Create(SongB, dms),
-                await Song.Create(SongC, dms),
-                await Song.Create(SongE, dms)
-            };
+        //    var songs = new List<Song>
+        //    {
+        //        await Song.Create(SongB, dms),
+        //        await Song.Create(SongC, dms),
+        //        await Song.Create(SongE, dms)
+        //    };
 
-            var deltas = new List<int> { 17, 11, 3 };
+        //    var deltas = new List<int> { 17, 11, 3 };
 
-            for (var index = 0; index < songs.Count; index++)
-            {
-                var song = songs[index];
-                Trace.WriteLineIf(
-                    General.TraceInfo,
-                    $"---------------Predump for Song {song.SongId}");
-                DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
-                var c = song.SongProperties.Count;
-                Assert.IsTrue(song.NormalizeRatings());
-                Trace.WriteLineIf(
-                    General.TraceInfo,
-                    $"{song.SongId}:{song.SongProperties.Count - c}");
-                Assert.AreEqual(c - deltas[index], song.SongProperties.Count);
+        //    for (var index = 0; index < songs.Count; index++)
+        //    {
+        //        var song = songs[index];
+        //        Trace.WriteLineIf(
+        //            General.TraceInfo,
+        //            $"---------------Predump for Song {song.SongId}");
+        //        DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
+        //        var c = song.SongProperties.Count;
+        //        Assert.IsTrue(song.NormalizeRatings());
+        //        Trace.WriteLineIf(
+        //            General.TraceInfo,
+        //            $"{song.SongId}:{song.SongProperties.Count - c}");
+        //        Assert.AreEqual(c - deltas[index], song.SongProperties.Count);
 
-                var sd = await Song.Create(song.SongId, song.SongProperties, dms);
-                Assert.AreEqual(song.DanceRatings.Count, sd.DanceRatings.Count);
-                foreach (var dr in song.DanceRatings)
-                {
-                    var drT = sd.DanceRatings.FirstOrDefault(r => r.DanceId == dr.DanceId);
-                    Assert.IsNotNull(drT);
-                    Assert.AreEqual(dr.Weight, drT.Weight);
-                }
+        //        var sd = await Song.Create(song.SongId, song.SongProperties, dms);
+        //        Assert.AreEqual(song.DanceRatings.Count, sd.DanceRatings.Count);
+        //        foreach (var dr in song.DanceRatings)
+        //        {
+        //            var drT = sd.DanceRatings.FirstOrDefault(r => r.DanceId == dr.DanceId);
+        //            Assert.IsNotNull(drT);
+        //            Assert.AreEqual(dr.Weight, drT.Weight);
+        //        }
 
-                Trace.WriteLineIf(
-                    General.TraceInfo,
-                    $"---------------Postdump for Song {song.SongId}");
-                DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
-            }
-        }
+        //        Trace.WriteLineIf(
+        //            General.TraceInfo,
+        //            $"---------------Postdump for Song {song.SongId}");
+        //        DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
+        //    }
+        //}
 
         [TestMethod]
         public async Task CleanDurations()
@@ -199,6 +197,125 @@ namespace m4dModels.Tests
         }
 
         [TestMethod]
+        public async Task CleanOrphanedVotes()
+        {
+            var dms = await DanceMusicTester.CreateService("Cleanup");
+
+            var songs = new List<string>
+            {
+                @".Create=	User=HunterZ|P	Time=3/17/2014 5:44:31 PM	Title=Oyeme	Artist=Monica Naranjo	Tempo=96.0	Album:0=Afro Cubano	DanceRating=RMB+1	.Edit=	User=OliviaL|P	Time=10/2/2014 1:01:59 PM	Length=	.Edit=	User=HunterZ|P	Time=11/20/2014 11:29:29 AM	Tag+=Rumba:Dance",
+                @".Create=	User=HunterZ|P	Time=3/17/2014 5:44:31 PM	Title=Oyeme	Artist=Monica Naranjo	Tempo=96.0	Album:0=Afro Cubano	DanceRating=RMB+1	.Edit=	User=OliviaL|P	Time=10/2/2014 1:01:59 PM	Length=	.Edit=	User=batch|P	Time=11/20/2014 11:29:29 AM	Tag+=Rumba:Dance",
+                @".Create=	User=LincolnA|P	Time=6/23/2014 2:02:46 PM	Title=S.O.S.	Artist=Rihanna	.Edit=	User=JonathanWolfgram|P	Time=07/19/2021 02:30:11	Tag+=East Coast Swing:Dance	DanceRating=ECS+1	.Edit=	User=JonathanWolfgram|P	Time=12/31/2021 09:15:53	Tag+:ECS=American:Style",
+            };
+
+            var expected = new List<string>
+            {
+                @".Create=	User=HunterZ|P	Time=3/17/2014 5:44:31 PM	Title=Oyeme	Artist=Monica Naranjo	Tempo=96.0	Album:0=Afro Cubano	DanceRating=RMB+1	Tag+=Rumba:Dance	.Edit=	User=OliviaL|P	Time=10/2/2014 1:01:59 PM	Length=",
+                @".Create=	User=HunterZ|P	Time=3/17/2014 5:44:31 PM	Title=Oyeme	Artist=Monica Naranjo	Tempo=96.0	Album:0=Afro Cubano	DanceRating=RMB+1	Tag+=Rumba:Dance	.Edit=	User=OliviaL|P	Time=10/2/2014 1:01:59 PM	Length=",
+                @".Create=	User=LincolnA|P	Time=6/23/2014 2:02:46 PM	Title=S.O.S.	Artist=Rihanna	.Edit=	User=JonathanWolfgram|P	Time=07/19/2021 02:30:11	Tag+=East Coast Swing:Dance	DanceRating=ECS+1	.Edit=	User=JonathanWolfgram|P	Time=12/31/2021 09:15:53	Tag+:ECS=American:Style",
+            };
+
+            var results = new List<bool> { true, true, false };
+
+            await RunBatchTests("HE", songs, expected, results, dms);
+        }
+
+        [TestMethod]
+        public async Task MergeChunks()
+        {
+            var dms = await DanceMusicTester.CreateService("Cleanup");
+
+            var songs = new List<string>
+            {
+                @".Create=	User=FurgodjJosepAntoEscalarlata|P	Time=09/25/2018 03:37:10	Title=Boo-Wah Boo-Wah	Artist=Cab Calloway	Tag+=Lindy Hop:Dance	.Edit=	User=FurgodjJosepAntoEscalarlata|P	Time=09/26/2018 03:30:12	DanceRating=LHP+1",
+                @".Create=	User=AdamT|P	Time=04/15/2015 15:09:16	Title=Tal Vez Es Amor	Artist=Chayanne	Tag+=Bolero:Dance|Rumba:Dance|Spanish:Other	DanceRating=BOL+1	.Edit=	User=AdamT|P	Time=4/16/2015 8:36:33 AM	DanceRating=RMB+1",
+                //@".Create=	User=batch|P	Time=4/7/2014 2:02:36 PM	Title=Wonderwall	Artist=Paul Anka	.Edit=	User=JonathanWolfgram|P	Time=07/19/2021 03:33:54	Tag+=Quickstep:Dance	DanceRating=QST+1	.Edit=	User=JonathanWolfgram|P	Time=12/31/2021 09:08:57	DanceRating=QST+1	Tag+:QST=International:Style"
+            };
+
+            // Example 3 will change if we remove duplicate votes
+            var expected = new List<string>
+            {
+                @".Create=	User=FurgodjJosepAntoEscalarlata|P	Time=09/25/2018 03:37:10	Title=Boo-Wah Boo-Wah	Artist=Cab Calloway	Tag+=Lindy Hop:Dance	DanceRating=LHP+1",
+                @".Create=	User=AdamT|P	Time=04/15/2015 15:09:16	Title=Tal Vez Es Amor	Artist=Chayanne	Tag+=Bolero:Dance|Rumba:Dance|Spanish:Other	DanceRating=BOL+1	DanceRating=RMB+1",
+                //@".Create=	User=batch|P	Time=4/7/2014 2:02:36 PM	Title=Wonderwall	Artist=Paul Anka	.Edit=	User=JonathanWolfgram|P	Time=07/19/2021 03:33:54	Tag+=Quickstep:Dance	DanceRating=QST+1	DanceRating=QST+1	Tag+:QST=International:Style"
+            };
+
+            var results = new List<bool> { true, true, true };
+
+            await RunBatchTests("KE", songs, expected, results, dms);
+        }
+
+        [TestMethod]
+        public async Task CleanBadBatches()
+        {
+            var dms = await DanceMusicTester.CreateService("Cleanup");
+
+            var songs = new List<string>
+            {
+                @".Create=	User=DWTS|P	Time=04/21/2017 02:49:12	Tag+=DWTS:Other|Episode 5:Other|Season 24:Other|Tango (Ballroom):Dance|United States:Other	DanceRating=TGO+1	Tag+:TGO=Bonner:Other|Sharna:Other	Title=When Can I See You Again?	Artist=Owl City	.Edit=	User=batch|P	Time=07/23/2017 16:36:11	DanceRating=CSG+1	DanceRating=WCS+1	DanceRating=LHP+1	.Edit=	User=batch|P	Time=07/23/2017 16:43:48	DanceRating=TGO+1	DanceRating=ATN+1	.Edit=	User=charles|P	Time=28-Nov-2023 03:14:37 PM	DanceRating=TGO+1	Tag+=Tango (Ballroom):Dance",
+                @".Create=	User=DWTS|P	Time=04/21/2017 02:49:12	Tag+=DWTS:Other|Episode 5:Other|Season 24:Other|Tango (Ballroom):Dance|United States:Other	DanceRating=TGO+1	Tag+:TGO=Bonner:Other|Sharna:Other	Title=When Can I See You Again?	Artist=Owl City	.Edit=	User=charles|P	Time=28-Nov-2023 03:14:37 PM	DanceRating=TGO+1	Tag+=Tango (Ballroom):Dance	.Edit=	User=batch-s|P	Time=07/23/2017 16:43:48	DanceRating=CHA+1",
+                @".Create=	User=HunterZ|P	Time=3/17/2014 5:45:50 PM	Title=Empty Ballroom Blues	Artist=Johnny Hodges	Tempo=190.0	DanceRating=LHP+1	.Edit=	User=batch|P	Time=5/7/2014 11:36:22 AM	Length=147	Album:0=H as in HODGES, Johnny, Vol. 5	Track:0=2	.Edit=	User=batch-i|P	Time=5/7/2014 3:36:19 PM	Album:0=H as in Hodges, Johnny, Vol. 5	Purchase:0:IS=657547338	Purchase:0:IA=657547326	.Edit=	User=OliviaL|P	Time=10/1/2014 4:48:39 PM	DanceRating=BBA+1	.Edit=	User=batch|P	Time=10/9/2014 12:09:02 PM	DanceRating=BBA+1	DanceRating=JSW+1	.Edit=	User=HunterZ|P	Time=11/20/2014 11:31:54 AM	Tag+=Lindy Hop:Dance	.Edit=	User=batch|P	Time=11/20/2014 11:31:54 AM	Tag+=Jazz:Music	.Edit=	User=OliviaL|P	Time=11/20/2014 11:31:54 AM	Tag+=Balboa:Dance	.Edit=	User=batch-a|P	Time=12/10/2014 3:51:06 PM	Album:02=Hodge Podge. The Best of the Duke's Men. Vol. 1	Track:02=4	Tag+=Jazz:Music	.Edit=	User=batch-i|P	Time=12/10/2014 3:51:07 PM	Tag+=Jazz:Music	.Edit=	User=batch-x|P	Time=12/10/2014 3:51:07 PM	Album:00=H as in HODGES, Johnny, Vol. 5	Album:03=Essential Jazz Masters	Track:03=6	Tag+=Christian / Gospel:Music|Jazz:Music	.Edit=	User=batch-s|P	Time=1/6/2015 4:40:13 PM	Album:04=Back To Back Jazz Legends	Track:04=4	Purchase:04:SS=0dv0vqOFGMCWbaQWpnkK5a	Purchase:04:SA=3vDTHJCTDzMvoqBJ3yYwxi	Album:05=The Ultimate Jazz Collection	Track:05=3	Purchase:05:SS=09vnZ9XdxOy5OHWvAIfobX	Purchase:05:SA=6ELCSXeTpcVBPJPLJnwlk5	Album:06=The Jeep Is Jumpin'	Track:06=13	Purchase:06:SS=3bim8tHjWdrc5PROKhljtq	Purchase:06:SA=7BibOXgDaQTNBtGEXDAtiw	Album:07=Greatest Jazz Masters	Track:07=33	Purchase:07:SS=12V3Y3rRhmEkjFI94GqlQE	Purchase:07:SA=2whBAgz7wvEElOBNVTPIx3	.Edit=	User=batch|P	Time=4/23/2015 4:56:54 PM	DanceRating=CLS+1	.Edit=	User=batch-a|P	Time=01/11/2016 18:31:21	Purchase:00:AS=D:B00D467SM0	Purchase:00:AA=D:B00D467RCG	Purchase:00:SS=3vyWeDHAgBpyfHIc9nXEtW	Purchase:00:SA=2OomRtevYQUTU9WoxELEjN	.Edit=	User=batch-e|P	Time=02/10/2016 04:02:42	Tempo=96.6	Danceability=0.7389439	Energy=0.3223345	Valence=0.9614524	Tag+=4/4:Tempo"
+            };
+
+            var expected = new List<string>
+            {
+                @".Create=	User=DWTS|P	Time=04/21/2017 02:49:12	Tag+=DWTS:Other|Episode 5:Other|Season 24:Other|Tango (Ballroom):Dance|United States:Other	DanceRating=TGO+1	Tag+:TGO=Bonner:Other|Sharna:Other	Title=When Can I See You Again?	Artist=Owl City	.Edit=	User=charles|P	Time=28-Nov-2023 03:14:37 PM	DanceRating=TGO+1	Tag+=Tango (Ballroom):Dance",
+                @".Create=	User=DWTS|P	Time=04/21/2017 02:49:12	Tag+=DWTS:Other|Episode 5:Other|Season 24:Other|Tango (Ballroom):Dance|United States:Other	DanceRating=TGO+1	Tag+:TGO=Bonner:Other|Sharna:Other	Title=When Can I See You Again?	Artist=Owl City	.Edit=	User=charles|P	Time=28-Nov-2023 03:14:37 PM	DanceRating=TGO+1	Tag+=Tango (Ballroom):Dance	.Edit=	User=batch-s|P	Time=07/23/2017 16:43:48	DanceRating=CHA+1",
+                @".Create=	User=HunterZ|P	Time=3/17/2014 5:45:50 PM	Title=Empty Ballroom Blues	Artist=Johnny Hodges	Tempo=190.0	DanceRating=LHP+1	.Edit=	User=batch|P	Time=5/7/2014 11:36:22 AM	Length=147	Album:0=H as in HODGES, Johnny, Vol. 5	Track:0=2	.Edit=	User=batch-i|P	Time=5/7/2014 3:36:19 PM	Album:0=H as in Hodges, Johnny, Vol. 5	Purchase:0:IS=657547338	Purchase:0:IA=657547326	.Edit=	User=OliviaL|P	Time=10/1/2014 4:48:39 PM	DanceRating=BBA+1	.Edit=	User=HunterZ|P	Time=11/20/2014 11:31:54 AM	Tag+=Lindy Hop:Dance	.Edit=	User=batch|P	Time=11/20/2014 11:31:54 AM	Tag+=Jazz:Music	.Edit=	User=OliviaL|P	Time=11/20/2014 11:31:54 AM	Tag+=Balboa:Dance	.Edit=	User=batch-a|P	Time=12/10/2014 3:51:06 PM	Album:02=Hodge Podge. The Best of the Duke's Men. Vol. 1	Track:02=4	Tag+=Jazz:Music	.Edit=	User=batch-i|P	Time=12/10/2014 3:51:07 PM	Tag+=Jazz:Music	.Edit=	User=batch-x|P	Time=12/10/2014 3:51:07 PM	Album:00=H as in HODGES, Johnny, Vol. 5	Album:03=Essential Jazz Masters	Track:03=6	Tag+=Christian / Gospel:Music|Jazz:Music	.Edit=	User=batch-s|P	Time=1/6/2015 4:40:13 PM	Album:04=Back To Back Jazz Legends	Track:04=4	Purchase:04:SS=0dv0vqOFGMCWbaQWpnkK5a	Purchase:04:SA=3vDTHJCTDzMvoqBJ3yYwxi	Album:05=The Ultimate Jazz Collection	Track:05=3	Purchase:05:SS=09vnZ9XdxOy5OHWvAIfobX	Purchase:05:SA=6ELCSXeTpcVBPJPLJnwlk5	Album:06=The Jeep Is Jumpin'	Track:06=13	Purchase:06:SS=3bim8tHjWdrc5PROKhljtq	Purchase:06:SA=7BibOXgDaQTNBtGEXDAtiw	Album:07=Greatest Jazz Masters	Track:07=33	Purchase:07:SS=12V3Y3rRhmEkjFI94GqlQE	Purchase:07:SA=2whBAgz7wvEElOBNVTPIx3	.Edit=	User=batch-a|P	Time=01/11/2016 18:31:21	Purchase:00:AS=D:B00D467SM0	Purchase:00:AA=D:B00D467RCG	Purchase:00:SS=3vyWeDHAgBpyfHIc9nXEtW	Purchase:00:SA=2OomRtevYQUTU9WoxELEjN	.Edit=	User=batch-e|P	Time=02/10/2016 04:02:42	Tempo=96.6	Danceability=0.7389439	Energy=0.3223345	Valence=0.9614524	Tag+=4/4:Tempo"
+            };
+
+            var results = new List<bool> { true, false, true };
+
+            await RunBatchTests("FE", songs, expected, results, dms);
+        }
+
+        [TestMethod]
+        public async Task CleanBadDanceTags()
+        {
+            var dms = await DanceMusicTester.CreateService("Cleanup");
+
+            var songs = new List<string>
+            {
+                @".Create=	User=HunterZ|P	Time=3/17/2014 5:44:04 PM	Title=So What	Artist=Pink	Tag+=Paso Doble:Dance|!Waltz:Dance	DanceRating=PDL+1",
+                @".Create=	User=HunterZ|P	Time=3/17/2014 5:44:04 PM	Title=So What	Artist=Pink	Tag+=Paso Doble:Dance	DanceRating=PDL+1",
+                @".Create=	User=HunterZ|P	Time=3/17/2014 5:44:04 PM	Title=So What	Artist=Pink	Tag+=Tango:Dance",
+            };
+
+            var expected = new List<string>
+            {
+                @".Create=	User=HunterZ|P	Time=3/17/2014 5:44:04 PM	Title=So What	Artist=Pink	Tag+=Paso Doble:Dance	DanceRating=PDL+1",
+                @".Create=	User=HunterZ|P	Time=3/17/2014 5:44:04 PM	Title=So What	Artist=Pink	Tag+=Paso Doble:Dance	DanceRating=PDL+1",
+                @".Create=	User=HunterZ|P	Time=3/17/2014 5:44:04 PM	Title=So What	Artist=Pink",
+            };
+
+            var results = new List<bool> { true, false, true };
+
+            await RunBatchTests("JE", songs, expected, results, dms);
+        }
+
+
+        private async Task RunBatchTests(string actions, List<string> songs, List<string> expected, List<bool> results, DanceMusicService dms)
+        {
+            for (var index = 0; index < songs.Count; index++)
+            {
+                var song = await Song.Create(songs[index], dms);
+                Trace.WriteLineIf(
+                    General.TraceInfo,
+                    $"---------------Predump for Song {song.SongId}");
+                DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
+                var result = await song.CleanupProperties(dms, actions);
+                Assert.AreEqual(results[index], result);
+                Assert.AreEqual(expected[index], song.SerializeProperties());
+
+                Trace.WriteLineIf(
+                    General.TraceInfo,
+                    $"---------------Postdump for Song {song.SongId}");
+                DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
+            }
+
+        }
+
+        [TestMethod]
         public async Task CleanAlbums()
         {
             var dms = await DanceMusicTester.CreateService("Cleanup");
@@ -218,72 +335,72 @@ namespace m4dModels.Tests
             DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
         }
 
-        [TestMethod]
-        public async Task CleanAll()
-        {
-            var dms = await DanceMusicTester.CreateService("Cleanup");
+        //[TestMethod]
+        //public async Task CleanAll()
+        //{
+        //    var dms = await DanceMusicTester.CreateService("Cleanup");
 
-            var songs = new List<Song>
-            {
-                await Song.Create(SongA, dms),
-                await Song.Create(SongB, dms),
-                await Song.Create(SongC, dms),
-                await Song.Create(SongD, dms),
-                await Song.Create(SongE, dms)
-            };
+        //    var songs = new List<Song>
+        //    {
+        //        await Song.Create(SongA, dms),
+        //        await Song.Create(SongB, dms),
+        //        await Song.Create(SongC, dms),
+        //        await Song.Create(SongD, dms),
+        //        await Song.Create(SongE, dms)
+        //    };
 
-            var deltas = new List<List<int>>
-            {
-                new() { 1, 4, 5, 26 },
-                new() { 17, 135, 152, 188 },
-                new() { 2, 2, 13, 13 },
-                new() { 0, 2, 2, 11 },
-                new() { 4, 8, 11, 23 }
-            };
+        //    var deltas = new List<List<int>>
+        //    {
+        //        new() { 1, 4, 5, 26 },
+        //        new() { 17, 135, 152, 188 },
+        //        new() { 2, 2, 13, 13 },
+        //        new() { 0, 2, 2, 11 },
+        //        new() { 4, 8, 11, 23 }
+        //    };
 
-            for (var index = 0; index < songs.Count; index++)
-            {
-                var song = songs[index];
-                var delta = deltas[index];
-                Trace.WriteLineIf(
-                    General.TraceInfo,
-                    $"---------------Predump for Song {song.SongId}");
-                DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
-                var c = song.SongProperties.Count;
-                song.RemoveDuplicateDurations();
-                Trace.WriteLineIf(
-                    General.TraceVerbose,
-                    $"++++After Durations: {song.SongId}:{song.SongProperties.Count - c}");
-                DanceMusicTester.DumpSongProperties(song, General.TraceVerbose);
-                Assert.AreEqual(delta[0], c - song.SongProperties.Count);
-                song.CleanupAlbums();
-                Trace.WriteLineIf(
-                    General.TraceVerbose,
-                    $"++++After Albums: {song.SongId}:{song.SongProperties.Count - c}");
-                DanceMusicTester.DumpSongProperties(song, General.TraceVerbose);
-                Assert.AreEqual(delta[1], c - song.SongProperties.Count);
-                song.NormalizeRatings();
-                Trace.WriteLineIf(
-                    General.TraceVerbose,
-                    $"++++After Ratings: {song.SongId}:{song.SongProperties.Count - c}");
-                DanceMusicTester.DumpSongProperties(song, General.TraceVerbose);
-                Assert.AreEqual(delta[2], c - song.SongProperties.Count);
-                song.RemoveEmptyEdits();
-                Trace.WriteLineIf(
-                    General.TraceVerbose,
-                    $"++++After Empty: {song.SongId}:{song.SongProperties.Count - c}");
-                DanceMusicTester.DumpSongProperties(song, General.TraceVerbose);
-                Assert.AreEqual(delta[3], c - song.SongProperties.Count);
-                Trace.WriteLineIf(
-                    General.TraceInfo,
-                    $"---------------Postdump for Song {song.SongId}");
-                DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
+        //    for (var index = 0; index < songs.Count; index++)
+        //    {
+        //        var song = songs[index];
+        //        var delta = deltas[index];
+        //        Trace.WriteLineIf(
+        //            General.TraceInfo,
+        //            $"---------------Predump for Song {song.SongId}");
+        //        DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
+        //        var c = song.SongProperties.Count;
+        //        song.RemoveDuplicateDurations();
+        //        Trace.WriteLineIf(
+        //            General.TraceVerbose,
+        //            $"++++After Durations: {song.SongId}:{song.SongProperties.Count - c}");
+        //        DanceMusicTester.DumpSongProperties(song, General.TraceVerbose);
+        //        Assert.AreEqual(delta[0], c - song.SongProperties.Count);
+        //        song.CleanupAlbums();
+        //        Trace.WriteLineIf(
+        //            General.TraceVerbose,
+        //            $"++++After Albums: {song.SongId}:{song.SongProperties.Count - c}");
+        //        DanceMusicTester.DumpSongProperties(song, General.TraceVerbose);
+        //        Assert.AreEqual(delta[1], c - song.SongProperties.Count);
+        //        song.NormalizeRatings();
+        //        Trace.WriteLineIf(
+        //            General.TraceVerbose,
+        //            $"++++After Ratings: {song.SongId}:{song.SongProperties.Count - c}");
+        //        DanceMusicTester.DumpSongProperties(song, General.TraceVerbose);
+        //        Assert.AreEqual(delta[2], c - song.SongProperties.Count);
+        //        song.RemoveEmptyEdits();
+        //        Trace.WriteLineIf(
+        //            General.TraceVerbose,
+        //            $"++++After Empty: {song.SongId}:{song.SongProperties.Count - c}");
+        //        DanceMusicTester.DumpSongProperties(song, General.TraceVerbose);
+        //        Assert.AreEqual(delta[3], c - song.SongProperties.Count);
+        //        Trace.WriteLineIf(
+        //            General.TraceInfo,
+        //            $"---------------Postdump for Song {song.SongId}");
+        //        DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
 
-                // May be worth doing some verification on this, but for now just want to make sure it loads...
-                var sd = await Song.Create(song.SongId, song.SongProperties, dms);
-                Assert.IsNotNull(sd);
-            }
-        }
+        //        // May be worth doing some verification on this, but for now just want to make sure it loads...
+        //        var sd = await Song.Create(song.SongId, song.SongProperties, dms);
+        //        Assert.IsNotNull(sd);
+        //    }
+        //}
 
         [TestMethod]
         public async Task FixupLengths()
@@ -761,7 +878,7 @@ namespace m4dModels.Tests
         public async Task CheckEditProperitesCUT()
         {
             var s =
-                @".Merge=15b7eca6-ef69-4b35-bdeb-79d2309e3bb0;0cd52dce-097c-46a9-8228-6effd35c48a8	.Create=	User=HunterZ|P	Time=3/17/2014 5:44:04 PM	Title=So What	Artist=Pink	Tempo=128.0	DanceRating=PDL+1	.Edit=	User=batch|P	Time=5/21/2014 10:02:05 AM	Title=So What (Main Version) [Explicit]	Length=215	.Edit=	User=LincolnA|P	Time=6/23/2014 2:06:11 PM	DanceRating=CHA+1	.Edit=	User=HunterZ|P	Time=11/20/2014 11:30:11 AM	Tag+=Paso Doble:Dance	.Edit=	User=LincolnA|P	Time=11/20/2014 11:30:11 AM	Tag+=Cha Cha:Dance	.Edit=	User=BonnieL|P	Time=08/25/2016 17:04:34	Tag+=Polka:Dance	DanceRating=PLK+1	.Edit=	User=dwts|P	Time=09/21/2017 01:12:31	Tag+=DWTS:Other|Episode 1:Other|Season 25:Other|Tango (Ballroom):Dance|United States:Other	DanceRating=TGO+1	Tag+:TGO=Artem:Other|Nikki:Other	.Edit=	User=dwgray	Time=09/21/2017 01:19:57	Title=So What [Explicit]	Artist=P!nk	Tag+=4/4:Tempo|Pop:Music	.Edit=	User=dwgray	Time=09/21/2017 01:20:38	Tempo=126.0	Danceability=0.531	Energy=0.864	Valence=0.415	.Edit=	User=batch-s|P	Time=09/21/2017 01:20:55	Sample=https://p.scdn.co/mp3-preview/91f9d6e2c692afb77bed3a40e7bf72e95ac6dd67?cid=e6dc118cd7604cd2b8bd0a979a18e6f8	.Create=	User=BrittanyFalconer|P	Time=09/04/2017 15:38:14	Title=So What	Artist=P!nk	Tag+=East Coast Swing:Dance	DanceRating=ECS+1	Tag+:ECS=American:Style	.Edit=	User=batch-a|P	Time=09/04/2017 15:42:41	Tag+=Pop:Music|Rock:Music	.Edit=	User=batch-i|P	Time=09/04/2017 15:42:42	Tag+=Pop:Music	.Edit=	User=batch-e|P	Time=09/04/2017 15:42:42	Tempo=126.0	Danceability=0.531	Energy=0.864	Valence=0.415	Tag+=4/4:Tempo	.Edit=	User=batch-a|P	Time=09/04/2017 15:57:24	Sample=https://p.scdn.co/mp3-preview/91f9d6e2c692afb77bed3a40e7bf72e95ac6dd67?cid=e6dc118cd7604cd2b8bd0a979a18e6f8	Album:00=Funhouse	Track:00=1	Purchase:00:AS=D:B001I8A76K	Purchase:00:AA=D:B001I8A76A	Purchase:00:IA=293525340	Purchase:00:IS=293525380	Purchase:00:SA=0wcuOAo2w5jxwp7N57QKNN	Purchase:00:SS=6qYGUxPjQt5PJtWdiNppZx	Album:01=Greatest Hits...So Far!!!	Track:01=11	Purchase:01:IA=399891666	Purchase:01:IS=399891704	Purchase:01:SA=2tUn9E3nHXhUIJ47yv6ePD	Purchase:01:SS=7bprRkhvOXWmWpqOrEWbXu	Purchase:01:AS=D:B004BCIR2Q	Purchase:01:AA=D:B004BCNVOA	Album:02=Funhouse Deluxe Version [Clean]	Track:02=1	Purchase:02:AS=D:B001JDI9JQ	Purchase:02:AA=D:B001JDGK2E	Album:03=Break Up Songs	Track:03=8	Purchase:03:IS=1072024229	Purchase:03:IA=1072024143	Purchase:03:SS=6YGOqe9dZuq1RT3AdisNRv	Purchase:03:SA=4d6jNVUcYZsdbtNUMtgwFT	.Edit=	User=TylerQJoslin|P	Time=11/07/2018 04:06:06	Tag+=East Coast Swing:Dance	DanceRating=ECS+1	Tag+:ECS=Modern:Style	.Edit=	User=batch-a|P	Time=11/07/2018 04:09:11	Purchase:00:AS=D:B001IKYM78	Purchase:00:AA=D:B001IKVOE2	Album:04=Orgullo Gay [Explicit]	Track:04=21	Purchase:04:AS=D:B07DPFSCM4	Purchase:04:AA=D:B07DPG9NQ8	Album:05=Mother's Day Songs	Track:05=7	Purchase:05:AS=D:B079YVS18X	Purchase:05:AA=D:B079YXML4K	Album:06=NOW 29	Track:06=1	Purchase:06:AS=D:B001NGRLZW	Purchase:06:AA=D:B001NGV7RU	Album:07=NOW That's What I Call Music 29, 30, 31	Track:07=1	Purchase:07:AS=D:B07GL33HDX	Purchase:07:AA=D:B07GKVTM14	.Edit=	User=batch-i|P	Time=11/07/2018 04:09:27	Purchase:00:IA=293000131	Purchase:00:IS=293000132	Purchase:04:IS=1398208558	Purchase:04:IA=1398206945	Purchase:05:IS=1351343163	Purchase:05:IA=1351342657	.Edit=	User=batch-s|P	Time=11/07/2018 04:09:27	Purchase:00:SA=600cuygR195BtgX6pW9dRI	Purchase:00:SS=33GNzfnEGKGMrbTKV06zSO	Purchase:04:SS=3IoH70oCPRLaqGr71wlSed	Purchase:04:SA=6K6cgPLQlWUKdw1sSv7tYb	Purchase:05:SS=0URDFJlzg4sKcPLSn5A8to	Purchase:05:SA=0LplRIGNE4ds9AmJ6w0qXa	Purchase:06:SS=3zWExspclz8jTHhpsfaZso	Purchase:06:SA=2HT0BoIdGpgU0ruIirMpax	.Edit=	User=batch-e|P	Time=11/07/2018 04:09:27	Tempo=126.0	Danceability=0.538	Energy=0.873	Valence=0.4	.Edit=	User=batch-s|P	Time=11/07/2018 04:09:27	Sample=https://p.scdn.co/mp3-preview/92844d81295d127d48a8a0d9a674161844cba193?cid=e6dc118cd7604cd2b8bd0a979a18e6f8	.Edit=	User=spotify|P	Time=02/25/2019 03:25:02	Tag+=2000S:Other	.Edit=	User=batch-s|P	Time=02/25/2019 04:07:08	Purchase:00:SS=33GNzfnEGKGMrbTKV06zSO	Purchase:01:SS=7bprRkhvOXWmWpqOrEWbXu	Purchase:04:SS=3IoH70oCPRLaqGr71wlSed	Purchase:05:SS=0URDFJlzg4sKcPLSn5A8to	.Edit=	User=batch-e|P	Time=02/25/2019 04:07:08	Tempo=126.0	.Edit=	User=BatesBallroom|P	Time=03/17/2019 11:55:38	Tag+=East Coast Swing:Dance	DanceRating=ECS+1	Tag+:ECS=American:Style	.Edit=	User=batch-s|P	Time=03/17/2019 12:07:30	Purchase:00:SS=33GNzfnEGKGMrbTKV06zSO	Purchase:04:SS=3IoH70oCPRLaqGr71wlSed	Purchase:05:SS=0URDFJlzg4sKcPLSn5A8to	.Edit=	User=batch-e|P	Time=03/17/2019 12:07:30	Tempo=126.0";
+                @".Merge=15b7eca6-ef69-4b35-bdeb-79d2309e3bb0;0cd52dce-097c-46a9-8228-6effd35c48a8	.Create=	User=HunterZ|P	Time=3/17/2014 5:44:04 PM	Title=So What	Artist=Pink	Tempo=128.0	Tag+=Paso Doble:Dance	DanceRating=PDL+1	.Edit=	User=batch|P	Time=5/21/2014 10:02:05 AM	Title=So What (Main Version) [Explicit]	Length=215	.Edit=	User=LincolnA|P	Time=6/23/2014 2:06:11 PM	DanceRating=CHA+1	Tag+=Cha Cha:Dance	.Edit=	User=BonnieL|P	Time=08/25/2016 17:04:34	Tag+=Polka:Dance	DanceRating=PLK+1	.Edit=	User=dwts|P	Time=09/21/2017 01:12:31	Tag+=DWTS:Other|Episode 1:Other|Season 25:Other|Tango (Ballroom):Dance|United States:Other	DanceRating=TGO+1	Tag+:TGO=Artem:Other|Nikki:Other	.Edit=	User=dwgray	Time=09/21/2017 01:19:57	Title=So What [Explicit]	Artist=P!nk	Tag+=4/4:Tempo|Pop:Music	.Edit=	User=dwgray	Time=09/21/2017 01:20:38	Tempo=126.0	Danceability=0.531	Energy=0.864	Valence=0.415	.Edit=	User=batch-s|P	Time=09/21/2017 01:20:55	Sample=https://p.scdn.co/mp3-preview/91f9d6e2c692afb77bed3a40e7bf72e95ac6dd67?cid=e6dc118cd7604cd2b8bd0a979a18e6f8	.Create=	User=BrittanyFalconer|P	Time=09/04/2017 15:38:14	Title=So What	Artist=P!nk	Tag+=East Coast Swing:Dance	DanceRating=ECS+1	Tag+:ECS=American:Style	.Edit=	User=batch-a|P	Time=09/04/2017 15:42:41	Tag+=Pop:Music|Rock:Music	.Edit=	User=batch-i|P	Time=09/04/2017 15:42:42	Tag+=Pop:Music	.Edit=	User=batch-e|P	Time=09/04/2017 15:42:42	Tempo=126.0	Danceability=0.531	Energy=0.864	Valence=0.415	Tag+=4/4:Tempo	.Edit=	User=batch-a|P	Time=09/04/2017 15:57:24	Sample=https://p.scdn.co/mp3-preview/91f9d6e2c692afb77bed3a40e7bf72e95ac6dd67?cid=e6dc118cd7604cd2b8bd0a979a18e6f8	Album:00=Funhouse	Track:00=1	Purchase:00:AS=D:B001I8A76K	Purchase:00:AA=D:B001I8A76A	Purchase:00:IA=293525340	Purchase:00:IS=293525380	Purchase:00:SA=0wcuOAo2w5jxwp7N57QKNN	Purchase:00:SS=6qYGUxPjQt5PJtWdiNppZx	Album:01=Greatest Hits...So Far!!!	Track:01=11	Purchase:01:IA=399891666	Purchase:01:IS=399891704	Purchase:01:SA=2tUn9E3nHXhUIJ47yv6ePD	Purchase:01:SS=7bprRkhvOXWmWpqOrEWbXu	Purchase:01:AS=D:B004BCIR2Q	Purchase:01:AA=D:B004BCNVOA	Album:02=Funhouse Deluxe Version [Clean]	Track:02=1	Purchase:02:AS=D:B001JDI9JQ	Purchase:02:AA=D:B001JDGK2E	Album:03=Break Up Songs	Track:03=8	Purchase:03:IS=1072024229	Purchase:03:IA=1072024143	Purchase:03:SS=6YGOqe9dZuq1RT3AdisNRv	Purchase:03:SA=4d6jNVUcYZsdbtNUMtgwFT	.Edit=	User=TylerQJoslin|P	Time=11/07/2018 04:06:06	Tag+=East Coast Swing:Dance	DanceRating=ECS+1	Tag+:ECS=Modern:Style	.Edit=	User=batch-a|P	Time=11/07/2018 04:09:11	Purchase:00:AS=D:B001IKYM78	Purchase:00:AA=D:B001IKVOE2	Album:04=Orgullo Gay [Explicit]	Track:04=21	Purchase:04:AS=D:B07DPFSCM4	Purchase:04:AA=D:B07DPG9NQ8	Album:05=Mother's Day Songs	Track:05=7	Purchase:05:AS=D:B079YVS18X	Purchase:05:AA=D:B079YXML4K	Album:06=NOW 29	Track:06=1	Purchase:06:AS=D:B001NGRLZW	Purchase:06:AA=D:B001NGV7RU	Album:07=NOW That's What I Call Music 29, 30, 31	Track:07=1	Purchase:07:AS=D:B07GL33HDX	Purchase:07:AA=D:B07GKVTM14	.Edit=	User=batch-i|P	Time=11/07/2018 04:09:27	Purchase:00:IA=293000131	Purchase:00:IS=293000132	Purchase:04:IS=1398208558	Purchase:04:IA=1398206945	Purchase:05:IS=1351343163	Purchase:05:IA=1351342657	.Edit=	User=batch-s|P	Time=11/07/2018 04:09:27	Purchase:00:SA=600cuygR195BtgX6pW9dRI	Purchase:00:SS=33GNzfnEGKGMrbTKV06zSO	Purchase:04:SS=3IoH70oCPRLaqGr71wlSed	Purchase:04:SA=6K6cgPLQlWUKdw1sSv7tYb	Purchase:05:SS=0URDFJlzg4sKcPLSn5A8to	Purchase:05:SA=0LplRIGNE4ds9AmJ6w0qXa	Purchase:06:SS=3zWExspclz8jTHhpsfaZso	Purchase:06:SA=2HT0BoIdGpgU0ruIirMpax	.Edit=	User=batch-e|P	Time=11/07/2018 04:09:27	Tempo=126.0	Danceability=0.538	Energy=0.873	Valence=0.4	.Edit=	User=batch-s|P	Time=11/07/2018 04:09:27	Sample=https://p.scdn.co/mp3-preview/92844d81295d127d48a8a0d9a674161844cba193?cid=e6dc118cd7604cd2b8bd0a979a18e6f8	.Edit=	User=spotify|P	Time=02/25/2019 03:25:02	Tag+=2000S:Other	.Edit=	User=batch-s|P	Time=02/25/2019 04:07:08	Purchase:00:SS=33GNzfnEGKGMrbTKV06zSO	Purchase:01:SS=7bprRkhvOXWmWpqOrEWbXu	Purchase:04:SS=3IoH70oCPRLaqGr71wlSed	Purchase:05:SS=0URDFJlzg4sKcPLSn5A8to	.Edit=	User=batch-e|P	Time=02/25/2019 04:07:08	Tempo=126.0	.Edit=	User=BatesBallroom|P	Time=03/17/2019 11:55:38	Tag+=East Coast Swing:Dance	DanceRating=ECS+1	Tag+:ECS=American:Style	.Edit=	User=batch-s|P	Time=03/17/2019 12:07:30	Purchase:00:SS=33GNzfnEGKGMrbTKV06zSO	Purchase:04:SS=3IoH70oCPRLaqGr71wlSed	Purchase:05:SS=0URDFJlzg4sKcPLSn5A8to	.Edit=	User=batch-e|P	Time=03/17/2019 12:07:30	Tempo=126.0";
             await CheckProperties(s);
         }
 
@@ -773,7 +890,23 @@ namespace m4dModels.Tests
             await CheckProperties(s);
         }
 
-        private async Task CheckProperties(string s)
+        [TestMethod]
+        public async Task CheckEditProperitesBadDance()
+        {
+            var s =
+                @".Create=	User=HunterZ|P	Time=3/17/2014 5:44:04 PM	Title=So What	Artist=Pink	Tag+=Paso Doble:Dance|!Waltz:Dance	DanceRating=PDL+1";
+            await CheckProperties(s, false);
+        }
+
+        [TestMethod]
+        public async Task CheckEditProperitesNoBadDance()
+        {
+            var s =
+                @".Create=	User=HunterZ|P	Time=3/17/2014 5:44:04 PM	Title=So What	Artist=Pink	Tag+=Paso Doble:Dance	DanceRating=PDL+1";
+            await CheckProperties(s, true);
+        }
+
+        private async Task CheckProperties(string s, bool expected = true)
         {
             var dms = await DanceMusicTester.CreateServiceWithUsers("Cleanup");
 
@@ -781,7 +914,7 @@ namespace m4dModels.Tests
             Trace.WriteLine(General.TraceInfo, $"---------------Predump for Song {song.SongId}");
             DanceMusicTester.DumpSongProperties(song);
 
-            Assert.IsTrue(await song.CheckProperties());
+            Assert.AreEqual(expected, await song.CheckProperties(dms));
 
             Trace.WriteLineIf(General.TraceInfo, $"---------------Postdump for Song {song.SongId}");
             DanceMusicTester.DumpSongProperties(song, General.TraceInfo);

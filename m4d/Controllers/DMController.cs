@@ -254,7 +254,7 @@ public class DanceMusicController : Controller
         {
             AdminMonitor.UpdateTask("UpdateService", i);
             await MusicServiceManager.UpdateSongAndServices(dms, song);
-            await song.CleanupProperties(dms, "EY");
+            await song.CleanupProperties(dms, "HYE");
             i += 1;
         }
 
@@ -325,6 +325,43 @@ public class DanceMusicController : Controller
         var services = await UserManager.GetLoginsAsync(user);
         return services.FirstOrDefault(s => s.LoginProvider == name)?.ProviderKey;
     }
+
+    protected List<string> UploadFile(IFormFile file)
+    {
+        var lines = new List<string>();
+
+        ViewBag.Key = file.Name;
+        // ReSharper disable once PossibleNullReferenceException
+        ViewBag.Size = file.Length;
+        ViewBag.ContentType = file.ContentType;
+
+        // ReSharper disable once PossibleNullReferenceException
+        using var stream = file.OpenReadStream();
+        using var tr = new StreamReader(stream);
+
+        string s;
+        while ((s = tr.ReadLine()) != null)
+        {
+            if (!string.IsNullOrWhiteSpace(s))
+            {
+                lines.Add(s);
+            }
+        }
+
+        return lines;
+    }
+
+    protected string EnsureAppData(IWebHostEnvironment environment)
+    {
+        var path = Path.Combine(environment.WebRootPath, "AppData");
+        if (!Directory.Exists(path))
+        {
+            Directory.CreateDirectory(path);
+        }
+
+        return path;
+    }
+
 
 
 

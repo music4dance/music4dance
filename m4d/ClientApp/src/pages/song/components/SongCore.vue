@@ -60,7 +60,7 @@ const adminProperties = computed<string>({
     return computePropertyString(properties as SongProperty[]);
   },
   set: (properties: string) => {
-    safeEditor.value.adminEdit(properties);
+    safeEditor.value.adminEdit(properties.replaceAll("\n", "\t").replaceAll("\t\t", "\t"));
   },
 });
 const song = computed(() => (editor.value ? editor.value.song : songStore.value));
@@ -149,7 +149,7 @@ const commentPlaceholder = computed(() => {
 const saveText = computed(() => (props.creating ? "Add Song" : "Save Changes"));
 
 const computePropertyString = (properties: SongProperty[]): string => {
-  return properties.map((p) => p.toString()).join("\t");
+  return properties.map((p) => p.toString()).join("\n");
 };
 const onDanceVote = (vote: DanceRatingVote): void => {
   safeEditor.value.danceVote(vote);
@@ -303,6 +303,29 @@ onBeforeUnmount(() => {
         </h1>
       </BCol>
       <BCol v-if="editing || context.canTag" cols="auto">
+        <span v-if="context.isAdmin">
+          <BButton
+            v-if="!context.isProduction"
+            :href="`https://music4dance.net/song/details?id=${song.songId}`"
+            class="me-1"
+            target="_blank"
+            >Production</BButton
+          >
+          <BButton
+            v-if="!context.isTest"
+            :href="`https://m4d-linux.azurewebsites.net/song/details?id=${song.songId}`"
+            class="me-1"
+            target="_blank"
+            >Test</BButton
+          >
+          <BButton
+            v-if="!context.isLocal"
+            :href="`https://localhost:5001/song/details?id=${song.songId}`"
+            class="me-1"
+            target="_blank"
+            >Local</BButton
+          >
+        </span>
         <BButton
           v-if="!editing && context.isAdmin"
           variant="outline-danger"
@@ -409,13 +432,7 @@ onBeforeUnmount(() => {
             @add-property="addProperty($event)"
           />
           <h3>Admin Edit</h3>
-          <BFormTextarea
-            id="admin-edit"
-            v-model="adminProperties"
-            :readonly="!edit"
-            rows="3"
-            max-rows="6"
-          />
+          <BFormTextarea id="admin-edit" v-model="adminProperties" :readonly="!edit" rows="10" />
           <h3>Undo User Edits</h3>
           <BForm
             v-for="mb in song.modifiedBy"

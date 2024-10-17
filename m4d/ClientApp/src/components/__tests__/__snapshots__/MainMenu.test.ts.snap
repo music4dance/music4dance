@@ -32,6 +32,7 @@ exports[`MainMenu.vue > Renders MainMenu for an anonymous user 1`] = `
                 <li role=\\"presentation\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/customsearch?name=halloween\\" role=\\"menuitem\\">Halloween</a></li>
                 <li role=\\"presentation\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/customsearch?name=broadway\\" role=\\"menuitem\\">Broadway</a></li>
                 <li role=\\"presentation\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/tag\\" role=\\"menuitem\\">Tags</a></li>
+                <!--v-if-->
               </ul>
               <!--teleport end-->
             </div>

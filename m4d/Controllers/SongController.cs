@@ -361,6 +361,18 @@ public class SongController : ContentController
         return await DoAzureSearch();
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+
+    public async Task<ActionResult> List(IFormFile fileUpload)
+    {
+        UseVue = UseVue.V3;
+        var ids = UploadFile(fileUpload);
+
+        var results = await SongIndex.List(ids);
+        return await FormatResults(results);
+    }
+
     [AllowAnonymous]
     public async Task<ActionResult> FilterService(ICollection<string> services)
     {
@@ -1194,14 +1206,14 @@ public class SongController : ContentController
     }
 
     [Authorize(Roles = "dbAdmin")]
-    public ActionResult BatchCleanupProperties(string type = "OBGIYSMPNE")
+    public ActionResult BatchCleanupProperties(string type = "OBGIYSMPNE", int count = -1, bool log = false)
     {
         UseVue = UseVue.No;
         return BatchProcess(
              async (dms, song) =>
                  await song.CleanupProperties(dms, type)
                         ? song
-                        : null);
+                        : null, count: count, preview: log, log: log);
     }
 
     [Authorize(Roles = "dbAdmin")]
@@ -1227,14 +1239,24 @@ public class SongController : ContentController
     }
 
     private ActionResult BatchProcess(
-        Func<DanceMusicCoreService, Song, Task<Song>> act, int count = -1, bool preview = false)
+        Func<DanceMusicCoreService, Song, Task<Song>> act, int count = -1, bool preview = false, bool log = false)
     {
+        StreamWriter before = null;
+        StreamWriter after = null;
+
         try
         {
             StartAdminTask("BatchProcess");
             AdminMonitor.UpdateTask("BatchProcess");
 
             var changed = new List<Guid>();
+
+            if (log)
+            {
+                var dt = DateTime.Now;
+                before = new StreamWriter($"before-{dt.Year:d4}-{dt.Month:d2}-{dt.Day:d2}-{dt.TimeOfDay.TotalSeconds}.txt");
+                after = new StreamWriter($"after-{dt.Year:d4}-{dt.Month:d2}-{dt.Day:d2}-{dt.TimeOfDay.TotalSeconds}.txt");
+            }
 
             var tried = 0;
             var done = false;
@@ -1276,11 +1298,23 @@ public class SongController : ContentController
 
                                     processed += 1;
                                     tried += 1;
+                                    string b = null;
+                                    if (log)
+                                    {
+                                       b = song.Serialize(options: "R");
+                                    }
                                     var songT = await act(dms, song);
                                     if (songT != null)
                                     {
                                         changed.Add(songT.SongId);
                                         save.Add(songT);
+
+                                        if (log)
+                                        {
+                                            await before.WriteLineAsync(b + "\r\n");
+                                            var a = songT.Serialize(options: "R");
+                                            await after.WriteLineAsync(a + "\r\n");
+                                        }
                                     }
 
                                     if (count > 0 && tried > count)
@@ -1328,6 +1362,8 @@ public class SongController : ContentController
                     }
                     finally
                     {
+                        before?.Close();
+                        after?.Close();
                         dms.Dispose();
                     }
                 });

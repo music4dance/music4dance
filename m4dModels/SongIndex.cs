@@ -278,7 +278,7 @@ public abstract class SongIndex
 
     public async Task<bool> CheckProperties(Song song)
     {
-        return await song.CheckProperties();
+        return await song.CheckProperties(DanceMusicService);
     }
 
     public async Task DeleteSong(ApplicationUser user, Song song)
@@ -483,7 +483,7 @@ public abstract class SongIndex
             await DeleteSong(user, from);
         }
 
-        var sd = new Song(title, artist, tempo, length, new List<AlbumDetails>())
+        var sd = new Song(title, artist, tempo, length, [])
         {
             Danceability = song.Danceability,
             Energy = song.Energy,
@@ -518,7 +518,7 @@ public abstract class SongIndex
     {
         var songs = new List<Song>();
 
-        var dancesL = dances?.ToList() ?? new List<string>();
+        var dancesL = dances?.ToList() ?? [];
 
         foreach (var m in merges)
             // Matchtype of none indicates a new (to us) song, so just add it
@@ -932,7 +932,7 @@ public abstract class SongIndex
     public async Task<SearchResults> Search(
         string search, SearchOptions parameters, CruftFilter cruft = CruftFilter.NoCruft)
     {
-        // Strip of the Lucene syntax indicator
+        // Strip off the Lucene syntax indicator
         search = new KeywordQuery(search).Keywords;
 
         try
@@ -950,9 +950,37 @@ public abstract class SongIndex
         {
             Trace.WriteLine($"Failed Search: ${e.Message}");
             return new SearchResults(
-                search, 0, -1, 0, 0, new List<Song>(), null);
+                search, 0, -1, 0, 0, [], null);
         }
     }
+
+    public async Task<SearchResults> List(
+        IEnumerable<string> ids)
+    {
+        // Strip off the Lucene syntax indicator
+        try
+        {
+            var options = new SearchOptions { Filter = ListToOdata(ids), Size = 1000 };
+            var response = await DoSearch("*", options);
+            var songs = await CreateSongs(response.GetResults());
+            var facets = response.Facets;
+            return new SearchResults(
+                "*", songs.Count, response.TotalCount ?? -1, 1, 1000,
+                songs, facets);
+        }
+        catch (Exception e)
+        {
+            Trace.WriteLine($"Failed Search: ${e.Message}");
+            return new SearchResults(
+                "", 0, -1, 0, 0, [], null);
+        }
+    }
+
+    private string ListToOdata(IEnumerable<string> ids)
+    {
+        return $"search.in(SongId,'{string.Join(",", ids)}')";
+    }
+
 
     public async Task<IEnumerable<Song>> FindAlbum(string name, CruftFilter cruft = CruftFilter.NoCruft)
     {
@@ -1291,8 +1319,7 @@ public abstract class SongIndex
         parameters.Size = count == -1 ? null : count;
         parameters.OrderBy.Add("Modified desc");
         parameters.Select.AddRange(
-            new[]
-                { SongIdField, ModifiedField, PropertiesField });
+            [SongIdField, ModifiedField, PropertiesField]);
 
         var searchString = string.IsNullOrWhiteSpace(filter.SearchString)
             ? null

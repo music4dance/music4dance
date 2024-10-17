@@ -178,13 +178,23 @@ ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
 </ul>
 
 <hr />
-
-<hr />
 <h3>Songs Modified By</h3>
 @using (Html.BeginForm("FilterUser", "Song", FormMethod.Get))
 {
     <input type="text" name="user" />
     <input type="submit" id="Submit" value="Search" />
+}
+
+<hr />
+<h3>ListSongs</h3>
+@using (Html.BeginForm("List", "Song", FormMethod.Post, new
+{
+    enctype = "multipart/form-data"
+}))
+{
+    @Html.AntiForgeryToken()
+    <input type="file" name="FileUpload" />
+    <input type="submit" name="list" id="List" value="List" />
 }
 
 <hr />

@@ -876,17 +876,6 @@ public class AdminController : DanceMusicController
         }
     }
 
-    private string EnsureAppData(IWebHostEnvironment environment)
-    {
-        var path = Path.Combine(environment.WebRootPath, "AppData");
-        if (!Directory.Exists(path))
-        {
-            Directory.CreateDirectory(path);
-        }
-
-        return path;
-    }
-
     //
     // Get: //BackupDatabase
     [Authorize(Roles = "showDiagnostics")]
@@ -1246,31 +1235,6 @@ public class AdminController : DanceMusicController
         return file.Split(
             Environment.NewLine.ToCharArray(),
             StringSplitOptions.RemoveEmptyEntries).ToList();
-    }
-
-    private List<string> UploadFile(IFormFile file)
-    {
-        var lines = new List<string>();
-
-        ViewBag.Key = file.Name;
-        // ReSharper disable once PossibleNullReferenceException
-        ViewBag.Size = file.Length;
-        ViewBag.ContentType = file.ContentType;
-
-        // ReSharper disable once PossibleNullReferenceException
-        using var stream = file.OpenReadStream();
-        using var tr = new StreamReader(stream);
-
-        string s;
-        while ((s = tr.ReadLine()) != null)
-        {
-            if (!string.IsNullOrWhiteSpace(s))
-            {
-                lines.Add(s);
-            }
-        }
-
-        return lines;
     }
 
     public static int CacheReview(Review review)

@@ -32,32 +32,32 @@ exports[`Song Index > renders a song index page 1`] = `
                 <div data-v-a7ef304f=\\"\\" class=\\"likeHeader\\">Like/Play</div>
                 <!---->
               </th>
-              <th scope=\\"col\\" class=\\"\\"><span data-v-a7ef304f=\\"\\"><span><a id=\\"Title\\" href=\\"/song/Index?filter=v2-Index--Title\\">Title<!--v-if--></a><span id=\\"__BVID__0050___BV_popover___placeholder\\"></span>
+              <th scope=\\"col\\" class=\\"\\"><span data-v-a7ef304f=\\"\\"><span><a id=\\"Title\\" href=\\"/song/Index?filter=v2-Index--Title\\">Title<!--v-if--></a><span id=\\"__BVID__0122___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span></span>
                 <!---->
               </th>
-              <th scope=\\"col\\" class=\\"\\"><span data-v-a7ef304f=\\"\\"><span><a id=\\"Artist\\" href=\\"/song/Index?filter=v2-Index--Artist\\">Artist<!--v-if--></a><span id=\\"__BVID__0051___BV_popover___placeholder\\"></span>
+              <th scope=\\"col\\" class=\\"\\"><span data-v-a7ef304f=\\"\\"><span><a id=\\"Artist\\" href=\\"/song/Index?filter=v2-Index--Artist\\">Artist<!--v-if--></a><span id=\\"__BVID__0123___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span></span>
                 <!---->
               </th>
-              <th scope=\\"col\\" class=\\"\\"><span data-v-a7ef304f=\\"\\"><span><a id=\\"Tempo\\" href=\\"/song/Index?filter=v2-Index--Tempo\\">Tempo (BPM)<!--v-if--></a><span id=\\"__BVID__0052___BV_popover___placeholder\\"></span>
+              <th scope=\\"col\\" class=\\"\\"><span data-v-a7ef304f=\\"\\"><span><a id=\\"Tempo\\" href=\\"/song/Index?filter=v2-Index--Tempo\\">Tempo (BPM)<!--v-if--></a><span id=\\"__BVID__0124___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span></span>
                 <!---->
               </th>
               <th scope=\\"col\\" class=\\"\\">
-                <div data-v-a7ef304f=\\"\\" class=\\"echoHeader\\"><span data-v-a7ef304f=\\"\\"><span><a id=\\"Beat\\" href=\\"/song/Index?filter=v2-Index--Beat\\"><img data-v-a7ef304f=\\"\\" src=\\"/vclient/src/assets/images/icons/beat-10.png\\" width=\\"25\\" height=\\"25\\"><!--v-if--></a><span id=\\"__BVID__0053___BV_popover___placeholder\\"></span>
+                <div data-v-a7ef304f=\\"\\" class=\\"echoHeader\\"><span data-v-a7ef304f=\\"\\"><span><a id=\\"Beat\\" href=\\"/song/Index?filter=v2-Index--Beat\\"><img data-v-a7ef304f=\\"\\" src=\\"/vclient/src/assets/images/icons/beat-10.png\\" width=\\"25\\" height=\\"25\\"><!--v-if--></a><span id=\\"__BVID__0125___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span></span><span data-v-a7ef304f=\\"\\"><span><a id=\\"Energy\\" href=\\"/song/Index?filter=v2-Index--Energy\\"><img data-v-a7ef304f=\\"\\" src=\\"/vclient/src/assets/images/icons/Energy-10.png\\" width=\\"25\\" height=\\"25\\"><!--v-if--></a><span id=\\"__BVID__0054___BV_popover___placeholder\\"></span>
+                  <!--teleport end--></span></span><span data-v-a7ef304f=\\"\\"><span><a id=\\"Energy\\" href=\\"/song/Index?filter=v2-Index--Energy\\"><img data-v-a7ef304f=\\"\\" src=\\"/vclient/src/assets/images/icons/Energy-10.png\\" width=\\"25\\" height=\\"25\\"><!--v-if--></a><span id=\\"__BVID__0126___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span></span><span data-v-a7ef304f=\\"\\"><span><a id=\\"Mood\\" href=\\"/song/Index?filter=v2-Index--Mood\\"><img data-v-a7ef304f=\\"\\" src=\\"/vclient/src/assets/images/icons/mood-10.png\\" width=\\"25\\" height=\\"25\\"><!--v-if--></a><span id=\\"__BVID__0055___BV_popover___placeholder\\"></span>
+                  <!--teleport end--></span></span><span data-v-a7ef304f=\\"\\"><span><a id=\\"Mood\\" href=\\"/song/Index?filter=v2-Index--Mood\\"><img data-v-a7ef304f=\\"\\" src=\\"/vclient/src/assets/images/icons/mood-10.png\\" width=\\"25\\" height=\\"25\\"><!--v-if--></a><span id=\\"__BVID__0127___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
                   <!--teleport end--></span></span>
@@ -94,7 +94,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-46157cfc-5f79-46cd-927e-7b426924ba95\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0056___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-46157cfc-5f79-46cd-927e-7b426924ba95\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0128___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -111,18 +111,18 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f=\\"\\" href=\\"/home/counter?numerator=4&amp;tempo=171\\">171</a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-7.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/beat-7.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000073_placeholder\\"></span>
+                <!----><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000076\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-7.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0129___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-9.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/energy-9.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000074_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000077\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-9.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0130___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-1.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/mood-1.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000075_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000078\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-1.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0131___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
+                  <!--teleport end-->
                 </a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
@@ -331,7 +331,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-2c8a56bb-0609-4e77-93a6-4131b64fb079\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0057___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-2c8a56bb-0609-4e77-93a6-4131b64fb079\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0132___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -348,18 +348,18 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f=\\"\\" href=\\"/home/counter?numerator=4&amp;tempo=98.1\\">98</a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-9.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/beat-9.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000076_placeholder\\"></span>
+                <!----><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000079\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-9.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0133___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-8.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/energy-8.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000077_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000080\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-8.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0134___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-7.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/mood-7.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000078_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000081\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-7.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0135___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
+                  <!--teleport end-->
                 </a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
@@ -494,7 +494,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-a20823ab-4478-4ae8-963e-e8de94b0d928\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0058___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-a20823ab-4478-4ae8-963e-e8de94b0d928\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0136___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -511,18 +511,18 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f=\\"\\" href=\\"/home/counter?numerator=4&amp;tempo=109.9\\">110</a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-10.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/beat-10.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000079_placeholder\\"></span>
+                <!----><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000082\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-10.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0137___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-6.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/energy-6.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000080_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000083\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-6.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0138___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-6.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/mood-6.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000081_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000084\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-6.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0139___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
+                  <!--teleport end-->
                 </a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
@@ -693,7 +693,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-70b88100-cd46-45dc-8175-70473f9c2b26\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0059___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-70b88100-cd46-45dc-8175-70473f9c2b26\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0140___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -710,18 +710,18 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f=\\"\\" href=\\"/home/counter?numerator=4&amp;tempo=160.3\\">160</a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-7.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/beat-7.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000082_placeholder\\"></span>
+                <!----><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000085\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-7.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0141___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-4.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/energy-4.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000083_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000086\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-4.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0142___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-8.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/mood-8.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000084_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000087\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-8.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0143___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
+                  <!--teleport end-->
                 </a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
@@ -975,7 +975,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-d31c0524-aa8c-4620-981d-b905f6d53a14\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0060___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-d31c0524-aa8c-4620-981d-b905f6d53a14\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0144___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -992,18 +992,18 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f=\\"\\" href=\\"/home/counter?numerator=4&amp;tempo=116.8\\">117</a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-9.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/beat-9.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000085_placeholder\\"></span>
+                <!----><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000088\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-9.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0145___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-7.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/energy-7.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000086_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000089\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-7.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0146___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-10.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/mood-10.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000087_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000090\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-10.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0147___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
+                  <!--teleport end-->
                 </a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
@@ -1176,7 +1176,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-6b3384e0-340f-4e0d-a877-f632ffc3d587\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0061___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-6b3384e0-340f-4e0d-a877-f632ffc3d587\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0148___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -1193,18 +1193,18 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f=\\"\\" href=\\"/home/counter?numerator=4&amp;tempo=132.3\\">132</a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-9.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/beat-9.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000088_placeholder\\"></span>
+                <!----><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000091\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-9.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0149___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-7.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/energy-7.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000089_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000092\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-7.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0150___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-8.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/mood-8.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000090_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000093\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-8.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0151___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
+                  <!--teleport end-->
                 </a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
@@ -1330,7 +1330,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-121ba515-8f4b-4c0f-941f-c8fd5de97153\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0062___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-121ba515-8f4b-4c0f-941f-c8fd5de97153\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0152___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -1347,18 +1347,18 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f=\\"\\" href=\\"/home/counter?numerator=4&amp;tempo=104.2\\">104</a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-7.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/beat-7.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000091_placeholder\\"></span>
+                <!----><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000094\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-7.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0153___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-7.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/energy-7.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000092_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000095\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-7.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0154___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-10.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/mood-10.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000093_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000096\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-10.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0155___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
+                  <!--teleport end-->
                 </a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
@@ -1541,7 +1541,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-a2ad8895-2b6f-4322-a464-e48eadd890b9\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0063___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-a2ad8895-2b6f-4322-a464-e48eadd890b9\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0156___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -1558,18 +1558,18 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f=\\"\\" href=\\"/home/counter?numerator=4&amp;tempo=136.2\\">136</a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-6.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/beat-6.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000094_placeholder\\"></span>
+                <!----><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000097\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-6.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0157___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-10.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/energy-10.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000095_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000098\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-10.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0158___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-4.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/mood-4.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000096_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000099\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-4.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0159___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
+                  <!--teleport end-->
                 </a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
@@ -1689,7 +1689,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-47780cea-bb8b-45cf-b9b0-1e17fc4073f8\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0064___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-47780cea-bb8b-45cf-b9b0-1e17fc4073f8\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0160___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -1706,18 +1706,18 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f=\\"\\" href=\\"/home/counter?numerator=4&amp;tempo=118.2\\">118</a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-9.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/beat-9.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000097_placeholder\\"></span>
+                <!----><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000100\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-9.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0161___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-10.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/energy-10.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000098_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000101\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-10.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0162___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-6.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/mood-6.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000099_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000102\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-6.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0163___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
+                  <!--teleport end-->
                 </a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
@@ -1835,7 +1835,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-431d7e0f-2419-4868-8328-889be9117f8f\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0065___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-431d7e0f-2419-4868-8328-889be9117f8f\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0164___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -1852,18 +1852,18 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f=\\"\\" href=\\"/home/counter?numerator=4&amp;tempo=125\\">125</a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-8.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/beat-8.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000100_placeholder\\"></span>
+                <!----><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000103\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-8.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0165___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-7.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/energy-7.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000101_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000104\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-7.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0166___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-8.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/mood-8.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000102_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000105\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-8.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0167___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
+                  <!--teleport end-->
                 </a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
@@ -2032,7 +2032,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-b861e272-18de-4381-ae5b-f6cc3838885f\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0066___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-b861e272-18de-4381-ae5b-f6cc3838885f\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0168___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -2049,18 +2049,18 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f=\\"\\" href=\\"/home/counter?numerator=4&amp;tempo=62\\">62</a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-4.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/beat-4.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000103_placeholder\\"></span>
+                <!----><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000106\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-4.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0169___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-7.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/energy-7.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000104_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000107\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-7.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0170___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-2.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/mood-2.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000105_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000108\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-2.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0171___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
+                  <!--teleport end-->
                 </a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
@@ -2243,7 +2243,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-177fdf55-532c-44b3-b0f8-ad8da8c0cf5e\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0067___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-177fdf55-532c-44b3-b0f8-ad8da8c0cf5e\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0172___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -2260,18 +2260,18 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f=\\"\\" href=\\"/home/counter?numerator=4&amp;tempo=130\\">130</a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-8.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/beat-8.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000106_placeholder\\"></span>
+                <!----><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000109\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-8.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0173___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-8.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/energy-8.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000107_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000110\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-8.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0174___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-9.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/mood-9.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000108_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000111\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-9.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0175___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
+                  <!--teleport end-->
                 </a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
@@ -2402,7 +2402,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-cc91a066-1e0b-4f6a-a8a8-ed9eadad4fb2\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0068___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-cc91a066-1e0b-4f6a-a8a8-ed9eadad4fb2\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0176___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -2419,18 +2419,18 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f=\\"\\" href=\\"/home/counter?numerator=4&amp;tempo=134.1\\">134</a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-9.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/beat-9.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000109_placeholder\\"></span>
+                <!----><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000112\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-9.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0177___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-6.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/energy-6.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000110_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000113\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-6.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0178___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-9.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/mood-9.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000111_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000114\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-9.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0179___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
+                  <!--teleport end-->
                 </a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
@@ -2611,7 +2611,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-8f39a828-617b-446b-a5fa-61a659408467\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0069___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-8f39a828-617b-446b-a5fa-61a659408467\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0180___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -2628,18 +2628,18 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f=\\"\\" href=\\"/home/counter?numerator=4&amp;tempo=105\\">105</a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-6.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/beat-6.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000112_placeholder\\"></span>
+                <!----><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000115\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-6.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0181___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-5.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/energy-5.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000113_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000116\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-5.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0182___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-7.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/mood-7.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000114_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000117\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-7.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0183___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
+                  <!--teleport end-->
                 </a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
@@ -2908,7 +2908,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-03b20e2d-b769-4c13-af47-d9ef54103731\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0070___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-03b20e2d-b769-4c13-af47-d9ef54103731\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0184___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -2925,18 +2925,18 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f=\\"\\" href=\\"/home/counter?numerator=4&amp;tempo=101.5\\">102</a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-8.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/beat-8.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000115_placeholder\\"></span>
+                <!----><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000118\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-8.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0185___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-5.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/energy-5.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000116_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000119\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-5.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0186___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-6.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/mood-6.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000117_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000120\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-6.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0187___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
+                  <!--teleport end-->
                 </a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
@@ -3156,7 +3156,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-0e28a93d-fbbf-4d76-a4ed-3558d0c978e3\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0071___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-0e28a93d-fbbf-4d76-a4ed-3558d0c978e3\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0188___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -3173,18 +3173,18 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f=\\"\\" href=\\"/home/counter?numerator=4&amp;tempo=156.7\\">157</a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-6.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/beat-6.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000118_placeholder\\"></span>
+                <!----><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000121\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-6.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0189___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-10.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/energy-10.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000119_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000122\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-10.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0190___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-7.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/mood-7.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000120_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000123\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-7.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0191___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
+                  <!--teleport end-->
                 </a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
@@ -3274,7 +3274,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-5378cfc5-4e8e-412f-beff-5838e79a19d5\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0072___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-5378cfc5-4e8e-412f-beff-5838e79a19d5\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0192___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -3291,18 +3291,18 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f=\\"\\" href=\\"/home/counter?numerator=4&amp;tempo=98\\">98</a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-9.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/beat-9.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000121_placeholder\\"></span>
+                <!----><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000124\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-9.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0193___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-6.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/energy-6.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000122_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000125\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-6.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0194___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-6.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/mood-6.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000123_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000126\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-6.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0195___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
+                  <!--teleport end-->
                 </a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
@@ -3399,7 +3399,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-c60b89f8-0697-40b1-9a41-3451427d962b\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0073___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-c60b89f8-0697-40b1-9a41-3451427d962b\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0196___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -3416,18 +3416,18 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f=\\"\\" href=\\"/home/counter?numerator=4&amp;tempo=151\\">151</a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-8.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/beat-8.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000124_placeholder\\"></span>
+                <!----><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000127\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-8.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0197___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-5.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/energy-5.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000125_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000128\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-5.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0198___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-8.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/mood-8.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000126_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000129\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-8.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0199___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
+                  <!--teleport end-->
                 </a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
@@ -3542,7 +3542,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-a31dba76-7db3-4cb7-b3b9-44f1e874a0a5\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0074___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-a31dba76-7db3-4cb7-b3b9-44f1e874a0a5\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0200___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -3559,18 +3559,18 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f=\\"\\" href=\\"/home/counter?numerator=4&amp;tempo=171\\">171</a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-6.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/beat-6.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000127_placeholder\\"></span>
+                <!----><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000130\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-6.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0201___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-8.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/energy-8.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000128_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000131\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-8.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0202___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-4.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/mood-4.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000129_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000132\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-4.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0203___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
+                  <!--teleport end-->
                 </a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
@@ -3758,7 +3758,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-d838efa3-544e-41bf-afeb-d232521aee8b\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0075___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-d838efa3-544e-41bf-afeb-d232521aee8b\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0204___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -3775,18 +3775,18 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f=\\"\\" href=\\"/home/counter?numerator=4&amp;tempo=84.3\\">84</a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-4.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/beat-4.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000130_placeholder\\"></span>
+                <!----><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000133\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-4.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0205___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-9.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/energy-9.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000131_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000134\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-9.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0206___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-8.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/mood-8.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000132_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000135\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-8.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0207___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
+                  <!--teleport end-->
                 </a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
@@ -3828,7 +3828,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-9558cc28-e625-40da-9f91-f98709419627\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0076___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-9558cc28-e625-40da-9f91-f98709419627\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0208___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -3845,18 +3845,18 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f=\\"\\" href=\\"/home/counter?numerator=4&amp;tempo=127.1\\">127</a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-7.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/beat-7.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000133_placeholder\\"></span>
+                <!----><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000136\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-7.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0209___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-7.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/energy-7.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000134_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000137\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-7.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0210___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-8.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/mood-8.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000135_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000138\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-8.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0211___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
+                  <!--teleport end-->
                 </a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
@@ -3889,7 +3889,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-cc177bfc-fd06-4e37-aff1-fc226bd6632d\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0077___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-cc177bfc-fd06-4e37-aff1-fc226bd6632d\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0212___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -3943,7 +3943,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-7f1cddf3-49d8-4f95-90c1-c53bf35f566a\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0078___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-7f1cddf3-49d8-4f95-90c1-c53bf35f566a\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0213___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -3960,18 +3960,18 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f=\\"\\" href=\\"/home/counter?numerator=4&amp;tempo=132\\">132</a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-7.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/beat-7.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000136_placeholder\\"></span>
+                <!----><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000142\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-7.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0214___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-7.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/energy-7.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000137_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000143\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-7.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0215___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-6.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/mood-6.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000138_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000144\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-6.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0216___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
+                  <!--teleport end-->
                 </a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
@@ -4031,7 +4031,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-eb68affb-e4ae-478c-95c7-df9c959f5707\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0079___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-eb68affb-e4ae-478c-95c7-df9c959f5707\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0217___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -4048,18 +4048,18 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f=\\"\\" href=\\"/home/counter?numerator=4&amp;tempo=90\\">90</a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-8.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/beat-8.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000139_placeholder\\"></span>
+                <!----><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000145\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-8.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0218___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-6.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/energy-6.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000140_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000146\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-6.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0219___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-4.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/mood-4.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000141_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000147\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-4.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0220___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
+                  <!--teleport end-->
                 </a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
@@ -4119,7 +4119,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <!---->
             <tr class=\\"\\">
               <td scope=\\"col\\" class=\\"\\">
-                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-3c15c8c7-6b91-4347-8af9-8942b793540e\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0080___BV_popover___placeholder\\"></span>
+                <!----><span data-v-a7ef304f=\\"\\"><!--v-if--><span><a id=\\"like-button-3c15c8c7-6b91-4347-8af9-8942b793540e\\" href=\\"#\\" role=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"color: black; font-size: 1.5em;\\"><path fill=\\"currentColor\\" d=\\"m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15\\"></path></svg></a><span id=\\"__BVID__0221___BV_popover___placeholder\\"></span>
                 <!--teleport start-->
                 <!---->
                 <!--teleport end--></span><a href=\\"#\\" role=\\"button\\" class=\\"ms-1\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"ms-1\\" style=\\"font-size: 1.5em;\\">
@@ -4136,18 +4136,18 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f=\\"\\" href=\\"/home/counter?numerator=4&amp;tempo=135.1\\">135</a>
               </td>
               <td scope=\\"col\\" class=\\"\\">
-                <!----><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-6.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/beat-6.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000142_placeholder\\"></span>
+                <!----><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000148\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-6.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0222___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-7.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/energy-7.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000143_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000149\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-7.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0223___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
-                </a><a data-v-a7ef304f=\\"\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-6.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/mood-6.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000144_placeholder\\"></span>
+                  <!--teleport end-->
+                </a><a data-v-a7ef304f=\\"\\" id=\\"__m4d__000150\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-6.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0224___BV_popover___placeholder\\"></span>
                   <!--teleport start-->
                   <!---->
-                  <!--teleport end--></span>
+                  <!--teleport end-->
                 </a>
               </td>
               <td scope=\\"col\\" class=\\"\\">

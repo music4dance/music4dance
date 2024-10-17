@@ -29,11 +29,21 @@ const selectedSongs = props.selected ?? [];
 
 const editUser = context.userName ?? "";
 
-const batchUrl = (name: string, count: number, type?: string, options?: string): string => {
+const batchUrl = (
+  name: string,
+  count: number,
+  type?: string,
+  options?: string,
+  additional?: string,
+): string => {
   const typeParam = type ? `type=${type}` : "";
   const optionsParam = options ? `options=${options}` : "";
   const separator = typeParam && optionsParam ? "&" : "";
-  return batchUrlBase(name, count, typeParam + separator + optionsParam);
+  return batchUrlBase(
+    name,
+    count,
+    typeParam + separator + optionsParam + (additional ? `&${additional}` : ""),
+  );
 };
 
 const batchUrlBase = (name: string, count: number, additional?: string): string => {
@@ -60,7 +70,16 @@ const onBulkEdit = (submit: HTMLInputElement | null): void => {
         <BDropdown right text="Clean" class="mx-1 mb-1">
           <BDropdownItem :href="batchUrl('batchcleanservice', -1)">Services</BDropdownItem>
           <BDropdownItem :href="batchUrl('batchcleanservice', -1, 'SP')">Spotify</BDropdownItem>
-          <BDropdownItem :href="batchUrl('batchcleanupproperties', -1)">Properties</BDropdownItem>
+          <BDropdownItem :href="batchUrl('batchcleanupproperties', -1, 'HE')"
+            >Properties</BDropdownItem
+          >
+          <BDropdownItem
+            :href="batchUrl('batchcleanupproperties', 100, 'HE', undefined, 'log=true')"
+            >Log Properties (100)</BDropdownItem
+          >
+          <BDropdownItem :href="batchUrl('batchcleanupproperties', -1, 'HE', undefined, 'log=true')"
+            >Log Properties (ALL)</BDropdownItem
+          >
           <BDropdownItem :href="batchUrl('batchreloadsongs', -1)">Reload</BDropdownItem>
           <BDropdownItem :href="batchUrl('checkproperties', -1)">Check Properties</BDropdownItem>
         </BDropdown>

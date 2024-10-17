@@ -15,7 +15,7 @@ exports[`Song Merge > Renders the Merge Page 1`] = `
               <!--teleport end--></span><i><span data-v-b2e59ff0=\\"\\"><input data-v-b2e59ff0=\\"\\" type=\\"text\\" class=\\"form-control ml-2 text\\" style=\\"display: inline;\\"></span></i><span style=\\"font-size: 0.75em; padding-left: 0.5em;\\"> by </span><span data-v-b2e59ff0=\\"\\"><input data-v-b2e59ff0=\\"\\" type=\\"text\\" class=\\"form-control ml-2 text\\" style=\\"display: inline;\\"></span>
             </h1>
           </div>
-          <div class=\\"col-auto\\">
+          <div class=\\"col-auto\\"><span><a class=\\"btn btn-md btn-secondary me-1\\" href=\\"https://music4dance.net/song/details?id=9b447ea1-fc98-496e-9af1-f58f1eea273a\\" role=\\"button\\" target=\\"_blank\\">Production</a><a class=\\"btn btn-md btn-secondary me-1\\" href=\\"https://m4d-linux.azurewebsites.net/song/details?id=9b447ea1-fc98-496e-9af1-f58f1eea273a\\" role=\\"button\\" target=\\"_blank\\">Test</a><!--v-if--></span>
             <!--v-if--><button class=\\"btn link-undefined link-underline-undefined btn-md btn-outline-primary me-1\\" type=\\"button\\">Cancel</button><button class=\\"btn link-undefined link-underline-undefined btn-md btn-primary\\" type=\\"button\\">Add Song</button>
           </div>
         </div>
@@ -110,26 +110,26 @@ exports[`Song Merge > Renders the Merge Page 1`] = `
     </tr>
     <tr class=\\"\\">
       <th scope=\\"col\\" class=\\"\\">Beat</th>
-      <td scope=\\"col\\" class=\\"\\"><a href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-6.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/beat-6.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000004_placeholder\\"></span>
+      <td scope=\\"col\\" class=\\"\\"><a id=\\"__m4d__000004\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat\\" target=\\"_blank\\"><img src=\\"/images/icons/beat-6.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0014___BV_popover___placeholder\\"></span>
           <!--teleport start-->
           <!---->
-          <!--teleport end--></span>
+          <!--teleport end-->
         </a> 52.2%</td>
     </tr>
     <tr class=\\"\\">
       <th scope=\\"col\\" class=\\"\\">Energy</th>
-      <td scope=\\"col\\" class=\\"\\"><a href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-8.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/energy-8.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000005_placeholder\\"></span>
+      <td scope=\\"col\\" class=\\"\\"><a id=\\"__m4d__000005\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy\\" target=\\"_blank\\"><img src=\\"/images/icons/energy-8.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0015___BV_popover___placeholder\\"></span>
           <!--teleport start-->
           <!---->
-          <!--teleport end--></span>
+          <!--teleport end-->
         </a> 79.6%</td>
     </tr>
     <tr class=\\"\\">
       <th scope=\\"col\\" class=\\"\\">Mood</th>
-      <td scope=\\"col\\" class=\\"\\"><a href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-7.png\\" width=\\"25\\" height=\\"25\\"><img src=\\"/images/icons/mood-7.png\\" width=\\"25\\" height=\\"25\\"><span><span id=\\"__m4d__000006_placeholder\\"></span>
+      <td scope=\\"col\\" class=\\"\\"><a id=\\"__m4d__000006\\" href=\\"https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood\\" target=\\"_blank\\"><img src=\\"/images/icons/mood-7.png\\" width=\\"25\\" height=\\"25\\"><span id=\\"__BVID__0016___BV_popover___placeholder\\"></span>
           <!--teleport start-->
           <!---->
-          <!--teleport end--></span>
+          <!--teleport end-->
         </a> 60.0%</td>
     </tr>
     <tr class=\\"\\">
@@ -175,7 +175,57 @@ exports[`Song Merge > Renders the Merge Page 1`] = `
         <!---->
         <!---->
       </div>
-      <h3>Admin Edit</h3><textarea id=\\"admin-edit\\" class=\\"form-control\\" rows=\\"3\\" wrap=\\"soft\\" max-rows=\\"6\\" value=\\".Create=6f7b6e01-7776-4b17-964e-ba29084514c4	User=rhettbot|P	Time=30-Apr-2017 05:09:57 PM	Title=Shadowfeet	Artist=Brooke Fraser	Album:00=Albertine	Track:00=1	Length=221	Tag+=Night Club Two Step:Dance	DanceRating=NC2+1	.Edit=6f7b6e01-7776-4b17-964e-ba29084514c4	User=batch-a|P	Time=30-Apr-2017 05:15:36 PM	Purchase:00:AS=D:B0019AZNMU	Purchase:00:AA=D:B0019BA0ZE	Tag+=Adult Alternative:Music	.Edit=6f7b6e01-7776-4b17-964e-ba29084514c4	User=batch-s|P	Time=30-Apr-2017 05:15:36 PM	Purchase:00:SS=2FD0y3GNbKeAlkxQQJvJTD	Purchase:00:SA=68SM3jNGqcp6C1n6YFge4l	.Edit=6f7b6e01-7776-4b17-964e-ba29084514c4	User=batch-x|P	Time=30-Apr-2017 05:15:37 PM	Tag+=Pop:Music	.Edit=6f7b6e01-7776-4b17-964e-ba29084514c4	User=batch|P	Time=30-Apr-2017 05:20:28 PM	Tempo=147.1	Danceability=0.522	Energy=0.796	Valence=0.6	Tag+=4/4:Tempo	.Edit=6f7b6e01-7776-4b17-964e-ba29084514c4	User=batch-s|P	Time=30-Apr-2017 05:20:52 PM	Sample=https://p.scdn.co/mp3-preview/f5da92dfa692558d777d35ca812a24a5b0242134?cid=e6dc118cd7604cd2b8bd0a979a18e6f8	.Create=6431bc12-f49c-4cdb-851d-ce6c5f1d1a18	User=spotify|P	Time=10-Oct-2021 09:01:11 AM	Title=Shadow Feet	Artist=Brooke Fraser	Length=217	Album:00=Albertine	Track:00=1	Tag+=2000S:Other	Purchase:00:SA=34C3Y0Rnq8AUCzihkmfiX5	Purchase:00:SS=0DD55tCwxn8CF5DkY1cjwg	.Merge=6f7b6e01-7776-4b17-964e-ba29084514c4;6431bc12-f49c-4cdb-851d-ce6c5f1d1a18	User=music4dance	Time=06-Feb-2022 04:00:00 PM\\"></textarea>
+      <h3>Admin Edit</h3><textarea id=\\"admin-edit\\" class=\\"form-control\\" rows=\\"10\\" wrap=\\"soft\\" value=\\".Create=6f7b6e01-7776-4b17-964e-ba29084514c4
+User=rhettbot|P
+Time=30-Apr-2017 05:09:57 PM
+Title=Shadowfeet
+Artist=Brooke Fraser
+Album:00=Albertine
+Track:00=1
+Length=221
+Tag+=Night Club Two Step:Dance
+DanceRating=NC2+1
+.Edit=6f7b6e01-7776-4b17-964e-ba29084514c4
+User=batch-a|P
+Time=30-Apr-2017 05:15:36 PM
+Purchase:00:AS=D:B0019AZNMU
+Purchase:00:AA=D:B0019BA0ZE
+Tag+=Adult Alternative:Music
+.Edit=6f7b6e01-7776-4b17-964e-ba29084514c4
+User=batch-s|P
+Time=30-Apr-2017 05:15:36 PM
+Purchase:00:SS=2FD0y3GNbKeAlkxQQJvJTD
+Purchase:00:SA=68SM3jNGqcp6C1n6YFge4l
+.Edit=6f7b6e01-7776-4b17-964e-ba29084514c4
+User=batch-x|P
+Time=30-Apr-2017 05:15:37 PM
+Tag+=Pop:Music
+.Edit=6f7b6e01-7776-4b17-964e-ba29084514c4
+User=batch|P
+Time=30-Apr-2017 05:20:28 PM
+Tempo=147.1
+Danceability=0.522
+Energy=0.796
+Valence=0.6
+Tag+=4/4:Tempo
+.Edit=6f7b6e01-7776-4b17-964e-ba29084514c4
+User=batch-s|P
+Time=30-Apr-2017 05:20:52 PM
+Sample=https://p.scdn.co/mp3-preview/f5da92dfa692558d777d35ca812a24a5b0242134?cid=e6dc118cd7604cd2b8bd0a979a18e6f8
+.Create=6431bc12-f49c-4cdb-851d-ce6c5f1d1a18
+User=spotify|P
+Time=10-Oct-2021 09:01:11 AM
+Title=Shadow Feet
+Artist=Brooke Fraser
+Length=217
+Album:00=Albertine
+Track:00=1
+Tag+=2000S:Other
+Purchase:00:SA=34C3Y0Rnq8AUCzihkmfiX5
+Purchase:00:SS=0DD55tCwxn8CF5DkY1cjwg
+.Merge=6f7b6e01-7776-4b17-964e-ba29084514c4;6431bc12-f49c-4cdb-851d-ce6c5f1d1a18
+User=music4dance
+Time=06-Feb-2022 04:00:00 PM\\"></textarea>
       <h3>Undo User Edits</h3>
       <form id=\\"rhettbot-undo\\" novalidate=\\"\\" class=\\"m-1\\" action=\\"/song/undoUserChanges\\" method=\\"post\\" style=\\"display: inline-block;\\"><input type=\\"hidden\\" name=\\"__RequestVerificationToken\\" value=\\"FOO\\"><input type=\\"hidden\\" name=\\"id\\" value=\\"9b447ea1-fc98-496e-9af1-f58f1eea273a\\"><input type=\\"hidden\\" name=\\"userName\\" value=\\"rhettbot\\"><button class=\\"btn link-undefined link-underline-undefined btn-md btn-secondary\\" type=\\"submit\\">rhettbot</button></form>
       <form id=\\"batch-a-undo\\" novalidate=\\"\\" class=\\"m-1\\" action=\\"/song/undoUserChanges\\" method=\\"post\\" style=\\"display: inline-block;\\"><input type=\\"hidden\\" name=\\"__RequestVerificationToken\\" value=\\"FOO\\"><input type=\\"hidden\\" name=\\"id\\" value=\\"9b447ea1-fc98-496e-9af1-f58f1eea273a\\"><input type=\\"hidden\\" name=\\"userName\\" value=\\"batch-a\\"><button class=\\"btn link-undefined link-underline-undefined btn-md btn-secondary\\" type=\\"submit\\">batch-a</button></form>

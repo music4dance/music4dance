@@ -99,10 +99,6 @@ namespace m4dModels
             return Groups.Select(t => new DanceGroupSparse(t));
         }
 
-        // TODONEXT: Transform this inot more general DanceMetrics
-        //  For now, that includes song counts a max votes
-        //  Pipe that down to the client based on a new parameter to the vu3
-        //  function.
         public IReadOnlyDictionary<string, long> GetCounts()
         {
             return Dances.ToDictionary(d => d.DanceId,  d => d.SongCount);

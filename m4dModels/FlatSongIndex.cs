@@ -202,7 +202,7 @@ namespace m4dModels
 
             // Set up the purchase flags
             var purchase = string.IsNullOrWhiteSpace(song.Purchase)
-                ? new List<string>()
+                ? []
                 : song.Purchase.ToCharArray().Where(c => MusicService.GetService(c) != null)
                     .Select(c => MusicService.GetService(c).Name).ToList();
             if (song.HasSample)

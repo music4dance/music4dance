@@ -265,7 +265,7 @@ namespace m4dModels
 
         // During serialize replace tabs and newlines with unicode sub + T and R respectively
         //  do the opposite during deserialization.
-        public static string Serialize(IEnumerable<SongProperty> properties, string[] actions)
+        public static string Serialize(IEnumerable<SongProperty> properties, string[] actions = null, string options = null)
         {
             var sb = new StringBuilder();
 
@@ -281,10 +281,24 @@ namespace m4dModels
 
                 sb.AppendFormat("{0}{1}", sep, p);
 
-                sep = "\t";
+                sep = SerializationSeparator(options);
             }
 
             return sb.ToString();
+        }
+
+        public static string SerializationSeparator(string options)
+        {
+            return options == null || !options.Contains('R') ? "\t" : "\r\n";
+        }
+
+        public static IEnumerable<SongProperty> Load(string props)
+        {
+            var properties = new List<SongProperty>();
+
+            Load(props, properties);
+
+            return properties;
         }
 
         public static void Load(string props, ICollection<SongProperty> properties)
