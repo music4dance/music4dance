@@ -65,8 +65,13 @@ const findService = async (): Promise<void> => {
   }
 };
 
-const checkService = async (s: string): Promise<void> => {
-  if (s && serviceMatcher.match(s)) {
+const checkService = async (x: string | number | null): Promise<void> => {
+  if (!x) {
+    return;
+  }
+
+  const s = x.toString();
+  if (serviceMatcher.match(s)) {
     await findService();
   }
 };
@@ -88,11 +93,10 @@ onMounted(async () => {
       <BInputGroup prepend="Service Id">
         <BFormInput
           id="service-id"
-          v-model="serviceString"
+          v-model.trim="serviceString"
           palceholder="Apple Music or Spotify Id"
           aria-describedby="service-id-feedback"
           :state="serviceIdState"
-          trim
           @update:model-value="checkService"
         />
         <BButton variant="primary" @click="findService">Find</BButton>

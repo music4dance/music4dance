@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { SongSort, SortOrder } from "@/models/SongSort";
-import { BContainer, useModal } from "bootstrap-vue-next";
+import { BContainer, useModal, type RadioValue } from "bootstrap-vue-next";
 import { computed } from "vue";
 
 const props = defineProps<{
@@ -18,9 +18,9 @@ const chronOrder = computed(() => {
   return SongSort.getOrderType(order) ? order : SortOrder.Match;
 });
 
-const chooseSort = (order: SortOrder | true) => {
+const chooseSort = (order: RadioValue) => {
   // INT-TODO: May be a bug in BFormRadioGroup value==="" evaluates to true
-  const fixed = order === true ? SortOrder.Match : order;
+  const fixed = order === true ? SortOrder.Match : (order as SortOrder);
   emit("update:order", fixed);
   hide();
 };

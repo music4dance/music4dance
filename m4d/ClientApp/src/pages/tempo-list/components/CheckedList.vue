@@ -55,7 +55,7 @@ const allValues = computed(() => {
   return valuesFromOptions(props.options);
 });
 
-function toggleAll(checked: CheckboxValue | CheckboxValue[]): any {
+function toggleAll(checked: CheckboxValue | readonly CheckboxValue[] | undefined): any {
   model.value = checked ? allValues.value : [];
 }
 
