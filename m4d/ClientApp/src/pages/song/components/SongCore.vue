@@ -12,12 +12,12 @@ import { getMenuContext } from "@/helpers/GetMenuContext";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { computed, onBeforeMount, onBeforeUnmount, ref, watch } from "vue";
 import type { SongHistory } from "@/models/SongHistory";
-import { useToast, useModalController } from "bootstrap-vue-next";
+import { useToastController, useModalController } from "bootstrap-vue-next";
 import { TagHandler } from "@/models/TagHandler";
 
 const context = getMenuContext();
 const danceDB = safeDanceDatabase();
-const { show } = useToast();
+const { show } = useToastController();
 const { confirm, hide } = useModalController();
 
 const props = defineProps<{
@@ -82,7 +82,7 @@ const modified = computed(() => {
       props: {
         title: "Don't Forget!",
         variant: "primary",
-        pos: "top-end",
+        pos: "top-center",
         value: 5000,
         interval: 100,
         solid: true,
@@ -230,13 +230,15 @@ const onInsertSongProperty = (index: number, prop: string): void => {
 };
 const leaveWarning = (event: BeforeUnloadEvent): void => {
   if (modified.value) {
-    // CHECKIN-TODO: What to do about this???
+    event.preventDefault();
+    // This is included for earlier versions of Chrome
     event.returnValue = "You have unsaved changes.  Are you sure you want to leave?";
   }
 };
 const cancelChanges = (): void => {
   editor.value!.revert();
   edit.value = false;
+  toastShown.value = false;
   emit("cancel-changes");
 };
 const saveChanges = async (): Promise<void> => {

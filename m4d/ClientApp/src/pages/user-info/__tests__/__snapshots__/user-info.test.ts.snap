@@ -1,63 +1,63 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`User Info > Renders User Info Page 1`] = `
-"<div><span context=\\"[object Object]\\">MainMenu</span>
-  <nav aria-label=\\"breadcrumb\\">
-    <nav aria-label=\\"breadcrumb\\" style=\\"padding: 0.25rem 0.5rem;\\">
-      <ol class=\\"breadcrumb\\">
-        <li class=\\"breadcrumb-item\\"><a class=\\"\\" replace=\\"false\\" href=\\"/\\">music4dance</a></li>
-        <li class=\\"breadcrumb-item\\"><a class=\\"\\" replace=\\"false\\" href=\\"/home/info\\">Info</a></li>
-        <li class=\\"breadcrumb-item active\\"><span aria-current=\\"location\\">User Profile</span></li>
+"<div><span context="[object Object]">MainMenu</span>
+  <nav aria-label="breadcrumb">
+    <nav aria-label="breadcrumb" style="padding: 0.25rem 0.5rem;">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a class="" replace="false" href="/">music4dance</a></li>
+        <li class="breadcrumb-item"><a class="" replace="false" href="/home/info">Info</a></li>
+        <li class="breadcrumb-item active"><span aria-current="location">User Profile</span></li>
       </ol>
     </nav>
   </nav>
-  <div id=\\"body-content\\" class=\\"container-fluid body-content\\">
-    <div class=\\"mt-2\\"></div>
+  <div id="body-content" class="container-fluid body-content">
+    <div class="mt-2"></div>
     <div>
       <h1> Info for <em>chicagoarthurmurray</em>'s Profile </h1>
       <div>
         <div>
-          <div class=\\"fs-5\\"> This is a proxy user based on a public spotify profile. View chicagoarthurmurray's spotify profile <a href=\\"https://open.spotify.com/user/chicagoarthurmurray\\" target=\\"_blank\\"><span class=\\"me-1\\">here</span><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\" style=\\"vertical-align: top;\\" class=\\"fs-6\\">
-                <g fill=\\"currentColor\\" fill-rule=\\"evenodd\\">
-                  <path d=\\"M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5\\"></path>
-                  <path d=\\"M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z\\"></path>
+          <div class="fs-5"> This is a proxy user based on a public spotify profile. View chicagoarthurmurray's spotify profile <a href="https://open.spotify.com/user/chicagoarthurmurray" target="_blank"><span class="me-1">here</span><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="vertical-align: top;" class="fs-6">
+                <g fill="currentColor" fill-rule="evenodd">
+                  <path d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5"></path>
+                  <path d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z"></path>
                 </g>
               </svg></a>. </div>
         </div>
         <div>
           <h2>chicagoarthurmurray's Song Lists</h2>
           <ul>
-            <li data-v-1e741aa0=\\"\\" class=\\"list-clean-aligned lh-lg\\"><svg data-v-1e741aa0=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
-                <g fill=\\"currentColor\\">
-                  <path fill-rule=\\"evenodd\\" d=\\"M8 5.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V10a.5.5 0 0 1-1 0V8.5H6a.5.5 0 0 1 0-1h1.5V6a.5.5 0 0 1 .5-.5\\"></path>
-                  <path d=\\"m10.273 2.513l-.921-.944l.715-.698l.622.637l.89-.011a2.89 2.89 0 0 1 2.924 2.924l-.01.89l.636.622a2.89 2.89 0 0 1 0 4.134l-.637.622l.011.89a2.89 2.89 0 0 1-2.924 2.924l-.89-.01l-.622.636a2.89 2.89 0 0 1-4.134 0l-.622-.637l-.89.011a2.89 2.89 0 0 1-2.924-2.924l.01-.89l-.636-.622a2.89 2.89 0 0 1 0-4.134l.637-.622l-.011-.89a2.89 2.89 0 0 1 2.924-2.924l.89.01l.622-.636a2.89 2.89 0 0 1 4.134 0l-.715.698a1.89 1.89 0 0 0-2.704 0l-.92.944l-1.32-.016a1.89 1.89 0 0 0-1.911 1.912l.016 1.318l-.944.921a1.89 1.89 0 0 0 0 2.704l.944.92l-.016 1.32a1.89 1.89 0 0 0 1.912 1.911l1.318-.016l.921.944a1.89 1.89 0 0 0 2.704 0l.92-.944l1.32.016a1.89 1.89 0 0 0 1.911-1.912l-.016-1.318l.944-.921a1.89 1.89 0 0 0 0-2.704l-.944-.92l.016-1.32a1.89 1.89 0 0 0-1.912-1.911z\\"></path>
+            <li data-v-1e741aa0="" class="list-clean-aligned lh-lg"><svg data-v-1e741aa0="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                <g fill="currentColor">
+                  <path fill-rule="evenodd" d="M8 5.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V10a.5.5 0 0 1-1 0V8.5H6a.5.5 0 0 1 0-1h1.5V6a.5.5 0 0 1 .5-.5"></path>
+                  <path d="m10.273 2.513l-.921-.944l.715-.698l.622.637l.89-.011a2.89 2.89 0 0 1 2.924 2.924l-.01.89l.636.622a2.89 2.89 0 0 1 0 4.134l-.637.622l.011.89a2.89 2.89 0 0 1-2.924 2.924l-.89-.01l-.622.636a2.89 2.89 0 0 1-4.134 0l-.622-.637l-.89.011a2.89 2.89 0 0 1-2.924-2.924l.01-.89l-.636-.622a2.89 2.89 0 0 1 0-4.134l.637-.622l-.011-.89a2.89 2.89 0 0 1 2.924-2.924l.89.01l.622-.636a2.89 2.89 0 0 1 4.134 0l-.715.698a1.89 1.89 0 0 0-2.704 0l-.92.944l-1.32-.016a1.89 1.89 0 0 0-1.911 1.912l.016 1.318l-.944.921a1.89 1.89 0 0 0 0 2.704l.944.92l-.016 1.32a1.89 1.89 0 0 0 1.912 1.911l1.318-.016l.921.944a1.89 1.89 0 0 0 2.704 0l.92-.944l1.32.016a1.89 1.89 0 0 0 1.911-1.912l-.016-1.318l.944-.921a1.89 1.89 0 0 0 0-2.704l-.944-.92l.016-1.32a1.89 1.89 0 0 0-1.912-1.911z"></path>
                 </g>
-              </svg><span data-v-1e741aa0=\\"\\" class=\\"px-1\\"></span><svg data-v-1e741aa0=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
-                <path fill=\\"currentColor\\" d=\\"M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5L13.5 4.793L14.793 3.5L12.5 1.207zm1.586 3L10.5 3.207L4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175l-.106.106l-1.528 3.821l3.821-1.528l.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325\\"></path>
-              </svg><span data-v-1e741aa0=\\"\\" class=\\"px-1\\"></span><a data-v-1e741aa0=\\"\\" href=\\"/song/filterSearch?filter=v2-index--Modified---%2Bchicagoarthurmurray%7Ca\\" class=\\"ms-1\\">Songs that chicagoarthurmurray has edited.</a><span data-v-1e741aa0=\\"\\"> (104)</span></li>
-            <li data-v-1e741aa0=\\"\\" class=\\"list-clean-aligned lh-lg\\"><svg data-v-1e741aa0=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
-                <g fill=\\"currentColor\\">
-                  <path fill-rule=\\"evenodd\\" d=\\"M5.5 8a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1H6a.5.5 0 0 1-.5-.5\\"></path>
-                  <path d=\\"m10.273 2.513l-.921-.944l.715-.698l.622.637l.89-.011a2.89 2.89 0 0 1 2.924 2.924l-.01.89l.636.622a2.89 2.89 0 0 1 0 4.134l-.637.622l.011.89a2.89 2.89 0 0 1-2.924 2.924l-.89-.01l-.622.636a2.89 2.89 0 0 1-4.134 0l-.622-.637l-.89.011a2.89 2.89 0 0 1-2.924-2.924l.01-.89l-.636-.622a2.89 2.89 0 0 1 0-4.134l.637-.622l-.011-.89a2.89 2.89 0 0 1 2.924-2.924l.89.01l.622-.636a2.89 2.89 0 0 1 4.134 0l-.715.698a1.89 1.89 0 0 0-2.704 0l-.92.944l-1.32-.016a1.89 1.89 0 0 0-1.911 1.912l.016 1.318l-.944.921a1.89 1.89 0 0 0 0 2.704l.944.92l-.016 1.32a1.89 1.89 0 0 0 1.912 1.911l1.318-.016l.921.944a1.89 1.89 0 0 0 2.704 0l.92-.944l1.32.016a1.89 1.89 0 0 0 1.911-1.912l-.016-1.318l.944-.921a1.89 1.89 0 0 0 0-2.704l-.944-.92l.016-1.32a1.89 1.89 0 0 0-1.912-1.911z\\"></path>
+              </svg><span data-v-1e741aa0="" class="px-1"></span><svg data-v-1e741aa0="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                <path fill="currentColor" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5L13.5 4.793L14.793 3.5L12.5 1.207zm1.586 3L10.5 3.207L4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175l-.106.106l-1.528 3.821l3.821-1.528l.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"></path>
+              </svg><span data-v-1e741aa0="" class="px-1"></span><a data-v-1e741aa0="" href="/song/filterSearch?filter=v2-index--Modified---%2Bchicagoarthurmurray%7Ca" class="ms-1">Songs that chicagoarthurmurray has edited.</a><span data-v-1e741aa0=""> (104)</span></li>
+            <li data-v-1e741aa0="" class="list-clean-aligned lh-lg"><svg data-v-1e741aa0="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                <g fill="currentColor">
+                  <path fill-rule="evenodd" d="M5.5 8a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1H6a.5.5 0 0 1-.5-.5"></path>
+                  <path d="m10.273 2.513l-.921-.944l.715-.698l.622.637l.89-.011a2.89 2.89 0 0 1 2.924 2.924l-.01.89l.636.622a2.89 2.89 0 0 1 0 4.134l-.637.622l.011.89a2.89 2.89 0 0 1-2.924 2.924l-.89-.01l-.622.636a2.89 2.89 0 0 1-4.134 0l-.622-.637l-.89.011a2.89 2.89 0 0 1-2.924-2.924l.01-.89l-.636-.622a2.89 2.89 0 0 1 0-4.134l.637-.622l-.011-.89a2.89 2.89 0 0 1 2.924-2.924l.89.01l.622-.636a2.89 2.89 0 0 1 4.134 0l-.715.698a1.89 1.89 0 0 0-2.704 0l-.92.944l-1.32-.016a1.89 1.89 0 0 0-1.911 1.912l.016 1.318l-.944.921a1.89 1.89 0 0 0 0 2.704l.944.92l-.016 1.32a1.89 1.89 0 0 0 1.912 1.911l1.318-.016l.921.944a1.89 1.89 0 0 0 2.704 0l.92-.944l1.32.016a1.89 1.89 0 0 0 1.911-1.912l-.016-1.318l.944-.921a1.89 1.89 0 0 0 0-2.704l-.944-.92l.016-1.32a1.89 1.89 0 0 0-1.912-1.911z"></path>
                 </g>
-              </svg><span data-v-1e741aa0=\\"\\" class=\\"px-1\\"></span><svg data-v-1e741aa0=\\"\\" viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
-                <path fill=\\"currentColor\\" d=\\"M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5L13.5 4.793L14.793 3.5L12.5 1.207zm1.586 3L10.5 3.207L4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175l-.106.106l-1.528 3.821l3.821-1.528l.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325\\"></path>
-              </svg><span data-v-1e741aa0=\\"\\" class=\\"px-1\\"></span><a data-v-1e741aa0=\\"\\" href=\\"/song/filterSearch?filter=v2-index--Modified---%5C-chicagoarthurmurray%7Ca\\" class=\\"ms-1\\">Songs that chicagoarthurmurray has <em>not</em> edited.</a>
+              </svg><span data-v-1e741aa0="" class="px-1"></span><svg data-v-1e741aa0="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                <path fill="currentColor" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5L13.5 4.793L14.793 3.5L12.5 1.207zm1.586 3L10.5 3.207L4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175l-.106.106l-1.528 3.821l3.821-1.528l.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"></path>
+              </svg><span data-v-1e741aa0="" class="px-1"></span><a data-v-1e741aa0="" href="/song/filterSearch?filter=v2-index--Modified---%5C-chicagoarthurmurray%7Ca" class="ms-1">Songs that chicagoarthurmurray has <em>not</em> edited.</a>
               <!--v-if-->
             </li>
           </ul>
           <div>
-            <p> The User Song List feature is still under development. We are considering including lists of dance styles that the user has tagged or possibly including lists of arbitrary tags. Please <a href=\\"https://music4dance.blog/feedback/\\">let us know</a> if you like this feature or have ideas to improve it (or both). </p>
+            <p> The User Song List feature is still under development. We are considering including lists of dance styles that the user has tagged or possibly including lists of arbitrary tags. Please <a href="https://music4dance.blog/feedback/">let us know</a> if you like this feature or have ideas to improve it (or both). </p>
             <!--v-if-->
           </div>
         </div>
       </div>
     </div>
   </div>
-  <div id=\\"footer-content\\">
+  <div id="footer-content">
     <hr>
     <footer>
-      <p> © 2024 - <a href=\\"https://www.music4dance.net\\">Music4Dance.net</a> - <a href=\\"https://www.music4dance.net/home/sitemap\\">Site Map</a> - <a href=\\"https://www.music4dance.net/home/termsofservice\\">Terms of Service</a> - <a href=\\"https://www.music4dance.net/home/privacypolicy\\">Privacy Policy</a> - <a href=\\"https://www.music4dance.net/home/credits\\">Credits</a> - <a>Help</a></p>
+      <p> © 2024 - <a href="https://www.music4dance.net">Music4Dance.net</a> - <a href="https://www.music4dance.net/home/sitemap">Site Map</a> - <a href="https://www.music4dance.net/home/termsofservice">Terms of Service</a> - <a href="https://www.music4dance.net/home/privacypolicy">Privacy Policy</a> - <a href="https://www.music4dance.net/home/credits">Credits</a> - <a>Help</a></p>
     </footer>
   </div>
 </div>"

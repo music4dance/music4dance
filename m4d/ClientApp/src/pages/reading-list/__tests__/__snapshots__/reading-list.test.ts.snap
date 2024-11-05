@@ -1,312 +1,312 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`About > Render the Readling List Page 1`] = `
-"<div data-v-b13604e2=\\"\\"><span context=\\"[object Object]\\">MainMenu</span>
-  <nav aria-label=\\"breadcrumb\\">
-    <nav aria-label=\\"breadcrumb\\" style=\\"padding: 0.25rem 0.5rem;\\">
-      <ol class=\\"breadcrumb\\">
-        <li class=\\"breadcrumb-item\\"><a class=\\"\\" replace=\\"false\\" href=\\"/\\">music4dance</a></li>
-        <li class=\\"breadcrumb-item\\"><a class=\\"\\" replace=\\"false\\" href=\\"/home/info\\">Info</a></li>
-        <li class=\\"breadcrumb-item active\\"><span aria-current=\\"location\\">Reading List</span></li>
+"<div data-v-b13604e2=""><span context="[object Object]">MainMenu</span>
+  <nav aria-label="breadcrumb">
+    <nav aria-label="breadcrumb" style="padding: 0.25rem 0.5rem;">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a class="" replace="false" href="/">music4dance</a></li>
+        <li class="breadcrumb-item"><a class="" replace="false" href="/home/info">Info</a></li>
+        <li class="breadcrumb-item active"><span aria-current="location">Reading List</span></li>
       </ol>
     </nav>
   </nav>
-  <div id=\\"body-content\\" class=\\"container-fluid body-content\\">
+  <div id="body-content" class="container-fluid body-content">
     <h1>Reading List</h1>
     <div>
-      <div data-v-b13604e2=\\"\\" class=\\"tabs\\">
+      <div data-v-b13604e2="" class="tabs">
         <!---->
         <!---->
-        <div class=\\"\\">
-          <ul class=\\"nav nav-tabs\\" role=\\"tablist\\" aria-orientation=\\"horizontal\\"></ul>
+        <div class="">
+          <ul class="nav nav-tabs" role="tablist" aria-orientation="horizontal"></ul>
         </div>
-        <div class=\\"tab-content\\">
-          <div data-v-b13604e2=\\"\\" id=\\"__BVID__0001___BV_tabpane__\\" class=\\"tab-pane fade\\" role=\\"tabpanel\\" aria-labelledby=\\"__BVID__0002___BV_tab__\\">
-            <div data-v-8ea0c2bf=\\"\\" data-v-b13604e2=\\"\\">
-              <h3 data-v-8ea0c2bf=\\"\\" class=\\"category-description\\">Books about learning to dance and to become a better dancer</h3>
-              <div data-v-8ea0c2bf=\\"\\">
-                <div data-v-e38168e7=\\"\\" data-v-8ea0c2bf=\\"\\">
-                  <hr data-v-e38168e7=\\"\\">
-                  <h2 data-v-e38168e7=\\"\\" class=\\"title\\">Hear the Beat, Feel the Music
+        <div class="tab-content">
+          <div data-v-b13604e2="" id="___BVN__ID__v-0__tabpane___" class="tab-pane fade" role="tabpanel" aria-labelledby="___BVN__ID__v-1__tab___">
+            <div data-v-8ea0c2bf="" data-v-b13604e2="">
+              <h3 data-v-8ea0c2bf="" class="category-description">Books about learning to dance and to become a better dancer</h3>
+              <div data-v-8ea0c2bf="">
+                <div data-v-e38168e7="" data-v-8ea0c2bf="">
+                  <hr data-v-e38168e7="">
+                  <h2 data-v-e38168e7="" class="title">Hear the Beat, Feel the Music
                     <!--v-if-->
                   </h2>
-                  <div data-v-e38168e7=\\"\\">by James Joseph</div>
-                  <div data-v-e38168e7=\\"\\" style=\\"display: flex;\\" class=\\"mt-2\\">
-                    <div data-v-e38168e7=\\"\\"><a href=\\"https://amzn.to/2ZKMWRS\\" target=\\"_blank\\"><img border=\\"0\\" src=\\"https://m.media-amazon.com/images/I/51UsyBUQX-L._SL160_.jpg\\"></a></div>
-                    <div data-v-e38168e7=\\"\\">
-                      <ul data-v-e38168e7=\\"\\" style=\\"list-style-type: none;\\">
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://ihatetodance.com/\\" target=\\"_blank\\">ihatetodance.com</a></li>
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/2ZKMWRS\\" target=\\"_blank\\">Hear the Beat, Feel the Music (Kindle)</a></li>
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/2zH4uDQ\\" target=\\"_blank\\">Hear the Beat, Feel the Music (Paperback)</a></li>
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://music4dance.blog/2019/08/24/hear-the-beat-feel-the-music/\\" target=\\"_blank\\">Review</a></li>
+                  <div data-v-e38168e7="">by James Joseph</div>
+                  <div data-v-e38168e7="" style="display: flex;" class="mt-2">
+                    <div data-v-e38168e7=""><a href="https://amzn.to/2ZKMWRS" target="_blank"><img border="0" src="https://m.media-amazon.com/images/I/51UsyBUQX-L._SL160_.jpg"></a></div>
+                    <div data-v-e38168e7="">
+                      <ul data-v-e38168e7="" style="list-style-type: none;">
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://ihatetodance.com/" target="_blank">ihatetodance.com</a></li>
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/2ZKMWRS" target="_blank">Hear the Beat, Feel the Music (Kindle)</a></li>
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/2zH4uDQ" target="_blank">Hear the Beat, Feel the Music (Paperback)</a></li>
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://music4dance.blog/2019/08/24/hear-the-beat-feel-the-music/" target="_blank">Review</a></li>
                       </ul>
-                      <div data-v-e38168e7=\\"\\" class=\\"notes\\">This is a great read for those dancers that don’t have a musical background and are struggling with “musicality.”</div>
+                      <div data-v-e38168e7="" class="notes">This is a great read for those dancers that don’t have a musical background and are struggling with “musicality.”</div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div data-v-8ea0c2bf=\\"\\">
-                <div data-v-e38168e7=\\"\\" data-v-8ea0c2bf=\\"\\">
-                  <hr data-v-e38168e7=\\"\\">
-                  <h2 data-v-e38168e7=\\"\\" class=\\"title\\">Every Man's Survival Guide to Ballroom Dancing<span data-v-e38168e7=\\"\\"> : Ace Your Wedding Dance and Keep Cool on a Cruise, at a Formal, and in Dance Classes Paperback</span></h2>
-                  <div data-v-e38168e7=\\"\\">by James Joseph</div>
-                  <div data-v-e38168e7=\\"\\" style=\\"display: flex;\\" class=\\"mt-2\\">
-                    <div data-v-e38168e7=\\"\\"><a href=\\"https://amzn.to/47j07NO\\" target=\\"_blank\\"><img border=\\"0\\" src=\\"https://m.media-amazon.com/images/I/51YTVr9kdJL._SL160_.jpg\\"></a></div>
-                    <div data-v-e38168e7=\\"\\">
-                      <ul data-v-e38168e7=\\"\\" style=\\"list-style-type: none;\\">
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://ihatetodance.com/\\" target=\\"_blank\\">ihatetodance.com</a></li>
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/47j07NO\\" target=\\"_blank\\">Every Man's Survival Guide to Ballroom Dancing (Kindle)</a></li>
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/3ugpKA4\\" target=\\"_blank\\">Every Man's Survival Guide to Ballroom Dancing (Paperback)</a></li>
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://music4dance.blog/2016/10/31/feel-the-beat/\\" target=\\"_blank\\">Review</a></li>
+              <div data-v-8ea0c2bf="">
+                <div data-v-e38168e7="" data-v-8ea0c2bf="">
+                  <hr data-v-e38168e7="">
+                  <h2 data-v-e38168e7="" class="title">Every Man's Survival Guide to Ballroom Dancing<span data-v-e38168e7=""> : Ace Your Wedding Dance and Keep Cool on a Cruise, at a Formal, and in Dance Classes Paperback</span></h2>
+                  <div data-v-e38168e7="">by James Joseph</div>
+                  <div data-v-e38168e7="" style="display: flex;" class="mt-2">
+                    <div data-v-e38168e7=""><a href="https://amzn.to/47j07NO" target="_blank"><img border="0" src="https://m.media-amazon.com/images/I/51YTVr9kdJL._SL160_.jpg"></a></div>
+                    <div data-v-e38168e7="">
+                      <ul data-v-e38168e7="" style="list-style-type: none;">
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://ihatetodance.com/" target="_blank">ihatetodance.com</a></li>
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/47j07NO" target="_blank">Every Man's Survival Guide to Ballroom Dancing (Kindle)</a></li>
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/3ugpKA4" target="_blank">Every Man's Survival Guide to Ballroom Dancing (Paperback)</a></li>
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://music4dance.blog/2016/10/31/feel-the-beat/" target="_blank">Review</a></li>
                       </ul>
-                      <div data-v-e38168e7=\\"\\" class=\\"notes\\">This is the book I wish I had when I first started dancing as a somewhat socially awkward 20 something. This book lays out some solid advice about how to behave on the dance floor and general etiquitte in various dance environments on top of instructions on how to dance to music.</div>
+                      <div data-v-e38168e7="" class="notes">This is the book I wish I had when I first started dancing as a somewhat socially awkward 20 something. This book lays out some solid advice about how to behave on the dance floor and general etiquitte in various dance environments on top of instructions on how to dance to music.</div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div data-v-8ea0c2bf=\\"\\">
-                <div data-v-e38168e7=\\"\\" data-v-8ea0c2bf=\\"\\">
-                  <hr data-v-e38168e7=\\"\\">
-                  <h2 data-v-e38168e7=\\"\\" class=\\"title\\">Partner Dance Success (Volume 1)<span data-v-e38168e7=\\"\\"> : Be the One They Want - What I Wish I Knew When I Started Social Dancing</span></h2>
-                  <div data-v-e38168e7=\\"\\">by Don Baarns</div>
-                  <div data-v-e38168e7=\\"\\" style=\\"display: flex;\\" class=\\"mt-2\\">
-                    <div data-v-e38168e7=\\"\\"><a href=\\"https://amzn.to/2SVUQKY\\" target=\\"_blank\\"><img border=\\"0\\" src=\\"https://m.media-amazon.com/images/I/51J+O45qFxL._SL160_.jpg\\"></a></div>
-                    <div data-v-e38168e7=\\"\\">
-                      <ul data-v-e38168e7=\\"\\" style=\\"list-style-type: none;\\">
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/2SVUQKY\\" target=\\"_blank\\">Partner Dance Success (Volume 1) (Kindle)</a></li>
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/35Z2Xtj\\" target=\\"_blank\\">Partner Dance Success (Volume 1) (Paperback)</a></li>
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://music4dance.blog/2021/06/22/book-review-partner-dance-success/\\" target=\\"_blank\\">Review</a></li>
+              <div data-v-8ea0c2bf="">
+                <div data-v-e38168e7="" data-v-8ea0c2bf="">
+                  <hr data-v-e38168e7="">
+                  <h2 data-v-e38168e7="" class="title">Partner Dance Success (Volume 1)<span data-v-e38168e7=""> : Be the One They Want - What I Wish I Knew When I Started Social Dancing</span></h2>
+                  <div data-v-e38168e7="">by Don Baarns</div>
+                  <div data-v-e38168e7="" style="display: flex;" class="mt-2">
+                    <div data-v-e38168e7=""><a href="https://amzn.to/2SVUQKY" target="_blank"><img border="0" src="https://m.media-amazon.com/images/I/51J+O45qFxL._SL160_.jpg"></a></div>
+                    <div data-v-e38168e7="">
+                      <ul data-v-e38168e7="" style="list-style-type: none;">
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/2SVUQKY" target="_blank">Partner Dance Success (Volume 1) (Kindle)</a></li>
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/35Z2Xtj" target="_blank">Partner Dance Success (Volume 1) (Paperback)</a></li>
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://music4dance.blog/2021/06/22/book-review-partner-dance-success/" target="_blank">Review</a></li>
                       </ul>
-                      <div data-v-e38168e7=\\"\\" class=\\"notes\\">This is a great collection of practical advice for anyone new to partner dancing.</div>
+                      <div data-v-e38168e7="" class="notes">This is a great collection of practical advice for anyone new to partner dancing.</div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div data-v-8ea0c2bf=\\"\\">
-                <div data-v-e38168e7=\\"\\" data-v-8ea0c2bf=\\"\\">
-                  <hr data-v-e38168e7=\\"\\">
-                  <h2 data-v-e38168e7=\\"\\" class=\\"title\\">Partner Dance Success (Volume 2)<span data-v-e38168e7=\\"\\"> : Be the One They Want - What I Wish I Knew When I Started Social Dancing</span></h2>
-                  <div data-v-e38168e7=\\"\\">by Don Baarns</div>
-                  <div data-v-e38168e7=\\"\\" style=\\"display: flex;\\" class=\\"mt-2\\">
-                    <div data-v-e38168e7=\\"\\"><a href=\\"https://amzn.to/3xJDSyd\\" target=\\"_blank\\"><img border=\\"0\\" src=\\"https://m.media-amazon.com/images/I/51J3-EhaN1L._SL160_.jpg\\"></a></div>
-                    <div data-v-e38168e7=\\"\\">
-                      <ul data-v-e38168e7=\\"\\" style=\\"list-style-type: none;\\">
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/3xJDSyd\\" target=\\"_blank\\">Partner Dance Success (Volume 2) (Kindle)</a></li>
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/3d4QGai\\" target=\\"_blank\\">Partner Dance Success (Volume 2) (Paperback)</a></li>
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://music4dance.blog/2021/06/22/book-review-partner-dance-success/\\" target=\\"_blank\\">Review</a></li>
+              <div data-v-8ea0c2bf="">
+                <div data-v-e38168e7="" data-v-8ea0c2bf="">
+                  <hr data-v-e38168e7="">
+                  <h2 data-v-e38168e7="" class="title">Partner Dance Success (Volume 2)<span data-v-e38168e7=""> : Be the One They Want - What I Wish I Knew When I Started Social Dancing</span></h2>
+                  <div data-v-e38168e7="">by Don Baarns</div>
+                  <div data-v-e38168e7="" style="display: flex;" class="mt-2">
+                    <div data-v-e38168e7=""><a href="https://amzn.to/3xJDSyd" target="_blank"><img border="0" src="https://m.media-amazon.com/images/I/51J3-EhaN1L._SL160_.jpg"></a></div>
+                    <div data-v-e38168e7="">
+                      <ul data-v-e38168e7="" style="list-style-type: none;">
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/3xJDSyd" target="_blank">Partner Dance Success (Volume 2) (Kindle)</a></li>
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/3d4QGai" target="_blank">Partner Dance Success (Volume 2) (Paperback)</a></li>
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://music4dance.blog/2021/06/22/book-review-partner-dance-success/" target="_blank">Review</a></li>
                       </ul>
-                      <div data-v-e38168e7=\\"\\" class=\\"notes\\">This is a great collection of practical advice for anyone new to partner dancing.</div>
+                      <div data-v-e38168e7="" class="notes">This is a great collection of practical advice for anyone new to partner dancing.</div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div data-v-8ea0c2bf=\\"\\">
-                <div data-v-e38168e7=\\"\\" data-v-8ea0c2bf=\\"\\">
-                  <hr data-v-e38168e7=\\"\\">
-                  <h2 data-v-e38168e7=\\"\\" class=\\"title\\">Dance Better Now<span data-v-e38168e7=\\"\\"> : The secret to mastering dance and dancing at the excellent standard you want by</span></h2>
-                  <div data-v-e38168e7=\\"\\">by Clint Steele</div>
-                  <div data-v-e38168e7=\\"\\" style=\\"display: flex;\\" class=\\"mt-2\\">
-                    <div data-v-e38168e7=\\"\\"><a href=\\"https://amzn.to/2Lfq7Sx\\" target=\\"_blank\\"><img border=\\"0\\" src=\\"https://m.media-amazon.com/images/I/41f8JvytwnL._SL160_.jpg\\"></a></div>
-                    <div data-v-e38168e7=\\"\\">
-                      <ul data-v-e38168e7=\\"\\" style=\\"list-style-type: none;\\">
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/2Lfq7Sx\\" target=\\"_blank\\">Dance Better Now (Kindle)</a></li>
+              <div data-v-8ea0c2bf="">
+                <div data-v-e38168e7="" data-v-8ea0c2bf="">
+                  <hr data-v-e38168e7="">
+                  <h2 data-v-e38168e7="" class="title">Dance Better Now<span data-v-e38168e7=""> : The secret to mastering dance and dancing at the excellent standard you want by</span></h2>
+                  <div data-v-e38168e7="">by Clint Steele</div>
+                  <div data-v-e38168e7="" style="display: flex;" class="mt-2">
+                    <div data-v-e38168e7=""><a href="https://amzn.to/2Lfq7Sx" target="_blank"><img border="0" src="https://m.media-amazon.com/images/I/41f8JvytwnL._SL160_.jpg"></a></div>
+                    <div data-v-e38168e7="">
+                      <ul data-v-e38168e7="" style="list-style-type: none;">
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/2Lfq7Sx" target="_blank">Dance Better Now (Kindle)</a></li>
                       </ul>
-                      <div data-v-e38168e7=\\"\\" class=\\"notes\\">This books is an educator’s take on how to rapidly improve your level of social dance.</div>
+                      <div data-v-e38168e7="" class="notes">This books is an educator’s take on how to rapidly improve your level of social dance.</div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div data-v-8ea0c2bf=\\"\\">
-                <div data-v-e38168e7=\\"\\" data-v-8ea0c2bf=\\"\\">
-                  <hr data-v-e38168e7=\\"\\">
-                  <h2 data-v-e38168e7=\\"\\" class=\\"title\\">How to Read Music in 30 Days<span data-v-e38168e7=\\"\\"> : Music Theory for Beginners - with Exercises &amp; Online Audio (Practical Music Theory Book 1)</span></h2>
-                  <div data-v-e38168e7=\\"\\">by Matthew Ellul</div>
-                  <div data-v-e38168e7=\\"\\" style=\\"display: flex;\\" class=\\"mt-2\\">
-                    <div data-v-e38168e7=\\"\\"><a href=\\"https://amzn.to/3CUlzw9\\" target=\\"_blank\\"><img border=\\"0\\" src=\\"https://m.media-amazon.com/images/I/41CFV0F8eSL._SL160_.jpg\\" \\"=\\"\\"></a></div><div data-v-e38168e7=\\"\\"><ul data-v-e38168e7=\\"\\" style=\\" list-style-type: none;\\">
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/3CUlzw9\\" target=\\"_blank\\">How to Read Music in 30 Days (Kindle)</a></li>
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/3cHbEiU\\" target=\\"_blank\\">How to Read Music in 30 Days (Paperback)</a></li>
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/3Qb0HUg\\" target=\\"_blank\\">How to Read Music in 30 Days (Hardcover)</a></li>
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/3RxIv93\\" target=\\"_blank\\">Music Theory for Beginners (spiral-bound)</a></li>
+              <div data-v-8ea0c2bf="">
+                <div data-v-e38168e7="" data-v-8ea0c2bf="">
+                  <hr data-v-e38168e7="">
+                  <h2 data-v-e38168e7="" class="title">How to Read Music in 30 Days<span data-v-e38168e7=""> : Music Theory for Beginners - with Exercises &amp; Online Audio (Practical Music Theory Book 1)</span></h2>
+                  <div data-v-e38168e7="">by Matthew Ellul</div>
+                  <div data-v-e38168e7="" style="display: flex;" class="mt-2">
+                    <div data-v-e38168e7=""><a href="https://amzn.to/3CUlzw9" target="_blank"><img border="0" src="https://m.media-amazon.com/images/I/41CFV0F8eSL._SL160_.jpg" "=""></a></div><div data-v-e38168e7=""><ul data-v-e38168e7="" style=" list-style-type: none;">
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/3CUlzw9" target="_blank">How to Read Music in 30 Days (Kindle)</a></li>
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/3cHbEiU" target="_blank">How to Read Music in 30 Days (Paperback)</a></li>
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/3Qb0HUg" target="_blank">How to Read Music in 30 Days (Hardcover)</a></li>
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/3RxIv93" target="_blank">Music Theory for Beginners (spiral-bound)</a></li>
                         </ul>
-                        <div data-v-e38168e7=\\"\\" class=\\"notes\\">This book is a quick read that does a credible job of covering the basics of reading music. For dancers that are interested in checking sheet music for tempo information, the first half of the book covers time signatures and tempo markings.</div>
+                        <div data-v-e38168e7="" class="notes">This book is a quick read that does a credible job of covering the basics of reading music. For dancers that are interested in checking sheet music for tempo information, the first half of the book covers time signatures and tempo markings.</div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div data-v-8ea0c2bf=\\"\\">
-                <div data-v-e38168e7=\\"\\" data-v-8ea0c2bf=\\"\\">
-                  <hr data-v-e38168e7=\\"\\">
-                  <h2 data-v-e38168e7=\\"\\" class=\\"title\\">The Meaning of Tango<span data-v-e38168e7=\\"\\"> : The Story of the Argentinian Dance</span></h2>
-                  <div data-v-e38168e7=\\"\\">by Christine Denniston</div>
-                  <div data-v-e38168e7=\\"\\" style=\\"display: flex;\\" class=\\"mt-2\\">
-                    <div data-v-e38168e7=\\"\\"><a href=\\"https://amzn.to/2NKZTZH\\" target=\\"_blank\\"><img border=\\"0\\" src=\\"https://m.media-amazon.com/images/I/31YwDfSgaRL._SL160_.jpg\\"></a></div>
-                    <div data-v-e38168e7=\\"\\">
-                      <ul data-v-e38168e7=\\"\\" style=\\"list-style-type: none;\\">
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/2NKZTZH\\" target=\\"_blank\\">The Meaning of Tango (Kindle)</a></li>
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/2zLAMOm\\" target=\\"_blank\\">The Meaning of Tango (Paperback)</a></li>
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/2ZK1D83\\" target=\\"_blank\\">The Meaning of Tango (Hardcover)</a></li>
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://music4dance.blog/2018/07/21/book-review-the-meaning-of-tango/\\" target=\\"_blank\\">Review</a></li>
+              <div data-v-8ea0c2bf="">
+                <div data-v-e38168e7="" data-v-8ea0c2bf="">
+                  <hr data-v-e38168e7="">
+                  <h2 data-v-e38168e7="" class="title">The Meaning of Tango<span data-v-e38168e7=""> : The Story of the Argentinian Dance</span></h2>
+                  <div data-v-e38168e7="">by Christine Denniston</div>
+                  <div data-v-e38168e7="" style="display: flex;" class="mt-2">
+                    <div data-v-e38168e7=""><a href="https://amzn.to/2NKZTZH" target="_blank"><img border="0" src="https://m.media-amazon.com/images/I/31YwDfSgaRL._SL160_.jpg"></a></div>
+                    <div data-v-e38168e7="">
+                      <ul data-v-e38168e7="" style="list-style-type: none;">
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/2NKZTZH" target="_blank">The Meaning of Tango (Kindle)</a></li>
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/2zLAMOm" target="_blank">The Meaning of Tango (Paperback)</a></li>
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/2ZK1D83" target="_blank">The Meaning of Tango (Hardcover)</a></li>
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://music4dance.blog/2018/07/21/book-review-the-meaning-of-tango/" target="_blank">Review</a></li>
                       </ul>
-                      <div data-v-e38168e7=\\"\\" class=\\"notes\\">This book is a quick read and full of wonderful tidbits about Tango and its history. The book is very centered around traditional Argentine Tango and does an excellent job of conveying that perspective. It’s also somewhat unusual in that it is predominantly about the history and philosophy of the dance but contains a section that is straight up technique with diagrams</div>
+                      <div data-v-e38168e7="" class="notes">This book is a quick read and full of wonderful tidbits about Tango and its history. The book is very centered around traditional Argentine Tango and does an excellent job of conveying that perspective. It’s also somewhat unusual in that it is predominantly about the history and philosophy of the dance but contains a section that is straight up technique with diagrams</div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <div data-v-b13604e2=\\"\\" id=\\"__BVID__0003___BV_tabpane__\\" class=\\"tab-pane fade\\" role=\\"tabpanel\\" aria-labelledby=\\"__BVID__0004___BV_tab__\\">
-            <div data-v-8ea0c2bf=\\"\\" data-v-b13604e2=\\"\\">
-              <h3 data-v-8ea0c2bf=\\"\\" class=\\"category-description\\">Books about dance history and the social impact of dance</h3>
-              <div data-v-8ea0c2bf=\\"\\">
-                <div data-v-e38168e7=\\"\\" data-v-8ea0c2bf=\\"\\">
-                  <hr data-v-e38168e7=\\"\\">
-                  <h2 data-v-e38168e7=\\"\\" class=\\"title\\">The Meaning of Tango<span data-v-e38168e7=\\"\\"> : The Story of the Argentinian Dance</span></h2>
-                  <div data-v-e38168e7=\\"\\">by Christine Denniston</div>
-                  <div data-v-e38168e7=\\"\\" style=\\"display: flex;\\" class=\\"mt-2\\">
-                    <div data-v-e38168e7=\\"\\"><a href=\\"https://amzn.to/2NKZTZH\\" target=\\"_blank\\"><img border=\\"0\\" src=\\"https://m.media-amazon.com/images/I/31YwDfSgaRL._SL160_.jpg\\"></a></div>
-                    <div data-v-e38168e7=\\"\\">
-                      <ul data-v-e38168e7=\\"\\" style=\\"list-style-type: none;\\">
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/2NKZTZH\\" target=\\"_blank\\">The Meaning of Tango (Kindle)</a></li>
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/2zLAMOm\\" target=\\"_blank\\">The Meaning of Tango (Paperback)</a></li>
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/2ZK1D83\\" target=\\"_blank\\">The Meaning of Tango (Hardcover)</a></li>
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://music4dance.blog/2018/07/21/book-review-the-meaning-of-tango/\\" target=\\"_blank\\">Review</a></li>
+          <div data-v-b13604e2="" id="___BVN__ID__v-2__tabpane___" class="tab-pane fade" role="tabpanel" aria-labelledby="___BVN__ID__v-3__tab___">
+            <div data-v-8ea0c2bf="" data-v-b13604e2="">
+              <h3 data-v-8ea0c2bf="" class="category-description">Books about dance history and the social impact of dance</h3>
+              <div data-v-8ea0c2bf="">
+                <div data-v-e38168e7="" data-v-8ea0c2bf="">
+                  <hr data-v-e38168e7="">
+                  <h2 data-v-e38168e7="" class="title">The Meaning of Tango<span data-v-e38168e7=""> : The Story of the Argentinian Dance</span></h2>
+                  <div data-v-e38168e7="">by Christine Denniston</div>
+                  <div data-v-e38168e7="" style="display: flex;" class="mt-2">
+                    <div data-v-e38168e7=""><a href="https://amzn.to/2NKZTZH" target="_blank"><img border="0" src="https://m.media-amazon.com/images/I/31YwDfSgaRL._SL160_.jpg"></a></div>
+                    <div data-v-e38168e7="">
+                      <ul data-v-e38168e7="" style="list-style-type: none;">
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/2NKZTZH" target="_blank">The Meaning of Tango (Kindle)</a></li>
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/2zLAMOm" target="_blank">The Meaning of Tango (Paperback)</a></li>
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/2ZK1D83" target="_blank">The Meaning of Tango (Hardcover)</a></li>
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://music4dance.blog/2018/07/21/book-review-the-meaning-of-tango/" target="_blank">Review</a></li>
                       </ul>
-                      <div data-v-e38168e7=\\"\\" class=\\"notes\\">This book is a quick read and full of wonderful tidbits about Tango and its history. The book is very centered around traditional Argentine Tango and does an excellent job of conveying that perspective. It’s also somewhat unusual in that it is predominantly about the history and philosophy of the dance but contains a section that is straight up technique with diagrams</div>
+                      <div data-v-e38168e7="" class="notes">This book is a quick read and full of wonderful tidbits about Tango and its history. The book is very centered around traditional Argentine Tango and does an excellent job of conveying that perspective. It’s also somewhat unusual in that it is predominantly about the history and philosophy of the dance but contains a section that is straight up technique with diagrams</div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div data-v-8ea0c2bf=\\"\\">
-                <div data-v-e38168e7=\\"\\" data-v-8ea0c2bf=\\"\\">
-                  <hr data-v-e38168e7=\\"\\">
-                  <h2 data-v-e38168e7=\\"\\" class=\\"title\\">A Century of Dance<span data-v-e38168e7=\\"\\"> : A Hundred Years of Musical Movement, from Waltz to Hip Hop</span></h2>
-                  <div data-v-e38168e7=\\"\\">by Ian Driver</div>
-                  <div data-v-e38168e7=\\"\\" style=\\"display: flex;\\" class=\\"mt-2\\">
-                    <div data-v-e38168e7=\\"\\"><a href=\\"https://amzn.to/3MamSIx\\" target=\\"_blank\\"><img border=\\"0\\" src=\\"https://m.media-amazon.com/images/I/51sh9KwRw7L._SL160_.jpg\\"></a></div>
-                    <div data-v-e38168e7=\\"\\">
-                      <ul data-v-e38168e7=\\"\\" style=\\"list-style-type: none;\\">
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/3MamSIx\\" target=\\"_blank\\">A Century of Dance (Paperback)</a></li>
+              <div data-v-8ea0c2bf="">
+                <div data-v-e38168e7="" data-v-8ea0c2bf="">
+                  <hr data-v-e38168e7="">
+                  <h2 data-v-e38168e7="" class="title">A Century of Dance<span data-v-e38168e7=""> : A Hundred Years of Musical Movement, from Waltz to Hip Hop</span></h2>
+                  <div data-v-e38168e7="">by Ian Driver</div>
+                  <div data-v-e38168e7="" style="display: flex;" class="mt-2">
+                    <div data-v-e38168e7=""><a href="https://amzn.to/3MamSIx" target="_blank"><img border="0" src="https://m.media-amazon.com/images/I/51sh9KwRw7L._SL160_.jpg"></a></div>
+                    <div data-v-e38168e7="">
+                      <ul data-v-e38168e7="" style="list-style-type: none;">
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/3MamSIx" target="_blank">A Century of Dance (Paperback)</a></li>
                       </ul>
-                      <div data-v-e38168e7=\\"\\" class=\\"notes\\">This is a large format book with many amazing illustrations. But the best part of this books from my perspective is that it gives an easy to read overview of the history of dance in the Twentieth Century, giving some useful context to many of the dances that I learned aas a ballroom dancer.</div>
+                      <div data-v-e38168e7="" class="notes">This is a large format book with many amazing illustrations. But the best part of this books from my perspective is that it gives an easy to read overview of the history of dance in the Twentieth Century, giving some useful context to many of the dances that I learned aas a ballroom dancer.</div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div data-v-8ea0c2bf=\\"\\">
-                <div data-v-e38168e7=\\"\\" data-v-8ea0c2bf=\\"\\">
-                  <hr data-v-e38168e7=\\"\\">
-                  <h2 data-v-e38168e7=\\"\\" class=\\"title\\">Frankie Manning<span data-v-e38168e7=\\"\\"> : Ambassador of Lindy Hop</span></h2>
-                  <div data-v-e38168e7=\\"\\">by Cynthia Millman, Frankie Manning</div>
-                  <div data-v-e38168e7=\\"\\" style=\\"display: flex;\\" class=\\"mt-2\\">
-                    <div data-v-e38168e7=\\"\\"><a href=\\"https://amzn.to/3A5eeZ9\\" target=\\"_blank\\"><img border=\\"0\\" src=\\"https://m.media-amazon.com/images/I/41bbpvA3yLL._SL160_.jpg\\"></a></div>
-                    <div data-v-e38168e7=\\"\\">
-                      <ul data-v-e38168e7=\\"\\" style=\\"list-style-type: none;\\">
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/3A5eeZ9\\" target=\\"_blank\\">Frankie Manning (Paperback)</a></li>
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/3tYxWlq\\" target=\\"_blank\\">Frankie Manning (Hardcover)</a></li>
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/3OFPCtV\\" target=\\"_blank\\">Frankie Manning (Audible)</a></li>
+              <div data-v-8ea0c2bf="">
+                <div data-v-e38168e7="" data-v-8ea0c2bf="">
+                  <hr data-v-e38168e7="">
+                  <h2 data-v-e38168e7="" class="title">Frankie Manning<span data-v-e38168e7=""> : Ambassador of Lindy Hop</span></h2>
+                  <div data-v-e38168e7="">by Cynthia Millman, Frankie Manning</div>
+                  <div data-v-e38168e7="" style="display: flex;" class="mt-2">
+                    <div data-v-e38168e7=""><a href="https://amzn.to/3A5eeZ9" target="_blank"><img border="0" src="https://m.media-amazon.com/images/I/41bbpvA3yLL._SL160_.jpg"></a></div>
+                    <div data-v-e38168e7="">
+                      <ul data-v-e38168e7="" style="list-style-type: none;">
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/3A5eeZ9" target="_blank">Frankie Manning (Paperback)</a></li>
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/3tYxWlq" target="_blank">Frankie Manning (Hardcover)</a></li>
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/3OFPCtV" target="_blank">Frankie Manning (Audible)</a></li>
                       </ul>
-                      <div data-v-e38168e7=\\"\\" class=\\"notes\\">This is a wonderful story of one of the greatest Lindy Hop dancers of all time. Not only does it cover much of the early history of Lindy Hop, but it also talks about Mr. Manning's amazing return during the Lindy Hop revival after having spent decades at the U.S. Post Office.</div>
+                      <div data-v-e38168e7="" class="notes">This is a wonderful story of one of the greatest Lindy Hop dancers of all time. Not only does it cover much of the early history of Lindy Hop, but it also talks about Mr. Manning's amazing return during the Lindy Hop revival after having spent decades at the U.S. Post Office.</div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div data-v-8ea0c2bf=\\"\\">
-                <div data-v-e38168e7=\\"\\" data-v-8ea0c2bf=\\"\\">
-                  <hr data-v-e38168e7=\\"\\">
-                  <h2 data-v-e38168e7=\\"\\" class=\\"title\\">Swingin' at the Savoy<span data-v-e38168e7=\\"\\"> : The Memoir of a Jazz Dancer</span></h2>
-                  <div data-v-e38168e7=\\"\\">by Norma Miller, Evette Jensen</div>
-                  <div data-v-e38168e7=\\"\\" style=\\"display: flex;\\" class=\\"mt-2\\">
-                    <div data-v-e38168e7=\\"\\"><a href=\\"https://amzn.to/3Qrq98k\\" target=\\"_blank\\"><img border=\\"0\\" src=\\"https://m.media-amazon.com/images/I/41Ux3Qn9PKL._SL160_.jpg\\"></a></div>
-                    <div data-v-e38168e7=\\"\\">
-                      <ul data-v-e38168e7=\\"\\" style=\\"list-style-type: none;\\">
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/3Qrq98k\\" target=\\"_blank\\">Swingin' at the Savoy (Paperback)</a></li>
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/3nfbWPt\\" target=\\"_blank\\">Swingin' at the Savoy (Hardcover)</a></li>
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/3nfvfbq\\" target=\\"_blank\\">Swingin' at the Savoy (Audible)</a></li>
+              <div data-v-8ea0c2bf="">
+                <div data-v-e38168e7="" data-v-8ea0c2bf="">
+                  <hr data-v-e38168e7="">
+                  <h2 data-v-e38168e7="" class="title">Swingin' at the Savoy<span data-v-e38168e7=""> : The Memoir of a Jazz Dancer</span></h2>
+                  <div data-v-e38168e7="">by Norma Miller, Evette Jensen</div>
+                  <div data-v-e38168e7="" style="display: flex;" class="mt-2">
+                    <div data-v-e38168e7=""><a href="https://amzn.to/3Qrq98k" target="_blank"><img border="0" src="https://m.media-amazon.com/images/I/41Ux3Qn9PKL._SL160_.jpg"></a></div>
+                    <div data-v-e38168e7="">
+                      <ul data-v-e38168e7="" style="list-style-type: none;">
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/3Qrq98k" target="_blank">Swingin' at the Savoy (Paperback)</a></li>
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/3nfbWPt" target="_blank">Swingin' at the Savoy (Hardcover)</a></li>
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/3nfvfbq" target="_blank">Swingin' at the Savoy (Audible)</a></li>
                       </ul>
-                      <div data-v-e38168e7=\\"\\" class=\\"notes\\">This is a beautiful memoir of one of the greatest Lindy Hop dancers of all time. Ms. Miller was not only one of dancers that defined the Lindy Hop, but as Lindy Hop faded for a while post World War II, she launched a career as a Jazz Dancer.</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div data-v-b13604e2=\\"\\" id=\\"__BVID__0005___BV_tabpane__\\" class=\\"tab-pane fade\\" role=\\"tabpanel\\" aria-labelledby=\\"__BVID__0006___BV_tab__\\">
-            <div data-v-8ea0c2bf=\\"\\" data-v-b13604e2=\\"\\">
-              <h3 data-v-8ea0c2bf=\\"\\" class=\\"category-description\\">Books that celebrate dance in fiction</h3>
-              <div data-v-8ea0c2bf=\\"\\">
-                <div data-v-e38168e7=\\"\\" data-v-8ea0c2bf=\\"\\">
-                  <hr data-v-e38168e7=\\"\\">
-                  <h2 data-v-e38168e7=\\"\\" class=\\"title\\">Stardance
-                    <!--v-if-->
-                  </h2>
-                  <div data-v-e38168e7=\\"\\">by Spider and Jeanne Robinson</div>
-                  <div data-v-e38168e7=\\"\\" style=\\"display: flex;\\" class=\\"mt-2\\">
-                    <div data-v-e38168e7=\\"\\"><a href=\\"https://amzn.to/3EH0N1j\\" target=\\"_blank\\"><img border=\\"0\\" src=\\"https://m.media-amazon.com/images/I/51lcqMNgpYL._SL160_.jpg\\"></a></div>
-                    <div data-v-e38168e7=\\"\\">
-                      <ul data-v-e38168e7=\\"\\" style=\\"list-style-type: none;\\">
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/3EH0N1j\\" target=\\"_blank\\">Stardance (Kindle)</a></li>
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/3EIUUAY\\" target=\\"_blank\\">Stardance (Hardcover)</a></li>
-                      </ul>
-                      <div data-v-e38168e7=\\"\\" class=\\"notes\\">This is an example of science fiction at its best. The authors take an idea, in this case, \\"what would it be like to dance in space,\\" and explore it in a way that makes you see implications that make you do a double-take. At the same time, they build believable and relatable characters that carry you through the story and leave you wanting more.</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div data-v-8ea0c2bf=\\"\\">
-                <div data-v-e38168e7=\\"\\" data-v-8ea0c2bf=\\"\\">
-                  <hr data-v-e38168e7=\\"\\">
-                  <h2 data-v-e38168e7=\\"\\" class=\\"title\\">Confessions of a Ballroom Diva
-                    <!--v-if-->
-                  </h2>
-                  <div data-v-e38168e7=\\"\\">by Irene Radford</div>
-                  <div data-v-e38168e7=\\"\\" style=\\"display: flex;\\" class=\\"mt-2\\">
-                    <div data-v-e38168e7=\\"\\"><a href=\\"https://amzn.to/39tedj9\\" target=\\"_blank\\"><img border=\\"0\\" src=\\"https://m.media-amazon.com/images/I/51vCM3c9SBL._SL160_.jpg\\"></a></div>
-                    <div data-v-e38168e7=\\"\\">
-                      <ul data-v-e38168e7=\\"\\" style=\\"list-style-type: none;\\">
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/39tedj9\\" target=\\"_blank\\">Confessions of a Ballroom Diva (Kindle)</a></li>
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/3lUfPID\\" target=\\"_blank\\">Confessions of a Ballroom Diva (Paperback)</a></li>
-                      </ul>
-                      <div data-v-e38168e7=\\"\\" class=\\"notes\\">This is another straight-up fun Urban Fantasy. In this case, one of the two main characters is a celebrity on a television show called “Dancing from the Heart,” who is a psychic vampire. The other main character is a judge on the show who also happens to be a member of a guild of vampire and demon hunters.</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div data-v-8ea0c2bf=\\"\\">
-                <div data-v-e38168e7=\\"\\" data-v-8ea0c2bf=\\"\\">
-                  <hr data-v-e38168e7=\\"\\">
-                  <h2 data-v-e38168e7=\\"\\" class=\\"title\\">InCryptid
-                    <!--v-if-->
-                  </h2>
-                  <div data-v-e38168e7=\\"\\">by Seanan McGuire</div>
-                  <div data-v-e38168e7=\\"\\" style=\\"display: flex;\\" class=\\"mt-2\\">
-                    <div data-v-e38168e7=\\"\\"><a href=\\"https://amzn.to/3rwSjF9\\" target=\\"_blank\\"><img border=\\"0\\" src=\\"https://m.media-amazon.com/images/I/51c83ifjzjL._SL160_.jpg\\"></a></div>
-                    <div data-v-e38168e7=\\"\\">
-                      <ul data-v-e38168e7=\\"\\" style=\\"list-style-type: none;\\">
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/3rwSjF9\\" target=\\"_blank\\">InCryptid (Kindle)</a></li>
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/3JPukY0\\" target=\\"_blank\\">InCryptid 1: Discount Armageddon (paperback)</a></li>
-                        <li data-v-e38168e7=\\"\\"><a data-v-e38168e7=\\"\\" href=\\"https://amzn.to/3KTb3q6\\" target=\\"_blank\\">InCryptid 2: Midnight Blue-Light Special (paperback)</a></li>
-                      </ul>
-                      <div data-v-e38168e7=\\"\\" class=\\"notes\\">The first two books in the series feature a Professional Ballroom Dancer who happens to be a “crypto-zoologist” who studies and protects fantastic creatures that live unseen among us in the modern world. Seanan, if you're reading this, please consider bring Verity back. This series is straight-up fun urban fantasy.</div>
+                      <div data-v-e38168e7="" class="notes">This is a beautiful memoir of one of the greatest Lindy Hop dancers of all time. Ms. Miller was not only one of dancers that defined the Lindy Hop, but as Lindy Hop faded for a while post World War II, she launched a career as a Jazz Dancer.</div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <div class=\\"tab-pane active\\"></div>
+          <div data-v-b13604e2="" id="___BVN__ID__v-4__tabpane___" class="tab-pane fade" role="tabpanel" aria-labelledby="___BVN__ID__v-5__tab___">
+            <div data-v-8ea0c2bf="" data-v-b13604e2="">
+              <h3 data-v-8ea0c2bf="" class="category-description">Books that celebrate dance in fiction</h3>
+              <div data-v-8ea0c2bf="">
+                <div data-v-e38168e7="" data-v-8ea0c2bf="">
+                  <hr data-v-e38168e7="">
+                  <h2 data-v-e38168e7="" class="title">Stardance
+                    <!--v-if-->
+                  </h2>
+                  <div data-v-e38168e7="">by Spider and Jeanne Robinson</div>
+                  <div data-v-e38168e7="" style="display: flex;" class="mt-2">
+                    <div data-v-e38168e7=""><a href="https://amzn.to/3EH0N1j" target="_blank"><img border="0" src="https://m.media-amazon.com/images/I/51lcqMNgpYL._SL160_.jpg"></a></div>
+                    <div data-v-e38168e7="">
+                      <ul data-v-e38168e7="" style="list-style-type: none;">
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/3EH0N1j" target="_blank">Stardance (Kindle)</a></li>
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/3EIUUAY" target="_blank">Stardance (Hardcover)</a></li>
+                      </ul>
+                      <div data-v-e38168e7="" class="notes">This is an example of science fiction at its best. The authors take an idea, in this case, "what would it be like to dance in space," and explore it in a way that makes you see implications that make you do a double-take. At the same time, they build believable and relatable characters that carry you through the story and leave you wanting more.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div data-v-8ea0c2bf="">
+                <div data-v-e38168e7="" data-v-8ea0c2bf="">
+                  <hr data-v-e38168e7="">
+                  <h2 data-v-e38168e7="" class="title">Confessions of a Ballroom Diva
+                    <!--v-if-->
+                  </h2>
+                  <div data-v-e38168e7="">by Irene Radford</div>
+                  <div data-v-e38168e7="" style="display: flex;" class="mt-2">
+                    <div data-v-e38168e7=""><a href="https://amzn.to/39tedj9" target="_blank"><img border="0" src="https://m.media-amazon.com/images/I/51vCM3c9SBL._SL160_.jpg"></a></div>
+                    <div data-v-e38168e7="">
+                      <ul data-v-e38168e7="" style="list-style-type: none;">
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/39tedj9" target="_blank">Confessions of a Ballroom Diva (Kindle)</a></li>
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/3lUfPID" target="_blank">Confessions of a Ballroom Diva (Paperback)</a></li>
+                      </ul>
+                      <div data-v-e38168e7="" class="notes">This is another straight-up fun Urban Fantasy. In this case, one of the two main characters is a celebrity on a television show called “Dancing from the Heart,” who is a psychic vampire. The other main character is a judge on the show who also happens to be a member of a guild of vampire and demon hunters.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div data-v-8ea0c2bf="">
+                <div data-v-e38168e7="" data-v-8ea0c2bf="">
+                  <hr data-v-e38168e7="">
+                  <h2 data-v-e38168e7="" class="title">InCryptid
+                    <!--v-if-->
+                  </h2>
+                  <div data-v-e38168e7="">by Seanan McGuire</div>
+                  <div data-v-e38168e7="" style="display: flex;" class="mt-2">
+                    <div data-v-e38168e7=""><a href="https://amzn.to/3rwSjF9" target="_blank"><img border="0" src="https://m.media-amazon.com/images/I/51c83ifjzjL._SL160_.jpg"></a></div>
+                    <div data-v-e38168e7="">
+                      <ul data-v-e38168e7="" style="list-style-type: none;">
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/3rwSjF9" target="_blank">InCryptid (Kindle)</a></li>
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/3JPukY0" target="_blank">InCryptid 1: Discount Armageddon (paperback)</a></li>
+                        <li data-v-e38168e7=""><a data-v-e38168e7="" href="https://amzn.to/3KTb3q6" target="_blank">InCryptid 2: Midnight Blue-Light Special (paperback)</a></li>
+                      </ul>
+                      <div data-v-e38168e7="" class="notes">The first two books in the series feature a Professional Ballroom Dancer who happens to be a “crypto-zoologist” who studies and protects fantastic creatures that live unseen among us in the modern world. Seanan, if you're reading this, please consider bring Verity back. This series is straight-up fun urban fantasy.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane active"></div>
         </div>
       </div>
-      <div data-v-b13604e2=\\"\\">
-        <h2 data-v-b13604e2=\\"\\">About the links on this page</h2>
-        <p data-v-b13604e2=\\"\\"> If you found a book through this <a data-v-b13604e2=\\"\\" href=\\"https://www.music4dance.net\\">site</a> or the associated <a data-v-b13604e2=\\"\\" href=\\"https://music4dance.blog\\">blog</a> please be kind and click on a link on this site to purchase it. This helps support the site. If you're feeling especially generous (or just like the site a lot) clicking on the Amazon links in the blog or the site and then doing your regular, unrelated shopping will also help support the site as a very small fraction of those proceeds will be directed to musci4dance. </p>
-        <p data-v-b13604e2=\\"\\"> Also, if you are interested in signing up for audible to \\"read\\" any of the recommended books, please consider doing so through <a data-v-b13604e2=\\"\\" href=\\"https://amzn.to/3zlOVUq\\" target=\\"_blank\\">this link</a>. Similaraly, if you are considering trying Amazon music, signing up through <a data-v-b13604e2=\\"\\" href=\\"https://amzn.to/45Q4yzG\\" target=\\"_blank\\">this link</a> will help out music4dance. And finally, if your thinking about trying Kindle Unlimited, please consider doing so through <a data-v-b13604e2=\\"\\" href=\\"https://amzn.to/4eGK1S0\\" target=\\"_blank\\">this link</a>. </p>
+      <div data-v-b13604e2="">
+        <h2 data-v-b13604e2="">About the links on this page</h2>
+        <p data-v-b13604e2=""> If you found a book through this <a data-v-b13604e2="" href="https://www.music4dance.net">site</a> or the associated <a data-v-b13604e2="" href="https://music4dance.blog">blog</a> please be kind and click on a link on this site to purchase it. This helps support the site. If you're feeling especially generous (or just like the site a lot) clicking on the Amazon links in the blog or the site and then doing your regular, unrelated shopping will also help support the site as a very small fraction of those proceeds will be directed to musci4dance. </p>
+        <p data-v-b13604e2=""> Also, if you are interested in signing up for audible to "read" any of the recommended books, please consider doing so through <a data-v-b13604e2="" href="https://amzn.to/3zlOVUq" target="_blank">this link</a>. Similaraly, if you are considering trying Amazon music, signing up through <a data-v-b13604e2="" href="https://amzn.to/45Q4yzG" target="_blank">this link</a> will help out music4dance. And finally, if your thinking about trying Kindle Unlimited, please consider doing so through <a data-v-b13604e2="" href="https://amzn.to/4eGK1S0" target="_blank">this link</a>. </p>
       </div>
     </div>
   </div>
-  <div id=\\"footer-content\\">
+  <div id="footer-content">
     <hr>
     <footer>
-      <p> © 2024 - <a href=\\"https://www.music4dance.net\\">Music4Dance.net</a> - <a href=\\"https://www.music4dance.net/home/sitemap\\">Site Map</a> - <a href=\\"https://www.music4dance.net/home/termsofservice\\">Terms of Service</a> - <a href=\\"https://www.music4dance.net/home/privacypolicy\\">Privacy Policy</a> - <a href=\\"https://www.music4dance.net/home/credits\\">Credits</a> - <a>Help</a></p>
+      <p> © 2024 - <a href="https://www.music4dance.net">Music4Dance.net</a> - <a href="https://www.music4dance.net/home/sitemap">Site Map</a> - <a href="https://www.music4dance.net/home/termsofservice">Terms of Service</a> - <a href="https://www.music4dance.net/home/privacypolicy">Privacy Policy</a> - <a href="https://www.music4dance.net/home/credits">Credits</a> - <a>Help</a></p>
     </footer>
   </div>
 </div>"

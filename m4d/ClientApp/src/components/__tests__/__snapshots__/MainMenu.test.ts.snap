@@ -8,88 +8,82 @@ exports[`MainMenu.vue > Renders MainMenu for an anonymous user 1`] = `
   <!--teleport end-->
   <!--v-if-->
   <!--v-if-->
-  <nav class=\\"navbar bg-primary navbar-expand-lg\\" id=\\"mainMenu\\" data-bs-theme=\\"dark\\">
-    <div class=\\"container-fluid\\"><a class=\\"navbar-brand\\" replace=\\"false\\" href=\\"/\\"><img src=\\"/vclient/src/assets/images/header-logo.png\\" height=\\"40\\" title=\\"music4dance\\"></a><button class=\\"navbar-toggler collapsed\\" type=\\"button\\" aria-label=\\"Toggle navigation\\" id=\\"drop-toggle\\" aria-controls=\\"nav-collapse\\" aria-expanded=\\"false\\"><span class=\\"navbar-toggler-icon\\"></span></button>
-      <div id=\\"nav-collapse\\" class=\\"collapse navbar-collapse\\" is-nav=\\"true\\">
-        <ul class=\\"navbar-nav\\">
-          <li class=\\"nav-item dropdown\\">
-            <div class=\\"dropdown\\"><button class=\\"btn btn-md btn-link nav-link dropdown-toggle\\" type=\\"button\\" id=\\"music-menu\\" aria-expanded=\\"false\\" aria-haspopup=\\"menu\\">Music</button>
+  <nav class="navbar bg-primary navbar-expand-lg" id="mainMenu" data-bs-theme="dark">
+    <div class="container-fluid"><a class="navbar-brand" replace="false" href="/"><img src="/vclient/src/assets/images/header-logo.png" height="40" title="music4dance"></a><button class="navbar-toggler collapsed" type="button" aria-label="Toggle navigation" id="drop-toggle" aria-controls="nav-collapse" aria-expanded="false"><span class="navbar-toggler-icon"></span></button>
+      <div id="nav-collapse" class="collapse navbar-collapse" is-nav="true">
+        <ul class="navbar-nav">
+          <li class="nav-item dropdown">
+            <div class="dropdown"><button class="btn btn-md btn-link nav-link dropdown-toggle" type="button" id="music-menu" aria-expanded="false" aria-haspopup="menu">Music</button>
               <!---->
-              <!--teleport start-->
-              <ul style=\\"position: absolute; left: 0px; top: 0px; display: none;\\" class=\\"dropdown-menu overflow-auto\\" aria-labelledby=\\"music-menu\\" role=\\"menu\\">
-                <li role=\\"presentation\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/dances\\" role=\\"menuitem\\">Dances</a></li>
-                <li role=\\"presentation\\" class=\\"nav-subitem\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/dances/ballroom-competition-categories\\" role=\\"menuitem\\">&nbsp;&nbsp;Ballroom</a></li>
-                <li role=\\"presentation\\" class=\\"nav-subitem\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/dances/latin\\" role=\\"menuitem\\">&nbsp;&nbsp;Latin</a></li>
-                <li role=\\"presentation\\" class=\\"nav-subitem\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/dances/swing\\" role=\\"menuitem\\">&nbsp;&nbsp;Swing</a></li>
-                <li role=\\"presentation\\" class=\\"nav-subitem\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/dances/tango\\" role=\\"menuitem\\">&nbsp;&nbsp;Tango</a></li>
-                <li role=\\"presentation\\" class=\\"nav-subitem\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/dances/country\\" role=\\"menuitem\\">&nbsp;&nbsp;Country</a></li>
-                <li role=\\"presentation\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/song\\" role=\\"menuitem\\">Song Library</a></li>
-                <li role=\\"presentation\\" class=\\"nav-subitem\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/song/advancedsearchform\\" role=\\"menuitem\\">&nbsp;&nbsp;Advanced Search</a></li>
-                <li role=\\"presentation\\" class=\\"nav-subitem\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/song/augment\\" role=\\"menuitem\\">&nbsp;&nbsp;Add Song</a></li>
-                <li role=\\"presentation\\" class=\\"nav-subitem\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/song/newmusic\\" role=\\"menuitem\\">&nbsp;&nbsp;New Music</a></li>
-                <li role=\\"presentation\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/dances/wedding-music\\" role=\\"menuitem\\">Wedding</a></li>
-                <li role=\\"presentation\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/customsearch?name=holiday\\" role=\\"menuitem\\">Holiday</a></li>
-                <li role=\\"presentation\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/customsearch?name=halloween\\" role=\\"menuitem\\">Halloween</a></li>
-                <li role=\\"presentation\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/customsearch?name=broadway\\" role=\\"menuitem\\">Broadway</a></li>
-                <li role=\\"presentation\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/tag\\" role=\\"menuitem\\">Tags</a></li>
+              <ul style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto" aria-labelledby="music-menu" role="menu">
+                <li role="presentation"><a class="dropdown-item" replace="false" href="/dances" role="menuitem">Dances</a></li>
+                <li role="presentation" class="nav-subitem"><a class="dropdown-item" replace="false" href="/dances/ballroom-competition-categories" role="menuitem">&nbsp;&nbsp;Ballroom</a></li>
+                <li role="presentation" class="nav-subitem"><a class="dropdown-item" replace="false" href="/dances/latin" role="menuitem">&nbsp;&nbsp;Latin</a></li>
+                <li role="presentation" class="nav-subitem"><a class="dropdown-item" replace="false" href="/dances/swing" role="menuitem">&nbsp;&nbsp;Swing</a></li>
+                <li role="presentation" class="nav-subitem"><a class="dropdown-item" replace="false" href="/dances/tango" role="menuitem">&nbsp;&nbsp;Tango</a></li>
+                <li role="presentation" class="nav-subitem"><a class="dropdown-item" replace="false" href="/dances/country" role="menuitem">&nbsp;&nbsp;Country</a></li>
+                <li role="presentation"><a class="dropdown-item" replace="false" href="/song" role="menuitem">Song Library</a></li>
+                <li role="presentation" class="nav-subitem"><a class="dropdown-item" replace="false" href="/song/advancedsearchform" role="menuitem">&nbsp;&nbsp;Advanced Search</a></li>
+                <li role="presentation" class="nav-subitem"><a class="dropdown-item" replace="false" href="/song/augment" role="menuitem">&nbsp;&nbsp;Add Song</a></li>
+                <li role="presentation" class="nav-subitem"><a class="dropdown-item" replace="false" href="/song/newmusic" role="menuitem">&nbsp;&nbsp;New Music</a></li>
+                <li role="presentation"><a class="dropdown-item" replace="false" href="/dances/wedding-music" role="menuitem">Wedding</a></li>
+                <li role="presentation"><a class="dropdown-item" replace="false" href="/customsearch?name=holiday" role="menuitem">Holiday</a></li>
+                <li role="presentation"><a class="dropdown-item" replace="false" href="/customsearch?name=halloween" role="menuitem">Halloween</a></li>
+                <li role="presentation"><a class="dropdown-item" replace="false" href="/customsearch?name=broadway" role="menuitem">Broadway</a></li>
+                <li role="presentation"><a class="dropdown-item" replace="false" href="/tag" role="menuitem">Tags</a></li>
                 <!--v-if-->
               </ul>
-              <!--teleport end-->
             </div>
           </li>
-          <li class=\\"nav-item dropdown\\">
-            <div class=\\"dropdown\\"><button class=\\"btn btn-md btn-link nav-link dropdown-toggle\\" type=\\"button\\" id=\\"tools-menu\\" aria-expanded=\\"false\\" aria-haspopup=\\"menu\\">Tools</button>
+          <li class="nav-item dropdown">
+            <div class="dropdown"><button class="btn btn-md btn-link nav-link dropdown-toggle" type="button" id="tools-menu" aria-expanded="false" aria-haspopup="menu">Tools</button>
               <!---->
-              <!--teleport start-->
-              <ul style=\\"position: absolute; left: 0px; top: 0px; display: none;\\" class=\\"dropdown-menu overflow-auto\\" aria-labelledby=\\"tools-menu\\" role=\\"menu\\">
-                <li role=\\"presentation\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/home/counter\\" role=\\"menuitem\\">Tempo Counter</a></li>
-                <li role=\\"presentation\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/home/tempi\\" role=\\"menuitem\\">Tempi (Tempos)</a></li>
-                <li role=\\"presentation\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/song/advancedsearchform\\" role=\\"menuitem\\">Advanced Search</a></li>
+              <ul style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto" aria-labelledby="tools-menu" role="menu">
+                <li role="presentation"><a class="dropdown-item" replace="false" href="/home/counter" role="menuitem">Tempo Counter</a></li>
+                <li role="presentation"><a class="dropdown-item" replace="false" href="/home/tempi" role="menuitem">Tempi (Tempos)</a></li>
+                <li role="presentation"><a class="dropdown-item" replace="false" href="/song/advancedsearchform" role="menuitem">Advanced Search</a></li>
                 <!--v-if-->
               </ul>
-              <!--teleport end-->
             </div>
           </li>
-          <li class=\\"nav-item dropdown\\">
-            <div class=\\"dropdown\\"><button class=\\"btn btn-md btn-link nav-link dropdown-toggle\\" type=\\"button\\" id=\\"info\\" aria-expanded=\\"false\\" aria-haspopup=\\"menu\\">Info</button>
+          <li class="nav-item dropdown">
+            <div class="dropdown"><button class="btn btn-md btn-link nav-link dropdown-toggle" type="button" id="info" aria-expanded="false" aria-haspopup="menu">Info</button>
               <!---->
-              <!--teleport start-->
-              <ul style=\\"position: absolute; left: 0px; top: 0px; display: none;\\" class=\\"dropdown-menu overflow-auto\\" aria-labelledby=\\"info\\" role=\\"menu\\">
-                <li role=\\"presentation\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"https://music4dance.blog/music4dance-help/\\" role=\\"menuitem\\">Help</a></li>
-                <li role=\\"presentation\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"https://music4dance.blog/\\" role=\\"menuitem\\">Blog</a></li>
-                <li role=\\"presentation\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/home/faq\\" role=\\"menuitem\\">FAQ</a></li>
-                <li role=\\"presentation\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/home/about\\" role=\\"menuitem\\">About</a></li>
-                <li role=\\"presentation\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/home/readinglist\\" role=\\"menuitem\\">Reading List</a></li>
-                <li role=\\"presentation\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/home/sitemap\\" role=\\"menuitem\\">Site Map</a></li>
-                <li role=\\"presentation\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/home/privacypolicy\\" role=\\"menuitem\\">Privacy Policy</a></li>
-                <li role=\\"presentation\\"><a class=\\"dropdown-item\\" replace=\\"false\\" href=\\"/home/credits\\" role=\\"menuitem\\">Credits</a></li>
+              <ul style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto" aria-labelledby="info" role="menu">
+                <li role="presentation"><a class="dropdown-item" replace="false" href="https://music4dance.blog/music4dance-help/" role="menuitem">Help</a></li>
+                <li role="presentation"><a class="dropdown-item" replace="false" href="https://music4dance.blog/" role="menuitem">Blog</a></li>
+                <li role="presentation"><a class="dropdown-item" replace="false" href="/home/faq" role="menuitem">FAQ</a></li>
+                <li role="presentation"><a class="dropdown-item" replace="false" href="/home/about" role="menuitem">About</a></li>
+                <li role="presentation"><a class="dropdown-item" replace="false" href="/home/readinglist" role="menuitem">Reading List</a></li>
+                <li role="presentation"><a class="dropdown-item" replace="false" href="/home/sitemap" role="menuitem">Site Map</a></li>
+                <li role="presentation"><a class="dropdown-item" replace="false" href="/home/privacypolicy" role="menuitem">Privacy Policy</a></li>
+                <li role="presentation"><a class="dropdown-item" replace="false" href="/home/credits" role="menuitem">Credits</a></li>
               </ul>
-              <!--teleport end-->
             </div>
           </li>
-          <li class=\\"nav-item\\" id=\\"contribute-menu\\" right=\\"\\"><a class=\\"nav-link\\" replace=\\"false\\" href=\\"/home/contribute\\">Contribute</a></li>
+          <li class="nav-item" id="contribute-menu" right=""><a class="nav-link" replace="false" href="/home/contribute">Contribute</a></li>
           <!--v-if-->
         </ul>
-        <ul class=\\"navbar-nav ms-auto\\">
-          <li class=\\"d-flex flex-row align-items-center flex-wrap\\">
-            <form id=\\"search\\" class=\\"d-flex\\">
-              <div class=\\"input-group\\" role=\\"group\\">
+        <ul class="navbar-nav ms-auto">
+          <li class="d-flex flex-row align-items-center flex-wrap">
+            <form id="search" class="d-flex">
+              <div class="input-group" role="group">
                 <!---->
-                <!--v-if--><input id=\\"search-text\\" class=\\"form-control form-control-sm\\" type=\\"text\\" placeholder=\\"Search...\\" autocomplete=\\"off\\" list=\\"search-text-suggestions\\" value=\\"\\"><datalist id=\\"search-text-suggestions\\"></datalist><button class=\\"btn link-undefined link-underline-undefined btn-sm btn-outline-secondary\\" type=\\"button\\"><svg viewBox=\\"0 0 16 16\\" width=\\"1.2em\\" height=\\"1.2em\\">
-                    <path fill=\\"currentColor\\" d=\\"M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0a5.5 5.5 0 0 1 11 0\\"></path>
+                <!--v-if--><input id="search-text" class="form-control form-control-sm" type="text" placeholder="Search..." autocomplete="off" list="search-text-suggestions" value=""><datalist id="search-text-suggestions"></datalist><button class="btn btn-sm btn-outline-secondary" type="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                    <path fill="currentColor" d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0a5.5 5.5 0 0 1 11 0"></path>
                   </svg></button>
                 <!---->
               </div>
             </form>
           </li>
-          <li class=\\"nav-item\\" right=\\"\\"><a class=\\"nav-link\\" replace=\\"false\\" href=\\"/identity/account/register?returnUrl=/\\">Register</a></li>
-          <li class=\\"nav-item\\" right=\\"\\"><a class=\\"nav-link\\" replace=\\"false\\" href=\\"/identity/account/login?returnUrl=/\\">Login</a></li>
+          <li class="nav-item" right=""><a class="nav-link" replace="false" href="/identity/account/register?returnUrl=/">Register</a></li>
+          <li class="nav-item" right=""><a class="nav-link" replace="false" href="/identity/account/login?returnUrl=/">Login</a></li>
         </ul>
       </div>
     </div>
   </nav>
   <!--v-if-->
   <!--v-if-->
-  <form id=\\"logoutForm\\" action=\\"/identity/account/logout\\" method=\\"post\\" style=\\"height: 0px;\\"><input name=\\"__RequestVerificationToken\\" type=\\"hidden\\"><input type=\\"hidden\\" name=\\"returnUrl\\" value=\\"/\\"><button id=\\"logout\\" type=\\"submit\\" class=\\"btn btn-link\\"></button></form>
+  <form id="logoutForm" action="/identity/account/logout" method="post" style="height: 0px;"><input name="__RequestVerificationToken" type="hidden"><input type="hidden" name="returnUrl" value="/"><button id="logout" type="submit" class="btn btn-link"></button></form>
 </div>"
 `;

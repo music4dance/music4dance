@@ -1,123 +1,123 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`Resume > Renders Resume Page 1`] = `
-"<div data-v-0eba368d=\\"\\"><span context=\\"[object Object]\\">MainMenu</span>
-  <nav aria-label=\\"breadcrumb\\">
-    <nav aria-label=\\"breadcrumb\\" style=\\"padding: 0.25rem 0.5rem;\\">
-      <ol class=\\"breadcrumb\\">
-        <li class=\\"breadcrumb-item\\"><a class=\\"\\" replace=\\"false\\" href=\\"/\\">music4dance</a></li>
-        <li class=\\"breadcrumb-item\\"><a class=\\"\\" replace=\\"false\\" href=\\"/home/info\\">Info</a></li>
-        <li class=\\"breadcrumb-item\\"><a class=\\"\\" replace=\\"false\\" href=\\"/home/about\\">About</a></li>
-        <li class=\\"breadcrumb-item active\\"><span aria-current=\\"location\\">Resmue</span></li>
+"<div data-v-0eba368d=""><span context="[object Object]">MainMenu</span>
+  <nav aria-label="breadcrumb">
+    <nav aria-label="breadcrumb" style="padding: 0.25rem 0.5rem;">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a class="" replace="false" href="/">music4dance</a></li>
+        <li class="breadcrumb-item"><a class="" replace="false" href="/home/info">Info</a></li>
+        <li class="breadcrumb-item"><a class="" replace="false" href="/home/about">About</a></li>
+        <li class="breadcrumb-item active"><span aria-current="location">Resmue</span></li>
       </ol>
     </nav>
   </nav>
-  <div id=\\"body-content\\" class=\\"container-fluid body-content\\">
+  <div id="body-content" class="container-fluid body-content">
     <h1>David's Resume</h1>
     <div>
-      <p data-v-0eba368d=\\"\\"><a data-v-0eba368d=\\"\\" href=\\"/Content/DavidGray-Resume.pdf\\" target=\\"_blank\\">Printable Version</a></p>
-      <div data-v-0eba368d=\\"\\" class=\\"title\\">David W. Gray</div>
-      <div data-v-0eba368d=\\"\\" class=\\"section\\">Skills Profile</div>
-      <ul data-v-0eba368d=\\"\\">
-        <li data-v-0eba368d=\\"\\">Mentor and coach</li>
-        <li data-v-0eba368d=\\"\\">Leadership experience using both Agile and Waterfall methodologies</li>
-        <li data-v-0eba368d=\\"\\">C#/.Net, C/C++, JavaScript, TypeScript, Vue.js, MySql, T-SQL, Azure Cognitive Search</li>
-        <li data-v-0eba368d=\\"\\">Full Stack Web, Desktop Application, Diagnostic Tools Development</li>
+      <p data-v-0eba368d=""><a data-v-0eba368d="" href="/Content/DavidGray-Resume.pdf" target="_blank">Printable Version</a></p>
+      <div data-v-0eba368d="" class="title">David W. Gray</div>
+      <div data-v-0eba368d="" class="section">Skills Profile</div>
+      <ul data-v-0eba368d="">
+        <li data-v-0eba368d="">Mentor and coach</li>
+        <li data-v-0eba368d="">Leadership experience using both Agile and Waterfall methodologies</li>
+        <li data-v-0eba368d="">C#/.Net, C/C++, JavaScript, TypeScript, Vue.js, MySql, T-SQL, Azure Cognitive Search</li>
+        <li data-v-0eba368d="">Full Stack Web, Desktop Application, Diagnostic Tools Development</li>
       </ul>
-      <div data-v-0eba368d=\\"\\" class=\\"section\\">Employment History</div>
-      <div data-v-0eba368d=\\"\\" class=\\"job\\">
-        <div data-v-0eba368d=\\"\\" class=\\"job-row\\">
-          <div data-v-0eba368d=\\"\\" class=\\"job-title\\">Founder, music4dance.net</div>
-          <div data-v-0eba368d=\\"\\" class=\\"dates\\">2014 — Present</div>
+      <div data-v-0eba368d="" class="section">Employment History</div>
+      <div data-v-0eba368d="" class="job">
+        <div data-v-0eba368d="" class="job-row">
+          <div data-v-0eba368d="" class="job-title">Founder, music4dance.net</div>
+          <div data-v-0eba368d="" class="dates">2014 — Present</div>
         </div>
-        <div data-v-0eba368d=\\"\\" class=\\"location\\">Seattle, WA</div>
-        <div data-v-0eba368d=\\"\\" class=\\"description\\">
-          <ul data-v-0eba368d=\\"\\">
-            <li data-v-0eba368d=\\"\\"> Built a ratings and referral website that helps dancers find music that inspires them to dance. This is a Web application written in asp.net core with a Vue.js front end, running in the Azure cloud and built around Azure Cognitive search. I have maintained this website </li>
-            <li data-v-0eba368d=\\"\\"> This project gives me the opportunity to work with new technologies and explore upgrade paths in a sandbox that I fully control. The project was originally developed in Asp.net MVC 3 and Microsoft T-SQL. Fairly early on, I started sprinkling knockout.js code to make the UI more reactive I’ve kept up with the .NET upgrades, including the major .NET core shift, converted the core Database to Azure Cognitive Search, and all the pages that require a significant amount of JavaScript to Vue.js/Typescript </li>
+        <div data-v-0eba368d="" class="location">Seattle, WA</div>
+        <div data-v-0eba368d="" class="description">
+          <ul data-v-0eba368d="">
+            <li data-v-0eba368d=""> Built a ratings and referral website that helps dancers find music that inspires them to dance. This is a Web application written in asp.net core with a Vue.js front end, running in the Azure cloud and built around Azure Cognitive search. I have maintained this website </li>
+            <li data-v-0eba368d=""> This project gives me the opportunity to work with new technologies and explore upgrade paths in a sandbox that I fully control. The project was originally developed in Asp.net MVC 3 and Microsoft T-SQL. Fairly early on, I started sprinkling knockout.js code to make the UI more reactive I’ve kept up with the .NET upgrades, including the major .NET core shift, converted the core Database to Azure Cognitive Search, and all the pages that require a significant amount of JavaScript to Vue.js/Typescript </li>
           </ul>
         </div>
       </div>
-      <div data-v-0eba368d=\\"\\" class=\\"job\\">
-        <div data-v-0eba368d=\\"\\" class=\\"job-row\\">
-          <div data-v-0eba368d=\\"\\" class=\\"job-title\\">Software Engineering Manager, Clean Power Research</div>
-          <div data-v-0eba368d=\\"\\" class=\\"dates\\">2017 — 2023</div>
+      <div data-v-0eba368d="" class="job">
+        <div data-v-0eba368d="" class="job-row">
+          <div data-v-0eba368d="" class="job-title">Software Engineering Manager, Clean Power Research</div>
+          <div data-v-0eba368d="" class="dates">2017 — 2023</div>
         </div>
-        <div data-v-0eba368d=\\"\\" class=\\"location\\">Kirkland, WA</div>
-        <div data-v-0eba368d=\\"\\" class=\\"description\\">
-          <ul data-v-0eba368d=\\"\\">
-            <li data-v-0eba368d=\\"\\"> Managed a team of engineers who develop a family of products including consumer facing solar, storage and electric vehicle calculators, a B2B API for utility bill calculations, and a utility scale ML based prediction engine for distributed energy resource adoption. These are SaaS products that are developed using Microsoft technologies with a Vue.js/TypeScript front end running in the AWS cloud. </li>
-            <li data-v-0eba368d=\\"\\"> Rebuilt a team and a code base that had been oriented towards small contract-based projects by introducing engineering practices that moved towards a more stable and manageable team and system. This included introducing SCRUM practices, design and code review processes and several levels of automated testing. Average feature completion time went from being measured in months to weeks. </li>
-            <li data-v-0eba368d=\\"\\"> Implemented SOC2 controls, including passing all four annual audits without exceptions. Collaborated with external penetration testers to secure the products. </li>
-            <li data-v-0eba368d=\\"\\"> Established a quarterly “Management Book Club” and built communications between managers to establish management practices and train new managers. </li>
+        <div data-v-0eba368d="" class="location">Kirkland, WA</div>
+        <div data-v-0eba368d="" class="description">
+          <ul data-v-0eba368d="">
+            <li data-v-0eba368d=""> Managed a team of engineers who develop a family of products including consumer facing solar, storage and electric vehicle calculators, a B2B API for utility bill calculations, and a utility scale ML based prediction engine for distributed energy resource adoption. These are SaaS products that are developed using Microsoft technologies with a Vue.js/TypeScript front end running in the AWS cloud. </li>
+            <li data-v-0eba368d=""> Rebuilt a team and a code base that had been oriented towards small contract-based projects by introducing engineering practices that moved towards a more stable and manageable team and system. This included introducing SCRUM practices, design and code review processes and several levels of automated testing. Average feature completion time went from being measured in months to weeks. </li>
+            <li data-v-0eba368d=""> Implemented SOC2 controls, including passing all four annual audits without exceptions. Collaborated with external penetration testers to secure the products. </li>
+            <li data-v-0eba368d=""> Established a quarterly “Management Book Club” and built communications between managers to establish management practices and train new managers. </li>
           </ul>
         </div>
       </div>
-      <div data-v-0eba368d=\\"\\" class=\\"job\\">
-        <div data-v-0eba368d=\\"\\" class=\\"job-row\\">
-          <div data-v-0eba368d=\\"\\" class=\\"job-title\\">Principal Lead Software Engineer, Microsoft</div>
-          <div data-v-0eba368d=\\"\\" class=\\"dates\\">2003 — 2012</div>
+      <div data-v-0eba368d="" class="job">
+        <div data-v-0eba368d="" class="job-row">
+          <div data-v-0eba368d="" class="job-title">Principal Lead Software Engineer, Microsoft</div>
+          <div data-v-0eba368d="" class="dates">2003 — 2012</div>
         </div>
-        <div data-v-0eba368d=\\"\\" class=\\"location\\">Redmond, WA</div>
-        <div data-v-0eba368d=\\"\\" class=\\"description\\">
-          <ul data-v-0eba368d=\\"\\">
-            <li data-v-0eba368d=\\"\\"> Engineering lead for the Visual Studio Debugger, Profiler, and IntelliTrace. Drove best of class diagnostics tools through multiple product cycles. Attacked many of the hardest problems developers face including reducing the “not reproducible” problem and diagnosing issues in the cloud, desktop and devices. </li>
-            <li data-v-0eba368d=\\"\\"> Collaborated with cross-functional teams across Microsoft including Visual Studio, C#, VB, C++, .net, SharePoint and Windows to enable features that were business critical to those teams and to enable the tools that my team owned to work effectively with those platforms and languages. </li>
-            <li data-v-0eba368d=\\"\\">Worked with management and the team to transition to a SCRUM process</li>
+        <div data-v-0eba368d="" class="location">Redmond, WA</div>
+        <div data-v-0eba368d="" class="description">
+          <ul data-v-0eba368d="">
+            <li data-v-0eba368d=""> Engineering lead for the Visual Studio Debugger, Profiler, and IntelliTrace. Drove best of class diagnostics tools through multiple product cycles. Attacked many of the hardest problems developers face including reducing the “not reproducible” problem and diagnosing issues in the cloud, desktop and devices. </li>
+            <li data-v-0eba368d=""> Collaborated with cross-functional teams across Microsoft including Visual Studio, C#, VB, C++, .net, SharePoint and Windows to enable features that were business critical to those teams and to enable the tools that my team owned to work effectively with those platforms and languages. </li>
+            <li data-v-0eba368d="">Worked with management and the team to transition to a SCRUM process</li>
           </ul>
         </div>
       </div>
-      <div data-v-0eba368d=\\"\\" class=\\"job\\">
-        <div data-v-0eba368d=\\"\\" class=\\"job-row\\">
-          <div data-v-0eba368d=\\"\\" class=\\"job-title\\">President, theGray.com</div>
-          <div data-v-0eba368d=\\"\\" class=\\"dates\\">1999 — 2003</div>
+      <div data-v-0eba368d="" class="job">
+        <div data-v-0eba368d="" class="job-row">
+          <div data-v-0eba368d="" class="job-title">President, theGray.com</div>
+          <div data-v-0eba368d="" class="dates">1999 — 2003</div>
         </div>
-        <div data-v-0eba368d=\\"\\" class=\\"location\\">Seattle, WA</div>
-        <div data-v-0eba368d=\\"\\" class=\\"description\\"> General software consulting including technical feasibility analysis for venture capitalists, website design and deployment, custom office automation and billing software for a clinic, web-based survey, and data cleaning. </div>
+        <div data-v-0eba368d="" class="location">Seattle, WA</div>
+        <div data-v-0eba368d="" class="description"> General software consulting including technical feasibility analysis for venture capitalists, website design and deployment, custom office automation and billing software for a clinic, web-based survey, and data cleaning. </div>
       </div>
-      <div data-v-0eba368d=\\"\\" class=\\"job\\">
-        <div data-v-0eba368d=\\"\\" class=\\"job-row\\">
-          <div data-v-0eba368d=\\"\\" class=\\"job-title\\">Vice President of Technology, Sunhawk.com</div>
-          <div data-v-0eba368d=\\"\\" class=\\"dates\\">1996 — 1998</div>
+      <div data-v-0eba368d="" class="job">
+        <div data-v-0eba368d="" class="job-row">
+          <div data-v-0eba368d="" class="job-title">Vice President of Technology, Sunhawk.com</div>
+          <div data-v-0eba368d="" class="dates">1996 — 1998</div>
         </div>
-        <div data-v-0eba368d=\\"\\" class=\\"location\\">Seattle, WA</div>
-        <div data-v-0eba368d=\\"\\" class=\\"description\\"> Managed a cross-functional team of Software Engineers, Graphics Artists and Music Librarians to build an e-commerce solution for browsing and purchasing sheet music over the internet. This included a web-site engine that both compiled static pages served by a Linux server and an IIS plugin to dynamically serve pages based on a custom music database as well as a system to download encrypted sheet music and purchase the encryption key by processing credit card transactions. </div>
+        <div data-v-0eba368d="" class="location">Seattle, WA</div>
+        <div data-v-0eba368d="" class="description"> Managed a cross-functional team of Software Engineers, Graphics Artists and Music Librarians to build an e-commerce solution for browsing and purchasing sheet music over the internet. This included a web-site engine that both compiled static pages served by a Linux server and an IIS plugin to dynamically serve pages based on a custom music database as well as a system to download encrypted sheet music and purchase the encryption key by processing credit card transactions. </div>
       </div>
-      <div data-v-0eba368d=\\"\\" class=\\"job\\">
-        <div data-v-0eba368d=\\"\\" class=\\"job-row\\">
-          <div data-v-0eba368d=\\"\\" class=\\"job-title\\">Lead Software Engineer, Microsoft</div>
-          <div data-v-0eba368d=\\"\\" class=\\"dates\\">1995 — 1996</div>
+      <div data-v-0eba368d="" class="job">
+        <div data-v-0eba368d="" class="job-row">
+          <div data-v-0eba368d="" class="job-title">Lead Software Engineer, Microsoft</div>
+          <div data-v-0eba368d="" class="dates">1995 — 1996</div>
         </div>
-        <div data-v-0eba368d=\\"\\" class=\\"location\\">Redmond, WA</div>
-        <div data-v-0eba368d=\\"\\" class=\\"description\\"> Led a team that translated some of the most compelling ideas from Visual Basic Enterprise Edition including database management and component wizards into the first Enterprise Edition of Visual C++. </div>
+        <div data-v-0eba368d="" class="location">Redmond, WA</div>
+        <div data-v-0eba368d="" class="description"> Led a team that translated some of the most compelling ideas from Visual Basic Enterprise Edition including database management and component wizards into the first Enterprise Edition of Visual C++. </div>
       </div>
-      <div data-v-0eba368d=\\"\\" class=\\"job\\">
-        <div data-v-0eba368d=\\"\\" class=\\"job-row\\">
-          <div data-v-0eba368d=\\"\\" class=\\"job-title\\">Senior Software Engineer, Microsoft</div>
-          <div data-v-0eba368d=\\"\\" class=\\"dates\\">1989 — 1995</div>
+      <div data-v-0eba368d="" class="job">
+        <div data-v-0eba368d="" class="job-row">
+          <div data-v-0eba368d="" class="job-title">Senior Software Engineer, Microsoft</div>
+          <div data-v-0eba368d="" class="dates">1989 — 1995</div>
         </div>
-        <div data-v-0eba368d=\\"\\" class=\\"location\\">Redmond, WA</div>
-        <div data-v-0eba368d=\\"\\" class=\\"description\\"> Designed and implemented the core debugger to enable it to target multiple operating systems running different microprocessors, locally and remotely while hosted in different development environments. </div>
+        <div data-v-0eba368d="" class="location">Redmond, WA</div>
+        <div data-v-0eba368d="" class="description"> Designed and implemented the core debugger to enable it to target multiple operating systems running different microprocessors, locally and remotely while hosted in different development environments. </div>
       </div>
-      <div data-v-0eba368d=\\"\\" class=\\"section\\">Education</div>
-      <ul data-v-0eba368d=\\"\\">
-        <li data-v-0eba368d=\\"\\">B.S. Applied Mathematics and Computer Science, Carnegie Mellon University, Pittsburgh</li>
-        <li data-v-0eba368d=\\"\\">User Experience and Design Certificate, General Assembly, Seattle</li>
+      <div data-v-0eba368d="" class="section">Education</div>
+      <ul data-v-0eba368d="">
+        <li data-v-0eba368d="">B.S. Applied Mathematics and Computer Science, Carnegie Mellon University, Pittsburgh</li>
+        <li data-v-0eba368d="">User Experience and Design Certificate, General Assembly, Seattle</li>
       </ul>
-      <div data-v-0eba368d=\\"\\" class=\\"section\\">Teaching/Volunteering</div>
-      <ul data-v-0eba368d=\\"\\">
-        <li data-v-0eba368d=\\"\\">Mentor, Computer science students in non-traditional colleges, MinT</li>
-        <li data-v-0eba368d=\\"\\">Team lead for student capstone project, MinT/Green River College</li>
-        <li data-v-0eba368d=\\"\\">Instructor, Discrete Math and Data Structures, Northeastern University, Seattle</li>
-        <li data-v-0eba368d=\\"\\">Volunteer Teacher, Introduction to Computer Science, Truman High School, Federal Way</li>
-        <li data-v-0eba368d=\\"\\"> Instructor, Introduction to Programming Workshop, General Assembly, Seattle, Washington </li>
+      <div data-v-0eba368d="" class="section">Teaching/Volunteering</div>
+      <ul data-v-0eba368d="">
+        <li data-v-0eba368d="">Mentor, Computer science students in non-traditional colleges, MinT</li>
+        <li data-v-0eba368d="">Team lead for student capstone project, MinT/Green River College</li>
+        <li data-v-0eba368d="">Instructor, Discrete Math and Data Structures, Northeastern University, Seattle</li>
+        <li data-v-0eba368d="">Volunteer Teacher, Introduction to Computer Science, Truman High School, Federal Way</li>
+        <li data-v-0eba368d=""> Instructor, Introduction to Programming Workshop, General Assembly, Seattle, Washington </li>
       </ul>
     </div>
   </div>
-  <div id=\\"footer-content\\">
+  <div id="footer-content">
     <hr>
     <footer>
-      <p> © 2024 - <a href=\\"https://www.music4dance.net\\">Music4Dance.net</a> - <a href=\\"https://www.music4dance.net/home/sitemap\\">Site Map</a> - <a href=\\"https://www.music4dance.net/home/termsofservice\\">Terms of Service</a> - <a href=\\"https://www.music4dance.net/home/privacypolicy\\">Privacy Policy</a> - <a href=\\"https://www.music4dance.net/home/credits\\">Credits</a> - <a>Help</a></p>
+      <p> © 2024 - <a href="https://www.music4dance.net">Music4Dance.net</a> - <a href="https://www.music4dance.net/home/sitemap">Site Map</a> - <a href="https://www.music4dance.net/home/termsofservice">Terms of Service</a> - <a href="https://www.music4dance.net/home/privacypolicy">Privacy Policy</a> - <a href="https://www.music4dance.net/home/credits">Credits</a> - <a>Help</a></p>
     </footer>
   </div>
 </div>"

@@ -1,31 +1,31 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`Augment Page > Renders the Augment Page 1`] = `
-"<div data-v-6c79bed6=\\"\\"><span context=\\"[object Object]\\">MainMenu</span>
+"<div data-v-6c79bed6=""><span context="[object Object]">MainMenu</span>
   <!--v-if-->
-  <div id=\\"body-content\\" class=\\"container-fluid body-content\\">
-    <div class=\\"mt-2\\"></div>
+  <div id="body-content" class="container-fluid body-content">
+    <div class="mt-2"></div>
     <div>
-      <div data-v-6c79bed6=\\"\\" class=\\"row\\">
-        <div data-v-6c79bed6=\\"\\" class=\\"col\\">
+      <div data-v-6c79bed6="" class="row">
+        <div data-v-6c79bed6="" class="col">
           <!--v-if-->
-          <h1 data-v-6c79bed6=\\"\\">Add Song</h1>
-          <div data-v-6c79bed6=\\"\\">
-            <p> In order to add songs, you must first <a href=\\"/identity/account/register?returnUrl=/song/augment\\">register</a> and <a href=\\"/identity/account/login?returnUrl=/song/augment\\">sign in.</a></p>
+          <h1 data-v-6c79bed6="">Add Song</h1>
+          <div data-v-6c79bed6="">
+            <p> In order to add songs, you must first <a href="/identity/account/register?returnUrl=/song/augment">register</a> and <a href="/identity/account/login?returnUrl=/song/augment">sign in.</a></p>
           </div>
         </div>
       </div>
-      <div data-v-6c79bed6=\\"\\" class=\\"row\\">
-        <div data-v-6c79bed6=\\"\\" class=\\"col\\">
-          <transition-stub data-v-96a91b13=\\"\\" data-v-6c79bed6=\\"\\" name=\\"\\" enteractiveclass=\\"\\" entertoclass=\\"show\\" leaveactiveclass=\\"\\" leavetoclass=\\"showing\\" enterfromclass=\\"showing\\" leavefromclass=\\"\\" appear=\\"false\\" persisted=\\"false\\" css=\\"true\\" show=\\"\\"></transition-stub>
+      <div data-v-6c79bed6="" class="row">
+        <div data-v-6c79bed6="" class="col">
+          <transition-stub data-v-2f3988be="" data-v-6c79bed6="" name="" enteractiveclass="" entertoclass="show" leaveactiveclass="" leavetoclass="showing" enterfromclass="showing" leavefromclass="" appear="false" persisted="false" css="true" show=""></transition-stub>
         </div>
       </div>
     </div>
   </div>
-  <div id=\\"footer-content\\">
+  <div id="footer-content">
     <hr>
     <footer>
-      <p> © 2024 - <a href=\\"https://www.music4dance.net\\">Music4Dance.net</a> - <a href=\\"https://www.music4dance.net/home/sitemap\\">Site Map</a> - <a href=\\"https://www.music4dance.net/home/termsofservice\\">Terms of Service</a> - <a href=\\"https://www.music4dance.net/home/privacypolicy\\">Privacy Policy</a> - <a href=\\"https://www.music4dance.net/home/credits\\">Credits</a> - <a>Help</a></p>
+      <p> © 2024 - <a href="https://www.music4dance.net">Music4Dance.net</a> - <a href="https://www.music4dance.net/home/sitemap">Site Map</a> - <a href="https://www.music4dance.net/home/termsofservice">Terms of Service</a> - <a href="https://www.music4dance.net/home/privacypolicy">Privacy Policy</a> - <a href="https://www.music4dance.net/home/credits">Credits</a> - <a>Help</a></p>
     </footer>
   </div>
 </div>"

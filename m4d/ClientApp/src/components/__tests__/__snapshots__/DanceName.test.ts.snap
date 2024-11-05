@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`DanceName.vue > renders a dance name correctly with multiline 1`] = `"<span><a href=\\"/dances/test-dance\\">test-dance</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">100-110 BPM/25-27.5 MPM</span></span>"`;
+exports[`DanceName.vue > renders a dance name correctly with multiline 1`] = `"<span><a href="/dances/test-dance">test-dance</a><!--v-if--><span style="font-size: 0.8rem;" class="ms-2">100-110 BPM/25-27.5 MPM</span></span>"`;
 
-exports[`DanceName.vue > renders a dance name correctly with tempo 1`] = `"<span><a href=\\"/dances/test-dance\\">test-dance</a><!--v-if--><span style=\\"font-size: 0.8rem;\\" class=\\"ms-2\\">100-110 BPM/25-27.5 MPM</span></span>"`;
+exports[`DanceName.vue > renders a dance name correctly with tempo 1`] = `"<span><a href="/dances/test-dance">test-dance</a><!--v-if--><span style="font-size: 0.8rem;" class="ms-2">100-110 BPM/25-27.5 MPM</span></span>"`;
 
-exports[`DanceName.vue > renders a dance name correctly without tempo 1`] = `"<span><a href=\\"/dances/test-dance\\">test-dance</a><!--v-if--><!--v-if--></span>"`;
+exports[`DanceName.vue > renders a dance name correctly without tempo 1`] = `"<span><a href="/dances/test-dance">test-dance</a><!--v-if--><!--v-if--></span>"`;

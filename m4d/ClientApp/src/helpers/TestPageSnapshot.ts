@@ -15,14 +15,8 @@ declare global {
 
 setupTestEnvironment();
 
-let currentId = 1;
-
 export function loadTestPage(app: unknown, model?: unknown, menuContext?: MenuContext) {
-  const bsvn = createBootstrap({
-    id: {
-      getId: () => (currentId++).toString().padStart(4, "0"),
-    },
-  });
+  const bsvn = createBootstrap();
 
   if (model) {
     window.model_ = model;
