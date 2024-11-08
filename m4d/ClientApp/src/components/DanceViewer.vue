@@ -12,7 +12,8 @@ const emit = defineEmits<{
   "dance-clicked": [tag: DanceHandler];
 }>();
 
-const danceHandler = new DanceHandler(DanceRating.fromTag(props.tag), props.tag.neutral);
+const danceRating = DanceRating.fromTag(props.tag);
+const danceHandler = danceRating ? new DanceHandler(danceRating, props.tag.neutral) : undefined;
 </script>
 
 <template>
@@ -23,6 +24,7 @@ const danceHandler = new DanceHandler(DanceRating.fromTag(props.tag), props.tag.
       <IBiHandThumbsDown v-else :style="{ color: 'red' }" />
     </span>
     <DanceButton
+      v-if="danceHandler"
       :dance-handler="danceHandler"
       class="ms-2"
       @dance-clicked="emit('dance-clicked', $event)"

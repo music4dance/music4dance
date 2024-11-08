@@ -9,7 +9,6 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Channels;
 using System.Threading.Tasks;
 using AutoMapper;
 using Azure.Search.Documents.Models;
@@ -3181,7 +3180,7 @@ namespace m4dModels
         public async Task<bool> CleanOrphanedVotes(DanceMusicCoreService dms)
         {
             var chunked = new ChunkedSong(this);
-            if (!await chunked.CleanOrphanedVotes(dms, true))
+            if (!await chunked.CleanOrphanedVotes(dms, addUnmatched: true))
             {
                 return false;
             }

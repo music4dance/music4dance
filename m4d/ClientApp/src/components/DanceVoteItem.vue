@@ -3,6 +3,7 @@ import { DanceRatingVote, VoteDirection } from "@/models/DanceRatingDelta";
 import { DanceRating } from "@/models/DanceRating";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { computed } from "vue";
+import { constructFromSymbol } from "date-fns/constants";
 
 const danceDB = safeDanceDatabase();
 
@@ -19,7 +20,7 @@ const dance = computed(() => {
   const id = props.rating.danceId;
   const d = danceDB.fromId(id);
   if (!d) {
-    throw new Error(`Couldn't find dance ${id}`);
+    console.log(`Couldn't find dance ${id}`);
   }
   return d;
 });
@@ -36,11 +37,13 @@ const danceVote = (direction: VoteDirection): void => {
   emit("dance-vote", new DanceRatingVote(props.rating.danceId, direction));
 };
 
-const maxWeight = computed(() => safeDanceDatabase().getMaxWeight(dance.value.id));
+const maxWeight = computed(() =>
+  dance.value ? safeDanceDatabase().getMaxWeight(dance.value.id) : 0,
+);
 </script>
 
 <template>
-  <div class="my-2">
+  <div class="my-2" v-if="dance">
     <DanceVoteButton
       :vote="vote"
       :value="rating.weight"

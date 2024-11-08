@@ -9,7 +9,7 @@ export class DanceRating extends TaggableObject {
   @jsonMember(String) public danceId!: string;
   @jsonMember(Number) public weight!: number;
 
-  public static fromTag(tag: Tag): DanceRating {
+  public static fromTag(tag: Tag): DanceRating | undefined {
     if (tag.category !== TagCategory.Dance) {
       throw new Error(`Can't create a dancerating form a non-dance tag ${tag.key}`);
     }
@@ -17,7 +17,8 @@ export class DanceRating extends TaggableObject {
     const value = decorated ? tag.value.substr(1) : tag.value;
     const dance = safeDanceDatabase().fromName(value);
     if (!dance) {
-      throw new Error(`Couldn't find dance ${value}`);
+      console.log(`Couldn't find dance ${value}`);
+      return undefined;
     }
     return new DanceRating({
       danceId: dance.id,

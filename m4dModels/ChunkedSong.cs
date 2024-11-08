@@ -198,7 +198,7 @@ namespace m4dModels
         }
 
         // This should bring tags forward that correspond to a user's votes
-        public async Task<bool> CleanOrphanedVotes(DanceMusicCoreService dms, bool removeUnmatched = false, bool onlyGroups = false)
+        public async Task<bool> CleanOrphanedVotes(DanceMusicCoreService dms, bool removeUnmatched = false, bool addUnmatched = false, bool onlyGroups = false)
         {
             var changed = false;
             var batchChunks = await FilterUnbalanced("batch|P",UserChunks.GetValueOrDefault("batch|P"), dms);
@@ -251,6 +251,21 @@ namespace m4dModels
                             if (replace != null)
                             {
                                 added.Add(replace);
+                                changed = true;
+                            }
+                            else if (addUnmatched)
+                            {
+                                var dance = Dances.Instance.DanceFromId(property.Value.Substring(0, 3));
+                                if (dance == null)
+                                {
+                                    throw new Exception($"Dance {property.Value} not found");
+                                }
+                                var name = dance.Name;
+                                if (property.Value.EndsWith("-1"))
+                                {
+                                    name = $"!{name}";
+                                }
+                                added.Add(new SongProperty(Song.AddedTags, $"{name}:Dance"));
                                 changed = true;
                             }
                             else
