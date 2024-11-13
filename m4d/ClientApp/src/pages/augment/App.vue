@@ -28,6 +28,7 @@ const propertiesString = ref("");
 const tabIndex = ref(model.id ? 1 : 0);
 
 const canAugment = computed(() => !!context.userName);
+const computedId = computed(() => (model.id ? model.id : undefined));
 
 const editSong = (model: SongDetailsModel): void => {
   songModel.value = new SongDetailsModel({
@@ -56,7 +57,7 @@ const reset = (saved: boolean): void => {
     created.value = !!songModel.value!.created;
   }
   phase.value = AugmentPhase.lookup;
-  model.id = "";
+  model.id = undefined;
   songModel.value = null;
 };
 </script>
@@ -75,7 +76,7 @@ const reset = (saved: boolean): void => {
             ><BCardText><AugmentSearch @edit-song="editSong($event)" /></BCardText
           ></BTab>
           <BTab title="by Id">
-            <BCardText><AugmentLookup :id="model.id!" @edit-song="editSong($event)" /></BCardText>
+            <BCardText><AugmentLookup :id="computedId" @edit-song="editSong($event)" /></BCardText>
           </BTab>
           <BTab v-if="context.isAdmin" title="Admin">
             <BCardText>
@@ -92,7 +93,7 @@ const reset = (saved: boolean): void => {
             </BCardText>
           </BTab>
         </BTabs>
-        <AugmentInfo v-else :id="model.id!" />
+        <AugmentInfo v-else :id="computedId" />
       </BCol>
     </BRow>
     <div v-else>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
-const props = defineProps<{ id: string }>();
+const props = defineProps<{ id?: string }>();
 
 const register = computed(() => {
   return authenticate("register");

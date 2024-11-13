@@ -122,11 +122,11 @@ exports[`Song Merge > Renders the Merge Page 1`] = `
     </tr>
     <tr class="">
       <th scope="col" class="">Modified</th>
-      <td scope="col" class="">06-Feb-2022 04:00:00 PM</td>
+      <td scope="col" class="">07-Feb-2014 12:00:00 AM</td>
     </tr>
     <tr class="">
       <th scope="col" class="">Edited</th>
-      <td scope="col" class="">06-Feb-2022 04:00:00 PM</td>
+      <td scope="col" class="">07-Feb-2014 12:00:00 AM</td>
     </tr>
   </table>
   <!--v-if-->
@@ -209,7 +209,7 @@ Purchase:00:SA=34C3Y0Rnq8AUCzihkmfiX5
 Purchase:00:SS=0DD55tCwxn8CF5DkY1cjwg
 .Merge=6f7b6e01-7776-4b17-964e-ba29084514c4;6431bc12-f49c-4cdb-851d-ce6c5f1d1a18
 User=music4dance
-Time=06-Feb-2022 04:00:00 PM"></textarea>
+Time=07-Feb-2014"></textarea>
       <h3>Undo User Edits</h3>
       <form id="rhettbot-undo" novalidate="" class="m-1" action="/song/undoUserChanges" method="post" style="display: inline-block;"><input type="hidden" name="__RequestVerificationToken" value="FOO"><input type="hidden" name="id" value="9b447ea1-fc98-496e-9af1-f58f1eea273a"><input type="hidden" name="userName" value="rhettbot"><button class="btn btn-md btn-secondary" type="submit">rhettbot</button></form>
       <form id="batch-a-undo" novalidate="" class="m-1" action="/song/undoUserChanges" method="post" style="display: inline-block;"><input type="hidden" name="__RequestVerificationToken" value="FOO"><input type="hidden" name="id" value="9b447ea1-fc98-496e-9af1-f58f1eea273a"><input type="hidden" name="userName" value="batch-a"><button class="btn btn-md btn-secondary" type="submit">batch-a</button></form>
@@ -225,7 +225,7 @@ Time=06-Feb-2022 04:00:00 PM"></textarea>
         <!---->
         <!---->
         <!---->
-        <div data-v-e1a596ca="" class="card-header" header-class="d-flex justify-content-between"><span data-v-e1a596ca="" class="me-1">History Log</span><span data-v-e1a596ca=""><button data-v-e1a596ca="" class="btn btn-sm btn-primary disabled mx-1" disabled="" type="button">annotated</button><button data-v-e1a596ca="" class="btn btn-sm btn-primary disabled mx-1" disabled="" type="button">sorted</button></span></div>
+        <div data-v-e1a596ca="" class="card-header" header-class="d-flex justify-content-between"><span data-v-e1a596ca="" class="me-1">History Log</span><span data-v-e1a596ca=""><button data-v-e1a596ca="" class="btn btn-sm btn-primary disabled mx-1" disabled="" type="button">annotated</button><button data-v-e1a596ca="" class="btn btn-sm btn-primary mx-1" type="button">sort</button></span></div>
         <div data-v-e1a596ca="" class="list-group list-group-flush">
           <div data-v-e1a596ca="" class="list-group-item list-group-item-primary d-flex justify-content-between">.Create=6f7b6e01-7776-4b17-964e-ba29084514c4 <div data-v-e1a596ca="" class="btn-group" role="group" aria-label="Group">
               <!--v-if--><button data-v-e1a596ca="" class="btn btn-sm btn-primary disabled" disabled="" type="button"><svg data-v-e1a596ca="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -1045,7 +1045,7 @@ Time=06-Feb-2022 04:00:00 PM"></textarea>
                   <path fill="currentColor" fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8a4 4 0 0 0 0-8M6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5M1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5z"></path>
                 </svg></button><button data-v-e1a596ca="" type="button" class="btn-close ms-2" aria-label="Close" text-variant="danger"></button></div>
           </div>
-          <div data-v-e1a596ca="" class="list-group-item d-flex justify-content-between subprop">Time=06-Feb-2022 04:00:00 PM <div data-v-e1a596ca="" class="btn-group" role="group" aria-label="Group"><button data-v-e1a596ca="" class="btn btn-sm btn-success" type="button"><svg data-v-e1a596ca="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
+          <div data-v-e1a596ca="" class="list-group-item d-flex justify-content-between subprop">Time=07-Feb-2014 <div data-v-e1a596ca="" class="btn-group" role="group" aria-label="Group"><button data-v-e1a596ca="" class="btn btn-sm btn-success" type="button"><svg data-v-e1a596ca="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
                   <g fill="currentColor">
                     <path d="M1 14s-1 0-1-1s1-4 6-4s6 3 6 4s-1 1-1 1zm5-6a3 3 0 1 0 0-6a3 3 0 0 0 0 6"></path>
                     <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5"></path>
@@ -1122,7 +1122,7 @@ Time=06-Feb-2022 04:00:00 PM"></textarea>
 <div id="footer-content">
   <hr>
   <footer>
-    <p> © 2022 - <a href="https://www.music4dance.net">Music4Dance.net</a> - <a href="https://www.music4dance.net/home/sitemap">Site Map</a> - <a href="https://www.music4dance.net/home/termsofservice">Terms of Service</a> - <a href="https://www.music4dance.net/home/privacypolicy">Privacy Policy</a> - <a href="https://www.music4dance.net/home/credits">Credits</a> - <a href="https://music4dance.blog/music4dance-help/song/">Help</a></p>
+    <p> © 2024 - <a href="https://www.music4dance.net">Music4Dance.net</a> - <a href="https://www.music4dance.net/home/sitemap">Site Map</a> - <a href="https://www.music4dance.net/home/termsofservice">Terms of Service</a> - <a href="https://www.music4dance.net/home/privacypolicy">Privacy Policy</a> - <a href="https://www.music4dance.net/home/credits">Credits</a> - <a href="https://music4dance.blog/music4dance-help/song/">Help</a></p>
   </footer>
 </div>
 </div>"

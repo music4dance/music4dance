@@ -86,7 +86,7 @@ function search(s?: string): void {
     >
     <BNavbar id="mainMenu" data-bs-theme="dark" variant="primary" toggleable="lg">
       <BNavbarBrand href="/">
-        <img :src="logo" height="40" title="music4dance" />
+        <img :src="logo" height="40" width="170" title="music4dance" />
       </BNavbarBrand>
 
       <BNavbarToggle id="drop-toggle" target="nav-collapse" />

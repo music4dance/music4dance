@@ -12,7 +12,7 @@ variables:
 steps:
   - task: NodeTool@0
     inputs:
-      versionSpec: "18.x"
+      versionSpec: "22.x"
 
   - script: corepack enable
     displayName: "Enable Corepack"
@@ -22,11 +22,11 @@ steps:
     workingDirectory: m4d/ClientApp/
 
   - script: yarn install --network-timeout=300000
-    displayName: "Install Yarn for Client"
-    workingDirectory: m4d/Client/
-
-  - script: yarn install --network-timeout=300000
     displayName: "Install Yarn for ClientApp"
+    workingDirectory: m4d/ClientApp/
+
+  - script: yarn build
+    displayName: "Build ClientApp"
     workingDirectory: m4d/ClientApp/
 
   - script: dotnet build --configuration $(buildConfiguration)

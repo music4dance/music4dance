@@ -8,8 +8,8 @@ declare global {
     seedNumber: number;
   }
 }
+
 describe("Home", () => {
-  // INT-TODO: I think I must have broken the pseudo-random number generator
   test("Renders the Home Page", () => {
     window.seedNumber = 2237892;
     testPageSnapshot(App, model);

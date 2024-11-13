@@ -1,5 +1,6 @@
 import { PropertyType, SongProperty } from "./SongProperty";
 import { UserQuery } from "./UserQuery";
+import { formatDate } from "@/helpers/timeHelpers";
 
 export class SongChange {
   public constructor(
@@ -45,7 +46,7 @@ export class SongChange {
       prefix.push(
         new SongProperty({
           name: PropertyType.timeField,
-          value: SongProperty.formatDate(date),
+          value: formatDate(date),
         }),
       );
     }

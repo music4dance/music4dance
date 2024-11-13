@@ -7,6 +7,7 @@ import { SongEditor } from "./SongEditor";
 import { PropertyType, SongProperty } from "./SongProperty";
 import { TrackModel } from "./TrackModel";
 import { UserQuery } from "./UserQuery";
+import { formatNow } from "@/helpers/timeHelpers";
 
 interface SongRef {
   song: Song;
@@ -72,7 +73,7 @@ export class SongHistory {
         }),
         new SongProperty({
           name: PropertyType.timeField,
-          value: SongProperty.formatDate(new Date()),
+          value: formatNow(),
         }),
       ],
     });

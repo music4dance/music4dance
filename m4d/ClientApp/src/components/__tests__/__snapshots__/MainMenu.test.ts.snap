@@ -9,7 +9,7 @@ exports[`MainMenu.vue > Renders MainMenu for an anonymous user 1`] = `
   <!--v-if-->
   <!--v-if-->
   <nav class="navbar bg-primary navbar-expand-lg" id="mainMenu" data-bs-theme="dark">
-    <div class="container-fluid"><a class="navbar-brand" replace="false" href="/"><img src="/vclient/src/assets/images/header-logo.png" height="40" title="music4dance"></a><button class="navbar-toggler collapsed" type="button" aria-label="Toggle navigation" id="drop-toggle" aria-controls="nav-collapse" aria-expanded="false"><span class="navbar-toggler-icon"></span></button>
+    <div class="container-fluid"><a class="navbar-brand" replace="false" href="/"><img src="/vclient/src/assets/images/header-logo.png" height="40" width="170" title="music4dance"></a><button class="navbar-toggler collapsed" type="button" aria-label="Toggle navigation" id="drop-toggle" aria-controls="nav-collapse" aria-expanded="false"><span class="navbar-toggler-icon"></span></button>
       <div id="nav-collapse" class="collapse navbar-collapse" is-nav="true">
         <ul class="navbar-nav">
           <li class="nav-item dropdown">

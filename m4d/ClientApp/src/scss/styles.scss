@@ -1,4 +1,4 @@
-@import "../node_modules/bootstrap-styles/scss/functions";
+@import "../node_modules/bootstrap/scss/functions";
 
 $dance-primary: #001671;
 $dance-light: lighten($dance-primary, 40%);
@@ -21,53 +21,53 @@ $navbar-dark-active-color: rgba(white, 0.9);
 $navbar-dark-disabled-color: rgba(white, 0.4);
 $navbar-dark-icon-color: $navbar-dark-color;
 
-@import "../node_modules/bootstrap-styles/scss/variables";
-@import "../node_modules/bootstrap-styles/scss/variables-dark";
+@import "../node_modules/bootstrap/scss/variables";
+@import "../node_modules/bootstrap/scss/variables-dark";
 
 $theme-colors: map-merge($theme-colors, $custom-theme-colors);
 
-@import "../node_modules/bootstrap-styles/scss/maps";
-@import "../node_modules/bootstrap-styles/scss/mixins";
-@import "../node_modules/bootstrap-styles/scss/utilities";
+@import "../node_modules/bootstrap/scss/maps";
+@import "../node_modules/bootstrap/scss/mixins";
+@import "../node_modules/bootstrap/scss/utilities";
 
 // Layout & components
-@import "../node_modules/bootstrap-styles/scss/root";
-@import "../node_modules/bootstrap-styles/scss/reboot";
-@import "../node_modules/bootstrap-styles/scss/type";
-@import "../node_modules/bootstrap-styles/scss/images";
-@import "../node_modules/bootstrap-styles/scss/containers";
-@import "../node_modules/bootstrap-styles/scss/grid";
-@import "../node_modules/bootstrap-styles/scss/tables";
-@import "../node_modules/bootstrap-styles/scss/forms";
-@import "../node_modules/bootstrap-styles/scss/buttons";
-@import "../node_modules/bootstrap-styles/scss/transitions";
-@import "../node_modules/bootstrap-styles/scss/dropdown";
-@import "../node_modules/bootstrap-styles/scss/button-group";
-@import "../node_modules/bootstrap-styles/scss/nav";
-@import "../node_modules/bootstrap-styles/scss/navbar";
-@import "../node_modules/bootstrap-styles/scss/card";
-@import "../node_modules/bootstrap-styles/scss/accordion";
-@import "../node_modules/bootstrap-styles/scss/breadcrumb";
-@import "../node_modules/bootstrap-styles/scss/pagination";
-@import "../node_modules/bootstrap-styles/scss/badge";
-@import "../node_modules/bootstrap-styles/scss/alert";
-@import "../node_modules/bootstrap-styles/scss/progress";
-@import "../node_modules/bootstrap-styles/scss/list-group";
-@import "../node_modules/bootstrap-styles/scss/close";
-@import "../node_modules/bootstrap-styles/scss/toasts";
-@import "../node_modules/bootstrap-styles/scss/modal";
-@import "../node_modules/bootstrap-styles/scss/tooltip";
-@import "../node_modules/bootstrap-styles/scss/popover";
-@import "../node_modules/bootstrap-styles/scss/carousel";
-@import "../node_modules/bootstrap-styles/scss/spinners";
-@import "../node_modules/bootstrap-styles/scss/offcanvas";
-@import "../node_modules/bootstrap-styles/scss/placeholders";
+@import "../node_modules/bootstrap/scss/root";
+@import "../node_modules/bootstrap/scss/reboot";
+@import "../node_modules/bootstrap/scss/type";
+@import "../node_modules/bootstrap/scss/images";
+@import "../node_modules/bootstrap/scss/containers";
+@import "../node_modules/bootstrap/scss/grid";
+@import "../node_modules/bootstrap/scss/tables";
+@import "../node_modules/bootstrap/scss/forms";
+@import "../node_modules/bootstrap/scss/buttons";
+@import "../node_modules/bootstrap/scss/transitions";
+@import "../node_modules/bootstrap/scss/dropdown";
+@import "../node_modules/bootstrap/scss/button-group";
+@import "../node_modules/bootstrap/scss/nav";
+@import "../node_modules/bootstrap/scss/navbar";
+@import "../node_modules/bootstrap/scss/card";
+@import "../node_modules/bootstrap/scss/accordion";
+@import "../node_modules/bootstrap/scss/breadcrumb";
+@import "../node_modules/bootstrap/scss/pagination";
+@import "../node_modules/bootstrap/scss/badge";
+@import "../node_modules/bootstrap/scss/alert";
+@import "../node_modules/bootstrap/scss/progress";
+@import "../node_modules/bootstrap/scss/list-group";
+@import "../node_modules/bootstrap/scss/close";
+@import "../node_modules/bootstrap/scss/toasts";
+@import "../node_modules/bootstrap/scss/modal";
+@import "../node_modules/bootstrap/scss/tooltip";
+@import "../node_modules/bootstrap/scss/popover";
+@import "../node_modules/bootstrap/scss/carousel";
+@import "../node_modules/bootstrap/scss/spinners";
+@import "../node_modules/bootstrap/scss/offcanvas";
+@import "../node_modules/bootstrap/scss/placeholders";
 
 // Helpers
-@import "../node_modules/bootstrap-styles/scss/helpers";
+@import "../node_modules/bootstrap/scss/helpers";
 
 // Utilities
-@import "../node_modules/bootstrap-styles/scss/utilities/api";
+@import "../node_modules/bootstrap/scss/utilities/api";
 
 @import "bootstrap-vue-next/dist/bootstrap-vue-next.css";
 

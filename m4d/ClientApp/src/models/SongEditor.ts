@@ -5,6 +5,7 @@ import { SongHistory } from "./SongHistory";
 import { PropertyType, type PropertyValue, SongProperty } from "./SongProperty";
 import { TrackModel } from "./TrackModel";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
+import { formatNow } from "@/helpers/timeHelpers";
 
 export class SongEditor {
   public songId: string;
@@ -309,7 +310,7 @@ export class SongEditor {
 
     this.createProperty(PropertyType.userField, user ?? this.user);
 
-    this.createProperty(PropertyType.timeField, SongProperty.formatDate(new Date()));
+    this.createProperty(PropertyType.timeField, formatNow());
   }
 
   private isUserMerge(user: string): boolean {

@@ -1,7 +1,7 @@
 import { MenuContext } from "@/models/MenuContext";
 import { loadTestDances } from "./LoadTestDances";
 // @ts-ignore
-import tagDatabaseJson from "@/assets/tags.json";
+import tagDatabaseJson from "@/assets/content/tags.json";
 declare global {
   interface Window {
     danceDatabaseJson?: string;

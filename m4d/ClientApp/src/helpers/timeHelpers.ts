@@ -1,3 +1,5 @@
+import { format } from "date-fns";
+
 export function timeOrder(time: Date): string {
   if (!time) {
     return "U";
@@ -40,4 +42,12 @@ export function timeOrderVerbose(time: Date): string {
     default:
       return "years";
   }
+}
+
+export function formatDate(date: Date): string {
+  return format(date, "dd-MMM-yyyy hh:mm:ss a");
+}
+
+export function formatNow(): string {
+  return formatDate(new Date());
 }

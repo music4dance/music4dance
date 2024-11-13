@@ -72,15 +72,25 @@
   <ItemGroup>
     <WCFMetadata Include="Connected Services" />
   </ItemGroup>
-  <Target Name="vue-client" AfterTargets="AfterBuild">
-    <Exec Command="yarn install --network-timeout=300000" WorkingDirectory="Client"></Exec>
-    <Exec Command="yarn run build" WorkingDirectory="Client" Condition="'$(Configuration)' == 'Release'"></Exec>
-    <Exec Command="yarn run build:dev" WorkingDirectory="Client" Condition="'$(Configuration)' == 'Debug'"></Exec>
-    <Exec Command="yarn run styles" WorkingDirectory="Client"></Exec>
-  </Target>
-  <Target Name="vite-client" AfterTargets="AfterBuild">
-    <Exec Command="yarn install --network-timeout=300000" WorkingDirectory="ClientApp"></Exec>
-    <Exec Command="yarn run build" WorkingDirectory="ClientApp" Condition="'$(Configuration)' == 'Release'"></Exec>
+  <Target Name="assets" BeforeTargets="Build">
+    <ItemGroup>
+      <BootstrapIcons Include=".\ClientApp\node_modules\bootstrap-icons\font\fonts\bootstrap-icons.*" />
+      <ExternalCss Include=".\ClientApp\styles\auth-buttons\*.*;.\ClientApp\node_modules\bootstrap-icons\font\bootstrap-icons.*" />
+      <Assets Include=".\ClientApp\src\assets\**\*.*" />
+      <BootstrapVendor Include=".\ClientApp\node_modules\bootstrap\dist\js\*.*" />
+      <JQueryVendor Include=".\ClientApp\node_modules\jquery\dist\*.*" />
+      <JQueryValidationVendor Include=".\ClientApp\node_modules\jquery-validation\dist\*.*" />
+      <JQueryValidationUnobtrusiveVendor Include=".\ClientApp\node_modules\jquery-validation-unobtrusive\dist\*.*" />
+      <MarkdownDeepVendor Include=".\ClientApp\node_modules\markdowndeep\clientside\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(BootstrapIcons)" DestinationFolder=".\wwwroot\css\fonts" />
+    <Copy SourceFiles="@(ExternalCss)" DestinationFolder=".\wwwroot\css" />
+    <Copy SourceFiles="@(Assets)" DestinationFolder=".\wwwroot\%(RecursiveDir)" />
+    <Copy SourceFiles="@(BootstrapVendor)" DestinationFolder=".\wwwroot\vendor\bootstrap" />
+    <Copy SourceFiles="@(JQueryVendor)" DestinationFolder=".\wwwroot\vendor\jquery" />
+    <Copy SourceFiles="@(JQueryValidationVendor)" DestinationFolder=".\wwwroot\vendor\jquery-validation" />
+    <Copy SourceFiles="@(JQueryValidationUnobtrusiveVendor)" DestinationFolder=".\wwwroot\vendor\jquery-validation-unobtrusive" />
+    <Copy SourceFiles="@(MarkdownDeepVendor)" DestinationFolder=".\wwwroot\vendor\markdowndeep" />
   </Target>
 
   <Target Name="clean-client" AfterTargets="Clean">

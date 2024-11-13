@@ -935,6 +935,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@popperjs/core@npm:^2.9.2":
+  version: 2.11.8
+  resolution: "@popperjs/core@npm:2.11.8"
+  checksum: 10c0/4681e682abc006d25eb380d0cf3efc7557043f53b6aea7a5057d0d1e7df849a00e281cd8ea79c902a35a414d7919621fc2ba293ecec05f413598e0b23d5a1e63
+  languageName: node
+  linkType: hard
+
 "@rollup/pluginutils@npm:^5.0.5":
   version: 5.1.3
   resolution: "@rollup/pluginutils@npm:5.1.3"
@@ -1093,6 +1100,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/bootstrap@npm:^5":
+  version: 5.2.10
+  resolution: "@types/bootstrap@npm:5.2.10"
+  dependencies:
+    "@popperjs/core": "npm:^2.9.2"
+  checksum: 10c0/3e978855eb780df3907e8fe991371dc661c7a8c5b9852a10e33bcf6a909bc1481857aa8786d18b3aa828fb28660145fda0c8648265719e8a97a448b9f0158eae
+  languageName: node
+  linkType: hard
+
 "@types/estree@npm:1.0.5, @types/estree@npm:^1.0.0":
   version: 1.0.5
   resolution: "@types/estree@npm:1.0.5"
@@ -1104,6 +1120,15 @@ __metadata:
   version: 1.0.6
   resolution: "@types/estree@npm:1.0.6"
   checksum: 10c0/cdfd751f6f9065442cd40957c07fd80361c962869aa853c1c2fd03e101af8b9389d8ff4955a43a6fcfa223dd387a089937f95be0f3eec21ca527039fd2d9859a
+  languageName: node
+  linkType: hard
+
+"@types/jquery@npm:^3":
+  version: 3.5.32
+  resolution: "@types/jquery@npm:3.5.32"
+  dependencies:
+    "@types/sizzle": "npm:*"
+  checksum: 10c0/4a17ad6819b89026c21323656ab01b0b263f9d470910a87c8740920ff98319d503c7352b85b50134a39724ecbfccabc73aa4c741dfdd460cf8bbe714f9259054
   languageName: node
   linkType: hard
 
@@ -1147,6 +1172,13 @@ __metadata:
   version: 2.0.6
   resolution: "@types/showdown@npm:2.0.6"
   checksum: 10c0/7136e47a9f0b871e74d8f17afcd99bca3d356f9fd81ee4ddb5361beb41be11d6d5705b86cf8f44796b6ca61caa5c4ff408029b772e436f6a1f9021bb73f36f95
+  languageName: node
+  linkType: hard
+
+"@types/sizzle@npm:*":
+  version: 2.3.9
+  resolution: "@types/sizzle@npm:2.3.9"
+  checksum: 10c0/db0277ff62e8ebe6cdae2020fd045fd7fd19f29a3a2ce13c555b14fb00e105e79004883732118b9f2e8b943cb302645e9eddb4e7bdeef1a171da679cd4c32b72
   languageName: node
   linkType: hard
 
@@ -1971,10 +2003,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bootstrap-styles@npm:^5.3.3":
-  version: 5.3.3
-  resolution: "bootstrap-styles@npm:5.3.3"
-  checksum: 10c0/9925b0354432b66f84fe3ea37db80bf63c384bc0d44ac01062c6f18942557b756569a5e2eae490ffb92af44a0737a6825ba523d4e266ee8f29d62790f215ffb5
+"bootstrap-icons@npm:^1.11.3":
+  version: 1.11.3
+  resolution: "bootstrap-icons@npm:1.11.3"
+  checksum: 10c0/37eefd418c6bbbb304bdff0f2ed527f82c3c6f331d3e3a7c4aa8bbdbaf7118bb86725b024f85e7d738c613d48c7353cd81c09e58e9d8d34c5633960fdec8410b
   languageName: node
   linkType: hard
 
@@ -1984,6 +2016,15 @@ __metadata:
   peerDependencies:
     vue: ^3.5.3
   checksum: 10c0/18e4c56f3486f256765896c4f36b6c378f22e4ae1db5a4b8745cb9465b214d123a51b5881e64746b1823e2cd984a46d9a136177ce5bb67d0a9bfa47201fa33d4
+  languageName: node
+  linkType: hard
+
+"bootstrap@npm:^5.3.3":
+  version: 5.3.3
+  resolution: "bootstrap@npm:5.3.3"
+  peerDependencies:
+    "@popperjs/core": ^2.11.8
+  checksum: 10c0/bb68ca7b763977b9cce40cb5b8c676ae19a716d2f5d15009fa7bdbcec9dea426968e3cb748fbed7592fbf10edd7c749aea841c2920996a7c1aa5e0a6e2d4c2ad
   languageName: node
   linkType: hard
 
@@ -3395,6 +3436,32 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jquery-validation-unobtrusive@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "jquery-validation-unobtrusive@npm:4.0.0"
+  dependencies:
+    jquery: "npm:^3.6.0"
+    jquery-validation: "npm:>=1.19"
+  checksum: 10c0/17d28abec3759c1b615bfd6aaa87fea8ac2bea5c925fc1cab90da3e9c76d9feb29740877936ef41ed073eecc4f3a1a6b415f29cd00605fa02deb77427395646e
+  languageName: node
+  linkType: hard
+
+"jquery-validation@npm:>=1.19, jquery-validation@npm:^1.21.0":
+  version: 1.21.0
+  resolution: "jquery-validation@npm:1.21.0"
+  peerDependencies:
+    jquery: ^1.7 || ^2.0 || ^3.1
+  checksum: 10c0/b5e51fc037f79779f38bbc74dab9d1568d9f7821128aff6dcfeb12b39f0dea79f763516dc3e05b45fc9a2e9282037b08eccad0eef29fc3a23a0211454ab0f0e5
+  languageName: node
+  linkType: hard
+
+"jquery@npm:^3.6.0, jquery@npm:^3.7.1":
+  version: 3.7.1
+  resolution: "jquery@npm:3.7.1"
+  checksum: 10c0/808cfbfb758438560224bf26e17fcd5afc7419170230c810dd11f5c1792e2263e2970cca8d659eb84fcd9acc301edb6d310096e450277d54be4f57071b0c82d9
+  languageName: node
+  linkType: hard
+
 "js-beautify@npm:^1.14.9":
   version: 1.15.1
   resolution: "js-beautify@npm:1.15.1"
@@ -3599,6 +3666,8 @@ __metadata:
     "@iconify-json/bi": "npm:^1.2.1"
     "@rushstack/eslint-patch": "npm:^1.10.4"
     "@tsconfig/node18": "npm:^18.2.4"
+    "@types/bootstrap": "npm:^5"
+    "@types/jquery": "npm:^3"
     "@types/jsdom": "npm:^21.1.7"
     "@types/node": "npm:^22.8.7"
     "@types/uuid": "npm:^10.0.0"
@@ -3614,14 +3683,19 @@ __metadata:
     "@vueuse/core": "npm:^11.2.0"
     "@vueuse/integrations": "npm:^11.2.0"
     axios: "npm:^1.7.7"
-    bootstrap-styles: "npm:^5.3.3"
+    bootstrap: "npm:^5.3.3"
+    bootstrap-icons: "npm:^1.11.3"
     bootstrap-vue-next: "npm:^0.25.13"
     date-fns: "npm:^4.1.0"
     eslint: "npm:^9.14.0"
     eslint-plugin-vue: "npm:^9.30.0"
     fast-glob: "npm:^3.3.2"
     focus-trap: "npm:^7.6.0"
+    jquery: "npm:^3.7.1"
+    jquery-validation: "npm:^1.21.0"
+    jquery-validation-unobtrusive: "npm:^4.0.0"
     jsdom: "npm:^25.0.1"
+    markdowndeep: "npm:^1.6.12"
     npm-run-all2: "npm:^7.0.1"
     prettier: "npm:^3.3.3"
     sass: "npm:^1.80.6"
@@ -3684,6 +3758,13 @@ __metadata:
     promise-retry: "npm:^2.0.1"
     ssri: "npm:^10.0.0"
   checksum: 10c0/df5f4dbb6d98153b751bccf4dc4cc500de85a96a9331db9805596c46aa9f99d9555983954e6c1266d9f981ae37a9e4647f42b9a4bb5466f867f4012e582c9e7e
+  languageName: node
+  linkType: hard
+
+"markdowndeep@npm:^1.6.12":
+  version: 1.6.12
+  resolution: "markdowndeep@npm:1.6.12"
+  checksum: 10c0/62bae57da584ab6fc44089bf23fa2700ab3e2c7f60ff548aca7435874c64aa6c01d7b3b8a981c49a70da87fcb2babcc32a359f080e1868618c397547e61e1f90
   languageName: node
   linkType: hard
 

@@ -3,38 +3,16 @@
 # Add steps that run tests, create a NuGet package, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
+trigger:
+  - master
+
 pool:
-  vmImage: "ubuntu-latest"
+  vmImage: "windows-latest"
 
 variables:
   buildConfiguration: "Release"
 
 steps:
-  - task: NodeTool@0
-    inputs:
-      versionSpec: "22.x"
-
-  - script: corepack enable
-    displayName: "Enable Corepack"
-
-  - script: yarn config set globalFolder "$(Agent.BuildDirectory)\Yarn\Berry"
-    displayName: "Set Yarn global folder"
-    workingDirectory: m4d/ClientApp/
-
-  - script: yarn install --network-timeout=300000
-    displayName: "Install Yarn for ClientApp"
-    workingDirectory: m4d/ClientApp/
-
-  - script: yarn run test:ci
-    displayName: "Run unit tests"
-    workingDirectory: m4d/ClientApp/
-
-  - task: PublishTestResults@2
-    condition: succeededOrFailed()
-    inputs:
-      testRunner: JUnit
-      testResultsFiles: "**/junit.xml"
-
   - task: DotNetCoreCLI@2
     displayName: dotnet restore
     inputs:

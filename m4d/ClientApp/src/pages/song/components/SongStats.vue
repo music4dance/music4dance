@@ -2,6 +2,7 @@
 import { Song } from "@/models/Song";
 import { SongProperty } from "@/models/SongProperty";
 import { computed } from "vue";
+import { formatDate } from "@/helpers/timeHelpers";
 
 defineOptions({ inheritAttrs: false });
 
@@ -11,9 +12,9 @@ const props = defineProps<{
   isCreator?: boolean;
 }>();
 
-const modifiedFormatted = computed(() => SongProperty.formatDate(props.song.modified));
-const createdFormatted = computed(() => SongProperty.formatDate(props.song.created));
-const editedFormatted = computed(() => SongProperty.formatDate(props.song.edited!));
+const modifiedFormatted = computed(() => formatDate(props.song.modified));
+const createdFormatted = computed(() => formatDate(props.song.created));
+const editedFormatted = computed(() => formatDate(props.song.edited!));
 
 const formatEchoNest = (n: number): string => {
   return (n * 100).toFixed(1).toString() + "%";

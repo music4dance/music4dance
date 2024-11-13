@@ -1,4 +1,3 @@
-import { format } from "date-fns";
 import { jsonMember, jsonObject } from "typedjson";
 
 // Name Syntax:
@@ -232,10 +231,6 @@ export class SongProperty {
 
   public toString(): string {
     return `${this.name}=${this.value}`;
-  }
-
-  public static formatDate(date: Date): string {
-    return format(date, "dd-MMM-yyyy hh:mm:ss a");
   }
 
   private hasPart(index: number): boolean {
