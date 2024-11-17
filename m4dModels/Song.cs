@@ -487,8 +487,6 @@ namespace m4dModels
             var props = new List<SongProperty>(SongProperties);
             SongProperties.Clear();
 
-            CleanDwg(props);
-
             await Load(SongId, props, database);
         }
 
