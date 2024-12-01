@@ -27,7 +27,7 @@ private List<string> CssFromManifest(string key)
 }
 
 private string Base => "vclient";
-private string ProdCss => Manifest[$"{Base}/style.css"]?.File;
+private string ProdCss => Manifest[$"style.css"]?.File;
 }
 
 @if (ProdCss != null)
