@@ -348,7 +348,7 @@ public class SongController : ContentController
     public async Task<ActionResult> Sort(string sortOrder)
     {
         UseVue = UseVue.V3;
-        Filter.SortOrder = SongSort.DoSort(sortOrder, Filter.SortOrder);
+        Filter.SortOrder = new SongSort(sortOrder, Filter.TextSearch).ToString();
 
         return await DoAzureSearch();
     }

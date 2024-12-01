@@ -87,7 +87,9 @@ describe("song filter", () => {
     expect(f).toBeDefined();
     expect(f).toBeInstanceOf(SongFilter);
     expect(f.isEmpty).toBeFalsy();
-    expect(f.description).toEqual("All Argentine Tango songs excluding songs in my blocked list.");
+    expect(f.description).toEqual(
+      "All Argentine Tango songs excluding songs in my blocked list sorted by Dance Rating from most popular to least popular.",
+    );
   });
 
   it("should describe a dance/user filter", () => {
@@ -96,7 +98,8 @@ describe("song filter", () => {
     expect(f).toBeInstanceOf(SongFilter);
     expect(f.isEmpty).toBeFalsy();
     expect(f.description).toEqual(
-      "All songs danceable to any of Argentine Tango or Bolero excluding songs in my blocked list.",
+      "All songs danceable to any of Argentine Tango or Bolero excluding songs in my blocked list " +
+        "sorted by Dance Rating from most popular to least popular.",
     );
   });
 
@@ -107,7 +110,7 @@ describe("song filter", () => {
     expect(f.isEmpty).toBeFalsy();
     expect(f.description).toEqual(
       "All songs danceable to any of Argentine Tango or Balboa having" +
-        " tempo between 100 and 150 beats per minute.",
+        " tempo between 100 and 150 beats per minute sorted by Dance Rating from most popular to least popular.",
     );
   });
 
@@ -138,7 +141,9 @@ describe("song filter", () => {
     expect(f).toBeDefined();
     expect(f).toBeInstanceOf(SongFilter);
     expect(f.isEmpty).toBeFalsy();
-    expect(f.description).toEqual("All songs available on Amazon or ITunes or Spotify.");
+    expect(f.description).toEqual(
+      "All songs available on Amazon or ITunes or Spotify sorted by Dance Rating from most popular to least popular.",
+    );
   });
 
   it("should describe a simple purchase filter", () => {
@@ -146,7 +151,9 @@ describe("song filter", () => {
     expect(f).toBeDefined();
     expect(f).toBeInstanceOf(SongFilter);
     expect(f.isEmpty).toBeFalsy();
-    expect(f.description).toEqual("All songs available on Spotify.");
+    expect(f.description).toEqual(
+      "All songs available on Spotify sorted by Dance Rating from most popular to least popular.",
+    );
   });
 
   it("should describe a dance/min-tempo/purchase filter", () => {

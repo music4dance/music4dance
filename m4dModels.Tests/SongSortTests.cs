@@ -6,31 +6,14 @@ namespace m4dModels.Tests
     public class SongSortTests
     {
         [TestMethod]
-        public void Unsorted()
-        {
-            Assert.AreEqual(string.Empty, SongSort.DoSort(null, null));
-            Assert.AreEqual("Title", SongSort.DoSort("Title", null));
-        }
-
-        [TestMethod]
-        public void Resort()
-        {
-            Assert.AreEqual("Title_desc", SongSort.DoSort("Title", "Title"));
-            Assert.AreEqual("Artist", SongSort.DoSort("Artist", "Title_desc"));
-            Assert.AreEqual("Dances", SongSort.DoSort("Dances", "Dances"));
-        }
-
-        [TestMethod]
         public void ComplexSort()
         {
-            var ss = new SongSort("Dances_10");
+            var ss = new SongSort("Dances");
             Assert.AreEqual("Dances", ss.Id);
-            Assert.AreEqual(10, ss.Count);
             Assert.IsTrue(!ss.Descending);
 
-            var ss2 = new SongSort("Tempo_desc_10");
+            var ss2 = new SongSort("Tempo_desc");
             Assert.AreEqual("Tempo", ss2.Id);
-            Assert.AreEqual(10, ss2.Count);
             Assert.IsTrue(ss2.Descending);
         }
     }

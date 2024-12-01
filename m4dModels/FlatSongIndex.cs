@@ -151,6 +151,7 @@ namespace m4dModels
                     IsSearchable = false, IsSortable = false, IsFilterable = false,
                     IsFacetable = false
                 },
+                IndexFieldFromDanceId("ALL")
             };
 
             
@@ -302,6 +303,9 @@ namespace m4dModels
                 }
                 doc[BuildDanceFieldName(dr.DanceId)] = dr.Weight;
             }
+
+            var all = song.DanceRatings.Sum(dr => dr.Weight);
+            doc["dance_ALL"] = all == 0 ? null : all;
 
             return doc;
         }

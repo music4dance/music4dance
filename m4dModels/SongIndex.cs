@@ -33,6 +33,7 @@ public abstract class SongIndex
     public const string StyleTags = "StyleTags";
     public const string OtherTags = "OtherTags";
     public const string PropertiesField = "Properties";
+    public const string AllDances = "Dance_ALL";
     public const string ServiceIds = "ServiceIds";
     public const string LookupStatus = "LookupStatus";
 

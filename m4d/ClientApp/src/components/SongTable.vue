@@ -158,7 +158,7 @@ const beatTip =
 const energyTip =
   "Energy of the song (fuller icons represent a higher energy). Click to sort by energy.";
 const moodTip = "Mood of the song (fuller icons represent a happier mood). Click to sort by mood.";
-const orderString = filter.sort?.order;
+const orderString = filter.sort?.id;
 const orderType = orderString ? (orderString as SortOrder) : SortOrder.Match;
 const echoClass =
   orderString === "Mood" || orderString === "Beat" || orderString === "Energy"
@@ -185,9 +185,7 @@ const sortableDances = !props.hideSort && filter.singleDance;
 
 const getUserChange = (history: SongHistory): SongChange | undefined => {
   if (props.showHistory) {
-    return sortOrder?.order == SortOrder.Comments
-      ? history.latestComment()
-      : history.latestChange();
+    return sortOrder?.id == SortOrder.Comments ? history.latestComment() : history.latestChange();
   } else if (filterUser) {
     const user = filterUser;
     return history.recentUserChange(user);

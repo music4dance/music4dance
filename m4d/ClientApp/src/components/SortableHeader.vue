@@ -21,7 +21,7 @@ const content = props.title ?? props.id;
     <span v-if="enableSort">
       <a :id="id" :href="sortLink">
         <slot>{{ content }}</slot>
-        <SortIcon v-if="sort.order === id" :type="sort.type" :direction="sort.direction" />
+        <SortIcon v-if="sort.id === id" :type="sort.type" :direction="sort.direction" />
       </a>
       <BTooltip v-if="tip" :target="id" triggers="hover click blur" placement="left">
         {{ tip }}

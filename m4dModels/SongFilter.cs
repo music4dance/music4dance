@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -233,6 +232,8 @@ namespace m4dModels
 
         public string TargetAction => IsAzure ? "azuresearch" : Action;
 
+        public bool TextSearch => !string.IsNullOrEmpty(SearchString);
+
         public string VueName
         {
             get
@@ -260,7 +261,7 @@ namespace m4dModels
         public KeywordQuery KeywordQuery => new(SearchString);
         public DanceQuery DanceQuery => new(IsRaw ? null : Dances);
         public UserQuery UserQuery => new(User);
-        public SongSort SongSort => new(SortOrder);
+        public SongSort SongSort => new(SortOrder, TextSearch);
 
         public CruftFilter CruftFilter =>
             !Action.StartsWith("merge", StringComparison.OrdinalIgnoreCase) && Level.HasValue
@@ -481,7 +482,7 @@ namespace m4dModels
                     sb.AppendFormat("{0}: ", dances);
                 }
 
-                if (!string.IsNullOrWhiteSpace(SearchString))
+                if (TextSearch)
                 {
                     sb.AppendFormat("{0} ", KeywordQuery.ShortDescription);
                 }
@@ -584,7 +585,11 @@ namespace m4dModels
 
             string danceFilter = null;
             string danceSort = null;
-            if (!string.IsNullOrWhiteSpace(dance))
+            if (string.IsNullOrWhiteSpace(dance))
+            {
+                danceSort = "dance_ALL desc";
+            }
+            else
             {
                 var d = DanceLibrary.Dances.Instance.DanceFromName(dance);
                 if (d != null)
@@ -649,7 +654,7 @@ namespace m4dModels
 
         public string GetCommentsFilter()
         {
-            return new SongSort(SortOrder).Id == SongIndex.CommentsField ? "Comments/any()" : null;
+            return SongSort.Id == SongIndex.CommentsField ? "Comments/any()" : null;
         }
 
         public static IEnumerable<string> GetTagClasses()

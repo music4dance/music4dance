@@ -90,6 +90,10 @@ export class SongFilter {
     return this.isRaw ? this.rawFilterQuery : this.normalFilterQuery;
   }
 
+  public get TextSearch(): boolean {
+    return !!this.searchString;
+  }
+
   private get normalFilterQuery(): string {
     const tempoMin = this.tempoMin ? this.tempoMin.toString() : "";
     const tempoMax = this.tempoMax ? this.tempoMax.toString() : "";
@@ -150,7 +154,7 @@ export class SongFilter {
   }
 
   public get sort(): SongSort {
-    return new SongSort(this.sortOrder);
+    return new SongSort(this.sortOrder, this.TextSearch);
   }
 
   public get tagList(): TagList {
@@ -236,7 +240,7 @@ export class SongFilter {
 
   public changeSort(order: string): SongFilter {
     const clone = this.clone();
-    clone.sortOrder = this.sort.change(order).query;
+    clone.sortOrder = new SongSort(order, this.TextSearch).query;
     return clone;
   }
 

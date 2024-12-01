@@ -32,7 +32,7 @@ namespace m4dModels
         private static readonly string[] s_intrinsic =
             { Song.EnergyField, SongIndex.MoodField, SongIndex.BeatField };
 
-        public SongSort(string sort)
+        public SongSort(string sort, bool hasQuery = false)
         {
             if (string.IsNullOrWhiteSpace(sort))
             {
@@ -40,19 +40,18 @@ namespace m4dModels
             }
 
             var list = sort.Split('_').ToList();
-            var count = -1;
 
-            Id = list[0];
+            _id = list[0];
             list.RemoveAt(0);
 
             if (!string.IsNullOrEmpty(Id))
             {
-                Id = $"{char.ToUpper(Id[0])}{Id[1..].ToLower()}";
+                _id = $"{char.ToUpper(Id[0])}{Id[1..].ToLower()}";
 
                 if (!(s_directional.Contains(Id) || s_intrinsic.Contains(Id) ||
                     s_numerical.Contains(Id) || string.Equals(Id, Dances)))
                 {
-                    Id = null;
+                    _id = null;
                     return;
                 }
             }
@@ -72,18 +71,15 @@ namespace m4dModels
 
             if (list.Count > 0)
             {
-                if (!int.TryParse(list[0], out count))
-                {
-                    Trace.WriteLineIf(TraceLevels.General.TraceError, $"Bad Sort: {sort}");
-                }
+                Trace.WriteLineIf(TraceLevels.General.TraceError, $"Bad Sort: {sort}");
             }
-
-            Count = count;
         }
 
-        public string Id { get; private set; }
+        public string Id => String.IsNullOrEmpty(_id) && !HasQuery ? Dances : _id;
         public bool Descending { get; private set; }
-        public int Count { get; }
+        public bool HasQuery { get; private set; }
+
+        private string _id { get; set; }
 
         public bool Numeric => s_intrinsic.Contains(Id) || Id == "Tempo";
         public bool Directional => s_directional.Contains(Id);
@@ -92,19 +88,24 @@ namespace m4dModels
         {
             get
             {
+                const string dr = "Dance Rating";
+                const string cm = "Closest Match";
+
                 switch (Id)
                 {
                     case Dances:
-                        return "Dance Rating";
+                        return dr;
                     case Modified:
                         return "Last Modified";
                     case Edited:
                         return "Last Edited";
                     case Created:
                         return "When Added";
+                    case Closest:
+                        return cm;
                     case null:
                     case "":
-                        return "Closest Match";
+                        return HasQuery ? cm : dr;
                     default:
                         return Id;
                 }
@@ -115,12 +116,7 @@ namespace m4dModels
         {
             get
             {
-                if (string.IsNullOrWhiteSpace(Id))
-                {
-                    return null;
-                }
-
-                if (Id == Dances)
+                if (string.IsNullOrWhiteSpace(Id) || Id == Dances)
                 {
                     return null;
                 }
@@ -132,7 +128,7 @@ namespace m4dModels
                 }
 
                 var order = desc ? "desc" : "asc";
-                return new List<string> { $"{Id} {order}" };
+                return [$"{Id} {order}"];
             }
         }
 
@@ -218,38 +214,9 @@ namespace m4dModels
             }
         }
 
-        public void Resort(string newOrder)
-        {
-            if (newOrder == Id && s_directional.Contains(newOrder))
-            {
-                Descending = !Descending;
-            }
-            else
-            {
-                Id = newOrder;
-                Descending = false;
-            }
-        }
-
         public override string ToString()
         {
             return $"{Id}{(Descending ? "_desc" : string.Empty)}";
-        }
-
-        public static string DoSort(string newOrder, string oldOrder)
-        {
-            SongSort ss;
-            if (!string.IsNullOrWhiteSpace(oldOrder))
-            {
-                ss = new SongSort(oldOrder);
-                ss.Resort(newOrder);
-            }
-            else
-            {
-                ss = new SongSort(newOrder);
-            }
-
-            return ss.ToString();
         }
     }
 }

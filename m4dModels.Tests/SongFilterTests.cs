@@ -64,30 +64,30 @@ namespace m4dModels.Tests
             Trace.WriteLine(f12.Description);
 
             Assert.AreEqual(
-                @"All Foxtrot songs available on ITunes, including tag Instrumental, having tempo between 100 and 120 beats per minute.",
+                @"All Foxtrot songs available on ITunes, including tag Instrumental, having tempo between 100 and 120 beats per minute. Sorted by Dance Rating from most popular to least popular.",
                 f1.Description);
             Assert.AreEqual(
                 @"All songs containing the text ""Funk"", including tag Rock & Roll, excluding tags Jazz or Pop. Sorted by Dance Rating from most popular to least popular.",
                 f2.Description);
             Assert.AreEqual(
-                @"All songs having tempo greater than 100 beats per minute.",
+                @"All songs having tempo greater than 100 beats per minute. Sorted by Dance Rating from most popular to least popular.",
                 f3.Description);
             Assert.AreEqual(
                 @"All songs having tempo less than 150 beats per minute. Sorted by Title from A to Z.",
                 f4.Description);
-            Assert.AreEqual(@"All songs liked by charlie.", f5.Description);
-            Assert.AreEqual(@"All songs not edited by charlie.", f6.Description);
+            Assert.AreEqual(@"All songs liked by charlie. Sorted by Dance Rating from most popular to least popular.", f5.Description);
+            Assert.AreEqual(@"All songs not edited by charlie. Sorted by Dance Rating from most popular to least popular.", f6.Description);
             Assert.AreEqual(
-                @"All songs including tags Blues, R&B / Soul and Rhythm and Blues.",
+                @"All songs including tags Blues, R&B / Soul and Rhythm and Blues. Sorted by Dance Rating from most popular to least popular.",
                 f7.Description);
             Assert.AreEqual(
-                @"All Salsa songs available on Spotify, excluding tags Christian / Gospel, Doo Wop or TV Theme Song.",
+                @"All Salsa songs available on Spotify, excluding tags Christian / Gospel, Doo Wop or TV Theme Song. Sorted by Dance Rating from most popular to least popular.",
                 f8.Description);
             Assert.AreEqual(
-                @"All songs danceable to any of Mambo, Rumba or Samba.",
+                @"All songs danceable to any of Mambo, Rumba or Samba. Sorted by Dance Rating from most popular to least popular.",
                 f9.Description);
             Assert.AreEqual(
-                @"All songs danceable to all of East Coast Swing, Foxtrot and Tango (Ballroom) available on Amazon.",
+                @"All songs danceable to all of East Coast Swing, Foxtrot and Tango (Ballroom) available on Amazon. Sorted by Dance Rating from most popular to least popular.",
                 f10.Description);
             Assert.AreEqual(
                 @"All Rumba songs available on Amazon. Sorted by Tempo from slowest to fastest.",
@@ -107,10 +107,10 @@ namespace m4dModels.Tests
             Trace.WriteLine(f2.Description);
 
             Assert.AreEqual(
-                @"All Swing songs containing the text ""Goodman"", available on ITunes, including tag Pop, having tempo between 50 and 150 beats per minute, having length between 30 and 90 seconds.",
+                @"All Swing songs containing the text ""Goodman"", available on ITunes, including tag Pop, having tempo between 50 and 150 beats per minute, having length between 30 and 90 seconds. Sorted by Dance Rating from most popular to least popular.",
                 f1.Description);
             Assert.AreEqual(
-                @"All Swing songs available on ITunes, having length between 30 and 90 seconds.",
+                @"All Swing songs available on ITunes, having length between 30 and 90 seconds. Sorted by Dance Rating from most popular to least popular.",
                 f2.Description);
         }
 

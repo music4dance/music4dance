@@ -7,7 +7,7 @@ import { UserQuery } from "@/models/UserQuery";
 import { getMenuContext } from "@/helpers/GetMenuContext";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { safeTagDatabase } from "@/helpers/TagEnvironmentManager";
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import type { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
 
 interface SortOption {
@@ -50,12 +50,19 @@ var validated = ref(false);
 var services = ref(filter.purchase ? filter.purchase.trim().split("") : []);
 var activity = ref(userQueryInit.parts);
 
-var sortOptions: SortOption[] = [
+const computedDefault = (): string => {
+  const value = !!keyWords.value ? "Closest Match" : "Dance Rating";
+  return `Default (${value})`;
+};
+
+const sortOptions = computed(() => [
+  { text: computedDefault(), value: null },
+  { text: "Dance Rating", value: SortOrder.Dances },
+  { text: "Closest Match", value: SortOrder.Match },
   { text: "Title", value: SortOrder.Title },
   { text: "Artist", value: SortOrder.Artist },
   { text: "Tempo", value: SortOrder.Tempo },
   { text: "Length", value: SortOrder.Length },
-  { text: "Dance Rating", value: SortOrder.Dances },
   { text: "Last Modified", value: SortOrder.Modified },
   { text: "Last Edited", value: SortOrder.Edited },
   { text: "When Added", value: SortOrder.Created },
@@ -63,11 +70,11 @@ var sortOptions: SortOption[] = [
   { text: "Mood", value: SortOrder.Mood },
   { text: "Strength of Beat", value: SortOrder.Beat },
   { text: "Comments", value: SortOrder.Comments },
-  { text: "Closest Match", value: null },
-];
-var sortInit = new SongSort(filter.sortOrder);
-var sort = ref(sortInit.order ?? null);
-var order = ref(sortInit.direction);
+]);
+
+var sortInit = new SongSort(filter.sortOrder, filter.TextSearch);
+var sortId = ref(sortInit.id || null);
+var sortDirection = ref(sortInit.direction);
 
 const danceNames = computed(() => {
   return dances.value.map((d) => danceDB.danceFromId(d)!.name);
@@ -171,7 +178,7 @@ const songFilter = computed(() => {
   filter.action = "advanced";
   filter.searchString = keyWords.value;
   filter.dances = danceQuery.query;
-  filter.sortOrder = SongSort.fromParts(sort.value ?? undefined, order.value).query;
+  filter.sortOrder = SongSort.fromParts(sortId.value ?? undefined, sortDirection.value).query;
   filter.user = userQuery.query;
   filter.purchase = services.value.join("");
   filter.tempoMin = tempoMin.value === 0 ? undefined : tempoMin.value;
@@ -182,11 +189,6 @@ const songFilter = computed(() => {
   filter.level = level ? level : undefined;
 
   return filter;
-});
-
-const validSortOptions = computed(() => {
-  const singleDance = songFilter.value.singleDance;
-  return sortOptions.filter((opt) => opt.value !== SortOrder.Dances || singleDance);
 });
 
 function computeBonuses(): string[] {
@@ -267,8 +269,8 @@ function onReset(evt: Event): void {
   }
   displayUser.value = "";
   services.value = [];
-  sort.value = null;
-  order.value = "asc";
+  sortId.value = null;
+  sortDirection.value = "asc";
   bonuses.value = [];
 
   validated.value = false;
@@ -293,7 +295,7 @@ function onReset(evt: Event): void {
         />
 
         <BFormGroup id="dance-group" label="Dances:">
-          <div style="border: 1px solid #ced4da; boder-radius: 0.25rem">
+          <div style="border: 1px solid #ced4da; border-radius: 0.25rem">
             <DanceSelector id="dance-selector" v-model="dances" :dance-list="allDances" />
             <div class="d-flex justify-content-between w-100 mx-1 mb-2">
               <BFormRadioGroup
@@ -425,8 +427,8 @@ function onReset(evt: Event): void {
         </BFormGroup>
 
         <BFormGroup id="sort-group" label="Sort By:" label-for="sort">
-          <BFormSelect id="sort" v-model="sort" :options="validSortOptions" required />
-          <BFormRadioGroup id="sort-order" v-model="order" name="sort-order" class="mt-2">
+          <BFormSelect id="sort" v-model="sortId" :options="sortOptions" required />
+          <BFormRadioGroup id="sort-order" v-model="sortDirection" name="sort-order" class="my-2">
             <BFormRadio value="asc"
               >Ascending (A-Z, Slow-Fast, Newest-Oldest, Shortest-Longest)</BFormRadio
             >
@@ -435,6 +437,10 @@ function onReset(evt: Event): void {
             >
           </BFormRadioGroup>
         </BFormGroup>
+
+        <BAlert :model-value="true" variant="success">
+          {{ songFilter.description }}
+        </BAlert>
 
         <div class="d-flex justify-content-between w-100 mx-1 mb-2">
           <BButton type="reset" variant="secondary">Reset</BButton>
@@ -452,8 +458,8 @@ lengthMin = {{ lengthMin }}
 lengthMax = {{ lengthMax }}
 activity = {{ computedActivity }}
 services = {{ services }}
-sort = {{ sort }}
-order = {{ order }}
+sort = {{ sortId }}
+order = {{ sortDirection }}
 bonus = {{ bonuses }}
 includeTags = {{ includeTags }}
 excludeTags = {{ excludeTags }}

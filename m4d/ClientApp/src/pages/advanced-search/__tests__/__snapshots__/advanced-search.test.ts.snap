@@ -30,7 +30,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
             <!---->
             <!---->
             <legend id="___BVN__ID__v-7___BV_label____" tabindex="-1" class="form-label bv-no-focus-ring col-form-label pt-0">Dances:</legend>
-            <div style="border: 1px solid #ced4da;">
+            <div style="border: 1px solid #ced4da; border-radius: 0.25rem;">
               <div id="dance-selector" class="b-form-tags form-control h-auto mb-2 mt-2" role="group" tabindex="-1" style="border-style: hidden;"><output id="___BVN__ID__v-11__selected_tags__" class="visually-hidden" for="___BVN__ID__v-11__input__" aria-live="off" aria-atomic="true" aria-relevant="additions text">BOL, RMB</output>
                 <div id="___BVN__ID__v-11__removed_tags__" role="status" aria-live="off" aria-atomic="true" class="visually-hidden"> (Tag removed) </div>
                 <ul class="list-inline d-inline-block mb-2">
@@ -288,6 +288,9 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
           <div id="sort-group" role="group" class="">
             <!---->
             <!----><label id="___BVN__ID__v-102___BV_label____" for="sort" class="form-label d-block">Sort By:</label><select id="sort" class="form-select" required="" aria-required="true">
+              <option>Default (Closest Match)</option>
+              <option value="Dances">Dance Rating</option>
+              <option value="Closest">Closest Match</option>
               <option value="Title">Title</option>
               <option value="Artist">Artist</option>
               <option value="Tempo">Tempo</option>
@@ -299,9 +302,8 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
               <option value="Mood">Mood</option>
               <option value="Beat">Strength of Beat</option>
               <option value="Comments">Comments</option>
-              <option>Closest Match</option>
             </select>
-            <div id="sort-order" role="radiogroup" class="btn-group-md bv-no-focus-ring mt-2" tabindex="-1">
+            <div id="sort-order" role="radiogroup" class="btn-group-md bv-no-focus-ring my-2" tabindex="-1">
               <div class="form-check form-check-inline"><input id="___BVN__ID__v-109__form-check___" class="form-check-input" type="radio" name="sort-order" value="asc"><label for="___BVN__ID__v-109__form-check___" class="form-check-label">Ascending (A-Z, Slow-Fast, Newest-Oldest, Shortest-Longest)</label></div>
               <div class="form-check form-check-inline"><input id="___BVN__ID__v-110__form-check___" class="form-check-input" type="radio" name="sort-order" value="desc"><label for="___BVN__ID__v-110__form-check___" class="form-check-label">Descending (Z-A, Fast-Slow, Oldest-Newest, Longest-Shortest)</label></div>
             </div>
@@ -309,6 +311,11 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
             <!---->
             <!---->
           </div>
+          <transition-stub data-v-2f3988be="" name="" enteractiveclass="" entertoclass="show" leaveactiveclass="" leavetoclass="showing" enterfromclass="showing" leavefromclass="" appear="false" persisted="false" css="true">
+            <div data-v-2f3988be="" class="alert alert-success" role="alert" aria-live="polite" aria-atomic="true">All songs danceable to any of Bolero or Rumba containing the text "Love" sorted by Closest Match.
+              <!---->
+            </div>
+          </transition-stub>
           <div class="d-flex justify-content-between w-100 mx-1 mb-2"><button class="btn btn-md btn-secondary" type="reset">Reset</button><button class="btn btn-md btn-primary" type="submit">Submit</button></div>
         </form>
         <!--v-if-->

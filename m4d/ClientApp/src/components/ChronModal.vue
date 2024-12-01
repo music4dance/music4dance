@@ -15,7 +15,7 @@ const { hide } = useModal();
 
 const chronOrder = computed(() => {
   const order = props.order;
-  return SongSort.getOrderType(order) ? order : SortOrder.Match;
+  return new SongSort(order).isChronological ? order : SortOrder.Match;
 });
 
 const chooseSort = (order: RadioValue) => {
