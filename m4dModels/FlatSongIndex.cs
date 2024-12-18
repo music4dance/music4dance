@@ -22,7 +22,7 @@ namespace m4dModels
 
         #region Index Management
 
-        public override SearchIndex GetIndex()
+        public override SearchIndex BuildIndex()
         {
             var fields = new List<SearchField>
             {
@@ -154,7 +154,6 @@ namespace m4dModels
                 IndexFieldFromDanceId("ALL")
             };
 
-            
             var ids = Dances.Instance.AllDanceTypes.Where(t => t.Id != "ALL").Select(t => IndexFieldFromDanceId(t.Id));
             fields.AddRange(ids);
 
@@ -164,6 +163,19 @@ namespace m4dModels
                     "songs", 
                     Song.TitleField, Song.ArtistField, AlbumsField, Song.DanceTags,
                     Song.PurchaseField, GenreTags, TempoTags, StyleTags, OtherTags));
+
+            index.ScoringProfiles.Add(new ScoringProfile("Default")
+            {
+                TextWeights = new TextWeights(
+                    new Dictionary<string, double>
+                    {
+                        {Song.TitleField, 10},
+                        {Song.ArtistField, 10},
+                        {CommentsField, 5},
+                        {AlbumsField, 2},
+                    })
+            });
+            index.DefaultScoringProfile = "Default";
 
             return index;
         }

@@ -45,6 +45,10 @@ const suggestions = ref<string[]>([]);
 
 const listId = `${props.id}-suggestions`;
 
+const addQuotes = (s: string): string => {
+  return s.includes(" ") ? `"${s}"` : s;
+};
+
 watch(
   () => model.value,
   (s?: string) => {
@@ -55,7 +59,7 @@ watch(
       .get(`/api/suggestion/${s}`)
       .then((response) => {
         const list = response.data as SuggestionEntry;
-        suggestions.value = list.suggestions.map((s) => s.value);
+        suggestions.value = list.suggestions.map((s) => addQuotes(s.value));
       })
       .catch((error) => {
         // eslint-disable-next-line no-console
@@ -63,7 +67,6 @@ watch(
       });
   },
 );
-
 </script>
 
 <template>

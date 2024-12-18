@@ -14,12 +14,18 @@ const services: Service[] = [
   {
     id: "i",
     name: "Apple Music",
-    rgx: [/(^\d{7,10})$/gi, /https:\/\/(?:music|itunes)\.apple\.com.*\/\d{7,10}\?i=(\d{7,10})/gi],
+    rgx: [
+      /\s*['"]?(\d{7,10})['"]?\s*$/gi,
+      /\s*['"]https:\/\/(?:music|itunes)\.apple\.com.*\/\d{7,10}\?i=(\d{7,10})['"]?\s*$/gi,
+    ],
   },
   {
     id: "s",
     name: "Spotify",
-    rgx: [/^([a-z0-9]{22})$/gi, /https:\/\/open\.spotify\.com\/track\/([a-z0-9]{22})/gi],
+    rgx: [
+      /\s*['"]?([a-z0-9]{22})['"]?\s*$/gi,
+      /\s*['"]https:\/\/open\.spotify\.com\/track\/([a-z0-9]{22})['"]?\s*$/gi,
+    ],
   },
 ];
 

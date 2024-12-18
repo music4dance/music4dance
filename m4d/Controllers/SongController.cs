@@ -189,7 +189,7 @@ public class SongController : ContentController
     {
         HelpPage = "advanced-search";
 
-        ViewBag.AzureIndexInfo = Database.SongIndex.GetIndex();
+        ViewBag.AzureIndexInfo = Database.SongIndex.BuildIndex();
         return View(new RawSearch(Filter is { IsRaw: true } ? Filter : null));
     }
 
@@ -205,7 +205,7 @@ public class SongController : ContentController
         HelpPage = "advanced-search";
 
         Filter = new SongFilter(rawSearch);
-        ViewBag.AzureIndexInfo = Database.SongIndex.GetIndex();
+        ViewBag.AzureIndexInfo = Database.SongIndex.BuildIndex();
         return ModelState.IsValid
             ? await DoAzureSearch()
             : View("RawSearchForm", rawSearch);

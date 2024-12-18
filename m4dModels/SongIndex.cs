@@ -1204,6 +1204,17 @@ public abstract class SongIndex
         {
             search = "*";
         }
+        //else
+        //{
+        //    var index = await GetIndex();
+        //    var profiles = index.ScoringProfiles;
+        //    foreach (var profile in profiles)
+        //    {
+        //        Trace.WriteLine(profile.Name);
+        //    }
+
+        //    parameters.ScoringProfile = "TitleArtist";
+        //}
 
         return await Client.SearchAsync<SearchDocument>(search, parameters);
     }
@@ -1225,7 +1236,7 @@ public abstract class SongIndex
             Trace.WriteLine(ex.Message);
         }
 
-        var index = GetIndex();
+        var index = BuildIndex();
 
         try
         {
@@ -1239,7 +1250,7 @@ public abstract class SongIndex
         }
     }
 
-    public abstract SearchIndex GetIndex();
+    public abstract SearchIndex BuildIndex();
 
     public abstract Task<bool> UpdateIndex(IEnumerable<string> dances);
 
@@ -1374,6 +1385,10 @@ public abstract class SongIndex
     }
 
 
+    protected async Task<SearchIndex> GetIndex()
+    {
+        return await IndexClient.GetIndexAsync(Info.Index);
+    }
     #endregion
 }
 

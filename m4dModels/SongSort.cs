@@ -36,6 +36,7 @@ namespace m4dModels
         {
             if (string.IsNullOrWhiteSpace(sort))
             {
+                HasQuery = hasQuery;
                 return;
             }
 

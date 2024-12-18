@@ -18,7 +18,7 @@ namespace m4dModels
 
         #region Index Management
 
-        public override SearchIndex GetIndex()
+        public override SearchIndex BuildIndex()
         {
             var fieldBuilder = new FieldBuilder();
             var fields = fieldBuilder.Build(typeof(SongDocument));
