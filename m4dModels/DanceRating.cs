@@ -133,7 +133,7 @@ namespace m4dModels
                 }
                 else if (Dances.Instance.DanceFromId(ds) != null)
                 {
-                    ids = new[] { ds };
+                    ids = [ds];
                 }
 
                 if (ids != null)

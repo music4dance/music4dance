@@ -1,10 +1,15 @@
 import { DanceGroup } from "@/models/DanceDatabase/DanceGroup";
 import type { NamedObject } from "@/models/DanceDatabase/NamedObject";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
+import type { DanceThreshold } from "./DanceThreshold";
 
 export class DanceQueryBase {
-  public get danceList(): string[] {
+  public get danceThresholds(): DanceThreshold[] {
     throw new Error("Not Implemented");
+  }
+
+  public get danceList(): string[] {
+    return this.danceThresholds.map((d) => d.id);
   }
 
   public get isExclusive(): boolean {
@@ -24,7 +29,8 @@ export class DanceQueryBase {
   }
 
   public get isSimple(): boolean {
-    return this.danceList.length < 2;
+    const c = this.danceThresholds.length;
+    return c === 0 || (c === 1 && this.danceThresholds[0].threshold === 1);
   }
 
   public get description(): string {

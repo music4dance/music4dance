@@ -184,7 +184,7 @@ namespace m4dModels
         {
             return new SearchField(BuildDanceFieldName(id), SearchFieldDataType.Int32)
             {
-                IsSearchable = false, IsSortable = true, IsFilterable = false, IsFacetable = false
+                IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = false
             };
         }
 

@@ -14,7 +14,7 @@ export class DanceRating extends TaggableObject {
       throw new Error(`Can't create a dancerating form a non-dance tag ${tag.key}`);
     }
     const decorated = tag.value.match(/^[!\-+].*/);
-    const value = decorated ? tag.value.substr(1) : tag.value;
+    const value = decorated ? tag.value.substring(1) : tag.value;
     const dance = safeDanceDatabase().fromName(value);
     if (!dance) {
       console.log(`Couldn't find dance ${value}`);

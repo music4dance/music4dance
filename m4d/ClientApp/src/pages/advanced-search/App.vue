@@ -7,13 +7,9 @@ import { UserQuery } from "@/models/UserQuery";
 import { getMenuContext } from "@/helpers/GetMenuContext";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { safeTagDatabase } from "@/helpers/TagEnvironmentManager";
-import { computed, ref, watch } from "vue";
+import { computed, ref, watch, type WritableComputedRef } from "vue";
 import type { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
-
-interface SortOption {
-  text: string;
-  value: SortOrder | null;
-}
+import { DanceThreshold } from "@/models/DanceThreshold";
 
 const context = getMenuContext();
 const danceDB: DanceDatabase = safeDanceDatabase();
@@ -27,8 +23,21 @@ const danceQueryInit = new DanceQuery(filter.dances);
 var showDiagnostics = getShowDiagnostics();
 var keyWords = ref(filter.searchString ?? "");
 var advancedText = ref(false);
-var dances = ref(danceQueryInit.danceList);
+var danceThresholds = ref(danceQueryInit.danceThresholds);
 var danceConnector = ref(danceQueryInit.isExclusive ? "all" : "any");
+var dances = computed<string[]>({
+  get: () => danceThresholds.value.map((d) => d.id),
+  set: (value: string[]): void => {
+    danceThresholds.value = value.map((id) => {
+      const existing = danceThresholds.value.find((d) => d.id === id);
+      return existing ? existing : new DanceThreshold({ id: id, threshold: 1 });
+    });
+  },
+});
+var hasThresholds = computed(() => {
+  return danceThresholds.value.some((d) => d.threshold > 1);
+});
+var showThresholds = ref(hasThresholds.value);
 
 const tags: Tag[] = tagDatabase.tags;
 var includeTags = ref(filter.tags ? extractTags(filter.tags, true) : []);
@@ -138,7 +147,7 @@ function getQueryFilter(): SongFilter {
 
 function getShowDiagnostics(): boolean {
   const params = new URLSearchParams(window.location.search);
-  const showDiagnostics = params.get("showDiagnostics");
+  const showDiagnostics = params.get("showDiagnostics") ?? params.get("showdiagnostics");
 
   return !!showDiagnostics && showDiagnostics !== "false";
 }
@@ -161,7 +170,10 @@ const tagList = computed(() => {
 });
 
 const songFilter = computed(() => {
-  const danceQuery = DanceQuery.fromParts(dances.value, danceConnector.value === "all");
+  const danceQuery = DanceQuery.fromParts(
+    danceThresholds.value.map((t) => t.toString()),
+    danceConnector.value === "all",
+  );
   const userQuery = UserQuery.fromParts(
     computedActivity.value ? computedActivity.value : undefined,
     isAnonymous.value ? user.value : displayUser.value,
@@ -297,7 +309,7 @@ function onReset(evt: Event): void {
         <BFormGroup id="dance-group" label="Dances:">
           <div style="border: 1px solid #ced4da; border-radius: 0.25rem">
             <DanceSelector id="dance-selector" v-model="dances" :dance-list="allDances" />
-            <div class="d-flex justify-content-between w-100 mx-1 mb-2">
+            <div class="d-flex mb-2">
               <BFormRadioGroup
                 id="dance-connector"
                 v-model="danceConnector"
@@ -310,6 +322,29 @@ function onReset(evt: Event): void {
                 <BFormRadio value="any">Any</BFormRadio>
                 <BFormRadio value="all">All</BFormRadio>
               </BFormRadioGroup>
+              <BFormCheckbox
+                id="show-thresholds"
+                v-model="showThresholds"
+                :disabled="!dances.length || hasThresholds"
+                switch
+              >
+                Show Thresholds
+              </BFormCheckbox>
+            </div>
+            <div v-if="showThresholds" class="mx-3 mb-2">
+              <div v-for="threshold in danceThresholds" :key="threshold.id" class="mt-2">
+                <BFormSpinbutton
+                  v-model="threshold.threshold"
+                  id="`sb-${dance}`"
+                  inline
+                  min="1"
+                  max="30"
+                  size="sm"
+                />
+                <label :for="`sb-${threshold.dance.name}`" class="ms-2">{{
+                  threshold.dance.name
+                }}</label>
+              </div>
             </div>
           </div>
         </BFormGroup>
@@ -451,6 +486,7 @@ function onReset(evt: Event): void {
         <pre class="m-0">
 searchString = {{ keyWords }}
 dances = {{ dances }}
+danceThresholds = {{ danceThresholds }}
 danceConnector = {{ danceConnector }}
 tempoMin = {{ tempoMin }}
 tempoMax = {{ tempoMax }}

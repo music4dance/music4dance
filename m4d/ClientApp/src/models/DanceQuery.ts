@@ -1,4 +1,5 @@
 import { DanceQueryBase } from "./DanceQueryBase";
+import { DanceThreshold } from "./DanceThreshold";
 
 const all = "ALL";
 const and = "AND"; // Exclusive + Explicit
@@ -33,7 +34,7 @@ export class DanceQuery extends DanceQueryBase {
     return this.data;
   }
 
-  public get danceList(): string[] {
+  public get danceThresholds(): DanceThreshold[] {
     const items = this.data
       .split(",")
       .map((s) => s.trim())
@@ -43,7 +44,7 @@ export class DanceQuery extends DanceQueryBase {
       items.shift();
     }
 
-    return items;
+    return items.map((s) => DanceThreshold.fromValue(s));
   }
 
   public get isExclusive(): boolean {
@@ -53,25 +54,24 @@ export class DanceQuery extends DanceQueryBase {
   public get description(): string {
     const prefix = this.isExclusive ? "all" : "any";
     const connector = this.isExclusive ? "and" : "or";
-    const dances = this.danceNames;
+    const thresholds = this.danceThresholds;
 
-    switch (dances.length) {
+    switch (thresholds.length) {
       case 0:
         return `songs`;
       case 1:
-        return `${dances[0]} songs`;
+        return `${thresholds[0].description} songs`;
       case 2:
-        return `songs danceable to ${prefix} of ${dances[0]} ${connector} ${dances[1]}`;
+        return `songs danceable to ${prefix} of ${thresholds[0].description} ${connector} ${thresholds[1].description}`;
       default: {
-        const last = dances.pop();
-        return `songs danceable to ${prefix} of ${dances.join(", ")} ${connector} ${last}`;
+        const last = thresholds.pop();
+        return `songs danceable to ${prefix} of ${thresholds.map((t) => t.description).join(", ")} ${connector} ${last}`;
       }
     }
-    return "";
   }
 
   public get shortDescription(): string {
-    return this.danceNames.join(", ");
+    return this.danceThresholds.map((t) => t.shortDescription).join(", ");
   }
 
   private startsWithAny(qualifiers: string[]): boolean {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using DanceLibrary;
@@ -31,24 +32,27 @@ namespace m4dModels
 
         public bool All => string.IsNullOrEmpty(Query);
 
-        public IEnumerable<string> DanceIds
+        public IEnumerable<DanceThreshold> DancesThresholds
         {
             get
             {
-                var ret = Query.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                if (ret.Length == 0 || !_modifiers.Contains(ret[0].ToUpper()))
+                var items = this.Query
+                    .Split(',')
+                    .Select(s => s.Trim())
+                    .Where(s => !string.IsNullOrEmpty(s))
+                    .ToList();
+
+                if (items.Count > 0 && _modifiers.Contains(items[0].ToUpper()))
                 {
-                    return ret;
+                    items.RemoveAt(0);
                 }
 
-                var list = ret.ToList();
-                list.RemoveAt(0);
-                ret = list.ToArray();
-                return ret;
+                return items.Select(DanceThreshold.FromValue);
             }
         }
 
-        public IEnumerable<DanceObject> Dances => DanceLibrary.Dances.Instance.FromIds(DanceIds);
+        public IEnumerable<string> DanceIds => DancesThresholds.Select(d => d.Id);
+        public IEnumerable<DanceObject> Dances => DancesThresholds.Select(d => d.Dance);
 
         public bool IsExclusive => (StartsWith(And) || StartsWith(AndX)) &&
             Query.IndexOf(",", 4, StringComparison.Ordinal) != -1;
@@ -58,13 +62,9 @@ namespace m4dModels
             get
             {
                 var dances = DanceLibrary.Dances.Instance.ExpandGroups(Dances).ToList();
-                switch (dances.Count)
+                if (dances.Count == 0)
                 {
-                    case 0:
-                        return null;
-                    case 1:
-                        return
-                            $"(DanceTags/any(t: t eq '{dances[0].Name}'))";
+                    return null;
                 }
 
                 var sb = new StringBuilder();
@@ -77,8 +77,26 @@ namespace m4dModels
                         sb.Append($" {con} ");
                     }
 
-                    sb.AppendFormat(
-                        "(DanceTags/any(t: t eq '{0}'))", d.Name);
+                    var threshold = DancesThresholds.FirstOrDefault(dt => dt.Id == d.Id);
+                    if (threshold == null)
+                    {
+                        var groups = (d as DanceType)?.Groups;
+                        if (groups != null)
+                        {
+                            threshold = DancesThresholds.FirstOrDefault(dt => groups.Any(g => g.Id == dt.Id));
+                        }
+                    }
+
+                    if (threshold != null)
+                    {
+                        sb.AppendFormat(
+                            "(dance_{0} {1} {2})",
+                            d.Id, threshold.Threshold > 0 ? "ge" : "le", Math.Abs(threshold.Threshold));
+                    }
+                    else
+                    {
+                        Trace.WriteLine($"Invalid DanceQuery = {Query}, Dance = {d.Id}");
+                    }
                 }
 
                 return $"({sb})";
@@ -96,7 +114,7 @@ namespace m4dModels
             return [$"dance_{dances[0].Id} {order}"];
         }
 
-        public string ShortDescription => string.Join(", ", Dances.Select(n => n.Name));
+        public string ShortDescription => string.Join(", ", DancesThresholds.Select(dt => dt.ShortDescription));
 
         public bool HasDance(string id)
         {
@@ -130,32 +148,25 @@ namespace m4dModels
 
         public override string ToString()
         {
-            var dances = Dances.Select(n => n.Name).ToList();
-            var count = dances.Count;
-            var prefix = "any";
-            var connector = "or";
-            if (IsExclusive)
-            {
-                prefix = "all";
-                connector = "and";
-            }
-
-            var suffix = string.Empty;
+            var thresholds = DancesThresholds.ToList();
+            var count = thresholds.Count;
+            var prefix = IsExclusive ? "all" : "any";
+            var connector = IsExclusive ? "and" : "or";
 
             switch (count)
             {
                 case 0:
-                    return "songs" + suffix;
+                    return "songs";
                 case 1:
-                    return $"{dances[0]} songs{suffix}";
+                    return $"{thresholds[0]} songs";
                 case 2:
                     return
-                        $"songs danceable to {prefix} of {dances[0]} {connector} {dances[1]}{suffix}";
+                        $"songs danceable to {prefix} of {thresholds[0]} {connector} {thresholds[1]}";
                 default:
-                    var last = dances[count - 1];
-                    dances.RemoveAt(count - 1);
+                    var last = thresholds[count-1];
+                    thresholds.RemoveAt(count - 1);
                     return
-                        $"songs danceable to {prefix} of {string.Join(", ", dances)} {connector} {last}{suffix}";
+                        $"songs danceable to {prefix} of {string.Join(", ", thresholds)} {connector} {last}";
             }
         }
 
