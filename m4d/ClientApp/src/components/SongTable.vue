@@ -226,7 +226,29 @@ const dances = (song: Song): Tag[] => {
 };
 
 const orderTip = (song: Song): string => {
-  return `Last Modified ${song.modified} (${song.modifiedOrderVerbose} ago)`;
+  switch (orderType) {
+    case SortOrder.Modified:
+      return `Last Modified ${song.modified} (${song.modifiedOrderVerbose} ago)`;
+    case SortOrder.Created:
+      return `Added ${song.created} (${song.createdOrderVerbose} ago)`;
+    case SortOrder.Edited:
+      return `Last Edited ${song.edited} (${song.editedOrderVerbose} ago)`;
+    default:
+      return `Error: SongId(${song.songId})`;
+  }
+};
+
+const orderValue = (song: Song): string => {
+  switch (orderType) {
+    case SortOrder.Modified:
+      return song.modifiedOrder;
+    case SortOrder.Created:
+      return song.createdOrder;
+    case SortOrder.Edited:
+      return song.editedOrder;
+    default:
+      return `Error: SongId(${song.songId})`;
+  }
 };
 
 const danceHandler = (tag: Tag, filter: SongFilter, editor: SongEditor): DanceHandler => {
@@ -475,11 +497,11 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
       </template>
       <template #cell(order)="data">
         <span
-          v-b-tooltip.hover.click.blur.topleft="{
+          v-b-tooltip.hover.click.topleft="{
             title: orderTip(data.item.song),
             id: `order_tip__${data.item.song.songId}`,
           }"
-          >{{ data.item.song.modifiedOrder }}</span
+          >{{ orderValue(data.item.song) }}</span
         >
       </template>
       <template #head(change)>

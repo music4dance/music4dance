@@ -178,15 +178,15 @@ export class Song extends TaggableObject {
   }
 
   public get createdOrder(): string {
-    return this.created ? timeOrder(this.created) : "U";
+    return this.created ? timeOrder(this.created) : "N";
   }
 
   public get modifiedOrder(): string {
-    return this.modified ? timeOrder(this.modified) : "U";
+    return this.modified ? timeOrder(this.modified) : "N";
   }
 
   public get editedOrder(): string {
-    return this.edited ? timeOrder(this.edited) : "U";
+    return this.edited ? timeOrder(this.edited) : "N";
   }
 
   public get createdOrderVerbose(): string {
@@ -198,7 +198,7 @@ export class Song extends TaggableObject {
   }
 
   public get editedOrderVerbose(): string {
-    return this.edited ? timeOrderVerbose(this.edited) : "Undefined";
+    return this.edited ? timeOrderVerbose(this.edited) : "N";
   }
 
   public get hasSample(): boolean {

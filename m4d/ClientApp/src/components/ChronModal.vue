@@ -49,7 +49,6 @@ const chooseSort = (order: RadioValue) => {
             <BFormRadio :value="SortOrder.Created">When Added</BFormRadio>
             <BFormRadio :value="SortOrder.Modified">Last Changed</BFormRadio>
             <BFormRadio :value="SortOrder.Edited">Last Edited</BFormRadio>
-            <BFormRadio :value="SortOrder.Comments">Last Commented</BFormRadio>
             <BFormRadio :value="SortOrder.Match">No chronological sort</BFormRadio>
           </BFormRadioGroup>
         </BCol>
