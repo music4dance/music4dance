@@ -227,27 +227,25 @@ const dances = (song: Song): Tag[] => {
 
 const orderTip = (song: Song): string => {
   switch (orderType) {
+    default:
     case SortOrder.Modified:
       return `Last Modified ${song.modified} (${song.modifiedOrderVerbose} ago)`;
     case SortOrder.Created:
       return `Added ${song.created} (${song.createdOrderVerbose} ago)`;
     case SortOrder.Edited:
       return `Last Edited ${song.edited} (${song.editedOrderVerbose} ago)`;
-    default:
-      return `Error: SongId(${song.songId})`;
   }
 };
 
 const orderValue = (song: Song): string => {
   switch (orderType) {
+    default:
     case SortOrder.Modified:
       return song.modifiedOrder;
     case SortOrder.Created:
       return song.createdOrder;
     case SortOrder.Edited:
       return song.editedOrder;
-    default:
-      return `Error: SongId(${song.songId})`;
   }
 };
 
