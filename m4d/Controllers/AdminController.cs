@@ -437,11 +437,8 @@ public class AdminController : DanceMusicController
                     if (users != null && dances != null && tags != null)
                     {
                         AdminMonitor.UpdateTask("Wipe Database");
-                        // For now we're not going to explicitly clear the DB
-                        // (cause it appears to be broken) - instead make sure
-                        // to run update-database from the package manager
-                        // console before doing a DB reload.
-                        RestoreDb(userManager, roleManager);
+                        // Full delete/reload worked locally - the second time???
+                        RestoreDb(userManager, roleManager, delete: true);
                     }
                 }
 

@@ -34,8 +34,10 @@ public class UsageLogController : DanceMusicController
     {
         var model = s_model ?? new UsageModel
             {
-                Summaries = Context.UsageSummary
-                    .FromSqlRaw("SELECT [UsageId], MAX([UserName]) as UserName, MIN([Date]) as MinDate, MAX([Date]) as MaxDate, COUNT(*) as Hits FROM dbo.UsageLog GROUP BY [UsageId] HAVING COUNT(*) > 5 ORDER BY Hits DESC").ToList(),
+                Summaries = Context.Database.SqlQuery< UsageSummary>(
+                    $"""
+                        SELECT [UsageId], MAX([UserName]) as UserName, MIN([Date]) as MinDate, MAX([Date]) as MaxDate, COUNT(*) as Hits FROM dbo.UsageLog GROUP BY [UsageId] HAVING COUNT(*) > 5 ORDER BY Hits DESC
+                    """).ToList(),
                 LastUpdate = DateTime.Now,
             };
         s_model = model;

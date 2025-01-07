@@ -20,10 +20,16 @@ using Owl.reCAPTCHA;
 using Microsoft.FeatureManagement;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 
+
+// TODONEXT: Figure out how to add a design time factory for the context https://learn.microsoft.com/en-us/ef/core/cli/dbcontext-creation?tabs=dotnet-core-cli#from-a-design-time-factory
+//  Or maybe implement https://learn.microsoft.com/en-us/ef/core/cli/dbcontext-creation?tabs=dotnet-core-cli#from-application-services
+//  Think that's working, but now have to figure out what is going on with UsageSummary and the aspnet fields that changed length
+
 Console.WriteLine("Entering Main");
 
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration.GetConnectionString("DanceMusicContextConnection") ?? throw new InvalidOperationException("Connection string 'DanceMusicContexstConnection' not found.");
+var connectionString = builder.Configuration.GetConnectionString("DanceMusicContextConnection")
+    ?? throw new InvalidOperationException("Connection string 'DanceMusicContexstConnection' not found.");
 
 var services = builder.Services;
 var environment = builder.Environment;
@@ -72,6 +78,7 @@ services.AddDefaultIdentity<ApplicationUser>(
             options.SignIn.RequireConfirmedAccount = true;
             options.User.RequireUniqueEmail = true;
             options.User.AllowedUserNameCharacters = string.Empty;
+            options.Stores.MaxLengthForKeys = 128;
         })
     .AddUserValidator<UsernameValidator<ApplicationUser>>()
     .AddRoles<IdentityRole>()
@@ -251,7 +258,7 @@ var options = new RewriteOptions();
 options.AddRedirectToHttps();
 options.AddRedirectToWwwPermanent("music4dance.net");
 app.UseRewriter(options);
-app.UseStaticFiles();
+app.MapStaticAssets();
 app.UseHttpLogging();
 app.UseRouting();
 
