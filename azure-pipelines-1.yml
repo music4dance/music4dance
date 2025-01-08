@@ -29,6 +29,10 @@ steps:
     displayName: "Build ClientApp"
     workingDirectory: m4d/ClientApp/
 
+  - task: UseDotNet@2
+    inputs:
+      version: 9.0.0
+
   - script: dotnet build --configuration $(buildConfiguration)
     displayName: "dotnet build $(buildConfiguration)"
 
