@@ -877,7 +877,8 @@ public class SongController : ContentController
 
         var filter = new SongFilter(info.Filter)
         {
-            Purchase = "S"
+            Purchase = "S",
+            Page = null
         };
         ViewBag.SongFilter = filter;
 
