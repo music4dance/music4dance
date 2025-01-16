@@ -145,6 +145,7 @@ function search(s?: string): void {
             <BDropdownItem href="/home/faq">FAQ</BDropdownItem>
             <BDropdownItem href="/home/about">About</BDropdownItem>
             <BDropdownItem href="/home/readinglist">Reading List</BDropdownItem>
+            <BDropdownItem href="/home/technicalblog/">Technical Blog</BDropdownItem>
             <BDropdownItem href="/home/sitemap">Site Map</BDropdownItem>
             <BDropdownItem href="/home/privacypolicy">Privacy Policy</BDropdownItem>
             <BDropdownItem href="/home/credits">Credits</BDropdownItem>

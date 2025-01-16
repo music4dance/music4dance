@@ -92,6 +92,14 @@ public IActionResult Index([FromServices] IFileProvider fileProvider)
             "reading-list");
     }
 
+    public IActionResult TechnicalBlog()
+    {
+        return Vue3(
+            "Techincal Blog",
+            "Some articles about technical issues I've solved, often involving the music4dance site",
+            "tech-blog");
+    }
+
     public IActionResult Counter(int? numerator = null, decimal? tempo = null, string count="beats")
     {
         return Vue3(

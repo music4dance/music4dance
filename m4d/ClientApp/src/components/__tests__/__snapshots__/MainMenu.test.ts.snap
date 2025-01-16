@@ -55,6 +55,7 @@ exports[`MainMenu.vue > Renders MainMenu for an anonymous user 1`] = `
                 <li role="presentation"><a class="dropdown-item" replace="false" href="/home/faq" role="menuitem">FAQ</a></li>
                 <li role="presentation"><a class="dropdown-item" replace="false" href="/home/about" role="menuitem">About</a></li>
                 <li role="presentation"><a class="dropdown-item" replace="false" href="/home/readinglist" role="menuitem">Reading List</a></li>
+                <li role="presentation"><a class="dropdown-item" replace="false" href="/home/technicalblog/" role="menuitem">Technical Blog</a></li>
                 <li role="presentation"><a class="dropdown-item" replace="false" href="/home/sitemap" role="menuitem">Site Map</a></li>
                 <li role="presentation"><a class="dropdown-item" replace="false" href="/home/privacypolicy" role="menuitem">Privacy Policy</a></li>
                 <li role="presentation"><a class="dropdown-item" replace="false" href="/home/credits" role="menuitem">Credits</a></li>

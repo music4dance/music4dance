@@ -81,7 +81,8 @@ const breadcrumbs: BreadCrumbItem[] = [...infoTrail, { text: "About", active: tr
     <ul>
       <li>
         I have a technical blog hosted on
-        <a href="https://medium.com/@dwgray" target="_blank">Medium.com</a>
+        <a href="https://medium.com/@dwgray" target="_blank">Medium.com</a> that I have created and
+        index for <a href="/home/technicalblog">here</a>
       </li>
       <li>
         Other things I've been working on, including contributions to some of the open source

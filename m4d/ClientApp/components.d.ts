@@ -115,6 +115,7 @@ declare module 'vue' {
     IBiArrowUpRight: typeof import('~icons/bi/arrow-up-right')['default']
     IBiAsterisk: typeof import('~icons/bi/asterisk')['default']
     IBiAward: typeof import('~icons/bi/award')['default']
+    IBiBoxArrorUpRight: typeof import('~icons/bi/box-arror-up-right')['default']
     IBiBoxArrowUpRight: typeof import('~icons/bi/box-arrow-up-right')['default']
     IBiBriefcase: typeof import('~icons/bi/briefcase')['default']
     IBiCaretDown: typeof import('~icons/bi/caret-down')['default']
