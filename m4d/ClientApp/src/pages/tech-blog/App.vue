@@ -106,7 +106,7 @@ const breadcrumbs: BreadCrumbItem[] = [...infoTrail, { text: "Technical Blog", a
       />
     </BlogSeries>
 
-    <BlogSeries title="Building a multi-page website using Asp.Net Core and Vue.js">
+    <BlogSeries title="Miscellaneous Articles">
       <template #summary>
         These are some articles inspired by questions that have come up when mentoring students
         studing software engineering and a grab bag of tools and techniques that don't fall into the
