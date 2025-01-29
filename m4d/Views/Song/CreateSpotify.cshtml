@@ -153,9 +153,20 @@ using (Html.BeginForm())
         </div>
 
     <div class="form-group row">
-            <div class="offset-md-1 col-md-10">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
+        <div class="offset-md-1 col-md-10 my-2">
+            <input type="submit" value="Create" class="btn btn-primary" />
+        </div>
+     </div>
+}
+@if(Model.PageWarning) {
+        <div class="alert alert-primary" role="alert">
+            We noticed that you are attempting to export a playlist starting from
+            a page other than the first one. This is normally not intended, so
+            we'll export the playlist starting at the beginning. If you are interested
+            in exporting playlists starting at an arbitrary point, please consider
+            <a href="https://music4dance.blog/music4dance-help/subscriptions/" target="_blank">
+                upgrading to a Silver subscription.
+            </a>
         </div>
 }
 }

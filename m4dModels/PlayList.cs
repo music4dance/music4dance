@@ -147,15 +147,37 @@ namespace m4dModels
         // User info
         public bool IsAuthenticated { get; set; }
         public bool IsPremium { get; set; }
+        public SubscriptionLevel SubscriptionLevel { get; set; } 
     }
 
-    public class SpotifyCreateInfo : PlaylistCreateInfo
+    public class SpotifyCreateInfo : PlaylistCreateInfo, IValidatableObject
     {
-        [Range(5, 100, ErrorMessage = "A playlist may have between 5 and 100 songs")]
+        //[Range(5, 100, ErrorMessage = "A playlist may have between 5 and 100 songs")]
         [Display(Name = "Number of Songs")]
         public override int Count { get; set; }
 
         public bool CanSpotify { get; set; }
+
+        public bool PageWarning { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (Count < 5)
+            {
+                yield return new ValidationResult("Playlists must have at least 5 songs",[nameof(Count)]);
+            }
+            else if (Count > 1000)
+            {
+                yield return new ValidationResult("Playlists may not have more than 1000 songs", [nameof(Count)]);
+            }
+            else if (Count > 100)
+            {
+                if (SubscriptionLevel < SubscriptionLevel.Bronze)
+                {
+                    yield return new ValidationResult("You must have at least a bronze subscription to create a playlist of more than a hundred songs.", [nameof(Count)]);
+                }
+            }
+        }
     }
 
     public class ExportInfo : PlaylistCreateInfo

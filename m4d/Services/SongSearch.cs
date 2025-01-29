@@ -7,26 +7,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace m4d.Services;
 
-public class SongSearch
+public class SongSearch(SongFilter filter, string userName, bool isPremium, SongIndex songIndex,
+    UserManager<ApplicationUser> userManager, IBackgroundTaskQueue backgroundTaskQueue, int? pageSize = null)
 {
-    private SongFilter Filter { get; }
-    private string UserName { get; }
-    private bool IsPremium { get; }
-    private UserManager<ApplicationUser> UserManager { get; }
-    private SongIndex SongIndex { get; }
-    private IBackgroundTaskQueue BackgroundTaskQueue { get; }
-    private int? PageSize { get; }
-    public SongSearch(SongFilter filter, string userName, bool isPremium, SongIndex songIndex,
-        UserManager<ApplicationUser> userManager, IBackgroundTaskQueue backgroundTaskQueue, int? pageSize = null)
-    {
-        Filter = filter;
-        UserName = userName;
-        IsPremium = isPremium;
-        SongIndex = songIndex;
-        UserManager = userManager;
-        BackgroundTaskQueue = backgroundTaskQueue;
-        PageSize = pageSize;
-    }
+    private SongFilter Filter { get; } = filter;
+    private string UserName { get; } = userName;
+    private bool IsPremium { get; } = isPremium;
+    private UserManager<ApplicationUser> UserManager { get; } = userManager;
+    private SongIndex SongIndex { get; } = songIndex;
+    private IBackgroundTaskQueue BackgroundTaskQueue { get; } = backgroundTaskQueue;
+    private int? PageSize { get; } = pageSize;
 
     private bool IsAuthenticated => !string.IsNullOrWhiteSpace(UserName);
 

@@ -832,14 +832,14 @@ public class MusicServiceManager
     }
 
     public async Task<bool> SetPlaylistTracks(MusicService service, IPrincipal principal, string id,
-        IEnumerable<string> tracks)
+        IEnumerable<string> tracks, HttpMethod method = null)
     {
         var tracklist = string.Join(
             ",",
             tracks.Where(t => t != null).Select(t => $"\"spotify:track:{t}\""));
         var response = await MusicServiceAction(
             $"https://api.spotify.com/v1/playlists/{id}/tracks",
-            $"{{\"uris\":[{tracklist}]}}", HttpMethod.Put, service, principal);
+            $"{{\"uris\":[{tracklist}]}}", method ?? HttpMethod.Put, service, principal);
 
         return response != null && response.snapshot_id != null;
     }

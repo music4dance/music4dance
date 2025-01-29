@@ -326,6 +326,12 @@ public class DanceMusicController : Controller
         return services.FirstOrDefault(s => s.LoginProvider == name)?.ProviderKey;
     }
 
+
+    protected async Task<ApplicationUser> GetApplicationUser()
+    {
+        return User.Identity.IsAuthenticated ? await UserManager.GetUserAsync(User) : null;
+    }
+
     protected List<string> UploadFile(IFormFile file)
     {
         var lines = new List<string>();

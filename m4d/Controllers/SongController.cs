@@ -828,21 +828,19 @@ public class SongController : ContentController
         var canSpotify = await AdmAuthentication.HasAccess(
             Configuration, ServiceType.Spotify, User, authResult);
 
-        if (!canSpotify)
+        var applicationUser = User.Identity.IsAuthenticated ? await UserManager.GetUserAsync(User) : null;
+        if (!canSpotify && applicationUser != null)
         {
-            var applicationUser = await UserManager.GetUserAsync(User);
-            if (applicationUser != null)
+            var logins = await UserManager.GetLoginsAsync(applicationUser);
+            if (logins.Any(l => l.LoginProvider == "Spotify"))
             {
-                var logins = await UserManager.GetLoginsAsync(applicationUser);
-                if (logins.Any(l => l.LoginProvider == "Spotify"))
-                {
-                    var returnUrl = Request.Path + Request.QueryString;
-                    var redirectUrl = $"/Identity/Account/Login?provider=Spotify&returnUrl={returnUrl}";
-                    return LocalRedirect(redirectUrl);
-                }
+                var returnUrl = Request.Path + Request.QueryString;
+                var redirectUrl = $"/Identity/Account/Login?provider=Spotify&returnUrl={returnUrl}";
+                return LocalRedirect(redirectUrl);
             }
         }
 
+        var subscriptionLevel = applicationUser?.SubscriptionLevel ?? SubscriptionLevel.None;
         return View(
             new SpotifyCreateInfo
             {
@@ -856,7 +854,9 @@ public class SongController : ContentController
                 Filter = Filter.ToString(),
                 IsAuthenticated = User.Identity?.IsAuthenticated ?? false,
                 IsPremium = User.IsInRole("premium") || User.IsInRole("trial"),
-                CanSpotify = canSpotify
+                SubscriptionLevel = subscriptionLevel,
+                CanSpotify = canSpotify,
+                PageWarning = (Filter.Page.HasValue && Filter.Page > 1 && subscriptionLevel < SubscriptionLevel.Silver)
             });
     }
 
@@ -874,22 +874,26 @@ public class SongController : ContentController
         info.IsAuthenticated = User.Identity?.IsAuthenticated ?? false;
         info.IsPremium = User.IsInRole("premium") || User.IsInRole("trial");
         info.CanSpotify = canSpotify;
+        info.SubscriptionLevel = (await GetApplicationUser())?.SubscriptionLevel ?? SubscriptionLevel.None;
+
+        var page = (Filter.Page.HasValue && Filter.Page > 1 && info.SubscriptionLevel < SubscriptionLevel.Silver) ? null : Filter.Page;
 
         var filter = new SongFilter(info.Filter)
         {
             Purchase = "S",
-            Page = null
+            Page = page
         };
         ViewBag.SongFilter = filter;
 
         HelpPage = "spotify-playlist";
 
-        if (!ModelState.IsValid)
+        ModelState.Clear();
+        if (!TryValidateModel(info))
         {
             return View(info);
         }
 
-        if (info.Count > 100)
+        if (info.Count > 1000)
         {
             ViewBag.StatusMessage = "Please stop trying to hack the site.";
             return View("Error");
@@ -913,17 +917,31 @@ public class SongController : ContentController
             var results = await new SongSearch(
                 filter, UserName, true, SongIndex, UserManager, TaskQueue, info.Count).Search();
 
-            var tracks = results?.Songs?.Select(s => s.GetPurchaseId(ServiceType.Spotify));
+            var tracks = results?.Songs?.Select(s => s.GetPurchaseId(ServiceType.Spotify)).ToList();
             var service = MusicService.GetService(ServiceType.Spotify);
             metadata = await MusicServiceManager.CreatePlaylist(
                 service, User, await GetLoginKey("Spotify"), info.Title,
                 $"{info.DescriptionPrefix} {filter.Description}", fileProvider);
 
             Logger.LogInformation($"CreateSpotify: {LogMetaData(metadata)}");
-            if (!await MusicServiceManager.SetPlaylistTracks(service, User, metadata.Id, tracks))
+            while (tracks.Count > 0)
             {
-                ViewBag.StatusMessage = "Unable to set the playlist tracks.";
-                return View("Error");
+                var batch = tracks;
+                if (tracks.Count > 100)
+                {
+                    batch = tracks.Slice(0, 100);
+                    tracks.RemoveRange(0, 100);
+                }
+                else
+                {
+                    tracks = [];
+                }
+
+                if (!await MusicServiceManager.SetPlaylistTracks(service, User, metadata.Id, batch, HttpMethod.Post))
+                {
+                    ViewBag.StatusMessage = "Unable to set the playlist tracks.";
+                    return View("Error");
+                }
             }
         }
         catch (Exception e)

@@ -33,7 +33,7 @@ const tempoFilter = (() => {
 const meter = danceType?.meter;
 const numerator = meter?.numerator;
 const bpmText = `${tempoRange ? tempoRange.toString(" and ") : ""} beats per minute`;
-const mpmText = `${tempoRange ? tempoRange.mpm(1, " and ") : ""} measures per minute`;
+const mpmText = `${tempoRange ? tempoRange.mpm(danceType.meter.numerator, " and ") : ""} measures per minute`;
 
 const commit = (): void => {
   markdownEditor.value?.commit();
