@@ -824,11 +824,9 @@ public class SongController : ContentController
         UseVue = UseVue.No;
         HelpPage = "spotify-playlist";
 
-        var authResult = await HttpContext.AuthenticateAsync();
-        var canSpotify = await AdmAuthentication.HasAccess(
-            Configuration, ServiceType.Spotify, User, authResult);
+        var canSpotify = await CanSpotify();
 
-        var applicationUser = User.Identity.IsAuthenticated ? await UserManager.GetUserAsync(User) : null;
+        var applicationUser = await GetApplicationUser();
         if (!canSpotify && applicationUser != null)
         {
             var logins = await UserManager.GetLoginsAsync(applicationUser);
@@ -840,7 +838,7 @@ public class SongController : ContentController
             }
         }
 
-        var subscriptionLevel = applicationUser?.SubscriptionLevel ?? SubscriptionLevel.None;
+        var subscriptionLevel = await GetSubscriptionLevel();
         return View(
             new SpotifyCreateInfo
             {
@@ -860,6 +858,11 @@ public class SongController : ContentController
             });
     }
 
+    private async Task<bool> CanSpotify() => await AdmAuthentication.HasAccess(
+            Configuration, ServiceType.Spotify, User, await HttpContext.AuthenticateAsync());
+
+    private async Task<SubscriptionLevel> GetSubscriptionLevel() => (await GetApplicationUser())?.SubscriptionLevel ?? SubscriptionLevel.None;
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<ActionResult> CreateSpotify([FromServices]IFileProvider fileProvider,
@@ -867,14 +870,12 @@ public class SongController : ContentController
         SpotifyCreateInfo info)
     {
         UseVue = UseVue.No;
-        var authResult = await HttpContext.AuthenticateAsync();
-        var canSpotify = (await AdmAuthentication.GetServiceAuthorization(
-            Configuration, ServiceType.Spotify, User, authResult)) != null;
+        var canSpotify = await CanSpotify();
 
         info.IsAuthenticated = User.Identity?.IsAuthenticated ?? false;
         info.IsPremium = User.IsInRole("premium") || User.IsInRole("trial");
         info.CanSpotify = canSpotify;
-        info.SubscriptionLevel = (await GetApplicationUser())?.SubscriptionLevel ?? SubscriptionLevel.None;
+        info.SubscriptionLevel = await GetSubscriptionLevel();
 
         var page = (Filter.Page.HasValue && Filter.Page > 1 && info.SubscriptionLevel < SubscriptionLevel.Silver) ? null : Filter.Page;
 
@@ -912,36 +913,35 @@ public class SongController : ContentController
         try
         {
             Logger.LogInformation($"CreateSpotify: {LogCreateInfo(info)}");
-            var p = await AzureParmsFromFilter(filter, info.Count);
+            var p = await AzureParmsFromFilter(filter);
             p.IncludeTotalCount = true;
-            var results = await new SongSearch(
-                filter, UserName, true, SongIndex, UserManager, TaskQueue, info.Count).Search();
+            var search = new SongSearch(filter, UserName, true, SongIndex, UserManager, TaskQueue);
 
-            var tracks = results?.Songs?.Select(s => s.GetPurchaseId(ServiceType.Spotify)).ToList();
             var service = MusicService.GetService(ServiceType.Spotify);
             metadata = await MusicServiceManager.CreatePlaylist(
                 service, User, await GetLoginKey("Spotify"), info.Title,
                 $"{info.DescriptionPrefix} {filter.Description}", fileProvider);
 
             Logger.LogInformation($"CreateSpotify: {LogMetaData(metadata)}");
-            while (tracks.Count > 0)
-            {
-                var batch = tracks;
-                if (tracks.Count > 100)
-                {
-                    batch = tracks.Slice(0, 100);
-                    tracks.RemoveRange(0, 100);
-                }
-                else
-                {
-                    tracks = [];
-                }
+            var count = info.Count;
 
-                if (!await MusicServiceManager.SetPlaylistTracks(service, User, metadata.Id, batch, HttpMethod.Post))
+            while (count > 0)
+            {
+                var results = await search.Search();
+                var tracks = results?.Songs?.Select(s => s.GetPurchaseId(ServiceType.Spotify)).ToList();
+
+                if (tracks.Count == 0)
+                {
+                    break;
+                }
+                if (!await MusicServiceManager.SetPlaylistTracks(service, User, metadata.Id, tracks, HttpMethod.Post))
                 {
                     ViewBag.StatusMessage = "Unable to set the playlist tracks.";
                     return View("Error");
                 }
+
+                count -= 25;
+                search.Page();
             }
         }
         catch (Exception e)
@@ -982,7 +982,7 @@ public class SongController : ContentController
     }
 
     [HttpGet]
-    public ActionResult ExportPlaylist()
+    public async Task<IActionResult> ExportPlaylist()
     {
         UseVue = UseVue.No;
         HelpPage = "export-playlist";
@@ -1002,7 +1002,8 @@ public class SongController : ContentController
                 Filter = Filter.ToString(),
                 IsAuthenticated = User.Identity?.IsAuthenticated ?? false,
                 IsPremium = User.IsInRole("premium") || User.IsInRole("trial"),
-                IsSelf = isUserOnly 
+                IsSelf = isUserOnly,
+                SubscriptionLevel = await GetSubscriptionLevel()
             });
     }
 
@@ -1020,7 +1021,7 @@ public class SongController : ContentController
         var filter = new SongFilter(info.Filter);
         var isUserOnly = IsUserOnly(filter);
         info.Description = isUserOnly ? $"All of {filter.UserQuery.UserName}'s votes and tags" : filter.Description;
-        info.Count =  isUserOnly ? 5000 : 100;
+        info.Count =  isUserOnly ? 5000 : (await GetSubscriptionLevel()) < SubscriptionLevel.Silver ? 100 : 1000;
 
         if (!ModelState.IsValid)
         {

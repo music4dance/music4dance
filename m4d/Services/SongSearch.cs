@@ -10,7 +10,7 @@ namespace m4d.Services;
 public class SongSearch(SongFilter filter, string userName, bool isPremium, SongIndex songIndex,
     UserManager<ApplicationUser> userManager, IBackgroundTaskQueue backgroundTaskQueue, int? pageSize = null)
 {
-    private SongFilter Filter { get; } = filter;
+    private SongFilter Filter { get; } = new SongFilter(filter.ToString());
     private string UserName { get; } = userName;
     private bool IsPremium { get; } = isPremium;
     private UserManager<ApplicationUser> UserManager { get; } = userManager;
@@ -85,6 +85,18 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
         var negated = results.Songs.Where(s => Filter.DanceQuery.Dances.All(d => s.NormalizedUserDanceRating(user, d.Id) != vote)).ToList();
 
         return new SearchResults(results, songs.Skip(offset).Take(options.Size ?? 25).ToList(),songs.Count);
+    }
+
+    public void Page()
+    {
+        if (Filter.Page.HasValue)
+        {
+            Filter.Page += 1;
+        }
+        else
+        {
+            Filter.Page = 2;
+        }
     }
 
     private async Task LogSearch(SongFilter filter)

@@ -103,7 +103,7 @@ using (Html.BeginForm())
 
     @if (filter.HasDances)
     {
-        <div class="form-group row">
+        <div class="form-group row my-1">
                 <div class="col-md form-check offset-md-1">
                     @Html.EditorFor(model => model.IncludeSpecificDances, new
                 {
@@ -119,7 +119,7 @@ using (Html.BeginForm())
                     @class = "form-check-label"
                 })
                 </div>
-            </div>
+       </div>
     }
 
     <div class="form-group row">
@@ -127,8 +127,22 @@ using (Html.BeginForm())
                 <input type="submit" value="Download" class="btn btn-primary" />
             </div>
         </div>
-    <div class="row">
-            <p class="col-md">Check your downloads folder for the exported file.</p>
+    <div class="row mt-2">
+        <p class="col-md">Click the download button and check your downloads folder for the exported file.</p>
+        <div class="alert alert-info">
+        @if (Model.SubscriptionLevel < SubscriptionLevel.Silver) {
+                <text>The first 100 songs from the playlist will be exported.
+                    If you would like to export more, please upgrade your subscription.
+                    See our <a href="https://music4dance.blog/music4dance-help/subscriptions/">
+                        subscription page</a> for details</text>
+        }
+        else {
+            <text>The first thousand songs will be exported. If you have a reason to export more, please
+                    contact us at <a href="mailto:info@music4dance.net">info@music4dance.net</a> to
+                    discuss options.
+            </text>
+        }
         </div>
+    </div>
 }
 }
