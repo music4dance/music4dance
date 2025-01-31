@@ -496,6 +496,41 @@ public class AdminController : DanceMusicController
         }
     }
 
+    //
+    // Get: //FixupUser
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [DisableRequestSizeLimit]
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> FixupUser(IFormFile fileUpload, string user,
+        string idxName = "default")
+    {
+        try
+        {
+            StartAdminTask("LoadIndex");
+            AdminMonitor.UpdateTask("UploadFile");
+
+            var lines = UploadFile(fileUpload);
+
+            AdminMonitor.UpdateTask("LoadIndex");
+
+            var idx = Database.GetSongIndex(idxName);
+
+            var c = await idx.FixupUser(lines, Database, user);
+
+            if (SearchService.GetInfo(idxName).Id == SearchService.GetInfo("default").Id)
+            {
+                await DanceStatsManager.LoadFromAzure(Database, idxName);
+            }
+
+            return CompleteAdminTask(true, $"Index {idxName} fixed {user} in {c} songs");
+        }
+        catch (Exception e)
+        {
+            return FailAdminTask($"Fix user {user} Index ({idxName}): {e.Message}", e);
+        }
+    }
+
     private static List<string> TryGetSection(List<string> lines, Predicate<string> start)
     {
         var breaks = new Predicate<string>[]

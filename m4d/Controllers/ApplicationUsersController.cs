@@ -124,8 +124,17 @@ public class ApplicationUsersController : DanceMusicController
         //    "UserName", "Email", "EmailConfirmed", "PhoneNumber", "PhoneNumberConfirmed", "TwoFactorEnabled",
         //    "LockoutEndDateUtc", "LockoutEnabled", "AccessFailedCount", "SubscriptionLevel", "SubscriptionStart", "SubscriptionEnd"
         //};
+
         if (await TryUpdateModelAsync(applicationUser, string.Empty))
         {
+            if ((await UserManager.FindByNameAsync(applicationUser.DecoratedName)) != null)
+            {
+                ModelState.AddModelError(
+                    "UserName",
+                    $"{applicationUser.DecoratedName} is already used, please try another.");
+                return View(applicationUser);
+            }
+
             try
             {
                 if (!string.Equals(oldUserName, applicationUser.DecoratedName))

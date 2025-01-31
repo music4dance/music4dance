@@ -258,4 +258,21 @@ using (Html.BeginForm("BackupDelta", "Admin", FormMethod.Post, new
     <br/>
     <input type="submit" name="UploadTempi" value="Upload"/>
 }
+
+    <h3>Fixup User</h3>
+    using (Html.BeginForm("FixupUser", "Admin", FormMethod.Post, new
+    {
+        enctype = "multipart/form-data"
+    }))
+    {
+        @Html.AntiForgeryToken();
+        <input type="file" name="FileUpload" />
+        <input type="text" name="user" />
+        <br />
+        <input type="submit" name="idxName" id="basica" value="basica" />
+        <input type="submit" name="idxName" id="basicb" value="basicb" />
+        <input type="submit" name="idxName" id="basicc" value="basicc" />
+        <input type="submit" name="idxName" id="backup" value="backup" />
+    }
+
 }

@@ -887,6 +887,72 @@ public abstract class SongIndex
         }
     }
 
+    public async Task<int> FixupUser(IList<string> lines, DanceMusicCoreService dms, string user)
+    {
+        var replaces = new HashSet<string>();
+        var changes = new List<Song>();
+        foreach (var line in lines)
+        {
+            var song = await Song.Create(line, DanceMusicService);
+            if (song.FindModified(user) != null)
+            {
+                var change = await FindSong(song.SongId);
+                if (change == null)
+                {
+                    Trace.WriteLine($"Couldn't find song: {song.SongId}");
+                }
+                for (var isng = 0; isng < song.SongProperties.Count; isng++)
+                {
+                    if (song.SongProperties[isng].Name == Song.UserField && 
+                        string.Equals(song.SongProperties[isng].Value,user, StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (song.SongProperties.Count < isng + 1 || song.SongProperties[isng+1].Name != Song.TimeField)
+                        {
+                            Trace.WriteLine($"Bad header in song: {song.SongId}");
+                        }
+                        var time = song.SongProperties[isng + 1].Value;
+                        var sentinal = song.SongProperties[isng + 2];
+                        var ichng = 0;
+                        while (ichng != -1 && change.SongProperties[ichng+1].Name != sentinal.Name && change.SongProperties[ichng + 1].Value != sentinal.Value) {
+                            ichng = change.SongProperties.FindIndex(ichng+1, p => p.Name == Song.TimeField && p.Value == time);
+                        }
+                        if (ichng == -1)
+                        {
+                            Trace.WriteLine($"No match for {time} in {song.SongId}");
+                        }
+                        var prop = change.SongProperties[ichng - 1];
+                        if (prop.Name != Song.UserField)
+                        {
+                            Trace.WriteLine($"Bad header in change: {song.SongId}");
+                        }
+                        replaces.Add(prop.Value);
+                        prop.Value = user;
+                    }
+                }
+                await change.Reload(dms);
+                changes.Add(change);
+            }
+        }
+
+        if (changes.Count > 0)
+        {
+            try
+            {
+                var docs = changes.Where(s => !s.IsNull).Select(DocumentFromSong);
+                var batch = IndexDocumentsBatch.Upload(docs);
+                var results = await Client.IndexDocumentsAsync(batch);
+                Trace.WriteLine($"Added = {results.Value.Results.Count}");
+                Trace.WriteLine($"Replaced = {string.Join(",", replaces.ToArray())}");
+            }
+            catch (RequestFailedException ex)
+            {
+                Trace.WriteLine($"RequestFailedException: {ex.Message}");
+            }
+        }
+
+        return changes.Count;
+    }
+
     protected abstract string GetSongId(object doc);
 
     [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
