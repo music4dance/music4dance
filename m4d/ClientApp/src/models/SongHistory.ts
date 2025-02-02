@@ -129,7 +129,6 @@ export class SongHistory {
       if (index !== undefined) {
         const map = idxMap.find((m) => m.oldIdx === index);
         if (!map) {
-          // eslint-disable-next-line no-console
           console.log(`Unable to album index ${index} for song ${songId}`);
           fail += 1;
         } else if (map.newIdx !== map.oldIdx) {

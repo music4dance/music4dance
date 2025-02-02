@@ -7,8 +7,8 @@ export class SerializableObject {
 
   public toJSON() {
     const excludeKeys = Object.getPrototypeOf(this).constructor.excludeKeys || [];
-    const result: { [key: string]: any } = {};
-    const self = this as any;
+    const result: { [key: string]: unknown } = {};
+    const self = this as Record<string, unknown>;
 
     SerializableObject.getSerializeableKeys(this).forEach((key) => {
       if (!excludeKeys.includes(key)) {
@@ -19,7 +19,7 @@ export class SerializableObject {
     return result;
   }
 
-  private static getSerializeableKeys(obj: {}): string[] {
+  private static getSerializeableKeys(obj: object): string[] {
     const keys: string[] = [];
     do {
       if (obj.constructor.name === "SerializableObject") {
@@ -40,7 +40,7 @@ export class SerializableObject {
     return keys;
   }
 
-  private static isData(obj: any, key: string): boolean {
+  private static isData(obj: Record<string, unknown>, key: string): boolean {
     const descriptor = Object.getOwnPropertyDescriptor(obj, key);
     // if (!descriptor) {
     //   console.log(`No descriptor for ${key}`);

@@ -46,6 +46,9 @@ const synonymText = computed(() => {
   const synonyms = props.dance.synonyms;
   return props.showSynonyms && synonyms ? `${synonyms.join(", ")}` : "";
 });
+
+// Exposed for testing
+defineExpose({ danceLink, canShowTempo, tempoText, synonymText });
 </script>
 
 <template>

@@ -9,7 +9,6 @@ import { DanceMetrics } from "./DanceMetrics";
 
 TypedJSON.setGlobalConfig({
   errorHandler: (e) => {
-    // eslint-disable-next-line no-console
     console.error(e);
     throw e;
   },

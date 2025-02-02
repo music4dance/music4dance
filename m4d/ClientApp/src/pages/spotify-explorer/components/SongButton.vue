@@ -24,13 +24,11 @@ onMounted(async () => {
     const response = await axios.get(uri);
     const songModel = TypedJSON.parse(response.data, SongDetailsModel);
     if (songModel) {
-      // eslint-disable-next-line no-console
       console.log(`Found: ${props.track.trackId}`);
       songId = songModel.songHistory.id;
     }
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.log(`Not Found: ${props.track.trackId}`);
+    console.log(`Not Found: ${props.track.trackId} (${error})`);
   }
   emit("update-track", props.track.trackId, songId);
 });

@@ -3,7 +3,6 @@ import { DanceRatingVote, VoteDirection } from "@/models/DanceRatingDelta";
 import { DanceRating } from "@/models/DanceRating";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { computed } from "vue";
-import { constructFromSymbol } from "date-fns/constants";
 
 const danceDB = safeDanceDatabase();
 
@@ -43,7 +42,7 @@ const maxWeight = computed(() =>
 </script>
 
 <template>
-  <div class="my-2" v-if="dance">
+  <div v-if="dance" class="my-2">
     <DanceVoteButton
       :vote="vote"
       :value="rating.weight"

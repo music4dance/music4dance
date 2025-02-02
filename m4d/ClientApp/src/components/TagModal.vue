@@ -3,9 +3,7 @@ import { TagHandler } from "@/models/TagHandler";
 import { computed } from "vue";
 
 const props = defineProps<{
-  // INT-TODO: For some reason typescript is generating an error on this in TagCloud if
-  //  I enforce the type
-  tagHandler: TagHandler | any;
+  tagHandler: TagHandler;
 }>();
 
 const modelValue = defineModel<boolean>({ default: false });

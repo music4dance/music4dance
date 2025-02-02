@@ -22,7 +22,6 @@ describe("DanceName.vue", () => {
       },
     });
 
-    // @ts-ignore:next-line
     expect(wrapper.vm.danceLink).toBe("/dances/test-dance");
   });
 
@@ -33,7 +32,6 @@ describe("DanceName.vue", () => {
       },
     });
 
-    // @ts-ignore:next-line
     expect(wrapper.vm.canShowTempo).toBe(true);
   });
 
@@ -44,7 +42,6 @@ describe("DanceName.vue", () => {
       },
     });
 
-    // @ts-ignore:next-line
     expect(wrapper.vm.canShowTempo).toBe(false);
   });
 
@@ -55,7 +52,6 @@ describe("DanceName.vue", () => {
       },
     });
 
-    // @ts-ignore:next-line
     expect(wrapper.vm.canShowTempo).toBe(false);
   });
 
@@ -67,7 +63,6 @@ describe("DanceName.vue", () => {
       },
     });
 
-    // @ts-ignore:next-line
     expect(wrapper.vm.tempoText).toBe("100-110 BPM/25-27.5 MPM");
   });
 

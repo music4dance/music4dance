@@ -1,8 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { expect } from "vitest";
 import { MenuContext } from "@/models/MenuContext";
-
-// @ts-ignore
 import { createBootstrap } from "bootstrap-vue-next";
 import { setupTestEnvironment } from "./TestHelpers";
 

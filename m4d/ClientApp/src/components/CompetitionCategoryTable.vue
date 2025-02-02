@@ -13,7 +13,7 @@ const props = defineProps<{
 const fields: Exclude<TableFieldRaw<DanceInstance>, string>[] = [
   {
     key: "name",
-    formatter: (item: any) => name(item),
+    formatter: (item: unknown) => name(item as DanceInstance),
   },
   {
     key: "dancesport_mpm",

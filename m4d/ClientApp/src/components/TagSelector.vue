@@ -20,7 +20,7 @@ const props = defineProps<{
   addCategories?: string[];
 }>();
 
-var search = ref("");
+const search = ref("");
 
 const addableOptions = computed(() => {
   const categories = props.addCategories;

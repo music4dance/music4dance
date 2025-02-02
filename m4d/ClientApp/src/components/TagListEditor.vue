@@ -34,7 +34,6 @@ const userTagKeys = computed<string[]>({
       : [];
   },
   set: (keys: string[]) => {
-    // eslint-disable-next-line no-console
     console.log(keys.join("|"));
     const oldKeys = userTagKeys.value;
 

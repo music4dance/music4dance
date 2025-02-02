@@ -98,7 +98,7 @@ const searchService = async (s: string): Promise<void> => {
       `/api/musicservice/?service=${s}&title=${title.value}&artist=${artist.value}`,
     );
     tracks.value = TypedJSON.parseAsArray(results.data, TrackModel);
-  } catch (e) {
+  } catch {
     tracks.value = [];
     service.value = null;
   }
@@ -115,7 +115,6 @@ const addTrack = async (track: TrackModel): Promise<void> => {
       emit("edit-song", songModel);
     }
   } catch (e) {
-    // eslint-disable-next-line no-console
     console.log(e);
   }
   adding.value = false;

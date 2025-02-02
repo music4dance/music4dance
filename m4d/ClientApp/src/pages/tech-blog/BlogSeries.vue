@@ -1,12 +1,12 @@
 <script setup lang="ts">
-const slots = defineSlots<{
+defineSlots<{
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   summary?: (props: Record<string, never>) => any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   default?: (props: Record<string, never>) => any;
 }>();
 
-const props = defineProps<{
+defineProps<{
   title: string;
   summary?: string;
 }>();

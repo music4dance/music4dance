@@ -67,7 +67,7 @@ const showNext = (prop: SongProperty, index: number): boolean => {
 const insertNew = (index: number): void => {
   const prop = prompt("Enter the property", "Name=Value");
   emit("insert-property", index, prop ?? "");
-  // eslint-disable-next-line no-console
+
   console.log(prop);
 };
 </script>

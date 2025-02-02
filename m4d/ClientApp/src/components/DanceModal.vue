@@ -10,9 +10,7 @@ import type { SongFilter } from "@/models/SongFilter";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 
 const props = defineProps<{
-  // INT-TODO: For some reason typescript is generating an error on this in SongTable if
-  //  I enforce the type
-  danceHandler: DanceHandler | any;
+  danceHandler: DanceHandler;
 }>();
 
 const instance = ref<DanceHandler>(props.danceHandler);
@@ -93,7 +91,7 @@ const onTagClicked = (tag: TagHandler): void => {
     hide-footer
     @show="resetModal"
   >
-    <template #modal-title> <TagIcon :name="tag.icon" />&nbsp;{{ title }} </template>
+    <template #modal-title> <TagIcon :name="tag.icon!" />&nbsp;{{ title }} </template>
     <BListGroup>
       <BListGroupItem :href="pageLink" variant="secondary"> {{ name }} page... </BListGroupItem>
       <BListGroupItem v-if="hasFilter && !isFiltered" :href="includeDance" variant="warning">

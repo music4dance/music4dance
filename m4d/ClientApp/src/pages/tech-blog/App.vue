@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { type BreadCrumbItem, infoTrail } from "@/models/BreadCrumbItem";
-import { computed } from "vue";
 import BlogSeries from "./BlogSeries.vue";
 import BlogArticle from "./BlogArticle.vue";
 

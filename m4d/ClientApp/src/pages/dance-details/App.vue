@@ -73,7 +73,6 @@ const saveChanges = async () => {
     model.links = links.value;
     editing.value = false;
   } catch (e) {
-    // eslint-disable-next-line no-console
     console.log(e);
     throw e;
   }

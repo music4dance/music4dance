@@ -62,7 +62,6 @@ watch(
         suggestions.value = list.suggestions.map((s) => addQuotes(s.value));
       })
       .catch((error) => {
-        // eslint-disable-next-line no-console
         console.log(error);
       });
   },

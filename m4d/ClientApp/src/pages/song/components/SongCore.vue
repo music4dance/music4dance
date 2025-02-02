@@ -206,7 +206,6 @@ const undoUserChanges = async (): Promise<void> => {
       undoForm.value?.submit();
     }
   } catch (err) {
-    // eslint-disable-next-line no-console
     console.error(err);
   }
 };

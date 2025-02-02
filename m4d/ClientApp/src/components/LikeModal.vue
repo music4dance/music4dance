@@ -5,7 +5,6 @@ import { computed, ref } from "vue";
 import type { DanceRating } from "@/models/DanceRating";
 import type { SongHistory } from "@/models/SongHistory";
 
-// eslint-disable-next-line vue/valid-define-props
 const props = defineProps<{
   editor: SongEditor;
 }>();

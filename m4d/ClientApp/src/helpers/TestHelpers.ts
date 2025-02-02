@@ -1,6 +1,5 @@
 import { MenuContext } from "@/models/MenuContext";
 import { loadTestDances } from "./LoadTestDances";
-// @ts-ignore
 import tagDatabaseJson from "@/assets/content/tags.json";
 declare global {
   interface Window {
@@ -15,7 +14,6 @@ export const setupTestEnvironment = () => {
 };
 
 export const mockResizObserver = () => {
-  // @ts-ignore
   window.ResizeObserver = class ResizeObserver {
     observe() {
       // do nothing

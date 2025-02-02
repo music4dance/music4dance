@@ -79,9 +79,6 @@ export enum PropertyType {
   measureTempo = "MPM",
   multiDance = "MultiDance",
 
-  // Why does this exist?
-  songId = "SongId",
-
   // Commands
   createCommand = ".Create",
   editCommand = ".Edit",

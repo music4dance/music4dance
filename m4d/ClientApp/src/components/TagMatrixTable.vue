@@ -23,7 +23,7 @@ function buildFields(): Exclude<TableFieldRaw<TagRow>, string>[] {
       key: "dance",
       label: "Dance Style",
       stickyColumn: true,
-      formatter: (value: any) => value.name,
+      formatter: (value: unknown) => (value as NamedObject).name,
     },
   ];
 
@@ -33,7 +33,8 @@ function buildFields(): Exclude<TableFieldRaw<TagRow>, string>[] {
     fields.push({
       key: column.tag,
       label: column.title.replace("/", "/<wbr>"),
-      formatter: (_value: unknown, key: unknown, item: any) => countFromKey(key as string, item),
+      formatter: (_value: unknown, key: unknown, item: unknown) =>
+        countFromKey(key as string, item as TagRow),
     });
   }
 

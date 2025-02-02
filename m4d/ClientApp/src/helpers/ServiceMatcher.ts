@@ -88,7 +88,7 @@ export class ServiceMatcher {
         const response = await axios.get(uri);
         const songModel = TypedJSON.parse(response.data, SongDetailsModel);
         return songModel;
-      } catch (e) {
+      } catch {
         // Swallow errors
       }
     }
@@ -103,7 +103,7 @@ export class ServiceMatcher {
         const response = await axios.get(uri);
         const trackModel = TypedJSON.parse(response.data, PlaylistModel);
         return trackModel;
-      } catch (e) {
+      } catch {
         // Swallow errors
       }
     }
@@ -118,7 +118,7 @@ export class ServiceMatcher {
         const response = await axios.get(uri);
         const userModel = TypedJSON.parse(response.data, ServiceUser);
         return userModel;
-      } catch (e) {
+      } catch {
         // Swallow errors
       }
     }

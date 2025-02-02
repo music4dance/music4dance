@@ -27,7 +27,7 @@ const submit = async (event: Event): Promise<void> => {
     alert(`Playlist ${props.id} added to music4dance`);
   } catch (e) {
     alert(`Failed to add playlist ${props.id} to music4dance`);
-    // eslint-disable-next-line no-console
+
     console.log(e);
   }
   danceTags.value = "";

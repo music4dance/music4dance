@@ -7,7 +7,7 @@ import { UserQuery } from "@/models/UserQuery";
 import { getMenuContext } from "@/helpers/GetMenuContext";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { safeTagDatabase } from "@/helpers/TagEnvironmentManager";
-import { computed, ref, watch, type WritableComputedRef } from "vue";
+import { computed, ref } from "vue";
 import type { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
 import { DanceThreshold } from "@/models/DanceThreshold";
 
@@ -20,12 +20,12 @@ const tagDatabase = safeTagDatabase();
 const filter = getQueryFilter();
 const danceQueryInit = new DanceQuery(filter.dances);
 
-var showDiagnostics = getShowDiagnostics();
-var keyWords = ref(filter.searchString ?? "");
-var advancedText = ref(false);
-var danceThresholds = ref(danceQueryInit.danceThresholds);
-var danceConnector = ref(danceQueryInit.isExclusive ? "all" : "any");
-var dances = computed<string[]>({
+const showDiagnostics = getShowDiagnostics();
+const keyWords = ref(filter.searchString ?? "");
+const advancedText = ref(false);
+const danceThresholds = ref(danceQueryInit.danceThresholds);
+const danceConnector = ref(danceQueryInit.isExclusive ? "all" : "any");
+const dances = computed<string[]>({
   get: () => danceThresholds.value.map((d) => d.id),
   set: (value: string[]): void => {
     danceThresholds.value = value.map((id) => {
@@ -34,30 +34,30 @@ var dances = computed<string[]>({
     });
   },
 });
-var hasThresholds = computed(() => {
+const hasThresholds = computed(() => {
   return danceThresholds.value.some((d) => d.threshold > 1);
 });
-var showThresholds = ref(hasThresholds.value);
+const showThresholds = ref(hasThresholds.value);
 
 const tags: Tag[] = tagDatabase.tags;
-var includeTags = ref(filter.tags ? extractTags(filter.tags, true) : []);
-var excludeTags = ref(filter.tags ? extractTags(filter.tags, false) : []);
+const includeTags = ref(filter.tags ? extractTags(filter.tags, true) : []);
+const excludeTags = ref(filter.tags ? extractTags(filter.tags, false) : []);
 
-var tempoMin = ref(filter.tempoMin ?? 0);
-var tempoMax = ref(filter.tempoMax ?? 400);
+const tempoMin = ref(filter.tempoMin ?? 0);
+const tempoMax = ref(filter.tempoMax ?? 400);
 
-var lengthMin = ref(filter.lengthMin ?? 0);
-var lengthMax = ref(filter.lengthMax ?? 600);
+const lengthMin = ref(filter.lengthMin ?? 0);
+const lengthMax = ref(filter.lengthMax ?? 600);
 
 const userQueryInit = new UserQuery(filter.user);
 
-var user = ref(userQueryInit.userName ?? context.userName ?? "");
-var displayUser = ref(userQueryInit.displayName);
+const user = ref(userQueryInit.userName ?? context.userName ?? "");
+const displayUser = ref(userQueryInit.displayName);
 
-var bonuses = ref(computeBonuses());
-var validated = ref(false);
-var services = ref(filter.purchase ? filter.purchase.trim().split("") : []);
-var activity = ref(userQueryInit.parts);
+const bonuses = ref(computeBonuses());
+const validated = ref(false);
+const services = ref(filter.purchase ? filter.purchase.trim().split("") : []);
+const activity = ref(userQueryInit.parts);
 
 const computedDefault = (): string => {
   const value = !!keyWords.value ? "Closest Match" : "Dance Rating";
@@ -81,9 +81,9 @@ const sortOptions = computed(() => [
   { text: "Comments", value: SortOrder.Comments },
 ]);
 
-var sortInit = new SongSort(filter.sortOrder, filter.TextSearch);
-var sortId = ref(sortInit.id || null);
-var sortDirection = ref(sortInit.direction);
+const sortInit = new SongSort(filter.sortOrder, filter.TextSearch);
+const sortId = ref(sortInit.id || null);
+const sortDirection = ref(sortInit.direction);
 
 const danceNames = computed(() => {
   return dances.value.map((d) => danceDB.danceFromId(d)!.name);
@@ -334,8 +334,8 @@ function onReset(evt: Event): void {
             <div v-if="showThresholds" class="mx-3 mb-2">
               <div v-for="threshold in danceThresholds" :key="threshold.id" class="mt-2">
                 <BFormSpinbutton
-                  v-model="threshold.threshold"
                   id="`sb-${dance}`"
+                  v-model="threshold.threshold"
                   inline
                   min="1"
                   max="30"

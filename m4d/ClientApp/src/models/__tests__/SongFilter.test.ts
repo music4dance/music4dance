@@ -82,7 +82,7 @@ describe("song filter", () => {
     expect(f.isEmpty).toBeFalsy();
   });
 
-  it("should describe a dance/user filter", () => {
+  it("should describe a dance/blocked filter", () => {
     const f = SongFilter.buildFilter("Advanced-ATN----\\-me|h");
     expect(f).toBeDefined();
     expect(f).toBeInstanceOf(SongFilter);
@@ -92,7 +92,7 @@ describe("song filter", () => {
     );
   });
 
-  it("should describe a dance/user filter", () => {
+  it("should describe a multi-dance/blocked filter", () => {
     const f = SongFilter.buildFilter("Advanced-ATN,BOL----\\-me|h");
     expect(f).toBeDefined();
     expect(f).toBeInstanceOf(SongFilter);
