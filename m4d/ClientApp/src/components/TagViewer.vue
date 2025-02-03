@@ -14,9 +14,12 @@ const emit = defineEmits<{
   "tag-clicked": [tag: TagHandler];
 }>();
 
-const tagHandler = new TagHandler(props.tag);
+const tagHandler = new TagHandler({ tag: props.tag });
 const danceHandler = props.danceId
-  ? new DanceHandler(new DanceRating({ danceId: props.danceId }), Tag.fromDanceId(props.danceId))
+  ? new DanceHandler({
+      danceRating: new DanceRating({ danceId: props.danceId }),
+      tag: Tag.fromDanceId(props.danceId),
+    })
   : undefined;
 const color = props.added ? "green" : "red";
 </script>

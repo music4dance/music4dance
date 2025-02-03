@@ -85,7 +85,7 @@ const deleteTag = (handler: TagHandler): void => {
 };
 
 const tagHandler = (tag: Tag): TagHandler => {
-  return new TagHandler(tag);
+  return new TagHandler({ tag });
 };
 </script>
 

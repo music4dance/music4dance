@@ -10,16 +10,18 @@ export class SerializableObject {
     const result: { [key: string]: unknown } = {};
     const self = this as Record<string, unknown>;
 
-    SerializableObject.getSerializeableKeys(this).forEach((key) => {
-      if (!excludeKeys.includes(key)) {
-        result[key] = self[key];
-      }
-    });
+    SerializableObject.getSerializeableKeys(this as unknown as Record<string, unknown>).forEach(
+      (key) => {
+        if (!excludeKeys.includes(key)) {
+          result[key] = self[key];
+        }
+      },
+    );
 
     return result;
   }
 
-  private static getSerializeableKeys(obj: object): string[] {
+  private static getSerializeableKeys(obj: Record<string, unknown>): string[] {
     const keys: string[] = [];
     do {
       if (obj.constructor.name === "SerializableObject") {

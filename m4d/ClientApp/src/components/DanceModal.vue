@@ -6,7 +6,7 @@ import { computed, ref } from "vue";
 import type { DanceRatingVote } from "@/models/DanceRatingDelta";
 import type { DanceRating } from "@/models/DanceRating";
 import type { Song } from "@/models/Song";
-import type { SongFilter } from "@/models/SongFilter";
+import { SongFilter } from "@/models/SongFilter";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 
 const props = defineProps<{
@@ -50,7 +50,12 @@ const isFiltered = computed(() => {
 });
 const subTagHandler = (tag: Tag): TagHandler => {
   const handler = props.danceHandler;
-  return new TagHandler(tag, handler.user, handler.filter, handler.danceRating);
+  return new TagHandler({
+    tag,
+    user: handler.user,
+    filter: handler.filter,
+    parent: handler.danceRating,
+  });
 };
 const resetModal = (): void => {
   instance.value = props.danceHandler.clone();
@@ -60,14 +65,14 @@ const onDanceVote = (vote: DanceRatingVote): void => {
   const editor = instance.value.editor!.clone();
   editor.danceVote(vote);
   if (editor.song.findDanceRatingById(vote.danceId)) {
-    instance.value = new DanceHandler(
-      editor.song.findDanceRatingById(vote.danceId)!,
-      tag.value,
-      instance.value.user,
-      instance.value.filter as SongFilter, // INT-TODO: This cast shouldn't be necessary
-      editor.song,
+    instance.value = new DanceHandler({
+      danceRating: editor.song.findDanceRatingById(vote.danceId)!,
+      tag: tag.value,
+      user: instance.value.user,
+      filter: (instance.value?.filter ?? new SongFilter()) as SongFilter,
+      parent: editor.song,
       editor,
-    );
+    });
     instance.value.parent = editor.song;
     instance.value.danceRating = editor.song.findDanceRatingById(vote.danceId)!;
   } else {

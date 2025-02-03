@@ -53,16 +53,14 @@ const emit = defineEmits<{
 }>();
 
 const tagModalVisible = ref(false);
-const currentTag = ref<TagHandler>(
-  new TagHandler(Tag.fromString("Placeholder:Other"), undefined, undefined, undefined, true),
-);
+const currentTag = ref<TagHandler>(new TagHandler({ tag: Tag.fromString("Placeholder:Other") }));
 
 const danceModalVisible = ref(false);
 const currentDance = ref<DanceHandler>(
-  new DanceHandler(
-    new DanceRating({ danceId: "SWZ", weight: 0 }),
-    Tag.fromString("Placeholder:Other"),
-  ),
+  new DanceHandler({
+    danceRating: new DanceRating({ danceId: "SWZ", weight: 0 }),
+    tag: Tag.fromString("Placeholder:Other"),
+  }),
 );
 
 const playModalVisible = ref(false);
@@ -252,11 +250,18 @@ const orderValue = (song: Song): string => {
 const danceHandler = (tag: Tag, filter: SongFilter, editor: SongEditor): DanceHandler => {
   const song = editor.song;
   const danceRating = song.findDanceRatingByName(tag.value);
-  return new DanceHandler(danceRating!, tag, userQuery?.userName, filter, song, editor);
+  return new DanceHandler({
+    danceRating: danceRating!,
+    tag,
+    user: userQuery?.userName,
+    filter,
+    parent: song,
+    editor,
+  });
 };
 
 const tagHandler = (tag: Tag, filter?: SongFilter, parent?: TaggableObject): TagHandler => {
-  return new TagHandler(tag, userQuery?.userName, filter, parent);
+  return new TagHandler({ tag: tag, user: userQuery?.userName, filter, parent });
 };
 
 const tags = (song: Song): Tag[] => {
@@ -585,10 +590,10 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
       </template>
     </BTable>
     <ChronModal :order="orderType" @update:order="onChronOrderChanged($event)" />
-    <TagModal v-model="tagModalVisible" :tag-handler="currentTag" />
+    <TagModal v-model="tagModalVisible" :tag-handler="currentTag as TagHandler" />
     <DanceModal
       v-model="danceModalVisible"
-      :dance-handler="currentDance"
+      :dance-handler="currentDance as DanceHandler"
       @dance-vote="onDanceVote(currentSong as SongEditor, $event)"
       @tag-clicked="showTagModal"
     />

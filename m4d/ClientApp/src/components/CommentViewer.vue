@@ -10,7 +10,10 @@ const props = defineProps<{
 }>();
 
 const danceHandler = props.danceId
-  ? new DanceHandler(new DanceRating({ danceId: props.danceId }), Tag.fromDanceId(props.danceId))
+  ? new DanceHandler({
+      danceRating: new DanceRating({ danceId: props.danceId }),
+      tag: Tag.fromDanceId(props.danceId),
+    })
   : undefined;
 </script>
 

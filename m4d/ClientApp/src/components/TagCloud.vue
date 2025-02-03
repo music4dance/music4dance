@@ -35,9 +35,7 @@ const props = defineProps<{
 }>();
 
 const modalVisible = ref(false);
-const currentTag = ref<TagHandler>(
-  new TagHandler(Tag.fromString("Placeholder:Other"), undefined, undefined, undefined, true),
-);
+const currentTag = ref<TagHandler>(new TagHandler({ tag: Tag.fromString("Placeholder:Other") }));
 const tagButtons = reactive(TagButton.buttons);
 const filter = ref(6);
 
@@ -73,7 +71,7 @@ function showModal(key: string): void {
 }
 
 function getTagHandler(tag: Tag): TagHandler {
-  return new TagHandler(tag, props.user, props.songFilter, undefined, true);
+  return new TagHandler({ tag, user: props.user, filter: props.songFilter });
 }
 </script>
 
@@ -122,7 +120,7 @@ function getTagHandler(tag: Tag): TagHandler {
     <div v-else>
       <h4>Please select one or more tag classes (style, tempo, musical genre, oother)</h4>
     </div>
-    <TagModal v-model="modalVisible" :tag-handler="currentTag" />
+    <TagModal v-model="modalVisible" :tag-handler="currentTag as TagHandler" />
   </div>
 </template>
 

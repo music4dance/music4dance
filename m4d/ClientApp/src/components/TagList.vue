@@ -20,7 +20,7 @@ const tags = computed(() => {
 });
 
 const tagHandler = (tag: Tag): TagHandler => {
-  return new TagHandler(tag, props.user, props.filter, props.container);
+  return new TagHandler({ tag, user: props.user, filter: props.filter, parent: props.container });
 };
 </script>
 

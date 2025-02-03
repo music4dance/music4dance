@@ -5,15 +5,14 @@ import { TaggableObject } from "./TaggableObject";
 
 export class TagHandler {
   public id: string;
+  public tag: Tag = new Tag();
+  public user?: string;
+  public filter?: SongFilter;
+  public parent?: TaggableObject;
 
-  constructor(
-    public tag: Tag,
-    public user?: string,
-    public filter?: SongFilter,
-    public parent?: TaggableObject,
-    keyId?: boolean,
-  ) {
-    this.id = keyId ? tag.key : uuidv4();
+  constructor(init?: Partial<TagHandler>) {
+    Object.assign(this, init);
+    this.id = init?.tag?.key ?? uuidv4();
   }
 
   public get isSelected(): boolean {

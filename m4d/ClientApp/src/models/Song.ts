@@ -330,7 +330,7 @@ export class Song extends TaggableObject {
         case PropertyType.albumListField:
         case PropertyType.albumPromote:
         case PropertyType.albumOrder:
-        case PropertyType.songId:
+        case PropertyType.songIdField:
           // Obsolete fields
           break;
         case PropertyType.createCommand:

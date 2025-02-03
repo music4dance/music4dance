@@ -43,9 +43,7 @@ const toastShown = ref(false);
 const edit = ref(props.startEditing);
 
 const tagModalVisible = ref(false);
-const currentTag = ref<TagHandler>(
-  new TagHandler(Tag.fromString("Placeholder:Other"), undefined, undefined, undefined, true),
-);
+const currentTag = ref<TagHandler>(new TagHandler({ tag: Tag.fromString("Placeholder:Other") }));
 
 const adminProperties = computed<string>({
   get: () => {
@@ -482,6 +480,6 @@ onBeforeUnmount(() => {
       @choose-dance="addDance"
       @update-song="updateSong"
     />
-    <TagModal v-model="tagModalVisible" :tag-handler="currentTag" />
+    <TagModal v-model="tagModalVisible" :tag-handler="currentTag as TagHandler" />
   </div>
 </template>

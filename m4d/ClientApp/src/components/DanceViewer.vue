@@ -13,7 +13,9 @@ const emit = defineEmits<{
 }>();
 
 const danceRating = DanceRating.fromTag(props.tag);
-const danceHandler = danceRating ? new DanceHandler(danceRating, props.tag.neutral) : undefined;
+const danceHandler = danceRating
+  ? new DanceHandler({ danceRating, tag: props.tag.neutral })
+  : undefined;
 </script>
 
 <template>
