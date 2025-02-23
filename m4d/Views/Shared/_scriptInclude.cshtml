@@ -1,7 +1,7 @@
 ﻿@model m4d.ViewModels.ScriptModel
 
 <environment include="Development">
-    @if (Model.IncludeTools)
+@if (Model.IncludeTools)
 {
     <script src="/scripts/tools-script.js"></script>
 }
@@ -12,7 +12,7 @@
 }
 </environment>
 <environment exclude="Development">
-    @if (Model.IncludeTools)
+@if (Model.IncludeTools)
 {
     <script src="/scripts/tools-script.min.js"></script>
 }

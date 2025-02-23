@@ -6,6 +6,7 @@
 @{
 ViewData["Title"] = Model.Title;
 ViewData["Description"] = Model.Description;
+var entry = $"/src/pages/{Model.Name}/main.ts";
 var vueModel = Model.Model;
 if (vueModel is string)
 {
@@ -27,30 +28,17 @@ var converterModel = Model.Model != null
     <partial name="@Model.Script" />
 }
 
-<environment include="Development">
-    @{ string devEntry = $"/src/pages/{Model.Name}/main.ts"; }
-    <script type="module" src="@devEntry"></script>
-    @if (Model.Model != null)
-{
-    @section Scripts {
-            <partial name="_jsonCamelCase" model="@converterModel"/>
-        }
+@section Styles {
+    <link rel="stylesheet" vite-href="@entry" asp-append-version="true" />
 }
-</environment>
 
-<environment exclude="Development">
-    @section Styles {
-        <partial name="_vue-css" model="Model.Name"/>
-    }
-
-    @section Scripts {
-        @if (Model.Model != null)
+@section Scripts {
+    @if (Model.Model != null)
     {
         <partial name="_jsonCamelCase" model="@converterModel" />
     }
-        <script type="module" src="/vclient/@Manifest[$"src/pages/{Model.Name}/main.ts"]!.File"></script>
-    }
-</environment>
+    <script type="module" vite-src="@entry" asp-append-version="true"></script>
+}
 
 <div id="app"></div>
 

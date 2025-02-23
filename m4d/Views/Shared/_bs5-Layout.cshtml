@@ -5,22 +5,21 @@
 
 @{
     var help = "https://music4dance.blog/music4dance-help/";
-if (!string.IsNullOrEmpty(ViewBag.Help))
-{
-    help = string.Format("https://music4dance.blog/music4dance-help/{0}/", ViewBag.Help);
-}
-ViewData["NoSiteCss"] = true;
+    if (!string.IsNullOrEmpty(ViewBag.Help))
+    {
+        help = string.Format("https://music4dance.blog/music4dance-help/{0}/", ViewBag.Help);
+    }
+    ViewData["NoSiteCss"] = true;
+    var entry = "src/pages/header/main.ts";
 }
 <!DOCTYPE html>
 @{
 }
 <html>
 <head>
-    @{ string header = "header";}
+    <link rel="stylesheet" vite-href="style.css" asp-append-version="true" />
     @await RenderSectionAsync("styles", false)
-    <environment exclude="Development">
-        <partial name="_vue-css" model="header"/>
-    </environment>
+    <link rel="stylesheet" vite-href="@entry" asp-append-version="true" />
     <script type="importmap"></script>
     <partial name="_head"/>
     @* INT-TODO: Move this to a style sheet? *@
@@ -82,13 +81,7 @@ List<BreadCrumbItem> breadCrumbs = ViewBag.BreadCrumbs;
 @* INT-TODO: Should probably copy the bootstrap js locally and do fallback stuff *@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
-<environment include="Development">
-    <script type="module" src="/src/pages/header/main.ts"></script>
-</environment>
-
-<environment exclude="Development">
-    <script type="module" src="/vclient/@Manifest["src/pages/header/main.ts"]!.File"></script>
-</environment>
+<script type="module" vite-src="@entry" asp-append-version="true"></script>
 
 @await RenderSectionAsync("scripts", false)
 </body>

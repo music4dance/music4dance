@@ -21,7 +21,7 @@ using Microsoft.FeatureManagement;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 
-// TODONEXT: Figure out how to add a design time factory for the context https://learn.microsoft.com/en-us/ef/core/cli/dbcontext-creation?tabs=dotnet-core-cli#from-a-design-time-factory
+// TODO: Figure out how to add a design time factory for the context https://learn.microsoft.com/en-us/ef/core/cli/dbcontext-creation?tabs=dotnet-core-cli#from-a-design-time-factory
 //  Or maybe implement https://learn.microsoft.com/en-us/ef/core/cli/dbcontext-creation?tabs=dotnet-core-cli#from-application-services
 //  Think that's working, but now have to figure out what is going on with UsageSummary and the aspnet fields that changed length
 
@@ -45,7 +45,10 @@ Console.WriteLine($"Environment: {environment.EnvironmentName}");
 services.AddHttpLogging(o => { });
 builder.Services.AddFeatureManagement();
 
-if (!environment.IsDevelopment())
+var useVite = configuration.UseVite();
+var isDevelopment = environment.IsDevelopment();
+
+if (!isDevelopment)
 {
     var credentials = new ManagedIdentityCredential();
     configuration.AddAzureAppConfiguration(options =>
@@ -215,7 +218,7 @@ services.AddHostedService<DanceStatsHostedService>();
 
 var app = builder.Build();
 
-if (!environment.IsDevelopment())
+if (!isDevelopment)
 {
     app.UseAzureAppConfiguration();
 }
@@ -230,7 +233,7 @@ using (var scope = app.Services.CreateScope())
     var sp = scope.ServiceProvider;
     sp.GetRequiredService<DanceMusicContext>().Database.Migrate();
 
-    if (environment.IsDevelopment())
+    if (isDevelopment)
     {
         var userManager = sp.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = sp.GetRequiredService<RoleManager<IdentityRole>>();
@@ -241,10 +244,13 @@ using (var scope = app.Services.CreateScope())
 // Configure the HTTP request pipeline.
 app.Logger.LogInformation(@"Configuring request pipeline");
 
-if (app.Environment.IsDevelopment())
+if (isDevelopment)
 {
     app.UseDeveloperExceptionPage();
-    app.UseViteDevelopmentServer(true);
+    if (useVite)
+    {
+        app.UseViteDevelopmentServer(true);
+    }
 }
 else
 {

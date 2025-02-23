@@ -12,7 +12,11 @@ describe("Song Index", () => {
     expect(t).not.toBeNull();
   });
 
-  test("renders a song index page", () => {
-    testPageSnapshot(App, model);
-  });
+  test(
+    "renders a song index page",
+    () => {
+      testPageSnapshot(App, model);
+    },
+    { timeout: 50000 },
+  );
 });

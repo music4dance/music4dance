@@ -19,6 +19,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Stripe.net" />
+    <PackageReference Include="Vite.AspNetCore" />
     <PackageReference Include="X.PagedList.Mvc.Core" />
   </ItemGroup>
   <ItemGroup>

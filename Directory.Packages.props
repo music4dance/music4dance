@@ -38,8 +38,8 @@
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageVersion Include="owl" Version="1.0.5407.37498" />
     <PackageVersion Include="Owl.reCAPTCHA" Version="9.0.0" />
-    <PackageVersion Include="Selenium.WebDriver" Version="4.27.0" />
-    <PackageVersion Include="Selenium.WebDriver.ChromeDriver" Version="131.0.6778.20400" />
+    <PackageVersion Include="Selenium.WebDriver" Version="4.28.0" />
+    <PackageVersion Include="Selenium.WebDriver.ChromeDriver" Version="133.0.6943.9800" />
     <PackageVersion Include="Sendgrid" Version="9.29.3" />
     <PackageVersion Include="SixLabors.ImageSharp" Version="3.1.6" />
     <PackageVersion Include="Stripe.net" Version="47.2.0" />
@@ -51,7 +51,7 @@
     <PackageVersion Include="System.ServiceModel.Primitives" Version="8.1.1" />
     <PackageVersion Include="System.ServiceModel.Security" Version="6.0.0" />
     <PackageVersion Include="UAParser" Version="3.1.47" />
-    <PackageVersion Include="Vite.AspNetCore" Version="2.3.0" />
+    <PackageVersion Include="Vite.AspNetCore" Version="2.4.0" />
     <PackageVersion Include="X.PagedList.Mvc.Core" Version="10.5.7" />
   </ItemGroup>
 </Project>

@@ -1,12 +1,4 @@
 {
-  "iisSettings": {
-    "windowsAuthentication": false,
-    "anonymousAuthentication": true,
-    "iisExpress": {
-      "applicationUrl": "http://localhost:50703",
-      "sslPort": 44382
-    }
-  },
   "profiles": {
     "IIS Express": {
       "commandName": "IISExpress",
@@ -15,14 +7,33 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "m4d": {
+    "m4d-build": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "SEARCHINDEX": "basicc"
+        "SEARCHINDEX": "basicc",
+        "LOCALHOST": ""
       },
       "applicationUrl": "https://localhost:5001;http://localhost:5000"
+    },
+    "m4d-vite": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "SEARCHINDEX": "basicc",
+        "ASPNETCORE_VITE": "true"
+      },
+      "applicationUrl": "https://localhost:5001;http://localhost:5000"
+    }
+  },
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:50703",
+      "sslPort": 44382
     }
   }
 }

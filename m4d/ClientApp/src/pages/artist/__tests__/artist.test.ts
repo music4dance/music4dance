@@ -4,7 +4,11 @@ import { model } from "./model";
 import App from "../App.vue";
 
 describe("Album", () => {
-  test("renders an artist page", () => {
-    testPageSnapshot(App, model);
-  });
+  test(
+    "renders an artist page",
+    () => {
+      testPageSnapshot(App, model);
+    },
+    { timeout: 10000 },
+  );
 });

@@ -29,6 +29,9 @@
     <None Include="wwwroot\robots.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="wwwroot\vclient\.vite\**" CopyToPublishDirectory="PreserveNewest" Exclude="$(DefaultItemExcludes)" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="AutoMapper" />
     <PackageReference Include="AspNet.Security.OAuth.Spotify" />
     <PackageReference Include="Azure.Identity" />

@@ -3,21 +3,16 @@ import { type FeatureInfo } from "@/models/FeatureInfo";
 import { type Link } from "@/models/Link";
 import { SiteMapEntry } from "@/models/SiteMapInfo";
 import { random, seed } from "@/helpers/Random";
-import { jsonArrayMember, jsonObject, TypedJSON } from "typedjson";
+import { TypedJSON } from "typedjson";
 import { type AreaInfo } from "./AreaInfo";
-import { DanceClass, DanceMapping } from "./DanceClass";
+import { DanceMapping } from "./DanceClass";
 import { type CardInfo } from "./components/InfoCard.vue";
+import { HomeModel } from "./HomeModel";
 
 declare global {
   interface Window {
     seedNumber: number;
   }
-}
-
-@jsonObject
-class HomeModel {
-  @jsonArrayMember(SiteMapEntry) public blogEntries!: SiteMapEntry[];
-  @jsonArrayMember(DanceClass) public dances!: DanceClass[];
 }
 
 declare const model_: string;
@@ -138,7 +133,7 @@ const danceLink = function (dm: DanceMapping): string {
   return dm.link;
 };
 
-const cards = model.dances.map((d) => ({
+const cards = model.dances?.map((d) => ({
   title: { text: d.fullTitle, link: `/dances/${d.topDance}` },
   image: d.image,
   items: d.dances.map((dm) => ({
@@ -148,7 +143,8 @@ const cards = model.dances.map((d) => ({
   blog: d.title.toLowerCase(),
 }));
 
-const blogEntries: SiteMapEntry[] = model.blogEntries.flatMap((entry) => entry.children ?? []);
+const blogEntries: SiteMapEntry[] =
+  model.blogEntries?.flatMap((entry) => entry.children ?? []) ?? [];
 
 const newestEntry: SiteMapEntry = blogEntries.reduce((acc, curr) =>
   (acc.order ?? 0) > (curr.order ?? 0) ? acc : curr,
