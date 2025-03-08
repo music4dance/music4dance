@@ -23,7 +23,10 @@ const breadcrumbs: BreadCrumbItem[] = [...infoTrail, { text: "Technical Blog", a
       in the music4dance blog.
     </p>
 
-    <BlogSeries title="Building a multi-page website using Asp.Net Core and Vue.js">
+    <BlogSeries
+      title="Building a multi-page website using Asp.Net Core and Vue.js"
+      link="https://medium.com/@dwgray/list/building-a-multipage-site-with-aspnet-vuejs-vitejs-271605db680f"
+    >
       <template #summary>
         This is a loose series of articles that relate specifically to problems I've encountered
         using asp.net core, vue.js and vite.js to build the music4dance website. This includes a
@@ -50,9 +53,17 @@ const breadcrumbs: BreadCrumbItem[] = [...infoTrail, { text: "Technical Blog", a
         link="https://medium.com/@dwgray/how-to-build-a-true-multi-page-website-using-asp-net-7a1e9228b1a9"
         summary="I’ll finish building by demo website by walking through how I minimize the boilerplate code in the ASP.NET part..."
       />
+      <BlogArticle
+        title="A Multi-Page Website with AspNetCore and Vite 6"
+        link="https://medium.com/@dwgray/a-multi-page-website-with-aspnetcore-and-vite-6-051877342f7c"
+        summary='An update to "Writing a true Multi-Page Website" with AspNetCore 9, Vue 3, and Vite 6, with a tip on local debugging....'
+      />
     </BlogSeries>
 
-    <BlogSeries title="The Write Once Run Anywhere (WORA) series">
+    <BlogSeries
+      title="The Write Once Run Anywhere (WORA) series"
+      link="https://medium.com/@dwgray/list/which-multiplatform-framework-should-i-use-to-write-my-app-7d5104d5efe6"
+    >
       <template #summary>
         My first series of articles was inspired when I led a group of students contributing to the
         <a href="https://flutter.dev/">Google Flutter</a> project. It's an interleaved set of

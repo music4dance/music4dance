@@ -8,13 +8,18 @@ defineSlots<{
 
 defineProps<{
   title: string;
+  link?: string;
   summary?: string;
 }>();
 </script>
 
 <template>
   <div class="mt-3">
-    <H2>{{ title }}</H2>
+    <H2>
+      <BLink v-if="link" :href="link" target="_blank" underline-opacity="0"
+        >{{ title }} <IBiBoxArrowUpRight /></BLink
+      ><span v-else>{{ title }}</span></H2
+    >
     <p>
       <slot name="summary">{{ summary }}</slot>
     </p>
