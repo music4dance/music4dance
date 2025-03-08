@@ -47,6 +47,7 @@ exports[`User Info > Renders User Info Page 1`] = `
             </li>
           </ul>
           <div>
+            <p>chicagoarthurmurray in order to add songs to your lists, either <a class="" replace="false" href="https://music4dance.blog/music4dance-help/dance-tags/">vote on songs to dance to</a> or <a class="" replace="false" href="https://music4dance.blog/what-is-the-difference-between-adding-a-song-to-favorites-and-voting-on-a-songs-danceability/">add song to your favorites or blocked lists</a>. </p>
             <p> The User Song List feature is still under development. We are considering including lists of dance styles that the user has tagged or possibly including lists of arbitrary tags. Please <a href="https://music4dance.blog/feedback/">let us know</a> if you like this feature or have ideas to improve it (or both). </p>
             <!--v-if-->
           </div>

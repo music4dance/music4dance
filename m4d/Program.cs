@@ -58,15 +58,16 @@ if (!isDevelopment)
             credentials)
         .ConfigureKeyVault(
             kv => { kv.SetCredential(credentials); })
-        .UseFeatureFlags(featureFlagOptions => {
-            featureFlagOptions.CacheExpirationInterval = TimeSpan.FromMinutes(5);
+        .UseFeatureFlags(featureFlagOptions =>
+        {
+            featureFlagOptions.SetRefreshInterval(TimeSpan.FromMinutes(5));
         })
         .Select(KeyFilter.Any, LabelFilter.Null)
         .Select(KeyFilter.Any, environment.EnvironmentName)
         .ConfigureRefresh(refresh =>
         {
             refresh.Register("Configuration:Sentinel", environment.EnvironmentName, refreshAll: true)
-                .SetCacheExpiration(TimeSpan.FromMinutes(5));
+                .SetRefreshInterval(TimeSpan.FromMinutes(5));
         });
     });
 
@@ -310,5 +311,7 @@ app.MapControllerRoute(
 app.MapRazorPages();
 
 ApplicationLogging.LoggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
+
+GlobalState.UseTestKeys = isDevelopment;
 
 app.Run();

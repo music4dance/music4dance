@@ -4,13 +4,17 @@ import { model } from "./model";
 import App from "../App.vue";
 
 describe("Song Index", () => {
-  test("checks the mounted component", () => {
-    const wrapper = loadTestPage(App, model);
-    expect(wrapper.find("#admin").exists).toBeTruthy();
+  test(
+    "checks the mounted component",
+    () => {
+      const wrapper = loadTestPage(App, model);
+      expect(wrapper.find("#admin").exists).toBeTruthy();
 
-    const t = document.getElementById("Title");
-    expect(t).not.toBeNull();
-  });
+      const t = document.getElementById("Title");
+      expect(t).not.toBeNull();
+    },
+    { timeout: 50000 },
+  );
 
   test(
     "renders a song index page",

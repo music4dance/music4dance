@@ -4,6 +4,10 @@ import { computed } from "vue";
 
 const props = defineProps<{ model: ProfileModel }>();
 
+const hasSongs = computed(() => {
+  return !!(props.model?.favoriteCount ?? props.model?.editCount ?? props.model?.blockedCount);
+});
+
 const allLinks = computed(() => {
   const info = props.model;
 
@@ -68,6 +72,17 @@ const links = computed(() => {
       />
     </ul>
     <div>
+      <p v-if="!hasSongs">
+        {{ model.displayName }} in order to add songs to your lists, either
+        <BLink href="https://music4dance.blog/music4dance-help/dance-tags/"
+          >vote on songs to dance to</BLink
+        >
+        or
+        <BLink
+          href="https://music4dance.blog/what-is-the-difference-between-adding-a-song-to-favorites-and-voting-on-a-songs-danceability/"
+          >add song to your favorites or blocked lists</BLink
+        >.
+      </p>
       <p>
         The User Song List feature is still under development. We are considering including lists of
         dance styles that the user has tagged or possibly including lists of arbitrary tags. Please
