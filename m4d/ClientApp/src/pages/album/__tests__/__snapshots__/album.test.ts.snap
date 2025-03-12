@@ -10,7 +10,7 @@ exports[`Album > renders an album page 1`] = `
         <!--v-if-->
       </h1>
       <div data-v-a7ef304f="">
-        <table data-v-a7ef304f="" class="table b-table table-borderless table-hover table-striped" noproviderpaging="false" noprovidersorting="false" noproviderfiltering="false" mustsort="false" selectable="false" multisort="false" stickyselect="false" selecthead="true" selectmode="multi" selectionvariant="primary" busyloadingtext="Loading..." perpage="Infinity" currentpage="1" nolocalsorting="true" noselectonclick="false" nosortableicon="false" emptyfilteredtext="There are no records matching your request" emptytext="There are no records to show" showempty="false" busy="false" selecteditems="" aria-busy="false" sort-icon-left="">
+        <table data-v-a7ef304f="" id="___BVN__ID__v-0__" class="table b-table table-borderless table-hover table-striped" aria-busy="false" sort-icon-left="">
           <thead class="">
             <tr class="">
               <th scope="col" class="">
@@ -57,8 +57,16 @@ exports[`Album > renders an album page 1`] = `
             <!---->
             <tr class="">
               <td scope="col" class="">
-                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-9337da18-44c0-41e3-8524-05c3b42f7f24" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="___BVN__ID__v-0__popover____placeholder"></span>
-                <!----></span><a href="#" role="button" class="ms-1"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 1.5em;">
+                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-9337da18-44c0-41e3-8524-05c3b42f7f24" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span data-v-9445feff="" id="___BVN__ID__v-3__popover____placeholder" style="display: none;"></span>
+                <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div data-v-9445feff="" id="___BVN__ID__v-3__popover___" triggers="hover" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div data-v-9445feff="" class="overflow-auto">
+                      <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
+                      <!---->
+                    </div>
+                  </div>
+                </transition-stub></span><a href="#" role="button" class="ms-1"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 1.5em;">
                     <path fill="currentColor" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"></path>
                   </svg></a></span>
               </td>
@@ -106,15 +114,31 @@ exports[`Album > renders an album page 1`] = `
                 </button>
               </td>
               <td scope="col" class="">
-                <!----><span data-v-a7ef304f="">Y</span><span><span id="order_tip__9337da18-44c0-41e3-8524-05c3b42f7f24_placeholder"></span>
-                <!----></span>
+                <!----><span data-v-a7ef304f="">Y</span><span><span data-v-9445feff="" id="order_tip__9337da18-44c0-41e3-8524-05c3b42f7f24_placeholder" style="display: none;"></span>
+                <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div data-v-9445feff="" id="order_tip__9337da18-44c0-41e3-8524-05c3b42f7f24" html="true" class="tooltip b-tooltip fade  bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div data-v-9445feff="" class="overflow-auto">
+                      <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">Last Modified 31-Jul-2022 09:02:21 AM (years ago)</div>
+                      <!---->
+                    </div>
+                  </div>
+                </transition-stub></span>
               </td>
             </tr>
             <!---->
             <tr class="">
               <td scope="col" class="">
-                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-116ea88c-5a34-4cd1-8ff6-1e5215ced86c" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="___BVN__ID__v-1__popover____placeholder"></span>
-                <!----></span><a href="#" role="button" class="ms-1"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 1.5em;">
+                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-116ea88c-5a34-4cd1-8ff6-1e5215ced86c" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span data-v-9445feff="" id="___BVN__ID__v-4__popover____placeholder" style="display: none;"></span>
+                <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div data-v-9445feff="" id="___BVN__ID__v-4__popover___" triggers="hover" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div data-v-9445feff="" class="overflow-auto">
+                      <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
+                      <!---->
+                    </div>
+                  </div>
+                </transition-stub></span><a href="#" role="button" class="ms-1"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 1.5em;">
                     <path fill="currentColor" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"></path>
                   </svg></a></span>
               </td>
@@ -134,12 +158,36 @@ exports[`Album > renders an album page 1`] = `
                 <!---->308
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" id="__m4d__000004" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-6.png" width="25" height="25"><span id="___BVN__ID__v-2__popover____placeholder"></span>
-                  <!---->
-                </a><a data-v-a7ef304f="" id="__m4d__000005" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-5.png" width="25" height="25"><span id="___BVN__ID__v-3__popover____placeholder"></span>
-                  <!---->
-                </a><a data-v-a7ef304f="" id="__m4d__000006" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-4.png" width="25" height="25"><span id="___BVN__ID__v-4__popover____placeholder"></span>
-                  <!---->
+                <!----><a data-v-a7ef304f="" id="__m4d__000004" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-6.png" width="25" height="25"><span data-v-9445feff="" id="___BVN__ID__v-5__popover____placeholder" style="display: none;"></span>
+                  <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div data-v-9445feff="" id="___BVN__ID__v-5__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div data-v-9445feff="" class="overflow-auto">
+                        <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.54 where 1.00 is the strongest beat.</div>
+                        <!---->
+                      </div>
+                    </div>
+                  </transition-stub>
+                </a><a data-v-a7ef304f="" id="__m4d__000005" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-5.png" width="25" height="25"><span data-v-9445feff="" id="___BVN__ID__v-6__popover____placeholder" style="display: none;"></span>
+                  <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div data-v-9445feff="" id="___BVN__ID__v-6__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div data-v-9445feff="" class="overflow-auto">
+                        <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.46 where 1.00 is the highest energy.</div>
+                        <!---->
+                      </div>
+                    </div>
+                  </transition-stub>
+                </a><a data-v-a7ef304f="" id="__m4d__000006" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-4.png" width="25" height="25"><span data-v-9445feff="" id="___BVN__ID__v-7__popover____placeholder" style="display: none;"></span>
+                  <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div data-v-9445feff="" id="___BVN__ID__v-7__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div data-v-9445feff="" class="overflow-auto">
+                        <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.36 where 1.00 is the happiest.</div>
+                        <!---->
+                      </div>
+                    </div>
+                  </transition-stub>
                 </a>
               </td>
               <td scope="col" class=""></td>
@@ -231,15 +279,31 @@ exports[`Album > renders an album page 1`] = `
                 </button>
               </td>
               <td scope="col" class="">
-                <!----><span data-v-a7ef304f="">Y</span><span><span id="order_tip__116ea88c-5a34-4cd1-8ff6-1e5215ced86c_placeholder"></span>
-                <!----></span>
+                <!----><span data-v-a7ef304f="">Y</span><span><span data-v-9445feff="" id="order_tip__116ea88c-5a34-4cd1-8ff6-1e5215ced86c_placeholder" style="display: none;"></span>
+                <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div data-v-9445feff="" id="order_tip__116ea88c-5a34-4cd1-8ff6-1e5215ced86c" html="true" class="tooltip b-tooltip fade  bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div data-v-9445feff="" class="overflow-auto">
+                      <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">Last Modified 15-Jan-2021 11:05:23 AM (years ago)</div>
+                      <!---->
+                    </div>
+                  </div>
+                </transition-stub></span>
               </td>
             </tr>
             <!---->
             <tr class="">
               <td scope="col" class="">
-                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-9c898438-bbc1-4c58-9065-a1618ed18608" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="___BVN__ID__v-5__popover____placeholder"></span>
-                <!----></span><a href="#" role="button" class="ms-1"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 1.5em;">
+                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-9c898438-bbc1-4c58-9065-a1618ed18608" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span data-v-9445feff="" id="___BVN__ID__v-8__popover____placeholder" style="display: none;"></span>
+                <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div data-v-9445feff="" id="___BVN__ID__v-8__popover___" triggers="hover" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div data-v-9445feff="" class="overflow-auto">
+                      <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
+                      <!---->
+                    </div>
+                  </div>
+                </transition-stub></span><a href="#" role="button" class="ms-1"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 1.5em;">
                     <path fill="currentColor" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"></path>
                   </svg></a></span>
               </td>
@@ -287,15 +351,31 @@ exports[`Album > renders an album page 1`] = `
                 </button>
               </td>
               <td scope="col" class="">
-                <!----><span data-v-a7ef304f="">Y</span><span><span id="order_tip__9c898438-bbc1-4c58-9065-a1618ed18608_placeholder"></span>
-                <!----></span>
+                <!----><span data-v-a7ef304f="">Y</span><span><span data-v-9445feff="" id="order_tip__9c898438-bbc1-4c58-9065-a1618ed18608_placeholder" style="display: none;"></span>
+                <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div data-v-9445feff="" id="order_tip__9c898438-bbc1-4c58-9065-a1618ed18608" html="true" class="tooltip b-tooltip fade  bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div data-v-9445feff="" class="overflow-auto">
+                      <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">Last Modified 15-Jan-2016 06:37:30 PM (years ago)</div>
+                      <!---->
+                    </div>
+                  </div>
+                </transition-stub></span>
               </td>
             </tr>
             <!---->
             <tr class="">
               <td scope="col" class="">
-                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-dedc039e-2964-4a57-b21b-d027c45872ee" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="___BVN__ID__v-6__popover____placeholder"></span>
-                <!----></span><a href="#" role="button" class="ms-1"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 1.5em;">
+                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-dedc039e-2964-4a57-b21b-d027c45872ee" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span data-v-9445feff="" id="___BVN__ID__v-9__popover____placeholder" style="display: none;"></span>
+                <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div data-v-9445feff="" id="___BVN__ID__v-9__popover___" triggers="hover" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div data-v-9445feff="" class="overflow-auto">
+                      <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
+                      <!---->
+                    </div>
+                  </div>
+                </transition-stub></span><a href="#" role="button" class="ms-1"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 1.5em;">
                     <path fill="currentColor" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"></path>
                   </svg></a></span>
               </td>
@@ -315,12 +395,36 @@ exports[`Album > renders an album page 1`] = `
                 <!---->278
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" id="__m4d__000010" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-5.png" width="25" height="25"><span id="___BVN__ID__v-7__popover____placeholder"></span>
-                  <!---->
-                </a><a data-v-a7ef304f="" id="__m4d__000011" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-5.png" width="25" height="25"><span id="___BVN__ID__v-8__popover____placeholder"></span>
-                  <!---->
-                </a><a data-v-a7ef304f="" id="__m4d__000012" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-5.png" width="25" height="25"><span id="___BVN__ID__v-9__popover____placeholder"></span>
-                  <!---->
+                <!----><a data-v-a7ef304f="" id="__m4d__000010" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-5.png" width="25" height="25"><span data-v-9445feff="" id="___BVN__ID__v-10__popover____placeholder" style="display: none;"></span>
+                  <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div data-v-9445feff="" id="___BVN__ID__v-10__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div data-v-9445feff="" class="overflow-auto">
+                        <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.47 where 1.00 is the strongest beat.</div>
+                        <!---->
+                      </div>
+                    </div>
+                  </transition-stub>
+                </a><a data-v-a7ef304f="" id="__m4d__000011" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-5.png" width="25" height="25"><span data-v-9445feff="" id="___BVN__ID__v-11__popover____placeholder" style="display: none;"></span>
+                  <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div data-v-9445feff="" id="___BVN__ID__v-11__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div data-v-9445feff="" class="overflow-auto">
+                        <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.50 where 1.00 is the highest energy.</div>
+                        <!---->
+                      </div>
+                    </div>
+                  </transition-stub>
+                </a><a data-v-a7ef304f="" id="__m4d__000012" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-5.png" width="25" height="25"><span data-v-9445feff="" id="___BVN__ID__v-12__popover____placeholder" style="display: none;"></span>
+                  <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div data-v-9445feff="" id="___BVN__ID__v-12__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div data-v-9445feff="" class="overflow-auto">
+                        <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.41 where 1.00 is the happiest.</div>
+                        <!---->
+                      </div>
+                    </div>
+                  </transition-stub>
                 </a>
               </td>
               <td scope="col" class="">
@@ -428,15 +532,31 @@ exports[`Album > renders an album page 1`] = `
                 </button>
               </td>
               <td scope="col" class="">
-                <!----><span data-v-a7ef304f="">Y</span><span><span id="order_tip__dedc039e-2964-4a57-b21b-d027c45872ee_placeholder"></span>
-                <!----></span>
+                <!----><span data-v-a7ef304f="">Y</span><span><span data-v-9445feff="" id="order_tip__dedc039e-2964-4a57-b21b-d027c45872ee_placeholder" style="display: none;"></span>
+                <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div data-v-9445feff="" id="order_tip__dedc039e-2964-4a57-b21b-d027c45872ee" html="true" class="tooltip b-tooltip fade  bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div data-v-9445feff="" class="overflow-auto">
+                      <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">Last Modified 31-Dec-2021 09:19:10 AM (years ago)</div>
+                      <!---->
+                    </div>
+                  </div>
+                </transition-stub></span>
               </td>
             </tr>
             <!---->
             <tr class="">
               <td scope="col" class="">
-                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-b9b59a4d-1576-4635-bc73-0064096d7ae4" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="___BVN__ID__v-10__popover____placeholder"></span>
-                <!----></span><a href="#" role="button" class="ms-1"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 1.5em;">
+                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-b9b59a4d-1576-4635-bc73-0064096d7ae4" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span data-v-9445feff="" id="___BVN__ID__v-13__popover____placeholder" style="display: none;"></span>
+                <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div data-v-9445feff="" id="___BVN__ID__v-13__popover___" triggers="hover" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div data-v-9445feff="" class="overflow-auto">
+                      <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
+                      <!---->
+                    </div>
+                  </div>
+                </transition-stub></span><a href="#" role="button" class="ms-1"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 1.5em;">
                     <path fill="currentColor" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"></path>
                   </svg></a></span>
               </td>
@@ -484,15 +604,31 @@ exports[`Album > renders an album page 1`] = `
                 </button>
               </td>
               <td scope="col" class="">
-                <!----><span data-v-a7ef304f="">Y</span><span><span id="order_tip__b9b59a4d-1576-4635-bc73-0064096d7ae4_placeholder"></span>
-                <!----></span>
+                <!----><span data-v-a7ef304f="">Y</span><span><span data-v-9445feff="" id="order_tip__b9b59a4d-1576-4635-bc73-0064096d7ae4_placeholder" style="display: none;"></span>
+                <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div data-v-9445feff="" id="order_tip__b9b59a4d-1576-4635-bc73-0064096d7ae4" html="true" class="tooltip b-tooltip fade  bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div data-v-9445feff="" class="overflow-auto">
+                      <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">Last Modified 15-Jan-2016 06:36:52 PM (years ago)</div>
+                      <!---->
+                    </div>
+                  </div>
+                </transition-stub></span>
               </td>
             </tr>
             <!---->
             <tr class="">
               <td scope="col" class="">
-                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-b2457b84-c5b4-49cb-9bf4-0c920a9dab95" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="___BVN__ID__v-11__popover____placeholder"></span>
-                <!----></span><a href="#" role="button" class="ms-1"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 1.5em;">
+                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-b2457b84-c5b4-49cb-9bf4-0c920a9dab95" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span data-v-9445feff="" id="___BVN__ID__v-14__popover____placeholder" style="display: none;"></span>
+                <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div data-v-9445feff="" id="___BVN__ID__v-14__popover___" triggers="hover" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div data-v-9445feff="" class="overflow-auto">
+                      <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
+                      <!---->
+                    </div>
+                  </div>
+                </transition-stub></span><a href="#" role="button" class="ms-1"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 1.5em;">
                     <path fill="currentColor" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"></path>
                   </svg></a></span>
               </td>
@@ -512,12 +648,36 @@ exports[`Album > renders an album page 1`] = `
                 <!---->273
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" id="__m4d__000016" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-8.png" width="25" height="25"><span id="___BVN__ID__v-12__popover____placeholder"></span>
-                  <!---->
-                </a><a data-v-a7ef304f="" id="__m4d__000017" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-10.png" width="25" height="25"><span id="___BVN__ID__v-13__popover____placeholder"></span>
-                  <!---->
-                </a><a data-v-a7ef304f="" id="__m4d__000018" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-9.png" width="25" height="25"><span id="___BVN__ID__v-14__popover____placeholder"></span>
-                  <!---->
+                <!----><a data-v-a7ef304f="" id="__m4d__000016" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-8.png" width="25" height="25"><span data-v-9445feff="" id="___BVN__ID__v-15__popover____placeholder" style="display: none;"></span>
+                  <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div data-v-9445feff="" id="___BVN__ID__v-15__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div data-v-9445feff="" class="overflow-auto">
+                        <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.71 where 1.00 is the strongest beat.</div>
+                        <!---->
+                      </div>
+                    </div>
+                  </transition-stub>
+                </a><a data-v-a7ef304f="" id="__m4d__000017" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-10.png" width="25" height="25"><span data-v-9445feff="" id="___BVN__ID__v-16__popover____placeholder" style="display: none;"></span>
+                  <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div data-v-9445feff="" id="___BVN__ID__v-16__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div data-v-9445feff="" class="overflow-auto">
+                        <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.95 where 1.00 is the highest energy.</div>
+                        <!---->
+                      </div>
+                    </div>
+                  </transition-stub>
+                </a><a data-v-a7ef304f="" id="__m4d__000018" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-9.png" width="25" height="25"><span data-v-9445feff="" id="___BVN__ID__v-17__popover____placeholder" style="display: none;"></span>
+                  <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div data-v-9445feff="" id="___BVN__ID__v-17__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div data-v-9445feff="" class="overflow-auto">
+                        <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.84 where 1.00 is the happiest.</div>
+                        <!---->
+                      </div>
+                    </div>
+                  </transition-stub>
                 </a>
               </td>
               <td scope="col" class="">
@@ -625,15 +785,31 @@ exports[`Album > renders an album page 1`] = `
                 </button>
               </td>
               <td scope="col" class="">
-                <!----><span data-v-a7ef304f="">Y</span><span><span id="order_tip__b2457b84-c5b4-49cb-9bf4-0c920a9dab95_placeholder"></span>
-                <!----></span>
+                <!----><span data-v-a7ef304f="">Y</span><span><span data-v-9445feff="" id="order_tip__b2457b84-c5b4-49cb-9bf4-0c920a9dab95_placeholder" style="display: none;"></span>
+                <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div data-v-9445feff="" id="order_tip__b2457b84-c5b4-49cb-9bf4-0c920a9dab95" html="true" class="tooltip b-tooltip fade  bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div data-v-9445feff="" class="overflow-auto">
+                      <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">Last Modified 10-Jul-2020 10:18:30 AM (years ago)</div>
+                      <!---->
+                    </div>
+                  </div>
+                </transition-stub></span>
               </td>
             </tr>
             <!---->
             <tr class="">
               <td scope="col" class="">
-                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-e27707d0-e9ff-4330-9f8f-a2cf8a76bdc0" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="___BVN__ID__v-15__popover____placeholder"></span>
-                <!----></span><a href="#" role="button" class="ms-1"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 1.5em;">
+                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-e27707d0-e9ff-4330-9f8f-a2cf8a76bdc0" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span data-v-9445feff="" id="___BVN__ID__v-18__popover____placeholder" style="display: none;"></span>
+                <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div data-v-9445feff="" id="___BVN__ID__v-18__popover___" triggers="hover" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div data-v-9445feff="" class="overflow-auto">
+                      <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
+                      <!---->
+                    </div>
+                  </div>
+                </transition-stub></span><a href="#" role="button" class="ms-1"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 1.5em;">
                     <path fill="currentColor" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"></path>
                   </svg></a></span>
               </td>
@@ -681,15 +857,31 @@ exports[`Album > renders an album page 1`] = `
                 </button>
               </td>
               <td scope="col" class="">
-                <!----><span data-v-a7ef304f="">Y</span><span><span id="order_tip__e27707d0-e9ff-4330-9f8f-a2cf8a76bdc0_placeholder"></span>
-                <!----></span>
+                <!----><span data-v-a7ef304f="">Y</span><span><span data-v-9445feff="" id="order_tip__e27707d0-e9ff-4330-9f8f-a2cf8a76bdc0_placeholder" style="display: none;"></span>
+                <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div data-v-9445feff="" id="order_tip__e27707d0-e9ff-4330-9f8f-a2cf8a76bdc0" html="true" class="tooltip b-tooltip fade  bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div data-v-9445feff="" class="overflow-auto">
+                      <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">Last Modified 15-Jan-2016 06:37:31 PM (years ago)</div>
+                      <!---->
+                    </div>
+                  </div>
+                </transition-stub></span>
               </td>
             </tr>
             <!---->
             <tr class="">
               <td scope="col" class="">
-                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-036b2b84-f7de-4b37-8b42-c428a8a8f2b9" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="___BVN__ID__v-16__popover____placeholder"></span>
-                <!----></span><a href="#" role="button" class="ms-1"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 1.5em;">
+                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-036b2b84-f7de-4b37-8b42-c428a8a8f2b9" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span data-v-9445feff="" id="___BVN__ID__v-19__popover____placeholder" style="display: none;"></span>
+                <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div data-v-9445feff="" id="___BVN__ID__v-19__popover___" triggers="hover" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div data-v-9445feff="" class="overflow-auto">
+                      <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
+                      <!---->
+                    </div>
+                  </div>
+                </transition-stub></span><a href="#" role="button" class="ms-1"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 1.5em;">
                     <path fill="currentColor" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"></path>
                   </svg></a></span>
               </td>
@@ -709,12 +901,36 @@ exports[`Album > renders an album page 1`] = `
                 <!---->275
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" id="__m4d__000022" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-8.png" width="25" height="25"><span id="___BVN__ID__v-17__popover____placeholder"></span>
-                  <!---->
-                </a><a data-v-a7ef304f="" id="__m4d__000023" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-10.png" width="25" height="25"><span id="___BVN__ID__v-18__popover____placeholder"></span>
-                  <!---->
-                </a><a data-v-a7ef304f="" id="__m4d__000024" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-7.png" width="25" height="25"><span id="___BVN__ID__v-19__popover____placeholder"></span>
-                  <!---->
+                <!----><a data-v-a7ef304f="" id="__m4d__000022" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-8.png" width="25" height="25"><span data-v-9445feff="" id="___BVN__ID__v-20__popover____placeholder" style="display: none;"></span>
+                  <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div data-v-9445feff="" id="___BVN__ID__v-20__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div data-v-9445feff="" class="overflow-auto">
+                        <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.72 where 1.00 is the strongest beat.</div>
+                        <!---->
+                      </div>
+                    </div>
+                  </transition-stub>
+                </a><a data-v-a7ef304f="" id="__m4d__000023" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-10.png" width="25" height="25"><span data-v-9445feff="" id="___BVN__ID__v-21__popover____placeholder" style="display: none;"></span>
+                  <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div data-v-9445feff="" id="___BVN__ID__v-21__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div data-v-9445feff="" class="overflow-auto">
+                        <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.94 where 1.00 is the highest energy.</div>
+                        <!---->
+                      </div>
+                    </div>
+                  </transition-stub>
+                </a><a data-v-a7ef304f="" id="__m4d__000024" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-7.png" width="25" height="25"><span data-v-9445feff="" id="___BVN__ID__v-22__popover____placeholder" style="display: none;"></span>
+                  <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div data-v-9445feff="" id="___BVN__ID__v-22__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div data-v-9445feff="" class="overflow-auto">
+                        <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.69 where 1.00 is the happiest.</div>
+                        <!---->
+                      </div>
+                    </div>
+                  </transition-stub>
                 </a>
               </td>
               <td scope="col" class="">
@@ -774,15 +990,31 @@ exports[`Album > renders an album page 1`] = `
                 </button>
               </td>
               <td scope="col" class="">
-                <!----><span data-v-a7ef304f="">Y</span><span><span id="order_tip__036b2b84-f7de-4b37-8b42-c428a8a8f2b9_placeholder"></span>
-                <!----></span>
+                <!----><span data-v-a7ef304f="">Y</span><span><span data-v-9445feff="" id="order_tip__036b2b84-f7de-4b37-8b42-c428a8a8f2b9_placeholder" style="display: none;"></span>
+                <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div data-v-9445feff="" id="order_tip__036b2b84-f7de-4b37-8b42-c428a8a8f2b9" html="true" class="tooltip b-tooltip fade  bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div data-v-9445feff="" class="overflow-auto">
+                      <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">Last Modified 10-Feb-2016 02:13:07 AM (years ago)</div>
+                      <!---->
+                    </div>
+                  </div>
+                </transition-stub></span>
               </td>
             </tr>
             <!---->
             <tr class="">
               <td scope="col" class="">
-                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-eee30b09-3c65-4a74-847d-9d53193c7952" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="___BVN__ID__v-20__popover____placeholder"></span>
-                <!----></span><a href="#" role="button" class="ms-1"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 1.5em;">
+                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-eee30b09-3c65-4a74-847d-9d53193c7952" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span data-v-9445feff="" id="___BVN__ID__v-23__popover____placeholder" style="display: none;"></span>
+                <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div data-v-9445feff="" id="___BVN__ID__v-23__popover___" triggers="hover" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div data-v-9445feff="" class="overflow-auto">
+                      <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
+                      <!---->
+                    </div>
+                  </div>
+                </transition-stub></span><a href="#" role="button" class="ms-1"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 1.5em;">
                     <path fill="currentColor" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"></path>
                   </svg></a></span>
               </td>
@@ -844,15 +1076,31 @@ exports[`Album > renders an album page 1`] = `
                 </button>
               </td>
               <td scope="col" class="">
-                <!----><span data-v-a7ef304f="">Y</span><span><span id="order_tip__eee30b09-3c65-4a74-847d-9d53193c7952_placeholder"></span>
-                <!----></span>
+                <!----><span data-v-a7ef304f="">Y</span><span><span data-v-9445feff="" id="order_tip__eee30b09-3c65-4a74-847d-9d53193c7952_placeholder" style="display: none;"></span>
+                <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div data-v-9445feff="" id="order_tip__eee30b09-3c65-4a74-847d-9d53193c7952" html="true" class="tooltip b-tooltip fade  bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div data-v-9445feff="" class="overflow-auto">
+                      <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">Last Modified 11-Oct-2021 09:01:20 AM (years ago)</div>
+                      <!---->
+                    </div>
+                  </div>
+                </transition-stub></span>
               </td>
             </tr>
             <!---->
             <tr class="">
               <td scope="col" class="">
-                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-31843878-bcfe-4d85-b296-a3955b8f387d" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="___BVN__ID__v-21__popover____placeholder"></span>
-                <!----></span><a href="#" role="button" class="ms-1"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 1.5em;">
+                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-31843878-bcfe-4d85-b296-a3955b8f387d" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span data-v-9445feff="" id="___BVN__ID__v-24__popover____placeholder" style="display: none;"></span>
+                <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div data-v-9445feff="" id="___BVN__ID__v-24__popover___" triggers="hover" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div data-v-9445feff="" class="overflow-auto">
+                      <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
+                      <!---->
+                    </div>
+                  </div>
+                </transition-stub></span><a href="#" role="button" class="ms-1"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 1.5em;">
                     <path fill="currentColor" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"></path>
                   </svg></a></span>
               </td>
@@ -900,15 +1148,31 @@ exports[`Album > renders an album page 1`] = `
                 </button>
               </td>
               <td scope="col" class="">
-                <!----><span data-v-a7ef304f="">Y</span><span><span id="order_tip__31843878-bcfe-4d85-b296-a3955b8f387d_placeholder"></span>
-                <!----></span>
+                <!----><span data-v-a7ef304f="">Y</span><span><span data-v-9445feff="" id="order_tip__31843878-bcfe-4d85-b296-a3955b8f387d_placeholder" style="display: none;"></span>
+                <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div data-v-9445feff="" id="order_tip__31843878-bcfe-4d85-b296-a3955b8f387d" html="true" class="tooltip b-tooltip fade  bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div data-v-9445feff="" class="overflow-auto">
+                      <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">Last Modified 15-Jan-2016 06:37:33 PM (years ago)</div>
+                      <!---->
+                    </div>
+                  </div>
+                </transition-stub></span>
               </td>
             </tr>
             <!---->
             <tr class="">
               <td scope="col" class="">
-                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-88aca21d-73d1-4ae1-8643-e98f7e90823d" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="___BVN__ID__v-22__popover____placeholder"></span>
-                <!----></span><a href="#" role="button" class="ms-1"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 1.5em;">
+                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-88aca21d-73d1-4ae1-8643-e98f7e90823d" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span data-v-9445feff="" id="___BVN__ID__v-25__popover____placeholder" style="display: none;"></span>
+                <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div data-v-9445feff="" id="___BVN__ID__v-25__popover___" triggers="hover" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div data-v-9445feff="" class="overflow-auto">
+                      <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
+                      <!---->
+                    </div>
+                  </div>
+                </transition-stub></span><a href="#" role="button" class="ms-1"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 1.5em;">
                     <path fill="currentColor" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"></path>
                   </svg></a></span>
               </td>
@@ -928,12 +1192,36 @@ exports[`Album > renders an album page 1`] = `
                 <!---->238
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" id="__m4d__000031" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-8.png" width="25" height="25"><span id="___BVN__ID__v-23__popover____placeholder"></span>
-                  <!---->
-                </a><a data-v-a7ef304f="" id="__m4d__000032" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-9.png" width="25" height="25"><span id="___BVN__ID__v-24__popover____placeholder"></span>
-                  <!---->
-                </a><a data-v-a7ef304f="" id="__m4d__000033" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-10.png" width="25" height="25"><span id="___BVN__ID__v-25__popover____placeholder"></span>
-                  <!---->
+                <!----><a data-v-a7ef304f="" id="__m4d__000031" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-8.png" width="25" height="25"><span data-v-9445feff="" id="___BVN__ID__v-26__popover____placeholder" style="display: none;"></span>
+                  <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div data-v-9445feff="" id="___BVN__ID__v-26__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div data-v-9445feff="" class="overflow-auto">
+                        <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.75 where 1.00 is the strongest beat.</div>
+                        <!---->
+                      </div>
+                    </div>
+                  </transition-stub>
+                </a><a data-v-a7ef304f="" id="__m4d__000032" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-9.png" width="25" height="25"><span data-v-9445feff="" id="___BVN__ID__v-27__popover____placeholder" style="display: none;"></span>
+                  <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div data-v-9445feff="" id="___BVN__ID__v-27__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div data-v-9445feff="" class="overflow-auto">
+                        <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.87 where 1.00 is the highest energy.</div>
+                        <!---->
+                      </div>
+                    </div>
+                  </transition-stub>
+                </a><a data-v-a7ef304f="" id="__m4d__000033" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-10.png" width="25" height="25"><span data-v-9445feff="" id="___BVN__ID__v-28__popover____placeholder" style="display: none;"></span>
+                  <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div data-v-9445feff="" id="___BVN__ID__v-28__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div data-v-9445feff="" class="overflow-auto">
+                        <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.92 where 1.00 is the happiest.</div>
+                        <!---->
+                      </div>
+                    </div>
+                  </transition-stub>
                 </a>
               </td>
               <td scope="col" class="">
@@ -975,15 +1263,31 @@ exports[`Album > renders an album page 1`] = `
                 </button>
               </td>
               <td scope="col" class="">
-                <!----><span data-v-a7ef304f="">Y</span><span><span id="order_tip__88aca21d-73d1-4ae1-8643-e98f7e90823d_placeholder"></span>
-                <!----></span>
+                <!----><span data-v-a7ef304f="">Y</span><span><span data-v-9445feff="" id="order_tip__88aca21d-73d1-4ae1-8643-e98f7e90823d_placeholder" style="display: none;"></span>
+                <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div data-v-9445feff="" id="order_tip__88aca21d-73d1-4ae1-8643-e98f7e90823d" html="true" class="tooltip b-tooltip fade  bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div data-v-9445feff="" class="overflow-auto">
+                      <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">Last Modified 19-Mar-2017 04:59:38 PM (years ago)</div>
+                      <!---->
+                    </div>
+                  </div>
+                </transition-stub></span>
               </td>
             </tr>
             <!---->
             <tr class="">
               <td scope="col" class="">
-                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-c2ebdd27-9d12-4c87-8fe0-8b76eb693319" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="___BVN__ID__v-26__popover____placeholder"></span>
-                <!----></span><a href="#" role="button" class="ms-1"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 1.5em;">
+                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-c2ebdd27-9d12-4c87-8fe0-8b76eb693319" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span data-v-9445feff="" id="___BVN__ID__v-29__popover____placeholder" style="display: none;"></span>
+                <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div data-v-9445feff="" id="___BVN__ID__v-29__popover___" triggers="hover" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div data-v-9445feff="" class="overflow-auto">
+                      <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
+                      <!---->
+                    </div>
+                  </div>
+                </transition-stub></span><a href="#" role="button" class="ms-1"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 1.5em;">
                     <path fill="currentColor" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"></path>
                   </svg></a></span>
               </td>
@@ -1031,15 +1335,31 @@ exports[`Album > renders an album page 1`] = `
                 </button>
               </td>
               <td scope="col" class="">
-                <!----><span data-v-a7ef304f="">Y</span><span><span id="order_tip__c2ebdd27-9d12-4c87-8fe0-8b76eb693319_placeholder"></span>
-                <!----></span>
+                <!----><span data-v-a7ef304f="">Y</span><span><span data-v-9445feff="" id="order_tip__c2ebdd27-9d12-4c87-8fe0-8b76eb693319_placeholder" style="display: none;"></span>
+                <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div data-v-9445feff="" id="order_tip__c2ebdd27-9d12-4c87-8fe0-8b76eb693319" html="true" class="tooltip b-tooltip fade  bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div data-v-9445feff="" class="overflow-auto">
+                      <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">Last Modified 15-Jan-2016 06:37:26 PM (years ago)</div>
+                      <!---->
+                    </div>
+                  </div>
+                </transition-stub></span>
               </td>
             </tr>
             <!---->
             <tr class="">
               <td scope="col" class="">
-                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-a1ee0081-672d-45b1-bff3-2c7c8384bce4" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="___BVN__ID__v-27__popover____placeholder"></span>
-                <!----></span><a href="#" role="button" class="ms-1"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 1.5em;">
+                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-a1ee0081-672d-45b1-bff3-2c7c8384bce4" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span data-v-9445feff="" id="___BVN__ID__v-30__popover____placeholder" style="display: none;"></span>
+                <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div data-v-9445feff="" id="___BVN__ID__v-30__popover___" triggers="hover" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div data-v-9445feff="" class="overflow-auto">
+                      <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
+                      <!---->
+                    </div>
+                  </div>
+                </transition-stub></span><a href="#" role="button" class="ms-1"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 1.5em;">
                     <path fill="currentColor" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"></path>
                   </svg></a></span>
               </td>
@@ -1078,15 +1398,31 @@ exports[`Album > renders an album page 1`] = `
                 </button>
               </td>
               <td scope="col" class="">
-                <!----><span data-v-a7ef304f="">Y</span><span><span id="order_tip__a1ee0081-672d-45b1-bff3-2c7c8384bce4_placeholder"></span>
-                <!----></span>
+                <!----><span data-v-a7ef304f="">Y</span><span><span data-v-9445feff="" id="order_tip__a1ee0081-672d-45b1-bff3-2c7c8384bce4_placeholder" style="display: none;"></span>
+                <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div data-v-9445feff="" id="order_tip__a1ee0081-672d-45b1-bff3-2c7c8384bce4" html="true" class="tooltip b-tooltip fade  bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div data-v-9445feff="" class="overflow-auto">
+                      <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">Last Modified 15-Jan-2016 06:36:58 PM (years ago)</div>
+                      <!---->
+                    </div>
+                  </div>
+                </transition-stub></span>
               </td>
             </tr>
             <!---->
             <tr class="">
               <td scope="col" class="">
-                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-791d986d-10c9-4c3d-996c-a4bf64e1d614" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="___BVN__ID__v-28__popover____placeholder"></span>
-                <!----></span><a href="#" role="button" class="ms-1"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 1.5em;">
+                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-791d986d-10c9-4c3d-996c-a4bf64e1d614" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span data-v-9445feff="" id="___BVN__ID__v-31__popover____placeholder" style="display: none;"></span>
+                <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div data-v-9445feff="" id="___BVN__ID__v-31__popover___" triggers="hover" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div data-v-9445feff="" class="overflow-auto">
+                      <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
+                      <!---->
+                    </div>
+                  </div>
+                </transition-stub></span><a href="#" role="button" class="ms-1"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 1.5em;">
                     <path fill="currentColor" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"></path>
                   </svg></a></span>
               </td>
@@ -1106,12 +1442,36 @@ exports[`Album > renders an album page 1`] = `
                 <!---->230
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" id="__m4d__000040" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-6.png" width="25" height="25"><span id="___BVN__ID__v-29__popover____placeholder"></span>
-                  <!---->
-                </a><a data-v-a7ef304f="" id="__m4d__000041" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-9.png" width="25" height="25"><span id="___BVN__ID__v-30__popover____placeholder"></span>
-                  <!---->
-                </a><a data-v-a7ef304f="" id="__m4d__000042" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-9.png" width="25" height="25"><span id="___BVN__ID__v-31__popover____placeholder"></span>
-                  <!---->
+                <!----><a data-v-a7ef304f="" id="__m4d__000040" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-6.png" width="25" height="25"><span data-v-9445feff="" id="___BVN__ID__v-32__popover____placeholder" style="display: none;"></span>
+                  <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div data-v-9445feff="" id="___BVN__ID__v-32__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div data-v-9445feff="" class="overflow-auto">
+                        <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.59 where 1.00 is the strongest beat.</div>
+                        <!---->
+                      </div>
+                    </div>
+                  </transition-stub>
+                </a><a data-v-a7ef304f="" id="__m4d__000041" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-9.png" width="25" height="25"><span data-v-9445feff="" id="___BVN__ID__v-33__popover____placeholder" style="display: none;"></span>
+                  <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div data-v-9445feff="" id="___BVN__ID__v-33__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div data-v-9445feff="" class="overflow-auto">
+                        <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.88 where 1.00 is the highest energy.</div>
+                        <!---->
+                      </div>
+                    </div>
+                  </transition-stub>
+                </a><a data-v-a7ef304f="" id="__m4d__000042" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-9.png" width="25" height="25"><span data-v-9445feff="" id="___BVN__ID__v-34__popover____placeholder" style="display: none;"></span>
+                  <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div data-v-9445feff="" id="___BVN__ID__v-34__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div data-v-9445feff="" class="overflow-auto">
+                        <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.87 where 1.00 is the happiest.</div>
+                        <!---->
+                      </div>
+                    </div>
+                  </transition-stub>
                 </a>
               </td>
               <td scope="col" class="">
@@ -1171,15 +1531,31 @@ exports[`Album > renders an album page 1`] = `
                 </button>
               </td>
               <td scope="col" class="">
-                <!----><span data-v-a7ef304f="">Y</span><span><span id="order_tip__791d986d-10c9-4c3d-996c-a4bf64e1d614_placeholder"></span>
-                <!----></span>
+                <!----><span data-v-a7ef304f="">Y</span><span><span data-v-9445feff="" id="order_tip__791d986d-10c9-4c3d-996c-a4bf64e1d614_placeholder" style="display: none;"></span>
+                <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div data-v-9445feff="" id="order_tip__791d986d-10c9-4c3d-996c-a4bf64e1d614" html="true" class="tooltip b-tooltip fade  bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div data-v-9445feff="" class="overflow-auto">
+                      <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">Last Modified 27-Aug-2019 04:49:09 AM (years ago)</div>
+                      <!---->
+                    </div>
+                  </div>
+                </transition-stub></span>
               </td>
             </tr>
             <!---->
             <tr class="">
               <td scope="col" class="">
-                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-427f6ff9-ef06-4d05-9cfd-393b199c76db" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="___BVN__ID__v-32__popover____placeholder"></span>
-                <!----></span><a href="#" role="button" class="ms-1"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 1.5em;">
+                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-427f6ff9-ef06-4d05-9cfd-393b199c76db" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span data-v-9445feff="" id="___BVN__ID__v-35__popover____placeholder" style="display: none;"></span>
+                <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div data-v-9445feff="" id="___BVN__ID__v-35__popover___" triggers="hover" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div data-v-9445feff="" class="overflow-auto">
+                      <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
+                      <!---->
+                    </div>
+                  </div>
+                </transition-stub></span><a href="#" role="button" class="ms-1"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 1.5em;">
                     <path fill="currentColor" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"></path>
                   </svg></a></span>
               </td>
@@ -1199,12 +1575,36 @@ exports[`Album > renders an album page 1`] = `
                 <!---->188
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" id="__m4d__000043" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-7.png" width="25" height="25"><span id="___BVN__ID__v-33__popover____placeholder"></span>
-                  <!---->
-                </a><a data-v-a7ef304f="" id="__m4d__000044" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-9.png" width="25" height="25"><span id="___BVN__ID__v-34__popover____placeholder"></span>
-                  <!---->
-                </a><a data-v-a7ef304f="" id="__m4d__000045" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-8.png" width="25" height="25"><span id="___BVN__ID__v-35__popover____placeholder"></span>
-                  <!---->
+                <!----><a data-v-a7ef304f="" id="__m4d__000043" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-7.png" width="25" height="25"><span data-v-9445feff="" id="___BVN__ID__v-36__popover____placeholder" style="display: none;"></span>
+                  <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div data-v-9445feff="" id="___BVN__ID__v-36__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div data-v-9445feff="" class="overflow-auto">
+                        <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.69 where 1.00 is the strongest beat.</div>
+                        <!---->
+                      </div>
+                    </div>
+                  </transition-stub>
+                </a><a data-v-a7ef304f="" id="__m4d__000044" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-9.png" width="25" height="25"><span data-v-9445feff="" id="___BVN__ID__v-37__popover____placeholder" style="display: none;"></span>
+                  <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div data-v-9445feff="" id="___BVN__ID__v-37__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div data-v-9445feff="" class="overflow-auto">
+                        <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.82 where 1.00 is the highest energy.</div>
+                        <!---->
+                      </div>
+                    </div>
+                  </transition-stub>
+                </a><a data-v-a7ef304f="" id="__m4d__000045" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-8.png" width="25" height="25"><span data-v-9445feff="" id="___BVN__ID__v-38__popover____placeholder" style="display: none;"></span>
+                  <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div data-v-9445feff="" id="___BVN__ID__v-38__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div data-v-9445feff="" class="overflow-auto">
+                        <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.77 where 1.00 is the happiest.</div>
+                        <!---->
+                      </div>
+                    </div>
+                  </transition-stub>
                 </a>
               </td>
               <td scope="col" class="">
@@ -1253,8 +1653,16 @@ exports[`Album > renders an album page 1`] = `
                 </button>
               </td>
               <td scope="col" class="">
-                <!----><span data-v-a7ef304f="">Y</span><span><span id="order_tip__427f6ff9-ef06-4d05-9cfd-393b199c76db_placeholder"></span>
-                <!----></span>
+                <!----><span data-v-a7ef304f="">Y</span><span><span data-v-9445feff="" id="order_tip__427f6ff9-ef06-4d05-9cfd-393b199c76db_placeholder" style="display: none;"></span>
+                <transition-stub data-v-9445feff="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div data-v-9445feff="" id="order_tip__427f6ff9-ef06-4d05-9cfd-393b199c76db" html="true" class="tooltip b-tooltip fade  bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div data-v-9445feff="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div data-v-9445feff="" class="overflow-auto">
+                      <div data-v-9445feff="" class="position-sticky top-0 tooltip-inner">Last Modified 17-Nov-2016 01:28:14 PM (years ago)</div>
+                      <!---->
+                    </div>
+                  </div>
+                </transition-stub></span>
               </td>
             </tr>
             <!---->

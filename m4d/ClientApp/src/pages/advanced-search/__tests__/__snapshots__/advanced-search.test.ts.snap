@@ -9,7 +9,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
       <h1 class="col-sm-12" style="font-size: 22px; text-align: center;">Advanced Song Search</h1>
       <div style="max-width: 600px; margin-left: auto; margin-right: auto;">
         <form id="advanced-search" novalidate="" class="">
-          <div id="search-string-group" role="group" class="mb-3">
+          <div id="search-string-group" role="group" class="b-form-group mb-3">
             <!---->
             <!----><label id="___BVN__ID__v-1___BV_label____" for="search-string" class="form-label d-block">Keywords:</label>
             <div class="input-group mb-1" role="group">
@@ -26,7 +26,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
             <!---->
             <!---->
           </div>
-          <fieldset id="dance-group" class="">
+          <fieldset id="dance-group" class="b-form-group">
             <!---->
             <!---->
             <legend id="___BVN__ID__v-7___BV_label____" tabindex="-1" class="form-label bv-no-focus-ring col-form-label pt-0">Dances:</legend>
@@ -37,89 +37,91 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
                   <li class="list-inline-item" data-bs-theme="dark"><span id="___BVN__ID__v-12__" title="Bolero" class="badge b-form-tag d-inline-flex align-items-center mw-100 text-bg-primary" aria-labelledby="___BVN__ID__v-12__taglabel__"><span id="___BVN__ID__v-12__taglabel__" class="b-form-tag-content flex-grow-1 text-truncate">Bolero</span><button type="button" class="btn-close b-form-tag-remove" aria-label="Remove tag" aria-keyshortcuts="Delete" aria-describedby="___BVN__ID__v-12__taglabel__"></button></span></li>
                   <li class="list-inline-item" data-bs-theme="dark"><span id="___BVN__ID__v-13__" title="Rumba" class="badge b-form-tag d-inline-flex align-items-center mw-100 text-bg-primary" aria-labelledby="___BVN__ID__v-13__taglabel__"><span id="___BVN__ID__v-13__taglabel__" class="b-form-tag-content flex-grow-1 text-truncate">Rumba</span><button type="button" class="btn-close b-form-tag-remove" aria-label="Remove tag" aria-keyshortcuts="Delete" aria-describedby="___BVN__ID__v-13__taglabel__"></button></span></li>
                 </ul>
-                <div class="dropdown tag-dropdown" block=""><button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="___BVN__ID__v-14__dropdown___" aria-expanded="false" aria-haspopup="menu"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                <div data-v-8ac2524d="" class="dropdown tag-dropdown" block=""><button data-v-8ac2524d="" class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="___BVN__ID__v-14__dropdown___" aria-expanded="false" aria-haspopup="menu"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
                       <path fill="currentColor" d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"></path>
                     </svg> Choose Dances</button>
                   <!---->
-                  <ul style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto" aria-labelledby="___BVN__ID__v-14__dropdown___" role="menu">
-                    <div>
-                      <li role="presentation">
-                        <form class="dropdown-item-text">
-                          <div id="___BVN__ID__v-15__" role="group" class="mb-0">
-                            <!---->
-                            <!---->
-                            <div class="row d-flex flex-wrap">
-                              <div class="col-md-auto"><label id="___BVN__ID__v-16___BV_label____" for="tag-search-input" class="col-form-label col-form-label col-form-label-sm">Search Dances</label></div>
-                              <div class="col"><input id="___BVN__ID__v-20__input___" class="form-control form-control-sm" type="search" autocomplete="off" trim="" value="">
-                                <!---->
-                                <!---->
-                                <!---->
+                  <transition-stub data-v-8ac2524d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <ul data-v-8ac2524d="" id="___BVN__ID__v-14__dropdown___-menu" style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto fade" aria-labelledby="___BVN__ID__v-14__dropdown___" role="menu">
+                      <div>
+                        <li role="presentation">
+                          <form class="dropdown-item-text">
+                            <div id="___BVN__ID__v-15__" role="group" class="b-form-group mb-0">
+                              <!---->
+                              <!---->
+                              <div class="row d-flex flex-wrap">
+                                <div class="col-md-auto"><label id="___BVN__ID__v-16___BV_label____" for="tag-search-input" class="col-form-label col-form-label col-form-label-sm">Search Dances</label></div>
+                                <div class="col"><input id="___BVN__ID__v-20__input___" class="form-control form-control-sm" type="search" autocomplete="off" trim="" value="">
+                                  <!---->
+                                  <!---->
+                                  <!---->
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </form>
-                      </li>
-                      <li role="presentation">
-                        <hr class="dropdown-divider" role="separator" aria-orientation="horizontal">
-                      </li>
-                      <!--v-if-->
-                      <div>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Argentine Tango (Tango Argentino)</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Balboa</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Bachata</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Broadway</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Ballet</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Blues</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Bossa Nova</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Bollywood</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Country Two Step</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Castle Foxtrot (Slow Dance)</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Cha Cha</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Collegiate Shag</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Cumbia</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Contemporary</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Carolina Shag</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Charleston</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Cross-step Waltz</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Disco</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">East Coast Swing (Triple Swing,East Coast)</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Freestyle</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Foxtrot</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Hip-Hop</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Hustle (Street Swing,Disco Fox)</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Jazz</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Jive</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Jump Swing</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Lindy Hop (Swing,Jitterbug)</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Latin</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Mambo</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Milonga</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Merengue</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Other</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Motown</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Night Club Two Step</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Neo Tango</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Peabody (One Step)</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Paso Doble</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Polka</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Performance</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Quickstep</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Slow Foxtrot (Foxtrot)</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Salsa</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Samba</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Single Swing (Single-time Swing,East Coast Single Swing,Jitterbug)</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Swing</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Slow Waltz (Waltz)</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Tap</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Tango (Ballroom)</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Tango Vals</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Tango</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Viennese Waltz</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">West Coast Swing (West Coast)</button></li>
-                        <li role="presentation"><button role="menu" type="button" class="dropdown-item">Waltz</button></li>
+                          </form>
+                        </li>
+                        <li role="presentation">
+                          <hr class="dropdown-divider" role="separator" aria-orientation="horizontal">
+                        </li>
+                        <!--v-if-->
+                        <div>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Argentine Tango (Tango Argentino)</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Balboa</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Bachata</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Broadway</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Ballet</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Blues</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Bossa Nova</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Bollywood</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Country Two Step</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Castle Foxtrot (Slow Dance)</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Cha Cha</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Collegiate Shag</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Cumbia</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Contemporary</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Carolina Shag</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Charleston</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Cross-step Waltz</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Disco</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">East Coast Swing (Triple Swing,East Coast)</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Freestyle</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Foxtrot</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Hip-Hop</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Hustle (Street Swing,Disco Fox)</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Jazz</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Jive</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Jump Swing</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Lindy Hop (Swing,Jitterbug)</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Latin</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Mambo</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Milonga</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Merengue</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Other</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Motown</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Night Club Two Step</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Neo Tango</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Peabody (One Step)</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Paso Doble</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Polka</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Performance</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Quickstep</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Slow Foxtrot (Foxtrot)</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Salsa</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Samba</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Single Swing (Single-time Swing,East Coast Single Swing,Jitterbug)</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Swing</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Slow Waltz (Waltz)</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Tap</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Tango (Ballroom)</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Tango Vals</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Tango</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Viennese Waltz</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">West Coast Swing (West Coast)</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Waltz</button></li>
+                        </div>
                       </div>
-                    </div>
-                  </ul>
+                    </ul>
+                  </transition-stub>
                 </div>
                 <!---->
               </div>
@@ -133,42 +135,44 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
             <!---->
             <!---->
           </fieldset>
-          <fieldset id="include-tags-group" class="">
+          <fieldset id="include-tags-group" class="b-form-group">
             <!---->
             <!---->
             <legend id="___BVN__ID__v-27___BV_label____" tabindex="-1" class="form-label bv-no-focus-ring col-form-label pt-0">Include Tags:</legend>
             <div id="include-tags" class="b-form-tags form-control h-auto mb-2" role="group" tabindex="-1" style="border-style: hidden;"><output id="___BVN__ID__v-31__selected_tags__" class="visually-hidden" for="___BVN__ID__v-31__input__" aria-live="off" aria-atomic="true" aria-relevant="additions text"></output>
               <div id="___BVN__ID__v-31__removed_tags__" role="status" aria-live="off" aria-atomic="true" class="visually-hidden"> (Tag removed) </div>
               <!--v-if-->
-              <div class="dropdown tag-dropdown" block=""><button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="___BVN__ID__v-32__dropdown___" aria-expanded="false" aria-haspopup="menu"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
+              <div data-v-8ac2524d="" class="dropdown tag-dropdown" block=""><button data-v-8ac2524d="" class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="___BVN__ID__v-32__dropdown___" aria-expanded="false" aria-haspopup="menu"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
                     <path fill="currentColor" d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"></path>
                   </svg> Choose Tags to Include</button>
                 <!---->
-                <ul style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto" aria-labelledby="___BVN__ID__v-32__dropdown___" role="menu">
-                  <div>
-                    <li role="presentation">
-                      <form class="dropdown-item-text">
-                        <div id="___BVN__ID__v-33__" role="group" class="mb-0">
-                          <!---->
-                          <!---->
-                          <div class="row d-flex flex-wrap">
-                            <div class="col-md-auto"><label id="___BVN__ID__v-34___BV_label____" for="tag-search-input" class="col-form-label col-form-label col-form-label-sm">Search Tags</label></div>
-                            <div class="col"><input id="___BVN__ID__v-38__input___" class="form-control form-control-sm" type="search" autocomplete="off" trim="" value="">
-                              <!---->
-                              <!---->
-                              <!---->
+                <transition-stub data-v-8ac2524d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <ul data-v-8ac2524d="" id="___BVN__ID__v-32__dropdown___-menu" style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto fade" aria-labelledby="___BVN__ID__v-32__dropdown___" role="menu">
+                    <div>
+                      <li role="presentation">
+                        <form class="dropdown-item-text">
+                          <div id="___BVN__ID__v-33__" role="group" class="b-form-group mb-0">
+                            <!---->
+                            <!---->
+                            <div class="row d-flex flex-wrap">
+                              <div class="col-md-auto"><label id="___BVN__ID__v-34___BV_label____" for="tag-search-input" class="col-form-label col-form-label col-form-label-sm">Search Tags</label></div>
+                              <div class="col"><input id="___BVN__ID__v-38__input___" class="form-control form-control-sm" type="search" autocomplete="off" trim="" value="">
+                                <!---->
+                                <!---->
+                                <!---->
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </form>
-                    </li>
-                    <li role="presentation">
-                      <hr class="dropdown-divider" role="separator" aria-orientation="horizontal">
-                    </li>
-                    <!--v-if-->
-                    <li role="presentation"><span class="dropdown-item-text"> Start typing to see a list of matching tags </span></li>
-                  </div>
-                </ul>
+                        </form>
+                      </li>
+                      <li role="presentation">
+                        <hr class="dropdown-divider" role="separator" aria-orientation="horizontal">
+                      </li>
+                      <!--v-if-->
+                      <li role="presentation"><span class="dropdown-item-text"> Start typing to see a list of matching tags </span></li>
+                    </div>
+                  </ul>
+                </transition-stub>
               </div>
               <!---->
             </div>
@@ -176,42 +180,44 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
             <!---->
             <!---->
           </fieldset>
-          <fieldset id="exclude-tags-group" class="">
+          <fieldset id="exclude-tags-group" class="b-form-group">
             <!---->
             <!---->
             <legend id="___BVN__ID__v-40___BV_label____" tabindex="-1" class="form-label bv-no-focus-ring col-form-label pt-0">Exclude Tags:</legend>
             <div id="exclude-tags" class="b-form-tags form-control h-auto mb-2" role="group" tabindex="-1" style="border-style: hidden;"><output id="___BVN__ID__v-44__selected_tags__" class="visually-hidden" for="___BVN__ID__v-44__input__" aria-live="off" aria-atomic="true" aria-relevant="additions text"></output>
               <div id="___BVN__ID__v-44__removed_tags__" role="status" aria-live="off" aria-atomic="true" class="visually-hidden"> (Tag removed) </div>
               <!--v-if-->
-              <div class="dropdown tag-dropdown" block=""><button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="___BVN__ID__v-45__dropdown___" aria-expanded="false" aria-haspopup="menu"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
+              <div data-v-8ac2524d="" class="dropdown tag-dropdown" block=""><button data-v-8ac2524d="" class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="___BVN__ID__v-45__dropdown___" aria-expanded="false" aria-haspopup="menu"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
                     <path fill="currentColor" d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"></path>
                   </svg> Choose Tags to Exclude</button>
                 <!---->
-                <ul style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto" aria-labelledby="___BVN__ID__v-45__dropdown___" role="menu">
-                  <div>
-                    <li role="presentation">
-                      <form class="dropdown-item-text">
-                        <div id="___BVN__ID__v-46__" role="group" class="mb-0">
-                          <!---->
-                          <!---->
-                          <div class="row d-flex flex-wrap">
-                            <div class="col-md-auto"><label id="___BVN__ID__v-47___BV_label____" for="tag-search-input" class="col-form-label col-form-label col-form-label-sm">Search Tags</label></div>
-                            <div class="col"><input id="___BVN__ID__v-51__input___" class="form-control form-control-sm" type="search" autocomplete="off" trim="" value="">
-                              <!---->
-                              <!---->
-                              <!---->
+                <transition-stub data-v-8ac2524d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <ul data-v-8ac2524d="" id="___BVN__ID__v-45__dropdown___-menu" style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto fade" aria-labelledby="___BVN__ID__v-45__dropdown___" role="menu">
+                    <div>
+                      <li role="presentation">
+                        <form class="dropdown-item-text">
+                          <div id="___BVN__ID__v-46__" role="group" class="b-form-group mb-0">
+                            <!---->
+                            <!---->
+                            <div class="row d-flex flex-wrap">
+                              <div class="col-md-auto"><label id="___BVN__ID__v-47___BV_label____" for="tag-search-input" class="col-form-label col-form-label col-form-label-sm">Search Tags</label></div>
+                              <div class="col"><input id="___BVN__ID__v-51__input___" class="form-control form-control-sm" type="search" autocomplete="off" trim="" value="">
+                                <!---->
+                                <!---->
+                                <!---->
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </form>
-                    </li>
-                    <li role="presentation">
-                      <hr class="dropdown-divider" role="separator" aria-orientation="horizontal">
-                    </li>
-                    <!--v-if-->
-                    <li role="presentation"><span class="dropdown-item-text"> Start typing to see a list of matching tags </span></li>
-                  </div>
-                </ul>
+                        </form>
+                      </li>
+                      <li role="presentation">
+                        <hr class="dropdown-divider" role="separator" aria-orientation="horizontal">
+                      </li>
+                      <!--v-if-->
+                      <li role="presentation"><span class="dropdown-item-text"> Start typing to see a list of matching tags </span></li>
+                    </div>
+                  </ul>
+                </transition-stub>
               </div>
               <!---->
             </div>
@@ -219,10 +225,10 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
             <!---->
             <!---->
           </fieldset>
-          <div id="tempo-range-group" role="group" class="">
+          <div id="tempo-range-group" role="group" class="b-form-group">
             <!---->
             <!----><label id="___BVN__ID__v-53___BV_label____" for="tempo-range" class="form-label d-block">Tempo range (BPM):</label>
-            <fieldset id="tempo-range" class="">
+            <fieldset id="tempo-range" class="b-form-group">
               <!---->
               <!---->
               <!---->
@@ -237,10 +243,10 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
             <!---->
             <!---->
           </div>
-          <div id="length-range-group" role="group" class="">
+          <div id="length-range-group" role="group" class="b-form-group">
             <!---->
             <!----><label id="___BVN__ID__v-65___BV_label____" for="length-range" class="form-label d-block">Length range (seconds):</label>
-            <fieldset id="length-range" class="">
+            <fieldset id="length-range" class="b-form-group">
               <!---->
               <!---->
               <!---->
@@ -255,7 +261,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
             <!---->
             <!---->
           </div>
-          <div id="activity-group" role="group" class="">
+          <div id="activity-group" role="group" class="b-form-group">
             <!---->
             <!----><label id="___BVN__ID__v-77___BV_label____" for="activity" class="form-label d-block">By User:</label>
             <div class="d-flex"><input id="user" class="form-control me-2" type="text" placeholder="UserName or me" style="width: 10rem;" value=""><select id="activity" class="form-select">
@@ -265,7 +271,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
             <!---->
             <!---->
           </div>
-          <div id="services-group" role="group" class="mx-2 mb-2">
+          <div id="services-group" role="group" class="b-form-group mx-2 mb-2">
             <!---->
             <!----><label id="___BVN__ID__v-84___BV_label____" for="services" class="form-label d-block">Available on:</label>
             <div id="services" role="group" class="btn-group-md bv-no-focus-ring" tabindex="-1">
@@ -277,7 +283,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
             <!---->
             <!---->
           </div>
-          <div id="bonuses-group" role="group" class="mx-2 mb-2">
+          <div id="bonuses-group" role="group" class="b-form-group mx-2 mb-2">
             <!---->
             <!----><label id="___BVN__ID__v-94___BV_label____" for="bonuses" class="form-label d-block">Bonus content:</label>
             <div id="bonuses" role="group" class="btn-group-md bv-no-focus-ring" tabindex="-1">
@@ -287,7 +293,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
             <!---->
             <!----><small id="___BVN__ID__v-97___BV_description____" class="text-body-secondary form-text"><a href="https://music4dance.blog/music4dance-help/subscriptions/">Premium content</a></small>
           </div>
-          <div id="sort-group" role="group" class="">
+          <div id="sort-group" role="group" class="b-form-group">
             <!---->
             <!----><label id="___BVN__ID__v-103___BV_label____" for="sort" class="form-label d-block">Sort By:</label><select id="sort" class="form-select" required="" aria-required="true">
               <option>Default (Closest Match)</option>
@@ -313,8 +319,8 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
             <!---->
             <!---->
           </div>
-          <transition-stub data-v-2f3988be="" name="" enteractiveclass="" entertoclass="show" leaveactiveclass="" leavetoclass="showing" enterfromclass="showing" leavefromclass="" appear="false" persisted="false" css="true">
-            <div data-v-2f3988be="" class="alert alert-success" role="alert" aria-live="polite" aria-atomic="true">All songs danceable to any of Bolero or Rumba containing the text "Love" sorted by Closest Match.
+          <transition-stub data-v-141c4f93="" name="" enteractiveclass="" entertoclass="show" leaveactiveclass="" leavetoclass="showing" enterfromclass="showing" leavefromclass="" appear="false" persisted="false" css="true">
+            <div data-v-141c4f93="" class="alert alert-success" role="alert" aria-live="polite" aria-atomic="true">All songs danceable to any of Bolero or Rumba containing the text "Love" sorted by Closest Match.
               <!---->
             </div>
           </transition-stub>

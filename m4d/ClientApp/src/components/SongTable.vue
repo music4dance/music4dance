@@ -18,6 +18,7 @@ import type { TableFieldRaw } from "bootstrap-vue-next";
 import beat10 from "@/assets/images/icons/beat-10.png";
 import energy10 from "@/assets/images/icons/Energy-10.png";
 import mood10 from "@/assets/images/icons/mood-10.png";
+import { formatDate } from "@/helpers/timeHelpers";
 
 type SongField = Exclude<TableFieldRaw<SongEditor>, string>;
 
@@ -227,11 +228,11 @@ const orderTip = (song: Song): string => {
   switch (orderType) {
     default:
     case SortOrder.Modified:
-      return `Last Modified ${song.modified} (${song.modifiedOrderVerbose} ago)`;
+      return `Last Modified ${formatDate(song.modified)} (${song.modifiedOrderVerbose} ago)`;
     case SortOrder.Created:
-      return `Added ${song.created} (${song.createdOrderVerbose} ago)`;
+      return `Added ${formatDate(song.created)} (${song.createdOrderVerbose} ago)`;
     case SortOrder.Edited:
-      return `Last Edited ${song.edited} (${song.editedOrderVerbose} ago)`;
+      return `Last Edited ${formatDate(song.edited)} (${song.editedOrderVerbose} ago)`;
   }
 };
 

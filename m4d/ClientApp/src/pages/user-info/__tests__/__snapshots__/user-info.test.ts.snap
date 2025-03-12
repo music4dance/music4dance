@@ -5,8 +5,8 @@ exports[`User Info > Renders User Info Page 1`] = `
   <nav aria-label="breadcrumb">
     <nav aria-label="breadcrumb" style="padding: 0.25rem 0.5rem;">
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a class="" replace="false" href="/">music4dance</a></li>
-        <li class="breadcrumb-item"><a class="" replace="false" href="/home/info">Info</a></li>
+        <li class="breadcrumb-item"><a class="" href="/">music4dance</a></li>
+        <li class="breadcrumb-item"><a class="" href="/home/info">Info</a></li>
         <li class="breadcrumb-item active"><span aria-current="location">User Profile</span></li>
       </ol>
     </nav>
@@ -47,7 +47,7 @@ exports[`User Info > Renders User Info Page 1`] = `
             </li>
           </ul>
           <div>
-            <p>chicagoarthurmurray in order to add songs to your lists, either <a class="" replace="false" href="https://music4dance.blog/music4dance-help/dance-tags/">vote on songs to dance to</a> or <a class="" replace="false" href="https://music4dance.blog/what-is-the-difference-between-adding-a-song-to-favorites-and-voting-on-a-songs-danceability/">add song to your favorites or blocked lists</a>. </p>
+            <p>chicagoarthurmurray in order to add songs to your lists, either <a class="" href="https://music4dance.blog/music4dance-help/dance-tags/">vote on songs to dance to</a> or <a class="" href="https://music4dance.blog/what-is-the-difference-between-adding-a-song-to-favorites-and-voting-on-a-songs-danceability/">add song to your favorites or blocked lists</a>. </p>
             <p> The User Song List feature is still under development. We are considering including lists of dance styles that the user has tagged or possibly including lists of arbitrary tags. Please <a href="https://music4dance.blog/feedback/">let us know</a> if you like this feature or have ideas to improve it (or both). </p>
             <!--v-if-->
           </div>

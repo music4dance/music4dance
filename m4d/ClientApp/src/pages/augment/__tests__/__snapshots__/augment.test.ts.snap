@@ -17,7 +17,9 @@ exports[`Augment Page > Renders the Augment Page 1`] = `
       </div>
       <div data-v-6c79bed6="" class="row">
         <div data-v-6c79bed6="" class="col">
-          <transition-stub data-v-2f3988be="" data-v-6c79bed6="" name="" enteractiveclass="" entertoclass="show" leaveactiveclass="" leavetoclass="showing" enterfromclass="showing" leavefromclass="" appear="false" persisted="false" css="true" show=""></transition-stub>
+          <transition-stub data-v-141c4f93="" data-v-6c79bed6="" name="" enteractiveclass="" entertoclass="show" leaveactiveclass="" leavetoclass="showing" enterfromclass="showing" leavefromclass="" appear="false" persisted="false" css="true" show="">
+            <!---->
+          </transition-stub>
         </div>
       </div>
     </div>

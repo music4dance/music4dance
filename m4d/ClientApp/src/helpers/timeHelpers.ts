@@ -44,8 +44,8 @@ export function timeOrderVerbose(time: Date): string {
   }
 }
 
-export function formatDate(date: Date): string {
-  return format(date, "dd-MMM-yyyy hh:mm:ss a");
+export function formatDate(date?: Date): string {
+  return date ? format(date, "dd-MMM-yyyy hh:mm:ss a") : "";
 }
 
 export function formatNow(): string {

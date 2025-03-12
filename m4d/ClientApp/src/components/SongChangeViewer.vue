@@ -20,7 +20,7 @@ const action = computed(() =>
   props.change.action === PropertyType.createdField ? "Added" : "Changed",
 );
 const date = computed(() => props.change.date);
-const formattedDate = computed(() => (date.value ? format(date.value, "Pp") : "<unknown>"));
+const formattedDate = computed(() => (date.value ? format(date.value, "P hh:mm a") : "<unknown>"));
 const viewableProperties = computed(() =>
   props.change.properties.filter(
     (t) =>

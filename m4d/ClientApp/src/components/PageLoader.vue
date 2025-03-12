@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const props = withDefaults(defineProps<{ loaded: boolean; label?: string }>(), {
+const props = withDefaults(defineProps<{ loaded?: boolean; label?: string }>(), {
   loaded: true,
   label: "Loading...",
 });

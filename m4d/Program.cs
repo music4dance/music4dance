@@ -232,7 +232,13 @@ app.Logger.LogInformation($"Sentinel = {sentinel}");
 using (var scope = app.Services.CreateScope())
 {
     var sp = scope.ServiceProvider;
-    sp.GetRequiredService<DanceMusicContext>().Database.Migrate();
+    var db = sp.GetRequiredService<DanceMusicContext>().Database;
+    if (isDevelopment)
+    {
+        db.EnsureCreated();
+    }
+
+    db.Migrate();
 
     if (isDevelopment)
     {

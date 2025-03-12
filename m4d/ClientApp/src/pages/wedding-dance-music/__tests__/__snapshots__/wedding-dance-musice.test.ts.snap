@@ -5,8 +5,8 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
   <nav aria-label="breadcrumb">
     <nav aria-label="breadcrumb" style="padding: 0.25rem 0.5rem;">
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a class="" replace="false" href="/">music4dance</a></li>
-        <li class="breadcrumb-item"><a class="" replace="false" href="/dances">Dances</a></li>
+        <li class="breadcrumb-item"><a class="" href="/">music4dance</a></li>
+        <li class="breadcrumb-item"><a class="" href="/dances">Dances</a></li>
         <li class="breadcrumb-item active"><span aria-current="location">WeddingDanceMusic</span></li>
       </ol>
     </nav>
@@ -22,8 +22,8 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
       <div style="margin: 0px auto; max-width: 800px;">
         <div data-v-3bbd14d4="">
           <!-- INT-TODO: Add back in foot-clone -->
-          <div data-v-3bbd14d4="" class="table-responsive" noproviderpaging="false" noprovidersorting="false" noproviderfiltering="false" mustsort="false" selectable="false" multisort="false" stickyselect="false" selecthead="true" selectmode="multi" selectionvariant="primary" busyloadingtext="Loading..." perpage="Infinity" currentpage="1" nolocalsorting="false" noselectonclick="false" nosortableicon="false" emptyfilteredtext="There are no records matching your request" emptytext="There are no records to show" showempty="false" busy="false" selecteditems="" aria-busy="false">
-            <table class="table b-table table-hover table-striped">
+          <div data-v-3bbd14d4="" class="table-responsive">
+            <table id="___BVN__ID__v-0__" class="table b-table table-hover table-striped" aria-busy="false">
               <thead class="">
                 <tr class="">
                   <th scope="col" class="b-table-sticky-column">Dance Style

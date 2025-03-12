@@ -5,8 +5,8 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
   <nav aria-label="breadcrumb">
     <nav aria-label="breadcrumb" style="padding: 0.25rem 0.5rem;">
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a class="" replace="false" href="/">music4dance</a></li>
-        <li class="breadcrumb-item"><a class="" replace="false" href="/dances">Dances</a></li>
+        <li class="breadcrumb-item"><a class="" href="/">music4dance</a></li>
+        <li class="breadcrumb-item"><a class="" href="/dances">Dances</a></li>
         <li class="breadcrumb-item active"><span aria-current="location">Ballroom</span></li>
       </ol>
     </nav>
@@ -27,8 +27,8 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
         <h2><a href="/dances/american-smooth">American Smooth</a></h2>
         <div>
           <h4>An American Smooth four dance round consists of the following:</h4>
-          <div class="table-responsive" noproviderpaging="false" noprovidersorting="false" noproviderfiltering="false" mustsort="false" selectable="false" multisort="false" stickyselect="false" selecthead="true" selectmode="multi" selectionvariant="primary" busyloadingtext="Loading..." perpage="Infinity" currentpage="1" nolocalsorting="false" noselectonclick="false" nosortableicon="false" emptyfilteredtext="There are no records matching your request" emptytext="There are no records to show" showempty="false" busy="false" selecteditems="" aria-busy="false">
-            <table class="table b-table table-hover table-striped">
+          <div class="table-responsive">
+            <table id="___BVN__ID__v-0__" class="table b-table table-hover table-striped" aria-busy="false">
               <thead class="">
                 <tr class="">
                   <th scope="col" class="">Name
@@ -150,8 +150,8 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
         <h2><a href="/dances/international-standard">International Standard</a></h2>
         <div>
           <h4>An International Standard five dance round consists of the following:</h4>
-          <div class="table-responsive" noproviderpaging="false" noprovidersorting="false" noproviderfiltering="false" mustsort="false" selectable="false" multisort="false" stickyselect="false" selecthead="true" selectmode="multi" selectionvariant="primary" busyloadingtext="Loading..." perpage="Infinity" currentpage="1" nolocalsorting="false" noselectonclick="false" nosortableicon="false" emptyfilteredtext="There are no records matching your request" emptytext="There are no records to show" showempty="false" busy="false" selecteditems="" aria-busy="false">
-            <table class="table b-table table-hover table-striped">
+          <div class="table-responsive">
+            <table id="___BVN__ID__v-3__" class="table b-table table-hover table-striped" aria-busy="false">
               <thead class="">
                 <tr class="">
                   <th scope="col" class="">Name
@@ -294,8 +294,8 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
         <h2><a href="/dances/american-rhythm">American Rhythm</a></h2>
         <div>
           <h4>An American Rhythm five dance round consists of the following:</h4>
-          <div class="table-responsive" noproviderpaging="false" noprovidersorting="false" noproviderfiltering="false" mustsort="false" selectable="false" multisort="false" stickyselect="false" selecthead="true" selectmode="multi" selectionvariant="primary" busyloadingtext="Loading..." perpage="Infinity" currentpage="1" nolocalsorting="false" noselectonclick="false" nosortableicon="false" emptyfilteredtext="There are no records matching your request" emptytext="There are no records to show" showempty="false" busy="false" selecteditems="" aria-busy="false">
-            <table class="table b-table table-hover table-striped">
+          <div class="table-responsive">
+            <table id="___BVN__ID__v-6__" class="table b-table table-hover table-striped" aria-busy="false">
               <thead class="">
                 <tr class="">
                   <th scope="col" class="">Name
@@ -438,8 +438,8 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
         <h2><a href="/dances/international-latin">International Latin</a></h2>
         <div>
           <h4>An International Latin five dance round consists of the following:</h4>
-          <div class="table-responsive" noproviderpaging="false" noprovidersorting="false" noproviderfiltering="false" mustsort="false" selectable="false" multisort="false" stickyselect="false" selecthead="true" selectmode="multi" selectionvariant="primary" busyloadingtext="Loading..." perpage="Infinity" currentpage="1" nolocalsorting="false" noselectonclick="false" nosortableicon="false" emptyfilteredtext="There are no records matching your request" emptytext="There are no records to show" showempty="false" busy="false" selecteditems="" aria-busy="false">
-            <table class="table b-table table-hover table-striped">
+          <div class="table-responsive">
+            <table id="___BVN__ID__v-9__" class="table b-table table-hover table-striped" aria-busy="false">
               <thead class="">
                 <tr class="">
                   <th scope="col" class="">Name
