@@ -4,6 +4,7 @@ using m4d.Areas.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using Azure.Identity;
+using Microsoft.Extensions.Azure;
 using Vite.AspNetCore;
 using Microsoft.AspNetCore.Rewrite;
 using m4d.Utilities;
@@ -48,9 +49,24 @@ builder.Services.AddFeatureManagement();
 var useVite = configuration.UseVite();
 var isDevelopment = environment.IsDevelopment();
 
+// TODONEXT: See if we can get the site search index using instance creds...
+// https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/identity/Azure.Identity/TROUBLESHOOTING.md#enable-and-configure-logging
+// https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/identity/Azure.Identity/TROUBLESHOOTING.md#troubleshoot-visualstudiocredential-authentication-issues
+
+//var credentialOptions = new DefaultAzureCredentialOptions
+//{
+//    Diagnostics =
+//    {
+//        LoggedHeaderNames = { "x-ms-request-id" },
+//        LoggedQueryParameters = { "api-version" },
+//        IsAccountIdentifierLoggingEnabled = true,
+//        IsLoggingContentEnabled = true
+//    }
+//};
+
+var credentials = new DefaultAzureCredential();
 if (!isDevelopment)
 {
-    var credentials = new ManagedIdentityCredential();
     configuration.AddAzureAppConfiguration(options =>
     {
         options.Connect(
@@ -73,6 +89,13 @@ if (!isDevelopment)
 
     services.AddAzureAppConfiguration();
 }
+
+services.AddAzureClients(clientBuilder =>
+{
+    clientBuilder.UseCredential(credentials);
+    clientBuilder.AddSearchClient(
+        configuration.GetSection("PageIndex")).WithName("PageIndex");
+});
 
 services.AddDbContext<DanceMusicContext>(options => options.UseSqlServer(connectionString));
 

@@ -4,8 +4,6 @@ import BlogSeries from "./BlogSeries.vue";
 import BlogArticle from "./BlogArticle.vue";
 
 const breadcrumbs: BreadCrumbItem[] = [...infoTrail, { text: "Technical Blog", active: true }];
-
-// TODONEXT: Fill out series...
 </script>
 
 <template>

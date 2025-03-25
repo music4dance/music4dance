@@ -2,9 +2,9 @@
 using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
 using m4dModels;
-using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Azure;
 
 namespace m4d.APIControllers;
 
@@ -12,17 +12,16 @@ namespace m4d.APIControllers;
 [Route("api/[controller]")]
 public class SearchController : DanceMusicApiController
 {
-    private readonly ISearchServiceManager _searchServiceManager;
-    private readonly IServer _server;
+    private readonly SearchClient _client;
 
     public SearchController(
         DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-        IConfiguration configuration, IServer server, ILogger<SearchController> logger) :
+        IConfiguration configuration, ILogger<SearchController> logger,
+        IAzureClientFactory<SearchClient> searchFactory) :
         base(context, userManager, searchService, danceStatsManager, configuration, logger)
     {
-        _searchServiceManager = new SearchServiceManager(configuration);
-        _server = server;
+        _client = searchFactory.CreateClient("PageIndex");
     }
 
     [HttpGet]
@@ -47,20 +46,11 @@ public class SearchController : DanceMusicApiController
             QueryType = SearchQueryType.Simple,
             Size = int.MaxValue,
         };
-        parameters.Select.AddRange(new[] { "Url", "Title", "Description" });
+        parameters.Select.AddRange(["Url", "Title", "Description"]);
 
-        var client = _searchServiceManager.GetInfo("freep").AdminClient;
-        var response = await client.SearchAsync<PageSearch>(search, parameters);
+        var response = await _client.SearchAsync<PageSearch>(search, parameters);
 
         return response.Value.GetResults().Select(r => r.Document)
             .Select(p => p.GetDecoded()).ToList();
     }
-
-    //private string GetBaseAddress()
-    //{
-    //    var features = _server.Features;
-    //    var addresses = features.Get<IServerAddressesFeature>();
-    //    var address = addresses?.Addresses.FirstOrDefault();
-    //    return address ?? "https://www.music4dance.net/"
-    //}
 }
