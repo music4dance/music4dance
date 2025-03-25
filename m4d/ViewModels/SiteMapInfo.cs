@@ -236,6 +236,7 @@ public static class SiteMapInfo
                     new() { Title = "Terms of Service", Reference = "home/termsofservice", Crawl = true },
                     new() { Title = "Credits", Reference = "home/credits", Crawl = true },
                     new() { Title = "Reading List", Reference = "home/readinglist", Crawl = true },
+                    new() { Title = "Technical Blog", Reference = "home/technicalblog", Crawl = true },
                     new SiteMapFile("helpmap", fileProvider)
                         { Title = "Help", Reference = "blog/music4dance-help" },
                     new SiteMapFile("blogmap", fileProvider)

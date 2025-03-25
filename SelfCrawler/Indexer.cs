@@ -1,5 +1,4 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using OpenQA.Selenium;
@@ -9,6 +8,7 @@ using System.IO;
 using System.Linq;
 using m4dModels;
 using Azure.Search.Documents;
+using Azure.Identity;
 
 namespace SelfCrawler
 {
@@ -16,12 +16,10 @@ namespace SelfCrawler
     [TestClass]
     public class Indexer : IDisposable
     {
-        private readonly ISearchServiceManager _searchServiceManager;
         private readonly Crawler<PageSearch> _crawler;
 
         public Indexer()
         {
-            _searchServiceManager = new SearchServiceManager(GetIConfiguration());
             _crawler = new Crawler<PageSearch>();
             //_crawler = new Crawler<PageSearch>("https://m4d-linux.azurewebsites.net/");
         }
@@ -64,8 +62,6 @@ namespace SelfCrawler
             Console.WriteLine(indexResults.Value);
         }
 
-
-
         private void UploadPages(List<PageSearch> pages)
         {
             try
@@ -94,7 +90,7 @@ namespace SelfCrawler
 
         private PageSearch CrawlPage(string relativePath, string root, IWebDriver driver)
         {
-            driver.Navigate().GoToUrl($"{root}{relativePath}?flat=true");
+            _crawler.NavigateTo(relativePath, root);
             var description = string.Empty;
             var descriptionElement = TryFindElement(By.CssSelector("meta[name='description']"));
             if (descriptionElement != null)
@@ -139,17 +135,13 @@ namespace SelfCrawler
             return _crawler.TryFindElement(by);
         }
 
-        public static IConfiguration GetIConfiguration()
+        private SearchClient CreateSearchClient(string id = "pages")
         {
-            return new ConfigurationBuilder()
-                .AddUserSecrets("60050f39-d7c1-4b33-8b65-1e6cbb538661")
-                .AddEnvironmentVariables()
-                .Build();
-        }
+            var endpoint = new Uri(@"https://m4d.search.windows.net");
+            var credential = new DefaultAzureCredential();
 
-        private SearchClient CreateSearchClient(string id = "freep")
-        {
-            return _searchServiceManager.GetInfo(id).AdminClient;
+            // Create a client
+            return new SearchClient(endpoint, id, credential);
         }
     }
 }

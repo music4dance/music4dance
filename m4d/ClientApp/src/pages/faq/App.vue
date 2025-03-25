@@ -194,7 +194,7 @@ const breadcrumbs: BreadCrumbItem[] = [...infoTrail, { text: "FAQ", active: true
               </p>
               <p>
                 If you you're looking for the song because you don't know what to dance to it,
-                please ontact us at
+                please contact us at
                 <a href="mailto:info@music4dance.net">info@music4dance.net</a>
                 or through our
                 <a href="https://music4dance.blog/feedback/">feedback form</a>
@@ -225,7 +225,7 @@ const breadcrumbs: BreadCrumbItem[] = [...infoTrail, { text: "FAQ", active: true
               <p>
                 If you would like more information check out our related blog post.
                 <a
-                  href="https://music4dance.blogim-a-ballroom-dancer-can-i-find-practice-songs-that-are-at-competition-tempo-revisited/"
+                  href="https://music4dance.blog/im-a-ballroom-dancer-can-i-find-practice-songs-that-are-at-competition-tempo-revisited/"
                 >
                   I'm a competition ballroom dancer, can I find practice songs that are a specific
                   tempo?</a
@@ -255,13 +255,13 @@ const breadcrumbs: BreadCrumbItem[] = [...infoTrail, { text: "FAQ", active: true
               <p>
                 If you would like more information check out our related blog posts.
                 <a
-                  href="https://music4dance.blog/wedding-music-part-i-can-we-dance-the-foxtrot-to-our-song/"
+                  href="https://music4dance.blog/wed-like-to-dance-a-real-partner-dance-as-the-first-dance-at-our-wedding-part-i-we-already-chose-our-song/"
                 >
                   Wedding Music Part I: Can we dance the Foxtrot to our song?</a
                 >
                 and
                 <a
-                  href="https://music4dance.blog/wedding-music-part-ii-were-learning-to-rumba-help-us-find-a-good-song-for-our-first-dance/"
+                  href="https://music4dance.blog/wed-like-to-dance-a-real-partner-dance-as-the-first-dance-at-our-wedding-part-ii-we-already-chose-our-dance/"
                 >
                   Wedding Music Part II: We’re learning to Rumba, help us find a good song for our
                   first dance</a
@@ -271,39 +271,7 @@ const breadcrumbs: BreadCrumbItem[] = [...infoTrail, { text: "FAQ", active: true
           </BCardBody>
         </BCollapse>
       </BCard>
-      <BCard no-body class="mb-1">
-        <BCardHeader header-tag="header" class="p-1" role="tab">
-          <BButton v-b-toggle.accordion-update block variant="primary">
-            Why are some pages styled differently than others?
-          </BButton>
-        </BCardHeader>
-        <BCollapse id="accordion-update" accordion="my-accordion" role="tabpanel">
-          <BCardBody>
-            <BCardText>
-              <p>
-                We're currently migrating from vue.js 2.0 to vue.js 3.0 and
-                <a href="https://bootstrap-vue.org/" target="_blank">bootstrap-vue</a> to
-                <a href="https://bootstrap-vue-next.github.io/bootstrap-vue-next/" target="_blank"
-                  >bootstrap-vue-next</a
-                >. The new pages should look very close to the old ones, but can be readily
-                identified by the fact that the drop-down menus are rendered white text on a black
-                background. We would appreciate your help as we roll the changes out. Please
-                <a href="https://music4dance.blog/bug-report/" target="_blank"
-                  >report any bugs you find</a
-                >
-                and we'll do our best to keep the site stable.
-              </p>
-              <p>
-                This kind of update is occassionaly necessary to keep the site running. In this
-                case, vue.js 2.0 is <a href="https://v2.vuejs.org/eol/">no longer supported</a>. So
-                we're forced to do a significant rewrite of the site to upgrade to Vue.js 3.0. This
-                (and other similar updates) are quite time-consuming, so please consider
-                <a href="/home/contribute">subscribing or donating</a> to support these efforts.
-              </p>
-            </BCardText>
-          </BCardBody>
-        </BCollapse>
-      </BCard>
+
       <BCard no-body class="mb-1">
         <BCardHeader header-tag="header" class="p-1" role="tab">
           <BButton v-b-toggle.accordion-7 block variant="primary">

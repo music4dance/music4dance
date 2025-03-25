@@ -114,7 +114,7 @@ exports[`Faq > Renders Faq Page 1`] = `
                 <!---->
                 <p class="card-text">
                 <p> You can go ahead and <a href="https://music4dance.blog/music4dance-help/add-songs/">add it</a> yourself. </p>
-                <p> If you you're looking for the song because you don't know what to dance to it, please ontact us at <a href="mailto:info@music4dance.net">info@music4dance.net</a> or through our <a href="https://music4dance.blog/feedback/">feedback form</a> and we will add it if we can. </p>
+                <p> If you you're looking for the song because you don't know what to dance to it, please contact us at <a href="mailto:info@music4dance.net">info@music4dance.net</a> or through our <a href="https://music4dance.blog/feedback/">feedback form</a> and we will add it if we can. </p>
                 </p>
               </div>
             </div>
@@ -134,7 +134,7 @@ exports[`Faq > Renders Faq Page 1`] = `
                 <!---->
                 <p class="card-text">
                 <p> Go to our <a href="/dances/ballroom-competition-categories">Ballroom competition categories</a> page and see the list of the different competition categories and the dance/song requirements for several organizations that publish competition rules. </p>
-                <p> If you would like more information check out our related blog post. <a href="https://music4dance.blogim-a-ballroom-dancer-can-i-find-practice-songs-that-are-at-competition-tempo-revisited/"> I'm a competition ballroom dancer, can I find practice songs that are a specific tempo?</a></p>
+                <p> If you would like more information check out our related blog post. <a href="https://music4dance.blog/im-a-ballroom-dancer-can-i-find-practice-songs-that-are-at-competition-tempo-revisited/"> I'm a competition ballroom dancer, can I find practice songs that are a specific tempo?</a></p>
                 </p>
               </div>
             </div>
@@ -154,27 +154,7 @@ exports[`Faq > Renders Faq Page 1`] = `
                 <!---->
                 <p class="card-text">
                 <p> Check out the <a href="/dances/wedding-music">wedding page</a> for information to help you get started, or you can go to the <a href="/song/advancedsearchform">advanced search</a> page and look for songs that are tagged as First Dance and/or Wedding. </p>
-                <p> If you would like more information check out our related blog posts. <a href="https://music4dance.blog/wedding-music-part-i-can-we-dance-the-foxtrot-to-our-song/"> Wedding Music Part I: Can we dance the Foxtrot to our song?</a> and <a href="https://music4dance.blog/wedding-music-part-ii-were-learning-to-rumba-help-us-find-a-good-song-for-our-first-dance/"> Wedding Music Part II: We’re learning to Rumba, help us find a good song for our first dance</a></p>
-                </p>
-              </div>
-            </div>
-          </transition-stub>
-          <!---->
-          <!---->
-        </div>
-        <div class="card mb-1">
-          <!---->
-          <!---->
-          <!---->
-          <div class="card-header p-1" header-tag="header" role="tab"><button class="btn btn-md btn-primary collapsed" type="button" block="" aria-controls="accordion-update" aria-expanded="false"> Why are some pages styled differently than others? </button></div>
-          <transition-stub name="fade" enteractiveclass="collapsing" enterfromclass="" entertoclass="" leaveactiveclass="collapsing" leavefromclass="" leavetoclass="" appear="false" persisted="false" css="true">
-            <div id="accordion-update" class="collapse" is-nav="false" accordion="my-accordion" role="tabpanel" style="display: none;">
-              <div class="card-body">
-                <!---->
-                <!---->
-                <p class="card-text">
-                <p> We're currently migrating from vue.js 2.0 to vue.js 3.0 and <a href="https://bootstrap-vue.org/" target="_blank">bootstrap-vue</a> to <a href="https://bootstrap-vue-next.github.io/bootstrap-vue-next/" target="_blank">bootstrap-vue-next</a>. The new pages should look very close to the old ones, but can be readily identified by the fact that the drop-down menus are rendered white text on a black background. We would appreciate your help as we roll the changes out. Please <a href="https://music4dance.blog/bug-report/" target="_blank">report any bugs you find</a> and we'll do our best to keep the site stable. </p>
-                <p> This kind of update is occassionaly necessary to keep the site running. In this case, vue.js 2.0 is <a href="https://v2.vuejs.org/eol/">no longer supported</a>. So we're forced to do a significant rewrite of the site to upgrade to Vue.js 3.0. This (and other similar updates) are quite time-consuming, so please consider <a href="/home/contribute">subscribing or donating</a> to support these efforts. </p>
+                <p> If you would like more information check out our related blog posts. <a href="https://music4dance.blog/wed-like-to-dance-a-real-partner-dance-as-the-first-dance-at-our-wedding-part-i-we-already-chose-our-song/"> Wedding Music Part I: Can we dance the Foxtrot to our song?</a> and <a href="https://music4dance.blog/wed-like-to-dance-a-real-partner-dance-as-the-first-dance-at-our-wedding-part-ii-we-already-chose-our-dance/"> Wedding Music Part II: We’re learning to Rumba, help us find a good song for our first dance</a></p>
                 </p>
               </div>
             </div>

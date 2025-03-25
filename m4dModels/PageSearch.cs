@@ -15,17 +15,25 @@ namespace m4dModels
         public string Content { get; set; }
 
         public PageSearch GetEncoded() => Recode(
-            s => s.Replace("/", "_").Replace("(", "=OP").Replace(")", "=CP"));
+            s => s.Replace("/", "_")
+            .Replace("(", "=OP=")
+            .Replace(")", "=CP=")
+            .Replace("?", "=QST=")
+        );
 
         public PageSearch GetDecoded() => Recode(
-            s => "/" + s.Replace("_", "/").Replace("=OP", "(").Replace("=CP", ")"));
+            s => "/" + s
+            .Replace("_", "/")
+            .Replace("=OP=", "(")
+            .Replace("=CP=", ")")
+            .Replace("=QST=", "?")
+        );
 
         private PageSearch Recode(Func<string, string> replace)
         {
             var coded = MemberwiseClone() as PageSearch;
             coded.Url = replace(Url);
             return coded;
-
         }
     }
 }

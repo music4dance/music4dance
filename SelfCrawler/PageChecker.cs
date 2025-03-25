@@ -42,6 +42,11 @@ public abstract class PageChecker : IDisposable
         var url = "/home/readinglist";
         return Crawler.SinglePage(CrawlPage, url);
     }
+    internal static void NavigateTo(string relativePath, string root, IWebDriver driver)
+    {
+        var sep = relativePath.Contains("?") ? "&" : "?";
+        driver.Navigate().GoToUrl($"{root}{relativePath}{sep}flat=true");
+    }
 
     protected abstract bool CrawlPage(string relativePath, string root, IWebDriver driver);
 }

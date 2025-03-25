@@ -116,5 +116,10 @@ namespace SelfCrawler
             }
             return url;
         }
+
+        internal void NavigateTo(string relativePath, string root)
+        {
+            PageChecker.NavigateTo(relativePath, root, _driver);
+        }
     }
 }

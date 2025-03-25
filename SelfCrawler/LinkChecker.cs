@@ -67,8 +67,7 @@ public class LinkChecker : PageChecker, IDisposable
 
     protected override bool CrawlPage(string relativePath, string root, IWebDriver driver)
     {
-        driver.Navigate().GoToUrl($"{root}{relativePath}?flat=true");
-
+        NavigateTo(relativePath, root, driver);
         return CheckLinks(relativePath, driver);
     }
 
