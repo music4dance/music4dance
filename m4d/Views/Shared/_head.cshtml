@@ -27,7 +27,7 @@
     var userName = user?.UserName ?? "";
     var userId = user?.Privacy == 0 ? user?.Id : "";
     var expiration = userExpiration.ExpirationString;
-    var searchIndex = _searchService.DefaultId.Last();
+    var searchIndex = _searchService.GetInfo().Abbr;
     var hideAds = ViewData.TryGetValue("HideAds", out var hideAdsObj) && (hideAdsObj as bool?).Value;
     var hasIcons = ViewData.TryGetValue("HasIcons", out var hasIconsObj) && (hasIconsObj as bool?).Value;
     var styleModifier = hasIcons ? "wicons" : "";
