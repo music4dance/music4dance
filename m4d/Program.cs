@@ -95,6 +95,10 @@ services.AddAzureClients(clientBuilder =>
     clientBuilder.UseCredential(credentials);
     clientBuilder.AddSearchClient(
         configuration.GetSection("PageIndex")).WithName("PageIndex");
+    clientBuilder.AddSearchClient(
+        configuration.GetSection("SongIndex")).WithName("SongIndex");
+    clientBuilder.AddSearchClient(
+        configuration.GetSection("SongIndexTest")).WithName("SongIndexTest");
 });
 
 services.AddDbContext<DanceMusicContext>(options => options.UseSqlServer(connectionString));
@@ -217,7 +221,7 @@ services.AddreCAPTCHAV2(
     });
 
 var appRoot = environment.WebRootPath;
-services.AddSingleton<ISearchServiceManager>(new SearchServiceManager(configuration));
+services.AddSingleton<ISearchServiceManager>(new SearchServiceManager(configuration, credentials));
 services.AddSingleton<IDanceStatsManager>(new DanceStatsManager(new DanceStatsFileManager(appRoot)));
 
 services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();

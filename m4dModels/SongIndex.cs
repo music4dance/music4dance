@@ -1423,18 +1423,12 @@ public abstract class SongIndex
 
     private SearchClient CreateSearchClient()
     {
-        var info = Manager.GetInfo(SearchId);
-        var endpoint = new Uri("https://msc4dnc.search.windows.net");
-        var credentials = new AzureKeyCredential(info.AdminKey);
-        return new SearchClient(endpoint, info.Index, credentials);
+        return Manager.GetInfo(SearchId).AdminClient;
     }
 
     private SearchIndexClient CreateSearchIndexClient()
     {
-        var info = Manager.GetInfo(SearchId);
-        var endpoint = new Uri("https://msc4dnc.search.windows.net");
-        var credentials = new AzureKeyCredential(info.AdminKey);
-        return new SearchIndexClient(endpoint, credentials);
+        return Manager.GetInfo(SearchId).GetSearchIndexClient();
     }
 
     protected static void AccumulateComments(List<UserComment> comments, List<string> accumulator)

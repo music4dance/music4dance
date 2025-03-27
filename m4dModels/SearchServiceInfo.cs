@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Azure;
+using Azure.Identity;
 using Azure.Search.Documents;
+using Azure.Search.Documents.Indexes;
 using Microsoft.Extensions.Configuration;
 
 namespace m4dModels
@@ -13,11 +15,12 @@ namespace m4dModels
         string DefaultId { get; set; }
         IEnumerable<string> GetAvailableIds();
         string RawEnvironment { get; }
+        bool HasId(string id);
     }
 
     public class SearchServiceManager : ISearchServiceManager
     {
-        public SearchServiceManager(IConfiguration configuration)
+        public SearchServiceManager(IConfiguration configuration, DefaultAzureCredential credentials)
         {
             var basicAuth = new SearchAuth("basic", configuration);
             var backupAuth = new SearchAuth("backup", configuration);
@@ -27,33 +30,31 @@ namespace m4dModels
                 {
                     "basica",
                     new SearchServiceInfo(
-                        "basica", "msc4dnc", "songs-a", basicAuth.AdminKey,
+                        "basica", "a", "msc4dnc", "songs-a", basicAuth.AdminKey,
                         basicAuth.QueryKey)
                 },
                 {
                     "basicb",
                     new SearchServiceInfo(
-                        "basicb", "msc4dnc", "songs-b", basicAuth.AdminKey,
+                        "basicb", "b", "msc4dnc", "songs-b", basicAuth.AdminKey,
                         basicAuth.QueryKey /*, isStructured:true */)
                 },
                 {
                     "basicc",
                     new SearchServiceInfo(
-                        "basicc", "msc4dnc", "songs-c", basicAuth.AdminKey,
+                        "basicc", "c", "msc4dnc", "songs-c", basicAuth.AdminKey,
                         basicAuth.QueryKey)
                 },
                 {
-                    "backup",
+                    "SongIndexProd",
                     new SearchServiceInfo(
-                        "backup", "m4d-backup", "songs", backupAuth.AdminKey,
-                        backupAuth.QueryKey)
+                        "SongIndexProd", "p", "music4dance", "songs-prod", credentials)
                 },
                 {
-                    "freep",
+                    "SongIndexTest",
                     new SearchServiceInfo(
-                        "freep", "m4d", "pages", freeAuth.AdminKey,
-                        freeAuth.QueryKey)
-                }
+                        "SongIndexTest", "t", "music4dance", "songs-test", credentials)
+                },
             };
 
             var env = configuration["SEARCHINDEX"];
@@ -82,7 +83,10 @@ namespace m4dModels
         {
             return _info.Keys.ToList();
         }
-
+        public bool HasId(string id)
+        {
+            return _info.ContainsKey(id);
+        }
 
         public string DefaultId { get; set; }
 
@@ -124,16 +128,20 @@ namespace m4dModels
     public class SearchServiceInfo
     {
         public string Id { get; }
+        public string Abbr { get; }
         public string Name { get; }
         public string Index { get; }
         public string AdminKey { get; }
         public string QueryKey { get; }
         public bool IsStructured { get; }
 
-        public SearchServiceInfo(string id, string name, string index, string adminKey,
-            string queryKey, bool isStructured = false)
+        private DefaultAzureCredential _credentials;
+
+        public SearchServiceInfo(string id, string abbr, string name, string index,
+            string adminKey, string queryKey, bool isStructured = false)
         {
             Id = id;
+            Abbr = abbr;
             Name = name;
             Index = index;
             AdminKey = adminKey;
@@ -141,14 +149,44 @@ namespace m4dModels
             IsStructured = isStructured;
         }
 
+        public SearchServiceInfo(string id, string abbr, string name, string index,
+            DefaultAzureCredential credentials, bool isStructured = false)
+        {
+            Id = id;
+            Abbr = abbr;
+            Name = name;
+            Index = index;
+            _credentials = credentials;
+            IsStructured = isStructured;
+        }
+
         public SearchClient AdminClient => GetSearchClient(true);
         public SearchClient QueryClient => GetSearchClient(false);
+
+        public SearchIndexClient GetSearchIndexClient()
+        {
+            var endpoint = new Uri($"https://{Name}.search.windows.net");
+            if (_credentials == null)
+            {
+                return new SearchIndexClient(endpoint, new AzureKeyCredential(AdminKey));
+            }
+            else
+            {
+                return new SearchIndexClient(endpoint, _credentials);
+            }
+        }
 
         private SearchClient GetSearchClient(bool admin)
         {
             var endpoint = new Uri($"https://{Name}.search.windows.net");
-            var credentials = new AzureKeyCredential(admin ? AdminKey : QueryKey);
-            return new SearchClient(endpoint, Index, credentials);
+            if (_credentials == null)
+            {
+                return new SearchClient(endpoint, Index, new AzureKeyCredential(admin ? AdminKey : QueryKey));
+            }
+            else
+            {
+                return new SearchClient(endpoint, Index, _credentials);
+            }
         }
 
     }

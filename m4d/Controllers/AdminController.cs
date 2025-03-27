@@ -120,7 +120,7 @@ public class AdminController : DanceMusicController
     }
 
     //
-    // Get: //ReloadIndex
+    // Get: //UpdateWarning
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = "dbAdmin")]
@@ -337,7 +337,7 @@ public class AdminController : DanceMusicController
     }
 
     //
-    // Get: //ReloadIndex
+    // Get: //LoadIdx
     [HttpPost]
     [ValidateAntiForgeryToken]
     [DisableRequestSizeLimit]
