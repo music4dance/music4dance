@@ -926,6 +926,8 @@ public class AdminController : DanceMusicController
             var fname = $"backup-{dt.Year:d4}-{dt.Month:d2}-{dt.Day:d2}{h}.txt";
             var path = Path.Combine(EnsureAppData(environment), fname);
 
+            Database.Context.Database.SetCommandTimeout(new TimeSpan(0,5,0));
+
             using (var file = System.IO.File.CreateText(path))
             {
                 if (users)
