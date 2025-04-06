@@ -28,24 +28,6 @@ namespace m4dModels
             _info = new Dictionary<string, SearchServiceInfo>
             {
                 {
-                    "basica",
-                    new SearchServiceInfo(
-                        "basica", "a", "msc4dnc", "songs-a", basicAuth.AdminKey,
-                        basicAuth.QueryKey)
-                },
-                {
-                    "basicb",
-                    new SearchServiceInfo(
-                        "basicb", "b", "msc4dnc", "songs-b", basicAuth.AdminKey,
-                        basicAuth.QueryKey /*, isStructured:true */)
-                },
-                {
-                    "basicc",
-                    new SearchServiceInfo(
-                        "basicc", "c", "msc4dnc", "songs-c", basicAuth.AdminKey,
-                        basicAuth.QueryKey)
-                },
-                {
                     "SongIndexProd",
                     new SearchServiceInfo(
                         "SongIndexProd", "p", "music4dance", "songs-prod", credentials)
@@ -60,7 +42,7 @@ namespace m4dModels
             var env = configuration["SEARCHINDEX"];
             if (string.IsNullOrEmpty(env))
             {
-                DefaultId = "basica";
+                DefaultId = "SongIndexProd";
             }
             else
             {

@@ -12,27 +12,15 @@ ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
 <ul>
     <li>Default: @Html.ActionLink("Reset", "ResetSearchIdx")</li>
     <li>
-        BasicA: @Html.ActionLink("Reset", "ResetSearchIdx", new
+        SongIndexProd: @Html.ActionLink("Reset", "ResetSearchIdx", new
             {
-                id = "basica"
+                id = "SongIndexProd"
             }, null)
     </li>
     <li>
-        BasicB: @Html.ActionLink("Reset", "ResetSearchIdx", new
+        SongIndexTest: @Html.ActionLink("Reset", "ResetSearchIdx", new
             {
-                id = "basicb"
-            }, null)
-    </li>
-    <li>
-        BasicC: @Html.ActionLink("Reset", "ResetSearchIdx", new
-            {
-                id = "basicc"
-            }, null)
-    </li>
-    <li>
-        Backup: @Html.ActionLink("Reset", "ResetSearchIdx", new
-            {
-                id = "backup"
+                id = "SongIndexTest"
             }, null)
     </li>
 </ul>
