@@ -82,7 +82,8 @@ export class DanceDatabase {
   public metricsFromId(id: string): DanceMetrics {
     const metrics = this.metrics.find((m) => m.id === id);
     if (!metrics) {
-      throw new Error(`No metrics found for id ${id}`);
+      console.log("No metrics found for id", id);
+      return new DanceMetrics({ id, songCount: 0, maxWeight: 0 });
     }
     return metrics;
   }
