@@ -1219,7 +1219,7 @@ public class AdminController : DanceMusicController
     private void ReseedDb(UserManager<ApplicationUser> userManager,
         RoleManager<IdentityRole> roleManager)
     {
-        UserManagerHelpers.SeedData(userManager, roleManager);
+        UserManagerHelpers.SeedData(userManager, roleManager, Configuration);
     }
 
     #endregion

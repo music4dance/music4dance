@@ -6,25 +6,35 @@ namespace m4d.Areas.Identity;
 public static class UserManagerHelpers
 {
     public static void SeedData(this UserManager<ApplicationUser> userManager,
-        RoleManager<IdentityRole> roleManager)
+        RoleManager<IdentityRole> roleManager, IConfiguration config)
     {
         SeedRoles(roleManager);
-        SeedUsers(userManager);
+        SeedUsers(userManager, config);
     }
 
-    private static void SeedUsers(UserManager<ApplicationUser> userManager)
+    private static void SeedUsers(UserManager<ApplicationUser> userManager, IConfiguration config)
     {
         if (userManager.FindByNameAsync("administrator").Result != null)
         {
             return;
         }
 
+        var name = config["M4D_ADMIN_USER"];
+        if (string.IsNullOrEmpty(name))
+        {
+            throw new Exception("No user name for admin user");
+        }
         var user = new ApplicationUser
         {
-            ***REMOVED***, ***REMOVED***,
+            UserName = name, Email = $"{name}@music4dance.net",
             EmailConfirmed = true
         };
-        var result = userManager.CreateAsync(user, "***REMOVED***").Result;
+        var password = config["M4D_ADMIN_PASSWORD"];
+        if (string.IsNullOrEmpty(password))
+        {
+            throw new Exception("No password for admin user");
+        }
+        var result = userManager.CreateAsync(user, password).Result;
 
         if (result.Succeeded)
         {

@@ -153,7 +153,7 @@ namespace m4dModels
                     }
                 }
 
-                if (userName.Any(x => exclude.Contains(x)))
+                if (userName.Any(exclude.Contains))
                 {
                     Trace.WriteLine($"Invalid username {userName}");
                     continue;
@@ -257,7 +257,7 @@ namespace m4dModels
                 if (!string.IsNullOrWhiteSpace(providers))
                 {
                     var entries =
-                        providers.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                        providers.Split(['|'], StringSplitOptions.RemoveEmptyEntries);
                     for (var j = 0; j < entries.Length; j += 2)
                     {
                         var login = new UserLoginInfo(entries[j], entries[j + 1], entries[j]);
@@ -268,7 +268,7 @@ namespace m4dModels
                 if (!string.IsNullOrWhiteSpace(roles))
                 {
                     var roleNames = roles.Split(
-                        new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                        ['|'], StringSplitOptions.RemoveEmptyEntries);
                     foreach (var roleName in roleNames)
                     {
                         LogIdentityResult(user, await UserManager.AddToRoleAsync(user, roleName));

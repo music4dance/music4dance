@@ -271,7 +271,8 @@ using (var scope = app.Services.CreateScope())
     {
         var userManager = sp.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = sp.GetRequiredService<RoleManager<IdentityRole>>();
-        UserManagerHelpers.SeedData(userManager, roleManager);
+        var config = sp.GetRequiredService<IConfiguration>();
+        UserManagerHelpers.SeedData(userManager, roleManager, config);
     }
 }
 
