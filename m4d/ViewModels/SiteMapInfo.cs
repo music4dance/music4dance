@@ -1,4 +1,5 @@
 ﻿using DanceLibrary;
+
 using Microsoft.Extensions.FileProviders;
 
 namespace m4d.ViewModels;
@@ -30,28 +31,21 @@ public class SiteMapEntry
 
         if (rel.StartsWith(blogPrefix))
         {
-            return $"https://music4dance.blog/{rel.Substring(blogPrefix.Length)}";
+            return $"https://music4dance.blog/{rel[blogPrefix.Length..]}";
         }
 
         return $"https://www.music4dance.net/{rel}";
     }
 }
 
-public sealed class SiteMapDance : SiteMapEntry
+public sealed class SiteMapDance(DanceObject dance) : SiteMapEntry
 {
-    public SiteMapDance(DanceObject dance)
-    {
-        _dance = dance;
-    }
+    public override string Title => dance.Name;
+    public override string Reference => $"dances/{dance.CleanName}";
 
-    public override string Title => _dance.Name;
-    public override string Reference => $"dances/{_dance.CleanName}";
-
-    public string CatalogReference => $"song/search?dances={_dance.Id}";
+    public string CatalogReference => $"song/search?dances={dance.Id}";
 
     public string CatalogFullPath => MakeFullPath(CatalogReference);
-
-    private readonly DanceObject _dance;
 }
 
 // https://stackoverflow.com/questions/43992261/how-to-get-absolute-path-in-asp-net-core-alternative-way-for-server-mappath
@@ -65,7 +59,7 @@ public sealed class SiteMapFile : SiteMapEntry
         var depths = new Stack<int>();
         depths.Push(0);
 
-        family.Push(new List<SiteMapEntry>());
+        family.Push([]);
         // ReSharper disable once LoopCanBeConvertedToQuery
         foreach (var line in lines)
         {
@@ -87,7 +81,7 @@ public sealed class SiteMapFile : SiteMapEntry
 
             if (curdepth > depth)
             {
-                family.Push(new List<SiteMapEntry>());
+                family.Push([]);
                 depths.Push(curdepth);
             }
             else if (curdepth < depth)
@@ -121,7 +115,7 @@ public sealed class SiteMapFile : SiteMapEntry
     private static void AddLevel(Stack<List<SiteMapEntry>> family)
     {
         var t = family.Pop();
-        family.Peek()[family.Peek().Count - 1].Children = t;
+        family.Peek()[^1].Children = t;
     }
 }
 
@@ -139,7 +133,7 @@ public class SiteMapDances : SiteMapCategory
     public override string Type => "music";
 
     public override IEnumerable<SiteMapEntry> Entries => Dances.Instance.AllDances
-        .Where(d => !(d is DanceInstance)).OrderBy(d => d.Name)
+        .Where(d => d is not DanceInstance).OrderBy(d => d.Name)
         .Select(d => new SiteMapDance(d));
 }
 
@@ -159,19 +153,19 @@ public static class SiteMapInfo
 
     private static IEnumerable<SiteMapCategory> LoadCategories(IFileProvider fileProvider)
     {
-        return new List<SiteMapCategory>
-        {
+        return
+        [
             new()
             {
                 Name = "Music",
                 Type = "music",
-                Entries = new List<SiteMapEntry>
-                {
+                Entries =
+                [
                     new()
                     {
                         Title = "Song Library", Reference = "song",
-                        Children = new List<SiteMapEntry>
-                        {
+                        Children =
+                        [
                             new()
                             {
                                 Title = "Advanced Search", Reference = "song/advancedsearchform"
@@ -179,7 +173,7 @@ public static class SiteMapInfo
                             new() { Title = "Add Songs", Reference = "song/augment" },
                             new() { Title = "New Music", Reference = "song/newmusic" },
                             new() { Title = "Saved Searches", Reference = "searches/index" }
-                        }
+                        ]
                     },
                     new() { Title = "Dance Index", Reference = "dances" },
                     new()
@@ -187,8 +181,8 @@ public static class SiteMapInfo
                         Title = "Ballroom Competition Categories",
                         Reference = "dances/ballroom-competition-categories",
                         Crawl = true,
-                        Children = new List<SiteMapEntry>
-                        {
+                        Children =
+                        [
                             new()
                             {
                                 Title = "International Standard",
@@ -211,22 +205,22 @@ public static class SiteMapInfo
                                 Title = "American Rhythm", Reference = "dances/american-rhythm",
                                 Crawl = true,
                             }
-                        }
+                        ]
                     },
                     new() { Title = "Country Western Dance Music", Reference = "dances/country", Crawl = true },
                     new() { Title = "Wedding Music", Reference = "dances/wedding-music", Crawl = true },
                     new() { Title = "Holiday Music", Reference = "customsearch?name=holiday", Crawl = true },
                     new() { Title = "Halloween Music", Reference = "customsearch?name=halloween", Crawl = true },
                     new() { Title = "Broadway Music", Reference = "customsearch?name=broadway", Crawl = true },
-                }
+                ]
             },
             new SiteMapDances(),
             new()
             {
                 Name = "Info",
                 Type = "info",
-                Entries = new List<SiteMapEntry>
-                {
+                Entries =
+                [
                     new() { Title = "Home Page", Reference = "", Crawl = true },
                     new() { Title = "Contribute", Reference = "home/contribute", Crawl = true },
                     new() { Title = "About", Reference = "home/about", Crawl = true },
@@ -241,14 +235,14 @@ public static class SiteMapInfo
                         { Title = "Help", Reference = "blog/music4dance-help" },
                     new SiteMapFile("blogmap", fileProvider)
                         { Title = "Blog", Reference = "blog" },
-                }
+                ]
             },
             new()
             {
                 Name = "Tools",
                 Type = "tools",
-                Entries = new List<SiteMapEntry>
-                {
+                Entries =
+                [
                     new()
                     {
                         Title = "Dance Counter", Reference = "home/counter",
@@ -261,19 +255,19 @@ public static class SiteMapInfo
                         Description =
                             "A table of ballroom and social dances organized by tempo."
                     }
-                }
+                ]
             },
             new()
             {
                 Name = "Account",
                 Type = "tools",
-                Entries = new List<SiteMapEntry>
-                {
+                Entries =
+                [
                     new() { Title = "Profile", Reference = "identity/Account/Manage" },
                     new() { Title = "Log In", Reference = "identity/account/login" },
                     new() { Title = "Register", Reference = "identity/account/register" }
-                }
+                ]
             }
-        };
+        ];
     }
 }

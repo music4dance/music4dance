@@ -15,8 +15,8 @@ public class BotFilterInfo
     public IReadOnlyList<string> BadFragmentList => ListFromString(BadFragments);
 
     private static IReadOnlyList<string> ListFromString(string value) =>
-        value != null 
-        ? value.Split(';',StringSplitOptions.RemoveEmptyEntries|StringSplitOptions.TrimEntries) 
+        value != null
+        ? value.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
         : new List<string>();
 }
 
@@ -74,7 +74,7 @@ public static class SpiderManager
         }
     }
 
-    private static readonly Dictionary<string, long> s_botHits = new();
+    private static readonly Dictionary<string, long> s_botHits = [];
 
     public static int EmptyAgents { get; set; }
 }

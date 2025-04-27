@@ -10,10 +10,15 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+
 using AutoMapper;
+
 using Azure.Search.Documents.Models;
+
 using DanceLibrary;
+
 using Newtonsoft.Json;
+
 using static System.Char;
 
 // ReSharper disable ArrangeThisQualifier
@@ -121,10 +126,10 @@ namespace m4dModels
         {
             var eu = excludeUsers == null
                 ? null
-                : excludeUsers as HashSet<string> ?? new HashSet<string>(excludeUsers);
+                : excludeUsers as HashSet<string> ?? [.. excludeUsers];
             var iu = includeUsers == null
                 ? null
-                : includeUsers as HashSet<string> ?? new HashSet<string>(includeUsers);
+                : includeUsers as HashSet<string> ?? [.. includeUsers];
 
             if ((eu == null || eu.Count == 0) && (iu == null || iu.Count == 0))
             {
@@ -574,7 +579,8 @@ namespace m4dModels
                         break;
                     case DanceRatingField:
                         var rating = new DanceRatingDelta(property.Value);
-                        switch (rating.Delta) {
+                        switch (rating.Delta)
+                        {
                             case -2:
                             case -1:
                             case 1:
@@ -640,11 +646,10 @@ namespace m4dModels
             SongProperty dwg = null;
             var hasRealProp = false;
             var psuedo = new HashSet<string>(
-                new List<string>
-                {
+                [
                     TimeField, TempoField, ArtistField, TitleField,
                     AlbumField, PublisherField, TrackField, PurchaseField
-                });
+                ]);
 
             foreach (var prop in props)
             {
@@ -686,7 +691,7 @@ namespace m4dModels
         /// </summary>
         /// <param name="actions">Actions to include in the serialization</param>
         /// <returns></returns>
-        public string Serialize(string[] actions = null, string options=null)
+        public string Serialize(string[] actions = null, string options = null)
         {
             if (string.IsNullOrWhiteSpace(Title) &&
                 (actions == null || !actions.Contains(SerializeDeleted)))
@@ -785,7 +790,7 @@ namespace m4dModels
                         // DID|dancetag|dancetag||DID2||DID3|dancetag
                         {
                             var dts = new List<string>();
-                            ratings = new List<DanceRatingDelta>();
+                            ratings = [];
                             foreach (var dnc in cell.Split(
                                          new[] { "||" },
                                          StringSplitOptions.RemoveEmptyEntries))
@@ -921,70 +926,70 @@ namespace m4dModels
                         specifiedUser = true;
                         break;
                     case AddedTags:
-                    {
-                        tags = new List<string>();
-                        danceTags = new List<string>();
-
-                        cell = cell.ToUpper();
-                        if (cell.Contains("ENGLISH LANGUAGE"))
                         {
-                            tags.Add("English:Other");
-                        }
+                            tags = [];
+                            danceTags = [];
 
-                        if (cell.Contains("SPANISH LANGUAGE"))
-                        {
-                            tags.Add("Spanish:Other");
-                        }
+                            cell = cell.ToUpper();
+                            if (cell.Contains("ENGLISH LANGUAGE"))
+                            {
+                                tags.Add("English:Other");
+                            }
 
-                        if (cell.Contains("HIGH ENERGY"))
-                        {
-                            tags.Add("High Energy:Other");
-                        }
+                            if (cell.Contains("SPANISH LANGUAGE"))
+                            {
+                                tags.Add("Spanish:Other");
+                            }
 
-                        if (cell.Contains("LOW ENERGY"))
-                        {
-                            tags.Add("Low Energy:Other");
-                        }
+                            if (cell.Contains("HIGH ENERGY"))
+                            {
+                                tags.Add("High Energy:Other");
+                            }
 
-                        if (cell.Contains("MEDIUM ENERGY"))
-                        {
-                            tags.Add("Medium Energy:Other");
-                        }
+                            if (cell.Contains("LOW ENERGY"))
+                            {
+                                tags.Add("Low Energy:Other");
+                            }
 
-                        if (cell.Contains("INSTRUMENTAL"))
-                        {
-                            tags.Add("Instrumental:Other");
-                        }
+                            if (cell.Contains("MEDIUM ENERGY"))
+                            {
+                                tags.Add("Medium Energy:Other");
+                            }
 
-                        if (cell.Contains("TRADITIONAL") || cell.Contains("TYPICAL") ||
-                            cell.Contains("OLD SOUNDING") ||
-                            cell.Contains("CLASSIC"))
-                        {
-                            danceTags.Add("Traditional:Style");
-                        }
+                            if (cell.Contains("INSTRUMENTAL"))
+                            {
+                                tags.Add("Instrumental:Other");
+                            }
 
-                        if (cell.Contains("CONTEMPORARY"))
-                        {
-                            danceTags.Add("Contemporary:Style");
-                        }
+                            if (cell.Contains("TRADITIONAL") || cell.Contains("TYPICAL") ||
+                                cell.Contains("OLD SOUNDING") ||
+                                cell.Contains("CLASSIC"))
+                            {
+                                danceTags.Add("Traditional:Style");
+                            }
 
-                        if (cell.Contains("MODERN"))
-                        {
-                            danceTags.Add("Modern:Style");
-                        }
+                            if (cell.Contains("CONTEMPORARY"))
+                            {
+                                danceTags.Add("Contemporary:Style");
+                            }
 
-                        if (tags.Count == 0)
-                        {
-                            tags = null;
-                        }
+                            if (cell.Contains("MODERN"))
+                            {
+                                danceTags.Add("Modern:Style");
+                            }
 
-                        if (danceTags.Count == 0)
-                        {
-                            danceTags = null;
-                        }
+                            if (tags.Count == 0)
+                            {
+                                tags = null;
+                            }
 
-                        cell = null;
-                    }
+                            if (danceTags.Count == 0)
+                            {
+                                danceTags = null;
+                            }
+
+                            cell = null;
+                        }
                         break;
                     case SongTags:
                         if (!string.IsNullOrWhiteSpace(cell))
@@ -1083,7 +1088,7 @@ namespace m4dModels
                     }
                     else
                     {
-                        danceTagProperties = new List<SongProperty>();
+                        danceTagProperties = [];
                         foreach (var p in ratings.Select(
                                      drd =>
                                          new SongProperty(
@@ -1233,7 +1238,7 @@ namespace m4dModels
 
                 if (itc || itcd)
                 {
-                    cells = new List<string>();
+                    cells = [];
                     var re = itc
                         ? new Regex(@"\w*(?<bpm>\d+)(?<title>[^\t]*)\t(?<artist>.*)")
                         : new Regex(@"\w*(?<bpm>\d+)(?<title>[^-]*)-(?<artist>.*)");
@@ -1251,7 +1256,7 @@ namespace m4dModels
                 }
                 else
                 {
-                    cells = new List<string>(Regex.Split(line, separator));
+                    cells = [.. Regex.Split(line, separator)];
                 }
 
 
@@ -1467,7 +1472,7 @@ namespace m4dModels
 
             var drDelete = new List<DanceRating>();
 
-            HashSet<string> isUserModified = new();
+            HashSet<string> isUserModified = [];
 
             foreach (var prop in properties)
             {
@@ -1483,25 +1488,25 @@ namespace m4dModels
 
                         // TODO: Once we've updated all songs with the PseudoUser
                         //  flag this will be redundant
-                    {
-                        var applicationUser = await database.FindUser(user) ??
-                            new ApplicationUser(user, true);
-                        var isPseudo = applicationUser.IsPseudo;
-                        currentModified.IsPseudo = isPseudo;
-                        prop.Value = isPseudo
-                            ? currentModified.DecoratedName
-                            : user;
-                    }
+                        {
+                            var applicationUser = await database.FindUser(user) ??
+                                new ApplicationUser(user, true);
+                            var isPseudo = applicationUser.IsPseudo;
+                            currentModified.IsPseudo = isPseudo;
+                            prop.Value = isPseudo
+                                ? currentModified.DecoratedName
+                                : user;
+                        }
                         prop.Value = currentModified.DecoratedName;
                         break;
                     case DanceRatingField:
-                    {
-                        var del = SoftUpdateDanceRating(prop.Value);
-                        if (del != null)
                         {
-                            drDelete.Add(del);
+                            var del = SoftUpdateDanceRating(prop.Value);
+                            if (del != null)
+                            {
+                                drDelete.Add(del);
+                            }
                         }
-                    }
                         break;
                     case AddedTags:
                         if (user == null)
@@ -1531,18 +1536,18 @@ namespace m4dModels
 
                         break;
                     case AddCommentField:
-                    {
-                        if (user == null)
                         {
-                            Trace.WriteLineIf(
-                                TraceLevels.General.TraceError,
-                                $"Null User when attempting to add comment {prop.Value} to song {SongId}");
+                            if (user == null)
+                            {
+                                Trace.WriteLineIf(
+                                    TraceLevels.General.TraceError,
+                                    $"Null User when attempting to add comment {prop.Value} to song {SongId}");
+                            }
+                            else
+                            {
+                                AddObjectComment(prop.DanceQualifier, prop.Value, user);
+                            }
                         }
-                        else
-                        {
-                            AddObjectComment(prop.DanceQualifier, prop.Value, user);
-                        }
-                    }
                         break;
                     case RemoveCommentField:
                         if (user == null)
@@ -1571,20 +1576,20 @@ namespace m4dModels
                             string.Equals(prop.Value, "true", StringComparison.OrdinalIgnoreCase);
                         break;
                     case TimeField:
-                    {
-                        var time = (DateTime)prop.ObjectValue;
-                        if (!created)
                         {
-                            Created = time;
-                            created = true;
-                        }
+                            var time = (DateTime)prop.ObjectValue;
+                            if (!created)
+                            {
+                                Created = time;
+                                created = true;
+                            }
 
-                        Modified = time;
-                        if (currentModified is { IsPseudo: false })
-                        {
-                            Edited = time;
+                            Modified = time;
+                            if (currentModified is { IsPseudo: false })
+                            {
+                                Edited = time;
+                            }
                         }
-                    }
                         break;
                     case OwnerHash:
                         if (currentModified != null)
@@ -1603,7 +1608,7 @@ namespace m4dModels
                     default:
                         // All of the simple properties we can just set except
                         //  for the ones that are bots overriding user values
-                        if (prop.IsAction )
+                        if (prop.IsAction)
                         {
                             break;
                         }
@@ -1708,24 +1713,24 @@ namespace m4dModels
         public DateTime Edited { get; set; }
 
         [DataMember]
-        public List<DanceRating> DanceRatings => _danceRatings ??= new List<DanceRating>();
+        public List<DanceRating> DanceRatings => _danceRatings ??= [];
 
         private List<DanceRating> _danceRatings;
 
         [DataMember]
-        public List<ModifiedRecord> ModifiedBy => _modifiedBy ??= new List<ModifiedRecord>();
+        public List<ModifiedRecord> ModifiedBy => _modifiedBy ??= [];
 
         private List<ModifiedRecord> _modifiedBy;
 
         [DataMember]
-        public List<SongProperty> SongProperties => _properties ??= new List<SongProperty>();
+        public List<SongProperty> SongProperties => _properties ??= [];
 
         private List<SongProperty> _properties;
 
         [DataMember]
         public List<AlbumDetails> Albums
         {
-            get => _albums ??= new List<AlbumDetails>();
+            get => _albums ??= [];
             set => _albums = value;
         }
 
@@ -1751,7 +1756,7 @@ namespace m4dModels
                 ? merges.SelectMany(
                     m =>
                         m.Value.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
-                : new List<string>();
+                : [];
         }
 
         public bool BatchProcessed { get; set; }
@@ -2022,7 +2027,7 @@ namespace m4dModels
                 }
             }
 
-            await Reload(new List<SongProperty>(SongProperties), database);
+            await Reload([.. SongProperties], database);
 
             await CollapseTags(database);
 
@@ -2042,7 +2047,7 @@ namespace m4dModels
             var idx = SongProperties.FindIndex(p => p.BaseName == UserField && p.Value == userName);
             if (idx == -1)
             {
-                return false; 
+                return false;
             }
             // Find the last index
             idx = SongProperties.FindIndex(idx, p => p.IsAction);
@@ -2057,7 +2062,7 @@ namespace m4dModels
             }
             // Wrap this in a SongIndex method to save the songs
             // Is there a way to abstract out SongController BatchAdminExecute so we can use it in playlist controller?
-            await Reload(new List<SongProperty>(SongProperties), database);
+            await Reload([.. SongProperties], database);
 
             return true;
         }
@@ -2283,8 +2288,8 @@ namespace m4dModels
 
         public bool EditSongTags(ApplicationUser user, TagList tags, DanceStatsInstance stats)
         {
-            return EditTags(user, new List<UserTag> { new()
-                { Tags = tags } }, stats);
+            return EditTags(user, [ new()
+                { Tags = tags } ], stats);
         }
 
         public bool LookupTried()
@@ -2435,7 +2440,7 @@ namespace m4dModels
 
             foreach (var r in ratings.Select(
                          rating => new DanceRatingDelta
-                             { DanceId = rating.DanceId, Delta = -rating.Weight }))
+                         { DanceId = rating.DanceId, Delta = -rating.Weight }))
             {
                 UpdateDanceRating(r, true);
             }
@@ -2610,7 +2615,7 @@ namespace m4dModels
                 EditDanceRatings(
                     ratings.Select(
                         add => new DanceRatingDelta
-                            { DanceId = add.DanceId, Delta = add.Weight }), stats);
+                        { DanceId = add.DanceId, Delta = add.Weight }), stats);
         }
 
         public void EditDanceRating(DanceRatingDelta drd, DanceStatsInstance stats)
@@ -2681,7 +2686,7 @@ namespace m4dModels
                 EditDanceRatings(
                     addIn.Select(
                         add => new DanceRatingDelta
-                            { DanceId = add, Delta = addWeight }),
+                        { DanceId = add, Delta = addWeight }),
                     stats);
         }
 
@@ -2690,7 +2695,7 @@ namespace m4dModels
         {
             var modified = false;
             foreach (var p in properties)
-                // ReSharper disable once SwitchStatementMissingSomeCases
+            // ReSharper disable once SwitchStatementMissingSomeCases
             {
                 switch (p.BaseName)
                 {
@@ -2781,7 +2786,8 @@ namespace m4dModels
             {
                 if (prop.IsAction)
                 {
-                    if (!isUser) {
+                    if (!isUser)
+                    {
                         keep.AddRange(current);
                     }
                     isUser = false;
@@ -3250,7 +3256,7 @@ namespace m4dModels
                         {
                             if (!albums.TryGetValue(index, out var old))
                             {
-                                old = new List<SongProperty>();
+                                old = [];
                                 albums[index] = old;
                             }
 
@@ -3330,7 +3336,7 @@ namespace m4dModels
             var stutter = new List<int>();
             for (var i = 1; i < SongProperties.Count; i++)
             {
-                if (SongProperties[i] == SongProperties[i-1])
+                if (SongProperties[i] == SongProperties[i - 1])
                 {
                     stutter.Add(i);
                 }
@@ -3362,7 +3368,7 @@ namespace m4dModels
                 }
 
                 // Insert a time property after the user if it doesn't exist
-                if (i == SongProperties.Count-1 || props[i+1].BaseName != TimeField)
+                if (i == SongProperties.Count - 1 || props[i + 1].BaseName != TimeField)
                 {
                     // Create a time field
                     var user = userProp.Value.StartsWith("batch") ? null : await dms.FindUser(userProp.Value);
@@ -3428,7 +3434,7 @@ namespace m4dModels
                     changed = true;
                 }
 
-                var time = cmd + 2 < props.Count -1 ? props[cmd + 2] : null;
+                var time = cmd + 2 < props.Count - 1 ? props[cmd + 2] : null;
                 if (time == null || time.BaseName != TimeField)
                 {
                     var prevIdx = props.FindLastIndex(i, p => p.BaseName == TimeField);
@@ -3469,8 +3475,8 @@ namespace m4dModels
         {
             public UserEdits()
             {
-                UserTags = new Dictionary<string, TagTracker>();
-                Ratings = new Dictionary<string, RatingTracker>();
+                UserTags = [];
+                Ratings = [];
             }
 
             public Dictionary<string, TagTracker> UserTags { get; }
@@ -3712,8 +3718,7 @@ namespace m4dModels
                     prop => new TagList(prop.Value).ConvertToPrimary(dms).ToString());
         }
 
-        private static HashSet<string> s_groupIds = new()
-            { "MSC", "TNG", "LTN", "SWG", "WLZ" };
+        private static HashSet<string> s_groupIds = ["MSC", "TNG", "LTN", "SWG", "WLZ"];
 
         public bool FixBadTagCategory()
         {
@@ -3726,7 +3731,8 @@ namespace m4dModels
         {
             return FixupProperties(
                 AddedTags,
-                prop => { 
+                prop =>
+                {
                     var tags = new TagList(prop.Value).Tags
                         .Where(t => !Dances.Instance.AllDanceGroups.Any(g => g.Name + ":Dance" == t.TrimStart('!')));
                     return tags.Any() ? new TagList(tags).ToString() : null;
@@ -3743,13 +3749,13 @@ namespace m4dModels
                 switch (action)
                 {
                     case 'A':
-                        changed |= HandleCleanupCount(action,CleanupAlbums());
+                        changed |= HandleCleanupCount(action, CleanupAlbums());
                         break;
                     case 'B':
                         changed |= HandleCleanupCount(action, AddSpotifyTag());
                         break;
                     case 'C':
-                        changed |= HandleCleanupCount(action,FixBadTagCategory());
+                        changed |= HandleCleanupCount(action, FixBadTagCategory());
                         break;
                     case 'D':
                         changed |= HandleCleanupCount(action, RemoveDuplicateDurations());
@@ -3844,7 +3850,7 @@ namespace m4dModels
             return false;
         }
 
-        private static readonly Dictionary<char, int> s_cleanupCounts = new();
+        private static readonly Dictionary<char, int> s_cleanupCounts = [];
 
 
         #endregion
@@ -3886,7 +3892,7 @@ namespace m4dModels
             {
                 SongProperties.Add(
                     new SongProperty
-                        { Name = DanceRatingField, Value = drd.ToString() });
+                    { Name = DanceRatingField, Value = drd.ToString() });
             }
 
             return ret;
@@ -3957,7 +3963,7 @@ namespace m4dModels
 
         public static IEnumerable<string> DancesFromTags(TagList tags)
         {
-            return tags == null || tags.IsEmpty ? new List<string>() : Dances.Instance.FromNames(tags.Strip()).Select(d => d.Id);
+            return tags == null || tags.IsEmpty ? [] : Dances.Instance.FromNames(tags.Strip()).Select(d => d.Id);
         }
 
         public int NormalizedUserDanceRating(string userName, string danceId)
@@ -4237,7 +4243,7 @@ namespace m4dModels
 
         protected override HashSet<string> ValidClasses => s_validClasses;
 
-        private static readonly HashSet<string> s_validClasses = new() { "dance", "music", "tempo", "other" };
+        private static readonly HashSet<string> s_validClasses = ["dance", "music", "tempo", "other"];
 
         #endregion
 
@@ -4482,7 +4488,7 @@ namespace m4dModels
         {
             var properties =
                 from prop in song.SongProperties
-                //                where prop.BaseName.Equals(AlbumField)
+                    //                where prop.BaseName.Equals(AlbumField)
                 select prop;
             return BuildAlbumInfo(properties);
         }
@@ -4574,7 +4580,7 @@ namespace m4dModels
                         case PurchaseField:
                             if (d.Purchase == null)
                             {
-                                d.Purchase = new Dictionary<string, string>();
+                                d.Purchase = [];
                             }
 
                             if (remove)
@@ -4617,7 +4623,7 @@ namespace m4dModels
             // Do the (single) latest full re-order
             if (reorder != null)
             {
-                albums = new List<AlbumDetails>();
+                albums = [];
 
                 foreach (var t in reorder)
                 {
@@ -4628,7 +4634,7 @@ namespace m4dModels
                 }
             }
             else
-                // Start with everything in its 'natural' order
+            // Start with everything in its 'natural' order
             {
                 for (var i = 0; i <= max; i++)
                 {
@@ -4832,7 +4838,7 @@ namespace m4dModels
                     var cluster = (track.Duration.Value + offset) / size;
                     if (!ret.TryGetValue(cluster, out var list))
                     {
-                        list = new List<ServiceTrack>();
+                        list = [];
                         ret.Add(cluster, list);
                     }
 
@@ -5026,11 +5032,11 @@ namespace m4dModels
             return AlbumFields.Contains(baseName);
         }
 
-        protected static HashSet<string> AlbumFields = new()
-        {
+        protected static HashSet<string> AlbumFields =
+        [
             AlbumField, PublisherField, TrackField, PurchaseField, AlbumListField, AlbumPromote,
             AlbumOrder
-        };
+        ];
 
         // TOOD: This should really end up in a utility class as some point
         public static string MungeString(string s, bool normalize,
@@ -5234,7 +5240,7 @@ namespace m4dModels
             ["BAND", "FEAT", "FEATURING", "HIS", "HER", "ORCHESTRA", "WITH"];
 
         private static readonly HashSet<string> ArtistIgnore =
-            new(Ignore.Concat(ArtIgnore));
+            [.. Ignore.Concat(ArtIgnore)];
 
         protected static IList<string> TagsToDanceIds(TagList tags)
         {

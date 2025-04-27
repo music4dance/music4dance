@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization.Json;
 using System.Text;
+
 using AutoMapper;
 
 namespace m4dModels
@@ -54,8 +55,8 @@ namespace m4dModels
 
         private static readonly List<PropertyInfo> PropertyInfo;
 
-        private static readonly Dictionary<string,object>  AltDefaults =
-            new() { {"Action", "index" }, {"Dances", "all" },  {"Page", 1 } };
+        private static readonly Dictionary<string, object> AltDefaults =
+            new() { { "Action", "index" }, { "Dances", "all" }, { "Page", 1 } };
 
         private readonly string _subStr = new(SubChar, 1);
         private string _action;
@@ -72,7 +73,7 @@ namespace m4dModels
         {
             var info =
                 typeof(SongFilter).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            PropertyInfo = info.Where(p => p.CanRead && p.CanWrite).ToList();
+            PropertyInfo = [.. info.Where(p => p.CanRead && p.CanWrite)];
         }
 
         public SongFilter()
@@ -128,8 +129,8 @@ namespace m4dModels
                 var max = ReadInt(cells, idx++);
                 if (min.HasValue && max.HasValue && min > max)
                 {
-                   LengthMin = max;
-                   LengthMax = min;
+                    LengthMin = max;
+                    LengthMax = min;
                 }
                 else
                 {
@@ -157,11 +158,10 @@ namespace m4dModels
 
         private List<string> SplitFilter(string input)
         {
-            return input
+            return [.. input
                 .Replace(@"\-", _subStr)
                 .Split('-')
-                .Select(s => s.Trim().Replace(_subStr, "-"))
-                .ToList();
+                .Select(s => s.Trim().Replace(_subStr, "-"))];
         }
 
         private static string ReadCell(List<string> cells, int index)
@@ -244,16 +244,12 @@ namespace m4dModels
                         ? "index"
                         : Action.ToLowerInvariant();
 
-                switch (action)
+                return action switch
                 {
-                    case "newmusic":
-                        return "new-music";
-                    case "holidaymusic":
-                        return "holiday-music";
-                    case "index":
-                    default:
-                        return "song-index";
-                }
+                    "newmusic" => "new-music",
+                    "holidaymusic" => "holiday-music",
+                    _ => "song-index",
+                };
             }
         }
         public bool DescriptionOverride => IsRaw && !string.IsNullOrWhiteSpace(Purchase);
@@ -278,15 +274,12 @@ namespace m4dModels
                 }
                 var sort = SongSort;
 
-                switch (sort.Id)
+                return sort.Id switch
                 {
-                    case SongSort.Dances:
-                        return DanceQuery?.ODataSort(sort.Descending ? "asc" : "desc");
-                    case SongSort.Comments:
-                        return new List<string> { "Modified " + (sort.Descending ? "asc" : "desc") };
-                    default:
-                        return sort.OData;
-                }
+                    SongSort.Dances => DanceQuery?.ODataSort(sort.Descending ? "asc" : "desc"),
+                    SongSort.Comments => ["Modified " + (sort.Descending ? "asc" : "desc")],
+                    _ => sort.OData,
+                };
             }
         }
 
@@ -326,7 +319,7 @@ namespace m4dModels
                 }
 
                 var not = "";
-                if (purch.StartsWith("!"))
+                if (purch.StartsWith('!'))
                 {
                     not = "not ";
                     purch = purch[1..];
@@ -349,17 +342,17 @@ namespace m4dModels
             }
         }
 
-        public bool IsEmpty => EmptyExcept(new[] { "SortOrder" });
+        public bool IsEmpty => EmptyExcept(["SortOrder"]);
 
-        public bool IsEmptyPaged => EmptyExcept(new[] { "Page", "Action", "SortOrder" });
-        public bool IsEmptyBot => EmptyExcept(new[] { "Page", "Action" });
+        public bool IsEmptyPaged => EmptyExcept(["Page", "Action", "SortOrder"]);
+        public bool IsEmptyBot => EmptyExcept(["Page", "Action"]);
 
         public bool IsEmptyDance =>
-            EmptyExcept(new[] { "Page", "Action", "SortOrder", "Dances" }) &&
+            EmptyExcept(["Page", "Action", "SortOrder", "Dances"]) &&
             DanceQuery.Dances.Count() < 2;
 
         public bool IsEmptyUser(string user) =>
-            EmptyExcept(new[] { "Page", "Action", "SortOrder", "Dances", "User" }) &&
+            EmptyExcept(["Page", "Action", "SortOrder", "Dances", "User"]) &&
             DanceQuery.Dances.Count() < 2 &&
             UserQuery.IsDefault(user);
 
@@ -367,9 +360,9 @@ namespace m4dModels
         public bool HasDances => (DanceQuery?.Dances)?.Any() ?? false;
 
         public bool IsUserOnly =>
-            EmptyExcept(new[] { "Page", "Action", "User" });
+            EmptyExcept(["Page", "Action", "User"]);
 
-        public bool IsDefault => EmptyExcept(new[] { "User" });
+        public bool IsDefault => EmptyExcept(["User"]);
 
         public string Description
         {
@@ -452,7 +445,7 @@ namespace m4dModels
                 }
 
                 var noUserFilter = new SongFilter(ToString())
-                    { Action = null, User = null, Page = null };
+                { Action = null, User = null, Page = null };
                 var trivialUser = noUserFilter.IsEmpty;
 
                 sb.Append(UserQuery.Description(trivialUser));
@@ -566,23 +559,13 @@ namespace m4dModels
 
         public static SongFilter CreateCustomSearchFilter(string name = "holiday", string dance = null, int page = 1)
         {
-            string holidayFilter = null;
-            switch (name.ToLowerInvariant())
+            var holidayFilter = name.ToLowerInvariant() switch
             {
-                case "halloween":
-                    holidayFilter = "OtherTags/any(t: t eq 'Halloween')";
-                    break;
-                case "holiday":
-                case "christmas":
-                    holidayFilter = "(OtherTags/any(t: t eq 'Holiday') or GenreTags/any(t: t eq 'Christmas' or t eq 'Holiday')) and OtherTags/all(t: t ne 'Halloween')";
-                    break;
-                case "broadway":
-                    holidayFilter = "GenreTags/any(t: t eq 'Broadway') or GenreTags/any(t: t eq 'Show Tunes') or GenreTags/any(t: t eq 'Musicals') or GenreTags/any(t: t eq 'Broadway And Vocal')";
-                    break;
-                default:
-                    throw new Exception($"Unknown holiday: {name}");
-            }
-
+                "halloween" => "OtherTags/any(t: t eq 'Halloween')",
+                "holiday" or "christmas" => "(OtherTags/any(t: t eq 'Holiday') or GenreTags/any(t: t eq 'Christmas' or t eq 'Holiday')) and OtherTags/all(t: t ne 'Halloween')",
+                "broadway" => "GenreTags/any(t: t eq 'Broadway') or GenreTags/any(t: t eq 'Show Tunes') or GenreTags/any(t: t eq 'Musicals') or GenreTags/any(t: t eq 'Broadway And Vocal')",
+                _ => throw new Exception($"Unknown holiday: {name}"),
+            };
             string danceFilter = null;
             string danceSort = null;
             if (string.IsNullOrWhiteSpace(dance))
@@ -728,12 +711,14 @@ namespace m4dModels
             if (LengthMin.HasValue)
             {
                 odata = (odata == null ? "" : odata + " and ") + $"(Length ge {LengthMin})";
-            };
+            }
+            ;
 
             if (LengthMax.HasValue)
             {
                 odata = (odata == null ? "" : odata + " and ") + $"(Length le {LengthMax})";
-            };
+            }
+            ;
 
             odata = CombineFilter(odata, ODataPurchase);
             odata = CombineFilter(odata, GetTagFilter(dms));
@@ -776,10 +761,12 @@ namespace m4dModels
 
         private bool EmptyExcept(IEnumerable<string> properties)
         {
-            var props = new List<string>(properties);
-            props.Add("Version");
+            var props = new List<string>(properties)
+            {
+                "Version"
+            };
             return !PropertyInfo
-                .Where(pi => !props.Contains(pi.Name)).Select(t => new { n = t.Name, v =  t.GetValue(this)})
+                .Where(pi => !props.Contains(pi.Name)).Select(t => new { n = t.Name, v = t.GetValue(this) })
                 .Any(o => o.v != null && !IsAltDefault(o.v, o.n));
         }
 

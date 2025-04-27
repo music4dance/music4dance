@@ -21,7 +21,7 @@ namespace m4dModels
         {
             Songs = songs;
 
-            Properties = new List<SongPropertyMerge>();
+            Properties = [];
 
             // Consider trying to sort the song list by the number of defaults...
 
@@ -34,7 +34,7 @@ namespace m4dModels
 
                 var spm = new SongPropertyMerge
                 {
-                    Name = field, AllowAlternates = allowAlternates, Values = new List<object>()
+                    Name = field, AllowAlternates = allowAlternates, Values = []
                 };
 
                 var defaultIdx = -1;
@@ -94,7 +94,7 @@ namespace m4dModels
             }
 
             // Create lists of dances and tags that can be merged
-            Ratings = new List<DanceMerge>();
+            Ratings = [];
             Tags = string.Empty;
 
             var idx = 0;
@@ -120,12 +120,12 @@ namespace m4dModels
         }
 
         private static readonly string[] MergeFields =
-        {
+        [
             Song.TitleField,
             Song.ArtistField,
             Song.AlbumListField,
             Song.TempoField,
             Song.LengthField
-        };
+        ];
     }
 }

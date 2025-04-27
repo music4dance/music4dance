@@ -85,7 +85,7 @@ namespace m4dModels
                 //                        Link = track.trackViewUrl,
                 ReleaseDate = track.releaseDate,
                 Duration = duration,
-                Genres = new string[] { track.primaryGenreName },
+                Genres = [track.primaryGenreName],
                 TrackNumber = track.trackNumber,
                 SampleUrl = track.PreviewUrl
             });

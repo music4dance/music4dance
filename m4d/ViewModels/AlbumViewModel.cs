@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
+
 using AutoMapper;
+
 using m4dModels;
 
 namespace m4d.ViewModels;
@@ -63,13 +65,10 @@ public class AlbumViewModel : SongListModel
                 }
             }
 
-            if (albumTitle == null)
-            {
-                albumTitle = album.Name;
-            }
+            albumTitle ??= album.Name;
 
             // Just keep the album that we're indexing on
-            song.Albums = new List<AlbumDetails> { album };
+            song.Albums = [album];
         }
 
         var list = new List<Song>();
@@ -96,7 +95,7 @@ public class AlbumViewModel : SongListModel
             Title = albumTitle ?? title,
             Artist = uniqueArtist && list.Count > 0 ? list[0].Artist : string.Empty,
             Filter = mapper.Map<SongFilterSparse>(new SongFilter { Action = "Album" }),
-            Histories = list.Select(s => s.GetHistory(mapper)).ToList()
+            Histories = [.. list.Select(s => s.GetHistory(mapper))]
         };
     }
 }

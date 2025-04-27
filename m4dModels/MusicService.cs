@@ -209,10 +209,7 @@ namespace m4dModels
         public static bool TryParsePurchaseType(string abbrv, out PurchaseType pt,
             out ServiceType ms)
         {
-            if (abbrv == null)
-            {
-                throw new ArgumentNullException(nameof(abbrv));
-            }
+            ArgumentNullException.ThrowIfNull(abbrv);
 
             ms = ServiceType.None;
             pt = PurchaseType.None;
@@ -222,12 +219,7 @@ namespace m4dModels
                 return false;
             }
 
-            var service = CidMap[abbrv[0]];
-            if (service == null)
-            {
-                throw new ArgumentOutOfRangeException(nameof(abbrv));
-            }
-
+            var service = CidMap[abbrv[0]] ?? throw new ArgumentOutOfRangeException(nameof(abbrv));
             ms = service.Id;
 
             // ReSharper disable once SwitchStatementMissingSomeCases
@@ -254,10 +246,10 @@ namespace m4dModels
 
             var services =
                 (from c in pf
-                    where CidMap.ContainsKey(c)
-                    select CidMap[c]
+                 where CidMap.ContainsKey(c)
+                 select CidMap[c]
                     into service
-                    select service.Name).ToList();
+                 select service.Name).ToList();
 
             return services.Count == 0 ? null : string.Join(separator, services);
         }
@@ -299,8 +291,8 @@ namespace m4dModels
 
         static MusicService()
         {
-            IdMap = new Dictionary<ServiceType, MusicService>();
-            CidMap = new Dictionary<char, MusicService>();
+            IdMap = [];
+            CidMap = [];
 
             AddService(new AmazonService());
             AddService(new ITunesService());
@@ -323,8 +315,8 @@ namespace m4dModels
 
         #region PurchaseType
 
-        private static readonly char[] PurchaseTypes = { '#', 'A', 'S' };
-        private static readonly string[] PurchaseTypesEx = { "None", "Album", "Song" };
+        private static readonly char[] PurchaseTypes = ['#', 'A', 'S'];
+        private static readonly string[] PurchaseTypesEx = ["None", "Album", "Song"];
 
         #endregion
     }

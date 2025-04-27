@@ -9,7 +9,7 @@ namespace m4dModels
 {
     // AlbumTrack is a means of moving back and forth between a string encoded
     //  Ablum Name and Track number and a Album Title + Work/Volume/Track #
-    public class AlbumTrack : IComparable
+    public partial class AlbumTrack : IComparable
     {
         public AlbumTrack(string encoded)
         {
@@ -29,7 +29,9 @@ namespace m4dModels
 
         public string Album => Split()[0];
 
-        private static readonly Regex Validaor = new(@"^([\d]{1,3})(:[\d]{1,3}){0,2}$");
+        [GeneratedRegex(@"^([\d]{1,3})(:[\d]{1,3}){0,2}$")]
+
+        private static partial Regex Validator();
 
         private string[] Split()
         {
@@ -42,7 +44,7 @@ namespace m4dModels
 
             var val = _val;
             var idx = val.LastIndexOf('|');
-            if (idx == -1 || !Validaor.IsMatch(_val[(idx + 1)..]))
+            if (idx == -1 || !Validator().IsMatch(_val[(idx + 1)..]))
             {
                 if (idx == val.Length - 1)
                 {

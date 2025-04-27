@@ -1,7 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace m4dModels.Tests;
 
@@ -36,7 +36,7 @@ public class ChunkingTests
         Assert.AreEqual(1, chunked.UserChunks["ArthurMurrays|P"].Count);
     }
 
-    private static string _multiUser = @".Merge=c9d734f4-c0ce-4de7-b550-2c04aa9c544e;5465aeb1-473e-4cc0-8a21-49576bb8c17f	.Edit=	User=ArthurMurrays|P	Time=07/30/2023 09:48:04	Tag+=Cha Cha:Dance	DanceRating=CHA+1	Tag+:CHA=American:Style	.Edit=	User=dwgray	Time=02-Aug-2024 12:44:04 PM	DanceRating=CHA+1	Tag+=Cha Cha:Dance	.Edit=	User=ArthurMurrays|P	Time=08/30/2024 09:48:04	Tag+=Wedding:Other";
+    private static readonly string _multiUser = @".Merge=c9d734f4-c0ce-4de7-b550-2c04aa9c544e;5465aeb1-473e-4cc0-8a21-49576bb8c17f	.Edit=	User=ArthurMurrays|P	Time=07/30/2023 09:48:04	Tag+=Cha Cha:Dance	DanceRating=CHA+1	Tag+:CHA=American:Style	.Edit=	User=dwgray	Time=02-Aug-2024 12:44:04 PM	DanceRating=CHA+1	Tag+=Cha Cha:Dance	.Edit=	User=ArthurMurrays|P	Time=08/30/2024 09:48:04	Tag+=Wedding:Other";
     [TestMethod]
     public void UserRepeatChunk()
     {

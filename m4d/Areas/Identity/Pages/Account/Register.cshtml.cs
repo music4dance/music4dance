@@ -4,8 +4,11 @@
 
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+
 using m4d.Utilities;
+
 using m4dModels;
+
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -13,6 +16,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+
 using Owl.reCAPTCHA;
 using Owl.reCAPTCHA.v2;
 
@@ -112,7 +116,7 @@ public class RegisterModel : PageModel
         if (ModelState.IsValid)
         {
             var user = new ApplicationUser
-                { UserName = Input.UserName, Email = Input.Email, Privacy = 255 };
+            { UserName = Input.UserName, Email = Input.Email, Privacy = 255 };
             var result = await _userManager.CreateAsync(user, Input.Password);
             if (result.Succeeded)
             {
@@ -125,7 +129,8 @@ public class RegisterModel : PageModel
                     null,
                     new
                     {
-                        area = "Identity", userId = user.Id,
+                        area = "Identity",
+                        userId = user.Id,
                         code
                     },
                     Request.Scheme);

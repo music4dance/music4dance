@@ -1,6 +1,8 @@
 ﻿using m4d.Services;
 using m4d.ViewModels;
+
 using m4dModels;
+
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -9,19 +11,14 @@ using Microsoft.FeatureManagement;
 
 namespace m4d.Controllers;
 
-public class HomeController : CommerceController
+public class HomeController(
+    DanceMusicContext context, UserManager<ApplicationUser> userManager,
+    ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+    IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
+    IFeatureManager featureManager, ILogger<HomeController> logger) : CommerceController(context, userManager, searchService, danceStatsManager, configuration,
+        fileProvider, backroundTaskQueue, featureManager, logger)
 {
-    public HomeController(
-        DanceMusicContext context, UserManager<ApplicationUser> userManager,
-        ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-        IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-        IFeatureManager featureManager, ILogger<HomeController> logger) :
-        base(context, userManager, searchService, danceStatsManager, configuration,
-            fileProvider, backroundTaskQueue, featureManager, logger)
-    {
-    }
-
-public IActionResult Index([FromServices] IFileProvider fileProvider)
+    public IActionResult Index([FromServices] IFileProvider fileProvider)
     {
         return Vue3(
             "Home Page",
@@ -100,7 +97,7 @@ public IActionResult Index([FromServices] IFileProvider fileProvider)
             "tech-blog");
     }
 
-    public IActionResult Counter(int? numerator = null, decimal? tempo = null, string count="beats")
+    public IActionResult Counter(int? numerator = null, decimal? tempo = null, string count = "beats")
     {
         return Vue3(
             "Counter",
@@ -108,7 +105,7 @@ public IActionResult Index([FromServices] IFileProvider fileProvider)
             "tempo-counter",
             new TempoCounterModel { Numerator = numerator, Tempo = tempo, Count = count },
             "tempo-counter",
-            danceEnvironment:true);
+            danceEnvironment: true);
     }
 
     public IActionResult Tempi(List<string> styles, List<string> types,
@@ -126,7 +123,7 @@ public IActionResult Index([FromServices] IFileProvider fileProvider)
                 Meters = ConvertParameter(meters),
             },
             "dance-tempi",
-            danceEnvironment:true);
+            danceEnvironment: true);
     }
 
     private static List<string> ConvertParameter(List<string> parameter)
@@ -177,7 +174,7 @@ public IActionResult Index([FromServices] IFileProvider fileProvider)
             {
                 CommerceEnabled = IsCommerceEnabled(),
                 IsAuthenticated = User.Identity.IsAuthenticated,
-                CurrentPremium  = await Database.UserManager.IsInRoleAsync(user, DanceMusicCoreService.PremiumRole),
+                CurrentPremium = await Database.UserManager.IsInRoleAsync(user, DanceMusicCoreService.PremiumRole),
                 PremiumExpiration = user.SubscriptionEnd,
                 FraudDetected = IsFraudDetected(user),
             };

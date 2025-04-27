@@ -12,12 +12,12 @@ namespace m4dModels
     [DataContract]
     public abstract class TaggableObject
     {
-        private static readonly HashSet<string> s_validClasses = new() { "other" };
+        private static readonly HashSet<string> s_validClasses = ["other"];
 
         protected TaggableObject()
         {
             TagSummary = new TagSummary();
-            Comments = new List<UserComment> ();
+            Comments = [];
         }
 
         [DataMember]
@@ -277,7 +277,7 @@ namespace m4dModels
 
             string cu = null;
             foreach (var prop in song.SongProperties)
-                // ReSharper disable once SwitchStatementMissingSomeCases
+            // ReSharper disable once SwitchStatementMissingSomeCases
             {
                 switch (prop.BaseName)
                 {
@@ -316,12 +316,12 @@ namespace m4dModels
             return tags == null
                 ? null
                 : new TagList(
-                    tags.Tags
+                    [.. tags.Tags
                         .Select(
                             t =>
                                 manager.FindOrCreateTagGroup(t)
                                     .GetPrimary()).Select(tt => tt.Key)
-                                    .Distinct().ToList());
+                                    .Distinct()]);
         }
 
         public void AddComment(string comment, string userName)
@@ -332,7 +332,7 @@ namespace m4dModels
 
         public void RemoveComment(string userName)
         {
-            Comments = Comments.Where(c => c.UserName != userName).ToList();
+            Comments = [.. Comments.Where(c => c.UserName != userName)];
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+
 using DanceLibrary;
 
 namespace m4dModels
@@ -17,7 +18,7 @@ namespace m4dModels
         //private const string OneOf = ""; // Inclusive + Explicit
         private const string OneOfX = "OOX"; // Inclusive + Inferred
 
-        private readonly string[] _modifiers = { And, AndX, OneOfX };
+        private readonly string[] _modifiers = [And, AndX, OneOfX];
 
         public DanceQuery(string query = null)
         {
@@ -36,7 +37,7 @@ namespace m4dModels
         {
             get
             {
-                var items = this.Query
+                var items = Query
                     .Split(',')
                     .Select(s => s.Trim())
                     .Where(s => !string.IsNullOrEmpty(s))
@@ -55,7 +56,7 @@ namespace m4dModels
         public IEnumerable<DanceObject> Dances => DancesThresholds.Select(d => d.Dance);
 
         public bool IsExclusive => (StartsWith(And) || StartsWith(AndX)) &&
-            Query.IndexOf(",", 4, StringComparison.Ordinal) != -1;
+            Query.IndexOf(',', 4) != -1;
 
         public string ODataFilter
         {
@@ -163,7 +164,7 @@ namespace m4dModels
                     return
                         $"songs danceable to {prefix} of {thresholds[0]} {connector} {thresholds[1]}";
                 default:
-                    var last = thresholds[count-1];
+                    var last = thresholds[count - 1];
                     thresholds.RemoveAt(count - 1);
                     return
                         $"songs danceable to {prefix} of {string.Join(", ", thresholds)} {connector} {last}";

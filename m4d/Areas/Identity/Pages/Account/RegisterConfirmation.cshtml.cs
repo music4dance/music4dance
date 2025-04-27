@@ -3,8 +3,10 @@
 #nullable disable
 
 using System.Text;
-using Microsoft.AspNetCore.Authorization;
+
 using m4dModels;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;

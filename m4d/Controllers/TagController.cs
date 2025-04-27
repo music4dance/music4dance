@@ -1,7 +1,10 @@
 ﻿using System.Net;
+
 using m4d.Services;
 using m4d.ViewModels;
+
 using m4dModels;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -40,7 +43,7 @@ public class TagController : DanceMusicController
     public IActionResult List()
     {
         var model = Database.OrderedTagGroups;
-         return View(model);
+        return View(model);
     }
 
     // GET: Tag/Details/5
@@ -64,7 +67,7 @@ public class TagController : DanceMusicController
     }
 
     // GET: Tag/Edit/5
-    [Authorize(Roles ="dbAdmin")]
+    [Authorize(Roles = "dbAdmin")]
     public IActionResult Edit(string id)
     {
         var code = GetTag(id, out var tagGroup);
@@ -89,7 +92,7 @@ public class TagController : DanceMusicController
     [Authorize(Roles = "dbAdmin")]
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit([Bind("Key,PrimaryId")]TagGroup tagGroup,
+    public async Task<IActionResult> Edit([Bind("Key,PrimaryId")] TagGroup tagGroup,
         string newKey)
     {
         // The tagGroup coming in is the original tagGroup with a possibly edited Primary Key

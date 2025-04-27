@@ -3,27 +3,22 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 
 namespace m4dModels
 {
-    public class DanceMusicContext : IdentityDbContext<ApplicationUser>
+    public class DanceMusicContext(DbContextOptions<DanceMusicContext> options) : IdentityDbContext<ApplicationUser>(options)
     {
-        public DanceMusicContext(DbContextOptions<DanceMusicContext> options)
-            : base(options)
-        {
-            ConnectionString = options.FindExtension<SqlServerOptionsExtension>()?.ConnectionString;
-        }
-
         public bool AutoDetectChangesEnabled
         {
             get => ChangeTracker.AutoDetectChangesEnabled;
             set => ChangeTracker.AutoDetectChangesEnabled = value;
         }
 
-        private string ConnectionString { get; }
+        private string ConnectionString { get; } = options.FindExtension<SqlServerOptionsExtension>()?.ConnectionString;
 
         public DanceMusicContext CreateTransientContext()
         {
@@ -65,7 +60,7 @@ namespace m4dModels
 
             builder.Entity<ApplicationUser>().Property(u => u.Region).HasMaxLength(2);
             builder.Entity<ApplicationUser>().Property(u => u.ServicePreference).HasMaxLength(10);
-            builder.Entity<ApplicationUser>().Property(u => u.LifetimePurchased).HasPrecision(18,2);
+            builder.Entity<ApplicationUser>().Property(u => u.LifetimePurchased).HasPrecision(18, 2);
             builder.Entity<ApplicationUser>().Property(u => u.HitCount).HasDefaultValue(0);
 
             builder.Entity<Search>().Property(u => u.Query).IsRequired();

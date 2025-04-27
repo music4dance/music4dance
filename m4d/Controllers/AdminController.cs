@@ -2,14 +2,18 @@
 using System.Globalization;
 using System.Net.Mime;
 using System.Text;
+
 using CsvHelper;
+
 using m4d.Areas.Identity;
 using m4d.Scrapers;
 using m4d.Services;
 using m4d.Utilities;
 using m4d.ViewModels;
+
 using m4dModels;
 using m4dModels.Utilities;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -43,17 +47,13 @@ public class SetupDiagnosticsAttribute : ActionFilterAttribute
 
 [Authorize]
 [SetupDiagnostics]
-public class AdminController : DanceMusicController
+public class AdminController(
+    DanceMusicContext context, UserManager<ApplicationUser> userManager,
+    ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+    IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
+    IFeatureManager featureManager, ILogger<ActivityLogController> logger) : DanceMusicController(context, userManager, searchService, danceStatsManager, configuration,
+        fileProvider, backroundTaskQueue, featureManager, logger)
 {
-    public AdminController(
-        DanceMusicContext context, UserManager<ApplicationUser> userManager,
-        ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-        IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-        IFeatureManager featureManager, ILogger<ActivityLogController> logger) :
-        base(context, userManager, searchService, danceStatsManager, configuration,
-            fileProvider, backroundTaskQueue, featureManager, logger)
-    {
-    }
 
     #region Commands
 
@@ -110,7 +110,7 @@ public class AdminController : DanceMusicController
     //
     // Get: //UpdateSitemap
     [Authorize(Roles = "dbAdmin")]
-    public ActionResult UpdateSitemap([FromServices]IFileProvider fileProvider)
+    public ActionResult UpdateSitemap([FromServices] IFileProvider fileProvider)
     {
         ViewBag.Name = "Update Sitemap";
 
@@ -186,8 +186,8 @@ public class AdminController : DanceMusicController
     // Get: //Reseed
     //[Authorize(Roles = "dbAdmin")]
     [AllowAnonymous]
-    public ActionResult Reseed([FromServices]UserManager<ApplicationUser> userManager,
-        [FromServices]RoleManager<IdentityRole> roleManager)
+    public ActionResult Reseed([FromServices] UserManager<ApplicationUser> userManager,
+        [FromServices] RoleManager<IdentityRole> roleManager)
     {
         ViewBag.Name = "Reseed Database";
         ReseedDb(userManager, roleManager);
@@ -403,8 +403,8 @@ public class AdminController : DanceMusicController
     [ValidateAntiForgeryToken]
     [Authorize(Roles = "dbAdmin")]
     public async Task<ActionResult> ReloadDatabase(
-        [FromServices]UserManager<ApplicationUser> userManager,
-        [FromServices]RoleManager<IdentityRole> roleManager,
+        [FromServices] UserManager<ApplicationUser> userManager,
+        [FromServices] RoleManager<IdentityRole> roleManager,
         IFormFile fileUpload, string reloadDatabase, bool? batch)
     {
         try
@@ -801,7 +801,7 @@ public class AdminController : DanceMusicController
                     sd.Artist = artist;
                 }
 
-                if (hasAlbum && !sd.Albums.Any())
+                if (hasAlbum && sd.Albums.Count == 0)
                 {
                     sd.Albums.Add(ad);
                 }
@@ -873,7 +873,7 @@ public class AdminController : DanceMusicController
     //
     // Get: //IndexBackup
     [Authorize(Roles = "showDiagnostics")]
-    public async Task<ActionResult> IndexBackup([FromServices]IWebHostEnvironment environment,
+    public async Task<ActionResult> IndexBackup([FromServices] IWebHostEnvironment environment,
         string name = "default", int count = -1, string filter = null)
     {
         try
@@ -911,7 +911,7 @@ public class AdminController : DanceMusicController
     //
     // Get: //BackupDatabase
     [Authorize(Roles = "showDiagnostics")]
-    public ActionResult BackupDatabase([FromServices]IWebHostEnvironment environment,
+    public ActionResult BackupDatabase([FromServices] IWebHostEnvironment environment,
         bool users = true, bool tags = true, bool dances = true, bool playlists = true,
         bool searches = true, bool songs = true, string useLookupHistory = null)
     {
@@ -926,7 +926,7 @@ public class AdminController : DanceMusicController
             var fname = $"backup-{dt.Year:d4}-{dt.Month:d2}-{dt.Day:d2}{h}.txt";
             var path = Path.Combine(EnsureAppData(environment), fname);
 
-            Database.Context.Database.SetCommandTimeout(new TimeSpan(0,5,0));
+            Database.Context.Database.SetCommandTimeout(new TimeSpan(0, 5, 0));
 
             using (var file = System.IO.File.CreateText(path))
             {
@@ -1134,8 +1134,8 @@ public class AdminController : DanceMusicController
     // Get: //RestoreDatabase
     //[Authorize(Roles = "dbAdmin")]
     [AllowAnonymous]
-    public ActionResult RestoreDatabase([FromServices]UserManager<ApplicationUser> userManager,
-        [FromServices]RoleManager<IdentityRole> roleManager)
+    public ActionResult RestoreDatabase([FromServices] UserManager<ApplicationUser> userManager,
+        [FromServices] RoleManager<IdentityRole> roleManager)
     {
         RestoreDb(userManager, roleManager);
 
@@ -1195,8 +1195,8 @@ public class AdminController : DanceMusicController
 
     #region Migration-Restore
 
-    private void RestoreDb([FromServices]UserManager<ApplicationUser> userManager,
-        [FromServices]RoleManager<IdentityRole> roleManager, string targetMigration = null,
+    private void RestoreDb([FromServices] UserManager<ApplicationUser> userManager,
+        [FromServices] RoleManager<IdentityRole> roleManager, string targetMigration = null,
         bool delete = false)
     {
         var context = Database.Context;
@@ -1219,7 +1219,7 @@ public class AdminController : DanceMusicController
     private void ReseedDb(UserManager<ApplicationUser> userManager,
         RoleManager<IdentityRole> roleManager)
     {
-        UserManagerHelpers.SeedData(userManager, roleManager, Configuration);
+        UserManagerHelpers.SeedData(userManager, roleManager);
     }
 
     #endregion
@@ -1266,9 +1266,9 @@ public class AdminController : DanceMusicController
 
     private static IList<string> FileToLines(string file)
     {
-        return file.Split(
+        return [.. file.Split(
             Environment.NewLine.ToCharArray(),
-            StringSplitOptions.RemoveEmptyEntries).ToList();
+            StringSplitOptions.RemoveEmptyEntries)];
     }
 
     public static int CacheReview(Review review)
@@ -1296,7 +1296,7 @@ public class AdminController : DanceMusicController
     //  for now it's being using primarily on the short running
     //  dev instance, it doesn't seem worthwhile to do anything
     //  more sophisticated
-    private static readonly IList<Review> Reviews = new List<Review>();
+    private static readonly IList<Review> Reviews = [];
 
     #endregion
 }

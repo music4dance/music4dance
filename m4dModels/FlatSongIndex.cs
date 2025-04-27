@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+
 using Azure.Search.Documents.Indexes.Models;
 using Azure.Search.Documents.Models;
+
 using DanceLibrary;
 
 namespace m4dModels
@@ -157,10 +159,10 @@ namespace m4dModels
             var ids = Dances.Instance.AllDanceTypes.Where(t => t.Id != "ALL").Select(t => IndexFieldFromDanceId(t.Id));
             fields.AddRange(ids);
 
-            var index = new SearchIndex(Info.Index, fields.ToArray());
+            var index = new SearchIndex(Info.Index, [.. fields]);
             index.Suggesters.Add(
                 new SearchSuggester(
-                    "songs", 
+                    "songs",
                     Song.TitleField, Song.ArtistField, AlbumsField, Song.DanceTags,
                     Song.PurchaseField, GenreTags, TempoTags, StyleTags, OtherTags));
 

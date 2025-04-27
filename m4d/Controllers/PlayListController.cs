@@ -1,9 +1,11 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Net;
+﻿using System.Net;
 using System.Security.Principal;
+
 using m4d.Services;
 using m4d.Utilities;
+
 using m4dModels;
+
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -14,17 +16,13 @@ using Microsoft.FeatureManagement;
 
 namespace m4d.Controllers;
 
-public class PlayListController : DanceMusicController
+public class PlayListController(
+    DanceMusicContext context, UserManager<ApplicationUser> userManager,
+    ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+    IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
+    IFeatureManager featureManager, ILogger<ActivityLogController> logger) : DanceMusicController(context, userManager, searchService, danceStatsManager, configuration,
+        fileProvider, backroundTaskQueue, featureManager, logger)
 {
-    public PlayListController(
-        DanceMusicContext context, UserManager<ApplicationUser> userManager,
-        ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-        IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-        IFeatureManager featureManager, ILogger<ActivityLogController> logger) :
-        base(context, userManager, searchService, danceStatsManager, configuration,
-            fileProvider, backroundTaskQueue, featureManager, logger)
-    {
-    }
 
     // GET: PlayLists
     [Authorize(Roles = "dbAdmin")]
@@ -182,8 +180,7 @@ public class PlayListController : DanceMusicController
                 {
                     var result = await DoUpdate(id, email, dms, principal);
                     AdminMonitor.CompleteTask(
-                        result != null && result.IndexOf(
-                            "Succeeded", StringComparison.OrdinalIgnoreCase) != -1,
+                        result != null && result.Contains("Succeeded", StringComparison.OrdinalIgnoreCase),
                         result);
                 }
                 catch (Exception e)
@@ -236,9 +233,8 @@ public class PlayListController : DanceMusicController
     }
 
     // GET: BulkCreate
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
     [Authorize(Roles = "dbAdmin")]
-    public async Task<ActionResult> BulkCreate([FromServices]IFileProvider fileProvider,
+    public async Task<ActionResult> BulkCreate([FromServices] IFileProvider fileProvider,
         string flavor = "TopN")
     {
         await SpotifyAuthorization();
@@ -357,13 +353,10 @@ public class PlayListController : DanceMusicController
 
             Logger.LogInformation($"BulkCreateTopN: {name}, {description}, {search}");
 
-            if (metadata == null)
-            {
-                metadata = await MusicServiceManager.CreatePlaylist(
-                    MusicService.GetService(ServiceType.Spotify), User, 
+            metadata ??= await MusicServiceManager.CreatePlaylist(
+                    MusicService.GetService(ServiceType.Spotify), User,
                     await GetLoginKey("Spotify"), name, description,
                     fileProvider);
-            }
 
             if (metadata == null)
             {
@@ -405,7 +398,7 @@ public class PlayListController : DanceMusicController
     private async Task BulkCreateHoliday(IReadOnlyDictionary<string, PlaylistMetadata> oldS,
         IReadOnlyDictionary<string, PlayList> oldM, IFileProvider fileProvider, string occassion)
     {
-        var title = char.ToUpper(occassion[0]) + occassion.Substring(1);
+        var title = char.ToUpper(occassion[0]) + occassion[1..];
 
         foreach (var ds in Database.DanceStats.Dances)
         {
@@ -432,7 +425,7 @@ public class PlayListController : DanceMusicController
             Logger.LogInformation($"BulkCreate{title}: {name}, {description}, {search}");
 
             metadata ??= await MusicServiceManager.CreatePlaylist(
-                MusicService.GetService(ServiceType.Spotify), 
+                MusicService.GetService(ServiceType.Spotify),
                 User, await GetLoginKey("Spotify"), name, description,
                 fileProvider);
 
@@ -502,8 +495,7 @@ public class PlayListController : DanceMusicController
             var oldTrackIds = playlist.SongIds;
             if (oldTrackIds != null)
             {
-                tracks = tracks
-                    .Where(t => t.TrackId != null && !oldTrackIds.Contains(t.TrackId)).ToList();
+                tracks = [.. tracks.Where(t => t.TrackId != null && !oldTrackIds.Contains(t.TrackId))];
             }
 
             if (tracks.Count == 0)
@@ -530,9 +522,9 @@ public class PlayListController : DanceMusicController
         }
     }
 
-    private (string danceTags, string songTags) GetTags(PlayList playlist)
+    private static (string danceTags, string songTags) GetTags(PlayList playlist)
     {
-        var tags = playlist.Tags.Split(new[] { "|||" }, 2, StringSplitOptions.None);
+        var tags = playlist.Tags.Split(["|||"], 2, StringSplitOptions.None);
         return (tags[0], tags.Length > 1 ? tags[1] : string.Empty);
     }
 
@@ -697,8 +689,7 @@ public class PlayListController : DanceMusicController
         return new()
         {
             Type = type,
-            PlayLists = Database.PlayLists.Where(p => p.Type == type).OrderBy(p => p.User)
-                .ToList()
+            PlayLists = [.. Database.PlayLists.Where(p => p.Type == type).OrderBy(p => p.User)]
         };
     }
 
@@ -707,9 +698,7 @@ public class PlayListController : DanceMusicController
         return new()
         {
             Type = type,
-            PlayLists = Database.PlayLists.Where(p => p.Type == type && p.User == user)
-                .OrderBy(p => p.Id)
-                .ToList()
+            PlayLists = [.. Database.PlayLists.Where(p => p.Type == type && p.User == user).OrderBy(p => p.Id)]
         };
     }
 
@@ -726,13 +715,8 @@ public class PlayListController : DanceMusicController
                     $"Playlist {id} not restored: Unsupported type {playlist.Type}");
             }
 
-            var spl = await LoadServicePlaylist(playlist, email, serviceManager);
-            if (spl == null)
-            {
-                throw new Exception(
+            var spl = await LoadServicePlaylist(playlist, email, serviceManager) ?? throw new Exception(
                     $"Playlist {id} not restored: LoadServicePlaylist returned NULL");
-            }
-
             var tracks = spl.Tracks;
 
             if (tracks.Count == 0)
@@ -770,12 +754,7 @@ public class PlayListController : DanceMusicController
             throw new ArgumentNullException(nameof(id));
         }
 
-        var playList = dms.PlayLists.Find(id);
-        if (playList == null)
-        {
-            throw new ArgumentOutOfRangeException(nameof(id));
-        }
-
+        var playList = dms.PlayLists.Find(id) ?? throw new ArgumentOutOfRangeException(nameof(id));
         return playList;
     }
 
@@ -785,15 +764,9 @@ public class PlayListController : DanceMusicController
     {
         var service = MusicService.GetService(ServiceType.Spotify);
 
-        var url = service?.BuildPlayListLink(playList, playList.User, email);
-
-        if (url == null)
-        {
-            throw new ArgumentOutOfRangeException(
+        var url = (service?.BuildPlayListLink(playList, playList.User, email)) ?? throw new ArgumentOutOfRangeException(
                 nameof(playList.Type),
                 $@"Playlists of type ${playList.Type} not not yet supported.");
-        }
-
         return await serviceManager.LookupPlaylist(service, url, playList.SongIdList);
     }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+
 using Newtonsoft.Json;
 
 namespace m4dModels
@@ -38,7 +39,7 @@ namespace m4dModels
 
         public bool IsNull => string.IsNullOrWhiteSpace(Key);
 
-        public bool IsConected => PrimaryId != null 
+        public bool IsConected => PrimaryId != null
             || Children != null && Children.Count > 0;
         #endregion
 
@@ -64,7 +65,7 @@ namespace m4dModels
             PrimaryId = tt.PrimaryId;
             Primary = tt.Primary;
             Count = tt.Count;
-            Children = tt.Children != null ? new List<TagGroup>(tt.Children) : new List<TagGroup>();
+            Children = tt.Children != null ? [.. tt.Children] : [];
         }
 
         // TODO: Think TagGroup should be derived from tagcount?
@@ -279,10 +280,7 @@ namespace m4dModels
 
         public void AddChild(TagGroup tagGroup)
         {
-            if (Children == null)
-            {
-                Children = new List<TagGroup>();
-            }
+            Children ??= [];
 
             Children.Add(tagGroup);
         }
@@ -290,7 +288,7 @@ namespace m4dModels
         // Crate a disconnected tag object for saving in the DB
         public TagGroup GetDisconnected()
         {
-            var d = this.MemberwiseClone() as TagGroup;
+            var d = MemberwiseClone() as TagGroup;
             d.Primary = null;
             d.Children = null;
             return d;

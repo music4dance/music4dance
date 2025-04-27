@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -32,12 +31,12 @@ namespace m4dModels
 
         public static string GetData1Name(PlayListType type)
         {
-            switch (type)
+            return type switch
             {
-                case PlayListType.SongsFromSpotify: return "Tags";
-                case PlayListType.SpotifyFromSearch: return "Search";
-                default: return "Data1";
-            }
+                PlayListType.SongsFromSpotify => "Tags",
+                PlayListType.SpotifyFromSearch => "Search",
+                _ => "Data1",
+            };
         }
 
         public string Data2Name => GetData2Name(Type);
@@ -69,13 +68,13 @@ namespace m4dModels
 
         public IEnumerable<string> SongIdList => string.IsNullOrEmpty(SongIds)
             ? null
-            : SongIds.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+            : SongIds.Split(['|'], StringSplitOptions.RemoveEmptyEntries);
 
         public bool AddSongs(IEnumerable<string> songIds)
         {
             var existing = string.IsNullOrEmpty(SongIds)
-                ? new HashSet<string>()
-                : new HashSet<string>(SongIdList);
+                ? new List<string>()
+                : [..SongIdList];
 
             var initial = existing.Count;
             foreach (var id in songIds.Where(id => !existing.Contains(id)))
@@ -147,7 +146,7 @@ namespace m4dModels
         // User info
         public bool IsAuthenticated { get; set; }
         public bool IsPremium { get; set; }
-        public SubscriptionLevel SubscriptionLevel { get; set; } 
+        public SubscriptionLevel SubscriptionLevel { get; set; }
     }
 
     public class SpotifyCreateInfo : PlaylistCreateInfo, IValidatableObject
@@ -164,7 +163,7 @@ namespace m4dModels
         {
             if (Count < 5)
             {
-                yield return new ValidationResult("Playlists must have at least 5 songs",[nameof(Count)]);
+                yield return new ValidationResult("Playlists must have at least 5 songs", [nameof(Count)]);
             }
             else if (Count > 1000)
             {

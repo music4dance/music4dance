@@ -1,6 +1,9 @@
 ﻿using System.Security.Authentication;
+
 using m4d.Services;
+
 using m4dModels;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -110,7 +113,7 @@ public class SearchesController : DanceMusicController
             Authenticate(search.ApplicationUser?.UserName);
             Database.Searches.Remove(search);
             await Database.SaveChanges();
-            return RedirectToAction("Index", new {sort, showDetails, user});
+            return RedirectToAction("Index", new { sort, showDetails, user });
         }
 
         ViewBag.errorMessage = $"Search ${id} not found.";

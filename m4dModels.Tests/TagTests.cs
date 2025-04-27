@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Threading.Tasks;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace m4dModels.Tests
@@ -131,7 +132,7 @@ namespace m4dModels.Tests
             var s = new TagList(l.Strip());
 
             var r = s.ToString();
-            Assert.AreEqual(r, "Bolero|Latin|Nontraditional|Pop|Rumba");
+            Assert.AreEqual("Bolero|Latin|Nontraditional|Pop|Rumba", r);
         }
 
         [TestMethod]
@@ -213,20 +214,20 @@ namespace m4dModels.Tests
         //}
 
         private static readonly string[] VerifiesInit =
-        {
+        [
             "",
             "Blues:dance|Pop:music",
             "4/4:tempo|fast:tempo",
             "Crazy|Christmas:Christmas"
-        };
+        ];
 
         private static readonly string[] VerifiesResult =
-        {
+        [
             "",
             "Blues:Dance|Pop:Music",
             "4/4:Tempo|fast:Tempo",
             "Christmas:Other|Crazy:Other"
-        };
+        ];
 
         private const string SimpleSummary = "Rumba|Bolero|Latin|Blues";
         private const string SimpleList = "Blues|Bolero|Latin|Rumba";

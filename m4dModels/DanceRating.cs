@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
+
 using DanceLibrary;
 
 namespace m4dModels
@@ -10,7 +11,7 @@ namespace m4dModels
     [DataContract]
     public class DanceRating : TaggableObject
     {
-        private static readonly HashSet<string> s_validClasses = new() { "style", "tempo", "other" };
+        private static readonly HashSet<string> s_validClasses = ["style", "tempo", "other"];
 
         private static bool s_builtDanceMap;
 
@@ -122,14 +123,14 @@ namespace m4dModels
         {
             var drds = new List<DanceRatingDelta>();
 
-            var dl = dances.Split(new[] { ',', '/' }, StringSplitOptions.RemoveEmptyEntries);
+            var dl = dances.Split([',', '/'], StringSplitOptions.RemoveEmptyEntries);
 
             foreach (var ds in dl)
             {
                 string[] ids = null;
                 if (DanceMap.TryGetValue(Song.CleanDanceName(ds), out var list))
                 {
-                    ids = list.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    ids = list.Split([','], StringSplitOptions.RemoveEmptyEntries);
                 }
                 else if (Dances.Instance.DanceFromId(ds) != null)
                 {
@@ -141,7 +142,7 @@ namespace m4dModels
                     drds.AddRange(
                         ids.Select(
                             id => new DanceRatingDelta
-                                { DanceId = id, Delta = delta }));
+                            { DanceId = id, Delta = delta }));
                 }
                 else
                 {

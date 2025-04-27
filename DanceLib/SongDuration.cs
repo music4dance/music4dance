@@ -18,7 +18,7 @@ namespace DanceLibrary
     ///     TODO: Figure out what I was thinking about with durations of beats and measures, did
     ///     this get solved in another way (in which case I should clean up this class)
     /// </summary>
-    public struct SongDuration : IComparable<SongDuration>
+    public readonly struct SongDuration : IComparable<SongDuration>
     {
         #region Constructors
 
@@ -50,18 +50,12 @@ namespace DanceLibrary
                     Length = length * 60;
                     break;
                 case DurationKind.Beat:
-                    if (tempo == null)
-                    {
-                        throw new ArgumentNullException(nameof(tempo));
-                    }
+                    ArgumentNullException.ThrowIfNull(tempo);
 
                     Length = length * tempo.SecondsPerBeat;
                     break;
                 case DurationKind.Measure:
-                    if (tempo == null)
-                    {
-                        throw new ArgumentNullException(nameof(tempo));
-                    }
+                    ArgumentNullException.ThrowIfNull(tempo);
 
                     Length = length * tempo.SecondsPerMeasure;
                     break;
@@ -95,7 +89,7 @@ namespace DanceLibrary
             {
                 if (s.Contains(':'))
                 {
-                    var parts = s.Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+                    var parts = s.Split([':'], StringSplitOptions.RemoveEmptyEntries);
 
                     if (parts.Length >= 3)
                     {
@@ -217,17 +211,11 @@ namespace DanceLibrary
                 case DurationKind.Minute:
                     return Length / 60;
                 case DurationKind.Beat:
-                    if (tempo == null)
-                    {
-                        throw new ArgumentNullException(nameof(tempo));
-                    }
+                    ArgumentNullException.ThrowIfNull(tempo);
 
                     return Length / tempo.SecondsPerBeat;
                 case DurationKind.Measure:
-                    if (tempo == null)
-                    {
-                        throw new ArgumentNullException(nameof(tempo));
-                    }
+                    ArgumentNullException.ThrowIfNull(tempo);
 
                     return Length / tempo.SecondsPerMeasure;
                 default:
@@ -255,22 +243,18 @@ namespace DanceLibrary
                 c = format[0];
             }
 
-            switch (c)
+            return c switch
             {
-                default:
-                case 'M':
-                    return $"{Minutes}:{Seconds:D2}";
-                case 'S':
-                    return Format(DurationFormat.Short);
-                case 'L':
-                    return Format(DurationFormat.Long);
-            }
+                'S' => Format(DurationFormat.Short),
+                'L' => Format(DurationFormat.Long),
+                _ => $"{Minutes}:{Seconds:D2}",
+            };
         }
 
         public string Format(DurationFormat f)
         {
-            string[] rgs = { "{0:N0}s", "{0}m", "{0}m{1}s" };
-            string[] rgl = { "{0:N0} second(s)", "{0} minute(s)", "{0} minutes, {1} seconds" };
+            string[] rgs = ["{0:N0}s", "{0}m", "{0}m{1}s"];
+            string[] rgl = ["{0:N0} second(s)", "{0} minute(s)", "{0} minutes, {1} seconds"];
             var rg = rgl;
 
             var exact = false;
@@ -297,11 +281,11 @@ namespace DanceLibrary
         }
 
         private static readonly SongDuration[] s_durations =
-        {
-            new SongDuration(30M), new SongDuration(60M), new SongDuration(90M),
-            new SongDuration(120M), new SongDuration(150M), new SongDuration(180M),
-            new SongDuration(240M), new SongDuration(300M)
-        };
+        [
+            new(30M), new(60M), new(90M),
+            new(120M), new(150M), new(180M),
+            new(240M), new(300M)
+        ];
 
         #endregion
     }

@@ -16,10 +16,7 @@ namespace m4dModels
 
         public DanceRatingDelta(string value)
         {
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
+            ArgumentNullException.ThrowIfNull(value);
 
             var parts = value.Split('+', '-');
 
@@ -29,7 +26,7 @@ namespace m4dModels
             DanceId = parts[0];
             if (parts.Length > 1)
             {
-                int.TryParse(parts[1], out offset);
+                _ = int.TryParse(parts[1], out offset);
             }
 
             Delta = sign * offset;

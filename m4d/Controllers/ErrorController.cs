@@ -1,5 +1,7 @@
 ﻿using m4d.ViewModels;
+
 using m4dModels;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
@@ -44,7 +46,7 @@ public class ErrorController : Controller
         // Otherwise, if it was an AJAX request, return an anon type with the message from the exception
         var errorObject = new
         {
-            status = status,
+            status,
             message = error?.Error?.Message
         };
         return Json(errorObject);

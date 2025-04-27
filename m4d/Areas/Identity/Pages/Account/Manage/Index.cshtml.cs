@@ -3,9 +3,12 @@
 #nullable disable
 
 using System.ComponentModel.DataAnnotations;
+
 using m4d.Controllers;
 using m4d.Utilities;
+
 using m4dModels;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -80,7 +83,7 @@ public class IndexModel : PageModel
             PublicProfile = user.Privacy > 0,
             ContactSelection = user.ContactSelection,
             ServiceSelection = user.ServicePreference == null
-                ? new List<char>()
+                ? []
                 : user.ServicePreference.Select(c => c).ToList(),
             Region = string.IsNullOrWhiteSpace(user.Region) ? "US" : user.Region
         };
@@ -112,8 +115,9 @@ public class IndexModel : PageModel
             return Page();
         }
 
-        var changes = new ProfileChanges { 
-            Old = new ProfileDelta(), New = new ProfileDelta() 
+        var changes = new ProfileChanges
+        {
+            Old = new ProfileDelta(), New = new ProfileDelta()
         };
 
         var modified = false;
@@ -168,7 +172,7 @@ public class IndexModel : PageModel
         {
             if (user.ActivityLog == null)
             {
-                user.ActivityLog= new List<ActivityLog>();
+                user.ActivityLog = [];
             }
             user.ActivityLog.Add(new ActivityLog("Profile", user, changes));
             var result = await _userManager.UpdateAsync(user);

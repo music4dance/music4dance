@@ -1,10 +1,12 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
 
 namespace SelfCrawler
 {
@@ -77,7 +79,7 @@ namespace SelfCrawler
 
             var pages = references.Select(p => crawl(p, _root, _driver));
 
-            return pages.ToList();
+            return [.. pages];
         }
 
         public T SinglePage(Func<string, string, IWebDriver, T> crawl, string url)
@@ -107,12 +109,12 @@ namespace SelfCrawler
         {
             if (url.StartsWith(_root, StringComparison.OrdinalIgnoreCase))
             {
-                return url.Substring(_root.Length);
+                return url[_root.Length..];
             }
 
             if (url.StartsWith(_altRoot, StringComparison.OrdinalIgnoreCase))
             {
-                return url.Substring(_altRoot.Length);
+                return url[_altRoot.Length..];
             }
             return url;
         }

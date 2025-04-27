@@ -1,25 +1,32 @@
-using Microsoft.EntityFrameworkCore;
-using m4dModels;
-using m4d.Areas.Identity;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration.AzureAppConfiguration;
-using Azure.Identity;
-using Microsoft.Extensions.Azure;
-using Vite.AspNetCore;
-using Microsoft.AspNetCore.Rewrite;
-using m4d.Utilities;
-using m4d.Services;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.Extensions.FileProviders;
 using System.Reflection;
+
+using Azure.Identity;
+
+using m4d.Areas.Identity;
+using m4d.Services;
+using m4d.Utilities;
 using m4d.ViewModels;
-using Newtonsoft.Json.Serialization;
-using Owl.reCAPTCHA;
-using Microsoft.FeatureManagement;
+
+using m4dModels;
+
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Azure;
+using Microsoft.Extensions.Configuration.AzureAppConfiguration;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.FeatureManagement;
+
+using Newtonsoft.Json.Serialization;
+
+using Owl.reCAPTCHA;
+
+using Vite.AspNetCore;
 
 
 // TODO: Figure out how to add a design time factory for the context https://learn.microsoft.com/en-us/ef/core/cli/dbcontext-creation?tabs=dotnet-core-cli#from-a-design-time-factory
@@ -271,8 +278,7 @@ using (var scope = app.Services.CreateScope())
     {
         var userManager = sp.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = sp.GetRequiredService<RoleManager<IdentityRole>>();
-        var config = sp.GetRequiredService<IConfiguration>();
-        UserManagerHelpers.SeedData(userManager, roleManager, config);
+        UserManagerHelpers.SeedData(userManager, roleManager);
     }
 }
 
@@ -316,7 +322,7 @@ app.Use(
             var idx = url?.IndexOf(blog) ?? -1;
             if (idx != -1)
             {
-                var path = url.Substring(idx + blog.Length);
+                var path = url[(idx + blog.Length)..];
                 cxt.Response.Redirect($"https://music4dance.blog{path}");
                 return;
             }

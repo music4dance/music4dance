@@ -1,8 +1,9 @@
 ﻿using DanceLibrary;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 
-namespace DanceTests
+namespace DanceLibrary.Tests
 {
     [TestClass]
     public class TempoTests

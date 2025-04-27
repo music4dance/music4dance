@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using AutoMapper;
+
 using Azure;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Indexes;
@@ -53,7 +54,7 @@ public abstract class SongIndex
     public static SongIndex Create(DanceMusicCoreService dms, string id = null)
     {
         var info = dms.SearchService.GetInfo(id);
-        return info.IsStructured ? new StructuredSongIndex(dms, id): new FlatSongIndex(dms, id);
+        return info.IsStructured ? new StructuredSongIndex(dms, id) : new FlatSongIndex(dms, id);
     }
 
     // For Moq
@@ -75,10 +76,13 @@ public abstract class SongIndex
         {
             var response = await Client.GetDocumentAsync<SearchDocument>(
                 id.ToString(),
-                new GetDocumentOptions { SelectedFields = {
+                new GetDocumentOptions
+                {
+                    SelectedFields = {
                     SongIdField,
                     PropertiesField
-                } });
+                }
+                });
             var doc = response.Value;
             if (doc == null)
             {
@@ -165,7 +169,7 @@ public abstract class SongIndex
     public static Song CreateSong(Guid? guid = null)
     {
         return new Song
-            { SongId = guid == null || guid == Guid.Empty ? Guid.NewGuid() : guid.Value };
+        { SongId = guid == null || guid == Guid.Empty ? Guid.NewGuid() : guid.Value };
     }
 
     public async Task<Song> CreateSong(ApplicationUser user, Song sd = null,
@@ -297,7 +301,7 @@ public abstract class SongIndex
     {
         var edit = await FindSong(history.Id);
         if (await edit.AdminEdit(
-                history.Properties.Select(mapper.Map<SongProperty>).ToList(),
+                [.. history.Properties.Select(mapper.Map<SongProperty>)],
                 DanceMusicService))
         {
             await SaveSong(edit);
@@ -403,7 +407,7 @@ public abstract class SongIndex
         Trace.WriteLineIf(
             TraceLevels.General.TraceVerbose,
             $"{delta}: {song.Title} {song.Artist}");
-        song.Albums = albums.ToList();
+        song.Albums = [.. albums];
         await EditSong(user, song);
         return delta;
     }
@@ -411,7 +415,7 @@ public abstract class SongIndex
     private static IList<AlbumDetails> MergeAlbums(IEnumerable<Song> songs, string def,
         ICollection<string> keys, string artist)
     {
-        var details = songs as IList<Song> ?? songs.ToList();
+        var details = songs as IList<Song> ?? [.. songs];
         var albumsIn = new List<AlbumDetails>();
         var albumsOut = new List<AlbumDetails>();
 
@@ -423,7 +427,7 @@ public abstract class SongIndex
         var defIdx = -1;
         if (!string.IsNullOrWhiteSpace(def))
         {
-            int.TryParse(def, out defIdx);
+            _ = int.TryParse(def, out defIdx);
         }
 
         var idx = 0;
@@ -467,7 +471,7 @@ public abstract class SongIndex
 
         if (songs.Any(s => s.SongProperties == null))
         {
-            songs = (await DanceMusicService.SongIndex.FindSongs(songIds)).ToList();
+            songs = [.. (await DanceMusicService.SongIndex.FindSongs(songIds))];
         }
 
         var song = await CreateSong(user, null, null, Song.MergeCommand, stringIds);
@@ -522,7 +526,7 @@ public abstract class SongIndex
         var dancesL = dances?.ToList() ?? [];
 
         foreach (var m in merges)
-            // Matchtype of none indicates a new (to us) song, so just add it
+        // Matchtype of none indicates a new (to us) song, so just add it
         {
             if (m.MatchType == MatchType.None)
             {
@@ -782,7 +786,7 @@ public abstract class SongIndex
             }
         }
 
-        return users.Values.ToList();
+        return [.. users.Values];
     }
 
     #endregion
@@ -793,7 +797,6 @@ public abstract class SongIndex
         await SaveSongs([song], id);
     }
 
-    [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
     public async Task SaveSongs(IEnumerable<Song> songs, string id = "default")
     {
         if (songs == null || !songs.Any())
@@ -820,7 +823,7 @@ public abstract class SongIndex
         try
         {
             var processed = 0;
-            var list = songs as List<Song> ?? songs.ToList();
+            var list = songs as List<Song> ?? [.. songs];
 
             while (list.Count > 0)
             {
@@ -903,18 +906,19 @@ public abstract class SongIndex
                 }
                 for (var isng = 0; isng < song.SongProperties.Count; isng++)
                 {
-                    if (song.SongProperties[isng].Name == Song.UserField && 
-                        string.Equals(song.SongProperties[isng].Value,user, StringComparison.OrdinalIgnoreCase))
+                    if (song.SongProperties[isng].Name == Song.UserField &&
+                        string.Equals(song.SongProperties[isng].Value, user, StringComparison.OrdinalIgnoreCase))
                     {
-                        if (song.SongProperties.Count < isng + 1 || song.SongProperties[isng+1].Name != Song.TimeField)
+                        if (song.SongProperties.Count < isng + 1 || song.SongProperties[isng + 1].Name != Song.TimeField)
                         {
                             Trace.WriteLine($"Bad header in song: {song.SongId}");
                         }
                         var time = song.SongProperties[isng + 1].Value;
                         var sentinal = song.SongProperties[isng + 2];
                         var ichng = 0;
-                        while (ichng != -1 && change.SongProperties[ichng+1].Name != sentinal.Name && change.SongProperties[ichng + 1].Value != sentinal.Value) {
-                            ichng = change.SongProperties.FindIndex(ichng+1, p => p.Name == Song.TimeField && p.Value == time);
+                        while (ichng != -1 && change.SongProperties[ichng + 1].Name != sentinal.Name && change.SongProperties[ichng + 1].Value != sentinal.Value)
+                        {
+                            ichng = change.SongProperties.FindIndex(ichng + 1, p => p.Name == Song.TimeField && p.Value == time);
                         }
                         if (ichng == -1)
                         {
@@ -955,7 +959,6 @@ public abstract class SongIndex
 
     protected abstract string GetSongId(object doc);
 
-    [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
     public void SaveSongsImmediate(IEnumerable<Song> songs)
     {
         if (songs == null || !songs.Any())
@@ -1113,11 +1116,10 @@ public abstract class SongIndex
             Size = int.MaxValue,
         };
         parameters.Select.AddRange(
-            new[]
-            {
+            [
                 SongIdField, Song.TitleField, Song.ArtistField, Song.LengthField,
                 Song.TempoField
-            });
+            ]);
 
         var results = new List<Song>();
         var response = await Client.SearchAsync<SearchDocument>("", parameters);
@@ -1154,7 +1156,7 @@ public abstract class SongIndex
         int count)
     {
         parameters.Facets.AddRange(
-            categories.Split(',').Select(c => $"{c},count:{count}").ToList());
+            [.. categories.Split(',').Select(c => $"{c},count:{count}")]);
     }
 
     public async Task<SuggestionList> AzureSuggestions(string query)

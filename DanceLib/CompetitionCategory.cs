@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -36,8 +37,8 @@ public class CompetitionCategory
     [JsonIgnore]
     public string FullRoundName => $"{Name} {(_round.Count == 4 ? "four" : "five")} dance round";
 
-    public IReadOnlyList<string> Round => _round.Select(d => d.Id).ToList();
-    public IReadOnlyList<string> Extras => _extra.Select(d => d.Id).ToList();
+    public IReadOnlyList<string> Round => [.. _round.Select(d => d.Id)];
+    public IReadOnlyList<string> Extras => [.. _extra.Select(d => d.Id)];
 
     internal static void RegisterDanceInstance(DanceInstance dance)
     {
@@ -52,7 +53,7 @@ public class CompetitionCategory
         {
             var group = (List<CompetitionCategory>)GetCategoryList(dance.CompetitionGroup);
             category = new CompetitionCategory
-                { Name = dance.Style, Group = dance.CompetitionGroup };
+            { Name = dance.Style, Group = dance.CompetitionGroup };
             group.Add(category);
             s_mapCategories[name] = category;
         }

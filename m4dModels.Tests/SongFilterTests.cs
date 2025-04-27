@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Web;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace m4dModels.Tests
 {
@@ -186,6 +187,6 @@ namespace m4dModels.Tests
         private const string F1 = @"Index-SWG-Album-Goodman-X-.-50-150-1-+Pop:Music";
         private const string F2 = @"Index-SWG-.-.-I";
         private const string F1V2 = @"v2-Index-SWG-Album-Goodman-I-.-50-150-30-90-1-+Pop:Music";
-        private const string F2V2= @"v2-Index-SWG-.-.-I-.-.-.-30-90";
+        private const string F2V2 = @"v2-Index-SWG-.-.-I-.-.-.-30-90";
     }
 }

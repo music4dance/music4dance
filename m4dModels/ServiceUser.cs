@@ -9,7 +9,7 @@ namespace m4dModels
 
         public string Description { get; set; }
         public int TrackCount { get; set; }
-        public string Owner {get; set; }
+        public string Owner { get; set; }
         public string Music4danceId { get; set; }
     }
 

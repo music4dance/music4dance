@@ -12,7 +12,7 @@ namespace m4dModels
     // ReSharper disable once InconsistentNaming
 
     [DataContract]
-    public class AlbumDetails
+    public partial class AlbumDetails
     {
         #region Construction
 
@@ -28,7 +28,7 @@ namespace m4dModels
 
             Purchase = a.Purchase != null
                 ? new Dictionary<string, string>(a.Purchase)
-                : new Dictionary<string, string>();
+                : [];
         }
 
         #endregion
@@ -89,7 +89,7 @@ namespace m4dModels
         {
             get
             {
-                return !string.IsNullOrWhiteSpace(Name) && Track.HasValue && !s_wordPattern
+                return !string.IsNullOrWhiteSpace(Name) && Track.HasValue && !WordPattern()
                     .Split(Name.ToLower()).Any(w => BallroomWords.Contains(w));
             }
         }
@@ -164,7 +164,7 @@ namespace m4dModels
 
         public void SetPurchaseInfo(PurchaseType pt, ServiceType ms, string value)
         {
-            Purchase ??= new Dictionary<string, string>();
+            Purchase ??= [];
 
             Purchase[BuildPurchaseKey(pt, ms)] = value;
         }
@@ -231,8 +231,7 @@ namespace m4dModels
 
         public IList<PurchaseLink> GetPurchaseLinks()
         {
-            return MusicService.GetServices().Select(service => GetPurchaseLink(service.Id))
-                .Where(link => link != null).ToList();
+            return [.. MusicService.GetServices().Select(service => GetPurchaseLink(service.Id)).Where(link => link != null)];
         }
 
         public IList<string> GetExtendedPurchaseIds(PurchaseType pt)
@@ -243,7 +242,7 @@ namespace m4dModels
                     .Select(
                         service => $"{service.CID}:{Purchase[BuildPurchaseKey(pt, service.Id)]}")
                     .ToList()
-                : new List<string>();
+                : [];
         }
 
         public PurchaseLink GetPurchaseLink(ServiceType ms, PurchaseType pt, string region = null)
@@ -286,7 +285,7 @@ namespace m4dModels
 
             // First delete all of the keys that are in old but not in new
             if (old.Purchase != null)
-                // ReSharper disable once LoopCanBeConvertedToQuery
+            // ReSharper disable once LoopCanBeConvertedToQuery
             {
                 foreach (var key in old.Purchase.Keys)
                 {
@@ -307,20 +306,20 @@ namespace m4dModels
             // Now add all of the keys that are in new but either don't exist or are different in old
             foreach (var key in Purchase.Keys)
             {
-                if (old.Purchase == null || !old.Purchase.ContainsKey(key))
-                    // Add
+                if (old.Purchase == null || !old.Purchase.TryGetValue(key, out var value))
+                // Add
                 {
                     modified |= ChangeProperty(
                         song, Index, Song.PurchaseField, key, null,
                         Purchase[key]);
                 }
                 else if (old.Purchase != null && old.Purchase.ContainsKey(key) &&
-                        !string.Equals(Purchase[key], old.Purchase[key]))
-                    // Change
+                        !string.Equals(value, value))
+                // Change
                 {
                     modified |= ChangeProperty(
                         song, Index, Song.PurchaseField, key,
-                        old.Purchase[key], Purchase[key]);
+value, value);
                 }
             }
 
@@ -363,7 +362,7 @@ namespace m4dModels
                 }
                 else
                 {
-                    l = new List<AlbumDetails>();
+                    l = [];
                     dict.Add(name, l);
                 }
 
@@ -439,7 +438,7 @@ namespace m4dModels
                 var t = a.TrackNumber.Track ?? 0;
                 if (!dict.TryGetValue(t, out var l))
                 {
-                    l = new List<AlbumDetails>();
+                    l = [];
                     dict.Add(t, l);
                 }
 
@@ -449,16 +448,15 @@ namespace m4dModels
             // If we have tracks that don't have a number + tracks that do,
             //  add the numberless tracks to the batch that already has the
             //  most members
-            if (dict.ContainsKey(0) && dict.Count > 1)
+            if (dict.TryGetValue(0, out var temp) && dict.Count > 1)
             {
-                var temp = dict[0];
                 dict.Remove(0);
                 var max = dict.Values.Max(t => t.Count);
                 var l = dict.Values.First(t => t.Count == max);
                 l.AddRange(temp);
             }
 
-            return dict.Values.Select(MergeTrackList).ToList();
+            return [.. dict.Values.Select(MergeTrackList)];
         }
 
         private void Merge(AlbumDetails album)
@@ -622,13 +620,14 @@ namespace m4dModels
             return true;
         }
 
-        private static readonly Regex s_wordPattern = new(@"\W");
+        [GeneratedRegex(@"\W")]
+        private static partial Regex WordPattern();
 
-        private static readonly HashSet<string> BallroomWords = new()
-        {
+        private static readonly HashSet<string> BallroomWords =
+        [
             "ballroom", "latin", "ultimate", "standard", "dancing", "competition", "classics",
             "dance"
-        };
+        ];
 
         #endregion
     }

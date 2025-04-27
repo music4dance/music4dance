@@ -3,22 +3,14 @@ using System.Linq;
 
 namespace DanceLibrary
 {
-    public class DanceFilter
+    public class DanceFilter(
+        IEnumerable<string> styles = null, IEnumerable<string> organizations = null,
+        IEnumerable<string> groups = null, Meter meter = null)
     {
-        public List<string> Styles { get; }
-        public List<string> Organizations { get; }
-        public List<string> Groups { get; }
-        public Meter Meter { get; }
-
-        public DanceFilter(
-            IEnumerable<string> styles = null, IEnumerable<string> organizations = null,
-            IEnumerable<string> groups = null, Meter meter = null)
-        {
-            Styles = styles != null ? styles.ToList() : [];
-            Organizations = organizations != null ? organizations.ToList() : [];
-            Groups = groups != null ? groups.ToList() : [];
-            Meter = meter;
-        }
+        public List<string> Styles { get; } = styles != null ? [.. styles] : [];
+        public List<string> Organizations { get; } = organizations != null ? [.. organizations] : [];
+        public List<string> Groups { get; } = groups != null ? [.. groups] : [];
+        public Meter Meter { get; } = meter;
 
         public DanceType Reduce(DanceType type)
         {
@@ -58,8 +50,8 @@ namespace DanceLibrary
 
         private List<DanceInstance> GetMatchingInstances(DanceType type)
         {
-            return Styles.Count > 0 
-                ? type.Instances.Where(inst => Styles.Contains(inst.Style)).ToList()
+            return Styles.Count > 0
+                ? [.. type.Instances.Where(inst => Styles.Contains(inst.Style))]
                 : type.Instances;
         }
 

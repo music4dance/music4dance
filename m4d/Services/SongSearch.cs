@@ -1,8 +1,12 @@
-﻿using m4d.Utilities;
-using m4dModels;
-using Microsoft.AspNetCore.Identity;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+
 using Azure.Search.Documents;
+
+using m4d.Utilities;
+
+using m4dModels;
+
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace m4d.Services;
@@ -84,7 +88,7 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
         var songs = results.Songs.Where(s => Filter.DanceQuery.Dances.Any(d => s.NormalizedUserDanceRating(user, d.Id) == vote)).ToList();
         var negated = results.Songs.Where(s => Filter.DanceQuery.Dances.All(d => s.NormalizedUserDanceRating(user, d.Id) != vote)).ToList();
 
-        return new SearchResults(results, songs.Skip(offset).Take(options.Size ?? 25).ToList(),songs.Count);
+        return new SearchResults(results, [.. songs.Skip(offset).Take(options.Size ?? 25)], songs.Count);
     }
 
     public void Page()
@@ -123,8 +127,7 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
                     using var scope = serviceScopeFactory.CreateScope();
                     var context = scope.ServiceProvider.GetRequiredService<DanceMusicContext>();
 
-                    var old = await context.Searches.FirstOrDefaultAsync(
-                        s => s.ApplicationUserId == userId && s.Query == filterString);
+                    var old = await context.Searches.FirstOrDefaultAsync(s => s.ApplicationUserId == userId && s.Query == filterString, cancellationToken: cancellationToken);
 
                     if (old != null)
                     {

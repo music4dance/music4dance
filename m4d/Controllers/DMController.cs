@@ -1,22 +1,30 @@
 ﻿using System.Net;
 using System.Security.Principal;
+
 using m4d.Services;
 using m4d.Utilities;
 using m4d.ViewModels;
+
 using m4dModels;
 using m4dModels.Utilities;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.FeatureManagement;
 using Microsoft.Net.Http.Headers;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace m4d.Controllers;
 
-public class DanceMusicController : Controller
+public class DanceMusicController(
+    DanceMusicContext context, UserManager<ApplicationUser> userManager,
+    ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+    IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backgroundTaskQueue,
+    IFeatureManager featureManager, ILogger logger) : Controller
 {
     protected static readonly JsonSerializerSettings CamelCaseSerializerSettings = new()
     {
@@ -25,27 +33,10 @@ public class DanceMusicController : Controller
         ContractResolver = new StatsContractResolver(true, true)
     };
 
-    protected static readonly JsonSerializer CamelCaseSerializer = 
+    protected static readonly JsonSerializer CamelCaseSerializer =
         JsonSerializer.Create(CamelCaseSerializerSettings);
 
     private MusicServiceManager _musicServiceManager;
-
-    public DanceMusicController(
-        DanceMusicContext context, UserManager<ApplicationUser> userManager,
-        ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-        IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backgroundTaskQueue,
-        IFeatureManager featureManager, ILogger logger)
-    {
-        Database =
-            new DanceMusicService(context, userManager, searchService, danceStatsManager);
-        SearchService = searchService;
-        DanceStatsManager = danceStatsManager;
-        Configuration = configuration;
-        FileProvider = fileProvider;
-        TaskQueue = backgroundTaskQueue;
-        FeatureManager = featureManager;
-        Logger = logger;
-    }
 
     public override async Task OnActionExecutionAsync(
         ActionExecutingContext context, ActionExecutionDelegate next)
@@ -96,11 +87,11 @@ public class DanceMusicController : Controller
                     using var scope = serviceScopeFactory.CreateScope();
                     var context = scope.ServiceProvider.GetRequiredService<DanceMusicContext>();
 
-                    await context.UsageLog.AddAsync(usage);
+                    await context.UsageLog.AddAsync(usage, cancellationToken);
                     if (user != null)
                     {
                         // Need to get the user from the context to update it
-                        user = await context.Users.FindAsync(user.Id);
+                        user = await context.Users.FindAsync([user.Id], cancellationToken: cancellationToken);
                         user.LastActive = time;
                         user.HitCount += 1;
                     }
@@ -149,22 +140,23 @@ public class DanceMusicController : Controller
     }
 
     protected UseVue UseVue { get; set; } = UseVue.No;
-    public DanceMusicService Database { get; set; }
+    public DanceMusicService Database { get; set; } =
+            new DanceMusicService(context, userManager, searchService, danceStatsManager);
 
     protected MusicServiceManager MusicServiceManager =>
         _musicServiceManager ??= new MusicServiceManager(Configuration);
 
-    protected IConfiguration Configuration { get; }
+    protected IConfiguration Configuration { get; } = configuration;
 
-    protected ISearchServiceManager SearchService { get; }
+    protected ISearchServiceManager SearchService { get; } = searchService;
 
-    protected IDanceStatsManager DanceStatsManager { get; }
+    protected IDanceStatsManager DanceStatsManager { get; } = danceStatsManager;
 
-    protected ILogger Logger { get; }
+    protected ILogger Logger { get; } = logger;
 
-    protected IFileProvider FileProvider { get; }
-    protected IFeatureManager FeatureManager { get;}
-    protected IBackgroundTaskQueue TaskQueue { get; }
+    protected IFileProvider FileProvider { get; } = fileProvider;
+    protected IFeatureManager FeatureManager { get; } = featureManager;
+    protected IBackgroundTaskQueue TaskQueue { get; } = backgroundTaskQueue;
 
     protected UserManager<ApplicationUser> UserManager => Database.UserManager;
 
@@ -199,7 +191,7 @@ public class DanceMusicController : Controller
         Exception exception = null)
     {
         var model = new ErrorModel
-            { HttpStatusCode = (int)statusCode, Message = message, Exception = exception };
+        { HttpStatusCode = (int)statusCode, Message = message, Exception = exception };
 
         Response.StatusCode = (int)statusCode;
         // Response.TrySkipIisCustomErrors = true;
@@ -238,7 +230,7 @@ public class DanceMusicController : Controller
         List<string> dances = null;
         if (!string.IsNullOrWhiteSpace(danceIds))
         {
-            dances = new List<string>(danceIds.Split(';'));
+            dances = [.. danceIds.Split(';')];
         }
 
         if (review.Merge.Count <= 0)
@@ -304,19 +296,18 @@ public class DanceMusicController : Controller
     {
         if (string.IsNullOrEmpty(userName))
         {
-            return new List<SpotifyCreate>();
+            return [];
         }
 
         var user = await UserManager.FindByNameAsync(userName);
         if (user == null)
         {
-            return new List<SpotifyCreate>();
+            return [];
         }
 
         var userId = user.Id;
 
-        return Database.ActivityLog.Where(l => l.ApplicationUserId == userId).OrderByDescending(e => e.Date)
-            .Select(ex => JsonConvert.DeserializeObject<SpotifyCreate>(ex.Details)).ToList();
+        return [.. Database.ActivityLog.Where(l => l.ApplicationUserId == userId).OrderByDescending(e => e.Date).Select(ex => JsonConvert.DeserializeObject<SpotifyCreate>(ex.Details))];
     }
 
     protected async Task<string> GetLoginKey(string name)
@@ -398,7 +389,7 @@ public class DanceMusicController : Controller
         ViewBag.Success = false;
         ViewBag.Message = message;
 
-        if (!(e is AdminTaskException))
+        if (e is not AdminTaskException)
         {
             AdminMonitor.CompleteTask(false, message, e);
         }
@@ -444,11 +435,7 @@ public class DanceMusicController : Controller
 
     private JArray ReadJsonFile(IFileProvider fileProvider, string name)
     {
-        var path = fileProvider.GetFileInfo($"/wwwroot/content/{name}.json").PhysicalPath;
-        if (path == null)
-        {
-            throw new Exception($"Unable to find file {name}.json");
-        }
+        var path = fileProvider.GetFileInfo($"/wwwroot/content/{name}.json").PhysicalPath ?? throw new Exception($"Unable to find file {name}.json");
         using var reader = System.IO.File.OpenText(path);
         return (JArray)JToken.ReadFrom(new JsonTextReader(reader));
     }

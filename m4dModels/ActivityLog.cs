@@ -1,6 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using System;
 
 namespace m4dModels
 {
@@ -18,7 +19,7 @@ namespace m4dModels
             Details = details;
         }
 
-        public ActivityLog(string action, ApplicationUser user, object details) : 
+        public ActivityLog(string action, ApplicationUser user, object details) :
             this(action, user, JsonConvert.SerializeObject(details, SerializerSettings))
         {
         }
@@ -51,7 +52,8 @@ namespace m4dModels
         public string Region { get; set; }
     }
 
-    public class SpotifyCreate { 
+    public class SpotifyCreate
+    {
         public string Id { get; set; }
         public SpotifyCreateInfo Info { get; set; }
     }

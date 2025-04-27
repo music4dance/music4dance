@@ -30,20 +30,15 @@ namespace m4dModels
         }
     }
 
-    public class GeneralPropertyComparer<T, TKey> : IEqualityComparer<T>
+    public class GeneralPropertyComparer<T, TKey>(Func<T, TKey> expr) : IEqualityComparer<T>
     {
-        public GeneralPropertyComparer(Func<T, TKey> expr)
-        {
-            Expr = expr;
-        }
-
-        private Func<T, TKey> Expr { get; }
+        private Func<T, TKey> Expr { get; } = expr;
 
         public bool Equals(T left, T right)
         {
             var leftProp = Expr.Invoke(left);
             var rightProp = Expr.Invoke(right);
-            return leftProp == null && rightProp == null ? true : (leftProp == null) ^ (rightProp == null) ? false : leftProp.Equals(rightProp);
+            return leftProp == null && rightProp == null || (!((leftProp == null) ^ (rightProp == null)) && leftProp.Equals(rightProp));
         }
 
         public int GetHashCode(T obj)

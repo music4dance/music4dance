@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+
 using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
 
@@ -79,7 +80,7 @@ namespace m4dModels
                 QueryType = IsLucene ? SearchQueryType.Full : SearchQueryType.Simple,
                 Filter = ODataFilter,
                 IncludeTotalCount = true,
-                Skip = pageSize == -1 ? 0 :((Page ?? 1) - 1) * pageSize,
+                Skip = pageSize == -1 ? 0 : ((Page ?? 1) - 1) * pageSize,
                 Size = (pageSize == -1) ? null : pageSize ?? 25,
             };
             ret.SearchFields.AddRange(fields);

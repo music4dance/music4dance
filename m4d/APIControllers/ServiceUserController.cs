@@ -1,4 +1,5 @@
 ﻿using m4dModels;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -7,17 +8,12 @@ namespace m4d.APIControllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ServiceUserController : DanceMusicApiController
+public class ServiceUserController(
+    DanceMusicContext context, UserManager<ApplicationUser> userManager,
+    ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+    IConfiguration configuration, ILogger<ServiceUserController> logger) : DanceMusicApiController(context, userManager, searchService, danceStatsManager, configuration, logger)
 {
-    private static readonly Dictionary<string, ServiceUser> s_cache = new();
-
-    public ServiceUserController(
-        DanceMusicContext context, UserManager<ApplicationUser> userManager,
-        ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-        IConfiguration configuration, ILogger<ServiceUserController> logger) :
-        base(context, userManager, searchService, danceStatsManager, configuration, logger)
-    {
-    }
+    private static readonly Dictionary<string, ServiceUser> s_cache = [];
 
     [HttpGet("{id}")]
     public async Task<IActionResult> Get(string id)
@@ -33,7 +29,7 @@ public class ServiceUserController : DanceMusicApiController
         }
 
         var service = MusicService.GetService(id[0]);
-        var userId = id.Substring(1);
+        var userId = id[1..];
 
         try
         {

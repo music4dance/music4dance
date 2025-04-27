@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace m4dModels.Tests
@@ -30,20 +31,20 @@ namespace m4dModels.Tests
         }
 
 
-        private static readonly string[] Decoded = new string[]
-        {
+        private static readonly string[] Decoded =
+        [
             "Thé!üt + (Avíañ):Ñúgg--t",
             "Blues / Folk:Music",
             "Christian & Gospel:Music",
             "contemporary-rhythm-and-blues:Music"
-        };
+        ];
 
-        private static readonly string[] Encoded = new string[]
-        {
+        private static readonly string[] Encoded =
+        [
             "Thé-21üt-w-2b-w-28Avíañ-29-pÑúgg----t",
             "Blues-w-s-wFolk-pMusic",
             "Christian-w-m-wGospel-pMusic",
             "contemporary--rhythm--and--blues-pMusic"
-        };
+        ];
     }
 }

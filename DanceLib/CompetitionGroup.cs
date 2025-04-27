@@ -14,7 +14,7 @@ public class CompetitionGroup
         return new CompetitionGroup
         {
             Name = name,
-            Categories = CompetitionCategory.GetCategoryList(name).ToList()
+            Categories = [.. CompetitionCategory.GetCategoryList(name)]
         };
     }
 }

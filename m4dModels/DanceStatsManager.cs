@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
 using Azure.Search.Documents.Models;
+
 using DanceLibrary;
 
 namespace m4dModels
@@ -95,7 +97,7 @@ namespace m4dModels
             }
 
             LastUpdate = DateTime.Now;
-            Source = Source + " + reload";
+            Source += " + reload";
         }
 
         private async Task<DanceStatsInstance> LoadFromAppData(DanceMusicCoreService dms)
@@ -197,12 +199,9 @@ namespace m4dModels
         }
 
 
-        private DanceStats InfoFromDance(DanceMusicCoreService dms, DanceObject d)
+        private static DanceStats InfoFromDance(DanceMusicCoreService dms, DanceObject d)
         {
-            if (d == null)
-            {
-                throw new ArgumentNullException(nameof(d));
-            }
+            ArgumentNullException.ThrowIfNull(d);
 
             var danceStats = new DanceStats
             {

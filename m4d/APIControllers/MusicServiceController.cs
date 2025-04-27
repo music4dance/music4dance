@@ -1,5 +1,7 @@
 ﻿using System.Net;
+
 using m4dModels;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,18 +9,13 @@ namespace m4d.APIControllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class MusicServiceController : DanceMusicApiController
+public class MusicServiceController(
+    DanceMusicContext context, UserManager<ApplicationUser> userManager,
+    ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+    IConfiguration configuration, ILogger<MusicServiceController> logger) : DanceMusicApiController(context, userManager, searchService, danceStatsManager, configuration, logger)
 {
     // ReSharper disable once InconsistentNaming
-    private static readonly Dictionary<string, IList<ServiceTrack>> s_cache = new();
-
-    public MusicServiceController(
-        DanceMusicContext context, UserManager<ApplicationUser> userManager,
-        ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-        IConfiguration configuration, ILogger<MusicServiceController> logger) :
-        base(context, userManager, searchService, danceStatsManager, configuration, logger)
-    {
-    }
+    private static readonly Dictionary<string, IList<ServiceTrack>> s_cache = [];
 
     [HttpGet]
     public async Task<IActionResult> Get(string service = null, string title = null

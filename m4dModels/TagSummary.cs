@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+
 using Newtonsoft.Json;
+
 using FacetResults =
     System.Collections.Generic.IDictionary<string, System.Collections.Generic.IList<
         Azure.Search.Documents.Models.FacetResult>>;
@@ -47,7 +49,7 @@ namespace m4dModels
             return tags;
         }
 
-        public string Description => string.Join(";", Tags.Where(t=> t.TagClass != "Dance").Select(t => t.Description));
+        public string Description => string.Join(";", Tags.Where(t => t.TagClass != "Dance").Select(t => t.Description));
 
         public bool IsEmpty => string.IsNullOrWhiteSpace(Summary);
 
@@ -66,7 +68,7 @@ namespace m4dModels
             var tags = Parse(serialized);
             if (tagMap != null)
             {
-                tags = tags.Select(t => MassageeTag(t, tagMap)).ToList();
+                tags = [.. tags.Select(t => MassageeTag(t, tagMap))];
             }
             Summary = Serialize(tags);
         }
@@ -211,7 +213,7 @@ namespace m4dModels
                 return tags;
             }
 
-            var rg = serialized.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+            var rg = serialized.Split(['|'], StringSplitOptions.RemoveEmptyEntries);
 
             tags.AddRange(rg.Select(s => new TagCount(s)));
 
@@ -221,7 +223,7 @@ namespace m4dModels
 
         private static string Serialize(IEnumerable<TagCount> tags)
         {
-            var list = tags as List<TagCount> ?? tags.ToList();
+            var list = tags as List<TagCount> ?? [.. tags];
             list.Sort((sc1, sc2) => string.Compare(sc1.Value, sc2.Value, StringComparison.Ordinal));
             return string.Join("|", list);
         }

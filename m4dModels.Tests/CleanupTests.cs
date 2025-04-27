@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace m4dModels.Tests
@@ -585,7 +585,7 @@ namespace m4dModels.Tests
             Assert.AreEqual(c - 1, props.Count);
 
             var i = props.FindIndex(p => p.BaseName == Song.OwnerHash);
-            Assert.IsTrue(i == -1);
+            Assert.AreEqual(-1, i);
         }
 
         [TestMethod]
@@ -608,7 +608,7 @@ namespace m4dModels.Tests
             Assert.AreEqual(c + 1, props.Count);
 
             var i = props.FindIndex(p => p.BaseName == Song.CreateCommand);
-            Assert.IsTrue(i == 2);
+            Assert.AreEqual(2, i);
         }
 
         [TestMethod]
@@ -631,7 +631,7 @@ namespace m4dModels.Tests
             Assert.AreEqual(c + 1, props.Count);
 
             var i = props.FindLastIndex(p => p.BaseName == Song.EditCommand);
-            Assert.IsTrue(i == props.Count - 4);
+            Assert.AreEqual(props.Count - 4, i);
         }
 
         [TestMethod]
@@ -660,7 +660,7 @@ namespace m4dModels.Tests
             Assert.AreEqual(c + 1, props.Count);
 
             var i = props.FindIndex(p => p.BaseName == Song.UserField && p.Value == "batch-s|P");
-            Assert.IsTrue(i != -1);
+            Assert.AreNotEqual(-1, i);
         }
 
         [TestMethod]
@@ -683,7 +683,7 @@ namespace m4dModels.Tests
             Assert.AreEqual(c + 1, props.Count);
 
             var i = props.FindIndex(p => p.BaseName == Song.UserField && p.Value == "batch-s|P");
-            Assert.IsTrue(i != -1);
+            Assert.AreNotEqual(-1, i);
         }
 
         [TestMethod]
@@ -735,7 +735,7 @@ namespace m4dModels.Tests
             Assert.AreEqual(c, props.Count);
 
             var i = props.FindIndex(p => p.BaseName == Song.TimeField);
-            Assert.IsTrue(i == 2);
+            Assert.AreEqual(2, i);
         }
 
         [TestMethod]
@@ -758,7 +758,7 @@ namespace m4dModels.Tests
             Assert.AreEqual(c, props.Count - 1);
 
             var i = props.FindIndex(p => p.BaseName == Song.TimeField);
-            Assert.IsTrue(i == 2);
+            Assert.AreEqual(2, i);
         }
 
         [TestMethod]
@@ -781,7 +781,7 @@ namespace m4dModels.Tests
             Assert.AreEqual(c, props.Count - 1);
 
             var i = props.FindLastIndex(p => p.BaseName == Song.TimeField);
-            Assert.IsTrue(i == props.Count - 2);
+            Assert.AreEqual(props.Count - 2, i);
         }
 
         [TestMethod]
@@ -838,13 +838,13 @@ namespace m4dModels.Tests
             Assert.AreEqual(c - 5, props.Count);
 
             var i = props.FindIndex(p => p.Name == "Tag+:SWZ");
-            Assert.IsTrue(i == -1);
+            Assert.AreEqual(-1, i);
 
             i = props.FindIndex(p => p.BaseName == "Sample");
-            Assert.IsTrue(i == -1);
+            Assert.AreEqual(-1, i);
 
             i = props.FindIndex(p => p.BaseName == "User" && p.Value == "batch-s|P");
-            Assert.IsTrue(i == -1);
+            Assert.AreEqual(-1, i);
         }
 
         [TestMethod]
@@ -870,7 +870,7 @@ namespace m4dModels.Tests
             Assert.IsTrue(i >= 0);
 
             i = props.FindIndex(p => p.BaseName == "User" && p.Value == "batch-i|P");
-            Assert.IsTrue(i == -1);
+            Assert.AreEqual(-1, i);
 
         }
 
@@ -946,6 +946,6 @@ namespace m4dModels.Tests
             Song.DumpCleanupCount();
         }
 
-        
+
     }
 }

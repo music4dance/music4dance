@@ -6,11 +6,13 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+
 using Moq;
 
 namespace m4dModels.Tests
@@ -78,7 +80,7 @@ namespace m4dModels.Tests
 
     public static class DanceMusicTester
     {
-        public async static Task<bool> LoadDances()
+        public static async Task<bool> LoadDances()
         {
             var files = new TestDSFileManager();
             DanceLibrary.Dances.Reset(
@@ -160,7 +162,7 @@ namespace m4dModels.Tests
                 new UserStore<ApplicationUser>(context),
                 options,
                 new PasswordHasher<ApplicationUser>(),
-                new List<IUserValidator<ApplicationUser>>(),
+                [],
                 pwdValidators,
                 invariantLookupNormalizer,
                 identityErrorDescriber,
@@ -170,7 +172,7 @@ namespace m4dModels.Tests
 
             var roleManager = new RoleManager<IdentityRole>(
                 new RoleStore<IdentityRole>(context),
-                new List<IRoleValidator<IdentityRole>>(),
+                [],
                 invariantLookupNormalizer,
                 identityErrorDescriber,
                 new RoleLogger()
@@ -254,9 +256,9 @@ namespace m4dModels.Tests
         internal static async Task<List<string>> ReadResourceList(string name)
         {
             var text = await ReadResourceFile(name);
-            return text.Split(
+            return [.. text.Split(
                 Environment.NewLine.ToCharArray(),
-                StringSplitOptions.RemoveEmptyEntries).ToList();
+                StringSplitOptions.RemoveEmptyEntries)];
         }
 
         private static async Task SeedRoles(RoleManager<IdentityRole> roleManager)

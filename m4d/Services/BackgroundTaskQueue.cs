@@ -20,8 +20,7 @@ public class BackgroundTaskQueue : IBackgroundTaskQueue
 
     public void EnqueueTask(Func<IServiceScopeFactory, CancellationToken, Task> task)
     {
-        if (task == null)
-            throw new ArgumentNullException(nameof(task));
+        ArgumentNullException.ThrowIfNull(task);
 
         _items.Enqueue(task);
         _signal.Release();

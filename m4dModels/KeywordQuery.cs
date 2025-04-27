@@ -4,15 +4,15 @@ using System.Text.RegularExpressions;
 namespace m4dModels
 {
 
-    public class KeywordQuery
+    public class KeywordQuery(string s = "")
     {
-        private string data;
+        private readonly string data = s ?? "";
 
         public static KeywordQuery FromParts(Dictionary<string, string> parts)
         {
             var simple = true;
             var segments = new List<string>();
-            var everywhere = parts.ContainsKey("Everywhere") ? parts["Everywhere"] : "";
+            var everywhere = parts.TryGetValue("Everywhere", out var value) ? value : "";
 
             foreach (var part in parts)
             {
@@ -31,19 +31,11 @@ namespace m4dModels
             return new KeywordQuery(simple ? everywhere : "`" + string.Join(" ", segments));
         }
 
-        public KeywordQuery(string s = "")
-        {
-            data = s ?? "";
-        }
-
-        public bool IsLucene
-        {
-            get { return data.StartsWith("`"); }
-        }
+        public bool IsLucene => data.StartsWith('`');
 
         public string Keywords
         {
-            get { return IsLucene ? data.Substring(1) : data; }
+            get { return IsLucene ? data[1..] : data; }
         }
 
         public string Query
@@ -80,7 +72,7 @@ namespace m4dModels
                 }
 
                 var fields = Fields;
-                var all = fields.ContainsKey("Everywhere") ? fields["Everywhere"] : "";
+                var all = fields.TryGetValue("Everywhere", out var value) ? value : "";
                 fields.Remove("Everywhere");
 
                 if (!string.IsNullOrEmpty(all) && fields.Count == 0)
@@ -125,7 +117,7 @@ namespace m4dModels
                 }
 
                 var fields = Fields;
-                var all = fields.ContainsKey("Everywhere") ? fields["Everywhere"] : "";
+                var all = fields.TryGetValue("Everywhere", out var value) ? value : "";
                 fields.Remove("Everywhere");
 
                 if (!string.IsNullOrEmpty(all) && fields.Count == 0)
@@ -157,7 +149,7 @@ namespace m4dModels
 
         public string GetField(string field)
         {
-            return Fields.ContainsKey(field) ? Fields[field] : "";
+            return Fields.TryGetValue(field, out var value) ? value : "";
         }
 
         private Dictionary<string, string> Fields
@@ -180,6 +172,6 @@ namespace m4dModels
             }
         }
 
-        private static readonly Regex _regex = new Regex(@"(?<field>Artist|Title|Albums):\((?<search>[^)]*)\)", RegexOptions.Compiled);
+        private static readonly Regex _regex = new(@"(?<field>Artist|Title|Albums):\((?<search>[^)]*)\)", RegexOptions.Compiled);
     }
 }

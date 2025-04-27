@@ -25,9 +25,9 @@ namespace m4dModels
 
         public IList<UserTag> ToUserTags()
         {
-            return Tags.Select(
+            return [.. Tags.Select(
                 jtag => new UserTag
-                    { Id = jtag.Id ?? string.Empty, Tags = new TagList(jtag.Tags) }).ToList();
+                { Id = jtag.Id ?? string.Empty, Tags = new TagList(jtag.Tags) })];
         }
 
         public static JTags FromJson(string json)

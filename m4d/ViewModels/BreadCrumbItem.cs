@@ -62,6 +62,6 @@ public class BreadCrumbItem
 
     private static List<BreadCrumbItem> BuildTrail(string title, params BreadCrumbItem[] items)
     {
-        return items.Append(new BreadCrumbItem { Title = title, Active = true }).ToList();
+        return [.. items, new BreadCrumbItem { Title = title, Active = true }];
     }
 }

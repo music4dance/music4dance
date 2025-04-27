@@ -1,7 +1,10 @@
 ﻿using System.Net;
+
 using m4d.Services;
 using m4d.Utilities;
+
 using m4dModels;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,17 +16,13 @@ namespace m4d.Controllers;
 
 [Authorize(Roles = "dbAdmin")]
 //[RequireHttps]
-public class ApplicationUsersController : DanceMusicController
+public class ApplicationUsersController(
+    DanceMusicContext context, UserManager<ApplicationUser> userManager,
+    ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+    IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
+    IFeatureManager featureManager, ILogger<ActivityLogController> logger) : DanceMusicController(context, userManager, searchService, danceStatsManager, configuration,
+        fileProvider, backroundTaskQueue, featureManager, logger)
 {
-    public ApplicationUsersController(
-        DanceMusicContext context, UserManager<ApplicationUser> userManager,
-        ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-        IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-        IFeatureManager featureManager, ILogger<ActivityLogController> logger) :
-        base(context, userManager, searchService, danceStatsManager, configuration,
-            fileProvider, backroundTaskQueue, featureManager, logger)
-    {
-    }
 
 
     //public ApplicationUsersController()
@@ -72,7 +71,7 @@ public class ApplicationUsersController : DanceMusicController
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<ActionResult> Create(
-        [Bind("UserName,Email")]ApplicationUser applicationUser)
+        [Bind("UserName,Email")] ApplicationUser applicationUser)
     {
         if (!ModelState.IsValid)
         {
@@ -199,10 +198,10 @@ public class ApplicationUsersController : DanceMusicController
             return StatusCode((int)HttpStatusCode.NotFound);
         }
 
-        var newRoles = roles == null ? new List<string>() : new List<string>(roles);
+        var newRoles = roles == null ? new List<string>() : [.. roles];
 
         foreach (var role in Context.Roles.ToList())
-            // New Role
+        // New Role
         {
             if (newRoles.Contains(role.Name))
             {

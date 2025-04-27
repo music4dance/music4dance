@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace m4dModels.Tests
@@ -14,7 +15,7 @@ namespace m4dModels.Tests
 
             var users = (from u in service.Context.Users select u)
                 .ToList();
-            Assert.AreEqual(69, users.Count(), "Count of Users");
+            Assert.AreEqual(69, users.Count, "Count of Users");
             var dances = from d in service.Context.Dances select d;
             Assert.AreEqual(107, dances.Count(), "Count of Dances");
             var tts = from tt in service.Context.TagGroups select tt;

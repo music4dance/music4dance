@@ -1,8 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Moq;
+
+using Newtonsoft.Json;
 
 namespace DanceLibrary.Tests
 {
@@ -11,7 +14,7 @@ namespace DanceLibrary.Tests
     {
         #region Reduce
         [TestMethod]
-        public void ReduceReturnsFlattenedTypeWhenOrgainzationsAreCovered() 
+        public void ReduceReturnsFlattenedTypeWhenOrgainzationsAreCovered()
         {
             var dance = CreateSamba();
             var filter = new DanceFilter(organizations: ["DanceSport", "NDCA"]);
@@ -99,7 +102,7 @@ namespace DanceLibrary.Tests
             Assert.IsNull(result);
         }
 
-        private static string smbJson = @"
+        private static readonly string smbJson = @"
           {
             'id': 'SMB',
             'name': 'Samba',
@@ -262,7 +265,7 @@ namespace DanceLibrary.Tests
             Assert.IsFalse(result);
         }
 
-        static private DanceType CreateTypeWithGroups(IEnumerable<string> groups)
+        private static DanceType CreateTypeWithGroups(IEnumerable<string> groups)
         {
             var g = groups.Select(g => new DanceGroup(g, g, ["D"])).ToList();
             var mock = new Mock<DanceType>();

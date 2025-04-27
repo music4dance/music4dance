@@ -1,32 +1,26 @@
 ﻿using m4d.Utilities;
+
 using m4dModels;
 using m4dModels.Utilities;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace m4d.APIControllers;
 
 // ReSharper disable once InconsistentNaming
-public class DanceMusicApiController : ControllerBase
+public class DanceMusicApiController(DanceMusicContext context,
+    // ReSharper disable once UnusedParameter.Local
+    UserManager<ApplicationUser> userManager,
+    ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+    IConfiguration configuration, ILogger logger = null) : ControllerBase
 {
-    protected DanceMusicService Database { get; }
-    protected IConfiguration Configuration;
-    protected ILogger Logger { get; }
+    protected DanceMusicService Database { get; } =
+            new DanceMusicService(context, userManager, searchService, danceStatsManager);
+    protected IConfiguration Configuration = configuration;
+    protected ILogger Logger { get; } = logger;
 
     private MusicServiceManager _musicServiceManager;
-
-    public DanceMusicApiController(DanceMusicContext context,
-        // ReSharper disable once UnusedParameter.Local
-        UserManager<ApplicationUser> userManager,
-        ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-        IConfiguration configuration, ILogger logger = null)
-    {
-        Database =
-            new DanceMusicService(context, userManager, searchService, danceStatsManager);
-        DanceStatsManager = danceStatsManager;
-        Configuration = configuration;
-        Logger = logger;
-    }
 
     protected MusicServiceManager MusicServiceManager =>
         _musicServiceManager ??= new MusicServiceManager(Configuration);
@@ -36,7 +30,7 @@ public class DanceMusicApiController : ControllerBase
 
     protected UserManager<ApplicationUser> UserManager => Database.UserManager;
 
-    protected IDanceStatsManager DanceStatsManager { get; }
+    protected IDanceStatsManager DanceStatsManager { get; } = danceStatsManager;
 
     protected IActionResult JsonCamelCase(object json)
     {

@@ -2,50 +2,35 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+
 using DanceLibrary;
+
 using Newtonsoft.Json;
 
 namespace m4dModels
 {
-    public class DanceStatsSparse : DanceType
+    public class DanceStatsSparse(DanceStats stats) : DanceType(stats.DanceType)
     {
-        public DanceStatsSparse(DanceStats stats) : base(stats.DanceType)
-        {
-            Description = stats.Description;
-            SongCount = stats.SongCount;
-            SongTags = stats.SongTags;
-            MaxWeight = stats.MaxWeight;
-        }
+        public string Description { get; set; } = stats.Description;
 
-        public string Description { get; set; }
+        public long SongCount { get; set; } = stats.SongCount;
 
-        public long SongCount { get; set; }
+        public int MaxWeight { get; set; } = stats.MaxWeight;
 
-        public int MaxWeight { get; set; }
-
-        public TagSummary SongTags { get; set; }
+        public TagSummary SongTags { get; set; } = stats.SongTags;
     }
 
-    public class DanceGroupSparse
+    public class DanceGroupSparse(DanceStats stats)
     {
-        public DanceGroupSparse(DanceStats stats)
-        {
-            Id = stats.DanceId;
-            Name = stats.DanceName;
-            Description = stats.Description;
-            BlogTag = stats.BlogTag;
-            DanceIds = stats.Children.Select(d => d.DanceId).ToList();
-        }
+        public string Id { get; set; } = stats.DanceId;
 
-        public string Id { get; set; }
+        public string Name { get; set; } = stats.DanceName;
 
-        public string Name { get; set; }
+        public string Description { get; set; } = stats.Description;
 
-        public string Description { get; set; }
+        public string BlogTag { get; set; } = stats.BlogTag;
 
-        public string BlogTag { get; set; }
-
-        public IList<string> DanceIds { get; set; }
+        public IList<string> DanceIds { get; set; } = [.. stats.Children.Select(d => d.DanceId)];
     }
 
     public class DanceStats
@@ -118,18 +103,19 @@ namespace m4dModels
 
         public void SetTopSongs(IEnumerable<Song> songs)
         {
-            _topSongs = songs.ToList();
-            SongIds = _topSongs.Select(s => s.SongId.ToString()).ToList();
+            _topSongs = [.. songs];
+            SongIds = [.. _topSongs.Select(s => s.SongId.ToString())];
         }
 
         public bool RefreshTopSongs(DanceStatsInstance stats)
         {
-            if (SongIds == null || !SongIds.Any())
+            if (SongIds == null || SongIds.Count == 0)
             {
                 return true;
             }
             var songs = stats.ListFromCache(SongIds);
-            if (songs == null) {
+            if (songs == null)
+            {
                 return false;
             }
             _topSongs = songs;
@@ -138,7 +124,7 @@ namespace m4dModels
 
         public void RestoreTopSongs(SongCache songs)
         {
-            _topSongs = SongIds.Select(id => songs.FindSongDetails(new Guid(id))).ToList();
+            _topSongs = [.. SongIds.Select(id => songs.FindSongDetails(new Guid(id)))];
             if (_topSongs.Any(s => s == null))
             {
                 Trace.WriteLine($"Bad restore of top songs for {DanceId}");

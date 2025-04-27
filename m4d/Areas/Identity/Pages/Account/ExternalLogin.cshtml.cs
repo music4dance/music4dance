@@ -4,9 +4,11 @@
 
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
+
 using m4dModels;
+
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -196,7 +198,7 @@ public class ExternalLoginModel : PageModel
             }
         }
 
-        ProviderDisplayName  = info.LoginProvider;
+        ProviderDisplayName = info.LoginProvider;
         ReturnUrl = returnUrl;
         return Page();
     }

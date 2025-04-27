@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+
 using m4dModels;
 
 namespace m4d.ViewModels;
@@ -21,7 +22,7 @@ public class DanceModel : SongListModel
         if (ds.TopSongs != null)
         {
             var songs = ds.TopSongs.ToList();
-            Histories = songs.Select(s => s.GetHistory(mapper)).ToList();
+            Histories = [.. songs.Select(s => s.GetHistory(mapper))];
             SpotifyPlaylist = ds.SpotifyPlaylist;
         }
     }

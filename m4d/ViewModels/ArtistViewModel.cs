@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
+
 using AutoMapper;
+
 using m4dModels;
 
 namespace m4d.ViewModels;
@@ -20,7 +22,7 @@ public class ArtistViewModel : SongListModel
         {
             Artist = name,
             Filter = mapper.Map<SongFilterSparse>(new SongFilter { Action = "Artist" }),
-            Histories = list.Select(s => s.GetHistory(mapper)).ToList()
+            Histories = [.. list.Select(s => s.GetHistory(mapper))]
         };
     }
 }

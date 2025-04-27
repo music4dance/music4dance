@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
+
 using m4d.Services;
 using m4d.Utilities;
 using m4d.ViewModels;
+
 using m4dModels;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -36,7 +39,7 @@ public class CustomSearchController : ContentController
 
         try
         {
-            var title = char.ToUpper(name[0]) + name.Substring(1);
+            var title = char.ToUpper(name[0]) + name[1..];
 
             if (!Filter.IsEmptyBot &&
                 SpiderManager.CheckAnySpiders(Request.Headers[HeaderNames.UserAgent], Configuration))

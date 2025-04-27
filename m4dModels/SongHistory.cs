@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+
 using AutoMapper;
 
 namespace m4dModels

@@ -1,4 +1,5 @@
 ﻿using System;
+
 using Newtonsoft.Json;
 
 namespace DanceLibrary
@@ -58,20 +59,20 @@ namespace DanceLibrary
         private void Validate()
         {
             if (Min <= 0M || Min > 1000)
-                // ReSharper disable once NotResolvedInText
+            // ReSharper disable once NotResolvedInText
             {
                 throw new ArgumentOutOfRangeException("_minTempo", PositiveDecimal);
             }
 
             if (Max <= 0M || Max > 1000)
-                // ReSharper disable once NotResolvedInText
+            // ReSharper disable once NotResolvedInText
             {
                 throw new ArgumentOutOfRangeException("_maxTempo", PositiveDecimal);
             }
 
             if (Max < Min)
-                // ReSharper disable once NotResolvedInText
-                // ReSharper disable once LocalizableElement
+            // ReSharper disable once NotResolvedInText
+            // ReSharper disable once LocalizableElement
             {
                 throw new ArgumentException("_minTempo", RangeOrder);
             }
@@ -89,7 +90,7 @@ namespace DanceLibrary
 
         public decimal CalculateDelta(decimal tempo)
         {
-            return tempo > Max 
+            return tempo > Max
                 ? tempo - Max
                 : tempo < Min
                     ? tempo - Min

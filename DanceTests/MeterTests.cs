@@ -1,8 +1,10 @@
 ﻿using System;
+
 using DanceLibrary;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace DanceTests
+namespace DanceLibrary.Tests
 {
     [TestClass]
     public class MeterTests
@@ -34,7 +36,7 @@ namespace DanceTests
         {
             try
             {
-                new Meter("Measure 3/4");
+                _ = new Meter("Measure 3/4");
             }
             catch (ArgumentOutOfRangeException e)
             {
@@ -47,7 +49,7 @@ namespace DanceTests
         {
             try
             {
-                new Meter("asdjfi;w#(fkjldks");
+                _ = new Meter("asdjfi;w#(fkjldks");
             }
             catch (ArgumentOutOfRangeException e)
             {
@@ -60,7 +62,7 @@ namespace DanceTests
         {
             try
             {
-                new Meter("-3/4");
+                _ = new Meter("-3/4");
             }
             catch (ArgumentOutOfRangeException e)
             {
@@ -73,7 +75,7 @@ namespace DanceTests
         {
             try
             {
-                new Meter("3/-4");
+                _ = new Meter("3/-4");
             }
             catch (ArgumentOutOfRangeException e)
             {
@@ -108,7 +110,7 @@ namespace DanceTests
         {
             try
             {
-                new Meter(-3, 4);
+                _ = new Meter(-3, 4);
             }
             catch (ArgumentOutOfRangeException e)
             {
@@ -121,7 +123,7 @@ namespace DanceTests
         {
             try
             {
-                new Meter(3, -4);
+                _ = new Meter(3, -4);
             }
             catch (ArgumentOutOfRangeException e)
             {
@@ -134,7 +136,7 @@ namespace DanceTests
         {
             try
             {
-                new Meter(0, 0);
+                _ = new Meter(0, 0);
             }
             catch (ArgumentOutOfRangeException)
             {
@@ -150,7 +152,7 @@ namespace DanceTests
             var m = new Meter(3, 4);
 
             var s1 = m.ToString();
-            Equals(s1, c);
+            _ = Equals(s1, c);
         }
 
         [TestMethod]

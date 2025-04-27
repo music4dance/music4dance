@@ -10,4 +10,4 @@ public class VueModel
     public bool PreserveCase { get; set; }
 }
 
-public enum UseVue {No, V2, V3}
+public enum UseVue { No, V2, V3 }

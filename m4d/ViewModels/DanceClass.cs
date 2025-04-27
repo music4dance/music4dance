@@ -1,18 +1,13 @@
 ﻿using DanceLibrary;
+
 using Newtonsoft.Json;
 
 namespace m4d.ViewModels;
 
-public class DanceMapping
+public class DanceMapping(string title = null, string name = null)
 {
-    public DanceMapping(string title = null, string name = null)
-    {
-        Title = title;
-        Name = name ?? DanceObject.SeoFriendly(title);
-    }
-
-    public virtual string Name { get; }
-    public virtual string Title { get; }
+    public virtual string Name { get; } = name ?? DanceObject.SeoFriendly(title);
+    public virtual string Title { get; } = title;
 
     public virtual string Controller => "dances";
 
@@ -36,19 +31,12 @@ public class WeddingDanceClass : DanceClass
     public override string FullTitle => "Music for Wedding Dances";
 }
 
-public class WeddingDanceMapping : DanceMapping
+public class WeddingDanceMapping(string tag) : DanceMapping
 {
-    private readonly string _tag;
-
-    public WeddingDanceMapping(string tag)
-    {
-        _tag = tag;
-    }
-
-    public override string Title => _tag.Contains("Dance") ? _tag : _tag.Replace(' ', '/');
+    public override string Title => tag.Contains("Dance") ? tag : tag.Replace(' ', '/');
 
     public override string Name => "index";
     public override string Controller => "song";
 
-    public override string Parameters => $"Index-.-.-.-.-.-.-.-1-+{_tag}:Other";
+    public override string Parameters => $"Index-.-.-.-.-.-.-.-1-+{tag}:Other";
 }

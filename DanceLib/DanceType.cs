@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+
 using Newtonsoft.Json;
 
 namespace DanceLibrary;
@@ -33,9 +34,9 @@ public class DanceType : DanceObject
     {
         Name = name;
         Meter = meter;
-        Instances = new List<DanceInstance>(instances);
+        Instances = [.. instances];
 
-        Organizations = organizations == null ? ["Unaffiliated"] :new List<string>(organizations);
+        Organizations = organizations == null ? ["Unaffiliated"] : [.. organizations];
 
         foreach (var instance in instances)
         {
@@ -43,9 +44,10 @@ public class DanceType : DanceObject
         }
     }
 
-    public DanceType Reduce(IEnumerable<DanceInstance> instances) {
+    public DanceType Reduce(IEnumerable<DanceInstance> instances)
+    {
         var other = MemberwiseClone() as DanceType;
-        other.Instances = new List<DanceInstance>(instances);
+        other.Instances = [.. instances];
         foreach (var instance in other.Instances)
         {
             instance.DanceType = other;

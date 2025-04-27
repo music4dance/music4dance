@@ -6,26 +6,19 @@ namespace m4dModels
 {
     public interface IDanceStatsFileManager
     {
-        public Task<string> GetDances();
-        public Task<string> GetGroups();
-        public Task<string> GetStats();
-        public Task WriteStats(string stats);
+        Task<string> GetDances();
+        Task<string> GetGroups();
+        Task<string> GetStats();
+        Task WriteStats(string stats);
 
     }
 
-    public class DanceStatsFileManager :IDanceStatsFileManager
+    public class DanceStatsFileManager(string appRoot, string fileName = "dance-environment") : IDanceStatsFileManager
     {
-        private string AppRoot { get; }
+        private string AppRoot { get; } = appRoot;
         private string AppData => Path.Combine(AppRoot, "AppData");
         private string Content => Path.Combine(AppRoot, "content");
-        private string FileName;
-
-
-        public DanceStatsFileManager(string appRoot, string fileName = "dance-environment")
-        {
-            AppRoot = appRoot;
-            FileName = fileName;
-        }
+        private readonly string FileName = fileName;
 
         public Task<string> GetDances()
         {

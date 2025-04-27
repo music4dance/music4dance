@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+
 using Newtonsoft.Json;
 
 namespace DanceLibrary;
@@ -14,7 +15,7 @@ public sealed class DanceGroup : DanceObject
         Id = id;
 
         Debug.Assert(danceIds != null);
-        DanceIds = danceIds.ToList();
+        DanceIds = [.. danceIds];
     }
 
     public override string Id { get; set; }
@@ -29,7 +30,7 @@ public sealed class DanceGroup : DanceObject
         {
             if (Members == null)
             {
-                return new Meter(1,1);
+                return new Meter(1, 1);
             }
             Debug.Assert(Members.Count > 0);
             return Members[0].Meter;

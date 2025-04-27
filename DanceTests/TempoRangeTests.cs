@@ -1,8 +1,10 @@
 ﻿using System;
+
 using DanceLibrary;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace DanceTests
+namespace DanceLibrary.Tests
 {
     [TestClass]
     public class TempoRangeTests
@@ -16,17 +18,15 @@ namespace DanceTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void InvalidConstructorZero()
         {
-            var range = new TempoRange(0, 0);
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new TempoRange(0, 0));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public void InvalidConstructorOrder()
         {
-            var range = new TempoRange(26.0M, 22.0M);
+            Assert.ThrowsExactly<ArgumentException>(() => _ = new TempoRange(26.0M, 22.0M));
         }
 
         [TestMethod]
@@ -49,11 +49,11 @@ namespace DanceTests
 
             var t1 = new TempoRange(20.4M, 100.003M);
             var s1 = t1.ToString();
-            Assert.AreEqual(s1, "20.40-100");
+            Assert.AreEqual("20.40-100", s1);
 
             var t2 = new TempoRange(25.01M, 25.01M);
             var s2 = t2.ToString();
-            Assert.AreEqual(s2, "25.01");
+            Assert.AreEqual("25.01", s2);
         }
 
         [TestMethod]

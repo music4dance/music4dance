@@ -1,17 +1,10 @@
 ﻿namespace m4d.Services;
 
-public class BackgroundQueueHostedService : BackgroundService
+public class BackgroundQueueHostedService(IBackgroundTaskQueue taskQueue, IServiceScopeFactory serviceScopeFactory, ILogger<BackgroundQueueHostedService> logger) : BackgroundService
 {
-    private readonly IBackgroundTaskQueue _taskQueue;
-    private readonly IServiceScopeFactory _serviceScopeFactory;
-    private readonly ILogger<BackgroundQueueHostedService> _logger;
-
-    public BackgroundQueueHostedService(IBackgroundTaskQueue taskQueue, IServiceScopeFactory serviceScopeFactory, ILogger<BackgroundQueueHostedService> logger)
-    {
-        _taskQueue = taskQueue ?? throw new ArgumentNullException(nameof(taskQueue));
-        _serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
+    private readonly IBackgroundTaskQueue _taskQueue = taskQueue ?? throw new ArgumentNullException(nameof(taskQueue));
+    private readonly IServiceScopeFactory _serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
+    private readonly ILogger<BackgroundQueueHostedService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {

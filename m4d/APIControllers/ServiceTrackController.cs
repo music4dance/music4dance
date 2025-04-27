@@ -1,6 +1,9 @@
 ﻿using AutoMapper;
+
 using m4d.ViewModels;
+
 using m4dModels;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,22 +11,15 @@ namespace m4d.APIControllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ServiceTrackController : DanceMusicApiController
+public class ServiceTrackController(
+    DanceMusicContext context, UserManager<ApplicationUser> userManager,
+    ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+    IConfiguration configuration, ILogger<ServiceTrackController> logger, IMapper mapper) : DanceMusicApiController(context, userManager, searchService, danceStatsManager, configuration, logger)
 {
-    private readonly IMapper _mapper;
-
-    public ServiceTrackController(
-        DanceMusicContext context, UserManager<ApplicationUser> userManager,
-        ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-        IConfiguration configuration, ILogger<ServiceTrackController> logger, IMapper mapper) :
-        base(context, userManager, searchService, danceStatsManager, configuration, logger)
-    {
-        _mapper = mapper;
-    }
 
     // GET api/<controller>
     [HttpGet("{id}")]
-    public async Task<IActionResult> Get(string id, bool localOnly=false)
+    public async Task<IActionResult> Get(string id, bool localOnly = false)
     {
         if (string.IsNullOrWhiteSpace(id) || id.Length < 2)
         {
@@ -31,7 +27,7 @@ public class ServiceTrackController : DanceMusicApiController
         }
 
         var service = MusicService.GetService(id[0]);
-        id = service.NormalizeId(id.Substring(1));
+        id = service.NormalizeId(id[1..]);
 
         var user = await Database.UserManager.GetUserAsync(User);
         // Find a song associate with the service id
@@ -54,7 +50,7 @@ public class ServiceTrackController : DanceMusicApiController
                 {
                     Created = created,
                     Title = song.Title,
-                    SongHistory = song.GetHistory(_mapper)
+                    SongHistory = song.GetHistory(mapper)
                 });
         }
 

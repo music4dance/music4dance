@@ -1,15 +1,9 @@
 namespace m4dModels
 {
-    public class MusicServiceStub : MusicService
+    public class MusicServiceStub(ServiceType id, char cid, string name, bool showInProfile = true) : MusicService(id, cid, name, null, null, null, null)
     {
-        public MusicServiceStub(ServiceType id, char cid, string name, bool showInProfile = true) :
-            base(id, cid, name, null, null, null, null)
-        {
-            ShowInProfile = showInProfile;
-        }
-
         public override bool IsSearchable => false;
 
-        public override bool ShowInProfile { get; }
+        public override bool ShowInProfile { get; } = showInProfile;
     }
 }

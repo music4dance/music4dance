@@ -1,8 +1,11 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Net;
+﻿using System.Net;
+
 using AutoMapper;
+
 using m4d.Utilities;
+
 using m4dModels;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,23 +15,17 @@ namespace m4d.APIControllers;
 [ApiController]
 [Route("api/[controller]")]
 [ValidateAntiForgeryToken]
-public class SongController : DanceMusicApiController
+public class SongController(
+    DanceMusicContext context, UserManager<ApplicationUser> userManager,
+    ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+    IConfiguration configuration, ILogger<SongController> logger) : DanceMusicApiController(context, userManager, searchService, danceStatsManager, configuration, logger)
 {
-    public SongController(
-        DanceMusicContext context, UserManager<ApplicationUser> userManager,
-        ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-        IConfiguration configuration, ILogger<SongController> logger) :
-        base(context, userManager, searchService, danceStatsManager, configuration, logger)
-    {
-    }
-
     [HttpGet]
-    [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
     public async Task<IActionResult> Get([FromServices] IMapper mapper,
         string search = null, string title = null, string artist = null, string filter = null)
     {
         Logger.LogInformation(
-            $"Enter Search: Search = { search }, Title = {title}, Artist={artist}, Filter = {filter}, User = {User.Identity?.Name}");
+            $"Enter Search: Search = {search}, Title = {title}, Artist={artist}, Filter = {filter}, User = {User.Identity?.Name}");
 
         IEnumerable<Song> songs;
         if (!string.IsNullOrWhiteSpace(search))
@@ -65,7 +62,7 @@ public class SongController : DanceMusicApiController
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> Get([FromServices]IMapper mapper, Guid id)
+    public async Task<IActionResult> Get([FromServices] IMapper mapper, Guid id)
     {
         Logger.LogInformation($"Enter Patch: SongId = {id}, User = {User.Identity?.Name}");
 
@@ -78,8 +75,8 @@ public class SongController : DanceMusicApiController
 
     [Authorize]
     [HttpPatch("{id}")]
-    public async Task<IActionResult> Patch([FromServices]IMapper mapper, Guid id,
-        [FromBody]SongHistory history)
+    public async Task<IActionResult> Patch([FromServices] IMapper mapper, Guid id,
+        [FromBody] SongHistory history)
     {
         Logger.LogInformation($"Enter Patch: SongId = {id}, User = {User.Identity?.Name}");
         if (User.Identity == null || !User.Identity.IsAuthenticated)
@@ -103,8 +100,8 @@ public class SongController : DanceMusicApiController
 
     [Authorize]
     [HttpPut("{id}")]
-    public async Task<IActionResult> Put([FromServices]IMapper mapper, Guid id,
-        [FromBody]SongHistory history)
+    public async Task<IActionResult> Put([FromServices] IMapper mapper, Guid id,
+        [FromBody] SongHistory history)
     {
         Logger.LogInformation($"Enter Patch: SongId = {id}, User = {User.Identity?.Name}");
         if (User.Identity == null || !User.Identity.IsAuthenticated)
@@ -125,8 +122,8 @@ public class SongController : DanceMusicApiController
 
     [Authorize]
     [HttpPost]
-    public async Task<IActionResult> Post([FromServices]IMapper mapper,
-        [FromBody]SongHistory history)
+    public async Task<IActionResult> Post([FromServices] IMapper mapper,
+        [FromBody] SongHistory history)
     {
         Logger.LogInformation($"Enter Post: User = {User.Identity?.Name}");
         if (User.Identity == null || !User.Identity.IsAuthenticated)
@@ -137,7 +134,7 @@ public class SongController : DanceMusicApiController
         var appUser = await UserManager.FindByNameAsync(User.Identity.Name);
 
         return await SongIndex.CreateOrMergeSong(
-            history.Properties.Select(mapper.Map<SongProperty>).ToList(), appUser)
+            [.. history.Properties.Select(mapper.Map<SongProperty>)], appUser)
             ? Ok()
             : StatusCode((int)HttpStatusCode.BadRequest);
     }

@@ -3,28 +3,27 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+
 using DanceLibrary;
+
 using m4dModels.Utilities;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace m4dModels
 {
-    public class DanceEnvironment
+    public class DanceEnvironment(DanceStatsInstance stats)
     {
-        public DanceEnvironment(DanceStatsInstance stats)
-        {
-            Dances = stats.GetSparseStats().ToList();
-            Groups = stats.GetGroupsSparse().ToList();
-        }
-
-        public List<DanceStatsSparse> Dances { get; set; }
-        public List<DanceGroupSparse> Groups { get; set; }
+        public List<DanceStatsSparse> Dances { get; set; } = [.. stats.GetSparseStats()];
+        public List<DanceGroupSparse> Groups { get; set; } = [.. stats.GetGroupsSparse()];
         public List<TagGroup> TagGroups { get; set; }
     }
 
 
-    public class DanceStatsInstance
+    public class DanceStatsInstance(
+        IEnumerable<DanceStats> dances, IEnumerable<DanceStats> groups,
+        TagManager tagManager)
     {
         private const string DescriptionPlaceholder =
             "We're busy doing research and pulling together a general description for this dance style. Please check back later for more info.";
@@ -41,26 +40,17 @@ namespace m4dModels
             _songs = cachedSongs;
         }
 
-        public DanceStatsInstance(
-            IEnumerable<DanceStats> dances, IEnumerable<DanceStats> groups,
-            TagManager tagManager)
-        {
-            TagManager = tagManager;
-            Dances = dances.ToList();
-            Groups = groups.ToList();
-        }
+        public List<DanceStats> Dances { get; set; } = [.. dances];
 
-        public List<DanceStats> Dances { get; set; }
-
-        public List<DanceStats> Groups { get; set; }
+        public List<DanceStats> Groups { get; set; } = [.. groups];
 
         public List<string> CachedSongs => _cache.Serialize();
 
         [JsonProperty(PropertyName = "tagGroups")]
-        public List<TagGroup> TagGroups => TagManager.TagMap.Values.OrderBy(t => t.Key).ToList();
+        public List<TagGroup> TagGroups => [.. TagManager.TagMap.Values.OrderBy(t => t.Key)];
 
         [JsonIgnore]
-        public TagManager TagManager { get; set; }
+        public TagManager TagManager { get; set; } = tagManager;
 
         [JsonIgnore]
         public Dictionary<string, DanceStats> Map { get; private set; }
@@ -101,7 +91,7 @@ namespace m4dModels
 
         public IReadOnlyDictionary<string, long> GetCounts()
         {
-            return Dances.ToDictionary(d => d.DanceId,  d => d.SongCount);
+            return Dances.ToDictionary(d => d.DanceId, d => d.SongCount);
         }
 
         public IReadOnlyDictionary<string, DanceMetrics> GetMetrics()
@@ -140,7 +130,7 @@ namespace m4dModels
                         var filter =
                             songIndex.AzureParmsFromFilter(
                                 new SongFilter
-                                    { Dances = dance.DanceId, SortOrder = "Dances" }, 10);
+                                { Dances = dance.DanceId, SortOrder = "Dances" }, 10);
                         SongIndex.AddAzureCategories(
                             filter, "GenreTags,StyleTags,TempoTags,OtherTags", 100);
                         var results = await songIndex.Search(
@@ -187,7 +177,7 @@ namespace m4dModels
 
             foreach (var group in Groups)
             {
-                group.Children = group.DanceGroup.DanceIds.Where(id => Map.ContainsKey(id)).Select(id => Map[id]).ToList();
+                group.Children = [.. group.DanceGroup.DanceIds.Where(id => Map.ContainsKey(id)).Select(id => Map[id])];
                 group.SongTags = TagAccumulator.MergeSummaries(
                     group.Children.Select(c => c.SongTags));
                 // TODO: At some point we should as azure search for this, since 
@@ -218,7 +208,7 @@ namespace m4dModels
                 saveChanges = true;
 
                 newDances.Add(ds.DanceId);
-                ds.SetTopSongs(new List<Song>());
+                ds.SetTopSongs([]);
                 ds.SongTags = new TagSummary();
             }
 
@@ -283,13 +273,7 @@ namespace m4dModels
                 DefaultValueHandling = DefaultValueHandling.Ignore
             };
 
-            var instance = JsonConvert.DeserializeObject<DanceStatsInstance>(json, settings);
-
-            if (instance == null)
-            {
-                throw new Exception($"Unable to deserialize dance stats instance: {json}");
-            }
-
+            var instance = JsonConvert.DeserializeObject<DanceStatsInstance>(json, settings) ?? throw new Exception($"Unable to deserialize dance stats instance: {json}");
             if (database != null)
             {
                 await instance.FixupStats(database, false);

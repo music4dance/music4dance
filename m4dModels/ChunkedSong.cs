@@ -1,10 +1,10 @@
-﻿using DanceLibrary;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+
+using DanceLibrary;
 
 namespace m4dModels
 {
@@ -12,15 +12,11 @@ namespace m4dModels
     {
         public int Id { get; } = id;
         public string User => Properties.FirstOrDefault(x => x.BaseName == Song.UserField)?.Value;
-        public List<SongProperty> Properties { get; } = properties.ToList();
+        public List<SongProperty> Properties { get; } = [.. properties];
 
         public SongProperty MatchRating(string rating)
         {
-            var dance = Dances.Instance.DanceFromId(rating.Substring(0,3));
-            if (dance == null)
-            {
-                throw new Exception($"Dance {rating} not found");
-            }
+            var dance = Dances.Instance.DanceFromId(rating[..3]) ?? throw new Exception($"Dance {rating} not found");
             return Properties.FirstOrDefault(
                 x => x.BaseName == Song.AddedTags && x.Value.Contains($"{dance.Name}:Dance"));
         }
@@ -28,23 +24,16 @@ namespace m4dModels
         {
             var tags = new TagList(tagList).Filter("Dance").Strip();
             var ids = tags.Select(Dances.Instance.DanceFromName).Where(d => d != null).Select(d => d.Id).ToList();
-            return Properties.Where(
-                x => x.BaseName == Song.DanceRatingField && ids.Any(t => x.Value.StartsWith(t))).ToList();
+            return [.. Properties.Where(
+                x => x.BaseName == Song.DanceRatingField && ids.Any(t => x.Value.StartsWith(t)))];
         }
 
         public bool HasGroupTag(string rating)
         {
-            var dance = Dances.Instance.DanceFromId(rating.Substring(0, 3));
-            if (dance == null)
+            var dance = Dances.Instance.DanceFromId(rating[..3]) ?? throw new Exception($"Dance {rating} not found");
+            var group = (dance is DanceType t ? t.Groups.FirstOrDefault() : null) ?? throw new Exception($"Group not for for {rating}");
+            if (!GroupIsTight(group.Id))
             {
-                throw new Exception($"Dance {rating} not found");
-            }
-            var group = dance is DanceType t ? t.Groups.FirstOrDefault() : null;
-            if (group == null)
-            {
-                throw new Exception($"Group not for for {rating}");
-            }
-            if (!GroupIsTight(group.Id)) {
                 return false;
             }
 
@@ -53,7 +42,7 @@ namespace m4dModels
 
         public bool CheckHeader()
         {
-            return Properties.Count >= 3 && Properties[0].IsAction && ((Properties[1].BaseName == Song.UserField && Properties[2].BaseName == Song.TimeField)  || (Properties[2].BaseName == Song.UserField && Properties[1].BaseName == Song.TimeField));
+            return Properties.Count >= 3 && Properties[0].IsAction && ((Properties[1].BaseName == Song.UserField && Properties[2].BaseName == Song.TimeField) || (Properties[2].BaseName == Song.UserField && Properties[1].BaseName == Song.TimeField));
         }
         public static bool GroupIsTight(string id)
         {
@@ -64,17 +53,18 @@ namespace m4dModels
     public class ChunkedSong
     {
         public List<SongChunk> Chunks { get; } = [];
-        public Dictionary<string,List<SongChunk>> UserChunks { get; } = [];
+        public Dictionary<string, List<SongChunk>> UserChunks { get; } = [];
         public string SongId { get; } = "TESTING";
 
         public ChunkedSong(string song) => Chunk(SongProperty.Load(song));
 
-        public ChunkedSong(Song song) {
+        public ChunkedSong(Song song)
+        {
             SongId = song.SongId.ToString();
-            Chunk(song.SongProperties); 
+            Chunk(song.SongProperties);
         }
 
-        public List<SongProperty> SongProperties => Chunks.SelectMany(x => x.Properties).ToList();
+        public List<SongProperty> SongProperties => [.. Chunks.SelectMany(x => x.Properties)];
 
         public string Serialize()
         {
@@ -88,9 +78,9 @@ namespace m4dModels
                 foreach (var property in chunk.Properties)
                 {
                     if (property.BaseName == Song.DanceRatingField)
-                        //|| (property.BaseName == Song.AddedTags && property.Value.Contains(":Dance")))
+                    //|| (property.BaseName == Song.AddedTags && property.Value.Contains(":Dance")))
                     {
-                            return true;
+                        return true;
                     }
                 }
             }
@@ -107,7 +97,7 @@ namespace m4dModels
                 var badProps = new List<SongProperty>();
                 foreach (var property in chunk.Properties)
                 {
-                    if (property.BaseName == Song.DanceRatingField && IsSwingy(property.Value.Substring(0, 3)))
+                    if (property.BaseName == Song.DanceRatingField && IsSwingy(property.Value[..3]))
                     {
                         badProps.Add(property);
                     }
@@ -133,12 +123,7 @@ namespace m4dModels
 
         private static bool IsSwingy(string value)
         {
-            var dance = Dances.Instance.DanceFromId(value);
-            if (dance == null)
-            {
-                throw new Exception($"Dance {value} not found");
-            }
-
+            var dance = Dances.Instance.DanceFromId(value) ?? throw new Exception($"Dance {value} not found");
             if (dance is DanceType t)
             {
                 dance = t.Groups.FirstOrDefault();
@@ -151,7 +136,7 @@ namespace m4dModels
         {
             foreach (var chunk in Chunks.Where(x => !IsBatch(x.User)))
             {
-                if (chunk.Properties.Any(x => x.BaseName == Song.DanceRatingField) && 
+                if (chunk.Properties.Any(x => x.BaseName == Song.DanceRatingField) &&
                     !chunk.Properties.Any(x => x.BaseName == Song.AddedTags && x.Value.Contains(":Dance")))
                 {
                     return true;
@@ -164,18 +149,24 @@ namespace m4dModels
         public bool DedupRatings()
         {
             var changed = false;
-            foreach (var pair in UserChunks.Where(p => IsBatch(p.Key) || IsPsuedoUser(p.Key))) {
+            foreach (var pair in UserChunks.Where(p => IsBatch(p.Key) || IsPsuedoUser(p.Key)))
+            {
                 var map = new HashSet<string>();
-                foreach (var chunk in pair.Value) {
+                foreach (var chunk in pair.Value)
+                {
                     var badRating = false;
                     var remove = new List<SongProperty>();
-                    foreach (var property in chunk.Properties) {
-                        if (property.BaseName == Song.DanceRatingField) {
-                            if (map.Contains(property.Value)) {
-                                    remove.Add(property);
+                    foreach (var property in chunk.Properties)
+                    {
+                        if (property.BaseName == Song.DanceRatingField)
+                        {
+                            if (map.Contains(property.Value))
+                            {
+                                remove.Add(property);
                             }
-                            else {
-                                if (property.Value.Contains("-"))
+                            else
+                            {
+                                if (property.Value.Contains('-'))
                                 {
                                     Trace.WriteLine($"{SongId}: Negative rating on {SongId}, {chunk.User}: {property.Value}");
                                     badRating = true;
@@ -185,10 +176,12 @@ namespace m4dModels
                             }
                         }
                     }
-                    if (badRating) {
+                    if (badRating)
+                    {
                         break;
                     }
-                    foreach (var property in remove) {
+                    foreach (var property in remove)
+                    {
                         chunk.Properties.Remove(property);
                         changed = true;
                     }
@@ -201,7 +194,7 @@ namespace m4dModels
         public async Task<bool> CleanOrphanedVotes(DanceMusicCoreService dms, bool removeUnmatched = false, bool addUnmatched = false, bool onlyGroups = false)
         {
             var changed = false;
-            var batchChunks = await FilterUnbalanced("batch|P",UserChunks.GetValueOrDefault("batch|P"), dms);
+            var batchChunks = await FilterUnbalanced("batch|P", UserChunks.GetValueOrDefault("batch|P"), dms);
 
             //foreach (var pair in UserChunks.Where(p => p.Key.Equals("DWTS|P",StringComparison.OrdinalIgnoreCase)))
             foreach (var pair in UserChunks.Where(p => !IsBatch(p.Key)))
@@ -224,14 +217,16 @@ namespace m4dModels
                         if (property.BaseName == Song.DanceRatingField && chunk.MatchRating(property.Value) == null)
                         {
                             SongProperty replace = null;
-                            for (var j = i+1; j < c; j++)
+                            for (var j = i + 1; j < c; j++)
                             {
                                 var other = badChunks[j];
                                 replace = other.MatchRating(property.Value);
-                                if (replace != null) {
+                                if (replace != null)
+                                {
                                     other.Properties.Remove(replace);
                                     break;
-                                };
+                                }
+                                ;
                             }
 
                             if (replace == null && batchChunks != null)
@@ -255,11 +250,7 @@ namespace m4dModels
                             }
                             else if (addUnmatched)
                             {
-                                var dance = Dances.Instance.DanceFromId(property.Value.Substring(0, 3));
-                                if (dance == null)
-                                {
-                                    throw new Exception($"Dance {property.Value} not found");
-                                }
+                                var dance = Dances.Instance.DanceFromId(property.Value[..3]) ?? throw new Exception($"Dance {property.Value} not found");
                                 var name = dance.Name;
                                 if (property.Value.EndsWith("-1"))
                                 {
@@ -270,7 +261,8 @@ namespace m4dModels
                             }
                             else
                             {
-                                if (removeUnmatched && (!onlyGroups || chunk.HasGroupTag(property.Value))) {
+                                if (removeUnmatched && (!onlyGroups || chunk.HasGroupTag(property.Value)))
+                                {
                                     remove.Add(property);
                                     changed = true;
                                 }
@@ -303,7 +295,7 @@ namespace m4dModels
 
         private async Task<bool> AreRatingsBalanced(string user, List<SongChunk> chunks, DanceMusicCoreService dms)
         {
-            var song = await Song.Create(Guid.NewGuid(), chunks.SelectMany(chunk => chunk.Properties).Select(p => new SongProperty(p)).ToList(), dms);
+            var song = await Song.Create(Guid.NewGuid(), [.. chunks.SelectMany(chunk => chunk.Properties).Select(p => new SongProperty(p))], dms);
             var balanced = true;
             var tagSet = song.TagSummary.GetTagSet("Dance");
 
@@ -322,7 +314,8 @@ namespace m4dModels
                         Trace.WriteLine($"{SongId}, Invalid DanceId ({user}): {rating.DanceId}");
                         balanced = false;
                     }
-                    else {
+                    else
+                    {
                         if (rating.Weight == -1)
                         {
                             name = $"!{name}";
@@ -340,7 +333,7 @@ namespace m4dModels
                 }
             }
 
-            if (tagSet.Count > 0) 
+            if (tagSet.Count > 0)
             {
                 Trace.WriteLine($"{SongId}, Missing rating(s) ({user}): {string.Join(",", tagSet.ToArray())}");
                 balanced = false;
@@ -379,7 +372,7 @@ namespace m4dModels
                         Trace.WriteLine($"{SongId}: Invalid header on {chunk.User}");
                         continue;
                     }
-                    first.Properties.AddRange(chunk.Properties.Slice(3, chunk.Properties.Count - 3));
+                    first.Properties.AddRange(chunk.Properties[3..]);
                     remove.Add(chunk);
                     changed = true;
                 }

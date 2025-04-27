@@ -39,7 +39,7 @@ namespace m4dModels
                 {
                     if (cells.Length > 2)
                     {
-                        int.TryParse(cells[^3], out work);
+                        _ = int.TryParse(cells[^3], out work);
                     }
                 }
             }
@@ -136,7 +136,7 @@ namespace m4dModels
 
         public int CompareTo(object other)
         {
-            return other is TrackNumber ? _val.CompareTo(((TrackNumber)other)._val) : -1;
+            return other is TrackNumber number ? _val.CompareTo(number._val) : -1;
         }
 
         public override bool Equals(object obj)
@@ -164,11 +164,9 @@ namespace m4dModels
             return Format();
         }
 
-        private static readonly string[] s_invariantFormat = new string[]
-            { "{0:D3}:", "{0:D3}:", "{0:D3}" };
+        private static readonly string[] s_invariantFormat = ["{0:D3}:", "{0:D3}:", "{0:D3}"];
 
-        private static readonly string[] s_friendlyFormat = new string[]
-            { "Work {0}, ", "Disk {0}, ", "Track {0}" };
+        private static readonly string[] s_friendlyFormat = ["Work {0}, ", "Disk {0}, ", "Track {0}"];
 
         public string Format(string specifier = null)
         {

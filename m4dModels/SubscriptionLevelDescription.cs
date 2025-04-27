@@ -1,27 +1,21 @@
-﻿using m4dModels;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace m4d.Controllers
+namespace m4dModels
 {
-    public class SubscriptionLevelDescription
+    public class SubscriptionLevelDescription(SubscriptionLevel level, decimal price)
     {
-        public SubscriptionLevelDescription(SubscriptionLevel level, decimal price)
-        {
-            Level = level;
-            Price = price;
-        }
-        public SubscriptionLevel Level { get; set; }
-        public decimal Price { get; set; }
+        public SubscriptionLevel Level { get; set; } = level;
+        public decimal Price { get; set; } = price;
         public string Name => Level.ToString();
 
-        public static List<SubscriptionLevelDescription> SubscriptionLevels = new()
-        {
+        public static List<SubscriptionLevelDescription> SubscriptionLevels =
+        [
             new SubscriptionLevelDescription(SubscriptionLevel.Gold, 100.00M),
             new SubscriptionLevelDescription(SubscriptionLevel.Silver, 50.00M),
             new SubscriptionLevelDescription(SubscriptionLevel.Bronze, 25.00M),
             new SubscriptionLevelDescription(SubscriptionLevel.Basic, 15.00M),
-        };
+        ];
 
         public static SubscriptionLevelDescription FindSubscriptionLevel(decimal amount)
         {

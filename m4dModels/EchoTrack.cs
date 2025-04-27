@@ -55,11 +55,11 @@ namespace m4dModels
                 return !BeatsPerMeasure.HasValue
                     ? null
                     : BeatsPerMeasure switch
-                {
-                    2 or 3 or 4 => $"{BeatsPerMeasure}/4",
-                    6 or 9 or 12 => $"{BeatsPerMeasure}/8",
-                    _ => null,
-                };
+                    {
+                        2 or 3 or 4 => $"{BeatsPerMeasure}/4",
+                        6 or 9 or 12 => $"{BeatsPerMeasure}/8",
+                        _ => null,
+                    };
             }
         }
     }

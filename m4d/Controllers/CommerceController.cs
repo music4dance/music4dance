@@ -1,6 +1,7 @@
-﻿using m4d.APIControllers;
-using m4d.Services;
+﻿using m4d.Services;
+
 using m4dModels;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.FeatureManagement;
@@ -8,19 +9,14 @@ using Microsoft.FeatureManagement;
 namespace m4d.Controllers;
 
 
-public class CommerceController : DanceMusicController
+public class CommerceController(
+    DanceMusicContext context, UserManager<ApplicationUser> userManager,
+    ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+    IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
+    IFeatureManager featureManager, ILogger logger) : DanceMusicController(context, userManager, searchService, danceStatsManager, configuration,
+        fileProvider, backroundTaskQueue, featureManager, logger)
 {
     public static decimal AnnualSubscription = SubscriptionLevelDescription.SubscriptionLevels.Last().Price;
-
-    public CommerceController(
-        DanceMusicContext context, UserManager<ApplicationUser> userManager,
-        ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-        IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-        IFeatureManager featureManager, ILogger logger) :
-        base(context, userManager, searchService, danceStatsManager, configuration,
-            fileProvider, backroundTaskQueue, featureManager, logger)
-    {
-    }
 
     protected bool IsFraudDetected(ApplicationUser user)
     {

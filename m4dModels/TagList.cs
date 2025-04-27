@@ -10,7 +10,7 @@ using System.Text.RegularExpressions;
 namespace m4dModels
 {
     [ComplexType]
-    public class TagList
+    public partial class TagList
     {
         #region Properties
 
@@ -56,13 +56,13 @@ namespace m4dModels
         // This is resilient to qualifiers (subtract 'tag:type' will remove any of 'tag:type', '-tag:type', '+tag:type'
         public TagList Subtract(TagList other)
         {
-            IList<string> trg = new List<string>();
+            IList<string> trg = [];
             if (other != null)
             {
                 trg = other.IsQualified ? other.StripQualifier() : other.Tags;
             }
 
-            return new TagList(Tags.Where(s => !trg.Contains(TrimQualifier(s))).ToList());
+            return new TagList([.. Tags.Where(s => !trg.Contains(TrimQualifier(s)))]);
         }
 
         public TagList Add(TagList other)
@@ -103,15 +103,14 @@ namespace m4dModels
             return string.IsNullOrWhiteSpace(Summary)
                 ? new TagList()
                 : new TagList(
-                    Tags.Where(tag => tag[0] == c).Select(tag => tag[1..])
-                        .ToList());
+                    [.. Tags.Where(tag => tag[0] == c).Select(tag => tag[1..])]);
         }
 
         public TagList ExtractNotPrefixed(char c)
         {
             return string.IsNullOrWhiteSpace(Summary)
                 ? new TagList()
-                : new TagList(Tags.Where(tag => tag[0] != c).ToList());
+                : new TagList([.. Tags.Where(tag => tag[0] != c)]);
         }
 
         private TagList Extract(char c)
@@ -128,7 +127,7 @@ namespace m4dModels
 
         public IList<string> StripQualifier()
         {
-            return Tags.Select(TrimQualifier).ToList();
+            return [.. Tags.Select(TrimQualifier)];
         }
 
         public IList<string> Strip()
@@ -147,7 +146,7 @@ namespace m4dModels
         {
             var qual = new string(q, 1);
 
-            return new TagList(Tags.Select(tag => qual + TrimQualifier(tag)).ToList());
+            return new TagList([.. Tags.Select(tag => qual + TrimQualifier(tag))]);
         }
 
         public TagList AddMissingQualifier(char q)
@@ -192,7 +191,7 @@ namespace m4dModels
                 }
                 else
                 {
-                    seen.Add(tt.Key, new List<string> { tag });
+                    seen.Add(tt.Key, [tag]);
                 }
             }
 
@@ -214,8 +213,7 @@ namespace m4dModels
         }
 
         private static readonly HashSet<string> s_validClasses =
-            new()
-            { "dance", "music", "style", "tempo", "other" };
+            ["dance", "music", "style", "tempo", "other"];
 
         public TagList FixBadCategory()
         {
@@ -301,11 +299,11 @@ namespace m4dModels
 
         public static string Clean(string value)
         {
-            return s_tagChars.Replace(value, "");
+            return TagChars().Replace(value, "");
         }
 
-        private static readonly Regex s_tagChars = new(
-            @"[^\p{L}\d()'& ]", RegexOptions.Compiled | RegexOptions.Multiline);
+        [GeneratedRegex(@"[^\p{L}\d()'& ]", RegexOptions.Multiline | RegexOptions.Compiled)]
+        private static partial Regex TagChars();
 
         private static List<string> Parse(string serialized, bool trim = true)
         {
@@ -318,7 +316,7 @@ namespace m4dModels
 
             tags.AddRange(
                 serialized
-                    .Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Split(['|'], StringSplitOptions.RemoveEmptyEntries)
                     .Select(tag => trim ? tag.Trim() : tag));
 
             tags.Sort();

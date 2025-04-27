@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+
 using Azure.Search.Documents.Indexes;
 
 namespace m4dModels

@@ -1,11 +1,16 @@
 ﻿using System.Diagnostics;
 using System.Net;
+
 using AutoMapper;
+
 using DanceLibrary;
+
 using m4d.Services;
 using m4d.Utilities;
 using m4d.ViewModels;
+
 using m4dModels;
+
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -134,7 +139,7 @@ public class SongController : ContentController
 
     private async Task<ActionResult> FormatResults(SearchResults results)
     {
-        return await FormatSongList(results.Songs.ToList(), (int)results.TotalCount, (int) results.RawCount);
+        return await FormatSongList([.. results.Songs], (int)results.TotalCount, (int)results.RawCount);
     }
 
     private async Task<ActionResult> FormatSongList(IReadOnlyCollection<Song> songs,
@@ -152,33 +157,30 @@ public class SongController : ContentController
             s =>
                 UserMapper.AnonymizeHistory(s.GetHistory(Mapper), dictionary)).ToList();
 
-        switch (UseVue)
+        return UseVue switch
         {
-            case UseVue.V2:
-                return Vue("Songs for Dancing", $"music4dance catalog: {Filter.Description}", Filter.VueName,
-                    new SongListModel
-                    {
-                        Histories = histories,
-                        Filter = Mapper.Map<SongFilterSparse>(Filter),
-                        Count = totalSongs ?? songs.Count,
-                        RawCount = rawCount ?? totalSongs ?? songs.Count,
-                        HiddenColumns = hiddenColumns
-                    },
-                    danceEnvironment: true);
-            case UseVue.V3:
-                return Vue3("Songs for Dancing", $"music4dance catalog: {Filter.Description}", Filter.VueName,
-                    new SongListModel
-                    {
-                        Histories = histories,
-                        Filter = Mapper.Map<SongFilterSparse>(Filter),
-                        Count = totalSongs ?? songs.Count,
-                        RawCount = rawCount ?? totalSongs ?? songs.Count,
-                        HiddenColumns = hiddenColumns
-                    },
-                    danceEnvironment: true);
-            default:
-                throw new Exception("Unknown UseVue value");
-        }
+            UseVue.V2 => Vue("Songs for Dancing", $"music4dance catalog: {Filter.Description}", Filter.VueName,
+                                new SongListModel
+                                {
+                                    Histories = histories,
+                                    Filter = Mapper.Map<SongFilterSparse>(Filter),
+                                    Count = totalSongs ?? songs.Count,
+                                    RawCount = rawCount ?? totalSongs ?? songs.Count,
+                                    HiddenColumns = hiddenColumns
+                                },
+                                danceEnvironment: true),
+            UseVue.V3 => Vue3("Songs for Dancing", $"music4dance catalog: {Filter.Description}", Filter.VueName,
+                                new SongListModel
+                                {
+                                    Histories = histories,
+                                    Filter = Mapper.Map<SongFilterSparse>(Filter),
+                                    Count = totalSongs ?? songs.Count,
+                                    RawCount = rawCount ?? totalSongs ?? songs.Count,
+                                    HiddenColumns = hiddenColumns
+                                },
+                                danceEnvironment: true),
+            _ => throw new Exception("Unknown UseVue value"),
+        };
     }
 
 
@@ -296,7 +298,7 @@ public class SongController : ContentController
         }
         else if (string.Equals(sortDirection, "Descending", StringComparison.OrdinalIgnoreCase))
         {
-            sortOrder = sortOrder + "_desc";
+            sortOrder += "_desc";
         }
 
         if (!string.Equals(sortOrder, Filter.SortOrder, StringComparison.OrdinalIgnoreCase))
@@ -446,7 +448,7 @@ public class SongController : ContentController
     public async Task<ActionResult> Advanced(int? page, string purchase)
     {
         UseVue = UseVue.V3;
-        return await Index( null, page, purchase);
+        return await Index(null, page, purchase);
     }
 
     [AllowAnonymous]
@@ -525,7 +527,7 @@ public class SongController : ContentController
 
         var details = await GetSongDetails(song);
         return Vue3(details.Title, $"music4dance catalog: {details.Title} dance information", "song",
-            details, danceEnvironment: true, tagEnvironment:true, helpPage: "song-details");
+            details, danceEnvironment: true, tagEnvironment: true, helpPage: "song-details");
     }
 
     private async Task<SongDetailsModel> GetSongDetails(Song song)
@@ -583,7 +585,7 @@ public class SongController : ContentController
                 name, Mapper, DefaultCruftFilter(), Database);
             return Vue3(
                 $"Artist: {name}", $"Songs for dancing by {name}", "artist",
-                model, danceEnvironment:true);
+                model, danceEnvironment: true);
         }
 
         return ReturnError(HttpStatusCode.NotFound, @"Empty artist name not valid.");
@@ -594,9 +596,9 @@ public class SongController : ContentController
     [AllowAnonymous]
     public ActionResult Augment(string title = null, string artist = null, string id = null)
     {
-        return Vue3("Add Song", "Add a new song to the music4dance catalog", "augment", 
-            new AugmentViewModel { Title = title, Artist = artist, Id = id},
-            danceEnvironment: true, tagEnvironment:true, helpPage: "add-songs"
+        return Vue3("Add Song", "Add a new song to the music4dance catalog", "augment",
+            new AugmentViewModel { Title = title, Artist = artist, Id = id },
+            danceEnvironment: true, tagEnvironment: true, helpPage: "add-songs"
             );
     }
 
@@ -865,7 +867,7 @@ public class SongController : ContentController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<ActionResult> CreateSpotify([FromServices]IFileProvider fileProvider,
+    public async Task<ActionResult> CreateSpotify([FromServices] IFileProvider fileProvider,
         [Bind("Title,DescriptionPrefix,Description,Count,Filter")]
         SpotifyCreateInfo info)
     {
@@ -971,7 +973,7 @@ public class SongController : ContentController
         return metaString;
     }
 
-    private string LogCreateInfo(SpotifyCreateInfo info)
+    private static string LogCreateInfo(SpotifyCreateInfo info)
     {
         var infoString = "SpotifyCreateInfo = null";
         if (info != null)
@@ -1021,7 +1023,7 @@ public class SongController : ContentController
         var filter = new SongFilter(info.Filter);
         var isUserOnly = IsUserOnly(filter);
         info.Description = isUserOnly ? $"All of {filter.UserQuery.UserName}'s votes and tags" : filter.Description;
-        info.Count =  isUserOnly ? 5000 : (await GetSubscriptionLevel()) < SubscriptionLevel.Silver ? 100 : 1000;
+        info.Count = isUserOnly ? 5000 : (await GetSubscriptionLevel()) < SubscriptionLevel.Silver ? 100 : 1000;
 
         if (!ModelState.IsValid)
         {
@@ -1079,7 +1081,7 @@ public class SongController : ContentController
             songs = await AutoMerge(songs, Filter.Level ?? 1);
         }
 
-        return await FormatSongList(songs, hiddenColumns: new List<string> { "dances", "echo", "length", "order", "play", "tags", "track" });
+        return await FormatSongList(songs, hiddenColumns: ["dances", "echo", "length", "order", "play", "tags", "track"]);
     }
 
     //
@@ -1162,7 +1164,7 @@ public class SongController : ContentController
             ResolveStringField(Song.ArtistField, songs, Request.Form),
             ResolveDecimalField(Song.TempoField, songs, Request.Form),
             ResolveIntField(Song.LengthField, songs, Request.Form),
-            Request.Form[Song.AlbumListField], new HashSet<string>(Request.Form.Keys));
+            Request.Form[Song.AlbumListField], [.. Request.Form.Keys]);
 
         Database.RemoveMergeCandidates(songs);
 
@@ -1321,7 +1323,7 @@ public class SongController : ContentController
                                     string b = null;
                                     if (log)
                                     {
-                                       b = song.Serialize(options: "R");
+                                        b = song.Serialize(options: "R");
                                     }
                                     var songT = await act(dms, song);
                                     if (songT != null)
@@ -1442,27 +1444,27 @@ public class SongController : ContentController
 
         var changed = false;
 
-        if (type.IndexOf('X') != -1)
+        if (type.Contains('X'))
         {
             changed |= CleanDeletedServices(song.SongId, props);
         }
 
-        if (type.IndexOf('B') != -1)
+        if (type.Contains('B'))
         {
             changed |= await CleanBrokenServices(song, props);
         }
 
-        if (type.IndexOf('A') != -1)
+        if (type.Contains('A'))
         {
             changed |= CleanOrphanedAlbums(props);
         }
 
-        if (type.IndexOf('D') != -1)
+        if (type.Contains('D'))
         {
             changed |= CleanDeprecatedProperties(song.SongId, props);
         }
 
-        var updateGenre = type.IndexOf('G') != -1;
+        var updateGenre = type.Contains('G');
 
         Song newSong = null;
         if (changed || updateGenre)
@@ -1499,7 +1501,7 @@ public class SongController : ContentController
         return song.EditSongTags(spotify.ApplicationUser, tags, dms.DanceStats);
     }
 
-    private IEnumerable<SongProperty> SpotifySongProperties(IEnumerable<SongProperty> props)
+    private static IEnumerable<SongProperty> SpotifySongProperties(IEnumerable<SongProperty> props)
     {
         foreach (var prop in props.Where(
             p =>
@@ -1523,7 +1525,7 @@ public class SongController : ContentController
                     if (!string.IsNullOrWhiteSpace(link.SongId))
                     {
                         var t = props.FirstOrDefault(
-                            p => p.Name.StartsWith("Purchase") && p.Name.EndsWith("S") &&
+                            p => p.Name.StartsWith("Purchase") && p.Name.EndsWith('S') &&
                                 p.Value.StartsWith(link.SongId));
                         if (t != null)
                         {
@@ -1534,7 +1536,7 @@ public class SongController : ContentController
                     if (!string.IsNullOrWhiteSpace(link.AlbumId))
                     {
                         var t = props.FirstOrDefault(
-                            p => p.Name.StartsWith("Purchase") && p.Name.EndsWith("A") &&
+                            p => p.Name.StartsWith("Purchase") && p.Name.EndsWith('A') &&
                                 p.Value.StartsWith(link.AlbumId));
                         if (t != null)
                         {
@@ -1576,17 +1578,15 @@ public class SongController : ContentController
 
         var results = await SongIndex.Search(filter.SearchString, p, filter.CruftFilter);
 
-        switch (type)
+        return type switch
         {
-            case "H":
-                return JsonCamelCase(
-                    results.Songs.Select(
-                            s =>
-                                UserMapper.AnonymizeHistory(s.GetHistory(Mapper), UserManager))
-                        .ToList());
-            default:
-                return JsonCamelCase(null);
-        }
+            "H" => JsonCamelCase(
+                                results.Songs.Select(
+                                        s =>
+                                            UserMapper.AnonymizeHistory(s.GetHistory(Mapper), UserManager))
+                                    .ToList()),
+            _ => JsonCamelCase(null),
+        };
     }
 
     //private bool CleanDeletedServices(Guid songId, ICollection<SongProperty> props)
@@ -1698,9 +1698,9 @@ public class SongController : ContentController
         // ReSharper disable once LoopCanBeConvertedToQuery
         foreach (var prop in props.Where(
             p =>
-                p.Name.StartsWith("Purchase") && p.Name.EndsWith("A")))
+                p.Name.StartsWith("Purchase") && p.Name.EndsWith('A')))
         {
-            var s = prop.Name.Substring(0, prop.Name.Length - 1) + 'S';
+            var s = string.Concat(prop.Name.AsSpan(0, prop.Name.Length - 1), "S");
             if (props.All(p => p.Name != s))
             {
                 del.Add(prop);
@@ -1742,7 +1742,7 @@ public class SongController : ContentController
             {
                 if (cluster == null)
                 {
-                    cluster = new List<Song> { song };
+                    cluster = [song];
                 }
                 else if (level == 0 && song.Equivalent(cluster[0])
                     || level == 1 && song.WeakEquivalent(cluster[0])
@@ -1762,7 +1762,7 @@ public class SongController : ContentController
                         Logger.LogInformation($"Bad Merge: {cluster[0].Title}");
                     }
 
-                    cluster = new List<Song> { song };
+                    cluster = [song];
                 }
             }
         }
@@ -1778,7 +1778,7 @@ public class SongController : ContentController
     {
         UseVue = UseVue.No;
         // These songs are coming from "light loading", so need to reload the full songs before merging
-        songs = (await SongIndex.FindSongs(songs.Select(s => s.SongId))).ToList();
+        songs = [.. (await SongIndex.FindSongs(songs.Select(s => s.SongId)))];
 
         var song = await SongIndex.MergeSongs(
             user, songs,
@@ -1796,7 +1796,7 @@ public class SongController : ContentController
 
     private ActionResult Merge(IEnumerable<Song> songs)
     {
-        var sm = new SongMerge(songs.ToList(), Database.DanceStats);
+        var sm = new SongMerge([.. songs], Database.DanceStats);
 
         return View("Merge", sm);
     }
@@ -1869,7 +1869,7 @@ public class SongController : ContentController
             var s = form[fieldName];
             if (!string.IsNullOrWhiteSpace(s))
             {
-                int.TryParse(s, out idx);
+                _ = int.TryParse(s, out idx);
             }
         }
         else

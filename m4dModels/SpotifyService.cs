@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+
 using Microsoft.CSharp.RuntimeBinder;
 
 namespace m4dModels
@@ -11,7 +12,7 @@ namespace m4dModels
     internal class SpotifyService : MusicService
     {
         private static readonly Dictionary<string, dynamic> s_results =
-            new();
+            [];
 
         private static readonly TextInfo s_textInfo = CultureInfo.CurrentCulture.TextInfo;
 
@@ -39,7 +40,7 @@ namespace m4dModels
 
             if (url.Contains("/playlist/"))
             {
-                var rg = url.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                var rg = url.Split(['/'], StringSplitOptions.RemoveEmptyEntries);
 
                 if (rg.Length == 4)
                 {
@@ -80,7 +81,7 @@ namespace m4dModels
             dynamic results, Func<string, Task<dynamic>> getResult,
             IEnumerable<string> excludeTracks)
         {
-            var excludeMap = new HashSet<string>(excludeTracks ?? new List<string>());
+            var excludeMap = new HashSet<string>(excludeTracks ?? []);
 
             if (results == null)
             {
@@ -232,18 +233,18 @@ namespace m4dModels
                 }
             }
 
-            return genres.Count > 0 ? genres.ToArray() : null;
+            return genres.Count > 0 ? [.. genres] : null;
         }
 
         private async Task<List<string>> GenresFromReference(dynamic field, Func<string, Task<dynamic>> getResult)
         {
             if (field?.href == null)
             {
-                return new List<string>();
+                return [];
             }
 
             var t = await GetResults(field.href.ToString(), getResult);
-            return t != null ? (List<string>)GenresFromObject(t) : new List<string>();
+            return t != null ? (List<string>)GenresFromObject(t) : [];
         }
 
         private List<string> GenresFromObject(dynamic obj)

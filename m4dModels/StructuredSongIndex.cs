@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+
 using Azure.Search.Documents.Indexes;
 using Azure.Search.Documents.Indexes.Models;
 using Azure.Search.Documents.Models;
+
 using DanceLibrary;
 
 namespace m4dModels
@@ -23,7 +25,7 @@ namespace m4dModels
             var fieldBuilder = new FieldBuilder();
             var fields = fieldBuilder.Build(typeof(SongDocument));
 
-            var index = new SearchIndex(Info.Name, fields.ToArray());
+            var index = new SearchIndex(Info.Name, [.. fields]);
             index.Suggesters.Add(
                 new SearchSuggester(
                     "songs",
@@ -44,7 +46,7 @@ namespace m4dModels
 
             // Set up the purchase flags
             var purchase = string.IsNullOrWhiteSpace(song.Purchase)
-                ? new List<string>()
+                ? []
                 : song.Purchase.ToCharArray().Where(c => MusicService.GetService(c) != null)
                     .Select(c => MusicService.GetService(c).Name).ToList();
             if (song.HasSample)
@@ -90,10 +92,10 @@ namespace m4dModels
                 {
                     Name = dobj.Name.ToLower(),
                     Votes = dr.Weight,
-                    StyleTags = ts.GetTagSet("Style").ToList(),
-                    TempoTags = ts.GetTagSet("Tempo").ToList(),
-                    OtherTags = ts.GetTagSet("Other").ToList(),
-                    Comments = dr.Comments.Select(c => c.Comment).ToList()
+                    StyleTags = [.. ts.GetTagSet("Style")],
+                    TempoTags = [.. ts.GetTagSet("Tempo")],
+                    OtherTags = [.. ts.GetTagSet("Other")],
+                    Comments = [.. dr.Comments.Select(c => c.Comment)]
 
                 });
             }
@@ -109,12 +111,12 @@ namespace m4dModels
             {
                 Id = song.SongId.ToString(),
                 Properties = SongProperty.Serialize(song.SongProperties, null),
-                AlternateIds = song.GetAltids().ToList(),
+                AlternateIds = [.. song.GetAltids()],
                 TitleHash = song.TitleHash,
-                ServiceIds = song.GetExtendedPurchaseIds().ToList(),
+                ServiceIds = [.. song.GetExtendedPurchaseIds()],
                 Title = song.Title,
                 Artist = song.Artist,
-                Album = song.Albums.Select(ad => ad.Name).ToList(),
+                Album = [.. song.Albums.Select(ad => ad.Name)],
                 Tempo = (double?)song.Tempo,
                 Length = song.Length,
 
@@ -128,14 +130,14 @@ namespace m4dModels
                 Mood = CleanNumber(song.Valence),
                 Purchase = purchase,
 
-                GenreTags = genre.ToList(),
-                TempoTags = tempo.ToList(),
-                OtherTags = other.ToList(),
+                GenreTags = [.. genre],
+                TempoTags = [.. tempo],
+                OtherTags = [.. other],
 
                 Sample = song.Sample,
-                
+
                 Dances = dances,
-                Comments = song.Comments.Select(c => c.Comment).ToList()
+                Comments = [.. song.Comments.Select(c => c.Comment)]
             };
         }
         #endregion

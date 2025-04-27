@@ -23,7 +23,7 @@ public class MarketingInfo
 
     public bool Enabled { get; set; }
     public string Banner { get; set; }
-    public string Notice { get; set;}
+    public string Notice { get; set; }
     public DateTime? Start { get; set; }
     public DateTime? End { get; set; }
     public MarketingProduct Product { get; set; }
@@ -47,7 +47,7 @@ public static class GlobalState
         return !string.IsNullOrEmpty(captcha) && bool.TryParse(captcha, out var enabled) && enabled;
     }
 
-     public static MarketingInfo GetMarketing(ApplicationUser user, string page)
+    public static MarketingInfo GetMarketing(ApplicationUser user, string page)
     {
         if (Marketing == null || !Marketing.Enabled)
         {

@@ -1,6 +1,8 @@
 ﻿using m4d.Utilities;
+
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Options;
+
 using SendGrid;
 using SendGrid.Helpers.Mail;
 

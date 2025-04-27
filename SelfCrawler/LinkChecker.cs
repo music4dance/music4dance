@@ -1,26 +1,29 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OpenQA.Selenium;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
+
 using m4dModels;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using OpenQA.Selenium;
 
 namespace SelfCrawler;
 
 [TestClass]
 public class LinkChecker : PageChecker, IDisposable
 {
-    private readonly HashSet<string> _knownGood = new();
-    private readonly HashSet<string> _manualTest = new();
+    private readonly HashSet<string> _knownGood = [];
+    private readonly HashSet<string> _manualTest = [];
 
-    private static readonly string _testUrl = @"https://m4d-linux.azurewebsites.net/";
+    private new static readonly string _testUrl = @"https://m4d-linux.azurewebsites.net/";
 
     // TODO: Rather than adding manual tests, see if we can get selenium to test if the
     //  URL is live - https://stackoverflow.com/questions/6509628/how-to-get-http-response-code-using-selenium-webdriver
     private readonly string[] _hardenedSites =
-    {
+    [
         @"www.ehow.com",
         @"duetdancestudio.com",
         @"www.hulu.com",
@@ -31,7 +34,7 @@ public class LinkChecker : PageChecker, IDisposable
         @"www.abscdj.com",
         @"usadance.org"
 
-    };
+    ];
 
     [TestMethod]
     public void CheckLocalSiteForBrokenLinks()
@@ -79,7 +82,7 @@ public class LinkChecker : PageChecker, IDisposable
 
         var images = driver.FindElements(By.TagName("img"));
         Assert.IsNotNull(images);
-        errors = errors.Concat(CheckElements(images, "src")).ToList();
+        errors = [.. errors, .. CheckElements(images, "src")];
 
         if (errors.Any())
         {
@@ -145,7 +148,7 @@ public class LinkChecker : PageChecker, IDisposable
         return errors;
     }
 
-    private bool IsServiceReference(string reference)
+    private static bool IsServiceReference(string reference)
     {
         foreach (var service in MusicService.GetServices())
         {

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using Azure;
 using Azure.Identity;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Indexes;
+
 using Microsoft.Extensions.Configuration;
 
 namespace m4dModels
@@ -22,9 +24,9 @@ namespace m4dModels
     {
         public SearchServiceManager(IConfiguration configuration, DefaultAzureCredential credentials)
         {
-            var basicAuth = new SearchAuth("basic", configuration);
-            var backupAuth = new SearchAuth("backup", configuration);
-            var freeAuth = new SearchAuth("free", configuration);
+            _ = new SearchAuth("basic", configuration);
+            _ = new SearchAuth("backup", configuration);
+            _ = new SearchAuth("free", configuration);
             _info = new Dictionary<string, SearchServiceInfo>
             {
                 {
@@ -63,7 +65,7 @@ namespace m4dModels
 
         public IEnumerable<string> GetAvailableIds()
         {
-            return _info.Keys.ToList();
+            return [.. _info.Keys];
         }
         public bool HasId(string id)
         {
@@ -77,20 +79,14 @@ namespace m4dModels
         private readonly Dictionary<string, SearchServiceInfo> _info;
     }
 
-    public class SearchAuth
+    public class SearchAuth(string name, IConfiguration configuration)
     {
-        public SearchAuth(string name, IConfiguration configuration)
-        {
-            Name = name;
-            _configuration = configuration;
-        }
-
         public string AdminKey => _adminKey ??= GetConfigurationKey("admin");
         public string QueryKey => _queryKey ??= GetConfigurationKey("query");
 
         private string GetConfigurationKey(string type)
         {
-            return _configuration[GetKeyName(type)];
+            return configuration[GetKeyName(type)];
         }
 
         private string GetKeyName(string type)
@@ -101,9 +97,7 @@ namespace m4dModels
         private string _adminKey;
         private string _queryKey;
 
-        private readonly IConfiguration _configuration;
-
-        protected string Name { get; }
+        protected string Name { get; } = name;
     }
 
 
@@ -117,7 +111,7 @@ namespace m4dModels
         public string QueryKey { get; }
         public bool IsStructured { get; }
 
-        private DefaultAzureCredential _credentials;
+        private readonly DefaultAzureCredential _credentials;
 
         public SearchServiceInfo(string id, string abbr, string name, string index,
             string adminKey, string queryKey, bool isStructured = false)

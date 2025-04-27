@@ -1,14 +1,19 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using OpenQA.Selenium;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using m4dModels;
-using Azure.Search.Documents;
+
 using Azure.Identity;
+using Azure.Search.Documents;
+
+using m4dModels;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+
+using OpenQA.Selenium;
 
 namespace SelfCrawler
 {
@@ -85,7 +90,8 @@ namespace SelfCrawler
         private List<PageSearch> LoadPages()
         {
             var text = File.ReadAllText(@"C:\Temp\SearchIndex.json");
-            return JsonConvert.DeserializeObject<List<PageSearch>>(text);
+            return JsonConvert.DeserializeObject<List<PageSearch>>(text) 
+                ?? []; // Ensure a non-null return
         }
 
         private PageSearch CrawlPage(string relativePath, string root, IWebDriver driver)
@@ -95,7 +101,7 @@ namespace SelfCrawler
             var descriptionElement = TryFindElement(By.CssSelector("meta[name='description']"));
             if (descriptionElement != null)
             {
-               description = descriptionElement.GetDomAttribute("content");
+                description = descriptionElement.GetDomAttribute("content");
             }
             var title = driver.Title.Replace(@" - Music4Dance: Shall we dance...to music?", "");
             var content = TryFindElement(By.Id("body-content"));
@@ -104,7 +110,7 @@ namespace SelfCrawler
                 Console.WriteLine($"{relativePath} has no body-content");
                 content = TryFindElement(By.TagName("body"));
             }
-            var body = content?.Text.Replace(@"\r\n", " ").Replace("\r\n"," ");
+            var body = content?.Text.Replace(@"\r\n", " ").Replace("\r\n", " ");
 
             if (relativePath == "/")
             {

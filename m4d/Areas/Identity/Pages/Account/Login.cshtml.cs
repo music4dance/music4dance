@@ -3,7 +3,9 @@
 #nullable disable
 
 using System.ComponentModel.DataAnnotations;
+
 using m4dModels;
+
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -19,7 +21,7 @@ public class LoginModel : PageModel
     private readonly ILogger<LoginModel> _logger;
     private readonly IEmailSender _emailSender;
 
-    public LoginModel(SignInManager<ApplicationUser> signInManager, 
+    public LoginModel(SignInManager<ApplicationUser> signInManager,
         ILogger<LoginModel> logger,
         UserManager<ApplicationUser> userManager,
         IEmailSender emailSender)

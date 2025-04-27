@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+
 using DanceLibrary;
 
 namespace m4dModels
@@ -16,14 +17,10 @@ namespace m4dModels
 
     public class Dance : DanceCore
     {
-        private static readonly Regex Dex = new(
-            @"\[(?<dance>[^\]]*)\]",
-            RegexOptions.Compiled);
-
         public static readonly string[] Categories =
-        {
+        [
             "International Standard", "International Latin", "American Smooth", "American Rhythm"
-        };
+        ];
 
         private static readonly Dictionary<string, string> Links = new()
         {
@@ -70,7 +67,7 @@ namespace m4dModels
 
             if (cells.Count > 0 && DanceLinks == null)
             {
-                DanceLinks = new List<DanceLink>();
+                DanceLinks = [];
             }
 
             for (var i = 0; i < cells.Count; i += 3)

@@ -1,9 +1,14 @@
 ﻿using System.Net;
+
 using AutoMapper;
+
 using DanceLibrary;
+
 using m4d.Services;
 using m4d.ViewModels;
+
 using m4dModels;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -110,7 +115,7 @@ public class DanceController : ContentController
                 $"A description of the competition dance category {category.CurrentCategoryName} along with tempo ranges and song lists.",
                 "competition-category",
                 category,
-                danceEnvironment:true,
+                danceEnvironment: true,
                 helpPage: "dance-category"
                 );
         }

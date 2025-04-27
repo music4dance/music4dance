@@ -1,15 +1,19 @@
-﻿using m4d.ViewModels;
+﻿using m4d.Services;
+using m4d.Utilities;
+using m4d.ViewModels;
+
 using m4dModels;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Stripe;
-using Stripe.Checkout;
 using Microsoft.Extensions.FileProviders;
-using m4d.Utilities;
+using Microsoft.FeatureManagement;
+
 using Owl.reCAPTCHA;
 using Owl.reCAPTCHA.v2;
-using m4d.Services;
-using Microsoft.FeatureManagement;
+
+using Stripe;
+using Stripe.Checkout;
 
 namespace m4d.Controllers;
 
@@ -35,7 +39,7 @@ public class PaymentController : CommerceController
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateCheckoutSession(decimal amount, PurchaseKind kind, string recaptchaToken=null)
+    public async Task<IActionResult> CreateCheckoutSession(decimal amount, PurchaseKind kind, string recaptchaToken = null)
     {
         HelpPage = "subscriptions";
         ViewBag.HideAds = true;
@@ -142,7 +146,7 @@ public class PaymentController : CommerceController
             .Replace("%7B", "{").Replace("%7D", "}");
     }
 
-    private static HashSet<string> _completedSessions = new ();
+    private static readonly HashSet<string> _completedSessions = [];
 
     public async Task<IActionResult> Success([FromServices] SignInManager<ApplicationUser> signInManager, string session_id)
     {

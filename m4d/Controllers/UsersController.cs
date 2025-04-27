@@ -1,7 +1,10 @@
 ﻿using System.Net;
+
 using m4d.Services;
 using m4d.ViewModels;
+
 using m4dModels;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.FileProviders;
@@ -9,19 +12,14 @@ using Microsoft.FeatureManagement;
 
 namespace m4d.Controllers;
 
-public class UsersController : DanceMusicController
+public class UsersController(
+    DanceMusicContext context, UserManager<ApplicationUser> userManager,
+    ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+    IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
+    IFeatureManager featureManager, ILogger<ActivityLogController> logger) : DanceMusicController(context, userManager, searchService, danceStatsManager, configuration,
+        fileProvider, backroundTaskQueue, featureManager, logger)
 {
-    private static readonly Dictionary<string, UserProfile> s_userCache = new();
-
-    public UsersController(
-        DanceMusicContext context, UserManager<ApplicationUser> userManager,
-        ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-        IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-        IFeatureManager featureManager, ILogger<ActivityLogController> logger) :
-        base(context, userManager, searchService, danceStatsManager, configuration,
-            fileProvider, backroundTaskQueue, featureManager, logger)
-    {
-    }
+    private static readonly Dictionary<string, UserProfile> s_userCache = [];
 
     // GET: Users/Info/username
     public async Task<IActionResult> Info(string id)
@@ -56,9 +54,9 @@ public class UsersController : DanceMusicController
             s_userCache[id] = profile;
         }
 
-        return Vue3($"Info for {id}", 
-            $"Favorites and song lists for {id}", 
-            "user-info", 
+        return Vue3($"Info for {id}",
+            $"Favorites and song lists for {id}",
+            "user-info",
             profile, "account-management");
     }
 

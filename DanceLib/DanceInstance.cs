@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+
 using Newtonsoft.Json;
 
 namespace DanceLibrary;
@@ -14,7 +15,7 @@ public class DanceInstance : DanceObject
     {
         Style = style;
         TempoRange = tempoRange;
-        Exceptions = exceptions == null ? [] : new List<DanceException>(exceptions);
+        Exceptions = exceptions == null ? [] : [.. exceptions];
         foreach (var de in Exceptions)
         {
             de.DanceInstance = this;
@@ -64,7 +65,7 @@ public class DanceInstance : DanceObject
     {
         get
         {
-            var words = Style.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            var words = Style.Split([' '], StringSplitOptions.RemoveEmptyEntries);
             Debug.Assert(words.Length > 0);
             return words[0];
         }

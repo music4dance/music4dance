@@ -1,21 +1,15 @@
 ﻿using m4dModels;
+
 using Microsoft.AspNetCore.Identity;
 
 namespace m4d.Services;
 
-public class DanceStatsHostedService : IHostedService
+public class DanceStatsHostedService(IServiceProvider serviceProvider) : IHostedService
 {
-    private readonly IServiceProvider _serviceProvider;
-
-    public DanceStatsHostedService(IServiceProvider serviceProvider)
-    {
-        _serviceProvider = serviceProvider;
-    }
-
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         // Create a new scope to retrieve scoped services
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = serviceProvider.CreateScope();
 
         var context = scope.ServiceProvider.GetRequiredService<DanceMusicContext>();
         var userManager =

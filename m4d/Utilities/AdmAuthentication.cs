@@ -1,15 +1,16 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 using System.Security.Principal;
 using System.Text;
+
 using m4dModels;
+
 using Microsoft.AspNetCore.Authentication;
+
 using Newtonsoft.Json;
 
 namespace m4d.Utilities;
 
 [DataContract]
-[SuppressMessage("ReSharper", "InconsistentNaming")]
 public class AccessToken
 {
     [DataMember]
@@ -43,12 +44,8 @@ public abstract class CoreAuthentication
     public string ClientSecret { get; }
 }
 
-public abstract class AdmAuthentication : CoreAuthentication, IDisposable
+public abstract class AdmAuthentication(IConfiguration configuration) : CoreAuthentication(configuration), IDisposable
 {
-    protected AdmAuthentication(IConfiguration configuration) : base(configuration)
-    {
-    }
-
     protected abstract string RequestBody { get; }
     protected virtual string RequestExtra => string.Empty;
     protected abstract string RequestUrl { get; }
@@ -273,5 +270,5 @@ public abstract class AdmAuthentication : CoreAuthentication, IDisposable
 
     private static AdmAuthentication s_spotify;
 
-    private static readonly Dictionary<string, AdmAuthentication> s_users = new();
+    private static readonly Dictionary<string, AdmAuthentication> s_users = [];
 }

@@ -1,7 +1,10 @@
 ﻿using System.Net;
+
 using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
+
 using m4dModels;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Azure;
@@ -10,19 +13,13 @@ namespace m4d.APIControllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class SearchController : DanceMusicApiController
+public class SearchController(
+    DanceMusicContext context, UserManager<ApplicationUser> userManager,
+    ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+    IConfiguration configuration, ILogger<SearchController> logger,
+    IAzureClientFactory<SearchClient> searchFactory) : DanceMusicApiController(context, userManager, searchService, danceStatsManager, configuration, logger)
 {
-    private readonly SearchClient _client;
-
-    public SearchController(
-        DanceMusicContext context, UserManager<ApplicationUser> userManager,
-        ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-        IConfiguration configuration, ILogger<SearchController> logger,
-        IAzureClientFactory<SearchClient> searchFactory) :
-        base(context, userManager, searchService, danceStatsManager, configuration, logger)
-    {
-        _client = searchFactory.CreateClient("PageIndex");
-    }
+    private readonly SearchClient _client = searchFactory.CreateClient("PageIndex");
 
     [HttpGet]
     public async Task<IActionResult> Get(string search)
@@ -50,7 +47,6 @@ public class SearchController : DanceMusicApiController
 
         var response = await _client.SearchAsync<PageSearch>(search, parameters);
 
-        return response.Value.GetResults().Select(r => r.Document)
-            .Select(p => p.GetDecoded()).ToList();
+        return [.. response.Value.GetResults().Select(r => r.Document).Select(p => p.GetDecoded())];
     }
 }

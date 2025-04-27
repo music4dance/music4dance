@@ -1,5 +1,7 @@
 ﻿using m4d.Utilities;
+
 using m4dModels;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,19 +15,15 @@ namespace m4d.APIControllers;
 //}
 [ApiController]
 [Route("api/[controller]")]
-public class RecomputeController : DanceMusicApiController
+public class RecomputeController(
+    DanceMusicContext context, UserManager<ApplicationUser> userManager,
+    ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+    IConfiguration configuration, ILogger<RecomputeController> logger) : DanceMusicApiController(context, userManager, searchService, danceStatsManager, configuration, logger)
 {
-    public RecomputeController(
-        DanceMusicContext context, UserManager<ApplicationUser> userManager,
-        ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-        IConfiguration configuration, ILogger<RecomputeController> logger) :
-        base(context, userManager, searchService, danceStatsManager, configuration, logger)
-    {
-    }
 
     // id should be the type to update - currently songstats, propertycleanup
     [HttpGet("{id}")]
-    public async Task<IActionResult> Get([FromServices]IServiceScopeFactory serviceScopeFactory, string id)
+    public async Task<IActionResult> Get([FromServices] IServiceScopeFactory serviceScopeFactory, string id)
     {
         if (!TokenRequirement.Authorize(Request, Configuration))
         {

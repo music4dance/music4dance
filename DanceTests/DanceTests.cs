@@ -1,13 +1,14 @@
-﻿using DanceLibrary;
-using DanceLibrary.Tests;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace DanceTests
+using DanceLibrary;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace DanceLibrary.Tests
 {
     [TestClass]
-    public class DanceTests :DanceTestBase
+    public class DanceTests : DanceTestBase
     {
         [TestInitialize]
         public async Task Initialize()
@@ -18,7 +19,7 @@ namespace DanceTests
         // TODO: Figure out how to use the same test data that we're using
         // in the typescript tests.
         private readonly string[] _206Default =
-        {
+        [
             "Quickstep: Style=(International Standard), Delta=()",
             "Salsa: Style=(American Rhythm, Social), Delta=()",
             "Charleston: Style=(Social), Delta=()",
@@ -27,10 +28,10 @@ namespace DanceTests
             "Balboa: Style=(Social), Delta=()",
             "Collegiate Shag: Style=(Social), Delta=(+1.50MPM)",
             "Mambo: Style=(American Rhythm), Delta=(+4.50MPM)",
-        };
+        ];
 
         private readonly string[] _206NoAR =
-        {
+        [
             "Quickstep: Style=(International Standard), Delta=()",
             "Salsa: Style=(Social), Delta=()",
             "Charleston: Style=(Social), Delta=()",
@@ -38,40 +39,40 @@ namespace DanceTests
             "Jump Swing: Style=(Social), Delta=()",
             "Balboa: Style=(Social), Delta=()",
             "Collegiate Shag: Style=(Social), Delta=(+1.50MPM)"
-        };
+        ];
 
         private readonly string[] _206JustAR =
-        {
+        [
             "Salsa: Style=(American Rhythm), Delta=(+1.50MPM)",
             "Mambo: Style=(American Rhythm), Delta=(+4.50MPM)",
-        };
+        ];
 
         private readonly string[] _126DS =
-        {
+        [
             "Slow Foxtrot: Style=(American Smooth, International Standard), Delta=()",
             "Tango (Ballroom): Style=(American Smooth, International Standard), Delta=()",
             "Cha Cha: Style=(American Rhythm, International Latin), Delta=()",
             "Rumba: Style=(American Rhythm, International Latin), Delta=(+0.50MPM)",
             "East Coast Swing: Style=(American Rhythm), Delta=(-2.50MPM)",
-        };
+        ];
 
         private readonly string[] _126NDCA =
-        {
+        [
             "Tango (Ballroom): Style=(American Smooth, International Standard), Delta=()",
             "West Coast Swing: Style=(American Rhythm, Social), Delta=()",
             "Cha Cha: Style=(American Rhythm, International Latin), Delta=(+0.50MPM)",
             "Rumba: Style=(American Rhythm, International Latin), Delta=(+0.50MPM)",
             "Slow Foxtrot: Style=(American Smooth, International Standard), Delta=(+1.50MPM)",
             "Hustle: Style=(American Rhythm), Delta=(+1.50MPM)",
-        };
+        ];
 
         private readonly string[] _Waltz =
-        {
+        [
             "Slow Waltz: Style=(American Smooth, International Standard), Delta=(+1.50MPM)",
             "Cross-step Waltz: Style=(Social), Delta=(-4.50MPM)",
-        };
+        ];
 
-        private readonly string[] _NullDances = { };
+        private readonly string[] _NullDances = [];
 
         private void CompareDanceOrder(DanceFilter filter, Tempo tempo, decimal epsilon, string[] expected)
         {
@@ -105,7 +106,7 @@ namespace DanceTests
 
             if (expected != null)
             {
-                Assert.AreEqual<int>(
+                Assert.AreEqual(
                     i, expected.Length,
                     "Less than the expected number of matches");
             }
@@ -118,7 +119,7 @@ namespace DanceTests
         [TestMethod]
         public void DanceFilterTest206Default()
         {
-            CompareDanceOrder(new DanceFilter(meter: new Meter(4, 4)),new Tempo(206M), 10, _206Default);
+            CompareDanceOrder(new DanceFilter(meter: new Meter(4, 4)), new Tempo(206M), 10, _206Default);
         }
 
         [TestMethod]

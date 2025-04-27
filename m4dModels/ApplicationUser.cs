@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using Microsoft.AspNetCore.Identity;
 
 namespace m4dModels
@@ -192,11 +193,11 @@ namespace m4dModels
         }
 
         public static string[] ContactStrings { get; } =
-        {
+        [
             @"I would be interested in participating in email or surveys to help improve music4dance including the <a href=""https://music4dance.blog"">music4dance blog</a>",
             @"I am interested in occasional promotional emails from music4dance partners",
             @"I am interested in occasional promotional emails from music4dance"
-        };
+        ];
 
         private const string PrivacyMessage = "{0} allow other members to see my profile.";
 

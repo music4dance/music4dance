@@ -1,4 +1,5 @@
 ﻿using System.Text;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,7 +9,7 @@ namespace m4d.Utilities;
 public class TokenRequirement : AuthorizationHandler<TokenRequirement>,
     IAuthorizationRequirement
 {
-    public TokenRequirement([FromServices]IConfiguration configuration)
+    public TokenRequirement([FromServices] IConfiguration configuration)
     {
         if (configuration != null)
         {
@@ -45,7 +46,7 @@ public class TokenRequirement : AuthorizationHandler<TokenRequirement>,
     private static bool Authorize(string authenticationHeader)
     {
         var parts =
-            authenticationHeader?.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            authenticationHeader?.Split([' '], StringSplitOptions.RemoveEmptyEntries);
 
         if (parts?.Length != 2)
         {
@@ -58,10 +59,7 @@ public class TokenRequirement : AuthorizationHandler<TokenRequirement>,
 
     private static void SetSecurityToken(IConfiguration configuration)
     {
-        if (s_securityToken == null)
-        {
-            s_securityToken = configuration["Authentication:RecomputeJob:Key"];
-        }
+        s_securityToken ??= configuration["Authentication:RecomputeJob:Key"];
     }
 
     private static string s_securityToken;

@@ -13,7 +13,7 @@ namespace m4dModels
         private bool Parse(string s)
         {
             var ret = true;
-            var list = s.Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            var list = s.Split([':'], StringSplitOptions.RemoveEmptyEntries).ToList();
             var c = 1;
 
             if (list.Count < 1 || list.Count > 3)

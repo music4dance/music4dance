@@ -175,7 +175,7 @@ namespace m4dModels
                         // decimal
                         if (!string.IsNullOrEmpty(Value))
                         {
-                            decimal.TryParse(Value, out var v);
+                            _ = decimal.TryParse(Value, out var v);
                             ret = v;
                         }
 
@@ -186,7 +186,7 @@ namespace m4dModels
                         // float
                         if (!string.IsNullOrEmpty(Value))
                         {
-                            float.TryParse(Value, out var v);
+                            _ = float.TryParse(Value, out var v);
                             ret = v;
                         }
 
@@ -197,34 +197,34 @@ namespace m4dModels
                         //int
                         if (!string.IsNullOrEmpty(Value))
                         {
-                            int.TryParse(Value, out var v);
+                            _ = int.TryParse(Value, out var v);
                             ret = v;
                         }
 
                         break;
                     case Song.TimeField:
-                    {
-                        DateTime.TryParse(Value, out var v);
-                        ret = v;
-                    }
+                        {
+                            _ = DateTime.TryParse(Value, out var v);
+                            ret = v;
+                        }
                         break;
                     case Song.OwnerHash:
-                    {
-                        if (int.TryParse(
-                            Value, NumberStyles.HexNumber, CultureInfo.CurrentCulture,
-                            out var hash))
                         {
-                            ret = hash;
+                            if (int.TryParse(
+                                Value, NumberStyles.HexNumber, CultureInfo.CurrentCulture,
+                                out var hash))
+                            {
+                                ret = hash;
+                            }
                         }
-                    }
                         break;
                     case Song.LikeTag:
-                    {
-                        if (bool.TryParse(Value, out var like))
                         {
-                            ret = like;
+                            if (bool.TryParse(Value, out var like))
+                            {
+                                ret = like;
+                            }
                         }
-                    }
                         break;
                     default:
                         ret = Value;
@@ -248,7 +248,7 @@ namespace m4dModels
 
         public static bool IsActionName(string name)
         {
-            return name.StartsWith(".");
+            return name.StartsWith('.');
         }
 
         public string BaseName => ParseBaseName(Name);
@@ -279,7 +279,7 @@ namespace m4dModels
 
                 var p = sp.ToString().Replace("\t", "\u001aT").Replace("\r\n", "\u001aR");
 
-                sb.AppendFormat("{0}{1}", sep, p);
+                _ = sb.AppendFormat("{0}{1}", sep, p);
 
                 sep = SerializationSeparator(options);
             }
@@ -311,16 +311,16 @@ namespace m4dModels
 
                 if (idx != -1)
                 {
-                    var p = cell.Substring(idx+1);
-                    if (p.Contains("\u001a"))
+                    var p = cell[(idx + 1)..];
+                    if (p.Contains('\u001a'))
                     {
                         p = p.Replace("\u001aT", "\t").Replace("\u001aR", "\r\n");
                     }
 
-                    var name = cell.Substring(0, idx);
+                    var name = cell[..idx];
                     properties.Add(new SongProperty(name, p));
                 }
-                else if (cell.StartsWith("."))
+                else if (cell.StartsWith('.'))
                 {
                     properties.Add(new SongProperty(cell));
                 }

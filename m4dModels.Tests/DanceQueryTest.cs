@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace m4dModels.Tests
@@ -21,7 +22,7 @@ namespace m4dModels.Tests
 
             q = new DanceQuery("AND,FXT,SWG");
             Assert.AreEqual("AND,FXT,SWG", q.Query);
-            Assert.IsFalse(!q.IsExclusive);
+            Assert.IsTrue(q.IsExclusive);
             Assert.AreEqual(2, q.Dances.Count());
             Assert.IsTrue(q.HasDance("fxt"));
             Assert.IsFalse(q.HasDance("BOL"));

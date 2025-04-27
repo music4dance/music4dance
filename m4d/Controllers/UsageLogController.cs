@@ -1,5 +1,7 @@
 ﻿using m4d.Services;
+
 using m4dModels;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -33,13 +35,13 @@ public class UsageLogController : DanceMusicController
     public IActionResult Index()
     {
         var model = s_model ?? new UsageModel
-            {
-                Summaries = Context.Database.SqlQuery< UsageSummary>(
+        {
+            Summaries = [.. Context.Database.SqlQuery<UsageSummary>(
                     $"""
                         SELECT [UsageId], MAX([UserName]) as UserName, MIN([Date]) as MinDate, MAX([Date]) as MaxDate, COUNT(*) as Hits FROM dbo.UsageLog GROUP BY [UsageId] HAVING COUNT(*) > 5 ORDER BY Hits DESC
-                    """).ToList(),
-                LastUpdate = DateTime.Now,
-            };
+                    """)],
+            LastUpdate = DateTime.Now,
+        };
         s_model = model;
 
         return View(model);

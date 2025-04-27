@@ -18,7 +18,7 @@ namespace m4dModels
 
         public TagAccumulator()
         {
-            Tags = new Dictionary<string, int>();
+            Tags = [];
         }
 
         public TagAccumulator(string summary) : this()

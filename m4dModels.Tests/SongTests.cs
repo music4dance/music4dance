@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace m4dModels.Tests
@@ -61,7 +61,7 @@ namespace m4dModels.Tests
 
 
         private static readonly string[] Titles =
-        {
+        [
             "ñ-é á",
             "Señor  Bolero",
             "Viaje Tiemp  Atrás",
@@ -78,10 +78,10 @@ namespace m4dModels.Tests
             "Satisfaction [I Can't Get] (No)",
             "Satisfaction [I Can't Get (No)]",
             "Can't [get] [no (satisfaction)] for's real"
-        };
+        ];
 
         private static readonly string[] Normal =
-        {
+        [
             "NE",
             "SENORBOLERO",
             "VIAJETIEMPATRAS",
@@ -98,10 +98,10 @@ namespace m4dModels.Tests
             "SATISFACTION",
             "SATISFACTION",
             "CANTFORSREAL"
-        };
+        ];
 
         private static readonly string[] Clean =
-        {
+        [
             "ñ é á",
             "Señor Bolero",
             "Viaje Tiemp Atrás",
@@ -118,10 +118,10 @@ namespace m4dModels.Tests
             "Satisfaction",
             "Satisfaction",
             "Can't for's real"
-        };
+        ];
 
         private static readonly int[] Hashes =
-        {
+        [
             2068167486,
             -71943789,
             -325959402,
@@ -135,7 +135,7 @@ namespace m4dModels.Tests
             530400665,
             1254262541,
             -1185765647
-        };
+        ];
 
         private static async Task<DanceMusicCoreService> GetService() =>
             await DanceMusicTester.CreateServiceWithUsers("Song");
@@ -213,25 +213,25 @@ namespace m4dModels.Tests
             var song = new Song();
             await song.Load(@"User=batch	Title=Test	Artist=Me	Tempo=30.0", await GetService());
 
-            song.UpdateDanceRatings(new[] { "RMB", "CHA" }, 5);
-            song.UpdateDanceRatings(new[] { "FXT" }, 7);
+            song.UpdateDanceRatings(["RMB", "CHA"], 5);
+            song.UpdateDanceRatings(["FXT"], 7);
 
             // TESTTODO: Figure out if we need to do the user part of this
             //Create an test an initial small list of dance ratings
             //const string user = "dwgray";
-            Assert.IsTrue(song.DanceRatings.Count == 3);
+            Assert.AreEqual(3, song.DanceRatings.Count);
 
             // Now mix it up a bit
 
-            song.UpdateDanceRatings(new[] { "RMB", "FXT" }, 3);
-            Assert.IsTrue(song.DanceRatings.Count == 3);
+            song.UpdateDanceRatings(["RMB", "FXT"], 3);
+            Assert.AreEqual(3, song.DanceRatings.Count);
             var drT = song.FindRating("RMB");
-            Assert.IsTrue(drT.Weight == 8);
+            Assert.AreEqual(8, drT.Weight);
 
-            song.UpdateDanceRatings(new[] { "CHA", "FXT" }, -5);
-            Assert.IsTrue(song.DanceRatings.Count == 2);
+            song.UpdateDanceRatings(["CHA", "FXT"], -5);
+            Assert.AreEqual(2, song.DanceRatings.Count);
             drT = song.FindRating("FXT");
-            Assert.IsTrue(drT.Weight == 5);
+            Assert.AreEqual(5, drT.Weight);
         }
 
         [TestMethod]
@@ -287,7 +287,7 @@ namespace m4dModels.Tests
                 track, "WCS", "Testing:Other|Crazy:Music",
                 "Dances:Style|Mellow:Tempo");
 
-            var actual = DanceMusicTester.ReplaceTime(song.Serialize(new[] { Song.NoSongId }));
+            var actual = DanceMusicTester.ReplaceTime(song.Serialize([Song.NoSongId]));
             //Trace.WriteLine(actual);
 
             const string expected =
@@ -367,9 +367,7 @@ namespace m4dModels.Tests
             Assert.AreEqual(1, song.DanceRatings.Count(dr => dr.DanceId == "NTN"));
             Assert.AreEqual(0, song.DanceRatings.Count(dr => dr.DanceId == "TNG"));
             Assert.IsTrue(song.SongProperties.Exists(p => p.Name == "Tag+:NTN"));
-            Assert.AreEqual(
-                song.SongProperties.Find(p => p.Name == "Tag+:NTN")?.Value,
-                "Gleb:Other|Jana:Other");
+            Assert.AreEqual("Gleb:Other|Jana:Other", song.SongProperties.Find(p => p.Name == "Tag+:NTN")?.Value);
         }
 
         [TestMethod]
@@ -378,7 +376,7 @@ namespace m4dModels.Tests
             var modifier = SongModifier.Build(
                 @"{ExcludeUsers:null,Properties:[{Name:'DanceRating',Value:'ATN',Replace:'TGV'}]}");
 
-            Assert.AreEqual(modifier.Properties.Count, 3);
+            Assert.AreEqual(3, modifier.Properties.Count);
             Assert.IsTrue(modifier.Properties.Exists(p => p.Name == "Tag+:ATN"));
             Assert.IsTrue(modifier.Properties.Exists(p => p.Name == "Tag-:ATN"));
         }
@@ -484,7 +482,7 @@ namespace m4dModels.Tests
                 song.TagSummary.ToString());
         }
 
-        const string UndoSong = @".Create=	User=dgsnure|P	Time=03/30/2019 09:01:27	Title=all the good girls go to hell	Artist=Billie Eilish	Length=169	Album:00=WHEN WE ALL FALL ASLEEP, WHERE DO WE GO?	Track:00=5	Tag+=Cha Cha:Dance	DanceRating=CHA+1	.Edit=	User=SabrinaSkandy|P	Time=01/26/2022 03:34:57	Tag+=West Coast Swing:Dance	DanceRating=WCS+1	.Edit=	User=Charlie	Time=11-Sep-2023 07:26:08 PM	Like=true	.Edit=	User=JuliaS	Time=17-May-2024 03:09:42 PM	Like=true	.Edit=	User=Charlie	Time=15-Aug-2024 08:47:03 AM	DanceRating=CHA+1	Tag+=Cha Cha:Dance	Comment+:WCS=I real swing out to this one.";
+        private const string UndoSong = @".Create=	User=dgsnure|P	Time=03/30/2019 09:01:27	Title=all the good girls go to hell	Artist=Billie Eilish	Length=169	Album:00=WHEN WE ALL FALL ASLEEP, WHERE DO WE GO?	Track:00=5	Tag+=Cha Cha:Dance	DanceRating=CHA+1	.Edit=	User=SabrinaSkandy|P	Time=01/26/2022 03:34:57	Tag+=West Coast Swing:Dance	DanceRating=WCS+1	.Edit=	User=Charlie	Time=11-Sep-2023 07:26:08 PM	Like=true	.Edit=	User=JuliaS	Time=17-May-2024 03:09:42 PM	Like=true	.Edit=	User=Charlie	Time=15-Aug-2024 08:47:03 AM	DanceRating=CHA+1	Tag+=Cha Cha:Dance	Comment+:WCS=I real swing out to this one.";
 
         [TestMethod]
         public async Task UndoUser()

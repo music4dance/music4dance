@@ -1,4 +1,5 @@
 ﻿using m4dModels;
+
 using Microsoft.AspNetCore.Identity;
 
 namespace m4d.Utilities;
@@ -11,7 +12,7 @@ public static class UserMapper
     private static readonly Dictionary<string, UserInfo> s_cachedIds =
         new(StringComparer.OrdinalIgnoreCase);
 
-    private static SemaphoreSlim s_semaphore = new SemaphoreSlim(1, 1);
+    private static readonly SemaphoreSlim s_semaphore = new(1, 1);
 
     private static DateTime CacheTime { get; set; }
 
@@ -27,9 +28,9 @@ public static class UserMapper
     {
         var dict = await GetUserNameDictionary(userManager);
 
-        return dict.Values.Where(u => 
+        return [.. dict.Values.Where(u =>
             u.Roles.Contains(DanceMusicCoreService.PremiumRole) ||
-            u.User.LifetimePurchased > 0).ToList();
+            u.User.LifetimePurchased > 0)];
     }
 
     public static async Task<IReadOnlyDictionary<string, UserInfo>> GetUserIdDictionary(
@@ -118,7 +119,7 @@ public static class UserMapper
         return new()
         {
             Id = history.Id,
-            Properties = history.Properties.Select(
+            Properties = [.. history.Properties.Select(
                 p => p.Name == Song.UserField
                     ? new SongPropertySparse
                     {
@@ -126,7 +127,7 @@ public static class UserMapper
                         Value = transform(p.Value)
                     }
                     : p
-            ).ToList(),
+            )],
         };
     }
 
@@ -180,8 +181,8 @@ public static class UserMapper
             var userInfo = new UserInfo
             {
                 User = user,
-                Roles = roles.ToList(),
-                Logins = logins.Select(l => l.LoginProvider).ToList()
+                Roles = [.. roles],
+                Logins = [.. logins.Select(l => l.LoginProvider)]
             };
 
             s_cachedUsers.Add(user.UserName, userInfo);

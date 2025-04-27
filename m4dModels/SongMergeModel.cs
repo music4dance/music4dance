@@ -4,15 +4,9 @@ using System.Linq;
 
 namespace m4dModels
 {
-    public class SongMergeModel
+    public class SongMergeModel(IEnumerable<SongHistory> songs)
     {
-        public SongMergeModel(IEnumerable<SongHistory> songs)
-        {
-            SongId = Guid.NewGuid();
-            Songs = songs.ToList();
-        }
-
-        public Guid SongId { get; set; }
-        public List<SongHistory> Songs { get; set; }
+        public Guid SongId { get; set; } = Guid.NewGuid();
+        public List<SongHistory> Songs { get; set; } = [.. songs];
     }
 }

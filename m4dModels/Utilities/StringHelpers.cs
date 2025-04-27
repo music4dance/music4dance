@@ -1,21 +1,22 @@
 ﻿using System.Linq;
-using System;
 using System.Text.RegularExpressions;
 
 namespace m4dModels.Utilities
 {
-    public static class StringHelpers
+    public static partial class StringHelpers
     {
         // Trim whitespace from beginning and end and collate internal whitespace into single spaces
         public static string CleanWhitespace(this string str)
         {
-            return SingleSpacify.Replace(str.Trim(), " ");
+            return SingleSpacify().Replace(str.Trim(), " ");
         }
 
-        private static readonly Regex SingleSpacify = new Regex("\\s{2,}", RegexOptions.Compiled);
+        [GeneratedRegex("\\s{2,}", RegexOptions.Compiled)]
+        private static partial Regex SingleSpacify();
 
-        public static string CleanFilename(this string filename) {
-            return new string(filename.Except(System.IO.Path.GetInvalidFileNameChars()).ToArray());
+        public static string CleanFilename(this string filename)
+        { 
+            return new string([.. filename.Except(System.IO.Path.GetInvalidFileNameChars())]);
         }
     }
 }

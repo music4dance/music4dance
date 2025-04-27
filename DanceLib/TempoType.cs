@@ -1,4 +1,5 @@
 ﻿using System;
+
 using Newtonsoft.Json;
 
 namespace DanceLibrary
@@ -42,7 +43,7 @@ namespace DanceLibrary
             }
 
             s = s.Trim();
-            var fields = s.Split(new[] { ' ' });
+            var fields = s.Split([' ']);
             if (fields == null || fields.Length < 1)
             {
                 throw new ArgumentOutOfRangeException(TempoSyntaxError);

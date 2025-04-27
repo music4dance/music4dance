@@ -1,27 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace m4dModels
 {
-    public class DanceMusicService : DanceMusicCoreService
+    public class DanceMusicService(DanceMusicContext context,
+        UserManager<ApplicationUser> userManager,
+        ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+        SongIndex songIndex = null) : DanceMusicCoreService(
+        context, searchService, danceStatsManager, songIndex)
     {
-        public DanceMusicService(DanceMusicContext context,
-            UserManager<ApplicationUser> userManager,
-            ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-            SongIndex songIndex = null) : base(
-            context, searchService, danceStatsManager, songIndex)
-        {
-            UserManager = userManager;
-        }
-
-        public UserManager<ApplicationUser> UserManager { get; }
+        public UserManager<ApplicationUser> UserManager { get; } = userManager;
 
         #region Load
 
@@ -133,14 +128,14 @@ namespace m4dModels
                 if (extended)
                 {
                     email = cells[7];
-                    bool.TryParse(cells[8], out emailConfirmed);
-                    DateTime.TryParse(cells[9], out date);
+                    _ = bool.TryParse(cells[8], out emailConfirmed);
+                    _ = DateTime.TryParse(cells[9], out date);
                     region = cells[10];
-                    byte.TryParse(cells[11], out privacy);
-                    byte.TryParse(cells[12], out var canContactT);
+                    _ = byte.TryParse(cells[11], out privacy);
+                    _ = byte.TryParse(cells[12], out var canContactT);
                     canContact = (ContactStatus)canContactT;
                     servicePreference = cells[13];
-                    DateTime.TryParse(cells[14], out active);
+                    _ = DateTime.TryParse(cells[14], out active);
                     if (!string.IsNullOrWhiteSpace(cells[15]) &&
                         int.TryParse(cells[15], out var rcT))
                     {
@@ -174,7 +169,7 @@ namespace m4dModels
 
                     if (cells.Length >= 20)
                     {
-                        decimal.TryParse(cells[20], out lifeTimePurchased);
+                        _ = decimal.TryParse(cells[20], out lifeTimePurchased);
                     }
                 }
 
@@ -617,7 +612,7 @@ namespace m4dModels
                     // Spotify Playlist Id
                     id = cells[3];
 
-                    DateTime.TryParse(cells[4], out created);
+                    _ = DateTime.TryParse(cells[4], out created);
                     if (cells.Length > 5 && DateTime.TryParse(cells[5], out var mod))
                     {
                         modified = mod;
@@ -625,7 +620,7 @@ namespace m4dModels
 
                     if (cells.Length > 6)
                     {
-                        bool.TryParse(cells[6], out deleted);
+                        _ = bool.TryParse(cells[6], out deleted);
                     }
 
                     if (cells.Length > 7)
@@ -815,17 +810,17 @@ namespace m4dModels
         {
             var dances = DanceLibrary.Dances.Instance;
             foreach (var dance in from d in dances.AllDanceGroups
-                let dance = Context.Dances.Find(d.Id)
-                where dance == null
-                select new Dance { Id = d.Id })
+                                  let dance = Context.Dances.Find(d.Id)
+                                  where dance == null
+                                  select new Dance { Id = d.Id })
             {
                 Context.Dances.Add(dance);
             }
 
             foreach (var dance in from d in dances.AllDanceTypes
-                let dance = Context.Dances.Find(d.Id)
-                where dance == null
-                select new Dance { Id = d.Id })
+                                  let dance = Context.Dances.Find(d.Id)
+                                  where dance == null
+                                  select new Dance { Id = d.Id })
             {
                 Context.Dances.Add(dance);
             }
@@ -960,7 +955,6 @@ namespace m4dModels
             return songs;
         }
 
-        [SuppressMessage("ReSharper", "LoopCanBeConvertedToQuery")]
         public IList<string> SerializePlaylists(bool withHeader = true, DateTime? from = null)
         {
             if (!from.HasValue)
@@ -1115,7 +1109,7 @@ namespace m4dModels
             _roleCache.Add(key);
         }
 
-        private readonly HashSet<string> _roleCache = new();
+        private readonly HashSet<string> _roleCache = [];
 
         #endregion
     }

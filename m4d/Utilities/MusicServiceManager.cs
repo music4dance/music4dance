@@ -3,24 +3,24 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Security.Principal;
 using System.Text;
+
 using DanceLibrary;
+
 using m4dModels;
+
 using Microsoft.Extensions.FileProviders;
+
 using Newtonsoft.Json;
+
 using SixLabors.ImageSharp;
+
 using TagList = m4dModels.TagList;
 
 namespace m4d.Utilities;
 
-public class MusicServiceManager
+public class MusicServiceManager(IConfiguration configuration)
 {
-    // Obviously not the clean abstraction
-    public MusicServiceManager(IConfiguration configuration)
-    {
-        Configuration = configuration;
-    }
-
-    private IConfiguration Configuration { get; }
+    private IConfiguration Configuration { get; } = configuration;
 
     private static readonly ILogger Logger = ApplicationLogging.CreateLogger<MusicServiceManager>();
 
@@ -49,7 +49,7 @@ public class MusicServiceManager
     public async Task<bool> UpdateAudioData(DanceMusicCoreService dms, MusicService service, Song sd)
     {
         var changed = false;
-        if (service.Id == ServiceType.Spotify  && (sd.Tempo == null || sd.Danceability == null))
+        if (service.Id == ServiceType.Spotify && (sd.Tempo == null || sd.Danceability == null))
         {
             changed |= await GetEchoData(dms, sd);
         }
@@ -81,7 +81,7 @@ public class MusicServiceManager
         return found || sd.RecordFail(service);
     }
 
-    private async Task<bool> UpdateFromTracks(
+    private static async Task<bool> UpdateFromTracks(
         DanceMusicCoreService dms, Song sd, IList<ServiceTrack> tracks)
     {
         if (tracks.Count <= 0)
@@ -105,18 +105,18 @@ public class MusicServiceManager
 
         return await dms.SongIndex.EditSong(
             user, sd, edit,
-            new[] { new UserTag { Id = string.Empty, Tags = tags } });
+            [new UserTag { Id = string.Empty, Tags = tags }]);
     }
 
     public async Task<IList<ServiceTrack>> MatchSongAndService(Song sd, MusicService service)
     {
-        IList<ServiceTrack> found = new List<ServiceTrack>();
+        IList<ServiceTrack> found = [];
         var tracks = await FindMusicServiceSong(service, sd);
 
         // First try the full title/artist
         if ((tracks == null || tracks.Count == 0) &&
                 !string.Equals(DefaultServiceSearch(sd, true), DefaultServiceSearch(sd, false)))
-            // Now try cleaned up title/artist (remove punctuation and stuff in parens/brackets)
+        // Now try cleaned up title/artist (remove punctuation and stuff in parens/brackets)
         {
             tracks = await FindMusicServiceSong(service, sd);
         }
@@ -249,7 +249,7 @@ public class MusicServiceManager
         {
             // Otherwise just add an album
             ad = new AlbumDetails
-                { Name = album, Track = trackNum, Index = song.GetNextAlbumIndex() };
+            { Name = album, Track = trackNum, Index = song.GetNextAlbumIndex() };
             //song.Albums.Insert(0, ad);
             song.Albums.Add(ad);
         }
@@ -330,15 +330,9 @@ public class MusicServiceManager
             title ??= song.Title;
         }
 
-        if (title == null)
-        {
-            throw new ArgumentNullException(nameof(title));
-        }
+        ArgumentNullException.ThrowIfNull(title);
 
-        if (artist == null)
-        {
-            throw new ArgumentNullException(nameof(artist));
-        }
+        ArgumentNullException.ThrowIfNull(artist);
 
         if (service != null)
         {
@@ -383,7 +377,7 @@ public class MusicServiceManager
         var extra = id.IndexOf('[');
         if (extra != -1)
         {
-            id = id.Substring(0, extra);
+            id = id[..extra];
         }
 
         var sid = $"\"{service.CID}:{id}\"";
@@ -438,7 +432,7 @@ public class MusicServiceManager
         }
 
         await UpdateSongAndServices(dms, song);
-        await UpdateFromTracks(dms, song, new List<ServiceTrack> { track });
+        await UpdateFromTracks(dms, song, [track]);
         await UpdateAudioData(dms, service, song);
 
         if (found)
@@ -449,7 +443,7 @@ public class MusicServiceManager
         return song;
     }
 
-    private static readonly Dictionary<string, ServiceTrack> s_trackCache = new();
+    private static readonly Dictionary<string, ServiceTrack> s_trackCache = [];
 
     public async Task<GenericPlaylist> LookupPlaylist(MusicService service, string url,
         IEnumerable<string> oldTrackList = null, IPrincipal principal = null)
@@ -473,7 +467,7 @@ public class MusicServiceManager
             oldTrackList);
         while ((results = await NextMusicServiceResults(results, service, principal)) != null)
         {
-            var t = tracks as List<ServiceTrack> ?? tracks.ToList();
+            var t = tracks as List<ServiceTrack> ?? [.. tracks];
             t.AddRange(
                 await service.ParseSearchResults(
                     results,
@@ -512,7 +506,7 @@ public class MusicServiceManager
     }
 
     // TODO: Handle services other than spotify
-        public async Task<List<PlaylistMetadata>> GetPlaylists(MusicService service, IPrincipal principal)
+    public async Task<List<PlaylistMetadata>> GetPlaylists(MusicService service, IPrincipal principal)
     {
         if (service.Id != ServiceType.Spotify)
         {
@@ -527,7 +521,7 @@ public class MusicServiceManager
 
         if (results == null)
         {
-            return new List<PlaylistMetadata>();
+            return [];
         }
 
         var playlists = ParsePlaylistResults(results);
@@ -634,7 +628,7 @@ public class MusicServiceManager
     public virtual async Task<EchoTrack> LookupEchoTrack(string id, MusicService service)
     {
         var request =
-            $"https://api.spotify.com/v1/audio-features/{id}"; 
+            $"https://api.spotify.com/v1/audio-features/{id}";
         try
         {
             var results = await GetMusicServiceResults(request, service);
@@ -662,9 +656,9 @@ public class MusicServiceManager
                 var results = await GetMusicServiceResults(request, service);
                 var audio = results.audio_features;
 
-                for (var j = 0; j < int.Min(chunkSize, c-i); j++)
+                for (var j = 0; j < int.Min(chunkSize, c - i); j++)
                 {
-                    var track = playlist.Tracks[i+j];
+                    var track = playlist.Tracks[i + j];
                     var echoTrack = audio[j];
                     track.AudioData = EchoTrack.BuildEchoTrack(echoTrack);
                 }
@@ -732,10 +726,10 @@ public class MusicServiceManager
         }
 
         if (!await dms.SongIndex.EditSong(
-            user, song, edit, new[]
-            {
+            user, song, edit,
+            [
                 new UserTag { Id = string.Empty, Tags = tags }
-            }))
+            ]))
         {
             return false;
         }
@@ -818,11 +812,7 @@ public class MusicServiceManager
 
     private string GetEncodedImage(IFileProvider fileProvider, string path)
     {
-        var fullPath = fileProvider.GetFileInfo(path).PhysicalPath;
-        if (fullPath == null)
-        {
-            throw new ArgumentException($"Invalid path name: {path}", nameof(path));
-        }
+        var fullPath = fileProvider.GetFileInfo(path).PhysicalPath ?? throw new ArgumentException($"Invalid path name: {path}", nameof(path));
         using var image = Image.Load(fullPath);
         using var m = new MemoryStream();
         image.Save(m, image.Metadata.DecodedImageFormat);
@@ -850,9 +840,7 @@ public class MusicServiceManager
 
     private static IList<ServiceTrack> FilterKaraoke(IList<ServiceTrack> list)
     {
-        return list
-            .Where(track => !ContainsKaraoke(track.Name) && !ContainsKaraoke(track.Album))
-            .ToList();
+        return [.. list.Where(track => !ContainsKaraoke(track.Name) && !ContainsKaraoke(track.Album))];
     }
 
     private static bool ContainsKaraoke(string name)
@@ -865,7 +853,7 @@ public class MusicServiceManager
         var exclude = new[] { "karaoke", "in the style of", "a tribute to" };
         return exclude.Any(
             s =>
-                name.IndexOf(s, StringComparison.InvariantCultureIgnoreCase) != -1);
+                name.Contains(s, StringComparison.InvariantCultureIgnoreCase));
     }
 
     private async Task<IList<ServiceTrack>> DoFindMusicServiceSong(MusicService service,
@@ -919,13 +907,14 @@ public class MusicServiceManager
         {
             Logger.LogError(e,
                 $"Hard failure searching for {title} by {artist} on {service.Name}: {e.Message}");
-            return new List<ServiceTrack>();
+            return [];
         }
     }
 
     private static int GetRateInfo(HttpResponseHeaders headers, string type)
     {
-        if (!headers.TryGetValues(type, out var values)) {
+        if (!headers.TryGetValues(type, out var values))
+        {
             return -1;
         }
 

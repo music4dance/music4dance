@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace m4dModels;
 
-public partial class DanceMusicCoreService : IDisposable
+public partial class DanceMusicCoreService(DanceMusicContext context, ISearchServiceManager searchService,
+    IDanceStatsManager danceStatsManager, SongIndex songIndex = null) : IDisposable
 {
     #region Logging
 
@@ -41,15 +43,6 @@ public partial class DanceMusicCoreService : IDisposable
             DanceStatsManager);
     }
 
-    public DanceMusicCoreService(DanceMusicContext context, ISearchServiceManager searchService,
-        IDanceStatsManager danceStatsManager, SongIndex songIndex = null)
-    {
-        Context = context;
-        SearchService = searchService;
-        DanceStatsManager = danceStatsManager;
-        _songSearch = songIndex;
-    }
-
     public void Dispose()
     {
         var temp = Context;
@@ -61,18 +54,18 @@ public partial class DanceMusicCoreService : IDisposable
 
     #region Properties
 
-    public DanceMusicContext Context { get; private set; }
+    public DanceMusicContext Context { get; private set; } = context;
 
-    public ISearchServiceManager SearchService { get; }
+    public ISearchServiceManager SearchService { get; } = searchService;
 
-    internal IDanceStatsManager DanceStatsManager { get; }
+    internal IDanceStatsManager DanceStatsManager { get; } = danceStatsManager;
 
-    private SongIndex _songSearch;
-        
+    private SongIndex _songSearch = songIndex;
+
     public SongIndex SongIndex =>
         _songSearch ??= SongIndex.Create(this);
 
-    public SongIndex GetSongIndex(string id) => 
+    public SongIndex GetSongIndex(string id) =>
         id == "default" || id == null ? SongIndex : SongIndex.Create(this, id);
 
     public DbSet<Dance> Dances => Context.Dances;
@@ -99,7 +92,7 @@ public partial class DanceMusicCoreService : IDisposable
     public static readonly string TrialRole = "trial";
 
     public static readonly string[] Roles =
-        { DiagRole, EditRole, DbaRole, TagRole, PremiumRole, TrialRole, BetaRole };
+        [DiagRole, EditRole, DbaRole, TagRole, PremiumRole, TrialRole, BetaRole];
 
     public static IEnumerable<string> UserRoles(ClaimsPrincipal user)
     {
@@ -141,7 +134,7 @@ public partial class DanceMusicCoreService : IDisposable
             }
         }
 
-        var danceLinks = core.DanceLinks ?? new List<DanceLink>();
+        var danceLinks = core.DanceLinks ?? [];
 
         // Change new state to added
         foreach (var link in danceLinks.Where(d => newIds.Contains(d.Id)))
@@ -355,10 +348,7 @@ public partial class DanceMusicCoreService : IDisposable
         foreach (var tag in tags.Tags)
         {
             var tt = GetTagRing(tag);
-            if (!map.ContainsKey(tt.Key))
-            {
-                map.Add(tt.Key, tt);
-            }
+            map.TryAdd(tt.Key, tt);
         }
 
         return map.Values;
@@ -444,12 +434,7 @@ public partial class DanceMusicCoreService : IDisposable
         }
 
 
-        var service = MusicService.GetService(ServiceType.Spotify);
-        if (service == null)
-        {
-            throw new ArgumentOutOfRangeException(nameof(id));
-        }
-
+        var service = MusicService.GetService(ServiceType.Spotify) ?? throw new ArgumentOutOfRangeException(nameof(id));
         playlist.AddSongs(songs.Select(s => s.GetPurchaseId(service.Id)));
         playlist.Updated = DateTime.Now;
 
@@ -484,7 +469,7 @@ public partial class DanceMusicCoreService : IDisposable
         var idx = name.IndexOf('|');
         if (idx != -1)
         {
-            name = name.Substring(0, idx);
+            name = name[..idx];
         }
 
         if (UserCache.TryGetValue(name, out var user))
@@ -502,7 +487,7 @@ public partial class DanceMusicCoreService : IDisposable
     }
 
     protected readonly Dictionary<string, ApplicationUser> UserCache =
-        new();
+        [];
 
     #endregion
 }

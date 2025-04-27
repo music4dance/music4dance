@@ -4,17 +4,18 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+
 using Azure.Search.Documents.Models;
 
 namespace m4dModels
 {
     public class TagManager
     {
-        public static List<string> Duplicates { get; } = new();
+        public static List<string> Duplicates { get; } = [];
 
         public TagManager(IEnumerable<TagGroup> tagGroups)
         {
-            SetTagMap(CleanTagGroups(tagGroups.ToList()));
+            SetTagMap(CleanTagGroups([.. tagGroups]));
         }
 
         public ConcurrentDictionary<string, TagGroup> TagMap { get; private set; }
@@ -39,7 +40,7 @@ namespace m4dModels
 
                 Duplicates.Clear();
 
-                Trace.WriteLine($"{dups.Count()} duplicate tags");
+                Trace.WriteLine($"{dups.Count} duplicate tags");
                 foreach (var group in dups)
                 {
                     foreach (var tag in group)
@@ -58,7 +59,7 @@ namespace m4dModels
         {
             var tagManager =
                 new TagManager(
-                    dms.TagGroups.OrderBy(t => t.Key).ToList());
+                    [.. dms.TagGroups.OrderBy(t => t.Key)]);
 
             var facets = await dms.GetSongIndex(source).GetTagFacets(
                 "GenreTags,StyleTags,TempoTags,OtherTags", 10000);
@@ -75,13 +76,13 @@ namespace m4dModels
         public void SetTagMap(IList<TagGroup> tagGroups)
         {
             TagMap = new ConcurrentDictionary<string, TagGroup>(
-                tagGroups.Select(t => KeyValuePair.Create(t.Key, t)), 
+                tagGroups.Select(t => KeyValuePair.Create(t.Key, t)),
                 StringComparer.OrdinalIgnoreCase);
 
             foreach (var tt in tagGroups.Where(tt => !string.IsNullOrEmpty(tt.PrimaryId)))
             {
                 tt.Primary = TagMap[tt.PrimaryId];
-                tt.Primary.Children ??= new List<TagGroup>();
+                tt.Primary.Children ??= [];
 
                 tt.Primary.Children.Add(tt);
             }

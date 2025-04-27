@@ -7,8 +7,8 @@ namespace m4dModels
 {
     public class SongCache
     {
-        private readonly Dictionary<Guid, Song> _queuedSongs = new();
-        private readonly Dictionary<Guid, Song> _songs = new();
+        private readonly Dictionary<Guid, Song> _queuedSongs = [];
+        private readonly Dictionary<Guid, Song> _songs = [];
 
         public async Task LoadSongs(IEnumerable<string> songs, DanceMusicCoreService dms)
         {
@@ -59,7 +59,7 @@ namespace m4dModels
 
         public List<string> Serialize()
         {
-            return _songs.Select(s => s.Value.ToString()).ToList();
+            return [.. _songs.Select(s => s.Value.ToString())];
         }
     }
 }

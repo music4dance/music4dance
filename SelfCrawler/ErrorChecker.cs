@@ -1,7 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OpenQA.Selenium;
-using System;
+﻿using System;
 using System.Linq;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using OpenQA.Selenium;
 
 namespace SelfCrawler;
 
@@ -10,7 +12,7 @@ namespace SelfCrawler;
 public class ErrorChecker : PageChecker, IDisposable
 {
     private readonly string[] _knownLogs =
-    {
+    [
         @"""Ads are paused""",
         @"""Download the Vue Devtools extension for a better development experience",
         @"""You are running Vue in development mode.",
@@ -19,7 +21,7 @@ public class ErrorChecker : PageChecker, IDisposable
         @"[vite] connecting",
         @"[vite] connected",
         @"Third-party cookie will be blocked"
-    };
+    ];
 
     [TestMethod]
     public void CheckLocalSiteForErrors()
@@ -57,7 +59,7 @@ public class ErrorChecker : PageChecker, IDisposable
         var logs = driver.Manage().Logs;
         var logEntries = logs.GetLog(LogType.Browser).Where(l => !IsKnownLog(l.Message)).ToList();
 
-        if (logEntries.Any())
+        if (logEntries.Count != 0)
         {
             TestContext?.WriteLine($"FAILED (LOGS): {relativePath}");
             foreach (var logEntry in logEntries)

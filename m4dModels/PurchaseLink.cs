@@ -33,20 +33,12 @@ namespace m4dModels
         public string[] AvailableMarkets { get; set; }
     }
 
-    public class PurchaseInfo
+    public class PurchaseInfo(PurchaseLink link, bool useLogo)
     {
-        public PurchaseInfo(PurchaseLink link, bool useLogo)
-        {
-            Id = MusicService.GetService(link.ServiceType).CID;
-            Link = link.Link;
-            Target = link.Target;
-            Image = useLogo ? link.Logo : link.Charm;
-        }
+        public char Id { get; set; } = MusicService.GetService(link.ServiceType).CID;
+        public string Link { get; set; } = link.Link;
+        public string Target { get; set; } = link.Target;
 
-        public char Id { get; set; }
-        public string Link { get; set; }
-        public string Target { get; set; }
-
-        public string Image { get; set; }
+        public string Image { get; set; } = useLogo ? link.Logo : link.Charm;
     }
 }

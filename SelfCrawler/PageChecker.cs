@@ -1,8 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OpenQA.Selenium;
-using System;
+﻿using System;
 using System.Linq;
 using System.Net.Http;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using OpenQA.Selenium;
 
 namespace SelfCrawler;
 
@@ -44,7 +46,7 @@ public abstract class PageChecker : IDisposable
     }
     internal static void NavigateTo(string relativePath, string root, IWebDriver driver)
     {
-        var sep = relativePath.Contains("?") ? "&" : "?";
+        var sep = relativePath.Contains('?') ? "&" : "?";
         driver.Navigate().GoToUrl($"{root}{relativePath}{sep}flat=true");
     }
 

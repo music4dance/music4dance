@@ -32,12 +32,12 @@ namespace m4dModels
             Query = qs;
         }
 
-        public UserQuery(string userName, bool include, bool? like = null) 
+        public UserQuery(string userName, bool include, bool? like = null)
             : this(userName, include, like.HasValue ? (like.Value ? 'l' : 'h') : 'a')
         {
         }
 
-        public UserQuery(UserQuery query, string userName) 
+        public UserQuery(UserQuery query, string userName)
             : this(userName, query.IsInclude, query.Modifier)
         {
         }
@@ -78,29 +78,15 @@ namespace m4dModels
                 }
 
                 var start = IsInclude ? "Include only" : "Exclude all";
-                string end;
-
                 var i = IsIdentity ? "I" : UserName;
-
-                switch (Modifier)
+                var end = Modifier switch
                 {
-                    case 'l':
-                        end = $"{i} marked LIKE";
-                        break;
-                    case 'h':
-                        end = $"{i} marked DON'T LIKE";
-                        break;
-                    case 'd':
-                        end = $"{i} voted FOR";
-                        break;
-                    case 'x':
-                        end = $"{i} voted AGAINST";
-                        break;
-                    default:
-                        end = $"{i} tagged";
-                        break;
-                }
-
+                    'l' => $"{i} marked LIKE",
+                    'h' => $"{i} marked DON'T LIKE",
+                    'd' => $"{i} voted FOR",
+                    'x' => $"{i} voted AGAINST",
+                    _ => $"{i} tagged",
+                };
                 return $"{start} songs {end}";
             }
         }

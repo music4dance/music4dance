@@ -9,7 +9,7 @@ public class DanceOrder
     public decimal Delta { get; }
     public decimal DeltaPercent { get; set; }
     public decimal DeltaPercentAbsolute => Math.Abs(DeltaPercent);
-    public decimal DeltaMpm => 
+    public decimal DeltaMpm =>
         new Tempo(Delta).Convert(new TempoType(TempoKind.Mpm, Dance.Meter)).Rate;
 
     public static DanceOrder Create(DanceType dance, decimal tempo)

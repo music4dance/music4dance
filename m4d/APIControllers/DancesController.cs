@@ -1,6 +1,9 @@
 ﻿using System.Net;
+
 using m4d.ViewModels;
+
 using m4dModels;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -9,16 +12,11 @@ namespace m4d.APIControllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class DancesController : DanceMusicApiController
+public class DancesController(
+    DanceMusicContext context, UserManager<ApplicationUser> userManager,
+    ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+    IConfiguration configuration, ILogger<DancesController> logger) : DanceMusicApiController(context, userManager, searchService, danceStatsManager, configuration, logger)
 {
-    public DancesController(
-        DanceMusicContext context, UserManager<ApplicationUser> userManager,
-        ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-        IConfiguration configuration, ILogger<DancesController> logger) :
-        base(context, userManager, searchService, danceStatsManager, configuration, logger)
-    {
-    }
-
     [HttpGet]
     public IActionResult GetDances(bool details = false)
     {
@@ -48,7 +46,7 @@ public class DancesController : DanceMusicApiController
 
     [Authorize]
     [HttpPatch("{id}")]
-    public async Task<IActionResult> Patch(string id, [FromBody]DanceCore dance)
+    public async Task<IActionResult> Patch(string id, [FromBody] DanceCore dance)
     {
         if (User.Identity == null || !User.Identity.IsAuthenticated ||
             !User.IsInRole("dbAdmin"))

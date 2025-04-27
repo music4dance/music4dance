@@ -5,19 +5,13 @@ using System.Threading.Tasks;
 
 namespace m4dModels
 {
-    internal class MergeCluster
+    internal class MergeCluster(int hash)
     {
         private static List<Song> s_mergeCandidateCache;
         private static int s_mergeCandidateLevel;
 
-        public MergeCluster(int hash)
-        {
-            PropertyHash = hash;
-            Songs = new List<Song>();
-        }
-
-        public int PropertyHash { get; set; }
-        public List<Song> Songs { get; set; }
+        public int PropertyHash { get; set; } = hash;
+        public List<Song> Songs { get; set; } = [];
 
         public static void ClearMergeCandidateCache()
         {
@@ -61,7 +55,7 @@ namespace m4dModels
             foreach (var cluster in clusters.Values
                     .TakeWhile(cluster => ret.Count + cluster.Songs.Count <= n)
                     .Where(cluster => cluster.Songs.Count > 1))
-                // Level 2 is all songs with a similar title
+            // Level 2 is all songs with a similar title
             {
                 if (level == 2)
                 {
@@ -136,7 +130,7 @@ namespace m4dModels
                     }
 
                     if (emptyArtist)
-                        // Add all of the songs in the cluster
+                    // Add all of the songs in the cluster
                     {
                         ret.AddRange(cluster.Songs);
                     }

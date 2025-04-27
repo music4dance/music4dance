@@ -1,8 +1,10 @@
 ﻿using System;
+
 using DanceLibrary;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace DanceTests
+namespace DanceLibrary.Tests
 {
     [TestClass]
     public class DurationTests
@@ -17,7 +19,7 @@ namespace DanceTests
         {
             try
             {
-                new SongDuration(-1.0M);
+                _ = new SongDuration(-1.0M);
             }
             catch (ArgumentOutOfRangeException)
             {
@@ -32,7 +34,7 @@ namespace DanceTests
         {
             try
             {
-                new SongDuration(1.0M, new DurationType(DurationKind.Measure));
+                _ = new SongDuration(1.0M, new DurationType(DurationKind.Measure));
             }
             catch (ArgumentNullException)
             {

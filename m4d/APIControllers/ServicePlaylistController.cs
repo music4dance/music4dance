@@ -1,5 +1,7 @@
 ﻿using System.Net;
+
 using m4dModels;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -8,16 +10,12 @@ namespace m4d.APIControllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ServicePlaylistController : DanceMusicApiController
+public class ServicePlaylistController(
+    DanceMusicContext context, UserManager<ApplicationUser> userManager,
+    ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+    IConfiguration configuration, ILogger<ServicePlaylistController> logger) : DanceMusicApiController(context, userManager, searchService, danceStatsManager, configuration, logger)
 {
-    private static readonly Dictionary<string, GenericPlaylist> s_cache = new();
-    public ServicePlaylistController(
-        DanceMusicContext context, UserManager<ApplicationUser> userManager,
-        ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-        IConfiguration configuration, ILogger<ServicePlaylistController> logger) :
-        base(context, userManager, searchService, danceStatsManager, configuration, logger)
-    {
-    }
+    private static readonly Dictionary<string, GenericPlaylist> s_cache = [];
 
     [Authorize]
     [HttpGet("{id}")]
@@ -55,7 +53,7 @@ public class ServicePlaylistController : DanceMusicApiController
             return BadRequest(e.Message);
         }
 
-        id = id.Substring(1);
+        id = id[1..];
 
         var localList = await Database.PlayLists.FindAsync(id);
         if (localList != null)
@@ -65,7 +63,7 @@ public class ServicePlaylistController : DanceMusicApiController
 
         var name = serviceList.OwnerName.Replace(" ", "");
         var email = $"{serviceList.OwnerId}@spotify.com";
-        var user = await Database.FindUser(serviceList.OwnerName) 
+        var user = await Database.FindUser(serviceList.OwnerName)
             ?? await Database.AddPseudoUser(name, email);
 
         if (user == null)
@@ -90,7 +88,7 @@ public class ServicePlaylistController : DanceMusicApiController
         }
 
         var service = MusicService.GetService(id[0]);
-        var trackId = service.NormalizeId(id.Substring(1));
+        var trackId = service.NormalizeId(id[1..]);
 
         playlist = await MusicServiceManager.LookupPlaylistWithAudioData(
             service, service.BuildPlayListLink(trackId));

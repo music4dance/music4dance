@@ -4,12 +4,8 @@ using System.Web;
 
 namespace m4d.Utilities;
 
-public class SpotAuthentication : AdmAuthentication
+public class SpotAuthentication(IConfiguration configuration) : AdmAuthentication(configuration)
 {
-    public SpotAuthentication(IConfiguration configuration) : base(configuration)
-    {
-    }
-
     protected override string Client => "spotify";
 
     protected override string RequestBody => "grant_type=client_credentials";
@@ -17,7 +13,7 @@ public class SpotAuthentication : AdmAuthentication
 
     protected override string GetServiceId(IPrincipal principal)
     {
-        if (!(principal is ClaimsPrincipal claimsPrincipal))
+        if (principal is not ClaimsPrincipal claimsPrincipal)
         {
             return null;
         }
@@ -28,13 +24,9 @@ public class SpotAuthentication : AdmAuthentication
     }
 }
 
-public class SpotUserAuthentication : SpotAuthentication
+public class SpotUserAuthentication(IConfiguration configuration) : SpotAuthentication(configuration)
 {
-    public SpotUserAuthentication(IConfiguration configuration) : base(configuration)
-    {
-    }
-
-    protected override string RequestExtra => string.IsNullOrWhiteSpace(RefreshToken) 
+    protected override string RequestExtra => string.IsNullOrWhiteSpace(RefreshToken)
         ? string.Empty
         : $"&refresh_token={HttpUtility.UrlEncode(RefreshToken)}";
 

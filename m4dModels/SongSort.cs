@@ -20,17 +20,17 @@ namespace m4dModels
         public const string Energy = Song.EnergyField;
 
         private static readonly string[] s_directional =
-        {
+        [
             Song.TitleField, Song.ArtistField, Song.TempoField, Song.LengthField,
             SongIndex.ModifiedField, SongIndex.CreatedField, SongIndex.EditedField,
             Song.EnergyField, SongIndex.MoodField, SongIndex.BeatField, SongIndex.CommentsField
-        };
+        ];
 
         private static readonly string[] s_numerical =
-            { Song.TempoField, SongIndex.MoodField, SongIndex.CreatedField };
+            [Song.TempoField, SongIndex.MoodField, SongIndex.CreatedField];
 
         private static readonly string[] s_intrinsic =
-            { Song.EnergyField, SongIndex.MoodField, SongIndex.BeatField };
+            [Song.EnergyField, SongIndex.MoodField, SongIndex.BeatField];
 
         public SongSort(string sort, bool hasQuery = false)
         {
@@ -76,7 +76,7 @@ namespace m4dModels
             }
         }
 
-        public string Id => String.IsNullOrEmpty(_id) && !HasQuery ? Dances : _id;
+        public string Id => string.IsNullOrEmpty(_id) && !HasQuery ? Dances : _id;
         public bool Descending { get; private set; }
         public bool HasQuery { get; private set; }
 
@@ -92,24 +92,16 @@ namespace m4dModels
                 const string dr = "Dance Rating";
                 const string cm = "Closest Match";
 
-                switch (Id)
+                return Id switch
                 {
-                    case Dances:
-                        return dr;
-                    case Modified:
-                        return "Last Modified";
-                    case Edited:
-                        return "Last Edited";
-                    case Created:
-                        return "When Added";
-                    case Closest:
-                        return cm;
-                    case null:
-                    case "":
-                        return HasQuery ? cm : dr;
-                    default:
-                        return Id;
-                }
+                    Dances => dr,
+                    Modified => "Last Modified",
+                    Edited => "Last Edited",
+                    Created => "When Added",
+                    Closest => cm,
+                    null or "" => HasQuery ? cm : dr,
+                    _ => Id,
+                };
             }
         }
 
