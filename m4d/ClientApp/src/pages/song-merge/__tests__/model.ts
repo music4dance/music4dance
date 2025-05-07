@@ -59,7 +59,7 @@ export const model = {
         },
         {
           name: "User",
-          value: "rhettbot|P",
+          value: "UserAL|P",
         },
         {
           name: "Time",

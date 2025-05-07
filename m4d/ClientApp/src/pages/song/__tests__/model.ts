@@ -512,7 +512,7 @@ export const model = {
       },
       {
         name: "User",
-        value: "chicagoarthurmurray|P",
+        value: "UserAM|P",
       },
       {
         name: "Time",
@@ -740,7 +740,7 @@ export const model = {
       },
       {
         name: "User",
-        value: "chicagoarthurmurray|P",
+        value: "UserAM|P",
       },
       {
         name: "Time",

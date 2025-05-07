@@ -59,7 +59,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg></a></span>
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" href="/song/details/cdcfe5f1-f765-4a14-a8b8-7c8e131aec3f?filter=v2-newmusic--Created---%5C-dgsnure%7Ca">Akin Ka Na Lang - Himig Handog Pop Lovesongs 2014 Version</a>
+                <!----><a data-v-a7ef304f="" href="/song/details/cdcfe5f1-f765-4a14-a8b8-7c8e131aec3f?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Akin Ka Na Lang - Himig Handog Pop Lovesongs 2014 Version</a>
               </td>
               <td scope="col" class="">
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Morissette">Morissette</a>
@@ -97,7 +97,7 @@ exports[`New Music > renders a new music page 1`] = `
               </td>
               <td scope="col" class="">
                 <!---->
-                <div data-v-a7ef304f=""><span class="me-2"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em"><path fill="currentColor" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5L13.5 4.793L14.793 3.5L12.5 1.207zm1.586 3L10.5 3.207L4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175l-.106.106l-1.528 3.821l3.821-1.528l.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"></path></svg></span>Added by <a data-v-6358290b="" href="/users/info/yashenglin" class="pseudo">yashenglin</a> on 11/11/2022 09:01 AM <div class="ms-4">
+                <div data-v-a7ef304f=""><span class="me-2"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em"><path fill="currentColor" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5L13.5 4.793L14.793 3.5L12.5 1.207zm1.586 3L10.5 3.207L4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175l-.106.106l-1.528 3.821l3.821-1.528l.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"></path></svg></span>Added by <a data-v-6358290b="" href="/users/info/useran" class="pseudo">useran</a> on 11/11/2022 09:01 AM <div class="ms-4">
                     <div>
                       <div>
                         <div><span class="me-2"><!--v-if--><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: green;"><path fill="currentColor" d="M8.864.046C7.908-.193 7.02.53 6.956 1.466c-.072 1.051-.23 2.016-.428 2.59c-.125.36-.479 1.013-1.04 1.639c-.557.623-1.282 1.178-2.131 1.41C2.685 7.288 2 7.87 2 8.72v4.001c0 .845.682 1.464 1.448 1.545c1.07.114 1.564.415 2.068.723l.048.03c.272.165.578.348.97.484c.397.136.861.217 1.466.217h3.5c.937 0 1.599-.477 1.934-1.064a1.86 1.86 0 0 0 .254-.912c0-.152-.023-.312-.077-.464c.201-.263.38-.578.488-.901c.11-.33.172-.762.004-1.149c.069-.13.12-.269.159-.403c.077-.27.113-.568.113-.857c0-.288-.036-.585-.113-.856a2 2 0 0 0-.138-.362a1.9 1.9 0 0 0 .234-1.734c-.206-.592-.682-1.1-1.2-1.272c-.847-.282-1.803-.276-2.516-.211a10 10 0 0 0-.443.05a9.4 9.4 0 0 0-.062-4.509A1.38 1.38 0 0 0 9.125.111zM11.5 14.721H8c-.51 0-.863-.069-1.14-.164c-.281-.097-.506-.228-.776-.393l-.04-.024c-.555-.339-1.198-.731-2.49-.868c-.333-.036-.554-.29-.554-.55V8.72c0-.254.226-.543.62-.65c1.095-.3 1.977-.996 2.614-1.708c.635-.71 1.064-1.475 1.238-1.978c.243-.7.407-1.768.482-2.85c.025-.362.36-.594.667-.518l.262.066c.16.04.258.143.288.255a8.34 8.34 0 0 1-.145 4.725a.5.5 0 0 0 .595.644l.003-.001l.014-.003l.058-.014a9 9 0 0 1 1.036-.157c.663-.06 1.457-.054 2.11.164c.175.058.45.3.57.65c.107.308.087.67-.266 1.022l-.353.353l.353.354c.043.043.105.141.154.315c.048.167.075.37.075.581c0 .212-.027.414-.075.582c-.05.174-.111.272-.154.315l-.353.353l.353.354c.047.047.109.177.005.488a2.2 2.2 0 0 1-.505.805l-.353.353l.353.354c.006.005.041.05.041.17a.9.9 0 0 1-.121.416c-.165.288-.503.56-1.066.56z"></path></svg></span><button class="btn btn-sm btn-dance ms-2" type="button" title="Rumba" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -145,7 +145,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg></a></span>
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" href="/song/details/374b10f3-0971-4362-94f1-45855a8e02db?filter=v2-newmusic--Created---%5C-dgsnure%7Ca">The Witches Are Back (from Hocus Pocus 2)</a>
+                <!----><a data-v-a7ef304f="" href="/song/details/374b10f3-0971-4362-94f1-45855a8e02db?filter=v2-newmusic--Created---%5C-UserAK%7Ca">The Witches Are Back (from Hocus Pocus 2)</a>
               </td>
               <td scope="col" class="">
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Bette%20Midler%2C%20Sarah%20Jessica%20Parker%20%26%20Kathy%20Najimy">Bette Midler, Sarah Jessica Parker &amp; Kathy Najimy</a>
@@ -444,7 +444,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg></a></span>
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" href="/song/details/78b0d29e-22ff-491d-b048-588f42a392b8?filter=v2-newmusic--Created---%5C-dgsnure%7Ca">Shivers</a>
+                <!----><a data-v-a7ef304f="" href="/song/details/78b0d29e-22ff-491d-b048-588f42a392b8?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Shivers</a>
               </td>
               <td scope="col" class="">
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=District%2078%20%26%20Mikayla%20Lynn">District 78 &amp; Mikayla Lynn</a>
@@ -609,7 +609,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg></a></span>
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" href="/song/details/92831596-1757-4853-8c43-e183bf0fd44c?filter=v2-newmusic--Created---%5C-dgsnure%7Ca">I Wanna Be Your Slave</a>
+                <!----><a data-v-a7ef304f="" href="/song/details/92831596-1757-4853-8c43-e183bf0fd44c?filter=v2-newmusic--Created---%5C-UserAK%7Ca">I Wanna Be Your Slave</a>
               </td>
               <td scope="col" class="">
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=M%C3%A5neskin">Måneskin</a>
@@ -907,7 +907,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg></a></span>
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" href="/song/details/b7ac9623-c671-40d7-a3d5-ce4631f8d239?filter=v2-newmusic--Created---%5C-dgsnure%7Ca">Halloween Theme</a>
+                <!----><a data-v-a7ef304f="" href="/song/details/b7ac9623-c671-40d7-a3d5-ce4631f8d239?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Halloween Theme</a>
               </td>
               <td scope="col" class="">
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=District%2078">District 78</a>
@@ -1106,7 +1106,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg></a></span>
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" href="/song/details/8c3d0141-ff65-41b1-a32c-5ac5924638d9?filter=v2-newmusic--Created---%5C-dgsnure%7Ca">Get Ghost</a>
+                <!----><a data-v-a7ef304f="" href="/song/details/8c3d0141-ff65-41b1-a32c-5ac5924638d9?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Get Ghost</a>
               </td>
               <td scope="col" class="">
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Mark%20Ronson%2C%20Passion%20Pit%20%26%20ASAP%20Ferg">Mark Ronson, Passion Pit &amp; ASAP Ferg</a>
@@ -1440,7 +1440,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg></a></span>
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" href="/song/details/8401cfc7-79b9-4c10-828e-3215104c4bee?filter=v2-newmusic--Created---%5C-dgsnure%7Ca">Ghost (Acoustic)</a>
+                <!----><a data-v-a7ef304f="" href="/song/details/8401cfc7-79b9-4c10-828e-3215104c4bee?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Ghost (Acoustic)</a>
               </td>
               <td scope="col" class="">
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Justin%20Bieber">Justin Bieber</a>
@@ -1648,7 +1648,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg></a></span>
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" href="/song/details/5ad1bda4-eff7-462a-98f0-51a8941b1617?filter=v2-newmusic--Created---%5C-dgsnure%7Ca">Oogie Boogie's Song</a>
+                <!----><a data-v-a7ef304f="" href="/song/details/5ad1bda4-eff7-462a-98f0-51a8941b1617?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Oogie Boogie's Song</a>
               </td>
               <td scope="col" class="">
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Ed%20Ivory%20%26%20Ken%20Page">Ed Ivory &amp; Ken Page</a>
@@ -1874,7 +1874,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg></a></span>
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" href="/song/details/7f5731ac-7721-42db-a6f3-e7fdda062de7?filter=v2-newmusic--Created---%5C-dgsnure%7Ca">Leave Before You Love Me (with Jonas Brothers)</a>
+                <!----><a data-v-a7ef304f="" href="/song/details/7f5731ac-7721-42db-a6f3-e7fdda062de7?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Leave Before You Love Me (with Jonas Brothers)</a>
               </td>
               <td scope="col" class="">
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Marshmello">Marshmello</a>
@@ -2052,7 +2052,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg></a></span>
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" href="/song/details/c54a39f6-1062-4d77-a449-87e012cf88ed?filter=v2-newmusic--Created---%5C-dgsnure%7Ca">El Flautista</a>
+                <!----><a data-v-a7ef304f="" href="/song/details/c54a39f6-1062-4d77-a449-87e012cf88ed?filter=v2-newmusic--Created---%5C-UserAK%7Ca">El Flautista</a>
               </td>
               <td scope="col" class="">
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Chino%20Pons">Chino Pons</a>
@@ -2090,7 +2090,7 @@ exports[`New Music > renders a new music page 1`] = `
               </td>
               <td scope="col" class="">
                 <!---->
-                <div data-v-a7ef304f=""><span class="me-2"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em"><path fill="currentColor" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5L13.5 4.793L14.793 3.5L12.5 1.207zm1.586 3L10.5 3.207L4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175l-.106.106l-1.528 3.821l3.821-1.528l.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"></path></svg></span>Added by <a data-v-6358290b="" href="/users/info/dancevision" class="pseudo">dancevision</a> on 11/05/2022 09:03 AM <div class="ms-4">
+                <div data-v-a7ef304f=""><span class="me-2"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em"><path fill="currentColor" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5L13.5 4.793L14.793 3.5L12.5 1.207zm1.586 3L10.5 3.207L4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175l-.106.106l-1.528 3.821l3.821-1.528l.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"></path></svg></span>Added by <a data-v-6358290b="" href="/users/info/userae" class="pseudo">userae</a> on 11/05/2022 09:03 AM <div class="ms-4">
                     <div>
                       <div>
                         <div><span class="me-2"><!--v-if--><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: green;"><path fill="currentColor" d="M8.864.046C7.908-.193 7.02.53 6.956 1.466c-.072 1.051-.23 2.016-.428 2.59c-.125.36-.479 1.013-1.04 1.639c-.557.623-1.282 1.178-2.131 1.41C2.685 7.288 2 7.87 2 8.72v4.001c0 .845.682 1.464 1.448 1.545c1.07.114 1.564.415 2.068.723l.048.03c.272.165.578.348.97.484c.397.136.861.217 1.466.217h3.5c.937 0 1.599-.477 1.934-1.064a1.86 1.86 0 0 0 .254-.912c0-.152-.023-.312-.077-.464c.201-.263.38-.578.488-.901c.11-.33.172-.762.004-1.149c.069-.13.12-.269.159-.403c.077-.27.113-.568.113-.857c0-.288-.036-.585-.113-.856a2 2 0 0 0-.138-.362a1.9 1.9 0 0 0 .234-1.734c-.206-.592-.682-1.1-1.2-1.272c-.847-.282-1.803-.276-2.516-.211a10 10 0 0 0-.443.05a9.4 9.4 0 0 0-.062-4.509A1.38 1.38 0 0 0 9.125.111zM11.5 14.721H8c-.51 0-.863-.069-1.14-.164c-.281-.097-.506-.228-.776-.393l-.04-.024c-.555-.339-1.198-.731-2.49-.868c-.333-.036-.554-.29-.554-.55V8.72c0-.254.226-.543.62-.65c1.095-.3 1.977-.996 2.614-1.708c.635-.71 1.064-1.475 1.238-1.978c.243-.7.407-1.768.482-2.85c.025-.362.36-.594.667-.518l.262.066c.16.04.258.143.288.255a8.34 8.34 0 0 1-.145 4.725a.5.5 0 0 0 .595.644l.003-.001l.014-.003l.058-.014a9 9 0 0 1 1.036-.157c.663-.06 1.457-.054 2.11.164c.175.058.45.3.57.65c.107.308.087.67-.266 1.022l-.353.353l.353.354c.043.043.105.141.154.315c.048.167.075.37.075.581c0 .212-.027.414-.075.582c-.05.174-.111.272-.154.315l-.353.353l.353.354c.047.047.109.177.005.488a2.2 2.2 0 0 1-.505.805l-.353.353l.353.354c.006.005.041.05.041.17a.9.9 0 0 1-.121.416c-.165.288-.503.56-1.066.56z"></path></svg></span><button class="btn btn-sm btn-dance ms-2" type="button" title="Salsa" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -2124,7 +2124,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg></a></span>
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" href="/song/details/2894cc65-c809-42f9-a49b-cd9ff932902c?filter=v2-newmusic--Created---%5C-dgsnure%7Ca">I Get a Kick Out of You</a>
+                <!----><a data-v-a7ef304f="" href="/song/details/2894cc65-c809-42f9-a49b-cd9ff932902c?filter=v2-newmusic--Created---%5C-UserAK%7Ca">I Get a Kick Out of You</a>
               </td>
               <td scope="col" class="">
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Michael%20Bubl%C3%A9">Michael Bublé</a>
@@ -2346,7 +2346,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg></a></span>
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" href="/song/details/9ca25214-126c-4915-95dc-9d94631c79ca?filter=v2-newmusic--Created---%5C-dgsnure%7Ca">Come Fly with Me</a>
+                <!----><a data-v-a7ef304f="" href="/song/details/9ca25214-126c-4915-95dc-9d94631c79ca?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Come Fly with Me</a>
               </td>
               <td scope="col" class="">
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Michael%20Bubl%C3%A9">Michael Bublé</a>
@@ -2568,7 +2568,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg></a></span>
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" href="/song/details/7aac455b-97e7-48d3-b42e-55deb43dbc0b?filter=v2-newmusic--Created---%5C-dgsnure%7Ca">Cavatina</a>
+                <!----><a data-v-a7ef304f="" href="/song/details/7aac455b-97e7-48d3-b42e-55deb43dbc0b?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Cavatina</a>
               </td>
               <td scope="col" class="">
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Francis%20Goya">Francis Goya</a>
@@ -2606,7 +2606,7 @@ exports[`New Music > renders a new music page 1`] = `
               </td>
               <td scope="col" class="">
                 <!---->
-                <div data-v-a7ef304f=""><span class="me-2"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em"><path fill="currentColor" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5L13.5 4.793L14.793 3.5L12.5 1.207zm1.586 3L10.5 3.207L4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175l-.106.106l-1.528 3.821l3.821-1.528l.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"></path></svg></span>Added by <a data-v-6358290b="" href="/users/info/paulspiano" class="pseudo">paulspiano</a> on 11/01/2022 09:03 AM <div class="ms-4">
+                <div data-v-a7ef304f=""><span class="me-2"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em"><path fill="currentColor" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5L13.5 4.793L14.793 3.5L12.5 1.207zm1.586 3L10.5 3.207L4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175l-.106.106l-1.528 3.821l3.821-1.528l.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"></path></svg></span>Added by <a data-v-6358290b="" href="/users/info/userbg" class="pseudo">userbg</a> on 11/01/2022 09:03 AM <div class="ms-4">
                     <div>
                       <div>
                         <div><span class="me-2"><!--v-if--><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: green;"><path fill="currentColor" d="M8.864.046C7.908-.193 7.02.53 6.956 1.466c-.072 1.051-.23 2.016-.428 2.59c-.125.36-.479 1.013-1.04 1.639c-.557.623-1.282 1.178-2.131 1.41C2.685 7.288 2 7.87 2 8.72v4.001c0 .845.682 1.464 1.448 1.545c1.07.114 1.564.415 2.068.723l.048.03c.272.165.578.348.97.484c.397.136.861.217 1.466.217h3.5c.937 0 1.599-.477 1.934-1.064a1.86 1.86 0 0 0 .254-.912c0-.152-.023-.312-.077-.464c.201-.263.38-.578.488-.901c.11-.33.172-.762.004-1.149c.069-.13.12-.269.159-.403c.077-.27.113-.568.113-.857c0-.288-.036-.585-.113-.856a2 2 0 0 0-.138-.362a1.9 1.9 0 0 0 .234-1.734c-.206-.592-.682-1.1-1.2-1.272c-.847-.282-1.803-.276-2.516-.211a10 10 0 0 0-.443.05a9.4 9.4 0 0 0-.062-4.509A1.38 1.38 0 0 0 9.125.111zM11.5 14.721H8c-.51 0-.863-.069-1.14-.164c-.281-.097-.506-.228-.776-.393l-.04-.024c-.555-.339-1.198-.731-2.49-.868c-.333-.036-.554-.29-.554-.55V8.72c0-.254.226-.543.62-.65c1.095-.3 1.977-.996 2.614-1.708c.635-.71 1.064-1.475 1.238-1.978c.243-.7.407-1.768.482-2.85c.025-.362.36-.594.667-.518l.262.066c.16.04.258.143.288.255a8.34 8.34 0 0 1-.145 4.725a.5.5 0 0 0 .595.644l.003-.001l.014-.003l.058-.014a9 9 0 0 1 1.036-.157c.663-.06 1.457-.054 2.11.164c.175.058.45.3.57.65c.107.308.087.67-.266 1.022l-.353.353l.353.354c.043.043.105.141.154.315c.048.167.075.37.075.581c0 .212-.027.414-.075.582c-.05.174-.111.272-.154.315l-.353.353l.353.354c.047.047.109.177.005.488a2.2 2.2 0 0 1-.505.805l-.353.353l.353.354c.006.005.041.05.041.17a.9.9 0 0 1-.121.416c-.165.288-.503.56-1.066.56z"></path></svg></span><button class="btn btn-sm btn-dance ms-2" type="button" title="Slow Waltz" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -2654,7 +2654,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg></a></span>
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" href="/song/details/d9d79760-b73f-4381-bb32-cf1e86bb8fd7?filter=v2-newmusic--Created---%5C-dgsnure%7Ca">Melhor de Mim - Diego Miranda Remix</a>
+                <!----><a data-v-a7ef304f="" href="/song/details/d9d79760-b73f-4381-bb32-cf1e86bb8fd7?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Melhor de Mim - Diego Miranda Remix</a>
               </td>
               <td scope="col" class="">
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Mariza">Mariza</a>
@@ -2692,7 +2692,7 @@ exports[`New Music > renders a new music page 1`] = `
               </td>
               <td scope="col" class="">
                 <!---->
-                <div data-v-a7ef304f=""><span class="me-2"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em"><path fill="currentColor" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5L13.5 4.793L14.793 3.5L12.5 1.207zm1.586 3L10.5 3.207L4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175l-.106.106l-1.528 3.821l3.821-1.528l.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"></path></svg></span>Added by <a data-v-6358290b="" href="/users/info/paulspiano" class="pseudo">paulspiano</a> on 10/29/2022 09:04 AM <div class="ms-4">
+                <div data-v-a7ef304f=""><span class="me-2"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em"><path fill="currentColor" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5L13.5 4.793L14.793 3.5L12.5 1.207zm1.586 3L10.5 3.207L4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175l-.106.106l-1.528 3.821l3.821-1.528l.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"></path></svg></span>Added by <a data-v-6358290b="" href="/users/info/userbg" class="pseudo">userbg</a> on 10/29/2022 09:04 AM <div class="ms-4">
                     <div>
                       <div>
                         <div><span class="me-2"><!--v-if--><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: green;"><path fill="currentColor" d="M8.864.046C7.908-.193 7.02.53 6.956 1.466c-.072 1.051-.23 2.016-.428 2.59c-.125.36-.479 1.013-1.04 1.639c-.557.623-1.282 1.178-2.131 1.41C2.685 7.288 2 7.87 2 8.72v4.001c0 .845.682 1.464 1.448 1.545c1.07.114 1.564.415 2.068.723l.048.03c.272.165.578.348.97.484c.397.136.861.217 1.466.217h3.5c.937 0 1.599-.477 1.934-1.064a1.86 1.86 0 0 0 .254-.912c0-.152-.023-.312-.077-.464c.201-.263.38-.578.488-.901c.11-.33.172-.762.004-1.149c.069-.13.12-.269.159-.403c.077-.27.113-.568.113-.857c0-.288-.036-.585-.113-.856a2 2 0 0 0-.138-.362a1.9 1.9 0 0 0 .234-1.734c-.206-.592-.682-1.1-1.2-1.272c-.847-.282-1.803-.276-2.516-.211a10 10 0 0 0-.443.05a9.4 9.4 0 0 0-.062-4.509A1.38 1.38 0 0 0 9.125.111zM11.5 14.721H8c-.51 0-.863-.069-1.14-.164c-.281-.097-.506-.228-.776-.393l-.04-.024c-.555-.339-1.198-.731-2.49-.868c-.333-.036-.554-.29-.554-.55V8.72c0-.254.226-.543.62-.65c1.095-.3 1.977-.996 2.614-1.708c.635-.71 1.064-1.475 1.238-1.978c.243-.7.407-1.768.482-2.85c.025-.362.36-.594.667-.518l.262.066c.16.04.258.143.288.255a8.34 8.34 0 0 1-.145 4.725a.5.5 0 0 0 .595.644l.003-.001l.014-.003l.058-.014a9 9 0 0 1 1.036-.157c.663-.06 1.457-.054 2.11.164c.175.058.45.3.57.65c.107.308.087.67-.266 1.022l-.353.353l.353.354c.043.043.105.141.154.315c.048.167.075.37.075.581c0 .212-.027.414-.075.582c-.05.174-.111.272-.154.315l-.353.353l.353.354c.047.047.109.177.005.488a2.2 2.2 0 0 1-.505.805l-.353.353l.353.354c.006.005.041.05.041.17a.9.9 0 0 1-.121.416c-.165.288-.503.56-1.066.56z"></path></svg></span><button class="btn btn-sm btn-dance ms-2" type="button" title="Viennese Waltz" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -2740,7 +2740,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg></a></span>
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" href="/song/details/2e654b5b-49ed-4d87-87ec-bd7fdf603219?filter=v2-newmusic--Created---%5C-dgsnure%7Ca">Otto Make That Riff Staccato</a>
+                <!----><a data-v-a7ef304f="" href="/song/details/2e654b5b-49ed-4d87-87ec-bd7fdf603219?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Otto Make That Riff Staccato</a>
               </td>
               <td scope="col" class="">
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=THE%20SCHWINGS%20BAND">THE SCHWINGS BAND</a>
@@ -2855,7 +2855,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg></a></span>
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" href="/song/details/6633bec5-9416-41a1-bdac-eb5e13b450a8?filter=v2-newmusic--Created---%5C-dgsnure%7Ca">Lo Que Siento</a>
+                <!----><a data-v-a7ef304f="" href="/song/details/6633bec5-9416-41a1-bdac-eb5e13b450a8?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Lo Que Siento</a>
               </td>
               <td scope="col" class="">
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=La%20Nueva%20Luna">La Nueva Luna</a>
@@ -2927,7 +2927,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg></a></span>
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" href="/song/details/09a10e7d-e92a-4f53-8392-0505dab6da99?filter=v2-newmusic--Created---%5C-dgsnure%7Ca">Roto</a>
+                <!----><a data-v-a7ef304f="" href="/song/details/09a10e7d-e92a-4f53-8392-0505dab6da99?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Roto</a>
               </td>
               <td scope="col" class="">
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Rodrigo%20Tapari">Rodrigo Tapari</a>
@@ -2999,7 +2999,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg></a></span>
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" href="/song/details/afd8e091-35fc-451c-a4c8-862954234da7?filter=v2-newmusic--Created---%5C-dgsnure%7Ca">You Are Not Alone</a>
+                <!----><a data-v-a7ef304f="" href="/song/details/afd8e091-35fc-451c-a4c8-862954234da7?filter=v2-newmusic--Created---%5C-UserAK%7Ca">You Are Not Alone</a>
               </td>
               <td scope="col" class="">
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Klaus%20Hallen%20Tanzorchester">Klaus Hallen Tanzorchester</a>
@@ -3026,7 +3026,7 @@ exports[`New Music > renders a new music page 1`] = `
               <td scope="col" class=""></td>
               <td scope="col" class="">
                 <!---->
-                <div data-v-a7ef304f=""><span class="me-2"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em"><path fill="currentColor" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5L13.5 4.793L14.793 3.5L12.5 1.207zm1.586 3L10.5 3.207L4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175l-.106.106l-1.528 3.821l3.821-1.528l.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"></path></svg></span>Added by <a data-v-6358290b="" href="/users/info/paulspiano" class="pseudo">paulspiano</a> on 10/27/2022 09:00 AM <div class="ms-4">
+                <div data-v-a7ef304f=""><span class="me-2"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em"><path fill="currentColor" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5L13.5 4.793L14.793 3.5L12.5 1.207zm1.586 3L10.5 3.207L4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175l-.106.106l-1.528 3.821l3.821-1.528l.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"></path></svg></span>Added by <a data-v-6358290b="" href="/users/info/userbg" class="pseudo">userbg</a> on 10/27/2022 09:00 AM <div class="ms-4">
                     <div>
                       <div>
                         <div><span class="me-2"><!--v-if--><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: green;"><path fill="currentColor" d="M8.864.046C7.908-.193 7.02.53 6.956 1.466c-.072 1.051-.23 2.016-.428 2.59c-.125.36-.479 1.013-1.04 1.639c-.557.623-1.282 1.178-2.131 1.41C2.685 7.288 2 7.87 2 8.72v4.001c0 .845.682 1.464 1.448 1.545c1.07.114 1.564.415 2.068.723l.048.03c.272.165.578.348.97.484c.397.136.861.217 1.466.217h3.5c.937 0 1.599-.477 1.934-1.064a1.86 1.86 0 0 0 .254-.912c0-.152-.023-.312-.077-.464c.201-.263.38-.578.488-.901c.11-.33.172-.762.004-1.149c.069-.13.12-.269.159-.403c.077-.27.113-.568.113-.857c0-.288-.036-.585-.113-.856a2 2 0 0 0-.138-.362a1.9 1.9 0 0 0 .234-1.734c-.206-.592-.682-1.1-1.2-1.272c-.847-.282-1.803-.276-2.516-.211a10 10 0 0 0-.443.05a9.4 9.4 0 0 0-.062-4.509A1.38 1.38 0 0 0 9.125.111zM11.5 14.721H8c-.51 0-.863-.069-1.14-.164c-.281-.097-.506-.228-.776-.393l-.04-.024c-.555-.339-1.198-.731-2.49-.868c-.333-.036-.554-.29-.554-.55V8.72c0-.254.226-.543.62-.65c1.095-.3 1.977-.996 2.614-1.708c.635-.71 1.064-1.475 1.238-1.978c.243-.7.407-1.768.482-2.85c.025-.362.36-.594.667-.518l.262.066c.16.04.258.143.288.255a8.34 8.34 0 0 1-.145 4.725a.5.5 0 0 0 .595.644l.003-.001l.014-.003l.058-.014a9 9 0 0 1 1.036-.157c.663-.06 1.457-.054 2.11.164c.175.058.45.3.57.65c.107.308.087.67-.266 1.022l-.353.353l.353.354c.043.043.105.141.154.315c.048.167.075.37.075.581c0 .212-.027.414-.075.582c-.05.174-.111.272-.154.315l-.353.353l.353.354c.047.047.109.177.005.488a2.2 2.2 0 0 1-.505.805l-.353.353l.353.354c.006.005.041.05.041.17a.9.9 0 0 1-.121.416c-.165.288-.503.56-1.066.56z"></path></svg></span><button class="btn btn-sm btn-dance ms-2" type="button" title="Slow Foxtrot" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -3074,7 +3074,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg></a></span>
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" href="/song/details/3b5e2f24-ea3f-4c5f-b78a-60bc0af8b2f6?filter=v2-newmusic--Created---%5C-dgsnure%7Ca">Don't Forget to Say Goodnight</a>
+                <!----><a data-v-a7ef304f="" href="/song/details/3b5e2f24-ea3f-4c5f-b78a-60bc0af8b2f6?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Don't Forget to Say Goodnight</a>
               </td>
               <td scope="col" class="">
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Alicia%20Gianni">Alicia Gianni</a>
@@ -3112,7 +3112,7 @@ exports[`New Music > renders a new music page 1`] = `
               </td>
               <td scope="col" class="">
                 <!---->
-                <div data-v-a7ef304f=""><span class="me-2"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em"><path fill="currentColor" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5L13.5 4.793L14.793 3.5L12.5 1.207zm1.586 3L10.5 3.207L4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175l-.106.106l-1.528 3.821l3.821-1.528l.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"></path></svg></span>Added by <a data-v-6358290b="" href="/users/info/jonathanwolfgram" class="pseudo">jonathanwolfgram</a> on 10/26/2022 09:02 AM <div class="ms-4">
+                <div data-v-a7ef304f=""><span class="me-2"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em"><path fill="currentColor" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5L13.5 4.793L14.793 3.5L12.5 1.207zm1.586 3L10.5 3.207L4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175l-.106.106l-1.528 3.821l3.821-1.528l.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"></path></svg></span>Added by <a data-v-6358290b="" href="/users/info/useraf" class="pseudo">useraf</a> on 10/26/2022 09:02 AM <div class="ms-4">
                     <div>
                       <div>
                         <div><span class="me-2"><!--v-if--><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: green;"><path fill="currentColor" d="M8.864.046C7.908-.193 7.02.53 6.956 1.466c-.072 1.051-.23 2.016-.428 2.59c-.125.36-.479 1.013-1.04 1.639c-.557.623-1.282 1.178-2.131 1.41C2.685 7.288 2 7.87 2 8.72v4.001c0 .845.682 1.464 1.448 1.545c1.07.114 1.564.415 2.068.723l.048.03c.272.165.578.348.97.484c.397.136.861.217 1.466.217h3.5c.937 0 1.599-.477 1.934-1.064a1.86 1.86 0 0 0 .254-.912c0-.152-.023-.312-.077-.464c.201-.263.38-.578.488-.901c.11-.33.172-.762.004-1.149c.069-.13.12-.269.159-.403c.077-.27.113-.568.113-.857c0-.288-.036-.585-.113-.856a2 2 0 0 0-.138-.362a1.9 1.9 0 0 0 .234-1.734c-.206-.592-.682-1.1-1.2-1.272c-.847-.282-1.803-.276-2.516-.211a10 10 0 0 0-.443.05a9.4 9.4 0 0 0-.062-4.509A1.38 1.38 0 0 0 9.125.111zM11.5 14.721H8c-.51 0-.863-.069-1.14-.164c-.281-.097-.506-.228-.776-.393l-.04-.024c-.555-.339-1.198-.731-2.49-.868c-.333-.036-.554-.29-.554-.55V8.72c0-.254.226-.543.62-.65c1.095-.3 1.977-.996 2.614-1.708c.635-.71 1.064-1.475 1.238-1.978c.243-.7.407-1.768.482-2.85c.025-.362.36-.594.667-.518l.262.066c.16.04.258.143.288.255a8.34 8.34 0 0 1-.145 4.725a.5.5 0 0 0 .595.644l.003-.001l.014-.003l.058-.014a9 9 0 0 1 1.036-.157c.663-.06 1.457-.054 2.11.164c.175.058.45.3.57.65c.107.308.087.67-.266 1.022l-.353.353l.353.354c.043.043.105.141.154.315c.048.167.075.37.075.581c0 .212-.027.414-.075.582c-.05.174-.111.272-.154.315l-.353.353l.353.354c.047.047.109.177.005.488a2.2 2.2 0 0 1-.505.805l-.353.353l.353.354c.006.005.041.05.041.17a.9.9 0 0 1-.121.416c-.165.288-.503.56-1.066.56z"></path></svg></span><button class="btn btn-sm btn-dance ms-2" type="button" title="Slow Foxtrot" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -3160,7 +3160,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg></a></span>
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" href="/song/details/de8f1064-7184-4bd7-9659-3f46eab8f3fe?filter=v2-newmusic--Created---%5C-dgsnure%7Ca">L'un près de l'autre</a>
+                <!----><a data-v-a7ef304f="" href="/song/details/de8f1064-7184-4bd7-9659-3f46eab8f3fe?filter=v2-newmusic--Created---%5C-UserAK%7Ca">L'un près de l'autre</a>
               </td>
               <td scope="col" class="">
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=No%C3%A9e">Noée</a>
@@ -3198,7 +3198,7 @@ exports[`New Music > renders a new music page 1`] = `
               </td>
               <td scope="col" class="">
                 <!---->
-                <div data-v-a7ef304f=""><span class="me-2"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em"><path fill="currentColor" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5L13.5 4.793L14.793 3.5L12.5 1.207zm1.586 3L10.5 3.207L4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175l-.106.106l-1.528 3.821l3.821-1.528l.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"></path></svg></span>Added by <a data-v-6358290b="" href="/users/info/paulspiano" class="pseudo">paulspiano</a> on 10/23/2022 09:04 AM <div class="ms-4">
+                <div data-v-a7ef304f=""><span class="me-2"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em"><path fill="currentColor" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5L13.5 4.793L14.793 3.5L12.5 1.207zm1.586 3L10.5 3.207L4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175l-.106.106l-1.528 3.821l3.821-1.528l.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"></path></svg></span>Added by <a data-v-6358290b="" href="/users/info/userbg" class="pseudo">userbg</a> on 10/23/2022 09:04 AM <div class="ms-4">
                     <div>
                       <div>
                         <div><span class="me-2"><!--v-if--><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: green;"><path fill="currentColor" d="M8.864.046C7.908-.193 7.02.53 6.956 1.466c-.072 1.051-.23 2.016-.428 2.59c-.125.36-.479 1.013-1.04 1.639c-.557.623-1.282 1.178-2.131 1.41C2.685 7.288 2 7.87 2 8.72v4.001c0 .845.682 1.464 1.448 1.545c1.07.114 1.564.415 2.068.723l.048.03c.272.165.578.348.97.484c.397.136.861.217 1.466.217h3.5c.937 0 1.599-.477 1.934-1.064a1.86 1.86 0 0 0 .254-.912c0-.152-.023-.312-.077-.464c.201-.263.38-.578.488-.901c.11-.33.172-.762.004-1.149c.069-.13.12-.269.159-.403c.077-.27.113-.568.113-.857c0-.288-.036-.585-.113-.856a2 2 0 0 0-.138-.362a1.9 1.9 0 0 0 .234-1.734c-.206-.592-.682-1.1-1.2-1.272c-.847-.282-1.803-.276-2.516-.211a10 10 0 0 0-.443.05a9.4 9.4 0 0 0-.062-4.509A1.38 1.38 0 0 0 9.125.111zM11.5 14.721H8c-.51 0-.863-.069-1.14-.164c-.281-.097-.506-.228-.776-.393l-.04-.024c-.555-.339-1.198-.731-2.49-.868c-.333-.036-.554-.29-.554-.55V8.72c0-.254.226-.543.62-.65c1.095-.3 1.977-.996 2.614-1.708c.635-.71 1.064-1.475 1.238-1.978c.243-.7.407-1.768.482-2.85c.025-.362.36-.594.667-.518l.262.066c.16.04.258.143.288.255a8.34 8.34 0 0 1-.145 4.725a.5.5 0 0 0 .595.644l.003-.001l.014-.003l.058-.014a9 9 0 0 1 1.036-.157c.663-.06 1.457-.054 2.11.164c.175.058.45.3.57.65c.107.308.087.67-.266 1.022l-.353.353l.353.354c.043.043.105.141.154.315c.048.167.075.37.075.581c0 .212-.027.414-.075.582c-.05.174-.111.272-.154.315l-.353.353l.353.354c.047.047.109.177.005.488a2.2 2.2 0 0 1-.505.805l-.353.353l.353.354c.006.005.041.05.041.17a.9.9 0 0 1-.121.416c-.165.288-.503.56-1.066.56z"></path></svg></span><button class="btn btn-sm btn-dance ms-2" type="button" title="Viennese Waltz" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -3246,7 +3246,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg></a></span>
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" href="/song/details/02d0246f-77f8-4b04-b6d3-cae0793794fd?filter=v2-newmusic--Created---%5C-dgsnure%7Ca">Adieu je t'aime</a>
+                <!----><a data-v-a7ef304f="" href="/song/details/02d0246f-77f8-4b04-b6d3-cae0793794fd?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Adieu je t'aime</a>
               </td>
               <td scope="col" class="">
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Ycare">Ycare</a>
@@ -3284,7 +3284,7 @@ exports[`New Music > renders a new music page 1`] = `
               </td>
               <td scope="col" class="">
                 <!---->
-                <div data-v-a7ef304f=""><span class="me-2"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em"><path fill="currentColor" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5L13.5 4.793L14.793 3.5L12.5 1.207zm1.586 3L10.5 3.207L4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175l-.106.106l-1.528 3.821l3.821-1.528l.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"></path></svg></span>Added by <a data-v-6358290b="" href="/users/info/paulspiano" class="pseudo">paulspiano</a> on 10/23/2022 09:01 AM <div class="ms-4">
+                <div data-v-a7ef304f=""><span class="me-2"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em"><path fill="currentColor" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5L13.5 4.793L14.793 3.5L12.5 1.207zm1.586 3L10.5 3.207L4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175l-.106.106l-1.528 3.821l3.821-1.528l.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"></path></svg></span>Added by <a data-v-6358290b="" href="/users/info/userbg" class="pseudo">userbg</a> on 10/23/2022 09:01 AM <div class="ms-4">
                     <div>
                       <div>
                         <div><span class="me-2"><!--v-if--><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: green;"><path fill="currentColor" d="M8.864.046C7.908-.193 7.02.53 6.956 1.466c-.072 1.051-.23 2.016-.428 2.59c-.125.36-.479 1.013-1.04 1.639c-.557.623-1.282 1.178-2.131 1.41C2.685 7.288 2 7.87 2 8.72v4.001c0 .845.682 1.464 1.448 1.545c1.07.114 1.564.415 2.068.723l.048.03c.272.165.578.348.97.484c.397.136.861.217 1.466.217h3.5c.937 0 1.599-.477 1.934-1.064a1.86 1.86 0 0 0 .254-.912c0-.152-.023-.312-.077-.464c.201-.263.38-.578.488-.901c.11-.33.172-.762.004-1.149c.069-.13.12-.269.159-.403c.077-.27.113-.568.113-.857c0-.288-.036-.585-.113-.856a2 2 0 0 0-.138-.362a1.9 1.9 0 0 0 .234-1.734c-.206-.592-.682-1.1-1.2-1.272c-.847-.282-1.803-.276-2.516-.211a10 10 0 0 0-.443.05a9.4 9.4 0 0 0-.062-4.509A1.38 1.38 0 0 0 9.125.111zM11.5 14.721H8c-.51 0-.863-.069-1.14-.164c-.281-.097-.506-.228-.776-.393l-.04-.024c-.555-.339-1.198-.731-2.49-.868c-.333-.036-.554-.29-.554-.55V8.72c0-.254.226-.543.62-.65c1.095-.3 1.977-.996 2.614-1.708c.635-.71 1.064-1.475 1.238-1.978c.243-.7.407-1.768.482-2.85c.025-.362.36-.594.667-.518l.262.066c.16.04.258.143.288.255a8.34 8.34 0 0 1-.145 4.725a.5.5 0 0 0 .595.644l.003-.001l.014-.003l.058-.014a9 9 0 0 1 1.036-.157c.663-.06 1.457-.054 2.11.164c.175.058.45.3.57.65c.107.308.087.67-.266 1.022l-.353.353l.353.354c.043.043.105.141.154.315c.048.167.075.37.075.581c0 .212-.027.414-.075.582c-.05.174-.111.272-.154.315l-.353.353l.353.354c.047.047.109.177.005.488a2.2 2.2 0 0 1-.505.805l-.353.353l.353.354c.006.005.041.05.041.17a.9.9 0 0 1-.121.416c-.165.288-.503.56-1.066.56z"></path></svg></span><button class="btn btn-sm btn-dance ms-2" type="button" title="Samba" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -3332,7 +3332,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg></a></span>
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" href="/song/details/d7f9cbc4-5f2a-4240-9f88-1c93fb921e30?filter=v2-newmusic--Created---%5C-dgsnure%7Ca">Never Seen Anything "Quite Like You" - Acoustic</a>
+                <!----><a data-v-a7ef304f="" href="/song/details/d7f9cbc4-5f2a-4240-9f88-1c93fb921e30?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Never Seen Anything "Quite Like You" - Acoustic</a>
               </td>
               <td scope="col" class="">
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=The%20Script">The Script</a>
@@ -3477,7 +3477,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg></a></span>
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" href="/song/details/7b98f34f-bea4-4f2e-a0bd-124431750025?filter=v2-newmusic--Created---%5C-dgsnure%7Ca">Where We Land</a>
+                <!----><a data-v-a7ef304f="" href="/song/details/7b98f34f-bea4-4f2e-a0bd-124431750025?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Where We Land</a>
               </td>
               <td scope="col" class="">
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Ed%20Sheeran">Ed Sheeran</a>
@@ -3601,7 +3601,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg></a></span>
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" href="/song/details/1cfe4de8-38e8-4611-8530-92c8eac069d6?filter=v2-newmusic--Created---%5C-dgsnure%7Ca">Duetos De Etiqueta #1 - Roto Corazón</a>
+                <!----><a data-v-a7ef304f="" href="/song/details/1cfe4de8-38e8-4611-8530-92c8eac069d6?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Duetos De Etiqueta #1 - Roto Corazón</a>
               </td>
               <td scope="col" class="">
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Mario%20Luis">Mario Luis</a>
@@ -3673,7 +3673,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg></a></span>
               </td>
               <td scope="col" class="">
-                <!----><a data-v-a7ef304f="" href="/song/details/3ac55d8f-d9c3-4d52-a8b0-c6382612d2df?filter=v2-newmusic--Created---%5C-dgsnure%7Ca">Girl Named Summertime (feat. Jon Bellion)</a>
+                <!----><a data-v-a7ef304f="" href="/song/details/3ac55d8f-d9c3-4d52-a8b0-c6382612d2df?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Girl Named Summertime (feat. Jon Bellion)</a>
               </td>
               <td scope="col" class="">
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Brandyn%20Burnette">Brandyn Burnette</a>
@@ -3711,7 +3711,7 @@ exports[`New Music > renders a new music page 1`] = `
               </td>
               <td scope="col" class="">
                 <!---->
-                <div data-v-a7ef304f=""><span class="me-2"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em"><path fill="currentColor" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5L13.5 4.793L14.793 3.5L12.5 1.207zm1.586 3L10.5 3.207L4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175l-.106.106l-1.528 3.821l3.821-1.528l.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"></path></svg></span>Added by <a data-v-6358290b="" href="/users/info/tylerqjoslin" class="pseudo">tylerqjoslin</a> on 10/22/2022 09:01 AM <div class="ms-4">
+                <div data-v-a7ef304f=""><span class="me-2"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em"><path fill="currentColor" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5L13.5 4.793L14.793 3.5L12.5 1.207zm1.586 3L10.5 3.207L4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175l-.106.106l-1.528 3.821l3.821-1.528l.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"></path></svg></span>Added by <a data-v-6358290b="" href="/users/info/userbh" class="pseudo">userbh</a> on 10/22/2022 09:01 AM <div class="ms-4">
                     <div>
                       <div>
                         <div><span class="me-2"><!--v-if--><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: green;"><path fill="currentColor" d="M8.864.046C7.908-.193 7.02.53 6.956 1.466c-.072 1.051-.23 2.016-.428 2.59c-.125.36-.479 1.013-1.04 1.639c-.557.623-1.282 1.178-2.131 1.41C2.685 7.288 2 7.87 2 8.72v4.001c0 .845.682 1.464 1.448 1.545c1.07.114 1.564.415 2.068.723l.048.03c.272.165.578.348.97.484c.397.136.861.217 1.466.217h3.5c.937 0 1.599-.477 1.934-1.064a1.86 1.86 0 0 0 .254-.912c0-.152-.023-.312-.077-.464c.201-.263.38-.578.488-.901c.11-.33.172-.762.004-1.149c.069-.13.12-.269.159-.403c.077-.27.113-.568.113-.857c0-.288-.036-.585-.113-.856a2 2 0 0 0-.138-.362a1.9 1.9 0 0 0 .234-1.734c-.206-.592-.682-1.1-1.2-1.272c-.847-.282-1.803-.276-2.516-.211a10 10 0 0 0-.443.05a9.4 9.4 0 0 0-.062-4.509A1.38 1.38 0 0 0 9.125.111zM11.5 14.721H8c-.51 0-.863-.069-1.14-.164c-.281-.097-.506-.228-.776-.393l-.04-.024c-.555-.339-1.198-.731-2.49-.868c-.333-.036-.554-.29-.554-.55V8.72c0-.254.226-.543.62-.65c1.095-.3 1.977-.996 2.614-1.708c.635-.71 1.064-1.475 1.238-1.978c.243-.7.407-1.768.482-2.85c.025-.362.36-.594.667-.518l.262.066c.16.04.258.143.288.255a8.34 8.34 0 0 1-.145 4.725a.5.5 0 0 0 .595.644l.003-.001l.014-.003l.058-.014a9 9 0 0 1 1.036-.157c.663-.06 1.457-.054 2.11.164c.175.058.45.3.57.65c.107.308.087.67-.266 1.022l-.353.353l.353.354c.043.043.105.141.154.315c.048.167.075.37.075.581c0 .212-.027.414-.075.582c-.05.174-.111.272-.154.315l-.353.353l.353.354c.047.047.109.177.005.488a2.2 2.2 0 0 1-.505.805l-.353.353l.353.354c.006.005.041.05.041.17a.9.9 0 0 1-.121.416c-.165.288-.503.56-1.066.56z"></path></svg></span><button class="btn btn-sm btn-dance ms-2" type="button" title="East Coast Swing" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -3780,7 +3780,7 @@ exports[`New Music > renders a new music page 1`] = `
         <div class="col-md-2">Page 1 of 1235 (30870 songs found)</div>
         <div class="col-md-2">
           <div><a href="/song/advancedsearchform">New Search</a></div>
-          <div><a href="/song/createspotify?filter=v2-newmusic--Created---%5C-dgsnure%7Ca">Create Spotify Playlist</a></div>
+          <div><a href="/song/createspotify?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Create Spotify Playlist</a></div>
           <!--v-if-->
         </div>
       </div>

@@ -208,11 +208,11 @@ namespace m4dModels.Tests
             await AddUser(service, "DWTS", true);
             await AddUser(service, "Charlie", false);
             await AddUser(service, "ohdwg", false);
-            await AddUser(service, "HunterZ", true);
-            await AddUser(service, "EthanH", true);
-            await AddUser(service, "ChaseP", true);
-            await AddUser(service, "JuliaS", true);
-            await AddUser(service, "LincolnA", true);
+            await AddUser(service, "UserG", true);
+            await AddUser(service, "UserAC", true);
+            await AddUser(service, "UserN", true);
+            await AddUser(service, "UserZ", true);
+            await AddUser(service, "UserF", true);
             return service;
         }
 
@@ -229,7 +229,7 @@ namespace m4dModels.Tests
             // TODO: Should be able to make these happen in parallel
             var service = await CreateService(name);
 
-            var users = await ReadResourceList("test-users.txt");
+            var users = await ReadResourceList("test-users-clean.txt");
             var dances = await ReadResourceList(@"test-dances.txt");
             var tags = await ReadResourceList(@"test-tags.txt");
             var searches = await ReadResourceList(@"test-searches.txt");

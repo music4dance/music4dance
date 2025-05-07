@@ -14,10 +14,10 @@ exports[`User Info > Renders User Info Page 1`] = `
   <div id="body-content" class="container-fluid body-content">
     <div class="mt-2"></div>
     <div>
-      <h1> Info for <em>chicagoarthurmurray</em>'s Profile </h1>
+      <h1> Info for <em>useram</em>'s Profile </h1>
       <div>
         <div>
-          <div class="fs-5"> This is a proxy user based on a public spotify profile. View chicagoarthurmurray's spotify profile <a href="https://open.spotify.com/user/chicagoarthurmurray" target="_blank"><span class="me-1">here</span><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="vertical-align: top;" class="fs-6">
+          <div class="fs-5"> This is a proxy user based on a public spotify profile. View useram's spotify profile <a href="https://open.spotify.com/user/UserAM" target="_blank"><span class="me-1">here</span><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="vertical-align: top;" class="fs-6">
                 <g fill="currentColor" fill-rule="evenodd">
                   <path d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5"></path>
                   <path d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z"></path>
@@ -25,7 +25,7 @@ exports[`User Info > Renders User Info Page 1`] = `
               </svg></a>. </div>
         </div>
         <div>
-          <h2>chicagoarthurmurray's Song Lists</h2>
+          <h2>useram's Song Lists</h2>
           <ul>
             <li data-v-1e741aa0="" class="list-clean-aligned lh-lg"><svg data-v-1e741aa0="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
                 <g fill="currentColor">
@@ -34,7 +34,7 @@ exports[`User Info > Renders User Info Page 1`] = `
                 </g>
               </svg><span data-v-1e741aa0="" class="px-1"></span><svg data-v-1e741aa0="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
                 <path fill="currentColor" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5L13.5 4.793L14.793 3.5L12.5 1.207zm1.586 3L10.5 3.207L4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175l-.106.106l-1.528 3.821l3.821-1.528l.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"></path>
-              </svg><span data-v-1e741aa0="" class="px-1"></span><a data-v-1e741aa0="" href="/song/filterSearch?filter=v2-index--Modified---%2Bchicagoarthurmurray%7Ca" class="ms-1">Songs that chicagoarthurmurray has edited.</a><span data-v-1e741aa0=""> (104)</span></li>
+              </svg><span data-v-1e741aa0="" class="px-1"></span><a data-v-1e741aa0="" href="/song/filterSearch?filter=v2-index--Modified---%2BUserAM%7Ca" class="ms-1">Songs that useram has edited.</a><span data-v-1e741aa0=""> (104)</span></li>
             <li data-v-1e741aa0="" class="list-clean-aligned lh-lg"><svg data-v-1e741aa0="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
                 <g fill="currentColor">
                   <path fill-rule="evenodd" d="M5.5 8a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1H6a.5.5 0 0 1-.5-.5"></path>
@@ -42,12 +42,12 @@ exports[`User Info > Renders User Info Page 1`] = `
                 </g>
               </svg><span data-v-1e741aa0="" class="px-1"></span><svg data-v-1e741aa0="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
                 <path fill="currentColor" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5L13.5 4.793L14.793 3.5L12.5 1.207zm1.586 3L10.5 3.207L4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175l-.106.106l-1.528 3.821l3.821-1.528l.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"></path>
-              </svg><span data-v-1e741aa0="" class="px-1"></span><a data-v-1e741aa0="" href="/song/filterSearch?filter=v2-index--Modified---%5C-chicagoarthurmurray%7Ca" class="ms-1">Songs that chicagoarthurmurray has <em>not</em> edited.</a>
+              </svg><span data-v-1e741aa0="" class="px-1"></span><a data-v-1e741aa0="" href="/song/filterSearch?filter=v2-index--Modified---%5C-UserAM%7Ca" class="ms-1">Songs that useram has <em>not</em> edited.</a>
               <!--v-if-->
             </li>
           </ul>
           <div>
-            <p>chicagoarthurmurray in order to add songs to your lists, either <a class="" href="https://music4dance.blog/music4dance-help/dance-tags/">vote on songs to dance to</a> or <a class="" href="https://music4dance.blog/what-is-the-difference-between-adding-a-song-to-favorites-and-voting-on-a-songs-danceability/">add song to your favorites or blocked lists</a>. </p>
+            <p>useram in order to add songs to your lists, either <a class="" href="https://music4dance.blog/music4dance-help/dance-tags/">vote on songs to dance to</a> or <a class="" href="https://music4dance.blog/what-is-the-difference-between-adding-a-song-to-favorites-and-voting-on-a-songs-danceability/">add song to your favorites or blocked lists</a>. </p>
             <p> The User Song List feature is still under development. We are considering including lists of dance styles that the user has tagged or possibly including lists of arbitrary tags. Please <a href="https://music4dance.blog/feedback/">let us know</a> if you like this feature or have ideas to improve it (or both). </p>
             <!--v-if-->
           </div>

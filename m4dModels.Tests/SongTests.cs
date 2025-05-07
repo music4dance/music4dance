@@ -260,7 +260,7 @@ namespace m4dModels.Tests
         {
             var song = new Song();
             await song.Load(
-                @".Create=	User=dgsnure	Time=03/12/2021 12:29:51	Title=Otro en Su Cama	Artist=Jhonny Evidence	Length=213	DanceRating=LTN+1	.Edit=	User=batch-i	Time=03/12/2021 12:29:53	Tag+=Música Tropical:Music	.Edit=	User=batch-s	Time=03/12/2021 12:29:53	Tag+=Bachata Dominicana:Music	.Edit=	User=batch-e	Time=03/12/2021 12:29:53	Tempo=119.9	Danceability=0.792	Energy=0.728	Valence=0.811	Tag+=4/4:Tempo	.Edit=	Time=03/12/2021 12:29:53	.Edit=	User=dwgray	Time=02-Apr-2021 08:14:56 PM	DanceRating=BCH+1	Tag+=Bachata:Dance	.Edit=	User=dwgray	Time=02-Apr-2021 08:16:06 PM	DanceRating=BCH-2	Tag-=Bachata:Dance	Tag+=!Bachata:Dance",
+                @".Create=	User=UserAK	Time=03/12/2021 12:29:51	Title=Otro en Su Cama	Artist=Jhonny Evidence	Length=213	DanceRating=LTN+1	.Edit=	User=batch-i	Time=03/12/2021 12:29:53	Tag+=Música Tropical:Music	.Edit=	User=batch-s	Time=03/12/2021 12:29:53	Tag+=Bachata Dominicana:Music	.Edit=	User=batch-e	Time=03/12/2021 12:29:53	Tempo=119.9	Danceability=0.792	Energy=0.728	Valence=0.811	Tag+=4/4:Tempo	.Edit=	Time=03/12/2021 12:29:53	.Edit=	User=dwgray	Time=02-Apr-2021 08:14:56 PM	DanceRating=BCH+1	Tag+=Bachata:Dance	.Edit=	User=dwgray	Time=02-Apr-2021 08:16:06 PM	DanceRating=BCH-2	Tag-=Bachata:Dance	Tag+=!Bachata:Dance",
                 await GetService());
             Assert.IsFalse(song.TagSummary.HasTag("Bachata:Dance"));
         }
@@ -407,14 +407,14 @@ namespace m4dModels.Tests
         {
             var service = await GetService();
             const string init =
-                @".Create=	User=Amstl|P	Time=11/27/2021 09:01:22	Title=Santa Claus Is Comin' To Town - (Cha Cha Cha / 32 BPM)	Artist=Tanz Orchester Klaus Hallen	Length=217	Album:00=Christmas	Track:00=3	Tag+=Cha Cha:Dance	DanceRating=CHA+1	Purchase:00:SA=7jy1ckFTNouRlg7PfTBrCc	Purchase:00:SS=1eUvYOYBDuTBX9uStaCXfB	.Edit=	User=batch-i|P	Time=11/27/2021 09:01:23	Purchase:00:IS=504512032	Purchase:00:IA=504512003	Tag+=Pop:Music	.Edit=	User=Amstl|P	Time=11/27/2021 09:02:53	Tag+=Rumba:Dance	DanceRating=RMB+1	.Edit=	User=batch-s|P	Time=04/04/2023 16:58:27	Tempo=128.0	Danceability=0.803	Energy=0.591	Valence=0.935	Tag+=4/4:Tempo";
+                @".Create=	User=UserAG|P	Time=11/27/2021 09:01:22	Title=Santa Claus Is Comin' To Town - (Cha Cha Cha / 32 BPM)	Artist=Tanz Orchester Klaus Hallen	Length=217	Album:00=Christmas	Track:00=3	Tag+=Cha Cha:Dance	DanceRating=CHA+1	Purchase:00:SA=7jy1ckFTNouRlg7PfTBrCc	Purchase:00:SS=1eUvYOYBDuTBX9uStaCXfB	.Edit=	User=batch-i|P	Time=11/27/2021 09:01:23	Purchase:00:IS=504512032	Purchase:00:IA=504512003	Tag+=Pop:Music	.Edit=	User=UserAG|P	Time=11/27/2021 09:02:53	Tag+=Rumba:Dance	DanceRating=RMB+1	.Edit=	User=batch-s|P	Time=04/04/2023 16:58:27	Tempo=128.0	Danceability=0.803	Energy=0.591	Valence=0.935	Tag+=4/4:Tempo";
             var song = new Song();
             await song.Load(init, service);
 
             Trace.WriteLine(song.TagSummary);
             Assert.AreEqual(@"4/4:Tempo:1|Cha Cha:Dance:1|Pop:Music:1|Rumba:Dance:1", song.TagSummary.ToString());
 
-            bool changed = await song.AdminAddUserProperties("Amstl|P",
+            bool changed = await song.AdminAddUserProperties("UserAG|P",
                 [new SongProperty(Song.AddedTags, "Holiday:Other|Christmas:Other")],
                 service);
 
@@ -429,14 +429,14 @@ namespace m4dModels.Tests
         {
             var service = await GetService();
             const string init =
-                @".Create=	User=Amstl|P	Time=11/27/2021 09:01:22	Title=Santa Claus Is Comin' To Town - (Cha Cha Cha / 32 BPM)	Artist=Tanz Orchester Klaus Hallen	Length=217	Album:00=Christmas	Track:00=3	Tag+=Cha Cha:Dance	DanceRating=CHA+1	Purchase:00:SA=7jy1ckFTNouRlg7PfTBrCc	Purchase:00:SS=1eUvYOYBDuTBX9uStaCXfB";
+                @".Create=	User=UserAG|P	Time=11/27/2021 09:01:22	Title=Santa Claus Is Comin' To Town - (Cha Cha Cha / 32 BPM)	Artist=Tanz Orchester Klaus Hallen	Length=217	Album:00=Christmas	Track:00=3	Tag+=Cha Cha:Dance	DanceRating=CHA+1	Purchase:00:SA=7jy1ckFTNouRlg7PfTBrCc	Purchase:00:SS=1eUvYOYBDuTBX9uStaCXfB";
             var song = new Song();
             await song.Load(init, service);
 
             Trace.WriteLine(song.TagSummary);
             Assert.AreEqual(@"Cha Cha:Dance:1", song.TagSummary.ToString());
 
-            bool changed = await song.AdminAddUserProperties("Amstl|P",
+            bool changed = await song.AdminAddUserProperties("UserAG|P",
                 [new SongProperty(Song.AddedTags, "Holiday:Other|Christmas:Other")],
                 service);
             Assert.IsTrue(changed);
@@ -450,14 +450,14 @@ namespace m4dModels.Tests
         {
             var service = await GetService();
             const string init =
-                @".Create=	User=Amstl|P	Time=11/27/2021 09:01:22	Title=Santa Claus Is Comin' To Town - (Cha Cha Cha / 32 BPM)	Artist=Tanz Orchester Klaus Hallen	Length=217	Album:00=Christmas	Track:00=3	Tag+=Cha Cha:Dance	DanceRating=CHA+1	Purchase:00:SA=7jy1ckFTNouRlg7PfTBrCc	Purchase:00:SS=1eUvYOYBDuTBX9uStaCXfB	Tag+=Holiday:Other|Christmas:Other";
+                @".Create=	User=UserAG|P	Time=11/27/2021 09:01:22	Title=Santa Claus Is Comin' To Town - (Cha Cha Cha / 32 BPM)	Artist=Tanz Orchester Klaus Hallen	Length=217	Album:00=Christmas	Track:00=3	Tag+=Cha Cha:Dance	DanceRating=CHA+1	Purchase:00:SA=7jy1ckFTNouRlg7PfTBrCc	Purchase:00:SS=1eUvYOYBDuTBX9uStaCXfB	Tag+=Holiday:Other|Christmas:Other";
             var song = new Song();
             await song.Load(init, service);
 
             Trace.WriteLine(song.TagSummary);
             Assert.AreEqual(@"Cha Cha:Dance:1|Christmas:Other:1|Holiday:Other:1", song.TagSummary.ToString());
 
-            bool changed = await song.AdminAddUserProperties("Amstl|P",
+            bool changed = await song.AdminAddUserProperties("UserAG|P",
                 [new SongProperty(Song.AddedTags, "Holiday:Other|Christmas:Other")],
                 service);
             Assert.IsFalse(changed);
@@ -472,7 +472,7 @@ namespace m4dModels.Tests
             var service = await GetService();
 
             const string init =
-                @".Create=	User=LizaMay|P	Time=12/18/2020 12:53:42	Title=Something Sweet	Artist=Madison Beer	Length=196	Album:00=Something Sweet	Track:00=1	Tag+=West Coast Swing:Dance	DanceRating=WCS+1	Purchase:00:SA=2oIUFdMdCZB6KSxcByEbDT	Purchase:00:SS=3PlM3biKS6ZUIHojCJmElE	DanceRating=SWG+1	.Edit=	User=batch-i|P	Time=12/18/2020 13:22:21	Purchase:00:IS=1068336005	Purchase:00:IA=1068336001	Tag+=Pop:Music	.Edit=	User=batch-s|P	Time=12/18/2020 13:22:21	Tag+=Dance Pop:Music|Electropop:Music|Pop Dance:Music|Pop:Music|Post Teen Pop:Music	.Edit=	User=batch-e|P	Time=12/18/2020 13:22:21	Tempo=100.0	Danceability=0.622	Energy=0.791	Valence=0.647	Tag+=4/4:Tempo	.Edit=	Time=12/18/2020 13:22:21	Sample=https://p.scdn.co/mp3-preview/8e1b328376bb18bb1b5d27649a59f2f1e175f199?cid=e6dc118cd7604cd2b8bd0a979a18e6f8	.Edit=	User=StephanieLienPham|P	Time=05/09/2021 09:11:30	Tag+=West Coast Swing:Dance	DanceRating=WCS+1	DanceRating=SWG+1	.Edit=	User=dwgray	Time=23-May-2021 02:32:40 PM	DeleteTag=Swing:Dance	DeleteTag=West Coast Swing:Dance	.Edit=	User=dwgray	Time=23-May-2021 03:09:31 PM	DeleteTag=Dance Pop:Music	DeleteTag=Pop Dance:Music";
+                @".Create=	User=UserBP|P	Time=12/18/2020 12:53:42	Title=Something Sweet	Artist=Madison Beer	Length=196	Album:00=Something Sweet	Track:00=1	Tag+=West Coast Swing:Dance	DanceRating=WCS+1	Purchase:00:SA=2oIUFdMdCZB6KSxcByEbDT	Purchase:00:SS=3PlM3biKS6ZUIHojCJmElE	DanceRating=SWG+1	.Edit=	User=batch-i|P	Time=12/18/2020 13:22:21	Purchase:00:IS=1068336005	Purchase:00:IA=1068336001	Tag+=Pop:Music	.Edit=	User=batch-s|P	Time=12/18/2020 13:22:21	Tag+=Dance Pop:Music|Electropop:Music|Pop Dance:Music|Pop:Music|Post Teen Pop:Music	.Edit=	User=batch-e|P	Time=12/18/2020 13:22:21	Tempo=100.0	Danceability=0.622	Energy=0.791	Valence=0.647	Tag+=4/4:Tempo	.Edit=	Time=12/18/2020 13:22:21	Sample=https://p.scdn.co/mp3-preview/8e1b328376bb18bb1b5d27649a59f2f1e175f199?cid=e6dc118cd7604cd2b8bd0a979a18e6f8	.Edit=	User=UserBO|P	Time=05/09/2021 09:11:30	Tag+=West Coast Swing:Dance	DanceRating=WCS+1	DanceRating=SWG+1	.Edit=	User=dwgray	Time=23-May-2021 02:32:40 PM	DeleteTag=Swing:Dance	DeleteTag=West Coast Swing:Dance	.Edit=	User=dwgray	Time=23-May-2021 03:09:31 PM	DeleteTag=Dance Pop:Music	DeleteTag=Pop Dance:Music";
             var song = new Song();
             await song.Load(init, service);
 
@@ -482,13 +482,13 @@ namespace m4dModels.Tests
                 song.TagSummary.ToString());
         }
 
-        private const string UndoSong = @".Create=	User=dgsnure|P	Time=03/30/2019 09:01:27	Title=all the good girls go to hell	Artist=Billie Eilish	Length=169	Album:00=WHEN WE ALL FALL ASLEEP, WHERE DO WE GO?	Track:00=5	Tag+=Cha Cha:Dance	DanceRating=CHA+1	.Edit=	User=SabrinaSkandy|P	Time=01/26/2022 03:34:57	Tag+=West Coast Swing:Dance	DanceRating=WCS+1	.Edit=	User=Charlie	Time=11-Sep-2023 07:26:08 PM	Like=true	.Edit=	User=JuliaS	Time=17-May-2024 03:09:42 PM	Like=true	.Edit=	User=Charlie	Time=15-Aug-2024 08:47:03 AM	DanceRating=CHA+1	Tag+=Cha Cha:Dance	Comment+:WCS=I real swing out to this one.";
+        private const string UndoSong = @".Create=	User=UserAK|P	Time=03/30/2019 09:01:27	Title=all the good girls go to hell	Artist=Billie Eilish	Length=169	Album:00=WHEN WE ALL FALL ASLEEP, WHERE DO WE GO?	Track:00=5	Tag+=Cha Cha:Dance	DanceRating=CHA+1	.Edit=	User=UserAT|P	Time=01/26/2022 03:34:57	Tag+=West Coast Swing:Dance	DanceRating=WCS+1	.Edit=	User=Charlie	Time=11-Sep-2023 07:26:08 PM	Like=true	.Edit=	User=UserZ	Time=17-May-2024 03:09:42 PM	Like=true	.Edit=	User=Charlie	Time=15-Aug-2024 08:47:03 AM	DanceRating=CHA+1	Tag+=Cha Cha:Dance	Comment+:WCS=I real swing out to this one.";
 
         [TestMethod]
         public async Task UndoUser()
         {
             var service = await GetService();
-            var user = await service.FindUser("JuliaS");
+            var user = await service.FindUser("UserZ");
 
             var song = new Song();
             await song.Load(UndoSong, service);

@@ -439,7 +439,7 @@ export const model = {
           title: "Ask music4dance: Should you add a Single Swing Dance category?",
           reference: "blog/ask-music4dance-should-you-add-a-single-swing-dance-category/",
           description:
-            '<a href="https://www.music4dance.net/users/info/arne">Arne</a> had <a href="https://music4dance.blog/2022/02/20/new-feature-searching-for-a-song-from-spotify-or-itunes/">another</a> great question: I see Single Swing being danced a lot these days.  Should music4dance add another <a href="https://www.music4dance.net/dances/swing">swing category</a>? Is Single Swing...',
+            '<a href="https://www.music4dance.net/users/info/arne">UserBK</a> had <a href="https://music4dance.blog/2022/02/20/new-feature-searching-for-a-song-from-spotify-or-itunes/">another</a> great question: I see Single Swing being danced a lot these days.  Should music4dance add another <a href="https://www.music4dance.net/dances/swing">swing category</a>? Is Single Swing...',
           oneTime: false,
           crawl: false,
           order: 88,
@@ -640,7 +640,7 @@ export const model = {
           title: "New Feature: Searching for a Song from Soptify or ITunes",
           reference: "blog/new-feature-searching-for-a-song-from-spotify-or-itunes/",
           description:
-            'A new member of the <a href="https://www.music4dance.net">music4dance</a> community, <a href="https://www.music4dance.net/users/info/arne">Arne</a>, pointed out that he expected to be able to search by Spotify Id. Furthermore, he figured out how to do that...',
+            'A new member of the <a href="https://www.music4dance.net">music4dance</a> community, <a href="https://www.music4dance.net/users/info/arne">UserBK</a>, pointed out that he expected to be able to search by Spotify Id. Furthermore, he figured out how to do that...',
           oneTime: false,
           crawl: false,
           order: 87,
@@ -661,7 +661,7 @@ export const model = {
           title: "New Feature: Searching for only the songs that someone has voted for",
           reference: "blog/new-feature-searching-for-only-the-songs-that-someone-has-voted-for/",
           description:
-            '<a href="https://www.music4dance.net/users/info/arne">Arne</a> pointed out the other day that it would be useful to be able to build a playlist for just the songs that he had <a href="https://music4dance.blog/music4dance-help/dance-tags/">voted</a> for dancing <a href="https://www.music4dance.net/dances/cha-cha">Cha Cha</a>. I scratched my head a bit...',
+            '<a href="https://www.music4dance.net/users/info/arne">UserBK</a> pointed out the other day that it would be useful to be able to build a playlist for just the songs that he had <a href="https://music4dance.blog/music4dance-help/dance-tags/">voted</a> for dancing <a href="https://www.music4dance.net/dances/cha-cha">Cha Cha</a>. I scratched my head a bit...',
           oneTime: false,
           crawl: false,
           order: 93,
