@@ -159,23 +159,23 @@ watch([artist, title], () => {
         <BButton type="reset" variant="danger">Reset</BButton>
       </div>
     </BForm>
-    <BAlert v-show="searching && !songs" show variant="info">
+    <BAlert :model-value="searching && !songs" variant="info">
       <BSpinner class="me-3" />
       <span>Searching for </span> {{ title }} by {{ artist }} in the music4dance catalog.
     </BAlert>
     <div v-if="songs && !tracks">
-      <BAlert v-show="songs.length" show variant="success"
+      <BAlert :model-value="!!songs.length" variant="success"
         >We found some songs in the music4dance catalog that may be a match. If one of the songs
         below is a match, please click the "Edit" button next the song, otherwise search on iTunes
         or spotify.</BAlert
       >
-      <BAlert v-show="!songs.length" show variant="warning"
+      <BAlert :model-value="!songs.length" variant="warning"
         >No songs matching, click one of the buttons below to search <b>Spotify</b> or
         <b>Apple Music</b>.</BAlert
       >
     </div>
     <div v-if="songs">
-      <BAlert v-show="searching && songs" show variant="info">
+      <BAlert :model-value="!!(searching && songs)" variant="info">
         <BSpinner class="me-3" />
         <span>Searching for </span> {{ title }} by {{ artist }} in the publisher catalog.
       </BAlert>
@@ -192,13 +192,13 @@ watch([artist, title], () => {
       @song-selected="editSong"
     />
     <div v-if="tracks" class="my-2">
-      <BAlert v-show="tracks.length" show variant="success"
+      <BAlert :model-value="!!tracks.length" variant="success"
         >We found some songs that may be a match. If one of the songs below is a match, please click
         the "Add" button next. Otherwise, try searching the other service (Apple Music or Spotify).
         If none of that works, try changing the title or artist - less is sometimes better, so
         perhaps just use artist last name or a fragment of the title.</BAlert
       >
-      <BAlert v-show="!tracks.length" show variant="warning"
+      <BAlert :model-value="!tracks.length" variant="warning"
         >No matching songs. Please try searching the other service (Apple Music or Spotify). If none
         of that works, try changing the title or artist - less is sometimes better, so perhaps just
         use artist last name or a fragment of the title.</BAlert

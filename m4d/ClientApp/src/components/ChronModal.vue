@@ -27,7 +27,7 @@ const chooseSort = (order: RadioValue) => {
 </script>
 
 <template>
-  <BModal id="chron-modal" title="Chronological Sort" hide-footer size="sm">
+  <BModal id="chron-modal" title="Chronological Sort" no-footer size="sm">
     <BContainer>
       <BRow>
         <BCol>

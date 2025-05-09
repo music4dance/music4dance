@@ -10,14 +10,14 @@ import { Tag } from "@/models/Tag";
 import { TrackModel } from "@/models/TrackModel";
 import { getMenuContext } from "@/helpers/GetMenuContext";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
-import { computed, onBeforeMount, onBeforeUnmount, ref, watch } from "vue";
+import { computed, onBeforeMount, onBeforeUnmount, ref } from "vue";
 import type { SongHistory } from "@/models/SongHistory";
 import { useToastController, useModalController } from "bootstrap-vue-next";
 import { TagHandler } from "@/models/TagHandler";
 
 const context = getMenuContext();
 const danceDB = safeDanceDatabase();
-const { show } = useToastController();
+const { create: createToast } = useToastController();
 const { confirm, hide } = useModalController();
 
 const props = defineProps<{
@@ -39,7 +39,8 @@ const editor = ref<SongEditor | null>(
     ? new SongEditor(context.axiosXsrf, props.model.userName, props.model.songHistory)
     : null,
 );
-const toastShown = ref(false);
+let toastValue: string | undefined;
+
 const edit = ref(props.startEditing);
 
 const tagModalVisible = ref(false);
@@ -74,26 +75,19 @@ const showSave = computed(
 );
 const history = computed(() => (editor.value ? editor.value.history : props.model.songHistory));
 const modified = computed(() => {
-  const modified = editor.value?.modified ?? false;
-  if (modified && !toastShown.value) {
-    show?.({
-      props: {
-        title: "Don't Forget!",
-        variant: "primary",
-        pos: "top-center",
-        value: 5000,
-        interval: 100,
-        solid: true,
-        body: `Click '${saveText.value}' to save your changes`,
-      },
+  const value = editor.value?.modified ?? false;
+  if (value && !toastValue) {
+    toastValue = "save-toast";
+    createToast({
+      title: "Don't Forget!",
+      variant: "primary",
+      pos: "top-center",
+
+      body: `Click '${saveText.value}' to save your changes`,
+      id: toastValue,
     });
   }
-  return modified;
-});
-watch(modified, (value) => {
-  if (value) {
-    toastShown.value = true;
-  }
+  return value;
 });
 
 const artistLink = computed(() => {
@@ -235,7 +229,7 @@ const leaveWarning = (event: BeforeUnloadEvent): void => {
 const cancelChanges = (): void => {
   editor.value!.revert();
   edit.value = false;
-  toastShown.value = false;
+  toastValue = undefined;
   emit("cancel-changes");
 };
 const saveChanges = async (): Promise<void> => {

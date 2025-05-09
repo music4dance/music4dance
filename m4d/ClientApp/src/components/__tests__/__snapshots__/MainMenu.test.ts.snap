@@ -14,10 +14,10 @@ exports[`MainMenu.vue > Renders MainMenu for an anonymous user 1`] = `
         <div id="nav-collapse" class="collapse navbar-collapse" is-nav="true" style="display: none;">
           <ul class="navbar-nav">
             <li class="nav-item dropdown">
-              <div data-v-8ac2524d="" class="dropdown"><button data-v-8ac2524d="" class="btn btn-md btn-link nav-link dropdown-toggle" type="button" id="music-menu" aria-expanded="false" aria-haspopup="menu">Music</button>
+              <div class="dropdown"><button class="btn btn-md btn-link nav-link dropdown-toggle" type="button" id="music-menu" aria-expanded="false" aria-haspopup="menu">Music</button>
                 <!---->
-                <transition-stub data-v-8ac2524d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <ul data-v-8ac2524d="" id="music-menu-menu" style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto fade" aria-labelledby="music-menu" role="menu">
+                <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <ul id="music-menu-menu" style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto fade" aria-labelledby="music-menu" role="menu">
                     <li role="presentation"><a class="dropdown-item" href="/dances" role="menuitem">Dances</a></li>
                     <li role="presentation" class="nav-subitem"><a class="dropdown-item" href="/dances/ballroom-competition-categories" role="menuitem">&nbsp;&nbsp;Ballroom</a></li>
                     <li role="presentation" class="nav-subitem"><a class="dropdown-item" href="/dances/latin" role="menuitem">&nbsp;&nbsp;Latin</a></li>
@@ -39,10 +39,10 @@ exports[`MainMenu.vue > Renders MainMenu for an anonymous user 1`] = `
               </div>
             </li>
             <li class="nav-item dropdown">
-              <div data-v-8ac2524d="" class="dropdown"><button data-v-8ac2524d="" class="btn btn-md btn-link nav-link dropdown-toggle" type="button" id="tools-menu" aria-expanded="false" aria-haspopup="menu">Tools</button>
+              <div class="dropdown"><button class="btn btn-md btn-link nav-link dropdown-toggle" type="button" id="tools-menu" aria-expanded="false" aria-haspopup="menu">Tools</button>
                 <!---->
-                <transition-stub data-v-8ac2524d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <ul data-v-8ac2524d="" id="tools-menu-menu" style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto fade" aria-labelledby="tools-menu" role="menu">
+                <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <ul id="tools-menu-menu" style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto fade" aria-labelledby="tools-menu" role="menu">
                     <li role="presentation"><a class="dropdown-item" href="/home/counter" role="menuitem">Tempo Counter</a></li>
                     <li role="presentation"><a class="dropdown-item" href="/home/tempi" role="menuitem">Tempi (Tempos)</a></li>
                     <li role="presentation"><a class="dropdown-item" href="/song/advancedsearchform" role="menuitem">Advanced Search</a></li>
@@ -52,10 +52,10 @@ exports[`MainMenu.vue > Renders MainMenu for an anonymous user 1`] = `
               </div>
             </li>
             <li class="nav-item dropdown">
-              <div data-v-8ac2524d="" class="dropdown"><button data-v-8ac2524d="" class="btn btn-md btn-link nav-link dropdown-toggle" type="button" id="info" aria-expanded="false" aria-haspopup="menu">Info</button>
+              <div class="dropdown"><button class="btn btn-md btn-link nav-link dropdown-toggle" type="button" id="info" aria-expanded="false" aria-haspopup="menu">Info</button>
                 <!---->
-                <transition-stub data-v-8ac2524d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <ul data-v-8ac2524d="" id="info-menu" style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto fade" aria-labelledby="info" role="menu">
+                <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <ul id="info-menu" style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto fade" aria-labelledby="info" role="menu">
                     <li role="presentation"><a class="dropdown-item" href="https://music4dance.blog/music4dance-help/" role="menuitem">Help</a></li>
                     <li role="presentation"><a class="dropdown-item" href="https://music4dance.blog/" role="menuitem">Blog</a></li>
                     <li role="presentation"><a class="dropdown-item" href="/home/faq" role="menuitem">FAQ</a></li>

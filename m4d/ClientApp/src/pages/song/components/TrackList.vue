@@ -65,8 +65,8 @@ const lookup = async (service?: string): Promise<void> => {
         <BButton variant="outline-primary" @click="lookup('S')">Spotify</BButton>
         <BButton variant="outline-primary" @click="lookup('I')">iTunes</BButton>
       </div>
-      <BAlert v-if="error" show variant="danger" class="mt-2">{{ error }}</BAlert>
-      <BAlert v-if="tracks.length > 0" show variant="success" class="mt-2">
+      <BAlert v-if="error" :model-value="true" variant="danger" class="mt-2">{{ error }}</BAlert>
+      <BAlert v-if="tracks.length > 0" :model-valuie="true" variant="success" class="mt-2">
         {{ tracks.length }} track found. {{ newTracks.length }} not already added.
       </BAlert>
     </BForm>

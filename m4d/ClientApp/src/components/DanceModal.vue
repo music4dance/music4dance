@@ -93,7 +93,7 @@ const onTagClicked = (tag: TagHandler): void => {
     :title="title"
     :header-bg-variant="tag.variant"
     header-text-variant="light"
-    hide-footer
+    no-footer
     @show="resetModal"
   >
     <template #modal-title> <TagIcon :name="tag.icon!" />&nbsp;{{ title }} </template>

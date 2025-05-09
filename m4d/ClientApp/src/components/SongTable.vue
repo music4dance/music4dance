@@ -61,6 +61,7 @@ const currentDance = ref<DanceHandler>(
   new DanceHandler({
     danceRating: new DanceRating({ danceId: "SWZ", weight: 0 }),
     tag: Tag.fromString("Placeholder:Other"),
+    user: context.userName,
   }),
 );
 
@@ -254,7 +255,7 @@ const danceHandler = (tag: Tag, filter: SongFilter, editor: SongEditor): DanceHa
   return new DanceHandler({
     danceRating: danceRating!,
     tag,
-    user: userQuery?.userName,
+    user: context.userName,
     filter,
     parent: song,
     editor,

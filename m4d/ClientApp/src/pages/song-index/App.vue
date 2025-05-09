@@ -17,7 +17,13 @@ const { songs: selected, select: selectSong } = useSongSelector();
 
 <template>
   <PageFrame id="app">
-    <BAlert v-if="complexSearchWarning" show dismissible variant="warning" style="margin-bottom: 0">
+    <BAlert
+      v-if="complexSearchWarning"
+      :model-value="true"
+      dismissible
+      variant="warning"
+      style="margin-bottom: 0"
+    >
       This is a complex search that requries multiple passes to compute. We're limitting the initial
       pass to 500 songs, which may result in much less that 500 songs in the final results as well
       as incomplete results (the intial pass in this cases yields {{ model.rawCount }} songs). We

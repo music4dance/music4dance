@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 import { MenuContext } from "@/models/MenuContext";
 import MainMenu from "../MainMenu.vue";
 import { mockResizObserver } from "@/helpers/TestHelpers";
-import { modalControllerPlugin, modalManagerPlugin } from "bootstrap-vue-next";
+import { modalControllerPlugin, modalManagerPlugin, toastPlugin } from "bootstrap-vue-next";
 
 describe("MainMenu.vue", () => {
   test("Renders MainMenu for an anonymous user", () => {
@@ -11,7 +11,7 @@ describe("MainMenu.vue", () => {
     const context = new MenuContext();
     const wrapper = mount(MainMenu, {
       props: { context },
-      global: { plugins: [modalControllerPlugin, modalManagerPlugin] },
+      global: { plugins: [modalControllerPlugin, modalManagerPlugin, toastPlugin] },
     });
     expect(wrapper.html()).toMatchSnapshot();
   });

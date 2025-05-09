@@ -64,7 +64,7 @@ function getTagLink(modifier: string, exclusive: boolean): string {
     v-model="modelValue"
     :header-bg-variant="tag.variant"
     header-text-variant="light"
-    hide-footer
+    no-footer
   >
     <template #title><TagIcon :name="tag.icon!" />&nbsp;{{ title }} </template>
     <!-- <template v-slot:title>Help Me!</template> -->

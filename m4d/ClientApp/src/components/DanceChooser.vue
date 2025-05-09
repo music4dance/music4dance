@@ -86,7 +86,7 @@ const isGroup = (dance: NamedObject) => {
 </script>
 
 <template>
-  <BModal id="dance-chooser" header-bg-variant="primary" header-text-variant="light" hide-footer>
+  <BModal id="dance-chooser" header-bg-variant="primary" header-text-variant="light" no-footer>
     <template #title> <IBiAward />&nbsp;Choose Dance Style </template>
     <BButton
       v-if="danceId"

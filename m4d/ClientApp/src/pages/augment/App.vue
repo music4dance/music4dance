@@ -7,7 +7,7 @@ import { SongHistory } from "@/models/SongHistory";
 import { TypedJSON } from "typedjson";
 import { getMenuContext } from "@/helpers/GetMenuContext";
 
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 
 enum AugmentPhase {
   lookup = "lookup",
@@ -25,10 +25,14 @@ const songModel = ref<SongDetailsModel | null>(null);
 const lastSong = ref<Song | null>(null);
 const created = ref(false);
 const propertiesString = ref("");
-const tabIndex = ref(model.id ? 1 : 0);
+const tabIndex = ref(0);
 
 const canAugment = computed(() => !!context.userName);
 const computedId = computed(() => (model.id ? model.id : undefined));
+
+onMounted(() => {
+  tabIndex.value = model.id ? 1 : 0;
+});
 
 const editSong = (model: SongDetailsModel): void => {
   songModel.value = new SongDetailsModel({
@@ -66,7 +70,7 @@ const reset = (saved: boolean): void => {
   <PageFrame id="app">
     <BRow v-if="phase === 'lookup'">
       <BCol>
-        <BAlert v-if="lastSong" dismissible show="10">
+        <BAlert v-if="lastSong" dismissible :model-value="1000">
           Thank you for {{ created ? "adding" : "editing" }} <i>{{ lastSong.title }}</i> by
           {{ lastSong.artist }}
         </BAlert>
@@ -97,7 +101,7 @@ const reset = (saved: boolean): void => {
       </BCol>
     </BRow>
     <div v-else>
-      <BAlert show variant="success">
+      <BAlert :model-value="true" variant="success">
         <div v-if="songModel && songModel.created">
           <b>Create Song:</b> This song is new to music4dance, please fill in missing fields and
           click <b>Add Song</b> to add this song to the catalog. Remember, you must vote on at least
@@ -118,7 +122,7 @@ const reset = (saved: boolean): void => {
     </div>
     <BRow
       ><BCol>
-        <BAlert show variant="warning">
+        <BAlert :model-value="true" variant="warning">
           Adding songs is a new feature so if you run into bugs or have suggestions for improving
           this feature please don't hesitate to send email to
           <a href="mailto:info@music4dance.net">info@music4dance.net</a> or fill out our
