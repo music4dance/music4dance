@@ -9,7 +9,6 @@
     <None Remove="TestData\test-dances.txt" />
     <None Remove="TestData\test-groups.json" />
     <None Remove="TestData\test-searches.txt" />
-    <None Remove="TestData\test-songs.txt" />
     <None Remove="TestData\test-tags.txt" />
   </ItemGroup>
   <ItemGroup>
@@ -26,9 +25,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="TestData\test-searches.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="TestData\test-songs.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="TestData\test-tags.txt">
