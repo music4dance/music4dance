@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { type SearchPage } from "@/models/SearchPage";
-import axios from "axios";
 import { onMounted, ref } from "vue";
+import { getAxiosXsrf } from "@/helpers/GetMenuContext";
 
 const props = defineProps<{
   search: string;
@@ -18,7 +18,7 @@ const cleanItem = (item: SearchPage): SearchPage => {
 };
 
 onMounted(async () => {
-  const results = await axios.get(`/api/search?search=${props.search}`);
+  const results = await getAxiosXsrf().get(`/api/search?search=${props.search}`);
   entries.value = results.data.map((p: SearchPage) => cleanItem(p));
 });
 </script>

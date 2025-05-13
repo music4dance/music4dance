@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace m4d.APIControllers;
 
 [ApiController]
+[ValidateAntiForgeryToken]
 [Route("api/[controller]")]
 public class DancesController(
     DanceMusicContext context, UserManager<ApplicationUser> userManager,

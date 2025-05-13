@@ -1,8 +1,8 @@
-import axios from "axios";
 import { TypedJSON } from "typedjson";
 import { PlaylistModel } from "@/models/PlaylistModel";
 import { ServiceUser } from "@/models/ServiceUser";
 import { SongDetailsModel } from "@/models/SongDetailsModel";
+import { getAxiosXsrf } from "./GetMenuContext";
 
 export interface Service {
   id: string;
@@ -85,7 +85,7 @@ export class ServiceMatcher {
       try {
         const id = this.parseId(serviceString, service);
         const uri = `/api/servicetrack/${service.id}${id}?localOnly=${localOnly}`;
-        const response = await axios.get(uri);
+        const response = await getAxiosXsrf().get(uri);
         const songModel = TypedJSON.parse(response.data, SongDetailsModel);
         return songModel;
       } catch {
@@ -100,7 +100,7 @@ export class ServiceMatcher {
     if (id) {
       try {
         const uri = `/api/serviceplaylist/s${id}`;
-        const response = await axios.get(uri);
+        const response = await getAxiosXsrf().get(uri);
         const trackModel = TypedJSON.parse(response.data, PlaylistModel);
         return trackModel;
       } catch {
@@ -115,7 +115,7 @@ export class ServiceMatcher {
     if (id) {
       try {
         const uri = `/api/serviceuser/s${id}`;
-        const response = await axios.get(uri);
+        const response = await getAxiosXsrf().get(uri);
         const userModel = TypedJSON.parse(response.data, ServiceUser);
         return userModel;
       } catch {

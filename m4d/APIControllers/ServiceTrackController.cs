@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace m4d.APIControllers;
 
 [ApiController]
+[ValidateAntiForgeryToken]
 [Route("api/[controller]")]
 public class ServiceTrackController(
     DanceMusicContext context, UserManager<ApplicationUser> userManager,

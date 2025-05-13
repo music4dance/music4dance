@@ -26,6 +26,7 @@ export class MenuContext implements MenuContextInterface {
   public updateMessage?: string;
   public marketingMessage?: string;
   public xsrfToken?: string;
+  private axiosInstance?: AxiosInstance;
 
   public constructor(init?: MenuContextInterface) {
     Object.assign(this, init);
@@ -73,9 +74,12 @@ export class MenuContext implements MenuContextInterface {
   }
 
   public get axiosXsrf(): AxiosInstance {
-    return axios.create({
-      headers: { RequestVerificationToken: this.xsrfToken },
-    });
+    if (!this.axiosInstance) {
+      this.axiosInstance = axios.create({
+        headers: { RequestVerificationToken: this.xsrfToken },
+      });
+    }
+    return this.axiosInstance;
   }
 
   public get isLocal(): boolean {

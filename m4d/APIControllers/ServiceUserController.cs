@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace m4d.APIControllers;
 
 [ApiController]
+[ValidateAntiForgeryToken]
 [Route("api/[controller]")]
 public class ServiceUserController(
     DanceMusicContext context, UserManager<ApplicationUser> userManager,

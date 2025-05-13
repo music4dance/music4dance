@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { PlaylistModel } from "@/models/PlaylistModel";
-import axios from "axios";
 import { computed, ref } from "vue";
 import { getMenuContext } from "@/helpers/GetMenuContext";
 
@@ -23,7 +22,7 @@ const submit = async (event: Event): Promise<void> => {
   const tags = danceTags.value + (songTags.value ? `|||${songTags.value}` : "");
   const url = `/api/serviceplaylist?id=s${props.id}&tags=${tags}`;
   try {
-    await axios.post(url);
+    await context.axiosXsrf.post(url);
     alert(`Playlist ${props.id} added to music4dance`);
   } catch (e) {
     alert(`Failed to add playlist ${props.id} to music4dance`);

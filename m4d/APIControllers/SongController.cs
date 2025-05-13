@@ -13,8 +13,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace m4d.APIControllers;
 
 [ApiController]
-[Route("api/[controller]")]
 [ValidateAntiForgeryToken]
+[Route("api/[controller]")]
 public class SongController(
     DanceMusicContext context, UserManager<ApplicationUser> userManager,
     ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,

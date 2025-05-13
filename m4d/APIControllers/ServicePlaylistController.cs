@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace m4d.APIControllers;
 
 [ApiController]
+[ValidateAntiForgeryToken]
 [Route("api/[controller]")]
 public class ServicePlaylistController(
     DanceMusicContext context, UserManager<ApplicationUser> userManager,

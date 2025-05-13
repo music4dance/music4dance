@@ -3,7 +3,6 @@ import { type BreadCrumbItem, danceTrail } from "@/models/BreadCrumbItem";
 import { DanceModel } from "@/models/DanceModel";
 import { SongFilter } from "@/models/SongFilter";
 import { TempoType } from "@/models/TempoType";
-import axios from "axios";
 import { TypedJSON } from "typedjson";
 import DanceDescription from "./components/DanceDescription.vue";
 import DanceLinks from "./components/DanceLinks.vue";
@@ -12,6 +11,7 @@ import { getMenuContext } from "@/helpers/GetMenuContext";
 import { DanceGroup } from "@/models/DanceDatabase/DanceGroup";
 import type { DanceType } from "@/models/DanceDatabase/DanceType";
 import { computed, ref } from "vue";
+import { getAxiosXsrf } from "@/helpers/GetMenuContext";
 
 const danceDB = safeDanceDatabase();
 const menuContext = getMenuContext();
@@ -62,7 +62,7 @@ const cancelChanges = (): void => {
 
 const saveChanges = async () => {
   try {
-    await axios.patch(`/api/dances/${model.danceId}`, {
+    await getAxiosXsrf().patch(`/api/dances/${model.danceId}`, {
       id: model.danceId,
       description: description.value,
       danceLinks: links.value,

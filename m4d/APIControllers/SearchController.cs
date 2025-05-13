@@ -12,6 +12,7 @@ using Microsoft.Extensions.Azure;
 namespace m4d.APIControllers;
 
 [ApiController]
+[ValidateAntiForgeryToken]
 [Route("api/[controller]")]
 public class SearchController(
     DanceMusicContext context, UserManager<ApplicationUser> userManager,

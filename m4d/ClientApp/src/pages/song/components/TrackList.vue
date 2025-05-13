@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { Song } from "@/models/Song";
 import { TrackModel } from "@/models/TrackModel";
-import axios from "axios";
 import { TypedJSON } from "typedjson";
 import { computed, ref } from "vue";
+import { getAxiosXsrf } from "@/helpers/GetMenuContext";
 
 const props = defineProps<{
   song: Song;
@@ -44,7 +44,9 @@ const lookup = async (service?: string): Promise<void> => {
     if (artistValue) {
       parameters += `artist=${encodeURIComponent(artistValue)}&`;
     }
-    const results = await axios.get(`/api/musicservice/${props.song.songId}?${parameters}`);
+    const results = await getAxiosXsrf().get(
+      `/api/musicservice/${props.song.songId}?${parameters}`,
+    );
     tracks.value = TypedJSON.parseAsArray(results.data, TrackModel);
   } catch (e: unknown) {
     error.value = e as string;

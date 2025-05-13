@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import axios from "axios";
 import { EnhancedTrackModel } from "@/models/TrackModel";
 import { SongDetailsModel } from "@/models/SongDetailsModel";
 import { TypedJSON } from "typedjson";
 import { computed, onMounted } from "vue";
+import { getAxiosXsrf } from "@/helpers/GetMenuContext";
 
 const props = defineProps<{
   track: EnhancedTrackModel;
@@ -21,7 +21,7 @@ onMounted(async () => {
   const uri = `/api/servicetrack/${props.track.serviceType}${props.track.trackId}?localOnly=true`;
   let songId = "notfound";
   try {
-    const response = await axios.get(uri);
+    const response = await getAxiosXsrf().get(uri);
     const songModel = TypedJSON.parse(response.data, SongDetailsModel);
     if (songModel) {
       console.log(`Found: ${props.track.trackId}`);

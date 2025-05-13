@@ -1,4 +1,5 @@
 import { MenuContext } from "@/models/MenuContext";
+import type { AxiosInstance } from "axios";
 
 declare global {
   interface Window {
@@ -15,4 +16,8 @@ export function getMenuContext(): MenuContext {
       : new MenuContext();
   }
   return menuContextObject;
+}
+
+export function getAxiosXsrf(): AxiosInstance {
+  return getMenuContext().axiosXsrf;
 }

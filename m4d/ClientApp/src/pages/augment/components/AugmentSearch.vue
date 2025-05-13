@@ -4,7 +4,6 @@ import { SongFilter } from "@/models/SongFilter";
 import { SongHistory } from "@/models/SongHistory";
 import { TrackModel } from "@/models/TrackModel";
 import { getMenuContext } from "@/helpers/GetMenuContext";
-import axios from "axios";
 import { TypedJSON } from "typedjson";
 import { ref, watch } from "vue";
 
@@ -94,7 +93,7 @@ const searchService = async (s: string): Promise<void> => {
   try {
     service.value = s;
     searching.value = true;
-    const results = await axios.get(
+    const results = await context.axiosXsrf.get(
       `/api/musicservice/?service=${s}&title=${title.value}&artist=${artist.value}`,
     );
     tracks.value = TypedJSON.parseAsArray(results.data, TrackModel);
@@ -109,7 +108,7 @@ const addTrack = async (track: TrackModel): Promise<void> => {
   adding.value = true;
   try {
     const uri = `/api/servicetrack/${service.value}${track.trackId}`;
-    const response = await axios.get(uri);
+    const response = await context.axiosXsrf.get(uri);
     const songModel = TypedJSON.parse(response.data, SongDetailsModel);
     if (songModel) {
       emit("edit-song", songModel);
