@@ -186,11 +186,11 @@ public class AdminController(
     // Get: //Reseed
     //[Authorize(Roles = "dbAdmin")]
     [AllowAnonymous]
-    public ActionResult Reseed([FromServices] UserManager<ApplicationUser> userManager,
+    public async Task<IActionResult> Reseed([FromServices] UserManager<ApplicationUser> userManager,
         [FromServices] RoleManager<IdentityRole> roleManager)
     {
         ViewBag.Name = "Reseed Database";
-        ReseedDb(userManager, roleManager);
+        await ReseedDb(userManager, roleManager);
         ViewBag.Success = true;
         ViewBag.Message = "Database was successfully reseeded";
 
@@ -438,7 +438,7 @@ public class AdminController(
                     {
                         AdminMonitor.UpdateTask("Wipe Database");
                         // Full delete/reload worked locally - the second time???
-                        RestoreDb(userManager, roleManager, delete: true);
+                        await RestoreDb(userManager, roleManager, delete: true);
                     }
                 }
 
@@ -1134,10 +1134,10 @@ public class AdminController(
     // Get: //RestoreDatabase
     //[Authorize(Roles = "dbAdmin")]
     [AllowAnonymous]
-    public ActionResult RestoreDatabase([FromServices] UserManager<ApplicationUser> userManager,
+    public async Task<IActionResult> RestoreDatabase([FromServices] UserManager<ApplicationUser> userManager,
         [FromServices] RoleManager<IdentityRole> roleManager)
     {
-        RestoreDb(userManager, roleManager);
+        await RestoreDb(userManager, roleManager);
 
         ViewBag.Name = "Restore Database";
         ViewBag.Success = true;
@@ -1195,7 +1195,7 @@ public class AdminController(
 
     #region Migration-Restore
 
-    private void RestoreDb([FromServices] UserManager<ApplicationUser> userManager,
+    private async Task RestoreDb([FromServices] UserManager<ApplicationUser> userManager,
         [FromServices] RoleManager<IdentityRole> roleManager, string targetMigration = null,
         bool delete = false)
     {
@@ -1211,15 +1211,15 @@ public class AdminController(
         Logger.LogInformation($"Migrating to {targetMigration}");
         migrator.Migrate(targetMigration);
 
-        ReseedDb(userManager, roleManager);
+        await ReseedDb(userManager, roleManager);
 
         Logger.LogInformation("Exiting RestoreDB");
     }
 
-    private void ReseedDb(UserManager<ApplicationUser> userManager,
+    private async Task ReseedDb(UserManager<ApplicationUser> userManager,
         RoleManager<IdentityRole> roleManager)
     {
-        UserManagerHelpers.SeedData(userManager, roleManager);
+        await UserManagerHelpers.SeedData(userManager, roleManager, Configuration);
     }
 
     #endregion

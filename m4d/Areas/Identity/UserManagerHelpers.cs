@@ -1,31 +1,37 @@
 ﻿using m4dModels;
-
 using Microsoft.AspNetCore.Identity;
-
 namespace m4d.Areas.Identity;
 
 public static class UserManagerHelpers
 {
-    public static void SeedData(this UserManager<ApplicationUser> userManager,
-        RoleManager<IdentityRole> roleManager)
+    public static async Task SeedData(this UserManager<ApplicationUser> userManager,
+        RoleManager<IdentityRole> roleManager, IConfiguration configuration)
     {
-        SeedRoles(roleManager);
-        SeedUsers(userManager);
+        await SeedRoles(roleManager);
+        await SeedUsers(userManager, configuration);
     }
 
-    private static void SeedUsers(UserManager<ApplicationUser> userManager)
+    private static async Task SeedUsers(UserManager<ApplicationUser> userManager, IConfiguration configuration)
     {
-        if (userManager.FindByNameAsync("administrator").Result != null)
+        var adminUser = configuration["M4D_ADMIN_USER"];
+        if (string.IsNullOrEmpty(adminUser) || await userManager.FindByNameAsync(adminUser) != null)
         {
             return;
         }
 
+        var adminPassword = configuration["M4D_ADMIN_PASSWORD"];
+
+        if (string.IsNullOrWhiteSpace(adminPassword))
+        {
+            throw new Exception("M4D_ADMIN_USER and M4D_ADMIN_PASSWORD must be set in the configuration.");
+        }
+
         var user = new ApplicationUser
         {
-            ***REMOVED***, ***REMOVED***,
+            UserName = adminUser, Email = $"{adminUser}@music4dance.net",
             EmailConfirmed = true
         };
-        var result = userManager.CreateAsync(user, "***REMOVED***").Result;
+        var result = await userManager.CreateAsync(user, adminPassword);
 
         if (result.Succeeded)
         {
@@ -42,14 +48,13 @@ public static class UserManagerHelpers
         }
     }
 
-    private static void SeedRoles(RoleManager<IdentityRole> roleManager)
+    private static async Task SeedRoles(RoleManager<IdentityRole> roleManager)
     {
         foreach (var roleName in DanceMusicCoreService.Roles)
         {
             if (!roleManager.RoleExistsAsync(roleName).Result)
             {
-                var result = roleManager.CreateAsync(new IdentityRole { Name = roleName })
-                    .Result;
+                var result = await roleManager.CreateAsync(new IdentityRole { Name = roleName });
             }
         }
     }
