@@ -1,21 +1,19 @@
 <script setup lang="ts">
 import { TempoType } from "@/models/DanceDatabase/TempoType";
 import { ref, computed } from "vue";
-import type { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
+import { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
 import { DanceGroup } from "@/models/DanceDatabase/DanceGroup";
 import type { DanceObject } from "@/models/DanceDatabase/DanceObject";
-
-const props = defineProps<{
-  dances: DanceDatabase;
-}>();
+import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 
 const nameFilter = ref("");
 const showTempo = ref(TempoType.Both);
+const dances = safeDanceDatabase();
 
 const filteredDances = computed(() => {
-  return props.dances
-    .filterByName(nameFilter.value)
-    .filter((d) => DanceGroup.isGroup(d) || props.dances.getSongCount(d.id) > 0) as DanceObject[];
+  return DanceDatabase.filterByName(dances.flatGroups, nameFilter.value, true).filter(
+    (d) => DanceGroup.isGroup(d) || dances.getSongCount(d.id) > 0,
+  ) as DanceObject[];
 });
 </script>
 

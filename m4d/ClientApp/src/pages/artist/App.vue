@@ -26,7 +26,14 @@ const danceIds = [
     return acc;
   }, new Set<string>()),
 ];
-const dances = danceIds.map((id) => danceDB.dances.find((d) => d.id === id)!);
+
+const invalidDanceIds: string[] = danceIds.filter((id) => !danceDB.dances.some((d) => d.id === id));
+console.warn(
+  `Invalid dance IDs found in artist model ${model.artist}: ${invalidDanceIds.join(", ")}`,
+);
+const dances = danceIds
+  .filter((id) => !invalidDanceIds.includes(id))
+  .map((id) => danceDB.dances.find((d) => d.id === id)!);
 </script>
 
 <template>

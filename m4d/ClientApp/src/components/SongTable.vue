@@ -67,6 +67,8 @@ const currentDance = ref<DanceHandler>(
 
 const playModalVisible = ref(false);
 const likeModalVisible = ref(false);
+const orderModalVisible = ref(false);
+
 const currentSong = ref<SongEditor>(new SongEditor());
 
 const filter = props.filter;
@@ -149,23 +151,45 @@ const likeHeader = computed(() => {
   return filter.singleDance ? ["likeDanceHeader"] : ["likeHeader"];
 });
 
-const titleHeaderTip = "Song Title: Click to sort alphabetically by title";
-const artistHeaderTip = "Artist: Click to sort alphabetically by artist";
-const tempoHeaderTip = "Tempo (Beats Per Minute): Click to sort numerically by tempo";
-const lengthHeaderTip = "Duration of Song in seconds";
-const beatTip =
-  "Strength of the beat (fuller icons represent a stronger beat). Click to sort by strength of the beat.";
-const energyTip =
-  "Energy of the song (fuller icons represent a higher energy). Click to sort by energy.";
-const moodTip = "Mood of the song (fuller icons represent a happier mood). Click to sort by mood.";
+const titleHeaderSortTip = "Song Title: Click to sort alphabetically by title";
+const titleHeaderCurrentTip = "Click on the song title to view the song details";
+const artistHeaderSortTip = "Artist: Click to sort alphabetically by artist";
+const artistHeaderCurrentTip = "Click on the artist name to view a list of songs by that artist";
+const tempoHeaderSortTip = "Click to sort numerically by tempo";
+const tempoHeaderCurrentTip =
+  "Tempo in beats per minute (BPM) - click a tempo to view dances danced to that tempo.";
+const lengthHeaderCurrentTip = "Duration of Song in seconds";
+const beatCurrentTip = "Strength of the beat (fuller icons represent a stronger beat).";
+const beatSortTip = "Click to sort by strength of the beat.";
+const energyCurrentTip = "Energy of the song (fuller icons represent a higher energy).";
+const energySortTip = "Click to sort by energy.";
+const moodCurrentTip = "Mood of the song (fuller icons represent a happier mood).";
+const moodSortTip = "Click to sort by mood.";
 const orderString = filter.sort?.id;
 const orderType = orderString ? (orderString as SortOrder) : SortOrder.Match;
 const echoClass =
   orderString === "Mood" || orderString === "Beat" || orderString === "Energy"
     ? ["sortedEchoHeader"]
     : ["echoHeader"];
-const dancesHeaderTip = "Dance: Click to sort by dance rating";
-const orderHeaderTip = `Click to sort chronologically`;
+const dancesHeaderSortTip = "Dance: Click to sort by dance rating";
+const dancesHeaderCurrentTip =
+  "A list of dances for the song. Click on a dance to view more actions and to vote on the dance for the song.";
+const tagsHeaderCurrentTip =
+  "A list of tags associated with the song. Click on a tag to filter by it.";
+const trackHeaderCurrentTip = "The track number of the song in the album.";
+const orderHeaderSortTip = "Click to choose chronological sort order.";
+const orderHeaderCurrentTip = (() => {
+  switch (orderType) {
+    default:
+      return "Values represent last modified date";
+    case SortOrder.Modified:
+      return "Sorted by last modified date";
+    case SortOrder.Created:
+      return "Sorted by creation date";
+    case SortOrder.Edited:
+      return "Sorted by last edited date";
+  }
+})();
 
 const filterUser = (() => {
   const user = hasUser ? userQuery?.userName : "";
@@ -384,7 +408,8 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
       <template #head(title)>
         <SortableHeader
           id="Title"
-          :tip="titleHeaderTip"
+          :sort-tip="titleHeaderSortTip"
+          :current-tip="titleHeaderCurrentTip"
           :enable-sort="!hideSort"
           :filter="filter"
         />
@@ -395,13 +420,23 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
       <template #head(artist)>
         <SortableHeader
           id="Artist"
-          :tip="artistHeaderTip"
+          :sort-tip="artistHeaderSortTip"
+          :current-tip="artistHeaderCurrentTip"
           :enable-sort="!hideSort"
           :filter="filter"
         />
       </template>
       <template #cell(artist)="data">
         <a :href="artistRef(data.item.song)">{{ data.item.song.artist }}</a>
+      </template>
+      <template #head(track)>
+        <SortableHeader
+          id="Track"
+          :sort-tip="artistHeaderSortTip"
+          :current-tip="trackHeaderCurrentTip"
+          :enable-sort="false"
+          :filter="filter"
+        />
       </template>
       <template #cell(track)="data">
         {{ trackNumber(data.item.song) }}
@@ -410,7 +445,8 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
         <SortableHeader
           id="Tempo"
           title="Tempo (BPM)"
-          :tip="tempoHeaderTip"
+          :sort-tip="tempoHeaderSortTip"
+          :current-tip="tempoHeaderCurrentTip"
           :enable-sort="!hideSort"
           :filter="filter"
         />
@@ -422,7 +458,7 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
         <SortableHeader
           id="Length"
           title="Length"
-          :tip="lengthHeaderTip"
+          :current-tip="lengthHeaderCurrentTip"
           :enable-sort="false"
           :filter="filter"
         />
@@ -432,13 +468,31 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
       </template>
       <template #head(echo)>
         <div :class="echoClass">
-          <SortableHeader id="Beat" :tip="beatTip" :enable-sort="!hideSort" :filter="filter">
+          <SortableHeader
+            id="Beat"
+            :sort-tip="beatSortTip"
+            :current-tip="beatCurrentTip"
+            :enable-sort="!hideSort"
+            :filter="filter"
+          >
             <img :src="beat10" width="25" height="25" />
           </SortableHeader>
-          <SortableHeader id="Energy" :tip="energyTip" :enable-sort="!hideSort" :filter="filter">
+          <SortableHeader
+            id="Energy"
+            :sort-tip="energySortTip"
+            :current-tip="energyCurrentTip"
+            :enable-sort="!hideSort"
+            :filter="filter"
+          >
             <img :src="energy10" width="25" height="25" />
           </SortableHeader>
-          <SortableHeader id="Mood" :tip="moodTip" :enable-sort="!hideSort" :filter="filter">
+          <SortableHeader
+            id="Mood"
+            :sort-tip="moodSortTip"
+            :current-tip="moodCurrentTip"
+            :enable-sort="!hideSort"
+            :filter="filter"
+          >
             <img :src="mood10" width="25" height="25" />
           </SortableHeader>
         </div>
@@ -467,7 +521,8 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
         <SortableHeader
           id="Dances"
           :enable-sort="sortableDances"
-          :tip="dancesHeaderTip"
+          :current-tip="dancesHeaderCurrentTip"
+          :sort-tip="dancesHeaderSortTip"
           :filter="filter"
         />
       </template>
@@ -480,6 +535,14 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
           @dance-vote="onDanceVote(data.item, $event)"
         />
       </template>
+      <template #head(tags)>
+        <SortableHeader
+          id="Tags"
+          :enable-sort="false"
+          :current-tip="tagsHeaderCurrentTip"
+          :filter="filter"
+        />
+      </template>
       <template #cell(tags)="data">
         <TagButton
           v-for="tag in tags(data.item.song)"
@@ -489,24 +552,34 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
         />
       </template>
       <template #head(order)>
-        <div class="orderHeader">
-          <OrderIcon v-if="hideSort" :order="orderType" />
-          <OrderIcon
-            v-else
-            v-b-modal.chron-modal
-            v-b-tooltip.hover.blur="{ title: orderHeaderTip, id: 'order_tip' }"
-            :order="orderType"
-          />
-          <SortIcon v-if="!hideSort" type="" :direction="filter.sort.direction" />
-        </div>
+        <SortableHeader
+          id="Order"
+          class="orderHeader"
+          :current-tip="orderHeaderCurrentTip"
+          :sort-tip="orderHeaderSortTip"
+          :filter="filter"
+          :enable-sort="!hideSort"
+          :custom-sort="true"
+          @click="
+            console.log('order clicked');
+            if (!hideSort) {
+              console.log('show modal');
+              orderModalVisible = true;
+            }
+          "
+          ><OrderIcon :order="orderType"
+        /></SortableHeader>
       </template>
       <template #cell(order)="data">
-        <span
-          v-b-tooltip.hover.click.topleft="{
-            title: orderTip(data.item.song),
-            id: `order_tip__${data.item.song.songId}`,
-          }"
-          >{{ orderValue(data.item.song) }}</span
+        <BLink :id="`order_tip__${data.item.song.songId}`" underline-variant="light">{{
+          orderValue(data.item.song)
+        }}</BLink>
+        <BTooltip
+          :target="`order_tip__${data.item.song.songId}`"
+          placement="left"
+          :delay="{ show: 0, hide: 100 }"
+          :auto-hide="false"
+          >{{ orderTip(data.item.song) }}</BTooltip
         >
       </template>
       <template #head(change)>
@@ -524,7 +597,8 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
       <template #head(text)>
         <SortableHeader
           id="Title"
-          :tip="titleHeaderTip"
+          :current-tip="titleHeaderCurrentTip"
+          :sort-tip="titleHeaderSortTip"
           :enable-sort="!hideSort"
           :filter="filter"
         />
@@ -532,7 +606,8 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
           -
           <SortableHeader
             id="Artist"
-            :tip="artistHeaderTip"
+            :current-tip="artistHeaderCurrentTip"
+            :sort-tip="artistHeaderSortTip"
             :enable-sort="!hideSort"
             :filter="filter"
           />
@@ -569,11 +644,18 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
       <template #head(info)>
         <SortableHeader
           id="Dances"
-          :tip="dancesHeaderTip"
+          :current-tip="dancesHeaderCurrentTip"
+          :sort-tip="dancesHeaderSortTip"
           :enable-sort="sortableDances"
           :filter="filter"
         />
-        - Tags
+        -
+        <SortableHeader
+          id="Tags"
+          :enable-sort="false"
+          :current-tip="tagsHeaderCurrentTip"
+          :filter="filter"
+        />
       </template>
       <template #cell(info)="data">
         <DanceButton
@@ -591,7 +673,11 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
         />
       </template>
     </BTable>
-    <ChronModal :order="orderType" @update:order="onChronOrderChanged($event)" />
+    <ChronModal
+      v-model="orderModalVisible"
+      :order="orderType"
+      @update:order="onChronOrderChanged($event)"
+    />
     <TagModal v-model="tagModalVisible" :tag-handler="currentTag as TagHandler" />
     <DanceModal
       v-model="danceModalVisible"

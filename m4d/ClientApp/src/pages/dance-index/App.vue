@@ -1,15 +1,12 @@
 <script setup lang="ts">
-import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { type BreadCrumbItem, homeCrumb } from "@/models/BreadCrumbItem";
 
 const breadcrumbs: BreadCrumbItem[] = [homeCrumb, { text: "Dances", active: true }];
-
-const dances = safeDanceDatabase();
 </script>
 
 <template>
   <PageFrame id="app" title="Dance Styles" :breadcrumbs="breadcrumbs">
-    <DanceTable :dances="dances" />
+    <DanceTable />
     <h2 class="mt-2">Other Resources:</h2>
     <p id="competition">
       Check out our more traditional ballroom competition categories including

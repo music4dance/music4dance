@@ -29,10 +29,13 @@ const songCount = computed(() => {
     ? undefined
     : safeDanceDatabase().getSongCount(props.dance.id);
 });
+const classes = computed(() => {
+  return isGroup.value ? "" : "ms-2";
+});
 </script>
 
 <template>
-  <div class="d-flex justify-content-between">
+  <div class="d-flex justify-content-between" :class="classes">
     <DanceName :dance="dance" :show-tempo="showTempo" :show-synonyms="showSynonyms" />
     <div>
       <BBadge v-if="songCount" :href="countLink" :variant="variant" style="line-height: 1.5"

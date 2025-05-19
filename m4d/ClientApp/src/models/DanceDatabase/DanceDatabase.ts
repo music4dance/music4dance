@@ -58,9 +58,8 @@ export class DanceDatabase {
     return dance?.instances.find((i) => i.id === id);
   }
 
-  public filterByName(name: string): NamedObject[] {
-    const n = name.toLowerCase();
-    return this.flattened.filter((x) => x.name.toLowerCase().includes(n));
+  public filterByName(nameFilter: string, includeChildren = false): NamedObject[] {
+    return DanceDatabase.filterByName(this.all, nameFilter, includeChildren);
   }
 
   public fromId(id: string): NamedObject | undefined {
