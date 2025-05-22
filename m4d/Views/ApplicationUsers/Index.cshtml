@@ -7,23 +7,43 @@
 
 @{
     ViewBag.Title = "Users";
-var users = Model.Values.ToList();
+    var users = Model.Values.ToList();
 
-var registeredUsers = users.Count(u => !u.IsPseudo);
-var confirmedUsers = users.Count(u => u.IsConfirmed);
+    var registeredUsers = users.Count(u => !u.IsPseudo);
+    var confirmedUsers = users.Count(u => u.IsConfirmed);
 
-var deletedUsers = users.Count(u => u.User.UserName.StartsWith("DEL:"));
-var hasServicePreference = users.Count(u => !string.IsNullOrEmpty(u.User.ServicePreference));
+    var deletedUsers = users.Count(u => u.User.UserName.StartsWith("DEL:"));
+    var hasServicePreference = users.Count(u => !string.IsNullOrEmpty(u.User.ServicePreference));
 
-var showUnconfirmed = ViewBag.ShowUnconfirmed;
-var showPseudo = ViewBag.ShowPseudo;
-var hidePrivate = ViewBag.HidePrivate;
-var filteredUsers = users.Where(u =>
-    (u.User.EmailConfirmed || showUnconfirmed) && 
-        (!u.User.IsPseudo || showPseudo) && 
-        (u.User.Privacy == 255 || !hidePrivate)).ToList();
+    var showUnconfirmed = ViewBag.ShowUnconfirmed;
+    var showPseudo = ViewBag.ShowPseudo;
+    var hidePrivate = ViewBag.HidePrivate;
+    var filteredUsers = users.Where(u =>
+        (u.User.EmailConfirmed || showUnconfirmed) && 
+            (!u.User.IsPseudo || showPseudo) && 
+            (u.User.Privacy == 255 || !hidePrivate));
+    var sort = ViewBag.Sort;
 
-ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
+    switch (sort)
+    {
+        case "SignedUp":
+            filteredUsers = filteredUsers.OrderByDescending(u => u.User.StartDate);
+            break;
+        case "SignedIn":
+            filteredUsers = filteredUsers.OrderByDescending(u => u.User.LastActive);
+            break;
+        case "HitCount":
+            filteredUsers = filteredUsers.OrderByDescending(u => u.User.HitCount);
+            break;
+        case "Contribution":
+            filteredUsers = filteredUsers.OrderByDescending(u => u.User.LifetimePurchased);
+            break;
+        default:
+            filteredUsers = filteredUsers.OrderByDescending(u => u.User.LastActive > u.User.StartDate ? u.User.LastActive : u.User.StartDate);
+            break;
+    }
+
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
 }
 
 <h2>User Administrator</h2>
@@ -224,8 +244,20 @@ ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
             Email
         </th>
         <th>
-            Signed Up<br />
-            Signed In
+            @Html.ActionLink("Signed Up", "Index", new
+                {
+                    hidePrivate = hidePrivate,
+                    showPseudo = showPseudo,
+                    showUnconfirmed = showUnconfirmed,
+                    sort = "SignedUp"
+                })<br />
+            @Html.ActionLink("Signed In", "Index", new
+                {
+                    hidePrivate = hidePrivate,
+                    showPseudo = showPseudo,
+                    showUnconfirmed = showUnconfirmed,
+                    sort = "SignedIn"
+                })
         </th>
         <th>
             PRV
@@ -240,17 +272,29 @@ ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
             CCF
         </th>
         <th>
-            $
+            @Html.ActionLink("$", "Index", new
+                {
+                    hidePrivate = hidePrivate,
+                    showPseudo = showPseudo,
+                    showUnconfirmed = showUnconfirmed,
+                    sort = "Contribution"
+                })
         </th>
         <th>
-            HC
+            @Html.ActionLink("HC", "Index", new
+                {
+                    hidePrivate = hidePrivate,
+                    showPseudo = showPseudo,
+                    showUnconfirmed = showUnconfirmed,
+                    sort = "HitCount"
+                })
         </th>
         <th>Roles</th>
         <th>Logins</th>
         <th></th>
     </tr>
 
-    @foreach (var item in filteredUsers.OrderByDescending(u => u.User.LastActive > u.User.StartDate ? u.User.LastActive : u.User.StartDate).ToList())
+    @foreach (var item in filteredUsers)
 {
     var fontStyle = item.IsPseudo ? "font-style:italic" : "font-style:normal";
 <tr>

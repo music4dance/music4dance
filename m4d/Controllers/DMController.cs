@@ -106,12 +106,24 @@ public class DanceMusicController(
 
     private string GetUsageId()
     {
-        Request.Cookies.TryGetValue("Usage", out var usageId);
-        if (string.IsNullOrEmpty(usageId))
+        Request.Cookies.TryGetValue("Usage", out var usageString);
+        string usageId;
+        int usageCount = 1;
+        if (string.IsNullOrEmpty(usageString))
         {
             usageId = Guid.NewGuid().ToString("D");
-            Response.Cookies.Append("Usage", usageId);
         }
+        else
+        {
+            var fields = usageString.Split('_');
+            usageId = fields[0];
+            if (fields.Length > 1)
+            {
+                _ = int.TryParse(fields[1], out usageCount);
+            }
+            usageCount += 1;
+        }
+        Response.Cookies.Append("Usage", $"{usageId}_{usageCount}");
         return usageId;
     }
 

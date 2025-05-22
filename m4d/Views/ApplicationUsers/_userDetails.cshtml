@@ -209,6 +209,14 @@
         @Html.DisplayFor(model => model.LifetimePurchased)
     </div>
 </div>
+<div class="row">
+    <div class="col-sm-3">
+        @Html.DisplayNameFor(model => model.HitCount)
+    </div>
+    <div class="col-sm-9">
+        @Html.DisplayFor(model => model.HitCount)
+    </div>
+</div>
 
 
 @if (Model.ActivityLog != null) {

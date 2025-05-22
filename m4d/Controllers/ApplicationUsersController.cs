@@ -33,11 +33,12 @@ public class ApplicationUsersController(
 
     // GET: ApplicationUsers
     public async Task<ActionResult> Index(bool showUnconfirmed = false, bool showPseudo = false,
-        bool hidePrivate = false)
+        bool hidePrivate = false, string sort = "")
     {
         ViewBag.ShowUnconfirmed = showUnconfirmed;
         ViewBag.ShowPseudo = showPseudo;
         ViewBag.HidePrivate = hidePrivate;
+        ViewBag.Sort = sort;
         return View("Index", await UserMapper.GetUserNameDictionary(Database.UserManager));
     }
 
