@@ -219,7 +219,7 @@ namespace m4dModels
         //  Fix the comment field in search (can we kill it and rebuild it)
         //  Make sure that import/export isn't broken by tabs/cr/lf
         //  Continue to validate advanced search service lookup
-        //  Get import working & pull in ***REMOVED***
+        //  Get import working & pull in MusicMills
 
         // Field names - note that these must be kept in sync with the actual property names
         public const string UserField = "User";

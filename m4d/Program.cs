@@ -56,21 +56,6 @@ builder.Services.AddFeatureManagement();
 var useVite = configuration.UseVite();
 var isDevelopment = environment.IsDevelopment();
 
-// TODONEXT: See if we can get the site search index using instance creds...
-// https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/identity/Azure.Identity/TROUBLESHOOTING.md#enable-and-configure-logging
-// https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/identity/Azure.Identity/TROUBLESHOOTING.md#troubleshoot-visualstudiocredential-authentication-issues
-
-//var credentialOptions = new DefaultAzureCredentialOptions
-//{
-//    Diagnostics =
-//    {
-//        LoggedHeaderNames = { "x-ms-request-id" },
-//        LoggedQueryParameters = { "api-version" },
-//        IsAccountIdentifierLoggingEnabled = true,
-//        IsLoggingContentEnabled = true
-//    }
-//};
-
 var credentials = new DefaultAzureCredential();
 if (!isDevelopment)
 {
