@@ -161,7 +161,6 @@ function search(s?: string): void {
             <BDropdownItem href="/admin/initializationTasks"
               >Initialization and Cleanup</BDropdownItem
             >
-            <BDropdownItem href="/admin/scraping">Scraping</BDropdownItem>
             <BDropdownItem href="/playlist">PlayLists</BDropdownItem>
             <BDropdownItem href="/Searches?showDetails=True&user=all">Searches</BDropdownItem>
             <BDropdownItem href="/song/rawsearchform">Raw Search</BDropdownItem>

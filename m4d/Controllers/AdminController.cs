@@ -6,7 +6,6 @@ using System.Text;
 using CsvHelper;
 
 using m4d.Areas.Identity;
-using m4d.Scrapers;
 using m4d.Services;
 using m4d.Utilities;
 using m4d.ViewModels;
@@ -144,42 +143,6 @@ public class AdminController(
     public ActionResult UploadBackup()
     {
         return View();
-    }
-
-    //
-    // GET: /Admin/Scraping
-    [Authorize(Roles = "showDiagnostics")]
-    public ActionResult Scraping()
-    {
-        return View();
-    }
-
-    //
-    // Get: //ScrapeDances
-    [Authorize(Roles = "showDiagnostics")]
-    public ActionResult ScrapeDances(string id, string parameter = null)
-    {
-        var scraper = DanceScraper.FromName(id);
-        var extra = string.Empty;
-        if (!string.IsNullOrEmpty(parameter))
-        {
-            scraper.Parameter = parameter;
-            extra = "-" + parameter.ToLower().Replace(' ', '-');
-        }
-
-        var lines = scraper.Scrape();
-
-        var sb = new StringBuilder();
-        foreach (var line in lines.Where(line => !string.IsNullOrWhiteSpace(line)))
-        {
-            sb.AppendFormat("{0}\r\n", line);
-        }
-
-        var s = sb.ToString();
-        var bytes = Encoding.ASCII.GetBytes(s);
-        var stream = new MemoryStream(bytes);
-
-        return File(stream, "text/plain", scraper.Name + extra + ".txt");
     }
 
     //
