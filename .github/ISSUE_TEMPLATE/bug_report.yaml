@@ -1,8 +1,7 @@
 name: Bug report
-about: Create a bug report to help us improve
+description: Create a bug report to help us improve
 title: 'Website Issue'
 labels: [bug]
-assignees: ''
 body:
   - type: markdown
     attributes:
