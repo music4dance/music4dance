@@ -1,0 +1,15 @@
+name: Data Error
+description: Report an error in the musci4dance songs data
+labels: [data]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This form is for data issues, such as duplicate songs, a single song record that should be split, typo on any of the pages, etc. Please include full URL(s) for pages that contain the bad data. Thanks for your interest in the project and taking the time to fill out this data error!
+  - type: textarea
+    id: data-error-description
+    attributes:
+      label: Clear and concise description of the problem
+      description: 'e.g. There are two entries for the same song.'
+    validations:
+      required: true
