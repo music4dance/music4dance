@@ -52,6 +52,7 @@ onMounted(() => {
           -
           <a href="https://www.music4dance.net/home/privacypolicy">Privacy Policy</a>
           - <a href="https://www.music4dance.net/home/credits">Credits</a> -
+          <a href="https://github.com/music4dance/music4dance" target="_blank">Code</a> -
           <a :href="menuContext.helpLink">Help</a>
         </p>
       </footer>
