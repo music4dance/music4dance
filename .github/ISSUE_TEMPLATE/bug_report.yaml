@@ -1,0 +1,40 @@
+name: Bug report
+about: Create a bug report to help us improve
+title: 'Website Issue'
+labels: [bug]
+assignees: ''
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This form is for functional bugs in the website. If you have a feature suggestion or a data issue, there are different forms for those types of problems. Thanks for taking the time to fill out this bug report! 
+  - type: input
+    id: bug-url
+    attributes:
+      label: url
+      description: full url where the bug occurs
+      placeholder: https://www.music4dance.net/song/advancedsearchform
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is. Thanks!
+      placeholder: Bug description
+    validations:
+      required: true
+  - type: input
+    id: bug-device
+    attributes:
+      label: Device
+      description: Type of device (Windows, Mac, iPhone, etc.)
+      placeholder: Windows 11
+    validations:
+      required: false
+  - type: input
+    id: bug-browser
+    attributes:
+      label: Browser
+      description: Type of device (Chrome, Edge, Safari, etc.)
+      placeholder: Edge 136.0.3240.92 (Official build) (64-bit)
+    validations:
+      required: false
