@@ -1054,20 +1054,21 @@ public abstract class SongIndex
 
     public async Task<IEnumerable<Song>> FindAlbum(string name, CruftFilter cruft = CruftFilter.NoCruft)
     {
-        return await FindByField(AlbumsField, name, cruft);
+        return await FindByField(AlbumsField, name, null, cruft);
     }
 
     public async Task<IEnumerable<Song>> FindArtist(string name,
         CruftFilter cruft = CruftFilter.NoCruft)
     {
-        return await FindByField(Song.ArtistField, name, cruft);
+        return await FindByField(Song.ArtistField, name, "dance_ALL desc", cruft);
     }
 
     public async Task<IEnumerable<Song>> FindByField(string field, string name,
-        CruftFilter cruft = CruftFilter.NoCruft)
+        string sort = null, CruftFilter cruft = CruftFilter.NoCruft)
     {
         var options = new SearchOptions();
         options.SearchFields.Add(field);
+        options.OrderBy.Add(sort);
         return await SongsFromAzureResult(await DoSearch($"\"{name}\"", options, cruft));
     }
 

@@ -5,6 +5,9 @@ import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { TypedJSON } from "typedjson";
 import { Song } from "@/models/Song";
 import { useSongSelector } from "@/composables/useSongSelector";
+import type { DanceType } from "@/models/DanceDatabase/DanceType";
+import { KeywordQuery } from "@/models/KeywordQuery";
+import { SongSort, SortOrder } from "@/models/SongSort";
 
 declare const model_: string;
 
@@ -34,6 +37,18 @@ console.warn(
 const dances = danceIds
   .filter((id) => !invalidDanceIds.includes(id))
   .map((id) => danceDB.dances.find((d) => d.id === id)!);
+
+const danceFilter = (dance: DanceType) => {
+  const f = new SongFilter();
+  f.searchString = KeywordQuery.fromParts(new Map([["Artist", model.artist]])).query;
+  f.dances = dance.id;
+  f.sortOrder = SongSort.fromParts(SortOrder.Dances).query;
+  return f;
+};
+
+const danceCount = (dance: DanceType) => {
+  return songs.filter((s) => s.danceRatings?.some((r) => r.danceId === dance.id)).length;
+};
 </script>
 
 <template>
@@ -42,7 +57,9 @@ const dances = danceIds
       {{ histories.length }} {{ model.artist }} songs with suggestions for dances to dance to them:
       <span v-for="(dance, idx) in dances" :key="dance.id"
         ><span v-if="idx + 1 === dances.length && dances.length > 1"> and </span
-        ><a :href="'/dances/' + dance.seoName">{{ dance.name }}</a
+        ><a :href="'/dances/' + dance.seoName">{{ dance.name }}&nbsp;</a
+        ><a :href="'/song/filtersearch?filter=' + danceFilter(dance).query"
+          >( {{ danceCount(dance) }} song{{ danceCount(dance) > 1 ? "s" : "" }} )</a
         ><span v-if="idx + 1 < dances.length && dances.length > 2">, </span></span
       >
     </p>
