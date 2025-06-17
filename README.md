@@ -12,7 +12,7 @@ Details are available on the [website](https://www.music4dance.net/home/contribu
 
 ### Bug reports
 
-If you have a github account, you can files bugs and feature requests [here](https://github.com/music4dance/music4dance/issues/new?template=bug_report.yaml).
+If you have a GitHub account, you can file bugs and feature requests [here](https://github.com/music4dance/music4dance/issues/new?template=bug_report.yaml).
 - [Bug reports](https://github.com/music4dance/music4dance/issues/new?template=bug_report.yaml) for code issues on the website
 - [Feature requests](https://github.com/music4dance/music4dance/issues/new?template=feature_request.yaml) for new features
 - [Data Errors](https://github.com/music4dance/music4dance/issues/new?template=data_error.yaml) for issues with the songs and text on the site
@@ -22,7 +22,8 @@ continue to provide a [simpler reporting option](https://music4dance.blog/bug-re
 
 ### Code
 Even though the project is now open source, there are some additional hurdles to getting sandboxed development environments set up.
-If you are interested in contributing code, please create a feature with your idea and note that you would like to implement it.
+If you are interested in contributing code, please create a feature with your idea and note that you would like to implement it. That will increase
+the priority of figuring out ways to get past the blocking issues.
 
 ## Blogs
 
@@ -35,6 +36,6 @@ and some [book reviews](https://music4dance.blog/category/reviews/).
 
 ### Technical Articles
 
-I have also been contributing to (Medium)[https://medium.com/@dwgray] with technical articles that are often related to problems
+I have also been contributing to [Medium](https://medium.com/@dwgray) with technical articles that are often related to problems
 that I've solved building this code base.
 
