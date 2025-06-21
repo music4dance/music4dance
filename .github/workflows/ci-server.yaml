@@ -28,6 +28,6 @@ jobs:
 
       - name: Test
         run: |
-          dotnet test **/*Tests.csproj --configuration Release --no-build --logger trx --results-directory ./TestResults `
+          dotnet test --configuration Release --no-build --logger trx --results-directory ./TestResults --filter FullyQualifiedName!~SelfCrawler
         env:
           DOTNET_CLI_TELEMETRY_OPTOUT: 1

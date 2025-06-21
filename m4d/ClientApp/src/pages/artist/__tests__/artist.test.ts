@@ -3,7 +3,7 @@ import { testPageSnapshot } from "@/helpers/TestPageSnapshot";
 import { model } from "./model";
 import App from "../App.vue";
 
-describe("Album", () => {
+describe("Artist", () => {
   test(
     "renders an artist page",
     () => {
