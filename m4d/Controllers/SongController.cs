@@ -134,7 +134,7 @@ public class SongController : ContentController
         if (playlist == null)
         {
             return ReturnError(HttpStatusCode.NotFound, 
-                $"Playlist {id} is doesn't exist or is an empty playlist.");
+                $"Playlist {id} doesn't exist or is empty.");
         }
 
         var filter = 
@@ -152,10 +152,7 @@ public class SongController : ContentController
         {
             var results = await SongIndex
                 .Search(null, options, CruftFilter.NoCruft);
-            // Pseudocode:
-            // 1. Build a dictionary mapping Spotify TrackId to its index in the playlist.
-            // 2. For each song in results.Songs, find its Spotify purchase ID.
-            // 3. Sort results.Songs by the index of the song's Spotify purchase ID in the playlist.
+            // Sort songs based on their order in the playlist using Spotify purchase IDs.
 
             var trackOrder = playlist.Tracks
                 .Select((t, i) => new { t.TrackId, Index = i })
