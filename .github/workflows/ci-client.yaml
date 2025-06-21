@@ -11,6 +11,12 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
+    permissions:
+      checks: write
+      contents: read
+      packages: read
+      pull-requests: write
+
     defaults:
       run:
         working-directory: m4d/ClientApp/
@@ -38,13 +44,14 @@ jobs:
 
       - name: Upload JUnit Test Results
         uses: actions/upload-artifact@v4
-        if: always()
+        if: (!cancelled())
         with:
           name: junit-results
           path: "**/junit.xml"
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
+        if: (!cancelled())
         with:
-          junit_files: "**/junit.xml"
+          comment_mode: ${{ (github.event.workflow_run.event == 'pull_request' || github.event_name == 'pull_request') && 'always' || 'off' }}
+          files: "**/junit.xml"
