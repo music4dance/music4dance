@@ -18,3 +18,14 @@ public class CustomSearchModel : SongListModel
     public string Dance { get; set; }
     public string PlayListId { get; set; }
 }
+
+public class PlaylistViewerModel
+{
+    public string Id { get; set; }
+    public List<SongHistory> Histories { get; set; }
+    public string Name { get; set; }
+    public string Description { get; set; }
+    public string OwnerId { get; set; }
+    public string OwnerName { get; set; }
+    public int TotalCount { get; set; }
+}

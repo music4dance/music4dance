@@ -74,7 +74,7 @@ namespace m4dModels
         {
             var existing = string.IsNullOrEmpty(SongIds)
                 ? new List<string>()
-                : [..SongIdList];
+                : [.. SongIdList];
 
             var initial = existing.Count;
             foreach (var id in songIds.Where(id => !existing.Contains(id)))

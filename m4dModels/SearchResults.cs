@@ -20,10 +20,10 @@ namespace m4dModels
             FacetResults = facets;
         }
 
-        public SearchResults(SearchResults result, List<Song> songs, int totalCount)
+        public SearchResults(SearchResults result, List<Song> songs, int? totalCount = null)
         {
             Query = result.Query;
-            TotalCount = totalCount;
+            TotalCount = totalCount ?? songs.Count;
             Count = songs.Count;
             RawCount = result.TotalCount;
             CurrentPage = result.CurrentPage;

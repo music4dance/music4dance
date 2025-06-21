@@ -11,13 +11,12 @@ import fg from "fast-glob";
 import Icons from "unplugin-icons/vite";
 import IconsResolver from "unplugin-icons/resolver";
 
-// @ts-ignore
 import appsettingsDev from "../appsettings.Development.json";
 
 interface VuePlugin {
   name: string;
   library: string;
-  config: unknown;
+  config?: unknown;
 }
 
 type VuePluginMap = Record<string, [VuePlugin]>;
@@ -47,7 +46,6 @@ export default defineConfig({
   base: "/vclient",
   server: {
     port: appsettingsDev.Vite.Server.Port,
-    https: true,
     strictPort: true,
     hmr: {
       clientPort: appsettingsDev.Vite.Server.Port,
@@ -135,7 +133,10 @@ app.mount('#app')
           .map((plugin) => `import { ${plugin.name} } from '${plugin.library}'`)
           .join("\n");
         pluginConfigs = plugins
-          .map((plugin) => `app.use(${plugin.name}, ${JSON.stringify(plugin.config)})`)
+          .map(
+            (plugin) =>
+              `app.use(${plugin.name}, ${plugin.config ? JSON.stringify(plugin.config) : undefined})`,
+          )
           .join("\n");
       }
       return main

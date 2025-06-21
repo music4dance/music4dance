@@ -42,17 +42,16 @@ namespace m4dModels
             {
                 var rg = url.Split(['/'], StringSplitOptions.RemoveEmptyEntries);
 
-                if (rg.Length == 4)
-                {
-                    var id = rg[3];
-                    return $"https://api.spotify.com/v1/playlists/{id}";
-                }
-                else if (rg.Length == 6)
+                if (rg.Length == 6)
                 {
                     var user = rg[3];
                     var id = rg[5];
 
                     return $"https://api.spotify.com/v1/users/{user}/playlists/{id}";
+                }
+                else if (rg.Length > 1)
+                {
+                    return $"https://api.spotify.com/v1/playlists/{rg[rg.Length-1]}";
                 }
             }
 

@@ -139,7 +139,7 @@ namespace m4dModels
                 new(
                     ServiceIds, SearchFieldDataType.Collection(SearchFieldDataType.String))
                 {
-                    IsSearchable = true, IsSortable = false, IsFilterable = false,
+                    IsSearchable = true, IsSortable = false, IsFilterable = true,
                     IsFacetable = false
                 },
                 new(

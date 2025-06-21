@@ -1,7 +1,11 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Net;
 
 using AutoMapper;
+
+using Azure.Search.Documents;
+using Azure.Search.Documents.Models;
 
 using DanceLibrary;
 
@@ -74,7 +78,7 @@ public class SongController : ContentController
     // TODO: Make this a permanent redirect once I'm convinced it's stable
     [AllowAnonymous]
     public ActionResult HolidayMusic(string occassion = "holiday", string dance = null, int page = 1)
-        => RedirectToAction("Index", "CustomSearch", new { name = occassion, dance, page, filter = Filter });
+        => RedirectToActionPermanent("Index", "CustomSearch", new { name = occassion, dance, page, filter = Filter });
 
     [AllowAnonymous]
     public async Task<ActionResult> AzureSearch(string searchString, int page = 1, string dances = null)
@@ -114,6 +118,80 @@ public class SongController : ContentController
         return await DoAzureSearch();
     }
 
+    [AllowAnonymous]
+    public async Task<ActionResult> Playlist(string id)
+    {
+        UseVue = UseVue.V3;
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            return ReturnError(HttpStatusCode.NotFound, "Playlist id is empty.");
+        }
+
+        var spotify = MusicService.GetService(ServiceType.Spotify);
+        var playlist = await MusicServiceManager.LookupPlaylist(
+                spotify, $"/playlist/{id}");
+
+        if (playlist == null)
+        {
+            return ReturnError(HttpStatusCode.NotFound, 
+                $"Playlist {id} is doesn't exist or is an empty playlist.");
+        }
+
+        var filter = 
+            $"ServiceIds/any(id: search.in(id, '{string.Join(',',playlist.Tracks.Select(t => $"S:{t.TrackId}"))}'))";
+        var options = new SearchOptions
+        {
+            QueryType = SearchQueryType.Full,
+            SearchMode = SearchMode.All,
+            Filter = filter,
+            Size = 1000,
+            IncludeTotalCount = true,
+        };
+
+        try
+        {
+            var results = await SongIndex
+                .Search(null, options, CruftFilter.NoCruft);
+            // Pseudocode:
+            // 1. Build a dictionary mapping Spotify TrackId to its index in the playlist.
+            // 2. For each song in results.Songs, find its Spotify purchase ID.
+            // 3. Sort results.Songs by the index of the song's Spotify purchase ID in the playlist.
+
+            var trackOrder = playlist.Tracks
+                .Select((t, i) => new { t.TrackId, Index = i })
+                .ToDictionary(x => x.TrackId, x => x.Index);
+
+            var sorted = results.Songs
+                .OrderBy(song =>
+                {
+                    var spotifyIds = song.GetPurchaseIds(spotify);
+                    var spotifyId = spotifyIds.FirstOrDefault(id => trackOrder.ContainsKey(id));
+                    return trackOrder.TryGetValue(spotifyId, out var idx) ? idx : int.MaxValue;
+                })
+                .ToList();
+
+            var model = new PlaylistViewerModel
+            {
+                Id = id,
+                Histories = await AnonymizeSongs(sorted),
+                Name = playlist.Name,
+                Description = playlist.Description,
+                OwnerId = playlist.OwnerId,
+                OwnerName = playlist.OwnerName,
+                TotalCount = playlist.Tracks.Count()
+            };
+
+            return Vue3($"{playlist.Name} music4dance",
+                $"The songs from {playlist.Name} mapped to partner dances.",
+                "playlist-viewer", model, danceEnvironment: true);
+        }
+        catch (RedirectException ex)
+        {
+            return HandleRedirect(ex);
+        }
+    }
+
+
     // TODO: Consider abstracting this (and maybe format) out into a builder/computer
     private async Task<ActionResult> DoAzureSearch()
     {
@@ -134,12 +212,19 @@ public class SongController : ContentController
         {
             return HandleRedirect(ex);
         }
-
     }
 
     private async Task<ActionResult> FormatResults(SearchResults results)
     {
         return await FormatSongList([.. results.Songs], (int)results.TotalCount, (int)results.RawCount);
+    }
+
+    private async Task<List<SongHistory>> AnonymizeSongs(IReadOnlyCollection<Song> songs)
+    {
+        var dictionary = await UserMapper.GetUserNameDictionary(UserManager);
+        return songs.Select(
+            s =>
+                UserMapper.AnonymizeHistory(s.GetHistory(Mapper), dictionary)).ToList();
     }
 
     private async Task<ActionResult> FormatSongList(IReadOnlyCollection<Song> songs,
@@ -152,10 +237,7 @@ public class SongController : ContentController
             Filter.Anonymize(user);
         }
 
-        var dictionary = await UserMapper.GetUserNameDictionary(UserManager);
-        var histories = songs.Select(
-            s =>
-                UserMapper.AnonymizeHistory(s.GetHistory(Mapper), dictionary)).ToList();
+        var histories = await AnonymizeSongs(songs);
 
         return UseVue switch
         {
