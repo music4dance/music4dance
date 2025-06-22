@@ -5,29 +5,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>60050f39-d7c1-4b33-8b65-1e6cbb538661</UserSecretsId>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Remove="wwwroot\styles\**" />
-    <Content Remove="wwwroot\styles\**" />
-    <EmbeddedResource Remove="wwwroot\styles\**" />
-    <None Remove="wwwroot\styles\**" />
-  </ItemGroup>
+
   <PropertyGroup>
     <!-- Makes the TypeScript compilation task a no-op -->
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
   </PropertyGroup>
-  <ItemGroup>
-    <Folder Include="Views\Admin\" />
-    <Folder Include="wwwroot\client\" />
-    <Folder Include="wwwroot\css\" />
-    <Folder Include="wwwroot\fonts\" />
-    <Folder Include="wwwroot\AppData\" />
-    <Folder Include="wwwroot\images\" />
-    <Folder Include="wwwroot\scripts\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="wwwroot\ads.txt" />
-    <None Include="wwwroot\robots.txt" />
-  </ItemGroup>
   <ItemGroup>
     <Content Include="wwwroot\vclient\.vite\**" CopyToPublishDirectory="PreserveNewest" Exclude="$(DefaultItemExcludes)" />
   </ItemGroup>
