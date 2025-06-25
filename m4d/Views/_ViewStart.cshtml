@@ -1,15 +1,9 @@
 ﻿@using m4d.ViewModels
-@{
-    @if (ViewBag.UseVue == UseVue.V2)
-{
-    Layout = "~/Views/Shared/_bsv-Layout.cshtml";
-}
-else if (ViewBag.UseVue == UseVue.V3)
+@if (ViewBag.UseVue == UseVue.V3)
 {
     Layout = "~/Views/Shared/_vue-Layout.cshtml";
 }
 else
 {
     Layout = "~/Views/Shared/_bs5-Layout.cshtml";
-}
 }

@@ -461,37 +461,6 @@ public class DanceMusicController(
     private static string s_danceDatabaseCache = null;
     private static string s_tagDatabaseCache = null;
 
-    protected ActionResult Vue(string title, string description, string name,
-        object model = null, string helpPage = null,
-        bool danceEnvironment = false, bool tagEnvironment = false,
-        string script = null)
-    {
-        UseVue = UseVue.V2;
-        if (!string.IsNullOrEmpty(helpPage))
-        {
-            HelpPage = helpPage;
-        }
-        if (danceEnvironment || tagEnvironment)
-        {
-            BuildEnvironment(danceEnvironment, tagEnvironment);
-        }
-
-        if (model is string s)
-        {
-            model = s.Replace(@"'", @"\'");
-        }
-
-        return View(
-            "Vue", new VueModel
-            {
-                Title = title,
-                Description = description,
-                Name = name,
-                Script = script,
-                Model = model,
-            });
-    }
-
     protected ActionResult Vue3(string title, string description, string name,
         object model = null, string helpPage = null,
         bool danceEnvironment = false, bool tagEnvironment = false,
