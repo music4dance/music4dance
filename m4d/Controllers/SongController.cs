@@ -37,7 +37,7 @@ public class SongController : ContentController
         base(context, userManager, searchService, danceStatsManager, configuration,
             fileProvider, backroundTaskQueue, featureManager, logger, linkGenerator, mapper)
     {
-        UseVue = UseVue.V2;
+        UseVue = UseVue.V3;
         HelpPage = "song-list";
     }
 
@@ -46,7 +46,6 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> Search(string searchString, string dances)
     {
-        UseVue = UseVue.V3;
         return await AzureSearch(searchString, 0, dances);
     }
 
@@ -54,7 +53,6 @@ public class SongController : ContentController
     public async Task<ActionResult> NewMusic(string type = null, int? page = null)
     {
         Filter.Action = "newmusic";
-        UseVue = UseVue.V3;
         if (type != null)
         {
             Filter.SortOrder = type;
@@ -83,7 +81,6 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> AzureSearch(string searchString, int page = 1, string dances = null)
     {
-        UseVue = UseVue.V3;
         if (string.IsNullOrWhiteSpace(dances))
         {
             dances = null;
@@ -121,7 +118,6 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> Playlist(string id)
     {
-        UseVue = UseVue.V3;
         if (string.IsNullOrWhiteSpace(id))
         {
             return ReturnError(HttpStatusCode.NotFound, "Playlist id is empty.");
@@ -238,16 +234,6 @@ public class SongController : ContentController
 
         return UseVue switch
         {
-            UseVue.V2 => Vue("Songs for Dancing", $"music4dance catalog: {Filter.Description}", Filter.VueName,
-                                new SongListModel
-                                {
-                                    Histories = histories,
-                                    Filter = Mapper.Map<SongFilterSparse>(Filter),
-                                    Count = totalSongs ?? songs.Count,
-                                    RawCount = rawCount ?? totalSongs ?? songs.Count,
-                                    HiddenColumns = hiddenColumns
-                                },
-                                danceEnvironment: true),
             UseVue.V3 => Vue3("Songs for Dancing", $"music4dance catalog: {Filter.Description}", Filter.VueName,
                                 new SongListModel
                                 {
@@ -307,7 +293,6 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> FilterSearch()
     {
-        UseVue = UseVue.V3;
         return await DoAzureSearch();
     }
 
@@ -319,7 +304,6 @@ public class SongController : ContentController
         decimal? tempoMax = null, string user = null, string sortOrder = null,
         string sortDirection = null, ICollection<int> bonusContent = null)
     {
-        UseVue = UseVue.V3;
         if (!Filter.IsAdvanced)
         {
             Filter.Action = Filter.IsAzure ? "azure+advanced" : "Advanced";
@@ -428,7 +412,6 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> Sort(string sortOrder)
     {
-        UseVue = UseVue.V3;
         Filter.SortOrder = new SongSort(sortOrder, Filter.TextSearch).ToString();
 
         return await DoAzureSearch();
@@ -437,7 +420,6 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> FilterUser(string user)
     {
-        UseVue = UseVue.V3;
         Filter.User = string.IsNullOrWhiteSpace(user) ? null : user;
         return await DoAzureSearch();
     }
@@ -447,7 +429,6 @@ public class SongController : ContentController
 
     public async Task<ActionResult> List(IFormFile fileUpload)
     {
-        UseVue = UseVue.V3;
         var ids = UploadFile(fileUpload);
 
         var results = await SongIndex.List(ids);
@@ -457,7 +438,6 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> FilterService(ICollection<string> services)
     {
-        UseVue = UseVue.V3;
         var purchase = string.Empty;
         if (services != null)
         {
@@ -477,7 +457,6 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> FilterTempo(decimal? tempoMin, decimal? tempoMax)
     {
-        UseVue = UseVue.V3;
         if (Filter.TempoMin == tempoMin && Filter.TempoMax == tempoMax)
         {
             return await DoAzureSearch();
@@ -496,7 +475,6 @@ public class SongController : ContentController
     public async Task<ActionResult> Index(string id = null, int? page = null,
         string purchase = null)
     {
-        UseVue = UseVue.V3;
         if (id != null && Dances.Instance.DanceFromId(id) != null)
         {
             Filter.Dances = id.ToUpper();
@@ -526,14 +504,12 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> Advanced(int? page, string purchase)
     {
-        UseVue = UseVue.V3;
         return await Index(null, page, purchase);
     }
 
     [AllowAnonymous]
     public async Task<ActionResult> Tags(string tags)
     {
-        UseVue = UseVue.V3;
         Filter.Tags = null;
         Filter.Page = null;
 
@@ -552,7 +528,6 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> AddTags(string tags)
     {
-        UseVue = UseVue.V3;
         var add = new m4dModels.TagList(tags);
         var old = new m4dModels.TagList(Filter.Tags);
 
@@ -568,7 +543,6 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> RemoveTags(string tags)
     {
-        UseVue = UseVue.V3;
         var sub = new m4dModels.TagList(tags);
         var old = new m4dModels.TagList(Filter.Tags);
         var ret = old.Subtract(sub);
@@ -1138,7 +1112,6 @@ public class SongController : ContentController
     [Authorize(Roles = "dbAdmin")]
     public async Task<ActionResult> MergeCandidates(int? page, int? level, bool? autoCommit)
     {
-        UseVue = UseVue.V3;
         Filter.Action = "MergeCandidates";
 
         if (page.HasValue)
