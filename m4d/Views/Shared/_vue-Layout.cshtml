@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@using m4d.Utilities
+@inject IConfiguration _configuration
+
+<!DOCTYPE html>
 <html>
     <head>
         <link rel="stylesheet" vite-href="style.css" asp-append-version="true" />
@@ -7,6 +10,14 @@
         <partial name="_head"/>
     </head>
     <body>
+        @if (GlobalState.UseGTM(_configuration)) {
+            <!-- Google Tag Manager (noscript) -->
+            <noscript>
+                <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T5WZVX7Z"
+                        height="0" width="0" style="display:none;visibility:hidden"></iframe>
+            </noscript>
+            <!-- End Google Tag Manager (noscript) -->
+        }
         @RenderBody()
 
         <partial name="_environmentWriter"/>
