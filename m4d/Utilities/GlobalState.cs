@@ -47,6 +47,18 @@ public static class GlobalState
         return !string.IsNullOrEmpty(captcha) && bool.TryParse(captcha, out var enabled) && enabled;
     }
 
+    public static bool UseGTM(IConfiguration configuration)
+    {
+        var tracking = configuration["Configuration:Tracking:GoogleTagManager"];
+        return !string.IsNullOrEmpty(tracking) && bool.TryParse(tracking, out var enabled) && enabled;
+    }
+
+    public static bool UseGoogleTags(IConfiguration configuration)
+    {
+        var tracking = configuration["Configuration:Tracking:GoogleTags"];
+        return !string.IsNullOrEmpty(tracking) && bool.TryParse(tracking, out var enabled) && enabled;
+    }
+
     public static MarketingInfo GetMarketing(ApplicationUser user, string page)
     {
         if (Marketing == null || !Marketing.Enabled)

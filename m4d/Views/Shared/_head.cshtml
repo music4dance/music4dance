@@ -6,6 +6,7 @@
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery _xsrf
 @inject UserManager<ApplicationUser> _userManager
 @inject ISearchServiceManager _searchService
+@inject IConfiguration _configuration
 
 @{
     var userAgent = Context.Request.Headers.UserAgent.ToString().ToLower();
@@ -37,10 +38,10 @@
 }
 
 @functions{
-public string GetAntiXsrfRequestToken()
-{
-    return _xsrf.GetAndStoreTokens(Context).RequestToken;
-}
+    public string GetAntiXsrfRequestToken()
+    {
+        return _xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
 }
 
 @if (!hideAds && !User.IsInRole("premium") && !userAgent.Contains("googlebot") )
@@ -51,12 +52,12 @@ public string GetAntiXsrfRequestToken()
         (adsbygoogle = window.adsbygoogle || []).pauseAdRequests = 1;
         console.log("Ads are paused");
         (adsbygoogle = window.adsbygoogle || []).push({
-            google_ad_client: "ca-pub-8181165353763371",
-            enable_page_level_ads: true
+        google_ad_client: "ca-pub-8181165353763371",
+        enable_page_level_ads: true
         });
         if (document.cookie.indexOf("cookieconsent_status=dismiss") !== -1) {
-            console.log("Ads are running");
-            (adsbygoogle = window.adsbygoogle || []).pauseAdRequests = 0;
+        console.log("Ads are running");
+        (adsbygoogle = window.adsbygoogle || []).pauseAdRequests = 0;
         }
     </script>
 }
@@ -94,27 +95,42 @@ public string GetAntiXsrfRequestToken()
 
 <script>
     var menuContext = {
-        helpLink: '@help',
-        userName: '@userName',
-        userId: '@userId',
-        roles: @Html.Raw(JsonConvert.SerializeObject(roles)),
-        indexId: '@searchIndex',
-        expiration: @Html.Raw(expiration == null ? "undefined" : $"new Date('{expiration}')"),
-        updateMessage: '@GlobalState.UpdateMessage',
-        marketingMessage: "@Html.Raw(@marketingMessage)",
-        xsrfToken: '@GetAntiXsrfRequestToken()'
+    helpLink: '@help',
+    userName: '@userName',
+    userId: '@userId',
+    roles: @Html.Raw(JsonConvert.SerializeObject(roles)),
+    indexId: '@searchIndex',
+    expiration: @Html.Raw(expiration == null ? "undefined" : $"new Date('{expiration}')"),
+    updateMessage: '@GlobalState.UpdateMessage',
+    marketingMessage: "@Html.Raw(@marketingMessage)",
+    xsrfToken: '@GetAntiXsrfRequestToken()'
     };
 </script>
 
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-2MCXRT7ZDV"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+@if (GlobalState.UseGTM(_configuration))
+{
+    <!-- Google Tag Manager -->
+    <script>
+        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-T5WZVX7Z');</script>
+    <!-- End Google Tag Manager -->
+}
 
-  gtag('config', 'G-2MCXRT7ZDV');
-</script>
+@if (GlobalState.UseGoogleTags(_configuration))
+{
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-2MCXRT7ZDV"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-2MCXRT7ZDV');
+    </script>
+}
 
 <script> 
     var $buoop = {required:{e:-3,f:-3,o:-3,s:-1,c:-3},insecure:true,api:2022.03 }; 

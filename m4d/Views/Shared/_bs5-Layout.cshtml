@@ -1,7 +1,9 @@
 ﻿@using Vite.AspNetCore
+@using m4d.Utilities
 @using m4d.ViewModels
 @using Microsoft.AspNetCore.Mvc.Rendering
 @inject IViteManifest Manifest
+@inject IConfiguration _configuration
 
 @{
     var help = "https://music4dance.blog/music4dance-help/";
@@ -36,6 +38,14 @@
 </head>
 
 <body>
+@if (GlobalState.UseGTM(_configuration)) {
+    <!-- Google Tag Manager (noscript) -->
+    <noscript>
+        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T5WZVX7Z"
+                height="0" width="0" style="display:none;visibility:hidden"></iframe>
+    </noscript>
+    <!-- End Google Tag Manager (noscript) -->
+}
     <div id="app"></div>
 
 @if (ViewBag.BreadCrumbs != null)
