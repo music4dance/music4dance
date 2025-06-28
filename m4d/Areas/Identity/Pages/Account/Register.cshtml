@@ -39,7 +39,7 @@ ViewData["Title"] = "Register";
                 <label asp-for="Input.ConfirmPassword">Confirm Password</label>
                 <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
             </div>
-            @if (Model.UseCaptcha)
+            @if (await Model.UseCaptcha())
         {
             <input id="Input_RecaptchaToken" name="Input.RecaptchaToken" type="hidden" />
             <div class="form-floating mb-3">
@@ -71,7 +71,7 @@ ViewData["Title"] = "Register";
     <environment exclude="Development">
         <link rel="stylesheet" href="~/css/auth-buttons.min.css" asp-append-version="true" />
     </environment>
-    @if (Model.UseCaptcha)
+    @if (await Model.UseCaptcha())
 {
     <recaptcha-script-v2 />
     <script>

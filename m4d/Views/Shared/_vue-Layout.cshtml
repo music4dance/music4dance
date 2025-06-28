@@ -1,5 +1,8 @@
 ﻿@using m4d.Utilities
+@using Microsoft.FeatureManagement
+
 @inject IConfiguration _configuration
+@inject IFeatureManager _featureManager
 
 <!DOCTYPE html>
 <html>
@@ -10,7 +13,8 @@
         <partial name="_head"/>
     </head>
     <body>
-        @if (GlobalState.UseGTM(_configuration)) {
+    @if (await _featureManager.IsEnabledAsync(FeatureFlags.GoogleTagManager))
+    {
             <!-- Google Tag Manager (noscript) -->
             <noscript>
                 <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T5WZVX7Z"

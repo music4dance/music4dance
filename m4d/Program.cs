@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.Data.SqlClient.DataClassification;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
@@ -66,12 +67,12 @@ if (!isDevelopment)
             credentials)
         .ConfigureKeyVault(
             kv => { kv.SetCredential(credentials); })
+        .Select(KeyFilter.Any, LabelFilter.Null)
+        .Select(KeyFilter.Any, environment.EnvironmentName)
         .UseFeatureFlags(featureFlagOptions =>
         {
             featureFlagOptions.SetRefreshInterval(TimeSpan.FromMinutes(5));
         })
-        .Select(KeyFilter.Any, LabelFilter.Null)
-        .Select(KeyFilter.Any, environment.EnvironmentName)
         .ConfigureRefresh(refresh =>
         {
             refresh.Register("Configuration:Sentinel", environment.EnvironmentName, refreshAll: true)

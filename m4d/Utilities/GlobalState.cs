@@ -1,5 +1,4 @@
 ﻿using m4dModels;
-
 namespace m4d.Utilities;
 
 // TODO: This only works for single application instances, eventually
@@ -39,24 +38,6 @@ public static class GlobalState
     internal static void SetMarketing(IConfigurationSection configurationSection)
     {
         Marketing = configurationSection.Get<MarketingInfo>();
-    }
-
-    public static bool UseCaptcha(IConfiguration configuration)
-    {
-        var captcha = configuration["Configuration:Registration:CaptchaEnabled"];
-        return !string.IsNullOrEmpty(captcha) && bool.TryParse(captcha, out var enabled) && enabled;
-    }
-
-    public static bool UseGTM(IConfiguration configuration)
-    {
-        var tracking = configuration["Configuration:Tracking:GoogleTagManager"];
-        return !string.IsNullOrEmpty(tracking) && bool.TryParse(tracking, out var enabled) && enabled;
-    }
-
-    public static bool UseGoogleTags(IConfiguration configuration)
-    {
-        var tracking = configuration["Configuration:Tracking:GoogleTags"];
-        return !string.IsNullOrEmpty(tracking) && bool.TryParse(tracking, out var enabled) && enabled;
     }
 
     public static MarketingInfo GetMarketing(ApplicationUser user, string page)

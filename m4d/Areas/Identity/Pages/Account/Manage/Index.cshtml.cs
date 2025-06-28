@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.FeatureManagement;
 
 namespace m4d.Areas.Identity.Pages.Account.Manage;
 
@@ -20,13 +21,16 @@ public class IndexModel : PageModel
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly IFeatureManager _featureManager;
 
     public IndexModel(
         UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager)
+        SignInManager<ApplicationUser> signInManager,
+        IFeatureManager featureManager)
     {
         _userManager = userManager;
         _signInManager = signInManager;
+        _featureManager = featureManager;
     }
 
     /// <summary>
@@ -170,11 +174,12 @@ public class IndexModel : PageModel
 
         if (modified)
         {
-            if (user.ActivityLog == null)
+            if (await _featureManager.IsEnabledAsync(FeatureFlags.ActivityLogging))
             {
-                user.ActivityLog = [];
+                user.ActivityLog ??= [];
+                user.ActivityLog.Add(new ActivityLog("Profile", user, changes));
             }
-            user.ActivityLog.Add(new ActivityLog("Profile", user, changes));
+
             var result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded)
             {

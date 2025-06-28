@@ -5,15 +5,15 @@
 @{
     ViewBag.Title = "Activity Log";
 
-ViewData["BreadCrumbs"] = new List<BreadCrumbItem>
-{
-    BreadCrumbItem.AdminItem,
-    new()
+    ViewData["BreadCrumbs"] = new List<BreadCrumbItem>
     {
-        Title = ViewBag.Title,
-        Active = true
-    }
-};
+        BreadCrumbItem.AdminItem,
+        new()
+        {
+            Title = ViewBag.Title,
+            Active = true
+        }
+    };
 }
 
 <h1>@ViewBag.Title</h1>
