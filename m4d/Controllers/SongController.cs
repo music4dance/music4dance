@@ -1009,10 +1009,13 @@ public class SongController : ContentController
             return View("Error");
         }
 
-        var user = await Database.FindUser(User.Identity?.Name);
-        Database.Context.ActivityLog.Add(new ActivityLog(
-            "SpotifyExport", user, new SpotifyCreate { Id = metadata.Id, Info = info }));
-        await Database.SaveChanges();
+        if (await FeatureManager.IsEnabledAsync(FeatureFlags.ActivityLogging))
+        {
+            var user = await Database.FindUser(User.Identity?.Name);
+            Database.Context.ActivityLog.Add(new ActivityLog(
+                "SpotifyExport", user, new SpotifyCreate { Id = metadata.Id, Info = info }));
+            await Database.SaveChanges();
+        }
         return View("SpotifyCreated", metadata);
     }
 
@@ -1083,9 +1086,12 @@ public class SongController : ContentController
             return View(info);
         }
 
-        var user = await Database.FindUser(User.Identity?.Name);
-        Database.Context.ActivityLog.Add(new ActivityLog("CsvExport", user, info));
-        await Database.SaveChanges();
+        if (await FeatureManager.IsEnabledAsync(FeatureFlags.ActivityLogging))
+        {
+            var user = await Database.FindUser(User.Identity?.Name);
+            Database.Context.ActivityLog.Add(new ActivityLog("CsvExport", user, info));
+            await Database.SaveChanges();
+        }
 
         var spotifyId = await SpotifyFromFilter(filter, UserName);
         var userName = isUserOnly && User.IsInRole(DanceMusicCoreService.DiagRole)

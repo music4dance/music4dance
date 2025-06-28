@@ -2,8 +2,10 @@
 @using m4d.Utilities
 @using m4d.ViewModels
 @using Microsoft.AspNetCore.Mvc.Rendering
+@using Microsoft.FeatureManagement
 @inject IViteManifest Manifest
 @inject IConfiguration _configuration
+@inject IFeatureManager _featureManager
 
 @{
     var help = "https://music4dance.blog/music4dance-help/";
@@ -38,7 +40,7 @@
 </head>
 
 <body>
-@if (GlobalState.UseGTM(_configuration)) {
+@if (await _featureManager.IsEnabledAsync(FeatureFlags.GoogleTagManager)) {
     <!-- Google Tag Manager (noscript) -->
     <noscript>
         <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T5WZVX7Z"

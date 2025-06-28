@@ -20,7 +20,8 @@ namespace m4d.Controllers;
 public class PaymentController : CommerceController
 {
     private readonly IreCAPTCHASiteVerifyV2 _siteVerify;
-    public bool UseCaptcha => _siteVerify != null;
+    private async Task<bool> UseCaptcha() =>
+        await FeatureManager.IsEnabledAsync(FeatureFlags.Captcha);
 
     public PaymentController(
         DanceMusicContext context, UserManager<ApplicationUser> userManager,
@@ -32,10 +33,7 @@ public class PaymentController : CommerceController
     {
         var test = GlobalState.UseTestKeys ? "Test" : "";
         StripeConfiguration.ApiKey = configuration[$"Authentication:Stripe{test}:SecretKey"];
-        if (GlobalState.UseCaptcha(configuration))
-        {
-            _siteVerify = siteVerify;
-        }
+        _siteVerify = siteVerify;
     }
 
     [HttpPost]
@@ -55,7 +53,7 @@ public class PaymentController : CommerceController
             }
 
             // Otherwise, this is an anonymous donation so need to verify recaptcha
-            if (UseCaptcha)
+            if (await UseCaptcha())
             {
                 var response = await _siteVerify.Verify(
                     new reCAPTCHASiteVerifyRequest
@@ -224,7 +222,7 @@ public class PaymentController : CommerceController
                 Confirmation = session.Id
             };
 
-            if (!duplicate)
+            if (!duplicate && await FeatureManager.IsEnabledAsync(FeatureFlags.ActivityLogging))
             {
                 Database.Context.ActivityLog.Add(new ActivityLog("Purchase", user, purchase));
                 await Database.SaveChanges();
@@ -252,8 +250,11 @@ public class PaymentController : CommerceController
         }
 
         Logger.LogInformation(session.ToJson());
-        Database.Context.ActivityLog.Add(new ActivityLog("FailedPurchase", user, session.ToJson()));
-        await Database.SaveChanges();
+        if (await FeatureManager.IsEnabledAsync(FeatureFlags.ActivityLogging))
+        {
+            Database.Context.ActivityLog.Add(new ActivityLog("FailedPurchase", user, session.ToJson()));
+            await Database.SaveChanges();
+        }        
 
         return RedirectToAction("Contribute", "Home");
     }

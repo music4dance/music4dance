@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.FeatureManagement;
 
 using Owl.reCAPTCHA;
 using Owl.reCAPTCHA.v2;
@@ -30,6 +31,7 @@ public class RegisterModel : PageModel
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IreCAPTCHASiteVerifyV2 _siteVerify;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IFeatureManager _featureManager;
 
     public RegisterModel(
         UserManager<ApplicationUser> userManager,
@@ -37,16 +39,15 @@ public class RegisterModel : PageModel
         ILogger<RegisterModel> logger,
         IEmailSender emailSender,
         IreCAPTCHASiteVerifyV2 siteVerify,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IFeatureManager featureManager)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _logger = logger;
         _emailSender = emailSender;
-        if (GlobalState.UseCaptcha(configuration))
-        {
-            _siteVerify = siteVerify;
-        }
+        _featureManager = featureManager;
+        _siteVerify = siteVerify;
     }
 
     /// <summary>
@@ -68,7 +69,8 @@ public class RegisterModel : PageModel
     /// </summary>
     public IList<AuthenticationScheme> ExternalLogins { get; set; }
 
-    public bool UseCaptcha => _siteVerify != null;
+    public async Task<bool> UseCaptcha() =>
+        await _featureManager.IsEnabledAsync(FeatureFlags.Captcha);
 
     public static string BuildConfirmMessage(string callbackUrl) =>
         @"<h4>Please confirm your email account by clicking <a href=" + callbackUrl +
@@ -97,7 +99,7 @@ public class RegisterModel : PageModel
         ExternalLogins =
             (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
-        if (UseCaptcha)
+        if (await UseCaptcha())
         {
             var response = await _siteVerify.Verify(
                 new reCAPTCHASiteVerifyRequest

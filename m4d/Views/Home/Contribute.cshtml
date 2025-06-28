@@ -1,10 +1,12 @@
 ﻿@using Microsoft.AspNetCore.Identity;
 @using Microsoft.Extensions.Configuration
+@using Microsoft.FeatureManagement
 @using m4d.Controllers
 @using m4d.Utilities
 @using m4d.ViewModels
 @using m4dModels;
 @inject IConfiguration Configuration
+@inject IFeatureManager FeatureManager
 @inject UserManager<ApplicationUser> _userManager
 @addTagHelper *, Owl.reCAPTCHA
 @model ContributeModel
@@ -17,7 +19,7 @@
     var annualPrice = $"${CommerceController.AnnualSubscription:N2}";
     var user = await _userManager.GetUserAsync(User);
     var marketing = GlobalState.GetMarketing(user, Context.Request.Path);
-    var useCaptcha = GlobalState.UseCaptcha(Configuration);
+    var useCaptcha = await FeatureManager.IsEnabledAsync(FeatureFlags.Captcha);
 }
 <div id="fb-root"></div>
 <script async defer crossorigin="anonymous"

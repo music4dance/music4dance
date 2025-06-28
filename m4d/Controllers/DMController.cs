@@ -50,7 +50,7 @@ public class DanceMusicController(
         await next();
 
         if (SpiderManager.CheckAnySpiders(userAgent, Configuration) ||
-            await FeatureManager.IsEnabledAsync(FeatureFlags.UsageLogging))
+            !await FeatureManager.IsEnabledAsync(FeatureFlags.UsageLogging))
         {
             return;
         }
