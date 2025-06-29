@@ -19,18 +19,18 @@
         help = string.Format("https://music4dance.blog/music4dance-help/{0}/", ViewBag.Help);
     }
 
-    var roles = DanceMusicCoreService.UserRoles(User);
-    var userExpiration = ViewData["UserExpiration"] as UserExpiration;
-    if (userExpiration == null)
+    var userMetadata = ViewData["UserMetadata"] as UserMetadata;
+    if (userMetadata == null)
     {
         // This is the case for account pages where I can't get to the controller
         //  maybe I should try setting a global controller
-        userExpiration = await UserExpiration.Create(User.Identity.Name, _userManager);
+        userMetadata = await UserMetadata.Create(User.Identity.Name, _userManager);
     }
-    var user = userExpiration.User;
+    var user = userMetadata.User;
     var userName = user?.UserName ?? "";
     var userId = user?.Privacy == 0 ? user?.Id : "";
-    var expiration = userExpiration.ExpirationString;
+    var expiration = userMetadata.Expiration;
+    var started = userMetadata.Started;
     var searchIndex = _searchService.GetInfo().Abbr;
     var hideAds = ViewData.TryGetValue("HideAds", out var hideAdsObj) && (hideAdsObj as bool?).Value;
     var hasIcons = ViewData.TryGetValue("HasIcons", out var hasIconsObj) && (hasIconsObj as bool?).Value;
@@ -98,15 +98,18 @@
 
 <script>
     var menuContext = {
-    helpLink: '@help',
-    userName: '@userName',
-    userId: '@userId',
-    roles: @Html.Raw(JsonConvert.SerializeObject(roles)),
-    indexId: '@searchIndex',
-    expiration: @Html.Raw(expiration == null ? "undefined" : $"new Date('{expiration}')"),
-    updateMessage: '@GlobalState.UpdateMessage',
-    marketingMessage: "@Html.Raw(@marketingMessage)",
-    xsrfToken: '@GetAntiXsrfRequestToken()'
+        helpLink: '@help',
+        userName: '@userName',
+        userId: '@userId',
+        roles: @Html.Raw(JsonConvert.SerializeObject(userMetadata.Roles)),
+        indexId: '@searchIndex',
+        expiration: @Html.Raw(string.IsNullOrWhiteSpace(expiration) ? "undefined" : $"new Date('{expiration}')"),
+        started: @Html.Raw(string.IsNullOrWhiteSpace(started) ? "undefined" : $"new Date('{started}')"),
+        hitCount: @userMetadata.HitCount,
+        level: '@userMetadata.Level',
+        updateMessage: '@GlobalState.UpdateMessage',
+        marketingMessage: "@Html.Raw(@marketingMessage)",
+        xsrfToken: '@GetAntiXsrfRequestToken()'
     };
 </script>
 

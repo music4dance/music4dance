@@ -44,8 +44,8 @@ public class DanceMusicController(
         var usageId = GetUsageId();
         var time = DateTime.Now;
         var userAgent = Request.Headers[HeaderNames.UserAgent];
-        var userExpiration = await UserExpiration.Create(UserName, UserManager);
-        ViewData["UserExpiration"] = userExpiration;
+        var userMetadata = await UserMetadata.Create(UserName, UserManager);
+        ViewData["UserMetadata"] = userMetadata;
 
         await next();
 
@@ -63,7 +63,7 @@ public class DanceMusicController(
         var filterString = filter?.ToString();
         var page = Request.Path;
         var query = Request.QueryString.ToString();
-        var user = userExpiration.User;
+        var user = userMetadata.User;
 
         var referrer = Request.GetTypedHeaders().Referer?.ToString();
 

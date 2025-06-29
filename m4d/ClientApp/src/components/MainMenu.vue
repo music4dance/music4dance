@@ -34,9 +34,17 @@ const searchLink = computed(() => {
 const showExpiration = computed(() => {
   return (
     props.context.daysToExpiration !== undefined &&
-    props.context.daysToExpiration < 30 &&
+    (props.context.daysToExpiration < 30 || props.context.daysToExpiration < 0) &&
     !sessionStorage.getItem(renewalTag)
   );
+});
+
+const expired = computed(() => {
+  return props.context.daysToExpiration !== undefined && props.context.daysToExpiration < 0;
+});
+
+const absoluteExpiration = computed(() => {
+  return Math.abs(Math.round(props.context.daysToExpiration || 0));
 });
 
 const showMarketing = computed(() => {
@@ -212,9 +220,9 @@ function search(s?: string): void {
       style="margin-bottom: 0"
       @update:model-value="onDismissed(renewalTag)"
     >
-      Your premium subcription will expire in
-      {{ Math.round(context.daysToExpiration || 0) }}
-      day(s). Please
+      Your premium subcription {{ expired ? "expired" : "will expire in" }}
+      {{ absoluteExpiration }}
+      day(s) {{ expired ? "ago" : "" }}. Please
       <a href="/home/contribute" class="alert-link">click here</a> to renew. Thanks for your
       continued support.
     </BAlert>

@@ -127,7 +127,8 @@ public class ApplicationUsersController(
 
         if (await TryUpdateModelAsync(applicationUser, string.Empty))
         {
-            if ((await UserManager.FindByNameAsync(applicationUser.DecoratedName)) != null)
+            if (!string.Equals(applicationUser.DecoratedName, oldUserName, StringComparison.OrdinalIgnoreCase) &&
+                (await UserManager.FindByNameAsync(applicationUser.DecoratedName)) != null)
             {
                 ModelState.AddModelError(
                     "UserName",
