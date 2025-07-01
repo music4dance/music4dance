@@ -68,12 +68,12 @@ if (!isDevelopment)
             kv => { kv.SetCredential(credentials); })
         .UseFeatureFlags(featureFlagOptions =>
         {
-            featureFlagOptions.Select(environment.EnvironmentName);
             featureFlagOptions.Select(LabelFilter.Null);
+            featureFlagOptions.Select(environment.EnvironmentName);
             featureFlagOptions.SetRefreshInterval(TimeSpan.FromMinutes(5));
         })
-        .Select(KeyFilter.Any, environment.EnvironmentName)
         .Select(KeyFilter.Any, LabelFilter.Null)
+        .Select(KeyFilter.Any, environment.EnvironmentName)
         .ConfigureRefresh(refresh =>
         {
             refresh.Register("Configuration:Sentinel", environment.EnvironmentName, refreshAll: true)
