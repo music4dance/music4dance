@@ -12,9 +12,6 @@ const customerReminder = "reminder-acknowledged";
 const props = defineProps<{ context: MenuContext }>();
 const searchString = ref<string>("");
 
-// TODONEXT: Fix the nag flag to be off for current premium users
-//  Set up the flag in Azure
-//  Test
 const reminderAcknowledged = () => {
   const ack = sessionStorage.getItem(customerReminder);
   if (!ack) {
@@ -90,7 +87,6 @@ function onDismissed(target: string): void {
 }
 
 function onReminderDismissed(): void {
-  console.log("onReminderDismissed");
   sessionStorage.setItem(customerReminder, Date.now().toString());
 }
 
