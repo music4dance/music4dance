@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Linq;
+using System.Net;
 
 using m4d.Services;
 using m4d.Utilities;
@@ -20,7 +21,7 @@ public class ApplicationUsersController(
     DanceMusicContext context, UserManager<ApplicationUser> userManager,
     ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
     IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-    IFeatureManager featureManager, ILogger<ActivityLogController> logger) : DanceMusicController(context, userManager, searchService, danceStatsManager, configuration,
+    IFeatureManagerSnapshot featureManager, ILogger<ActivityLogController> logger) : DanceMusicController(context, userManager, searchService, danceStatsManager, configuration,
         fileProvider, backroundTaskQueue, featureManager, logger)
 {
 
@@ -162,6 +163,34 @@ public class ApplicationUsersController(
         UserMapper.Clear();
 
         return View(applicationUser);
+    }
+
+    // GET: Users/ClearPremium/5
+    public async Task<ActionResult> ClearPremium(string id)
+    {
+        if (id == null)
+        {
+            return StatusCode((int)HttpStatusCode.BadRequest);
+        }
+
+        var user = await UserManager.FindByIdAsync(id);
+        if (user == null)
+        {
+            return StatusCode((int)HttpStatusCode.NotFound);
+        }
+
+        user.SubscriptionLevel = SubscriptionLevel.None;
+        user.SubscriptionStart = null;
+        user.SubscriptionEnd = null;
+
+        if (Context.Roles.Any(r => r.Name == "premium"))
+        {
+            await UserManager.RemoveFromRoleAsync(user, "premium");
+        }
+        await Context.SaveChangesAsync();
+
+        UserMapper.Clear();
+        return View("Details", user);
     }
 
     // GET: Users/ChangeRoles/5

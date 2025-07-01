@@ -24,7 +24,7 @@ public class DanceMusicController(
     DanceMusicContext context, UserManager<ApplicationUser> userManager,
     ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
     IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backgroundTaskQueue,
-    IFeatureManager featureManager, ILogger logger) : Controller
+    IFeatureManagerSnapshot featureManager, ILogger logger) : Controller
 {
     protected static readonly JsonSerializerSettings CamelCaseSerializerSettings = new()
     {
@@ -167,7 +167,7 @@ public class DanceMusicController(
     protected ILogger Logger { get; } = logger;
 
     protected IFileProvider FileProvider { get; } = fileProvider;
-    protected IFeatureManager FeatureManager { get; } = featureManager;
+    protected IFeatureManagerSnapshot FeatureManager { get; } = featureManager;
     protected IBackgroundTaskQueue TaskQueue { get; } = backgroundTaskQueue;
 
     protected UserManager<ApplicationUser> UserManager => Database.UserManager;

@@ -21,12 +21,12 @@ public class IndexModel : PageModel
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
-    private readonly IFeatureManager _featureManager;
+    private readonly IFeatureManagerSnapshot _featureManager;
 
     public IndexModel(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
-        IFeatureManager featureManager)
+        IFeatureManagerSnapshot featureManager)
     {
         _userManager = userManager;
         _signInManager = signInManager;

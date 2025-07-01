@@ -9,7 +9,7 @@
 @inject UserManager<ApplicationUser> _userManager
 @inject ISearchServiceManager _searchService
 @inject IConfiguration _configuration
-@inject IFeatureManager _featureManager
+@inject IFeatureManagerSnapshot _featureManager
 
 @{
     var userAgent = Context.Request.Headers.UserAgent.ToString().ToLower();
@@ -26,18 +26,21 @@
         //  maybe I should try setting a global controller
         userMetadata = await UserMetadata.Create(User.Identity.Name, _userManager);
     }
+    var noWarnings = ViewData.TryGetValue("NoWarnings", out var noWarningsObj) && (noWarningsObj as bool?).Value;
+    var hideAds = noWarnings || ViewData.TryGetValue("HideAds", out var hideAdsObj) && (hideAdsObj as bool?).Value;
     var user = userMetadata.User;
     var userName = user?.UserName ?? "";
+    var isPremium = User.IsInRole("premium");
     var userId = user?.Privacy == 0 ? user?.Id : "";
-    var expiration = userMetadata.Expiration;
+    var expiration = noWarnings ? null : userMetadata.Expiration;
     var started = userMetadata.Started;
     var searchIndex = _searchService.GetInfo().Abbr;
-    var hideAds = ViewData.TryGetValue("HideAds", out var hideAdsObj) && (hideAdsObj as bool?).Value;
     var hasIcons = ViewData.TryGetValue("HasIcons", out var hasIconsObj) && (hasIconsObj as bool?).Value;
     var styleModifier = hasIcons ? "wicons" : "";
     var styleSheet = ViewData.ContainsKey("NoSiteCss") ? null : $"/css/site{styleModifier}.css";
     var marketing = GlobalState.GetMarketing(user, Context.Request.Path);
     var marketingMessage = marketing.Enabled ? marketing.Banner : String.Empty;
+    var customerReminder = !noWarnings && !isPremium && userMetadata.User != null && await _featureManager.IsEnabledAsync(FeatureFlags.CustomerReminder);
 }
 
 @functions{
@@ -47,7 +50,7 @@
     }
 }
 
-@if (!hideAds && !User.IsInRole("premium") && !userAgent.Contains("googlebot") )
+@if (!hideAds && !isPremium && !userAgent.Contains("googlebot") )
 {
     <!-- Google Adsense Verifier -->
     <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
@@ -109,6 +112,7 @@
         level: '@userMetadata.Level',
         updateMessage: '@GlobalState.UpdateMessage',
         marketingMessage: "@Html.Raw(@marketingMessage)",
+        customerReminder: @(customerReminder && !hideAds ? "true" : "false"),
         xsrfToken: '@GetAntiXsrfRequestToken()'
     };
 </script>

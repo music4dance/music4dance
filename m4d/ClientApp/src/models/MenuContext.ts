@@ -11,6 +11,7 @@ export interface MenuContextInterface {
   started?: Date;
   level?: string;
   hitCount?: number;
+  customerReminder?: boolean;
   updateMessage?: string;
   marketingMessage?: string;
   xsrfToken?: string;
@@ -29,6 +30,7 @@ export class MenuContext implements MenuContextInterface {
   public started?: Date;
   public level?: string;
   public hitCount?: number;
+  public customerReminder?: boolean;
   public updateMessage?: string;
   public marketingMessage?: string;
   public xsrfToken?: string;

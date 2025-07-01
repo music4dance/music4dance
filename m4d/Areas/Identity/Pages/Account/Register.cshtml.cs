@@ -31,7 +31,7 @@ public class RegisterModel : PageModel
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IreCAPTCHASiteVerifyV2 _siteVerify;
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IFeatureManager _featureManager;
+    private readonly IFeatureManagerSnapshot _featureManager;
 
     public RegisterModel(
         UserManager<ApplicationUser> userManager,
@@ -40,7 +40,7 @@ public class RegisterModel : PageModel
         IEmailSender emailSender,
         IreCAPTCHASiteVerifyV2 siteVerify,
         IConfiguration configuration,
-        IFeatureManager featureManager)
+        IFeatureManagerSnapshot featureManager)
     {
         _userManager = userManager;
         _signInManager = signInManager;

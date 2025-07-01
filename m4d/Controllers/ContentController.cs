@@ -19,7 +19,7 @@ public class ContentController(
     DanceMusicContext context, UserManager<ApplicationUser> userManager,
     ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
     IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-    IFeatureManager featureManager, ILogger logger, LinkGenerator linkGenerator, IMapper mapper) : DanceMusicController(context, userManager, searchService, danceStatsManager, configuration,
+    IFeatureManagerSnapshot featureManager, ILogger logger, LinkGenerator linkGenerator, IMapper mapper) : DanceMusicController(context, userManager, searchService, danceStatsManager, configuration,
         fileProvider, backroundTaskQueue, featureManager, logger)
 {
     protected SongFilter Filter { get; set; }

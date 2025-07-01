@@ -34,7 +34,7 @@ namespace m4d.ViewModels
 
         private string FormatDate(DateTime? date)
         {
-            return date == null ? null : date.ToString();
+            return date?.ToString();
         }
     }
 }
