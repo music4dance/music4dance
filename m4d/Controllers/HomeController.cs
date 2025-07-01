@@ -15,7 +15,7 @@ public class HomeController(
     DanceMusicContext context, UserManager<ApplicationUser> userManager,
     ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
     IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-    IFeatureManager featureManager, ILogger<HomeController> logger) : CommerceController(context, userManager, searchService, danceStatsManager, configuration,
+    IFeatureManagerSnapshot featureManager, ILogger<HomeController> logger) : CommerceController(context, userManager, searchService, danceStatsManager, configuration,
         fileProvider, backroundTaskQueue, featureManager, logger)
 {
     public IActionResult Index([FromServices] IFileProvider fileProvider)
@@ -140,6 +140,7 @@ public class HomeController(
     {
         HelpPage = "subscriptions";
         ViewBag.HideAds = true;
+        ViewBag.NoWarnings = true;
 
         var user = await UserManager.GetUserAsync(User);
         return View(await GetContributeModel(user, recaptchaFailed));

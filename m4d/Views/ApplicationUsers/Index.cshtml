@@ -373,10 +373,14 @@
         user = item.User.UserName
     }),
         @Html.ActionLink("Playlists", "Index", "Playlist", new
-{
+    {
         type = PlayListType.SongsFromSpotify,
         user = item.User.UserName
-    })
+    }),
+        @Html.ActionLink("ClearPremium", "ClearPremium", new
+    {
+        id = item.User.Id
+    }),
 
         @*
             @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |

@@ -7,11 +7,29 @@ import { BToastOrchestrator } from "bootstrap-vue-next";
 
 const renewalTag = "renewal-acknowledged";
 const marketingTag = "marketing-acknowledged";
+const customerReminder = "reminder-acknowledged";
 
 const props = defineProps<{ context: MenuContext }>();
 const searchString = ref<string>("");
 
+const reminderAcknowledged = () => {
+  const ack = sessionStorage.getItem(customerReminder);
+  if (!ack) {
+    return false;
+  }
+
+  const timestamp = parseInt(ack);
+  if (isNaN(timestamp)) {
+    return false;
+  }
+
+  const now = Date.now();
+  const delta = now - timestamp;
+  return delta < 60 * 60 * 1000; // 1 hour
+};
+
 const renewal = ref(!sessionStorage.getItem(renewalTag));
+const showReminder = ref(props.context.customerReminder && !reminderAcknowledged());
 const marketing = ref(!sessionStorage.getItem(marketingTag));
 
 const songIndex = computed(() => {
@@ -34,9 +52,17 @@ const searchLink = computed(() => {
 const showExpiration = computed(() => {
   return (
     props.context.daysToExpiration !== undefined &&
-    props.context.daysToExpiration < 30 &&
+    (props.context.daysToExpiration < 30 || props.context.daysToExpiration < 0) &&
     !sessionStorage.getItem(renewalTag)
   );
+});
+
+const expired = computed(() => {
+  return props.context.daysToExpiration !== undefined && props.context.daysToExpiration < 0;
+});
+
+const absoluteExpiration = computed(() => {
+  return Math.abs(Math.round(props.context.daysToExpiration || 0));
 });
 
 const showMarketing = computed(() => {
@@ -58,6 +84,10 @@ function accountLink(type: string): string {
 
 function onDismissed(target: string): void {
   sessionStorage.setItem(target, "true");
+}
+
+function onReminderDismissed(): void {
+  sessionStorage.setItem(customerReminder, Date.now().toString());
 }
 
 function search(s?: string): void {
@@ -197,26 +227,46 @@ function search(s?: string): void {
     </BNavbar>
     <BAlert
       v-if="showMarketing"
+      id="marketing-alert"
       v-model="marketing"
       variant="success"
       dismissible
       style="margin-bottom: 0"
-      @update:model-value="onDismissed(marketingTag)"
+      @hidden="onDismissed(marketingTag)"
       ><span v-html="context.marketingMessage"
     /></BAlert>
     <BAlert
       v-if="showExpiration"
+      id="expiration-alert"
       v-model="renewal"
       variant="warning"
       dismissible
       style="margin-bottom: 0"
-      @update:model-value="onDismissed(renewalTag)"
+      @hidden="onDismissed(renewalTag)"
     >
-      Your premium subcription will expire in
-      {{ Math.round(context.daysToExpiration || 0) }}
-      day(s). Please
+      Your premium subcription {{ expired ? "expired" : "will expire in" }}
+      {{ absoluteExpiration }}
+      day(s) {{ expired ? "ago" : "" }}. Please
       <a href="/home/contribute" class="alert-link">click here</a> to renew. Thanks for your
       continued support.
+    </BAlert>
+    <BAlert
+      v-else-if="showReminder"
+      id="premium-alert"
+      show
+      variant="warning"
+      dismissible
+      style="margin-bottom: 0"
+      @hidden="onReminderDismissed()"
+    >
+      <p>
+        The core <b>music4dance.net</b> service is free, but it does cost money to run. If you find
+        this site useful, please consider contributing to help keep it running. Your contribution
+        will help cover the costs of hosting and maintenance give you access to some
+        <a href="https://music4dance.blog/music4dance-help/subscriptions/">exclusive features</a>.
+        Thank you for your support!
+      </p>
+      <BButton href="/home/contribute" variant="primary" size="sm">Contribute</BButton>
     </BAlert>
     <form id="logoutForm" action="/identity/account/logout" method="post" style="height: 0">
       <input name="__RequestVerificationToken" type="hidden" :value="context.xsrfToken" />

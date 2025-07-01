@@ -27,7 +27,7 @@ public class PaymentController : CommerceController
         DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
         IConfiguration configuration, IFileProvider fileProvider,
-        IBackgroundTaskQueue backroundTaskQueue, IFeatureManager featureManager,
+        IBackgroundTaskQueue backroundTaskQueue, IFeatureManagerSnapshot featureManager,
         ILogger<PaymentController> logger, IreCAPTCHASiteVerifyV2 siteVerify) :
         base(context, userManager, searchService, danceStatsManager, configuration, fileProvider, backroundTaskQueue, featureManager, logger)
     {
@@ -41,6 +41,7 @@ public class PaymentController : CommerceController
     {
         HelpPage = "subscriptions";
         ViewBag.HideAds = true;
+        ViewBag.NoWarnings = true;
 
         var user = await UserManager.GetUserAsync(User);
         if (user == null)
@@ -150,6 +151,7 @@ public class PaymentController : CommerceController
     {
         HelpPage = "subscriptions";
         ViewBag.HideAds = true;
+        ViewBag.NoWarnings = true;
 
         // This is likely due to a reload/back button - just re-show the success page
         //  without doing anything else

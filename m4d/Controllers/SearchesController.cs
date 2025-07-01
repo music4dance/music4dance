@@ -20,7 +20,7 @@ public class SearchesController : DanceMusicController
         DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
         IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-        IFeatureManager featureManager, ILogger<ActivityLogController> logger) :
+        IFeatureManagerSnapshot featureManager, ILogger<ActivityLogController> logger) :
         base(context, userManager, searchService, danceStatsManager, configuration,
             fileProvider, backroundTaskQueue, featureManager, logger)
     {

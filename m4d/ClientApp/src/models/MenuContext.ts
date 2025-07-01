@@ -8,6 +8,10 @@ export interface MenuContextInterface {
   roles?: string[];
   indexId?: string;
   expiration?: Date;
+  started?: Date;
+  level?: string;
+  hitCount?: number;
+  customerReminder?: boolean;
   updateMessage?: string;
   marketingMessage?: string;
   xsrfToken?: string;
@@ -23,6 +27,10 @@ export class MenuContext implements MenuContextInterface {
   public roles?: string[];
   public indexId?: string;
   public expiration?: Date;
+  public started?: Date;
+  public level?: string;
+  public hitCount?: number;
+  public customerReminder?: boolean;
   public updateMessage?: string;
   public marketingMessage?: string;
   public xsrfToken?: string;
@@ -61,8 +69,7 @@ export class MenuContext implements MenuContextInterface {
       return undefined;
     }
     const timeDiff = this.expiration.getTime() - Date.now();
-    const dayDiff = timeDiff / (1000 * 60 * 60 * 24);
-    return dayDiff > 0 ? dayDiff : 0;
+    return timeDiff / (1000 * 60 * 60 * 24);
   }
 
   public hasRole(role: string): boolean {

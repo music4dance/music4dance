@@ -24,7 +24,7 @@ public class DanceMusicController(
     DanceMusicContext context, UserManager<ApplicationUser> userManager,
     ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
     IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backgroundTaskQueue,
-    IFeatureManager featureManager, ILogger logger) : Controller
+    IFeatureManagerSnapshot featureManager, ILogger logger) : Controller
 {
     protected static readonly JsonSerializerSettings CamelCaseSerializerSettings = new()
     {
@@ -44,8 +44,8 @@ public class DanceMusicController(
         var usageId = GetUsageId();
         var time = DateTime.Now;
         var userAgent = Request.Headers[HeaderNames.UserAgent];
-        var userExpiration = await UserExpiration.Create(UserName, UserManager);
-        ViewData["UserExpiration"] = userExpiration;
+        var userMetadata = await UserMetadata.Create(UserName, UserManager);
+        ViewData["UserMetadata"] = userMetadata;
 
         await next();
 
@@ -63,7 +63,7 @@ public class DanceMusicController(
         var filterString = filter?.ToString();
         var page = Request.Path;
         var query = Request.QueryString.ToString();
-        var user = userExpiration.User;
+        var user = userMetadata.User;
 
         var referrer = Request.GetTypedHeaders().Referer?.ToString();
 
@@ -167,7 +167,7 @@ public class DanceMusicController(
     protected ILogger Logger { get; } = logger;
 
     protected IFileProvider FileProvider { get; } = fileProvider;
-    protected IFeatureManager FeatureManager { get; } = featureManager;
+    protected IFeatureManagerSnapshot FeatureManager { get; } = featureManager;
     protected IBackgroundTaskQueue TaskQueue { get; } = backgroundTaskQueue;
 
     protected UserManager<ApplicationUser> UserManager => Database.UserManager;

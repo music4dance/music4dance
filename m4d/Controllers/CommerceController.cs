@@ -13,7 +13,7 @@ public class CommerceController(
     DanceMusicContext context, UserManager<ApplicationUser> userManager,
     ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
     IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-    IFeatureManager featureManager, ILogger logger) : DanceMusicController(context, userManager, searchService, danceStatsManager, configuration,
+    IFeatureManagerSnapshot featureManager, ILogger logger) : DanceMusicController(context, userManager, searchService, danceStatsManager, configuration,
         fileProvider, backroundTaskQueue, featureManager, logger)
 {
     public static decimal AnnualSubscription = SubscriptionLevelDescription.SubscriptionLevels.Last().Price;
