@@ -93,6 +93,8 @@ services.AddAzureClients(clientBuilder =>
         configuration.GetSection("SongIndex")).WithName("SongIndex");
     clientBuilder.AddSearchClient(
         configuration.GetSection("SongIndexTest")).WithName("SongIndexTest");
+    clientBuilder.AddSearchClient(
+        configuration.GetSection("SongIndexExperimental")).WithName("SongIndexExperimental");
 });
 
 services.AddDbContext<DanceMusicContext>(options => options.UseSqlServer(connectionString));

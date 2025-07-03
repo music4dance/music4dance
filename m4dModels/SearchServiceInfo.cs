@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-
-using Azure;
 using Azure.Identity;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Indexes;
@@ -24,9 +21,6 @@ namespace m4dModels
     {
         public SearchServiceManager(IConfiguration configuration, DefaultAzureCredential credentials)
         {
-            _ = new SearchAuth("basic", configuration);
-            _ = new SearchAuth("backup", configuration);
-            _ = new SearchAuth("free", configuration);
             _info = new Dictionary<string, SearchServiceInfo>
             {
                 {
@@ -38,6 +32,11 @@ namespace m4dModels
                     "SongIndexTest",
                     new SearchServiceInfo(
                         "SongIndexTest", "t", "music4dance", "songs-test", credentials)
+                },
+                {
+                    "SongIndexExperimental",
+                    new SearchServiceInfo(
+                        "SongIndexExperimental", "e", "music4dance", "songs-experimental", credentials)
                 },
             };
 
@@ -79,91 +78,19 @@ namespace m4dModels
         private readonly Dictionary<string, SearchServiceInfo> _info;
     }
 
-    public class SearchAuth(string name, IConfiguration configuration)
+    public class SearchServiceInfo(string id, string abbr, string name, string index,
+        DefaultAzureCredential credentials, bool isStructured = false)
     {
-        public string AdminKey => _adminKey ??= GetConfigurationKey("admin");
-        public string QueryKey => _queryKey ??= GetConfigurationKey("query");
+        public string Id { get; } = id;
+        public string Abbr { get; } = abbr;
+        public string Name { get; } = name;
+        public string Index { get; } = index;
+        public bool IsStructured { get; } = isStructured;
 
-        private string GetConfigurationKey(string type)
-        {
-            return configuration[GetKeyName(type)];
-        }
+        public SearchIndexClient SearchIndexClient =>
+            new (new Uri($"https://{Name}.search.windows.net"), credentials);
 
-        private string GetKeyName(string type)
-        {
-            return $"Authentication:AzureSearch:{Name}-{type}";
-        }
-
-        private string _adminKey;
-        private string _queryKey;
-
-        protected string Name { get; } = name;
-    }
-
-
-    public class SearchServiceInfo
-    {
-        public string Id { get; }
-        public string Abbr { get; }
-        public string Name { get; }
-        public string Index { get; }
-        public string AdminKey { get; }
-        public string QueryKey { get; }
-        public bool IsStructured { get; }
-
-        private readonly DefaultAzureCredential _credentials;
-
-        public SearchServiceInfo(string id, string abbr, string name, string index,
-            string adminKey, string queryKey, bool isStructured = false)
-        {
-            Id = id;
-            Abbr = abbr;
-            Name = name;
-            Index = index;
-            AdminKey = adminKey;
-            QueryKey = queryKey;
-            IsStructured = isStructured;
-        }
-
-        public SearchServiceInfo(string id, string abbr, string name, string index,
-            DefaultAzureCredential credentials, bool isStructured = false)
-        {
-            Id = id;
-            Abbr = abbr;
-            Name = name;
-            Index = index;
-            _credentials = credentials;
-            IsStructured = isStructured;
-        }
-
-        public SearchClient AdminClient => GetSearchClient(true);
-        public SearchClient QueryClient => GetSearchClient(false);
-
-        public SearchIndexClient GetSearchIndexClient()
-        {
-            var endpoint = new Uri($"https://{Name}.search.windows.net");
-            if (_credentials == null)
-            {
-                return new SearchIndexClient(endpoint, new AzureKeyCredential(AdminKey));
-            }
-            else
-            {
-                return new SearchIndexClient(endpoint, _credentials);
-            }
-        }
-
-        private SearchClient GetSearchClient(bool admin)
-        {
-            var endpoint = new Uri($"https://{Name}.search.windows.net");
-            if (_credentials == null)
-            {
-                return new SearchClient(endpoint, Index, new AzureKeyCredential(admin ? AdminKey : QueryKey));
-            }
-            else
-            {
-                return new SearchClient(endpoint, Index, _credentials);
-            }
-        }
-
+        public SearchClient SearchClient =>
+            new(new Uri($"https://{Name}.search.windows.net"), Index, credentials);
     }
 }

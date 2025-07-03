@@ -23,6 +23,12 @@ ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
                 id = "SongIndexTest"
             }, null)
     </li>
+    <li>
+        SongIndexExperimental: @Html.ActionLink("Reset", "ResetSearchIdx", new
+            {
+                id = "SongIndexExperimental"
+            }, null)
+    </li>
 </ul>
 
 <h3> Initializiation Tasks</h3>

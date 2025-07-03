@@ -54,7 +54,11 @@ public abstract class SongIndex
     public static SongIndex Create(DanceMusicCoreService dms, string id = null)
     {
         var info = dms.SearchService.GetInfo(id);
-        return info.IsStructured ? new StructuredSongIndex(dms, id) : new FlatSongIndex(dms, id);
+        return info.IsStructured
+            ? new StructuredSongIndex(dms, id)
+            : info.Id != "SongIndexExperimental"
+                ? new FlatSongIndex(dms, id)
+                : new ExperimentalSongIndex(dms, id);
     }
 
     // For Moq
@@ -1426,12 +1430,12 @@ public abstract class SongIndex
 
     private SearchClient CreateSearchClient()
     {
-        return Manager.GetInfo(SearchId).AdminClient;
+        return Manager.GetInfo(SearchId).SearchClient;
     }
 
     private SearchIndexClient CreateSearchIndexClient()
     {
-        return Manager.GetInfo(SearchId).GetSearchIndexClient();
+        return Manager.GetInfo(SearchId).SearchIndexClient;
     }
 
     protected static void AccumulateComments(List<UserComment> comments, List<string> accumulator)
