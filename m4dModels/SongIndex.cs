@@ -28,11 +28,12 @@ public abstract class SongIndex
     public const string DancesField = "Dances";
     public const string UsersField = "Users";
     public const string CommentsField = "Comments";
-    public const string DanceTagsInferred = "DanceTagsInferred";
+    public const string DanceTagsInferred = "DanceTagsInferred"; // TODOIDX: Remove when index is updated
     public const string GenreTags = "GenreTags";
     public const string TempoTags = "TempoTags";
     public const string StyleTags = "StyleTags";
     public const string OtherTags = "OtherTags";
+    public const string Votes = "Votes";
     public const string PropertiesField = "Properties";
     public const string AllDances = "Dance_ALL";
     public const string ServiceIds = "ServiceIds";

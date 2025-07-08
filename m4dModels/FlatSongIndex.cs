@@ -190,7 +190,7 @@ namespace m4dModels
             };
         }
 
-        private static string BuildDanceFieldName(string id)
+        protected static string BuildDanceFieldName(string id)
         {
             return $"dance_{id}";
         }
