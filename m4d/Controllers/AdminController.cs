@@ -194,15 +194,6 @@ public class AdminController(
     }
 
     //
-    // Get: //ToggleStructuredSchema
-    [Authorize(Roles = "showDiagnostics")]
-    public ActionResult ToggleStructuredSchema()
-    {
-        SongFilter.StructuredSchema = !SongFilter.StructuredSchema;
-        return View("Diagnostics");
-    }
-
-    //
     // Get: //SetTraceLevel
     [AllowAnonymous]
     public ActionResult ThrowException()
@@ -264,6 +255,7 @@ public class AdminController(
     {
         Logger.LogInformation($"Set Search Index: '{id}'");
         SearchService.DefaultId = id;
+        GlobalState.DataVersion = SearchService.Version;
 
         DanceStatsManager.LoadFromAzure(Database, id);
 
@@ -852,7 +844,7 @@ public class AdminController(
             {
                 var lines = await Database.GetSongIndex(name).BackupIndex(
                     count,
-                    filter == null ? null : new SongFilter(filter));
+                    filter == null ? null : Database.SearchService.GetSongFilter(filter));
                 foreach (var line in lines)
                 {
                     await file.WriteLineAsync(line);
@@ -999,7 +991,7 @@ public class AdminController(
         SongFilter songFilter = null;
         if (!string.IsNullOrWhiteSpace(filter))
         {
-            songFilter = new SongFilter(filter);
+            songFilter = Database.SearchService.GetSongFilter(filter);
         }
 
         var songs = Database.SerializeSongs(true, true, count, from, songFilter);
@@ -1078,7 +1070,7 @@ public class AdminController(
             new ExportInfo
             {
                 Title = "Full music4dance export",
-                Filter = new SongFilter(rawFilter).ToString(),
+                Filter = Database.SearchService.GetSongFilter(rawFilter).ToString(),
                 Count = -1,
                 Description = "Please do not distribute this file publicly and remember to credit music4dance.net in any derived work. " +
                 $"Copyright © {DateTime.Now.Year} by music4dance.net",

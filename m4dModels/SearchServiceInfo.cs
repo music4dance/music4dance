@@ -14,7 +14,10 @@ namespace m4dModels
         string DefaultId { get; set; }
         IEnumerable<string> GetAvailableIds();
         string RawEnvironment { get; }
+        int Version { get; }
         bool HasId(string id);
+        SongFilter GetSongFilter(string filter = null);
+        SongFilter GetSongFilter(RawSearch raw, string action = null); 
     }
 
     public class SearchServiceManager : ISearchServiceManager
@@ -50,6 +53,20 @@ namespace m4dModels
                 DefaultId = env;
                 RawEnvironment = env;
             }
+
+            var versionString = configuration["SEARCHINDEXVERSION"];
+            if (string.IsNullOrEmpty(env) || !int.TryParse(versionString, out var version))
+            {
+                Version = 1;
+            }
+            else
+            {
+                Version = Version;
+            }
+            if (DefaultId == "SongIndexExperimental")
+            {
+                Version += 1;
+            }
         }
 
         public SearchServiceInfo GetInfo(string id = null)
@@ -71,11 +88,37 @@ namespace m4dModels
             return _info.ContainsKey(id);
         }
 
-        public string DefaultId { get; set; }
+        public SongFilter GetSongFilter(string filter = null)
+        {
+            return SongFilter.Create(Version, filter);
+        }
+
+        public SongFilter GetSongFilter(RawSearch raw, string action = null)
+        {
+            return SongFilter.Create(Version, raw, action);
+        }
+
+        public string DefaultId
+        {
+            get => _defaultId; set
+            {
+                if (_defaultId == "SongIndexExperimental")
+                {
+                    Version -= 1;
+                }
+                _defaultId = value;
+                if (value == "SongIndexExperimental")
+                {
+                    Version += 1;
+                }
+            }
+        }
+        public int Version { get; set; }
 
         public string RawEnvironment { get; }
 
         private readonly Dictionary<string, SearchServiceInfo> _info;
+        private string _defaultId;
     }
 
     public class SearchServiceInfo(string id, string abbr, string name, string index,

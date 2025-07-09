@@ -127,14 +127,14 @@ namespace m4dModels
                     {
                         // TopN and MaxWeight
                         var songIndex = dms.GetSongIndex(source);
-                        var filter =
-                            songIndex.AzureParmsFromFilter(
-                                new SongFilter
-                                { Dances = dance.DanceId, SortOrder = "Dances" }, 10);
+                        var songFilter = dms.SearchService.GetSongFilter();
+                        songFilter.Dances = dance.DanceId;
+                        songFilter.SortOrder = "Dances";
+                        var azureFilter = songIndex.AzureParmsFromFilter(songFilter, 10);
                         SongIndex.AddAzureCategories(
-                            filter, "GenreTags,StyleTags,TempoTags,OtherTags", 100);
+                            azureFilter, "GenreTags,StyleTags,TempoTags,OtherTags", 100);
                         var results = await songIndex.Search(
-                            null, filter);
+                            null, azureFilter);
                         dance.SetTopSongs(results.Songs);
                         _cache.AddSongs(results.Songs);
                         var song = dance.TopSongs.FirstOrDefault();

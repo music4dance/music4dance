@@ -344,12 +344,10 @@ public class PlayListController(
 
             var description = $"{count} most popular {name} songs from music4dance.net";
 
-            var search = new SongFilter
-            {
-                Dances = ds.DanceId,
-                SortOrder = "Dances",
-                Tags = "-Fake:Tempo"
-            };
+            var search = Database.SearchService.GetSongFilter();
+            search.Dances = ds.DanceId;
+            search.SortOrder = "Dances";
+            search.Tags = "-Fake:Tempo";
 
             Logger.LogInformation($"BulkCreateTopN: {name}, {description}, {search}");
 
@@ -535,10 +533,9 @@ public class PlayListController(
         try
         {
             var spotify = MusicService.GetService(ServiceType.Spotify);
-            var filter = new SongFilter(playlist.Search)
-            {
-                Purchase = spotify.CID.ToString()
-            };
+            var filter = Database.SearchService.GetSongFilter(playlist.Search);
+            filter.Purchase = spotify.CID.ToString();
+
             var sr = await dms.SongIndex.Search(
                 filter, playlist.Count == -1 ? 100 : playlist.Count);
             if (sr.Count == 0)

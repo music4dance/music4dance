@@ -35,21 +35,21 @@ namespace m4dModels.Tests
         [TestMethod]
         public void FilterDescription()
         {
-            var f1 = new SongFilter(@"Index-FXT-.-.-I-.-100-120-1-+Instrumental:Music");
-            var f2 = new SongFilter(
+            var f1 = SongFilter.Create(2, @"Index-FXT-.-.-I-.-100-120-1-+Instrumental:Music");
+            var f2 = SongFilter.Create(2, 
                 @"Index-ALL-Dances-Funk-.-.-.-.-.-+Rock & Roll:Music|\-Jazz:Music|\-Pop:Music");
-            var f3 = new SongFilter(@"Index-ALL-.-.--.-100-.-1");
-            var f4 = new SongFilter(@"Index-ALL-Title-.--.-.-150-1");
-            var f5 = new SongFilter(@"Advanced-.-.-.-.-+charlie|L-.-.-1");
-            var f6 = new SongFilter(@"Advanced-.-.-.-.-\-charlie|");
-            var f7 = new SongFilter(
+            var f3 = SongFilter.Create(2, @"Index-ALL-.-.--.-100-.-1");
+            var f4 = SongFilter.Create(2, @"Index-ALL-Title-.--.-.-150-1");
+            var f5 = SongFilter.Create(2, @"Advanced-.-.-.-.-+charlie|L-.-.-1");
+            var f6 = SongFilter.Create(2, @"Advanced-.-.-.-.-\-charlie|");
+            var f7 = SongFilter.Create(2, 
                 @"Advanced-.-.-.-.-null-.-.-1-+R&B / Soul:Music|+Rhythm and Blues:Music|+Blues:Music|");
-            var f8 = new SongFilter(
+            var f8 = SongFilter.Create(2, 
                 @"Advanced-SLS-.-.-S-null-.-.-1-|\-Christian / Gospel:Music|\-TV Theme Song:Music|\-Doo Wop:Music");
-            var f9 = new SongFilter(@"Advanced-MBO,RMB,SMB-.-.-.-null-.-.-1-|");
-            var f10 = new SongFilter(@"Advanced-AND,ECS,FXT,TGO-.-.-A-null-.-.-1-|");
-            var f11 = new SongFilter(@"Advanced-RMB-Tempo-.-A-null-.-.-1-|");
-            var f12 = new SongFilter(@"Advanced-AND,RMB,BCH-Created_desc-.-.-null-.-180-1-|");
+            var f9 = SongFilter.Create(2, @"Advanced-MBO,RMB,SMB-.-.-.-null-.-.-1-|");
+            var f10 = SongFilter.Create(2, @"Advanced-AND,ECS,FXT,TGO-.-.-A-null-.-.-1-|");
+            var f11 = SongFilter.Create(2, @"Advanced-RMB-Tempo-.-A-null-.-.-1-|");
+            var f12 = SongFilter.Create(2, @"Advanced-AND,RMB,BCH-Created_desc-.-.-null-.-180-1-|");
 
             Trace.WriteLine(f1.Description);
             Trace.WriteLine(f2.Description);
@@ -101,8 +101,8 @@ namespace m4dModels.Tests
         [TestMethod]
         public void FilterDescriptionV2()
         {
-            var f1 = new SongFilter(F1V2);
-            var f2 = new SongFilter(F2V2);
+            var f1 = SongFilter.Create(2, F1V2);
+            var f2 = SongFilter.Create(2, F2V2);
 
             Trace.WriteLine(f1.Description);
             Trace.WriteLine(f2.Description);
@@ -118,12 +118,12 @@ namespace m4dModels.Tests
         [TestMethod]
         public void TestEmpty()
         {
-            Assert.IsTrue(new SongFilter(@"Index-ALL").IsEmpty);
-            Assert.IsTrue(new SongFilter(@"Index").IsEmpty);
-            Assert.IsFalse(new SongFilter(@"Index-ALL-Title-.--.-.-150-1").IsEmpty);
-            Assert.IsTrue(new SongFilter(@"Index-.-Dances-.-.-.-.-.-1").IsEmpty);
-            Assert.IsFalse(new SongFilter(@"v2-Index-.-Dances-.-.-.-.-.-1").IsEmpty);
-            Assert.IsTrue(new SongFilter(@"v2-Index-.-Dances-.-.-.-.-.-.-.-1").IsEmpty);
+            Assert.IsTrue(SongFilter.Create(2, @"Index-ALL").IsEmpty);
+            Assert.IsTrue(SongFilter.Create(2, @"Index").IsEmpty);
+            Assert.IsFalse(SongFilter.Create(2, @"Index-ALL-Title-.--.-.-150-1").IsEmpty);
+            Assert.IsTrue(SongFilter.Create(2, @"Index-.-Dances-.-.-.-.-.-1").IsEmpty);
+            Assert.IsFalse(SongFilter.Create(2, @"v2-Index-.-Dances-.-.-.-.-.-1").IsEmpty);
+            Assert.IsTrue(SongFilter.Create(2, @"v2-Index-.-Dances-.-.-.-.-.-.-.-1").IsEmpty);
         }
 
         private static void TestFilters(bool withEncoding)
@@ -168,7 +168,7 @@ namespace m4dModels.Tests
         private static string RoundTrip(string fi, string f0, string message, int n,
             bool withEncoding)
         {
-            var f = new SongFilter(fi);
+            var f = SongFilter.Create(2, fi);
             var s = f.ToString();
 
             // Round-trip http encoding to make sure that we preserve our values

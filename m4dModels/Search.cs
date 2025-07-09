@@ -30,7 +30,7 @@ namespace m4dModels
         public DateTime Modified { get; set; }
 
         [NotMapped]
-        public SongFilter Filter => new(Query);
+        public SongFilter Filter => SongFilter.Create(SongFilter.DefaultVersion, Query);
 
         [NotMapped]
         public string Spotify { get; set; }

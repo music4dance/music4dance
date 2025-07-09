@@ -39,10 +39,6 @@ namespace m4dModels
             Page = songFilter.Page;
         }
 
-        public RawSearch(string val) : this(new SongFilter(val))
-        {
-        }
-
         [Display(Name = @"Search Text")]
         public string SearchText { get; set; }
 

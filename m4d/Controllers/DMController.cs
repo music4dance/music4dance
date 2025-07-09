@@ -144,7 +144,7 @@ public class DanceMusicController(
         }
         if (!string.IsNullOrEmpty(filterString))
         {
-            filter = new SongFilter(filterString);
+            filter = Database.SearchService.GetSongFilter(filterString);
         }
         else
         {
@@ -299,7 +299,7 @@ public class DanceMusicController(
                 continue;
             }
 
-            var filter = new SongFilter(export.Info.Filter).Normalize(userName).ToString();
+            var filter = Database.SearchService.GetSongFilter(export.Info.Filter).Normalize(userName).ToString();
             if (!map.ContainsKey(filter))
             {
                 map[filter] = export;

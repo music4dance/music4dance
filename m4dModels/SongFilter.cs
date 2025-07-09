@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -38,7 +37,6 @@ namespace m4dModels
         public int? Level { get; set; }
     }
 
-    [TypeConverter(typeof(SongFilterConverter))]
     public class SongFilter
     {
         private const char SubChar = '\u001a';
@@ -53,21 +51,13 @@ namespace m4dModels
                 { "Other", "Other" }
             };
 
-        private static readonly List<PropertyInfo> PropertyInfo;
+        protected static readonly List<PropertyInfo> PropertyInfo;
 
         private static readonly Dictionary<string, object> AltDefaults =
             new() { { "Action", "index" }, { "Dances", "all" }, { "Page", 1 } };
 
         private readonly string _subStr = new(SubChar, 1);
         private string _action;
-
-        // TODO: Move Field Ids into SongIndex.
-        //  Continue to abstract out parts of song index that are specific to the Flat Schema
-        //  Create another child class for StructuredIndex
-        //  Make the index definition include the type & allow that to be selectable via admin portal
-        //  Move to a factory system based on this boolean
-        //  This should work for songfitler & its descendents
-        public static bool StructuredSchema { get; set; }
 
         static SongFilter()
         {
@@ -76,18 +66,33 @@ namespace m4dModels
             PropertyInfo = [.. info.Where(p => p.CanRead && p.CanWrite)];
         }
 
-        public SongFilter()
+        public const int DefaultVersion = 2;
+        public static SongFilter Create(int version, string value = null)
         {
-            Action = "Index";
+            switch (version)
+            {
+                case 1: return new SongFilter(value);
+                case 2: return new SongFilter2(value);
+            }
+            throw new ArgumentOutOfRangeException(nameof(version), version, "Unknown SongFilter version");
         }
 
-        // TODO: Should we also enable a length column when filtering/sorting by length???
+        public static SongFilter Create(int version, RawSearch raw, string action = null)
+        {
+            switch (version)
+            {
+                case 1: return new SongFilter(raw, action);
+                case 2: return new SongFilter2(raw, action);
+            }
+            throw new ArgumentOutOfRangeException(nameof(version), version, "Unknown SongFilter version");
+        }
 
         // action-dances-sortorder-searchstring-purchase-user-tempomin-tempomax[-lengthmin-lengthmax]-page-tags-level
-        public SongFilter(string value)
+        protected SongFilter(string value = null)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
+                Action = "Index";
                 return;
             }
 
@@ -151,7 +156,7 @@ namespace m4dModels
             }
         }
 
-        public SongFilter Clone()
+        public virtual SongFilter Clone()
         {
             return new SongFilter(ToString());
         }
@@ -190,9 +195,9 @@ namespace m4dModels
             return null;
         }
 
-        public SongFilter(RawSearch raw)
+        protected SongFilter(RawSearch raw, string action = null)
         {
-            Action = "azure+raw+" + (raw.IsLucene ? "lucene" : "");
+            Action = action ?? "azure+raw+" + (raw.IsLucene ? "lucene" : "");
             SearchString = raw.SearchText;
             Dances = raw.ODataFilter;
             SortOrder = raw.SortFields;
@@ -203,11 +208,6 @@ namespace m4dModels
             Level = raw.CruftFilter == m4dModels.CruftFilter.NoCruft
                 ? null
                 : (int?)raw.CruftFilter;
-        }
-
-        public SongFilter(string action, RawSearch raw) : this(raw)
-        {
-            Action = action;
         }
 
         public int Version { get; set; }
@@ -444,8 +444,10 @@ namespace m4dModels
                         LengthMax.Value);
                 }
 
-                var noUserFilter = new SongFilter(ToString())
-                { Action = null, User = null, Page = null };
+                var noUserFilter = Clone();
+                noUserFilter.Action = null;
+                noUserFilter.User = null;
+                noUserFilter.Dances = null;
                 var trivialUser = noUserFilter.IsEmpty;
 
                 sb.Append(UserQuery.Description(trivialUser));
@@ -587,14 +589,14 @@ namespace m4dModels
                 : $"{danceFilter} and ({holidayFilter})";
 
             return new SongFilter(
-                "customsearch",
                 new RawSearch
                 {
                     ODataFilter = odata,
                     SortFields = danceSort,
                     Page = page,
                     Flags = danceFilter == null ? "" : "singleDance"
-                }
+                },
+                "customsearch"
             );
         }
 

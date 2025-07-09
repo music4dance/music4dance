@@ -1,10 +1,12 @@
 ﻿@using m4dModels
 @model m4dModels.SpotifyCreateInfo
 
+@inject ISearchServiceManager _searchService
+
 @{
     ViewData["HasIcons"] = true;
 ViewBag.Title = "New Spotify Playlist";
-var filter = new SongFilter(Model.Filter);
+var filter = _searchService.GetSongFilter(Model.Filter);
 var canCreate = Model.IsAuthenticated && Model.IsPremium && Model.CanSpotify;
 var returnUrl = $"/song/createspotify?filter={filter}";
 }

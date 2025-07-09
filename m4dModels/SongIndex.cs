@@ -72,7 +72,6 @@ public abstract class SongIndex
         DanceMusicService = dms;
         SearchId = id;
     }
-
     #region Lookup
 
     public async Task<Song> FindSong(Guid id)
@@ -700,7 +699,8 @@ public abstract class SongIndex
     {
         const int max = 10000;
 
-        var filter = new SongFilter { User = user };
+        var filter = Manager.GetSongFilter();
+        filter.User = user;
         if (includeHate)
         {
             filter.User += "|a";
@@ -720,7 +720,8 @@ public abstract class SongIndex
     {
         const int max = 10000;
 
-        var filter = new SongFilter { User = new UserQuery(user, true, like).Query };
+        var filter = Manager.GetSongFilter();
+        filter.User = new UserQuery(user, true, like).Query;
 
         var afilter = AzureParmsFromFilter(filter);
         afilter.Size = max;
@@ -1152,7 +1153,7 @@ public abstract class SongIndex
     #region Facets
     public async Task<IDictionary<string, IList<FacetResult>>> GetTagFacets(string categories, int count)
     {
-        var parameters = AzureParmsFromFilter(new SongFilter(), 1);
+        var parameters = AzureParmsFromFilter(Manager.GetSongFilter(), 1);
         AddAzureCategories(parameters, categories, count);
 
         return (await DoSearch(null, parameters)).Facets;
@@ -1397,7 +1398,7 @@ public abstract class SongIndex
 
     public async Task<IEnumerable<string>> BackupIndex(int count = -1, SongFilter filter = null)
     {
-        filter ??= new SongFilter();
+        filter ??= Manager.GetSongFilter();
 
         var parameters = AzureParmsFromFilter(filter);
         parameters.IncludeTotalCount = false;

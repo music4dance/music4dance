@@ -271,7 +271,7 @@ public class SongController : ContentController
         UseVue = UseVue.No;
         HelpPage = "advanced-search";
 
-        Filter = new SongFilter(rawSearch);
+        Filter = Database.SearchService.GetSongFilter(rawSearch);
         ViewBag.AzureIndexInfo = Database.SongIndex.BuildIndex();
         return ModelState.IsValid
             ? await DoAzureSearch()
@@ -934,11 +934,9 @@ public class SongController : ContentController
 
         var page = (Filter.Page.HasValue && Filter.Page > 1 && info.SubscriptionLevel < SubscriptionLevel.Silver) ? null : Filter.Page;
 
-        var filter = new SongFilter(info.Filter)
-        {
-            Purchase = "S",
-            Page = page
-        };
+        var filter = Database.SearchService.GetSongFilter(info.Filter);
+        filter.Purchase = "S";
+        filter.Page = page;
         ViewBag.SongFilter = filter;
 
         HelpPage = "spotify-playlist";
@@ -1076,7 +1074,7 @@ public class SongController : ContentController
 
         info.IsAuthenticated = User.Identity?.IsAuthenticated ?? false;
         info.IsPremium = User.IsInRole(DanceMusicCoreService.PremiumRole) || User.IsInRole(DanceMusicCoreService.TrialRole);
-        var filter = new SongFilter(info.Filter);
+        var filter = Database.SearchService.GetSongFilter(info.Filter);
         var isUserOnly = IsUserOnly(filter);
         info.Description = isUserOnly ? $"All of {filter.UserQuery.UserName}'s votes and tags" : filter.Description;
         info.Count = isUserOnly ? 5000 : (await GetSubscriptionLevel()) < SubscriptionLevel.Silver ? 100 : 1000;

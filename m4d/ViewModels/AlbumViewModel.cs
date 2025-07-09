@@ -90,11 +90,13 @@ public class AlbumViewModel : SongListModel
             }
         }
 
+        var filter = dms.SearchService.GetSongFilter();
+        filter.Action = "Album";
         return new AlbumViewModel
         {
             Title = albumTitle ?? title,
             Artist = uniqueArtist && list.Count > 0 ? list[0].Artist : string.Empty,
-            Filter = mapper.Map<SongFilterSparse>(new SongFilter { Action = "Album" }),
+            Filter = mapper.Map<SongFilterSparse>(filter),
             Histories = [.. list.Select(s => s.GetHistory(mapper))]
         };
     }

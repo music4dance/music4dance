@@ -17,9 +17,6 @@ ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
 <p>Up Time = <b>@SpiderManager.UpTime.ToString()</b></p>
 
 <hr />
-<h3>Structured Schema =  @Html.ActionLink(@SongFilter.StructuredSchema.ToString(), "ToggleStructuredSchema", "Admin")</h3>
-
-<hr />
 <h3>Environment</h3>
 <ul>
     <li>
@@ -152,21 +149,20 @@ ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
 <h3>Search Index: @ViewBag.SearchIdx</h3>
 <p>Source = @ViewBag.StatsUpdateSource, Time=@ViewBag.StatsUpdateTime</p>
 <ul>
-    @foreach (var id in SearchService.GetAvailableIds())
-{
-    if (SearchService.DefaultId == id)
-    {
-        continue;
-    }
-    <li>
-            @Html.ActionLink(id, "SetSearchIdx", "Admin", new
+    @foreach (var id in SearchService.GetAvailableIds()){
+        if (SearchService.DefaultId == id)
         {
-            id
-        }, null)
+            continue;
+        }
+        <li>
+                @Html.ActionLink(id, "SetSearchIdx", "Admin", new
+            {
+                id
+            }, null)
         </li>
-}
-    <li>Enviroment: @SearchService.RawEnvironment</li>
+    }
 </ul>
+<p>Enviroment: @SearchService.RawEnvironment</p>
 
 <hr />
 <h3>Tag Duplicates</h3>

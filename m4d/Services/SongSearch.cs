@@ -14,7 +14,7 @@ namespace m4d.Services;
 public class SongSearch(SongFilter filter, string userName, bool isPremium, SongIndex songIndex,
     UserManager<ApplicationUser> userManager, IBackgroundTaskQueue backgroundTaskQueue, int? pageSize = null)
 {
-    private SongFilter Filter { get; } = new SongFilter(filter.ToString());
+    private SongFilter Filter { get; } = songIndex.DanceMusicService.SearchService.GetSongFilter(filter.ToString());
     private string UserName { get; } = userName;
     private bool IsPremium { get; } = isPremium;
     private UserManager<ApplicationUser> UserManager { get; } = userManager;

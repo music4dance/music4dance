@@ -320,10 +320,8 @@ public partial class DanceMusicCoreService(DanceMusicContext context, ISearchSer
 
     private string FilterFromTag(string key)
     {
-        var filter = new SongFilter
-        {
-            Tags = key
-        };
+        var filter = SearchService.GetSongFilter();
+        filter.Tags = key;
         var parameters = SongIndex.AzureParmsFromFilter(filter);
         var ret = parameters.Filter;
 

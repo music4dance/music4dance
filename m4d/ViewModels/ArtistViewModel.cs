@@ -17,11 +17,13 @@ public class ArtistViewModel : SongListModel
         CruftFilter cruft, DanceMusicService dms)
     {
         var list = (await dms.SongIndex.FindArtist(name, cruft)).Take(500);
+        var filter = dms.SearchService.GetSongFilter();
+        filter.Action = "Artist";
 
         return new ArtistViewModel
         {
             Artist = name,
-            Filter = mapper.Map<SongFilterSparse>(new SongFilter { Action = "Artist" }),
+            Filter = mapper.Map<SongFilterSparse>(filter),
             Histories = [.. list.Select(s => s.GetHistory(mapper))]
         };
     }
