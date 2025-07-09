@@ -418,7 +418,7 @@ public class PlayListController(
 
             var description = $"{ds.DanceName} Dance {title} songs from music4dance.net";
 
-            var search = SongFilter.CreateCustomSearchFilter(occassion, ds.DanceName);
+            var search = Database.SearchService.GetSongFilter().CreateCustomSearchFilter(occassion, ds.DanceName);
 
             Logger.LogInformation($"BulkCreate{title}: {name}, {description}, {search}");
 

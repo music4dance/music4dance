@@ -125,11 +125,7 @@ namespace m4dModels
             DanceMusicCoreService dms, string source = "default")
         {
             await InitializeDanceLibrary();
-            var songCounts = await GetSongCounts(dms, source);
             var instance = await DanceStatsInstance.BuildInstance(
-                await TagManager.BuildTagManager(dms, source),
-                await AzureDanceStats(DanceLibrary.Dances.Instance.AllDanceGroups, songCounts, dms),
-                await AzureDanceStats(DanceLibrary.Dances.Instance.AllDanceTypes, songCounts, dms),
                 dms, source);
 
             LastUpdate = DateTime.Now;
@@ -153,66 +149,6 @@ namespace m4dModels
         {
             return FileManager.WriteStats(instance.SaveToJson());
         }
-
-        private async Task<Dictionary<string, long>> GetSongCounts(DanceMusicCoreService dms,
-            string source)
-        {
-            var facets = await dms.GetSongIndex(source)
-                .GetTagFacets("DanceTags", 100);
-
-            return IndexDanceFacet(facets["DanceTags"]);
-        }
-
-        private async Task<IEnumerable<DanceStats>> AzureDanceStats(
-            IEnumerable<DanceObject> dances,
-            IReadOnlyDictionary<string, long> songCounts, DanceMusicCoreService dms)
-        {
-            var stats = new List<DanceStats>();
-            await dms.Context.LoadDances();
-
-            foreach (var dt in dances)
-            {
-                var scType = InfoFromDance(dms, dt);
-                scType.AggregateSongCounts(songCounts);
-                stats.Add(scType);
-            }
-
-            return stats;
-        }
-
-        private Dictionary<string, long> IndexDanceFacet(IEnumerable<FacetResult> facets)
-        {
-            var ret = new Dictionary<string, long>();
-
-            foreach (var facet in facets)
-            {
-                var d = DanceLibrary.Dances.Instance.DanceFromName((string)facet.Value);
-                if (d == null || !facet.Count.HasValue)
-                {
-                    continue;
-                }
-
-                ret[d.Id] = facet.Count.Value;
-            }
-
-            return ret;
-        }
-
-
-        private static DanceStats InfoFromDance(DanceMusicCoreService dms, DanceObject d)
-        {
-            ArgumentNullException.ThrowIfNull(d);
-
-            var danceStats = new DanceStats
-            {
-                DanceId = d.Id,
-            };
-
-            danceStats.CopyDanceInfo(
-                dms.Dances.FirstOrDefault(t => t.Id == d.Id));
-            return danceStats;
-        }
-
         #endregion
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 
 using Azure.Search.Documents.Indexes.Models;
 using Azure.Search.Documents.Models;
@@ -171,6 +172,21 @@ namespace m4dModels
             return index;
         }
 
+        public override async Task<bool> UpdateIndex(IEnumerable<string> dances)
+        {
+            var index = await GetSearchIndex();
+            foreach (var dance in dances)
+            {
+                var field = IndexFieldFromDanceId(dance);
+                if (index.Fields.All(f => f.Name != field.Name))
+                {
+                    index.Fields.Add(field);
+                }
+            }
+
+            var response = await IndexClient.CreateOrUpdateIndexAsync(index);
+            return response.Value != null;
+        }
 
         private static SearchField IndexFieldFromDanceId(string id)
         {

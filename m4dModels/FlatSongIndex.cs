@@ -345,7 +345,7 @@ namespace m4dModels
             return (doc as SearchDocument)?.GetString(SongIdField);
         }
 
-        private async Task<SearchIndex> GetSearchIndex()
+        protected async Task<SearchIndex> GetSearchIndex()
         {
             try
             {

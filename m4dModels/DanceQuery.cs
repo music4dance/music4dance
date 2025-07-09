@@ -58,7 +58,7 @@ namespace m4dModels
         public bool IsExclusive => (StartsWith(And) || StartsWith(AndX)) &&
             Query.IndexOf(',', 4) != -1;
 
-        public string ODataFilter
+        public virtual string ODataFilter
         {
             get
             {
@@ -104,7 +104,7 @@ namespace m4dModels
             }
         }
 
-        public IList<string> ODataSort(string order)
+        public virtual IList<string> ODataSort(string order)
         {
             var dances = DanceLibrary.Dances.Instance.ExpandGroups(Dances).ToList();
             if (dances.Count == 0)

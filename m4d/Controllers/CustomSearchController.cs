@@ -34,7 +34,7 @@ public class CustomSearchController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> Index(string name, string dance = null, int page = 1)
     {
-        Filter = SongFilter.CreateCustomSearchFilter(name, dance, page);
+        Filter = Database.SearchService.GetSongFilter().CreateCustomSearchFilter(name, dance, page);
         HelpPage = Filter.IsSimple ? "song-list" : "advanced-search";
 
         try

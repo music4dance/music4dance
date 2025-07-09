@@ -11,10 +11,11 @@ ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
     @*<li>@Html.ActionLink("Update Tag Summaries", "UpdateTagSummaries")</li>*@
 </ul>
 
-@*<h3>Azure Tags</h3>
+<h3>Azure Tags</h3>
 <ul>
-    <li>@Html.ActionLink("DanceTags", "AzureFacets", new { categories = "DanceTags", count = 100 }, null)</li>
+    <li>@Html.ActionLink("Dances", "AzureFacets", new { categories = "DanceTags", count = 100 }, null)</li>
 
-    <li>@Html.ActionLink("Tags", "AzureFacets", new { categories = "GenreTags,StyleTags,TempoTags,OtherTags", count = 100 }, null)</li>
+    <li>@Html.ActionLink("Song Tags", "AzureFacets", new { categories = "GenreTags,StyleTags,OtherTags", count = 100 }, null)</li>
 
-</ul>*@
+    <li>@Html.ActionLink("Dance Tags", "AzureFacets", new { categories = "dance_ALL/StyleTags,dance_ALL/TempoTags,dance_ALL/OtherTags", count = 100 }, null)</li>
+</ul>

@@ -254,10 +254,10 @@ namespace m4dModels
         }
         public bool DescriptionOverride => IsRaw && !string.IsNullOrWhiteSpace(Purchase);
 
-        public KeywordQuery KeywordQuery => new(SearchString);
-        public DanceQuery DanceQuery => new(IsRaw ? null : Dances);
-        public UserQuery UserQuery => new(User);
-        public SongSort SongSort => new(SortOrder, TextSearch);
+        public virtual KeywordQuery KeywordQuery => new(SearchString);
+        public virtual DanceQuery DanceQuery => new(IsRaw ? null : Dances);
+        public virtual UserQuery UserQuery => new(User);
+        public virtual SongSort SongSort => new(SortOrder, TextSearch);
 
         public CruftFilter CruftFilter =>
             !Action.StartsWith("merge", StringComparison.OrdinalIgnoreCase) && Level.HasValue
@@ -559,7 +559,7 @@ namespace m4dModels
                 : new SongFilter($"Index-----\\-{userName}|h");
         }
 
-        public static SongFilter CreateCustomSearchFilter(string name = "holiday", string dance = null, int page = 1)
+        public virtual SongFilter CreateCustomSearchFilter(string name = "holiday", string dance = null, int page = 1)
         {
             var holidayFilter = name.ToLowerInvariant() switch
             {
@@ -600,7 +600,7 @@ namespace m4dModels
             );
         }
 
-        public string GetTagFilter(DanceMusicCoreService dms)
+        public virtual string GetTagFilter(DanceMusicCoreService dms)
         {
             var tags = new TagList(Tags);
 
