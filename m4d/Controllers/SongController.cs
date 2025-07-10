@@ -268,7 +268,6 @@ public class SongController : ContentController
             "SearchText,ODataFilter,SortFields,SearchFields,Description,IsLucene,CruftFilter")]
         RawSearch rawSearch)
     {
-        UseVue = UseVue.No;
         HelpPage = "advanced-search";
 
         Filter = Database.SearchService.GetSongFilter(rawSearch);
