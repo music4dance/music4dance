@@ -25,8 +25,6 @@ namespace m4dModels
         #region Index Management
 
         // TODONEXT:
-        //  Implement SongFilterFactory and derive a SongFilter2 from SongFilter
-        //    that runs against the new schema
         //  Figure out a way to do actual versioning rather than depending on a
         //    dedicated exerimental DB - Roll forward versions of prod and test
         //    So we have Prod1, Prod2, etc. moving from 1 to 2 we load from 1 and save to 2 and
