@@ -11,12 +11,12 @@ namespace m4dModels;
 
 public class DanceBuilder(DanceMusicCoreService dms, string source = "default")
 {
-    private readonly DanceMusicCoreService _dms = dms ?? throw new ArgumentNullException(nameof(dms));
-    private readonly string _source = source;
+    protected DanceMusicCoreService Dms => dms ?? throw new ArgumentNullException(nameof(dms));
+    protected string Source => source;
 
     public async Task<DanceStatsInstance> Build()
     {
-        var tagManager = await TagManager.BuildTagManager(_dms, _source);
+        var tagManager = await TagManager.BuildTagManager(Dms, Source);
         var songCounts = await GetSongCounts();
         var groups = await AzureDanceStats(Dances.Instance.AllDanceGroups, songCounts);
         var dances = await AzureDanceStats(Dances.Instance.AllDanceTypes, songCounts);
@@ -27,7 +27,7 @@ public class DanceBuilder(DanceMusicCoreService dms, string source = "default")
 
     protected virtual async Task<Dictionary<string, long>> GetSongCounts()
     {
-        var facets = await _dms.GetSongIndex(_source)
+        var facets = await Dms.GetSongIndex(Source)
             .GetTagFacets("DanceTags", 100);
 
         return IndexDanceFacet(facets["DanceTags"]);
@@ -38,11 +38,11 @@ public class DanceBuilder(DanceMusicCoreService dms, string source = "default")
         IReadOnlyDictionary<string, long> songCounts)
     {
         var stats = new List<DanceStats>();
-        await _dms.Context.LoadDances();
+        await Dms.Context.LoadDances();
 
         foreach (var dt in dances)
         {
-            var scType = InfoFromDance(_dms, dt);
+            var scType = InfoFromDance(dt);
             scType.AggregateSongCounts(songCounts);
             stats.Add(scType);
         }
@@ -68,7 +68,7 @@ public class DanceBuilder(DanceMusicCoreService dms, string source = "default")
         return ret;
     }
 
-    protected virtual DanceStats InfoFromDance(DanceMusicCoreService dms, DanceObject d)
+    protected virtual DanceStats InfoFromDance(DanceObject d)
     {
         ArgumentNullException.ThrowIfNull(d);
 
@@ -78,11 +78,11 @@ public class DanceBuilder(DanceMusicCoreService dms, string source = "default")
         };
 
         danceStats.CopyDanceInfo(
-            dms.Dances.FirstOrDefault(t => t.Id == d.Id));
+            Dms.Dances.FirstOrDefault(t => t.Id == d.Id));
         return danceStats;
     }
 
-    protected async Task<IEnumerable<Song>> LoadSongs(IEnumerable<DanceStats> dances, TagManager tagManager)
+    protected virtual async Task<IEnumerable<Song>> LoadSongs(IEnumerable<DanceStats> dances, TagManager tagManager)
     {
         List<Song> songs = [];
         foreach (var dance in dances)
@@ -90,8 +90,8 @@ public class DanceBuilder(DanceMusicCoreService dms, string source = "default")
             try
             {
                 // TopN and MaxWeight
-                var songIndex = dms.GetSongIndex(_source);
-                var songFilter = dms.SearchService.GetSongFilter();
+                var songIndex = Dms.GetSongIndex(Source);
+                var songFilter = Dms.SearchService.GetSongFilter();
                 songFilter.Dances = dance.DanceId;
                 songFilter.SortOrder = "Dances";
                 var azureFilter = songIndex.AzureParmsFromFilter(songFilter, 10);

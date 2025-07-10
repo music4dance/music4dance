@@ -80,7 +80,17 @@ namespace m4dModels
         public static async Task<DanceStatsInstance> BuildInstance(
             DanceMusicCoreService dms, string source)
         {
-            var instance = await new DanceBuilder(dms, source).Build();
+            DanceBuilder builder = null;
+            switch (dms.SearchService.Version)
+            {
+                case 1:
+                    builder = new DanceBuilder(dms, source);
+                    break;
+                case 2:
+                    builder = new DanceBuilder2(dms, source);
+                    break;
+            }
+            var instance = await builder.Build();
             await instance.FixupStats(dms);
             return instance;
         }

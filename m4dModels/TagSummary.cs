@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 
+using Microsoft.VisualBasic;
+
 using Newtonsoft.Json;
 
 using FacetResults =
@@ -80,21 +82,43 @@ namespace m4dModels
 
         public TagSummary(FacetResults facets, IReadOnlyDictionary<string, TagGroup> tagMap)
         {
-            Summary = Serialize(
-                Parse(
-                    string.Join(
-                        "|",
-                        facets.Keys.Select(
-                            key => string.Join(
-                                "|",
-                                facets[key].Select(
-                                        f => MassageTag(f.Value as string, key, f.Count, tagMap))
-                                    .ToList())))));
+            Dictionary<string, long> tags = new();
+
+            foreach (var facet in facets)
+            {
+                if (facet.Value == null || facet.Value.Count == 0)
+                {
+                    continue;
+                }
+                foreach (var f in facet.Value)
+                {
+                    if (f.Value == null || f.Count == null || f.Count == 0)
+                    {
+                        continue;
+                    }
+                    var tag = MassageTag(f.Value as string, facet.Key, tagMap);
+                    if (tags.TryGetValue(tag, out var count))
+                    {
+                        tags[tag] = count + f.Count ?? 0;
+                    }
+                    else
+                    {
+                        tags[tag] = f.Count ?? 0;
+                    }
+                }
+            }
+
+            Summary = Serialize(tags.Select(kvp => new TagCount(kvp.Key, (int)kvp.Value)).ToList());
         }
 
-        private static string MassageTag(string tvalue, string ttype, long? count,
+        private static string MassageTag(string tvalue, string ttype,
             IReadOnlyDictionary<string, TagGroup> tagMap)
         {
+            const string prefix = "dances_ALL/";
+            if (ttype.StartsWith(prefix))
+            {
+                ttype = ttype[prefix.Length..];
+            }
             var key =
                 $"{tvalue}:{SongFilter.TagClassFromName(ttype[0..^4])}";
             if (tagMap.TryGetValue(key.ToLower(), out var tt))
@@ -102,7 +126,7 @@ namespace m4dModels
                 key = tt.Key;
             }
 
-            return $"{key}:{count}";
+            return key;
         }
 
         private static TagCount MassageeTag(TagCount tag, IReadOnlyDictionary<string, TagGroup> tagMap)
@@ -227,7 +251,6 @@ namespace m4dModels
             list.Sort((sc1, sc2) => string.Compare(sc1.Value, sc2.Value, StringComparison.Ordinal));
             return string.Join("|", list);
         }
-
         #endregion
     }
 }

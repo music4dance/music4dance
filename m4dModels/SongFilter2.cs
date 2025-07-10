@@ -26,8 +26,8 @@ internal class SongFilter2 : SongFilter
         new()
         {
                 { "Music", new TagClass("Genre", isDanceTag: false ) },
-                { "Style", new TagClass("Style") },
-                { "Tempo", new TagClass("Tempo", isSongTag: false )},
+                { "Style", new TagClass("Style", isSongTag: false) },
+                { "Tempo", new TagClass("Tempo" )},
                 { "Other", new TagClass("Other") }
         };
 

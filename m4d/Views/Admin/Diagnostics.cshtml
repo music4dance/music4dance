@@ -26,16 +26,16 @@ ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
         <b>Current Directory:</b>@Environment.CurrentDirectory
     </li>
     <li>
-        <b>OSVersion:</b>@Environment.OSVersion
+        <b>OSVersion:</b> @Environment.OSVersion
     </li>
     <li>
-        <b>UserDomainName:</b>@Environment.UserDomainName
+        <b>UserDomainName:</b> @Environment.UserDomainName
     </li>
     <li>
-        <b>UserName:</b>@Environment.UserName
+        <b>UserName:</b> @Environment.UserName
     </li>
     <li>
-        <b>Version:</b>@Environment.Version
+        <b>Version:</b> @Environment.Version
     </li>
     <li><b>Build Flavor:</b> @(ViewBag.Debug ? "Debug" : "Release")</li>
     <li>
@@ -162,7 +162,8 @@ ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
         </li>
     }
 </ul>
-<p>Enviroment: @SearchService.RawEnvironment</p>
+<p><b>Enviroment:</b> @SearchService.RawEnvironment</p>
+<p><b>DB Version:</b> @SearchService.Version<p/>
 
 <hr />
 <h3>Tag Duplicates</h3>

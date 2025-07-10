@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-
-using Azure.Search.Documents.Models;
-
-using DanceLibrary;
 
 namespace m4dModels
 {
