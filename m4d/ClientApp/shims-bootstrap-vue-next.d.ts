@@ -1,9 +1,7 @@
 // shims-bootstrap-vue-next.d.ts
-
-// INT-TODO: This file doesn't appear to have any effect
 import "bootstrap-vue-next";
 
-declare module "bootstrap-vue-next/dist/src/types" {
+declare module "bootstrap-vue-next" {
   export interface BaseColorVariant {
     music: unknown;
     tempo: unknown;
@@ -21,5 +19,4 @@ declare module "bootstrap-vue-next/dist/src/types" {
     "outline-other": unknown;
     "outline-dance": unknown;
   }
-  export interface BaseTextColorVariant {}
 }
