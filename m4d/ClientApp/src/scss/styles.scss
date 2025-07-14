@@ -5,6 +5,15 @@ $dance-light: lighten($dance-primary, 40%);
 $primary: $dance-primary;
 $info: $dance-light;
 
+$navbar-dark-color: white;
+$navbar-dark-hover-color: rgba(white, 0.8);
+$navbar-dark-active-color: rgba(white, 0.9);
+$navbar-dark-disabled-color: rgba(white, 0.4);
+$navbar-dark-icon-color: $navbar-dark-color;
+
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/variables-dark";
+
 $custom-theme-colors: (
   music: #24a092,
   tempo: #001671,
@@ -14,15 +23,6 @@ $custom-theme-colors: (
   blog: #995600,
   dance: #ff9900,
 );
-
-$navbar-dark-color: white;
-$navbar-dark-hover-color: rgba(white, 0.8);
-$navbar-dark-active-color: rgba(white, 0.9);
-$navbar-dark-disabled-color: rgba(white, 0.4);
-$navbar-dark-icon-color: $navbar-dark-color;
-
-@import "bootstrap/scss/variables";
-@import "bootstrap/scss/variables-dark";
 
 $theme-colors: map-merge($theme-colors, $custom-theme-colors);
 
