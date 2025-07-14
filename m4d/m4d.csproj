@@ -16,6 +16,7 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" />
     <PackageReference Include="AspNet.Security.OAuth.Spotify" />
+    <PackageReference Include="Azure.Communication.Email" />
     <PackageReference Include="Azure.Identity" />
     <PackageReference Include="CsvHelper" />
     <PackageReference Include="HtmlAgilityPack" />
@@ -38,7 +39,6 @@
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="owl" />
     <PackageReference Include="Owl.reCAPTCHA" />
-    <PackageReference Include="Sendgrid" />
     <PackageReference Include="SixLabors.ImageSharp" />
     <PackageReference Include="Stripe.net" />
     <PackageReference Include="System.Drawing.Common" />

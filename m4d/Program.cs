@@ -150,9 +150,8 @@ var embeddedProvider = new EmbeddedFileProvider(Assembly.GetEntryAssembly());
 var compositeProvider = new CompositeFileProvider(physicalProvider, embeddedProvider);
 services.AddSingleton<IFileProvider>(compositeProvider);
 
-services.AddTransient<IEmailSender, EmailSender>();
-var sendGrid = configuration.GetSection("Authentication:SendGrid");
-services.Configure<AuthMessageSenderOptions>(sendGrid.Bind);
+services.AddTransient<IEmailSender, EmailSender>(provider =>
+    new EmailSender(configuration["Authentication:AzureCommunicationServices:ConnectionString"]));
 
 services.Configure<AuthorizationOptions>(
     options =>
