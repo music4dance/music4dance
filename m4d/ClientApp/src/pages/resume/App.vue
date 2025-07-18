@@ -66,12 +66,11 @@ const breadcrumbs: BreadCrumbItem[] = [
               >bootstrap-vue</a
             >) stepped back, I joined the engineers working on a replacement. I've contributed to
             the architecture, made numerous bug fixes, added and reworked several components, built
-            out the documentation, developed a parity report to track our progress, and taken the
-            lead on getting the documentation in sync with the library. Using AI to web-scrape the
-            bootstrap-vue documentation to generate the parity report and writing a VitePress
-            Plugin/Markdown Extension to generate running sample code and annotated samples from the
-            same source in the documentation were just two of the more technically interesting
-            challenges.
+            out the documentation, and developed a parity report to track our progress. Using AI to
+            web-scrape the bootstrap-vue documentation to generate the parity report and writing a
+            VitePress Plugin/Markdown Extension to generate running sample code and annotated
+            samples from the same source in the documentation were just two of the more technically
+            interesting challenges.
           </li>
         </ul>
       </div>
