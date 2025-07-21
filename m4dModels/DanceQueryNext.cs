@@ -8,7 +8,7 @@ using DanceLibrary;
 
 namespace m4dModels
 {
-    public class DanceQuery2(string query = null) : DanceQuery(query)
+    public class DanceQueryNext(string query = null) : DanceQuery(query)
     {
         public override string ODataFilter
         {

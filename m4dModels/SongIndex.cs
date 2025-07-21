@@ -59,7 +59,7 @@ public abstract class SongIndex
             ? new StructuredSongIndex(dms, id)
             : info.Id != "SongIndexExperimental"
                 ? new FlatSongIndex(dms, id)
-                : new ExperimentalSongIndex(dms, id);
+                : new SongIndexNext(dms, id);
     }
 
     // For Moq

@@ -14,7 +14,10 @@ namespace m4dModels
         string DefaultId { get; set; }
         IEnumerable<string> GetAvailableIds();
         string RawEnvironment { get; }
-        int Version { get; }
+        int CodeVersion { get; }
+        int ConfigVersion { get; set; }
+        bool NextVersion { get; } 
+        bool HasNextVersion { get; }
         bool HasId(string id);
         SongFilter GetSongFilter(string filter = null);
         SongFilter GetSongFilter(RawSearch raw, string action = null); 
@@ -57,15 +60,15 @@ namespace m4dModels
             var versionString = configuration["SEARCHINDEXVERSION"];
             if (string.IsNullOrEmpty(env) || !int.TryParse(versionString, out var version))
             {
-                Version = 1;
+                ConfigVersion = 1;
             }
             else
             {
-                Version = Version;
+                ConfigVersion = version;
             }
             if (DefaultId == "SongIndexExperimental")
             {
-                Version += 1;
+                ConfigVersion += 1;
             }
         }
 
@@ -90,12 +93,12 @@ namespace m4dModels
 
         public SongFilter GetSongFilter(string filter = null)
         {
-            return SongFilter.Create(Version, filter);
+            return SongFilter.Create(NextVersion, filter);
         }
 
         public SongFilter GetSongFilter(RawSearch raw, string action = null)
         {
-            return SongFilter.Create(Version, raw, action);
+            return SongFilter.Create(NextVersion, raw, action);
         }
 
         public string DefaultId
@@ -104,16 +107,22 @@ namespace m4dModels
             {
                 if (_defaultId == "SongIndexExperimental")
                 {
-                    Version -= 1;
+                    ConfigVersion -= 1;
                 }
                 _defaultId = value;
                 if (value == "SongIndexExperimental")
                 {
-                    Version += 1;
+                    ConfigVersion += 1;
                 }
             }
         }
-        public int Version { get; set; }
+
+        public int CodeVersion => 1;
+        public bool HasNextVersion => true && CodeVersion == ConfigVersion;
+
+        public int ConfigVersion { get; set; }
+
+        public bool NextVersion => ConfigVersion > CodeVersion;
 
         public string RawEnvironment { get; }
 

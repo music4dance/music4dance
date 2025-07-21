@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace m4dModels;
 
-public class DanceBuilder2(DanceMusicCoreService dms, string source = "default") : 
+public class DanceBuilderNext(DanceMusicCoreService dms, string source = "default") : 
     DanceBuilder(dms, source)
 {
 

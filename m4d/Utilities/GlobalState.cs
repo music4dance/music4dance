@@ -33,8 +33,6 @@ public static class GlobalState
     public static string UpdateMessage { get; set; }
     public static bool UseTestKeys { get; set; }
 
-    public static int DataVersion { get; set; } = 1;
-
     private static MarketingInfo Marketing { get; set; }
 
     internal static void SetMarketing(IConfigurationSection configurationSection)

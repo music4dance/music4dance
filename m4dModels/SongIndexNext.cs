@@ -11,14 +11,14 @@ using DanceLibrary;
 
 namespace m4dModels
 {
-    public class ExperimentalSongIndex : FlatSongIndex
+    public class SongIndexNext : FlatSongIndex
     {
         // For Moq
-        public ExperimentalSongIndex()
+        public SongIndexNext()
         {
         }
 
-        internal ExperimentalSongIndex(DanceMusicCoreService dms, string id) : base(dms, id)
+        internal SongIndexNext(DanceMusicCoreService dms, string id) : base(dms, id)
         {
         }
 
@@ -29,8 +29,13 @@ namespace m4dModels
         //    dedicated exerimental DB - Roll forward versions of prod and test
         //    So we have Prod1, Prod2, etc. moving from 1 to 2 we load from 1 and save to 2 and
         //    once that's complete we flip over to 2 for queries?
-        //  Write the code to handle queries against the new schema and figure
-        //    out how to activate that
+        //    - Add the -2 versions to the configuration
+        //    - Write the swap-over code
+        //          - Set the warning message
+        //          - Clone from current to a v-next index (we can now just create a vnext index)
+        //          - Increment the current version
+        //          - Switch to the new index (make the SongIndex create function detect next?)
+        //          - Turn off error message
         public override SearchIndex BuildIndex()
         {
             var fields = new List<SearchField>

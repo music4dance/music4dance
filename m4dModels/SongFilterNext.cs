@@ -1,13 +1,11 @@
-﻿using Microsoft.SqlServer.Server;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace m4dModels;
 
-internal class SongFilter2 : SongFilter
+internal class SongFilterNext : SongFilter
 {
     private class TagClass
     {
@@ -31,20 +29,20 @@ internal class SongFilter2 : SongFilter
                 { "Other", new TagClass("Other") }
         };
 
-    internal SongFilter2(string filter = null) : base(filter)
+    internal SongFilterNext(string filter = null) : base(filter)
     {
     }
 
-    internal SongFilter2(RawSearch rawSearch, string action) : base(rawSearch, action)
+    internal SongFilterNext(RawSearch rawSearch, string action) : base(rawSearch, action)
     {
     }
 
     public override SongFilter Clone()
     {
-        return new SongFilter2(ToString());
+        return new SongFilterNext(ToString());
     }
 
-    public override DanceQuery DanceQuery => new DanceQuery2(IsRaw ? null : Dances);
+    public override DanceQuery DanceQuery => new DanceQueryNext(IsRaw ? null : Dances);
 
     public override SongFilter CreateCustomSearchFilter(string name = "holiday", string dance = null, int page = 1)
     {
@@ -75,7 +73,7 @@ internal class SongFilter2 : SongFilter
             ? holidayFilter
             : $"{danceFilter} and ({holidayFilter})";
 
-        return new SongFilter2(
+        return new SongFilterNext(
             new RawSearch
             {
                 ODataFilter = odata,

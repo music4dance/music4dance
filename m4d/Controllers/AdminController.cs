@@ -255,7 +255,6 @@ public class AdminController(
     {
         Logger.LogInformation($"Set Search Index: '{id}'");
         SearchService.DefaultId = id;
-        GlobalState.DataVersion = SearchService.Version;
 
         DanceStatsManager.LoadFromAzure(Database, id);
 

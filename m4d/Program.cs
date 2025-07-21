@@ -87,14 +87,15 @@ if (!isDevelopment)
 services.AddAzureClients(clientBuilder =>
 {
     clientBuilder.UseCredential(credentials);
-    clientBuilder.AddSearchClient(
-        configuration.GetSection("PageIndex")).WithName("PageIndex");
-    clientBuilder.AddSearchClient(
-        configuration.GetSection("SongIndex")).WithName("SongIndex");
-    clientBuilder.AddSearchClient(
-        configuration.GetSection("SongIndexTest")).WithName("SongIndexTest");
-    clientBuilder.AddSearchClient(
-        configuration.GetSection("SongIndexExperimental")).WithName("SongIndexExperimental");
+
+    // Dynamically add all configuration sections with an "indexname" field
+    foreach (var section in configuration.GetChildren())
+    {
+        if (section.GetChildren().Any(child => child.Key.Equals("indexname", StringComparison.OrdinalIgnoreCase)))
+        {
+            clientBuilder.AddSearchClient(section).WithName(section.Key);
+        }
+    }
 });
 
 services.AddDbContext<DanceMusicContext>(options => options.UseSqlServer(connectionString));

@@ -66,25 +66,14 @@ namespace m4dModels
             PropertyInfo = [.. info.Where(p => p.CanRead && p.CanWrite)];
         }
 
-        public const int DefaultVersion = 2;
-        public static SongFilter Create(int version, string value = null)
+        public static SongFilter Create(bool nextVersion, string value = null)
         {
-            switch (version)
-            {
-                case 1: return new SongFilter(value);
-                case 2: return new SongFilter2(value);
-            }
-            throw new ArgumentOutOfRangeException(nameof(version), version, "Unknown SongFilter version");
+            return nextVersion ? new SongFilterNext(value) : new SongFilter(value);
         }
 
-        public static SongFilter Create(int version, RawSearch raw, string action = null)
+        public static SongFilter Create(bool nextVersion, RawSearch raw, string action = null)
         {
-            switch (version)
-            {
-                case 1: return new SongFilter(raw, action);
-                case 2: return new SongFilter2(raw, action);
-            }
-            throw new ArgumentOutOfRangeException(nameof(version), version, "Unknown SongFilter version");
+            return nextVersion ? new SongFilterNext(raw, action) : new SongFilter(raw, action);
         }
 
         // action-dances-sortorder-searchstring-purchase-user-tempomin-tempomax[-lengthmin-lengthmax]-page-tags-level
