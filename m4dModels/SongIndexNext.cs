@@ -22,6 +22,8 @@ namespace m4dModels
         {
         }
 
+        public override bool IsNext => true;
+
         #region Index Management
 
         // TODONEXT:
@@ -29,15 +31,17 @@ namespace m4dModels
         //    dedicated exerimental DB - Roll forward versions of prod and test
         //    So we have Prod1, Prod2, etc. moving from 1 to 2 we load from 1 and save to 2 and
         //    once that's complete we flip over to 2 for queries?
-        //    - Add the -2 versions to the configuration
+        //    - Get searchIndex to respect next and use SearchServiceManager to create the client
         //    - Write the swap-over code
         //          - Set the warning message
+        //          - Clone from current to a v-next index (we can now just create a vnext index)
         //          - Clone from current to a v-next index (we can now just create a vnext index)
         //          - Increment the current version
         //          - Switch to the new index (make the SongIndex create function detect next?)
         //          - Turn off error message
         public override SearchIndex BuildIndex()
         {
+            // TODO - make fields virtual, then BuildIndex can be the same for all indexes
             var fields = new List<SearchField>
             {
                 new(SongIdField, SearchFieldDataType.String) { IsKey = true },
@@ -151,44 +155,12 @@ namespace m4dModels
             var ids = Dances.Instance.AllDanceTypes.Where(t => t.Id != "ALL").Select(t => IndexFieldFromDanceId(t.Id));
             fields.AddRange(ids);
 
-            var index = new SearchIndex(Info.Index, [.. fields]);
-            index.Suggesters.Add(
-                new SearchSuggester(
-                    "songs",
-                    Song.TitleField, Song.ArtistField, AlbumsField, Song.DanceTags,
-                    Song.PurchaseField, GenreTags, TempoTags, OtherTags,
-                    $"dance_ALL/{TempoTags}", $"dance_ALL/{OtherTags}", $"dance_ALL/{StyleTags}"));
-
-            index.ScoringProfiles.Add(new ScoringProfile("Default")
-            {
-                TextWeights = new TextWeights(
-                    new Dictionary<string, double>
-                    {
-                        {Song.TitleField, 10},
-                        {Song.ArtistField, 10},
-                        {CommentsField, 5},
-                        {AlbumsField, 2},
-                    })
-            });
-            index.DefaultScoringProfile = "Default";
-
-            return index;
-        }
-
-        public override async Task<bool> UpdateIndex(IEnumerable<string> dances)
-        {
-            var index = await GetSearchIndex();
-            foreach (var dance in dances)
-            {
-                var field = IndexFieldFromDanceId(dance);
-                if (index.Fields.All(f => f.Name != field.Name))
-                {
-                    index.Fields.Add(field);
-                }
-            }
-
-            var response = await IndexClient.CreateOrUpdateIndexAsync(index);
-            return response.Value != null;
+            return Info.BuildIndex(
+                fields,
+                suggesters: searchSuggesters,
+                scoringProfiles: searchScoringProfiles,
+                defaultScoringProfile: "Default"
+            );
         }
 
         private static SearchField IndexFieldFromDanceId(string id)

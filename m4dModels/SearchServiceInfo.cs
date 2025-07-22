@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using Azure.Identity;
+using System.Linq;
+using System.Threading.Tasks;
+
+using Azure;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Indexes;
+using Azure.Search.Documents.Indexes.Models;
 
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 
 namespace m4dModels
@@ -25,27 +30,35 @@ namespace m4dModels
 
     public class SearchServiceManager : ISearchServiceManager
     {
-        public SearchServiceManager(IConfiguration configuration, DefaultAzureCredential credentials)
-        {
-            _info = new Dictionary<string, SearchServiceInfo>
-            {
-                {
-                    "SongIndexProd",
-                    new SearchServiceInfo(
-                        "SongIndexProd", "p", "music4dance", "songs-prod", credentials)
-                },
-                {
-                    "SongIndexTest",
-                    new SearchServiceInfo(
-                        "SongIndexTest", "t", "music4dance", "songs-test", credentials)
-                },
-                {
-                    "SongIndexExperimental",
-                    new SearchServiceInfo(
-                        "SongIndexExperimental", "e", "music4dance", "songs-experimental", credentials)
-                },
-            };
+        public static readonly string ExperimentalId = "SongIndexExperimental";
 
+        public SearchServiceManager(IConfiguration configuration, 
+            IAzureClientFactory<SearchClient> searchFactory,
+            IAzureClientFactory<SearchIndexClient> searchIndexFactory)
+        {
+            _info = [];
+
+            foreach (var section in configuration.GetChildren()
+                .Where(s => s.GetChildren().Any(
+                    child => child.Key.Equals("indexname", StringComparison.OrdinalIgnoreCase) && 
+                    child.Value.StartsWith("songs-"))))
+            {
+                var parts = section.Key.Split('-');
+                var baseName = parts[0].Trim();
+                var ver = parts.Length > 1 ? int.Parse(parts[1]) : CodeVersion + 1;
+                var indexName = section["indexname"];
+
+                if (_info.TryGetValue(baseName, out var existingInfo))
+                {
+                    existingInfo.AddVersion(ver, indexName);
+                }
+                else
+                {
+                    _info[baseName] = new SearchServiceInfo(
+                        baseName, ver, indexName, searchFactory, searchIndexFactory, this);
+                }
+
+            }
             var env = configuration["SEARCHINDEX"];
             if (string.IsNullOrEmpty(env))
             {
@@ -66,7 +79,7 @@ namespace m4dModels
             {
                 ConfigVersion = version;
             }
-            if (DefaultId == "SongIndexExperimental")
+            if (DefaultId == ExperimentalId)
             {
                 ConfigVersion += 1;
             }
@@ -105,12 +118,12 @@ namespace m4dModels
         {
             get => _defaultId; set
             {
-                if (_defaultId == "SongIndexExperimental")
+                if (_defaultId == ExperimentalId)
                 {
                     ConfigVersion -= 1;
                 }
                 _defaultId = value;
-                if (value == "SongIndexExperimental")
+                if (value == ExperimentalId)
                 {
                     ConfigVersion += 1;
                 }
@@ -130,19 +143,84 @@ namespace m4dModels
         private string _defaultId;
     }
 
-    public class SearchServiceInfo(string id, string abbr, string name, string index,
-        DefaultAzureCredential credentials, bool isStructured = false)
+    public class SearchServiceInfo(string id, int version,string name,
+        IAzureClientFactory<SearchClient> clientFactory, IAzureClientFactory<SearchIndexClient> clientIndexFactory,
+        ISearchServiceManager manager)
     {
         public string Id { get; } = id;
-        public string Abbr { get; } = abbr;
-        public string Name { get; } = name;
-        public string Index { get; } = index;
-        public bool IsStructured { get; } = isStructured;
+        public string Abbr
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(Id))
+                    return string.Empty;
+                var lastUpper = Id.Reverse().FirstOrDefault(char.IsUpper);
+                return lastUpper != default
+                    ? lastUpper.ToString().ToLowerInvariant()
+                    : Id[..1].ToLowerInvariant();
+            }
+        }
 
-        public SearchIndexClient SearchIndexClient =>
-            new (new Uri($"https://{Name}.search.windows.net"), credentials);
+        public void AddVersion(int version, string name)
+        {
+            _versionedNames[version] = name;
+        }
 
-        public SearchClient SearchClient =>
-            new(new Uri($"https://{Name}.search.windows.net"), Index, credentials);
+        public SearchClient GetSearchClient(bool isNext) =>
+            clientFactory.CreateClient(GetVersionedId(isNext));
+
+        private SearchIndexClient GetSearchIndexClient(bool isNext) =>
+            clientIndexFactory.CreateClient(GetVersionedId(isNext));
+
+        public async Task<SearchIndex> GetIndexAsync(bool isNext)
+        {
+            return await GetSearchIndexClient(isNext)
+                .GetIndexAsync(GetVersionedName(isNext));
+        }
+
+        public SearchIndex BuildIndex(
+            List<SearchField> fields,
+            IList<SearchSuggester> suggesters = null,
+            IList<ScoringProfile> scoringProfiles = null,
+            string defaultScoringProfile = null,
+            bool? isNext = null
+            ) {
+            var index = new SearchIndex(GetVersionedName(isNext), fields);
+            index.Suggesters.AddRange(suggesters ?? []);
+            index.ScoringProfiles.AddRange(scoringProfiles ?? []);
+            index.DefaultScoringProfile = defaultScoringProfile;
+            return index;
+        }
+
+        public async Task<Response> DeleteIndexAsync(bool isNext)
+        {
+            var client = GetSearchIndexClient(isNext);
+            return await client.DeleteIndexAsync(GetVersionedId(isNext));
+        }
+
+        public async Task<Response<SearchIndex>> CreateIndexAsync(SearchIndex index, bool isNext)
+        {
+            var client = GetSearchIndexClient(isNext);
+            return await client.CreateIndexAsync(index);
+        }
+
+        public async Task<Response<SearchIndex>> CreateOrUpdateIndexAsync(SearchIndex index, bool isNext)
+        {
+            var client = GetSearchIndexClient(isNext);
+            return await client.CreateOrUpdateIndexAsync(index);
+        }
+
+        private string GetVersionedId(bool? isNext = null) =>
+            Id == SearchServiceManager.ExperimentalId
+                ? Id 
+                : $"{Id}-{(isNext ?? manager.NextVersion ? manager.CodeVersion + 1 : manager.ConfigVersion)}";
+
+        private string GetVersionedName(bool? isNext = null) =>
+            _versionedNames[isNext ?? manager.NextVersion ? manager.CodeVersion + 1 : manager.ConfigVersion];
+
+        private readonly Dictionary<int, string> _versionedNames = new()
+        {
+            { version, name }
+        };
     }
 }

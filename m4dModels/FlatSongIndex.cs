@@ -159,14 +159,22 @@ namespace m4dModels
             var ids = Dances.Instance.AllDanceTypes.Where(t => t.Id != "ALL").Select(t => IndexFieldFromDanceId(t.Id));
             fields.AddRange(ids);
 
-            var index = new SearchIndex(Info.Index, [.. fields]);
-            index.Suggesters.Add(
-                new SearchSuggester(
-                    "songs",
-                    Song.TitleField, Song.ArtistField, AlbumsField, Song.DanceTags,
-                    Song.PurchaseField, GenreTags, TempoTags, StyleTags, OtherTags));
+            return Info.BuildIndex(
+                fields,
+                suggesters: searchSuggesters,
+                scoringProfiles: searchScoringProfiles,
+                defaultScoringProfile : "Default"
+            );
+        }
 
-            index.ScoringProfiles.Add(new ScoringProfile("Default")
+        protected virtual IList<SearchSuggester> searchSuggesters => [
+            new SearchSuggester("songs",
+                Song.TitleField, Song.ArtistField, AlbumsField, Song.DanceTags,
+                Song.PurchaseField, GenreTags, TempoTags, StyleTags, OtherTags)
+        ];
+
+        protected virtual IList<ScoringProfile> searchScoringProfiles => [
+            new ScoringProfile("Default")
             {
                 TextWeights = new TextWeights(
                     new Dictionary<string, double>
@@ -176,11 +184,8 @@ namespace m4dModels
                         {CommentsField, 5},
                         {AlbumsField, 2},
                     })
-            });
-            index.DefaultScoringProfile = "Default";
-
-            return index;
-        }
+            }
+        ];
 
         private static SearchField IndexFieldFromDanceId(string id)
         {
@@ -207,7 +212,7 @@ namespace m4dModels
                 }
             }
 
-            var response = await IndexClient.CreateOrUpdateIndexAsync(index);
+            var response = await Info.CreateOrUpdateIndexAsync(index, IsNext);
             return response.Value != null;
         }
 
@@ -349,7 +354,7 @@ namespace m4dModels
         {
             try
             {
-                return await IndexClient.GetIndexAsync(Info.Index);
+                return await Info.GetIndexAsync(IsNext);
             }
             catch (Azure.RequestFailedException ex)
             {

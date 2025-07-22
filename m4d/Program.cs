@@ -89,12 +89,11 @@ services.AddAzureClients(clientBuilder =>
     clientBuilder.UseCredential(credentials);
 
     // Dynamically add all configuration sections with an "indexname" field
-    foreach (var section in configuration.GetChildren())
+    foreach (var section in configuration.GetChildren()
+        .Where(s => s.GetChildren().Any(child => child.Key.Equals("indexname", StringComparison.OrdinalIgnoreCase))))
     {
-        if (section.GetChildren().Any(child => child.Key.Equals("indexname", StringComparison.OrdinalIgnoreCase)))
-        {
-            clientBuilder.AddSearchClient(section).WithName(section.Key);
-        }
+        clientBuilder.AddSearchClient(section).WithName(section.Key);
+        clientBuilder.AddSearchIndexClient(section).WithName(section.Key);
     }
 });
 
@@ -217,7 +216,7 @@ services.AddreCAPTCHAV2(
     });
 
 var appRoot = environment.WebRootPath;
-services.AddSingleton<ISearchServiceManager>(new SearchServiceManager(configuration, credentials));
+services.AddSingleton<ISearchServiceManager, SearchServiceManager>();
 services.AddSingleton<IDanceStatsManager>(new DanceStatsManager(new DanceStatsFileManager(appRoot)));
 
 services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();

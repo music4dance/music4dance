@@ -47,25 +47,22 @@ public abstract class SongIndex
     private SearchClient _client;
     protected SearchClient Client => _client ??= CreateSearchClient();
 
-    private SearchIndexClient _indexClient;
-    protected SearchIndexClient IndexClient => _indexClient ??= CreateSearchIndexClient();
-
     protected SearchServiceInfo Info => DanceMusicService.SearchService.GetInfo(SearchId);
 
-    public static SongIndex Create(DanceMusicCoreService dms, string id = null)
+    public static SongIndex Create(DanceMusicCoreService dms, string id = null, bool isNext = false)
     {
         var info = dms.SearchService.GetInfo(id);
-        return info.IsStructured
-            ? new StructuredSongIndex(dms, id)
-            : info.Id != "SongIndexExperimental"
-                ? new FlatSongIndex(dms, id)
-                : new SongIndexNext(dms, id);
+        return isNext || info.Id == "SongIndexExperimental"
+            ? new SongIndexNext(dms, id)
+            : new FlatSongIndex(dms, id);
     }
 
     // For Moq
     protected SongIndex()
     {
     }
+
+    public virtual bool IsNext => false;
 
     protected SongIndex(DanceMusicCoreService dms, string id = null)
     {
@@ -1302,7 +1299,7 @@ public abstract class SongIndex
         var info = Info;
         try
         {
-            var response = await IndexClient.DeleteIndexAsync(info.Index);
+            var response = await info.DeleteIndexAsync(IsNext);
             Trace.WriteLine(response.Status);
         }
         catch (RequestFailedException ex)
@@ -1315,7 +1312,7 @@ public abstract class SongIndex
 
         try
         {
-            var response = await IndexClient.CreateIndexAsync(index);
+            var response = await info.CreateIndexAsync(index, IsNext);
             return response.Value;
         }
         catch (RequestFailedException ex)
@@ -1432,12 +1429,7 @@ public abstract class SongIndex
 
     private SearchClient CreateSearchClient()
     {
-        return Manager.GetInfo(SearchId).SearchClient;
-    }
-
-    private SearchIndexClient CreateSearchIndexClient()
-    {
-        return Manager.GetInfo(SearchId).SearchIndexClient;
+        return Manager.GetInfo(SearchId).GetSearchClient(IsNext);
     }
 
     protected static void AccumulateComments(List<UserComment> comments, List<string> accumulator)
@@ -1451,12 +1443,6 @@ public abstract class SongIndex
     protected static float? CleanNumber(float? f)
     {
         return f.HasValue && !float.IsFinite(f.Value) ? null : f;
-    }
-
-
-    protected async Task<SearchIndex> GetIndex()
-    {
-        return await IndexClient.GetIndexAsync(Info.Index);
     }
     #endregion
 }

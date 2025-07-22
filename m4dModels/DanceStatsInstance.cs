@@ -186,7 +186,10 @@ namespace m4dModels
                 await dms.SaveChanges();
             }
 
-            await dms.SongIndex.UpdateIndex(newDances);
+            if (newDances.Count > 0)
+            {
+                await dms.SongIndex.UpdateIndex(newDances);
+            }
         }
 
         public DanceStats FromId(string danceId)
