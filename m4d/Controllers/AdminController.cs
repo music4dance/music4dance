@@ -194,15 +194,6 @@ public class AdminController(
     }
 
     //
-    // Get: //ToggleStructuredSchema
-    [Authorize(Roles = "showDiagnostics")]
-    public ActionResult ToggleStructuredSchema()
-    {
-        SongFilter.StructuredSchema = !SongFilter.StructuredSchema;
-        return View("Diagnostics");
-    }
-
-    //
     // Get: //SetTraceLevel
     [AllowAnonymous]
     public ActionResult ThrowException()
@@ -852,7 +843,7 @@ public class AdminController(
             {
                 var lines = await Database.GetSongIndex(name).BackupIndex(
                     count,
-                    filter == null ? null : new SongFilter(filter));
+                    filter == null ? null : Database.SearchService.GetSongFilter(filter));
                 foreach (var line in lines)
                 {
                     await file.WriteLineAsync(line);
@@ -999,7 +990,7 @@ public class AdminController(
         SongFilter songFilter = null;
         if (!string.IsNullOrWhiteSpace(filter))
         {
-            songFilter = new SongFilter(filter);
+            songFilter = Database.SearchService.GetSongFilter(filter);
         }
 
         var songs = Database.SerializeSongs(true, true, count, from, songFilter);
@@ -1078,7 +1069,7 @@ public class AdminController(
             new ExportInfo
             {
                 Title = "Full music4dance export",
-                Filter = new SongFilter(rawFilter).ToString(),
+                Filter = Database.SearchService.GetSongFilter(rawFilter).ToString(),
                 Count = -1,
                 Description = "Please do not distribute this file publicly and remember to credit music4dance.net in any derived work. " +
                 $"Copyright © {DateTime.Now.Year} by music4dance.net",
@@ -1154,6 +1145,62 @@ public class AdminController(
             return FailAdminTask($"Reset: {e.Message}", e);
         }
     }
+
+    //
+    // Get: UpdateSearchIdx
+    [Authorize(Roles = "showDiagnostics")]
+    public async Task<ActionResult> UpdateSearchIdx()
+    {
+        try
+        {
+             StartAdminTask("UpdateSearchIdx");
+
+            if (SearchService.DefaultId == SearchServiceManager.ExperimentalId)
+            {
+                Logger.LogInformation("Can't update experimental version, skipping index update");
+                ViewBag.Name = "Update Index";
+                ViewBag.Success = true;
+                ViewBag.Message = "Index is already up to date";
+                return CompleteAdminTask(false, @"UpdateSearchIdx");
+            }
+
+            if (!SearchService.HasNextVersion || SearchService.NextVersion)
+            {
+                Logger.LogInformation("No next version or already updated, skipping index update");
+                ViewBag.Name = "Update Index";
+                ViewBag.Success = true;
+                ViewBag.Message = "Index is already up to date";
+                return CompleteAdminTask(false, @"UpdateSearchIdx");
+            }
+
+            var message = @"We are in the process of upgrading the music4dance.net infrastructure.
+                You should still be able to use the site to browse and search but please
+                hold off doing any editing or registering an account until this banner disappears
+                (reload the page to check status). Thanks!";
+
+            GlobalState.UpdateMessage = message?.CleanWhitespace();
+
+            await Database.UpdateIndex();
+
+            AdminMonitor.UpdateTask("Reloading Stats");
+
+            await DanceStatsManager.LoadFromAzure(Database);
+
+            ViewBag.Name = "Update Index";
+            ViewBag.Success = true;
+            ViewBag.Message = @"Index Updated";
+
+            GlobalState.UpdateMessage = null;
+
+            return CompleteAdminTask(true, @"UpdateSearchIdx");
+        }
+        catch (Exception e)
+        {
+            return FailAdminTask($"Reset: {e.Message}", e);
+        }
+    }
+
+
     #endregion
 
     #region Migration-Restore

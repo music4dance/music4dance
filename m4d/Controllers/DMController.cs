@@ -92,8 +92,12 @@ public class DanceMusicController(
                     {
                         // Need to get the user from the context to update it
                         user = await context.Users.FindAsync([user.Id], cancellationToken: cancellationToken);
-                        user.LastActive = time;
-                        user.HitCount += 1;
+                        // This guard is for the case where we're reloading the database
+                        if (user != null)
+                        {
+                            user.LastActive = time;
+                            user.HitCount += 1;
+                        }
                     }
                     await context.SaveChangesAsync(cancellationToken);
                 }
@@ -140,7 +144,7 @@ public class DanceMusicController(
         }
         if (!string.IsNullOrEmpty(filterString))
         {
-            filter = new SongFilter(filterString);
+            filter = Database.SearchService.GetSongFilter(filterString);
         }
         else
         {
@@ -295,7 +299,7 @@ public class DanceMusicController(
                 continue;
             }
 
-            var filter = new SongFilter(export.Info.Filter).Normalize(userName).ToString();
+            var filter = Database.SearchService.GetSongFilter(export.Info.Filter).Normalize(userName).ToString();
             if (!map.ContainsKey(filter))
             {
                 map[filter] = export;

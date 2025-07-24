@@ -20,7 +20,6 @@ export enum PropertyType {
   danceabilityField = "Danceability",
   energyField = "Energy",
   valenceFiled = "Valence",
-  titleHashField = "TitleHash",
 
   // Album Fields
   albumField = "Album",
@@ -69,7 +68,6 @@ export enum PropertyType {
   otherTags = "OtherTags",
   propertiesField = "Properties",
   serviceIds = "ServiceIds",
-  lookupStatus = "LookupStatus",
 
   // Special cases for reading scraped data
   titleArtistCell = "TitleArtist",

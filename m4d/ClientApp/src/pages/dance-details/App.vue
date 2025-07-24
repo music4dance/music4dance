@@ -32,10 +32,10 @@ filter.sortOrder = "Dances";
 model.filter = filter;
 const dance = danceDB.fromId(model.danceId);
 const histories = model.histories ?? [];
-const tags = dance ? model.tags : [];
+const songTags = dance ? model.songTags : [];
+const danceTags = dance ? model.danceTags : [];
 const isGroup = dance ? DanceGroup.isGroup(dance) : false;
 const danceType = isGroup ? undefined : (dance as DanceType);
-const showTagFilter = tags.length > 20;
 const competitionInfo = danceType?.competitionDances ?? [];
 const hasReferences = computed(() => !!links.value && links.value.length > 0);
 const dances = isGroup ? (dance as DanceGroup).dances : [];
@@ -138,15 +138,27 @@ const saveChanges = async () => {
         <DanceLinks ref="danceLinks" v-model="links" :editing="editing" :dance-id="model.danceId" />
       </BCol>
     </BRow>
-    <BRow>
+    <BRow v-if="danceTags.length > 0">
       <BCol>
         <hr />
-        <h2 id="tags">Tags</h2>
+        <h2 id="tags">Dance Tags</h2>
         <TagCloud
-          :tags="tags"
+          :tags="danceTags"
           :user="menuContext.userName"
           :song-filter="model.filter"
-          :hide-filter="!showTagFilter"
+          :hide-filter="danceTags.length < 20"
+        />
+      </BCol>
+    </BRow>
+    <BRow v-if="songTags.length > 0">
+      <BCol>
+        <hr />
+        <h2 id="tags">Song Tags</h2>
+        <TagCloud
+          :tags="songTags"
+          :user="menuContext.userName"
+          :song-filter="model.filter"
+          :hide-filter="songTags.length < 20"
         />
       </BCol>
     </BRow>

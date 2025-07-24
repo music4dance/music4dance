@@ -9,7 +9,6 @@ using AutoMapper;
 
 using Azure;
 using Azure.Search.Documents;
-using Azure.Search.Documents.Indexes;
 using Azure.Search.Documents.Indexes.Models;
 using Azure.Search.Documents.Models;
 
@@ -28,11 +27,12 @@ public abstract class SongIndex
     public const string DancesField = "Dances";
     public const string UsersField = "Users";
     public const string CommentsField = "Comments";
-    public const string DanceTagsInferred = "DanceTagsInferred";
+    public const string DanceTagsInferred = "DanceTagsInferred"; // TODOIDX: Remove when index is updated
     public const string GenreTags = "GenreTags";
     public const string TempoTags = "TempoTags";
     public const string StyleTags = "StyleTags";
     public const string OtherTags = "OtherTags";
+    public const string Votes = "Votes";
     public const string PropertiesField = "Properties";
     public const string AllDances = "Dance_ALL";
     public const string ServiceIds = "ServiceIds";
@@ -46,15 +46,14 @@ public abstract class SongIndex
     private SearchClient _client;
     protected SearchClient Client => _client ??= CreateSearchClient();
 
-    private SearchIndexClient _indexClient;
-    protected SearchIndexClient IndexClient => _indexClient ??= CreateSearchIndexClient();
-
     protected SearchServiceInfo Info => DanceMusicService.SearchService.GetInfo(SearchId);
 
-    public static SongIndex Create(DanceMusicCoreService dms, string id = null)
+    public static SongIndex Create(DanceMusicCoreService dms, string id = null, bool isNext = false)
     {
         var info = dms.SearchService.GetInfo(id);
-        return info.IsStructured ? new StructuredSongIndex(dms, id) : new FlatSongIndex(dms, id);
+        return isNext || info.Id == "SongIndexExperimental"
+            ? new SongIndexNext(dms, id)
+            : new FlatSongIndex(dms, id);
     }
 
     // For Moq
@@ -62,12 +61,13 @@ public abstract class SongIndex
     {
     }
 
+    public virtual bool IsNext => false;
+
     protected SongIndex(DanceMusicCoreService dms, string id = null)
     {
         DanceMusicService = dms;
         SearchId = id;
     }
-
     #region Lookup
 
     public async Task<Song> FindSong(Guid id)
@@ -695,7 +695,8 @@ public abstract class SongIndex
     {
         const int max = 10000;
 
-        var filter = new SongFilter { User = user };
+        var filter = Manager.GetSongFilter();
+        filter.User = user;
         if (includeHate)
         {
             filter.User += "|a";
@@ -715,7 +716,8 @@ public abstract class SongIndex
     {
         const int max = 10000;
 
-        var filter = new SongFilter { User = new UserQuery(user, true, like).Query };
+        var filter = Manager.GetSongFilter();
+        filter.User = new UserQuery(user, true, like).Query;
 
         var afilter = AzureParmsFromFilter(filter);
         afilter.Size = max;
@@ -1147,7 +1149,7 @@ public abstract class SongIndex
     #region Facets
     public async Task<IDictionary<string, IList<FacetResult>>> GetTagFacets(string categories, int count)
     {
-        var parameters = AzureParmsFromFilter(new SongFilter(), 1);
+        var parameters = AzureParmsFromFilter(Manager.GetSongFilter(), 1);
         AddAzureCategories(parameters, categories, count);
 
         return (await DoSearch(null, parameters)).Facets;
@@ -1296,7 +1298,7 @@ public abstract class SongIndex
         var info = Info;
         try
         {
-            var response = await IndexClient.DeleteIndexAsync(info.Index);
+            var response = await info.DeleteIndexAsync(IsNext);
             Trace.WriteLine(response.Status);
         }
         catch (RequestFailedException ex)
@@ -1309,7 +1311,7 @@ public abstract class SongIndex
 
         try
         {
-            var response = await IndexClient.CreateIndexAsync(index);
+            var response = await info.CreateIndexAsync(index, IsNext);
             return response.Value;
         }
         catch (RequestFailedException ex)
@@ -1392,7 +1394,7 @@ public abstract class SongIndex
 
     public async Task<IEnumerable<string>> BackupIndex(int count = -1, SongFilter filter = null)
     {
-        filter ??= new SongFilter();
+        filter ??= Manager.GetSongFilter();
 
         var parameters = AzureParmsFromFilter(filter);
         parameters.IncludeTotalCount = false;
@@ -1426,12 +1428,7 @@ public abstract class SongIndex
 
     private SearchClient CreateSearchClient()
     {
-        return Manager.GetInfo(SearchId).AdminClient;
-    }
-
-    private SearchIndexClient CreateSearchIndexClient()
-    {
-        return Manager.GetInfo(SearchId).GetSearchIndexClient();
+        return Manager.GetInfo(SearchId).GetSearchClient(IsNext);
     }
 
     protected static void AccumulateComments(List<UserComment> comments, List<string> accumulator)
@@ -1445,12 +1442,6 @@ public abstract class SongIndex
     protected static float? CleanNumber(float? f)
     {
         return f.HasValue && !float.IsFinite(f.Value) ? null : f;
-    }
-
-
-    protected async Task<SearchIndex> GetIndex()
-    {
-        return await IndexClient.GetIndexAsync(Info.Index);
     }
     #endregion
 }

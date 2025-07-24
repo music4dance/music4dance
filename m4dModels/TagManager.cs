@@ -54,7 +54,9 @@ namespace m4dModels
             return groups;
         }
 
-        public static async Task<TagManager> BuildTagManager(DanceMusicCoreService dms,
+        public static async Task<TagManager> BuildTagManager(
+            DanceMusicCoreService dms,
+            IEnumerable<string> facetIds,
             string source = "default")
         {
             var tagManager =
@@ -62,11 +64,11 @@ namespace m4dModels
                     [.. dms.TagGroups.OrderBy(t => t.Key)]);
 
             var facets = await dms.GetSongIndex(source).GetTagFacets(
-                "GenreTags,StyleTags,TempoTags,OtherTags", 10000);
+                string.Join(',', facetIds), 10000);
 
             foreach (var facet in facets)
             {
-                var id = SongFilter.TagClassFromName(facet.Key[0..^4]);
+                var id = SongFilter.TagFromFacetId(facet.Key);
                 tagManager.IndexFacet(facet.Value, id);
             }
 

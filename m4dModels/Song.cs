@@ -231,7 +231,7 @@ namespace m4dModels
         public const string DanceabilityField = "Danceability";
         public const string EnergyField = "Energy";
         public const string ValenceField = "Valence";
-        public const string TitleHashField = "TitleHash";
+        public const string TitleHashField = "TitleHash"; // TODOIDX: Remove once index is updated
         public const string PlaylistField = "Playlist";
 
         // Album Fields
@@ -2291,6 +2291,7 @@ namespace m4dModels
                 { Tags = tags } ], stats);
         }
 
+        // TODOIDX: Clean up FailedLookup once index is updates
         public bool LookupTried()
         {
             return SongProperties.Any(

@@ -59,7 +59,7 @@ public static class UserMapper
         var realName = Deanonymize(userName, dictionary);
         if (!string.Equals(userName, realName, StringComparison.InvariantCultureIgnoreCase))
         {
-            filter = new SongFilter(filter.ToString());
+            filter = filter.Clone();
             filter.User = filter.User.Replace(userName, realName);
         }
 
@@ -78,7 +78,7 @@ public static class UserMapper
         var anonName = Anonymize(userName, dictionary);
         if (!string.Equals(userName, anonName, StringComparison.InvariantCultureIgnoreCase))
         {
-            filter = new SongFilter(filter.ToString());
+            filter = filter.Clone();
             filter.User = filter.User.Replace(userName, anonName, StringComparison.InvariantCultureIgnoreCase);
         }
 

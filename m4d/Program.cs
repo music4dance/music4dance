@@ -87,12 +87,39 @@ if (!isDevelopment)
 services.AddAzureClients(clientBuilder =>
 {
     clientBuilder.UseCredential(credentials);
-    clientBuilder.AddSearchClient(
-        configuration.GetSection("PageIndex")).WithName("PageIndex");
-    clientBuilder.AddSearchClient(
-        configuration.GetSection("SongIndex")).WithName("SongIndex");
-    clientBuilder.AddSearchClient(
-        configuration.GetSection("SongIndexTest")).WithName("SongIndexTest");
+
+    // Dynamically add all configuration sections with an "indexname" field
+    var indexSections = configuration.GetChildren()
+        .Where(s => s.GetChildren().Any(child => child.Key.Equals("indexname", StringComparison.OrdinalIgnoreCase)))
+        .ToList();
+
+    foreach (var section in indexSections)
+    {
+        clientBuilder.AddSearchClient(section).WithName(section.Key);
+    }
+
+    // Add a single SearchIndexClient named "SongIndex" based on the first section with key starting with "SongIndex"
+    var songIndexSections = indexSections
+        .Where(s => s.Key.StartsWith("SongIndex", StringComparison.OrdinalIgnoreCase))
+        .ToList();
+
+    if (songIndexSections.Any())
+    {
+        var firstSongIndexSection = songIndexSections.First();
+        var endpoint = firstSongIndexSection["endpoint"];
+
+        // Verify all SongIndex sections have the same endpoint
+        foreach (var section in songIndexSections)
+        {
+            var sectionEndpoint = section["endpoint"];
+            if (!string.Equals(endpoint, sectionEndpoint, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException($"All SongIndex sections must have the same endpoint. Mismatch found in section '{section.Key}'.");
+            }
+        }
+
+        clientBuilder.AddSearchIndexClient(firstSongIndexSection).WithName("SongIndex");
+    }
 });
 
 services.AddDbContext<DanceMusicContext>(options => options.UseSqlServer(connectionString));
@@ -214,7 +241,7 @@ services.AddreCAPTCHAV2(
     });
 
 var appRoot = environment.WebRootPath;
-services.AddSingleton<ISearchServiceManager>(new SearchServiceManager(configuration, credentials));
+services.AddSingleton<ISearchServiceManager, SearchServiceManager>();
 services.AddSingleton<IDanceStatsManager>(new DanceStatsManager(new DanceStatsFileManager(appRoot)));
 
 services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();

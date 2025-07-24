@@ -11,7 +11,7 @@ namespace m4d.Utilities;
 
 public class PlaylistExport(ExportInfo info, SongIndex songIndex, UserManager<ApplicationUser> userManager, IBackgroundTaskQueue queue, string spotifyId = null)
 {
-    private readonly SongFilter _filter = new(info.Filter);
+    private readonly SongFilter _filter = songIndex.DanceMusicService.SearchService.GetSongFilter(info.Filter);
 
     public async Task<byte[]> Export(string userName)
     {

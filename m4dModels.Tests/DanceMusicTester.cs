@@ -186,7 +186,7 @@ namespace m4dModels.Tests
             songIndex.Setup(m => m.DanceMusicService).Returns(service);
             await manager.Initialize(service);
             songIndex.Setup(m => m.DanceMusicService).Returns(service);
-            await manager.Instance.FixupStats(service, false);
+            await manager.Instance.FixupStats(service);
 
             await SeedRoles(roleManager);
 

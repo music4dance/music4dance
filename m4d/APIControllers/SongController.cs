@@ -38,7 +38,7 @@ public class SongController(
         }
         else if (!string.IsNullOrWhiteSpace(filter))
         {
-            var songFilter = new SongFilter(filter);
+            var songFilter = Database.SearchService.GetSongFilter(filter);
             var results = await SongIndex.Search(songFilter);
             songs = results.Songs;
         }

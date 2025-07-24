@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-
 using DanceLibrary;
 
 using m4dModels.Utilities;
@@ -21,15 +20,23 @@ namespace m4dModels
     }
 
 
-    public class DanceStatsInstance(
-        IEnumerable<DanceStats> dances, IEnumerable<DanceStats> groups,
-        TagManager tagManager)
+    public class DanceStatsInstance
     {
         private const string DescriptionPlaceholder =
             "We're busy doing research and pulling together a general description for this dance style. Please check back later for more info.";
 
         private readonly SongCache _cache = new();
         private readonly IEnumerable<string> _songs;
+
+        public DanceStatsInstance(
+            IEnumerable<DanceStats> dances, IEnumerable<DanceStats> groups,
+            TagManager tagManager, IEnumerable<Song> songs = null)
+        {
+            Dances = [.. dances];
+            Groups = [.. groups];
+            TagManager = tagManager;
+            _cache.AddSongs(songs ?? []);
+        }
 
         [JsonConstructor]
         public DanceStatsInstance(
@@ -40,9 +47,9 @@ namespace m4dModels
             _songs = cachedSongs;
         }
 
-        public List<DanceStats> Dances { get; set; } = [.. dances];
+        public List<DanceStats> Dances { get; set; }
 
-        public List<DanceStats> Groups { get; set; } = [.. groups];
+        public List<DanceStats> Groups { get; set; }
 
         public List<string> CachedSongs => _cache.Serialize();
 
@@ -50,7 +57,7 @@ namespace m4dModels
         public List<TagGroup> TagGroups => [.. TagManager.TagMap.Values.OrderBy(t => t.Key)];
 
         [JsonIgnore]
-        public TagManager TagManager { get; set; } = tagManager;
+        public TagManager TagManager { get; set; }
 
         [JsonIgnore]
         public Dictionary<string, DanceStats> Map { get; private set; }
@@ -70,12 +77,15 @@ namespace m4dModels
             return _cache.FindSongDetails(songId);
         }
 
-        public static async Task<DanceStatsInstance> BuildInstance(TagManager tagManager,
-            IEnumerable<DanceStats> groups, IEnumerable<DanceStats> dances,
+        public static async Task<DanceStatsInstance> BuildInstance(
             DanceMusicCoreService dms, string source)
         {
-            var instance = new DanceStatsInstance(dances, groups, tagManager);
-            await instance.FixupStats(dms, true, source);
+            var builder = dms.SearchService.NextVersion 
+                ? new DanceBuilderNext(dms, source)
+                : new DanceBuilder(dms, source);
+
+            var instance = await builder.Build();
+            await instance.FixupStats(dms);
             return instance;
         }
 
@@ -104,8 +114,7 @@ namespace m4dModels
             });
         }
 
-        public async Task FixupStats(DanceMusicCoreService dms, bool reloadSongs,
-            string source = "default")
+        public async Task FixupStats(DanceMusicCoreService dms)
         {
             dms.SetStatsInstance(this);
 
@@ -119,47 +128,7 @@ namespace m4dModels
 
             var newDances = new List<string>();
 
-            if (reloadSongs)
-            {
-                foreach (var dance in Dances)
-                {
-                    try
-                    {
-                        // TopN and MaxWeight
-                        var songIndex = dms.GetSongIndex(source);
-                        var filter =
-                            songIndex.AzureParmsFromFilter(
-                                new SongFilter
-                                { Dances = dance.DanceId, SortOrder = "Dances" }, 10);
-                        SongIndex.AddAzureCategories(
-                            filter, "GenreTags,StyleTags,TempoTags,OtherTags", 100);
-                        var results = await songIndex.Search(
-                            null, filter);
-                        dance.SetTopSongs(results.Songs);
-                        _cache.AddSongs(results.Songs);
-                        var song = dance.TopSongs.FirstOrDefault();
-                        var dr = song?.DanceRatings.FirstOrDefault(d => d.DanceId == dance.DanceId);
-
-                        if (dr != null)
-                        {
-                            dance.MaxWeight = dr.Weight;
-                        }
-
-                        // SongTags
-                        dance.SongTags = results.FacetResults == null
-                            ? new TagSummary()
-                            : new TagSummary(results.FacetResults, TagManager.TagMap);
-                    }
-                    catch (Azure.RequestFailedException ex)
-                    {
-                        // This is likely because we didn't create an index
-                        //  for this dance (because there weren't enough songs for the dance)
-                        Trace.WriteLine(ex.Message);
-                    }
-                }
-            }
-            else
-            {
+            if (_songs != null && _songs.Any()) {
                 await _cache.LoadSongs(_songs, dms);
                 foreach (var dance in Dances)
                 {
@@ -180,8 +149,10 @@ namespace m4dModels
                 group.Children = [.. group.DanceGroup.DanceIds.Where(id => Map.ContainsKey(id)).Select(id => Map[id])];
                 group.SongTags = TagAccumulator.MergeSummaries(
                     group.Children.Select(c => c.SongTags));
-                // TODO: At some point we should as azure search for this, since 
+                // TODO: At some point we should ask azure search for this, since 
                 //   we're double-counting by the current method.
+                group.DanceTags = TagAccumulator.MergeSummaries(
+                    group.Children.Select(c => c.DanceTags));
                 group.SongCount = group.Children.Sum(d => d.SongCount);
                 group.MaxWeight = group.Children.Max(d => d.MaxWeight);
             }
@@ -210,6 +181,7 @@ namespace m4dModels
                 newDances.Add(ds.DanceId);
                 ds.SetTopSongs([]);
                 ds.SongTags = new TagSummary();
+                ds.DanceTags = new TagSummary();
             }
 
             if (saveChanges)
@@ -217,7 +189,10 @@ namespace m4dModels
                 await dms.SaveChanges();
             }
 
-            await dms.SongIndex.UpdateIndex(newDances);
+            if (newDances.Count > 0)
+            {
+                await dms.SongIndex.UpdateIndex(newDances);
+            }
         }
 
         public DanceStats FromId(string danceId)
@@ -276,7 +251,7 @@ namespace m4dModels
             var instance = JsonConvert.DeserializeObject<DanceStatsInstance>(json, settings) ?? throw new Exception($"Unable to deserialize dance stats instance: {json}");
             if (database != null)
             {
-                await instance.FixupStats(database, false);
+                await instance.FixupStats(database);
             }
 
             manager ??= database.DanceStatsManager;

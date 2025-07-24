@@ -11,21 +11,24 @@ using DanceLibrary;
 
 namespace m4dModels
 {
-    public class FlatSongIndex : SongIndex
+    public class SongIndexNext : FlatSongIndex
     {
         // For Moq
-        public FlatSongIndex()
+        public SongIndexNext()
         {
         }
 
-        internal FlatSongIndex(DanceMusicCoreService dms, string id) : base(dms, id)
+        internal SongIndexNext(DanceMusicCoreService dms, string id) : base(dms, id)
         {
         }
+
+        public override bool IsNext => true;
 
         #region Index Management
 
         public override SearchIndex BuildIndex()
         {
+            // TODO - make fields virtual, then BuildIndex can be the same for all indexes
             var fields = new List<SearchField>
             {
                 new(SongIdField, SearchFieldDataType.String) { IsKey = true },
@@ -38,11 +41,6 @@ namespace m4dModels
                 new(Song.TitleField, SearchFieldDataType.String)
                 {
                     IsSearchable = true, IsSortable = true, IsFilterable = true, IsFacetable = true
-                },
-                new(Song.TitleHashField, SearchFieldDataType.Int32)
-                {
-                    IsSearchable = false, IsSortable = false, IsFilterable = true,
-                    IsFacetable = false
                 },
                 new(Song.ArtistField, SearchFieldDataType.String)
                 {
@@ -96,28 +94,13 @@ namespace m4dModels
                 {
                     IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
                 },
-                new(LookupStatus, SearchFieldDataType.Boolean)
-                {
-                    IsSearchable = false, IsSortable = false, IsFilterable = true,
-                    IsFacetable = false
-                },
                 new(
                     Song.DanceTags, SearchFieldDataType.Collection(SearchFieldDataType.String))
                 {
                     IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
                 },
                 new(
-                    DanceTagsInferred, SearchFieldDataType.Collection(SearchFieldDataType.String))
-                {
-                    IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
-                },
-                new(
                     GenreTags, SearchFieldDataType.Collection(SearchFieldDataType.String))
-                {
-                    IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
-                },
-                new(
-                    StyleTags, SearchFieldDataType.Collection(SearchFieldDataType.String))
                 {
                     IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
                 },
@@ -163,57 +146,45 @@ namespace m4dModels
                 fields,
                 suggesters: searchSuggesters,
                 scoringProfiles: searchScoringProfiles,
-                defaultScoringProfile : "Default"
+                defaultScoringProfile: "Default",
+                true
             );
         }
 
-        protected virtual IList<SearchSuggester> searchSuggesters => [
+        protected override IList<SearchSuggester> searchSuggesters => [
             new SearchSuggester("songs",
                 Song.TitleField, Song.ArtistField, AlbumsField, Song.DanceTags,
-                Song.PurchaseField, GenreTags, TempoTags, StyleTags, OtherTags)
-        ];
-
-        protected virtual IList<ScoringProfile> searchScoringProfiles => [
-            new ScoringProfile("Default")
-            {
-                TextWeights = new TextWeights(
-                    new Dictionary<string, double>
-                    {
-                        {Song.TitleField, 10},
-                        {Song.ArtistField, 10},
-                        {CommentsField, 5},
-                        {AlbumsField, 2},
-                    })
-            }
+                    Song.PurchaseField, GenreTags, TempoTags, OtherTags,
+                    $"dance_ALL/{TempoTags}", $"dance_ALL/{StyleTags}", $"dance_ALL/{OtherTags}")
         ];
 
         private static SearchField IndexFieldFromDanceId(string id)
         {
-            return new SearchField(BuildDanceFieldName(id), SearchFieldDataType.Int32)
+            return new SearchField(BuildDanceFieldName(id), SearchFieldDataType.Complex)
             {
-                IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = false
-            };
-        }
-
-        protected static string BuildDanceFieldName(string id)
-        {
-            return $"dance_{id}";
-        }
-
-        public override async Task<bool> UpdateIndex(IEnumerable<string> dances)
-        {
-            var index = await GetSearchIndex();
-            foreach (var dance in dances)
-            {
-                var field = IndexFieldFromDanceId(dance);
-                if (index.Fields.All(f => f.Name != field.Name))
+                Fields =
                 {
-                    index.Fields.Add(field);
+                   new SearchField(Votes, SearchFieldDataType.Int32)
+                    {
+                        IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = false
+                    },
+                   new(
+                    TempoTags, SearchFieldDataType.Collection(SearchFieldDataType.String))
+                    {
+                        IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
+                    },
+                   new(
+                    StyleTags, SearchFieldDataType.Collection(SearchFieldDataType.String))
+                    {
+                        IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
+                    },
+                   new(
+                    OtherTags, SearchFieldDataType.Collection(SearchFieldDataType.String))
+                    {
+                        IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
+                    },
                 }
-            }
-
-            var response = await Info.CreateOrUpdateIndexAsync(index, IsNext);
-            return response.Value != null;
+            };
         }
 
         protected override object DocumentFromSong(Song song)
@@ -252,7 +223,6 @@ namespace m4dModels
             var genre = ts.GetTagSet("Music");
             var other = ts.GetTagSet("Other");
             var tempo = ts.GetTagSet("Tempo");
-            var style = new HashSet<string>();
 
             var dance = song.TagSummary.GetTagSet("Dance");
 
@@ -266,11 +236,6 @@ namespace m4dModels
                 {
                     continue;
                 }
-                var d = dobj.Name.ToLower();
-                ts = new TagSummary(dr.TagSummary, tagMap);
-                other.UnionWith(ts.GetTagSet("Other"));
-                tempo.UnionWith(ts.GetTagSet("Tempo"));
-                style.UnionWith(ts.GetTagSet("Style"));
                 AccumulateComments(dr.Comments, comments);
             }
 
@@ -286,7 +251,6 @@ namespace m4dModels
                 [SongIdField] = song.SongId.ToString(),
                 [AltIdField] = altIds,
                 [Song.TitleField] = song.Title,
-                [Song.TitleHashField] = song.TitleHash,
                 [Song.ArtistField] = song.Artist,
                 [Song.LengthField] = song.Length,
                 [BeatField] = CleanNumber(song.Danceability),
@@ -299,17 +263,19 @@ namespace m4dModels
                 [Song.SampleField] = song.Sample,
                 [Song.PurchaseField] = purchase.ToArray(),
                 [ServiceIds] = purchaseIds.ToArray(),
-                [LookupStatus] = song.LookupTried(),
                 [AlbumsField] = song.Albums.Select(ad => ad.Name).ToArray(),
                 [UsersField] = users,
                 [Song.DanceTags] = dance.ToArray(),
                 [GenreTags] = genre.ToArray(),
                 [TempoTags] = tempo.ToArray(),
-                [StyleTags] = style.ToArray(),
                 [OtherTags] = other.ToArray(),
                 [CommentsField] = comments.ToArray(),
                 [PropertiesField] = SongProperty.Serialize(song.SongProperties, null)
             };
+
+            var allOther = new HashSet<string>();
+            var allTempo = new HashSet<string>();
+            var allStyle = new HashSet<string>();
 
             // Set the dance ratings
             foreach (var dr in song.DanceRatings)
@@ -320,47 +286,34 @@ namespace m4dModels
                     Trace.WriteLine($"Invalid use of group {dobj.Name} in song {song.SongId}");
                     continue;
                 }
-                doc[BuildDanceFieldName(dr.DanceId)] = dr.Weight;
+                var oneTempo = dr.TagSummary.GetTagSet("Tempo");
+                var oneStyle = dr.TagSummary.GetTagSet("Style");
+                var oneOther = dr.TagSummary.GetTagSet("Other");
+                doc[BuildDanceFieldName(dr.DanceId)] = new Dictionary<string, object>
+                {
+                    { Votes, dr.Weight },
+                    { TempoTags, oneTempo.ToArray() },
+                    { StyleTags, oneStyle.ToArray() },
+                    { OtherTags, oneOther.ToArray() }
+                };
+
+                allOther.UnionWith(oneOther);
+                allTempo.UnionWith(oneTempo);
+                allStyle.UnionWith(oneStyle);
             }
 
             var all = song.DanceRatings.Sum(dr => dr.Weight);
-            doc["dance_ALL"] = all == 0 ? null : all;
+            doc["dance_ALL"] = new Dictionary<string, object>
+            {
+                { Votes, all == 0 ? null : all },
+                { TempoTags, allTempo.ToArray() },
+                { StyleTags, allStyle.ToArray() },
+                { OtherTags, allOther.ToArray() }
+            };                
 
             return doc;
         }
         #endregion
 
-        protected override Task<Song> CreateSong(SearchDocument document)
-        {
-            if (document[PropertiesField] is not string properties || document[SongIdField] is not string sid)
-            {
-                throw new ArgumentOutOfRangeException(nameof(document));
-            }
-
-            if (!Guid.TryParse(sid, out var id))
-            {
-                throw new ArgumentOutOfRangeException(nameof(document));
-            }
-
-            return Song.Create(id, properties, DanceMusicService);
-        }
-
-        protected override string GetSongId(object doc)
-        {
-            return (doc as SearchDocument)?.GetString(SongIdField);
-        }
-
-        protected async Task<SearchIndex> GetSearchIndex()
-        {
-            try
-            {
-                return await Info.GetIndexAsync(IsNext);
-            }
-            catch (Azure.RequestFailedException ex)
-            {
-                Debug.WriteLine(ex.Message);
-                return await ResetIndex();
-            }
-        }
     }
 }

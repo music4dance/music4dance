@@ -18,6 +18,7 @@ namespace m4dModels
         public int MaxWeight { get; set; } = stats.MaxWeight;
 
         public TagSummary SongTags { get; set; } = stats.SongTags;
+        public TagSummary DanceTags { get; set; } = stats.DanceTags;
     }
 
     public class DanceGroupSparse(DanceStats stats)
@@ -43,13 +44,14 @@ namespace m4dModels
 
         [JsonConstructor]
         public DanceStats(string danceId, string description, int songCount,
-            int maxWeight, string songTags, IEnumerable<string> songIds)
+            int maxWeight, string songTags, string danceTags, IEnumerable<string> songIds)
         {
             DanceId = danceId;
             Description = description;
             SongCount = songCount;
             MaxWeight = maxWeight;
             SongTags = string.IsNullOrEmpty(songTags) ? null : new TagSummary(songTags);
+            DanceTags = string.IsNullOrEmpty(danceTags) ? null : new TagSummary(danceTags);
             SongIds = songIds?.ToList();
         }
 
@@ -66,6 +68,7 @@ namespace m4dModels
         public int MaxWeight { get; set; }
 
         public TagSummary SongTags { get; set; }
+        public TagSummary DanceTags { get; set; }
 
         // Properties mirrored from the database Dance object
         public string Description { get; set; }

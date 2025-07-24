@@ -65,8 +65,10 @@ public partial class DanceMusicCoreService(DanceMusicContext context, ISearchSer
     public SongIndex SongIndex =>
         _songSearch ??= SongIndex.Create(this);
 
-    public SongIndex GetSongIndex(string id) =>
-        id == "default" || id == null ? SongIndex : SongIndex.Create(this, id);
+    public SongIndex GetSongIndex(string id, bool isNext = false) =>
+        !isNext && (id == "default" || id == null) 
+            ? SongIndex 
+            : SongIndex.Create(this, id, isNext);
 
     public DbSet<Dance> Dances => Context.Dances;
     public DbSet<TagGroup> TagGroups => Context.TagGroups;
@@ -320,10 +322,8 @@ public partial class DanceMusicCoreService(DanceMusicContext context, ISearchSer
 
     private string FilterFromTag(string key)
     {
-        var filter = new SongFilter
-        {
-            Tags = key
-        };
+        var filter = SearchService.GetSongFilter();
+        filter.Tags = key;
         var parameters = SongIndex.AzureParmsFromFilter(filter);
         var ret = parameters.Filter;
 
@@ -403,6 +403,21 @@ public partial class DanceMusicCoreService(DanceMusicContext context, ISearchSer
         AdminMonitor.UpdateTask("StartUpload");
         await toIndex.UploadIndex(lines, false);
     }
+
+    public async Task UpdateIndex()
+    {
+        AdminMonitor.UpdateTask("StartCreate");
+        var toIndex = GetSongIndex(null, isNext: true);
+        await toIndex.ResetIndex();
+        AdminMonitor.UpdateTask("StartBackup");
+        var lines = (await SongIndex.BackupIndex()).ToList();
+        AdminMonitor.UpdateTask("StartUpload");
+        await toIndex.UploadIndex(lines, false);
+        AdminMonitor.UpdateTask("RedirectToUpdate");
+        _songSearch = null;
+        SearchService.RedirectToUpdate();
+    }
+
     #endregion
 
     #region Merging
@@ -423,6 +438,13 @@ public partial class DanceMusicCoreService(DanceMusicContext context, ISearchSer
     public void ClearMergeCandidates()
     {
         MergeCluster.ClearMergeCandidateCache();
+    }
+
+    public void ClearCache()
+    {
+        DanceStatsManager.ClearCache(this, true);
+        MergeCluster.ClearMergeCandidateCache();
+        _songSearch = null;
     }
 
     public async Task UpdatePlayList(string id, IEnumerable<Song> songs)

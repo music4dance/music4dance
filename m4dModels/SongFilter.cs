@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -38,7 +37,6 @@ namespace m4dModels
         public int? Level { get; set; }
     }
 
-    [TypeConverter(typeof(SongFilterConverter))]
     public class SongFilter
     {
         private const char SubChar = '\u001a';
@@ -53,21 +51,13 @@ namespace m4dModels
                 { "Other", "Other" }
             };
 
-        private static readonly List<PropertyInfo> PropertyInfo;
+        protected static readonly List<PropertyInfo> PropertyInfo;
 
         private static readonly Dictionary<string, object> AltDefaults =
             new() { { "Action", "index" }, { "Dances", "all" }, { "Page", 1 } };
 
         private readonly string _subStr = new(SubChar, 1);
         private string _action;
-
-        // TODO: Move Field Ids into SongIndex.
-        //  Continue to abstract out parts of song index that are specific to the Flat Schema
-        //  Create another child class for StructuredIndex
-        //  Make the index definition include the type & allow that to be selectable via admin portal
-        //  Move to a factory system based on this boolean
-        //  This should work for songfitler & its descendents
-        public static bool StructuredSchema { get; set; }
 
         static SongFilter()
         {
@@ -76,18 +66,22 @@ namespace m4dModels
             PropertyInfo = [.. info.Where(p => p.CanRead && p.CanWrite)];
         }
 
-        public SongFilter()
+        public static SongFilter Create(bool nextVersion, string value = null)
         {
-            Action = "Index";
+            return nextVersion ? new SongFilterNext(value) : new SongFilter(value);
         }
 
-        // TODO: Should we also enable a length column when filtering/sorting by length???
+        public static SongFilter Create(bool nextVersion, RawSearch raw, string action = null)
+        {
+            return nextVersion ? new SongFilterNext(raw, action) : new SongFilter(raw, action);
+        }
 
         // action-dances-sortorder-searchstring-purchase-user-tempomin-tempomax[-lengthmin-lengthmax]-page-tags-level
-        public SongFilter(string value)
+        protected SongFilter(string value = null)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
+                Action = "Index";
                 return;
             }
 
@@ -151,7 +145,7 @@ namespace m4dModels
             }
         }
 
-        public SongFilter Clone()
+        public virtual SongFilter Clone()
         {
             return new SongFilter(ToString());
         }
@@ -190,9 +184,9 @@ namespace m4dModels
             return null;
         }
 
-        public SongFilter(RawSearch raw)
+        protected SongFilter(RawSearch raw, string action = null)
         {
-            Action = "azure+raw+" + (raw.IsLucene ? "lucene" : "");
+            Action = action ?? "azure+raw+" + (raw.IsLucene ? "lucene" : "");
             SearchString = raw.SearchText;
             Dances = raw.ODataFilter;
             SortOrder = raw.SortFields;
@@ -203,11 +197,6 @@ namespace m4dModels
             Level = raw.CruftFilter == m4dModels.CruftFilter.NoCruft
                 ? null
                 : (int?)raw.CruftFilter;
-        }
-
-        public SongFilter(string action, RawSearch raw) : this(raw)
-        {
-            Action = action;
         }
 
         public int Version { get; set; }
@@ -254,10 +243,10 @@ namespace m4dModels
         }
         public bool DescriptionOverride => IsRaw && !string.IsNullOrWhiteSpace(Purchase);
 
-        public KeywordQuery KeywordQuery => new(SearchString);
-        public DanceQuery DanceQuery => new(IsRaw ? null : Dances);
-        public UserQuery UserQuery => new(User);
-        public SongSort SongSort => new(SortOrder, TextSearch);
+        public virtual KeywordQuery KeywordQuery => new(SearchString);
+        public virtual DanceQuery DanceQuery => new(IsRaw ? null : Dances);
+        public virtual UserQuery UserQuery => new(User);
+        public virtual SongSort SongSort => new(SortOrder, TextSearch);
 
         public CruftFilter CruftFilter =>
             !Action.StartsWith("merge", StringComparison.OrdinalIgnoreCase) && Level.HasValue
@@ -444,8 +433,10 @@ namespace m4dModels
                         LengthMax.Value);
                 }
 
-                var noUserFilter = new SongFilter(ToString())
-                { Action = null, User = null, Page = null };
+                var noUserFilter = Clone();
+                noUserFilter.Action = null;
+                noUserFilter.User = null;
+                noUserFilter.Dances = null;
                 var trivialUser = noUserFilter.IsEmpty;
 
                 sb.Append(UserQuery.Description(trivialUser));
@@ -557,7 +548,7 @@ namespace m4dModels
                 : new SongFilter($"Index-----\\-{userName}|h");
         }
 
-        public static SongFilter CreateCustomSearchFilter(string name = "holiday", string dance = null, int page = 1)
+        public virtual SongFilter CreateCustomSearchFilter(string name = "holiday", string dance = null, int page = 1)
         {
             var holidayFilter = name.ToLowerInvariant() switch
             {
@@ -587,18 +578,18 @@ namespace m4dModels
                 : $"{danceFilter} and ({holidayFilter})";
 
             return new SongFilter(
-                "customsearch",
                 new RawSearch
                 {
                     ODataFilter = odata,
                     SortFields = danceSort,
                     Page = page,
                     Flags = danceFilter == null ? "" : "singleDance"
-                }
+                },
+                "customsearch"
             );
         }
 
-        public string GetTagFilter(DanceMusicCoreService dms)
+        public virtual string GetTagFilter(DanceMusicCoreService dms)
         {
             var tags = new TagList(Tags);
 
@@ -645,7 +636,19 @@ namespace m4dModels
             return s_tagClasses.Keys;
         }
 
-        public static string TagClassFromName(string tagClass)
+        public static string TagFromFacetId(string facetId)
+        {
+            if (string.IsNullOrWhiteSpace(facetId))
+                return null;
+
+            // Remove any prefix like "dance_ALL/"
+            var lastPart = facetId.Contains('/') ? facetId[(facetId.LastIndexOf('/') + 1)..] : facetId;
+
+            // strip "Tags" suffix
+            return TagFromClassName(lastPart.EndsWith("Tags") ? lastPart[..^4] : null);
+        }
+
+        public static string TagFromClassName(string tagClass)
         {
             return string.Equals(tagClass, "Genre", StringComparison.OrdinalIgnoreCase)
                 ? "Music"

@@ -7,8 +7,12 @@ import { type ColorVariant } from "bootstrap-vue-next";
 
 class TagButton implements TagInfo {
   public static get buttons() {
-    return Tag.tagKeys
-      .filter((t) => t !== "dance")
+    // Get unique categories from the tags prop, lowercased
+    const categories = Array.from(
+      new Set((props?.tags ?? []).map((tag: Tag) => tag.category.toLowerCase())),
+    );
+    return categories
+      .filter((t) => Tag.tagInfo.has(t))
       .map((t) => new TagButton(t, Tag.tagInfo.get(t)!));
   }
 
@@ -38,10 +42,6 @@ const modalVisible = ref(false);
 const currentTag = ref<TagHandler>(new TagHandler({ tag: Tag.fromString("Placeholder:Other") }));
 const tagButtons = reactive(TagButton.buttons);
 const filter = ref(6);
-
-// INT-TODO: Test for custom variants
-// const topButtonVariant: ColorVariant = "music";
-// console.log(topButtonVariant);
 
 const activeTags = computed(() => {
   const tags = tagButtons.filter((b) => b.state).map((b) => b.key);
@@ -118,7 +118,7 @@ function getTagHandler(tag: Tag): TagHandler {
       </BBadge>
     </div>
     <div v-else>
-      <h4>Please select one or more tag classes (style, tempo, musical genre, oother)</h4>
+      <h4>Please select one or more tag classes (style, tempo, musical genre, other)</h4>
     </div>
     <TagModal v-model="modalVisible" :tag-handler="currentTag as TagHandler" />
   </div>
