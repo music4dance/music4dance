@@ -82,7 +82,7 @@ namespace m4dModels
 
         public TagSummary(FacetResults facets, IReadOnlyDictionary<string, TagGroup> tagMap)
         {
-            Dictionary<string, long> tags = new();
+            Dictionary<string, long> tags = [];
 
             foreach (var facet in facets)
             {
@@ -120,7 +120,7 @@ namespace m4dModels
                 ttype = ttype[prefix.Length..];
             }
             var key =
-                $"{tvalue}:{SongFilter.TagClassFromName(ttype[0..^4])}";
+                $"{tvalue}:{SongFilter.TagFromFacetId(ttype)}";
             if (tagMap.TryGetValue(key.ToLower(), out var tt))
             {
                 key = tt.Key;

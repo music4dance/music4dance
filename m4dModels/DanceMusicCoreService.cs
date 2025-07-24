@@ -403,6 +403,21 @@ public partial class DanceMusicCoreService(DanceMusicContext context, ISearchSer
         AdminMonitor.UpdateTask("StartUpload");
         await toIndex.UploadIndex(lines, false);
     }
+
+    public async Task UpdateIndex()
+    {
+        AdminMonitor.UpdateTask("StartCreate");
+        var toIndex = GetSongIndex(null, isNext: true);
+        await toIndex.ResetIndex();
+        AdminMonitor.UpdateTask("StartBackup");
+        var lines = (await SongIndex.BackupIndex()).ToList();
+        AdminMonitor.UpdateTask("StartUpload");
+        await toIndex.UploadIndex(lines, false);
+        AdminMonitor.UpdateTask("RedirectToUpdate");
+        _songSearch = null;
+        SearchService.RedirectToUpdate();
+    }
+
     #endregion
 
     #region Merging
@@ -423,6 +438,13 @@ public partial class DanceMusicCoreService(DanceMusicContext context, ISearchSer
     public void ClearMergeCandidates()
     {
         MergeCluster.ClearMergeCandidateCache();
+    }
+
+    public void ClearCache()
+    {
+        DanceStatsManager.ClearCache(this, true);
+        MergeCluster.ClearMergeCandidateCache();
+        _songSearch = null;
     }
 
     public async Task UpdatePlayList(string id, IEnumerable<Song> songs)

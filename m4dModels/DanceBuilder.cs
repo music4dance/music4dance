@@ -7,16 +7,25 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace m4dModels;
+using FacetResults =
+    System.Collections.Generic.IDictionary<string, System.Collections.Generic.IList<
+        Azure.Search.Documents.Models.FacetResult>>;
 
-public class DanceBuilder(DanceMusicCoreService dms, string source = "default")
+namespace m4dModels;
+public class DanceBuilder(DanceMusicCoreService dms, string source)
 {
     protected DanceMusicCoreService Dms => dms ?? throw new ArgumentNullException(nameof(dms));
-    protected string Source => source;
+
+    protected virtual IEnumerable<string> GlobalFacets =>
+    [
+    "GenreTags", "StyleTags", "TempoTags", "OtherTags",
+    ];
+
+    protected virtual IEnumerable<string> GetDanceFacets(string danceId) => GlobalFacets;
 
     public async Task<DanceStatsInstance> Build()
     {
-        var tagManager = await TagManager.BuildTagManager(Dms, Source);
+        var tagManager = await TagManager.BuildTagManager(Dms, GlobalFacets, source);
         var songCounts = await GetSongCounts();
         var groups = await AzureDanceStats(Dances.Instance.AllDanceGroups, songCounts);
         var dances = await AzureDanceStats(Dances.Instance.AllDanceTypes, songCounts);
@@ -27,7 +36,7 @@ public class DanceBuilder(DanceMusicCoreService dms, string source = "default")
 
     protected virtual async Task<Dictionary<string, long>> GetSongCounts()
     {
-        var facets = await Dms.GetSongIndex(Source)
+        var facets = await Dms.GetSongIndex(source)
             .GetTagFacets("DanceTags", 100);
 
         return IndexDanceFacet(facets["DanceTags"]);
@@ -82,7 +91,7 @@ public class DanceBuilder(DanceMusicCoreService dms, string source = "default")
         return danceStats;
     }
 
-    protected virtual async Task<IEnumerable<Song>> LoadSongs(IEnumerable<DanceStats> dances, TagManager tagManager)
+    protected async Task<IEnumerable<Song>> LoadSongs(IEnumerable<DanceStats> dances, TagManager tagManager)
     {
         List<Song> songs = [];
         foreach (var dance in dances)
@@ -90,13 +99,13 @@ public class DanceBuilder(DanceMusicCoreService dms, string source = "default")
             try
             {
                 // TopN and MaxWeight
-                var songIndex = Dms.GetSongIndex(Source);
+                var songIndex = Dms.GetSongIndex(source);
                 var songFilter = Dms.SearchService.GetSongFilter();
                 songFilter.Dances = dance.DanceId;
                 songFilter.SortOrder = "Dances";
                 var azureFilter = songIndex.AzureParmsFromFilter(songFilter, 10);
-                SongIndex.AddAzureCategories(
-                    azureFilter, "GenreTags,StyleTags,TempoTags,OtherTags", 100);
+                SongIndex.AddAzureCategories(azureFilter, 
+                    string.Join(",", GetDanceFacets(dance.DanceId)), 100);
                 var results = await songIndex.Search(
                     null, azureFilter);
                 dance.SetTopSongs(results.Songs);
@@ -109,10 +118,14 @@ public class DanceBuilder(DanceMusicCoreService dms, string source = "default")
                     dance.MaxWeight = dr.Weight;
                 }
 
-                // SongTags
                 dance.SongTags = results.FacetResults == null
                     ? new TagSummary()
-                    : new TagSummary(results.FacetResults, tagManager.TagMap);
+                    : new TagSummary(ExtractSongFacets(results.FacetResults), tagManager.TagMap);
+
+                dance.DanceTags = results.FacetResults == null
+                    ? new TagSummary()
+                    : new TagSummary(ExtractDanceFacets(results.FacetResults), tagManager.TagMap);
+
             }
             catch (Azure.RequestFailedException ex)
             {
@@ -123,5 +136,19 @@ public class DanceBuilder(DanceMusicCoreService dms, string source = "default")
         }
 
         return songs;
+    }
+
+    protected virtual FacetResults ExtractSongFacets(FacetResults facets)
+    {
+        return facets
+            .Where(f => !f.Key.StartsWith("dance_"))
+            .ToDictionary(f => f.Key, f => f.Value);
+    }
+
+    protected virtual FacetResults ExtractDanceFacets(FacetResults facets)
+    {
+        return facets
+            .Where(f => f.Key.StartsWith("dance_"))
+            .ToDictionary(f => f.Key, f => f.Value);
     }
 }

@@ -25,7 +25,8 @@ namespace m4dModels
         bool HasNextVersion { get; }
         bool HasId(string id);
         SongFilter GetSongFilter(string filter = null);
-        SongFilter GetSongFilter(RawSearch raw, string action = null); 
+        SongFilter GetSongFilter(RawSearch raw, string action = null);
+        void RedirectToUpdate();
     }
 
     public class SearchServiceManager : ISearchServiceManager
@@ -129,15 +130,20 @@ namespace m4dModels
                 }
             }
         }
-
         public int CodeVersion => 1;
-        public bool HasNextVersion => true && CodeVersion == ConfigVersion;
+        public bool HasNextVersion =>
+          CodeVersion == ConfigVersion &&
+          GetInfo().HasNextVersion;           
 
         public int ConfigVersion { get; set; }
 
         public bool NextVersion => ConfigVersion > CodeVersion;
 
         public string RawEnvironment { get; }
+        public void RedirectToUpdate()
+        {
+            ConfigVersion = CodeVersion + 1;
+        }
 
         private readonly Dictionary<string, SearchServiceInfo> _info;
         private string _defaultId;
@@ -170,7 +176,7 @@ namespace m4dModels
             clientFactory.CreateClient(GetVersionedId(isNext));
 
         private SearchIndexClient GetSearchIndexClient(bool isNext) =>
-            clientIndexFactory.CreateClient(GetVersionedId(isNext));
+            clientIndexFactory.CreateClient("SongIndex");
 
         public async Task<SearchIndex> GetIndexAsync(bool isNext)
         {
@@ -195,7 +201,7 @@ namespace m4dModels
         public async Task<Response> DeleteIndexAsync(bool isNext)
         {
             var client = GetSearchIndexClient(isNext);
-            return await client.DeleteIndexAsync(GetVersionedId(isNext));
+            return await client.DeleteIndexAsync(GetVersionedName(isNext));
         }
 
         public async Task<Response<SearchIndex>> CreateIndexAsync(SearchIndex index, bool isNext)
@@ -209,6 +215,7 @@ namespace m4dModels
             var client = GetSearchIndexClient(isNext);
             return await client.CreateOrUpdateIndexAsync(index);
         }
+        public bool HasNextVersion => _versionedNames.Count > 1;
 
         private string GetVersionedId(bool? isNext = null) =>
             Id == SearchServiceManager.ExperimentalId

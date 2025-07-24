@@ -14,6 +14,7 @@ public class DanceModel : SongListModel
         Description = dance.Description;
         Links = ds.DanceLinks;
         SongTags = ds.SongTags;
+        DanceTags = ds.DanceTags;
         if (!ds.RefreshTopSongs(database.DanceStats))
         {
             database.ActivityLog.Add(
@@ -33,5 +34,6 @@ public class DanceModel : SongListModel
     public string Description { get; set; }
     public string SpotifyPlaylist { get; set; }
     public TagSummary SongTags { get; set; }
+    public TagSummary DanceTags { get; set; }
     public List<DanceLink> Links { get; set; }
 }

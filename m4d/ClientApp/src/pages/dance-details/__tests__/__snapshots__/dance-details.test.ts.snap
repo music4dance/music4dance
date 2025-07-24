@@ -1669,20 +1669,8 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
     </div>
   </div>
 </div>
-<div class="row">
-  <div class="col">
-    <hr>
-    <h2 id="tags">Tags</h2>
-    <div data-v-dff412d7="">
-      <!--v-if-->
-      <div data-v-dff412d7="">
-        <h4 data-v-dff412d7="">Please select one or more tag classes (style, tempo, musical genre, oother)</h4>
-      </div>
-      <!--teleport start-->
-      <!--teleport end-->
-    </div>
-  </div>
-</div>
+<!--v-if-->
+<!--v-if-->
 </div>
 </div>
 <div id="footer-content">

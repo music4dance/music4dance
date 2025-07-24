@@ -34,7 +34,7 @@
     var userId = user?.Privacy == 0 ? user?.Id : "";
     var expiration = noWarnings ? null : userMetadata.Expiration;
     var started = userMetadata.Started;
-    var searchIndex = _searchService.GetInfo().Abbr;
+    var searchIndex = _searchService.GetInfo().Abbr + (_searchService.NextVersion ? "n" : "");
     var hasIcons = ViewData.TryGetValue("HasIcons", out var hasIconsObj) && (hasIconsObj as bool?).Value;
     var styleModifier = hasIcons ? "wicons" : "";
     var styleSheet = ViewData.ContainsKey("NoSiteCss") ? null : $"/css/site{styleModifier}.css";

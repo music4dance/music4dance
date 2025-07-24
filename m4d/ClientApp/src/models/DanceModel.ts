@@ -11,9 +11,14 @@ export class DanceModel extends SongListModel {
   @jsonMember(String) public description!: string;
   @jsonMember(String) public spotifyPlaylist!: string;
   @jsonArrayMember(DanceLink) public links!: DanceLink[];
-  @jsonMember(String) public songTags!: string;
+  @jsonMember(String, { name: "songTags" }) public songTagString!: string;
+  @jsonMember(String, { name: "danceTags" }) public danceTagString!: string;
 
-  public get tags(): Tag[] {
-    return new TagList(this.songTags).tags;
+  public get songTags(): Tag[] {
+    return new TagList(this.songTagString).tags;
+  }
+
+  public get danceTags(): Tag[] {
+    return new TagList(this.danceTagString).tags;
   }
 }

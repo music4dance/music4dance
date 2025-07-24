@@ -636,7 +636,19 @@ namespace m4dModels
             return s_tagClasses.Keys;
         }
 
-        public static string TagClassFromName(string tagClass)
+        public static string TagFromFacetId(string facetId)
+        {
+            if (string.IsNullOrWhiteSpace(facetId))
+                return null;
+
+            // Remove any prefix like "dance_ALL/"
+            var lastPart = facetId.Contains('/') ? facetId[(facetId.LastIndexOf('/') + 1)..] : facetId;
+
+            // strip "Tags" suffix
+            return TagFromClassName(lastPart.EndsWith("Tags") ? lastPart[..^4] : null);
+        }
+
+        public static string TagFromClassName(string tagClass)
         {
             return string.Equals(tagClass, "Genre", StringComparison.OrdinalIgnoreCase)
                 ? "Music"

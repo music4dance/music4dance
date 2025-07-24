@@ -1145,6 +1145,62 @@ public class AdminController(
             return FailAdminTask($"Reset: {e.Message}", e);
         }
     }
+
+    //
+    // Get: UpdateSearchIdx
+    [Authorize(Roles = "showDiagnostics")]
+    public async Task<ActionResult> UpdateSearchIdx()
+    {
+        try
+        {
+             StartAdminTask("UpdateSearchIdx");
+
+            if (SearchService.DefaultId == SearchServiceManager.ExperimentalId)
+            {
+                Logger.LogInformation("Can't update experimental version, skipping index update");
+                ViewBag.Name = "Update Index";
+                ViewBag.Success = true;
+                ViewBag.Message = "Index is already up to date";
+                return CompleteAdminTask(false, @"UpdateSearchIdx");
+            }
+
+            if (!SearchService.HasNextVersion || SearchService.NextVersion)
+            {
+                Logger.LogInformation("No next version or already updated, skipping index update");
+                ViewBag.Name = "Update Index";
+                ViewBag.Success = true;
+                ViewBag.Message = "Index is already up to date";
+                return CompleteAdminTask(false, @"UpdateSearchIdx");
+            }
+
+            var message = @"We are in the process of upgrading the music4dance.net infrastructure.
+                You should still be able to use the site to browse and search but please
+                hold off doing any editing or registering an account until this banner disappears
+                (reload the page to check status). Thanks!";
+
+            GlobalState.UpdateMessage = message?.CleanWhitespace();
+
+            await Database.UpdateIndex();
+
+            AdminMonitor.UpdateTask("Reloading Stats");
+
+            await DanceStatsManager.LoadFromAzure(Database);
+
+            ViewBag.Name = "Update Index";
+            ViewBag.Success = true;
+            ViewBag.Message = @"Index Updated";
+
+            GlobalState.UpdateMessage = null;
+
+            return CompleteAdminTask(true, @"UpdateSearchIdx");
+        }
+        catch (Exception e)
+        {
+            return FailAdminTask($"Reset: {e.Message}", e);
+        }
+    }
+
+
     #endregion
 
     #region Migration-Restore

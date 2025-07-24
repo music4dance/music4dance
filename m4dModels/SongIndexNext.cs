@@ -26,19 +26,6 @@ namespace m4dModels
 
         #region Index Management
 
-        // TODONEXT:
-        //  Figure out a way to do actual versioning rather than depending on a
-        //    dedicated exerimental DB - Roll forward versions of prod and test
-        //    So we have Prod1, Prod2, etc. moving from 1 to 2 we load from 1 and save to 2 and
-        //    once that's complete we flip over to 2 for queries?
-        //    - Get searchIndex to respect next and use SearchServiceManager to create the client
-        //    - Write the swap-over code
-        //          - Set the warning message
-        //          - Clone from current to a v-next index (we can now just create a vnext index)
-        //          - Clone from current to a v-next index (we can now just create a vnext index)
-        //          - Increment the current version
-        //          - Switch to the new index (make the SongIndex create function detect next?)
-        //          - Turn off error message
         public override SearchIndex BuildIndex()
         {
             // TODO - make fields virtual, then BuildIndex can be the same for all indexes
@@ -159,9 +146,17 @@ namespace m4dModels
                 fields,
                 suggesters: searchSuggesters,
                 scoringProfiles: searchScoringProfiles,
-                defaultScoringProfile: "Default"
+                defaultScoringProfile: "Default",
+                true
             );
         }
+
+        protected override IList<SearchSuggester> searchSuggesters => [
+            new SearchSuggester("songs",
+                Song.TitleField, Song.ArtistField, AlbumsField, Song.DanceTags,
+                    Song.PurchaseField, GenreTags, TempoTags, OtherTags,
+                    $"dance_ALL/{TempoTags}", $"dance_ALL/{StyleTags}", $"dance_ALL/{OtherTags}")
+        ];
 
         private static SearchField IndexFieldFromDanceId(string id)
         {

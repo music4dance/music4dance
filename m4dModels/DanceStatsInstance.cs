@@ -149,8 +149,10 @@ namespace m4dModels
                 group.Children = [.. group.DanceGroup.DanceIds.Where(id => Map.ContainsKey(id)).Select(id => Map[id])];
                 group.SongTags = TagAccumulator.MergeSummaries(
                     group.Children.Select(c => c.SongTags));
-                // TODO: At some point we should as azure search for this, since 
+                // TODO: At some point we should ask azure search for this, since 
                 //   we're double-counting by the current method.
+                group.DanceTags = TagAccumulator.MergeSummaries(
+                    group.Children.Select(c => c.DanceTags));
                 group.SongCount = group.Children.Sum(d => d.SongCount);
                 group.MaxWeight = group.Children.Max(d => d.MaxWeight);
             }
@@ -179,6 +181,7 @@ namespace m4dModels
                 newDances.Add(ds.DanceId);
                 ds.SetTopSongs([]);
                 ds.SongTags = new TagSummary();
+                ds.DanceTags = new TagSummary();
             }
 
             if (saveChanges)
