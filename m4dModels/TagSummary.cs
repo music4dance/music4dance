@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 
-using Microsoft.VisualBasic;
-
 using Newtonsoft.Json;
 
 using FacetResults =

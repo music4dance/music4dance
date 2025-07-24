@@ -149,7 +149,7 @@ namespace m4dModels
         private string _defaultId;
     }
 
-    public class SearchServiceInfo(string id, int version,string name,
+    public class SearchServiceInfo(string id, int version, string name,
         IAzureClientFactory<SearchClient> clientFactory, IAzureClientFactory<SearchIndexClient> clientIndexFactory,
         ISearchServiceManager manager)
     {

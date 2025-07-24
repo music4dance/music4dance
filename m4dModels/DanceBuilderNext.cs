@@ -14,5 +14,5 @@ public class DanceBuilderNext(DanceMusicCoreService dms, string source) :
     ];
 
     protected override IEnumerable<string> GetDanceFacets(string danceId) =>
-        GlobalFacets.Select(f => f.Replace(@"dance_All/", $"dance_{danceId}/"));
+        GlobalFacets.Select(f => f.Replace(@"dance_ALL/", $"dance_{danceId}/"));
 }

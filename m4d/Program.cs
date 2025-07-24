@@ -368,38 +368,3 @@ ApplicationLogging.LoggerFactory = app.Services.GetRequiredService<ILoggerFactor
 GlobalState.UseTestKeys = isDevelopment;
 
 app.Run();
-services.AddAzureClients(clientBuilder =>
-{
-    clientBuilder.UseCredential(credentials);
-
-    // Dynamically add all configuration sections with an "indexname" field
-    IConfigurationSection? firstSongIndexSection = null;
-    string? songIndexEndpoint = null;
-    var indexSections = configuration.GetChildren()
-        .Where(s => s.GetChildren().Any(child => child.Key.Equals("indexname", StringComparison.OrdinalIgnoreCase)))
-        .ToList();
-
-    foreach (var section in indexSections)
-    {
-        clientBuilder.AddSearchClient(section).WithName(section.Key);
-
-        if (section.Key.StartsWith("SongIndex", StringComparison.OrdinalIgnoreCase))
-        {
-            var endpoint = section["endpoint"];
-            if (firstSongIndexSection == null)
-            {
-                firstSongIndexSection = section;
-                songIndexEndpoint = endpoint;
-            }
-            else if (!string.Equals(songIndexEndpoint, endpoint, StringComparison.OrdinalIgnoreCase))
-            {
-                throw new InvalidOperationException($"All SongIndex sections must have the same endpoint. Mismatch found in section '{section.Key}'.");
-            }
-        }
-    }
-
-    if (firstSongIndexSection != null)
-    {
-        clientBuilder.AddSearchIndexClient(firstSongIndexSection).WithName("SongIndex");
-    }
-});

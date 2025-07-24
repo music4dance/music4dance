@@ -11,7 +11,6 @@ class TagButton implements TagInfo {
     const categories = Array.from(
       new Set((props?.tags ?? []).map((tag: Tag) => tag.category.toLowerCase())),
     );
-    console.log("TagButton.categories", categories);
     return categories
       .filter((t) => Tag.tagInfo.has(t))
       .map((t) => new TagButton(t, Tag.tagInfo.get(t)!));

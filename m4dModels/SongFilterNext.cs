@@ -15,9 +15,9 @@ internal class SongFilterNext : SongFilter
             IsSongTag = isSongTag;
             IsDanceTag = isDanceTag;
         }
-        public string Name { get; set; }
-        public bool IsSongTag { get; set; }
-        public bool IsDanceTag { get; set; }
+        public string Name { get; }
+        public bool IsSongTag { get; }
+        public bool IsDanceTag { get; }
     }
 
     private static readonly Dictionary<string, TagClass> s_tagClasses =
