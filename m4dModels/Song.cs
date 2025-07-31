@@ -268,10 +268,12 @@ namespace m4dModels
         public const string TitleArtistCell = "TitleArtist";
         public const string DancersCell = "Dancers";
         public const string DanceTags = "DanceTags";
+        public const string GenreTags = "GenreTags";
         public const string SongTags = "SongTags";
         public const string MeasureTempo = "MPM";
         public const string MultiDance = "MultiDance";
         public const string SongComment = "SongComment";
+        public const string SongYear = "SongYear";
         public const string DanceComment = "DanceComment";
 
         // Commands
@@ -791,11 +793,11 @@ namespace m4dModels
                             var dts = new List<string>();
                             ratings = [];
                             foreach (var dnc in cell.Split(
-                                         new[] { "||" },
+                                         ["||"],
                                          StringSplitOptions.RemoveEmptyEntries))
                             {
                                 var drg = dnc.Split(
-                                        new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)
+                                        ['|'], StringSplitOptions.RemoveEmptyEntries)
                                     .ToList();
                                 if (drg.Count == 0 || Dances.Instance.DanceFromId(drg[0]) == null)
                                 {
@@ -928,6 +930,7 @@ namespace m4dModels
                         {
                             tags = [];
                             danceTags = [];
+                            var holiday = false;
 
                             cell = cell.ToUpper();
                             if (cell.Contains("ENGLISH LANGUAGE"))
@@ -958,6 +961,48 @@ namespace m4dModels
                             if (cell.Contains("INSTRUMENTAL"))
                             {
                                 tags.Add("Instrumental:Other");
+                            }
+
+                            if (cell.Contains("MALE VOCAL"))
+                            {
+                                tags.Add("Male Vocal:Other");
+                            }
+
+                            if (cell.Contains("FEMALE VOCAL"))
+                            {
+                                tags.Add("Female Vocal:Other");
+                            }
+
+                            if (cell.Contains("VOCAL"))
+                            {
+                                tags.Add("Vocal:Other");
+                            }
+
+                            if (cell.Contains("VOCAL"))
+                            {
+                                tags.Add("Vocal:Other");
+                            }
+
+                            if (cell.Contains("CHRISTMAS"))
+                            {
+                                tags.Add("Christmas:Other");
+                                holiday = true;
+                            }
+
+                            if (cell.Contains("THANKSGIVING"))
+                            {
+                                tags.Add("Thanksgiving:Other");
+                                holiday = true;
+                            }
+
+                            if (holiday)
+                            {
+                                tags.Add("Holiday:Other");
+                            }
+
+                            if (cell.Contains("TAGS:"))
+                            {
+                                tags.AddRange(ExtractSongTags(cell));
                             }
 
                             if (cell.Contains("TRADITIONAL") || cell.Contains("TYPICAL") ||
@@ -1004,9 +1049,32 @@ namespace m4dModels
 
                         cell = null;
                         break;
+                    case GenreTags:
+                        if (!string.IsNullOrWhiteSpace(cell))
+                        {
+                            var tcs = SongProperty.ParsePart(fields[i], 1);
+                            if (string.IsNullOrWhiteSpace(tcs))
+                            {
+                                tcs = "Music";
+                            }
+
+                            tags = new TagList(
+                                string.Join("|",cell.Split(",").Select(s => s.Trim())))
+                                .Normalize(tcs).ToStringList();
+                        }
+
+                        cell = null;
+                        break;
+                    case SongYear:
+                        if (int.TryParse(cell, out var year) && year > 1800 && year < 2100)
+                        {
+                            tags = [year.ToString(CultureInfo.InvariantCulture) + ":Other"];
+                        }
+                        cell = null;
+                        break;
                     case DancersCell:
                         var dancers = cell.Split(
-                            new[] { '&' },
+                            ['&'],
                             StringSplitOptions.RemoveEmptyEntries);
                         danceTags = dancers.Select(dancer => dancer.Trim() + ":Other").ToList();
                         cell = null;
@@ -1212,11 +1280,14 @@ namespace m4dModels
                 { "PATH", OwnerHash },
                 { "TIME", LengthField },
                 { "COMMENT", AddedTags },
+                { "COMMENTS", AddedTags },
                 { "RATING", "R" },
                 { "DANCERS", DancersCell },
                 { "TITLE+ARTIST", TitleArtistCell },
                 { "DANCETAGS", DanceTags },
                 { "SONGTAGS", SongTags },
+                { "GENRE", GenreTags },
+                { "YEAR", SongYear },
                 { "MPM", MeasureTempo },
                 { "MULTIDANCE", MultiDance },
                 { "DANCECOMMENT", DanceComment }
@@ -1940,10 +2011,19 @@ namespace m4dModels
             return await AdminEdit(props, database);
         }
 
+        public async Task<bool> AdminAppend(ApplicationUser user, IEnumerable<SongProperty> newProperties,
+            DanceMusicCoreService database)
+        {
+            return await AdminAppend(user, SongProperty.Serialize(newProperties), database);
+        }
+
         internal async Task<bool> AdminAppend(ApplicationUser user, string newProperties,
             DanceMusicCoreService database)
         {
-            CreateEditProperties(user, EditCommand);
+            if (user != null)
+            {
+                CreateEditProperties(user, EditCommand);
+            }
 
             var oldProperties = Serialize([NoSongId]);
 
@@ -5406,7 +5486,7 @@ namespace m4dModels
             var up = name.ToUpper();
 
             var parts = up.Split(
-                new[] { ' ', '-', '\t', '/', '&', '-', '+', '(', ')' },
+                [' ', '-', '\t', '/', '&', '-', '+', '(', ')'],
                 StringSplitOptions.RemoveEmptyEntries);
 
             var ret = string.Join("", parts);
@@ -5432,6 +5512,37 @@ namespace m4dModels
             ret = ret[..^truncate];
 
             return ret;
+        }
+
+        // Helper method to extract and title-case tags from a cell string
+        private static List<string> ExtractSongTags(string cell)
+        {
+            // Find "TAGS:" in the string
+            var idx = cell.IndexOf("TAGS:", StringComparison.OrdinalIgnoreCase);
+            if (idx == -1)
+                return [];
+
+            // Find the start of the substring (space after "TAGS:")
+            var start = cell.IndexOf(' ', idx + 5);
+            if (start == -1)
+                return [];
+
+            // Find the end of the substring (first | after the space)
+            var end = cell.IndexOf('|', start);
+            if (end == -1)
+                end = cell.Length;
+
+            // Extract the substring
+            var tagSubstr = cell.Substring(start + 1, end - start - 1).Trim();
+
+            // Split by comma, trim, and title-case each phrase
+            var tags = tagSubstr
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => CultureInfo.CurrentCulture.TextInfo.ToTitleCase(s.Trim().ToLowerInvariant()) + ":Other")
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .ToList();
+
+            return tags;
         }
 
         #endregion

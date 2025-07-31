@@ -718,20 +718,22 @@ public class AdminController(
             appuser, separator, headerList, lines, Database,
             Song.DanceRatingCreate);
 
+        SongProperty artistProp = null;
         var hasArtist = false;
         if (!string.IsNullOrEmpty(artist))
         {
             hasArtist = true;
             artist = artist.Trim();
+            artistProp = SongProperty.Create(Song.ArtistField, artist);
         }
 
-        AlbumDetails ad = null;
+        SongProperty albumProp = null;
         var hasAlbum = false;
         if (!string.IsNullOrEmpty(album))
         {
             hasAlbum = true;
             album = album.Trim();
-            ad = new AlbumDetails { Name = album };
+            albumProp = new SongProperty(Song.AlbumField, album, index: 0);
         }
 
         tags = !string.IsNullOrEmpty(tags) ? tags.Trim() : null;
@@ -746,23 +748,43 @@ public class AdminController(
             }
         }
 
+
         if (hasArtist || hasAlbum || tagList != null)
         {
             foreach (var sd in newSongs)
             {
-                if (hasArtist && string.IsNullOrEmpty(sd.Artist))
+                var props = new List<SongProperty>();
+                var addHeader = false;
+                if (hasArtist && !string.Equals(artist, sd.Artist))
                 {
-                    sd.Artist = artist;
+                    addHeader = !string.IsNullOrEmpty(sd.Artist);
+                    props.Add(artistProp);
                 }
 
-                if (hasAlbum && sd.Albums.Count == 0)
+                // We just won't handle the case with album "override" now
+                if (hasAlbum && sd.AlbumList.Length == 0)
                 {
-                    sd.Albums.Add(ad);
+                    props.Add(artistProp);
                 }
 
                 if (tagList != null)
                 {
-                    sd.AddTags(tagList, appuser.UserName, Database.DanceStats, sd, false);
+                    var newTags = tagList;
+                    var oldTags = sd.GetUserTags(appuser.UserName);
+                    if (!oldTags.IsEmpty)
+                    {
+                        newTags = tagList.Subtract(oldTags);
+                    }
+                    
+                    if (!newTags.IsEmpty)
+                    {
+                        props.Add(SongProperty.Create(Song.AddedTags, newTags.ToString()));
+                    }
+                }
+
+                if (props.Count > 0)
+                {
+                    await sd.AdminAppend(addHeader ? appuser : null, props, Database);
                 }
             }
         }
@@ -1263,7 +1285,7 @@ public class AdminController(
         var map = Song.BuildHeaderMap(line);
 
         // Kind of kludgy, but temporary build the header
-        //  map to see if it's valid then pass back a cownomma
+        //  map to see if it's valid then pass back a comma
         // separated list of headers...
         if (map == null || map.All(p => p == null))
         {
