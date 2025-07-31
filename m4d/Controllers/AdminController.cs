@@ -764,7 +764,7 @@ public class AdminController(
                 // We just won't handle the case with album "override" now
                 if (hasAlbum && sd.AlbumList.Length == 0)
                 {
-                    props.Add(artistProp);
+                    props.Add(albumProp);
                 }
 
                 if (tagList != null)

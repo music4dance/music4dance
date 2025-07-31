@@ -978,11 +978,6 @@ namespace m4dModels
                                 tags.Add("Vocal:Other");
                             }
 
-                            if (cell.Contains("VOCAL"))
-                            {
-                                tags.Add("Vocal:Other");
-                            }
-
                             if (cell.Contains("CHRISTMAS"))
                             {
                                 tags.Add("Christmas:Other");
@@ -1059,7 +1054,7 @@ namespace m4dModels
                             }
 
                             tags = new TagList(
-                                string.Join("|",cell.Split(",").Select(s => s.Trim())))
+                                string.Join("|", cell.Split(",").Select(s => s.Trim())))
                                 .Normalize(tcs).ToStringList();
                         }
 
