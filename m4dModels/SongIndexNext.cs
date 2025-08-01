@@ -315,5 +315,10 @@ namespace m4dModels
         }
         #endregion
 
+        public override async Task<IEnumerable<Song>> FindArtist(string name,
+            CruftFilter cruft = CruftFilter.NoCruft)
+        {
+            return await FindByField(Song.ArtistField, name, "dance_ALL/Votes desc", cruft);
+        }
     }
 }

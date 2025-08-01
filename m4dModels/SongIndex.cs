@@ -1059,7 +1059,7 @@ public abstract class SongIndex
         return await FindByField(AlbumsField, name, null, cruft);
     }
 
-    public async Task<IEnumerable<Song>> FindArtist(string name,
+    public virtual async Task<IEnumerable<Song>> FindArtist(string name,
         CruftFilter cruft = CruftFilter.NoCruft)
     {
         return await FindByField(Song.ArtistField, name, "dance_ALL desc", cruft);
