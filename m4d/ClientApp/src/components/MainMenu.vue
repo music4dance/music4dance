@@ -1,15 +1,32 @@
 <script setup lang="ts">
 import { MenuContext } from "@/models/MenuContext";
-import { computed, ref } from "vue";
+import { computed, ref, useTemplateRef } from "vue";
 import logo from "@/assets/images/header-logo.png";
 import dancers from "@/assets/images/swing-ui.png";
 import { BToastOrchestrator } from "bootstrap-vue-next";
+import { onClickOutside } from "@vueuse/core";
 
 const renewalTag = "renewal-acknowledged";
 const marketingTag = "marketing-acknowledged";
 const customerReminder = "reminder-acknowledged";
 
 const props = defineProps<{ context: MenuContext }>();
+
+const isNavExpanded = ref(false);
+const collapseElement = useTemplateRef<HTMLElement>("collapse-element");
+const navToggle = useTemplateRef<HTMLElement>("nav-toggle");
+
+onClickOutside(
+  collapseElement,
+  () => {
+    if (isNavExpanded.value) {
+      console.log("Click outside detected, collapsing menu");
+      isNavExpanded.value = false;
+    }
+  },
+  { ignore: [navToggle] },
+);
+
 const searchString = ref<string>("");
 
 const reminderAcknowledged = () => {
@@ -119,9 +136,9 @@ function search(s?: string): void {
         <img :src="logo" height="40" width="170" title="music4dance" />
       </BNavbarBrand>
 
-      <BNavbarToggle id="drop-toggle" target="nav-collapse" />
+      <BNavbarToggle id="drop-toggle" ref="nav-toggle" target="nav-collapse" />
 
-      <BCollapse id="nav-collapse" is-nav>
+      <BCollapse id="nav-collapse" ref="collapse-element" v-model="isNavExpanded" is-nav>
         <BNavbarNav>
           <BNavItemDropdown id="music-menu" text="Music">
             <BDropdownItem href="/dances">Dances</BDropdownItem>
