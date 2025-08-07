@@ -20,7 +20,6 @@ onClickOutside(
   collapseElement,
   () => {
     if (isNavExpanded.value) {
-      console.log("Click outside detected, collapsing menu");
       isNavExpanded.value = false;
     }
   },
