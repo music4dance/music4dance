@@ -67,7 +67,7 @@ public partial class DanceMusicCoreService(DanceMusicContext context, ISearchSer
 
     public SongIndex GetSongIndex(string id, bool? isNext = null) {
         if (_songSearch != null && isNext == null
-            && (id == "deafult" || id == null))
+            && (id == "default" || id == null))
         {
             return _songSearch;
         }

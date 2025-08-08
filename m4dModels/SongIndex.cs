@@ -1478,7 +1478,8 @@ public class SongIndex
             fields,
             suggesters: searchSuggesters,
             scoringProfiles: searchScoringProfiles,
-            defaultScoringProfile: "Default"
+            defaultScoringProfile: "Default",
+            isNext: false
         );
     }
 
