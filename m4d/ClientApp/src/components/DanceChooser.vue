@@ -67,7 +67,11 @@ const exists = (danceId: string): boolean => {
 };
 
 const chooseEvent = (id?: string, event?: MouseEvent): void => {
-  choose(id, event?.ctrlKey);
+  const persist = event?.ctrlKey;
+  if (persist) {
+    event?.preventDefault();
+  }
+  choose(id, persist);
 };
 
 const choose = (id?: string, persist?: boolean): void => {
@@ -110,7 +114,7 @@ const isGroup = (dance: NamedObject) => {
             button
             :active="danceId === dance.id"
             :disabled="exists(dance.id)"
-            @click="chooseEvent(dance.id, $event)"
+            @click.prevent="chooseEvent(dance.id, $event)"
           >
             <DanceName
               :dance="dance"
@@ -131,7 +135,7 @@ const isGroup = (dance: NamedObject) => {
             :class="{ item: isGroup(dance), 'sub-item': !isGroup(dance) }"
             :active="danceId === dance.id"
             :disabled="exists(dance.id) || (isGroup(dance) && !includeGroups)"
-            @click="chooseEvent(dance.id, $event)"
+            @click.prevent="chooseEvent(dance.id, $event)"
           >
             <DanceName
               :dance="dance"
