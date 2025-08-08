@@ -39,17 +39,25 @@ namespace m4dModels
 
     public class SongFilter
     {
+        private class TagClass(string name, bool isSongTag = true, bool isDanceTag = true)
+        {
+            public string Name { get; } = name;
+            public bool IsSongTag { get; } = isSongTag;
+            public bool IsDanceTag { get; } = isDanceTag;
+        }
+
+        private static readonly Dictionary<string, TagClass> s_tagClasses =
+            new()
+            {
+                { "Music", new TagClass("Genre", isDanceTag: false ) },
+                { "Style", new TagClass("Style", isSongTag: false) },
+                { "Tempo", new TagClass("Tempo" )},
+                { "Other", new TagClass("Other") }
+            };
         private const char SubChar = '\u001a';
         private const char Separator = '-';
 
         private const string CommaSeparator = ", ";
-
-        private static readonly Dictionary<string, string> s_tagClasses =
-            new()
-            {
-                { "Music", "Genre" }, { "Style", "Style" }, { "Tempo", "Tempo" },
-                { "Other", "Other" }
-            };
 
         protected static readonly List<PropertyInfo> PropertyInfo;
 
@@ -561,7 +569,7 @@ namespace m4dModels
             string danceSort = null;
             if (string.IsNullOrWhiteSpace(dance))
             {
-                danceSort = "dance_ALL desc";
+                danceSort = "dance_ALL/Votes desc";
             }
             else
             {
@@ -569,7 +577,7 @@ namespace m4dModels
                 if (d != null)
                 {
                     danceFilter = $"DanceTags/any(t: t eq '{dance}')";
-                    danceSort = $"dance_{d.Id} desc";
+                    danceSort = $"dance_{d.Id}/Votes desc";
                 }
             }
 
@@ -588,7 +596,6 @@ namespace m4dModels
                 "customsearch"
             );
         }
-
         public virtual string GetTagFilter(DanceMusicCoreService dms)
         {
             var tags = new TagList(Tags);
@@ -619,8 +626,13 @@ namespace m4dModels
 
             foreach (var tp in s_tagClasses)
             {
-                HandleFilterClass(sb, rInclude, tp.Key, tp.Value, "{0}Tags/any(t: t eq '{1}')");
-                HandleFilterClass(sb, rExclude, tp.Key, tp.Value, "{0}Tags/all(t: t ne '{1}')");
+                var tagClass = tp.Value;
+                HandleFilterClass(sb, rInclude, tp.Key, tagClass.Name,
+                    tagClass.IsSongTag ? "{0}Tags/any(t: t eq '{1}')" : null,
+                    tagClass.IsDanceTag ? "dance_ALL/{0}Tags/any(t: t eq '{1}')" : null);
+                HandleFilterClass(sb, rExclude, tp.Key, tagClass.Name,
+                    tagClass.IsSongTag ? "{0}Tags/all(t: t ne '{1}')" : null,
+                    tagClass.IsDanceTag ? "dance_ALL/{0}Tags/all(t: t ne '{1}')" : null);
             }
 
             return sb.ToString();
@@ -655,8 +667,8 @@ namespace m4dModels
                 : tagClass;
         }
 
-        private static void HandleFilterClass(StringBuilder sb, TagList tags, string tagClass,
-            string tagName, string format)
+        private static void HandleFilterClass(
+            StringBuilder sb, TagList tags, string tagClass, string tagName, string songFormat, string danceFormat)
         {
             var filtered = tags.Filter(tagClass);
             if (filtered.IsEmpty)
@@ -673,7 +685,22 @@ namespace m4dModels
 
                 var tt = t.Replace(@"'", @"''");
 
-                sb.AppendFormat(format, tagName, tt);
+                if (songFormat != null && danceFormat != null)
+                {
+                    sb.Append("(");
+                    sb.AppendFormat(songFormat, tagName, tt);
+                    sb.Append(" or ");
+                    sb.AppendFormat(danceFormat, tagName, tt);
+                    sb.Append(")");
+                }
+                else if (songFormat != null)
+                {
+                    sb.AppendFormat(songFormat, tagName, tt);
+                }
+                else if (danceFormat != null)
+                {
+                    sb.AppendFormat(danceFormat, tagName, tt);
+                }
             }
         }
 

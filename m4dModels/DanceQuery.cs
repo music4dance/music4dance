@@ -91,7 +91,7 @@ namespace m4dModels
                     if (threshold != null)
                     {
                         sb.AppendFormat(
-                            "(dance_{0} {1} {2})",
+                            "(dance_{0}/Votes {1} {2})",
                             d.Id, threshold.Threshold > 0 ? "ge" : "le", Math.Abs(threshold.Threshold));
                     }
                     else
@@ -109,12 +109,11 @@ namespace m4dModels
             var dances = DanceLibrary.Dances.Instance.ExpandGroups(Dances).ToList();
             if (dances.Count == 0)
             {
-                return [$"dance_ALL {order}"];
+                return [$"dance_ALL/Votes {order}"];
             }
 
-            return [$"dance_{dances[0].Id} {order}"];
+            return [$"dance_{dances[0].Id}/Votes {order}"];
         }
-
         public string ShortDescription => string.Join(", ", DancesThresholds.Select(dt => dt.ShortDescription));
 
         public bool HasDance(string id)

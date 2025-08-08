@@ -18,10 +18,12 @@ public class DanceBuilder(DanceMusicCoreService dms, string source)
 
     protected virtual IEnumerable<string> GlobalFacets =>
     [
-    "GenreTags", "StyleTags", "TempoTags", "OtherTags",
+        "GenreTags", "TempoTags", "OtherTags",
+        "dance_ALL/StyleTags", "dance_ALL/TempoTags", "dance_ALL/OtherTags"
     ];
 
-    protected virtual IEnumerable<string> GetDanceFacets(string danceId) => GlobalFacets;
+    protected virtual IEnumerable<string> GetDanceFacets(string danceId) =>
+        GlobalFacets.Select(f => f.Replace(@"dance_ALL/", $"dance_{danceId}/"));
 
     public async Task<DanceStatsInstance> Build()
     {
