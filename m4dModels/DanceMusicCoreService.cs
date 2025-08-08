@@ -66,10 +66,13 @@ public partial class DanceMusicCoreService(DanceMusicContext context, ISearchSer
         _songSearch ??= GetSongIndex("default");
 
     public SongIndex GetSongIndex(string id, bool? isNext = null) {
-        bool next =  isNext ?? SearchService.NextVersion;
-        return !next && (id == "default" || id == null) 
-            ? SongIndex 
-            : SongIndex.Create(this, id, next);
+        if (_songSearch != null && isNext == null
+            && (id == "default" || id == null))
+        {
+            return _songSearch;
+        }
+
+        return SongIndex.Create(this, id, isNext ?? SearchService.NextVersion);
     }
 
     public DbSet<Dance> Dances => Context.Dances;

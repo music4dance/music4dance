@@ -74,7 +74,7 @@ namespace m4dModels
             var versionString = configuration["SEARCHINDEXVERSION"];
             if (string.IsNullOrEmpty(env) || !int.TryParse(versionString, out var version))
             {
-                ConfigVersion = 1;
+                ConfigVersion = CodeVersion;
             }
             else
             {
@@ -130,7 +130,7 @@ namespace m4dModels
                 }
             }
         }
-        public int CodeVersion => 1;
+        public int CodeVersion => 2;
         public bool HasNextVersion =>
           CodeVersion == ConfigVersion &&
           GetInfo().HasNextVersion;           

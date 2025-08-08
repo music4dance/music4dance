@@ -180,7 +180,7 @@ namespace m4dModels.Tests
 
             var manager = new DanceStatsManager(new TestDSFileManager());
 
-            var songIndex = new Mock<FlatSongIndex>();
+            var songIndex = new Mock<SongIndex>();
             var service = new DanceMusicService(context, userManager, null, manager, songIndex.Object);
             songIndex.Setup(m => m.UpdateIndex(new List<string>())).ReturnsAsync(true);
             songIndex.Setup(m => m.DanceMusicService).Returns(service);
