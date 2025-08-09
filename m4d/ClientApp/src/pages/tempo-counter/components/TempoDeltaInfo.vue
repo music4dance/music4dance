@@ -31,7 +31,7 @@ const deltaMessage = computed(() => {
     :variant="variant"
     href="#"
     class="d-flex justify-content-between align-items-center"
-    @click="emit('choose-dance', dance.dance.id, $event.ctrlKey)"
+    @click.prevent="emit('choose-dance', dance.dance.id, $event.ctrlKey)"
   >
     <DanceName
       :dance="dance.dance"

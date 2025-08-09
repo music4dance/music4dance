@@ -209,6 +209,7 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                   </svg> Castle Foxtrot <span class="badge text-bg-light">1</span>
                   <!--v-if-->
                 </button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-tempo" type="button" title="4/4" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -363,6 +364,7 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                   </svg> Rumba <span class="badge text-bg-light">3</span><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="margin-left: 0.25em;">
                     <path fill="currentColor" d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"></path>
                   </svg></button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-other" type="button" title="1960S" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -538,6 +540,7 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                   </svg> Castle Foxtrot <span class="badge text-bg-light">1</span>
                   <!--v-if-->
                 </button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-tempo" type="button" title="4/4" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -647,6 +650,7 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                   </svg> Rumba <span class="badge text-bg-light">2</span><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="margin-left: 0.25em;">
                     <path fill="currentColor" d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"></path>
                   </svg></button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-other" type="button" title="1960S" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -884,6 +888,7 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                   </svg> Rumba <span class="badge text-bg-light">1</span><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="margin-left: 0.25em;">
                     <path fill="currentColor" d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"></path>
                   </svg></button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-other" type="button" title="1960S" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -1068,6 +1073,7 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                   </svg> Rumba <span class="badge text-bg-light">1</span>
                   <!--v-if-->
                 </button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-tempo" type="button" title="3/4" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -1259,6 +1265,7 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                   </svg> Night Club Two Step <span class="badge text-bg-light">1</span>
                   <!--v-if-->
                 </button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-tempo" type="button" title="4/4" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -1377,6 +1384,7 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                   </svg> West Coast Swing <span class="badge text-bg-light">1</span><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="margin-left: 0.25em;">
                     <path fill="currentColor" d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"></path>
                   </svg></button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-other" type="button" title="1940S" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -1459,6 +1467,8 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
           <!---->
           <!---->
         </table>
+        <!--teleport start-->
+        <!--teleport end-->
         <!--teleport start-->
         <!--teleport end-->
         <!--teleport start-->

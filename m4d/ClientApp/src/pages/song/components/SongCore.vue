@@ -94,30 +94,16 @@ const artistLink = computed(() => {
   const artist = song.value.artist;
   return artist ? `/song/artist?name=${artist}` : undefined;
 });
+
 const explicitDanceIds = computed(() => {
-  const tags = song.value.tags;
-  return tags
-    ? tags
-        .filter(
-          (t) => t.category === "Dance" && !t.value.startsWith("!") && !t.value.startsWith("-"),
-        )
-        .map((t) => danceDB.fromName(t.value)!.id)
-    : [];
+  return song.value.explicitDanceIds;
 });
+
 const explicitDanceRatings = computed(() => {
   const ratings = song.value.danceRatings ?? [];
   return explicitDanceIds.value.map((id) => ratings.find((dr) => dr.danceId === id)!);
 });
-const numerator = computed(() => {
-  if (hasMeterTag(4)) {
-    return 4;
-  } else if (hasMeterTag(3)) {
-    return 3;
-  } else if (hasMeterTag(2)) {
-    return 2;
-  }
-  return undefined;
-});
+
 const hasUserChanges = computed(() => !!editor.value?.userHasPreviousChanges);
 const editing = computed(() => modified.value || edit.value);
 const isCreator = computed(() => {
@@ -156,9 +142,6 @@ const onDeleteDance = (dr: DanceRating): void => {
 };
 const addProperty = (property: SongProperty): void => {
   safeEditor.value.addProperty(property.name, property.value);
-};
-const hasMeterTag = (numerator: number): boolean => {
-  return !!song.value.tags.find((t) => t.key === `${numerator}/4:Tempo`);
 };
 const onClickLike = (): void => {
   safeEditor.value.toggleLike();
@@ -469,10 +452,9 @@ onBeforeUnmount(() => {
     <DanceChooser
       :filter-ids="explicitDanceIds"
       :tempo="song.tempo"
-      :numerator="numerator"
+      :numerator="song.numerator"
       :hide-name-link="true"
       @choose-dance="addDance"
-      @update-song="updateSong"
     />
     <TagModal v-model="tagModalVisible" :tag-handler="currentTag as TagHandler" />
   </div>

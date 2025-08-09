@@ -171,6 +171,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg> Rumba <span class="badge text-bg-light">1</span><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="margin-left: 0.25em;">
                     <path fill="currentColor" d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"></path>
                   </svg></button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-music" type="button" title="Pop" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -284,6 +285,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg> Freestyle <span class="badge text-bg-light">1</span><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="margin-left: 0.25em;">
                     <path fill="currentColor" d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"></path>
                   </svg></button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-tempo" type="button" title="4/4" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -556,6 +558,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg> Neo Tango <span class="badge text-bg-light">1</span><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="margin-left: 0.25em;">
                     <path fill="currentColor" d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"></path>
                   </svg></button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-other" type="button" title="DWTS" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -748,6 +751,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg> Tango (Ballroom) <span class="badge text-bg-light">1</span><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="margin-left: 0.25em;">
                     <path fill="currentColor" d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"></path>
                   </svg></button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-tempo" type="button" title="4/4" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -1046,6 +1050,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg> Contemporary <span class="badge text-bg-light">1</span><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="margin-left: 0.25em;">
                     <path fill="currentColor" d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"></path>
                   </svg></button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-tempo" type="button" title="4/4" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -1245,6 +1250,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg> Paso Doble <span class="badge text-bg-light">1</span><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="margin-left: 0.25em;">
                     <path fill="currentColor" d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"></path>
                   </svg></button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-tempo" type="button" title="4/4" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -1579,6 +1585,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg> Contemporary <span class="badge text-bg-light">1</span><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="margin-left: 0.25em;">
                     <path fill="currentColor" d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"></path>
                   </svg></button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-tempo" type="button" title="4/4" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -1787,6 +1794,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg> Tango (Ballroom) <span class="badge text-bg-light">1</span><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="margin-left: 0.25em;">
                     <path fill="currentColor" d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"></path>
                   </svg></button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-tempo" type="button" title="4/4" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -2013,6 +2021,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg> West Coast Swing <span class="badge text-bg-light">1</span>
                   <!--v-if-->
                 </button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-tempo" type="button" title="4/4" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -2164,6 +2173,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg> Salsa <span class="badge text-bg-light">1</span>
                   <!--v-if-->
                 </button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-music" type="button" title="Latin Jazz" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -2263,6 +2273,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg> Quickstep <span class="badge text-bg-light">1</span><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="margin-left: 0.25em;">
                     <path fill="currentColor" d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"></path>
                   </svg></button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-tempo" type="button" title="4/4" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -2485,6 +2496,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg> Slow Foxtrot <span class="badge text-bg-light">1</span><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="margin-left: 0.25em;">
                     <path fill="currentColor" d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"></path>
                   </svg></button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-tempo" type="button" title="4/4" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -2680,6 +2692,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg> Slow Waltz <span class="badge text-bg-light">1</span><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="margin-left: 0.25em;">
                     <path fill="currentColor" d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"></path>
                   </svg></button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-music" type="button" title="Instrumental" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -2766,6 +2779,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg> Viennese Waltz <span class="badge text-bg-light">1</span><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="margin-left: 0.25em;">
                     <path fill="currentColor" d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"></path>
                   </svg></button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-music" type="button" title="Pop" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -2859,6 +2873,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg> Lindy Hop <span class="badge text-bg-light">1</span><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="margin-left: 0.25em;">
                     <path fill="currentColor" d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"></path>
                   </svg></button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-music" type="button" title="Jazz" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -2967,6 +2982,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg> Cumbia <span class="badge text-bg-light">1</span>
                   <!--v-if-->
                 </button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-music" type="button" title="Latin" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -3039,6 +3055,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg> Cumbia <span class="badge text-bg-light">1</span>
                   <!--v-if-->
                 </button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-music" type="button" title="Latin" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -3111,6 +3128,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg> Slow Foxtrot <span class="badge text-bg-light">1</span><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="margin-left: 0.25em;">
                     <path fill="currentColor" d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"></path>
                   </svg></button>
+                <!--v-if-->
               </td>
               <td class=""></td>
               <td class="">
@@ -3186,6 +3204,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg> Slow Foxtrot <span class="badge text-bg-light">1</span><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="margin-left: 0.25em;">
                     <path fill="currentColor" d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"></path>
                   </svg></button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-music" type="button" title="Pop" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -3272,6 +3291,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg> Viennese Waltz <span class="badge text-bg-light">1</span><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="margin-left: 0.25em;">
                     <path fill="currentColor" d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"></path>
                   </svg></button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-music" type="button" title="French Pop" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -3358,6 +3378,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg> Samba <span class="badge text-bg-light">1</span><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="margin-left: 0.25em;">
                     <path fill="currentColor" d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"></path>
                   </svg></button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-music" type="button" title="French Pop" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -3471,6 +3492,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg> Viennese Waltz <span class="badge text-bg-light">1</span>
                   <!--v-if-->
                 </button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-tempo" type="button" title="3/4" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -3616,6 +3638,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg> West Coast Swing <span class="badge text-bg-light">1</span>
                   <!--v-if-->
                 </button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-tempo" type="button" title="4/4" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -3713,6 +3736,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg> Cumbia <span class="badge text-bg-light">1</span>
                   <!--v-if-->
                 </button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-music" type="button" title="Latin" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -3785,6 +3809,7 @@ exports[`New Music > renders a new music page 1`] = `
                   </svg> East Coast Swing <span class="badge text-bg-light">1</span><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="margin-left: 0.25em;">
                     <path fill="currentColor" d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"></path>
                   </svg></button>
+                <!--v-if-->
               </td>
               <td class="">
                 <!----><button data-v-a7ef304f="" class="btn btn-sm btn-music" type="button" title="Pop" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
@@ -3837,6 +3862,8 @@ exports[`New Music > renders a new music page 1`] = `
           <!---->
           <!---->
         </table>
+        <!--teleport start-->
+        <!--teleport end-->
         <!--teleport start-->
         <!--teleport end-->
         <!--teleport start-->
