@@ -1080,7 +1080,7 @@ public class SongIndex
     public virtual async Task<IEnumerable<Song>> FindArtist(string name,
         CruftFilter cruft = CruftFilter.NoCruft)
     {
-        return await FindByField(Song.ArtistField, name, "dance_ALL desc", cruft);
+        return await FindByField(Song.ArtistField, name, "dance_ALL/Votes desc", cruft);
     }
 
     public async Task<IEnumerable<Song>> FindByField(string field, string name,
@@ -1505,9 +1505,30 @@ public class SongIndex
 
     private static SearchField IndexFieldFromDanceId(string id)
     {
-        return new SearchField(BuildDanceFieldName(id), SearchFieldDataType.Int32)
+        return new SearchField(BuildDanceFieldName(id), SearchFieldDataType.Complex)
         {
-            IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = false
+            Fields =
+                {
+                   new SearchField(Votes, SearchFieldDataType.Int32)
+                    {
+                        IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = false
+                    },
+                   new(
+                    TempoTags, SearchFieldDataType.Collection(SearchFieldDataType.String))
+                    {
+                        IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
+                    },
+                   new(
+                    StyleTags, SearchFieldDataType.Collection(SearchFieldDataType.String))
+                    {
+                        IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
+                    },
+                   new(
+                    OtherTags, SearchFieldDataType.Collection(SearchFieldDataType.String))
+                    {
+                        IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
+                    },
+                }
         };
     }
 
@@ -1568,7 +1589,6 @@ public class SongIndex
         var genre = ts.GetTagSet("Music");
         var other = ts.GetTagSet("Other");
         var tempo = ts.GetTagSet("Tempo");
-        var style = new HashSet<string>();
 
         var dance = song.TagSummary.GetTagSet("Dance");
 
@@ -1582,11 +1602,6 @@ public class SongIndex
             {
                 continue;
             }
-            var d = dobj.Name.ToLower();
-            ts = new TagSummary(dr.TagSummary, tagMap);
-            other.UnionWith(ts.GetTagSet("Other"));
-            tempo.UnionWith(ts.GetTagSet("Tempo"));
-            style.UnionWith(ts.GetTagSet("Style"));
             AccumulateComments(dr.Comments, comments);
         }
 
@@ -1602,7 +1617,6 @@ public class SongIndex
             [SongIdField] = song.SongId.ToString(),
             [AltIdField] = altIds,
             [Song.TitleField] = song.Title,
-            [Song.TitleHashField] = song.TitleHash,
             [Song.ArtistField] = song.Artist,
             [Song.LengthField] = song.Length,
             [BeatField] = CleanNumber(song.Danceability),
@@ -1615,17 +1629,19 @@ public class SongIndex
             [Song.SampleField] = song.Sample,
             [Song.PurchaseField] = purchase.ToArray(),
             [ServiceIds] = purchaseIds.ToArray(),
-            [LookupStatus] = song.LookupTried(),
             [AlbumsField] = song.Albums.Select(ad => ad.Name).ToArray(),
             [UsersField] = users,
             [Song.DanceTags] = dance.ToArray(),
             [GenreTags] = genre.ToArray(),
             [TempoTags] = tempo.ToArray(),
-            [StyleTags] = style.ToArray(),
             [OtherTags] = other.ToArray(),
             [CommentsField] = comments.ToArray(),
             [PropertiesField] = SongProperty.Serialize(song.SongProperties, null)
         };
+
+        var allOther = new HashSet<string>();
+        var allTempo = new HashSet<string>();
+        var allStyle = new HashSet<string>();
 
         // Set the dance ratings
         foreach (var dr in song.DanceRatings)
@@ -1636,14 +1652,34 @@ public class SongIndex
                 Trace.WriteLine($"Invalid use of group {dobj.Name} in song {song.SongId}");
                 continue;
             }
-            doc[BuildDanceFieldName(dr.DanceId)] = dr.Weight;
+            var oneTempo = dr.TagSummary.GetTagSet("Tempo");
+            var oneStyle = dr.TagSummary.GetTagSet("Style");
+            var oneOther = dr.TagSummary.GetTagSet("Other");
+            doc[BuildDanceFieldName(dr.DanceId)] = new Dictionary<string, object>
+                {
+                    { Votes, dr.Weight },
+                    { TempoTags, oneTempo.ToArray() },
+                    { StyleTags, oneStyle.ToArray() },
+                    { OtherTags, oneOther.ToArray() }
+                };
+
+            allOther.UnionWith(oneOther);
+            allTempo.UnionWith(oneTempo);
+            allStyle.UnionWith(oneStyle);
         }
 
         var all = song.DanceRatings.Sum(dr => dr.Weight);
-        doc["dance_ALL"] = all == 0 ? null : all;
+        doc["dance_ALL"] = new Dictionary<string, object>
+            {
+                { Votes, all == 0 ? null : all },
+                { TempoTags, allTempo.ToArray() },
+                { StyleTags, allStyle.ToArray() },
+                { OtherTags, allOther.ToArray() }
+            };
 
         return doc;
     }
+
     public async Task<int> UploadIndex(IList<string> lines, bool trackDeleted)
     {
         const int chunkSize = 500;

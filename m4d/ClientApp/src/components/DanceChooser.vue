@@ -56,7 +56,7 @@ const tempoFiltered = computed(() => {
 });
 
 const tempoType = TempoType.Measures;
-const hasTempo = (() => !!props.tempo && !!props.numerator)();
+const hasTempo = computed(() => !!props.tempo && !!props.numerator);
 
 const exists = (danceId: string): boolean => {
   const filtered = props.filterIds;
