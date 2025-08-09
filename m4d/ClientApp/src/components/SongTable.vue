@@ -720,6 +720,7 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
     />
     <PlayModal v-model="playModalVisible" :song="currentSong.song as Song" />
     <DanceChooser
+      id="add-dance-chooser"
       v-model="addDanceModalVisible"
       :filter-ids="currentSong.song.explicitDanceIds"
       :tempo="currentSong.song.tempo"

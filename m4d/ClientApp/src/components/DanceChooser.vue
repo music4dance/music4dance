@@ -12,6 +12,7 @@ const danceDB = safeDanceDatabase();
 
 const props = withDefaults(
   defineProps<{
+    id?: string;
     danceId?: string;
     filterIds?: string[];
     tempo?: number;
@@ -36,6 +37,8 @@ const emit = defineEmits<{
 const nameFilter = ref("");
 
 const danceTypes = danceDB.dances;
+
+const computedId = computed(() => props.id ?? "dance-chooser");
 
 const filterAll = (dances: NamedObject[], includeChildren = false): NamedObject[] => {
   return DanceDatabase.filterByName(dances, nameFilter.value, includeChildren);
@@ -75,6 +78,7 @@ const chooseEvent = (id?: string, event?: MouseEvent): void => {
 };
 
 const choose = (id?: string, persist?: boolean): void => {
+  console.log("Choosing dance:", id, "with persist:", persist);
   emit("choose-dance", id, persist);
 };
 
@@ -90,7 +94,7 @@ const isGroup = (dance: NamedObject) => {
 </script>
 
 <template>
-  <BModal id="dance-chooser" header-bg-variant="primary" header-text-variant="light" no-footer>
+  <BModal :id="computedId" header-bg-variant="primary" header-text-variant="light" no-footer>
     <template #title> <IBiAward />&nbsp;Choose Dance Style </template>
     <BButton
       v-if="danceId"

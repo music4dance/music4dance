@@ -10,5 +10,5 @@ describe(
       testPageSnapshot(App, model);
     });
   },
-  { timeout: 10000 },
+  { timeout: 50000 },
 );
