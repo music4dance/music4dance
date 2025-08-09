@@ -78,7 +78,6 @@ const chooseEvent = (id?: string, event?: MouseEvent): void => {
 };
 
 const choose = (id?: string, persist?: boolean): void => {
-  console.log("Choosing dance:", id, "with persist:", persist);
   emit("choose-dance", id, persist);
 };
 
