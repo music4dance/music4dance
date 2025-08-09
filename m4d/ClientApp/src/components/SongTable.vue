@@ -344,7 +344,6 @@ const showLikeModal = (songId: string): void => {
 
 const showAddDanceModal = (songId: string): void => {
   const editor = findEditor(songId)!;
-  console.log("AddDance", editor.song.explicitDanceIds, editor.song.tempo, editor.song.numerator);
   currentSong.value = editor;
   addDanceModalVisible.value = true;
 };
