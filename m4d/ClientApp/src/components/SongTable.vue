@@ -1,5 +1,5 @@
 <script script setup lang="ts">
-import { DanceRatingVote } from "@/models/DanceRatingDelta";
+import { DanceRatingVote, VoteDirection } from "@/models/DanceRatingDelta";
 import { DanceHandler } from "@/models/DanceHandler";
 import { DanceRating } from "@/models/DanceRating";
 import { Song } from "@/models/Song";
@@ -14,11 +14,13 @@ import { TagHandler } from "@/models/TagHandler";
 import { computed, ref, watch } from "vue";
 import { getMenuContext } from "@/helpers/GetMenuContext";
 import { useWindowSize } from "@vueuse/core";
-import type { TableFieldRaw } from "bootstrap-vue-next";
+import { useModalController, type TableFieldRaw } from "bootstrap-vue-next";
 import beat10 from "@/assets/images/icons/beat-10.png";
 import energy10 from "@/assets/images/icons/Energy-10.png";
 import mood10 from "@/assets/images/icons/mood-10.png";
 import { formatDate } from "@/helpers/timeHelpers";
+
+const { hide } = useModalController();
 
 type SongField = Exclude<TableFieldRaw<SongEditor>, string>;
 
@@ -68,6 +70,7 @@ const currentDance = ref<DanceHandler>(
 const playModalVisible = ref(false);
 const likeModalVisible = ref(false);
 const orderModalVisible = ref(false);
+const addDanceModalVisible = ref(false);
 
 const currentSong = ref<SongEditor>(new SongEditor());
 
@@ -339,6 +342,12 @@ const showLikeModal = (songId: string): void => {
   likeModalVisible.value = true;
 };
 
+const showAddDanceModal = (songId: string): void => {
+  const editor = findEditor(songId)!;
+  currentSong.value = editor;
+  addDanceModalVisible.value = true;
+};
+
 // INT-TODO: We should consider warning the user before removing the song from the list
 //  Or throwing up a toast to click to get it back
 const onDanceVote = (editor: SongEditor, vote: DanceRatingVote): void => {
@@ -351,6 +360,15 @@ const onDanceVote = (editor: SongEditor, vote: DanceRatingVote): void => {
     filter.singleDance &&
     filter.danceQuery.danceList[0] == vote.danceId;
   onEditSong(history, remove);
+};
+
+const onAddDance = (danceId?: string, persist?: boolean): void => {
+  if (danceId) {
+    onDanceVote(currentSong.value as SongEditor, new DanceRatingVote(danceId, VoteDirection.Up));
+  }
+  if (!persist) {
+    hide();
+  }
 };
 
 const onEditSong = (history: SongHistory, remove: boolean = false): void => {
@@ -534,6 +552,16 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
           @dance-clicked="showDanceModal(data.item, $event)"
           @dance-vote="onDanceVote(data.item, $event)"
         />
+        <BButton
+          v-if="!!context.userName"
+          title="Add Dance"
+          variant="dance"
+          size="sm"
+          style="margin-inline-end: 0.25em"
+          @click="showAddDanceModal(data.item.song.id)"
+        >
+          <IBiPlusCircle />
+        </BButton>
       </template>
       <template #head(tags)>
         <SortableHeader
@@ -691,6 +719,14 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
       @edit-song="onEditSong"
     />
     <PlayModal v-model="playModalVisible" :song="currentSong.song as Song" />
+    <DanceChooser
+      v-model="addDanceModalVisible"
+      :filter-ids="currentSong.song.explicitDanceIds"
+      :tempo="currentSong.song.tempo"
+      :numerator="currentSong.song.numerator"
+      :hide-name-link="true"
+      @choose-dance="onAddDance"
+    />
   </div>
 </template>
 

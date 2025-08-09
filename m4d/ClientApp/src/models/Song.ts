@@ -245,6 +245,32 @@ export class Song extends TaggableObject {
       : undefined;
   }
 
+  public get explicitDanceIds(): string[] {
+    const tags = this.tags;
+    return tags
+      ? tags
+          .filter(
+            (t) => t.category === "Dance" && !t.value.startsWith("!") && !t.value.startsWith("-"),
+          )
+          .map((t) => safeDanceDatabase().fromName(t.value)!.id)
+      : [];
+  }
+
+  public hasMeterTag(numerator: number): boolean {
+    return !!this.tags.find((t) => t.key === `${numerator}/4:Tempo`);
+  }
+
+  public get numerator(): number | undefined {
+    if (this.hasMeterTag(4)) {
+      return 4;
+    } else if (this.hasMeterTag(3)) {
+      return 3;
+    } else if (this.hasMeterTag(2)) {
+      return 2;
+    }
+    return undefined;
+  }
+
   private loadProperties(properties: SongProperty[], currentUser?: string): void {
     const isUserModified = new Set<string>();
     let created = true;
