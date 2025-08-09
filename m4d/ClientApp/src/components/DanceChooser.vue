@@ -56,6 +56,7 @@ const tempoFiltered = computed(() => {
 });
 
 const tempoType = TempoType.Measures;
+const hasTempo = computed(() => !!props.tempo && !!props.numerator);
 
 const exists = (danceId: string): boolean => {
   const filtered = props.filterIds;
@@ -113,7 +114,7 @@ const isGroup = (dance: NamedObject) => {
             button
             :active="danceId === dance.id"
             :disabled="exists(dance.id)"
-            @click.prevent="chooseEvent(dance.id, $event)"
+            @click="chooseEvent(dance.id, $event)"
           >
             <DanceName
               :dance="dance"
@@ -134,7 +135,7 @@ const isGroup = (dance: NamedObject) => {
             :class="{ item: isGroup(dance), 'sub-item': !isGroup(dance) }"
             :active="danceId === dance.id"
             :disabled="exists(dance.id) || (isGroup(dance) && !includeGroups)"
-            @click.prevent="chooseEvent(dance.id, $event)"
+            @click="chooseEvent(dance.id, $event)"
           >
             <DanceName
               :dance="dance"
