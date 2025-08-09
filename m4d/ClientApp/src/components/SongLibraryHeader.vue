@@ -27,7 +27,6 @@ const search = (): void => {
 };
 
 const chooseDance = (danceId?: string): void => {
-  console.log("SLH:Choosing dance:", danceId);
   const filter = props.filter.clone();
   filter.dances = danceId;
   filter.sortOrder = "Dances";
