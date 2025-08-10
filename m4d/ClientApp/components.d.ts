@@ -244,6 +244,7 @@ declare module 'vue' {
   }
   export interface GlobalDirectives {
     vBModal: typeof import('bootstrap-vue-next/directives/BModal')['vBModal']
+    vBToggle: typeof import('bootstrap-vue-next/directives/BToggle')['vBToggle']
     vBTooltip: typeof import('bootstrap-vue-next/directives/BTooltip')['vBTooltip']
   }
 }

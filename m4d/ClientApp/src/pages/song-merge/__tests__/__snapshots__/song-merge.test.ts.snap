@@ -9,12 +9,12 @@ exports[`Song Merge > Renders the Merge Page 1`] = `
       <div>
         <div class="row">
           <div class="col">
-            <h1><span><a id="like-button-9b447ea1-fc98-496e-9af1-f58f1eea273a" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-0__popover____placeholder" style="display: none;"></span>
-              <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-0__popover___" triggers="hover" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                  <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                  <div data-v-2d32d03d="" class="overflow-auto">
-                    <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">Click to add Shadow Feet to favorites.</div>
+            <h1><span><a id="like-button-9b447ea1-fc98-496e-9af1-f58f1eea273a" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-0__popover____placeholder" style="display: none;"></span>
+              <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                <div id="BootstrapVueNext__ID__v-0__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                  <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                  <div class="overflow-auto">
+                    <div class="position-sticky top-0 tooltip-inner">Click to add Shadow Feet to favorites.</div>
                     <!---->
                   </div>
                 </div>
@@ -27,7 +27,7 @@ exports[`Song Merge > Renders the Merge Page 1`] = `
         </div>
         <div class="row mb-2">
           <div class="col-md-4">
-            <div><span class="mx-auto my-1" style="width: 110px;"><a href="https://www.amazon.com/gp/product/B0019AZNMU/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=B0019AZNMU&amp;linkCode=as2&amp;tag=msc4dnc-20" target="blank" style="margin-right: .25rem; margin-bottom: .25rem;"><img src="/images/icons/Amazon-charm.png" width="110" height="40" alt="Find it on Amazon"></a></span><span class="mx-auto my-1" style="width: 110px;"><a href="https://open.spotify.com/track/0DD55tCwxn8CF5DkY1cjwg" target="blank" style="margin-right: .25rem; margin-bottom: .25rem;"><img src="/images/icons/Spotify-charm.png" width="110" height="40" alt="Find it on Spotify"></a></span>
+            <div><span class="mx-auto my-1" style="width: 110px;"><a href="https://www.amazon.com/gp/product/B0019AZNMU/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=B0019AZNMU&amp;linkCode=as2&amp;tag=msc4dnc-20" target="blank" style="margin-right: 0.25rem; margin-bottom: 0.25rem;"><img src="/images/icons/Amazon-charm.png" width="110" height="40" alt="Find it on Amazon"></a></span><span class="mx-auto my-1" style="width: 110px;"><a href="https://open.spotify.com/track/0DD55tCwxn8CF5DkY1cjwg" target="blank" style="margin-right: 0.25rem; margin-bottom: 0.25rem;"><img src="/images/icons/Spotify-charm.png" width="110" height="40" alt="Find it on Spotify"></a></span>
               <!--v-if--><a class="btn btn-md btn-outline-primary ms-1 my-1" href="https://music4dance.blog/music4dance-help/song-details/" role="button" target="_blank" small=""><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" aria-hidden="true">
                   <g fill="currentColor">
                     <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"></path>
@@ -68,32 +68,32 @@ exports[`Song Merge > Renders the Merge Page 1`] = `
         <div class="list-group-item">
           <!--v-if-->
           <div data-v-d0b4fb7f="" class="vote-container mb-2" song="[object Object]">
-            <div data-v-d0b4fb7f="" class="vote-up"></div><span><span data-v-2d32d03d="" id="__m4d__000001_placeholder" style="display: none;"></span>
-            <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-              <div data-v-2d32d03d="" id="__m4d__000001" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                <div data-v-2d32d03d="" class="overflow-auto">
-                  <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">Click here to vote for this song being danceable Night Club Two Step</div>
+            <div data-v-d0b4fb7f="" class="vote-up"></div><span><span id="__m4d__000001_placeholder" style="display: none;"></span>
+            <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+              <div id="__m4d__000001" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                <div class="overflow-auto">
+                  <div class="position-sticky top-0 tooltip-inner">Click here to vote for this song being danceable Night Club Two Step</div>
                   <!---->
                 </div>
               </div>
             </transition-stub></span>
-            <div data-v-d0b4fb7f="" class="vote-number">1</div><span><span data-v-2d32d03d="" id="__m4d__000002_placeholder" style="display: none;"></span>
-            <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-              <div data-v-2d32d03d="" id="__m4d__000002" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                <div data-v-2d32d03d="" class="overflow-auto">
-                  <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has 1 votes. The most popular Night Club Two Step has 5 votes</div>
+            <div data-v-d0b4fb7f="" class="vote-number">1</div><span><span id="__m4d__000002_placeholder" style="display: none;"></span>
+            <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+              <div id="__m4d__000002" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                <div class="overflow-auto">
+                  <div class="position-sticky top-0 tooltip-inner">This song has 1 votes. The most popular Night Club Two Step has 5 votes</div>
                   <!---->
                 </div>
               </div>
             </transition-stub></span>
-            <div data-v-d0b4fb7f="" class="vote-down"></div><span><span data-v-2d32d03d="" id="__m4d__000003_placeholder" style="display: none;"></span>
-            <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-              <div data-v-2d32d03d="" id="__m4d__000003" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                <div data-v-2d32d03d="" class="overflow-auto">
-                  <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">Click here to vote that this song is not danceable to Night Club Two Step</div>
+            <div data-v-d0b4fb7f="" class="vote-down"></div><span><span id="__m4d__000003_placeholder" style="display: none;"></span>
+            <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+              <div id="__m4d__000003" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                <div class="overflow-auto">
+                  <div class="position-sticky top-0 tooltip-inner">Click here to vote that this song is not danceable to Night Club Two Step</div>
                   <!---->
                 </div>
               </div>
@@ -134,12 +134,12 @@ exports[`Song Merge > Renders the Merge Page 1`] = `
     </tr>
     <tr class="">
       <th scope="col" class="">Beat</th>
-      <td class=""><a id="__m4d__000004" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-6.png" width="25" height="25"><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-20__popover____placeholder" style="display: none;"></span>
-          <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-            <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-20__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-              <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-              <div data-v-2d32d03d="" class="overflow-auto">
-                <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.52 where 1.00 is the strongest beat.</div>
+      <td class=""><a id="__m4d__000004" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-20__popover____placeholder" style="display: none;"></span>
+          <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+            <div id="BootstrapVueNext__ID__v-20__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+              <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+              <div class="overflow-auto">
+                <div class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.52 where 1.00 is the strongest beat.</div>
                 <!---->
               </div>
             </div>
@@ -148,12 +148,12 @@ exports[`Song Merge > Renders the Merge Page 1`] = `
     </tr>
     <tr class="">
       <th scope="col" class="">Energy</th>
-      <td class=""><a id="__m4d__000005" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-8.png" width="25" height="25"><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-21__popover____placeholder" style="display: none;"></span>
-          <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-            <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-21__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-              <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-              <div data-v-2d32d03d="" class="overflow-auto">
-                <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.80 where 1.00 is the highest energy.</div>
+      <td class=""><a id="__m4d__000005" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-8.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-21__popover____placeholder" style="display: none;"></span>
+          <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+            <div id="BootstrapVueNext__ID__v-21__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+              <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+              <div class="overflow-auto">
+                <div class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.80 where 1.00 is the highest energy.</div>
                 <!---->
               </div>
             </div>
@@ -162,12 +162,12 @@ exports[`Song Merge > Renders the Merge Page 1`] = `
     </tr>
     <tr class="">
       <th scope="col" class="">Mood</th>
-      <td class=""><a id="__m4d__000006" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-7.png" width="25" height="25"><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-22__popover____placeholder" style="display: none;"></span>
-          <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-            <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-22__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-              <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-              <div data-v-2d32d03d="" class="overflow-auto">
-                <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.60 where 1.00 is the happiest.</div>
+      <td class=""><a id="__m4d__000006" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-7.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-22__popover____placeholder" style="display: none;"></span>
+          <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+            <div id="BootstrapVueNext__ID__v-22__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+              <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+              <div class="overflow-auto">
+                <div class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.60 where 1.00 is the happiest.</div>
                 <!---->
               </div>
             </div>

@@ -28,6 +28,7 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
         <h4>An American Smooth four dance round consists of the following:</h4>
         <div class="table-responsive">
           <table id="BootstrapVueNext__ID__v-0__" class="table b-table table-hover table-striped" aria-busy="false">
+            <!---->
             <thead class="">
               <tr class="">
                 <th scope="col" class="">Name
@@ -148,6 +149,7 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
         <h4>Other dances categorized as American Smooth, although they aren't part of the competition round, are:</h4>
         <div class="table-responsive">
           <table id="BootstrapVueNext__ID__v-3__" class="table b-table table-hover table-striped" aria-busy="false">
+            <!---->
             <thead class="">
               <tr class="">
                 <th scope="col" class="">Name
