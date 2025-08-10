@@ -65,7 +65,7 @@ namespace m4dModels
             get
             {
                 // Exclusive if starts with AND and more than one dance
-                return StartsWith(And) && Query.IndexOf(',', 4) != -1;
+                return StartsWith(And) && Query.IndexOf(',', And.Length + 1) != -1;
             }
         }
 

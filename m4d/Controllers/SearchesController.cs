@@ -22,7 +22,7 @@ public class SearchesController : ContentController
         DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
         IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-        IFeatureManagerSnapshot featureManager, ILogger<SongController> logger, LinkGenerator linkGenerator, IMapper mapper) :
+        IFeatureManagerSnapshot featureManager, ILogger<SearchesController> logger, LinkGenerator linkGenerator, IMapper mapper) :
         base(context, userManager, searchService, danceStatsManager, configuration,
             fileProvider, backroundTaskQueue, featureManager, logger, linkGenerator, mapper)
     {
