@@ -4,10 +4,7 @@ import { DanceThreshold } from "./DanceThreshold";
 const all = "ALL";
 const and = "AND"; // Exclusive + Explicit
 const andX = "ADX"; // Exclusive + Inferred
-// const oneOf:string  = ''; // Inclusive + Explicit
 const oneOfX = "OOX"; // Inclusive + Inferred
-
-const modifiers: string[] = [all, and, andX, oneOfX];
 
 export class DanceQuery extends DanceQueryBase {
   public static fromParts(dances: string[], exclusive?: boolean): DanceQuery {
@@ -24,10 +21,21 @@ export class DanceQuery extends DanceQueryBase {
 
   public constructor(query?: string) {
     super();
-    this.data = query ? query : "";
+    this.data = DanceQuery.normalizeQuery(query ? query : "");
     if (all === this.data.toUpperCase()) {
       this.data = "";
     }
+  }
+
+  // Normalize the query to map inferred operators to explicit ones
+  private static normalizeQuery(query: string): string {
+    if (query.toUpperCase().startsWith(andX + ",")) {
+      return and + "," + query.substring(andX.length + 1);
+    }
+    if (query.toUpperCase().startsWith(oneOfX + ",")) {
+      return query.substring(oneOfX.length + 1); // Remove OOX, treat as inclusive (no prefix)
+    }
+    return query;
   }
 
   public get query(): string {
@@ -40,7 +48,8 @@ export class DanceQuery extends DanceQueryBase {
       .map((s) => s.trim())
       .filter((s) => s);
 
-    if (items.length > 0 && modifiers.find((m) => m === items[0].toUpperCase())) {
+    // Remove only AND prefix if present
+    if (items.length > 0 && items[0].toUpperCase() === and) {
       items.shift();
     }
 
@@ -48,7 +57,8 @@ export class DanceQuery extends DanceQueryBase {
   }
 
   public get isExclusive(): boolean {
-    return this.startsWithAny([and, andX]) && this.data.indexOf(",", 4) !== -1;
+    // Exclusive if starts with AND and more than one dance
+    return this.startsWith(and) && this.data.indexOf(",", and.length + 1) !== -1;
   }
 
   public get description(): string {
@@ -72,10 +82,6 @@ export class DanceQuery extends DanceQueryBase {
 
   public get shortDescription(): string {
     return this.danceThresholds.map((t) => t.shortDescription).join(", ");
-  }
-
-  private startsWithAny(qualifiers: string[]): boolean {
-    return !!qualifiers.find((q) => this.startsWith(q));
   }
 
   private startsWith(qualifier: string) {

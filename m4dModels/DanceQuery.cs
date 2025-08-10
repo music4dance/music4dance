@@ -12,21 +12,26 @@ namespace m4dModels
     {
         private const string AllRef = "ALL"; // Special 'All dances' value
         private const string And = "AND"; // Exclusive + Explicit
-
-        private const string AndX = "ADX"; // Exclusive + Inferred
-
-        //private const string OneOf = ""; // Inclusive + Explicit
-        private const string OneOfX = "OOX"; // Inclusive + Inferred
-
-        private readonly string[] _modifiers = [And, AndX, OneOfX];
+        private const string AndX = "ADX"; // Exclusive + Inferred (legacy)
+        private const string OneOfX = "OOX"; // Inclusive + Inferred (legacy)
 
         public DanceQuery(string query = null)
         {
-            Query = query ?? string.Empty;
+            Query = NormalizeQuery(query ?? string.Empty);
             if (string.Equals(AllRef, Query, StringComparison.InvariantCultureIgnoreCase))
             {
                 Query = string.Empty;
             }
+        }
+
+        // Normalize the query to map inferred operators to explicit ones
+        private static string NormalizeQuery(string query)
+        {
+            if (query.StartsWith(AndX + ",", StringComparison.InvariantCultureIgnoreCase))
+                return And + "," + query.Substring(AndX.Length + 1);
+            if (query.StartsWith(OneOfX + ",", StringComparison.InvariantCultureIgnoreCase))
+                return query.Substring(OneOfX.Length + 1); // Remove OOX, treat as inclusive (no prefix)
+            return query;
         }
 
         public string Query { get; }
@@ -43,7 +48,7 @@ namespace m4dModels
                     .Where(s => !string.IsNullOrEmpty(s))
                     .ToList();
 
-                if (items.Count > 0 && _modifiers.Contains(items[0].ToUpper()))
+                if (items.Count > 0 && string.Equals(items[0], And))
                 {
                     items.RemoveAt(0);
                 }
@@ -55,8 +60,14 @@ namespace m4dModels
         public IEnumerable<string> DanceIds => DancesThresholds.Select(d => d.Id);
         public IEnumerable<DanceObject> Dances => DancesThresholds.Select(d => d.Dance);
 
-        public bool IsExclusive => (StartsWith(And) || StartsWith(AndX)) &&
-            Query.IndexOf(',', 4) != -1;
+        public bool IsExclusive
+        {
+            get
+            {
+                // Exclusive if starts with AND and more than one dance
+                return StartsWith(And) && Query.IndexOf(',', 4) != -1;
+            }
+        }
 
         public virtual string ODataFilter
         {
@@ -130,20 +141,18 @@ namespace m4dModels
 
         public DanceQuery MakeInclusive()
         {
+            // If exclusive, remove AND prefix to make inclusive (no prefix)
             return IsExclusive
-                ? new DanceQuery(
-                    (StartsWith(AndX) ? OneOfX + "," : string.Empty) +
-                    RemoveQualifier())
+                ? new DanceQuery(RemoveQualifier())
                 : this;
         }
 
         public DanceQuery MakeExclusive()
         {
-            return IsExclusive && DanceIds.Count() > 1
-                ? this
-                : new DanceQuery(
-                    And + "," +
-                    (StartsWith(OneOfX) ? RemoveQualifier() : Query));
+            // If not exclusive and more than one dance, add AND prefix
+            return !IsExclusive && DanceIds.Count() > 1
+                ? new DanceQuery(And + "," + Query)
+                : this;
         }
 
         public override string ToString()
@@ -172,12 +181,16 @@ namespace m4dModels
 
         private bool StartsWith(string qualifier)
         {
+            // Only check for explicit AND
             return Query.StartsWith(qualifier + ",", StringComparison.InvariantCultureIgnoreCase);
         }
 
         private string RemoveQualifier()
         {
-            return Query[4..];
+            // Remove AND prefix if present
+            if (Query.StartsWith(And + ",", StringComparison.InvariantCultureIgnoreCase))
+                return Query[(And.Length + 1)..];
+            return Query;
         }
     }
 }
