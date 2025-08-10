@@ -242,7 +242,7 @@ declare module 'vue' {
     UserProfile: typeof import('./src/pages/user-info/components/UserProfile.vue')['default']
     VoteButton: typeof import('./src/components/VoteButton.vue')['default']
   }
-  export interface ComponentCustomProperties {
+  export interface GlobalDirectives {
     vBModal: typeof import('bootstrap-vue-next/directives/BModal')['vBModal']
     vBToggle: typeof import('bootstrap-vue-next/directives/BToggle')['vBToggle']
     vBTooltip: typeof import('bootstrap-vue-next/directives/BTooltip')['vBTooltip']

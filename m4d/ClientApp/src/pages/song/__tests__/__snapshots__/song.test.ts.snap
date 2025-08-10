@@ -9,12 +9,12 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
       <div>
         <div class="row">
           <div class="col">
-            <h1><span><a id="like-button-ee9680db-423e-47d2-851a-f08ddcbe9ff9" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-0__popover____placeholder" style="display: none;"></span>
-              <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-0__popover___" triggers="hover" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                  <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                  <div data-v-2d32d03d="" class="overflow-auto">
-                    <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">Click to add Hey Santa Claus to favorites.</div>
+            <h1><span><a id="like-button-ee9680db-423e-47d2-851a-f08ddcbe9ff9" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-0__popover____placeholder" style="display: none;"></span>
+              <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                <div id="BootstrapVueNext__ID__v-0__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                  <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                  <div class="overflow-auto">
+                    <div class="position-sticky top-0 tooltip-inner">Click to add Hey Santa Claus to favorites.</div>
                     <!---->
                   </div>
                 </div>
@@ -25,7 +25,7 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
         </div>
         <div class="row mb-2">
           <div class="col-md-4">
-            <div><span class="mx-auto my-1" style="width: 110px;"><a href="https://www.amazon.com/gp/product/B00QI0ZE2A/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=B00QI0ZE2A&amp;linkCode=as2&amp;tag=msc4dnc-20" target="blank" style="margin-right: .25rem; margin-bottom: .25rem;"><img src="/images/icons/Amazon-charm.png" width="110" height="40" alt="Find it on Amazon"></a></span><span class="mx-auto my-1" style="width: 110px;"><a href="https://itunes.apple.com/album/id3444107?i=3444085&amp;uo=4&amp;at=11lwtf" target="blank" style="margin-right: .25rem; margin-bottom: .25rem;"><img src="/images/icons/ITunes-charm.png" width="110" height="40" alt="Find it on ITunes"></a></span><span class="mx-auto my-1" style="width: 110px;"><a href="https://open.spotify.com/track/2SVUJQfhNxFx6dMK1JivFw" target="blank" style="margin-right: .25rem; margin-bottom: .25rem;"><img src="/images/icons/Spotify-charm.png" width="110" height="40" alt="Find it on Spotify"></a></span><a class="btn btn-md btn-primary my-1" href="/song/Index?filter=v2-Index-----%5C-me%7Ch" role="button" small=""><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" aria-hidden="true">
+            <div><span class="mx-auto my-1" style="width: 110px;"><a href="https://www.amazon.com/gp/product/B00QI0ZE2A/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=B00QI0ZE2A&amp;linkCode=as2&amp;tag=msc4dnc-20" target="blank" style="margin-right: 0.25rem; margin-bottom: 0.25rem;"><img src="/images/icons/Amazon-charm.png" width="110" height="40" alt="Find it on Amazon"></a></span><span class="mx-auto my-1" style="width: 110px;"><a href="https://itunes.apple.com/album/id3444107?i=3444085&amp;uo=4&amp;at=11lwtf" target="blank" style="margin-right: 0.25rem; margin-bottom: 0.25rem;"><img src="/images/icons/ITunes-charm.png" width="110" height="40" alt="Find it on ITunes"></a></span><span class="mx-auto my-1" style="width: 110px;"><a href="https://open.spotify.com/track/2SVUJQfhNxFx6dMK1JivFw" target="blank" style="margin-right: 0.25rem; margin-bottom: 0.25rem;"><img src="/images/icons/Spotify-charm.png" width="110" height="40" alt="Find it on Spotify"></a></span><a class="btn btn-md btn-primary my-1" href="/song/Index?filter=v2-Index-----%5C-me%7Ch" role="button" small=""><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" aria-hidden="true">
                   <path fill="currentColor" d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0a5.5 5.5 0 0 1 11 0"></path>
                 </svg> Back to Search</a><a class="btn btn-md btn-outline-primary ms-1 my-1" href="https://music4dance.blog/music4dance-help/song-details/" role="button" target="_blank" small=""><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" aria-hidden="true">
                   <g fill="currentColor">
@@ -53,32 +53,32 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
                 <div class="list-group-item">
                   <!--v-if-->
                   <div data-v-d0b4fb7f="" class="vote-container mb-2" song="[object Object]">
-                    <div data-v-d0b4fb7f="" class="vote-up"></div><span><span data-v-2d32d03d="" id="__m4d__000001_placeholder" style="display: none;"></span>
-                    <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                      <div data-v-2d32d03d="" id="__m4d__000001" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                        <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                        <div data-v-2d32d03d="" class="overflow-auto">
-                          <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">Click here to vote for this song being danceable East Coast Swing</div>
+                    <div data-v-d0b4fb7f="" class="vote-up"></div><span><span id="__m4d__000001_placeholder" style="display: none;"></span>
+                    <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                      <div id="__m4d__000001" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                        <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                        <div class="overflow-auto">
+                          <div class="position-sticky top-0 tooltip-inner">Click here to vote for this song being danceable East Coast Swing</div>
                           <!---->
                         </div>
                       </div>
                     </transition-stub></span>
-                    <div data-v-d0b4fb7f="" class="vote-number">2</div><span><span data-v-2d32d03d="" id="__m4d__000002_placeholder" style="display: none;"></span>
-                    <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                      <div data-v-2d32d03d="" id="__m4d__000002" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                        <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                        <div data-v-2d32d03d="" class="overflow-auto">
-                          <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has 2 votes. The most popular East Coast Swing has 16 votes</div>
+                    <div data-v-d0b4fb7f="" class="vote-number">2</div><span><span id="__m4d__000002_placeholder" style="display: none;"></span>
+                    <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                      <div id="__m4d__000002" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                        <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                        <div class="overflow-auto">
+                          <div class="position-sticky top-0 tooltip-inner">This song has 2 votes. The most popular East Coast Swing has 16 votes</div>
                           <!---->
                         </div>
                       </div>
                     </transition-stub></span>
-                    <div data-v-d0b4fb7f="" class="vote-down"></div><span><span data-v-2d32d03d="" id="__m4d__000003_placeholder" style="display: none;"></span>
-                    <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                      <div data-v-2d32d03d="" id="__m4d__000003" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                        <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                        <div data-v-2d32d03d="" class="overflow-auto">
-                          <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">Click here to vote that this song is not danceable to East Coast Swing</div>
+                    <div data-v-d0b4fb7f="" class="vote-down"></div><span><span id="__m4d__000003_placeholder" style="display: none;"></span>
+                    <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                      <div id="__m4d__000003" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                        <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                        <div class="overflow-auto">
+                          <div class="position-sticky top-0 tooltip-inner">Click here to vote that this song is not danceable to East Coast Swing</div>
                           <!---->
                         </div>
                       </div>
@@ -93,32 +93,32 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
                 <div class="list-group-item">
                   <!--v-if-->
                   <div data-v-d0b4fb7f="" class="vote-container mb-2" song="[object Object]">
-                    <div data-v-d0b4fb7f="" class="vote-up"></div><span><span data-v-2d32d03d="" id="__m4d__000004_placeholder" style="display: none;"></span>
-                    <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                      <div data-v-2d32d03d="" id="__m4d__000004" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                        <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                        <div data-v-2d32d03d="" class="overflow-auto">
-                          <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">Click here to vote for this song being danceable Slow Foxtrot</div>
+                    <div data-v-d0b4fb7f="" class="vote-up"></div><span><span id="__m4d__000004_placeholder" style="display: none;"></span>
+                    <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                      <div id="__m4d__000004" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                        <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                        <div class="overflow-auto">
+                          <div class="position-sticky top-0 tooltip-inner">Click here to vote for this song being danceable Slow Foxtrot</div>
                           <!---->
                         </div>
                       </div>
                     </transition-stub></span>
-                    <div data-v-d0b4fb7f="" class="vote-number">1</div><span><span data-v-2d32d03d="" id="__m4d__000005_placeholder" style="display: none;"></span>
-                    <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                      <div data-v-2d32d03d="" id="__m4d__000005" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                        <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                        <div data-v-2d32d03d="" class="overflow-auto">
-                          <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has 1 votes. The most popular Slow Foxtrot has 27 votes</div>
+                    <div data-v-d0b4fb7f="" class="vote-number">1</div><span><span id="__m4d__000005_placeholder" style="display: none;"></span>
+                    <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                      <div id="__m4d__000005" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                        <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                        <div class="overflow-auto">
+                          <div class="position-sticky top-0 tooltip-inner">This song has 1 votes. The most popular Slow Foxtrot has 27 votes</div>
                           <!---->
                         </div>
                       </div>
                     </transition-stub></span>
-                    <div data-v-d0b4fb7f="" class="vote-down"></div><span><span data-v-2d32d03d="" id="__m4d__000006_placeholder" style="display: none;"></span>
-                    <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                      <div data-v-2d32d03d="" id="__m4d__000006" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                        <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                        <div data-v-2d32d03d="" class="overflow-auto">
-                          <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">Click here to vote that this song is not danceable to Slow Foxtrot</div>
+                    <div data-v-d0b4fb7f="" class="vote-down"></div><span><span id="__m4d__000006_placeholder" style="display: none;"></span>
+                    <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                      <div id="__m4d__000006" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                        <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                        <div class="overflow-auto">
+                          <div class="position-sticky top-0 tooltip-inner">Click here to vote that this song is not danceable to Slow Foxtrot</div>
                           <!---->
                         </div>
                       </div>
@@ -147,12 +147,12 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
               </tr>
               <tr class="">
                 <th scope="col" class="">Beat</th>
-                <td class=""><a id="__m4d__000007" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-7.png" width="25" height="25"><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-2__popover____placeholder" style="display: none;"></span>
-                    <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                      <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-2__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                        <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                        <div data-v-2d32d03d="" class="overflow-auto">
-                          <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.66 where 1.00 is the strongest beat.</div>
+                <td class=""><a id="__m4d__000007" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-7.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-2__popover____placeholder" style="display: none;"></span>
+                    <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                      <div id="BootstrapVueNext__ID__v-2__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                        <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                        <div class="overflow-auto">
+                          <div class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.66 where 1.00 is the strongest beat.</div>
                           <!---->
                         </div>
                       </div>
@@ -161,12 +161,12 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
               </tr>
               <tr class="">
                 <th scope="col" class="">Energy</th>
-                <td class=""><a id="__m4d__000008" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-5.png" width="25" height="25"><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-3__popover____placeholder" style="display: none;"></span>
-                    <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                      <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-3__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                        <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                        <div data-v-2d32d03d="" class="overflow-auto">
-                          <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.41 where 1.00 is the highest energy.</div>
+                <td class=""><a id="__m4d__000008" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-3__popover____placeholder" style="display: none;"></span>
+                    <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                      <div id="BootstrapVueNext__ID__v-3__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                        <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                        <div class="overflow-auto">
+                          <div class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.41 where 1.00 is the highest energy.</div>
                           <!---->
                         </div>
                       </div>
@@ -175,12 +175,12 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
               </tr>
               <tr class="">
                 <th scope="col" class="">Mood</th>
-                <td class=""><a id="__m4d__000009" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-6.png" width="25" height="25"><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-4__popover____placeholder" style="display: none;"></span>
-                    <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                      <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-4__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                        <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                        <div data-v-2d32d03d="" class="overflow-auto">
-                          <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.59 where 1.00 is the happiest.</div>
+                <td class=""><a id="__m4d__000009" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-4__popover____placeholder" style="display: none;"></span>
+                    <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                      <div id="BootstrapVueNext__ID__v-4__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                        <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                        <div class="overflow-auto">
+                          <div class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.59 where 1.00 is the happiest.</div>
                           <!---->
                         </div>
                       </div>

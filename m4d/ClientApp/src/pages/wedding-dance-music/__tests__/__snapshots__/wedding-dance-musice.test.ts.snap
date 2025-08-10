@@ -24,6 +24,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
           <!-- INT-TODO: Add back in foot-clone -->
           <div data-v-3bbd14d4="" class="table-responsive">
             <table id="BootstrapVueNext__ID__v-0__" class="table b-table table-hover table-striped" aria-busy="false">
+              <!---->
               <thead class="">
                 <tr class="">
                   <th scope="col" class="b-table-sticky-column">Dance Style

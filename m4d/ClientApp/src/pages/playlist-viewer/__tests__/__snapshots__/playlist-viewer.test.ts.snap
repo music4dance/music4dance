@@ -10,19 +10,20 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
       <p>The songs from the Ballet by Twyla Tharp</p>
       <div data-v-a7ef304f="">
         <table data-v-a7ef304f="" id="BootstrapVueNext__ID__v-0__" class="table b-table table-borderless table-hover table-striped" aria-busy="false" sort-icon-left="">
+          <!---->
           <thead class="">
             <tr class="">
               <th scope="col" class="">
                 <div data-v-a7ef304f="" class="likeHeader">Like/Play</div>
                 <!---->
               </th>
-              <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="#" id="Title">Title<!--v-if--></a><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-3__popover____placeholder" style="display: none;"></span>
-                <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-3__popover___" class="tooltip b-tooltip fade  bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                    <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                    <div data-v-2d32d03d="" class="overflow-auto">
+              <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="#" id="Title">Title<!--v-if--></a><span id="BootstrapVueNext__ID__v-3__popover____placeholder" style="display: none;"></span>
+                <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div id="BootstrapVueNext__ID__v-3__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div class="overflow-auto">
                       <!---->
-                      <div data-v-2d32d03d="" class="tooltip-inner">
+                      <div class="tooltip-inner">
                         <!--v-if--> Click on the song title to view the song details
                       </div>
                     </div>
@@ -30,13 +31,13 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                 </transition-stub></span>
                 <!---->
               </th>
-              <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="#" id="Artist">Artist<!--v-if--></a><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-4__popover____placeholder" style="display: none;"></span>
-                <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-4__popover___" class="tooltip b-tooltip fade  bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                    <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                    <div data-v-2d32d03d="" class="overflow-auto">
+              <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="#" id="Artist">Artist<!--v-if--></a><span id="BootstrapVueNext__ID__v-4__popover____placeholder" style="display: none;"></span>
+                <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div id="BootstrapVueNext__ID__v-4__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div class="overflow-auto">
                       <!---->
-                      <div data-v-2d32d03d="" class="tooltip-inner">
+                      <div class="tooltip-inner">
                         <!--v-if--> Click on the artist name to view a list of songs by that artist
                       </div>
                     </div>
@@ -44,13 +45,13 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                 </transition-stub></span>
                 <!---->
               </th>
-              <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="#" id="Tempo">Tempo (BPM)<!--v-if--></a><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-5__popover____placeholder" style="display: none;"></span>
-                <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-5__popover___" class="tooltip b-tooltip fade  bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                    <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                    <div data-v-2d32d03d="" class="overflow-auto">
+              <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="#" id="Tempo">Tempo (BPM)<!--v-if--></a><span id="BootstrapVueNext__ID__v-5__popover____placeholder" style="display: none;"></span>
+                <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div id="BootstrapVueNext__ID__v-5__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div class="overflow-auto">
                       <!---->
-                      <div data-v-2d32d03d="" class="tooltip-inner">
+                      <div class="tooltip-inner">
                         <!--v-if--> Tempo in beats per minute (BPM) - click a tempo to view dances danced to that tempo.
                       </div>
                     </div>
@@ -59,35 +60,35 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                 <!---->
               </th>
               <th scope="col" class="">
-                <div data-v-a7ef304f="" class="echoHeader"><span data-v-a7ef304f=""><a class="link-underline-light" href="#" id="Beat"><img data-v-a7ef304f="" src="/vclient/src/assets/images/icons/beat-10.png" width="25" height="25"><!--v-if--></a><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-6__popover____placeholder" style="display: none;"></span>
-                  <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-6__popover___" class="tooltip b-tooltip fade  bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                      <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                      <div data-v-2d32d03d="" class="overflow-auto">
+                <div data-v-a7ef304f="" class="echoHeader"><span data-v-a7ef304f=""><a class="link-underline-light" href="#" id="Beat"><img data-v-a7ef304f="" src="/vclient/src/assets/images/icons/beat-10.png" width="25" height="25"><!--v-if--></a><span id="BootstrapVueNext__ID__v-6__popover____placeholder" style="display: none;"></span>
+                  <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div id="BootstrapVueNext__ID__v-6__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div class="overflow-auto">
                         <!---->
-                        <div data-v-2d32d03d="" class="tooltip-inner">
+                        <div class="tooltip-inner">
                           <!--v-if--> Strength of the beat (fuller icons represent a stronger beat).
                         </div>
                       </div>
                     </div>
-                  </transition-stub></span><span data-v-a7ef304f=""><a class="link-underline-light" href="#" id="Energy"><img data-v-a7ef304f="" src="/vclient/src/assets/images/icons/Energy-10.png" width="25" height="25"><!--v-if--></a><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-7__popover____placeholder" style="display: none;"></span>
-                  <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-7__popover___" class="tooltip b-tooltip fade  bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                      <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                      <div data-v-2d32d03d="" class="overflow-auto">
+                  </transition-stub></span><span data-v-a7ef304f=""><a class="link-underline-light" href="#" id="Energy"><img data-v-a7ef304f="" src="/vclient/src/assets/images/icons/Energy-10.png" width="25" height="25"><!--v-if--></a><span id="BootstrapVueNext__ID__v-7__popover____placeholder" style="display: none;"></span>
+                  <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div id="BootstrapVueNext__ID__v-7__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div class="overflow-auto">
                         <!---->
-                        <div data-v-2d32d03d="" class="tooltip-inner">
+                        <div class="tooltip-inner">
                           <!--v-if--> Energy of the song (fuller icons represent a higher energy).
                         </div>
                       </div>
                     </div>
-                  </transition-stub></span><span data-v-a7ef304f=""><a class="link-underline-light" href="#" id="Mood"><img data-v-a7ef304f="" src="/vclient/src/assets/images/icons/mood-10.png" width="25" height="25"><!--v-if--></a><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-8__popover____placeholder" style="display: none;"></span>
-                  <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-8__popover___" class="tooltip b-tooltip fade  bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                      <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                      <div data-v-2d32d03d="" class="overflow-auto">
+                  </transition-stub></span><span data-v-a7ef304f=""><a class="link-underline-light" href="#" id="Mood"><img data-v-a7ef304f="" src="/vclient/src/assets/images/icons/mood-10.png" width="25" height="25"><!--v-if--></a><span id="BootstrapVueNext__ID__v-8__popover____placeholder" style="display: none;"></span>
+                  <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div id="BootstrapVueNext__ID__v-8__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div class="overflow-auto">
                         <!---->
-                        <div data-v-2d32d03d="" class="tooltip-inner">
+                        <div class="tooltip-inner">
                           <!--v-if--> Mood of the song (fuller icons represent a happier mood).
                         </div>
                       </div>
@@ -96,13 +97,13 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                 </div>
                 <!---->
               </th>
-              <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="#" id="Dances">Dances<!--v-if--></a><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-9__popover____placeholder" style="display: none;"></span>
-                <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-9__popover___" class="tooltip b-tooltip fade  bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                    <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                    <div data-v-2d32d03d="" class="overflow-auto">
+              <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="#" id="Dances">Dances<!--v-if--></a><span id="BootstrapVueNext__ID__v-9__popover____placeholder" style="display: none;"></span>
+                <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div id="BootstrapVueNext__ID__v-9__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div class="overflow-auto">
                       <!---->
-                      <div data-v-2d32d03d="" class="tooltip-inner">
+                      <div class="tooltip-inner">
                         <!--v-if--> A list of dances for the song. Click on a dance to view more actions and to vote on the dance for the song.
                       </div>
                     </div>
@@ -110,13 +111,13 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                 </transition-stub></span>
                 <!---->
               </th>
-              <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="#" id="Tags">Tags<!--v-if--></a><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-10__popover____placeholder" style="display: none;"></span>
-                <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-10__popover___" class="tooltip b-tooltip fade  bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                    <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                    <div data-v-2d32d03d="" class="overflow-auto">
+              <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="#" id="Tags">Tags<!--v-if--></a><span id="BootstrapVueNext__ID__v-10__popover____placeholder" style="display: none;"></span>
+                <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div id="BootstrapVueNext__ID__v-10__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div class="overflow-auto">
                       <!---->
-                      <div data-v-2d32d03d="" class="tooltip-inner">
+                      <div class="tooltip-inner">
                         <!--v-if--> A list of tags associated with the song. Click on a tag to filter by it.
                       </div>
                     </div>
@@ -124,13 +125,13 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                 </transition-stub></span>
                 <!---->
               </th>
-              <th scope="col" class=""><span data-v-a7ef304f="" class="orderHeader"><a class="link-underline-light" href="#" id="Order"><svg data-v-a7ef304f="" viewBox="0 0 16 16" width="1.2em" height="1.2em"><path fill="currentColor" d="M8 0a1 1 0 0 1 1 1v5.268l4.562-2.634a1 1 0 1 1 1 1.732L10 8l4.562 2.634a1 1 0 1 1-1 1.732L9 9.732V15a1 1 0 1 1-2 0V9.732l-4.562 2.634a1 1 0 1 1-1-1.732L6 8L1.438 5.366a1 1 0 0 1 1-1.732L7 6.268V1a1 1 0 0 1 1-1"></path></svg><!--v-if--></a><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-11__popover____placeholder" style="display: none;"></span>
-                <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-11__popover___" class="tooltip b-tooltip fade  bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                    <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                    <div data-v-2d32d03d="" class="overflow-auto">
+              <th scope="col" class=""><span data-v-a7ef304f="" class="orderHeader"><a class="link-underline-light" href="#" id="Order"><svg data-v-a7ef304f="" viewBox="0 0 16 16" width="1.2em" height="1.2em"><path fill="currentColor" d="M8 0a1 1 0 0 1 1 1v5.268l4.562-2.634a1 1 0 1 1 1 1.732L10 8l4.562 2.634a1 1 0 1 1-1 1.732L9 9.732V15a1 1 0 1 1-2 0V9.732l-4.562 2.634a1 1 0 1 1-1-1.732L6 8L1.438 5.366a1 1 0 0 1 1-1.732L7 6.268V1a1 1 0 0 1 1-1"></path></svg><!--v-if--></a><span id="BootstrapVueNext__ID__v-11__popover____placeholder" style="display: none;"></span>
+                <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div id="BootstrapVueNext__ID__v-11__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div class="overflow-auto">
                       <!---->
-                      <div data-v-2d32d03d="" class="tooltip-inner">
+                      <div class="tooltip-inner">
                         <!--v-if--> Values represent last modified date
                       </div>
                     </div>
@@ -145,12 +146,12 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
             <!---->
             <tr class="">
               <td class="">
-                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-2b68a13b-2e35-46d9-acaa-41cd50d2b3f2" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-12__popover____placeholder" style="display: none;"></span>
-                <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-12__popover___" triggers="hover" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                    <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                    <div data-v-2d32d03d="" class="overflow-auto">
-                      <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
+                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-2b68a13b-2e35-46d9-acaa-41cd50d2b3f2" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-12__popover____placeholder" style="display: none;"></span>
+                <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div id="BootstrapVueNext__ID__v-12__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div class="overflow-auto">
+                      <div class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
                       <!---->
                     </div>
                   </div>
@@ -168,32 +169,32 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=80.6">81</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" id="__m4d__000001" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-3.png" width="25" height="25"><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-13__popover____placeholder" style="display: none;"></span>
-                  <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-13__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                      <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                      <div data-v-2d32d03d="" class="overflow-auto">
-                        <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.28 where 1.00 is the strongest beat.</div>
+                <!----><a data-v-a7ef304f="" id="__m4d__000001" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-3.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-13__popover____placeholder" style="display: none;"></span>
+                  <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div id="BootstrapVueNext__ID__v-13__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div class="overflow-auto">
+                        <div class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.28 where 1.00 is the strongest beat.</div>
                         <!---->
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000002" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-4.png" width="25" height="25"><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-14__popover____placeholder" style="display: none;"></span>
-                  <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-14__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                      <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                      <div data-v-2d32d03d="" class="overflow-auto">
-                        <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.34 where 1.00 is the highest energy.</div>
+                </a><a data-v-a7ef304f="" id="__m4d__000002" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-4.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-14__popover____placeholder" style="display: none;"></span>
+                  <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div id="BootstrapVueNext__ID__v-14__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div class="overflow-auto">
+                        <div class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.34 where 1.00 is the highest energy.</div>
                         <!---->
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000003" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-4.png" width="25" height="25"><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-15__popover____placeholder" style="display: none;"></span>
-                  <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-15__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                      <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                      <div data-v-2d32d03d="" class="overflow-auto">
-                        <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.34 where 1.00 is the happiest.</div>
+                </a><a data-v-a7ef304f="" id="__m4d__000003" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-4.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-15__popover____placeholder" style="display: none;"></span>
+                  <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div id="BootstrapVueNext__ID__v-15__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div class="overflow-auto">
+                        <div class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.34 where 1.00 is the happiest.</div>
                         <!---->
                       </div>
                     </div>
@@ -285,13 +286,13 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                 </button>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" id="order_tip__2b68a13b-2e35-46d9-acaa-41cd50d2b3f2">M</a><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-16__popover____placeholder" style="display: none;"></span>
-                <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-16__popover___" auto-hide="false" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                    <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                    <div data-v-2d32d03d="" class="overflow-auto">
+                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" id="order_tip__2b68a13b-2e35-46d9-acaa-41cd50d2b3f2">M</a><span id="BootstrapVueNext__ID__v-16__popover____placeholder" style="display: none;"></span>
+                <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div id="BootstrapVueNext__ID__v-16__popover___" auto-hide="false" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div class="overflow-auto">
                       <!---->
-                      <div data-v-2d32d03d="" class="tooltip-inner">Last Modified 10-Jun-2025 11:54:14 AM (months ago)</div>
+                      <div class="tooltip-inner">Last Modified 10-Jun-2025 11:54:14 AM (months ago)</div>
                     </div>
                   </div>
                 </transition-stub>
@@ -300,12 +301,12 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
             <!---->
             <tr class="">
               <td class="">
-                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-f1dce40d-142f-404a-818f-5f5fc71a9330" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-17__popover____placeholder" style="display: none;"></span>
-                <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-17__popover___" triggers="hover" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                    <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                    <div data-v-2d32d03d="" class="overflow-auto">
-                      <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
+                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-f1dce40d-142f-404a-818f-5f5fc71a9330" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-17__popover____placeholder" style="display: none;"></span>
+                <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div id="BootstrapVueNext__ID__v-17__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div class="overflow-auto">
+                      <div class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
                       <!---->
                     </div>
                   </div>
@@ -323,32 +324,32 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=94.2">94</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" id="__m4d__000004" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-3.png" width="25" height="25"><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-18__popover____placeholder" style="display: none;"></span>
-                  <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-18__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                      <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                      <div data-v-2d32d03d="" class="overflow-auto">
-                        <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.27 where 1.00 is the strongest beat.</div>
+                <!----><a data-v-a7ef304f="" id="__m4d__000004" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-3.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-18__popover____placeholder" style="display: none;"></span>
+                  <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div id="BootstrapVueNext__ID__v-18__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div class="overflow-auto">
+                        <div class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.27 where 1.00 is the strongest beat.</div>
                         <!---->
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000005" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-5.png" width="25" height="25"><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-19__popover____placeholder" style="display: none;"></span>
-                  <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-19__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                      <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                      <div data-v-2d32d03d="" class="overflow-auto">
-                        <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.48 where 1.00 is the highest energy.</div>
+                </a><a data-v-a7ef304f="" id="__m4d__000005" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-19__popover____placeholder" style="display: none;"></span>
+                  <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div id="BootstrapVueNext__ID__v-19__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div class="overflow-auto">
+                        <div class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.48 where 1.00 is the highest energy.</div>
                         <!---->
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000006" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-6.png" width="25" height="25"><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-20__popover____placeholder" style="display: none;"></span>
-                  <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-20__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                      <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                      <div data-v-2d32d03d="" class="overflow-auto">
-                        <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.56 where 1.00 is the happiest.</div>
+                </a><a data-v-a7ef304f="" id="__m4d__000006" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-20__popover____placeholder" style="display: none;"></span>
+                  <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div id="BootstrapVueNext__ID__v-20__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div class="overflow-auto">
+                        <div class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.56 where 1.00 is the happiest.</div>
                         <!---->
                       </div>
                     </div>
@@ -461,13 +462,13 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                 </button>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" id="order_tip__f1dce40d-142f-404a-818f-5f5fc71a9330">M</a><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-21__popover____placeholder" style="display: none;"></span>
-                <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-21__popover___" auto-hide="false" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                    <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                    <div data-v-2d32d03d="" class="overflow-auto">
+                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" id="order_tip__f1dce40d-142f-404a-818f-5f5fc71a9330">M</a><span id="BootstrapVueNext__ID__v-21__popover____placeholder" style="display: none;"></span>
+                <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div id="BootstrapVueNext__ID__v-21__popover___" auto-hide="false" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div class="overflow-auto">
                       <!---->
-                      <div data-v-2d32d03d="" class="tooltip-inner">Last Modified 19-Jun-2025 08:20:59 PM (months ago)</div>
+                      <div class="tooltip-inner">Last Modified 19-Jun-2025 08:20:59 PM (months ago)</div>
                     </div>
                   </div>
                 </transition-stub>
@@ -476,12 +477,12 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
             <!---->
             <tr class="">
               <td class="">
-                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-3ccfb240-fa9c-4bee-864c-d3fadce1e93d" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-22__popover____placeholder" style="display: none;"></span>
-                <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-22__popover___" triggers="hover" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                    <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                    <div data-v-2d32d03d="" class="overflow-auto">
-                      <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
+                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-3ccfb240-fa9c-4bee-864c-d3fadce1e93d" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-22__popover____placeholder" style="display: none;"></span>
+                <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div id="BootstrapVueNext__ID__v-22__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div class="overflow-auto">
+                      <div class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
                       <!---->
                     </div>
                   </div>
@@ -499,32 +500,32 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=93.9">94</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" id="__m4d__000007" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-6.png" width="25" height="25"><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-23__popover____placeholder" style="display: none;"></span>
-                  <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-23__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                      <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                      <div data-v-2d32d03d="" class="overflow-auto">
-                        <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.51 where 1.00 is the strongest beat.</div>
+                <!----><a data-v-a7ef304f="" id="__m4d__000007" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-23__popover____placeholder" style="display: none;"></span>
+                  <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div id="BootstrapVueNext__ID__v-23__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div class="overflow-auto">
+                        <div class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.51 where 1.00 is the strongest beat.</div>
                         <!---->
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000008" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-2.png" width="25" height="25"><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-24__popover____placeholder" style="display: none;"></span>
-                  <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-24__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                      <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                      <div data-v-2d32d03d="" class="overflow-auto">
-                        <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.16 where 1.00 is the highest energy.</div>
+                </a><a data-v-a7ef304f="" id="__m4d__000008" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-2.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-24__popover____placeholder" style="display: none;"></span>
+                  <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div id="BootstrapVueNext__ID__v-24__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div class="overflow-auto">
+                        <div class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.16 where 1.00 is the highest energy.</div>
                         <!---->
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000009" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-5.png" width="25" height="25"><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-25__popover____placeholder" style="display: none;"></span>
-                  <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-25__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                      <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                      <div data-v-2d32d03d="" class="overflow-auto">
-                        <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.44 where 1.00 is the happiest.</div>
+                </a><a data-v-a7ef304f="" id="__m4d__000009" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-25__popover____placeholder" style="display: none;"></span>
+                  <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div id="BootstrapVueNext__ID__v-25__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div class="overflow-auto">
+                        <div class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.44 where 1.00 is the happiest.</div>
                         <!---->
                       </div>
                     </div>
@@ -571,13 +572,13 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                 </button>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" id="order_tip__3ccfb240-fa9c-4bee-864c-d3fadce1e93d">M</a><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-26__popover____placeholder" style="display: none;"></span>
-                <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-26__popover___" auto-hide="false" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                    <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                    <div data-v-2d32d03d="" class="overflow-auto">
+                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" id="order_tip__3ccfb240-fa9c-4bee-864c-d3fadce1e93d">M</a><span id="BootstrapVueNext__ID__v-26__popover____placeholder" style="display: none;"></span>
+                <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div id="BootstrapVueNext__ID__v-26__popover___" auto-hide="false" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div class="overflow-auto">
                       <!---->
-                      <div data-v-2d32d03d="" class="tooltip-inner">Last Modified 10-Jun-2025 12:01:59 PM (months ago)</div>
+                      <div class="tooltip-inner">Last Modified 10-Jun-2025 12:01:59 PM (months ago)</div>
                     </div>
                   </div>
                 </transition-stub>
@@ -586,12 +587,12 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
             <!---->
             <tr class="">
               <td class="">
-                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-c7a4b10e-7ad7-41e5-8f32-479e6c07deeb" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-27__popover____placeholder" style="display: none;"></span>
-                <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-27__popover___" triggers="hover" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                    <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                    <div data-v-2d32d03d="" class="overflow-auto">
-                      <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
+                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-c7a4b10e-7ad7-41e5-8f32-479e6c07deeb" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-27__popover____placeholder" style="display: none;"></span>
+                <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div id="BootstrapVueNext__ID__v-27__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div class="overflow-auto">
+                      <div class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
                       <!---->
                     </div>
                   </div>
@@ -609,32 +610,32 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=134.6">135</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" id="__m4d__000010" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-3.png" width="25" height="25"><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-28__popover____placeholder" style="display: none;"></span>
-                  <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-28__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                      <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                      <div data-v-2d32d03d="" class="overflow-auto">
-                        <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.28 where 1.00 is the strongest beat.</div>
+                <!----><a data-v-a7ef304f="" id="__m4d__000010" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-3.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-28__popover____placeholder" style="display: none;"></span>
+                  <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div id="BootstrapVueNext__ID__v-28__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div class="overflow-auto">
+                        <div class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.28 where 1.00 is the strongest beat.</div>
                         <!---->
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000011" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-5.png" width="25" height="25"><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-29__popover____placeholder" style="display: none;"></span>
-                  <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-29__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                      <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                      <div data-v-2d32d03d="" class="overflow-auto">
-                        <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.45 where 1.00 is the highest energy.</div>
+                </a><a data-v-a7ef304f="" id="__m4d__000011" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-29__popover____placeholder" style="display: none;"></span>
+                  <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div id="BootstrapVueNext__ID__v-29__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div class="overflow-auto">
+                        <div class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.45 where 1.00 is the highest energy.</div>
                         <!---->
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000012" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-3.png" width="25" height="25"><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-30__popover____placeholder" style="display: none;"></span>
-                  <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-30__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                      <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                      <div data-v-2d32d03d="" class="overflow-auto">
-                        <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.22 where 1.00 is the happiest.</div>
+                </a><a data-v-a7ef304f="" id="__m4d__000012" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-3.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-30__popover____placeholder" style="display: none;"></span>
+                  <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div id="BootstrapVueNext__ID__v-30__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div class="overflow-auto">
+                        <div class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.22 where 1.00 is the happiest.</div>
                         <!---->
                       </div>
                     </div>
@@ -809,13 +810,13 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                 </button>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" id="order_tip__c7a4b10e-7ad7-41e5-8f32-479e6c07deeb">M</a><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-31__popover____placeholder" style="display: none;"></span>
-                <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-31__popover___" auto-hide="false" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                    <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                    <div data-v-2d32d03d="" class="overflow-auto">
+                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" id="order_tip__c7a4b10e-7ad7-41e5-8f32-479e6c07deeb">M</a><span id="BootstrapVueNext__ID__v-31__popover____placeholder" style="display: none;"></span>
+                <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div id="BootstrapVueNext__ID__v-31__popover___" auto-hide="false" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div class="overflow-auto">
                       <!---->
-                      <div data-v-2d32d03d="" class="tooltip-inner">Last Modified 19-Jun-2025 08:22:45 PM (months ago)</div>
+                      <div class="tooltip-inner">Last Modified 19-Jun-2025 08:22:45 PM (months ago)</div>
                     </div>
                   </div>
                 </transition-stub>
@@ -824,12 +825,12 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
             <!---->
             <tr class="">
               <td class="">
-                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-084fd54b-6ca0-467a-926d-d28d2c2ef8f8" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-32__popover____placeholder" style="display: none;"></span>
-                <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-32__popover___" triggers="hover" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                    <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                    <div data-v-2d32d03d="" class="overflow-auto">
-                      <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
+                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-084fd54b-6ca0-467a-926d-d28d2c2ef8f8" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-32__popover____placeholder" style="display: none;"></span>
+                <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div id="BootstrapVueNext__ID__v-32__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div class="overflow-auto">
+                      <div class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
                       <!---->
                     </div>
                   </div>
@@ -847,32 +848,32 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=207.4">207</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" id="__m4d__000013" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-3.png" width="25" height="25"><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-33__popover____placeholder" style="display: none;"></span>
-                  <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-33__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                      <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                      <div data-v-2d32d03d="" class="overflow-auto">
-                        <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.26 where 1.00 is the strongest beat.</div>
+                <!----><a data-v-a7ef304f="" id="__m4d__000013" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-3.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-33__popover____placeholder" style="display: none;"></span>
+                  <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div id="BootstrapVueNext__ID__v-33__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div class="overflow-auto">
+                        <div class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.26 where 1.00 is the strongest beat.</div>
                         <!---->
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000014" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-4.png" width="25" height="25"><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-34__popover____placeholder" style="display: none;"></span>
-                  <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-34__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                      <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                      <div data-v-2d32d03d="" class="overflow-auto">
-                        <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.34 where 1.00 is the highest energy.</div>
+                </a><a data-v-a7ef304f="" id="__m4d__000014" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-4.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-34__popover____placeholder" style="display: none;"></span>
+                  <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div id="BootstrapVueNext__ID__v-34__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div class="overflow-auto">
+                        <div class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.34 where 1.00 is the highest energy.</div>
                         <!---->
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000015" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-6.png" width="25" height="25"><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-35__popover____placeholder" style="display: none;"></span>
-                  <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-35__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                      <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                      <div data-v-2d32d03d="" class="overflow-auto">
-                        <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.54 where 1.00 is the happiest.</div>
+                </a><a data-v-a7ef304f="" id="__m4d__000015" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-35__popover____placeholder" style="display: none;"></span>
+                  <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div id="BootstrapVueNext__ID__v-35__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div class="overflow-auto">
+                        <div class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.54 where 1.00 is the happiest.</div>
                         <!---->
                       </div>
                     </div>
@@ -980,13 +981,13 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                 </button>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" id="order_tip__084fd54b-6ca0-467a-926d-d28d2c2ef8f8">Y</a><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-36__popover____placeholder" style="display: none;"></span>
-                <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-36__popover___" auto-hide="false" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                    <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                    <div data-v-2d32d03d="" class="overflow-auto">
+                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" id="order_tip__084fd54b-6ca0-467a-926d-d28d2c2ef8f8">Y</a><span id="BootstrapVueNext__ID__v-36__popover____placeholder" style="display: none;"></span>
+                <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div id="BootstrapVueNext__ID__v-36__popover___" auto-hide="false" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div class="overflow-auto">
                       <!---->
-                      <div data-v-2d32d03d="" class="tooltip-inner">Last Modified 27-May-2023 11:41:37 PM (years ago)</div>
+                      <div class="tooltip-inner">Last Modified 27-May-2023 11:41:37 PM (years ago)</div>
                     </div>
                   </div>
                 </transition-stub>
@@ -995,12 +996,12 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
             <!---->
             <tr class="">
               <td class="">
-                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-45b88f9c-0536-4868-9061-eeb515975420" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-37__popover____placeholder" style="display: none;"></span>
-                <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-37__popover___" triggers="hover" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                    <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                    <div data-v-2d32d03d="" class="overflow-auto">
-                      <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
+                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-45b88f9c-0536-4868-9061-eeb515975420" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-37__popover____placeholder" style="display: none;"></span>
+                <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div id="BootstrapVueNext__ID__v-37__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div class="overflow-auto">
+                      <div class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
                       <!---->
                     </div>
                   </div>
@@ -1018,32 +1019,32 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=76.2">76</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" id="__m4d__000016" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-2.png" width="25" height="25"><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-38__popover____placeholder" style="display: none;"></span>
-                  <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-38__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                      <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                      <div data-v-2d32d03d="" class="overflow-auto">
-                        <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.20 where 1.00 is the strongest beat.</div>
+                <!----><a data-v-a7ef304f="" id="__m4d__000016" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-2.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-38__popover____placeholder" style="display: none;"></span>
+                  <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div id="BootstrapVueNext__ID__v-38__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div class="overflow-auto">
+                        <div class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.20 where 1.00 is the strongest beat.</div>
                         <!---->
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000017" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-3.png" width="25" height="25"><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-39__popover____placeholder" style="display: none;"></span>
-                  <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-39__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                      <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                      <div data-v-2d32d03d="" class="overflow-auto">
-                        <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.28 where 1.00 is the highest energy.</div>
+                </a><a data-v-a7ef304f="" id="__m4d__000017" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-3.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-39__popover____placeholder" style="display: none;"></span>
+                  <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div id="BootstrapVueNext__ID__v-39__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div class="overflow-auto">
+                        <div class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.28 where 1.00 is the highest energy.</div>
                         <!---->
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000018" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-3.png" width="25" height="25"><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-40__popover____placeholder" style="display: none;"></span>
-                  <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-40__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                      <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                      <div data-v-2d32d03d="" class="overflow-auto">
-                        <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.20 where 1.00 is the happiest.</div>
+                </a><a data-v-a7ef304f="" id="__m4d__000018" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-3.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-40__popover____placeholder" style="display: none;"></span>
+                  <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div id="BootstrapVueNext__ID__v-40__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div class="overflow-auto">
+                        <div class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.20 where 1.00 is the happiest.</div>
                         <!---->
                       </div>
                     </div>
@@ -1179,13 +1180,13 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                 </button>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" id="order_tip__45b88f9c-0536-4868-9061-eeb515975420">M</a><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-41__popover____placeholder" style="display: none;"></span>
-                <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-41__popover___" auto-hide="false" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                    <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                    <div data-v-2d32d03d="" class="overflow-auto">
+                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" id="order_tip__45b88f9c-0536-4868-9061-eeb515975420">M</a><span id="BootstrapVueNext__ID__v-41__popover____placeholder" style="display: none;"></span>
+                <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div id="BootstrapVueNext__ID__v-41__popover___" auto-hide="false" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div class="overflow-auto">
                       <!---->
-                      <div data-v-2d32d03d="" class="tooltip-inner">Last Modified 19-Jun-2025 08:34:49 PM (months ago)</div>
+                      <div class="tooltip-inner">Last Modified 19-Jun-2025 08:34:49 PM (months ago)</div>
                     </div>
                   </div>
                 </transition-stub>
@@ -1194,12 +1195,12 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
             <!---->
             <tr class="">
               <td class="">
-                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-c367c1de-2192-4123-95f8-f3485e93b71f" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-42__popover____placeholder" style="display: none;"></span>
-                <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-42__popover___" triggers="hover" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                    <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                    <div data-v-2d32d03d="" class="overflow-auto">
-                      <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
+                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-c367c1de-2192-4123-95f8-f3485e93b71f" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-42__popover____placeholder" style="display: none;"></span>
+                <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div id="BootstrapVueNext__ID__v-42__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div class="overflow-auto">
+                      <div class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
                       <!---->
                     </div>
                   </div>
@@ -1217,32 +1218,32 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=86.7">87</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" id="__m4d__000019" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-8.png" width="25" height="25"><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-43__popover____placeholder" style="display: none;"></span>
-                  <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-43__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                      <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                      <div data-v-2d32d03d="" class="overflow-auto">
-                        <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.72 where 1.00 is the strongest beat.</div>
+                <!----><a data-v-a7ef304f="" id="__m4d__000019" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-8.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-43__popover____placeholder" style="display: none;"></span>
+                  <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div id="BootstrapVueNext__ID__v-43__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div class="overflow-auto">
+                        <div class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.72 where 1.00 is the strongest beat.</div>
                         <!---->
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000020" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-5.png" width="25" height="25"><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-44__popover____placeholder" style="display: none;"></span>
-                  <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-44__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                      <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                      <div data-v-2d32d03d="" class="overflow-auto">
-                        <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.43 where 1.00 is the highest energy.</div>
+                </a><a data-v-a7ef304f="" id="__m4d__000020" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-44__popover____placeholder" style="display: none;"></span>
+                  <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div id="BootstrapVueNext__ID__v-44__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div class="overflow-auto">
+                        <div class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.43 where 1.00 is the highest energy.</div>
                         <!---->
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000021" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-8.png" width="25" height="25"><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-45__popover____placeholder" style="display: none;"></span>
-                  <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-45__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                      <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                      <div data-v-2d32d03d="" class="overflow-auto">
-                        <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.78 where 1.00 is the happiest.</div>
+                </a><a data-v-a7ef304f="" id="__m4d__000021" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-8.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-45__popover____placeholder" style="display: none;"></span>
+                  <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div id="BootstrapVueNext__ID__v-45__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div class="overflow-auto">
+                        <div class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.78 where 1.00 is the happiest.</div>
                         <!---->
                       </div>
                     </div>
@@ -1305,13 +1306,13 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                 </button>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" id="order_tip__c367c1de-2192-4123-95f8-f3485e93b71f">M</a><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-46__popover____placeholder" style="display: none;"></span>
-                <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-46__popover___" auto-hide="false" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                    <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                    <div data-v-2d32d03d="" class="overflow-auto">
+                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" id="order_tip__c367c1de-2192-4123-95f8-f3485e93b71f">M</a><span id="BootstrapVueNext__ID__v-46__popover____placeholder" style="display: none;"></span>
+                <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div id="BootstrapVueNext__ID__v-46__popover___" auto-hide="false" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div class="overflow-auto">
                       <!---->
-                      <div data-v-2d32d03d="" class="tooltip-inner">Last Modified 11-Jun-2025 02:28:29 PM (months ago)</div>
+                      <div class="tooltip-inner">Last Modified 11-Jun-2025 02:28:29 PM (months ago)</div>
                     </div>
                   </div>
                 </transition-stub>
@@ -1320,12 +1321,12 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
             <!---->
             <tr class="">
               <td class="">
-                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-0249be9e-3b55-4470-b8dc-4e654e1bda1d" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-47__popover____placeholder" style="display: none;"></span>
-                <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-47__popover___" triggers="hover" class="tooltip b-tooltip fade  bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                    <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                    <div data-v-2d32d03d="" class="overflow-auto">
-                      <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
+                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-0249be9e-3b55-4470-b8dc-4e654e1bda1d" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-47__popover____placeholder" style="display: none;"></span>
+                <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div id="BootstrapVueNext__ID__v-47__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div class="overflow-auto">
+                      <div class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
                       <!---->
                     </div>
                   </div>
@@ -1343,32 +1344,32 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=101.2">101</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" id="__m4d__000022" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-5.png" width="25" height="25"><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-48__popover____placeholder" style="display: none;"></span>
-                  <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-48__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                      <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                      <div data-v-2d32d03d="" class="overflow-auto">
-                        <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.46 where 1.00 is the strongest beat.</div>
+                <!----><a data-v-a7ef304f="" id="__m4d__000022" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-48__popover____placeholder" style="display: none;"></span>
+                  <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div id="BootstrapVueNext__ID__v-48__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div class="overflow-auto">
+                        <div class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.46 where 1.00 is the strongest beat.</div>
                         <!---->
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000023" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-7.png" width="25" height="25"><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-49__popover____placeholder" style="display: none;"></span>
-                  <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-49__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                      <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                      <div data-v-2d32d03d="" class="overflow-auto">
-                        <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.69 where 1.00 is the highest energy.</div>
+                </a><a data-v-a7ef304f="" id="__m4d__000023" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-7.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-49__popover____placeholder" style="display: none;"></span>
+                  <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div id="BootstrapVueNext__ID__v-49__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div class="overflow-auto">
+                        <div class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.69 where 1.00 is the highest energy.</div>
                         <!---->
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000024" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-6.png" width="25" height="25"><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-50__popover____placeholder" style="display: none;"></span>
-                  <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-50__popover___" triggers="hover click blur" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                      <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                      <div data-v-2d32d03d="" class="overflow-auto">
-                        <div data-v-2d32d03d="" class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.58 where 1.00 is the happiest.</div>
+                </a><a data-v-a7ef304f="" id="__m4d__000024" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-50__popover____placeholder" style="display: none;"></span>
+                  <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                    <div id="BootstrapVueNext__ID__v-50__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                      <div class="overflow-auto">
+                        <div class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.58 where 1.00 is the happiest.</div>
                         <!---->
                       </div>
                     </div>
@@ -1449,13 +1450,13 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                 </button>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" id="order_tip__0249be9e-3b55-4470-b8dc-4e654e1bda1d">Y</a><span data-v-2d32d03d="" id="BootstrapVueNext__ID__v-51__popover____placeholder" style="display: none;"></span>
-                <transition-stub data-v-2d32d03d="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div data-v-2d32d03d="" id="BootstrapVueNext__ID__v-51__popover___" auto-hide="false" class="tooltip b-tooltip fade  bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                    <div data-v-2d32d03d="" class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                    <div data-v-2d32d03d="" class="overflow-auto">
+                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" id="order_tip__0249be9e-3b55-4470-b8dc-4e654e1bda1d">Y</a><span id="BootstrapVueNext__ID__v-51__popover____placeholder" style="display: none;"></span>
+                <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                  <div id="BootstrapVueNext__ID__v-51__popover___" auto-hide="false" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                    <div class="overflow-auto">
                       <!---->
-                      <div data-v-2d32d03d="" class="tooltip-inner">Last Modified 27-May-2023 11:41:15 PM (years ago)</div>
+                      <div class="tooltip-inner">Last Modified 27-May-2023 11:41:15 PM (years ago)</div>
                     </div>
                   </div>
                 </transition-stub>

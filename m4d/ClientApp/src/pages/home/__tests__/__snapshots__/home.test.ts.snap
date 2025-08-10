@@ -12,7 +12,7 @@ exports[`Home > Renders the Home Page 1`] = `
           <!---->
           <!---->
           <div data-v-8758b3c2="" class="text-bg-primary card-header"><a data-v-8758b3c2="" href="https://music4dance.blog/" style="color: white; font-size: 1.5rem;">Fun with Music for All Kinds of Dancers</a></div>
-          <div data-v-8758b3c2="" style="background-image: url(/images/shadows/fun-bkg.png);" class="home-card-background">
+          <div data-v-8758b3c2="" style="background-image: url(&quot;/images/shadows/fun-bkg.png&quot;);" class="home-card-background">
             <ul data-v-8758b3c2="" class="home-list" style="padding-left: 3rem; text-indent: -2rem;">
               <li data-v-8758b3c2=""><a data-v-8758b3c2="" href="https://music4dance.blog/wed-like-to-dance-a-real-partner-dance-as-the-first-dance-at-our-wedding-part-ii-we-already-chose-our-dance/"><svg data-v-8758b3c2="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
                     <g fill="currentColor">
@@ -94,7 +94,7 @@ exports[`Home > Renders the Home Page 1`] = `
           <!---->
           <!---->
           <div data-v-8758b3c2="" class="text-bg-primary card-header"><a data-v-8758b3c2="" href="/dances/ballroom-competition-categories" style="color: white; font-size: 1.5rem;">Music for Ballroom Dancers</a></div>
-          <div data-v-8758b3c2="" style="background-image: url(/images/shadows/ballroom-bkg.png);" class="home-card-background">
+          <div data-v-8758b3c2="" style="background-image: url(&quot;/images/shadows/ballroom-bkg.png&quot;);" class="home-card-background">
             <ul data-v-8758b3c2="" class="home-list" style="padding-left: 3rem; text-indent: -2rem;">
               <li data-v-8758b3c2=""><a data-v-8758b3c2="" href="/dances/international-standard"><svg data-v-8758b3c2="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
                     <g fill="currentColor">
@@ -141,7 +141,7 @@ exports[`Home > Renders the Home Page 1`] = `
           <!---->
           <!---->
           <div data-v-8758b3c2="" class="text-bg-primary card-header"><a data-v-8758b3c2="" href="/dances/swing" style="color: white; font-size: 1.5rem;">Music for Swing Dancers</a></div>
-          <div data-v-8758b3c2="" style="background-image: url(/images/shadows/swing-bkg.png);" class="home-card-background">
+          <div data-v-8758b3c2="" style="background-image: url(&quot;/images/shadows/swing-bkg.png&quot;);" class="home-card-background">
             <ul data-v-8758b3c2="" class="home-list" style="padding-left: 3rem; text-indent: -2rem;">
               <li data-v-8758b3c2=""><a data-v-8758b3c2="" href="/dances/lindy-hop"><svg data-v-8758b3c2="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
                     <g fill="currentColor">
@@ -220,7 +220,7 @@ exports[`Home > Renders the Home Page 1`] = `
           <!---->
           <!---->
           <div data-v-8758b3c2="" class="text-bg-primary card-header"><a data-v-8758b3c2="" href="/dances/latin" style="color: white; font-size: 1.5rem;">Music for Latin Dancers</a></div>
-          <div data-v-8758b3c2="" style="background-image: url(/images/shadows/salsa-bkg.png);" class="home-card-background">
+          <div data-v-8758b3c2="" style="background-image: url(&quot;/images/shadows/salsa-bkg.png&quot;);" class="home-card-background">
             <ul data-v-8758b3c2="" class="home-list" style="padding-left: 3rem; text-indent: -2rem;">
               <li data-v-8758b3c2=""><a data-v-8758b3c2="" href="/dances/salsa"><svg data-v-8758b3c2="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
                     <g fill="currentColor">
@@ -307,7 +307,7 @@ exports[`Home > Renders the Home Page 1`] = `
           <!---->
           <!---->
           <div data-v-8758b3c2="" class="text-bg-primary card-header"><a data-v-8758b3c2="" href="/dances/tango" style="color: white; font-size: 1.5rem;">Music for Tango Dancers</a></div>
-          <div data-v-8758b3c2="" style="background-image: url(/images/shadows/tango-bkg.png);" class="home-card-background">
+          <div data-v-8758b3c2="" style="background-image: url(&quot;/images/shadows/tango-bkg.png&quot;);" class="home-card-background">
             <ul data-v-8758b3c2="" class="home-list" style="padding-left: 3rem; text-indent: -2rem;">
               <li data-v-8758b3c2=""><a data-v-8758b3c2="" href="/dances/argentine-tango"><svg data-v-8758b3c2="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
                     <g fill="currentColor">
@@ -354,7 +354,7 @@ exports[`Home > Renders the Home Page 1`] = `
           <!---->
           <!---->
           <div data-v-8758b3c2="" class="text-bg-primary card-header"><a data-v-8758b3c2="" href="/dances/wedding-music" style="color: white; font-size: 1.5rem;">Music for Wedding Dances</a></div>
-          <div data-v-8758b3c2="" style="background-image: url(/images/shadows/wedding-bkg.png);" class="home-card-background">
+          <div data-v-8758b3c2="" style="background-image: url(&quot;/images/shadows/wedding-bkg.png&quot;);" class="home-card-background">
             <ul data-v-8758b3c2="" class="home-list" style="padding-left: 3rem; text-indent: -2rem;">
               <li data-v-8758b3c2=""><a data-v-8758b3c2="" href="/song?filter=Index-.-.-.-.-.-.-.-1-+First Dance:Other"><svg data-v-8758b3c2="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
                     <g fill="currentColor">

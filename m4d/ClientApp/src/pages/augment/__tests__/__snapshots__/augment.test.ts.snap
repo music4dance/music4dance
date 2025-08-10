@@ -17,11 +17,11 @@ exports[`Augment Page > Renders the Augment Page 1`] = `
       </div>
       <div data-v-6c79bed6="" class="row">
         <div data-v-6c79bed6="" class="col">
-          <transition-stub data-v-a8a95a3d="" data-v-6c79bed6="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="true" persisted="false" css="true">
-            <div data-v-a8a95a3d="" class="alert alert-warning show" tabindex="0" role="alert" aria-live="assertive" aria-atomic="true">
+          <transition-stub data-v-6c79bed6="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="true" persisted="false" css="true">
+            <div class="alert alert-warning show" tabindex="0" role="alert" aria-live="assertive" aria-atomic="true">
               <!---->
-              <div data-v-a8a95a3d="" class="d-flex gap-2">
-                <div data-v-a8a95a3d="" class="alert-body"> Adding songs is a new feature so if you run into bugs or have suggestions for improving this feature please don't hesitate to send email to <a data-v-6c79bed6="" href="mailto:info@music4dance.net">info@music4dance.net</a> or fill out our <a data-v-6c79bed6="" href="https://music4dance.blog/feedback/">feedback form</a> and we'll be happy to take your input as we contineu to improve the feature. </div>
+              <div class="d-flex gap-2">
+                <div class="alert-body"> Adding songs is a new feature so if you run into bugs or have suggestions for improving this feature please don't hesitate to send email to <a data-v-6c79bed6="" href="mailto:info@music4dance.net">info@music4dance.net</a> or fill out our <a data-v-6c79bed6="" href="https://music4dance.blog/feedback/">feedback form</a> and we'll be happy to take your input as we contineu to improve the feature. </div>
                 <!---->
               </div>
               <!---->

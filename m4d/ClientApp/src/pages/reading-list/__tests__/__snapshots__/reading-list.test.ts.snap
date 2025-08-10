@@ -19,13 +19,13 @@ exports[`About > Render the Readling List Page 1`] = `
         <!---->
         <div class="">
           <ul class="nav nav-tabs" role="tablist" aria-orientation="horizontal">
-            <li class="nav-item" role="presentation"><button class="nav-link active" role="tab" aria-selected="true">Learning to Dance</button></li>
-            <li class="nav-item" role="presentation"><button class="nav-link" role="tab" aria-selected="false" tabindex="-1">Dance History</button></li>
-            <li class="nav-item" role="presentation"><button class="nav-link" role="tab" aria-selected="false" tabindex="-1">Dance in Fiction</button></li>
+            <li class="nav-item" role="presentation"><button class="nav-link active" role="tab" aria-controls="BootstrapVueNext__ID__v-0__tabpane___" aria-selected="true" type="button">Learning to Dance</button></li>
+            <li class="nav-item" role="presentation"><button class="nav-link" role="tab" aria-controls="BootstrapVueNext__ID__v-1__tabpane___" aria-selected="false" tabindex="-1" type="button">Dance History</button></li>
+            <li class="nav-item" role="presentation"><button class="nav-link" role="tab" aria-controls="BootstrapVueNext__ID__v-2__tabpane___" aria-selected="false" tabindex="-1" type="button">Dance in Fiction</button></li>
           </ul>
         </div>
         <div class="tab-content">
-          <div data-v-b13604e2="" id="BootstrapVueNext__ID__v-0__tabpane___" class="tab-pane active show fade" role="tabpanel" aria-labelledby="BootstrapVueNext__ID__v-1__tab___">
+          <div data-v-b13604e2="" id="BootstrapVueNext__ID__v-3__tabpane___" class="tab-pane fade" role="tabpanel" aria-labelledby="BootstrapVueNext__ID__v-4__tab___">
             <div data-v-8ea0c2bf="" data-v-b13604e2="">
               <h3 data-v-8ea0c2bf="" class="category-description">Books about learning to dance and to become a better dancer</h3>
               <div data-v-8ea0c2bf="">
@@ -158,7 +158,7 @@ exports[`About > Render the Readling List Page 1`] = `
               </div>
             </div>
           </div>
-          <div data-v-b13604e2="" id="BootstrapVueNext__ID__v-2__tabpane___" class="tab-pane fade" role="tabpanel" aria-labelledby="BootstrapVueNext__ID__v-3__tab___">
+          <div data-v-b13604e2="" id="BootstrapVueNext__ID__v-5__tabpane___" class="tab-pane fade" role="tabpanel" aria-labelledby="BootstrapVueNext__ID__v-6__tab___">
             <div data-v-8ea0c2bf="" data-v-b13604e2="">
               <h3 data-v-8ea0c2bf="" class="category-description">Books about dance history and the social impact of dance</h3>
               <div data-v-8ea0c2bf="">
@@ -234,7 +234,7 @@ exports[`About > Render the Readling List Page 1`] = `
               </div>
             </div>
           </div>
-          <div data-v-b13604e2="" id="BootstrapVueNext__ID__v-4__tabpane___" class="tab-pane fade" role="tabpanel" aria-labelledby="BootstrapVueNext__ID__v-5__tab___">
+          <div data-v-b13604e2="" id="BootstrapVueNext__ID__v-7__tabpane___" class="tab-pane fade" role="tabpanel" aria-labelledby="BootstrapVueNext__ID__v-8__tab___">
             <div data-v-8ea0c2bf="" data-v-b13604e2="">
               <h3 data-v-8ea0c2bf="" class="category-description">Books that celebrate dance in fiction</h3>
               <div data-v-8ea0c2bf="">
