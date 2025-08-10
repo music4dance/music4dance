@@ -1,5 +1,7 @@
 ﻿using System.Security.Authentication;
 
+using AutoMapper;
+
 using m4d.Services;
 
 using m4dModels;
@@ -14,22 +16,21 @@ using Microsoft.FeatureManagement;
 namespace m4d.Controllers;
 
 [Authorize]
-public class SearchesController : DanceMusicController
+public class SearchesController : ContentController
 {
     public SearchesController(
         DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
         IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-        IFeatureManagerSnapshot featureManager, ILogger<ActivityLogController> logger) :
+        IFeatureManagerSnapshot featureManager, ILogger<SearchesController> logger, LinkGenerator linkGenerator, IMapper mapper) :
         base(context, userManager, searchService, danceStatsManager, configuration,
-            fileProvider, backroundTaskQueue, featureManager, logger)
+            fileProvider, backroundTaskQueue, featureManager, logger, linkGenerator, mapper)
     {
         HelpPage = "saved-searches";
     }
 
     // GET: Searches
     public async Task<IActionResult> Index(string user, string sort = null,
-        SongFilter filter = null,
         bool showDetails = false)
     {
         if (string.IsNullOrWhiteSpace(user) || user.Equals(
@@ -66,7 +67,7 @@ public class SearchesController : DanceMusicController
 
         ViewBag.Sort = sort;
         ViewBag.ShowDetails = showDetails;
-        ViewBag.SongFilter = filter;
+        ViewBag.SongFilter = Filter;
         ViewBag.User = user;
         return View(model);
     }
