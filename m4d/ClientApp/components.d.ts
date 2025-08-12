@@ -147,7 +147,6 @@ declare module 'vue' {
     IBiPersonPlusFill: typeof import('~icons/bi/person-plus-fill')['default']
     IBiPlay: typeof import('~icons/bi/play')['default']
     IBiPlayCircleFill: typeof import('~icons/bi/play-circle-fill')['default']
-    IBiPlus: typeof import('~icons/bi/plus')['default']
     IBiPlusCircle: typeof import('~icons/bi/plus-circle')['default']
     IBiQuestionCircle: typeof import('~icons/bi/question-circle')['default']
     IBiSearch: typeof import('~icons/bi/search')['default']

@@ -15,7 +15,7 @@ const emit = defineEmits<{
   click: [value: MouseEvent];
 }>();
 
-const filter = props.filter;
+const filter = props.filter ?? new SongFilter();
 const sort = filter.sort;
 
 const link = props.enableSort && !props.customSort ? filter.changeSort(props.id).url : "#";

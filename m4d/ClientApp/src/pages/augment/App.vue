@@ -75,7 +75,7 @@ const reset = (saved: boolean): void => {
           {{ lastSong.artist }}
         </BAlert>
         <h1>Add Song</h1>
-        <BTabs v-if="canAugment" v-model="tabIndex" card>
+        <BTabs v-if="canAugment" v-model:index="tabIndex" card>
           <BTab title="by Title"
             ><BCardText><AugmentSearch @edit-song="editSong($event)" /></BCardText
           ></BTab>
