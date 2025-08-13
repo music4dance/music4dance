@@ -18,7 +18,7 @@ import { TagHandler } from "@/models/TagHandler";
 const context = getMenuContext();
 const danceDB = safeDanceDatabase();
 const { create: createToast } = useToastController();
-const { confirm, hide } = useModalController();
+const { create, hide } = useModalController();
 
 const props = defineProps<{
   model: SongDetailsModel;
@@ -166,7 +166,7 @@ const onReplaceHistory = (properties: SongProperty[]): void => {
 const undoUserChanges = async (): Promise<void> => {
   try {
     if (
-      await confirm?.({
+      await create({
         props: {
           title: "Please Confirm",
           body: "Are you sure you want to undo all of your edits to this song?",
@@ -176,7 +176,7 @@ const undoUserChanges = async (): Promise<void> => {
           okTitle: "YES",
           cancelTitle: "NO",
         },
-      })
+      }).show()
     ) {
       undoForm.value?.submit();
     }
