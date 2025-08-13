@@ -280,10 +280,6 @@ using (var scope = app.Services.CreateScope())
 {
     var sp = scope.ServiceProvider;
     var db = sp.GetRequiredService<DanceMusicContext>().Database;
-    if (isDevelopment)
-    {
-        db.EnsureCreated();
-    }
 
     db.Migrate();
 
