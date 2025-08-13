@@ -1,4 +1,12 @@
-﻿using System;
+﻿using AutoMapper;
+
+using Azure.Search.Documents.Models;
+
+using DanceLibrary;
+
+using Newtonsoft.Json;
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
@@ -10,14 +18,6 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-
-using AutoMapper;
-
-using Azure.Search.Documents.Models;
-
-using DanceLibrary;
-
-using Newtonsoft.Json;
 
 using static System.Char;
 
@@ -4305,7 +4305,7 @@ namespace m4dModels
             }
 
             tobj?.DeleteTag(tag, stats);
-            if (tag.TagClass == "Dance")
+            if (tag.TagClass == "Dance" && stats != null)
             {
                 var dance = stats.FromName(tag.TagValue);
                 var rating = DanceRatings.FirstOrDefault(dr => dr.DanceId == dance.DanceId);
