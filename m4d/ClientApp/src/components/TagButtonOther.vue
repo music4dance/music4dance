@@ -18,21 +18,19 @@ const emitChange = () => {
   emit("change-tag", props.tagHandler);
 };
 
-const { confirm } = useModalController();
+const { create } = useModalController();
 
 const handleDelete = async () => {
   if (
-    await confirm?.({
-      props: {
-        title: "Please Confirm",
-        body: `Are you sure? Clicking yes will completely remove ${props.tagHandler.tag.value}.`,
-        size: "sm",
-        buttonSize: "sm",
-        okVariant: "danger",
-        okTitle: "YES",
-        cancelTitle: "NO",
-      },
-    })
+    await create({
+      title: "Please Confirm",
+      body: `Are you sure? Clicking yes will completely remove ${props.tagHandler.tag.value}.`,
+      size: "sm",
+      buttonSize: "sm",
+      okVariant: "danger",
+      okTitle: "YES",
+      cancelTitle: "NO",
+    }).show()
   ) {
     emitChange();
   }

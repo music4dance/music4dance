@@ -21,6 +21,7 @@ const props = withDefaults(
     hideNameLink?: boolean;
   }>(),
   {
+    id: "dance-chooser",
     danceId: "",
     filterIds: () => [],
     tempo: 0,
@@ -74,7 +75,9 @@ const chooseEvent = (id?: string, event?: MouseEvent): void => {
   if (persist) {
     event?.preventDefault();
   }
-  choose(id, persist);
+  if (id) {
+    choose(id, persist);
+  }
 };
 
 const choose = (id?: string, persist?: boolean): void => {

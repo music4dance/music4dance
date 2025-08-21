@@ -1,10 +1,10 @@
 import { ServiceMatcher } from "../helpers/ServiceMatcher";
-import { useModalController } from "bootstrap-vue-next";
+import { useModalController, type BvTriggerableEvent } from "bootstrap-vue-next";
 
 const matcher: ServiceMatcher = new ServiceMatcher();
 
 export function useDropTarget() {
-  const { confirm } = useModalController();
+  const { create } = useModalController();
 
   async function checkServiceAndAdd(input: string, warn?: boolean): Promise<void> {
     const service = matcher.match(input);
@@ -16,15 +16,13 @@ export function useDropTarget() {
     if (!found) {
       let okay = false;
       if (warn) {
-        okay =
-          (await confirm?.({
-            props: {
-              body: `It looks like you may have tried to search by ${service.name} id for a song not in the music4dance catalog. Would you like to add the song?`,
-              title: "Song not found",
-              okTitle: "Yes",
-              cancelTitle: "No",
-            },
-          })) ?? false;
+        const result = await create({
+          body: `It looks like you may have tried to search by ${service.name} id for a song not in the music4dance catalog. Would you like to add the song?`,
+          title: "Song not found",
+          okTitle: "Yes",
+          cancelTitle: "No",
+        }).show();
+        okay = (result == true || (result as BvTriggerableEvent)?.ok) ?? false;
       }
       if (okay) {
         const id = matcher.parseId(input, service);
