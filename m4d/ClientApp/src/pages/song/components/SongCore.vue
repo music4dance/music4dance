@@ -167,15 +167,13 @@ const undoUserChanges = async (): Promise<void> => {
   try {
     if (
       await create({
-        props: {
-          title: "Please Confirm",
-          body: "Are you sure you want to undo all of your edits to this song?",
-          size: "sm",
-          buttonSize: "sm",
-          okVariant: "danger",
-          okTitle: "YES",
-          cancelTitle: "NO",
-        },
+        title: "Please Confirm",
+        body: "Are you sure you want to undo all of your edits to this song?",
+        size: "sm",
+        buttonSize: "sm",
+        okVariant: "danger",
+        okTitle: "YES",
+        cancelTitle: "NO",
       }).show()
     ) {
       undoForm.value?.submit();
