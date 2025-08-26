@@ -10,7 +10,6 @@ const props = defineProps<{
 
 const emit = defineEmits(["update:modelValue"]);
 
-=
 const extractTags = (tags: string, include: boolean): string[] => {
   if (!tags) return [];
   const qualifier = include ? "+" : "-";
