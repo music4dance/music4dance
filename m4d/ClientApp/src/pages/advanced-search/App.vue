@@ -10,6 +10,7 @@ import { safeTagDatabase } from "@/helpers/TagEnvironmentManager";
 import { computed, ref } from "vue";
 import type { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
 import { DanceThreshold } from "@/models/DanceThreshold";
+import TagQuerySelector from "./components/TagQuerySelector.vue";
 
 const context = getMenuContext();
 const danceDB: DanceDatabase = safeDanceDatabase();
@@ -40,8 +41,7 @@ const hasThresholds = computed(() => {
 const showThresholds = ref(hasThresholds.value);
 
 const tags: Tag[] = tagDatabase.tags;
-const includeTags = ref(filter.tags ? extractTags(filter.tags, true) : []);
-const excludeTags = ref(filter.tags ? extractTags(filter.tags, false) : []);
+const tagString = ref(filter.tags ?? "");
 
 const tempoMin = ref(filter.tempoMin ?? 0);
 const tempoMax = ref(filter.tempoMax ?? 400);
@@ -59,10 +59,39 @@ const validated = ref(false);
 const services = ref(filter.purchase ? filter.purchase.trim().split("") : []);
 const activity = ref(userQueryInit.parts);
 
-const computedDefault = (): string => {
-  const value = !!keyWords.value ? "Closest Match" : "Dance Rating";
-  return `Default (${value})`;
-};
+const songFilter = computed(() => {
+  const danceQuery = DanceQuery.fromParts(
+    danceThresholds.value.map((t) => t.toString()),
+    danceConnector.value === "all",
+  );
+  const userQuery = UserQuery.fromParts(
+    computedActivity.value ? computedActivity.value : undefined,
+    isAnonymous.value ? user.value : displayUser.value,
+  );
+  const filter = new SongFilter();
+  let level = 0;
+  if (bonuses.value.indexOf("P") !== -1) {
+    level = 1;
+  }
+  if (bonuses.value.indexOf("D") !== -1) {
+    level += 2;
+  }
+
+  filter.action = "advanced";
+  filter.searchString = keyWords.value;
+  filter.dances = danceQuery.query;
+  filter.sortOrder = SongSort.fromParts(sortId.value ?? undefined, sortDirection.value).query;
+  filter.user = userQuery.query;
+  filter.purchase = services.value.join("");
+  filter.tempoMin = tempoMin.value === 0 ? undefined : tempoMin.value;
+  filter.tempoMax = tempoMax.value >= 400 ? undefined : tempoMax.value;
+  filter.lengthMin = lengthMin.value === 0 ? undefined : lengthMin.value;
+  filter.lengthMax = lengthMax.value >= 400 ? undefined : lengthMax.value;
+  filter.tags = tagString.value;
+  filter.level = level ? level : undefined;
+
+  return filter;
+});
 
 const sortOptions = computed(() => [
   { text: computedDefault(), value: null },
@@ -152,56 +181,10 @@ function getShowDiagnostics(): boolean {
   return !!showDiagnostics && showDiagnostics !== "false";
 }
 
-const buildSingleTagList = (tags: string[], decorator: string): string => {
-  return tags.map((t) => `${decorator}${t}`).join("|");
+const computedDefault = (): string => {
+  const value = !!keyWords.value ? "Closest Match" : "Dance Rating";
+  return `Default (${value})`;
 };
-
-const tagList = computed(() => {
-  const lists: string[] = [];
-  const include = includeTags.value;
-  if (include.length > 0) {
-    lists.push(buildSingleTagList(include, "+"));
-  }
-  const exclude = excludeTags.value;
-  if (exclude.length > 0) {
-    lists.push(buildSingleTagList(exclude, "-"));
-  }
-  return lists.join("|");
-});
-
-const songFilter = computed(() => {
-  const danceQuery = DanceQuery.fromParts(
-    danceThresholds.value.map((t) => t.toString()),
-    danceConnector.value === "all",
-  );
-  const userQuery = UserQuery.fromParts(
-    computedActivity.value ? computedActivity.value : undefined,
-    isAnonymous.value ? user.value : displayUser.value,
-  );
-  const filter = new SongFilter();
-  let level = 0;
-  if (bonuses.value.indexOf("P") !== -1) {
-    level = 1;
-  }
-  if (bonuses.value.indexOf("D") !== -1) {
-    level += 2;
-  }
-
-  filter.action = "advanced";
-  filter.searchString = keyWords.value;
-  filter.dances = danceQuery.query;
-  filter.sortOrder = SongSort.fromParts(sortId.value ?? undefined, sortDirection.value).query;
-  filter.user = userQuery.query;
-  filter.purchase = services.value.join("");
-  filter.tempoMin = tempoMin.value === 0 ? undefined : tempoMin.value;
-  filter.tempoMax = tempoMax.value >= 400 ? undefined : tempoMax.value;
-  filter.lengthMin = lengthMin.value === 0 ? undefined : lengthMin.value;
-  filter.lengthMax = lengthMax.value >= 400 ? undefined : lengthMax.value;
-  filter.tags = tagList.value;
-  filter.level = level ? level : undefined;
-
-  return filter;
-});
 
 function computeBonuses(): string[] {
   const bonuses = [];
@@ -212,21 +195,6 @@ function computeBonuses(): string[] {
     bonuses.push("D");
   }
   return bonuses;
-}
-
-function extractTags(tags: string, include: boolean): string[] {
-  if (!tags) {
-    return [];
-  }
-
-  const qualifier = include ? "+" : "-";
-  const parts = tags.split("|").map((p) => p.trim());
-  let filtered = parts.filter((p) => p.startsWith(qualifier)).map((p) => p.slice(1));
-  if (include) {
-    filtered = filtered.concat(parts.filter((p) => !p.startsWith("+") && !p.startsWith("-")));
-  }
-
-  return filtered;
 }
 
 async function onSubmit(): Promise<void> {
@@ -266,8 +234,6 @@ function onReset(evt: Event): void {
   advancedText.value = false;
   dances.value = [];
   danceConnector.value = "any";
-  includeTags.value = [];
-  excludeTags.value = [];
   tempoMin.value = 0;
   tempoMax.value = 400;
   lengthMin.value = 0;
@@ -284,6 +250,7 @@ function onReset(evt: Event): void {
   sortId.value = null;
   sortDirection.value = "asc";
   bonuses.value = [];
+  tagString.value = "";
 
   validated.value = false;
 }
@@ -349,27 +316,7 @@ function onReset(evt: Event): void {
           </div>
         </BFormGroup>
 
-        <BFormGroup id="include-tags-group" label="Include Tags:">
-          <TagCategorySelector
-            id="include-tags"
-            v-model="includeTags"
-            :tag-list="tags"
-            choose-label="Choose Tags to Include"
-            search-label="Search Tags"
-            empty-label="No more tags to choose"
-          />
-        </BFormGroup>
-
-        <BFormGroup id="exclude-tags-group" label="Exclude Tags:">
-          <TagCategorySelector
-            id="exclude-tags"
-            v-model="excludeTags"
-            :tag-list="tags"
-            choose-label="Choose Tags to Exclude"
-            search-label="Search Tags"
-            empty-label="No more tags to choose"
-          />
-        </BFormGroup>
+        <TagQuerySelector v-model="tagString" :tag-list="tags" class="mt-3" />
 
         <BFormGroup id="tempo-range-group" label="Tempo range (BPM):" label-for="tempo-range">
           <BFormGroup id="tempo-range">
@@ -497,8 +444,7 @@ services = {{ services }}
 sort = {{ sortId }}
 order = {{ sortDirection }}
 bonus = {{ bonuses }}
-includeTags = {{ includeTags }}
-excludeTags = {{ excludeTags }}
+tags = {{ tagString }}
 user = {{ user }}
 displayUser = {{ displayUser }}
 

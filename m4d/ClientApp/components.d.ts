@@ -223,6 +223,7 @@ declare module 'vue' {
     TagListEditor: typeof import('./src/components/TagListEditor.vue')['default']
     TagMatrixTable: typeof import('./src/components/TagMatrixTable.vue')['default']
     TagModal: typeof import('./src/components/TagModal.vue')['default']
+    TagQuerySelector: typeof import('./src/pages/advanced-search/components/TagQuerySelector.vue')['default']
     TagSelector: typeof import('./src/components/TagSelector.vue')['default']
     TagViewer: typeof import('./src/components/TagViewer.vue')['default']
     TempiLink: typeof import('./src/components/TempiLink.vue')['default']

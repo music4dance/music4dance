@@ -68,7 +68,7 @@ namespace m4dModels
 
             foreach (var facet in facets)
             {
-                var id = SongFilter.TagFromFacetId(facet.Key);
+                var id = TagQuery.TagFromFacetId(facet.Key);
                 tagManager.IndexFacet(facet.Value, id);
             }
 

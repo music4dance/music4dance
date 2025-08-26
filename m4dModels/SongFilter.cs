@@ -39,25 +39,10 @@ namespace m4dModels
 
     public class SongFilter
     {
-        private class TagClass(string name, bool isSongTag = true, bool isDanceTag = true)
-        {
-            public string Name { get; } = name;
-            public bool IsSongTag { get; } = isSongTag;
-            public bool IsDanceTag { get; } = isDanceTag;
-        }
-
-        private static readonly Dictionary<string, TagClass> s_tagClasses =
-            new()
-            {
-                { "Music", new TagClass("Genre", isDanceTag: false ) },
-                { "Style", new TagClass("Style", isSongTag: false) },
-                { "Tempo", new TagClass("Tempo" )},
-                { "Other", new TagClass("Other") }
-            };
         private const char SubChar = '\u001a';
         private const char Separator = '-';
 
-        private const string CommaSeparator = ", ";
+        internal const string CommaSeparator = ", ";
 
         protected static readonly List<PropertyInfo> PropertyInfo;
 
@@ -254,6 +239,7 @@ namespace m4dModels
         public virtual KeywordQuery KeywordQuery => new(SearchString);
         public virtual DanceQuery DanceQuery => new(IsRaw ? null : Dances);
         public virtual UserQuery UserQuery => new(User);
+        public virtual TagQuery TagQuery => new(Tags);
         public virtual SongSort SongSort => new(SortOrder, TextSearch);
 
         public CruftFilter CruftFilter =>
@@ -398,10 +384,7 @@ namespace m4dModels
                     separator = CommaSeparator;
                 }
 
-                var tags = new TagList(Tags);
-
-                sb.Append(DescribeTags(tags.ExtractAdd(), "including tag", "and", ref separator));
-                sb.Append(DescribeTags(tags.ExtractRemove(), "excluding tag", "or", ref separator));
+                sb.Append(TagQuery.DescribeTags(ref separator));
 
                 if (TempoMin.HasValue && TempoMax.HasValue)
                 {
@@ -596,116 +579,11 @@ namespace m4dModels
                 "customsearch"
             );
         }
-        public virtual string GetTagFilter(DanceMusicCoreService dms)
-        {
-            var tags = new TagList(Tags);
-
-            if (tags.IsEmpty)
-            {
-                return null;
-            }
-
-            var tlInclude = new TagList(Tags);
-            var tlExclude = new TagList();
-
-            if (tlInclude.IsQualified)
-            {
-                var temp = tlInclude;
-                tlInclude = temp.ExtractAdd();
-                tlExclude = temp.ExtractRemove();
-            }
-
-            // We're accepting either a straight include list of tags or a qualified list (+/- for include/exlude)
-            // TODO: For now this is going to be explicit (i&i&!e*!e) - do we need a stronger expression syntax at this level
-            //  or can we do some kind of top level OR of queries?
-
-            var rInclude = new TagList(dms.GetTagRings(tlInclude).Select(tt => tt.Key));
-            var rExclude = new TagList(dms.GetTagRings(tlExclude).Select(tt => tt.Key));
-
-            var sb = new StringBuilder();
-
-            foreach (var tp in s_tagClasses)
-            {
-                var tagClass = tp.Value;
-                HandleFilterClass(sb, rInclude, tp.Key, tagClass.Name,
-                    tagClass.IsSongTag ? "{0}Tags/any(t: t eq '{1}')" : null,
-                    tagClass.IsDanceTag ? "dance_ALL/{0}Tags/any(t: t eq '{1}')" : null);
-                HandleFilterClass(sb, rExclude, tp.Key, tagClass.Name,
-                    tagClass.IsSongTag ? "{0}Tags/all(t: t ne '{1}')" : null,
-                    tagClass.IsDanceTag ? "dance_ALL/{0}Tags/all(t: t ne '{1}')" : null);
-            }
-
-            return sb.ToString();
-        }
 
         public string GetCommentsFilter()
         {
             return SongSort.Id == SongIndex.CommentsField ? "Comments/any()" : null;
         }
-
-        public static IEnumerable<string> GetTagClasses()
-        {
-            return s_tagClasses.Keys;
-        }
-
-        public static string TagFromFacetId(string facetId)
-        {
-            if (string.IsNullOrWhiteSpace(facetId))
-                return null;
-
-            // Remove any prefix like "dance_ALL/"
-            var lastPart = facetId.Contains('/') ? facetId[(facetId.LastIndexOf('/') + 1)..] : facetId;
-
-            // strip "Tags" suffix
-            return TagFromClassName(lastPart.EndsWith("Tags") ? lastPart[..^4] : null);
-        }
-
-        public static string TagFromClassName(string tagClass)
-        {
-            return string.Equals(tagClass, "Genre", StringComparison.OrdinalIgnoreCase)
-                ? "Music"
-                : tagClass;
-        }
-
-        private static void HandleFilterClass(
-            StringBuilder sb, TagList tags, string tagClass, string tagName, string songFormat, string danceFormat)
-        {
-            var filtered = tags.Filter(tagClass);
-            if (filtered.IsEmpty)
-            {
-                return;
-            }
-
-            foreach (var t in filtered.StripType())
-            {
-                if (sb.Length > 0)
-                {
-                    sb.Append(" and ");
-                }
-
-                var tt = t.Replace(@"'", @"''");
-
-                if (songFormat != null && danceFormat != null)
-                {
-                    sb.Append("(");
-                    sb.AppendFormat(songFormat, tagName, tt);
-                    sb.Append(" or ");
-                    sb.AppendFormat(danceFormat, tagName, tt);
-                    sb.Append(")");
-                }
-                else if (songFormat != null)
-                {
-                    sb.AppendFormat(songFormat, tagName, tt);
-                }
-                else if (danceFormat != null)
-                {
-                    sb.AppendFormat(danceFormat, tagName, tt);
-                }
-            }
-        }
-
-        //public bool Advanced => !string.IsNullOrWhiteSpace(Purchase) ||
-        //                        TempoMin.HasValue || TempoMax.HasValue || DanceQuery.Advanced;
 
         public bool Anonymize(string user)
         {
@@ -742,26 +620,24 @@ namespace m4dModels
             {
                 odata = (odata == null ? "" : odata + " and ") + $"(Length ge {LengthMin})";
             }
-            ;
 
             if (LengthMax.HasValue)
             {
                 odata = (odata == null ? "" : odata + " and ") + $"(Length le {LengthMax})";
             }
-            ;
 
             odata = CombineFilter(odata, ODataPurchase);
-            odata = CombineFilter(odata, GetTagFilter(dms));
+            odata = CombineFilter(odata, TagQuery.GetODataFilter(dms));
             odata = CombineFilter(odata, GetCommentsFilter());
 
             return odata;
         }
 
-        private string CombineFilter(string odata, string newData)
+        private static string CombineFilter(string existing, string newData)
         {
-            if (newData == null) return odata;
+            if (newData == null) return existing;
 
-            return (odata == null ? "" : odata + " and ") + newData;
+            return (existing == null ? "" : existing + " and ") + newData;
         }
 
         public override string ToString()
@@ -798,43 +674,6 @@ namespace m4dModels
             return !PropertyInfo
                 .Where(pi => !props.Contains(pi.Name)).Select(t => new { n = t.Name, v = t.GetValue(this) })
                 .Any(o => o.v != null && !IsAltDefault(o.v, o.n));
-        }
-
-        private static string DescribeTags(TagList tags, string prefix, string connector,
-            ref string separator)
-        {
-            return FormatList(tags.Strip(), prefix, connector, ref separator);
-        }
-
-        private static string FormatList(IList<string> list, string prefix, string connector,
-            ref string separator)
-        {
-            var count = list.Count;
-
-            if (count == 0)
-            {
-                return string.Empty;
-            }
-
-            var ret = new StringBuilder();
-            if (count < 3)
-            {
-                ret.AppendFormat(
-                    "{0}{1}{2} {3}", separator, prefix, count > 1 ? "s" : "",
-                    string.Join($" {connector} ", list));
-                separator = CommaSeparator;
-            }
-            else
-            {
-                var last = list[count - 1];
-                list.RemoveAt(count - 1);
-                ret.AppendFormat(
-                    "{0}{1}s {2} {3} {4}", separator, prefix, string.Join(", ", list),
-                    connector, last);
-                separator = CommaSeparator;
-            }
-
-            return ret.ToString();
         }
 
         private bool SwapUser(string newUser, string oldUser)

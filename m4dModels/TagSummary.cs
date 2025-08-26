@@ -118,7 +118,7 @@ namespace m4dModels
                 ttype = ttype[prefix.Length..];
             }
             var key =
-                $"{tvalue}:{SongFilter.TagFromFacetId(ttype)}";
+                $"{tvalue}:{TagQuery.TagFromFacetId(ttype)}";
             if (tagMap.TryGetValue(key.ToLower(), out var tt))
             {
                 key = tt.Key;

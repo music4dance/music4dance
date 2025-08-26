@@ -4,9 +4,9 @@ import { DanceQueryBase } from "./DanceQueryBase";
 import { PurchaseInfo } from "./Purchase";
 import { RawDanceQuery } from "./RawDanceQuery";
 import { SongSort, SortOrder } from "./SongSort";
-import { TagList } from "./TagList";
 import { UserQuery } from "./UserQuery";
 import { KeywordQuery } from "./KeywordQuery";
+import { TagQuery } from "./TagQuery";
 
 const subChar = "\u001a";
 const scRegEx = new RegExp(subChar, "g");
@@ -157,8 +157,8 @@ export class SongFilter {
     return new SongSort(this.sortOrder, this.TextSearch);
   }
 
-  public get tagList(): TagList {
-    return new TagList(this.tags);
+  public get tagQuery(): TagQuery {
+    return new TagQuery(this.tags);
   }
 
   public get isEmpty(): boolean {
@@ -219,8 +219,7 @@ export class SongFilter {
       : `All${this.describePart(this.danceQuery.description)}` +
           `${this.describePart(this.describeKeywords)}` +
           `${this.describePart(this.describePurchase)}` +
-          `${this.describePart(this.describeIncludedTags)}` +
-          `${this.describePart(this.describeExcludedTags)}` +
+          `${this.describePart(this.tagQuery.describeTags)}` +
           `${this.describePart(this.describeTempo)}` +
           `${this.describePart(this.describeLength)}` +
           `${this.describePart(this.userQuery.description)}` +
@@ -263,14 +262,6 @@ export class SongFilter {
     }
 
     return `available on ${services.join(" or ")}`;
-  }
-
-  private get describeIncludedTags(): string {
-    return this.tagList.filterCategories(["Dances"]).AddsDescription;
-  }
-
-  private get describeExcludedTags(): string {
-    return this.tagList.filterCategories(["Dances"]).RemovesDescription;
   }
 
   private get describeTempo(): string {
