@@ -345,7 +345,7 @@ public partial class DanceMusicCoreService(DanceMusicContext context, ISearchSer
 
     public IEnumerable<TagGroup> OrderedTagGroups => DanceStatsManager.Instance.TagGroups;
 
-    public ICollection<TagGroup> GetTagRings(TagList tags)
+    public virtual ICollection<TagGroup> GetTagRings(TagList tags)
     {
         var map = new Dictionary<string, TagGroup>();
 
