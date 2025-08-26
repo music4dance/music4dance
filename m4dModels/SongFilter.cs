@@ -633,11 +633,11 @@ namespace m4dModels
             return odata;
         }
 
-        private static string CombineFilter(string odata, string newData)
+        private static string CombineFilter(string existing, string newData)
         {
-            if (newData == null) return odata;
+            if (newData == null) return existing;
 
-            return (odata == null ? "" : odata + " and ") + newData;
+            return (existing == null ? "" : existing + " and ") + newData;
         }
 
         public override string ToString()

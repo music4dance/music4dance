@@ -316,7 +316,7 @@ function onReset(evt: Event): void {
           </div>
         </BFormGroup>
 
-        <TagQuerySelector v-model="tagString" :tag-list="tags" />
+        <TagQuerySelector v-model="tagString" :tag-list="tags" class="mt-3" />
 
         <BFormGroup id="tempo-range-group" label="Tempo range (BPM):" label-for="tempo-range">
           <BFormGroup id="tempo-range">
