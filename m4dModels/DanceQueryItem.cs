@@ -5,12 +5,12 @@ using DanceLibrary;
 
 namespace m4dModels
 {
-    public partial class DanceThreshold
+    public partial class DanceQueryItem
     {
         public string Id { get; set; }
         public int Threshold { get; set; }
 
-        public static DanceThreshold FromValue(string value)
+        public static DanceQueryItem FromValue(string value)
         {
             var regex = ThresholdRegex();
             var match = regex.Match(value);
@@ -23,7 +23,7 @@ namespace m4dModels
             var weight = match.Groups[3].Success && !string.IsNullOrEmpty(match.Groups[3].Value)
                 ? int.Parse(match.Groups[3].Value) : 1;
 
-            return new DanceThreshold
+            return new DanceQueryItem
             {
                 Id = dance.Id,
                 Threshold = match.Groups[2].Success && match.Groups[2].Value == "-" ? -weight : weight

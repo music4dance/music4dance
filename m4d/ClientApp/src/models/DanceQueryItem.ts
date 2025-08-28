@@ -3,11 +3,11 @@ import type { NamedObject } from "./DanceDatabase/NamedObject";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 
 @jsonObject
-export class DanceThreshold {
+export class DanceQueryItem {
   @jsonMember(String) public id!: string;
   @jsonMember(Number) public threshold!: number;
 
-  public static fromValue(value: string): DanceThreshold {
+  public static fromValue(value: string): DanceQueryItem {
     const regex = /^([a-zA-Z0-9]+)([+-]?)(\d*)$/;
     const match = value.match(regex);
     if (!match) {
@@ -20,13 +20,13 @@ export class DanceThreshold {
     }
 
     const weight = match[3] ? parseInt(match[3]) : 1;
-    return new DanceThreshold({
+    return new DanceQueryItem({
       id: dance.id,
       threshold: match[2] === "-" ? -weight : weight,
     });
   }
 
-  public constructor(init?: Partial<DanceThreshold>) {
+  public constructor(init?: Partial<DanceQueryItem>) {
     Object.assign(this, init);
   }
 

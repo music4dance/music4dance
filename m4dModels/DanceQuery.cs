@@ -28,9 +28,9 @@ namespace m4dModels
         private static string NormalizeQuery(string query)
         {
             if (query.StartsWith(AndX + ",", StringComparison.InvariantCultureIgnoreCase))
-                return And + "," + query.Substring(AndX.Length + 1);
+                return string.Concat(And, ",", query.AsSpan(AndX.Length + 1));
             if (query.StartsWith(OneOfX + ",", StringComparison.InvariantCultureIgnoreCase))
-                return query.Substring(OneOfX.Length + 1); // Remove OOX, treat as inclusive (no prefix)
+                return query[(OneOfX.Length + 1)..]; // Remove OOX, treat as inclusive (no prefix)
             return query;
         }
 
@@ -38,7 +38,7 @@ namespace m4dModels
 
         public bool All => string.IsNullOrEmpty(Query);
 
-        public IEnumerable<DanceThreshold> DancesThresholds
+        public IEnumerable<DanceQueryItem> DancesThresholds
         {
             get
             {
@@ -53,7 +53,7 @@ namespace m4dModels
                     items.RemoveAt(0);
                 }
 
-                return items.Select(DanceThreshold.FromValue);
+                return items.Select(DanceQueryItem.FromValue);
             }
         }
 

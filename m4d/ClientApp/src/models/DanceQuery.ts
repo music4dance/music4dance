@@ -1,5 +1,5 @@
 import { DanceQueryBase } from "./DanceQueryBase";
-import { DanceThreshold } from "./DanceThreshold";
+import { DanceQueryItem } from "./DanceQueryItem";
 
 const all = "ALL";
 const and = "AND"; // Exclusive + Explicit
@@ -42,7 +42,7 @@ export class DanceQuery extends DanceQueryBase {
     return this.data;
   }
 
-  public get danceThresholds(): DanceThreshold[] {
+  public get danceQueryItems(): DanceQueryItem[] {
     const items = this.data
       .split(",")
       .map((s) => s.trim())
@@ -53,7 +53,7 @@ export class DanceQuery extends DanceQueryBase {
       items.shift();
     }
 
-    return items.map((s) => DanceThreshold.fromValue(s));
+    return items.map((s) => DanceQueryItem.fromValue(s));
   }
 
   public get isExclusive(): boolean {
@@ -64,7 +64,7 @@ export class DanceQuery extends DanceQueryBase {
   public get description(): string {
     const prefix = this.isExclusive ? "all" : "any";
     const connector = this.isExclusive ? "and" : "or";
-    const thresholds = this.danceThresholds;
+    const thresholds = this.danceQueryItems;
 
     switch (thresholds.length) {
       case 0:
@@ -81,7 +81,7 @@ export class DanceQuery extends DanceQueryBase {
   }
 
   public get shortDescription(): string {
-    return this.danceThresholds.map((t) => t.shortDescription).join(", ");
+    return this.danceQueryItems.map((t) => t.shortDescription).join(", ");
   }
 
   private startsWith(qualifier: string) {

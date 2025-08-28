@@ -650,12 +650,9 @@ namespace m4dModels
             return string.Equals(clean, "index", StringComparison.OrdinalIgnoreCase) ? "" : clean;
         }
 
-        private string Format(string s)
-        {
-            return string.IsNullOrWhiteSpace(s)
+        private string Format(string s) => string.IsNullOrWhiteSpace(s)
                 ? "."
                 : s.Contains('-') ? s.Replace("-", @"\-") : s;
-        }
 
         public string ToJson()
         {

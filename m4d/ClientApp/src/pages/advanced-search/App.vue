@@ -9,7 +9,7 @@ import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { safeTagDatabase } from "@/helpers/TagEnvironmentManager";
 import { computed, ref } from "vue";
 import type { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
-import { DanceThreshold } from "@/models/DanceThreshold";
+import { DanceQueryItem } from "@/models/DanceQueryItem";
 import TagQuerySelector from "./components/TagQuerySelector.vue";
 
 const context = getMenuContext();
@@ -24,19 +24,19 @@ const danceQueryInit = new DanceQuery(filter.dances);
 const showDiagnostics = getShowDiagnostics();
 const keyWords = ref(filter.searchString ?? "");
 const advancedText = ref(false);
-const danceThresholds = ref(danceQueryInit.danceThresholds);
+const danceQueryItems = ref(danceQueryInit.danceQueryItems);
 const danceConnector = ref(danceQueryInit.isExclusive ? "all" : "any");
 const dances = computed<string[]>({
-  get: () => danceThresholds.value.map((d) => d.id),
+  get: () => danceQueryItems.value.map((d) => d.id),
   set: (value: string[]): void => {
-    danceThresholds.value = value.map((id) => {
-      const existing = danceThresholds.value.find((d) => d.id === id);
-      return existing ? existing : new DanceThreshold({ id: id, threshold: 1 });
+    danceQueryItems.value = value.map((id) => {
+      const existing = danceQueryItems.value.find((d) => d.id === id);
+      return existing ? existing : new DanceQueryItem({ id: id, threshold: 1 });
     });
   },
 });
 const hasThresholds = computed(() => {
-  return danceThresholds.value.some((d) => d.threshold > 1);
+  return danceQueryItems.value.some((d) => d.threshold > 1);
 });
 const showThresholds = ref(hasThresholds.value);
 
@@ -61,7 +61,7 @@ const activity = ref(userQueryInit.parts);
 
 const songFilter = computed(() => {
   const danceQuery = DanceQuery.fromParts(
-    danceThresholds.value.map((t) => t.toString()),
+    danceQueryItems.value.map((t) => t.toString()),
     danceConnector.value === "all",
   );
   const userQuery = UserQuery.fromParts(
@@ -299,7 +299,7 @@ function onReset(evt: Event): void {
               </BFormCheckbox>
             </div>
             <div v-if="showThresholds" class="mx-3 mb-2">
-              <div v-for="threshold in danceThresholds" :key="threshold.id" class="mt-2">
+              <div v-for="threshold in danceQueryItems" :key="threshold.id" class="mt-2">
                 <BFormSpinbutton
                   id="`sb-${dance}`"
                   v-model="threshold.threshold"
@@ -433,7 +433,7 @@ function onReset(evt: Event): void {
         <pre class="m-0">
 searchString = {{ keyWords }}
 dances = {{ dances }}
-danceThresholds = {{ danceThresholds }}
+danceQueryItems = {{ danceQueryItems }}
 danceConnector = {{ danceConnector }}
 tempoMin = {{ tempoMin }}
 tempoMax = {{ tempoMax }}
