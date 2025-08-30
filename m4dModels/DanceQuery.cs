@@ -38,7 +38,7 @@ namespace m4dModels
 
         public bool All => string.IsNullOrEmpty(Query);
 
-        public IEnumerable<DanceQueryItem> DancesThresholds
+        public IEnumerable<DanceQueryItem> Items
         {
             get
             {
@@ -57,8 +57,8 @@ namespace m4dModels
             }
         }
 
-        public IEnumerable<string> DanceIds => DancesThresholds.Select(d => d.Id);
-        public IEnumerable<DanceObject> Dances => DancesThresholds.Select(d => d.Dance);
+        public IEnumerable<string> DanceIds => Items.Select(d => d.Id);
+        public IEnumerable<DanceObject> Dances => Items.Select(d => d.Dance);
 
         public bool IsExclusive
         {
@@ -69,50 +69,63 @@ namespace m4dModels
             }
         }
 
-        public virtual string ODataFilter
+        public virtual string GetODataFilter(DanceMusicCoreService dms)
         {
-            get
+            var dances = DanceLibrary.Dances.Instance.ExpandGroups(Dances).ToList();
+            if (dances.Count == 0)
             {
-                var dances = DanceLibrary.Dances.Instance.ExpandGroups(Dances).ToList();
-                if (dances.Count == 0)
+                return null;
+            }
+
+            var sb = new StringBuilder();
+            var con = IsExclusive ? "and" : "or";
+
+            foreach (var d in dances)
+            {
+                if (sb.Length > 0)
                 {
-                    return null;
+                    sb.Append($" {con} ");
                 }
 
-                var sb = new StringBuilder();
-                var con = IsExclusive ? "and" : "or";
-
-                foreach (var d in dances)
+                var item = Items.FirstOrDefault(dt => dt.Id == d.Id);
+                if (item == null)
                 {
-                    if (sb.Length > 0)
+                    var groups = (d as DanceType)?.Groups;
+                    if (groups != null)
                     {
-                        sb.Append($" {con} ");
+                        item = Items.FirstOrDefault(dt => groups.Any(g => g.Id == dt.Id));
                     }
+                }
 
-                    var threshold = DancesThresholds.FirstOrDefault(dt => dt.Id == d.Id);
-                    if (threshold == null)
-                    {
-                        var groups = (d as DanceType)?.Groups;
-                        if (groups != null)
+                if (item != null)
+                {
+                    var danceField = $"dance_{d.Id}";
+                    var filterParts = new List<string>
                         {
-                            threshold = DancesThresholds.FirstOrDefault(dt => groups.Any(g => g.Id == dt.Id));
+                            $"{danceField}/Votes {(item.Threshold > 0 ? "ge" : "le")} {Math.Abs(item.Threshold)}"
+                        };
+
+                    // Use generalized TagQuery OData for this dance field (with tag ring expansion)
+                    if (item.TagQuery != null && item.TagQuery.TagList != null && !item.TagQuery.TagList.IsEmpty)
+                    {
+                        var tagOData = item.TagQuery.GetODataFilterForDanceField(danceField, dms);
+                        if (!string.IsNullOrEmpty(tagOData))
+                        {
+                            filterParts.Add(tagOData);
                         }
                     }
 
-                    if (threshold != null)
-                    {
-                        sb.AppendFormat(
-                            "(dance_{0}/Votes {1} {2})",
-                            d.Id, threshold.Threshold > 0 ? "ge" : "le", Math.Abs(threshold.Threshold));
-                    }
-                    else
-                    {
-                        Trace.WriteLine($"Invalid DanceQuery = {Query}, Dance = {d.Id}");
-                    }
+                    sb.Append('(');
+                    sb.Append(string.Join(" and ", filterParts));
+                    sb.Append(')');
                 }
-
-                return $"({sb})";
+                else
+                {
+                    Trace.WriteLine($"Invalid DanceQuery = {Query}, Dance = {d.Id}");
+                }
             }
+
+            return $"({sb})";
         }
 
         public virtual IList<string> ODataSort(string order)
@@ -125,7 +138,7 @@ namespace m4dModels
 
             return [$"dance_{dances[0].Id}/Votes {order}"];
         }
-        public string ShortDescription => string.Join(", ", DancesThresholds.Select(dt => dt.ShortDescription));
+        public string ShortDescription => string.Join(", ", Items.Select(dt => dt.ShortDescription));
 
         public bool HasDance(string id)
         {
@@ -157,8 +170,8 @@ namespace m4dModels
 
         public override string ToString()
         {
-            var thresholds = DancesThresholds.ToList();
-            var count = thresholds.Count;
+            var items = Items.ToList();
+            var count = items.Count;
             var prefix = IsExclusive ? "all" : "any";
             var connector = IsExclusive ? "and" : "or";
 
@@ -167,15 +180,15 @@ namespace m4dModels
                 case 0:
                     return "songs";
                 case 1:
-                    return $"{thresholds[0]} songs";
+                    return $"{items[0].Description} songs";
                 case 2:
                     return
-                        $"songs danceable to {prefix} of {thresholds[0]} {connector} {thresholds[1]}";
+                        $"songs danceable to {prefix} of {items[0].Description} {connector} {items[1].Description}";
                 default:
-                    var last = thresholds[count - 1];
-                    thresholds.RemoveAt(count - 1);
+                    var last = items[count - 1];
+                    items.RemoveAt(count - 1);
                     return
-                        $"songs danceable to {prefix} of {string.Join(", ", thresholds)} {connector} {last}";
+                        $"songs danceable to {prefix} of {string.Join(", ", items.Select(t => t.Description))} {connector} {last.Description}";
             }
         }
 

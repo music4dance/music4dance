@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using System.Linq;
+using m4dModels; // For TagQuery
 
 using DanceLibrary;
 
@@ -9,10 +11,11 @@ namespace m4dModels
     {
         public string Id { get; set; }
         public int Threshold { get; set; }
+        public TagQuery TagQuery { get; set; }
 
         public static DanceQueryItem FromValue(string value)
         {
-            var regex = ThresholdRegex();
+            var regex = ThresholdWithTagsRegex();
             var match = regex.Match(value);
             if (!match.Success)
             {
@@ -23,10 +26,13 @@ namespace m4dModels
             var weight = match.Groups[3].Success && !string.IsNullOrEmpty(match.Groups[3].Value)
                 ? int.Parse(match.Groups[3].Value) : 1;
 
+            var tags = match.Groups[4].Success ? match.Groups[4].Value : null;
+
             return new DanceQueryItem
             {
                 Id = dance.Id,
-                Threshold = match.Groups[2].Success && match.Groups[2].Value == "-" ? -weight : weight
+                Threshold = match.Groups[2].Success && match.Groups[2].Value == "-" ? -weight : weight,
+                TagQuery = new TagQuery(tags)
             };
         }
 
@@ -34,16 +40,26 @@ namespace m4dModels
 
         public override string ToString()
         {
-            return Description;
+            var baseStr = $"{Id}{(Threshold != 1 ? (Threshold < 0 ? "-" : "+") + Math.Abs(Threshold) : "")}";
+            if (TagQuery != null && TagQuery.TagList != null && TagQuery.TagList.Tags.Any())
+            {
+                return $"{baseStr}|{string.Join(",", TagQuery.TagList.Tags)}";
+            }
+            return baseStr;
         }
 
         public string Description
         {
             get
             {
-                return Threshold == 1
+                var desc = Threshold == 1
                     ? Dance.Name
                     : $"{Dance.Name} (with {(Threshold > 0 ? "at least" : "at most")} {Math.Abs(Threshold)} votes)";
+                if (TagQuery != null && TagQuery.TagList != null && TagQuery.TagList.Tags.Any())
+                {
+                    return $"{desc} [tags: {string.Join(", ", TagQuery.TagList.Tags)}]";
+                }
+                return desc;
             }
         }
 
@@ -51,13 +67,18 @@ namespace m4dModels
         {
             get
             {
-                return Threshold == 1
+                var desc = Threshold == 1
                     ? Dance.Name
                     : $"{Dance.Name} {(Threshold > 0 ? ">=" : "<=")} {Math.Abs(Threshold)}";
+                if (TagQuery != null && TagQuery.TagList != null && TagQuery.TagList.Tags.Any())
+                {
+                    return $"{desc} [{string.Join(",", TagQuery.TagList.Tags)}]";
+                }
+                return desc;
             }
         }
 
-        [GeneratedRegex(@"^([a-zA-Z0-9]+)([+-]?)(\d*)$")]
-        private static partial Regex ThresholdRegex();
+        [GeneratedRegex(@"^([a-zA-Z0-9]+)([+-]?)(\d*)\|?(.*)?$")]
+        private static partial Regex ThresholdWithTagsRegex();
     }
 }

@@ -1,14 +1,17 @@
 import { jsonMember, jsonObject } from "typedjson";
 import type { NamedObject } from "./DanceDatabase/NamedObject";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
+import { TagQuery } from "./TagQuery";
 
 @jsonObject
 export class DanceQueryItem {
   @jsonMember(String) public id!: string;
   @jsonMember(Number) public threshold!: number;
+  public tagQuery?: TagQuery;
 
   public static fromValue(value: string): DanceQueryItem {
-    const regex = /^([a-zA-Z0-9]+)([+-]?)(\d*)$/;
+    // Updated regex: id, threshold, |tags
+    const regex = /^([a-zA-Z0-9]+)([+-]?)(\d*)\|?(.*)?$/;
     const match = value.match(regex);
     if (!match) {
       throw new Error(`Invalid value format: ${value}`);
@@ -20,9 +23,12 @@ export class DanceQueryItem {
     }
 
     const weight = match[3] ? parseInt(match[3]) : 1;
+    const tags = match[4] ? match[4] : undefined;
+
     return new DanceQueryItem({
       id: dance.id,
       threshold: match[2] === "-" ? -weight : weight,
+      tagQuery: tags ? new TagQuery(tags) : undefined,
     });
   }
 
@@ -35,18 +41,32 @@ export class DanceQueryItem {
   }
 
   public toString(): string {
-    return `${this.id}${this.threshold !== 1 ? (this.threshold < 0 ? "-" : "+") + this.threshold : ""}`;
+    const baseStr = `${this.id}${this.threshold !== 1 ? (this.threshold < 0 ? "-" : "+") + Math.abs(this.threshold) : ""}`;
+    if (this.tagQuery && this.tagQuery.tagList && this.tagQuery.tagList.tags.length > 0) {
+      return `${baseStr}|${this.tagQuery.tagList.tags.join(",")}`;
+    }
+    return baseStr;
   }
 
   public get description(): string {
-    return this.threshold === 1
-      ? this.dance.name
-      : `${this.dance.name} (with ${this.threshold > 0 ? "at least" : "at most"} ${Math.abs(this.threshold)} votes)`;
+    let desc =
+      this.threshold === 1
+        ? this.dance.name
+        : `${this.dance.name} (with ${this.threshold > 0 ? "at least" : "at most"} ${Math.abs(this.threshold)} votes)`;
+    if (this.tagQuery && this.tagQuery.tagList && this.tagQuery.tagList.tags.length > 0) {
+      desc += ` [tags: ${this.tagQuery.tagList.tags.join(", ")}]`;
+    }
+    return desc;
   }
 
   public get shortDescription(): string {
-    return this.threshold === 1
-      ? this.dance.name
-      : `${this.dance.name} ${this.threshold > 0 ? ">=" : "<="} ${Math.abs(this.threshold)}`;
+    let desc =
+      this.threshold === 1
+        ? this.dance.name
+        : `${this.dance.name} ${this.threshold > 0 ? ">=" : "<="} ${Math.abs(this.threshold)}`;
+    if (this.tagQuery && this.tagQuery.tagList && this.tagQuery.tagList.tags.length > 0) {
+      desc += ` [${this.tagQuery.tagList.tags.join(",")}]`;
+    }
+    return desc;
   }
 }

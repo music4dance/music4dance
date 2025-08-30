@@ -64,18 +64,18 @@ export class DanceQuery extends DanceQueryBase {
   public get description(): string {
     const prefix = this.isExclusive ? "all" : "any";
     const connector = this.isExclusive ? "and" : "or";
-    const thresholds = this.danceQueryItems;
+    const items = this.danceQueryItems.slice();
 
-    switch (thresholds.length) {
+    switch (items.length) {
       case 0:
         return `songs`;
       case 1:
-        return `${thresholds[0].description} songs`;
+        return `${items[0].description} songs`;
       case 2:
-        return `songs danceable to ${prefix} of ${thresholds[0].description} ${connector} ${thresholds[1].description}`;
+        return `songs danceable to ${prefix} of ${items[0].description} ${connector} ${items[1].description}`;
       default: {
-        const last = thresholds.pop();
-        return `songs danceable to ${prefix} of ${thresholds.map((t) => t.description).join(", ")} ${connector} ${last}`;
+        const last = items.pop();
+        return `songs danceable to ${prefix} of ${items.map((t) => t.description).join(", ")} ${connector} ${last?.description}`;
       }
     }
   }

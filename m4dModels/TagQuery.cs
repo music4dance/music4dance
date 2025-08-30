@@ -83,12 +83,43 @@ namespace m4dModels
             return ret.ToString();
         }
 
+        /// <summary>
+        /// Returns an OData filter for tags, targeting a specific dance field (e.g., "dance_{DanceId}").
+        /// If danceField is null, uses the global/dance_ALL field.
+        /// </summary>
+        public string GetODataFilterForDanceField(string danceField = null, DanceMusicCoreService dms = null)
+        {
+            return BuildODataFilter(
+                tagString: _tagString,
+                expandTagRings: dms != null,
+                dms: dms,
+                danceField: danceField
+            );
+        }
+
+        /// <summary>
+        /// Returns an OData filter for tags, using the global/dance_ALL field and tag ring expansion.
+        /// </summary>
         public string GetODataFilter(DanceMusicCoreService dms)
         {
-            if (TagList.IsEmpty)
+            return BuildODataFilter(
+                tagString: _tagString,
+                expandTagRings: true,
+                dms: dms,
+                danceField: null
+            );
+        }
+
+        /// <summary>
+        /// Shared OData filter builder for both global and per-dance tag queries.
+        /// </summary>
+        private string BuildODataFilter(string tagString, bool expandTagRings, DanceMusicCoreService dms, string danceField)
+        {
+            var tagList = new TagList(tagString);
+            if (tagList.IsEmpty)
                 return null;
 
-            var tlInclude = new TagList(_tagString);
+            var tlInclude = tagList;
             var tlExclude = new TagList();
 
             if (tlInclude.IsQualified)
@@ -98,23 +129,38 @@ namespace m4dModels
                 tlExclude = temp.ExtractRemove();
             }
 
-            var rInclude = new TagList(dms.GetTagRings(tlInclude).Select(tt => tt.Key));
-            var rExclude = new TagList(dms.GetTagRings(tlExclude).Select(tt => tt.Key));
+            if (expandTagRings && dms != null)
+            {
+                tlInclude = new TagList(dms.GetTagRings(tlInclude).Select(tt => tt.Key));
+                tlExclude = new TagList(dms.GetTagRings(tlExclude).Select(tt => tt.Key));
+            }
 
             var sb = new StringBuilder();
 
             foreach (var tp in s_tagClasses)
             {
                 var tagClass = tp.Value;
-                HandleFilterClass(sb, rInclude, tp.Key, tagClass.Name,
-                    tagClass.IsSongTag ? "{0}Tags/any(t: t eq '{1}')" : null,
-                    tagClass.IsDanceTag ? "dance_ALL/{0}Tags/any(t: t eq '{1}')" : null);
-                HandleFilterClass(sb, rExclude, tp.Key, tagClass.Name,
-                    tagClass.IsSongTag ? "{0}Tags/all(t: t ne '{1}')" : null,
-                    tagClass.IsDanceTag ? "dance_ALL/{0}Tags/all(t: t ne '{1}')" : null);
+                var danceFormat = danceField != null
+                    ? $"{danceField}/{{0}}Tags/any(t: t eq '{{1}}')"
+                    : tagClass.IsDanceTag ? "dance_ALL/{0}Tags/any(t: t eq '{1}')" : null;
+                var danceFormatExclude = danceField != null
+                    ? $"{danceField}/{{0}}Tags/all(t: t ne '{{1}}')"
+                    : tagClass.IsDanceTag ? "dance_ALL/{0}Tags/all(t: t ne '{1}')" : null;
+
+                var songFormat = (danceField == null && tagClass.IsSongTag)
+                    ? "{0}Tags/any(t: t eq '{1}')"
+                    : null;
+                var songFormatExclude = (danceField == null && tagClass.IsSongTag)
+                    ? "{0}Tags/all(t: t ne '{1}')"
+                    : null;
+
+                // Inclusion
+                HandleFilterClass(sb, tlInclude, tp.Key, tagClass.Name, songFormat, danceFormat);
+                // Exclusion
+                HandleFilterClass(sb, tlExclude, tp.Key, tagClass.Name, songFormatExclude, danceFormatExclude);
             }
 
-            return sb.ToString();
+            return sb.Length == 0 ? null : sb.ToString();
         }
 
         private static void HandleFilterClass(

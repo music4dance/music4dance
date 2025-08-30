@@ -601,7 +601,7 @@ namespace m4dModels
                 ? $"({SongSort.Id} ne null) and ({SongSort.Id} ne 0)"
                 : null;
 
-            odata = CombineFilter(odata, DanceQuery.ODataFilter);
+            odata = CombineFilter(odata, DanceQuery.GetODataFilter(dms));
             odata = CombineFilter(odata, UserQuery.ODataFilter);
 
             if (TempoMin.HasValue)
