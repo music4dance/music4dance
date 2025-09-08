@@ -35,6 +35,8 @@ namespace m4dModels
             TagList = new TagList(_tagString);
         }
 
+        public bool IsEmpty => TagList.IsEmpty;
+
         public static string TagFromFacetId(string facetId)
         {
             if (string.IsNullOrWhiteSpace(facetId))
@@ -51,10 +53,16 @@ namespace m4dModels
                 : tagClass;
         }
 
-        public string DescribeTags(ref string separator)
+        public string Description(ref string separator)
         {
             return FormatList(TagList.ExtractAdd().Strip(), "including tag", "and", ref separator) +
                      FormatList(TagList.ExtractRemove().Strip(), "excluding tag", "or", ref separator);
+        }
+
+        public string ShortDescription(ref string separator)
+        {
+            return FormatList(TagList.ExtractAdd().Strip(), "inc", "and", ref separator) +
+                     FormatList(TagList.ExtractRemove().Strip(), "excl", "or", ref separator);
         }
 
         private static string FormatList(IList<string> list, string prefix, string connector, ref string separator)

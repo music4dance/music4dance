@@ -29,20 +29,19 @@ const danceConnector = ref(danceQueryInit.isExclusive ? "all" : "any");
 const dances = computed<string[]>({
   get: () => danceQueryItems.value.map((d) => d.id),
   set: (value: string[]): void => {
+    // Sync danceQueryItems with selected dances, preserving thresholds and tags
     danceQueryItems.value = value.map((id) => {
       const existing = danceQueryItems.value.find((d) => d.id === id);
       return existing ? existing : new DanceQueryItem({ id: id, threshold: 1 });
     });
   },
 });
-const hasThresholds = computed(() => {
-  return danceQueryItems.value.some((d) => d.threshold > 1);
+const hasDanceDetails = computed(() => {
+  return danceQueryItems.value.some((d) => d.threshold > 1 || d.tagQuery?.hasTags);
 });
-const showThresholds = ref(hasThresholds.value);
-
+const showDanceDetails = ref(hasDanceDetails.value);
 const tags: Tag[] = tagDatabase.tags;
 const tagString = ref(filter.tags ?? "");
-
 const tempoMin = ref(filter.tempoMin ?? 0);
 const tempoMax = ref(filter.tempoMax ?? 400);
 
@@ -87,7 +86,7 @@ const songFilter = computed(() => {
   filter.tempoMax = tempoMax.value >= 400 ? undefined : tempoMax.value;
   filter.lengthMin = lengthMin.value === 0 ? undefined : lengthMin.value;
   filter.lengthMax = lengthMax.value >= 400 ? undefined : lengthMax.value;
-  filter.tags = tagString.value;
+  filter.tags = tagString.value; // <-- restore song-level tags
   filter.level = level ? level : undefined;
 
   return filter;
@@ -250,7 +249,10 @@ function onReset(evt: Event): void {
   sortId.value = null;
   sortDirection.value = "asc";
   bonuses.value = [];
-  tagString.value = "";
+  tagString.value = ""; // <-- restore reset of song-level tags
+
+  // Reset danceQueryItems to empty
+  danceQueryItems.value = [];
 
   validated.value = false;
 }
@@ -291,26 +293,39 @@ function onReset(evt: Event): void {
               </BFormRadioGroup>
               <BFormCheckbox
                 id="show-thresholds"
-                v-model="showThresholds"
-                :disabled="!dances.length || hasThresholds"
+                v-model="showDanceDetails"
+                :disabled="!dances.length || hasDanceDetails"
                 switch
               >
-                Show Thresholds
+                Show Tags and Thresholds
               </BFormCheckbox>
             </div>
-            <div v-if="showThresholds" class="mx-3 mb-2">
-              <div v-for="threshold in danceQueryItems" :key="threshold.id" class="mt-2">
+            <div v-if="showDanceDetails" class="mx-3 mb-2">
+              <div v-for="item in danceQueryItems" :key="item.id" class="mt-2">
                 <BFormSpinbutton
-                  id="`sb-${dance}`"
-                  v-model="threshold.threshold"
+                  :id="`sb-${item.id}`"
+                  v-model="item.threshold"
                   inline
                   min="1"
                   max="30"
                   size="sm"
                 />
-                <label :for="`sb-${threshold.dance.name}`" class="ms-2">{{
-                  threshold.dance.name
-                }}</label>
+                <label :for="`sb-${item.dance.name}`" class="ms-2">{{ item.dance.name }}</label>
+                <!-- Per-dance tag selector -->
+                <TagQuerySelector
+                  :model-value="item.tagQuery?.tagList.summary ?? ''"
+                  :tag-list="tags"
+                  class="mt-2"
+                  @update:model-value="
+                    (val) => {
+                      if (val && val.length > 0) {
+                        item.tags = val;
+                      } else {
+                        item.tags = undefined;
+                      }
+                    }
+                  "
+                />
               </div>
             </div>
           </div>
@@ -449,8 +464,8 @@ user = {{ user }}
 displayUser = {{ displayUser }}
 
 filter = {{ songFilter }}
-      </pre
-        >
+query = {{ songFilter.query }}
+        </pre>
       </BCard>
     </div>
   </PageFrame>

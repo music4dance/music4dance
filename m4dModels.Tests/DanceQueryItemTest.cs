@@ -65,10 +65,10 @@ namespace m4dModels.Tests
         {
             var item = DanceQueryItem.FromValue("BOL+2|Fast:Tempo,Smooth:Style");
             Assert.AreEqual(
-                @"Bolero (with at least 2 votes) [tags: Fast:Tempo,Smooth:Style]",
+                @"Bolero (with at least 2 votes including tag Fast)",
                 item.Description);
             Assert.AreEqual(
-                @"Bolero >= 2 [Fast:Tempo,Smooth:Style]",
+                @"Bolero >= 2 inc Fast",
                 item.ShortDescription);
         }
 

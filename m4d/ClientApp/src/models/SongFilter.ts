@@ -9,7 +9,6 @@ import { KeywordQuery } from "./KeywordQuery";
 import { TagQuery } from "./TagQuery";
 
 const subChar = "\u001a";
-const scRegEx = new RegExp(subChar, "g");
 
 @jsonObject
 export class SongFilter {
@@ -47,9 +46,9 @@ export class SongFilter {
 
   private static splitFilter(input: string): string[] {
     return input
-      .replace(/\\-/g, subChar)
+      .replaceAll("\\-", subChar)
       .split("-")
-      .map((s) => s.trim().replace(scRegEx, "-"));
+      .map((s) => s.trim().replaceAll(subChar, "-"));
   }
 
   private static readCell(cells: string[], index: number): string | undefined {
@@ -102,7 +101,7 @@ export class SongFilter {
     const level = this.level ? this.level : "";
 
     const ret =
-      `v2-${this.action}-${this.danceQuery.query}-${this.encode(this.sortOrder)}-` +
+      `v2-${this.action}-${this.encode(this.danceQuery.query)}-${this.encode(this.sortOrder)}-` +
       `${this.encode(this.searchString)}-${this.encode(this.purchase)}-${this.encode(this.user)}-` +
       `${tempoMin}-${tempoMax}-${lengthMin}-${lengthMax}-${this.cleanPage}-${this.encode(
         this.tags,
@@ -219,7 +218,7 @@ export class SongFilter {
       : `All${this.describePart(this.danceQuery.description)}` +
           `${this.describePart(this.describeKeywords)}` +
           `${this.describePart(this.describePurchase)}` +
-          `${this.describePart(this.tagQuery.describeTags)}` +
+          `${this.describePart(this.tagQuery.description)}` +
           `${this.describePart(this.describeTempo)}` +
           `${this.describePart(this.describeLength)}` +
           `${this.describePart(this.userQuery.description)}` +
@@ -314,8 +313,13 @@ export class SongFilter {
     return true;
   }
 
+  // TODONEXT:
+  //  Clean up the UX (mosty the threshold/tags part on the dances)
+  //  Make dance-specific tags exclude genre tags
+  //  Make song-level tags have the option of including the danceAll tags, if that isn't chosen, exclude style
+  //  Make the tag modals handle dance tags
   private encode(s: string | undefined): string {
-    return s ? s.replace(/-/g, "\\-") : "";
+    return s ? s.replace(/-/g, subChar) : "";
   }
 
   private trimEnd(s: string, charlist: string): string {

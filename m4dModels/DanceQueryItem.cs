@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using System.Linq;
-using m4dModels; // For TagQuery
 
 using DanceLibrary;
 
@@ -12,6 +11,8 @@ namespace m4dModels
         public string Id { get; set; }
         public int Threshold { get; set; }
         public TagQuery TagQuery { get; set; }
+
+        public bool IsSimple => Threshold == 1 && TagQuery.TagList.IsEmpty;
 
         public static DanceQueryItem FromValue(string value)
         {
@@ -55,9 +56,10 @@ namespace m4dModels
                 var desc = Threshold == 1
                     ? Dance.Name
                     : $"{Dance.Name} (with {(Threshold > 0 ? "at least" : "at most")} {Math.Abs(Threshold)} votes)";
-                if (TagQuery != null && TagQuery.TagList != null && TagQuery.TagList.Tags.Any())
+                if (TagQuery != null && !TagQuery.IsEmpty)
                 {
-                    return $"{desc} [tags: {string.Join(", ", TagQuery.TagList.Tags)}]";
+                    var separator = "";
+                    return $"{desc.Substring(0, desc.Length-1)} {TagQuery.Description(ref separator)})";
                 }
                 return desc;
             }
@@ -70,9 +72,10 @@ namespace m4dModels
                 var desc = Threshold == 1
                     ? Dance.Name
                     : $"{Dance.Name} {(Threshold > 0 ? ">=" : "<=")} {Math.Abs(Threshold)}";
-                if (TagQuery != null && TagQuery.TagList != null && TagQuery.TagList.Tags.Any())
+                if (TagQuery != null && !TagQuery.TagList.IsEmpty)
                 {
-                    return $"{desc} [{string.Join(",", TagQuery.TagList.Tags)}]";
+                    var separator = "";
+                    return $"{desc} {TagQuery.ShortDescription(ref separator)}";
                 }
                 return desc;
             }

@@ -40,7 +40,7 @@ namespace m4dModels.Tests
         {
             var tq = new TagQuery("+Pop:Music|-Jazz:Music");
             var sep = ", ";
-            var desc = tq.DescribeTags(ref sep);
+            var desc = tq.Description(ref sep);
             Assert.IsTrue(desc.Contains("including tag"));
             Assert.IsTrue(desc.Contains("excluding tag"));
             Assert.IsTrue(desc.Contains("Pop"));

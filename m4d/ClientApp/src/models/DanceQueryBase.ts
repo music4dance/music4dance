@@ -30,7 +30,10 @@ export class DanceQueryBase {
 
   public get isSimple(): boolean {
     const c = this.danceQueryItems.length;
-    return c === 0 || (c === 1 && this.danceQueryItems[0].threshold === 1);
+    return (
+      c === 0 ||
+      (c === 1 && this.danceQueryItems[0].threshold === 1 && !this.danceQueryItems[0].tags)
+    );
   }
 
   public get description(): string {

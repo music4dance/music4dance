@@ -43,6 +43,14 @@ export class TagList {
     return this.FormatList(this.Removes, "excluding tag", "or");
   }
 
+  public get AddsShortDescription(): string {
+    return this.FormatList(this.Adds, "inc", "and");
+  }
+
+  public get RemovesShortDescription(): string {
+    return this.FormatList(this.Removes, "excl", "or");
+  }
+
   public filterCategories(categories: string[]): TagList {
     const cats = categories.map((cat) => cat.toLowerCase());
     return TagList.build(this.tags.filter((t) => cats.indexOf(t.category.toLowerCase()) === -1));

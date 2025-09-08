@@ -146,7 +146,7 @@ namespace m4dModels
         private List<string> SplitFilter(string input)
         {
             return [.. input
-                .Replace(@"\-", _subStr)
+                .Replace(@"\\-", _subStr)
                 .Split('-')
                 .Select(s => s.Trim().Replace(_subStr, "-"))];
         }
@@ -336,7 +336,7 @@ namespace m4dModels
 
         public bool IsEmptyUser(string user) =>
             EmptyExcept(["Page", "Action", "SortOrder", "Dances", "User"]) &&
-            DanceQuery.Dances.Count() < 2 &&
+            !DanceQuery.IsComplex &&
             UserQuery.IsDefault(user);
 
         public bool IsSingleDance => IsEmptyDance && DanceQuery?.Dances.Count() == 1;
@@ -384,7 +384,7 @@ namespace m4dModels
                     separator = CommaSeparator;
                 }
 
-                sb.Append(TagQuery.DescribeTags(ref separator));
+                sb.Append(TagQuery.Description(ref separator));
 
                 if (TempoMin.HasValue && TempoMax.HasValue)
                 {
@@ -644,7 +644,7 @@ namespace m4dModels
         {
             var version = Version == 2 ? "v2-" : "";
             var length = Version == 2 ? $"{Format(LengthMin.ToString())}-{Format(LengthMax.ToString())}-" : "";
-            var ret = $"{version}{Action}-{Dances}-{Format(SortOrder)}-{Format(SearchString)}-{Format(Purchase)}-{Format(User)}-" +
+            var ret = $"{version}{Action}-{Format(Dances)}-{Format(SortOrder)}-{Format(SearchString)}-{Format(Purchase)}-{Format(User)}-" +
                 $"{Format(TempoMin.ToString())}-{Format(TempoMax.ToString())}-{length}{Format(Page.ToString())}-{Format(Tags)}-{Format(Level.ToString())}";
             var clean = ret.TrimEnd(['.', '-']);
             return string.Equals(clean, "index", StringComparison.OrdinalIgnoreCase) ? "" : clean;
@@ -652,7 +652,7 @@ namespace m4dModels
 
         private string Format(string s) => string.IsNullOrWhiteSpace(s)
                 ? "."
-                : s.Contains('-') ? s.Replace("-", @"\-") : s;
+                : s.Contains('-') ? s.Replace("-", _subStr) : s;
 
         public string ToJson()
         {

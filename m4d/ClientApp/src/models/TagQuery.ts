@@ -21,9 +21,19 @@ export class TagQuery {
     return tagClass?.toLowerCase() === "genre" ? "Music" : tagClass;
   }
 
-  public get describeTags(): string {
+  public get hasTags(): boolean {
+    return this.tagList.tags.length > 0;
+  }
+
+  public get description(): string {
     const inc = this.tagList.filterCategories(["Dances"]).AddsDescription;
     const exc = this.tagList.filterCategories(["Dances"]).RemovesDescription;
+    return [inc, exc].filter(Boolean).join(" ");
+  }
+
+  public get shortDescription(): string {
+    const inc = this.tagList.filterCategories(["Dances"]).AddsShortDescription;
+    const exc = this.tagList.filterCategories(["Dances"]).RemovesShortDescription;
     return [inc, exc].filter(Boolean).join(" ");
   }
 }

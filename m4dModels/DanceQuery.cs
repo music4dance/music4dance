@@ -38,6 +38,16 @@ namespace m4dModels
 
         public bool All => string.IsNullOrEmpty(Query);
 
+        public bool IsComplex
+        {
+            get
+            {
+                var dances = Items.ToList();
+                return dances.Count > 1 ||
+                    dances.Count == 1 && dances.Any(d => !d.IsSimple);
+            }
+        }
+
         public IEnumerable<DanceQueryItem> Items
         {
             get
