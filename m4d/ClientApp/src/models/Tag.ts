@@ -100,9 +100,23 @@ export class Tag {
     ];
   }
 
-  public static filterByContext(tags: Tag[], context: TagContext): Tag[] {
-    const validCategories =
-      context === TagContext.Dance ? Tag.getDanceValidCategories() : Tag.getSongValidCategories();
+  public static filterByContext(tags: Tag[], contexts: TagContext | TagContext[]): Tag[] {
+    const contextArray = Array.isArray(contexts) ? contexts : [contexts];
+    let validCategories: string[] = [];
+
+    for (const context of contextArray) {
+      switch (context) {
+        case TagContext.Dance:
+          validCategories.push(...Tag.getDanceValidCategories());
+          break;
+        case TagContext.Song:
+          validCategories.push(...Tag.getSongValidCategories());
+          break;
+      }
+    }
+
+    // Remove duplicates
+    validCategories = [...new Set(validCategories)];
 
     return tags.filter((tag) => validCategories.includes(tag.category.toLowerCase()));
   }

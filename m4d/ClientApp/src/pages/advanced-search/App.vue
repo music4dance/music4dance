@@ -41,7 +41,32 @@ const hasDanceDetails = computed(() => {
 });
 const showDanceDetails = ref(hasDanceDetails.value);
 const tags: Tag[] = tagDatabase.tags;
-const tagString = ref(filter.tags ?? "");
+
+// Initialize tagString and includeDanceAllTags from filter
+let initialTagString = filter.tags ?? "";
+const includeDanceAllTags = ref(false);
+
+// Parse initial state from tagString if it starts with "^"
+if (initialTagString.startsWith("^")) {
+  includeDanceAllTags.value = true;
+  initialTagString = initialTagString.substring(1);
+}
+
+const tagString = ref(initialTagString);
+
+// Check if any style tags are currently selected
+const hasStyleTags = computed(() => {
+  if (!tagString.value) return false;
+  const parts = tagString.value.split("|").map((p) => p.trim());
+  const styleTags = tags.filter((tag) => tag.category.toLowerCase() === "style");
+  const styleKeys = styleTags.map((tag) => tag.key);
+
+  return parts.some((part) => {
+    const cleanPart = part.startsWith("+") || part.startsWith("-") ? part.slice(1) : part;
+    return styleKeys.includes(cleanPart);
+  });
+});
+
 const tempoMin = ref(filter.tempoMin ?? 0);
 const tempoMax = ref(filter.tempoMax ?? 400);
 
@@ -86,7 +111,8 @@ const songFilter = computed(() => {
   filter.tempoMax = tempoMax.value >= 400 ? undefined : tempoMax.value;
   filter.lengthMin = lengthMin.value === 0 ? undefined : lengthMin.value;
   filter.lengthMax = lengthMax.value >= 400 ? undefined : lengthMax.value;
-  filter.tags = tagString.value; // <-- restore song-level tags
+  // Include "^" prefix if dance_ALL tags are enabled
+  filter.tags = includeDanceAllTags.value ? `^${tagString.value}` : tagString.value;
   filter.level = level ? level : undefined;
 
   return filter;
@@ -249,7 +275,8 @@ function onReset(evt: Event): void {
   sortId.value = null;
   sortDirection.value = "asc";
   bonuses.value = [];
-  tagString.value = ""; // <-- restore reset of song-level tags
+  tagString.value = "";
+  includeDanceAllTags.value = false; // Reset dance_ALL tags toggle
 
   // Reset danceQueryItems to empty
   danceQueryItems.value = [];
@@ -353,13 +380,32 @@ function onReset(evt: Event): void {
           </div>
         </BFormGroup>
 
-        <!-- Global TagQuerySelector for song-level tags with song context -->
-        <TagQuerySelector
-          v-model="tagString"
-          :tag-list="tags"
-          :context="TagContext.Song"
-          class="mt-3"
-        />
+        <!-- Song-level Tags Section -->
+        <BFormGroup label="Song Tags:">
+          <div style="border: 1px solid #ced4da; border-radius: 0.25rem" class="p-3">
+            <TagQuerySelector
+              v-model="tagString"
+              :tag-list="tags"
+              :context="includeDanceAllTags ? [TagContext.Song, TagContext.Dance] : TagContext.Song"
+            />
+
+            <div class="row mt-3">
+              <div class="col-6">
+                <BFormCheckbox
+                  id="include-dance-all-tags"
+                  v-model="includeDanceAllTags"
+                  :disabled="hasStyleTags"
+                  switch
+                >
+                  Include Dance Tags
+                </BFormCheckbox>
+              </div>
+              <div class="col-6">
+                <small class="text-muted"> Include tags on any dance </small>
+              </div>
+            </div>
+          </div>
+        </BFormGroup>
 
         <BFormGroup id="tempo-range-group" label="Tempo range (BPM):" label-for="tempo-range">
           <BFormGroup id="tempo-range">
@@ -478,6 +524,7 @@ searchString = {{ keyWords }}
 dances = {{ dances }}
 danceQueryItems = {{ danceQueryItems }}
 danceConnector = {{ danceConnector }}
+includeDanceAllTags = {{ includeDanceAllTags }}
 tempoMin = {{ tempoMin }}
 tempoMax = {{ tempoMax }}
 lengthMin = {{ lengthMin }}

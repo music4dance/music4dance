@@ -11,7 +11,7 @@ const props = defineProps<{
   chooseLabel: string;
   emptyLabel: string;
   addCategories?: string[];
-  context?: TagContext; // New prop to specify dance or song context
+  context?: TagContext | TagContext[]; // Can specify one or multiple contexts
 }>();
 
 // Get valid categories based on context
@@ -20,10 +20,19 @@ const categories = computed(() => {
     return new Set(Tag.tagKeys.filter((k) => k !== "dance"));
   }
 
-  const validCategories =
-    props.context === TagContext.Dance
-      ? Tag.getDanceValidCategories()
-      : Tag.getSongValidCategories();
+  const contextArray = Array.isArray(props.context) ? props.context : [props.context];
+  let validCategories: string[] = [];
+
+  for (const context of contextArray) {
+    if (context === TagContext.Dance) {
+      validCategories.push(...Tag.getDanceValidCategories());
+    } else if (context === TagContext.Song) {
+      validCategories.push(...Tag.getSongValidCategories());
+    }
+  }
+
+  // Remove duplicates
+  validCategories = [...new Set(validCategories)];
 
   return new Set(validCategories);
 });
