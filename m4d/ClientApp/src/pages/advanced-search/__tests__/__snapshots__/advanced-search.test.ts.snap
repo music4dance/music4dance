@@ -127,7 +127,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
               </div>
               <div class="d-flex mb-2">
                 <div id="dance-connector" role="radiogroup" class="btn-group btn-group-sm bv-no-focus-ring mx-3" tabindex="-1"><input id="BootstrapVueNext__ID__v-23__form-check___" class="btn-check" type="radio" name="BootstrapVueNext__ID__v-22__checkbox___" value="any"><label for="BootstrapVueNext__ID__v-23__form-check___" class="btn btn-outline-secondary btn-sm">Any</label><input id="BootstrapVueNext__ID__v-24__form-check___" class="btn-check" type="radio" name="BootstrapVueNext__ID__v-22__checkbox___" value="all"><label for="BootstrapVueNext__ID__v-24__form-check___" class="btn btn-outline-secondary btn-sm">All</label></div>
-                <div class="form-check form-switch"><input id="show-thresholds" class="form-check-input" type="checkbox" true-value="true" false-value="false" value="true"><label for="show-thresholds" class="form-check-label"> Show Tags and Thresholds </label></div>
+                <div class="form-check form-switch"><input id="show-dance-details" class="form-check-input" type="checkbox" true-value="true" false-value="false" value="true"><label for="show-dance-details" class="form-check-label"> Show Dance Details </label></div>
               </div>
               <!--v-if-->
             </div>

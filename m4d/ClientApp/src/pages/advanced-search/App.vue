@@ -292,41 +292,62 @@ function onReset(evt: Event): void {
                 <BFormRadio value="all">All</BFormRadio>
               </BFormRadioGroup>
               <BFormCheckbox
-                id="show-thresholds"
+                id="show-dance-details"
                 v-model="showDanceDetails"
                 :disabled="!dances.length || hasDanceDetails"
                 switch
               >
-                Show Tags and Thresholds
+                Show Dance Details
               </BFormCheckbox>
             </div>
             <div v-if="showDanceDetails" class="mx-3 mb-2">
-              <div v-for="item in danceQueryItems" :key="item.id" class="mt-2">
-                <BFormSpinbutton
-                  :id="`sb-${item.id}`"
-                  v-model="item.threshold"
-                  inline
-                  min="1"
-                  max="30"
-                  size="sm"
-                />
-                <label :for="`sb-${item.dance.name}`" class="ms-2">{{ item.dance.name }}</label>
-                <!-- Per-dance tag selector with dance context -->
-                <TagQuerySelector
-                  :model-value="item.tagQuery?.tagList.summary ?? ''"
-                  :tag-list="tags"
-                  :context="TagContext.Dance"
-                  class="mt-2"
-                  @update:model-value="
-                    (val) => {
-                      if (val && val.length > 0) {
-                        item.tags = val;
-                      } else {
-                        item.tags = undefined;
+              <div
+                v-for="item in danceQueryItems"
+                :key="item.id"
+                class="border rounded p-3 mt-2 bg-light"
+              >
+                <!-- Dance name header -->
+                <h6 class="mb-2 text-primary fw-bold">
+                  {{ item.dance.name }}
+                </h6>
+
+                <!-- Threshold control -->
+                <BFormGroup
+                  :label="`Minimum ${item.dance.name} rating:`"
+                  :label-for="`sb-${item.id}`"
+                  class="mb-2"
+                >
+                  <BFormSpinbutton
+                    :id="`sb-${item.id}`"
+                    v-model="item.threshold"
+                    inline
+                    min="1"
+                    max="30"
+                    size="sm"
+                    class="d-inline-block"
+                  />
+                  <small class="text-muted ms-2">
+                    ({{ item.threshold === 1 ? "Any rating" : `${item.threshold}+ votes` }})
+                  </small>
+                </BFormGroup>
+
+                <!-- Dance-specific tag selector -->
+                <BFormGroup :label="`${item.dance.name}-specific tags:`" class="mb-0">
+                  <TagQuerySelector
+                    :model-value="item.tagQuery?.tagList.summary ?? ''"
+                    :tag-list="tags"
+                    :context="TagContext.Dance"
+                    @update:model-value="
+                      (val) => {
+                        if (val && val.length > 0) {
+                          item.tags = val;
+                        } else {
+                          item.tags = undefined;
+                        }
                       }
-                    }
-                  "
-                />
+                    "
+                  />
+                </BFormGroup>
               </div>
             </div>
           </div>
