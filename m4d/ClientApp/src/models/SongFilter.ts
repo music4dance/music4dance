@@ -314,8 +314,6 @@ export class SongFilter {
   }
 
   // TODONEXT:
-  //  Clean up the UX (mosty the threshold/tags part on the dances)
-  //  Make dance-specific tags exclude genre tags
   //  Make song-level tags have the option of including the danceAll tags, if that isn't chosen, exclude style
   //  Make the tag modals handle dance tags
   private encode(s: string | undefined): string {

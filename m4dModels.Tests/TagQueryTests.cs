@@ -12,7 +12,7 @@ namespace m4dModels.Tests
             public MockDms(IEnumerable<string> rings = null)
                 : base(null, null, null)
             {
-                _rings = rings != null ? new List<string>(rings) : new List<string>();
+                _rings = rings != null ? [.. rings] : [];
             }
             public override ICollection<TagGroup> GetTagRings(TagList tags)
             {
@@ -48,6 +48,32 @@ namespace m4dModels.Tests
         }
 
         [TestMethod]
+        public void TagQuery_Description_IncludeDancesAllInSongTags()
+        {
+            var tq = new TagQuery("^+Pop:Music|-Jazz:Music");
+            var sep = ", ";
+            var desc = tq.Description(ref sep);
+            Assert.IsTrue(desc.Contains("song and dance tags"));
+            Assert.IsTrue(desc.Contains("including tag"));
+            Assert.IsTrue(desc.Contains("excluding tag"));
+            Assert.IsTrue(desc.Contains("Pop"));
+            Assert.IsTrue(desc.Contains("Jazz"));
+        }
+
+        [TestMethod]
+        public void TagQuery_ShortDescription_IncludeDancesAllInSongTags()
+        {
+            var tq = new TagQuery("^+Pop:Music|-Jazz:Music");
+            var sep = ", ";
+            var desc = tq.ShortDescription(ref sep);
+            Assert.IsTrue(desc.Contains("song+dance"));
+            Assert.IsTrue(desc.Contains("inc"));
+            Assert.IsTrue(desc.Contains("excl"));
+            Assert.IsTrue(desc.Contains("Pop"));
+            Assert.IsTrue(desc.Contains("Jazz"));
+        }
+
+        [TestMethod]
         public void TagQuery_TagFromFacetId_And_TagFromClassName()
         {
             Assert.AreEqual("Music", TagQuery.TagFromFacetId("GenreTags"));
@@ -77,7 +103,7 @@ namespace m4dModels.Tests
         public void TagQuery_GetODataFilter_BasicExclude()
         {
             var tq = new TagQuery("-Jazz:Music");
-            var dms = new MockDms(new[] { "Jazz:Music" });
+            var dms = new MockDms(["Jazz:Music"]);
             var odata = tq.GetODataFilter(dms);
             Assert.IsTrue(odata.Contains("Jazz"));
             Assert.IsTrue(odata.Contains("all"));
@@ -87,7 +113,7 @@ namespace m4dModels.Tests
         public void TagQuery_GetODataFilter_IncludeAndExclude()
         {
             var tq = new TagQuery("+Pop:Music|-Jazz:Music");
-            var dms = new MockDms(new[] { "Pop:Music", "Jazz:Music" });
+            var dms = new MockDms(["Pop:Music", "Jazz:Music"]);
             var odata = tq.GetODataFilter(dms);
             Assert.IsTrue(odata.Contains("Pop"));
             Assert.IsTrue(odata.Contains("Jazz"));

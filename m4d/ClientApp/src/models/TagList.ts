@@ -23,8 +23,10 @@ export class TagList {
     if (!this.summary) {
       return [];
     }
-
-    return this.summary.split("|").map((t) => Tag.fromString(t));
+    // Ignore ^ prefix if present
+    let s = this.summary;
+    if (s.startsWith("^")) s = s.substring(1);
+    return s.split("|").map((t) => Tag.fromString(t));
   }
 
   public get Adds(): Tag[] {
@@ -98,7 +100,10 @@ export class TagList {
   }
 
   private get isQualified(): boolean {
-    return !this.summary || this.summary[0] === "+" || this.summary[0] === "-";
+    // Ignore ^ prefix for qualification check
+    if (!this.summary) return false;
+    const s = this.summary.startsWith("^") ? this.summary.substring(1) : this.summary;
+    return s[0] === "+" || s[0] === "-";
   }
 
   private FormatList(list: Tag[], prefix: string, connector: string): string {

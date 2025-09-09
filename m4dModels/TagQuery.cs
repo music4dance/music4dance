@@ -29,9 +29,21 @@ namespace m4dModels
         private readonly string _tagString;
         public TagList TagList { get; }
 
+        // Indicates if song-tag queries should also include dances_ALL tags (via ^ prefix)
+        public bool IncludeDancesAllInSongTags { get; }
+
         public TagQuery(string tagString)
         {
             _tagString = tagString ?? "";
+            if (_tagString.StartsWith("^"))
+            {
+                IncludeDancesAllInSongTags = true;
+                _tagString = _tagString[1..];
+            }
+            else
+            {
+                IncludeDancesAllInSongTags = false;
+            }
             TagList = new TagList(_tagString);
         }
 
@@ -55,14 +67,22 @@ namespace m4dModels
 
         public string Description(ref string separator)
         {
-            return FormatList(TagList.ExtractAdd().Strip(), "including tag", "and", ref separator) +
-                     FormatList(TagList.ExtractRemove().Strip(), "excluding tag", "or", ref separator);
+            var explicitText = IncludeDancesAllInSongTags
+                ? $"{separator}song and dance tags"
+                : "";
+            return explicitText +
+                FormatList(TagList.ExtractAdd().Strip(), "including tag", "and", ref separator) +
+                FormatList(TagList.ExtractRemove().Strip(), "excluding tag", "or", ref separator);
         }
 
         public string ShortDescription(ref string separator)
         {
-            return FormatList(TagList.ExtractAdd().Strip(), "inc", "and", ref separator) +
-                     FormatList(TagList.ExtractRemove().Strip(), "excl", "or", ref separator);
+            var explicitText = IncludeDancesAllInSongTags
+                ? $"{separator}song+dance "
+                : "";
+            return explicitText +
+                FormatList(TagList.ExtractAdd().Strip(), "inc", "and", ref separator) +
+                FormatList(TagList.ExtractRemove().Strip(), "excl", "or", ref separator);
         }
 
         private static string FormatList(IList<string> list, string prefix, string connector, ref string separator)
@@ -101,27 +121,30 @@ namespace m4dModels
                 tagString: _tagString,
                 expandTagRings: dms != null,
                 dms: dms,
-                danceField: danceField
+                danceField: danceField,
+                includeDancesAllInSongTags: IncludeDancesAllInSongTags
             );
         }
 
-        /// <summary>
-        /// Returns an OData filter for tags, using the global/dance_ALL field and tag ring expansion.
-        /// </summary>
+        // Returns an OData filter for tags, using the global/dance_ALL field and tag ring expansion.
         public string GetODataFilter(DanceMusicCoreService dms)
         {
             return BuildODataFilter(
                 tagString: _tagString,
                 expandTagRings: true,
                 dms: dms,
-                danceField: null
+                danceField: null,
+                includeDancesAllInSongTags: IncludeDancesAllInSongTags
             );
         }
 
-        /// <summary>
-        /// Shared OData filter builder for both global and per-dance tag queries.
-        /// </summary>
-        private string BuildODataFilter(string tagString, bool expandTagRings, DanceMusicCoreService dms, string danceField)
+        // Cleaned up logic: for song-tag queries, if includeDancesAllInSongTags is false, danceFormat and danceFormatExclude are null
+        private string BuildODataFilter(
+            string tagString,
+            bool expandTagRings,
+            DanceMusicCoreService dms,
+            string danceField,
+            bool includeDancesAllInSongTags = false)
         {
             var tagList = new TagList(tagString);
             if (tagList.IsEmpty)
@@ -148,19 +171,33 @@ namespace m4dModels
             foreach (var tp in s_tagClasses)
             {
                 var tagClass = tp.Value;
-                var danceFormat = danceField != null
-                    ? $"{danceField}/{{0}}Tags/any(t: t eq '{{1}}')"
-                    : tagClass.IsDanceTag ? "dance_ALL/{0}Tags/any(t: t eq '{1}')" : null;
-                var danceFormatExclude = danceField != null
-                    ? $"{danceField}/{{0}}Tags/all(t: t ne '{{1}}')"
-                    : tagClass.IsDanceTag ? "dance_ALL/{0}Tags/all(t: t ne '{1}')" : null;
 
-                var songFormat = (danceField == null && tagClass.IsSongTag)
-                    ? "{0}Tags/any(t: t eq '{1}')"
-                    : null;
-                var songFormatExclude = (danceField == null && tagClass.IsSongTag)
-                    ? "{0}Tags/all(t: t ne '{1}')"
-                    : null;
+                string songFormat = null, songFormatExclude = null, danceFormat = null, danceFormatExclude = null;
+
+                if (danceField != null)
+                {
+                    // Dance-specific query: always use danceField, never song tags
+                    danceFormat = $"{danceField}/{{0}}Tags/any(t: t eq '{{1}}')";
+                    danceFormatExclude = $"{danceField}/{{0}}Tags/all(t: t ne '{{1}}')";
+                }
+                else if (tagClass.IsSongTag)
+                {
+                    // Song-tag query
+                    songFormat = "{0}Tags/any(t: t eq '{1}')";
+                    songFormatExclude = "{0}Tags/all(t: t ne '{1}')";
+                    if (tagClass.IsDanceTag && includeDancesAllInSongTags)
+                    {
+                        // Also include dances_ALL as an OR for inclusion, AND for exclusion
+                        danceFormat = tagClass.IsDanceTag ? "dance_ALL/{0}Tags/any(t: t eq '{1}')" : null;
+                        danceFormatExclude = tagClass.IsDanceTag ? "dance_ALL/{0}Tags/all(t: t ne '{1}')" : null;
+                    }
+                }
+                else if (tagClass.IsDanceTag)
+                {
+                    // Only dance_ALL for dance tags
+                    danceFormat = "dance_ALL/{0}Tags/any(t: t eq '{1}')";
+                    danceFormatExclude = "dance_ALL/{0}Tags/all(t: t ne '{1}')";
+                }
 
                 // Inclusion
                 HandleFilterClass(sb, tlInclude, tp.Key, tagClass.Name, songFormat, danceFormat);

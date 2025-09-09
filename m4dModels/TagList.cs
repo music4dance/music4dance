@@ -27,6 +27,8 @@ namespace m4dModels
 
         public TagList(string serialized)
         {
+            if (!string.IsNullOrEmpty(serialized) && serialized.StartsWith("^"))
+                serialized = serialized[1..];
             // Normalize the tags list by pushing it through parse/deserialize
             Summary = Serialize(Parse(serialized));
         }

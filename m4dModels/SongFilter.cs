@@ -40,7 +40,6 @@ namespace m4dModels
     public class SongFilter
     {
         private const char SubChar = '\u001a';
-        private const char Separator = '-';
 
         internal const string CommaSeparator = ", ";
 
@@ -146,7 +145,7 @@ namespace m4dModels
         private List<string> SplitFilter(string input)
         {
             return [.. input
-                .Replace(@"\\-", _subStr)
+                .Replace(@"\-", _subStr)
                 .Split('-')
                 .Select(s => s.Trim().Replace(_subStr, "-"))];
         }
