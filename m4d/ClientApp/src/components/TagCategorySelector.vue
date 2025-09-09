@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { type ListOption } from "@/models/ListOption";
-import { Tag } from "@/models/Tag";
+import { Tag, TagContext } from "@/models/Tag";
 import type { ColorVariant } from "bootstrap-vue-next";
 import { computed } from "vue";
 
-const categories = new Set(Tag.tagKeys.filter((k) => k !== "dance"));
 const model = defineModel<string[]>();
 const props = defineProps<{
   tagList: Tag[];
@@ -12,7 +11,22 @@ const props = defineProps<{
   chooseLabel: string;
   emptyLabel: string;
   addCategories?: string[];
+  context?: TagContext; // New prop to specify dance or song context
 }>();
+
+// Get valid categories based on context
+const categories = computed(() => {
+  if (!props.context) {
+    return new Set(Tag.tagKeys.filter((k) => k !== "dance"));
+  }
+
+  const validCategories =
+    props.context === TagContext.Dance
+      ? Tag.getDanceValidCategories()
+      : Tag.getSongValidCategories();
+
+  return new Set(validCategories);
+});
 
 const tagMap = computed(() => {
   return new Map<string, Tag>(props.tagList.map((t) => [t.key, t]));
@@ -20,7 +34,7 @@ const tagMap = computed(() => {
 
 function getTagOptions(): ListOption[] {
   return props.tagList
-    .filter((t) => categories.has(t.category.toLowerCase()))
+    .filter((t) => categories.value.has(t.category.toLowerCase()))
     .map((t) => ({ text: t.value, value: t.key }));
 }
 

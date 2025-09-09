@@ -10,6 +10,11 @@ export enum TagCategory {
   Dance = "Dance",
 }
 
+export enum TagContext {
+  Dance = "dance",
+  Song = "song",
+}
+
 export interface TagInfo {
   iconName: string;
   description: string;
@@ -77,6 +82,37 @@ export class Tag {
 
   public static get tagKeys(): string[] {
     return [...Tag.tagInfo.keys()];
+  }
+
+  public static getDanceValidCategories(): string[] {
+    return [
+      TagCategory.Style.toLowerCase(),
+      TagCategory.Tempo.toLowerCase(),
+      TagCategory.Other.toLowerCase(),
+    ];
+  }
+
+  public static getSongValidCategories(): string[] {
+    return [
+      TagCategory.Tempo.toLowerCase(),
+      TagCategory.Music.toLowerCase(),
+      TagCategory.Other.toLowerCase(),
+    ];
+  }
+
+  public static filterByContext(tags: Tag[], context: TagContext): Tag[] {
+    const validCategories =
+      context === TagContext.Dance ? Tag.getDanceValidCategories() : Tag.getSongValidCategories();
+
+    return tags.filter((tag) => validCategories.includes(tag.category.toLowerCase()));
+  }
+
+  public get isValidForDance(): boolean {
+    return Tag.getDanceValidCategories().includes(this.category.toLowerCase());
+  }
+
+  public get isValidForSong(): boolean {
+    return Tag.getSongValidCategories().includes(this.category.toLowerCase());
   }
 
   private static _tagInfo = new Map<string, TagInfo>([

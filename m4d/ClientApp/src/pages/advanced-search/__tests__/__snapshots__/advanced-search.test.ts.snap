@@ -134,7 +134,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
             <!---->
             <!---->
             <!---->
-          </fieldset>
+          </fieldset><!-- Global TagQuerySelector for song-level tags with song context -->
           <div class="mt-3">
             <fieldset id="BootstrapVueNext__ID__v-26__" class="b-form-group">
               <!---->

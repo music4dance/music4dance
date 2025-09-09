@@ -2,7 +2,7 @@
 import { DanceQuery } from "@/models/DanceQuery";
 import { SongFilter } from "@/models/SongFilter";
 import { SongSort, SortOrder } from "@/models/SongSort";
-import { Tag } from "@/models/Tag";
+import { Tag, TagContext } from "@/models/Tag";
 import { UserQuery } from "@/models/UserQuery";
 import { getMenuContext } from "@/helpers/GetMenuContext";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
@@ -311,10 +311,11 @@ function onReset(evt: Event): void {
                   size="sm"
                 />
                 <label :for="`sb-${item.dance.name}`" class="ms-2">{{ item.dance.name }}</label>
-                <!-- Per-dance tag selector -->
+                <!-- Per-dance tag selector with dance context -->
                 <TagQuerySelector
                   :model-value="item.tagQuery?.tagList.summary ?? ''"
                   :tag-list="tags"
+                  :context="TagContext.Dance"
                   class="mt-2"
                   @update:model-value="
                     (val) => {
@@ -331,7 +332,13 @@ function onReset(evt: Event): void {
           </div>
         </BFormGroup>
 
-        <TagQuerySelector v-model="tagString" :tag-list="tags" class="mt-3" />
+        <!-- Global TagQuerySelector for song-level tags with song context -->
+        <TagQuerySelector
+          v-model="tagString"
+          :tag-list="tags"
+          :context="TagContext.Song"
+          class="mt-3"
+        />
 
         <BFormGroup id="tempo-range-group" label="Tempo range (BPM):" label-for="tempo-range">
           <BFormGroup id="tempo-range">
