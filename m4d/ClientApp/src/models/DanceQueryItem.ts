@@ -46,6 +46,10 @@ export class DanceQueryItem {
     return undefined;
   }
 
+  public get value(): string {
+    return this.toString();
+  }
+
   public toString(): string {
     const baseStr = `${this.id}${this.threshold !== 1 ? (this.threshold < 0 ? "-" : "+") + Math.abs(this.threshold) : ""}`;
     if (this.tags && this.tags.length > 0) {
@@ -55,23 +59,33 @@ export class DanceQueryItem {
   }
 
   public get description(): string {
-    let desc =
-      this.threshold === 1
-        ? this.dance.name
-        : `${this.dance.name} (with ${this.threshold > 0 ? "at least" : "at most"} ${Math.abs(this.threshold)} votes)`;
+    const modifiers = [];
+    if (this.threshold !== 1) {
+      modifiers.push(
+        this.threshold > 0 ? `at least ${this.threshold}` : `at most ${Math.abs(this.threshold)}`,
+      );
+    }
     if (this.tagQuery?.hasTags) {
-      desc = `${desc.substring(0, desc.length - 1)} ${this.tagQuery.description})`;
+      modifiers.push(this.tagQuery.description);
+    }
+    let desc = this.dance.name;
+    if (modifiers.length > 0) {
+      desc = `${desc} (${modifiers.join(", ")})`;
     }
     return desc;
   }
 
   public get shortDescription(): string {
-    let desc =
-      this.threshold === 1
-        ? this.dance.name
-        : `${this.dance.name} ${this.threshold > 0 ? ">=" : "<="} ${Math.abs(this.threshold)}`;
-    if (this.tagQuery && this.tagQuery.tagList && this.tagQuery.tagList.tags.length > 0) {
-      desc += ` (${this.tagQuery.shortDescription})`;
+    const modifiers = [];
+    if (this.threshold !== 1) {
+      modifiers.push(this.threshold > 0 ? ">=" : "<=" + Math.abs(this.threshold));
+    }
+    if (this.tagQuery?.hasTags) {
+      modifiers.push(this.tagQuery.shortDescription);
+    }
+    let desc = this.dance.name;
+    if (modifiers.length > 0) {
+      desc = `${desc} (${modifiers.join(", ")})`;
     }
     return desc;
   }

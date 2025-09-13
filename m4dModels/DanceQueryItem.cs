@@ -42,9 +42,9 @@ namespace m4dModels
         public override string ToString()
         {
             var baseStr = $"{Id}{(Threshold != 1 ? (Threshold < 0 ? "-" : "+") + Math.Abs(Threshold) : "")}";
-            if (TagQuery != null && TagQuery.TagList != null && TagQuery.TagList.Tags.Any())
+            if (TagQuery?.TagList?.IsEmpty != true)
             {
-                return $"{baseStr}|{string.Join(",", TagQuery.TagList.Tags)}";
+                return $"{baseStr}|{TagQuery.TagList}";
             }
             return baseStr;
         }
@@ -53,13 +53,22 @@ namespace m4dModels
         {
             get
             {
-                var desc = Threshold == 1
-                    ? Dance.Name
-                    : $"{Dance.Name} (with {(Threshold > 0 ? "at least" : "at most")} {Math.Abs(Threshold)} votes)";
+                var modifiers = new System.Collections.Generic.List<string>();
+                if (Threshold != 1)
+                {
+                    modifiers.Add(Threshold > 0
+                        ? $"with at least {Threshold} votes"
+                        : $"with at most {Math.Abs(Threshold)} votes");
+                }
                 if (TagQuery != null && !TagQuery.IsEmpty)
                 {
                     var separator = "";
-                    return $"{desc.Substring(0, desc.Length-1)} {TagQuery.Description(ref separator)})";
+                    modifiers.Add(TagQuery.Description(ref separator));
+                }
+                var desc = Dance.Name;
+                if (modifiers.Count > 0)
+                {
+                    desc = $"{desc} ({string.Join(", ", modifiers)})";
                 }
                 return desc;
             }
@@ -69,13 +78,22 @@ namespace m4dModels
         {
             get
             {
-                var desc = Threshold == 1
-                    ? Dance.Name
-                    : $"{Dance.Name} {(Threshold > 0 ? ">=" : "<=")} {Math.Abs(Threshold)}";
+                var modifiers = new System.Collections.Generic.List<string>();
+                if (Threshold != 1)
+                {
+                    modifiers.Add(Threshold > 0
+                        ? $">={Threshold}"
+                        : $"<={Math.Abs(Threshold)}");
+                }
                 if (TagQuery != null && !TagQuery.TagList.IsEmpty)
                 {
                     var separator = "";
-                    return $"{desc} {TagQuery.ShortDescription(ref separator)}";
+                    modifiers.Add(TagQuery.ShortDescription(ref separator));
+                }
+                var desc = Dance.Name;
+                if (modifiers.Count > 0)
+                {
+                    desc = $"{desc} ({string.Join(", ", modifiers)})";
                 }
                 return desc;
             }

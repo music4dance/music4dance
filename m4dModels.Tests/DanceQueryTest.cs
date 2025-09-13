@@ -139,7 +139,7 @@ namespace m4dModels.Tests
         {
             var q = new DanceQuery("BOL+2|Fast:Tempo|Smooth:Style,RMB-1|Fun:Other");
             Assert.AreEqual(
-                @"songs danceable to any of Bolero (with at least 2 votes including tags Fast and Smooth) or Rumba (with at most 1 votes including tag Fun)",
+                @"songs danceable to any of Bolero (with at least 2 votes, including tags Fast and Smooth) or Rumba (with at most 1 votes, including tag Fun)",
                 q.ToString());
         }
 
@@ -147,8 +147,9 @@ namespace m4dModels.Tests
         public void DanceQuery_ShortDescription()
         {
             var q = new DanceQuery("BOL+2|Fast:Tempo|Smooth:Style,RMB-1|Fun:Other");
+            Trace.WriteLine($"ShortDescription: {q.ShortDescription}");
             Assert.AreEqual(
-                @"Bolero >= 2 incs Fast and Smooth, Rumba <= 1 inc Fun",
+                @"Bolero (>=2, incs Fast and Smooth), Rumba (<=1, inc Fun)",
                 q.ShortDescription);
         }
 

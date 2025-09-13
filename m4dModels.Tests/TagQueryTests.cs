@@ -53,11 +53,12 @@ namespace m4dModels.Tests
             var tq = new TagQuery("^+Pop:Music|-Jazz:Music");
             var sep = ", ";
             var desc = tq.Description(ref sep);
-            Assert.IsTrue(desc.Contains("song and dance tags"));
-            Assert.IsTrue(desc.Contains("including tag"));
-            Assert.IsTrue(desc.Contains("excluding tag"));
+            Assert.IsTrue(desc.Contains("including song or dance tag"));
+            Assert.IsTrue(desc.Contains("excluding song or dance tag"));
             Assert.IsTrue(desc.Contains("Pop"));
             Assert.IsTrue(desc.Contains("Jazz"));
+            // Should NOT contain the old problematic "song and dance tags" prefix
+            Assert.IsFalse(desc.Contains("song and dance tags"));
         }
 
         [TestMethod]
@@ -119,6 +120,41 @@ namespace m4dModels.Tests
             Assert.IsTrue(odata.Contains("Jazz"));
             Assert.IsTrue(odata.Contains("any"));
             Assert.IsTrue(odata.Contains("all"));
+        }
+
+        [TestMethod]
+        public void TagQuery_Description_IncludeDancesAllInSongTags_OnlyWhenTagsPresent()
+        {
+            // Test the edge case: ^ prefix but no actual tags after filtering
+            var tq = new TagQuery("^"); // Empty tag query with ^ prefix
+            var sep = ", ";
+            var desc = tq.Description(ref sep);
+            // Should be empty or not contain "song or dance tag" text
+            Assert.IsFalse(desc.Contains("song or dance tag"));
+        }
+
+        [TestMethod]
+        public void TagQuery_Description_NoExtraWordIssue()
+        {
+            // Test that we don't get "songs song and dance tags" issue
+            var tq = new TagQuery("^+Episode 10:Other");
+            var sep = ", ";
+            var desc = tq.Description(ref sep);
+            // Should contain "including song or dance tag Episode 10"
+            Assert.IsTrue(desc.Contains("including song or dance tag"));
+            Assert.IsTrue(desc.Contains("Episode 10"));
+            // Should NOT contain duplicate "song" words
+            Assert.IsFalse(desc.Contains("songs song"));
+        }
+
+        [TestMethod]
+        public void TagQuery_ShortDescription_OnlyWhenTagsPresent()
+        {
+            // Test that song+dance prefix only appears when there are actual tags
+            var tq = new TagQuery("^"); // Empty tag query with ^ prefix
+            var sep = ", ";
+            var desc = tq.ShortDescription(ref sep);
+            Assert.IsFalse(desc.Contains("song+dance"));
         }
     }
 }

@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { SongFilter } from "./SongFilter";
-import { Tag } from "./Tag";
+import { Tag, TagContext } from "./Tag";
 import { TaggableObject } from "./TaggableObject";
 
 export class TagHandler {
@@ -9,6 +9,8 @@ export class TagHandler {
   public user?: string;
   public filter?: SongFilter;
   public parent?: TaggableObject;
+  public context?: TagContext | TagContext[]; // Context for which tag types to show
+  public danceId?: string; // For dance-specific tag filtering
 
   constructor(init?: Partial<TagHandler>) {
     Object.assign(this, init);

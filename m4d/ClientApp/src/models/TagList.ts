@@ -77,6 +77,13 @@ export class TagList {
     );
   }
 
+  public add(tag: Tag): TagList {
+    // Remove the tag first if it exists (to avoid duplicates), then add the new one
+    const withoutTag = this.remove(tag);
+    const newTags = [...withoutTag.tags, tag];
+    return TagList.build(newTags);
+  }
+
   public voteFromTags(tag: Tag): boolean | undefined {
     if (this.find(tag)) {
       return true;

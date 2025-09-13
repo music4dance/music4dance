@@ -8,7 +8,7 @@ import { SongEditor } from "@/models/SongEditor";
 import { SongFilter } from "@/models/SongFilter";
 import { SongHistory } from "@/models/SongHistory";
 import { SongSort, SortOrder } from "@/models/SongSort";
-import { Tag } from "@/models/Tag";
+import { Tag, TagContext } from "@/models/Tag";
 import { TaggableObject } from "@/models/TaggableObject";
 import { TagHandler } from "@/models/TagHandler";
 import { computed, ref, watch } from "vue";
@@ -290,7 +290,13 @@ const danceHandler = (tag: Tag, filter: SongFilter, editor: SongEditor): DanceHa
 };
 
 const tagHandler = (tag: Tag, filter?: SongFilter, parent?: TaggableObject): TagHandler => {
-  return new TagHandler({ tag: tag, user: userQuery?.userName, filter, parent });
+  return new TagHandler({
+    tag: tag,
+    user: userQuery?.userName,
+    filter,
+    parent,
+    context: TagContext.Song, // Song table tags should use song context
+  });
 };
 
 const tags = (song: Song): Tag[] => {
@@ -323,6 +329,21 @@ const onChronOrderChanged = (order: SortOrder): void => {
 
 const showTagModal = (handler: TagHandler): void => {
   currentTag.value = handler;
+  tagModalVisible.value = true;
+};
+
+const showDanceTagModal = (handler: TagHandler): void => {
+  // Create a dance-specific version of the tag handler
+  const danceSpecificHandler = new TagHandler({
+    tag: handler.tag,
+    user: handler.user,
+    filter: handler.filter,
+    parent: handler.parent,
+    context: TagContext.Dance, // Dance context for dance-specific filtering
+    danceId: currentDance.value.danceRating?.danceId, // Include the specific dance ID
+  });
+
+  currentTag.value = danceSpecificHandler;
   tagModalVisible.value = true;
 };
 
@@ -711,7 +732,7 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
       v-model="danceModalVisible"
       :dance-handler="currentDance as DanceHandler"
       @dance-vote="onDanceVote(currentSong as SongEditor, $event)"
-      @tag-clicked="showTagModal"
+      @tag-clicked="showDanceTagModal"
     />
     <LikeModal
       v-model="likeModalVisible"

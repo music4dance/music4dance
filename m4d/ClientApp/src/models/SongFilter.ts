@@ -238,7 +238,8 @@ export class SongFilter {
 
   public changeSort(order: string): SongFilter {
     const clone = this.clone();
-    clone.sortOrder = new SongSort(order, this.TextSearch).query;
+    const newSort = new SongSort(order, this.TextSearch);
+    clone.sortOrder = newSort.query;
     return clone;
   }
 
@@ -314,8 +315,11 @@ export class SongFilter {
   }
 
   // TODONEXT:
-  //  Make song-level tags have the option of including the danceAll tags, if that isn't chosen, exclude style
-  //  Make the tag modals handle dance tags
+  //  ✅ Make the tag modals handle dance tags
+  //  ✅ Restore the add to filter options
+  //  ✅ Fixed dance duplication in queries
+  //  Make the tag clouds on dance pages handle dance tags
+  //  Marginally Related: Add dance tags to tag list in dances page...
   private encode(s: string | undefined): string {
     return s ? s.replace(/-/g, subChar) : "";
   }

@@ -67,22 +67,36 @@ namespace m4dModels
 
         public string Description(ref string separator)
         {
-            var explicitText = IncludeDancesAllInSongTags
-                ? $"{separator}song and dance tags"
-                : "";
-            return explicitText +
-                FormatList(TagList.ExtractAdd().Strip(), "including tag", "and", ref separator) +
-                FormatList(TagList.ExtractRemove().Strip(), "excluding tag", "or", ref separator);
+            var filteredTagList = TagList.FilterCategories(new[] { "Dances" });
+            var inc = FormatList(filteredTagList.ExtractAdd().Strip(), "including tag", "and", ref separator);
+            var exc = FormatList(filteredTagList.ExtractRemove().Strip(), "excluding tag", "or", ref separator);
+
+            // When includeDancesAllInSongTags is true, we're searching both song and dance tags
+            if (IncludeDancesAllInSongTags && (!string.IsNullOrEmpty(inc) || !string.IsNullOrEmpty(exc)))
+            {
+                // Replace "including tag" with "including song or dance tag"
+                var modifiedInc = !string.IsNullOrEmpty(inc) ? inc.Replace("including tag", "including song or dance tag") : "";
+                var modifiedExc = !string.IsNullOrEmpty(exc) ? exc.Replace("excluding tag", "excluding song or dance tag") : "";
+                return string.Concat(modifiedInc, modifiedExc).Trim();
+            }
+
+            return string.Concat(inc, exc).Trim();
         }
 
         public string ShortDescription(ref string separator)
         {
-            var explicitText = IncludeDancesAllInSongTags
-                ? $"{separator}song+dance "
-                : "";
-            return explicitText +
-                FormatList(TagList.ExtractAdd().Strip(), "inc", "and", ref separator) +
-                FormatList(TagList.ExtractRemove().Strip(), "excl", "or", ref separator);
+            var filteredTagList = TagList.FilterCategories(new[] { "Dances" });
+            var inc = FormatList(filteredTagList.ExtractAdd().Strip(), "inc", "and", ref separator);
+            var exc = FormatList(filteredTagList.ExtractRemove().Strip(), "excl", "or", ref separator);
+
+            // When includeDancesAllInSongTags is true, add "song+dance" prefix
+            if (IncludeDancesAllInSongTags && (!string.IsNullOrEmpty(inc) || !string.IsNullOrEmpty(exc)))
+            {
+                var prefix = "song+dance ";
+                return string.Concat(prefix, inc, exc).Trim();
+            }
+
+            return string.Concat(inc, exc).Trim();
         }
 
         private static string FormatList(IList<string> list, string prefix, string connector, ref string separator)

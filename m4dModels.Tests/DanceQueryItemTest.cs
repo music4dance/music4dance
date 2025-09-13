@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using m4dModels;
+using System.Diagnostics;
 
 namespace m4dModels.Tests
 {
@@ -55,20 +56,26 @@ namespace m4dModels.Tests
         {
             var item = DanceQueryItem.FromValue("BOL+2|Fast:Tempo|Smooth:Style");
             var str = item.ToString();
-            Assert.IsTrue(str.StartsWith("BOL+2|"));
-            Assert.IsTrue(str.Contains("Fast:Tempo"));
-            Assert.IsTrue(str.Contains("Smooth:Style"));
+            Assert.AreEqual("BOL+2|Fast:Tempo|Smooth:Style", str);
         }
 
         [TestMethod]
-        public void Description_And_ShortDescription_IncludeTags()
+        public void Description_IncludeTags()
         {
             var item = DanceQueryItem.FromValue("BOL+2|Fast:Tempo,Smooth:Style");
+            Trace.WriteLine($"Description: {item.Description}");
             Assert.AreEqual(
-                @"Bolero (with at least 2 votes including tag Fast)",
+                @"Bolero (with at least 2 votes, including tag Fast)",
                 item.Description);
+        }
+
+        [TestMethod]
+        public void ShortDescription_IncludeTags()
+        {
+            var item = DanceQueryItem.FromValue("BOL+2|Fast:Tempo,Smooth:Style");
+            Trace.WriteLine($"ShortDescription: {item.ShortDescription}");
             Assert.AreEqual(
-                @"Bolero >= 2 inc Fast",
+                @"Bolero (>=2, inc Fast)",
                 item.ShortDescription);
         }
 
@@ -87,6 +94,42 @@ namespace m4dModels.Tests
             var odata = item.TagQuery.GetODataFilterForDanceField("dance_BOL");
             Assert.IsTrue(odata.Contains("dance_BOL/TempoTags/any(t: t eq 'Fast')"));
             Assert.IsTrue(odata.Contains("dance_BOL/StyleTags/all(t: t ne 'Smooth')"));
+        }
+
+        [TestMethod]
+        public void Description_NoModifier()
+        {
+            var item = DanceQueryItem.FromValue("WLZ");
+            Assert.AreEqual("Waltz", item.Description);
+            Assert.AreEqual("Waltz", item.ShortDescription);
+        }
+
+        [TestMethod]
+        public void Description_JustThreshold()
+        {
+            var item = DanceQueryItem.FromValue("WLZ+3");
+            Assert.AreEqual("Waltz (with at least 3 votes)", item.Description);
+            Assert.AreEqual("Waltz (>=3)", item.ShortDescription);
+        }
+
+        [TestMethod]
+        public void Description_JustTags()
+        {
+            var item = DanceQueryItem.FromValue("WLZ|Pop:Music");
+            var expectedDesc = $"Waltz (including tag Pop)";
+            var expectedShort = $"Waltz (inc Pop)";
+            Assert.AreEqual(expectedDesc, item.Description);
+            Assert.AreEqual(expectedShort, item.ShortDescription);
+        }
+
+        [TestMethod]
+        public void Description_ThresholdAndTags()
+        {
+            var item = DanceQueryItem.FromValue("WLZ+2|Pop:Music");
+            var expectedDesc = $"Waltz (with at least 2 votes, including tag Pop)";
+            var expectedShort = $"Waltz (>=2, inc Pop)";
+            Assert.AreEqual(expectedDesc, item.Description);
+            Assert.AreEqual(expectedShort, item.ShortDescription);
         }
     }
 }
