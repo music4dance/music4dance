@@ -2,15 +2,15 @@
 import { SongEditor } from "@/models/SongEditor";
 import { SongFilter } from "@/models/SongFilter";
 import { PropertyType } from "@/models/SongProperty";
-import { Tag } from "@/models/Tag";
+import { Tag, TagContext } from "@/models/Tag";
 import { TaggableObject } from "@/models/TaggableObject";
 import { TagHandler } from "@/models/TagHandler";
 import { computed } from "vue";
 import { getMenuContext } from "@/helpers/GetMenuContext";
 import { safeTagDatabase } from "@/helpers/TagEnvironmentManager";
 
-const context = getMenuContext();
 const tagDatabase = safeTagDatabase();
+const menuContext = getMenuContext();
 
 const props = defineProps<{
   container: TaggableObject;
@@ -18,6 +18,7 @@ const props = defineProps<{
   user?: string;
   editor?: SongEditor;
   edit?: boolean;
+  context?: TagContext;
 }>();
 
 const emit = defineEmits<{
@@ -65,9 +66,12 @@ const tagList = computed(() => tagDatabase.tags);
 
 const otherTags = computed(() => {
   const userTags = props.container.currentUserTags;
-  return props.container.tags.filter(
+  const filteredTags = props.container.tags.filter(
     (t) => !userTags.find((u) => u.key === t.key) && t.category.toLowerCase() !== "dance",
   );
+
+  // Apply context filtering if provided
+  return props.context ? Tag.filterByContext(filteredTags, props.context) : filteredTags;
 });
 
 const keyDifference = (long: string[], short: string[]): string => {
@@ -97,6 +101,7 @@ const tagHandler = (tag: Tag): TagHandler => {
         id="songTags"
         v-model="userTagKeys"
         :tag-list="tagList"
+        :context="context"
         choose-label="Add Tags"
         search-label="Search/Add"
         empty-label="No more tags to choose"
@@ -111,7 +116,7 @@ const tagHandler = (tag: Tag): TagHandler => {
           @change-tag="addTag"
         />
       </span>
-      <div v-if="context.canEdit">
+      <div v-if="menuContext.canEdit">
         <span v-if="otherTags.length" class="title mr-2">Remove Tags:</span>
         <TagButtonOther
           v-for="tag in otherTags"

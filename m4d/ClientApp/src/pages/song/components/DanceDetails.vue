@@ -8,6 +8,7 @@ import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import type { NamedObject } from "@/models/DanceDatabase/NamedObject";
 import { MenuContext } from "@/models/MenuContext";
 import type { TagHandler } from "@/models/TagHandler";
+import { TagContext } from "@/models/Tag";
 
 const danceDB = safeDanceDatabase();
 const context = new MenuContext();
@@ -74,6 +75,7 @@ const danceLink = (dr: DanceRating): string => {
             :user="user"
             :editor="editor"
             :edit="edit"
+            :context="TagContext.Dance"
             @update-song="$emit('update-song')"
             @tag-clicked="$emit('tag-clicked', $event)"
             @edit="$emit('edit')"
