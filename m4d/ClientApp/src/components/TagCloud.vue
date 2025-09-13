@@ -36,6 +36,8 @@ const props = defineProps<{
   hideFilter?: boolean;
   songFilter?: SongFilter;
   user?: string;
+  danceId?: string; // Pass the current dance ID for dance-specific tags
+  isDanceSpecific?: boolean; // Flag to indicate if these are dance-specific tags
 }>();
 
 const modalVisible = ref(false);
@@ -71,7 +73,12 @@ function showModal(key: string): void {
 }
 
 function getTagHandler(tag: Tag): TagHandler {
-  return new TagHandler({ tag, user: props.user, filter: props.songFilter });
+  return new TagHandler({
+    tag,
+    user: props.user,
+    filter: props.songFilter,
+    danceId: props.isDanceSpecific ? props.danceId : undefined, // Only pass danceId for dance-specific tags
+  });
 }
 </script>
 
