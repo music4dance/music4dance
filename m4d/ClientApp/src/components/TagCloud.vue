@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { SongFilter } from "@/models/SongFilter";
 import { Tag, TagBucket, type TagInfo } from "@/models/Tag";
 import { TagHandler } from "@/models/TagHandler";
 import { computed, reactive, ref } from "vue";
@@ -34,7 +33,6 @@ class TagButton implements TagInfo {
 const props = defineProps<{
   tags: Tag[];
   hideFilter?: boolean;
-  songFilter?: SongFilter;
   user?: string;
   danceId?: string; // Pass the current dance ID for dance-specific tags
   isDanceSpecific?: boolean; // Flag to indicate if these are dance-specific tags
@@ -76,7 +74,6 @@ function getTagHandler(tag: Tag): TagHandler {
   return new TagHandler({
     tag,
     user: props.user,
-    filter: props.songFilter,
     danceId: props.isDanceSpecific ? props.danceId : undefined, // Only pass danceId for dance-specific tags
   });
 }
