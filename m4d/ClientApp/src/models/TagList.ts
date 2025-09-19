@@ -23,7 +23,7 @@ export class TagList {
     if (!this.summary) {
       return [];
     }
-    // Ignore ^ prefix if present
+    // Ignore ^ prefix for tag parsing (now: ^ means do NOT include dance_ALL tags)
     let s = this.summary;
     if (s.startsWith("^")) s = s.substring(1);
     return s.split("|").map((t) => Tag.fromString(t));
@@ -59,22 +59,13 @@ export class TagList {
   }
 
   public find(tag: Tag): Tag | undefined {
-    const category = tag.category.toLowerCase();
-    const value = tag.value.toLowerCase();
-    return this.tags.find(
-      (t) => t.value.toLowerCase() === value && t.category.toLowerCase() === category,
-    );
+    const key = tag.key.toLowerCase();
+    return this.tags.find((t) => t.key.toLowerCase() === key);
   }
 
   public remove(tag: Tag): TagList {
-    const category = tag.category.toLowerCase();
-    const value = tag.value.toLowerCase();
-
-    return TagList.build(
-      this.tags.filter(
-        (t) => t.value.toLowerCase() !== value && t.category.toLowerCase() !== category,
-      ),
-    );
+    const key = tag.key.toLowerCase();
+    return TagList.build(this.tags.filter((t) => t.key.toLowerCase() !== key));
   }
 
   public add(tag: Tag): TagList {

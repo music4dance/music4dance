@@ -234,9 +234,9 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
               </div>
               <div class="row mt-3">
                 <div class="col-6">
-                  <div class="form-check form-switch"><input id="include-dance-all-tags" class="form-check-input" type="checkbox" true-value="true" false-value="false" value="true"><label for="include-dance-all-tags" class="form-check-label"> Include Dance Tags </label></div>
+                  <div class="form-check form-switch"><input id="exclude-dance-tags" class="form-check-input" type="checkbox" true-value="true" false-value="false" value="true"><label for="exclude-dance-tags" class="form-check-label"> Exclude Dance Tags </label></div>
                 </div>
-                <div class="col-6"><small class="text-muted"> Include tags on any dance </small></div>
+                <div class="col-6"><small class="text-muted"> Only use song tags (do not include tags from any dance) </small></div>
               </div>
             </div>
             <!---->

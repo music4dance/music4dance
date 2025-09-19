@@ -295,7 +295,7 @@ const tagHandler = (tag: Tag, filter?: SongFilter, parent?: TaggableObject): Tag
     user: userQuery?.userName,
     filter,
     parent,
-    context: TagContext.Song, // Song table tags should use song context
+    context: [TagContext.Song, TagContext.Dance], // Default to both song and dance_ALL
   });
 };
 

@@ -315,10 +315,8 @@ export class SongFilter {
   }
 
   // TODONEXT:
-  //  ✅ Make the tag modals handle dance tags
-  //  ✅ Restore the add to filter options
-  //  ✅ Fixed dance duplication in queries
-  //  Make the tag clouds on dance pages handle dance tags
+  //  Fix server side unit tests
+  //  More Manual testing
   //  Marginally Related: Add dance tags to tag list in dances page...
   private encode(s: string | undefined): string {
     return s ? s.replace(/-/g, subChar) : "";

@@ -29,20 +29,20 @@ namespace m4dModels
         private readonly string _tagString;
         public TagList TagList { get; }
 
-        // Indicates if song-tag queries should also include dances_ALL tags (via ^ prefix)
-        public bool IncludeDancesAllInSongTags { get; }
+        // Indicates if dance_ALL tags should be excluded (default: false). '^' prefix means exclude dance_ALL tags.
+        public bool ExcludeDanceTags { get; }
 
         public TagQuery(string tagString)
         {
             _tagString = tagString ?? "";
             if (_tagString.StartsWith("^"))
             {
-                IncludeDancesAllInSongTags = true;
+                ExcludeDanceTags = true;
                 _tagString = _tagString[1..];
             }
             else
             {
-                IncludeDancesAllInSongTags = false;
+                ExcludeDanceTags = false;
             }
             TagList = new TagList(_tagString);
         }
@@ -67,36 +67,20 @@ namespace m4dModels
 
         public string Description(ref string separator)
         {
-            var filteredTagList = TagList.FilterCategories(new[] { "Dances" });
-            var inc = FormatList(filteredTagList.ExtractAdd().Strip(), "including tag", "and", ref separator);
-            var exc = FormatList(filteredTagList.ExtractRemove().Strip(), "excluding tag", "or", ref separator);
-
-            // When includeDancesAllInSongTags is true, we're searching both song and dance tags
-            if (IncludeDancesAllInSongTags && (!string.IsNullOrEmpty(inc) || !string.IsNullOrEmpty(exc)))
-            {
-                // Replace "including tag" with "including song or dance tag"
-                var modifiedInc = !string.IsNullOrEmpty(inc) ? inc.Replace("including tag", "including song or dance tag") : "";
-                var modifiedExc = !string.IsNullOrEmpty(exc) ? exc.Replace("excluding tag", "excluding song or dance tag") : "";
-                return string.Concat(modifiedInc, modifiedExc).Trim();
-            }
-
-            return string.Concat(inc, exc).Trim();
+            var filteredTagList = TagList.FilterCategories(["Dances"]);
+            // If excluding dance tags, use 'song tag', else just 'tag'
+            var inc = FormatList(filteredTagList.ExtractAdd().Strip(), ExcludeDanceTags ? "including song tag" : "including tag", "and", ref separator);
+            var exc = FormatList(filteredTagList.ExtractRemove().Strip(), ExcludeDanceTags ? "excluding song tag" : "excluding tag", "or", ref separator);
+            return string.Concat(inc, exc).TrimEnd();
         }
 
         public string ShortDescription(ref string separator)
         {
-            var filteredTagList = TagList.FilterCategories(new[] { "Dances" });
-            var inc = FormatList(filteredTagList.ExtractAdd().Strip(), "inc", "and", ref separator);
-            var exc = FormatList(filteredTagList.ExtractRemove().Strip(), "excl", "or", ref separator);
-
-            // When includeDancesAllInSongTags is true, add "song+dance" prefix
-            if (IncludeDancesAllInSongTags && (!string.IsNullOrEmpty(inc) || !string.IsNullOrEmpty(exc)))
-            {
-                var prefix = "song+dance ";
-                return string.Concat(prefix, inc, exc).Trim();
-            }
-
-            return string.Concat(inc, exc).Trim();
+            var filteredTagList = TagList.FilterCategories(["Dances"]);
+            // If excluding dance tags, use 'song' prefix, else no prefix
+            var inc = FormatList(filteredTagList.ExtractAdd().Strip(), ExcludeDanceTags ? "song inc" : "inc", "and", ref separator);
+            var exc = FormatList(filteredTagList.ExtractRemove().Strip(), ExcludeDanceTags ? "song excl" : "excl", "or", ref separator);
+            return string.Concat(inc, exc).TrimEnd();
         }
 
         private static string FormatList(IList<string> list, string prefix, string connector, ref string separator)
@@ -125,10 +109,11 @@ namespace m4dModels
             return ret.ToString();
         }
 
-        /// <summary>
-        /// Returns an OData filter for tags, targeting a specific dance field (e.g., "dance_{DanceId}").
-        /// If danceField is null, uses the global/dance_ALL field.
-        /// </summary>
+    /// <summary>
+    /// Returns an OData filter for tags, targeting a specific dance field (e.g., "dance_{DanceId}").
+    /// If danceField is null, uses the global/dance_ALL field.
+    /// The excludeDanceTags parameter controls whether dance_ALL tags are excluded (true) or included (false, default).
+    /// </summary>
         public string GetODataFilterForDanceField(string danceField = null, DanceMusicCoreService dms = null)
         {
             return BuildODataFilter(
@@ -136,11 +121,12 @@ namespace m4dModels
                 expandTagRings: dms != null,
                 dms: dms,
                 danceField: danceField,
-                includeDancesAllInSongTags: IncludeDancesAllInSongTags
+                excludeDanceTags: ExcludeDanceTags
             );
         }
 
-        // Returns an OData filter for tags, using the global/dance_ALL field and tag ring expansion.
+    // Returns an OData filter for tags, using the global/dance_ALL field and tag ring expansion.
+    // The excludeDanceTags parameter controls whether dance_ALL tags are excluded (true) or included (false, default).
         public string GetODataFilter(DanceMusicCoreService dms)
         {
             return BuildODataFilter(
@@ -148,17 +134,18 @@ namespace m4dModels
                 expandTagRings: true,
                 dms: dms,
                 danceField: null,
-                includeDancesAllInSongTags: IncludeDancesAllInSongTags
+                excludeDanceTags: ExcludeDanceTags
             );
         }
 
-        // Cleaned up logic: for song-tag queries, if includeDancesAllInSongTags is false, danceFormat and danceFormatExclude are null
+        // For song-tag queries, if excludeDanceTags is true, danceFormat and danceFormatExclude are null (so only song tags are used).
+        // If excludeDanceTags is false (default), both song tags and dance_ALL tags are included in the filter logic.
         private string BuildODataFilter(
             string tagString,
             bool expandTagRings,
             DanceMusicCoreService dms,
             string danceField,
-            bool includeDancesAllInSongTags = false)
+            bool excludeDanceTags = false)
         {
             var tagList = new TagList(tagString);
             if (tagList.IsEmpty)
@@ -199,7 +186,7 @@ namespace m4dModels
                     // Song-tag query
                     songFormat = "{0}Tags/any(t: t eq '{1}')";
                     songFormatExclude = "{0}Tags/all(t: t ne '{1}')";
-                    if (tagClass.IsDanceTag && includeDancesAllInSongTags)
+                    if (tagClass.IsDanceTag && !excludeDanceTags)
                     {
                         // Also include dances_ALL as an OR for inclusion, AND for exclusion
                         danceFormat = tagClass.IsDanceTag ? "dance_ALL/{0}Tags/any(t: t eq '{1}')" : null;

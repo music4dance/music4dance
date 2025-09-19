@@ -1,15 +1,13 @@
 import { TagList } from "./TagList";
 import { Tag } from "./Tag";
-
 export class TagQuery {
-  public includeDancesAllInSongTags: boolean;
+  public excludeDanceTags: boolean;
   private data: string;
 
-  public static fromParts(tagList: TagList, includeDancesAll: boolean = false): TagQuery {
-    // Use TagList's summary property which is the stringified version
+  // excludeDanceTags: false means include dance_ALL tags (default), true means do NOT include dance_ALL tags (add ^ prefix)
+  public static fromParts(tagList: TagList, excludeDanceTags: boolean = false): TagQuery {
     let tagString = tagList.summary;
-
-    if (includeDancesAll) {
+    if (excludeDanceTags) {
       tagString = "^" + tagString;
     }
     return new TagQuery(tagString);
@@ -18,11 +16,11 @@ export class TagQuery {
   constructor(tagString?: string) {
     const originalString = tagString ?? "";
     this.data = originalString;
-
+    // Now: ^ means exclude dance_ALL tags
     if (originalString.startsWith("^")) {
-      this.includeDancesAllInSongTags = true;
+      this.excludeDanceTags = true;
     } else {
-      this.includeDancesAllInSongTags = false;
+      this.excludeDanceTags = false;
     }
   }
 
@@ -38,7 +36,7 @@ export class TagQuery {
     return new TagList(s);
   }
 
-  public addTag(tagKey: string, include: boolean = true, includeDancesAll?: boolean): TagQuery {
+  public addTag(tagKey: string, include: boolean = true, excludeDanceTags?: boolean): TagQuery {
     // Create the new tag
     const modifier = include ? "+" : "-";
     const newTagString = modifier + tagKey;
@@ -47,11 +45,10 @@ export class TagQuery {
     // Add to existing tag list
     const updatedTagList = this.tagList.add(newTag);
 
-    // Use provided includeDancesAll or fall back to existing flag
-    const finalIncludeDancesAll = includeDancesAll ?? this.includeDancesAllInSongTags;
-
-    // Return new TagQuery with the resolved includeDancesAll flag
-    return TagQuery.fromParts(updatedTagList, finalIncludeDancesAll);
+    // Use provided excludeDanceTags or fall back to existing flag
+    const finalExcludeDanceTags = excludeDanceTags ?? this.excludeDanceTags;
+    // Return new TagQuery with the resolved excludeDanceTags flag
+    return TagQuery.fromParts(updatedTagList, finalExcludeDanceTags);
   }
 
   public static tagFromFacetId(facetId: string): string | undefined {
@@ -77,14 +74,12 @@ export class TagQuery {
     const inc = filteredTagList.AddsDescription;
     const exc = filteredTagList.RemovesDescription;
 
-    // When includeDancesAllInSongTags is true, we're searching both song and dance tags
-    if (this.includeDancesAllInSongTags && (inc || exc)) {
-      // Replace "including tag" with "including song or dance tag"
-      const modifiedInc = inc ? inc.replace("including tag", "including song or dance tag") : "";
-      const modifiedExc = exc ? exc.replace("excluding tag", "excluding song or dance tag") : "";
+    // When excludeDanceTags is true, we're only searching song tags
+    if (this.excludeDanceTags && (inc || exc)) {
+      const modifiedInc = inc ? inc.replace("including tag", "including song tag") : "";
+      const modifiedExc = exc ? exc.replace("excluding tag", "excluding song tag") : "";
       return [modifiedInc, modifiedExc].filter(Boolean).join(" ");
     }
-
     return [inc, exc].filter(Boolean).join(" ");
   }
 
@@ -93,12 +88,11 @@ export class TagQuery {
     const inc = filteredTagList.AddsShortDescription;
     const exc = filteredTagList.RemovesShortDescription;
 
-    // When includeDancesAllInSongTags is true, add "song+dance" prefix
-    if (this.includeDancesAllInSongTags && (inc || exc)) {
-      const prefix = "song+dance ";
+    // When excludeDanceTags is true, add "song" prefix
+    if (!this.excludeDanceTags && (inc || exc)) {
+      const prefix = "song ";
       return [prefix + inc, exc].filter(Boolean).join(" ");
     }
-
     return [inc, exc].filter(Boolean).join(" ");
   }
 }

@@ -3,6 +3,7 @@ import { Tag, TagBucket, type TagInfo } from "@/models/Tag";
 import { TagHandler } from "@/models/TagHandler";
 import { computed, reactive, ref } from "vue";
 import { type ColorVariant } from "bootstrap-vue-next";
+import { TagContext } from "@/models/Tag";
 
 class TagButton implements TagInfo {
   public static get buttons() {
@@ -75,6 +76,7 @@ function getTagHandler(tag: Tag): TagHandler {
     tag,
     user: props.user,
     danceId: props.isDanceSpecific ? props.danceId : undefined, // Only pass danceId for dance-specific tags
+    context: props.isDanceSpecific ? TagContext.Dance : [TagContext.Song, TagContext.Dance], // Use dance context for dance-specific tags, otherwise both
   });
 }
 </script>

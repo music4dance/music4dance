@@ -50,36 +50,23 @@ const isDanceSpecific = computed(() => {
   return !!handler.value.danceId && !!danceName.value;
 });
 
-function getTagLink(modifier: string, exclusive: boolean, includeDanceAll = false): string {
-  // Start with appropriate base filter based on exclusive flag
-  const baseFilter = exclusive
-    ? new SongFilter() // For "List all", start with empty filter
-    : handler.value.filter
-      ? handler.value.filter.clone()
-      : new SongFilter(); // For filtering, preserve existing
-
-  // Set the action to filtersearch
+function getTagLink(modifier: string, clear: boolean): string {
+  const baseFilter =
+    clear || !handler.value.filter ? new SongFilter() : handler.value.filter.clone();
   baseFilter.action = "filtersearch";
 
-  // For dance-specific filtering, put the tag in the DanceQuery
-  if (handler.value.danceId && !includeDanceAll) {
-    // Create a TagQuery from parts instead of string manipulation
+  if (handler.value.danceId) {
+    // For dance-specific filtering, put the tag in the DanceQuery
     const singleTagString = modifier + tag.value.key;
     const tagList = new TagList(singleTagString);
     const tagQuery = TagQuery.fromParts(tagList, false);
 
-    // For filtering (non-exclusive), combine with existing dances using DanceQuery
-    if (!exclusive && baseFilter.dances) {
-      // Parse existing dance query
+    if (baseFilter.dances) {
       const existingDanceQuery = new DanceQuery(baseFilter.dances);
       const existingDanceItems = existingDanceQuery.danceQueryItems;
-
-      // Find existing entry for this dance (if any) to preserve its tags
       const existingDanceItem = existingDanceItems.find(
         (item) => item.id === handler.value.danceId,
       );
-
-      // Create new dance item with the tag
       const newDanceItem = new DanceQueryItem({
         id: handler.value.danceId,
         threshold: existingDanceItem?.threshold ?? 1,
@@ -87,19 +74,14 @@ function getTagLink(modifier: string, exclusive: boolean, includeDanceAll = fals
           ? existingDanceItem.tagQuery?.addTag(tag.value.key, modifier === "+")?.query
           : tagQuery.query,
       });
-
-      // Filter out the old entry for this dance and add the new one
       const filteredDanceItems = existingDanceItems.filter(
         (item) => item.id !== handler.value.danceId,
       );
       const allDanceItems = [...filteredDanceItems, newDanceItem];
-
-      // Convert back to strings and create new DanceQuery
       const allDanceStrings = allDanceItems.map((item) => item.toString());
-      const combinedDanceQuery = DanceQuery.fromParts(allDanceStrings, true); // true = exclusive
+      const combinedDanceQuery = DanceQuery.fromParts(allDanceStrings, true);
       baseFilter.dances = combinedDanceQuery.query;
     } else {
-      // For exclusive or no existing dances, create a DanceQuery properly
       const newDanceItem = new DanceQueryItem({
         id: handler.value.danceId,
         threshold: 1,
@@ -109,37 +91,28 @@ function getTagLink(modifier: string, exclusive: boolean, includeDanceAll = fals
       baseFilter.dances = danceQuery.query;
     }
   } else {
-    // For global tags, create TagList and use fromParts with includeDancesAll
+    // For global tags, create TagList and use fromParts
     const singleTagString = modifier + tag.value.key;
     const tagList = new TagList(singleTagString);
-    const newTagQuery = TagQuery.fromParts(tagList, includeDanceAll);
 
-    // For filtering (non-exclusive), combine with existing tags using TagQuery
-    if (!exclusive && baseFilter.tags) {
+    if (baseFilter.tags) {
       // Parse existing tag query and add the new tag to it
       const existingTagQuery = new TagQuery(baseFilter.tags);
-      const updatedTagQuery = existingTagQuery.addTag(
-        tag.value.key,
-        modifier === "+",
-        includeDanceAll,
-      );
+      const updatedTagQuery = existingTagQuery.addTag(tag.value.key, modifier === "+");
       baseFilter.tags = updatedTagQuery.query;
     } else {
-      // For exclusive or no existing tags, just set the new tag
-      baseFilter.tags = newTagQuery.query;
+      baseFilter.tags = TagQuery.fromParts(tagList).query;
     }
   }
-
-  // Generate the URL using the filter's built-in functionality
   return `/song/filtersearch?filter=${baseFilter.encodedQuery}`;
 }
 
-function getDanceAllTagLink(modifier: string, exclusive: boolean): string {
-  return getTagLink(modifier, exclusive, true);
+function getDanceAllTagLink(modifier: string, clear: boolean): string {
+  return getTagLink(modifier, clear);
 }
 
-function getDanceSpecificTagLink(modifier: string, exclusive: boolean): string {
-  return getTagLink(modifier, exclusive, false);
+function getDanceSpecificTagLink(modifier: string, clear: boolean): string {
+  return getTagLink(modifier, clear);
 }
 </script>
 

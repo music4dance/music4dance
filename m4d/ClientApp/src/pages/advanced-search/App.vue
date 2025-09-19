@@ -42,13 +42,13 @@ const hasDanceDetails = computed(() => {
 const showDanceDetails = ref(hasDanceDetails.value);
 const tags: Tag[] = tagDatabase.tags;
 
-// Initialize tagString and includeDanceAllTags from filter
+// Initialize tagString and excludeDanceTags from filter
 let initialTagString = filter.tags ?? "";
-const includeDanceAllTags = ref(false);
+const excludeDanceTags = ref(false);
 
-// Parse initial state from tagString if it starts with "^"
+// Parse initial state from tagString: if it starts with "^", exclude dance_ALL tags
 if (initialTagString.startsWith("^")) {
-  includeDanceAllTags.value = true;
+  excludeDanceTags.value = true;
   initialTagString = initialTagString.substring(1);
 }
 
@@ -111,8 +111,8 @@ const songFilter = computed(() => {
   filter.tempoMax = tempoMax.value >= 400 ? undefined : tempoMax.value;
   filter.lengthMin = lengthMin.value === 0 ? undefined : lengthMin.value;
   filter.lengthMax = lengthMax.value >= 400 ? undefined : lengthMax.value;
-  // Include "^" prefix if dance_ALL tags are enabled
-  filter.tags = includeDanceAllTags.value ? `^${tagString.value}` : tagString.value;
+  // Add "^" prefix if dance_ALL tags are excluded
+  filter.tags = excludeDanceTags.value ? `^${tagString.value}` : tagString.value;
   filter.level = level ? level : undefined;
 
   return filter;
@@ -276,7 +276,7 @@ function onReset(evt: Event): void {
   sortDirection.value = "asc";
   bonuses.value = [];
   tagString.value = "";
-  includeDanceAllTags.value = false; // Reset dance_ALL tags toggle
+  excludeDanceTags.value = false; // Reset dance_ALL tags toggle
 
   // Reset danceQueryItems to empty
   danceQueryItems.value = [];
@@ -386,22 +386,24 @@ function onReset(evt: Event): void {
             <TagQuerySelector
               v-model="tagString"
               :tag-list="tags"
-              :context="includeDanceAllTags ? [TagContext.Song, TagContext.Dance] : TagContext.Song"
+              :context="excludeDanceTags ? TagContext.Song : [TagContext.Song, TagContext.Dance]"
             />
 
             <div class="row mt-3">
               <div class="col-6">
                 <BFormCheckbox
-                  id="include-dance-all-tags"
-                  v-model="includeDanceAllTags"
+                  id="exclude-dance-tags"
+                  v-model="excludeDanceTags"
                   :disabled="hasStyleTags"
                   switch
                 >
-                  Include Dance Tags
+                  Exclude Dance Tags
                 </BFormCheckbox>
               </div>
               <div class="col-6">
-                <small class="text-muted"> Include tags on any dance </small>
+                <small class="text-muted">
+                  Only use song tags (do not include tags from any dance)
+                </small>
               </div>
             </div>
           </div>
@@ -524,7 +526,7 @@ searchString = {{ keyWords }}
 dances = {{ dances }}
 danceQueryItems = {{ danceQueryItems }}
 danceConnector = {{ danceConnector }}
-includeDanceAllTags = {{ includeDanceAllTags }}
+excludeDanceTags = {{ excludeDanceTags }}
 tempoMin = {{ tempoMin }}
 tempoMax = {{ tempoMax }}
 lengthMin = {{ lengthMin }}

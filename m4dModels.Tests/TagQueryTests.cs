@@ -39,39 +39,31 @@ namespace m4dModels.Tests
         public void TagQuery_DescribeTags_IncludesAndExcludes()
         {
             var tq = new TagQuery("+Pop:Music|-Jazz:Music");
-            var sep = ", ";
+            var sep = "";
             var desc = tq.Description(ref sep);
-            Assert.IsTrue(desc.Contains("including tag"));
-            Assert.IsTrue(desc.Contains("excluding tag"));
-            Assert.IsTrue(desc.Contains("Pop"));
-            Assert.IsTrue(desc.Contains("Jazz"));
+            // Expecting the full description string for these tags
+            var expected = "including tag Pop, excluding tag Jazz";
+            Assert.AreEqual(expected, desc);
         }
 
         [TestMethod]
-        public void TagQuery_Description_IncludeDancesAllInSongTags()
+        public void TagQuery_Description_ExcludeDanceTags_False_DefaultIncludesDanceALL()
         {
-            var tq = new TagQuery("^+Pop:Music|-Jazz:Music");
-            var sep = ", ";
+            var tq = new TagQuery("+Pop:Music|-Jazz:Music");
+            var sep = "";
             var desc = tq.Description(ref sep);
-            Assert.IsTrue(desc.Contains("including song or dance tag"));
-            Assert.IsTrue(desc.Contains("excluding song or dance tag"));
-            Assert.IsTrue(desc.Contains("Pop"));
-            Assert.IsTrue(desc.Contains("Jazz"));
-            // Should NOT contain the old problematic "song and dance tags" prefix
-            Assert.IsFalse(desc.Contains("song and dance tags"));
+            var expected = "including tag Pop, excluding tag Jazz";
+            Assert.AreEqual(expected, desc);
         }
 
         [TestMethod]
-        public void TagQuery_ShortDescription_IncludeDancesAllInSongTags()
+        public void TagQuery_ShortDescription_ExcludeDanceTags_False_DefaultIncludesDanceALL()
         {
-            var tq = new TagQuery("^+Pop:Music|-Jazz:Music");
-            var sep = ", ";
+            var tq = new TagQuery("+Pop:Music|-Jazz:Music");
+            var sep = "";
             var desc = tq.ShortDescription(ref sep);
-            Assert.IsTrue(desc.Contains("song+dance"));
-            Assert.IsTrue(desc.Contains("inc"));
-            Assert.IsTrue(desc.Contains("excl"));
-            Assert.IsTrue(desc.Contains("Pop"));
-            Assert.IsTrue(desc.Contains("Jazz"));
+            var expected = "inc Pop, excl Jazz";
+            Assert.AreEqual(expected, desc);
         }
 
         [TestMethod]
@@ -123,38 +115,35 @@ namespace m4dModels.Tests
         }
 
         [TestMethod]
-        public void TagQuery_Description_IncludeDancesAllInSongTags_OnlyWhenTagsPresent()
+        public void TagQuery_Description_ExcludeDanceTags_True_OnlyWhenTagsPresent()
         {
-            // Test the edge case: ^ prefix but no actual tags after filtering
-            var tq = new TagQuery("^"); // Empty tag query with ^ prefix
+            var tq = new TagQuery("^");
             var sep = ", ";
             var desc = tq.Description(ref sep);
-            // Should be empty or not contain "song or dance tag" text
-            Assert.IsFalse(desc.Contains("song or dance tag"));
+            // Should be empty string when no tags present
+            var expected = "";
+            Assert.AreEqual(expected, desc);
         }
 
         [TestMethod]
         public void TagQuery_Description_NoExtraWordIssue()
         {
-            // Test that we don't get "songs song and dance tags" issue
-            var tq = new TagQuery("^+Episode 10:Other");
-            var sep = ", ";
+            var tq = new TagQuery("+Episode 10:Other");
+            var sep = "";
             var desc = tq.Description(ref sep);
-            // Should contain "including song or dance tag Episode 10"
-            Assert.IsTrue(desc.Contains("including song or dance tag"));
-            Assert.IsTrue(desc.Contains("Episode 10"));
-            // Should NOT contain duplicate "song" words
-            Assert.IsFalse(desc.Contains("songs song"));
+            var expected = "including tag Episode 10";
+            Assert.AreEqual(expected, desc);
         }
 
         [TestMethod]
-        public void TagQuery_ShortDescription_OnlyWhenTagsPresent()
+        public void TagQuery_ShortDescription_ExcludeDanceTags_True_OnlyWhenTagsPresent()
         {
-            // Test that song+dance prefix only appears when there are actual tags
-            var tq = new TagQuery("^"); // Empty tag query with ^ prefix
+            var tq = new TagQuery("^");
             var sep = ", ";
             var desc = tq.ShortDescription(ref sep);
-            Assert.IsFalse(desc.Contains("song+dance"));
+            // Should be empty string when no tags present
+            var expected = "";
+            Assert.AreEqual(expected, desc);
         }
     }
 }
