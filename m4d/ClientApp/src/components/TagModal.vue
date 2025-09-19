@@ -36,15 +36,30 @@ const availableOptions = computed(() => handler.value.getAvailableOptions());
         :key="`${option.scope}-${option.type}-${option.modifier}`"
         :href="option.href"
         :variant="option.variant"
+        class="d-flex justify-content-between align-items-start"
       >
-        {{ option.label }}
+        <div class="ms-2 me-auto">
+          <div class="fw-bold">{{ option.label }}</div>
+          <small class="text-muted">{{ option.description }}</small>
+        </div>
+        <BBadge :variant="option.variant" pill class="d-flex align-items-center">
+          <!-- Icon based on option type and modifier -->
+          <IBiFilter v-if="option.type === 'filter'" class="me-1" />
+          <IBiList v-else-if="option.type === 'list'" class="me-1" />
+          <!-- Plus or minus icon based on modifier -->
+          <IBiPlus v-if="option.modifier === '+'" />
+          <IBiDash v-else />
+        </BBadge>
       </BListGroupItem>
     </BListGroup>
 
     <!-- Help Section -->
     <BListGroup>
       <BListGroupItem href="https://music4dance.blog/tag-filtering" variant="info" target="_blank">
-        Help
+        <div class="d-flex justify-content-between align-items-center">
+          <span>Help</span>
+          <IBiQuestionCircle />
+        </div>
       </BListGroupItem>
     </BListGroup>
   </BModal>
