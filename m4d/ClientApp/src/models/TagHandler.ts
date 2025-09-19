@@ -63,7 +63,7 @@ export class TagHandler {
     return !!this.danceId && !!this.computedDanceName;
   }
 
-  public getTagLink(modifier: string, clear: boolean): string {
+  public getSongFilter(modifier: string, clear: boolean): SongFilter {
     const baseFilter = clear || !this.filter ? new SongFilter() : this.filter.clone();
     baseFilter.action = "filtersearch";
 
@@ -112,7 +112,18 @@ export class TagHandler {
         baseFilter.tags = TagQuery.fromParts(tagList).query;
       }
     }
-    return `/song/filtersearch?filter=${baseFilter.encodedQuery}`;
+
+    return baseFilter;
+  }
+
+  public getTagLink(modifier: string, clear: boolean): string {
+    const filter = this.getSongFilter(modifier, clear);
+    return `/song/filtersearch?filter=${filter.encodedQuery}`;
+  }
+
+  public getFilterDescription(modifier: string, clear: boolean): string {
+    const filter = this.getSongFilter(modifier, clear);
+    return filter.description;
   }
 
   public getAvailableOptions(): TagOption[] {
@@ -128,7 +139,7 @@ export class TagHandler {
           scope: "dance-specific",
           modifier: "+",
           label: `Filter current list to ${danceName} songs tagged as ${this.tag.value}`,
-          description: `Filter current list to ${danceName} songs tagged as ${this.tag.value}`,
+          description: this.getFilterDescription("+", false),
           variant: "success",
           href: this.getTagLink("+", false),
         });
@@ -138,7 +149,7 @@ export class TagHandler {
           scope: "dance-specific",
           modifier: "-",
           label: `Filter current list to ${danceName} songs not tagged as ${this.tag.value}`,
-          description: `Filter current list to ${danceName} songs not tagged as ${this.tag.value}`,
+          description: this.getFilterDescription("-", false),
           variant: "danger",
           href: this.getTagLink("-", false),
         });
@@ -150,7 +161,7 @@ export class TagHandler {
         scope: "dance-specific",
         modifier: "+",
         label: `List all ${danceName} songs tagged as ${this.tag.value}`,
-        description: `List all ${danceName} songs tagged as ${this.tag.value}`,
+        description: this.getFilterDescription("+", true),
         variant: "success",
         href: this.getTagLink("+", true),
       });
@@ -160,7 +171,7 @@ export class TagHandler {
         scope: "dance-specific",
         modifier: "-",
         label: `List all ${danceName} songs not tagged as ${this.tag.value}`,
-        description: `List all ${danceName} songs not tagged as ${this.tag.value}`,
+        description: this.getFilterDescription("-", true),
         variant: "danger",
         href: this.getTagLink("-", true),
       });
@@ -174,7 +185,7 @@ export class TagHandler {
         scope: "global",
         modifier: "+",
         label: `Filter current list to songs tagged as ${this.tag.value}`,
-        description: `Filter current list to songs tagged as ${this.tag.value}`,
+        description: this.getFilterDescription("+", false),
         variant: "success",
         href: this.getTagLink("+", false),
       });
@@ -184,7 +195,7 @@ export class TagHandler {
         scope: "global",
         modifier: "-",
         label: `Filter current list to songs not tagged as ${this.tag.value}`,
-        description: `Filter current list to songs not tagged as ${this.tag.value}`,
+        description: this.getFilterDescription("-", false),
         variant: "danger",
         href: this.getTagLink("-", false),
       });
@@ -196,7 +207,7 @@ export class TagHandler {
       scope: "global",
       modifier: "+",
       label: `List all songs tagged as ${this.tag.value}`,
-      description: `List all songs tagged as ${this.tag.value}`,
+      description: this.getFilterDescription("+", true),
       variant: "success",
       href: this.getTagLink("+", true),
     });
@@ -206,7 +217,7 @@ export class TagHandler {
       scope: "global",
       modifier: "-",
       label: `List all songs not tagged as ${this.tag.value}`,
-      description: `List all songs not tagged as ${this.tag.value}`,
+      description: this.getFilterDescription("-", true),
       variant: "danger",
       href: this.getTagLink("-", true),
     });

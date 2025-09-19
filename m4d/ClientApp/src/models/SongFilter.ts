@@ -314,10 +314,6 @@ export class SongFilter {
     return true;
   }
 
-  // TODONEXT:
-  //  Fix server side unit tests
-  //  More Manual testing
-  //  Marginally Related: Add dance tags to tag list in dances page...
   private encode(s: string | undefined): string {
     return s ? s.replace(/-/g, subChar) : "";
   }

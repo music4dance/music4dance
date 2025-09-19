@@ -307,4 +307,92 @@ describe("TagHandler", () => {
       expect(link).toContain("special%1Atag%2Bwith%26chars%3Aother");
     });
   });
+
+  describe("getSongFilter", () => {
+    it("should return a SongFilter with the tag applied", () => {
+      const filter = tagHandler.getSongFilter("+", true);
+
+      expect(filter).toBeInstanceOf(SongFilter);
+      expect(filter.action).toBe("filtersearch");
+      expect(filter.tags).toContain("romantic:other");
+    });
+
+    it("should preserve existing filter when clear is false", () => {
+      mockFilter.tags = "existing:tag";
+      mockFilter.tempoMin = 120;
+
+      const filter = tagHandler.getSongFilter("+", false);
+
+      expect(filter.tags).toContain("existing");
+      expect(filter.tags).toContain("romantic:other");
+      expect(filter.tempoMin).toBe(120);
+    });
+
+    it("should create clean filter when clear is true", () => {
+      mockFilter.tags = "existing:tag";
+      mockFilter.tempoMin = 120;
+
+      const filter = tagHandler.getSongFilter("+", true);
+
+      expect(filter.tags).toContain("romantic:other");
+      expect(filter.tags).not.toContain("existing");
+      expect(filter.tempoMin).toBeUndefined();
+    });
+  });
+
+  describe("option descriptions", () => {
+    it("should generate meaningful descriptions for filter options with existing filter", () => {
+      // Set up a filter with existing tags
+      mockFilter.tags = "existing:tag";
+      mockFilter.dances = "waltz";
+
+      const options = tagHandler.getAvailableOptions();
+      const filterOptions = options.filter((o) => o.type === "filter");
+
+      // Should have descriptions showing the combined filter
+      expect(filterOptions.length).toBeGreaterThan(0);
+      filterOptions.forEach((option) => {
+        expect(option.description).toContain("including tag");
+        expect(option.description).toContain("Waltz");
+        expect(option.description).not.toBe(option.label);
+      });
+    });
+
+    it("should generate meaningful descriptions for list options starting fresh", () => {
+      const options = tagHandler.getAvailableOptions();
+      const listOptions = options.filter((o) => o.type === "list");
+
+      // Should have descriptions showing just the new tag
+      expect(listOptions.length).toBeGreaterThan(0);
+      listOptions.forEach((option) => {
+        expect(option.description).toMatch(/(including|excluding) tag/);
+        expect(option.description).not.toBe(option.label);
+      });
+    });
+
+    it("should show different descriptions for include vs exclude modifiers", () => {
+      const options = tagHandler.getAvailableOptions();
+      const includeOption = options.find((o) => o.modifier === "+");
+      const excludeOption = options.find((o) => o.modifier === "-");
+
+      expect(includeOption?.description).toBeDefined();
+      expect(excludeOption?.description).toBeDefined();
+      expect(includeOption?.description).not.toBe(excludeOption?.description);
+    });
+
+    it("should include tempo and length in descriptions when present", () => {
+      mockFilter.tempoMin = 120;
+      mockFilter.tempoMax = 140;
+      mockFilter.lengthMin = 180;
+      mockFilter.lengthMax = 240;
+
+      const options = tagHandler.getAvailableOptions();
+      const filterOptions = options.filter((o) => o.type === "filter");
+
+      filterOptions.forEach((option) => {
+        expect(option.description).toContain("tempo between 120 and 140");
+        expect(option.description).toContain("length between 180 and 240");
+      });
+    });
+  });
 });
