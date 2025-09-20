@@ -127,109 +127,125 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
               </div>
               <div class="d-flex mb-2">
                 <div id="dance-connector" role="radiogroup" class="btn-group btn-group-sm bv-no-focus-ring mx-3" tabindex="-1"><input id="BootstrapVueNext__ID__v-23__form-check___" class="btn-check" type="radio" name="BootstrapVueNext__ID__v-22__checkbox___" value="any"><label for="BootstrapVueNext__ID__v-23__form-check___" class="btn btn-outline-secondary btn-sm">Any</label><input id="BootstrapVueNext__ID__v-24__form-check___" class="btn-check" type="radio" name="BootstrapVueNext__ID__v-22__checkbox___" value="all"><label for="BootstrapVueNext__ID__v-24__form-check___" class="btn btn-outline-secondary btn-sm">All</label></div>
-                <div class="form-check form-switch"><input id="show-thresholds" class="form-check-input" type="checkbox" true-value="true" false-value="false" value="true"><label for="show-thresholds" class="form-check-label"> Show Thresholds </label></div>
+                <div class="form-check form-switch"><input id="show-dance-details" class="form-check-input" type="checkbox" true-value="true" false-value="false" value="true"><label for="show-dance-details" class="form-check-label"> Show Dance Details </label></div>
               </div>
               <!--v-if-->
             </div>
             <!---->
             <!---->
             <!---->
+          </fieldset><!-- Song-level Tags Section -->
+          <fieldset id="BootstrapVueNext__ID__v-26__" class="b-form-group">
+            <!---->
+            <!---->
+            <legend id="BootstrapVueNext__ID__v-27___BV_label____" tabindex="-1" class="form-label bv-no-focus-ring col-form-label pt-0">Song Tags:</legend>
+            <div style="border: 1px solid rgb(206, 212, 218); border-radius: 0.25rem;" class="p-3">
+              <div>
+                <fieldset id="BootstrapVueNext__ID__v-31__" class="b-form-group">
+                  <!---->
+                  <!---->
+                  <legend id="BootstrapVueNext__ID__v-32___BV_label____" tabindex="-1" class="form-label bv-no-focus-ring col-form-label pt-0">Include Tags:</legend>
+                  <div id="BootstrapVueNext__ID__v-36__" class="b-form-tags form-control h-auto mb-2" role="group" tabindex="-1" style="border-style: hidden;"><output id="BootstrapVueNext__ID__v-36__selected_tags__" class="visually-hidden" for="BootstrapVueNext__ID__v-36__input__" aria-live="off" aria-atomic="true" aria-relevant="additions text"></output>
+                    <div id="BootstrapVueNext__ID__v-36__removed_tags__" role="status" aria-live="off" aria-atomic="true" class="visually-hidden"> (Tag removed) </div>
+                    <!--v-if-->
+                    <div class="dropdown tag-dropdown" block=""><button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="BootstrapVueNext__ID__v-37__dropdown___" aria-expanded="false" aria-haspopup="menu"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                          <path fill="currentColor" d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"></path>
+                        </svg> Choose Tags to Include</button>
+                      <!---->
+                      <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                        <ul id="BootstrapVueNext__ID__v-37__dropdown___-menu" style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto fade" aria-labelledby="BootstrapVueNext__ID__v-37__dropdown___" role="menu">
+                          <div>
+                            <li role="presentation">
+                              <form class="dropdown-item-text">
+                                <div id="BootstrapVueNext__ID__v-38__" role="group" class="b-form-group mb-0">
+                                  <!---->
+                                  <!---->
+                                  <div class="row d-flex flex-wrap">
+                                    <div class="col-md-auto"><label id="BootstrapVueNext__ID__v-39___BV_label____" for="tag-search-input" class="col-form-label col-form-label col-form-label-sm">Search Tags</label></div>
+                                    <div class="col"><input id="BootstrapVueNext__ID__v-43__input___" class="form-control form-control-sm" type="search" autocomplete="off" trim="" value="">
+                                      <!---->
+                                      <!---->
+                                      <!---->
+                                    </div>
+                                  </div>
+                                </div>
+                              </form>
+                            </li>
+                            <li role="presentation">
+                              <hr class="dropdown-divider" role="separator" aria-orientation="horizontal">
+                            </li>
+                            <!--v-if-->
+                            <li role="presentation"><span class="dropdown-item-text"> Start typing to see a list of matching tags </span></li>
+                          </div>
+                        </ul>
+                      </transition-stub>
+                    </div>
+                    <!---->
+                  </div>
+                  <!---->
+                  <!---->
+                  <!---->
+                </fieldset>
+                <fieldset id="BootstrapVueNext__ID__v-44__" class="b-form-group">
+                  <!---->
+                  <!---->
+                  <legend id="BootstrapVueNext__ID__v-45___BV_label____" tabindex="-1" class="form-label bv-no-focus-ring col-form-label pt-0">Exclude Tags:</legend>
+                  <div id="BootstrapVueNext__ID__v-49__" class="b-form-tags form-control h-auto mb-2" role="group" tabindex="-1" style="border-style: hidden;"><output id="BootstrapVueNext__ID__v-49__selected_tags__" class="visually-hidden" for="BootstrapVueNext__ID__v-49__input__" aria-live="off" aria-atomic="true" aria-relevant="additions text"></output>
+                    <div id="BootstrapVueNext__ID__v-49__removed_tags__" role="status" aria-live="off" aria-atomic="true" class="visually-hidden"> (Tag removed) </div>
+                    <!--v-if-->
+                    <div class="dropdown tag-dropdown" block=""><button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="BootstrapVueNext__ID__v-50__dropdown___" aria-expanded="false" aria-haspopup="menu"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                          <path fill="currentColor" d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"></path>
+                        </svg> Choose Tags to Exclude</button>
+                      <!---->
+                      <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                        <ul id="BootstrapVueNext__ID__v-50__dropdown___-menu" style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto fade" aria-labelledby="BootstrapVueNext__ID__v-50__dropdown___" role="menu">
+                          <div>
+                            <li role="presentation">
+                              <form class="dropdown-item-text">
+                                <div id="BootstrapVueNext__ID__v-51__" role="group" class="b-form-group mb-0">
+                                  <!---->
+                                  <!---->
+                                  <div class="row d-flex flex-wrap">
+                                    <div class="col-md-auto"><label id="BootstrapVueNext__ID__v-52___BV_label____" for="tag-search-input" class="col-form-label col-form-label col-form-label-sm">Search Tags</label></div>
+                                    <div class="col"><input id="BootstrapVueNext__ID__v-56__input___" class="form-control form-control-sm" type="search" autocomplete="off" trim="" value="">
+                                      <!---->
+                                      <!---->
+                                      <!---->
+                                    </div>
+                                  </div>
+                                </div>
+                              </form>
+                            </li>
+                            <li role="presentation">
+                              <hr class="dropdown-divider" role="separator" aria-orientation="horizontal">
+                            </li>
+                            <!--v-if-->
+                            <li role="presentation"><span class="dropdown-item-text"> Start typing to see a list of matching tags </span></li>
+                          </div>
+                        </ul>
+                      </transition-stub>
+                    </div>
+                    <!---->
+                  </div>
+                  <!---->
+                  <!---->
+                  <!---->
+                </fieldset>
+              </div>
+              <div class="row mt-3">
+                <div class="col-6">
+                  <div class="form-check form-switch"><input id="exclude-dance-tags" class="form-check-input" type="checkbox" true-value="true" false-value="false" value="true"><label for="exclude-dance-tags" class="form-check-label"> Exclude Dance Tags </label></div>
+                </div>
+                <div class="col-6"><small class="text-muted"> Only use song tags (do not include tags from any dance) </small></div>
+              </div>
+            </div>
+            <!---->
+            <!---->
+            <!---->
           </fieldset>
-          <div class="mt-3">
-            <fieldset id="BootstrapVueNext__ID__v-26__" class="b-form-group">
-              <!---->
-              <!---->
-              <legend id="BootstrapVueNext__ID__v-27___BV_label____" tabindex="-1" class="form-label bv-no-focus-ring col-form-label pt-0">Include Tags:</legend>
-              <div id="BootstrapVueNext__ID__v-31__" class="b-form-tags form-control h-auto mb-2" role="group" tabindex="-1" style="border-style: hidden;"><output id="BootstrapVueNext__ID__v-31__selected_tags__" class="visually-hidden" for="BootstrapVueNext__ID__v-31__input__" aria-live="off" aria-atomic="true" aria-relevant="additions text"></output>
-                <div id="BootstrapVueNext__ID__v-31__removed_tags__" role="status" aria-live="off" aria-atomic="true" class="visually-hidden"> (Tag removed) </div>
-                <!--v-if-->
-                <div class="dropdown tag-dropdown" block=""><button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="BootstrapVueNext__ID__v-32__dropdown___" aria-expanded="false" aria-haspopup="menu"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
-                      <path fill="currentColor" d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"></path>
-                    </svg> Choose Tags to Include</button>
-                  <!---->
-                  <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <ul id="BootstrapVueNext__ID__v-32__dropdown___-menu" style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto fade" aria-labelledby="BootstrapVueNext__ID__v-32__dropdown___" role="menu">
-                      <div>
-                        <li role="presentation">
-                          <form class="dropdown-item-text">
-                            <div id="BootstrapVueNext__ID__v-33__" role="group" class="b-form-group mb-0">
-                              <!---->
-                              <!---->
-                              <div class="row d-flex flex-wrap">
-                                <div class="col-md-auto"><label id="BootstrapVueNext__ID__v-34___BV_label____" for="tag-search-input" class="col-form-label col-form-label col-form-label-sm">Search Tags</label></div>
-                                <div class="col"><input id="BootstrapVueNext__ID__v-38__input___" class="form-control form-control-sm" type="search" autocomplete="off" trim="" value="">
-                                  <!---->
-                                  <!---->
-                                  <!---->
-                                </div>
-                              </div>
-                            </div>
-                          </form>
-                        </li>
-                        <li role="presentation">
-                          <hr class="dropdown-divider" role="separator" aria-orientation="horizontal">
-                        </li>
-                        <!--v-if-->
-                        <li role="presentation"><span class="dropdown-item-text"> Start typing to see a list of matching tags </span></li>
-                      </div>
-                    </ul>
-                  </transition-stub>
-                </div>
-                <!---->
-              </div>
-              <!---->
-              <!---->
-              <!---->
-            </fieldset>
-            <fieldset id="BootstrapVueNext__ID__v-39__" class="b-form-group">
-              <!---->
-              <!---->
-              <legend id="BootstrapVueNext__ID__v-40___BV_label____" tabindex="-1" class="form-label bv-no-focus-ring col-form-label pt-0">Exclude Tags:</legend>
-              <div id="BootstrapVueNext__ID__v-44__" class="b-form-tags form-control h-auto mb-2" role="group" tabindex="-1" style="border-style: hidden;"><output id="BootstrapVueNext__ID__v-44__selected_tags__" class="visually-hidden" for="BootstrapVueNext__ID__v-44__input__" aria-live="off" aria-atomic="true" aria-relevant="additions text"></output>
-                <div id="BootstrapVueNext__ID__v-44__removed_tags__" role="status" aria-live="off" aria-atomic="true" class="visually-hidden"> (Tag removed) </div>
-                <!--v-if-->
-                <div class="dropdown tag-dropdown" block=""><button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="BootstrapVueNext__ID__v-45__dropdown___" aria-expanded="false" aria-haspopup="menu"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
-                      <path fill="currentColor" d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"></path>
-                    </svg> Choose Tags to Exclude</button>
-                  <!---->
-                  <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <ul id="BootstrapVueNext__ID__v-45__dropdown___-menu" style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto fade" aria-labelledby="BootstrapVueNext__ID__v-45__dropdown___" role="menu">
-                      <div>
-                        <li role="presentation">
-                          <form class="dropdown-item-text">
-                            <div id="BootstrapVueNext__ID__v-46__" role="group" class="b-form-group mb-0">
-                              <!---->
-                              <!---->
-                              <div class="row d-flex flex-wrap">
-                                <div class="col-md-auto"><label id="BootstrapVueNext__ID__v-47___BV_label____" for="tag-search-input" class="col-form-label col-form-label col-form-label-sm">Search Tags</label></div>
-                                <div class="col"><input id="BootstrapVueNext__ID__v-51__input___" class="form-control form-control-sm" type="search" autocomplete="off" trim="" value="">
-                                  <!---->
-                                  <!---->
-                                  <!---->
-                                </div>
-                              </div>
-                            </div>
-                          </form>
-                        </li>
-                        <li role="presentation">
-                          <hr class="dropdown-divider" role="separator" aria-orientation="horizontal">
-                        </li>
-                        <!--v-if-->
-                        <li role="presentation"><span class="dropdown-item-text"> Start typing to see a list of matching tags </span></li>
-                      </div>
-                    </ul>
-                  </transition-stub>
-                </div>
-                <!---->
-              </div>
-              <!---->
-              <!---->
-              <!---->
-            </fieldset>
-          </div>
           <div id="tempo-range-group" role="group" class="b-form-group">
             <!---->
-            <!----><label id="BootstrapVueNext__ID__v-53___BV_label____" for="tempo-range" class="form-label d-block">Tempo range (BPM):</label>
+            <!----><label id="BootstrapVueNext__ID__v-59___BV_label____" for="tempo-range" class="form-label d-block">Tempo range (BPM):</label>
             <fieldset id="tempo-range" class="b-form-group">
               <!---->
               <!---->
@@ -247,7 +263,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
           </div>
           <div id="length-range-group" role="group" class="b-form-group">
             <!---->
-            <!----><label id="BootstrapVueNext__ID__v-65___BV_label____" for="length-range" class="form-label d-block">Length range (seconds):</label>
+            <!----><label id="BootstrapVueNext__ID__v-71___BV_label____" for="length-range" class="form-label d-block">Length range (seconds):</label>
             <fieldset id="length-range" class="b-form-group">
               <!---->
               <!---->
@@ -265,7 +281,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
           </div>
           <div id="activity-group" role="group" class="b-form-group">
             <!---->
-            <!----><label id="BootstrapVueNext__ID__v-77___BV_label____" for="activity" class="form-label d-block">By User:</label>
+            <!----><label id="BootstrapVueNext__ID__v-83___BV_label____" for="activity" class="form-label d-block">By User:</label>
             <div class="d-flex"><input id="user" class="form-control me-2" type="text" placeholder="UserName or me" style="width: 10rem;" value=""><select id="activity" class="form-select">
                 <option value="NT">Don't filter on user activity</option>
               </select></div>
@@ -275,11 +291,11 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
           </div>
           <div id="services-group" role="group" class="b-form-group mx-2 mb-2">
             <!---->
-            <!----><label id="BootstrapVueNext__ID__v-84___BV_label____" for="services" class="form-label d-block">Available on:</label>
+            <!----><label id="BootstrapVueNext__ID__v-90___BV_label____" for="services" class="form-label d-block">Available on:</label>
             <div id="services" role="group" class="btn-group-md bv-no-focus-ring" tabindex="-1">
-              <div class="form-check form-check-inline"><input id="BootstrapVueNext__ID__v-90__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-89__checkbox___" true-value="A" false-value="false" value="A"><label for="BootstrapVueNext__ID__v-90__form-check___" class="form-check-label">Amazon</label></div>
-              <div class="form-check form-check-inline"><input id="BootstrapVueNext__ID__v-91__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-89__checkbox___" true-value="I" false-value="false" value="I"><label for="BootstrapVueNext__ID__v-91__form-check___" class="form-check-label">ITunes</label></div>
-              <div class="form-check form-check-inline"><input id="BootstrapVueNext__ID__v-92__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-89__checkbox___" true-value="S" false-value="false" value="S"><label for="BootstrapVueNext__ID__v-92__form-check___" class="form-check-label">Spotify</label></div>
+              <div class="form-check form-check-inline"><input id="BootstrapVueNext__ID__v-96__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-95__checkbox___" true-value="A" false-value="false" value="A"><label for="BootstrapVueNext__ID__v-96__form-check___" class="form-check-label">Amazon</label></div>
+              <div class="form-check form-check-inline"><input id="BootstrapVueNext__ID__v-97__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-95__checkbox___" true-value="I" false-value="false" value="I"><label for="BootstrapVueNext__ID__v-97__form-check___" class="form-check-label">ITunes</label></div>
+              <div class="form-check form-check-inline"><input id="BootstrapVueNext__ID__v-98__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-95__checkbox___" true-value="S" false-value="false" value="S"><label for="BootstrapVueNext__ID__v-98__form-check___" class="form-check-label">Spotify</label></div>
             </div>
             <!---->
             <!---->
@@ -287,17 +303,17 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
           </div>
           <div id="bonuses-group" role="group" class="b-form-group mx-2 mb-2">
             <!---->
-            <!----><label id="BootstrapVueNext__ID__v-94___BV_label____" for="bonuses" class="form-label d-block">Bonus content:</label>
+            <!----><label id="BootstrapVueNext__ID__v-100___BV_label____" for="bonuses" class="form-label d-block">Bonus content:</label>
             <div id="bonuses" role="group" class="btn-group-md bv-no-focus-ring" tabindex="-1">
-              <div class="form-check form-check-inline"><input id="BootstrapVueNext__ID__v-100__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-99__checkbox___" true-value="P" false-value="false" value="P"><label for="BootstrapVueNext__ID__v-100__form-check___" class="form-check-label">Not found in any publisher catalog</label></div>
-              <div class="form-check form-check-inline"><input id="BootstrapVueNext__ID__v-101__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-99__checkbox___" true-value="D" false-value="false" value="D"><label for="BootstrapVueNext__ID__v-101__form-check___" class="form-check-label">Not categorized by dance</label></div>
+              <div class="form-check form-check-inline"><input id="BootstrapVueNext__ID__v-106__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-105__checkbox___" true-value="P" false-value="false" value="P"><label for="BootstrapVueNext__ID__v-106__form-check___" class="form-check-label">Not found in any publisher catalog</label></div>
+              <div class="form-check form-check-inline"><input id="BootstrapVueNext__ID__v-107__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-105__checkbox___" true-value="D" false-value="false" value="D"><label for="BootstrapVueNext__ID__v-107__form-check___" class="form-check-label">Not categorized by dance</label></div>
             </div>
             <!---->
-            <!----><small id="BootstrapVueNext__ID__v-97___BV_description____" class="text-body-secondary form-text"><a href="https://music4dance.blog/music4dance-help/subscriptions/">Premium content</a></small>
+            <!----><small id="BootstrapVueNext__ID__v-103___BV_description____" class="text-body-secondary form-text"><a href="https://music4dance.blog/music4dance-help/subscriptions/">Premium content</a></small>
           </div>
           <div id="sort-group" role="group" class="b-form-group">
             <!---->
-            <!----><label id="BootstrapVueNext__ID__v-103___BV_label____" for="sort" class="form-label d-block">Sort By:</label><select id="sort" class="form-select" required="" aria-required="true">
+            <!----><label id="BootstrapVueNext__ID__v-109___BV_label____" for="sort" class="form-label d-block">Sort By:</label><select id="sort" class="form-select" required="" aria-required="true">
               <option>Default (Closest Match)</option>
               <option value="Dances">Dance Rating</option>
               <option value="Closest">Closest Match</option>
@@ -314,8 +330,8 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
               <option value="Comments">Comments</option>
             </select>
             <div id="sort-order" role="radiogroup" class="btn-group-md bv-no-focus-ring my-2" tabindex="-1">
-              <div class="form-check form-check-inline"><input id="BootstrapVueNext__ID__v-110__form-check___" class="form-check-input" type="radio" name="sort-order" value="asc"><label for="BootstrapVueNext__ID__v-110__form-check___" class="form-check-label">Ascending (A-Z, Slow-Fast, Newest-Oldest, Shortest-Longest)</label></div>
-              <div class="form-check form-check-inline"><input id="BootstrapVueNext__ID__v-111__form-check___" class="form-check-input" type="radio" name="sort-order" value="desc"><label for="BootstrapVueNext__ID__v-111__form-check___" class="form-check-label">Descending (Z-A, Fast-Slow, Oldest-Newest, Longest-Shortest)</label></div>
+              <div class="form-check form-check-inline"><input id="BootstrapVueNext__ID__v-116__form-check___" class="form-check-input" type="radio" name="sort-order" value="asc"><label for="BootstrapVueNext__ID__v-116__form-check___" class="form-check-label">Ascending (A-Z, Slow-Fast, Newest-Oldest, Shortest-Longest)</label></div>
+              <div class="form-check form-check-inline"><input id="BootstrapVueNext__ID__v-117__form-check___" class="form-check-input" type="radio" name="sort-order" value="desc"><label for="BootstrapVueNext__ID__v-117__form-check___" class="form-check-label">Descending (Z-A, Fast-Slow, Oldest-Newest, Longest-Shortest)</label></div>
             </div>
             <!---->
             <!---->

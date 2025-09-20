@@ -1,15 +1,15 @@
 import { DanceGroup } from "@/models/DanceDatabase/DanceGroup";
 import type { NamedObject } from "@/models/DanceDatabase/NamedObject";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
-import type { DanceThreshold } from "./DanceThreshold";
+import type { DanceQueryItem } from "./DanceQueryItem";
 
 export class DanceQueryBase {
-  public get danceThresholds(): DanceThreshold[] {
+  public get danceQueryItems(): DanceQueryItem[] {
     throw new Error("Not Implemented");
   }
 
   public get danceList(): string[] {
-    return this.danceThresholds.map((d) => d.id);
+    return this.danceQueryItems.map((d) => d.id);
   }
 
   public get isExclusive(): boolean {
@@ -29,8 +29,11 @@ export class DanceQueryBase {
   }
 
   public get isSimple(): boolean {
-    const c = this.danceThresholds.length;
-    return c === 0 || (c === 1 && this.danceThresholds[0].threshold === 1);
+    const c = this.danceQueryItems.length;
+    return (
+      c === 0 ||
+      (c === 1 && this.danceQueryItems[0].threshold === 1 && !this.danceQueryItems[0].tags)
+    );
   }
 
   public get description(): string {

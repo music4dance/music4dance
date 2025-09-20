@@ -12,7 +12,7 @@ namespace m4dModels.Tests
             public MockDms(IEnumerable<string> rings = null)
                 : base(null, null, null)
             {
-                _rings = rings != null ? new List<string>(rings) : new List<string>();
+                _rings = rings != null ? [.. rings] : [];
             }
             public override ICollection<TagGroup> GetTagRings(TagList tags)
             {
@@ -39,12 +39,31 @@ namespace m4dModels.Tests
         public void TagQuery_DescribeTags_IncludesAndExcludes()
         {
             var tq = new TagQuery("+Pop:Music|-Jazz:Music");
-            var sep = ", ";
-            var desc = tq.DescribeTags(ref sep);
-            Assert.IsTrue(desc.Contains("including tag"));
-            Assert.IsTrue(desc.Contains("excluding tag"));
-            Assert.IsTrue(desc.Contains("Pop"));
-            Assert.IsTrue(desc.Contains("Jazz"));
+            var sep = "";
+            var desc = tq.Description(ref sep);
+            // Expecting the full description string for these tags
+            var expected = "including tag Pop, excluding tag Jazz";
+            Assert.AreEqual(expected, desc);
+        }
+
+        [TestMethod]
+        public void TagQuery_Description_ExcludeDanceTags_False_DefaultIncludesDanceALL()
+        {
+            var tq = new TagQuery("+Pop:Music|-Jazz:Music");
+            var sep = "";
+            var desc = tq.Description(ref sep);
+            var expected = "including tag Pop, excluding tag Jazz";
+            Assert.AreEqual(expected, desc);
+        }
+
+        [TestMethod]
+        public void TagQuery_ShortDescription_ExcludeDanceTags_False_DefaultIncludesDanceALL()
+        {
+            var tq = new TagQuery("+Pop:Music|-Jazz:Music");
+            var sep = "";
+            var desc = tq.ShortDescription(ref sep);
+            var expected = "inc Pop, excl Jazz";
+            Assert.AreEqual(expected, desc);
         }
 
         [TestMethod]
@@ -77,7 +96,7 @@ namespace m4dModels.Tests
         public void TagQuery_GetODataFilter_BasicExclude()
         {
             var tq = new TagQuery("-Jazz:Music");
-            var dms = new MockDms(new[] { "Jazz:Music" });
+            var dms = new MockDms(["Jazz:Music"]);
             var odata = tq.GetODataFilter(dms);
             Assert.IsTrue(odata.Contains("Jazz"));
             Assert.IsTrue(odata.Contains("all"));
@@ -87,12 +106,44 @@ namespace m4dModels.Tests
         public void TagQuery_GetODataFilter_IncludeAndExclude()
         {
             var tq = new TagQuery("+Pop:Music|-Jazz:Music");
-            var dms = new MockDms(new[] { "Pop:Music", "Jazz:Music" });
+            var dms = new MockDms(["Pop:Music", "Jazz:Music"]);
             var odata = tq.GetODataFilter(dms);
             Assert.IsTrue(odata.Contains("Pop"));
             Assert.IsTrue(odata.Contains("Jazz"));
             Assert.IsTrue(odata.Contains("any"));
             Assert.IsTrue(odata.Contains("all"));
+        }
+
+        [TestMethod]
+        public void TagQuery_Description_ExcludeDanceTags_True_OnlyWhenTagsPresent()
+        {
+            var tq = new TagQuery("^");
+            var sep = ", ";
+            var desc = tq.Description(ref sep);
+            // Should be empty string when no tags present
+            var expected = "";
+            Assert.AreEqual(expected, desc);
+        }
+
+        [TestMethod]
+        public void TagQuery_Description_NoExtraWordIssue()
+        {
+            var tq = new TagQuery("+Episode 10:Other");
+            var sep = "";
+            var desc = tq.Description(ref sep);
+            var expected = "including tag Episode 10";
+            Assert.AreEqual(expected, desc);
+        }
+
+        [TestMethod]
+        public void TagQuery_ShortDescription_ExcludeDanceTags_True_OnlyWhenTagsPresent()
+        {
+            var tq = new TagQuery("^");
+            var sep = ", ";
+            var desc = tq.ShortDescription(ref sep);
+            // Should be empty string when no tags present
+            var expected = "";
+            Assert.AreEqual(expected, desc);
         }
     }
 }

@@ -67,7 +67,7 @@ const danceCount = (dance: DanceType) => {
       :histories="histories"
       :filter="filter"
       :hide-sort="true"
-      :hidden-columns="['artist', 'length', 'track']"
+      :hidden-columns="['artist', 'danceTags', 'length', 'track']"
       @song-selected="selectSong"
     />
     <AdminFooter :model="model" :selected="selected" />

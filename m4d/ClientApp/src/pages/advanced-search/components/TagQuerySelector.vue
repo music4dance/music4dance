@@ -1,12 +1,19 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 import TagCategorySelector from "@/components/TagCategorySelector.vue";
-import type { Tag } from "@/models/Tag";
+import { Tag, TagContext } from "@/models/Tag";
 
 const props = defineProps<{
   modelValue: string;
   tagList: Tag[];
+  context?: TagContext | TagContext[]; // Can specify one or multiple contexts
 }>();
+
+// Filter tags based on context using Tag.filterByContext
+const filteredTagList = computed(() => {
+  if (!props.context) return props.tagList;
+  return Tag.filterByContext(props.tagList, props.context);
+});
 
 const emit = defineEmits(["update:modelValue"]);
 
@@ -49,7 +56,8 @@ watch([includeTags, excludeTags], () => {
     <BFormGroup label="Include Tags:">
       <TagCategorySelector
         v-model="includeTags"
-        :tag-list="tagList"
+        :tag-list="filteredTagList"
+        :context="context"
         choose-label="Choose Tags to Include"
         search-label="Search Tags"
         empty-label="No more tags to choose"
@@ -58,7 +66,8 @@ watch([includeTags, excludeTags], () => {
     <BFormGroup label="Exclude Tags:">
       <TagCategorySelector
         v-model="excludeTags"
-        :tag-list="tagList"
+        :tag-list="filteredTagList"
+        :context="context"
         choose-label="Choose Tags to Exclude"
         search-label="Search Tags"
         empty-label="No more tags to choose"

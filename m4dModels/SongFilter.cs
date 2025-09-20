@@ -39,9 +39,6 @@ namespace m4dModels
 
     public class SongFilter
     {
-        private const char SubChar = '\u001a';
-        private const char Separator = '-';
-
         internal const string CommaSeparator = ", ";
 
         protected static readonly List<PropertyInfo> PropertyInfo;
@@ -49,7 +46,7 @@ namespace m4dModels
         private static readonly Dictionary<string, object> AltDefaults =
             new() { { "Action", "index" }, { "Dances", "all" }, { "Page", 1 } };
 
-        private readonly string _subStr = new(SubChar, 1);
+        private readonly string _subStr = new('\u001a', 1);
         private string _action;
 
         static SongFilter()
@@ -336,7 +333,7 @@ namespace m4dModels
 
         public bool IsEmptyUser(string user) =>
             EmptyExcept(["Page", "Action", "SortOrder", "Dances", "User"]) &&
-            DanceQuery.Dances.Count() < 2 &&
+            !DanceQuery.IsComplex &&
             UserQuery.IsDefault(user);
 
         public bool IsSingleDance => IsEmptyDance && DanceQuery?.Dances.Count() == 1;
@@ -384,7 +381,7 @@ namespace m4dModels
                     separator = CommaSeparator;
                 }
 
-                sb.Append(TagQuery.DescribeTags(ref separator));
+                sb.Append(TagQuery.Description(ref separator));
 
                 if (TempoMin.HasValue && TempoMax.HasValue)
                 {
@@ -601,7 +598,7 @@ namespace m4dModels
                 ? $"({SongSort.Id} ne null) and ({SongSort.Id} ne 0)"
                 : null;
 
-            odata = CombineFilter(odata, DanceQuery.ODataFilter);
+            odata = CombineFilter(odata, DanceQuery.GetODataFilter(dms));
             odata = CombineFilter(odata, UserQuery.ODataFilter);
 
             if (TempoMin.HasValue)
@@ -644,18 +641,15 @@ namespace m4dModels
         {
             var version = Version == 2 ? "v2-" : "";
             var length = Version == 2 ? $"{Format(LengthMin.ToString())}-{Format(LengthMax.ToString())}-" : "";
-            var ret = $"{version}{Action}-{Dances}-{Format(SortOrder)}-{Format(SearchString)}-{Format(Purchase)}-{Format(User)}-" +
+            var ret = $"{version}{Action}-{Format(Dances)}-{Format(SortOrder)}-{Format(SearchString)}-{Format(Purchase)}-{Format(User)}-" +
                 $"{Format(TempoMin.ToString())}-{Format(TempoMax.ToString())}-{length}{Format(Page.ToString())}-{Format(Tags)}-{Format(Level.ToString())}";
             var clean = ret.TrimEnd(['.', '-']);
             return string.Equals(clean, "index", StringComparison.OrdinalIgnoreCase) ? "" : clean;
         }
 
-        private string Format(string s)
-        {
-            return string.IsNullOrWhiteSpace(s)
+        private string Format(string s) => string.IsNullOrWhiteSpace(s)
                 ? "."
-                : s.Contains('-') ? s.Replace("-", @"\-") : s;
-        }
+                : s.Contains('-') ? s.Replace("-", _subStr) : s;
 
         public string ToJson()
         {

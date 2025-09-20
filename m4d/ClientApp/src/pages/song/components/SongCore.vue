@@ -6,7 +6,7 @@ import { Song } from "@/models/Song";
 import { SongDetailsModel } from "@/models/SongDetailsModel";
 import { SongEditor } from "@/models/SongEditor";
 import { PropertyType, SongProperty } from "@/models/SongProperty";
-import { Tag } from "@/models/Tag";
+import { Tag, TagContext } from "@/models/Tag";
 import { TrackModel } from "@/models/TrackModel";
 import { getMenuContext } from "@/helpers/GetMenuContext";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
@@ -325,6 +325,7 @@ onBeforeUnmount(() => {
           :user="model.userName"
           :editor="editor as SongEditor"
           :edit="edit"
+          :context="TagContext.Song"
           @edit="setEdit"
           @update-song="updateSong"
           @tag-clicked="showTagModal"

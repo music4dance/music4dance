@@ -145,7 +145,8 @@ const saveChanges = async () => {
         <TagCloud
           :tags="danceTags"
           :user="menuContext.userName"
-          :song-filter="model.filter"
+          :dance-id="model.danceId"
+          :is-dance-specific="true"
           :hide-filter="danceTags.length < 20"
         />
       </BCol>
@@ -157,7 +158,8 @@ const saveChanges = async () => {
         <TagCloud
           :tags="songTags"
           :user="menuContext.userName"
-          :song-filter="model.filter"
+          :dance-id="model.danceId"
+          :is-dance-specific="false"
           :hide-filter="songTags.length < 20"
         />
       </BCol>

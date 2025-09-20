@@ -27,6 +27,8 @@ namespace m4dModels
 
         public TagList(string serialized)
         {
+            if (!string.IsNullOrEmpty(serialized) && serialized.StartsWith("^"))
+                serialized = serialized[1..];
             // Normalize the tags list by pushing it through parse/deserialize
             Summary = Serialize(Parse(serialized));
         }
@@ -86,6 +88,19 @@ namespace m4dModels
         {
             var filtered = Tags.Where(tag => tag.EndsWith(":" + tagType)).ToList();
             return new TagList(filtered);
+        }
+
+        public TagList FilterCategories(string[] categories)
+        {
+            var cats = categories.Select(cat => cat.ToLowerInvariant()).ToArray();
+            var filteredTags = Tags.Where(tag =>
+            {
+                var parts = tag.Split(':');
+                if (parts.Length < 2) return true; // Keep tags without category
+                var category = TrimQualifier(parts[1]).ToLowerInvariant();
+                return !cats.Contains(category);
+            }).ToList();
+            return new TagList(filteredTags);
         }
 
         public TagList ExtractAdd()

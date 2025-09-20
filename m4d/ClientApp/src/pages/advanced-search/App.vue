@@ -2,14 +2,14 @@
 import { DanceQuery } from "@/models/DanceQuery";
 import { SongFilter } from "@/models/SongFilter";
 import { SongSort, SortOrder } from "@/models/SongSort";
-import { Tag } from "@/models/Tag";
+import { Tag, TagContext } from "@/models/Tag";
 import { UserQuery } from "@/models/UserQuery";
 import { getMenuContext } from "@/helpers/GetMenuContext";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { safeTagDatabase } from "@/helpers/TagEnvironmentManager";
 import { computed, ref } from "vue";
 import type { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
-import { DanceThreshold } from "@/models/DanceThreshold";
+import { DanceQueryItem } from "@/models/DanceQueryItem";
 import TagQuerySelector from "./components/TagQuerySelector.vue";
 
 const context = getMenuContext();
@@ -24,24 +24,48 @@ const danceQueryInit = new DanceQuery(filter.dances);
 const showDiagnostics = getShowDiagnostics();
 const keyWords = ref(filter.searchString ?? "");
 const advancedText = ref(false);
-const danceThresholds = ref(danceQueryInit.danceThresholds);
+const danceQueryItems = ref(danceQueryInit.danceQueryItems);
 const danceConnector = ref(danceQueryInit.isExclusive ? "all" : "any");
 const dances = computed<string[]>({
-  get: () => danceThresholds.value.map((d) => d.id),
+  get: () => danceQueryItems.value.map((d) => d.id),
   set: (value: string[]): void => {
-    danceThresholds.value = value.map((id) => {
-      const existing = danceThresholds.value.find((d) => d.id === id);
-      return existing ? existing : new DanceThreshold({ id: id, threshold: 1 });
+    // Sync danceQueryItems with selected dances, preserving thresholds and tags
+    danceQueryItems.value = value.map((id) => {
+      const existing = danceQueryItems.value.find((d) => d.id === id);
+      return existing ? existing : new DanceQueryItem({ id: id, threshold: 1 });
     });
   },
 });
-const hasThresholds = computed(() => {
-  return danceThresholds.value.some((d) => d.threshold > 1);
+const hasDanceDetails = computed(() => {
+  return danceQueryItems.value.some((d) => d.threshold > 1 || d.tagQuery?.hasTags);
 });
-const showThresholds = ref(hasThresholds.value);
-
+const showDanceDetails = ref(hasDanceDetails.value);
 const tags: Tag[] = tagDatabase.tags;
-const tagString = ref(filter.tags ?? "");
+
+// Initialize tagString and excludeDanceTags from filter
+let initialTagString = filter.tags ?? "";
+const excludeDanceTags = ref(false);
+
+// Parse initial state from tagString: if it starts with "^", exclude dance_ALL tags
+if (initialTagString.startsWith("^")) {
+  excludeDanceTags.value = true;
+  initialTagString = initialTagString.substring(1);
+}
+
+const tagString = ref(initialTagString);
+
+// Check if any style tags are currently selected
+const hasStyleTags = computed(() => {
+  if (!tagString.value) return false;
+  const parts = tagString.value.split("|").map((p) => p.trim());
+  const styleTags = tags.filter((tag) => tag.category.toLowerCase() === "style");
+  const styleKeys = styleTags.map((tag) => tag.key);
+
+  return parts.some((part) => {
+    const cleanPart = part.startsWith("+") || part.startsWith("-") ? part.slice(1) : part;
+    return styleKeys.includes(cleanPart);
+  });
+});
 
 const tempoMin = ref(filter.tempoMin ?? 0);
 const tempoMax = ref(filter.tempoMax ?? 400);
@@ -61,7 +85,7 @@ const activity = ref(userQueryInit.parts);
 
 const songFilter = computed(() => {
   const danceQuery = DanceQuery.fromParts(
-    danceThresholds.value.map((t) => t.toString()),
+    danceQueryItems.value.map((t) => t.toString()),
     danceConnector.value === "all",
   );
   const userQuery = UserQuery.fromParts(
@@ -87,7 +111,8 @@ const songFilter = computed(() => {
   filter.tempoMax = tempoMax.value >= 400 ? undefined : tempoMax.value;
   filter.lengthMin = lengthMin.value === 0 ? undefined : lengthMin.value;
   filter.lengthMax = lengthMax.value >= 400 ? undefined : lengthMax.value;
-  filter.tags = tagString.value;
+  // Add "^" prefix if dance_ALL tags are excluded
+  filter.tags = excludeDanceTags.value ? `^${tagString.value}` : tagString.value;
   filter.level = level ? level : undefined;
 
   return filter;
@@ -251,6 +276,10 @@ function onReset(evt: Event): void {
   sortDirection.value = "asc";
   bonuses.value = [];
   tagString.value = "";
+  excludeDanceTags.value = false; // Reset dance_ALL tags toggle
+
+  // Reset danceQueryItems to empty
+  danceQueryItems.value = [];
 
   validated.value = false;
 }
@@ -290,33 +319,95 @@ function onReset(evt: Event): void {
                 <BFormRadio value="all">All</BFormRadio>
               </BFormRadioGroup>
               <BFormCheckbox
-                id="show-thresholds"
-                v-model="showThresholds"
-                :disabled="!dances.length || hasThresholds"
+                id="show-dance-details"
+                v-model="showDanceDetails"
+                :disabled="!dances.length || hasDanceDetails"
                 switch
               >
-                Show Thresholds
+                Show Dance Details
               </BFormCheckbox>
             </div>
-            <div v-if="showThresholds" class="mx-3 mb-2">
-              <div v-for="threshold in danceThresholds" :key="threshold.id" class="mt-2">
-                <BFormSpinbutton
-                  id="`sb-${dance}`"
-                  v-model="threshold.threshold"
-                  inline
-                  min="1"
-                  max="30"
-                  size="sm"
-                />
-                <label :for="`sb-${threshold.dance.name}`" class="ms-2">{{
-                  threshold.dance.name
-                }}</label>
+            <div v-if="showDanceDetails" class="mx-3 mb-2">
+              <div
+                v-for="item in danceQueryItems"
+                :key="item.id"
+                class="border rounded p-3 mt-2 bg-light"
+              >
+                <!-- Dance name header -->
+                <h6 class="mb-2 text-primary fw-bold">
+                  {{ item.dance.name }}
+                </h6>
+
+                <!-- Threshold control -->
+                <BFormGroup
+                  :label="`Minimum ${item.dance.name} rating:`"
+                  :label-for="`sb-${item.id}`"
+                  class="mb-2"
+                >
+                  <BFormSpinbutton
+                    :id="`sb-${item.id}`"
+                    v-model="item.threshold"
+                    inline
+                    min="1"
+                    max="30"
+                    size="sm"
+                    class="d-inline-block"
+                  />
+                  <small class="text-muted ms-2">
+                    ({{ item.threshold === 1 ? "Any rating" : `${item.threshold}+ votes` }})
+                  </small>
+                </BFormGroup>
+
+                <!-- Dance-specific tag selector -->
+                <BFormGroup :label="`${item.dance.name}-specific tags:`" class="mb-0">
+                  <TagQuerySelector
+                    :model-value="item.tagQuery?.tagList.summary ?? ''"
+                    :tag-list="tags"
+                    :context="TagContext.Dance"
+                    @update:model-value="
+                      (val) => {
+                        if (val && val.length > 0) {
+                          item.tags = val;
+                        } else {
+                          item.tags = undefined;
+                        }
+                      }
+                    "
+                  />
+                </BFormGroup>
               </div>
             </div>
           </div>
         </BFormGroup>
 
-        <TagQuerySelector v-model="tagString" :tag-list="tags" class="mt-3" />
+        <!-- Song-level Tags Section -->
+        <BFormGroup label="Song Tags:">
+          <div style="border: 1px solid #ced4da; border-radius: 0.25rem" class="p-3">
+            <TagQuerySelector
+              v-model="tagString"
+              :tag-list="tags"
+              :context="excludeDanceTags ? TagContext.Song : [TagContext.Song, TagContext.Dance]"
+            />
+
+            <div class="row mt-3">
+              <div class="col-6">
+                <BFormCheckbox
+                  id="exclude-dance-tags"
+                  v-model="excludeDanceTags"
+                  :disabled="hasStyleTags"
+                  switch
+                >
+                  Exclude Dance Tags
+                </BFormCheckbox>
+              </div>
+              <div class="col-6">
+                <small class="text-muted">
+                  Only use song tags (do not include tags from any dance)
+                </small>
+              </div>
+            </div>
+          </div>
+        </BFormGroup>
 
         <BFormGroup id="tempo-range-group" label="Tempo range (BPM):" label-for="tempo-range">
           <BFormGroup id="tempo-range">
@@ -433,8 +524,9 @@ function onReset(evt: Event): void {
         <pre class="m-0">
 searchString = {{ keyWords }}
 dances = {{ dances }}
-danceThresholds = {{ danceThresholds }}
+danceQueryItems = {{ danceQueryItems }}
 danceConnector = {{ danceConnector }}
+excludeDanceTags = {{ excludeDanceTags }}
 tempoMin = {{ tempoMin }}
 tempoMax = {{ tempoMax }}
 lengthMin = {{ lengthMin }}
@@ -449,8 +541,8 @@ user = {{ user }}
 displayUser = {{ displayUser }}
 
 filter = {{ songFilter }}
-      </pre
-        >
+query = {{ songFilter.query }}
+        </pre>
       </BCard>
     </div>
   </PageFrame>

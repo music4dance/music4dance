@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { type ListOption } from "@/models/ListOption";
-import { Tag } from "@/models/Tag";
+import { Tag, TagContext } from "@/models/Tag";
 import type { ColorVariant } from "bootstrap-vue-next";
 import { computed } from "vue";
 
-const categories = new Set(Tag.tagKeys.filter((k) => k !== "dance"));
 const model = defineModel<string[]>();
 const props = defineProps<{
   tagList: Tag[];
@@ -12,7 +11,31 @@ const props = defineProps<{
   chooseLabel: string;
   emptyLabel: string;
   addCategories?: string[];
+  context?: TagContext | TagContext[]; // Can specify one or multiple contexts
 }>();
+
+// Get valid categories based on context
+const categories = computed(() => {
+  if (!props.context) {
+    return new Set(Tag.tagKeys.filter((k) => k !== "dance"));
+  }
+
+  const contextArray = Array.isArray(props.context) ? props.context : [props.context];
+  let validCategories: string[] = [];
+
+  for (const context of contextArray) {
+    if (context === TagContext.Dance) {
+      validCategories.push(...Tag.getDanceValidCategories());
+    } else if (context === TagContext.Song) {
+      validCategories.push(...Tag.getSongValidCategories());
+    }
+  }
+
+  // Remove duplicates
+  validCategories = [...new Set(validCategories)];
+
+  return new Set(validCategories);
+});
 
 const tagMap = computed(() => {
   return new Map<string, Tag>(props.tagList.map((t) => [t.key, t]));
@@ -20,7 +43,7 @@ const tagMap = computed(() => {
 
 function getTagOptions(): ListOption[] {
   return props.tagList
-    .filter((t) => categories.has(t.category.toLowerCase()))
+    .filter((t) => categories.value.has(t.category.toLowerCase()))
     .map((t) => ({ text: t.value, value: t.key }));
 }
 

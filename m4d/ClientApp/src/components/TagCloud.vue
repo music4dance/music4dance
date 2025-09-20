@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { SongFilter } from "@/models/SongFilter";
 import { Tag, TagBucket, type TagInfo } from "@/models/Tag";
 import { TagHandler } from "@/models/TagHandler";
 import { computed, reactive, ref } from "vue";
 import { type ColorVariant } from "bootstrap-vue-next";
+import { TagContext } from "@/models/Tag";
 
 class TagButton implements TagInfo {
   public static get buttons() {
@@ -34,8 +34,9 @@ class TagButton implements TagInfo {
 const props = defineProps<{
   tags: Tag[];
   hideFilter?: boolean;
-  songFilter?: SongFilter;
   user?: string;
+  danceId?: string; // Pass the current dance ID for dance-specific tags
+  isDanceSpecific?: boolean; // Flag to indicate if these are dance-specific tags
 }>();
 
 const modalVisible = ref(false);
@@ -71,7 +72,12 @@ function showModal(key: string): void {
 }
 
 function getTagHandler(tag: Tag): TagHandler {
-  return new TagHandler({ tag, user: props.user, filter: props.songFilter });
+  return new TagHandler({
+    tag,
+    user: props.user,
+    danceId: props.isDanceSpecific ? props.danceId : undefined, // Only pass danceId for dance-specific tags
+    context: props.isDanceSpecific ? TagContext.Dance : [TagContext.Song, TagContext.Dance], // Use dance context for dance-specific tags, otherwise both
+  });
 }
 </script>
 

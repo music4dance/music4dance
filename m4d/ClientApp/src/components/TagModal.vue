@@ -17,45 +17,7 @@ const title = computed(() => {
   return parent ? parent.description : tag.value.value;
 });
 
-const includeOnly = computed(() => {
-  return getTagLink("+", true);
-});
-
-const excludeOnly = computed(() => {
-  return getTagLink("-", true);
-});
-
-const includeTag = computed(() => {
-  return getTagLink("+", false);
-});
-
-const excludeTag = computed(() => {
-  return getTagLink("-", false);
-});
-
-const hasFilter = computed(() => {
-  const filter = handler.value.filter;
-  return !!filter && !filter.isDefault(handler.value.user) && !filter.isRaw;
-});
-
-const singleDance = computed(() => {
-  return handler.value.filter?.singleDance ?? false;
-});
-
-const danceName = computed(() => {
-  return handler.value.filter?.danceQuery.danceNames[0] ?? "ERROR";
-});
-
-function getTagLink(modifier: string, exclusive: boolean): string {
-  let link = `/song/addtags/?tags=${encodeURIComponent(modifier + tag.value.key)}`;
-  const filter = handler.value.filter;
-  if (hasFilter.value && !exclusive) {
-    link = link + `&filter=${filter!.encodedQuery}`;
-  } else if (filter && filter.isDefault(handler.value.user)) {
-    link = link + `&filter=${filter.extractDefault(handler.value.user).encodedQuery}`;
-  }
-  return link;
-}
+const availableOptions = computed(() => handler.value.getAvailableOptions());
 </script>
 
 <template>
@@ -67,28 +29,38 @@ function getTagLink(modifier: string, exclusive: boolean): string {
     no-footer
   >
     <template #title><TagIcon :name="tag.icon!" />&nbsp;{{ title }} </template>
-    <!-- <template v-slot:title>Help Me!</template> -->
-    <BListGroup>
-      <BListGroupItem v-if="hasFilter" :href="includeTag" variant="success">
-        <span v-if="singleDance"> List all {{ danceName }} </span>
-        <span v-else> Filter the list to include only </span>
-        songs tagged as <em>{{ tag.value }}</em>
-      </BListGroupItem>
-      <BListGroupItem v-if="hasFilter" :href="excludeTag" variant="danger">
-        <span v-if="singleDance"> List all {{ danceName }} </span>
-        <span v-else> Filter the list to include only </span>
-        songs <b>not</b> tagged as
-        <em>{{ tag.value }}</em>
-      </BListGroupItem>
-      <BListGroupItem :href="includeOnly" variant="success">
-        List all songs tagged as <em>{{ tag.value }}</em>
-      </BListGroupItem>
-      <BListGroupItem :href="excludeOnly" variant="danger">
-        List all songs <b>not</b> tagged as <em>{{ tag.value }}</em>
-      </BListGroupItem>
-      <BListGroupItem href="https://music4dance.blog/tag-filtering" variant="info" target="_blank"
-        >Help</BListGroupItem
+    <!-- Single unified options list -->
+    <BListGroup class="mb-2">
+      <BListGroupItem
+        v-for="option in availableOptions"
+        :key="`${option.scope}-${option.type}-${option.modifier}`"
+        :href="option.href"
+        :variant="option.variant"
+        class="d-flex justify-content-between align-items-start"
       >
+        <div class="ms-2 me-auto">
+          <div class="fw-bold">{{ option.label }}</div>
+          <small class="text-muted">{{ option.description }}</small>
+        </div>
+        <BBadge :variant="option.variant" pill class="d-flex align-items-center">
+          <!-- Icon based on option type and modifier -->
+          <IBiFilter v-if="option.type === 'filter'" class="me-1" />
+          <IBiList v-else-if="option.type === 'list'" class="me-1" />
+          <!-- Plus or minus icon based on modifier -->
+          <IBiPlus v-if="option.modifier === '+'" />
+          <IBiDash v-else />
+        </BBadge>
+      </BListGroupItem>
+    </BListGroup>
+
+    <!-- Help Section -->
+    <BListGroup>
+      <BListGroupItem href="https://music4dance.blog/tag-filtering" variant="info" target="_blank">
+        <div class="d-flex justify-content-between align-items-center">
+          <span>Help</span>
+          <IBiQuestionCircle />
+        </div>
+      </BListGroupItem>
     </BListGroup>
   </BModal>
 </template>

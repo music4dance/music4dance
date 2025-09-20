@@ -1,7 +1,7 @@
 import { DanceQueryBase } from "./DanceQueryBase";
 import type { NamedObject } from "@/models/DanceDatabase/NamedObject";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
-import { DanceThreshold } from "./DanceThreshold";
+import { DanceQueryItem } from "./DanceQueryItem";
 
 const danceEx = /DanceTags\/(any|all)\([^']*'(.*?)'/i;
 
@@ -13,8 +13,8 @@ export class RawDanceQuery extends DanceQueryBase {
     super();
   }
 
-  public get danceThresholds(): DanceThreshold[] {
-    return this.danceObjects.map((d) => new DanceThreshold({ id: d.id, threshold: 1 }));
+  public get danceQueryItems(): DanceQueryItem[] {
+    return this.danceObjects.map((d) => new DanceQueryItem({ id: d.id, threshold: 1 }));
   }
 
   public get singleDance(): boolean {

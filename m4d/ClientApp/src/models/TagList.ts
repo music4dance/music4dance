@@ -23,8 +23,10 @@ export class TagList {
     if (!this.summary) {
       return [];
     }
-
-    return this.summary.split("|").map((t) => Tag.fromString(t));
+    // Ignore ^ prefix for tag parsing (now: ^ means do NOT include dance_ALL tags)
+    let s = this.summary;
+    if (s.startsWith("^")) s = s.substring(1);
+    return s.split("|").map((t) => Tag.fromString(t));
   }
 
   public get Adds(): Tag[] {
@@ -43,28 +45,34 @@ export class TagList {
     return this.FormatList(this.Removes, "excluding tag", "or");
   }
 
+  public get AddsShortDescription(): string {
+    return this.FormatList(this.Adds, "inc", "and");
+  }
+
+  public get RemovesShortDescription(): string {
+    return this.FormatList(this.Removes, "excl", "or");
+  }
+
   public filterCategories(categories: string[]): TagList {
     const cats = categories.map((cat) => cat.toLowerCase());
     return TagList.build(this.tags.filter((t) => cats.indexOf(t.category.toLowerCase()) === -1));
   }
 
   public find(tag: Tag): Tag | undefined {
-    const category = tag.category.toLowerCase();
-    const value = tag.value.toLowerCase();
-    return this.tags.find(
-      (t) => t.value.toLowerCase() === value && t.category.toLowerCase() === category,
-    );
+    const key = tag.key.toLowerCase();
+    return this.tags.find((t) => t.key.toLowerCase() === key);
   }
 
   public remove(tag: Tag): TagList {
-    const category = tag.category.toLowerCase();
-    const value = tag.value.toLowerCase();
+    const key = tag.key.toLowerCase();
+    return TagList.build(this.tags.filter((t) => t.key.toLowerCase() !== key));
+  }
 
-    return TagList.build(
-      this.tags.filter(
-        (t) => t.value.toLowerCase() !== value && t.category.toLowerCase() !== category,
-      ),
-    );
+  public add(tag: Tag): TagList {
+    // Remove the tag first if it exists (to avoid duplicates), then add the new one
+    const withoutTag = this.remove(tag);
+    const newTags = [...withoutTag.tags, tag];
+    return TagList.build(newTags);
   }
 
   public voteFromTags(tag: Tag): boolean | undefined {
@@ -90,7 +98,10 @@ export class TagList {
   }
 
   private get isQualified(): boolean {
-    return !this.summary || this.summary[0] === "+" || this.summary[0] === "-";
+    // Ignore ^ prefix for qualification check
+    if (!this.summary) return false;
+    const s = this.summary.startsWith("^") ? this.summary.substring(1) : this.summary;
+    return s[0] === "+" || s[0] === "-";
   }
 
   private FormatList(list: Tag[], prefix: string, connector: string): string {

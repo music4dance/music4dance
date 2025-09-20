@@ -15,12 +15,18 @@ const emit = defineEmits<{
   click: [value: MouseEvent];
 }>();
 
-const filter = props.filter ?? new SongFilter();
-const sort = filter.sort;
+import { computed } from "vue";
 
-const link = props.enableSort && !props.customSort ? filter.changeSort(props.id).url : "#";
-const content = props.title ?? props.id;
-const computedSortTip = props.enableSort ? (props.sortTip ?? "Click to sort") : undefined;
+const filter = computed(() => props.filter ?? new SongFilter());
+const sort = computed(() => filter.value.sort);
+
+const link = computed(() =>
+  props.enableSort && !props.customSort ? filter.value.changeSort(props.id).url : "#",
+);
+const content = computed(() => props.title ?? props.id);
+const computedSortTip = computed(() =>
+  props.enableSort ? (props.sortTip ?? "Click to sort") : undefined,
+);
 </script>
 
 <template>
