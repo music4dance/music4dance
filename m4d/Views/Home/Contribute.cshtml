@@ -23,10 +23,10 @@
 }
 <div id="fb-root"></div>
 <script async defer crossorigin="anonymous"
-        src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v8.0&appId=503791763032198&autoLogAppEvents=1" nonce="fuhOcdXs">
+src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v8.0&appId=503791763032198&autoLogAppEvents=1" nonce="fuhOcdXs">
 </script>
 
-<H1>@ViewBag.Title to music4dance.net</H1>
+<H1>@ViewBag.Title to music4dance.net<sup><a href="#terminology" class="link-underline link-underline-opacity-0">*</a></sup></H1>
 
 @if (Model.CommerceEnabled)
 {
@@ -56,7 +56,7 @@
     {
         <p class="big-text">
             We appreciate any amount that you're willing to contribute to the music4dance effort.
-            Anyone who purchases a <b>Basic</b> subscription (@annualPrice) or higher receives a year of our
+            Any logged in user who purchases a <b>Basic</b> subscription (@annualPrice) or higher receives a year of our
             <a href="https://music4dance.blog/music4dance-help/subscriptions/"></a>premium subscription,
             which always gives you an ad-free experience. We will also be experimenting with specific
             premium features such as
@@ -109,7 +109,7 @@
         </p>
     }
 
-    <h2>Donate</h2>
+    <h2>Donate<sup><a href="#terminology" class="link-underline link-underline-opacity-0">*</a></sup></h2>
 
     using (Html.BeginForm("CreateCheckoutSession", "Payment", FormMethod.Post, new
     {
@@ -146,8 +146,13 @@
     }
     <p class="ml-2 mt-2">
         The next page you see will be a <a href="https://www.stripe.com">Stripe</a> checkout
-        form with your donation amount. Any donation above the <b>Basic</b> subcription price of @annualPrice
-        will include a subscription at the level covered by your donation amount.
+        form with your donation amount.
+        @if (Model.IsAuthenticated) {
+            <span>
+                Any donation above the<b>Basic</b> subcription price of @annualPrice
+                will include a subscription at the level covered by your donation amount.
+            </span>
+        }
     </p>
     <p>
         If you would prefer to pay via paypal, please <a href="https://music4dance.blog/feedback/">contact us</a>
@@ -184,6 +189,14 @@ else
     <li><a href="https://music4dance.blog/music4dance-help/add-songs/">Add your own songs</a></li>
     <li>Add links to <a href="https://www.music4dance.net">music4dance.net</a> from your own sites</li>
     <li>Give us <a href="https://music4dance.blog/feedback/">feedback</a></li>
+    <li>Report a bug:
+        <ul>
+            <li>
+            Via <a href="https://github.com/music4dance/music4dance/issues">GitHub</a>
+            </li>
+            <li>Via our <a href="https://music4dance.blog/bug-report/">bug report form.</a></li>
+        </ul>
+    </li>
     <li><a href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/">Purchase music</a> in <a href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/itunes/">iTunes</a> or on <a href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/amazon/">Amazon</a> via our referal links.</li>
     <li>
         Read the <a href="https://music4dance.blog/">music4dance blog</a> and:
@@ -192,6 +205,15 @@ else
             <li>Or <a href="https://music4dance.blog/feedback/">contact us</a> if you would like to suggest a topic for a post or are interested in writing a guest post</li>
         </ul>
 </ul>
+
+<h2 id="terminology">A Note on Terminology</h2>
+<p>We're using the terms "Contribute" and "Donate" in the generic sense here, they are not meant
+    to imply that contributions or donations are tax deductible. <b>music4dance</b> is not registered
+    as a charitable/tax-exempt organization in any jurisdicion. Please see
+    <a href="https://music4dance.blog/music4dance-help/subscriptions/#tax-deductible" target="_blank">our documentation</a>
+    or <a href="https://music4dance.blog/defining-dance-is-hard-on-further-consideration-language-is-hard-full-stop/" target="_blank">
+    this blog post</a> for more details.
+</p>
 
 @section Scripts {
     @if (useCaptcha)
