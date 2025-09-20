@@ -187,7 +187,7 @@ watch([artist, title], () => {
       :filter="filter"
       :hide-sort="true"
       action="Edit"
-      :hidden-columns="['dances', 'echo', 'edit', 'order', 'play', 'tags', 'track']"
+      :hidden-columns="['dances', 'danceTags', 'echo', 'edit', 'order', 'play', 'tags', 'track']"
       @song-selected="editSong"
     />
     <div v-if="tracks" class="my-2">

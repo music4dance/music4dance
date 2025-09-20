@@ -13,6 +13,7 @@ import { TaggableObject } from "@/models/TaggableObject";
 import { TagHandler } from "@/models/TagHandler";
 import { computed, ref, watch } from "vue";
 import { getMenuContext } from "@/helpers/GetMenuContext";
+import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { useWindowSize } from "@vueuse/core";
 import { useModalController, type TableFieldRaw } from "bootstrap-vue-next";
 import beat10 from "@/assets/images/icons/beat-10.png";
@@ -74,8 +75,40 @@ const addDanceModalVisible = ref(false);
 
 const currentSong = ref<SongEditor>(new SongEditor());
 
-const filter = props.filter;
-const userQuery = filter.userQuery;
+const filter = computed(() => props.filter);
+const userQuery = filter.value.userQuery;
+
+// Get the current dance name for the dance-specific tags column header
+const currentDanceName = computed(() => {
+  if (filter.value.singleDance && filter.value.danceQuery?.danceList?.length) {
+    const danceId = filter.value.danceQuery.danceList[0];
+    const dance = safeDanceDatabase().fromId(danceId);
+    return dance?.name || "";
+  }
+  return "";
+});
+
+// Update field labels based on context
+const tagsFieldWithLabel = computed((): SongField => {
+  const hasDances = !!filter.value.dances;
+  console.log(
+    "tagsFieldWithLabel computed - filter.value.dances:",
+    filter.value.dances,
+    "hasDances:",
+    hasDances,
+  );
+  return {
+    key: "tags",
+    label: hasDances ? "Song Tags" : "Tags",
+  };
+});
+
+const danceTagsFieldWithLabel = computed(
+  (): SongField => ({
+    key: "danceTags",
+    label: `${currentDanceName.value} Tags`,
+  }),
+);
 
 const buildEditor = (history: SongHistory) => {
   const userId = context.userId;
@@ -129,29 +162,39 @@ const filterHiddenFields = (fields: SongField[]): SongField[] => {
 
 const smallFields = filterHiddenFields([textField, infoField].map((f) => filterSmallField(f)));
 
-const fullFields = filterHiddenFields([
-  ...(context.isAdmin && !isHidden(editField.key) ? [editField] : []),
-  playField,
-  titleField,
-  artistField,
-  trackField,
-  tempoField,
-  lengthField,
-  echoField,
-  dancesField,
-  tagsField,
-  props.showHistory || hasUser ? userChangeField : orderField,
-]);
+const fullFields = computed(() => {
+  // Check if we should show dance-specific tags
+  const shouldShowDanceTags = !!filter.value.dances;
+
+  const fields = [
+    ...(context.isAdmin && !isHidden(editField.key) ? [editField] : []),
+    playField,
+    titleField,
+    artistField,
+    trackField,
+    tempoField,
+    lengthField,
+    echoField,
+    dancesField,
+    tagsFieldWithLabel.value,
+    // Add dance tags column only when we have a specific dance filter
+    ...(shouldShowDanceTags ? [danceTagsFieldWithLabel.value] : []),
+    props.showHistory || hasUser ? userChangeField : orderField,
+  ];
+
+  const filtered = filterHiddenFields(fields);
+  return filtered;
+});
 
 const { width: windowWidth } = useWindowSize();
 
 const fields = computed(() => {
-  const baseFields = windowWidth.value >= 992 ? fullFields : smallFields;
+  const baseFields = windowWidth.value >= 992 ? fullFields.value : smallFields;
   return props.action ? [actionField, ...baseFields] : baseFields;
 });
 
-const likeHeader = computed(() => {
-  return filter.singleDance ? ["likeDanceHeader"] : ["likeHeader"];
+const likeHeaderClasses = computed(() => {
+  return filter.value.singleDance ? ["likeDanceHeader"] : ["likeHeader"];
 });
 
 const titleHeaderSortTip = "Song Title: Click to sort alphabetically by title";
@@ -168,7 +211,7 @@ const energyCurrentTip = "Energy of the song (fuller icons represent a higher en
 const energySortTip = "Click to sort by energy.";
 const moodCurrentTip = "Mood of the song (fuller icons represent a happier mood).";
 const moodSortTip = "Click to sort by mood.";
-const orderString = filter.sort?.id;
+const orderString = filter.value.sort?.id;
 const orderType = orderString ? (orderString as SortOrder) : SortOrder.Match;
 const echoClass =
   orderString === "Mood" || orderString === "Beat" || orderString === "Energy"
@@ -206,9 +249,9 @@ const filterDisplayName = (() => {
 
 const changeHeader = props.showHistory ? "Latest Changes" : `${filterDisplayName}'s Changes`;
 
-const sortOrder = filter.sort ?? new SongSort("Modified");
+const sortOrder = filter.value.sort ?? new SongSort("Modified");
 
-const sortableDances = !props.hideSort && filter.singleDance;
+const sortableDances = !props.hideSort && filter.value.singleDance;
 
 const getUserChange = (history: SongHistory): SongChange | undefined => {
   if (props.showHistory) {
@@ -220,7 +263,7 @@ const getUserChange = (history: SongHistory): SongChange | undefined => {
 };
 
 const songRef = (song: Song): string => {
-  return `/song/details/${song.songId}?filter=${filter.encodedQuery}`;
+  return `/song/details/${song.songId}?filter=${filter.value.encodedQuery}`;
 };
 
 const artistRef = (song: Song): string => {
@@ -303,6 +346,25 @@ const tags = (song: Song): Tag[] => {
   return song.tags.filter((t) => !t.value.startsWith("!") && t.category.toLowerCase() !== "dance");
 };
 
+const danceSpecificTags = (song: Song): Tag[] => {
+  // Get dance-specific tags for the current single dance
+  // First check if we have a dance filter with a specific dance
+  const danceId = filter.value.dances;
+  if (!danceId) {
+    return [];
+  }
+
+  const danceRating = song.findDanceRatingById(danceId);
+
+  if (!danceRating) {
+    return [];
+  }
+
+  return danceRating.tags.filter(
+    (t) => !t.value.startsWith("!") && t.category.toLowerCase() !== "dance",
+  );
+};
+
 const trackNumber = (song: Song): string => {
   return song.albums && song.albums.length > 0 && song.albums[0].track
     ? song.albums[0].track.toString()
@@ -322,7 +384,7 @@ const onAction = (song: Song): void => {
 };
 
 const onChronOrderChanged = (order: SortOrder): void => {
-  const f = filter.clone();
+  const f = filter.value.clone();
   f.sortOrder = order;
   window.location.href = `/song/filterSearch?filter=${f.encodedQuery}`;
 };
@@ -378,8 +440,8 @@ const onDanceVote = (editor: SongEditor, vote: DanceRatingVote): void => {
   const history = local.editHistory;
   const remove =
     !local.song.findDanceRatingById(vote.danceId) &&
-    filter.singleDance &&
-    filter.danceQuery.danceList[0] == vote.danceId;
+    filter.value.singleDance &&
+    filter.value.danceQuery.danceList[0] == vote.danceId;
   onEditSong(history, remove);
 };
 
@@ -433,7 +495,7 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
         <BButton @click="onAction(data.item.song)">{{ action }}</BButton>
       </template>
       <template #head(play)>
-        <div :class="likeHeader">Like/Play</div>
+        <div :class="likeHeaderClasses">Like/Play</div>
       </template>
       <template #cell(play)="data">
         <PlayCell
@@ -595,6 +657,14 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
       <template #cell(tags)="data">
         <TagButton
           v-for="tag in tags(data.item.song)"
+          :key="tag.key"
+          :tag-handler="tagHandler(tag, filter, data.item.song)"
+          @tag-clicked="showTagModal"
+        />
+      </template>
+      <template #cell(danceTags)="data">
+        <TagButton
+          v-for="tag in danceSpecificTags(data.item.song)"
           :key="tag.key"
           :tag-handler="tagHandler(tag, filter, data.item.song)"
           @tag-clicked="showTagModal"

@@ -10,7 +10,7 @@ declare const model_: string;
 const model = TypedJSON.parse(model_, SongListModel)!;
 
 const complexSearchWarning = model.rawCount > model.count && model.rawCount > 500;
-const hiddenColumns = model.hiddenColumns ?? ["length", "track"];
+const hiddenColumns = model.hiddenColumns ?? ["danceTags", "length", "track"];
 const userName = context.userName;
 const { songs: selected, select: selectSong } = useSongSelector();
 </script>

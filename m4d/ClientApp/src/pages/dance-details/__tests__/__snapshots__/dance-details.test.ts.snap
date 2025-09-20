@@ -174,6 +174,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
                         </transition-stub></span>
                         <!---->
                       </th>
+                      <th scope="col" class="">Bolero Tags
+                        <!---->
+                      </th>
                     </tr>
                     <!---->
                   </thead>
@@ -352,6 +355,17 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
                   <!--v-if-->
                 </button>
               </td>
+              <td class="">
+                <!----><button data-v-a7ef304f="" class="btn btn-sm btn-style" type="button" title="American" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                    <path fill="currentColor" d="M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v8A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1zm0 1h3a.5.5 0 0 1 .5.5V3H6v-.5a.5.5 0 0 1 .5-.5m1.886 6.914L15 7.151V12.5a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5V7.15l6.614 1.764a1.5 1.5 0 0 0 .772 0M1.5 4h13a.5.5 0 0 1 .5.5v1.616L8.129 7.948a.5.5 0 0 1-.258 0L1 6.116V4.5a.5.5 0 0 1 .5-.5"></path>
+                  </svg> American
+                  <!--v-if-->
+                </button><button data-v-a7ef304f="" class="btn btn-sm btn-style" type="button" title="Traditional" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                    <path fill="currentColor" d="M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v8A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1zm0 1h3a.5.5 0 0 1 .5.5V3H6v-.5a.5.5 0 0 1 .5-.5m1.886 6.914L15 7.151V12.5a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5V7.15l6.614 1.764a1.5 1.5 0 0 0 .772 0M1.5 4h13a.5.5 0 0 1 .5.5v1.616L8.129 7.948a.5.5 0 0 1-.258 0L1 6.116V4.5a.5.5 0 0 1 .5-.5"></path>
+                  </svg> Traditional
+                  <!--v-if-->
+                </button>
+              </td>
               </tr>
               <!---->
               <tr class="">
@@ -475,6 +489,13 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
                 <!--v-if-->
               </button>
             </td>
+            <td class="">
+              <!----><button data-v-a7ef304f="" class="btn btn-sm btn-style" type="button" title="Traditional" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                  <path fill="currentColor" d="M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v8A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1zm0 1h3a.5.5 0 0 1 .5.5V3H6v-.5a.5.5 0 0 1 .5-.5m1.886 6.914L15 7.151V12.5a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5V7.15l6.614 1.764a1.5 1.5 0 0 0 .772 0M1.5 4h13a.5.5 0 0 1 .5.5v1.616L8.129 7.948a.5.5 0 0 1-.258 0L1 6.116V4.5a.5.5 0 0 1 .5-.5"></path>
+                </svg> Traditional
+                <!--v-if-->
+              </button>
+            </td>
             </tr>
             <!---->
             <tr class="">
@@ -588,6 +609,13 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
                   <path fill-rule="evenodd" d="M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5"></path>
                 </g>
               </svg> Rock
+              <!--v-if-->
+            </button>
+          </td>
+          <td class="">
+            <!----><button data-v-a7ef304f="" class="btn btn-sm btn-style" type="button" title="American" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                <path fill="currentColor" d="M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v8A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1zm0 1h3a.5.5 0 0 1 .5.5V3H6v-.5a.5.5 0 0 1 .5-.5m1.886 6.914L15 7.151V12.5a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5V7.15l6.614 1.764a1.5 1.5 0 0 0 .772 0M1.5 4h13a.5.5 0 0 1 .5.5v1.616L8.129 7.948a.5.5 0 0 1-.258 0L1 6.116V4.5a.5.5 0 0 1 .5-.5"></path>
+              </svg> American
               <!--v-if-->
             </button>
           </td>
@@ -736,6 +764,13 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
                 <path d="M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586l7 7L13.586 9l-7-7H2z"></path>
               </g>
             </svg> Wedding
+            <!--v-if-->
+          </button>
+        </td>
+        <td class="">
+          <!----><button data-v-a7ef304f="" class="btn btn-sm btn-style" type="button" title="American" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
+              <path fill="currentColor" d="M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v8A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1zm0 1h3a.5.5 0 0 1 .5.5V3H6v-.5a.5.5 0 0 1 .5-.5m1.886 6.914L15 7.151V12.5a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5V7.15l6.614 1.764a1.5 1.5 0 0 0 .772 0M1.5 4h13a.5.5 0 0 1 .5.5v1.616L8.129 7.948a.5.5 0 0 1-.258 0L1 6.116V4.5a.5.5 0 0 1 .5-.5"></path>
+            </svg> American
             <!--v-if-->
           </button>
         </td>
@@ -904,6 +939,7 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
           <!--v-if-->
         </button>
       </td>
+      <td class=""></td>
       </tr>
       <!---->
       <tr class="">
@@ -1025,6 +1061,20 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
         <!--v-if-->
       </button>
     </td>
+    <td class="">
+      <!----><button data-v-a7ef304f="" class="btn btn-sm btn-style" type="button" title="American" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
+          <path fill="currentColor" d="M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v8A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1zm0 1h3a.5.5 0 0 1 .5.5V3H6v-.5a.5.5 0 0 1 .5-.5m1.886 6.914L15 7.151V12.5a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5V7.15l6.614 1.764a1.5 1.5 0 0 0 .772 0M1.5 4h13a.5.5 0 0 1 .5.5v1.616L8.129 7.948a.5.5 0 0 1-.258 0L1 6.116V4.5a.5.5 0 0 1 .5-.5"></path>
+        </svg> American
+        <!--v-if-->
+      </button><button data-v-a7ef304f="" class="btn btn-sm btn-tempo" type="button" title="Slow" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
+          <g fill="currentColor">
+            <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"></path>
+            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"></path>
+          </g>
+        </svg> Slow
+        <!--v-if-->
+      </button>
+    </td>
     </tr>
     <!---->
     <tr class="">
@@ -1129,6 +1179,13 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
           <path fill-rule="evenodd" d="M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5"></path>
         </g>
       </svg> Pop
+      <!--v-if-->
+    </button>
+  </td>
+  <td class="">
+    <!----><button data-v-a7ef304f="" class="btn btn-sm btn-style" type="button" title="Alternative" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
+        <path fill="currentColor" d="M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v8A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1zm0 1h3a.5.5 0 0 1 .5.5V3H6v-.5a.5.5 0 0 1 .5-.5m1.886 6.914L15 7.151V12.5a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5V7.15l6.614 1.764a1.5 1.5 0 0 0 .772 0M1.5 4h13a.5.5 0 0 1 .5.5v1.616L8.129 7.948a.5.5 0 0 1-.258 0L1 6.116V4.5a.5.5 0 0 1 .5-.5"></path>
+      </svg> Alternative
       <!--v-if-->
     </button>
   </td>
@@ -1280,6 +1337,7 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
     <!--v-if-->
   </button>
 </td>
+<td class=""></td>
 </tr>
 <!---->
 <tr class="">
@@ -1470,6 +1528,13 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
       <!--v-if-->
     </button>
   </td>
+  <td class="">
+    <!----><button data-v-a7ef304f="" class="btn btn-sm btn-style" type="button" title="Alternative" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
+        <path fill="currentColor" d="M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v8A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1zm0 1h3a.5.5 0 0 1 .5.5V3H6v-.5a.5.5 0 0 1 .5-.5m1.886 6.914L15 7.151V12.5a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5V7.15l6.614 1.764a1.5 1.5 0 0 0 .772 0M1.5 4h13a.5.5 0 0 1 .5.5v1.616L8.129 7.948a.5.5 0 0 1-.258 0L1 6.116V4.5a.5.5 0 0 1 .5-.5"></path>
+      </svg> Alternative
+      <!--v-if-->
+    </button>
+  </td>
 </tr>
 <!---->
 <tr class="">
@@ -1567,6 +1632,13 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
           <path fill-rule="evenodd" d="M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5m0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5"></path>
         </g>
       </svg> Soul
+      <!--v-if-->
+    </button>
+  </td>
+  <td class="">
+    <!----><button data-v-a7ef304f="" class="btn btn-sm btn-style" type="button" title="American" style="margin-inline-end: 0.25em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
+        <path fill="currentColor" d="M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v8A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1zm0 1h3a.5.5 0 0 1 .5.5V3H6v-.5a.5.5 0 0 1 .5-.5m1.886 6.914L15 7.151V12.5a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5V7.15l6.614 1.764a1.5 1.5 0 0 0 .772 0M1.5 4h13a.5.5 0 0 1 .5.5v1.616L8.129 7.948a.5.5 0 0 1-.258 0L1 6.116V4.5a.5.5 0 0 1 .5-.5"></path>
+      </svg> American
       <!--v-if-->
     </button>
   </td>

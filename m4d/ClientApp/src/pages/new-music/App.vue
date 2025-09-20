@@ -52,7 +52,7 @@ const clickCommented = (): void => {
       :histories="histories"
       :filter="filter"
       :hide-sort="true"
-      :hidden-columns="['length', 'track']"
+      :hidden-columns="['danceTags', 'length', 'track']"
       :show-history="true"
       @song-selected="selectSong"
     />

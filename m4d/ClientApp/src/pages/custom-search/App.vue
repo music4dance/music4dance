@@ -57,7 +57,7 @@ const breadcrumbs = (() => {
         :histories="histories"
         :filter="model.filter"
         :hide-sort="true"
-        :hidden-columns="['Track']"
+        :hidden-columns="['danceTags', 'Track']"
         @song-selected="selectSong"
       />
       <SongFooter :model="model" :href="pageLink" />
