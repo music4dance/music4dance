@@ -39,8 +39,6 @@ namespace m4dModels
 
     public class SongFilter
     {
-        private const char SubChar = '\u001a';
-
         internal const string CommaSeparator = ", ";
 
         protected static readonly List<PropertyInfo> PropertyInfo;
@@ -48,7 +46,7 @@ namespace m4dModels
         private static readonly Dictionary<string, object> AltDefaults =
             new() { { "Action", "index" }, { "Dances", "all" }, { "Page", 1 } };
 
-        private readonly string _subStr = new(SubChar, 1);
+        private readonly string _subStr = new('\u001a', 1);
         private string _action;
 
         static SongFilter()

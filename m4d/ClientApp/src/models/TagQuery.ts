@@ -89,7 +89,7 @@ export class TagQuery {
     const exc = filteredTagList.RemovesShortDescription;
 
     // When excludeDanceTags is true, add "song" prefix
-    if (!this.excludeDanceTags && (inc || exc)) {
+    if (this.excludeDanceTags && (inc || exc)) {
       const prefix = "song ";
       return [prefix + inc, exc].filter(Boolean).join(" ");
     }

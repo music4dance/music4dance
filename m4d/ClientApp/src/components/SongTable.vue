@@ -91,12 +91,6 @@ const currentDanceName = computed(() => {
 // Update field labels based on context
 const tagsFieldWithLabel = computed((): SongField => {
   const hasDances = !!filter.value.dances;
-  console.log(
-    "tagsFieldWithLabel computed - filter.value.dances:",
-    filter.value.dances,
-    "hasDances:",
-    hasDances,
-  );
   return {
     key: "tags",
     label: hasDances ? "Song Tags" : "Tags",
