@@ -160,12 +160,14 @@ const filterHiddenFields = (fields: SongField[]): SongField[] => {
   return hidden ? fields.filter((f) => !isHidden(f.key)) : fields;
 };
 
+const shouldShowDanceTags = computed(() => {
+  // Check if we should show dance-specific tags
+  return filter.value.singleDance && !props.hiddenColumns?.includes("danceTags");
+});
+
 const smallFields = filterHiddenFields([textField, infoField].map((f) => filterSmallField(f)));
 
 const fullFields = computed(() => {
-  // Check if we should show dance-specific tags
-  const shouldShowDanceTags = !!filter.value.dances;
-
   const fields = [
     ...(context.isAdmin && !isHidden(editField.key) ? [editField] : []),
     playField,
@@ -178,7 +180,7 @@ const fullFields = computed(() => {
     dancesField,
     tagsFieldWithLabel.value,
     // Add dance tags column only when we have a specific dance filter
-    ...(shouldShowDanceTags ? [danceTagsFieldWithLabel.value] : []),
+    ...(shouldShowDanceTags.value ? [danceTagsFieldWithLabel.value] : []),
     props.showHistory || hasUser ? userChangeField : orderField,
   ];
 
@@ -188,13 +190,19 @@ const fullFields = computed(() => {
 
 const { width: windowWidth } = useWindowSize();
 
+const isSmall = computed(() => windowWidth.value < 992);
+
 const fields = computed(() => {
-  const baseFields = windowWidth.value >= 992 ? fullFields.value : smallFields;
+  const baseFields = isSmall.value ? smallFields : fullFields.value;
   return props.action ? [actionField, ...baseFields] : baseFields;
 });
 
 const likeHeaderClasses = computed(() => {
   return filter.value.singleDance ? ["likeDanceHeader"] : ["likeHeader"];
+});
+
+const tagsLabel = computed(() => {
+  return filter.value.singleDance && !isSmall.value ? "Song Tags" : "Tags";
 });
 
 const titleHeaderSortTip = "Song Title: Click to sort alphabetically by title";
@@ -363,6 +371,13 @@ const danceSpecificTags = (song: Song): Tag[] => {
   return danceRating.tags.filter(
     (t) => !t.value.startsWith("!") && t.category.toLowerCase() !== "dance",
   );
+};
+
+const allTags = (song: Song): Tag[] => {
+  return [
+    ...tags(song),
+    ...(shouldShowDanceTags.value && isSmall.value ? danceSpecificTags(song) : []),
+  ];
 };
 
 const trackNumber = (song: Song): string => {
@@ -649,6 +664,7 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
       <template #head(tags)>
         <SortableHeader
           id="Tags"
+          :title="tagsLabel"
           :enable-sort="false"
           :current-tip="tagsHeaderCurrentTip"
           :filter="filter"
@@ -656,7 +672,7 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
       </template>
       <template #cell(tags)="data">
         <TagButton
-          v-for="tag in tags(data.item.song)"
+          v-for="tag in allTags(data.item.song)"
           :key="tag.key"
           :tag-handler="tagHandler(tag, filter, data.item.song)"
           @tag-clicked="showTagModal"

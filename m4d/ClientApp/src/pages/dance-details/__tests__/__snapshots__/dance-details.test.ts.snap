@@ -160,7 +160,7 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
                         </div>
                         <!---->
                       </th>
-                      <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="#" id="Tags">Tags<!--v-if--></a><span id="BootstrapVueNext__ID__v-9__popover____placeholder" style="display: none;"></span>
+                      <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="#" id="Tags">Song Tags<!--v-if--></a><span id="BootstrapVueNext__ID__v-9__popover____placeholder" style="display: none;"></span>
                         <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
                           <div id="BootstrapVueNext__ID__v-9__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                             <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
