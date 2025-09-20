@@ -78,7 +78,7 @@ export class DanceQueryItem {
   public get shortDescription(): string {
     const modifiers = [];
     if (this.threshold !== 1) {
-      modifiers.push(this.threshold > 0 ? ">=" : "<=" + Math.abs(this.threshold));
+      modifiers.push(`${this.threshold > 0 ? ">=" : "<="}${Math.abs(this.threshold)}`);
     }
     if (this.tagQuery?.hasTags) {
       modifiers.push(this.tagQuery.shortDescription);
