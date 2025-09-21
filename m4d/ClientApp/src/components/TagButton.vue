@@ -19,7 +19,7 @@ const { icon, tag, variant, isSelected } = useTagButton(props.tagHandler);
     :variant="variant"
     size="sm"
     style="margin-inline-end: 0.25em; margin-bottom: 0.25em"
-    @click="emit('tag-clicked', tagHandler)"
+    @click.prevent="emit('tag-clicked', tagHandler)"
   >
     <TagIcon :name="icon" />
     {{ tag.value }}
