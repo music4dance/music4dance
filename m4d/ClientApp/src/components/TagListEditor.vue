@@ -107,7 +107,7 @@ const tagHandler = (tag: Tag): TagHandler => {
         empty-label="No more tags to choose"
         :add-categories="container.categories"
       />
-      <span v-if="otherTags.length" class="title mr-2">Other's Tags:</span>
+      <span v-if="otherTags.length" class="title mr-2">Others' Tags:</span>
       <span>
         <TagButtonOther
           v-for="tag in otherTags"

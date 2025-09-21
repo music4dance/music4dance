@@ -63,11 +63,11 @@ export class TagHandler {
     return !!this.danceId && !!this.computedDanceName;
   }
 
-  public getSongFilter(modifier: string, clear: boolean): SongFilter {
+  public getSongFilter(modifier: string, danceSpecific: boolean, clear: boolean): SongFilter {
     const baseFilter = clear || !this.filter ? new SongFilter() : this.filter.clone();
     baseFilter.action = "filtersearch";
 
-    if (this.danceId) {
+    if (danceSpecific) {
       // For dance-specific filtering, put the tag in the DanceQuery
       const singleTagString = modifier + this.tag.key;
       const tagList = new TagList(singleTagString);
@@ -116,13 +116,13 @@ export class TagHandler {
     return baseFilter;
   }
 
-  public getTagLink(modifier: string, clear: boolean): string {
-    const filter = this.getSongFilter(modifier, clear);
+  public getTagLink(modifier: string, danceSpecific: boolean, clear: boolean): string {
+    const filter = this.getSongFilter(modifier, danceSpecific, clear);
     return `/song/filtersearch?filter=${filter.encodedQuery}`;
   }
 
-  public getFilterDescription(modifier: string, clear: boolean): string {
-    const filter = this.getSongFilter(modifier, clear);
+  public getFilterDescription(modifier: string, danceSpecific: boolean, clear: boolean): string {
+    const filter = this.getSongFilter(modifier, danceSpecific, clear);
     return filter.description;
   }
 
@@ -131,7 +131,7 @@ export class TagHandler {
     const danceName = this.computedDanceName;
 
     // Dance-specific options (only show if we have a specific dance and valid dance name)
-    if (this.isDanceSpecific && danceName) {
+    if (this.isDanceSpecific) {
       // Filter options (only show if there's an existing filter)
       if (this.hasFilter) {
         options.push({
@@ -139,9 +139,9 @@ export class TagHandler {
           scope: "dance-specific",
           modifier: "+",
           label: `Filter current list to ${danceName} songs tagged as ${this.tag.value}`,
-          description: this.getFilterDescription("+", false),
+          description: this.getFilterDescription("+", true, false),
           variant: "success",
-          href: this.getTagLink("+", false),
+          href: this.getTagLink("+", true, false),
         });
 
         options.push({
@@ -149,9 +149,9 @@ export class TagHandler {
           scope: "dance-specific",
           modifier: "-",
           label: `Filter current list to ${danceName} songs not tagged as ${this.tag.value}`,
-          description: this.getFilterDescription("-", false),
+          description: this.getFilterDescription("-", true, false),
           variant: "danger",
-          href: this.getTagLink("-", false),
+          href: this.getTagLink("-", true, false),
         });
       }
 
@@ -161,9 +161,9 @@ export class TagHandler {
         scope: "dance-specific",
         modifier: "+",
         label: `List all ${danceName} songs tagged as ${this.tag.value}`,
-        description: this.getFilterDescription("+", true),
+        description: this.getFilterDescription("+", true, true),
         variant: "success",
-        href: this.getTagLink("+", true),
+        href: this.getTagLink("+", true, true),
       });
 
       options.push({
@@ -171,23 +171,23 @@ export class TagHandler {
         scope: "dance-specific",
         modifier: "-",
         label: `List all ${danceName} songs not tagged as ${this.tag.value}`,
-        description: this.getFilterDescription("-", true),
+        description: this.getFilterDescription("-", true, true),
         variant: "danger",
-        href: this.getTagLink("-", true),
+        href: this.getTagLink("-", true, true),
       });
     }
 
-    // Global options (always show)
-    // Filter options (only show if there's an existing filter)
-    if (this.hasFilter) {
+    // Global option
+    // Filter options (only show if there's an existing filter and not dance-specific)
+    if (this.hasFilter && !this.isDanceSpecific) {
       options.push({
         type: "filter",
         scope: "global",
         modifier: "+",
         label: `Filter current list to songs tagged as ${this.tag.value}`,
-        description: this.getFilterDescription("+", false),
+        description: this.getFilterDescription("+", false, false),
         variant: "success",
-        href: this.getTagLink("+", false),
+        href: this.getTagLink("+", false, false),
       });
 
       options.push({
@@ -195,9 +195,9 @@ export class TagHandler {
         scope: "global",
         modifier: "-",
         label: `Filter current list to songs not tagged as ${this.tag.value}`,
-        description: this.getFilterDescription("-", false),
+        description: this.getFilterDescription("-", false, false),
         variant: "danger",
-        href: this.getTagLink("-", false),
+        href: this.getTagLink("-", false, false),
       });
     }
 
@@ -207,9 +207,9 @@ export class TagHandler {
       scope: "global",
       modifier: "+",
       label: `List all songs tagged as ${this.tag.value}`,
-      description: this.getFilterDescription("+", true),
+      description: this.getFilterDescription("+", false, true),
       variant: "success",
-      href: this.getTagLink("+", true),
+      href: this.getTagLink("+", false, true),
     });
 
     options.push({
@@ -217,9 +217,9 @@ export class TagHandler {
       scope: "global",
       modifier: "-",
       label: `List all songs not tagged as ${this.tag.value}`,
-      description: this.getFilterDescription("-", true),
+      description: this.getFilterDescription("-", false, true),
       variant: "danger",
-      href: this.getTagLink("-", true),
+      href: this.getTagLink("-", false, true),
     });
 
     return options;

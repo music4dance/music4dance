@@ -155,20 +155,20 @@ describe("TagHandler", () => {
     });
 
     it("should generate global tag link with include modifier", () => {
-      const link = tagHandler.getTagLink("+", true);
+      const link = tagHandler.getTagLink("+", false, true);
       expect(link).toContain("/song/filtersearch?filter=");
       expect(decodeURIComponent(link)).toContain("+romantic:other");
     });
 
     it("should generate global tag link with exclude modifier", () => {
-      const link = tagHandler.getTagLink("-", true);
+      const link = tagHandler.getTagLink("-", false, true);
       expect(link).toContain("/song/filtersearch?filter=");
       expect(link).toContain("%1Aromantic%3Aother");
     });
 
     it("should generate dance-specific tag link when danceId is set", () => {
       tagHandler.danceId = "waltz";
-      const link = tagHandler.getTagLink("+", true);
+      const link = tagHandler.getTagLink("+", true, false);
       expect(link).toContain("/song/filtersearch?filter=");
       expect(decodeURIComponent(link)).toContain("waltz");
       expect(decodeURIComponent(link)).toContain("+romantic:other");
@@ -176,7 +176,7 @@ describe("TagHandler", () => {
 
     it("should preserve existing filter when clear is false", () => {
       mockFilter.tags = "existing-tag";
-      const link = tagHandler.getTagLink("+", false);
+      const link = tagHandler.getTagLink("+", false, false);
       expect(link).toContain("/song/filtersearch?filter=");
       // Should contain both existing and new tag
       expect(link).toContain("existing%1Atag%3Aundefined");
@@ -185,7 +185,7 @@ describe("TagHandler", () => {
 
     it("should create clean filter when clear is true", () => {
       mockFilter.tags = "existing-tag";
-      const link = tagHandler.getTagLink("+", true);
+      const link = tagHandler.getTagLink("+", false, true);
       expect(link).toContain("/song/filtersearch?filter=");
       const decodedLink = decodeURIComponent(link);
       expect(decodedLink).toContain("+romantic:other");
@@ -195,10 +195,10 @@ describe("TagHandler", () => {
     it("should handle existing dance query with dance-specific tags", () => {
       tagHandler.danceId = "waltz";
       mockFilter.dances = "tango";
-      const link = tagHandler.getTagLink("+", false);
+      const link = tagHandler.getTagLink("+", false, false);
       expect(link).toContain("/song/filtersearch?filter=");
       const decodedLink = decodeURIComponent(link);
-      expect(decodedLink).toContain("waltz");
+      expect(decodedLink).toContain("tango");
       expect(decodedLink).toContain("+romantic:other");
     });
   });
@@ -240,11 +240,11 @@ describe("TagHandler", () => {
       mockFilter.tags = "existing-tag";
       const options = tagHandler.getAvailableOptions();
 
-      // Should have 8 options (4 dance-specific + 4 global)
-      expect(options).toHaveLength(8);
+      // Should have 6 options (4 dance-specific + 2 global)
+      expect(options).toHaveLength(6);
       expect(options.filter((o) => o.scope === "dance-specific")).toHaveLength(4);
-      expect(options.filter((o) => o.scope === "global")).toHaveLength(4);
-      expect(options.filter((o) => o.type === "filter")).toHaveLength(4);
+      expect(options.filter((o) => o.scope === "global")).toHaveLength(2);
+      expect(options.filter((o) => o.type === "filter")).toHaveLength(2);
       expect(options.filter((o) => o.type === "list")).toHaveLength(4);
     });
 
@@ -292,7 +292,7 @@ describe("TagHandler", () => {
       const handler = new TagHandler({ tag: emptyTag });
 
       // Should still generate links without errors
-      const link = handler.getTagLink("+", true);
+      const link = handler.getTagLink("+", false, true);
       expect(link).toContain("/song/filtersearch?filter=");
     });
 
@@ -301,7 +301,7 @@ describe("TagHandler", () => {
       specialTag.key = "special-tag+with&chars:other";
       const handler = new TagHandler({ tag: specialTag });
 
-      const link = handler.getTagLink("+", true);
+      const link = handler.getTagLink("+", false, true);
       expect(link).toContain("/song/filtersearch?filter=");
       // Should contain the encoded tag
       expect(link).toContain("special%1Atag%2Bwith%26chars%3Aother");
@@ -310,7 +310,7 @@ describe("TagHandler", () => {
 
   describe("getSongFilter", () => {
     it("should return a SongFilter with the tag applied", () => {
-      const filter = tagHandler.getSongFilter("+", true);
+      const filter = tagHandler.getSongFilter("+", false, true);
 
       expect(filter).toBeInstanceOf(SongFilter);
       expect(filter.action).toBe("filtersearch");
@@ -321,7 +321,7 @@ describe("TagHandler", () => {
       mockFilter.tags = "existing:tag";
       mockFilter.tempoMin = 120;
 
-      const filter = tagHandler.getSongFilter("+", false);
+      const filter = tagHandler.getSongFilter("+", false, false);
 
       expect(filter.tags).toContain("existing");
       expect(filter.tags).toContain("romantic:other");
@@ -332,7 +332,7 @@ describe("TagHandler", () => {
       mockFilter.tags = "existing:tag";
       mockFilter.tempoMin = 120;
 
-      const filter = tagHandler.getSongFilter("+", true);
+      const filter = tagHandler.getSongFilter("+", false, true);
 
       expect(filter.tags).toContain("romantic:other");
       expect(filter.tags).not.toContain("existing");
