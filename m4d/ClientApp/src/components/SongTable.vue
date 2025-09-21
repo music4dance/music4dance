@@ -78,14 +78,14 @@ const currentSong = ref<SongEditor>(new SongEditor());
 const filter = computed(() => props.filter);
 const userQuery = filter.value.userQuery;
 
+const singleDance = computed(() =>
+  filter.value.singleDance ? filter.value.danceQuery?.danceList[0] : undefined,
+);
+
 // Get the current dance name for the dance-specific tags column header
 const currentDanceName = computed(() => {
-  if (filter.value.singleDance && filter.value.danceQuery?.danceList?.length) {
-    const danceId = filter.value.danceQuery.danceList[0];
-    const dance = safeDanceDatabase().fromId(danceId);
-    return dance?.name || "";
-  }
-  return "";
+  const danceId = singleDance.value;
+  return danceId ? (safeDanceDatabase().fromId(danceId)?.name ?? "") : "";
 });
 
 // Update field labels based on context
@@ -334,43 +334,40 @@ const danceHandler = (tag: Tag, filter: SongFilter, editor: SongEditor): DanceHa
   });
 };
 
-const tagHandler = (tag: Tag, filter?: SongFilter, parent?: TaggableObject): TagHandler => {
+const tagHandler = (
+  tag: Tag,
+  filter?: SongFilter,
+  parent?: TaggableObject,
+  danceId?: string,
+): TagHandler => {
   return new TagHandler({
     tag: tag,
     user: userQuery?.userName,
     filter,
     parent,
-    context: [TagContext.Song, TagContext.Dance], // Default to both song and dance_ALL
+    context: danceId ? [TagContext.Song, TagContext.Dance] : [TagContext.Song], // Default to both song and dance_ALL
+    danceId,
   });
 };
 
-const tags = (song: Song): Tag[] => {
-  return song.tags.filter((t) => !t.value.startsWith("!") && t.category.toLowerCase() !== "dance");
+const handlers = (song: Song): TagHandler[] => {
+  return song.tags
+    .filter((t) => !t.value.startsWith("!") && t.category.toLowerCase() !== "dance")
+    .map((t) => tagHandler(t, filter.value, song));
 };
 
-const danceSpecificTags = (song: Song): Tag[] => {
-  // Get dance-specific tags for the current single dance
-  // First check if we have a dance filter with a specific dance
-  const danceId = filter.value.dances;
-  if (!danceId) {
-    return [];
-  }
+const danceSpecificHandlers = (song: Song): TagHandler[] => {
+  const danceId = singleDance.value;
+  const danceRating = danceId ? song.findDanceRatingById(danceId) : undefined;
+  const emptyFilter = new SongFilter();
 
-  const danceRating = song.findDanceRatingById(danceId);
-
-  if (!danceRating) {
-    return [];
-  }
-
-  return danceRating.tags.filter(
-    (t) => !t.value.startsWith("!") && t.category.toLowerCase() !== "dance",
-  );
+  return danceRating?.tags.map((t) => tagHandler(t, emptyFilter, song, danceId)) ?? [];
 };
 
-const allTags = (song: Song): Tag[] => {
+const allHandlers = (song: Song): TagHandler[] => {
   return [
-    ...tags(song),
-    ...(shouldShowDanceTags.value && isSmall.value ? danceSpecificTags(song) : []),
+    ...handlers(song),
+    ...(shouldShowDanceTags.value && isSmall.value ? danceSpecificHandlers(song) : []),
   ];
 };
 
@@ -666,17 +663,17 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
       </template>
       <template #cell(tags)="data">
         <TagButton
-          v-for="tag in allTags(data.item.song)"
-          :key="tag.key"
-          :tag-handler="tagHandler(tag, filter, data.item.song)"
+          v-for="handler in allHandlers(data.item.song)"
+          :key="handler.tag.key"
+          :tag-handler="handler"
           @tag-clicked="showTagModal"
         />
       </template>
       <template #cell(danceTags)="data">
         <TagButton
-          v-for="tag in danceSpecificTags(data.item.song)"
-          :key="tag.key"
-          :tag-handler="tagHandler(tag, filter, data.item.song)"
+          v-for="handler in danceSpecificHandlers(data.item.song)"
+          :key="handler.tag.key"
+          :tag-handler="handler"
           @tag-clicked="showTagModal"
         />
       </template>
@@ -795,9 +792,9 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
           @dance-vote="onDanceVote(data.item, $event)"
         />
         <TagButton
-          v-for="tag in tags(data.item.song)"
-          :key="tag.key"
-          :tag-handler="tagHandler(tag, filter, data.item.song)"
+          v-for="handler in handlers(data.item.song)"
+          :key="handler.tag.key"
+          :tag-handler="handler"
           @tag-clicked="showTagModal"
         />
       </template>

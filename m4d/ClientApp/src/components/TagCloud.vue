@@ -118,7 +118,7 @@ function getTagHandler(tag: Tag): TagHandler {
         :class="classesForTag(tag)"
         href="#"
         role="button"
-        @click="showModal(tag.key)"
+        @click.prevent="showModal(tag.key)"
       >
         <TagIcon :name="tag.icon!" />{{ tag.value }}
       </BBadge>
