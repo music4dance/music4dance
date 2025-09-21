@@ -357,11 +357,11 @@ const handlers = (song: Song): TagHandler[] => {
 };
 
 const danceSpecificHandlers = (song: Song): TagHandler[] => {
-  const danceId = singleDance.value ? filter.value.danceQuery.danceList[0] : undefined;
+  const danceId = singleDance.value;
   const danceRating = danceId ? song.findDanceRatingById(danceId) : undefined;
   const emptyFilter = new SongFilter();
 
-  return danceRating?.tags.map((t) => tagHandler(t, emptyFilter, song, singleDance.value)) ?? [];
+  return danceRating?.tags.map((t) => tagHandler(t, emptyFilter, song, danceId)) ?? [];
 };
 
 const allHandlers = (song: Song): TagHandler[] => {

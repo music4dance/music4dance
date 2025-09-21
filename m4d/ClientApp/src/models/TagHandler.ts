@@ -67,7 +67,7 @@ export class TagHandler {
     const baseFilter = clear || !this.filter ? new SongFilter() : this.filter.clone();
     baseFilter.action = "filtersearch";
 
-    if (danceSpecific) {
+    if (danceSpecific && this.danceId) {
       // For dance-specific filtering, put the tag in the DanceQuery
       const singleTagString = modifier + this.tag.key;
       const tagList = new TagList(singleTagString);
