@@ -1,0 +1,237 @@
+{
+  "folders": [
+    {
+      "name": "Server (.NET)",
+      "path": "."
+    },
+    {
+      "name": "Client (Vue/TypeScript)",
+      "path": "./m4d/ClientApp"
+    }
+  ],
+  "settings": {
+    // Global workspace settings
+    "files.exclude": {
+      "**/node_modules": true,
+      "**/bin": true,
+      "**/obj": true,
+      "**/.vs": true,
+      "**/packages": true
+    },
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/bin": true,
+      "**/obj": true
+    },
+    "editor.formatOnSave": true,
+    "files.autoSave": "onFocusChange",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit"
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "ms-dotnettools.csharp",
+      "ms-dotnettools.csdevkit",
+      "ms-vscode.vscode-typescript-next",
+      "vue.volar",
+      "github.copilot",
+      "github.copilot-chat",
+      "esbenp.prettier-vscode",
+      "dbaeumer.vscode-eslint",
+      "ms-vscode.test-adapter-converter"
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Server: Build",
+        "type": "dotnet",
+        "task": "build",
+        "group": "build",
+        "presentation": {
+          "echo": true,
+          "reveal": "silent",
+          "focus": false,
+          "panel": "shared"
+        },
+        "problemMatcher": "$msCompile"
+      },
+      {
+        "label": "Server: Test",
+        "type": "shell",
+        "command": "dotnet",
+        "args": ["test", "--filter", "FullyQualifiedName!~SelfCrawler"],
+        "group": "test",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared"
+        },
+        "problemMatcher": "$msCompile"
+      },
+      {
+        "label": "Server: Test SelfCrawler",
+        "type": "shell",
+        "command": "dotnet",
+        "args": ["test", "SelfCrawler/SelfCrawler.csproj"],
+        "group": "test",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": true,
+          "panel": "shared"
+        }
+      },
+      {
+        "label": "Client: Install",
+        "type": "shell",
+        "command": "yarn",
+        "args": ["install"],
+        "options": {
+          "cwd": "${workspaceFolder:Client (Vue/TypeScript)}"
+        },
+        "group": "build",
+        "presentation": {
+          "echo": true,
+          "reveal": "silent",
+          "focus": false,
+          "panel": "shared"
+        }
+      },
+      {
+        "label": "Client: Build",
+        "type": "shell",
+        "command": "yarn",
+        "args": ["build"],
+        "options": {
+          "cwd": "${workspaceFolder:Client (Vue/TypeScript)}"
+        },
+        "group": "build",
+        "presentation": {
+          "echo": true,
+          "reveal": "silent",
+          "focus": false,
+          "panel": "shared"
+        },
+        "problemMatcher": ["$tsc", "$eslint-stylish"]
+      },
+      {
+        "label": "Client: Lint",
+        "type": "shell",
+        "command": "yarn",
+        "args": ["lint"],
+        "options": {
+          "cwd": "${workspaceFolder:Client (Vue/TypeScript)}"
+        },
+        "group": "test",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared"
+        },
+        "problemMatcher": "$eslint-stylish"
+      },
+      {
+        "label": "Client: Test",
+        "type": "shell",
+        "command": "yarn",
+        "args": ["test:unit", "--run"],
+        "options": {
+          "cwd": "${workspaceFolder:Client (Vue/TypeScript)}"
+        },
+        "group": "test",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared"
+        }
+      },
+      {
+        "label": "Client: Type Check",
+        "type": "shell",
+        "command": "yarn",
+        "args": ["type-check"],
+        "options": {
+          "cwd": "${workspaceFolder:Client (Vue/TypeScript)}"
+        },
+        "group": "test",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared"
+        },
+        "problemMatcher": "$tsc"
+      },
+      {
+        "label": "Build All",
+        "dependsOrder": "sequence",
+        "dependsOn": ["Server: Build", "Client: Install", "Client: Build"],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared"
+        }
+      },
+      {
+        "label": "Test All",
+        "dependsOrder": "parallel",
+        "dependsOn": ["Server: Test", "Client: Test", "Client: Lint"],
+        "group": {
+          "kind": "test",
+          "isDefault": true
+        },
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared"
+        }
+      },
+      {
+        "label": "Full CI Check",
+        "dependsOrder": "sequence",
+        "dependsOn": ["Build All", "Test All", "Client: Type Check"],
+        "group": "test",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared"
+        }
+      }
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Launch Server",
+        "type": "coreclr",
+        "request": "launch",
+        "preLaunchTask": "Server: Build",
+        "program": "${workspaceFolder}/m4d/bin/Debug/net8.0/m4d.dll",
+        "args": [],
+        "cwd": "${workspaceFolder}",
+        "stopAtEntry": false,
+        "serverReadyAction": {
+          "action": "openExternally",
+          "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+        },
+        "env": {
+          "ASPNETCORE_ENVIRONMENT": "Development"
+        }
+      }
+    ]
+  }
+}
