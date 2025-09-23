@@ -283,7 +283,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
             <!---->
             <!----><label id="BootstrapVueNext__ID__v-83___BV_label____" for="activity" class="form-label d-block">By User:</label>
             <div class="d-flex"><input id="user" class="form-control me-2" type="text" placeholder="UserName or me" style="width: 10rem;" value=""><select id="activity" class="form-select">
-                <option value="NT">Don't filter on user activity</option>
+                <option selected="" value="NT">Don't filter on user activity</option>
               </select></div>
             <!---->
             <!---->
@@ -314,7 +314,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
           <div id="sort-group" role="group" class="b-form-group">
             <!---->
             <!----><label id="BootstrapVueNext__ID__v-109___BV_label____" for="sort" class="form-label d-block">Sort By:</label><select id="sort" class="form-select" required="" aria-required="true">
-              <option>Default (Closest Match)</option>
+              <option selected="">Default (Closest Match)</option>
               <option value="Dances">Dance Rating</option>
               <option value="Closest">Closest Match</option>
               <option value="Title">Title</option>

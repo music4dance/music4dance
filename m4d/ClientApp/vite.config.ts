@@ -87,16 +87,24 @@ export default defineConfig({
 function AutoEndpoints(config: VuePluginMap): Plugin {
   const main = `import 'vite/modulepreload-polyfill'
 
-import { createApp } from 'vue'
+import { createApp, h } from 'vue'
 import { createBootstrap } from 'bootstrap-vue-next'
 {imports}
-import App from '{app}'
+import Application from '{app}'
+import {BApp} from 'bootstrap-vue-next'
 
 import '@/scss/styles.scss'
 import 'bootstrap-vue-next/dist/bootstrap-vue-next.css'
 
-const app = createApp(App);
-app.use(createBootstrap());
+const Wrapper = {
+  name: 'AppWrapper',
+  render() {
+    return h(BApp, null, { default: () => h(Application) });
+  }
+};
+
+const app = createApp(Wrapper);
+
 {configs}
 app.mount('#app')
 `;

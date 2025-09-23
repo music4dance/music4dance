@@ -16,7 +16,7 @@ const emit = defineEmits<{
 
 const internalTempo = ref("0.0");
 
-const { hide } = useModal(props.id);
+const { hide } = useModal();
 
 function submit(): void {
   emit("change-tempo", Number(internalTempo.value));
