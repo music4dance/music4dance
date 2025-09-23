@@ -75,7 +75,7 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        silenceDeprecations: ["import", "mixed-decls", "color-functions", "global-builtin"],
+        silenceDeprecations: ["color-functions", "global-builtin", "import"],
       },
     },
   },
@@ -93,6 +93,7 @@ import { createBootstrap } from 'bootstrap-vue-next'
 import App from '{app}'
 
 import '@/scss/styles.scss'
+import 'bootstrap-vue-next/dist/bootstrap-vue-next.css'
 
 const app = createApp(App);
 app.use(createBootstrap());
@@ -109,11 +110,14 @@ app.mount('#app')
       const dirs = (await fg.glob(pattern)).map((p) => dirname(p).substring(length));
       console.log(dirs.join(","));
 
-      const input = dirs.reduce((obj, item) => {
-        const value = resolve(__dirname, root + item + "/main.ts");
-        obj[item] = value;
-        return obj;
-      }, {} as any);
+      const input = dirs.reduce(
+        (obj, item) => {
+          const value = resolve(__dirname, root + item + "/main.ts");
+          obj[item] = value;
+          return obj;
+        },
+        {} as Record<string, string>,
+      );
 
       return {
         build: {
