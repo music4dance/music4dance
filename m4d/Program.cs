@@ -122,6 +122,7 @@ services.AddAzureClients(clientBuilder =>
     }
 });
 
+
 services.AddDbContext<DanceMusicContext>(options => options.UseSqlServer(connectionString));
 
 services.AddDefaultIdentity<ApplicationUser>(
@@ -256,6 +257,9 @@ services.AddControllers().AddNewtonsoftJson()
         });
 
 services.AddAutoMapper(
+    cfg => {
+        cfg.LicenseKey = configuration["Authentication:AutoMapper:Key"];
+    },
     typeof(SongFilterProfile),
     typeof(SongPropertyProfile),
     typeof(TagProfile));
