@@ -49,7 +49,7 @@ export class DanceQuery extends DanceQueryBase {
       .filter((s) => s);
 
     // Remove only AND prefix if present
-    if (items.length > 0 && items[0].toUpperCase() === and) {
+    if (items.length > 0 && items[0]?.toUpperCase() === and) {
       items.shift();
     }
 
@@ -70,9 +70,9 @@ export class DanceQuery extends DanceQueryBase {
       case 0:
         return `songs`;
       case 1:
-        return `${items[0].description} songs`;
+        return `${items[0]?.description} songs`;
       case 2:
-        return `songs danceable to ${prefix} of ${items[0].description} ${connector} ${items[1].description}`;
+        return `songs danceable to ${prefix} of ${items[0]?.description} ${connector} ${items[1]?.description}`;
       default: {
         const last = items.pop();
         return `songs danceable to ${prefix} of ${items.map((t) => t.description).join(", ")} ${connector} ${last?.description}`;

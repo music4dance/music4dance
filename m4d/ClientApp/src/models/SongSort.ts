@@ -44,7 +44,11 @@ export class SongSort {
   }
 
   private get computedId(): string {
-    return this.data ? this.data.split("_")[0] : this.hasQuery ? SortOrder.Match : SortOrder.Dances;
+    return this.data
+      ? (this.data.split("_")[0] ?? "")
+      : this.hasQuery
+        ? SortOrder.Match
+        : SortOrder.Dances;
   }
 
   public get direction(): string {
@@ -159,8 +163,8 @@ export class SongSort {
 
     const parts = query.split("_").map((p) => p.trim());
     return (
-      toTitleCase(parts[0]) +
-      (parts.length === 2 && parts[1].toLowerCase() === "desc" ? "_desc" : "")
+      toTitleCase(parts[0] || "") +
+      (parts.length === 2 && parts[1]?.toLowerCase() === "desc" ? "_desc" : "")
     );
   }
 }

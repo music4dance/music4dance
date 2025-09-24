@@ -17,15 +17,15 @@ export function kebabToPascal(kebab: string): string {
 }
 
 export function pascalToCamel(pascal: string): string {
-  if (!pascal) {
+  if (!pascal || pascal.length === 0) {
     return pascal;
   }
-  return pascal[0].toLowerCase() + pascal.substring(1);
+  return pascal[0]!.toLowerCase() + pascal.substring(1);
 }
 
 export function camelToPascal(camel: string): string {
   if (!camel || camel.length < 1) {
     return camel;
   }
-  return camel[0].toUpperCase() + camel.substring(1);
+  return camel[0]!.toUpperCase() + camel.substring(1);
 }

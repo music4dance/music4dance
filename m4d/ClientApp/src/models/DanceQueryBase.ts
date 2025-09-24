@@ -25,14 +25,15 @@ export class DanceQueryBase {
   }
 
   public get singleDance(): boolean {
-    return this.danceList.length === 1 && !DanceGroup.isGroup(this.dances[0]);
+    const dance = this.dances[0];
+    return this.danceList.length === 1 && dance ? !DanceGroup.isGroup(dance) : false;
   }
 
   public get isSimple(): boolean {
     const c = this.danceQueryItems.length;
     return (
       c === 0 ||
-      (c === 1 && this.danceQueryItems[0].threshold === 1 && !this.danceQueryItems[0].tags)
+      (c === 1 && this.danceQueryItems[0]?.threshold === 1 && !this.danceQueryItems[0]?.tags)
     );
   }
 

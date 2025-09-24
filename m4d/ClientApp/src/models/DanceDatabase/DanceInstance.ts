@@ -34,7 +34,7 @@ export class DanceInstance extends DanceObject {
   }
 
   public get shortStyle(): string {
-    return this.style.split(" ")[0];
+    return this.style.split(" ")[0] || this.style;
   }
 
   public get styleId(): string {
@@ -73,7 +73,9 @@ export class DanceInstance extends DanceObject {
     // If there is an organization that isn't included in the exceptions, include the instance tempo range
     const includeTop = !!organizations
       .map((o) => o.split("-")[0])
-      .find((o) => !excs.find((e) => e.organization.toLocaleLowerCase() === o.toLocaleLowerCase()));
+      .find(
+        (o) => o && !excs.find((e) => e.organization.toLocaleLowerCase() === o.toLocaleLowerCase()),
+      );
     let ret: TempoRange | undefined = includeTop ? this.tempoRange : undefined;
 
     for (const exc of excs) {
@@ -91,7 +93,7 @@ export class DanceInstance extends DanceObject {
   }
 
   public get styleFamily(): string {
-    return this.style.split(" ")[0];
+    return this.style.split(" ")[0] || this.style;
   }
 
   private exceptionsFromOrganization(organizations: string[]): DanceException[] {

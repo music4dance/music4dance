@@ -30,7 +30,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
             <!---->
             <!---->
             <legend id="BootstrapVueNext__ID__v-7___BV_label____" tabindex="-1" class="form-label bv-no-focus-ring col-form-label pt-0">Dances:</legend>
-            <div style="border: 1px solid rgb(206, 212, 218); border-radius: 0.25rem;">
+            <div style="border-radius: 0.25rem;">
               <div id="dance-selector" class="b-form-tags form-control h-auto mb-2 mt-2" role="group" tabindex="-1" style="border-style: hidden;"><output id="BootstrapVueNext__ID__v-11__selected_tags__" class="visually-hidden" for="BootstrapVueNext__ID__v-11__input__" aria-live="off" aria-atomic="true" aria-relevant="additions text">BOL, RMB</output>
                 <div id="BootstrapVueNext__ID__v-11__removed_tags__" role="status" aria-live="off" aria-atomic="true" class="visually-hidden"> (Tag removed) </div>
                 <ul class="list-inline d-inline-block mb-2">
@@ -139,7 +139,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
             <!---->
             <!---->
             <legend id="BootstrapVueNext__ID__v-27___BV_label____" tabindex="-1" class="form-label bv-no-focus-ring col-form-label pt-0">Song Tags:</legend>
-            <div style="border: 1px solid rgb(206, 212, 218); border-radius: 0.25rem;" class="p-3">
+            <div style="border-radius: 0.25rem;" class="p-3">
               <div>
                 <fieldset id="BootstrapVueNext__ID__v-31__" class="b-form-group">
                   <!---->

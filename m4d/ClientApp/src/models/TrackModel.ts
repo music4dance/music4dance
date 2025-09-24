@@ -36,7 +36,7 @@ export class TrackModel {
   @jsonMember(AudioData) public audioData?: AudioData;
 
   public get serviceType(): ServiceType {
-    return this.service[0].toLowerCase() as ServiceType;
+    return (this.service[0] || "").toLowerCase() as ServiceType;
   }
 }
 
