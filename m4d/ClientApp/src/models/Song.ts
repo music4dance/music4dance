@@ -173,7 +173,7 @@ export class Song extends TaggableObject {
 
   public get nextAlbumIndex(): number {
     const albums = this.albums;
-    return albums && albums.length > 0 ? albums[albums.length - 1].index! + 1 : 0;
+    return albums && albums.length > 0 ? (albums[albums.length - 1]?.index ?? 0) + 1 : 0;
   }
 
   public get createdOrder(): string {
@@ -420,9 +420,11 @@ export class Song extends TaggableObject {
     const idx = ratings.findIndex((r) => r.id === drd.danceId);
     if (idx != -1) {
       const dr = ratings[idx];
-      dr.weight += drd.delta;
-      if (dr.weight <= 0) {
-        ratings.splice(idx, 1);
+      if (dr) {
+        dr.weight += drd.delta;
+        if (dr.weight <= 0) {
+          ratings.splice(idx, 1);
+        }
       }
     } else if (drd.delta > 0) {
       const dr = new DanceRating({ danceId: drd.danceId, weight: drd.delta });

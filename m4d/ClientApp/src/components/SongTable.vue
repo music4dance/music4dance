@@ -15,13 +15,13 @@ import { computed, ref, watch } from "vue";
 import { getMenuContext } from "@/helpers/GetMenuContext";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { useWindowSize } from "@vueuse/core";
-import { useModalController, type TableFieldRaw } from "bootstrap-vue-next";
+import { useModal, type TableFieldRaw } from "bootstrap-vue-next";
 import beat10 from "@/assets/images/icons/beat-10.png";
 import energy10 from "@/assets/images/icons/Energy-10.png";
 import mood10 from "@/assets/images/icons/mood-10.png";
 import { formatDate } from "@/helpers/timeHelpers";
 
-const { hide } = useModalController();
+const { hide } = useModal();
 
 type SongField = Exclude<TableFieldRaw<SongEditor>, string>;
 

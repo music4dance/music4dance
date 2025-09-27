@@ -12,13 +12,13 @@ import { getMenuContext } from "@/helpers/GetMenuContext";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { computed, onBeforeMount, onBeforeUnmount, ref } from "vue";
 import type { SongHistory } from "@/models/SongHistory";
-import { useToastController, useModalController } from "bootstrap-vue-next";
+import { useToast, useModal } from "bootstrap-vue-next";
 import { TagHandler } from "@/models/TagHandler";
 
 const context = getMenuContext();
 const danceDB = safeDanceDatabase();
-const { create: createToast } = useToastController();
-const { create, hide } = useModalController();
+const { create: createToast } = useToast();
+const { create, hide } = useModal();
 
 const props = defineProps<{
   model: SongDetailsModel;
