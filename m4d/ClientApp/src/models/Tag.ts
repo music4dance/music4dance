@@ -27,7 +27,7 @@ export class Tag {
       throw new Error("Invalid Tag");
     }
     const parts = this.key.split(":");
-    return parts[0] || "";
+    return parts[0] ?? "";
   }
 
   public get category(): string {
@@ -35,7 +35,7 @@ export class Tag {
       throw new Error("Invalid Tag");
     }
     const parts = this.key.split(":");
-    return parts[1] || "";
+    return parts[1] ?? "";
   }
 
   public get variant(): ColorVariant | undefined {
@@ -65,7 +65,7 @@ export class Tag {
     const parts = key.split(":");
     const count = parts.length > 2 && parts[2] ? Number.parseInt(parts[2], 10) : undefined;
 
-    return Tag.fromParts(parts[0] || "", parts[1] === undefined ? "undefined" : parts[1], count);
+    return Tag.fromParts(parts[0] ?? "", parts[1] ?? "", count);
   }
 
   public static fromDanceId(id: string): Tag {
