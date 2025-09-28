@@ -255,7 +255,7 @@ export class SongEditor {
         this.addAlbumProperty(PropertyType.trackField, track.trackNumber, index);
       }
     }
-    const service = track.serviceType[0].toUpperCase();
+    const service = (track.serviceType[0] || "").toUpperCase();
     this.addPurchaseProperty(track.trackId, index, service, "S");
     if (track.collectionId) {
       this.addPurchaseProperty(track.collectionId, index, service, "A");
@@ -321,12 +321,12 @@ export class SongEditor {
     }
     const props = this.properties;
     const merge = props[idx];
-    if (merge.baseName !== PropertyType.mergeCommand) {
+    if (!merge || merge.baseName !== PropertyType.mergeCommand) {
       return false;
     }
     for (let i = idx + 1; i < props.length; i++) {
       const prop = props[i];
-      if (prop.baseName === PropertyType.userField && prop.value === user) {
+      if (prop && prop.baseName === PropertyType.userField && prop.value === user) {
         return true;
       }
     }
@@ -336,8 +336,8 @@ export class SongEditor {
   public deleteProperty(index: number): void {
     const history = this.setupHistory(index);
     let count = 1;
-    if (history[index].isAction) {
-      while (index + count < history.length && !history[index + count].isAction) {
+    if (history[index]?.isAction) {
+      while (index + count < history.length && !history[index + count]?.isAction) {
         count += 1;
       }
     }
@@ -347,7 +347,9 @@ export class SongEditor {
 
   public promoteProperty(index: number): void {
     const prop = this.history.properties[index];
-    this.addProperty(prop.name, prop.value);
+    if (prop) {
+      this.addProperty(prop.name, prop.value);
+    }
   }
 
   public movePropertyUp(index: number): void {
@@ -392,7 +394,7 @@ export class SongEditor {
     if (index > properties.length) {
       return 0;
     }
-    if (!properties[index].isAction) {
+    if (!properties[index]?.isAction) {
       return 1;
     }
     return this.getSegmentEnd(index + 1) - index;
@@ -403,14 +405,14 @@ export class SongEditor {
     if (index > properties.length) {
       return 0;
     }
-    if (!properties[index].isAction) {
+    if (!properties[index]?.isAction) {
       return 1;
     }
     return index - this.getSegmentStart(index - 1);
   }
 
   private getSegmentStart(index: number): number {
-    while (index > 0 && !this.properties[index].isAction) {
+    while (index > 0 && !this.properties[index]?.isAction) {
       index -= 1;
     }
     return index;
@@ -418,7 +420,7 @@ export class SongEditor {
 
   private getSegmentEnd(index: number): number {
     const properties = this.properties;
-    while (index < properties.length && !this.properties[index].isAction) {
+    while (index < properties.length && !this.properties[index]?.isAction) {
       index += 1;
     }
     return index;

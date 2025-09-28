@@ -73,7 +73,7 @@ export class ServiceMatcher {
     if (!match) {
       return null;
     }
-    return match[1];
+    return match[1] || null;
   }
 
   public async findSong(

@@ -38,7 +38,7 @@ const showFirst = (prop: SongProperty, index: number): boolean => {
   if (prop.isAction) {
     return index > 0;
   } else {
-    return index > 0 && !props.history.properties[index - 1].isAction;
+    return index > 0 && !props.history.properties[index - 1]?.isAction;
   }
 };
 const showLast = (prop: SongProperty, index: number): boolean => {
@@ -46,14 +46,14 @@ const showLast = (prop: SongProperty, index: number): boolean => {
   if (prop.isAction) {
     return !!properties.find((p, i) => i > index && p.isAction);
   } else {
-    return index < properties.length - 1 && !properties[index + 1].isAction;
+    return index < properties.length - 1 && !properties[index + 1]?.isAction;
   }
 };
 const showPrevious = (prop: SongProperty, index: number): boolean => {
   if (prop.isAction) {
     return index > 0;
   } else {
-    return index > 0 && !props.history.properties[index - 1].isAction;
+    return index > 0 && !props.history.properties[index - 1]?.isAction;
   }
 };
 const showNext = (prop: SongProperty, index: number): boolean => {
@@ -61,7 +61,7 @@ const showNext = (prop: SongProperty, index: number): boolean => {
     return !!props.history.properties.find((p, i) => i > index && p.isAction);
   } else {
     const length = props.history.properties.length;
-    return index < length - 1 && !props.history.properties[index + 1].isAction;
+    return index < length - 1 && !props.history.properties[index + 1]?.isAction;
   }
 };
 const insertNew = (index: number): void => {

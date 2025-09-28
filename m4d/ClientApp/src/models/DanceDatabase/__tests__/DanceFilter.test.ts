@@ -18,10 +18,12 @@ describe("DanceFilter.ts", () => {
     for (let i = 0; i < dance.instances.length; i++) {
       const org = dance.instances[i];
       const res = result.instances[i];
+      expect(org).toBeDefined();
+      expect(res).toBeDefined();
 
-      expect(res.style).toEqual(org.style);
-      expect(res.tempoRange).toEqual(org.tempoRange);
-      expect(res.exceptions.length).toEqual(0);
+      expect(res!.style).toEqual(org!.style);
+      expect(res!.tempoRange).toEqual(org!.tempoRange);
+      expect(res!.exceptions.length).toEqual(0);
     }
   });
 });

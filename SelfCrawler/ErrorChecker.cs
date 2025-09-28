@@ -20,7 +20,8 @@ public class ErrorChecker : PageChecker, IDisposable
         @"https://ir-na.amazon-adsystem.com",
         @"[vite] connecting",
         @"[vite] connected",
-        @"Third-party cookie will be blocked"
+        @"Third-party cookie will be blocked",
+        @"CSS Hot Reload ignoring"
     ];
 
     [TestMethod]

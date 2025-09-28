@@ -263,7 +263,7 @@ export class SongHistory {
     for (let i = 0; i < len - 1; i++) {
       const a = changes[i];
       const b = changes[i + 1];
-      if (a.date && b.date && a.date > b.date) {
+      if (a?.date && b?.date && a.date > b.date) {
         return false;
       }
     }
@@ -339,7 +339,7 @@ export class SongHistory {
   }
 
   private static serviceUserFromType(type: string): string {
-    return `batch-${type[0].toLowerCase()}`;
+    return `batch-${(type[0] || "").toLowerCase()}`;
   }
 
   private static parseProperties(s: string): SongProperty[] {

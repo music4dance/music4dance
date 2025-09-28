@@ -127,7 +127,7 @@ function onEnter(addTag: (opt: string) => void): void {
     return;
   }
   const option = availableOptions.value[0];
-  if (option.text.toLowerCase().startsWith(criteria.value)) {
+  if (option?.text.toLowerCase().startsWith(criteria.value)) {
     addTag(option.value);
     search.value = "";
   }

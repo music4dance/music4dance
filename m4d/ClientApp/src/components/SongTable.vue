@@ -15,13 +15,13 @@ import { computed, ref, watch } from "vue";
 import { getMenuContext } from "@/helpers/GetMenuContext";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { useWindowSize } from "@vueuse/core";
-import { useModalController, type TableFieldRaw } from "bootstrap-vue-next";
+import { useModal, type TableFieldRaw } from "bootstrap-vue-next";
 import beat10 from "@/assets/images/icons/beat-10.png";
 import energy10 from "@/assets/images/icons/Energy-10.png";
 import mood10 from "@/assets/images/icons/mood-10.png";
 import { formatDate } from "@/helpers/timeHelpers";
 
-const { hide } = useModalController();
+const { hide } = useModal();
 
 type SongField = Exclude<TableFieldRaw<SongEditor>, string>;
 
@@ -372,9 +372,7 @@ const allHandlers = (song: Song): TagHandler[] => {
 };
 
 const trackNumber = (song: Song): string => {
-  return song.albums && song.albums.length > 0 && song.albums[0].track
-    ? song.albums[0].track.toString()
-    : "";
+  return song.albums?.[0]?.track?.toString() ?? "";
 };
 
 const findEditor = (songId: string): SongEditor | undefined => {
@@ -462,7 +460,7 @@ const onAddDance = (danceId?: string, persist?: boolean): void => {
 
 const onEditSong = (history: SongHistory, remove: boolean = false): void => {
   const idx = histories.value.findIndex((h) => h.id === history.id);
-  if (idx === -1) {
+  if (idx === -1 || !songs.value[idx]) {
     console.error("Couldn't find editor for history", history);
     return;
   }

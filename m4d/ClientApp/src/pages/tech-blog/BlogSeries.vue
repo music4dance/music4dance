@@ -15,11 +15,11 @@ defineProps<{
 
 <template>
   <div class="mt-3">
-    <H2>
+    <h2>
       <BLink v-if="link" :href="link" target="_blank" underline-opacity="0"
         >{{ title }} <IBiBoxArrowUpRight /></BLink
-      ><span v-else>{{ title }}</span></H2
-    >
+      ><span v-else>{{ title }}</span>
+    </h2>
     <p>
       <slot name="summary">{{ summary }}</slot>
     </p>

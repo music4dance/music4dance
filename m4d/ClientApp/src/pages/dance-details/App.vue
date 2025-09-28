@@ -39,7 +39,7 @@ const danceType = isGroup ? undefined : (dance as DanceType);
 const competitionInfo = danceType?.competitionDances ?? [];
 const hasReferences = computed(() => !!links.value && links.value.length > 0);
 const dances = isGroup ? (dance as DanceGroup).dances : [];
-const groupName = danceType?.groups![0].name;
+const groupName = danceType?.groups?.[0]?.name;
 const breadCrumbDetails: BreadCrumbItem[] = isGroup
   ? ([{ text: dance!.name, active: true }] as BreadCrumbItem[])
   : ([

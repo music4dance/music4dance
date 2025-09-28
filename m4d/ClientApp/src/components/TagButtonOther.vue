@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useTagButton } from "@/composables/useTagButton";
 import type { TagHandler } from "@/models/TagHandler";
-import { useModalController, type BaseColorVariant } from "bootstrap-vue-next";
+import { useModal, type BaseColorVariant } from "bootstrap-vue-next";
 
 const props = defineProps<{
   tagHandler: TagHandler;
@@ -18,7 +18,7 @@ const emitChange = () => {
   emit("change-tag", props.tagHandler);
 };
 
-const { create } = useModalController();
+const { create } = useModal();
 
 const handleDelete = async () => {
   if (

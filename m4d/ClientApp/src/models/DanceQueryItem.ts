@@ -16,7 +16,7 @@ export class DanceQueryItem {
       throw new Error(`Invalid value format: ${value}`);
     }
 
-    const dance = safeDanceDatabase().fromId(match[1]);
+    const dance = safeDanceDatabase().fromId(match[1] || "");
     if (!dance) {
       throw new Error(`Couldn't find dance ${match[1]}`);
     }
