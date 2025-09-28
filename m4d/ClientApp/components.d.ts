@@ -23,6 +23,7 @@ declare module 'vue' {
     BButtonGroup: typeof import('bootstrap-vue-next/components/BButton')['BButtonGroup']
     BButtonToolbar: typeof import('bootstrap-vue-next/components/BButton')['BButtonToolbar']
     BCard: typeof import('bootstrap-vue-next/components/BCard')['BCard']
+    BCardBody: typeof import('bootstrap-vue-next/components/BCard')['BCardBody']
     BCardGroup: typeof import('bootstrap-vue-next/components/BCard')['BCardGroup']
     BCardHeader: typeof import('bootstrap-vue-next/components/BCard')['BCardHeader']
     BCardText: typeof import('bootstrap-vue-next/components/BCard')['BCardText']
@@ -41,7 +42,6 @@ declare module 'vue' {
     BFormCheckbox: typeof import('bootstrap-vue-next/components/BFormCheckbox')['BFormCheckbox']
     BFormGroup: typeof import('bootstrap-vue-next/components/BFormGroup')['BFormGroup']
     BFormInput: typeof import('bootstrap-vue-next/components/BFormInput')['BFormInput']
-    BFormInvalidFeedback: typeof import('bootstrap-vue-next/components/BForm')['BFormInvalidFeedback']
     BFormRadio: typeof import('bootstrap-vue-next/components/BFormRadio')['BFormRadio']
     BFormRadioGroup: typeof import('bootstrap-vue-next/components/BFormRadio')['BFormRadioGroup']
     BFormTag: typeof import('bootstrap-vue-next/components/BFormTags')['BFormTag']
@@ -107,14 +107,17 @@ declare module 'vue' {
     HelpResults: typeof import('./src/pages/search/components/HelpResults.vue')['default']
     HomeSection: typeof import('./src/pages/home/components/HomeSection.vue')['default']
     IBiArrowCounterclockwise: typeof import('~icons/bi/arrow-counterclockwise')['default']
+    IBiArrowUpRight: typeof import('~icons/bi/arrow-up-right')['default']
     IBiAsterisk: typeof import('~icons/bi/asterisk')['default']
     IBiAward: typeof import('~icons/bi/award')['default']
+    IBiBoxArrowUpRight: typeof import('~icons/bi/box-arrow-up-right')['default']
     IBiBriefcase: typeof import('~icons/bi/briefcase')['default']
     IBiCheckCircle: typeof import('~icons/bi/check-circle')['default']
     IBiChevronBarDown: typeof import('~icons/bi/chevron-bar-down')['default']
     IBiChevronBarUp: typeof import('~icons/bi/chevron-bar-up')['default']
     IBiChevronDown: typeof import('~icons/bi/chevron-down')['default']
     IBiChevronUp: typeof import('~icons/bi/chevron-up')['default']
+    IBiCircle: typeof import('~icons/bi/circle')['default']
     IBiClock: typeof import('~icons/bi/clock')['default']
     IBiDash: typeof import('~icons/bi/dash')['default']
     IBiFileEarmarkPlus: typeof import('~icons/bi/file-earmark-plus')['default']
@@ -235,6 +238,7 @@ declare module 'vue' {
   }
   export interface GlobalDirectives {
     vBModal: typeof import('bootstrap-vue-next/directives/BModal')['vBModal']
+    vBToggle: typeof import('bootstrap-vue-next/directives/BToggle')['vBToggle']
     vBTooltip: typeof import('bootstrap-vue-next/directives/BTooltip')['vBTooltip']
   }
 }

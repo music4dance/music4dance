@@ -21,7 +21,9 @@
 }
 <html>
 <head>
-    <link rel="stylesheet" vite-href="style.css" asp-append-version="true" />
+    <environment exclude="Development">
+        <link rel="stylesheet" vite-href="style.css" asp-append-version="true" />
+    </environment>
     @await RenderSectionAsync("styles", false)
     <link rel="stylesheet" vite-href="@entry" asp-append-version="true" />
     <script type="importmap"></script>
