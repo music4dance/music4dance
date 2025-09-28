@@ -169,7 +169,7 @@ function computeHeadLinks(): Link[] {
   while (headLinks.length < 4) {
     const idx = Math.floor(random() * (blogEntries.length - 2));
     const entry = blogEntries[idx];
-    if (entry.oneTime || used.has(idx)) {
+    if (!entry || entry.oneTime || used.has(idx)) {
       continue;
     }
     used.add(idx);

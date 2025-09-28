@@ -73,7 +73,7 @@ const fields: Exclude<TableFieldRaw<DanceType>, string>[] = [
 ];
 
 function groupLink(dance: DanceType): string {
-  return m4dLink(dance.groups![0].name);
+  return m4dLink(dance.groups?.[0]?.name || "");
 }
 
 function styleLink(style: string): string {

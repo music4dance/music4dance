@@ -10,7 +10,7 @@ export class DanceRatingDelta {
       throw new Error(`value "${value}" must conform to {dancid}(+|-){count}`);
     }
 
-    return new DanceRatingDelta(groups[1], Number.parseInt(groups[2], 10));
+    return new DanceRatingDelta(groups[1] || "", Number.parseInt(groups[2] || "0", 10));
   }
 
   constructor(

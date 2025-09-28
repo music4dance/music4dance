@@ -25,21 +25,24 @@ describe("DanceDatabase.ts", () => {
   test("Groups are populated", () => {
     const danceDb = loadDatabase();
     const group = danceDb.groups[0];
-    expect(group.dances).toBeDefined();
-    expect(group.dances).toBeInstanceOf(Array);
-    expect(group.dances.length).toBe(2);
-    const swz = group.dances.find((d) => d.id === "SWZ");
+    expect(group).toBeDefined();
+    expect(group!.dances).toBeDefined();
+    expect(group!.dances).toBeInstanceOf(Array);
+    expect(group!.dances.length).toBe(2);
+    const swz = group!.dances.find((d) => d.id === "SWZ");
     expect(swz).toBeDefined();
   });
 
   test("isGroup returns true for groups", () => {
     const group = loadDatabase().groups[0];
-    expect(DanceGroup.isGroup(group)).toBe(true);
+    expect(group).toBeDefined();
+    expect(DanceGroup.isGroup(group!)).toBe(true);
   });
 
   test("isGroup returns false for types", () => {
-    const group = loadDatabase().dances[0];
-    expect(DanceGroup.isGroup(group)).toBe(false);
+    const dance = loadDatabase().dances[0];
+    expect(dance).toBeDefined();
+    expect(DanceGroup.isGroup(dance!)).toBe(false);
   });
 
   test("style returns all styles for types", () => {

@@ -179,7 +179,7 @@ describe("TagHandler", () => {
       const link = tagHandler.getTagLink("+", false, false);
       expect(link).toContain("/song/filtersearch?filter=");
       // Should contain both existing and new tag
-      expect(link).toContain("existing%1Atag%3Aundefined");
+      expect(link).toContain("existing%1Atag%3A");
       expect(link).toContain("%2Bromantic%3Aother");
     });
 

@@ -75,7 +75,7 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        silenceDeprecations: ["import", "mixed-decls", "color-functions", "global-builtin"],
+        silenceDeprecations: ["color-functions", "global-builtin", "import"],
       },
     },
   },
@@ -87,15 +87,24 @@ export default defineConfig({
 function AutoEndpoints(config: VuePluginMap): Plugin {
   const main = `import 'vite/modulepreload-polyfill'
 
-import { createApp } from 'vue'
+import { createApp, h } from 'vue'
 import { createBootstrap } from 'bootstrap-vue-next'
 {imports}
-import App from '{app}'
+import Application from '{app}'
+import {BApp} from 'bootstrap-vue-next'
 
 import '@/scss/styles.scss'
+import 'bootstrap-vue-next/dist/bootstrap-vue-next.css'
 
-const app = createApp(App);
-app.use(createBootstrap());
+const Wrapper = {
+  name: 'AppWrapper',
+  render() {
+    return h(BApp, null, { default: () => h(Application) });
+  }
+};
+
+const app = createApp(Wrapper);
+
 {configs}
 app.mount('#app')
 `;
@@ -109,11 +118,14 @@ app.mount('#app')
       const dirs = (await fg.glob(pattern)).map((p) => dirname(p).substring(length));
       console.log(dirs.join(","));
 
-      const input = dirs.reduce((obj, item) => {
-        const value = resolve(__dirname, root + item + "/main.ts");
-        obj[item] = value;
-        return obj;
-      }, {} as any);
+      const input = dirs.reduce(
+        (obj, item) => {
+          const value = resolve(__dirname, root + item + "/main.ts");
+          obj[item] = value;
+          return obj;
+        },
+        {} as Record<string, string>,
+      );
 
       return {
         build: {

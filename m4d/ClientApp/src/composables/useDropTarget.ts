@@ -1,10 +1,10 @@
 import { ServiceMatcher } from "../helpers/ServiceMatcher";
-import { useModalController, type BvTriggerableEvent } from "bootstrap-vue-next";
+import { useModal, type BvTriggerableEvent } from "bootstrap-vue-next";
 
 const matcher: ServiceMatcher = new ServiceMatcher();
 
 export function useDropTarget() {
-  const { create } = useModalController();
+  const { create } = useModal();
 
   async function checkServiceAndAdd(input: string, warn?: boolean): Promise<void> {
     const service = matcher.match(input);

@@ -2,7 +2,8 @@
 {
     public static class ConfigurationExtensions
     {
-        public static bool UseVite(this ConfigurationManager configuration)
+        // Accept IConfiguration so it works with injected _configuration
+        public static bool UseVite(this IConfiguration configuration)
         {
             return configuration["ASPNETCORE_VITE"]?.ToLower() == "true";
         }

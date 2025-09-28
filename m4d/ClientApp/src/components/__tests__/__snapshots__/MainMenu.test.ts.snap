@@ -1,11 +1,8 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`MainMenu.vue > Renders MainMenu for an anonymous user 1`] = `
-"<div>
-  <!--teleport start-->
-  <!--teleport end-->
-  <!--teleport start-->
-  <!--teleport end-->
+"<div class="orchestrator-container"></div>
+<div>
   <!--v-if-->
   <!--v-if-->
   <nav class="navbar bg-primary navbar-expand-lg" id="mainMenu" data-bs-theme="dark">

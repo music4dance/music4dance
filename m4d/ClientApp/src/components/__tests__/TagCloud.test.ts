@@ -1,6 +1,5 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, test } from "vitest";
-import { modalManagerPlugin } from "bootstrap-vue-next";
 import { loadTagsFromString } from "@/helpers/TagLoader";
 import TagCloud from "../TagCloud.vue";
 
@@ -46,7 +45,6 @@ describe("TagCloud.vue", () => {
     const tags = tagDatabase.tags;
     const wrapper = mount(TagCloud, {
       props: { tags },
-      global: { plugins: [modalManagerPlugin] },
     });
     expect(wrapper.html()).toMatchSnapshot();
   });
@@ -55,7 +53,6 @@ describe("TagCloud.vue", () => {
     const tags = tagDatabase.tags;
     const wrapper = mount(TagCloud, {
       props: { tags, hideFilter: true },
-      global: { plugins: [modalManagerPlugin] },
     });
     expect(wrapper.html()).toMatchSnapshot();
   });
@@ -64,7 +61,6 @@ describe("TagCloud.vue", () => {
     const tags = tagDatabase.tags;
     const wrapper = mount(TagCloud, {
       props: { tags },
-      global: { plugins: [modalManagerPlugin] },
     });
 
     // Rock is filtered out by strictness

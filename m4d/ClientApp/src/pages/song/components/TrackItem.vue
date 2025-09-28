@@ -15,7 +15,7 @@ const emit = defineEmits<{
 
 const purchaseInfo = computed(() => {
   const track = props.track;
-  const type = track.service[0].toLowerCase() as ServiceType;
+  const type = (track.service[0] || "").toLowerCase() as ServiceType;
   return PurchaseInfo.Build(type, track.collectionId, track.trackId)!;
 });
 const indexString = computed(() => {

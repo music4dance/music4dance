@@ -50,7 +50,7 @@ export class TagHandler {
     // Then try to get from filter's danceQuery
     const danceNames = this.filter?.danceQuery.danceNames;
     if (danceNames && danceNames.length > 0) {
-      return danceNames[0];
+      return danceNames[0] || "";
     }
 
     // Return empty string as fallback

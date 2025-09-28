@@ -5,7 +5,7 @@ export function assign(trg: object, src?: object): object {
   const descriptors = Object.getOwnPropertyDescriptors(src);
   for (const key in descriptors) {
     const descriptor = descriptors[key];
-    if (descriptor.writable && descriptor.enumerable) {
+    if (descriptor?.writable && descriptor?.enumerable) {
       Object.defineProperty(trg, key, descriptor);
     }
   }

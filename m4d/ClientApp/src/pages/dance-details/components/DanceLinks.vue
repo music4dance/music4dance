@@ -26,7 +26,12 @@ defineExpose({ commit, isModified });
   <div id="references">
     <h2>References:</h2>
     <div v-for="(link, index) in model" :key="index">
-      <EditableLink v-model="model[index]" :editing="editing" @delete="onDelete($event)" />
+      <EditableLink
+        v-if="model[index]"
+        v-model="model[index]"
+        :editing="editing"
+        @delete="onDelete($event)"
+      />
     </div>
     <BButton v-if="editing" block variant="outline-primary" class="mt-2" @click="onAdd"
       >Add Reference</BButton

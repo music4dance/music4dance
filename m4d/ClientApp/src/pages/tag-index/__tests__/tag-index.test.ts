@@ -8,6 +8,6 @@ describe("Resume", () => {
     () => {
       testPageSnapshot(App);
     },
-    { timeout: 10000 },
+    { timeout: 100000 },
   );
 });

@@ -18,15 +18,16 @@ const emit = defineEmits<{
   "dance-vote": [vote: DanceRatingVote];
 }>();
 
+const singleDance = computed(() => props.filter.singleDance);
 const song = computed(() => props.editor.song);
-const danceId = computed(() => props.filter.danceQuery.danceList[0]);
+const danceId = computed(() => props.filter.danceQuery?.danceList?.[0] ?? "XXX");
 const danceRating = computed(() => song.value.findDanceRatingById(danceId.value)!);
 </script>
 
 <template>
   <span>
     <DanceVote
-      v-if="filter.singleDance && danceRating"
+      v-if="singleDance"
       :vote="editor.song.danceVote(danceId)"
       :dance-rating="danceRating"
       :authenticated="!!context.userName"

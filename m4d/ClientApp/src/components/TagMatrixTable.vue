@@ -46,7 +46,7 @@ function columnFromTag(tag: string): number {
 }
 
 function countFromKey(key: string, row: TagRow): string {
-  return row.counts[columnFromTag(key)].toString();
+  return row.counts[columnFromTag(key)]?.toString() ?? "0";
 }
 
 function danceLink(row: TagRow): string {

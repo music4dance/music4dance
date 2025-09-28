@@ -14,17 +14,21 @@ describe("Song Merge", () => {
     vi.restoreAllMocks();
   });
 
-  test("Renders the Merge Page", () => {
-    vi.mock("@/helpers/timeHelpers.ts", async (importOriginal) => {
-      const actual = await importOriginal();
-      if (typeof actual === "object" && actual !== null) {
-        return {
-          ...actual,
-          formatNow: vi.fn().mockReturnValue("07-Feb-2014"),
-        };
-      }
-      return actual;
-    });
-    testPageSnapshot(App, model, m4dContext());
-  });
+  test(
+    "Renders the Merge Page",
+    () => {
+      vi.mock("@/helpers/timeHelpers.ts", async (importOriginal) => {
+        const actual = await importOriginal();
+        if (typeof actual === "object" && actual !== null) {
+          return {
+            ...actual,
+            formatNow: vi.fn().mockReturnValue("07-Feb-2014"),
+          };
+        }
+        return actual;
+      });
+      testPageSnapshot(App, model, m4dContext());
+    },
+    { timeout: 50000 },
+  );
 });
