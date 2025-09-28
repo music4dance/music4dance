@@ -7,9 +7,10 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <environment exclude="Development">
+        @if (!_configuration.UseVite())
+        {
             <link rel="stylesheet" vite-href="style.css" asp-append-version="true" />
-        </environment>
+        }
         @await RenderSectionAsync("styles", false)
         <script type="importmap"></script>
         <partial name="_head"/>
