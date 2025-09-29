@@ -37,3 +37,7 @@ coverage
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Generated Vue component type definitions
+components.d.ts
+
