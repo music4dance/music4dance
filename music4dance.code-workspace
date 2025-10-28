@@ -139,7 +139,7 @@
         "label": "Client: Test",
         "type": "shell",
         "command": "yarn",
-        "args": ["test:unit", "--run"],
+        "args": ["test:unit", "run"],
         "options": {
           "cwd": "${workspaceFolder:Client (Vue/TypeScript)}"
         },

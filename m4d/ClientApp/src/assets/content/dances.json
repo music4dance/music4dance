@@ -8,7 +8,7 @@
     },
     "blogTag": "waltz",
     "synonyms": ["Waltz"],
-    "organizations": ["DanceSport", "NDCA"],
+    "organizations": ["DanceSport", "NDCA", "UCWDC", "WORLDCDF", "ADCA"],
     "instances": [
       {
         "style": "American Smooth",
@@ -42,6 +42,38 @@
             "tempoRange": {
               "min": 87.0,
               "max": 87.0
+            }
+          }
+        ]
+      },
+      {
+        "style": "Country",
+        "tempoRange": {
+          "min": 84.0,
+          "max": 91.0
+        },
+        "competitionGroup": "Country",
+        "competitionOrder": 5,
+        "exceptions": [
+          {
+            "organization": "UCWDC",
+            "tempoRange": {
+              "min": 84.0,
+              "max": 90.0
+            }
+          },
+          {
+            "organization": "WORLDCDF",
+            "tempoRange": {
+              "min": 88.0,
+              "max": 91.0
+            }
+          },
+          {
+            "organization": "ADCA",
+            "tempoRange": {
+              "min": 80.0,
+              "max": 90.0
             }
           }
         ]
@@ -190,16 +222,7 @@
           "min": 240.0,
           "max": 240.0
         },
-        "competitionGroup": "Ballroom",
-        "exceptions": [
-          {
-            "organization": "NDCA",
-            "tempoRange": {
-              "min": 240.0,
-              "max": 240.0
-            }
-          }
-        ]
+        "competitionGroup": "Ballroom"
       }
     ]
   },
@@ -212,7 +235,7 @@
     },
     "blogTag": "waltz",
     "searchonyms": ["viennese"],
-    "organizations": ["DanceSport", "NDCA"],
+    "organizations": ["DanceSport", "NDCA", "ADCA"],
     "instances": [
       {
         "style": "American Smooth",
@@ -249,6 +272,13 @@
             }
           }
         ]
+      },
+      {
+        "style": "Country",
+        "tempoRange": {
+          "min": 145.0,
+          "max": 162.0
+        }
       }
     ]
   },
@@ -320,7 +350,7 @@
       "denominator": 4
     },
     "blogTag": "cha-cha",
-    "organizations": ["DanceSport", "NDCA"],
+    "organizations": ["DanceSport", "NDCA", "UCWDC", "WORLDCDF", "ADCA"],
     "instances": [
       {
         "style": "American Rhythm",
@@ -345,6 +375,31 @@
             "tempoRange": {
               "min": 124.0,
               "max": 124.0
+            }
+          }
+        ]
+      },
+      {
+        "style": "Country",
+        "tempoRange": {
+          "min": 100.0,
+          "max": 120.0
+        },
+        "competitionGroup": "Country",
+        "competitionOrder": 4,
+        "exceptions": [
+          {
+            "organization": "UCWDC",
+            "tempoRange": {
+              "min": 102.0,
+              "max": 116.0
+            }
+          },
+          {
+            "organization": "ADCA",
+            "tempoRange": {
+              "min": 102.0,
+              "max": 118.0
             }
           }
         ]
@@ -460,7 +515,7 @@
     "blogTag": "east-coast-swing",
     "synonyms": ["Triple Swing", "East Coast"],
     "searchonyms": ["swing", "ec swing"],
-    "organizations": ["DanceSport", "NDCA"],
+    "organizations": ["DanceSport", "NDCA", "UCWDC", "WORLDCDF", "ADCA"],
     "instances": [
       {
         "style": "American Rhythm",
@@ -479,6 +534,38 @@
             }
           }
         ]
+      },
+      {
+        "style": "Country",
+        "tempoRange": {
+          "min": 126.0,
+          "max": 148.0
+        },
+        "competitionGroup": "Country",
+        "competitionOrder": 7,
+        "exceptions": [
+          {
+            "organization": "UCWDC",
+            "tempoRange": {
+              "min": 126.0,
+              "max": 144.0
+            }
+          },
+          {
+            "organization": "WORLDCDF",
+            "tempoRange": {
+              "min": 133.0,
+              "max": 148.0
+            }
+          },
+          {
+            "organization": "ADCA",
+            "tempoRange": {
+              "min": 126.0,
+              "max": 144.0
+            }
+          }
+        ]
       }
     ]
   },
@@ -492,7 +579,7 @@
     "blogTag": "west-coast-swing",
     "synonyms": ["West Coast"],
     "searchonyms": ["wc swing"],
-    "organizations": ["NDCA"],
+    "organizations": ["NDCA", "UCWDC", "WORLDCDF", "ADCA"],
     "instances": [
       {
         "style": "American Rhythm",
@@ -507,6 +594,38 @@
           "min": 80.0,
           "max": 130.0
         }
+      },
+      {
+        "style": "Country",
+        "tempoRange": {
+          "min": 92.0,
+          "max": 120.0
+        },
+        "competitionGroup": "Country",
+        "competitionOrder": 8,
+        "exceptions": [
+          {
+            "organization": "UCWDC",
+            "tempoRange": {
+              "min": 92.0,
+              "max": 100.0
+            }
+          },
+          {
+            "organization": "WORLDCDF",
+            "tempoRange": {
+              "min": 98.0,
+              "max": 120.0
+            }
+          },
+          {
+            "organization": "ADCA",
+            "tempoRange": {
+              "min": 92.0,
+              "max": 112.0
+            }
+          }
+        ]
       }
     ]
   },
@@ -668,7 +787,7 @@
       "denominator": 4
     },
     "blogTag": "polka",
-    "organizations": ["DanceSport", "NDCA"],
+    "organizations": ["DanceSport", "NDCA", "UCWDC", "WORLDCDF", "ADCA"],
     "instances": [
       {
         "style": "American Rhythm",
@@ -682,6 +801,38 @@
             "organization": "NDCA",
             "tempoRange": {
               "min": 120.0,
+              "max": 120.0
+            }
+          }
+        ]
+      },
+      {
+        "style": "Country",
+        "tempoRange": {
+          "min": 100.0,
+          "max": 118.0
+        },
+        "competitionGroup": "Country",
+        "competitionOrder": 2,
+        "exceptions": [
+          {
+            "organization": "UCWDC",
+            "tempoRange": {
+              "min": 100.0,
+              "max": 116.0
+            }
+          },
+          {
+            "organization": "WORLDCDF",
+            "tempoRange": {
+              "min": 103.0,
+              "max": 118.0
+            }
+          },
+          {
+            "organization": "ADCA",
+            "tempoRange": {
+              "min": 106.0,
               "max": 120.0
             }
           }
@@ -750,12 +901,13 @@
       "denominator": 4
     },
     "searchonyms": ["club two step"],
+    "organizations": ["NDCA", "UCWDC", "WORLDCDF", "ADCA"],
     "instances": [
       {
         "style": "American Rhythm",
         "tempoRange": {
-          "min": 76.0,
-          "max": 76.0
+          "min": 72.0,
+          "max": 80.0
         },
         "competitionGroup": "Ballroom"
       },
@@ -765,6 +917,31 @@
           "min": 50.0,
           "max": 92.0
         }
+      },
+      {
+        "style": "Country",
+        "tempoRange": {
+          "min": 54.0,
+          "max": 64.0
+        },
+        "competitionGroup": "Country",
+        "competitionOrder": 3,
+        "exceptions": [
+          {
+            "organization": "UCWDC",
+            "tempoRange": {
+              "min": 54.0,
+              "max": 60.0
+            }
+          },
+          {
+            "organization": "ADCA",
+            "tempoRange": {
+              "min": 52.0,
+              "max": 60.0
+            }
+          }
+        ]
       }
     ]
   },
@@ -776,6 +953,7 @@
       "denominator": 4
     },
     "blogTag": "country-two-step",
+    "organizations": ["UCWDC", "WORLDCDF", "ADCA"],
     "instances": [
       {
         "style": "Social",
@@ -783,6 +961,82 @@
           "min": 168.0,
           "max": 200.0
         }
+      },
+      {
+        "style": "Country",
+        "tempoRange": {
+          "min": 85.0,
+          "max": 192.0
+        },
+        "competitionGroup": "Country",
+        "competitionOrder": 6,
+        "exceptions": [
+          {
+            "organization": "UCWDC",
+            "tempoRange": {
+              "min": 168.0,
+              "max": 192.0
+            }
+          },
+          {
+            "organization": "WORLDCDF",
+            "tempoRange": {
+              "min": 170.0,
+              "max": 194.0
+            }
+          },
+          {
+            "organization": "ADCA",
+            "tempoRange": {
+              "min": 168.0,
+              "max": 194.0
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "TTW",
+    "name": "Triple Two",
+    "meter": {
+      "numerator": 4,
+      "denominator": 4
+    },
+    "blogTag": "triple-two",
+    "organizations": ["UCWDC", "WORLDCDF", "ADCA"],
+    "instances": [
+      {
+        "style": "Country",
+        "tempoRange": {
+          "min": 76.0,
+          "max": 92.0
+        },
+        "competitionGroup": "Country",
+        "competitionOrder": 1,
+        "exceptions": [
+          {
+            "organization": "UCWDC",
+            "tempoRange": {
+              "min": 76.0,
+              "max": 84.0
+            }
+          },
+          {
+            "organization": "WORLDCDF",
+            "tempoRange": {
+              "min": 80.0,
+              "max": 92.0
+            }
+          },
+          {
+            "organization": "ADCA",
+            "tempoRange": {
+              "min": 76.0,
+              "max": 86.0
+            }
+          }
+        ]
       }
     ]
   },

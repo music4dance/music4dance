@@ -69,7 +69,7 @@ exports[`DanceIndex > Renders dance-index Page 1`] = `
             </div>
           </div>
           <div class="list-group-item list-group-item-light">
-            <div class="d-flex justify-content-between ms-2"><span><a href="/dances/cha-cha">Cha Cha</a><!--v-if--><span style="font-size: 0.8rem;" class="ms-2">120-128 BPM/30-32 MPM</span></span>
+            <div class="d-flex justify-content-between ms-2"><span><a href="/dances/cha-cha">Cha Cha</a><!--v-if--><span style="font-size: 0.8rem;" class="ms-2">100-128 BPM/25-32 MPM</span></span>
               <div><a class="badge text-bg-primary text-decoration-none" href="/song/index?filter=.-OOX,CHA-Dances" style="line-height: 1.5;">songs (20762)</a><a class="badge text-bg-primary text-decoration-none ms-2" href="/dances/cha-cha" style="line-height: 1.5;">info</a></div>
             </div>
           </div>
@@ -121,7 +121,7 @@ exports[`DanceIndex > Renders dance-index Page 1`] = `
             </div>
           </div>
           <div class="list-group-item list-group-item-light">
-            <div class="d-flex justify-content-between ms-2"><span><a href="/dances/country-two-step">Country Two Step</a><!--v-if--><span style="font-size: 0.8rem;" class="ms-2">168-200 BPM/84-100 MPM</span></span>
+            <div class="d-flex justify-content-between ms-2"><span><a href="/dances/country-two-step">Country Two Step</a><!--v-if--><span style="font-size: 0.8rem;" class="ms-2">85-200 BPM/42.5-100 MPM</span></span>
               <div><a class="badge text-bg-primary text-decoration-none" href="/song/index?filter=.-OOX,C2S-Dances" style="line-height: 1.5;">songs (155)</a><a class="badge text-bg-primary text-decoration-none ms-2" href="/dances/country-two-step" style="line-height: 1.5;">info</a></div>
             </div>
           </div>
@@ -136,7 +136,7 @@ exports[`DanceIndex > Renders dance-index Page 1`] = `
             </div>
           </div>
           <div class="list-group-item list-group-item-light">
-            <div class="d-flex justify-content-between ms-2"><span><a href="/dances/polka">Polka</a><!--v-if--><span style="font-size: 0.8rem;" class="ms-2">120-124 BPM/60-62 MPM</span></span>
+            <div class="d-flex justify-content-between ms-2"><span><a href="/dances/polka">Polka</a><!--v-if--><span style="font-size: 0.8rem;" class="ms-2">100-124 BPM/50-62 MPM</span></span>
               <div><a class="badge text-bg-primary text-decoration-none" href="/song/index?filter=.-OOX,PLK-Dances" style="line-height: 1.5;">songs (272)</a><a class="badge text-bg-primary text-decoration-none ms-2" href="/dances/polka" style="line-height: 1.5;">info</a></div>
             </div>
           </div>
@@ -195,7 +195,7 @@ exports[`DanceIndex > Renders dance-index Page 1`] = `
             </div>
           </div>
           <div class="list-group-item list-group-item-light">
-            <div class="d-flex justify-content-between ms-2"><span><a href="/dances/east-coast-swing">East Coast Swing</a><span><!--v-if--> (Triple Swing, East Coast) </span><span style="font-size: 0.8rem;" class="ms-2">136-144 BPM/34-36 MPM</span></span>
+            <div class="d-flex justify-content-between ms-2"><span><a href="/dances/east-coast-swing">East Coast Swing</a><span><!--v-if--> (Triple Swing, East Coast) </span><span style="font-size: 0.8rem;" class="ms-2">126-148 BPM/31.5-37 MPM</span></span>
               <div><a class="badge text-bg-primary text-decoration-none" href="/song/index?filter=.-OOX,ECS-Dances" style="line-height: 1.5;">songs (2294)</a><a class="badge text-bg-primary text-decoration-none ms-2" href="/dances/east-coast-swing" style="line-height: 1.5;">info</a></div>
             </div>
           </div>
@@ -274,7 +274,7 @@ exports[`DanceIndex > Renders dance-index Page 1`] = `
             </div>
           </div>
           <div class="list-group-item list-group-item-light">
-            <div class="d-flex justify-content-between ms-2"><span><a href="/dances/slow-waltz">Slow Waltz</a><span><!--v-if--> (Waltz) </span><span style="font-size: 0.8rem;" class="ms-2">84-90 BPM/28-30 MPM</span></span>
+            <div class="d-flex justify-content-between ms-2"><span><a href="/dances/slow-waltz">Slow Waltz</a><span><!--v-if--> (Waltz) </span><span style="font-size: 0.8rem;" class="ms-2">84-91 BPM/28-30.3 MPM</span></span>
               <div><a class="badge text-bg-primary text-decoration-none" href="/song/index?filter=.-OOX,SWZ-Dances" style="line-height: 1.5;">songs (1705)</a><a class="badge text-bg-primary text-decoration-none ms-2" href="/dances/slow-waltz" style="line-height: 1.5;">info</a></div>
             </div>
           </div>
@@ -284,7 +284,7 @@ exports[`DanceIndex > Renders dance-index Page 1`] = `
             </div>
           </div>
           <div class="list-group-item list-group-item-light">
-            <div class="d-flex justify-content-between ms-2"><span><a href="/dances/viennese-waltz">Viennese Waltz</a><!--v-if--><span style="font-size: 0.8rem;" class="ms-2">159-190 BPM/53-63.3 MPM</span></span>
+            <div class="d-flex justify-content-between ms-2"><span><a href="/dances/viennese-waltz">Viennese Waltz</a><!--v-if--><span style="font-size: 0.8rem;" class="ms-2">145-190 BPM/48.3-63.3 MPM</span></span>
               <div><a class="badge text-bg-primary text-decoration-none" href="/song/index?filter=.-OOX,VWZ-Dances" style="line-height: 1.5;">songs (1932)</a><a class="badge text-bg-primary text-decoration-none ms-2" href="/dances/viennese-waltz" style="line-height: 1.5;">info</a></div>
             </div>
           </div>
