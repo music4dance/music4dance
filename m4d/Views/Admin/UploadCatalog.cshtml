@@ -1,54 +1,54 @@
 ﻿@using m4d.ViewModels
 @{
     ViewBag.Title = "Upload Catalog";
-ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
 }
 
 <h2>Upload Catalog</h2>
 @using (Html.BeginForm("UploadCatalog", "Admin", FormMethod.Post, new
 {
-@class = "form",
-enctype = "multipart/form-data"
+    @class = "form",
+    enctype = "multipart/form-data"
 }))
 {
     @Html.AntiForgeryToken()
-;
-var separator = " - ";
-var header = "";
-var user = "";
-var dances = "";
-var album = "";
-var artist = "";
-var tags = "";
 
-if (ViewData.ContainsKey("Separator") && !string.IsNullOrWhiteSpace(ViewBag.Separator))
-{
-    separator = ViewBag.Separator;
-}
-if (ViewData.ContainsKey("Headers") && !string.IsNullOrWhiteSpace(ViewBag.Headers))
-{
-    header = ViewBag.Headers;
-}
-if (ViewData.ContainsKey("User") && !string.IsNullOrWhiteSpace(ViewBag.User))
-{
-    user = ViewBag.User;
-}
-if (ViewData.ContainsKey("Dances") && !string.IsNullOrWhiteSpace(ViewBag.Dances))
-{
-    dances = ViewBag.Dances;
-}
-if (ViewData.ContainsKey("Artist") && !string.IsNullOrWhiteSpace(ViewBag.Artist))
-{
-    artist = ViewBag.Artist;
-}
-if (ViewData.ContainsKey("Album") && !string.IsNullOrWhiteSpace(ViewBag.Album))
-{
-    album = ViewBag.Album;
-}
-if (ViewData.ContainsKey("Tags") && !string.IsNullOrWhiteSpace(ViewBag.Tags))
-{
-    tags = ViewBag.Tags;
-}
+    var separator = " - ";
+    var header = "";
+    var user = "";
+    var dances = "";
+    var album = "";
+    var artist = "";
+    var tags = "";
+
+    if (ViewData.ContainsKey("Separator") && !string.IsNullOrWhiteSpace(ViewBag.Separator))
+    {
+        separator = ViewBag.Separator;
+    }
+    if (ViewData.ContainsKey("Headers") && !string.IsNullOrWhiteSpace(ViewBag.Headers))
+    {
+        header = ViewBag.Headers;
+    }
+    if (ViewData.ContainsKey("User") && !string.IsNullOrWhiteSpace(ViewBag.User))
+    {
+        user = ViewBag.User;
+    }
+    if (ViewData.ContainsKey("Dances") && !string.IsNullOrWhiteSpace(ViewBag.Dances))
+    {
+        dances = ViewBag.Dances;
+    }
+    if (ViewData.ContainsKey("Artist") && !string.IsNullOrWhiteSpace(ViewBag.Artist))
+    {
+        artist = ViewBag.Artist;
+    }
+    if (ViewData.ContainsKey("Album") && !string.IsNullOrWhiteSpace(ViewBag.Album))
+    {
+        album = ViewBag.Album;
+    }
+    if (ViewData.ContainsKey("Tags") && !string.IsNullOrWhiteSpace(ViewBag.Tags))
+    {
+        tags = ViewBag.Tags;
+    }
 
     <div class="form-group">
         <span class="control-label">User:</span>
