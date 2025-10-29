@@ -157,7 +157,7 @@ namespace m4dModels
                 group.MaxWeight = group.Children.Max(d => d.MaxWeight);
             }
 
-            var saveChanges = false;
+           var saveChanges = false;
             foreach (var ds in
                 Dances.Concat(Groups).Where(s => s.Dance.Description == null))
             {
