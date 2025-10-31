@@ -11,11 +11,12 @@ namespace DanceLibrary;
 public class DanceInstance : DanceObject
 {
     [JsonConstructor]
-    public DanceInstance(string style, TempoRange tempoRange, DanceException[] exceptions)
+    public DanceInstance(string style, TempoRange tempoRange, DanceException[] exceptions, string[] organizations = null)
     {
         Style = style;
         TempoRange = tempoRange;
         Exceptions = exceptions == null ? [] : [.. exceptions];
+        Organizations = organizations == null ? [] : [.. organizations];
         foreach (var de in Exceptions)
         {
             de.DanceInstance = this;
@@ -60,6 +61,8 @@ public class DanceInstance : DanceObject
 
     public List<DanceException> Exceptions { get; set; }
 
+    public List<string> Organizations { get; set; }
+
     [JsonIgnore]
     public string ShortStyle
     {
@@ -94,5 +97,10 @@ public class DanceInstance : DanceObject
     public bool ShouldSerializeExceptions()
     {
         return Exceptions.Count > 0;
+    }
+
+    public bool ShouldSerializeOrganizations()
+    {
+        return Organizations != null && Organizations.Count > 0;
     }
 }

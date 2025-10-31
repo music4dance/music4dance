@@ -25,6 +25,7 @@ const danceLinks = ref<InstanceType<typeof DanceLinks> | null>(null);
 const editing = ref(false);
 const description = ref(model.description);
 const links = ref(model.links);
+const showBpm = ref(true);
 
 const filter = new SongFilter();
 filter.dances = model.danceId;
@@ -46,6 +47,8 @@ const breadCrumbDetails: BreadCrumbItem[] = isGroup
       { text: groupName, href: `/dances/${groupName}` },
       { text: dance!.name, active: true },
     ] as BreadCrumbItem[]);
+
+console.log(competitionInfo);
 
 const breadcrumbs: BreadCrumbItem[] = dance ? [...danceTrail, ...breadCrumbDetails] : danceTrail;
 
@@ -127,6 +130,7 @@ const saveChanges = async () => {
       <BCol>
         <hr />
         <CompetitionCategoryTable
+          v-model:show-bpm="showBpm"
           title="Competition Tempo Information"
           :dances="competitionInfo"
           :use-full-name="true"

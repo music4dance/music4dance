@@ -3,5 +3,7 @@
   "Tango (Ballroom): Style=(American Smooth, International Standard), Delta=()",
   "Cha Cha: Style=(American Rhythm, International Latin, Country), Delta=()",
   "East Coast Swing: Style=(American Rhythm, Country), Delta=()",
-  "Rumba: Style=(American Rhythm, International Latin), Delta=(+0.50MPM)"
+  "West Coast Swing: Style=(American Rhythm, Social, Country), Delta=()",
+  "Rumba: Style=(American Rhythm, International Latin), Delta=(+0.50MPM)",
+  "Hustle: Style=(American Rhythm), Delta=(+1.50MPM)"
 ]

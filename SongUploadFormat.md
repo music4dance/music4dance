@@ -319,7 +319,7 @@ Thinking Out Loud	Ed Sheeran	X	RMB	Pop|Ballad	2014	79	4:41
 
 The upload form provides additional fields that apply to ALL songs in the upload:
 
-- **User**: Associate all songs with a specific user
+- **User**: Associate all songs with a specific user - this field is required, since creating records without attributing them to a user breaks the system
 - **Dances**: Apply these dances to all songs (in addition to per-song DANCE column)
 - **Artist**: Override or set artist for all songs
 - **Album**: Override or set album for all songs

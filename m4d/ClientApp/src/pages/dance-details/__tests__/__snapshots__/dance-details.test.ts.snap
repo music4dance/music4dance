@@ -1673,7 +1673,10 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
   <div class="col">
     <hr>
     <div>
-      <h4>Competition Tempo Information</h4>
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h4 class="mb-0">Competition Tempo Information</h4>
+        <div class="btn-group btn-group-sm" role="group" aria-label="Group"><button class="btn btn-md btn-primary" type="button"> BPM </button><button class="btn btn-md btn-outline-primary" type="button"> MPM </button></div>
+      </div>
       <div class="table-responsive">
         <table id="BootstrapVueNext__ID__v-72__" class="table b-table table-hover table-striped" aria-busy="false">
           <!---->
@@ -1682,16 +1685,10 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
               <th scope="col" class="">Name
                 <!---->
               </th>
-              <th scope="col" class="">DanceSport (MPM)
+              <th scope="col" class="">DanceSport
                 <!---->
               </th>
-              <th scope="col" class="">DanceSport (BPM)
-                <!---->
-              </th>
-              <th scope="col" class="">NDCA (MPM)
-                <!---->
-              </th>
-              <th scope="col" class="">NDCA (BPM)
+              <th scope="col" class="">NDCA
                 <!---->
               </th>
               <th scope="col" class="">Meter
@@ -1707,16 +1704,10 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
                 <!----><a href="bolero">American Bolero</a>
               </td>
               <td class="">
-                <!----><a href="/song/advancedsearch?dances=BOL&amp;tempomin=96&amp;tempomax=104&amp;sortorder=Dances">24-26</a>
+                <!----><a href="/song/advancedsearch?dances=BOL&amp;tempomin=96&amp;tempomax=104&amp;sortorder=Dances"></a>
               </td>
               <td class="">
-                <!----><a href="/song/advancedsearch?dances=BOL&amp;tempomin=96&amp;tempomax=104&amp;sortorder=Dances">96-104</a>
-              </td>
-              <td class="">
-                <!----><a href="/song/advancedsearch?dances=BOL&amp;tempomin=96&amp;tempomax=96&amp;sortorder=Dances">24</a>
-              </td>
-              <td class="">
-                <!----><a href="/song/advancedsearch?dances=BOL&amp;tempomin=96&amp;tempomax=96&amp;sortorder=Dances">96</a>
+                <!----><a href="/song/advancedsearch?dances=BOL&amp;tempomin=96&amp;tempomax=96&amp;sortorder=Dances"></a>
               </td>
               <td class="">
                 <!---->4/4

@@ -11,7 +11,6 @@ public class DanceType : DanceObject
     public DanceType()
     {
         Groups = [];
-        Organizations = [];
         Instances = [];
     }
 
@@ -24,19 +23,15 @@ public class DanceType : DanceObject
         BlogTag = other.BlogTag;
         Synonyms = other.Synonyms;
         Searchonyms = other.Searchonyms;
-        Organizations = other.Organizations;
         Groups = other.Groups;
     }
 
     [JsonConstructor]
-    public DanceType(string name, Meter meter, string[] organizations,
-        DanceInstance[] instances) : this()
+    public DanceType(string name, Meter meter, DanceInstance[] instances) : this()
     {
         Name = name;
         Meter = meter;
         Instances = [.. instances];
-
-        Organizations = organizations == null ? ["Unaffiliated"] : [.. organizations];
 
         foreach (var instance in instances)
         {
@@ -87,7 +82,19 @@ public class DanceType : DanceObject
         }
     }
 
-    public List<string> Organizations { get; set; }
+    [JsonIgnore]
+    public List<string> Organizations
+    {
+        get
+        {
+            var orgs = new HashSet<string>();
+            foreach (var instance in Instances)
+            {
+                orgs.UnionWith(instance.Organizations);
+            }
+            return orgs.Count > 0 ? [.. orgs] : ["Unaffiliated"];
+        }
+    }
 
     public List<DanceInstance> Instances { get; set; }
 
