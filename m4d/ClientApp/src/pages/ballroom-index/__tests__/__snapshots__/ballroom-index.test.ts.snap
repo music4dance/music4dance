@@ -169,10 +169,10 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href="tango-(ballroom)">Tango (Ballroom)</a>
                   </td>
                   <td class="">
-                    <!----><a href="/song/advancedsearch?dances=TGO&amp;tempomin=128&amp;tempomax=128&amp;sortorder=Dances"></a>
+                    <!----><a href="/song/advancedsearch?dances=TGO&amp;tempomin=128&amp;tempomax=128&amp;sortorder=Dances">128</a>
                   </td>
                   <td class="">
-                    <!----><a href="/song/advancedsearch?dances=TGO&amp;tempomin=124&amp;tempomax=132&amp;sortorder=Dances"></a>
+                    <!----><a href="/song/advancedsearch?dances=TGO&amp;tempomin=124&amp;tempomax=132&amp;sortorder=Dances">124-132</a>
                   </td>
                   <td class="">
                     <!---->4/4

@@ -2,6 +2,7 @@
 import { type BreadCrumbItem, danceTrail } from "@/models/BreadCrumbItem";
 import { CompetitionCategory, CompetitionGroup } from "@/models/Competition";
 import { TypedJSON } from "typedjson";
+import { ref } from "vue";
 
 declare const model_: string;
 const group = TypedJSON.parse(model_, CompetitionGroup)!;
@@ -10,6 +11,8 @@ const breadcrumbs: BreadCrumbItem[] = [...danceTrail, { text: "Ballroom", active
 function categoryLink(category: CompetitionCategory): string {
   return `/dances/${category.canonicalName}`;
 }
+
+const showBpm = ref(true);
 </script>
 
 <template>
@@ -40,6 +43,7 @@ function categoryLink(category: CompetitionCategory): string {
         <a :href="categoryLink(category)">{{ category.name }}</a>
       </h2>
       <CompetitionCategoryTable
+        v-model:show-bpm="showBpm"
         :dances="category.round"
         :title="category.fullRoundTitle"
         :use-full-name="false"
