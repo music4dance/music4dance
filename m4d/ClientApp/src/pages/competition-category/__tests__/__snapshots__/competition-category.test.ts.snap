@@ -25,7 +25,10 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
         </ul>
       </div>
       <div>
-        <h4>An American Smooth four dance round consists of the following:</h4>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h4 class="mb-0">An American Smooth four dance round consists of the following:</h4>
+          <div class="btn-group btn-group-sm" role="group" aria-label="Group"><button class="btn btn-md btn-primary" type="button"> BPM </button><button class="btn btn-md btn-outline-primary" type="button"> MPM </button></div>
+        </div>
         <div class="table-responsive">
           <table id="BootstrapVueNext__ID__v-0__" class="table b-table table-hover table-striped" aria-busy="false">
             <!---->
@@ -34,16 +37,10 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
                 <th scope="col" class="">Name
                   <!---->
                 </th>
-                <th scope="col" class="">DanceSport (MPM)
+                <th scope="col" class="">DanceSport
                   <!---->
                 </th>
-                <th scope="col" class="">DanceSport (BPM)
-                  <!---->
-                </th>
-                <th scope="col" class="">NDCA (MPM)
-                  <!---->
-                </th>
-                <th scope="col" class="">NDCA (BPM)
+                <th scope="col" class="">NDCA
                   <!---->
                 </th>
                 <th scope="col" class="">Meter
@@ -59,13 +56,7 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
                   <!----><a href="slow-waltz">Slow Waltz</a>
                 </td>
                 <td class="">
-                  <!----><a href="/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90&amp;sortorder=Dances">28-30</a>
-                </td>
-                <td class="">
                   <!----><a href="/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90&amp;sortorder=Dances">84-90</a>
-                </td>
-                <td class="">
-                  <!----><a href="/song/advancedsearch?dances=SWZ&amp;tempomin=90&amp;tempomax=90&amp;sortorder=Dances">30</a>
                 </td>
                 <td class="">
                   <!----><a href="/song/advancedsearch?dances=SWZ&amp;tempomin=90&amp;tempomax=90&amp;sortorder=Dances">90</a>
@@ -80,13 +71,7 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
                   <!----><a href="tango-(ballroom)">Tango (Ballroom)</a>
                 </td>
                 <td class="">
-                  <!----><a href="/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=120&amp;sortorder=Dances">30</a>
-                </td>
-                <td class="">
                   <!----><a href="/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=120&amp;sortorder=Dances">120</a>
-                </td>
-                <td class="">
-                  <!----><a href="/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=120&amp;sortorder=Dances">30</a>
                 </td>
                 <td class="">
                   <!----><a href="/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=120&amp;sortorder=Dances">120</a>
@@ -101,13 +86,7 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
                   <!----><a href="slow-foxtrot">Slow Foxtrot</a>
                 </td>
                 <td class="">
-                  <!----><a href="/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=128&amp;sortorder=Dances">30-32</a>
-                </td>
-                <td class="">
                   <!----><a href="/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=128&amp;sortorder=Dances">120-128</a>
-                </td>
-                <td class="">
-                  <!----><a href="/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=120&amp;sortorder=Dances">30</a>
                 </td>
                 <td class="">
                   <!----><a href="/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=120&amp;sortorder=Dances">120</a>
@@ -122,13 +101,7 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
                   <!----><a href="viennese-waltz">Viennese Waltz</a>
                 </td>
                 <td class="">
-                  <!----><a href="/song/advancedsearch?dances=VWZ&amp;tempomin=159&amp;tempomax=162&amp;sortorder=Dances">53-54</a>
-                </td>
-                <td class="">
                   <!----><a href="/song/advancedsearch?dances=VWZ&amp;tempomin=159&amp;tempomax=162&amp;sortorder=Dances">159-162</a>
-                </td>
-                <td class="">
-                  <!----><a href="/song/advancedsearch?dances=VWZ&amp;tempomin=159&amp;tempomax=159&amp;sortorder=Dances">53</a>
                 </td>
                 <td class="">
                   <!----><a href="/song/advancedsearch?dances=VWZ&amp;tempomin=159&amp;tempomax=159&amp;sortorder=Dances">159</a>
@@ -146,7 +119,10 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
         </div>
       </div>
       <div>
-        <h4>Other dances categorized as American Smooth, although they aren't part of the competition round, are:</h4>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h4 class="mb-0">Other dances categorized as American Smooth, although they aren't part of the competition round, are:</h4>
+          <div class="btn-group btn-group-sm" role="group" aria-label="Group"><button class="btn btn-md btn-primary" type="button"> BPM </button><button class="btn btn-md btn-outline-primary" type="button"> MPM </button></div>
+        </div>
         <div class="table-responsive">
           <table id="BootstrapVueNext__ID__v-3__" class="table b-table table-hover table-striped" aria-busy="false">
             <!---->
@@ -155,16 +131,10 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
                 <th scope="col" class="">Name
                   <!---->
                 </th>
-                <th scope="col" class="">DanceSport (MPM)
+                <th scope="col" class="">DanceSport
                   <!---->
                 </th>
-                <th scope="col" class="">DanceSport (BPM)
-                  <!---->
-                </th>
-                <th scope="col" class="">NDCA (MPM)
-                  <!---->
-                </th>
-                <th scope="col" class="">NDCA (BPM)
+                <th scope="col" class="">NDCA
                   <!---->
                 </th>
                 <th scope="col" class="">Meter
@@ -180,13 +150,7 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
                   <!----><a href="peabody">Peabody</a>
                 </td>
                 <td class="">
-                  <!----><a href="/song/advancedsearch?dances=PBD&amp;tempomin=240&amp;tempomax=240&amp;sortorder=Dances">60</a>
-                </td>
-                <td class="">
                   <!----><a href="/song/advancedsearch?dances=PBD&amp;tempomin=240&amp;tempomax=240&amp;sortorder=Dances">240</a>
-                </td>
-                <td class="">
-                  <!----><a href="/song/advancedsearch?dances=PBD&amp;tempomin=240&amp;tempomax=240&amp;sortorder=Dances">60</a>
                 </td>
                 <td class="">
                   <!----><a href="/song/advancedsearch?dances=PBD&amp;tempomin=240&amp;tempomax=240&amp;sortorder=Dances">240</a>

@@ -8,12 +8,22 @@ import type { DanceGroup } from "./DanceGroup";
 
 @jsonObject({ onDeserialized: "onDeserialized" })
 export class DanceType extends DanceObject {
-  @jsonArrayMember(String) public organizations: string[] = ["Unaffiliated"];
   @jsonMember(String) public link!: string;
   @jsonArrayMember(DanceInstance) public instances: DanceInstance[] = [];
   public groups: DanceGroup[] = [];
 
   public static excludeKeys = ["groups"];
+
+  public get organizations(): string[] {
+    // Collect all unique organizations from all instances
+    const orgs = new Set<string>();
+    for (const inst of this.instances) {
+      for (const org of inst.organizations) {
+        orgs.add(org);
+      }
+    }
+    return orgs.size > 0 ? Array.from(orgs) : [];
+  }
 
   public constructor(init?: Partial<DanceType>) {
     super();

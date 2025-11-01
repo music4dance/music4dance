@@ -60,6 +60,6 @@ describe("DanceDatabase.ts", () => {
     const styles = db.styles;
 
     expect(styles).toBeDefined();
-    expect(styles.length).toBe(5);
+    expect(styles.length).toBe(6);
   });
 });

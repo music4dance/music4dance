@@ -37,5 +37,11 @@
     "name": "Performance",
     "id": "PRF",
     "danceIds": ["BDW", "BLT", "BWD", "CNT", "DSC", "FST", "HHP", "JAZ", "TAP"]
+  },
+  {
+    "name": "Country",
+    "id": "CTY",
+    "blogTag": "country-dance",
+    "danceIds": ["TTW", "PLK", "NC2", "CHA", "SWZ", "C2S", "ECS", "WCS", "VWZ"]
   }
 ]

@@ -82,6 +82,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Carolina Shag</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Charleston</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Cross-step Waltz</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Country</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Disco</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">East Coast Swing (Triple Swing,East Coast)</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Freestyle</button></li>
@@ -115,6 +116,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Tango (Ballroom)</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Tango Vals</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Tango</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Triple Two</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Viennese Waltz</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">West Coast Swing (West Coast)</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Waltz</button></li>

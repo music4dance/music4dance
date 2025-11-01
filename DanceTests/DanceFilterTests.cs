@@ -110,13 +110,13 @@ namespace DanceLibrary.Tests
               'numerator': 2,
               'denominator': 4
             },
-            'organizations': [
-              'DanceSport',
-              'NDCA'
-            ],
             'instances': [
               {
                 'style': 'International Latin',
+                'organizations': [
+                  'DanceSport',
+                  'NDCA'
+                ],
                 'tempoRange': {
                   'min': 100.0,
                   'max': 104.0
@@ -135,6 +135,10 @@ namespace DanceLibrary.Tests
               },
               {
                 'style': 'American Rhythm',
+                'organizations': [
+                  'DanceSport',
+                  'NDCA'
+                ],
                 'tempoRange': {
                   'min': 96.0,
                   'max': 100.0
@@ -291,7 +295,7 @@ namespace DanceLibrary.Tests
         public void MatchOrganizationsSucceedsWhenOrganizationsMatch()
         {
             var filter = new DanceFilter(organizations: ["Org1", "Org2"]);
-            var type = new DanceType { Organizations = ["Org2", "Org1"] };
+            var type = CreateTypeWithOrganizations(["Org2", "Org1"]);
 
             var result = filter.MatchOrganizations(type);
 
@@ -302,7 +306,7 @@ namespace DanceLibrary.Tests
         public void MatchOrganizationsSucceedsWhenFilterIsSubset()
         {
             var filter = new DanceFilter(organizations: ["Org1"]);
-            var type = new DanceType { Organizations = ["Org2", "Org1"] };
+            var type = CreateTypeWithOrganizations(["Org2", "Org1"]);
 
             var result = filter.MatchOrganizations(type);
 
@@ -313,7 +317,7 @@ namespace DanceLibrary.Tests
         public void MatchOrganizationsSucceedsWhenFilterIsSuperset()
         {
             var filter = new DanceFilter(organizations: ["Org1", "Org2"]);
-            var type = new DanceType { Organizations = ["Org1"] };
+            var type = CreateTypeWithOrganizations(["Org1"]);
 
             var result = filter.MatchOrganizations(type);
 
@@ -324,7 +328,7 @@ namespace DanceLibrary.Tests
         public void MatchOrganizationsSucceedsWhenOrganizationsOverlap()
         {
             var filter = new DanceFilter(organizations: ["Org1", "Org2"]);
-            var type = new DanceType { Organizations = ["Org2", "Org3"] };
+            var type = CreateTypeWithOrganizations(["Org2", "Org3"]);
 
             var result = filter.MatchOrganizations(type);
 
@@ -335,7 +339,7 @@ namespace DanceLibrary.Tests
         public void MatchOrganizationsSucceedsWhenOrganizationsAreEmpty()
         {
             var filter = new DanceFilter();
-            var type = new DanceType { Organizations = ["Org2", "Org1"] };
+            var type = CreateTypeWithOrganizations(["Org2", "Org1"]);
 
             var result = filter.MatchOrganizations(type);
 
@@ -346,7 +350,7 @@ namespace DanceLibrary.Tests
         public void MatchOrganizationsFailsWhenOrganizationsDoNotMatch()
         {
             var filter = new DanceFilter(organizations: ["Org1", "Org2"]);
-            var type = new DanceType { Organizations = ["Org3", "Org4"] };
+            var type = CreateTypeWithOrganizations(["Org3", "Org4"]);
 
             var result = filter.MatchOrganizations(type);
 
@@ -357,11 +361,23 @@ namespace DanceLibrary.Tests
         public void MatchOrganizationsFailsWhenTypeHasNoOrganizations()
         {
             var filter = new DanceFilter(organizations: ["Org1", "Org2"]);
-            var type = new DanceType();
+            var type = CreateTypeWithOrganizations([]);
 
             var result = filter.MatchOrganizations(type);
 
             Assert.IsFalse(result);
+        }
+
+        private static DanceType CreateTypeWithOrganizations(string[] organizations)
+        {
+            var instance = new DanceInstance(
+                "Test Style",
+                new TempoRange(100, 120),
+                [],
+                organizations
+            );
+            var type = new DanceType("Test", new Meter(4, 4), [instance]);
+            return type;
         }
 
         #endregion

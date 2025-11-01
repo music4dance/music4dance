@@ -22,6 +22,9 @@ export class CompetitionCategory {
   }
 
   public get fullRoundName(): string {
+    if (this.name === "Country") {
+      return "Country Western dance round";
+    }
     const num = this.round.length === 4 ? "four" : "five";
     return `${this.name} ${num} dance round`;
   }

@@ -4,7 +4,7 @@ import type { TempoRange } from "@/models/DanceDatabase/TempoRange";
 import { wordsToKebab } from "./StringHelpers";
 
 export function danceLink(dance: DanceInstance): string {
-  return wordsToKebab(dance.shortName);
+  return dance.danceType?.seoName ?? wordsToKebab(dance.name);
 }
 
 export function tempoLink(dance: DanceInstance | DanceType, tempo: TempoRange): string {

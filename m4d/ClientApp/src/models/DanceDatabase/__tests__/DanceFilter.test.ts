@@ -36,13 +36,13 @@ const smbJson = `
               "numerator": 2,
               "denominator": 4
             },
-            "organizations": [
-              "DanceSport",
-              "NDCA"
-            ],
             "instances": [
               {
                 "style": "International Latin",
+                "organizations": [
+                  "DanceSport",
+                  "NDCA"
+                ],
                 "tempoRange": {
                   "min": 100.0,
                   "max": 104.0
@@ -61,6 +61,10 @@ const smbJson = `
               },
               {
                 "style": "American Rhythm",
+                "organizations": [
+                  "DanceSport",
+                  "NDCA"
+                ],
                 "tempoRange": {
                   "min": 96.0,
                   "max": 100.0

@@ -12,6 +12,7 @@ export class DanceInstance extends DanceObject {
   @jsonMember(String) public competitionGroup!: string;
   @jsonMember(Number) public competitionOrder!: number;
   @jsonArrayMember(DanceException) public exceptions: DanceException[] = [];
+  @jsonArrayMember(String) public organizations: string[] = [];
   public danceType!: DanceType;
 
   public static excludeKeys = ["danceType"];
@@ -24,9 +25,13 @@ export class DanceInstance extends DanceObject {
   public get id(): string {
     return this.danceType.id + this.styleId;
   }
-
   public get name(): string {
-    return this.shortStyle + " " + this.danceType.name;
+    if (!this.danceType) {
+      return this.internalName ?? "";
+    }
+    const name = this.danceType.name;
+    const style = this.shortStyle;
+    return name.startsWith(style) ? name : style + " " + name;
   }
 
   public get meter(): Meter {
