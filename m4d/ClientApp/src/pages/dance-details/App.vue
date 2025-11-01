@@ -48,8 +48,6 @@ const breadCrumbDetails: BreadCrumbItem[] = isGroup
       { text: dance!.name, active: true },
     ] as BreadCrumbItem[]);
 
-console.log(competitionInfo);
-
 const breadcrumbs: BreadCrumbItem[] = dance ? [...danceTrail, ...breadCrumbDetails] : danceTrail;
 
 const modified = computed(() => danceDescription.value?.isModified || danceLinks.value?.isModified);

@@ -65,7 +65,7 @@ function displayName(dance: DanceInstance): string {
 function formatTempo(dance: DanceInstance, organization: string): string {
   // Check if this dance instance supports this organization (case-insensitive)
   const hasOrg = dance.organizations.some(
-    (org) => org.toLowerCase() === organization.toLowerCase(),
+    (org) => org.localeCompare(organization, undefined, { sensitivity: "accent" }) === 0,
   );
   if (!hasOrg) {
     return "";

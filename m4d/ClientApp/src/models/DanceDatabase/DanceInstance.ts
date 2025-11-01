@@ -30,7 +30,8 @@ export class DanceInstance extends DanceObject {
       return this.internalName ?? "";
     }
     const name = this.danceType.name;
-    return this.danceType.name.startsWith(this.shortStyle) ? name : this.shortStyle + " " + name;
+    const style = this.shortStyle;
+    return name.startsWith(style) ? name : style + " " + name;
   }
 
   public get meter(): Meter {

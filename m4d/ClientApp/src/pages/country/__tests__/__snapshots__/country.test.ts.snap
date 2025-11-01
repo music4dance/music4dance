@@ -26,7 +26,7 @@ exports[`Country > Renders the Country Western Competition Page 1`] = `
       <h2>Country</h2>
       <div>
         <div class="d-flex justify-content-between align-items-center mb-2">
-          <h4 class="mb-0">An Country five dance round consists of the following:</h4>
+          <h4 class="mb-0">An Country Western dance round consists of the following:</h4>
           <div class="btn-group btn-group-sm" role="group" aria-label="Group"><button class="btn btn-md btn-primary" type="button"> BPM </button><button class="btn btn-md btn-outline-primary" type="button"> MPM </button></div>
         </div>
         <div class="table-responsive">
