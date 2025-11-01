@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Linq;
 using System.Web;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -36,15 +37,15 @@ namespace m4dModels.Tests
         public void FilterDescription()
         {
             var f1 = SongFilter.Create(false, @"Index-FXT-.-.-I-.-100-120-1-+Instrumental:Music");
-            var f2 = SongFilter.Create(false, 
+            var f2 = SongFilter.Create(false,
                 @"Index-ALL-Dances-Funk-.-.-.-.-.-+Rock & Roll:Music|\-Jazz:Music|\-Pop:Music");
             var f3 = SongFilter.Create(false, @"Index-ALL-.-.--.-100-.-1");
             var f4 = SongFilter.Create(false, @"Index-ALL-Title-.--.-.-150-1");
             var f5 = SongFilter.Create(false, @"Advanced-.-.-.-.-+charlie|L-.-.-1");
             var f6 = SongFilter.Create(false, @"Advanced-.-.-.-.-\-charlie|");
-            var f7 = SongFilter.Create(false, 
+            var f7 = SongFilter.Create(false,
                 @"Advanced-.-.-.-.-null-.-.-1-+R&B / Soul:Music|+Rhythm and Blues:Music|+Blues:Music|");
-            var f8 = SongFilter.Create(false, 
+            var f8 = SongFilter.Create(false,
                 @"Advanced-SLS-.-.-S-null-.-.-1-|\-Christian / Gospel:Music|\-TV Theme Song:Music|\-Doo Wop:Music");
             var f9 = SongFilter.Create(false, @"Advanced-MBO,RMB,SMB-.-.-.-null-.-.-1-|");
             var f10 = SongFilter.Create(false, @"Advanced-AND,ECS,FXT,TGO-.-.-A-null-.-.-1-|");
@@ -182,6 +183,52 @@ namespace m4dModels.Tests
                 f0, s,
                 string.Format(message, withEncoding ? "Encoded " : string.Empty, n));
             return s;
+        }
+
+        [TestMethod]
+        public void RawDanceQueryExtraction()
+        {
+            // Test raw dance query with DanceTags filter
+            var rawFilter = SongFilter.Create(false, @"azure+raw-DanceTags/any(t: t eq 'waltz')");
+            Assert.IsTrue(rawFilter.IsRaw, "Filter should be identified as raw");
+
+            var rawDanceQuery = rawFilter.RawDanceQuery;
+            Assert.IsNotNull(rawDanceQuery, "RawDanceQuery should not be null");
+
+            var danceItems = rawDanceQuery.DanceQueryItems.ToList();
+            Assert.AreEqual(1, danceItems.Count, "Should extract one dance from raw query");
+            Assert.AreEqual("wlz", danceItems[0].Id.ToLower(), "Should extract waltz dance with ID 'WLZ'");
+
+            // Test with 'all' variant
+            var rawFilter2 = SongFilter.Create(false, @"customsearch-DanceTags/all(t: t eq 'foxtrot')");
+            Assert.IsTrue(rawFilter2.IsRaw, "Filter should be identified as raw");
+
+            var rawDanceQuery2 = rawFilter2.RawDanceQuery;
+            var danceItems2 = rawDanceQuery2.DanceQueryItems.ToList();
+            Assert.AreEqual(1, danceItems2.Count, "Should extract one dance from raw query with 'all'");
+
+            // Test empty raw query
+            var emptyRawFilter = SongFilter.Create(false, @"azure+raw");
+            var emptyRawDanceQuery = emptyRawFilter.RawDanceQuery;
+            var emptyDanceItems = emptyRawDanceQuery.DanceQueryItems.ToList();
+            Assert.AreEqual(0, emptyDanceItems.Count, "Should extract no dances from empty raw query");
+        }
+
+        [TestMethod]
+        public void RawDanceQueryWithFlags()
+        {
+            // Test raw dance query with flags
+            var rawFilter = SongFilter.Create(false, @"customsearch-DanceTags/any(t: t eq 'tango')-.-.-.-.-.-.-1-singleDance");
+            Assert.IsTrue(rawFilter.IsRaw, "Filter should be identified as raw");
+
+            var rawDanceQuery = rawFilter.RawDanceQuery;
+            Assert.IsNotNull(rawDanceQuery, "RawDanceQuery should not be null");
+
+            Assert.IsTrue(rawDanceQuery.SingleDance, "Should recognize singleDance flag");
+
+            var flags = rawDanceQuery.FlagList;
+            Assert.AreEqual(1, flags.Count, "Should have one flag");
+            Assert.AreEqual("singleDance", flags[0], "Flag should be 'singleDance'");
         }
 
         private const string F1 = @"Index-SWG-Album-Goodman-X-.-50-150-1-+Pop:Music";
