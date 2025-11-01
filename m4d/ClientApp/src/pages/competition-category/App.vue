@@ -18,12 +18,17 @@ const groupLink = computed(
   () => `/dances/${model?.group.name.toLowerCase()}-competition-categories`,
 );
 
+const organizationType = computed(() => {
+  const groupName = model?.group.name.toLowerCase();
+  return groupName === "country" ? "country" : "ballroom";
+});
+
 const showBpm = ref(true);
 </script>
 
 <template>
   <PageFrame id="app" :title="category.name" :breadcrumbs="breadcrumbs">
-    <BallroomList :name="category.name" />
+    <CompetitionDanceList :organization-type="organizationType" :name="category.name" />
     <CompetitionCategoryTable
       v-model:show-bpm="showBpm"
       :dances="category.round"

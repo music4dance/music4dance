@@ -89,9 +89,11 @@ public class DanceController : ContentController
             StringComparison.OrdinalIgnoreCase))
         {
             return Vue3(
-                "Country Western Categories",
-                "Should music4dance add more Country Western Dances?.",
-                "country"
+                "Country Western Competition",
+                "An overview of Country Western competition dances along with tempo ranges and song lists.",
+                "country",
+                CompetitionGroup.Get("Country"),
+                danceEnvironment: true
             );
         }
 

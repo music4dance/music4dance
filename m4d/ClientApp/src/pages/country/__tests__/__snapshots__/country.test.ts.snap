@@ -1,0 +1,245 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Country > Renders the Country Western Competition Page 1`] = `
+"<div><span context="[object Object]">MainMenu</span>
+  <nav aria-label="breadcrumb">
+    <nav aria-label="breadcrumb" style="padding: 0.25rem 0.5rem;">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a class="" href="/">music4dance</a></li>
+        <li class="breadcrumb-item"><a class="" href="/dances">Dances</a></li>
+        <li class="breadcrumb-item active"><span aria-current="location">Country</span></li>
+      </ol>
+    </nav>
+  </nav>
+  <div id="body-content" class="container-fluid body-content">
+    <h1>Country Western Competition Dancing</h1>
+    <div>
+      <div>
+        <p> One of the <a href="https://music4dance.blog/question-1-im-learning-to-cha-cha-where-is-some-great-music-for-practicing/" target="_blank"> core ideas</a> behind <a href="https://www.music4dance.net">music4dance</a> is to find interesting music to build playlists for competitions rounds. This page showcases the Country Western competition dances with tempo definitions established by the <a href="https://ucwdc.org/wp-content/uploads/2023/01/UCWDC-ProAm-ProPro-and-Couples-Competition-Music-BPMs-2023-2025.pdf" target="_blank">United Country Western Dance Council (UCWDC)</a>, <a href="https://www1.worldcdf.com/pdf/RULES_BOOK.pdf" target="_blank">World Country Dance Federation (WORLDCDF)</a>, and <a href="https://www.adca.org.au/wp-content/uploads/2024/11/ADCA-Rules-2025-Edition.pdf" target="_blank">Australian Dance Company Alliance (ADCA)</a>. </p>
+        <ul style="list-style-type: disc;">
+          <li> Click on any of the tempos in the table below (in the MPM, UCWDC, WORLDCDF, or ADCA columns) to go to a list of songs of that tempo </li>
+          <li>Click on the dance names to go to our details information page for that dance style</li>
+          <li> Read our <a href="https://music4dance.blog/im-a-ballroom-dancer-can-i-find-practice-songs-that-are-at-competition-tempo-revisited/" target="_blank"> blog post</a> for step by step instructions on using our catalog to find music of specific style and tempo. </li>
+          <li><a href="/identity/account/register">Register</a> (it's free) to start building your own music lists. </li>
+        </ul>
+      </div>
+      <h2>Country</h2>
+      <div>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h4 class="mb-0">An Country five dance round consists of the following:</h4>
+          <div class="btn-group btn-group-sm" role="group" aria-label="Group"><button class="btn btn-md btn-primary" type="button"> BPM </button><button class="btn btn-md btn-outline-primary" type="button"> MPM </button></div>
+        </div>
+        <div class="table-responsive">
+          <table id="BootstrapVueNext__ID__v-0__" class="table b-table table-hover table-striped" aria-busy="false">
+            <!---->
+            <thead class="">
+              <tr class="">
+                <th scope="col" class="">Name
+                  <!---->
+                </th>
+                <th scope="col" class="">ADCA
+                  <!---->
+                </th>
+                <th scope="col" class="">UCWDC
+                  <!---->
+                </th>
+                <th scope="col" class="">WORLDCDF
+                  <!---->
+                </th>
+                <th scope="col" class="">Meter
+                  <!---->
+                </th>
+              </tr>
+              <!---->
+            </thead>
+            <tbody class="">
+              <!---->
+              <tr class="">
+                <td class="">
+                  <!----><a href="triple-two">Triple Two</a>
+                </td>
+                <td class="">
+                  <!----><a href="/song/advancedsearch?dances=TTW&amp;tempomin=76&amp;tempomax=86&amp;sortorder=Dances">76-86</a>
+                </td>
+                <td class="">
+                  <!----><a href="/song/advancedsearch?dances=TTW&amp;tempomin=76&amp;tempomax=84&amp;sortorder=Dances">76-84</a>
+                </td>
+                <td class="">
+                  <!----><a href="/song/advancedsearch?dances=TTW&amp;tempomin=80&amp;tempomax=92&amp;sortorder=Dances">80-92</a>
+                </td>
+                <td class="">
+                  <!---->4/4
+                </td>
+              </tr>
+              <!---->
+              <tr class="">
+                <td class="">
+                  <!----><a href="polka">Polka</a>
+                </td>
+                <td class="">
+                  <!----><a href="/song/advancedsearch?dances=PLK&amp;tempomin=106&amp;tempomax=120&amp;sortorder=Dances">106-120</a>
+                </td>
+                <td class="">
+                  <!----><a href="/song/advancedsearch?dances=PLK&amp;tempomin=100&amp;tempomax=116&amp;sortorder=Dances">100-116</a>
+                </td>
+                <td class="">
+                  <!----><a href="/song/advancedsearch?dances=PLK&amp;tempomin=103&amp;tempomax=118&amp;sortorder=Dances">103-118</a>
+                </td>
+                <td class="">
+                  <!---->2/4
+                </td>
+              </tr>
+              <!---->
+              <tr class="">
+                <td class="">
+                  <!----><a href="night-club-two-step">Night Club Two Step</a>
+                </td>
+                <td class="">
+                  <!----><a href="/song/advancedsearch?dances=NC2&amp;tempomin=52&amp;tempomax=60&amp;sortorder=Dances">52-60</a>
+                </td>
+                <td class="">
+                  <!----><a href="/song/advancedsearch?dances=NC2&amp;tempomin=54&amp;tempomax=60&amp;sortorder=Dances">54-60</a>
+                </td>
+                <td class="">
+                  <!----><a href="/song/advancedsearch?dances=NC2&amp;tempomin=54&amp;tempomax=64&amp;sortorder=Dances">54-64</a>
+                </td>
+                <td class="">
+                  <!---->4/4
+                </td>
+              </tr>
+              <!---->
+              <tr class="">
+                <td class="">
+                  <!----><a href="cha-cha">Cha Cha</a>
+                </td>
+                <td class="">
+                  <!----><a href="/song/advancedsearch?dances=CHA&amp;tempomin=102&amp;tempomax=118&amp;sortorder=Dances">102-118</a>
+                </td>
+                <td class="">
+                  <!----><a href="/song/advancedsearch?dances=CHA&amp;tempomin=102&amp;tempomax=116&amp;sortorder=Dances">102-116</a>
+                </td>
+                <td class="">
+                  <!----><a href="/song/advancedsearch?dances=CHA&amp;tempomin=100&amp;tempomax=120&amp;sortorder=Dances">100-120</a>
+                </td>
+                <td class="">
+                  <!---->4/4
+                </td>
+              </tr>
+              <!---->
+              <tr class="">
+                <td class="">
+                  <!----><a href="slow-waltz">Slow Waltz</a>
+                </td>
+                <td class="">
+                  <!----><a href="/song/advancedsearch?dances=SWZ&amp;tempomin=80&amp;tempomax=90&amp;sortorder=Dances">80-90</a>
+                </td>
+                <td class="">
+                  <!----><a href="/song/advancedsearch?dances=SWZ&amp;tempomin=84&amp;tempomax=90&amp;sortorder=Dances">84-90</a>
+                </td>
+                <td class="">
+                  <!----><a href="/song/advancedsearch?dances=SWZ&amp;tempomin=88&amp;tempomax=91&amp;sortorder=Dances">88-91</a>
+                </td>
+                <td class="">
+                  <!---->3/4
+                </td>
+              </tr>
+              <!---->
+              <tr class="">
+                <td class="">
+                  <!----><a href="country-two-step">Country Two Step</a>
+                </td>
+                <td class="">
+                  <!----><a href="/song/advancedsearch?dances=C2S&amp;tempomin=168&amp;tempomax=194&amp;sortorder=Dances">168-194</a>
+                </td>
+                <td class="">
+                  <!----><a href="/song/advancedsearch?dances=C2S&amp;tempomin=168&amp;tempomax=192&amp;sortorder=Dances">168-192</a>
+                </td>
+                <td class="">
+                  <!----><a href="/song/advancedsearch?dances=C2S&amp;tempomin=170&amp;tempomax=194&amp;sortorder=Dances">170-194</a>
+                </td>
+                <td class="">
+                  <!---->2/4
+                </td>
+              </tr>
+              <!---->
+              <tr class="">
+                <td class="">
+                  <!----><a href="east-coast-swing">East Coast Swing</a>
+                </td>
+                <td class="">
+                  <!----><a href="/song/advancedsearch?dances=ECS&amp;tempomin=126&amp;tempomax=144&amp;sortorder=Dances">126-144</a>
+                </td>
+                <td class="">
+                  <!----><a href="/song/advancedsearch?dances=ECS&amp;tempomin=126&amp;tempomax=144&amp;sortorder=Dances">126-144</a>
+                </td>
+                <td class="">
+                  <!----><a href="/song/advancedsearch?dances=ECS&amp;tempomin=133&amp;tempomax=148&amp;sortorder=Dances">133-148</a>
+                </td>
+                <td class="">
+                  <!---->4/4
+                </td>
+              </tr>
+              <!---->
+              <tr class="">
+                <td class="">
+                  <!----><a href="west-coast-swing">West Coast Swing</a>
+                </td>
+                <td class="">
+                  <!----><a href="/song/advancedsearch?dances=WCS&amp;tempomin=92&amp;tempomax=112&amp;sortorder=Dances">92-112</a>
+                </td>
+                <td class="">
+                  <!----><a href="/song/advancedsearch?dances=WCS&amp;tempomin=92&amp;tempomax=100&amp;sortorder=Dances">92-100</a>
+                </td>
+                <td class="">
+                  <!----><a href="/song/advancedsearch?dances=WCS&amp;tempomin=98&amp;tempomax=120&amp;sortorder=Dances">98-120</a>
+                </td>
+                <td class="">
+                  <!---->4/4
+                </td>
+              </tr>
+              <!---->
+              <!---->
+            </tbody>
+            <!---->
+            <!---->
+          </table>
+        </div>
+      </div>
+      <div class="mt-3">
+        <p> We've implemented Country Western competition dances with tempo ranges from major organizations including UCWDC, WORLDCDF, and ADCA. Each dance includes the organization-specific tempo requirements to help you find the perfect practice music. </p>
+        <p> For more information on individual country dances, click on any dance name in the table above to see our detailed information page, including a top ten list of songs at the right tempo. You can also explore our <a href="/home/counter">tempo counter</a> and <a href="/home/tempi">tempo list</a> pages to find songs that match your practice needs. </p>
+        <p> We do not have any in-house expertise with Country Western dance, so we are working solely from the resources provided by the organizations mentioned above and assumptions that aspects of dance competition are similar between Ballroom and Country competitions. Any errors introduced are ours, not those of the organizations mentioned. If you have suggestions or feedback on our Country Western dance catalog, please <a href="https://music4dance.blog/feedback/">get in touch with us</a>. We're always looking to improve and expand our offerings for the dance community. </p>
+        <p> We've had over ten years building our Ballroom and Social dance catalogs, so we're excited to apply that experience to our Country Western dance offerings. </p>
+      </div>
+      <div class="mt-3">
+        <div>
+          <div><img src="/images/icons/tools.png" alt="tools" width="24" height="24"> Explore relationships between the meter and tempi of different dance styles and find songs that match.</div>
+          <div class="ms-3 my-1"><a class="btn btn-sm btn-tools" href="https://www.music4dance.net/home/tempi" role="button" style="margin-left: 1em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                <path fill="currentColor" d="M10.804 8L5 4.633v6.734zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696z"></path>
+              </svg>&nbsp;Try It!</a><a class="btn btn-sm btn-tools" href="https://music4dance.blog/music4dance-help/dance-tempi/" role="button" style="margin-left: 1em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                <g fill="currentColor">
+                  <path d="M5 4a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm-.5 2.5A.5.5 0 0 1 5 6h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5M5 8a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm0 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1z"></path>
+                  <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1"></path>
+                </g>
+              </svg>&nbsp;Documentation</a><a class="btn btn-sm btn-tools" href="https://music4dance.blog/tag/tempo/" role="button" style="margin-left: 1em; margin-bottom: 0.25em;"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                <g fill="currentColor">
+                  <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"></path>
+                  <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"></path>
+                </g>
+              </svg>&nbsp;Blog Posts</a></div>
+          <!--v-if-->
+        </div>
+        <div>
+          <dd><img src="/vclient/src/assets/images/icons/info.png" alt="tools" width="24" height="24"> Read the <a href="https://music4dance.blog">music4dance blog</a> entries about <a href="https://music4dance.blog/tag/country-dance">Country</a>. </dd>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="footer-content">
+    <hr>
+    <footer>
+      <p> © 2025 - <a href="https://www.music4dance.net">Music4Dance.net</a> - <a href="https://www.music4dance.net/home/sitemap">Site Map</a> - <a href="https://www.music4dance.net/home/termsofservice">Terms of Service</a> - <a href="https://www.music4dance.net/home/privacypolicy">Privacy Policy</a> - <a href="https://www.music4dance.net/home/credits">Credits</a> - <a href="https://github.com/music4dance/music4dance" target="_blank">Code</a> - <a>Help</a></p>
+    </footer>
+  </div>
+</div>"
+`;
