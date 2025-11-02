@@ -542,15 +542,10 @@ public class PlayListController(
                 if (filter.IsSingleDance)
                 {
                     // Single dance: sort by specific dance votes
-                    var danceId = filter.DanceQuery.DanceIds.FirstOrDefault();
-                    if (!string.IsNullOrEmpty(danceId))
-                    {
-                        filter.SortOrder = $"dance_{danceId}/Votes desc";
-                    }
-                    else
-                    {
-                        filter.SortOrder = "dance_ALL/Votes desc";
-                    }
+                    var danceId = filter.RawDanceQuery.DanceIds.FirstOrDefault();
+                    filter.SortOrder = !string.IsNullOrEmpty(danceId)
+                        ? $"dance_{danceId}/Votes desc"
+                        : "dance_ALL/Votes desc";
                 }
                 else
                 {
