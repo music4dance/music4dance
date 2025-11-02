@@ -235,6 +235,7 @@ namespace m4dModels
 
         public virtual KeywordQuery KeywordQuery => new(SearchString);
         public virtual DanceQuery DanceQuery => new(IsRaw ? null : Dances);
+        public virtual RawDanceQuery RawDanceQuery => new(Dances, Tags);
         public virtual UserQuery UserQuery => new(User);
         public virtual TagQuery TagQuery => new(Tags);
         public virtual SongSort SongSort => new(SortOrder, TextSearch);
@@ -256,11 +257,18 @@ namespace m4dModels
 
                 return sort.Id switch
                 {
-                    SongSort.Dances => DanceQuery?.ODataSort(sort.Descending ? "asc" : "desc"),
+                    SongSort.Dances => GetDanceSort(sort.Descending ? "asc" : "desc"),
                     SongSort.Comments => ["Modified " + (sort.Descending ? "asc" : "desc")],
                     _ => sort.OData,
                 };
             }
+        }
+
+        private IList<string> GetDanceSort(string order)
+        {
+            return IsRaw
+                ? RawDanceQuery?.ODataSort(order) ?? new List<string>()
+                : DanceQuery?.ODataSort(order) ?? new List<string>();
         }
 
         public bool IsSimple => !IsAdvanced;
@@ -329,15 +337,29 @@ namespace m4dModels
 
         public bool IsEmptyDance =>
             EmptyExcept(["Page", "Action", "SortOrder", "Dances"]) &&
-            DanceQuery.Dances.Count() < 2;
+            GetDanceCount() < 2;
 
         public bool IsEmptyUser(string user) =>
             EmptyExcept(["Page", "Action", "SortOrder", "Dances", "User"]) &&
-            !DanceQuery.IsComplex &&
+            !GetDanceIsComplex() &&
             UserQuery.IsDefault(user);
 
-        public bool IsSingleDance => IsEmptyDance && DanceQuery?.Dances.Count() == 1;
-        public bool HasDances => (DanceQuery?.Dances)?.Any() ?? false;
+        public bool IsSingleDance => GetDanceCount() == 1;
+        public bool HasDances => GetDanceCount() > 0;
+
+        private int GetDanceCount()
+        {
+            return IsRaw
+                ? RawDanceQuery?.Dances.Count() ?? 0
+                : DanceQuery?.Dances.Count() ?? 0;
+        }
+
+        private bool GetDanceIsComplex()
+        {
+            return IsRaw
+                ? RawDanceQuery?.IsComplex ?? false
+                : DanceQuery?.IsComplex ?? false;
+        }
 
         public bool IsUserOnly =>
             EmptyExcept(["Page", "Action", "User"]);
@@ -448,7 +470,7 @@ namespace m4dModels
                 }
 
                 var sb = new StringBuilder();
-                var dances = DanceQuery.ShortDescription;
+                var dances = GetDanceShortDescription();
                 if (!string.IsNullOrWhiteSpace(dances))
                 {
                     sb.AppendFormat("{0}: ", dances);
@@ -505,6 +527,13 @@ namespace m4dModels
         }
 
         public string Filename => ShortDescription.Replace(".", "").Replace(":", "-");
+
+        private string GetDanceShortDescription()
+        {
+            return IsRaw
+                ? RawDanceQuery?.ShortDescription ?? string.Empty
+                : DanceQuery?.ShortDescription ?? string.Empty;
+        }
 
         public SongFilter Normalize(string userName)
         {
@@ -598,7 +627,7 @@ namespace m4dModels
                 ? $"({SongSort.Id} ne null) and ({SongSort.Id} ne 0)"
                 : null;
 
-            odata = CombineFilter(odata, DanceQuery.GetODataFilter(dms));
+            odata = CombineFilter(odata, GetDanceODataFilter(dms));
             odata = CombineFilter(odata, UserQuery.ODataFilter);
 
             if (TempoMin.HasValue)
@@ -628,6 +657,13 @@ namespace m4dModels
             odata = CombineFilter(odata, GetCommentsFilter());
 
             return odata;
+        }
+
+        private string GetDanceODataFilter(DanceMusicCoreService dms)
+        {
+            return IsRaw
+                ? RawDanceQuery?.GetODataFilter(dms)
+                : DanceQuery?.GetODataFilter(dms);
         }
 
         private static string CombineFilter(string existing, string newData)

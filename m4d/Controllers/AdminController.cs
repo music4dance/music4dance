@@ -686,6 +686,20 @@ public class AdminController(
 
         IList<string> lines = null;
 
+        if (string.IsNullOrWhiteSpace(user))
+        {
+            throw new ArgumentNullException(
+                nameof(user), "You must specify a user");
+        }
+
+        var appuser = await Database.FindUser(user);
+
+        if (appuser == null)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(user), $"'{user}' does not exist.");
+        }
+
         if (string.IsNullOrWhiteSpace(songs) || string.IsNullOrWhiteSpace(separator))
         {
             lines = UploadFile(file);
@@ -705,8 +719,6 @@ public class AdminController(
                 separator = "\t";
             }
         }
-
-        var appuser = await Database.FindUser(user);
 
         lines ??= FileToLines(songs);
 

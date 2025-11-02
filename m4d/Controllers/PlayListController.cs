@@ -534,6 +534,31 @@ public class PlayListController(
         {
             var spotify = MusicService.GetService(ServiceType.Spotify);
             var filter = Database.SearchService.GetSongFilter(playlist.Search);
+            
+            // Override sort order to fix incorrect sort orders
+            if (filter.IsRaw)
+            {
+                // For RawSearch filters, modify the SortFields directly
+                if (filter.IsSingleDance)
+                {
+                    // Single dance: sort by specific dance votes
+                    var danceId = filter.RawDanceQuery.DanceIds.FirstOrDefault();
+                    filter.SortOrder = !string.IsNullOrEmpty(danceId)
+                        ? $"dance_{danceId}/Votes desc"
+                        : "dance_ALL/Votes desc";
+                }
+                else
+                {
+                    // Multiple or no specific dances: sort by all dances
+                    filter.SortOrder = "dance_ALL/Votes desc";
+                }
+            }
+            else
+            {
+                // For SongFilter, override the SortOrder property
+                filter.SortOrder = "Dances";
+            }
+            
             filter.Purchase = spotify.CID.ToString();
 
             var sr = await dms.SongIndex.Search(
@@ -558,7 +583,6 @@ public class PlayListController(
             return $"UpdateSpotifyFromSearch ({playlist.Id}: Failed={e.Message}";
         }
     }
-
 
     // GET: Restore
     public async Task<ActionResult> Restore(string id)
