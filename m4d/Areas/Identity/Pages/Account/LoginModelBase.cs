@@ -27,8 +27,16 @@ public abstract class LoginModelBase : PageModel
     protected string CleanUrl(string returnUrl)
     {
         returnUrl = returnUrl?.Replace(_subStr, "-");
-        return string.IsNullOrWhiteSpace(returnUrl) || !IsLocalUrl(returnUrl) 
-            ? Url.Content("~/") : returnUrl;
+        try
+        {
+            return string.IsNullOrWhiteSpace(returnUrl) || !IsLocalUrl(returnUrl)
+                ? Url.Content("~/") : returnUrl;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Exception occurred while validating return URL: {ReturnUrl}", returnUrl);
+            return Url.Content("~/");
+        }
     }
 
     /// <summary>
