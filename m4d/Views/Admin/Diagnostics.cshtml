@@ -57,7 +57,7 @@
         <li>
             <a href="@Url.Action("SetLogLevel", "Admin", new { level = lvl })">Set to @lvl</a>
             |
-            <a href="@Url.Action("TestLog", "Admin", new { message = "Test log for " + lvl, level = lvl })">Emit @lvl log</a>
+            <a href="@Url.Action("TestLog", "Admin", new { message = $"Test log for {lvl}", level = lvl })">Emit @lvl log</a>
         </li>
     }
 </ul>
