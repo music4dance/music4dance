@@ -49,14 +49,12 @@
 <hr />
 <h3>Logging (Current Level = @(ViewData["CurrentLogLevel"] ?? "Unknown"))</h3>
 <p>
-    <b>Note:</b> In the Debug environment, the Developer Exception Page and some logging providers may emit all log levels regardless of runtime changes. To allow runtime log level changes, ensure your <code>appsettings.Development.json</code> does not set a minimum log level lower than what you want to allow, and avoid hard-coded log filters in <code>Program.cs</code>.
+    <b>Note:</b> Log levels are configured via <code>appsettings.json</code> and <code>appsettings.Development.json</code>. To change log levels, modify the configuration files and restart the application.
 </p>
 <ul>
     @foreach (var lvl in Enum.GetValues(typeof(Microsoft.Extensions.Logging.LogLevel)))
     {
         <li>
-            <a href="@Url.Action("SetLogLevel", "Admin", new { level = lvl })">Set to @lvl</a>
-            |
             <a href="@Url.Action("TestLog", "Admin", new { message = $"Test log for {lvl}", level = lvl })">Emit @lvl log</a>
         </li>
     }

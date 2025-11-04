@@ -52,8 +52,7 @@ public class AdminController(
     DanceMusicContext context, UserManager<ApplicationUser> userManager,
     ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
     IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-    IFeatureManagerSnapshot featureManager, ILogger<ActivityLogController> logger,
-    IOptionsMonitor<LoggerFilterOptions> loggerFilterOptions
+    IFeatureManagerSnapshot featureManager, ILogger<ActivityLogController> logger
 ) : DanceMusicController(context, userManager, searchService, danceStatsManager, configuration,
     fileProvider, backroundTaskQueue, featureManager, logger)
 {
@@ -205,18 +204,7 @@ public class AdminController(
         throw new Exception("This is an intentional exception");
     }
 
-    //
-    // GET: /Admin/SetLogLevel
-    [AllowAnonymous]
-    public ActionResult SetLogLevel(LogLevel level)
-    {
-        ViewBag.Name = "Set Log Level";
-        loggerFilterOptions.CurrentValue.MinLevel = level;
-        ViewBag.Success = true;
-        ViewBag.Message = $"Log level set: {level}";
-        ViewBag.CurrentLogLevel = loggerFilterOptions.CurrentValue.MinLevel.ToString();
-        return View("Diagnostics");
-    }
+
 
     //
     // Get: //TestLog
@@ -232,7 +220,6 @@ public class AdminController(
 
         ViewBag.Success = true;
         ViewBag.Message = $"Log message sent: '{message}'. LogLevel is enabled = {logEnabled}";
-        ViewBag.CurrentLogLevel = loggerFilterOptions.CurrentValue.MinLevel.ToString();
 
         return View("Diagnostics");
     }
@@ -1260,7 +1247,7 @@ public class AdminController(
 
     internal void SetupDiagnosticAttributes()
     {
-        ViewData["CurrentLogLevel"] = loggerFilterOptions.CurrentValue.MinLevel.ToString();
+        ViewData["CurrentLogLevel"] = "Configured via appsettings.json";
         ViewData["BotReport"] = SpiderManager.CreateBotReport();
         ViewData["SearchIdx"] = SearchService.DefaultId;
         ViewData["StatsUpdateTime"] = DanceStatsManager.LastUpdate;
