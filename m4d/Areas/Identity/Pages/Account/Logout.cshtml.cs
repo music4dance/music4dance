@@ -31,7 +31,7 @@ public class LogoutModel : LoginModelBase
         
         if (returnUrl != null)
         {
-                return LocalRedirect(CleanUrl(returnUrl));
+            return LocalRedirect(CleanUrl(returnUrl));
         }
         
         // This needs to be a redirect so that the browser performs a new
