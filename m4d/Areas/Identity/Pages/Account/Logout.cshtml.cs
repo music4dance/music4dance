@@ -6,16 +6,19 @@ using m4dModels;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Routing;
 
 namespace m4d.Areas.Identity.Pages.Account;
 
-public class LogoutModel : PageModel
+public class LogoutModel : LoginModelBase
 {
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly ILogger<LogoutModel> _logger;
 
-    public LogoutModel(SignInManager<ApplicationUser> signInManager, ILogger<LogoutModel> logger)
+    public LogoutModel(SignInManager<ApplicationUser> signInManager, 
+        ILogger<LogoutModel> logger, 
+        IUrlHelperFactory urlHelperFactory)
+        : base(urlHelperFactory, logger)
     {
         _signInManager = signInManager;
         _logger = logger;
@@ -25,15 +28,14 @@ public class LogoutModel : PageModel
     {
         await _signInManager.SignOutAsync();
         _logger.LogInformation("User logged out.");
+        
         if (returnUrl != null)
         {
-            return LocalRedirect(returnUrl);
+                return LocalRedirect(CleanUrl(returnUrl));
         }
-        else
-        {
-            // This needs to be a redirect so that the browser performs a new
-            // request and the identity for the user gets updated.
-            return RedirectToPage();
-        }
+        
+        // This needs to be a redirect so that the browser performs a new
+        // request and the identity for the user gets updated.
+        return RedirectToPage();
     }
 }

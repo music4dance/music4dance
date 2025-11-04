@@ -12,12 +12,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Routing;
 
 namespace m4d.Areas.Identity.Pages.Account;
 
 [AllowAnonymous]
-public class ExternalLoginModel : PageModel
+public class ExternalLoginModel : LoginModelBase
 {
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly UserManager<ApplicationUser> _userManager;
@@ -28,7 +28,9 @@ public class ExternalLoginModel : PageModel
         SignInManager<ApplicationUser> signInManager,
         UserManager<ApplicationUser> userManager,
         ILogger<ExternalLoginModel> logger,
-        IEmailSender emailSender)
+        IEmailSender emailSender,
+        IUrlHelperFactory urlHelperFactory)
+        : base(urlHelperFactory, logger)
     {
         _signInManager = signInManager;
         _userManager = userManager;
@@ -92,7 +94,8 @@ public class ExternalLoginModel : PageModel
 
     public async Task<IActionResult> OnGetCallbackAsync(string returnUrl = null, string remoteError = null)
     {
-        returnUrl ??= Url.Content("~/");
+        returnUrl = CleanUrl(returnUrl);
+        
         if (remoteError != null)
         {
             ErrorMessage = $"Error from external provider: {remoteError}";
