@@ -49,9 +49,6 @@ logging.AddConsole();
 logging.AddAzureWebAppDiagnostics();
 
 // Log level filters should be set via configuration (see appsettings.json / appsettings.Production.json)
-// logging.AddFilter("Default", LogLevel.Information); // Placeholder: configure in appsettings
-// logging.AddFilter("Microsoft", LogLevel.Warning);   // Placeholder: configure in appsettings
-// logging.AddFilter("System", LogLevel.Warning);      // Placeholder: configure in appsettings
 
 Console.WriteLine($"Environment: {environment.EnvironmentName}");
 
