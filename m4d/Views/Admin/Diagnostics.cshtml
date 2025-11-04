@@ -47,57 +47,26 @@
 </ul>
 
 <hr />
-<h3>Tracing (Current Level = @TraceLevels.General.Level.ToString())</h3>
+<h3>Logging (Current Level = @(ViewData["CurrentLogLevel"] ?? "Unknown"))</h3>
+<p>
+    <b>Note:</b> In the Debug environment, the Developer Exception Page and some logging providers may emit all log levels regardless of runtime changes. To allow runtime log level changes, ensure your <code>appsettings.Development.json</code> does not set a minimum log level lower than what you want to allow, and avoid hard-coded log filters in <code>Program.cs</code>.
+</p>
 <ul>
-    <li>
-        @Html.ActionLink("Turn Tracing Off", "SetTraceLevel", "Admin", new
+    @foreach (var lvl in Enum.GetValues(typeof(Microsoft.Extensions.Logging.LogLevel)))
     {
-        level = 0
-    }, null)
-    </li>
-    <li>
-        @Html.ActionLink("Trace Error", "SetTraceLevel", "Admin", new
-    {
-        level = 1
-    }, null)
-        @Html.ActionLink("Test Trace", "TestTrace", "Admin", new
-    {
-    message = "Nothing Special", level=4
-    }, null)
-    </li>
-    <li>
-        @Html.ActionLink("Trace Warning", "SetTraceLevel", "Admin", new
-    {
-        level = 2
-    }, null)
-        @Html.ActionLink("Test Trace", "TestTrace", "Admin", new
-    {
-        message = "Nothing Special", level=3
-    }, null)
-    </li>
-    <li>
-        @Html.ActionLink("Trace Info", "SetTraceLevel", "Admin", new
-    {
-        level = 3
-    }, null)
-        @Html.ActionLink("Test Trace", "TestTrace", "Admin", new
-    {
-        message = "Nothing Special", level=2
-    }, null)
-    </li>
-    <li>
-        @Html.ActionLink("Trace Verbose", "SetTraceLevel", "Admin", new
-    {
-        level = 4
-    }, null)
-        @Html.ActionLink("Test Trace", "TestTrace", "Admin", new
-    {
-        message = "Nothing Special", level=1
-    }, null)
-    </li>
+        <li>
+            <a href="@Url.Action("SetLogLevel", "Admin", new { level = lvl })">Set to @lvl</a>
+            |
+            <a href="@Url.Action("TestLog", "Admin", new { message = "Test log for " + lvl, level = lvl })">Emit @lvl log</a>
+        </li>
+    }
 </ul>
+@if (ViewBag.Message != null)
+{
+    <p>@ViewBag.Message</p>
+}
 
-<h4>@Html.ActionLink("Thow an Exception", "ThrowException", "Admin")</h4>
+<h4>@Html.ActionLink("Throw an Exception", "ThrowException", "Admin")</h4>
 
 <hr />
 <h3>Features</h3>

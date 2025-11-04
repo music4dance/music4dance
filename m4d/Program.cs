@@ -48,6 +48,11 @@ logging.ClearProviders();
 logging.AddConsole();
 logging.AddAzureWebAppDiagnostics();
 
+// Log level filters should be set via configuration (see appsettings.json / appsettings.Production.json)
+// logging.AddFilter("Default", LogLevel.Information); // Placeholder: configure in appsettings
+// logging.AddFilter("Microsoft", LogLevel.Warning);   // Placeholder: configure in appsettings
+// logging.AddFilter("System", LogLevel.Warning);      // Placeholder: configure in appsettings
+
 Console.WriteLine($"Environment: {environment.EnvironmentName}");
 
 services.AddHttpLogging(o => { });
@@ -272,6 +277,22 @@ var app = builder.Build();
 
 if (!isDevelopment)
 {
+    // Add custom exception logging middleware BEFORE UseExceptionHandler
+    app.Use(async (context, next) =>
+    {
+        try
+        {
+            await next();
+        }
+        catch (Exception ex)
+        {
+            var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+            var url = $"{context.Request.Method} {context.Request.Path}{context.Request.QueryString}";
+            logger.LogError(ex, "Unhandled exception for request: {Url}", url);
+            throw; // Let UseExceptionHandler handle the exception as usual
+        }
+    });
+
     app.UseAzureAppConfiguration();
 }
 
