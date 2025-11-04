@@ -22,6 +22,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.FeatureManagement;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace m4d.Controllers;
 
@@ -50,8 +52,10 @@ public class AdminController(
     DanceMusicContext context, UserManager<ApplicationUser> userManager,
     ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
     IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-    IFeatureManagerSnapshot featureManager, ILogger<ActivityLogController> logger) : DanceMusicController(context, userManager, searchService, danceStatsManager, configuration,
-        fileProvider, backroundTaskQueue, featureManager, logger)
+    IFeatureManagerSnapshot featureManager, ILogger<ActivityLogController> logger,
+    IOptionsMonitor<LoggerFilterOptions> loggerFilterOptions
+) : DanceMusicController(context, userManager, searchService, danceStatsManager, configuration,
+    fileProvider, backroundTaskQueue, featureManager, logger)
 {
 
     #region Commands
@@ -194,59 +198,43 @@ public class AdminController(
     }
 
     //
-    // Get: //SetTraceLevel
+    // Get: //ThrowException
     [AllowAnonymous]
     public ActionResult ThrowException()
     {
         throw new Exception("This is an intentional exception");
     }
 
-
     //
-    // Get: //SetTraceLevel
+    // GET: /Admin/SetLogLevel
     [AllowAnonymous]
-    public ActionResult SetTraceLevel(int level)
+    public ActionResult SetLogLevel(LogLevel level)
     {
-        ViewBag.Name = "Set Trace Level";
-
-        var tl = (TraceLevel)level;
-
-        TraceLevels.SetGeneralLevel(tl);
-
+        ViewBag.Name = "Set Log Level";
+        loggerFilterOptions.CurrentValue.MinLevel = level;
         ViewBag.Success = true;
-        ViewBag.Message = $"Trace level set: {tl}";
-
-        return View("Results");
+        ViewBag.Message = $"Log level set: {level}";
+        ViewBag.CurrentLogLevel = loggerFilterOptions.CurrentValue.MinLevel.ToString();
+        return View("Diagnostics");
     }
 
     //
-    // Get: //TestTrace
+    // Get: //TestLog
     [AllowAnonymous]
-    public ActionResult TestTrace(string message, LogLevel level)
+    public ActionResult TestLog(string message, LogLevel level)
     {
-        ViewBag.Name = "Test Trace";
+        ViewBag.Name = "Test Log";
 
         var logEnabled = Logger.IsEnabled(level);
 
+        Logger.Log(level, $"Test Log via Logger: {level} - {message}");
+        Console.WriteLine($"Test Log via Console: {level} - {message}");
+
         ViewBag.Success = true;
-        ViewBag.Message = $"Trace message sent: '{message}'.  LogLevel is enabled = {logEnabled}";
+        ViewBag.Message = $"Log message sent: '{message}'. LogLevel is enabled = {logEnabled}";
+        ViewBag.CurrentLogLevel = loggerFilterOptions.CurrentValue.MinLevel.ToString();
 
-        Logger.Log(level, $"Test Log via Logger: {level}");
-        Console.WriteLine($"Test Log via Console: {level}");
-        switch (level)
-        {
-            case LogLevel.Error:
-                Trace.TraceError("Test Log via Diagnostic Trace: Error");
-                break;
-            case LogLevel.Warning:
-                Trace.TraceWarning("Test Log via Diagnostic Trace: Warning");
-                break;
-            case LogLevel.Information:
-                Trace.TraceInformation("Test Log via Diagnostic Trace: Info");
-                break;
-        }
-
-        return View("Results");
+        return View("Diagnostics");
     }
 
     //
@@ -1272,7 +1260,7 @@ public class AdminController(
 
     internal void SetupDiagnosticAttributes()
     {
-        ViewData["TraceLevel"] = TraceLevels.General.Level.ToString();
+        ViewData["CurrentLogLevel"] = loggerFilterOptions.CurrentValue.MinLevel.ToString();
         ViewData["BotReport"] = SpiderManager.CreateBotReport();
         ViewData["SearchIdx"] = SearchService.DefaultId;
         ViewData["StatsUpdateTime"] = DanceStatsManager.LastUpdate;
