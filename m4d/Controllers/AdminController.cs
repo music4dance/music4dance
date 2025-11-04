@@ -1260,7 +1260,6 @@ public class AdminController(
 
     internal void SetupDiagnosticAttributes()
     {
-        ViewData["TraceLevel"] = TraceLevels.General.Level.ToString();
         ViewData["CurrentLogLevel"] = loggerFilterOptions.CurrentValue.MinLevel.ToString();
         ViewData["BotReport"] = SpiderManager.CreateBotReport();
         ViewData["SearchIdx"] = SearchService.DefaultId;
