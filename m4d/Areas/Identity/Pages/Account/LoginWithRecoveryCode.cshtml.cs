@@ -8,10 +8,11 @@ using m4dModels;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Routing;
+
 namespace m4d.Areas.Identity.Pages.Account;
 
-public class LoginWithRecoveryCodeModel : PageModel
+public class LoginWithRecoveryCodeModel : LoginModelBase
 {
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly UserManager<ApplicationUser> _userManager;
@@ -20,7 +21,9 @@ public class LoginWithRecoveryCodeModel : PageModel
     public LoginWithRecoveryCodeModel(
         SignInManager<ApplicationUser> signInManager,
         UserManager<ApplicationUser> userManager,
-        ILogger<LoginWithRecoveryCodeModel> logger)
+        ILogger<LoginWithRecoveryCodeModel> logger,
+        IUrlHelperFactory urlHelperFactory)
+        : base(urlHelperFactory, logger)
     {
         _signInManager = signInManager;
         _userManager = userManager;
@@ -66,7 +69,7 @@ public class LoginWithRecoveryCodeModel : PageModel
             throw new InvalidOperationException($"Unable to load two-factor authentication user.");
         }
 
-        ReturnUrl = returnUrl;
+        ReturnUrl = CleanUrl(returnUrl);
 
         return Page();
     }
@@ -77,6 +80,8 @@ public class LoginWithRecoveryCodeModel : PageModel
         {
             return Page();
         }
+
+        returnUrl = CleanUrl(returnUrl);
 
         var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
         if (user == null)
@@ -93,7 +98,7 @@ public class LoginWithRecoveryCodeModel : PageModel
         if (result.Succeeded)
         {
             _logger.LogInformation("User with ID '{UserId}' logged in with a recovery code.", user.Id);
-            return LocalRedirect(returnUrl ?? Url.Content("~/"));
+            return LocalRedirect(returnUrl);
         }
         if (result.IsLockedOut)
         {

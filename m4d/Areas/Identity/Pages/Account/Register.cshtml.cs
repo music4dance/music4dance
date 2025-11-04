@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.FeatureManagement;
 
@@ -24,7 +24,7 @@ using Owl.reCAPTCHA.v2;
 namespace m4d.Areas.Identity.Pages.Account;
 
 [AllowAnonymous]
-public class RegisterModel : PageModel
+public class RegisterModel : LoginModelBase
 {
     private readonly IEmailSender _emailSender;
     private readonly ILogger<RegisterModel> _logger;
@@ -40,7 +40,9 @@ public class RegisterModel : PageModel
         IEmailSender emailSender,
         IreCAPTCHASiteVerifyV2 siteVerify,
         IConfiguration configuration,
-        IFeatureManagerSnapshot featureManager)
+        IFeatureManagerSnapshot featureManager,
+        IUrlHelperFactory urlHelperFactory)
+        : base(urlHelperFactory, logger)
     {
         _userManager = userManager;
         _signInManager = signInManager;
@@ -88,14 +90,14 @@ public class RegisterModel : PageModel
 
     public async Task OnGetAsync(string returnUrl = null)
     {
-        ReturnUrl = returnUrl;
+        ReturnUrl = CleanUrl(returnUrl);
         ExternalLogins =
             (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
     }
 
     public async Task<IActionResult> OnPostAsync(string returnUrl = null)
     {
-        returnUrl ??= Url.Content("~/");
+        returnUrl = CleanUrl(returnUrl);
         ExternalLogins =
             (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
