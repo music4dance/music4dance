@@ -2,9 +2,10 @@
 import { DanceRatingVote, VoteDirection } from "@/models/DanceRatingDelta";
 import { DanceRating } from "@/models/DanceRating";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
-import { computed, ref } from "vue";
+import { computed, ref, useId } from "vue";
 
 const danceDB = safeDanceDatabase();
+const uniqueId = useId();
 
 const props = defineProps<{
   vote?: boolean;
@@ -15,6 +16,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   "dance-vote": [vote: DanceRatingVote];
 }>();
+
+const showStyleChoiceModal = ref<boolean>(false);
 
 const dance = computed(() => {
   const id = props.rating.danceId;
@@ -29,21 +32,57 @@ const styleFamilies = computed(() => danceDB.getStyleFamilies(props.rating.dance
 const hasSingleStyle = computed(() => styleFamilies.value.length === 1);
 const hasMultipleStyles = computed(() => styleFamilies.value.length > 1);
 
-// Auto-select style if: 1) only one style exists, or 2) filtered by style in search
-const selectedStyle = ref<string | undefined>(
-  hasSingleStyle.value ? styleFamilies.value[0] : props.filterStyleTag,
-);
+const pendingVote = ref<VoteDirection | undefined>(undefined);
+const modalId = `style-choice-modal-${uniqueId}`;
+
+const handleVote = (direction: VoteDirection): void => {
+  console.log("DanceVoteItem handleVote:", {
+    direction,
+    danceId: props.rating.danceId,
+    filterStyleTag: props.filterStyleTag,
+    hasSingleStyle: hasSingleStyle.value,
+    hasMultipleStyles: hasMultipleStyles.value,
+    styleFamilies: styleFamilies.value,
+    modalId: modalId,
+  });
+
+  // If single style or has filter style tag, vote immediately
+  if (hasSingleStyle.value) {
+    console.log("Single style path");
+    emitVote(direction, styleFamilies.value[0]);
+  } else if (props.filterStyleTag) {
+    console.log("Filter style tag path:", props.filterStyleTag);
+    emitVote(direction, props.filterStyleTag);
+  } else if (hasMultipleStyles.value) {
+    console.log("Multiple styles detected, showing style choice modal:", modalId);
+    // Show modal to select style
+    pendingVote.value = direction;
+    showStyleChoiceModal.value = true;
+  } else {
+    console.log("No style tag needed path");
+    // No style tag needed
+    emitVote(direction, undefined);
+  }
+};
+
+const onStyleSelected = (styleTag: string): void => {
+  if (pendingVote.value !== undefined) {
+    emitVote(pendingVote.value, styleTag);
+    pendingVote.value = undefined;
+  }
+};
+
+const emitVote = (direction: VoteDirection, styleTag?: string): void => {
+  console.log("Emitting dance-vote event:", { danceId: props.rating.danceId, direction, styleTag });
+  emit("dance-vote", new DanceRatingVote(props.rating.danceId, direction, styleTag));
+};
 
 const upVote = (): void => {
-  danceVote(VoteDirection.Up);
+  handleVote(VoteDirection.Up);
 };
 
 const downVote = (): void => {
-  danceVote(VoteDirection.Down);
-};
-
-const danceVote = (direction: VoteDirection): void => {
-  emit("dance-vote", new DanceRatingVote(props.rating.danceId, direction, selectedStyle.value));
+  handleVote(VoteDirection.Down);
 };
 
 const maxWeight = computed(() =>
@@ -63,11 +102,13 @@ const maxWeight = computed(() =>
       @down-vote="downVote()"
     />
     <span class="me-2">{{ dance.name }}</span>
-    <StyleSelector
+    <StyleChoiceModal
       v-if="hasMultipleStyles"
-      v-model="selectedStyle"
+      :id="modalId"
+      v-model="showStyleChoiceModal"
       :styles="styleFamilies"
-      size="sm"
+      :dance-name="dance.name"
+      @style-selected="onStyleSelected"
     />
   </div>
 </template>

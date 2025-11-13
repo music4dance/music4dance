@@ -303,22 +303,33 @@ export class SongFilter {
   }
 
   /**
-   * Extract the style tag from the filter tags (e.g., "American:Style" -> "American")
+   * Extract the style tag from the filter's dance query (e.g., "CHA|+International:Style" -> "International")
    * Returns undefined if no style tag is present
    */
   public get styleTag(): string | undefined {
-    if (!this.tags) {
+    const danceQuery = this.danceQuery;
+    if (!danceQuery || !danceQuery.singleDance) {
       return undefined;
     }
 
-    // Tags can be pipe-separated, with optional +/- prefix
-    const tagParts = this.tags.split("|").map((t) => t.trim());
-    for (const part of tagParts) {
-      const cleanPart = part.startsWith("+") || part.startsWith("-") ? part.slice(1) : part;
-      if (cleanPart.endsWith(":Style")) {
-        return cleanPart.split(":")[0];
-      }
+    // Get the first (and only) dance query item
+    const items = danceQuery.danceQueryItems;
+    if (items.length !== 1) {
+      return undefined;
     }
+
+    const item = items[0];
+    const tagQuery = item?.tagQuery;
+    if (!tagQuery || !tagQuery.hasTags) {
+      return undefined;
+    }
+
+    // Find the first Style tag in the tag list
+    const styleTags = tagQuery.tagList.tags.filter((tag) => tag.category === "Style");
+    if (styleTags.length > 0) {
+      return styleTags[0]?.value;
+    }
+
     return undefined;
   }
 

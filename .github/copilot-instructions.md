@@ -188,6 +188,42 @@ const tag = `${styleTag}:Style`; // ❌ Don't do this
 - Type safety prevents format errors
 - Parsing and serialization stay in sync
 
+**String Parsing** (General Rule):
+
+```typescript
+// ALWAYS use helper classes for parsing - NEVER manually parse strings
+import { TagQuery } from "@/models/TagQuery";
+import { DanceQueryItem } from "@/models/DanceQueryItem";
+
+// Correct: Use TagQuery to extract tag information
+const tagQuery = item.tagQuery;
+const styleTags = tagQuery.tagList.tags.filter(
+  (tag) => tag.category === "Style"
+);
+const styleValue = styleTags[0]?.value;
+
+// WRONG: Never manually parse tag strings
+const parts = tagString.split(":"); // ❌ Don't do this
+const value = parts[0]; // ❌ Don't do this
+
+// Correct: Use DanceQueryItem.fromValue to parse dance queries
+const queryItem = DanceQueryItem.fromValue("CHA|+International:Style");
+const styleTag = queryItem.tagQuery?.tagList.tags.find(
+  (t) => t.category === "Style"
+)?.value;
+
+// WRONG: Never manually parse query strings
+const parts = queryString.split("|"); // ❌ Don't do this
+const tagPart = parts[1]?.split(":"); // ❌ Don't do this
+```
+
+**Why avoid manual parsing:**
+
+- Helper classes handle edge cases (special characters, optional fields, prefixes)
+- Type safety ensures correct property access
+- Changes to format only require updating one class
+- Reduces bugs from inconsistent parsing logic
+
 ## Error Handling & Debugging
 
 ### Common Issues

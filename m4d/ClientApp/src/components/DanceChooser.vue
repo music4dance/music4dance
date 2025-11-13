@@ -113,7 +113,10 @@ const chooseEvent = (id?: string, event?: MouseEvent): void => {
     event?.preventDefault();
   }
   if (id) {
-    choose(id, persist);
+    // If filtering by a single style family, pass it as the styleTag
+    const styleTag =
+      selectedStyleFamilies.value.length === 1 ? selectedStyleFamilies.value[0] : undefined;
+    choose(id, persist, styleTag);
   }
 };
 

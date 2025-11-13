@@ -61,7 +61,6 @@ const filterStyleTag = computed(() => props.filter.styleTag);
           ><IBiX variant="danger"
         /></BCloseButton>
         <DanceVote
-          :song="song"
           :vote="song.danceVote(dr.danceId)"
           :dance-rating="dr"
           :authenticated="!!user"
