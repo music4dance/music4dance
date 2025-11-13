@@ -62,4 +62,24 @@ describe("DanceDatabase.ts", () => {
     expect(styles).toBeDefined();
     expect(styles.length).toBe(6);
   });
+
+  test("getStyleFamilies returns correct families for a dance", () => {
+    const fullDB = loadDancesFromString(loadTestDances());
+    const rumbas = fullDB.getStyleFamilies("RMB");
+    expect(rumbas).toContain("American");
+    expect(rumbas).toContain("International");
+    expect(rumbas.length).toBe(2);
+  });
+
+  test("getStyleFamilies returns single family for dance with one style", () => {
+    const fullDB = loadDancesFromString(loadTestDances());
+    const quickstep = fullDB.getStyleFamilies("QST");
+    expect(quickstep).toEqual(["International"]);
+  });
+
+  test("getStyleFamilies returns empty array for unknown dance", () => {
+    const db = loadDatabase();
+    const unknown = db.getStyleFamilies("XXX");
+    expect(unknown).toEqual([]);
+  });
 });

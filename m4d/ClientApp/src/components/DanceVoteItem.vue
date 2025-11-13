@@ -2,13 +2,14 @@
 import { DanceRatingVote, VoteDirection } from "@/models/DanceRatingDelta";
 import { DanceRating } from "@/models/DanceRating";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 const danceDB = safeDanceDatabase();
 
 const props = defineProps<{
   vote?: boolean;
   rating: DanceRating;
+  filterStyleTag?: string; // Style tag from search context
 }>();
 
 const emit = defineEmits<{
@@ -24,6 +25,15 @@ const dance = computed(() => {
   return d;
 });
 
+const styleFamilies = computed(() => danceDB.getStyleFamilies(props.rating.danceId));
+const hasSingleStyle = computed(() => styleFamilies.value.length === 1);
+const hasMultipleStyles = computed(() => styleFamilies.value.length > 1);
+
+// Auto-select style if: 1) only one style exists, or 2) filtered by style in search
+const selectedStyle = ref<string | undefined>(
+  hasSingleStyle.value ? styleFamilies.value[0] : props.filterStyleTag,
+);
+
 const upVote = (): void => {
   danceVote(VoteDirection.Up);
 };
@@ -33,7 +43,7 @@ const downVote = (): void => {
 };
 
 const danceVote = (direction: VoteDirection): void => {
-  emit("dance-vote", new DanceRatingVote(props.rating.danceId, direction));
+  emit("dance-vote", new DanceRatingVote(props.rating.danceId, direction, selectedStyle.value));
 };
 
 const maxWeight = computed(() =>
@@ -42,7 +52,7 @@ const maxWeight = computed(() =>
 </script>
 
 <template>
-  <div v-if="dance" class="my-2">
+  <div v-if="dance" class="my-2 d-flex align-items-center gap-2">
     <DanceVoteButton
       :vote="vote"
       :value="rating.weight"
@@ -52,6 +62,12 @@ const maxWeight = computed(() =>
       @up-vote="upVote()"
       @down-vote="downVote()"
     />
-    <span class="ms-1">{{ dance.name }}</span>
+    <span class="me-2">{{ dance.name }}</span>
+    <StyleSelector
+      v-if="hasMultipleStyles"
+      v-model="selectedStyle"
+      :styles="styleFamilies"
+      size="sm"
+    />
   </div>
 </template>

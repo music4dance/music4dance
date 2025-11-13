@@ -302,6 +302,26 @@ export class SongFilter {
     return this.userQuery.isDefault(user);
   }
 
+  /**
+   * Extract the style tag from the filter tags (e.g., "American:Style" -> "American")
+   * Returns undefined if no style tag is present
+   */
+  public get styleTag(): string | undefined {
+    if (!this.tags) {
+      return undefined;
+    }
+
+    // Tags can be pipe-separated, with optional +/- prefix
+    const tagParts = this.tags.split("|").map((t) => t.trim());
+    for (const part of tagParts) {
+      const cleanPart = part.startsWith("+") || part.startsWith("-") ? part.slice(1) : part;
+      if (cleanPart.endsWith(":Style")) {
+        return cleanPart.split(":")[0];
+      }
+    }
+    return undefined;
+  }
+
   private isEmptyExcept(properties: string[]): boolean {
     for (const key in this) {
       if (properties.includes(key)) {

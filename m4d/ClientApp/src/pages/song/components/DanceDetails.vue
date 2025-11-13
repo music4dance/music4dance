@@ -46,6 +46,8 @@ const danceFromRating = (dr: DanceRating): NamedObject => {
 const danceLink = (dr: DanceRating): string => {
   return `/dances/${danceFromRating(dr).seoName}`;
 };
+
+const filterStyleTag = computed(() => props.filter.styleTag);
 </script>
 
 <template>
@@ -63,6 +65,7 @@ const danceLink = (dr: DanceRating): string => {
           :vote="song.danceVote(dr.danceId)"
           :dance-rating="dr"
           :authenticated="!!user"
+          :filter-style-tag="filterStyleTag"
           v-bind="$attrs"
         />
         <a :href="danceLink(dr)"

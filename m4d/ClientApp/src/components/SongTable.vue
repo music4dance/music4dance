@@ -449,9 +449,12 @@ const onDanceVote = (editor: SongEditor, vote: DanceRatingVote): void => {
   onEditSong(history, remove);
 };
 
-const onAddDance = (danceId?: string, persist?: boolean): void => {
+const onAddDance = (danceId?: string, persist?: boolean, styleTag?: string): void => {
   if (danceId) {
-    onDanceVote(currentSong.value as SongEditor, new DanceRatingVote(danceId, VoteDirection.Up));
+    onDanceVote(
+      currentSong.value as SongEditor,
+      new DanceRatingVote(danceId, VoteDirection.Up, styleTag),
+    );
   }
   if (!persist) {
     hide();

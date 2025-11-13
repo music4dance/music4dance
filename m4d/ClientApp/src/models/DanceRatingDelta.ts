@@ -32,5 +32,6 @@ export class DanceRatingVote {
   constructor(
     readonly danceId: string,
     readonly direction: VoteDirection,
+    readonly styleTag?: string, // Optional style tag (e.g., "International", "American", "Country")
   ) {}
 }

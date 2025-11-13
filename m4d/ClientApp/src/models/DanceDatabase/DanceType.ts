@@ -71,6 +71,14 @@ export class DanceType extends DanceObject {
     return filter ? this.styles.filter((s) => filter.indexOf(wordsToKebab(s)) !== -1) : this.styles;
   }
 
+  /**
+   * Get the unique style families for this dance (e.g., "International", "American", "Country", "Social")
+   * Useful for style selection UI when voting on a dance
+   */
+  public get styleFamilies(): string[] {
+    return [...new Set(this.instances.map((inst) => inst.styleFamily))].sort();
+  }
+
   public filteredTempo(styles: string[], organizations: string[]): TempoRange | undefined {
     if (!styles.length && !organizations.length) {
       return this.tempoRange;

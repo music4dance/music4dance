@@ -747,6 +747,16 @@ public class SongController : ContentController
     public ActionResult BatchAdminModify(string properties)
     {
         UseVue = UseVue.No;
+
+        try
+        {
+            var songMod = SongModifier.Build(properties);
+        }
+        catch
+        {
+            throw new ArgumentException(properties, nameof(properties));
+        }
+
         return BatchAdminExecute(
             Filter,
             (dms, song) => dms.SongIndex.AdminModifySong(song, properties),

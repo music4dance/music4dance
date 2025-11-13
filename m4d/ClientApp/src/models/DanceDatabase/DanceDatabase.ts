@@ -95,6 +95,24 @@ export class DanceDatabase {
     return this.metricsFromId(id).maxWeight;
   }
 
+  /**
+   * Get the available style families for a dance by ID
+   * Returns an array of style families (e.g., ["International", "American", "Country"])
+   * Useful for determining which style options to show when voting
+   */
+  public getStyleFamilies(id: string): string[] {
+    const dance = this.danceFromId(id);
+    return dance?.styleFamilies ?? [];
+  }
+
+  /**
+   * Get all unique style families across all dances
+   * Returns a sorted array of style family names
+   */
+  public get allStyleFamilies(): string[] {
+    return Array.from(new Set(this.dances.flatMap((dance) => dance.styleFamilies))).sort();
+  }
+
   public filter(filter: DanceFilter): DanceDatabase {
     const dances = filter.filter(this.dances);
     const groups = [

@@ -7,6 +7,7 @@ import { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
 import { DanceGroup } from "@/models/DanceDatabase/DanceGroup";
 import type { BaseColorVariant } from "bootstrap-vue-next";
 import type { DanceType } from "@/models/DanceDatabase/DanceType";
+import type { DanceInstance } from "@/models/DanceDatabase/DanceInstance";
 
 const danceDB = safeDanceDatabase();
 
@@ -32,12 +33,15 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{
-  "choose-dance": [id?: string, persist?: boolean];
+  "choose-dance": [id?: string, persist?: boolean, styleTag?: string];
 }>();
 
 const nameFilter = ref("");
+const selectedStyleFamilies = ref<string[]>([]);
+const expandedDances = ref<Set<string>>(new Set());
 
 const danceTypes = danceDB.dances;
+const allStyleFamilies = danceDB.allStyleFamilies;
 
 const computedId = computed(() => props.id ?? "dance-chooser");
 
@@ -46,10 +50,43 @@ const filterAll = (dances: NamedObject[], includeChildren = false): NamedObject[
 };
 
 const sortedDances = computed(() => {
-  return filterAll(danceDB.flattened)
-    .filter((d) => props.includeGroups || !DanceGroup.isGroup(d))
-    .sort((a, b) => a.name.localeCompare(b.name));
+  let filtered = filterAll(danceDB.dances);
+
+  // Filter by selected style families if any are selected
+  if (selectedStyleFamilies.value.length > 0) {
+    filtered = filtered.filter((dance) => {
+      const danceType = dance as DanceType;
+      return danceType.styleFamilies.some((family) => selectedStyleFamilies.value.includes(family));
+    });
+  }
+
+  return filtered.sort((a, b) => a.name.localeCompare(b.name));
 });
+
+const toggleDanceExpansion = (danceId: string): void => {
+  if (expandedDances.value.has(danceId)) {
+    expandedDances.value.delete(danceId);
+  } else {
+    expandedDances.value.add(danceId);
+  }
+};
+
+const isDanceExpanded = (danceId: string): boolean => {
+  return expandedDances.value.has(danceId);
+};
+
+const getDanceInstances = (dance: NamedObject): DanceInstance[] => {
+  const danceType = dance as DanceType;
+
+  // Filter instances by selected style families if any are selected
+  if (selectedStyleFamilies.value.length > 0) {
+    return danceType.instances.filter((inst) =>
+      selectedStyleFamilies.value.includes(inst.styleFamily),
+    );
+  }
+
+  return danceType.instances;
+};
 
 const groupedDances = computed(() => {
   return filterAll(danceDB.flatGroups, true);
@@ -80,8 +117,16 @@ const chooseEvent = (id?: string, event?: MouseEvent): void => {
   }
 };
 
-const choose = (id?: string, persist?: boolean): void => {
-  emit("choose-dance", id, persist);
+const choose = (id?: string, persist?: boolean, styleTag?: string): void => {
+  emit("choose-dance", id, persist, styleTag);
+};
+
+const chooseInstance = (danceId: string, styleTag: string, event?: MouseEvent): void => {
+  const persist = event?.ctrlKey;
+  if (persist) {
+    event?.preventDefault();
+  }
+  choose(danceId, persist, styleTag);
 };
 
 const groupVariant = (dance: NamedObject): keyof BaseColorVariant | undefined => {
@@ -111,24 +156,66 @@ const isGroup = (dance: NamedObject) => {
       <BFormInput v-model="nameFilter" type="text" placeholder="Filter Dances" autofocus />
       <span><IBiSearch /></span>
     </BInputGroup>
+    <div v-if="allStyleFamilies.length > 0" class="mb-2">
+      <div class="small text-muted mb-1">Filter by:</div>
+      <BButtonGroup size="sm">
+        <BButton
+          v-for="family in allStyleFamilies"
+          :key="family"
+          :variant="selectedStyleFamilies.includes(family) ? 'primary' : 'outline-primary'"
+          @click="
+            selectedStyleFamilies.includes(family)
+              ? (selectedStyleFamilies = selectedStyleFamilies.filter((f) => f !== family))
+              : selectedStyleFamilies.push(family)
+          "
+        >
+          {{ family }}
+        </BButton>
+      </BButtonGroup>
+    </div>
     <BTabs>
       <BTab title="By Name" :active="!hasTempo">
         <BListGroup>
-          <BListGroupItem
-            v-for="dance in sortedDances"
-            :key="dance.id"
-            button
-            :active="danceId === dance.id"
-            :disabled="exists(dance.id)"
-            @click="chooseEvent(dance.id, $event)"
-          >
-            <DanceName
-              :dance="dance"
-              :show-synonyms="true"
-              :show-tempo="tempoType"
-              :hide-link="hideNameLink"
-            />
-          </BListGroupItem>
+          <template v-for="dance in sortedDances" :key="dance.id">
+            <BListGroupItem
+              button
+              :active="danceId === dance.id"
+              :disabled="exists(dance.id)"
+              class="d-flex justify-content-between align-items-center"
+              @click="chooseEvent(dance.id, $event)"
+            >
+              <div>
+                <DanceName
+                  :dance="dance"
+                  :show-synonyms="true"
+                  :show-tempo="tempoType"
+                  :hide-link="hideNameLink"
+                />
+              </div>
+              <BButton
+                v-if="getDanceInstances(dance).length > 1"
+                size="sm"
+                variant="link"
+                @click.stop="toggleDanceExpansion(dance.id)"
+              >
+                <IBiChevronDown v-if="!isDanceExpanded(dance.id)" />
+                <IBiChevronUp v-else />
+              </BButton>
+            </BListGroupItem>
+            <BListGroupItem
+              v-for="instance in isDanceExpanded(dance.id) ? getDanceInstances(dance) : []"
+              :key="instance.id"
+              button
+              class="sub-item"
+              :active="danceId === instance.id"
+              :disabled="exists(instance.id)"
+              @click="chooseInstance(dance.id, instance.styleFamily, $event)"
+            >
+              <span class="text-muted small">{{ instance.styleFamily }}:</span>
+              {{ instance.name }}
+              <span class="text-muted small">({{ instance.tempoRange.toString() }})</span>
+            </BListGroupItem>
+          </template>
         </BListGroup>
       </BTab>
       <BTab title="By Style">

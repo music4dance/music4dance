@@ -14,6 +14,7 @@ import { computed, onBeforeMount, onBeforeUnmount, ref } from "vue";
 import type { SongHistory } from "@/models/SongHistory";
 import { useToast, useModal } from "bootstrap-vue-next";
 import { TagHandler } from "@/models/TagHandler";
+import StyleSelector from "@/components/StyleSelector.vue";
 
 const context = getMenuContext();
 const danceDB = safeDanceDatabase();
@@ -146,15 +147,59 @@ const addProperty = (property: SongProperty): void => {
 const onClickLike = (): void => {
   safeEditor.value.toggleLike();
 };
-const addDance = (danceId?: string, persist?: boolean): void => {
-  if (danceId) {
-    safeEditor.value.danceVote(new DanceRatingVote(danceId, VoteDirection.Up));
 
+const pendingDanceId = ref<string | undefined>();
+const styleSelectionModalVisible = ref(false);
+const selectedStyleForPendingDance = ref<string | undefined>();
+const pendingDanceStyles = computed(() =>
+  pendingDanceId.value ? danceDB.getStyleFamilies(pendingDanceId.value) : [],
+);
+
+const addDance = (danceId?: string, persist?: boolean, styleTag?: string): void => {
+  if (!danceId) {
+    return;
+  }
+
+  const styles = danceDB.getStyleFamilies(danceId);
+
+  // If styleTag provided from instance click, use it directly
+  if (styleTag) {
+    safeEditor.value.danceVote(new DanceRatingVote(danceId, VoteDirection.Up, styleTag));
     if (!persist) {
       hide();
     }
     edit.value = true;
+    return;
   }
+
+  // If dance has only one style, auto-select and vote with that style
+  if (styles.length === 1) {
+    safeEditor.value.danceVote(new DanceRatingVote(danceId, VoteDirection.Up, styles[0]));
+    if (!persist) {
+      hide();
+    }
+    edit.value = true;
+    return;
+  }
+
+  // For multi-style dances clicked on main row: vote without style tag
+  // (User can expand and click specific instance if they want a style tag)
+  safeEditor.value.danceVote(new DanceRatingVote(danceId, VoteDirection.Up));
+  if (!persist) {
+    hide();
+  }
+  edit.value = true;
+};
+
+const selectStyleAndVote = (styleTag: string): void => {
+  if (pendingDanceId.value) {
+    safeEditor.value.danceVote(
+      new DanceRatingVote(pendingDanceId.value, VoteDirection.Up, styleTag),
+    );
+    edit.value = true;
+  }
+  styleSelectionModalVisible.value = false;
+  pendingDanceId.value = undefined;
 };
 const updateField = (property: SongProperty): void => {
   safeEditor.value.modifyProperty(property.name, property.value);
@@ -456,5 +501,14 @@ onBeforeUnmount(() => {
       @choose-dance="addDance"
     />
     <TagModal v-model="tagModalVisible" :tag-handler="currentTag as TagHandler" />
+    <BModal
+      v-model="styleSelectionModalVisible"
+      title="Select Dance Style"
+      ok-only
+      @ok="selectedStyleForPendingDance && selectStyleAndVote(selectedStyleForPendingDance)"
+    >
+      <p>This dance has multiple styles. Please select which style you're voting for:</p>
+      <StyleSelector v-model="selectedStyleForPendingDance" :styles="pendingDanceStyles" />
+    </BModal>
   </div>
 </template>

@@ -182,15 +182,15 @@ export class SongEditor {
   public danceVote(vote: DanceRatingVote): void {
     switch (vote.direction) {
       case VoteDirection.Up:
-        this.upVote(vote.danceId);
+        this.upVote(vote.danceId, vote.styleTag);
         break;
       case VoteDirection.Down:
-        this.downVote(vote.danceId);
+        this.downVote(vote.danceId, vote.styleTag);
         break;
     }
   }
 
-  private upVote(danceId: string): void {
+  private upVote(danceId: string, styleTag?: string): void {
     const vote = this.song.danceVote(danceId);
     let weight = 1;
     let positive: boolean | undefined = true;
@@ -203,10 +203,10 @@ export class SongEditor {
       weight = 2;
     }
     this.setRatingProperty(danceId, weight);
-    this.setVoteProperties(danceId, positive, negative);
+    this.setVoteProperties(danceId, positive, negative, styleTag);
   }
 
-  private downVote(danceId: string): void {
+  private downVote(danceId: string, styleTag?: string): void {
     const vote = this.song.danceVote(danceId);
     let weight = -1;
     let negative: boolean | undefined = true;
@@ -220,7 +220,7 @@ export class SongEditor {
     }
 
     this.setRatingProperty(danceId, weight);
-    this.setVoteProperties(danceId, positive, negative);
+    this.setVoteProperties(danceId, positive, negative, styleTag);
   }
 
   private setRatingProperty(danceId: string, weight: number): void {
@@ -230,7 +230,12 @@ export class SongEditor {
     );
   }
 
-  private setVoteProperties(danceId: string, positive?: boolean, negative?: boolean): void {
+  private setVoteProperties(
+    danceId: string,
+    positive?: boolean,
+    negative?: boolean,
+    styleTag?: string,
+  ): void {
     const posTag = `${safeDanceDatabase().fromId(danceId)!.name}:Dance`;
     const negTag = "!" + posTag;
 
@@ -243,6 +248,11 @@ export class SongEditor {
       this.addProperty(PropertyType.addedTags, negTag);
     } else if (negative === false) {
       this.addProperty(PropertyType.removedTags, negTag);
+    }
+
+    // Add style tag if provided and we're voting positive
+    if (styleTag && positive === true) {
+      this.addProperty(PropertyType.addedTags, `${danceId}=${styleTag}:Style`);
     }
   }
 
