@@ -340,7 +340,6 @@ export class SongFilter {
     // and not other style tags
     const danceId = item.dance.id;
     const styleFamilies = this.danceQuery.database.getStyleFamilies(danceId);
-    console.log("Style Families for dance", danceId, styleFamilies, "found style tag:", styleValue);
     if (styleFamilies.includes(styleValue)) {
       return styleValue;
     }

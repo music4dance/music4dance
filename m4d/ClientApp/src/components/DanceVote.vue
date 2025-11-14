@@ -27,41 +27,21 @@ const styleFamilies = computed(() => danceDB.getStyleFamilies(danceId.value));
 const hasSingleStyle = computed(() => styleFamilies.value.length === 1);
 const hasMultipleStyles = computed(() => styleFamilies.value.length > 1);
 
-console.log("DanceVote initialized:", {
-  danceId: danceId.value,
-  filterFamilyTag: props.filterFamilyTag,
-  styleFamilies: styleFamilies.value,
-  hasSingleStyle: hasSingleStyle.value,
-  hasMultipleStyles: hasMultipleStyles.value,
-});
-
 const pendingVote = ref<VoteDirection | undefined>(undefined);
 const modalId = `family-choice-modal-${uniqueId}`;
 
 const handleVote = (direction: VoteDirection): void => {
-  console.log("Handling vote", direction);
-  console.log("State:", {
-    hasSingleStyle: hasSingleStyle.value,
-    hasMultipleStyles: hasMultipleStyles.value,
-    filterFamilyTag: props.filterFamilyTag,
-    styleFamilies: styleFamilies.value,
-    modalId: modalId,
-  });
   // If single family or has filter family tag, vote immediately
   if (hasSingleStyle.value) {
-    console.log("Single family detected:", styleFamilies.value[0]);
     const family = styleFamilies.value[0];
     if (family) emitVote(direction, [family]);
   } else if (props.filterFamilyTag) {
-    console.log("Using filter family tag:", props.filterFamilyTag);
     emitVote(direction, [props.filterFamilyTag]);
   } else if (hasMultipleStyles.value) {
-    console.log("Multiple families detected, showing family choice modal:", modalId);
     // Show modal to select families
     pendingVote.value = direction;
     showFamilyChoiceModal.value = true;
   } else {
-    console.log("No family choice needed");
     // No family tag needed
     emitVote(direction, undefined);
   }
@@ -77,7 +57,6 @@ const onFamiliesSelected = (families: string[]): void => {
 };
 
 const emitVote = (direction: VoteDirection, familyTags?: string[]): void => {
-  console.log("Emitting dance-vote event:", { danceId: danceId.value, direction, familyTags });
   emit("dance-vote", new DanceRatingVote(danceId.value, direction, familyTags));
 };
 

@@ -36,31 +36,17 @@ const pendingVote = ref<VoteDirection | undefined>(undefined);
 const modalId = `family-choice-modal-${uniqueId}`;
 
 const handleVote = (direction: VoteDirection): void => {
-  console.log("DanceVoteItem handleVote:", {
-    direction,
-    danceId: props.rating.danceId,
-    filterFamilyTag: props.filterFamilyTag,
-    hasSingleStyle: hasSingleStyle.value,
-    hasMultipleStyles: hasMultipleStyles.value,
-    styleFamilies: styleFamilies.value,
-    modalId: modalId,
-  });
-
   // If single family or has filter family tag, vote immediately
   if (hasSingleStyle.value) {
-    console.log("Single family path");
     const family = styleFamilies.value[0];
     if (family) emitVote(direction, [family]);
   } else if (props.filterFamilyTag) {
-    console.log("Filter family tag path:", props.filterFamilyTag);
     emitVote(direction, [props.filterFamilyTag]);
   } else if (hasMultipleStyles.value) {
-    console.log("Multiple families detected, showing family choice modal:", modalId);
     // Show modal to select families
     pendingVote.value = direction;
     showFamilyChoiceModal.value = true;
   } else {
-    console.log("No family tag needed path");
     // No family tag needed
     emitVote(direction, undefined);
   }
@@ -76,11 +62,6 @@ const onFamiliesSelected = (families: string[]): void => {
 };
 
 const emitVote = (direction: VoteDirection, familyTags?: string[]): void => {
-  console.log("Emitting dance-vote event:", {
-    danceId: props.rating.danceId,
-    direction,
-    familyTags,
-  });
   emit("dance-vote", new DanceRatingVote(props.rating.danceId, direction, familyTags));
 };
 

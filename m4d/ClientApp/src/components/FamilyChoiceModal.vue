@@ -43,7 +43,6 @@ const isSelected = (family: string): boolean => {
 };
 
 const onShow = (): void => {
-  console.log("FamilyChoiceModal shown for:", props.danceName, "families:", props.families);
   // Reset selection when modal opens
   selectedFamilies.value = [];
 };
