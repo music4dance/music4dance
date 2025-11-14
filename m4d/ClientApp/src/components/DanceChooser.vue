@@ -33,7 +33,7 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{
-  "choose-dance": [id?: string, persist?: boolean, styleTag?: string];
+  "choose-dance": [id?: string, persist?: boolean, familyTag?: string];
 }>();
 
 const nameFilter = ref("");
@@ -113,23 +113,23 @@ const chooseEvent = (id?: string, event?: MouseEvent): void => {
     event?.preventDefault();
   }
   if (id) {
-    // If filtering by a single style family, pass it as the styleTag
-    const styleTag =
+    // If filtering by a single family, pass it as the familyTag
+    const familyTag =
       selectedStyleFamilies.value.length === 1 ? selectedStyleFamilies.value[0] : undefined;
-    choose(id, persist, styleTag);
+    choose(id, persist, familyTag);
   }
 };
 
-const choose = (id?: string, persist?: boolean, styleTag?: string): void => {
-  emit("choose-dance", id, persist, styleTag);
+const choose = (id?: string, persist?: boolean, familyTag?: string): void => {
+  emit("choose-dance", id, persist, familyTag);
 };
 
-const chooseInstance = (danceId: string, styleTag: string, event?: MouseEvent): void => {
+const chooseInstance = (danceId: string, familyTag: string, event?: MouseEvent): void => {
   const persist = event?.ctrlKey;
   if (persist) {
     event?.preventDefault();
   }
-  choose(danceId, persist, styleTag);
+  choose(danceId, persist, familyTag);
 };
 
 const groupVariant = (dance: NamedObject): keyof BaseColorVariant | undefined => {

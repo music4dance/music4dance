@@ -2,8 +2,13 @@ import { DanceGroup } from "@/models/DanceDatabase/DanceGroup";
 import type { NamedObject } from "@/models/DanceDatabase/NamedObject";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import type { DanceQueryItem } from "./DanceQueryItem";
+import type { DanceDatabase } from "./DanceDatabase/DanceDatabase";
 
 export class DanceQueryBase {
+  public get database(): DanceDatabase {
+    return safeDanceDatabase();
+  }
+
   public get danceQueryItems(): DanceQueryItem[] {
     throw new Error("Not Implemented");
   }

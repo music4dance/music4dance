@@ -10,14 +10,14 @@ const uniqueId = useId();
 const props = defineProps<{
   vote?: boolean;
   rating: DanceRating;
-  filterStyleTag?: string; // Style tag from search context
+  filterFamilyTag?: string; // Family tag from search context
 }>();
 
 const emit = defineEmits<{
   "dance-vote": [vote: DanceRatingVote];
 }>();
 
-const showStyleChoiceModal = ref<boolean>(false);
+const showFamilyChoiceModal = ref<boolean>(false);
 
 const dance = computed(() => {
   const id = props.rating.danceId;
@@ -33,48 +33,55 @@ const hasSingleStyle = computed(() => styleFamilies.value.length === 1);
 const hasMultipleStyles = computed(() => styleFamilies.value.length > 1);
 
 const pendingVote = ref<VoteDirection | undefined>(undefined);
-const modalId = `style-choice-modal-${uniqueId}`;
+const modalId = `family-choice-modal-${uniqueId}`;
 
 const handleVote = (direction: VoteDirection): void => {
   console.log("DanceVoteItem handleVote:", {
     direction,
     danceId: props.rating.danceId,
-    filterStyleTag: props.filterStyleTag,
+    filterFamilyTag: props.filterFamilyTag,
     hasSingleStyle: hasSingleStyle.value,
     hasMultipleStyles: hasMultipleStyles.value,
     styleFamilies: styleFamilies.value,
     modalId: modalId,
   });
 
-  // If single style or has filter style tag, vote immediately
+  // If single family or has filter family tag, vote immediately
   if (hasSingleStyle.value) {
-    console.log("Single style path");
-    emitVote(direction, styleFamilies.value[0]);
-  } else if (props.filterStyleTag) {
-    console.log("Filter style tag path:", props.filterStyleTag);
-    emitVote(direction, props.filterStyleTag);
+    console.log("Single family path");
+    const family = styleFamilies.value[0];
+    if (family) emitVote(direction, [family]);
+  } else if (props.filterFamilyTag) {
+    console.log("Filter family tag path:", props.filterFamilyTag);
+    emitVote(direction, [props.filterFamilyTag]);
   } else if (hasMultipleStyles.value) {
-    console.log("Multiple styles detected, showing style choice modal:", modalId);
-    // Show modal to select style
+    console.log("Multiple families detected, showing family choice modal:", modalId);
+    // Show modal to select families
     pendingVote.value = direction;
-    showStyleChoiceModal.value = true;
+    showFamilyChoiceModal.value = true;
   } else {
-    console.log("No style tag needed path");
-    // No style tag needed
+    console.log("No family tag needed path");
+    // No family tag needed
     emitVote(direction, undefined);
   }
 };
 
-const onStyleSelected = (styleTag: string): void => {
+const onFamiliesSelected = (families: string[]): void => {
   if (pendingVote.value !== undefined) {
-    emitVote(pendingVote.value, styleTag);
+    const direction = pendingVote.value;
     pendingVote.value = undefined;
+    // Emit single vote with array of families (empty array means vote without family)
+    emitVote(direction, families.length > 0 ? families : undefined);
   }
 };
 
-const emitVote = (direction: VoteDirection, styleTag?: string): void => {
-  console.log("Emitting dance-vote event:", { danceId: props.rating.danceId, direction, styleTag });
-  emit("dance-vote", new DanceRatingVote(props.rating.danceId, direction, styleTag));
+const emitVote = (direction: VoteDirection, familyTags?: string[]): void => {
+  console.log("Emitting dance-vote event:", {
+    danceId: props.rating.danceId,
+    direction,
+    familyTags,
+  });
+  emit("dance-vote", new DanceRatingVote(props.rating.danceId, direction, familyTags));
 };
 
 const upVote = (): void => {
@@ -102,13 +109,13 @@ const maxWeight = computed(() =>
       @down-vote="downVote()"
     />
     <span class="me-2">{{ dance.name }}</span>
-    <StyleChoiceModal
+    <FamilyChoiceModal
       v-if="hasMultipleStyles"
       :id="modalId"
-      v-model="showStyleChoiceModal"
-      :styles="styleFamilies"
+      v-model="showFamilyChoiceModal"
+      :families="styleFamilies"
       :dance-name="dance.name"
-      @style-selected="onStyleSelected"
+      @families-selected="onFamiliesSelected"
     />
   </div>
 </template>

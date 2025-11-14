@@ -85,6 +85,16 @@ export class TagList {
     }
   }
 
+  /**
+   * Get tags filtered by category (case-insensitive)
+   * @param category The category to filter by (e.g., "Style", "Tempo")
+   * @returns Array of tags matching the specified category
+   */
+  public getByCategory(category: string): Tag[] {
+    const cat = category.toLowerCase();
+    return this.tags.filter((t) => t.category.toLowerCase() === cat);
+  }
+
   private extract(prefix: string): Tag[] {
     return this.tags
       .filter((t) => t.value[0] === prefix)

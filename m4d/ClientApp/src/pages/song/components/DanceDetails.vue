@@ -47,7 +47,7 @@ const danceLink = (dr: DanceRating): string => {
   return `/dances/${danceFromRating(dr).seoName}`;
 };
 
-const filterStyleTag = computed(() => props.filter.styleTag);
+const filterFamilyTag = computed(() => props.filter.familyTag);
 </script>
 
 <template>
@@ -64,7 +64,7 @@ const filterStyleTag = computed(() => props.filter.styleTag);
           :vote="song.danceVote(dr.danceId)"
           :dance-rating="dr"
           :authenticated="!!user"
-          :filter-style-tag="filterStyleTag"
+          :filter-family-tag="filterFamilyTag"
           v-bind="$attrs"
         />
         <a :href="danceLink(dr)"

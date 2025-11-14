@@ -22,7 +22,7 @@ const singleDance = computed(() => props.filter.singleDance);
 const song = computed(() => props.editor.song);
 const danceId = computed(() => props.filter.danceQuery?.danceList?.[0] ?? "XXX");
 const danceRating = computed(() => song.value.findDanceRatingById(danceId.value)!);
-const filterStyleTag = computed(() => props.filter.styleTag);
+const filterFamilyTag = computed(() => props.filter.familyTag);
 </script>
 
 <template>
@@ -32,7 +32,7 @@ const filterStyleTag = computed(() => props.filter.styleTag);
       :vote="editor.song.danceVote(danceId)"
       :dance-rating="danceRating"
       :authenticated="!!context.userName"
-      :filter-style-tag="filterStyleTag"
+      :filter-family-tag="filterFamilyTag"
       style="margin-right: 0.25em"
       @dance-vote="emit('dance-vote', $event)"
     />

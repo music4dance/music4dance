@@ -216,9 +216,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
                         </transition-stub></span>
               </div>
               <!--v-if-->
-            </div><span><a id="like-button-dedc039e-2964-4a57-b21b-d027c45872ee" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-10__popover____placeholder" style="display: none;"></span>
+            </div><span><a id="like-button-dedc039e-2964-4a57-b21b-d027c45872ee" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-11__popover____placeholder" style="display: none;"></span>
             <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-              <div id="BootstrapVueNext__ID__v-10__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+              <div id="BootstrapVueNext__ID__v-11__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                 <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                 <div class="overflow-auto">
                   <div class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
@@ -238,9 +238,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
               <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=186.4">186</a>
             </td>
             <td class="">
-              <!----><a data-v-a7ef304f="" id="__m4d__000004" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-11__popover____placeholder" style="display: none;"></span>
+              <!----><a data-v-a7ef304f="" id="__m4d__000004" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-12__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div id="BootstrapVueNext__ID__v-11__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                  <div id="BootstrapVueNext__ID__v-12__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                     <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                     <div class="overflow-auto">
                       <div class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.47 where 1.00 is the strongest beat.</div>
@@ -248,9 +248,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
                     </div>
                   </div>
                 </transition-stub>
-              </a><a data-v-a7ef304f="" id="__m4d__000005" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-12__popover____placeholder" style="display: none;"></span>
+              </a><a data-v-a7ef304f="" id="__m4d__000005" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-13__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div id="BootstrapVueNext__ID__v-12__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                  <div id="BootstrapVueNext__ID__v-13__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                     <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                     <div class="overflow-auto">
                       <div class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.50 where 1.00 is the highest energy.</div>
@@ -258,9 +258,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
                     </div>
                   </div>
                 </transition-stub>
-              </a><a data-v-a7ef304f="" id="__m4d__000006" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-13__popover____placeholder" style="display: none;"></span>
+              </a><a data-v-a7ef304f="" id="__m4d__000006" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-14__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div id="BootstrapVueNext__ID__v-13__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                  <div id="BootstrapVueNext__ID__v-14__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                     <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                     <div class="overflow-auto">
                       <div class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.41 where 1.00 is the happiest.</div>
@@ -404,9 +404,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
                 </transition-stub></span>
           </div>
           <!--v-if-->
-        </div><span><a id="like-button-32c26fb4-06d4-4878-9040-c69d0a1f9e96" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-14__popover____placeholder" style="display: none;"></span>
+        </div><span><a id="like-button-32c26fb4-06d4-4878-9040-c69d0a1f9e96" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-16__popover____placeholder" style="display: none;"></span>
         <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-          <div id="BootstrapVueNext__ID__v-14__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+          <div id="BootstrapVueNext__ID__v-16__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
             <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
             <div class="overflow-auto">
               <div class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
@@ -426,9 +426,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
           <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=86">86</a>
         </td>
         <td class="">
-          <!----><a data-v-a7ef304f="" id="__m4d__000010" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-15__popover____placeholder" style="display: none;"></span>
+          <!----><a data-v-a7ef304f="" id="__m4d__000010" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-17__popover____placeholder" style="display: none;"></span>
             <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-              <div id="BootstrapVueNext__ID__v-15__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+              <div id="BootstrapVueNext__ID__v-17__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                 <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                 <div class="overflow-auto">
                   <div class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.47 where 1.00 is the strongest beat.</div>
@@ -436,9 +436,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
                 </div>
               </div>
             </transition-stub>
-          </a><a data-v-a7ef304f="" id="__m4d__000011" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-7.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-16__popover____placeholder" style="display: none;"></span>
+          </a><a data-v-a7ef304f="" id="__m4d__000011" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-7.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-18__popover____placeholder" style="display: none;"></span>
             <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-              <div id="BootstrapVueNext__ID__v-16__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+              <div id="BootstrapVueNext__ID__v-18__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                 <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                 <div class="overflow-auto">
                   <div class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.67 where 1.00 is the highest energy.</div>
@@ -446,9 +446,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
                 </div>
               </div>
             </transition-stub>
-          </a><a data-v-a7ef304f="" id="__m4d__000012" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-17__popover____placeholder" style="display: none;"></span>
+          </a><a data-v-a7ef304f="" id="__m4d__000012" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-19__popover____placeholder" style="display: none;"></span>
             <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-              <div id="BootstrapVueNext__ID__v-17__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+              <div id="BootstrapVueNext__ID__v-19__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                 <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                 <div class="overflow-auto">
                   <div class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.43 where 1.00 is the happiest.</div>
@@ -536,9 +536,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
             </transition-stub></span>
       </div>
       <!--v-if-->
-    </div><span><a id="like-button-338a8192-1681-4b00-bca5-2936d97440e9" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-18__popover____placeholder" style="display: none;"></span>
+    </div><span><a id="like-button-338a8192-1681-4b00-bca5-2936d97440e9" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-21__popover____placeholder" style="display: none;"></span>
     <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-      <div id="BootstrapVueNext__ID__v-18__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+      <div id="BootstrapVueNext__ID__v-21__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
         <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
         <div class="overflow-auto">
           <div class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
@@ -558,9 +558,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
       <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=84">84</a>
     </td>
     <td class="">
-      <!----><a data-v-a7ef304f="" id="__m4d__000016" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-7.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-19__popover____placeholder" style="display: none;"></span>
+      <!----><a data-v-a7ef304f="" id="__m4d__000016" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-7.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-22__popover____placeholder" style="display: none;"></span>
         <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-          <div id="BootstrapVueNext__ID__v-19__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+          <div id="BootstrapVueNext__ID__v-22__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
             <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
             <div class="overflow-auto">
               <div class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.64 where 1.00 is the strongest beat.</div>
@@ -568,9 +568,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
             </div>
           </div>
         </transition-stub>
-      </a><a data-v-a7ef304f="" id="__m4d__000017" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-4.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-20__popover____placeholder" style="display: none;"></span>
+      </a><a data-v-a7ef304f="" id="__m4d__000017" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-4.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-23__popover____placeholder" style="display: none;"></span>
         <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-          <div id="BootstrapVueNext__ID__v-20__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+          <div id="BootstrapVueNext__ID__v-23__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
             <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
             <div class="overflow-auto">
               <div class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.31 where 1.00 is the highest energy.</div>
@@ -578,9 +578,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
             </div>
           </div>
         </transition-stub>
-      </a><a data-v-a7ef304f="" id="__m4d__000018" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-4.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-21__popover____placeholder" style="display: none;"></span>
+      </a><a data-v-a7ef304f="" id="__m4d__000018" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-4.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-24__popover____placeholder" style="display: none;"></span>
         <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-          <div id="BootstrapVueNext__ID__v-21__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+          <div id="BootstrapVueNext__ID__v-24__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
             <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
             <div class="overflow-auto">
               <div class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.31 where 1.00 is the happiest.</div>
@@ -661,9 +661,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
         </transition-stub></span>
   </div>
   <!--v-if-->
-</div><span><a id="like-button-fd51b473-f90e-4096-92d8-525955de021d" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-22__popover____placeholder" style="display: none;"></span>
+</div><span><a id="like-button-fd51b473-f90e-4096-92d8-525955de021d" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-26__popover____placeholder" style="display: none;"></span>
 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-  <div id="BootstrapVueNext__ID__v-22__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+  <div id="BootstrapVueNext__ID__v-26__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
     <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
     <div class="overflow-auto">
       <div class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
@@ -683,9 +683,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
   <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=96.8">97</a>
 </td>
 <td class="">
-  <!----><a data-v-a7ef304f="" id="__m4d__000022" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-23__popover____placeholder" style="display: none;"></span>
+  <!----><a data-v-a7ef304f="" id="__m4d__000022" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-27__popover____placeholder" style="display: none;"></span>
     <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-      <div id="BootstrapVueNext__ID__v-23__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+      <div id="BootstrapVueNext__ID__v-27__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
         <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
         <div class="overflow-auto">
           <div class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.56 where 1.00 is the strongest beat.</div>
@@ -693,9 +693,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
         </div>
       </div>
     </transition-stub>
-  </a><a data-v-a7ef304f="" id="__m4d__000023" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-24__popover____placeholder" style="display: none;"></span>
+  </a><a data-v-a7ef304f="" id="__m4d__000023" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-28__popover____placeholder" style="display: none;"></span>
     <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-      <div id="BootstrapVueNext__ID__v-24__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+      <div id="BootstrapVueNext__ID__v-28__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
         <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
         <div class="overflow-auto">
           <div class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.57 where 1.00 is the highest energy.</div>
@@ -703,9 +703,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
         </div>
       </div>
     </transition-stub>
-  </a><a data-v-a7ef304f="" id="__m4d__000024" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-25__popover____placeholder" style="display: none;"></span>
+  </a><a data-v-a7ef304f="" id="__m4d__000024" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-29__popover____placeholder" style="display: none;"></span>
     <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-      <div id="BootstrapVueNext__ID__v-25__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+      <div id="BootstrapVueNext__ID__v-29__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
         <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
         <div class="overflow-auto">
           <div class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.53 where 1.00 is the happiest.</div>
@@ -817,9 +817,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
       </div>
     </transition-stub></span></div>
     <!--v-if-->
-    </div><span><a id="like-button-1740280b-7e6f-426d-92d1-874acca8842f" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-26__popover____placeholder" style="display: none;"></span>
+    </div><span><a id="like-button-1740280b-7e6f-426d-92d1-874acca8842f" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-31__popover____placeholder" style="display: none;"></span>
     <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-      <div id="BootstrapVueNext__ID__v-26__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+      <div id="BootstrapVueNext__ID__v-31__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
         <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
         <div class="overflow-auto">
           <div class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
@@ -840,9 +840,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
     <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=95">95</a>
   </td>
   <td class="">
-    <!----><a data-v-a7ef304f="" id="__m4d__000028" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-7.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-27__popover____placeholder" style="display: none;"></span>
+    <!----><a data-v-a7ef304f="" id="__m4d__000028" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-7.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-32__popover____placeholder" style="display: none;"></span>
       <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-        <div id="BootstrapVueNext__ID__v-27__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+        <div id="BootstrapVueNext__ID__v-32__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
           <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
           <div class="overflow-auto">
             <div class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.67 where 1.00 is the strongest beat.</div>
@@ -850,9 +850,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
           </div>
         </div>
       </transition-stub>
-    </a><a data-v-a7ef304f="" id="__m4d__000029" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-28__popover____placeholder" style="display: none;"></span>
+    </a><a data-v-a7ef304f="" id="__m4d__000029" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-33__popover____placeholder" style="display: none;"></span>
       <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-        <div id="BootstrapVueNext__ID__v-28__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+        <div id="BootstrapVueNext__ID__v-33__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
           <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
           <div class="overflow-auto">
             <div class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.55 where 1.00 is the highest energy.</div>
@@ -860,9 +860,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
           </div>
         </div>
       </transition-stub>
-    </a><a data-v-a7ef304f="" id="__m4d__000030" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-29__popover____placeholder" style="display: none;"></span>
+    </a><a data-v-a7ef304f="" id="__m4d__000030" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-34__popover____placeholder" style="display: none;"></span>
       <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-        <div id="BootstrapVueNext__ID__v-29__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+        <div id="BootstrapVueNext__ID__v-34__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
           <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
           <div class="overflow-auto">
             <div class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.59 where 1.00 is the happiest.</div>
@@ -985,9 +985,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
       </div>
     </transition-stub></span></div>
     <!--v-if-->
-    </div><span><a id="like-button-1ade58e9-d99f-4678-b801-ec84ef502ab5" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-30__popover____placeholder" style="display: none;"></span>
+    </div><span><a id="like-button-1ade58e9-d99f-4678-b801-ec84ef502ab5" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-36__popover____placeholder" style="display: none;"></span>
     <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-      <div id="BootstrapVueNext__ID__v-30__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+      <div id="BootstrapVueNext__ID__v-36__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
         <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
         <div class="overflow-auto">
           <div class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
@@ -1008,9 +1008,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
     <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=94">94</a>
   </td>
   <td class="">
-    <!----><a data-v-a7ef304f="" id="__m4d__000034" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-31__popover____placeholder" style="display: none;"></span>
+    <!----><a data-v-a7ef304f="" id="__m4d__000034" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-37__popover____placeholder" style="display: none;"></span>
       <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-        <div id="BootstrapVueNext__ID__v-31__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+        <div id="BootstrapVueNext__ID__v-37__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
           <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
           <div class="overflow-auto">
             <div class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.58 where 1.00 is the strongest beat.</div>
@@ -1018,9 +1018,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
           </div>
         </div>
       </transition-stub>
-    </a><a data-v-a7ef304f="" id="__m4d__000035" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-4.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-32__popover____placeholder" style="display: none;"></span>
+    </a><a data-v-a7ef304f="" id="__m4d__000035" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-4.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-38__popover____placeholder" style="display: none;"></span>
       <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-        <div id="BootstrapVueNext__ID__v-32__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+        <div id="BootstrapVueNext__ID__v-38__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
           <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
           <div class="overflow-auto">
             <div class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.31 where 1.00 is the highest energy.</div>
@@ -1028,9 +1028,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
           </div>
         </div>
       </transition-stub>
-    </a><a data-v-a7ef304f="" id="__m4d__000036" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-4.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-33__popover____placeholder" style="display: none;"></span>
+    </a><a data-v-a7ef304f="" id="__m4d__000036" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-4.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-39__popover____placeholder" style="display: none;"></span>
       <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-        <div id="BootstrapVueNext__ID__v-33__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+        <div id="BootstrapVueNext__ID__v-39__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
           <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
           <div class="overflow-auto">
             <div class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.38 where 1.00 is the happiest.</div>
@@ -1122,9 +1122,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
       </div>
     </transition-stub></span></div>
     <!--v-if-->
-    </div><span><a id="like-button-13018115-5049-4136-ae83-4e436e2ee2c3" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-34__popover____placeholder" style="display: none;"></span>
+    </div><span><a id="like-button-13018115-5049-4136-ae83-4e436e2ee2c3" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-41__popover____placeholder" style="display: none;"></span>
     <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-      <div id="BootstrapVueNext__ID__v-34__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+      <div id="BootstrapVueNext__ID__v-41__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
         <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
         <div class="overflow-auto">
           <div class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
@@ -1145,9 +1145,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
     <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=86.8">87</a>
   </td>
   <td class="">
-    <!----><a data-v-a7ef304f="" id="__m4d__000040" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-35__popover____placeholder" style="display: none;"></span>
+    <!----><a data-v-a7ef304f="" id="__m4d__000040" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-42__popover____placeholder" style="display: none;"></span>
       <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-        <div id="BootstrapVueNext__ID__v-35__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+        <div id="BootstrapVueNext__ID__v-42__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
           <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
           <div class="overflow-auto">
             <div class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.54 where 1.00 is the strongest beat.</div>
@@ -1155,9 +1155,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
           </div>
         </div>
       </transition-stub>
-    </a><a data-v-a7ef304f="" id="__m4d__000041" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-36__popover____placeholder" style="display: none;"></span>
+    </a><a data-v-a7ef304f="" id="__m4d__000041" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-43__popover____placeholder" style="display: none;"></span>
       <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-        <div id="BootstrapVueNext__ID__v-36__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+        <div id="BootstrapVueNext__ID__v-43__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
           <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
           <div class="overflow-auto">
             <div class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.44 where 1.00 is the highest energy.</div>
@@ -1165,9 +1165,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
           </div>
         </div>
       </transition-stub>
-    </a><a data-v-a7ef304f="" id="__m4d__000042" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-2.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-37__popover____placeholder" style="display: none;"></span>
+    </a><a data-v-a7ef304f="" id="__m4d__000042" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-2.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-44__popover____placeholder" style="display: none;"></span>
       <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-        <div id="BootstrapVueNext__ID__v-37__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+        <div id="BootstrapVueNext__ID__v-44__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
           <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
           <div class="overflow-auto">
             <div class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.17 where 1.00 is the happiest.</div>
@@ -1238,9 +1238,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
       </div>
     </transition-stub></span></div>
     <!--v-if-->
-    </div><span><a id="like-button-f37fe20d-f012-4d99-8362-0e159ffc510e" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-38__popover____placeholder" style="display: none;"></span>
+    </div><span><a id="like-button-f37fe20d-f012-4d99-8362-0e159ffc510e" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-46__popover____placeholder" style="display: none;"></span>
     <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-      <div id="BootstrapVueNext__ID__v-38__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+      <div id="BootstrapVueNext__ID__v-46__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
         <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
         <div class="overflow-auto">
           <div class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
@@ -1261,9 +1261,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
     <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=100.2">100</a>
   </td>
   <td class="">
-    <!----><a data-v-a7ef304f="" id="__m4d__000046" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-7.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-39__popover____placeholder" style="display: none;"></span>
+    <!----><a data-v-a7ef304f="" id="__m4d__000046" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-7.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-47__popover____placeholder" style="display: none;"></span>
       <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-        <div id="BootstrapVueNext__ID__v-39__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+        <div id="BootstrapVueNext__ID__v-47__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
           <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
           <div class="overflow-auto">
             <div class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.65 where 1.00 is the strongest beat.</div>
@@ -1271,9 +1271,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
           </div>
         </div>
       </transition-stub>
-    </a><a data-v-a7ef304f="" id="__m4d__000047" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-40__popover____placeholder" style="display: none;"></span>
+    </a><a data-v-a7ef304f="" id="__m4d__000047" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-48__popover____placeholder" style="display: none;"></span>
       <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-        <div id="BootstrapVueNext__ID__v-40__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+        <div id="BootstrapVueNext__ID__v-48__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
           <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
           <div class="overflow-auto">
             <div class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.49 where 1.00 is the highest energy.</div>
@@ -1281,9 +1281,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
           </div>
         </div>
       </transition-stub>
-    </a><a data-v-a7ef304f="" id="__m4d__000048" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-3.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-41__popover____placeholder" style="display: none;"></span>
+    </a><a data-v-a7ef304f="" id="__m4d__000048" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-3.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-49__popover____placeholder" style="display: none;"></span>
       <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-        <div id="BootstrapVueNext__ID__v-41__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+        <div id="BootstrapVueNext__ID__v-49__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
           <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
           <div class="overflow-auto">
             <div class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.25 where 1.00 is the happiest.</div>
@@ -1389,9 +1389,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
       </div>
     </transition-stub></span></div>
     <!--v-if-->
-    </div><span><a id="like-button-77ceb8f5-ab97-47b9-b5b5-71b35e5c6a58" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-42__popover____placeholder" style="display: none;"></span>
+    </div><span><a id="like-button-77ceb8f5-ab97-47b9-b5b5-71b35e5c6a58" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-51__popover____placeholder" style="display: none;"></span>
     <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-      <div id="BootstrapVueNext__ID__v-42__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+      <div id="BootstrapVueNext__ID__v-51__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
         <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
         <div class="overflow-auto">
           <div class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
@@ -1412,9 +1412,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
     <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=100">100</a>
   </td>
   <td class="">
-    <!----><a data-v-a7ef304f="" id="__m4d__000052" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-43__popover____placeholder" style="display: none;"></span>
+    <!----><a data-v-a7ef304f="" id="__m4d__000052" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-52__popover____placeholder" style="display: none;"></span>
       <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-        <div id="BootstrapVueNext__ID__v-43__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+        <div id="BootstrapVueNext__ID__v-52__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
           <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
           <div class="overflow-auto">
             <div class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.43 where 1.00 is the strongest beat.</div>
@@ -1422,9 +1422,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
           </div>
         </div>
       </transition-stub>
-    </a><a data-v-a7ef304f="" id="__m4d__000053" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-3.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-44__popover____placeholder" style="display: none;"></span>
+    </a><a data-v-a7ef304f="" id="__m4d__000053" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-3.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-53__popover____placeholder" style="display: none;"></span>
       <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-        <div id="BootstrapVueNext__ID__v-44__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+        <div id="BootstrapVueNext__ID__v-53__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
           <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
           <div class="overflow-auto">
             <div class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.28 where 1.00 is the highest energy.</div>
@@ -1432,9 +1432,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
           </div>
         </div>
       </transition-stub>
-    </a><a data-v-a7ef304f="" id="__m4d__000054" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-1.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-45__popover____placeholder" style="display: none;"></span>
+    </a><a data-v-a7ef304f="" id="__m4d__000054" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-1.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-54__popover____placeholder" style="display: none;"></span>
       <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-        <div id="BootstrapVueNext__ID__v-45__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+        <div id="BootstrapVueNext__ID__v-54__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
           <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
           <div class="overflow-auto">
             <div class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.04 where 1.00 is the happiest.</div>
@@ -1588,9 +1588,9 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
       </div>
     </transition-stub></span></div>
     <!--v-if-->
-    </div><span><a id="like-button-0ae66a0f-049b-4236-9b6a-4c175b7182ed" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-46__popover____placeholder" style="display: none;"></span>
+    </div><span><a id="like-button-0ae66a0f-049b-4236-9b6a-4c175b7182ed" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-56__popover____placeholder" style="display: none;"></span>
     <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-      <div id="BootstrapVueNext__ID__v-46__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+      <div id="BootstrapVueNext__ID__v-56__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
         <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
         <div class="overflow-auto">
           <div class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
@@ -1698,7 +1698,7 @@ The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/
         <div class="btn-group btn-group-sm" role="group" aria-label="Group"><button class="btn btn-md btn-primary" type="button"> BPM </button><button class="btn btn-md btn-outline-primary" type="button"> MPM </button></div>
       </div>
       <div class="table-responsive">
-        <table id="BootstrapVueNext__ID__v-72__" class="table b-table table-hover table-striped" aria-busy="false">
+        <table id="BootstrapVueNext__ID__v-82__" class="table b-table table-hover table-striped" aria-busy="false">
           <!---->
           <thead class="">
             <tr class="">

@@ -40,7 +40,7 @@ const title = computed(() => {
 });
 const authenticated = computed(() => !!props.danceHandler.user);
 const filter = computed(() => props.danceHandler.filter);
-const filterStyleTag = computed(() => filter.value?.styleTag);
+const filterFamilyTag = computed(() => filter.value?.familyTag);
 const hasFilter = computed(() => {
   const filter = props.danceHandler.filter;
   return !!filter && !filter.isDefault(rating.value.id);
@@ -124,7 +124,7 @@ const onTagClicked = (tag: TagHandler): void => {
         :vote="song.danceVote(rating.danceId)"
         :dance-rating="rating"
         :authenticated="authenticated"
-        :filter-style-tag="filterStyleTag"
+        :filter-family-tag="filterFamilyTag"
         @dance-vote="onDanceVote"
       />
       <span style="padding-inline-start: 1em"

@@ -67,7 +67,7 @@ exports[`Song Merge > Renders the Merge Page 1`] = `
       <div class="list-group list-group-flush">
         <div class="list-group-item">
           <!--v-if-->
-          <div class="d-flex align-items-center gap-2 mb-2" song="[object Object]">
+          <div class="d-flex align-items-center gap-2 mb-2">
             <div data-v-d0b4fb7f="" class="vote-container">
               <div data-v-d0b4fb7f="" class="vote-up"></div><span><span id="__m4d__000001_placeholder" style="display: none;"></span>
               <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
@@ -100,8 +100,9 @@ exports[`Song Merge > Renders the Merge Page 1`] = `
                 </div>
               </transition-stub></span>
             </div>
-            <div class="btn-group btn-group-sm" role="group" aria-label="Group"><button class="btn btn-md btn-outline-primary" type="button">American</button><button class="btn btn-md btn-outline-primary" type="button">Country</button><button class="btn btn-md btn-outline-primary" type="button">Social</button></div>
-          </div><a href="/dances/night-club-two-step"><span><a href="/dances/night-club-two-step">Night Club Two Step</a><!--v-if--><!--v-if--></span></a><span style="margin-left: 0.25rem; line-height: 2.75rem;"><span data-v-c917e428=""><div data-v-c917e428=""><!--v-if--><div data-v-c917e428="" id="songTags" class="b-form-tags form-control h-auto mb-2" role="group" tabindex="-1" style="border-style: hidden;"><output id="BootstrapVueNext__ID__v-10__selected_tags__" class="visually-hidden" for="BootstrapVueNext__ID__v-10__input__" aria-live="off" aria-atomic="true" aria-relevant="additions text"></output><div id="BootstrapVueNext__ID__v-10__removed_tags__" role="status" aria-live="off" aria-atomic="true" class="visually-hidden"> (Tag removed) </div><!--v-if--><div class="dropdown tag-dropdown" block=""><button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="BootstrapVueNext__ID__v-11__dropdown___" aria-expanded="false" aria-haspopup="menu"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em"><path fill="currentColor" d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"></path></svg> Add Tags</button><!----><transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true"><ul id="BootstrapVueNext__ID__v-11__dropdown___-menu" style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto fade" aria-labelledby="BootstrapVueNext__ID__v-11__dropdown___" role="menu"><div><li role="presentation"><form class="dropdown-item-text"><div id="BootstrapVueNext__ID__v-12__" role="group" class="b-form-group mb-0"><!----><!----><div class="row d-flex flex-wrap"><div class="col-md-auto"><label id="BootstrapVueNext__ID__v-13___BV_label____" for="tag-search-input" class="col-form-label col-form-label col-form-label-sm">Search/Add</label></div><div class="col"><input id="BootstrapVueNext__ID__v-17__input___" class="form-control form-control-sm" type="search" autocomplete="off" trim="" value=""><!----><!----><!----></div></div></div></form></li><li role="presentation"><hr class="dropdown-divider" role="separator" aria-orientation="horizontal"></li><!--v-if--><li role="presentation"><span class="dropdown-item-text"> Start typing to see a list of matching tags </span></li>
+            <!--teleport start-->
+            <!--teleport end-->
+          </div><a href="/dances/night-club-two-step"><span><a href="/dances/night-club-two-step">Night Club Two Step</a><!--v-if--><!--v-if--></span></a><span style="margin-left: 0.25rem; line-height: 2.75rem;"><span data-v-c917e428=""><div data-v-c917e428=""><!--v-if--><div data-v-c917e428="" id="songTags" class="b-form-tags form-control h-auto mb-2" role="group" tabindex="-1" style="border-style: hidden;"><output id="BootstrapVueNext__ID__v-13__selected_tags__" class="visually-hidden" for="BootstrapVueNext__ID__v-13__input__" aria-live="off" aria-atomic="true" aria-relevant="additions text"></output><div id="BootstrapVueNext__ID__v-13__removed_tags__" role="status" aria-live="off" aria-atomic="true" class="visually-hidden"> (Tag removed) </div><!--v-if--><div class="dropdown tag-dropdown" block=""><button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="BootstrapVueNext__ID__v-14__dropdown___" aria-expanded="false" aria-haspopup="menu"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em"><path fill="currentColor" d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0a1.5 1.5 0 0 1 3 0"></path></svg> Add Tags</button><!----><transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true"><ul id="BootstrapVueNext__ID__v-14__dropdown___-menu" style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto fade" aria-labelledby="BootstrapVueNext__ID__v-14__dropdown___" role="menu"><div><li role="presentation"><form class="dropdown-item-text"><div id="BootstrapVueNext__ID__v-15__" role="group" class="b-form-group mb-0"><!----><!----><div class="row d-flex flex-wrap"><div class="col-md-auto"><label id="BootstrapVueNext__ID__v-16___BV_label____" for="tag-search-input" class="col-form-label col-form-label col-form-label-sm">Search/Add</label></div><div class="col"><input id="BootstrapVueNext__ID__v-20__input___" class="form-control form-control-sm" type="search" autocomplete="off" trim="" value=""><!----><!----><!----></div></div></div></form></li><li role="presentation"><hr class="dropdown-divider" role="separator" aria-orientation="horizontal"></li><!--v-if--><li role="presentation"><span class="dropdown-item-text"> Start typing to see a list of matching tags </span></li>
         </div>
         </ul>
         </transition-stub>
@@ -115,7 +116,7 @@ exports[`Song Merge > Renders the Merge Page 1`] = `
   </div></span></span>
   <div data-v-1806d3fa="">
     <div data-v-1806d3fa="">
-      <div data-v-d8face52="" data-v-1806d3fa="" class="mb-2"><textarea data-v-d8face52="" id="BootstrapVueNext__ID__v-18__input___" class="form-control" placeholder="Please add a note on why you voted for/against dancing this dance to this song" rows="3" wrap="soft" value=""></textarea>
+      <div data-v-d8face52="" data-v-1806d3fa="" class="mb-2"><textarea data-v-d8face52="" id="BootstrapVueNext__ID__v-21__input___" class="form-control" placeholder="Please add a note on why you voted for/against dancing this dance to this song" rows="3" wrap="soft" value=""></textarea>
         <div data-v-d8face52="" class="signature">--<a data-v-6358290b="" data-v-d8face52="" href="/users/info/music4dance" class="">music4dance</a></div>
       </div>
     </div>
@@ -126,7 +127,7 @@ exports[`Song Merge > Renders the Merge Page 1`] = `
 <!---->
 </div><button class="btn btn-md btn-primary mt-2 collapsed" type="button" data-bvtoggle="dance-chooser" aria-expanded="false" aria-controls="dance-chooser">Add Dance Style</button></div>
 <div class="col-md-auto">
-  <table id="BootstrapVueNext__ID__v-19__" class="table b-table table-borderless table-sm">
+  <table id="BootstrapVueNext__ID__v-22__" class="table b-table table-borderless table-sm">
     <tr class="">
       <th scope="col" class="">Length</th>
       <td class=""><span data-v-b2e59ff0=""><input data-v-b2e59ff0="" type="number" class="form-control ml-2 number" style="display: inline;"></span> Seconds</td>
@@ -137,9 +138,9 @@ exports[`Song Merge > Renders the Merge Page 1`] = `
     </tr>
     <tr class="">
       <th scope="col" class="">Beat</th>
-      <td class=""><a id="__m4d__000004" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-20__popover____placeholder" style="display: none;"></span>
+      <td class=""><a id="__m4d__000004" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-23__popover____placeholder" style="display: none;"></span>
           <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-            <div id="BootstrapVueNext__ID__v-20__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+            <div id="BootstrapVueNext__ID__v-23__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
               <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
               <div class="overflow-auto">
                 <div class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.52 where 1.00 is the strongest beat.</div>
@@ -151,9 +152,9 @@ exports[`Song Merge > Renders the Merge Page 1`] = `
     </tr>
     <tr class="">
       <th scope="col" class="">Energy</th>
-      <td class=""><a id="__m4d__000005" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-8.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-21__popover____placeholder" style="display: none;"></span>
+      <td class=""><a id="__m4d__000005" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-8.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-24__popover____placeholder" style="display: none;"></span>
           <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-            <div id="BootstrapVueNext__ID__v-21__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+            <div id="BootstrapVueNext__ID__v-24__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
               <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
               <div class="overflow-auto">
                 <div class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.80 where 1.00 is the highest energy.</div>
@@ -165,9 +166,9 @@ exports[`Song Merge > Renders the Merge Page 1`] = `
     </tr>
     <tr class="">
       <th scope="col" class="">Mood</th>
-      <td class=""><a id="__m4d__000006" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-7.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-22__popover____placeholder" style="display: none;"></span>
+      <td class=""><a id="__m4d__000006" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-7.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-25__popover____placeholder" style="display: none;"></span>
           <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-            <div id="BootstrapVueNext__ID__v-22__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+            <div id="BootstrapVueNext__ID__v-25__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
               <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
               <div class="overflow-auto">
                 <div class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.60 where 1.00 is the happiest.</div>
@@ -1173,8 +1174,6 @@ Time=07-Feb-2014"></textarea>
     </div>
   </div>
 </div>
-<!--teleport start-->
-<!--teleport end-->
 <!--teleport start-->
 <!--teleport end-->
 <!--teleport start-->

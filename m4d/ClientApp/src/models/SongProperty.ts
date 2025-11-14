@@ -1,10 +1,35 @@
 import { jsonMember, jsonObject } from "typedjson";
 
-// Name Syntax:
-//   BaseName[:idx[:qual]]
-//     idx is zeros based index for multi-value fields (only album at this point?)
-//     qual is a qualifier for purchase type (may generalize?)
-//   Tag(+|-)[DanceQualifier]
+/**
+ * SongProperty represents a name-value pair used in song editing and history.
+ *
+ * Name Syntax:
+ *   Simple fields: BaseName
+ *     Examples: "Title", "Artist", "Tempo"
+ *
+ *   Indexed fields: BaseName:idx[:qual]
+ *     idx: zero-based index (2 digits, zero-padded) for multi-value fields (albums, purchases)
+ *     qual: optional qualifier (e.g., purchase type: "S" for single, "A" for album)
+ *     Examples: "Album:00", "Album:01", "Purchase:00:S", "Purchase:01:A"
+ *
+ *   Tag operations: Tag(+|-):danceId=tagValue
+ *     Tag+: add tag
+ *     Tag-: remove tag
+ *     For dance tags: Tag+:danceId=familyTag:Style or Tag+:danceId=family1:Style|family2:Style
+ *     Examples:
+ *       "Tag+:CHA=International:Style" - add International style to Cha Cha
+ *       "Tag+:CHA=American:Style|International:Style" - add multiple families to Cha Cha
+ *       "Tag+" with value "Cha Cha:Dance" - add dance tag
+ *       "Tag-" with value "Waltz:Dance" - remove dance tag
+ *
+ *   Commands: .CommandName
+ *     Examples: ".Edit", ".Create", ".Delete"
+ *
+ * Value Syntax:
+ *   - Most fields: plain string value
+ *   - Tags: formatted as "value:category" or "danceId=value:category"
+ *   - Special escaping: '=' becomes '\\<EQ>\\', tabs become '\\t'
+ */
 
 export type PropertyValue = string | number | Date | boolean | undefined;
 
@@ -108,7 +133,109 @@ export class SongProperty {
     const cells = s.split("=");
     return new SongProperty({
       name: cells[0],
-      value: cells.length > 1 ? cells[1] : undefined,
+      value: cells.length > 1 ? cells.slice(1).join("=") : undefined,
+    });
+  }
+
+  /**
+   * Create a SongProperty from parts
+   * @param baseName - Base property name (e.g., "Title", "Album")
+   * @param value - Property value
+   * @param index - Optional zero-based index for multi-value fields
+   * @param qualifier - Optional qualifier (e.g., purchase type)
+   * @returns SongProperty with properly formatted name
+   *
+   * @example
+   * SongProperty.fromParts("Title", "My Song") // name="Title", value="My Song"
+   * SongProperty.fromParts("Album", "Greatest Hits", 0) // name="Album:00"
+   * SongProperty.fromParts("Purchase", "trackId123", 0, "S") // name="Purchase:00:S"
+   */
+  public static fromParts(
+    baseName: string,
+    value?: PropertyValue,
+    index?: number,
+    qualifier?: string,
+  ): SongProperty {
+    let name = baseName;
+
+    if (index !== undefined) {
+      name = `${name}:${index.toString().padStart(2, "0")}`;
+    }
+
+    if (qualifier) {
+      name = `${name}:${qualifier}`;
+    }
+
+    return new SongProperty({
+      name,
+      value: value?.toString() ?? "",
+    });
+  }
+
+  /**
+   * Create a tag addition property (Tag+)
+   * @param tagValue - Tag value in format "value:category" or "danceId=value:category"
+   * @returns SongProperty for adding a tag
+   *
+   * @example
+   * SongProperty.fromAddedTag("Cha Cha:Dance") // Add dance tag
+   * SongProperty.fromAddedTag("CHA=International:Style") // Add single family tag
+   */
+  public static fromAddedTag(tagValue: string): SongProperty {
+    return new SongProperty({
+      name: PropertyType.addedTags,
+      value: tagValue,
+    });
+  }
+
+  /**
+   * Create a tag removal property (Tag-)
+   * @param tagValue - Tag value in format "value:category" or "danceId=value:category"
+   * @returns SongProperty for removing a tag
+   *
+   * @example
+   * SongProperty.fromRemovedTag("Waltz:Dance") // Remove dance tag
+   */
+  public static fromRemovedTag(tagValue: string): SongProperty {
+    return new SongProperty({
+      name: PropertyType.removedTags,
+      value: tagValue,
+    });
+  }
+
+  /**
+   * Create a dance family tag property (Tag+:danceId=family:Style or Tag+:danceId=family1:Style|family2:Style)
+   * @param danceId - Dance ID (e.g., "CHA", "WAL")
+   * @param families - Array of family names (e.g., ["International", "American"])
+   * @returns SongProperty for adding dance family tags
+   *
+   * @example
+   * SongProperty.fromDanceFamilyTags("CHA", ["International"]) // Tag+:CHA=International:Style
+   * SongProperty.fromDanceFamilyTags("CHA", ["American", "International"]) // Tag+:CHA=American:Style|International:Style
+   */
+  public static fromDanceFamilyTags(danceId: string, families: string[]): SongProperty {
+    const familyTags = families.map((family) => `${family}:Style`).join("|");
+    return new SongProperty({
+      name: `${PropertyType.addedTags}:${danceId}`,
+      value: familyTags,
+    });
+  }
+
+  /**
+   * Create a dance rating property (DanceRating)
+   * @param danceId - Dance ID (e.g., "CHA", "WAL")
+   * @param delta - Rating delta (positive or negative integer)
+   * @returns SongProperty for dance rating change
+   *
+   * @example
+   * SongProperty.fromDanceRating("CHA", 1) // DanceRating=CHA+1
+   * SongProperty.fromDanceRating("WAL", -2) // DanceRating=WAL-2
+   */
+  public static fromDanceRating(danceId: string, delta: number): SongProperty {
+    const sign = delta >= 0 ? "+" : "";
+    return new SongProperty({
+      name: PropertyType.danceRatingField,
+      value: `${danceId}${sign}${delta}`,
     });
   }
 

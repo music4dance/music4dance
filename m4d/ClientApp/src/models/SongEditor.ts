@@ -6,6 +6,7 @@ import { PropertyType, type PropertyValue, SongProperty } from "./SongProperty";
 import { TrackModel } from "./TrackModel";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { formatNow } from "@/helpers/timeHelpers";
+import { Tag } from "./Tag";
 
 export class SongEditor {
   public songId: string;
@@ -182,15 +183,15 @@ export class SongEditor {
   public danceVote(vote: DanceRatingVote): void {
     switch (vote.direction) {
       case VoteDirection.Up:
-        this.upVote(vote.danceId, vote.styleTag);
+        this.upVote(vote.danceId, vote.familyTags);
         break;
       case VoteDirection.Down:
-        this.downVote(vote.danceId, vote.styleTag);
+        this.downVote(vote.danceId, vote.familyTags);
         break;
     }
   }
 
-  private upVote(danceId: string, styleTag?: string): void {
+  private upVote(danceId: string, familyTags?: string[]): void {
     const vote = this.song.danceVote(danceId);
     let weight = 1;
     let positive: boolean | undefined = true;
@@ -203,10 +204,10 @@ export class SongEditor {
       weight = 2;
     }
     this.setRatingProperty(danceId, weight);
-    this.setVoteProperties(danceId, positive, negative, styleTag);
+    this.setVoteProperties(danceId, positive, negative, familyTags);
   }
 
-  private downVote(danceId: string, styleTag?: string): void {
+  private downVote(danceId: string, familyTags?: string[]): void {
     const vote = this.song.danceVote(danceId);
     let weight = -1;
     let negative: boolean | undefined = true;
@@ -220,7 +221,7 @@ export class SongEditor {
     }
 
     this.setRatingProperty(danceId, weight);
-    this.setVoteProperties(danceId, positive, negative, styleTag);
+    this.setVoteProperties(danceId, positive, negative, familyTags);
   }
 
   private setRatingProperty(danceId: string, weight: number): void {
@@ -234,25 +235,26 @@ export class SongEditor {
     danceId: string,
     positive?: boolean,
     negative?: boolean,
-    styleTag?: string,
+    familyTags?: string[],
   ): void {
-    const posTag = `${safeDanceDatabase().fromId(danceId)!.name}:Dance`;
-    const negTag = "!" + posTag;
+    const dance = safeDanceDatabase().fromId(danceId)!;
+    const posTag = Tag.fromParts(dance.name, "Dance");
+    const negTag = Tag.fromParts("!" + dance.name, "Dance");
 
     if (positive === true) {
-      this.addProperty(PropertyType.addedTags, posTag);
+      this.addPropertyFromObject(SongProperty.fromAddedTag(posTag.key));
     } else if (positive === false) {
-      this.addProperty(PropertyType.removedTags, posTag);
+      this.addPropertyFromObject(SongProperty.fromRemovedTag(posTag.key));
     }
     if (negative === true) {
-      this.addProperty(PropertyType.addedTags, negTag);
+      this.addPropertyFromObject(SongProperty.fromAddedTag(negTag.key));
     } else if (negative === false) {
-      this.addProperty(PropertyType.removedTags, negTag);
+      this.addPropertyFromObject(SongProperty.fromRemovedTag(negTag.key));
     }
 
-    // Add style tag if provided and we're voting positive
-    if (styleTag && positive === true) {
-      this.addProperty(PropertyType.addedTags, `${danceId}=${styleTag}:Style`);
+    // Add family tags if provided and we're voting positive
+    if (familyTags && familyTags.length > 0 && positive === true) {
+      this.addPropertyFromObject(SongProperty.fromDanceFamilyTags(danceId, familyTags));
     }
   }
 
@@ -276,6 +278,14 @@ export class SongEditor {
     this.modified = true;
     this.setupEdit();
     return this.createProperty(name, value);
+  }
+
+  /**
+   * Add a property from a SongProperty object
+   * This is useful when using SongProperty factory methods
+   */
+  private addPropertyFromObject(property: SongProperty): SongProperty {
+    return this.addProperty(property.name, property.value);
   }
 
   public addAlbumProperty(name: string, value: PropertyValue, index = 0): SongProperty {

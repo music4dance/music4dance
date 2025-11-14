@@ -303,10 +303,10 @@ export class SongFilter {
   }
 
   /**
-   * Extract the style tag from the filter's dance query (e.g., "CHA|+International:Style" -> "International")
-   * Returns undefined if no style tag is present
+   * Extract the family tag from the filter's dance query (e.g., "CHA|+International:Style" -> "International")
+   * Returns undefined if no family tag is present or if the family is not a valid styleFamily for the dance
    */
-  public get styleTag(): string | undefined {
+  public get familyTag(): string | undefined {
     const danceQuery = this.danceQuery;
     if (!danceQuery || !danceQuery.singleDance) {
       return undefined;
@@ -324,10 +324,25 @@ export class SongFilter {
       return undefined;
     }
 
-    // Find the first Style tag in the tag list
-    const styleTags = tagQuery.tagList.tags.filter((tag) => tag.category === "Style");
-    if (styleTags.length > 0) {
-      return styleTags[0]?.value;
+    // Get Style tags from Adds (which strips + prefix, so we get unqualified values)
+    const styleTags = tagQuery.tagList.Adds.filter((tag) => tag.category === "Style");
+    if (styleTags.length === 0) {
+      return undefined;
+    }
+
+    const styleValue = styleTags[0]?.value;
+    if (!styleValue) {
+      return undefined;
+    }
+
+    // Only return the style tag if it's a valid styleFamily for this dance
+    // This ensures we only auto-apply family tags (International, American, Country)
+    // and not other style tags
+    const danceId = item.dance.id;
+    const styleFamilies = this.danceQuery.database.getStyleFamilies(danceId);
+    console.log("Style Families for dance", danceId, styleFamilies, "found style tag:", styleValue);
+    if (styleFamilies.includes(styleValue)) {
+      return styleValue;
     }
 
     return undefined;

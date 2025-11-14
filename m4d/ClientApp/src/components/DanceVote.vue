@@ -11,14 +11,14 @@ const props = defineProps<{
   vote?: boolean;
   danceRating: DanceRating;
   authenticated?: boolean;
-  filterStyleTag?: string; // Style tag from search context (e.g., "American", "International")
+  filterFamilyTag?: string; // Family tag from search context (e.g., "American", "International")
 }>();
 
 const emit = defineEmits<{
   "dance-vote": [vote: DanceRatingVote];
 }>();
 
-const showStyleChoiceModal = ref<boolean>(false);
+const showFamilyChoiceModal = ref<boolean>(false);
 
 const danceId = computed(() => props.danceRating.danceId);
 const dance = computed(() => danceDB.fromId(danceId.value)!);
@@ -29,53 +29,56 @@ const hasMultipleStyles = computed(() => styleFamilies.value.length > 1);
 
 console.log("DanceVote initialized:", {
   danceId: danceId.value,
-  filterStyleTag: props.filterStyleTag,
+  filterFamilyTag: props.filterFamilyTag,
   styleFamilies: styleFamilies.value,
   hasSingleStyle: hasSingleStyle.value,
   hasMultipleStyles: hasMultipleStyles.value,
 });
 
 const pendingVote = ref<VoteDirection | undefined>(undefined);
-const modalId = `style-choice-modal-${uniqueId}`;
+const modalId = `family-choice-modal-${uniqueId}`;
 
 const handleVote = (direction: VoteDirection): void => {
   console.log("Handling vote", direction);
   console.log("State:", {
     hasSingleStyle: hasSingleStyle.value,
     hasMultipleStyles: hasMultipleStyles.value,
-    filterStyleTag: props.filterStyleTag,
+    filterFamilyTag: props.filterFamilyTag,
     styleFamilies: styleFamilies.value,
     modalId: modalId,
   });
-  // If single style or has filter style tag, vote immediately
+  // If single family or has filter family tag, vote immediately
   if (hasSingleStyle.value) {
-    console.log("Single style detected:", styleFamilies.value[0]);
-    emitVote(direction, styleFamilies.value[0]);
-  } else if (props.filterStyleTag) {
-    console.log("Using filter style tag:", props.filterStyleTag);
-    emitVote(direction, props.filterStyleTag);
+    console.log("Single family detected:", styleFamilies.value[0]);
+    const family = styleFamilies.value[0];
+    if (family) emitVote(direction, [family]);
+  } else if (props.filterFamilyTag) {
+    console.log("Using filter family tag:", props.filterFamilyTag);
+    emitVote(direction, [props.filterFamilyTag]);
   } else if (hasMultipleStyles.value) {
-    console.log("Multiple styles detected, showing style choice modal:", modalId);
-    // Show modal to select style
+    console.log("Multiple families detected, showing family choice modal:", modalId);
+    // Show modal to select families
     pendingVote.value = direction;
-    showStyleChoiceModal.value = true;
+    showFamilyChoiceModal.value = true;
   } else {
-    console.log("No style choice needed");
-    // No style tag needed
+    console.log("No family choice needed");
+    // No family tag needed
     emitVote(direction, undefined);
   }
 };
 
-const onStyleSelected = (styleTag: string): void => {
+const onFamiliesSelected = (families: string[]): void => {
   if (pendingVote.value !== undefined) {
-    emitVote(pendingVote.value, styleTag);
+    const direction = pendingVote.value;
     pendingVote.value = undefined;
+    // Emit single vote with array of families (empty array means vote without family)
+    emitVote(direction, families.length > 0 ? families : undefined);
   }
 };
 
-const emitVote = (direction: VoteDirection, styleTag?: string): void => {
-  console.log("Emitting dance-vote event:", { danceId: danceId.value, direction, styleTag });
-  emit("dance-vote", new DanceRatingVote(danceId.value, direction, styleTag));
+const emitVote = (direction: VoteDirection, familyTags?: string[]): void => {
+  console.log("Emitting dance-vote event:", { danceId: danceId.value, direction, familyTags });
+  emit("dance-vote", new DanceRatingVote(danceId.value, direction, familyTags));
 };
 
 const upVote = () => handleVote(VoteDirection.Up);
@@ -94,13 +97,13 @@ const maxWeight = computed(() => safeDanceDatabase().getMaxWeight(danceId.value)
       @up-vote="upVote"
       @down-vote="downVote"
     />
-    <StyleChoiceModal
+    <FamilyChoiceModal
       v-if="hasMultipleStyles"
       :id="modalId"
-      v-model="showStyleChoiceModal"
-      :styles="styleFamilies"
+      v-model="showFamilyChoiceModal"
+      :families="styleFamilies"
       :dance-name="dance.name"
-      @style-selected="onStyleSelected"
+      @families-selected="onFamiliesSelected"
     />
   </div>
 </template>
