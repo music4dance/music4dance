@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { wordsToKebab } from "@/helpers/StringHelpers";
 import { SongFilter } from "@/models/SongFilter";
+import { DanceQueryItem } from "@/models/DanceQueryItem";
 import { ref } from "vue";
+import { Tag, TagCategory } from "@/models/Tag";
 
 const props = defineProps<{
   filter: SongFilter;
@@ -26,9 +28,21 @@ const search = (): void => {
   window.location.href = `/song/filterSearch?filter=${filter.encodedQuery}`;
 };
 
-const chooseDance = (danceId?: string): void => {
+const chooseDance = (danceId?: string, persist?: boolean, styleTag?: string): void => {
   const filter = props.filter.clone();
-  filter.dances = danceId;
+
+  // Use DanceQueryItem to construct proper filter string
+  if (danceId) {
+    const queryItem = new DanceQueryItem({
+      id: danceId,
+      threshold: 1,
+      tags: styleTag ? Tag.fromParts(styleTag, TagCategory.Style).toString() : undefined,
+    });
+    filter.dances = queryItem.toString();
+  } else {
+    filter.dances = undefined;
+  }
+
   filter.sortOrder = "Dances";
   filter.page = undefined;
   filter.searchString = searchString.value;

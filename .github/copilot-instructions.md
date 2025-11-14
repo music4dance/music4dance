@@ -79,6 +79,14 @@ music4dance.net is a sophisticated web application designed to help dancers find
 - **Component Structure**: Single File Components (.vue)
 - **Testing**: Vitest with comprehensive component testing
 - **Naming**: PascalCase for components, camelCase for properties
+- **Functional Programming**: Prefer functional/method chaining style over imperative loops
+  - Use `map()`, `filter()`, `reduce()`, `sort()` for array operations
+  - Example: `items.map(x => x.value).filter(v => v > 0).sort()` instead of for-loops
+  - Use spread operator `[...new Set(array)]` for deduplication when array is small
+- **Unit Testing**: Always add unit tests for new methods containing logic
+  - Test happy path and edge cases (empty arrays, single items, duplicates)
+  - Test error conditions (invalid IDs, undefined values)
+  - Co-locate tests in `__tests__/` folders next to source files
 
 ### File Organization
 
@@ -149,6 +157,72 @@ const props = defineProps<Props>();
 var category = CompetitionCategory.GetCategory("american-rhythm");
 var ballroomDances = CompetitionGroup.Get(CompetitionCategory.Ballroom);
 ```
+
+**Filter Construction** (TypeScript):
+
+```typescript
+// ALWAYS use class library methods - NEVER construct filter strings manually
+import { DanceQueryItem } from "@/models/DanceQueryItem";
+import { Tag } from "@/models/Tag";
+
+// Correct: Use DanceQueryItem to build dance filter strings
+const queryItem = new DanceQueryItem({
+  id: danceId,
+  threshold: 1,
+  tags: styleTag ? Tag.fromParts(styleTag, "Style").toString() : undefined,
+});
+filter.dances = queryItem.toString(); // Produces: "CHA|+International:Style"
+
+// Correct: Use Tag.fromParts for tag construction
+const tag = Tag.fromParts("International", "Style"); // Produces proper tag format
+
+// WRONG: Never manually construct filter strings
+filter.dances = `${danceId}|+${styleTag}:Style`; // ❌ Don't do this
+const tag = `${styleTag}:Style`; // ❌ Don't do this
+```
+
+**Why use class library:**
+
+- Classes handle proper serialization formats (e.g., `DanceQueryItem.toString()`)
+- Encapsulation ensures format changes are centralized
+- Type safety prevents format errors
+- Parsing and serialization stay in sync
+
+**String Parsing** (General Rule):
+
+```typescript
+// ALWAYS use helper classes for parsing - NEVER manually parse strings
+import { TagQuery } from "@/models/TagQuery";
+import { DanceQueryItem } from "@/models/DanceQueryItem";
+
+// Correct: Use TagQuery to extract tag information
+const tagQuery = item.tagQuery;
+const styleTags = tagQuery.tagList.tags.filter(
+  (tag) => tag.category === "Style"
+);
+const styleValue = styleTags[0]?.value;
+
+// WRONG: Never manually parse tag strings
+const parts = tagString.split(":"); // ❌ Don't do this
+const value = parts[0]; // ❌ Don't do this
+
+// Correct: Use DanceQueryItem.fromValue to parse dance queries
+const queryItem = DanceQueryItem.fromValue("CHA|+International:Style");
+const styleTag = queryItem.tagQuery?.tagList.tags.find(
+  (t) => t.category === "Style"
+)?.value;
+
+// WRONG: Never manually parse query strings
+const parts = queryString.split("|"); // ❌ Don't do this
+const tagPart = parts[1]?.split(":"); // ❌ Don't do this
+```
+
+**Why avoid manual parsing:**
+
+- Helper classes handle edge cases (special characters, optional fields, prefixes)
+- Type safety ensures correct property access
+- Changes to format only require updating one class
+- Reduces bugs from inconsistent parsing logic
 
 ## Error Handling & Debugging
 

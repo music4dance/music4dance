@@ -129,11 +129,11 @@ public class SongController : ContentController
 
         if (playlist == null)
         {
-            return ReturnError(HttpStatusCode.NotFound, 
+            return ReturnError(HttpStatusCode.NotFound,
                 $"Playlist {id} doesn't exist or is empty.");
         }
 
-        var filter = 
+        var filter =
             $"ServiceIds/any(id: search.in(id, '{string.Join(',',playlist.Tracks.Select(t => $"S:{t.TrackId}"))}'))";
         var options = new SearchOptions
         {
@@ -747,6 +747,18 @@ public class SongController : ContentController
     public ActionResult BatchAdminModify(string properties)
     {
         UseVue = UseVue.No;
+
+        try
+        {
+            // Building this before doing anything else purely for validation, it will
+            //  be rebuilt further down the stack.
+            SongModifier.Build(properties);
+        }
+        catch (Exception ex)
+        {
+            throw new ArgumentException($"Invalid properties format: {properties}", nameof(properties), ex);
+        }
+
         return BatchAdminExecute(
             Filter,
             (dms, song) => dms.SongIndex.AdminModifySong(song, properties),

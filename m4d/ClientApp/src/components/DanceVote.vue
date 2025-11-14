@@ -2,36 +2,87 @@
 import { DanceRatingVote, VoteDirection } from "@/models/DanceRatingDelta";
 import { DanceRating } from "@/models/DanceRating";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
-import { computed } from "vue";
+import { computed, ref, useId } from "vue";
 
 const danceDB = safeDanceDatabase();
+const uniqueId = useId();
 
 const props = defineProps<{
   vote?: boolean;
   danceRating: DanceRating;
   authenticated?: boolean;
+  filterFamilyTag?: string; // Family tag from search context (e.g., "American", "International")
 }>();
 
 const emit = defineEmits<{
   "dance-vote": [vote: DanceRatingVote];
 }>();
 
+const showFamilyChoiceModal = ref<boolean>(false);
+
 const danceId = computed(() => props.danceRating.danceId);
 const dance = computed(() => danceDB.fromId(danceId.value)!);
 
-const upVote = () => emit("dance-vote", new DanceRatingVote(danceId.value, VoteDirection.Up));
-const downVote = () => emit("dance-vote", new DanceRatingVote(danceId.value, VoteDirection.Down));
+const styleFamilies = computed(() => danceDB.getStyleFamilies(danceId.value));
+const hasSingleStyle = computed(() => styleFamilies.value.length === 1);
+const hasMultipleStyles = computed(() => styleFamilies.value.length > 1);
+
+const pendingVote = ref<VoteDirection | undefined>(undefined);
+const modalId = `family-choice-modal-${uniqueId}`;
+
+const handleVote = (direction: VoteDirection): void => {
+  // If single family or has filter family tag, vote immediately
+  if (hasSingleStyle.value) {
+    const family = styleFamilies.value[0];
+    if (family) emitVote(direction, [family]);
+  } else if (props.filterFamilyTag) {
+    emitVote(direction, [props.filterFamilyTag]);
+  } else if (hasMultipleStyles.value) {
+    // Show modal to select families
+    pendingVote.value = direction;
+    showFamilyChoiceModal.value = true;
+  } else {
+    // No family tag needed
+    emitVote(direction, undefined);
+  }
+};
+
+const onFamiliesSelected = (families: string[]): void => {
+  if (pendingVote.value !== undefined) {
+    const direction = pendingVote.value;
+    pendingVote.value = undefined;
+    // Emit single vote with array of families (empty array means vote without family)
+    emitVote(direction, families.length > 0 ? families : undefined);
+  }
+};
+
+const emitVote = (direction: VoteDirection, familyTags?: string[]): void => {
+  emit("dance-vote", new DanceRatingVote(danceId.value, direction, familyTags));
+};
+
+const upVote = () => handleVote(VoteDirection.Up);
+const downVote = () => handleVote(VoteDirection.Down);
 const maxWeight = computed(() => safeDanceDatabase().getMaxWeight(danceId.value));
 </script>
 
 <template>
-  <DanceVoteButton
-    :vote="vote"
-    :value="danceRating.weight"
-    :authenticated="!!authenticated"
-    :dance-name="dance.name"
-    :max-vote="maxWeight"
-    @up-vote="upVote"
-    @down-vote="downVote"
-  />
+  <div class="d-flex align-items-center gap-2">
+    <DanceVoteButton
+      :vote="vote"
+      :value="danceRating.weight"
+      :authenticated="!!authenticated"
+      :dance-name="dance.name"
+      :max-vote="maxWeight"
+      @up-vote="upVote"
+      @down-vote="downVote"
+    />
+    <FamilyChoiceModal
+      v-if="hasMultipleStyles"
+      :id="modalId"
+      v-model="showFamilyChoiceModal"
+      :families="styleFamilies"
+      :dance-name="dance.name"
+      @families-selected="onFamiliesSelected"
+    />
+  </div>
 </template>

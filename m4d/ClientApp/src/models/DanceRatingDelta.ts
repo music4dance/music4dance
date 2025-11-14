@@ -32,5 +32,6 @@ export class DanceRatingVote {
   constructor(
     readonly danceId: string,
     readonly direction: VoteDirection,
+    readonly familyTags?: string[], // Optional family tags (e.g., ["International", "American", "Country"])
   ) {}
 }

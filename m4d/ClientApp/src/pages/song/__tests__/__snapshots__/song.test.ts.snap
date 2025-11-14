@@ -52,37 +52,41 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
               <div class="list-group list-group-flush">
                 <div class="list-group-item">
                   <!--v-if-->
-                  <div data-v-d0b4fb7f="" class="vote-container mb-2" song="[object Object]">
-                    <div data-v-d0b4fb7f="" class="vote-up"></div><span><span id="__m4d__000001_placeholder" style="display: none;"></span>
-                    <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                      <div id="__m4d__000001" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                        <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                        <div class="overflow-auto">
-                          <div class="position-sticky top-0 tooltip-inner">Click here to vote for this song being danceable East Coast Swing</div>
-                          <!---->
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <div data-v-d0b4fb7f="" class="vote-container">
+                      <div data-v-d0b4fb7f="" class="vote-up"></div><span><span id="__m4d__000001_placeholder" style="display: none;"></span>
+                      <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                        <div id="__m4d__000001" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                          <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                          <div class="overflow-auto">
+                            <div class="position-sticky top-0 tooltip-inner">Click here to vote for this song being danceable East Coast Swing</div>
+                            <!---->
+                          </div>
                         </div>
-                      </div>
-                    </transition-stub></span>
-                    <div data-v-d0b4fb7f="" class="vote-number">2</div><span><span id="__m4d__000002_placeholder" style="display: none;"></span>
-                    <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                      <div id="__m4d__000002" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                        <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                        <div class="overflow-auto">
-                          <div class="position-sticky top-0 tooltip-inner">This song has 2 votes. The most popular East Coast Swing has 16 votes</div>
-                          <!---->
+                      </transition-stub></span>
+                      <div data-v-d0b4fb7f="" class="vote-number">2</div><span><span id="__m4d__000002_placeholder" style="display: none;"></span>
+                      <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                        <div id="__m4d__000002" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                          <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                          <div class="overflow-auto">
+                            <div class="position-sticky top-0 tooltip-inner">This song has 2 votes. The most popular East Coast Swing has 16 votes</div>
+                            <!---->
+                          </div>
                         </div>
-                      </div>
-                    </transition-stub></span>
-                    <div data-v-d0b4fb7f="" class="vote-down"></div><span><span id="__m4d__000003_placeholder" style="display: none;"></span>
-                    <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                      <div id="__m4d__000003" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                        <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                        <div class="overflow-auto">
-                          <div class="position-sticky top-0 tooltip-inner">Click here to vote that this song is not danceable to East Coast Swing</div>
-                          <!---->
+                      </transition-stub></span>
+                      <div data-v-d0b4fb7f="" class="vote-down"></div><span><span id="__m4d__000003_placeholder" style="display: none;"></span>
+                      <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                        <div id="__m4d__000003" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                          <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                          <div class="overflow-auto">
+                            <div class="position-sticky top-0 tooltip-inner">Click here to vote that this song is not danceable to East Coast Swing</div>
+                            <!---->
+                          </div>
                         </div>
-                      </div>
-                    </transition-stub></span>
+                      </transition-stub></span>
+                    </div>
+                    <!--teleport start-->
+                    <!--teleport end-->
                   </div><a href="/dances/east-coast-swing"><span><a href="/dances/east-coast-swing">East Coast Swing</a><span><!--v-if--> (Triple Swing, East Coast) </span>
                     <!--v-if--></span>
                   </a><span style="margin-left: 0.25rem; line-height: 2.75rem;"><span data-v-c917e428=""><span data-v-c917e428=""><span data-v-c917e428=""></span><a data-v-c917e428="" class="" href="#"><svg data-v-c917e428="" viewBox="0 0 16 16" width="1.2em" height="1.2em" class="me-2">
@@ -92,37 +96,41 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
                 </div>
                 <div class="list-group-item">
                   <!--v-if-->
-                  <div data-v-d0b4fb7f="" class="vote-container mb-2" song="[object Object]">
-                    <div data-v-d0b4fb7f="" class="vote-up"></div><span><span id="__m4d__000004_placeholder" style="display: none;"></span>
-                    <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                      <div id="__m4d__000004" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                        <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                        <div class="overflow-auto">
-                          <div class="position-sticky top-0 tooltip-inner">Click here to vote for this song being danceable Slow Foxtrot</div>
-                          <!---->
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <div data-v-d0b4fb7f="" class="vote-container">
+                      <div data-v-d0b4fb7f="" class="vote-up"></div><span><span id="__m4d__000004_placeholder" style="display: none;"></span>
+                      <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                        <div id="__m4d__000004" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                          <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                          <div class="overflow-auto">
+                            <div class="position-sticky top-0 tooltip-inner">Click here to vote for this song being danceable Slow Foxtrot</div>
+                            <!---->
+                          </div>
                         </div>
-                      </div>
-                    </transition-stub></span>
-                    <div data-v-d0b4fb7f="" class="vote-number">1</div><span><span id="__m4d__000005_placeholder" style="display: none;"></span>
-                    <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                      <div id="__m4d__000005" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                        <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                        <div class="overflow-auto">
-                          <div class="position-sticky top-0 tooltip-inner">This song has 1 votes. The most popular Slow Foxtrot has 27 votes</div>
-                          <!---->
+                      </transition-stub></span>
+                      <div data-v-d0b4fb7f="" class="vote-number">1</div><span><span id="__m4d__000005_placeholder" style="display: none;"></span>
+                      <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                        <div id="__m4d__000005" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                          <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                          <div class="overflow-auto">
+                            <div class="position-sticky top-0 tooltip-inner">This song has 1 votes. The most popular Slow Foxtrot has 27 votes</div>
+                            <!---->
+                          </div>
                         </div>
-                      </div>
-                    </transition-stub></span>
-                    <div data-v-d0b4fb7f="" class="vote-down"></div><span><span id="__m4d__000006_placeholder" style="display: none;"></span>
-                    <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                      <div id="__m4d__000006" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
-                        <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
-                        <div class="overflow-auto">
-                          <div class="position-sticky top-0 tooltip-inner">Click here to vote that this song is not danceable to Slow Foxtrot</div>
-                          <!---->
+                      </transition-stub></span>
+                      <div data-v-d0b4fb7f="" class="vote-down"></div><span><span id="__m4d__000006_placeholder" style="display: none;"></span>
+                      <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+                        <div id="__m4d__000006" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                          <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
+                          <div class="overflow-auto">
+                            <div class="position-sticky top-0 tooltip-inner">Click here to vote that this song is not danceable to Slow Foxtrot</div>
+                            <!---->
+                          </div>
                         </div>
-                      </div>
-                    </transition-stub></span>
+                      </transition-stub></span>
+                    </div>
+                    <!--teleport start-->
+                    <!--teleport end-->
                   </div><a href="/dances/slow-foxtrot"><span><a href="/dances/slow-foxtrot">Slow Foxtrot</a><span><!--v-if--> (Foxtrot) </span>
                     <!--v-if--></span>
                   </a><span style="margin-left: 0.25rem; line-height: 2.75rem;"><span data-v-c917e428=""><span data-v-c917e428=""><span data-v-c917e428=""></span><a data-v-c917e428="" class="" href="#"><svg data-v-c917e428="" viewBox="0 0 16 16" width="1.2em" height="1.2em" class="me-2">
@@ -136,7 +144,7 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
             </div><button class="btn btn-md btn-primary mt-2 collapsed" type="button" data-bvtoggle="dance-chooser" aria-expanded="false" aria-controls="dance-chooser">Add Dance Style</button>
           </div>
           <div class="col-md-auto">
-            <table id="BootstrapVueNext__ID__v-1__" class="table b-table table-borderless table-sm">
+            <table id="BootstrapVueNext__ID__v-7__" class="table b-table table-borderless table-sm">
               <tr class="">
                 <th scope="col" class="">Length</th>
                 <td class=""><span data-v-b2e59ff0=""><span data-v-b2e59ff0="">145</span></span> Seconds</td>
@@ -147,9 +155,9 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
               </tr>
               <tr class="">
                 <th scope="col" class="">Beat</th>
-                <td class=""><a id="__m4d__000007" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-7.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-2__popover____placeholder" style="display: none;"></span>
+                <td class=""><a id="__m4d__000007" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-7.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-8__popover____placeholder" style="display: none;"></span>
                     <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                      <div id="BootstrapVueNext__ID__v-2__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div id="BootstrapVueNext__ID__v-8__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                         <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                         <div class="overflow-auto">
                           <div class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.66 where 1.00 is the strongest beat.</div>
@@ -161,9 +169,9 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
               </tr>
               <tr class="">
                 <th scope="col" class="">Energy</th>
-                <td class=""><a id="__m4d__000008" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-3__popover____placeholder" style="display: none;"></span>
+                <td class=""><a id="__m4d__000008" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-9__popover____placeholder" style="display: none;"></span>
                     <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                      <div id="BootstrapVueNext__ID__v-3__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div id="BootstrapVueNext__ID__v-9__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                         <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                         <div class="overflow-auto">
                           <div class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.41 where 1.00 is the highest energy.</div>
@@ -175,9 +183,9 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
               </tr>
               <tr class="">
                 <th scope="col" class="">Mood</th>
-                <td class=""><a id="__m4d__000009" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-4__popover____placeholder" style="display: none;"></span>
+                <td class=""><a id="__m4d__000009" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-10__popover____placeholder" style="display: none;"></span>
                     <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                      <div id="BootstrapVueNext__ID__v-4__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                      <div id="BootstrapVueNext__ID__v-10__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                         <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                         <div class="overflow-auto">
                           <div class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.59 where 1.00 is the happiest.</div>

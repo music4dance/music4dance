@@ -46,6 +46,8 @@ const danceFromRating = (dr: DanceRating): NamedObject => {
 const danceLink = (dr: DanceRating): string => {
   return `/dances/${danceFromRating(dr).seoName}`;
 };
+
+const filterFamilyTag = computed(() => props.filter.familyTag);
 </script>
 
 <template>
@@ -59,10 +61,10 @@ const danceLink = (dr: DanceRating): string => {
           ><IBiX variant="danger"
         /></BCloseButton>
         <DanceVote
-          :song="song"
           :vote="song.danceVote(dr.danceId)"
           :dance-rating="dr"
           :authenticated="!!user"
+          :filter-family-tag="filterFamilyTag"
           v-bind="$attrs"
         />
         <a :href="danceLink(dr)"

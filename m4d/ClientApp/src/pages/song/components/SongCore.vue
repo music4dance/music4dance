@@ -146,15 +146,44 @@ const addProperty = (property: SongProperty): void => {
 const onClickLike = (): void => {
   safeEditor.value.toggleLike();
 };
-const addDance = (danceId?: string, persist?: boolean): void => {
-  if (danceId) {
-    safeEditor.value.danceVote(new DanceRatingVote(danceId, VoteDirection.Up));
 
+const addDance = (danceId?: string, persist?: boolean, familyTag?: string): void => {
+  if (!danceId) {
+    return;
+  }
+
+  const styles = danceDB.getStyleFamilies(danceId);
+
+  // If familyTag provided from instance click, use it directly
+  if (familyTag) {
+    safeEditor.value.danceVote(new DanceRatingVote(danceId, VoteDirection.Up, [familyTag]));
     if (!persist) {
       hide();
     }
     edit.value = true;
+    return;
   }
+
+  // If dance has only one family, auto-select and vote with that family
+  if (styles.length === 1) {
+    const family = styles[0];
+    if (family) {
+      safeEditor.value.danceVote(new DanceRatingVote(danceId, VoteDirection.Up, [family]));
+    }
+    if (!persist) {
+      hide();
+    }
+    edit.value = true;
+    return;
+  }
+
+  // For multi-family dances clicked on main row: vote without family tag
+  // (User can expand and click specific instance if they want a family tag)
+  safeEditor.value.danceVote(new DanceRatingVote(danceId, VoteDirection.Up));
+  if (!persist) {
+    hide();
+  }
+  edit.value = true;
 };
 const updateField = (property: SongProperty): void => {
   safeEditor.value.modifyProperty(property.name, property.value);

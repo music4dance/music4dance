@@ -45,5 +45,68 @@ describe("DanceType.ts", () => {
     expect(dance.competitionDances.length).toBe(1);
   });
 
+  test("styleFamilies returns unique style families", () => {
+    const dance = new DanceType({
+      internalId: "RMB",
+      internalName: "Rumba",
+      meter: new Meter(4, 4),
+      instances: [
+        new DanceInstance({
+          style: "American Rhythm",
+          tempoRange: new TempoRange(120.0, 124.0),
+          competitionGroup: "Ballroom",
+        }),
+        new DanceInstance({
+          style: "International Latin",
+          tempoRange: new TempoRange(100.0, 108.0),
+          competitionGroup: "Ballroom",
+        }),
+      ],
+    });
+    expect(dance.styleFamilies).toEqual(["American", "International"]);
+  });
+
+  test("styleFamilies handles single style", () => {
+    const dance = buildDance();
+    expect(dance.styleFamilies).toEqual(["American"]);
+  });
+
+  test("styleFamilies handles Social style", () => {
+    const dance = new DanceType({
+      internalId: "WCS",
+      internalName: "West Coast Swing",
+      meter: new Meter(4, 4),
+      instances: [
+        new DanceInstance({
+          style: "Social",
+          tempoRange: new TempoRange(80.0, 130.0),
+        }),
+      ],
+    });
+    expect(dance.styleFamilies).toEqual(["Social"]);
+  });
+
+  test("styleFamilies deduplicates styles from same family", () => {
+    const dance = new DanceType({
+      internalId: "SWZ",
+      internalName: "Slow Waltz",
+      meter: new Meter(3, 4),
+      instances: [
+        new DanceInstance({
+          style: "American Smooth",
+          tempoRange: new TempoRange(84.0, 90.0),
+          competitionGroup: "Ballroom",
+        }),
+        new DanceInstance({
+          style: "American Rhythm",
+          tempoRange: new TempoRange(120.0, 124.0),
+          competitionGroup: "Ballroom",
+        }),
+      ],
+    });
+    // Both instances have "American" family, should only appear once
+    expect(dance.styleFamilies).toEqual(["American"]);
+  });
+
   // INT-TODO: Add tests for filtering once I figure out which direction I want to go with that
 });
