@@ -453,7 +453,7 @@ const onAddDance = (danceId?: string, persist?: boolean, styleTag?: string): voi
   if (danceId) {
     onDanceVote(
       currentSong.value as SongEditor,
-      new DanceRatingVote(danceId, VoteDirection.Up, styleTag),
+      new DanceRatingVote(danceId, VoteDirection.Up, styleTag ? [styleTag] : undefined),
     );
   }
   if (!persist) {
