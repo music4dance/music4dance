@@ -724,7 +724,9 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/country-two-step"><span data-v-3bbd14d4=""><a href="/dances/country-two-step">Country Two Step</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/country-two-step"><span data-v-3bbd14d4=""><a href="/dances/country-two-step">Country Two Step</a><span><br> (Two Step) </span>
+                        <!--v-if--></span>
+                      </a></div>
                   </td>
                   <td class="">
                     <!----><a data-v-3bbd14d4="" class="btn btn-sm btn-primary" href="/Song/?filter=Index-OOX,C2S-Dances-.-.-.-.-.-.-+Wedding:Other" role="button">7</a>
@@ -760,7 +762,9 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/night-club-two-step"><span data-v-3bbd14d4=""><a href="/dances/night-club-two-step">Night Club Two Step</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/night-club-two-step"><span data-v-3bbd14d4=""><a href="/dances/night-club-two-step">Night Club Two Step</a><span><br> (Night Club) </span>
+                        <!--v-if--></span>
+                      </a></div>
                   </td>
                   <td class="">
                     <!----><a data-v-3bbd14d4="" class="btn btn-sm btn-primary" href="/Song/?filter=Index-OOX,NC2-Dances-.-.-.-.-.-.-+Wedding:Other" role="button">97</a>

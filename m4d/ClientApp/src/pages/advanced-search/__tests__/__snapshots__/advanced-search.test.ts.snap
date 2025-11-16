@@ -73,7 +73,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Blues</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Bossa Nova</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Bollywood</button></li>
-                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Country Two Step</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Country Two Step (Two Step)</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Castle Foxtrot (Slow Dance)</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Cha Cha</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Collegiate Shag</button></li>
@@ -99,7 +99,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Merengue</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Other</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Motown</button></li>
-                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Night Club Two Step</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Night Club Two Step (Night Club)</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Neo Tango</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Peabody (One Step)</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Paso Doble</button></li>

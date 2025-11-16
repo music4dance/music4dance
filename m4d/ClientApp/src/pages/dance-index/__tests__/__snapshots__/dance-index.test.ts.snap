@@ -32,7 +32,7 @@ exports[`DanceIndex > Renders dance-index Page 1`] = `
             </div>
           </div>
           <div class="list-group-item list-group-item-light">
-            <div class="d-flex justify-content-between ms-2"><span><a href="/dances/country-two-step">Country Two Step</a><!--v-if--><span style="font-size: 0.8rem;" class="ms-2">85-200 BPM/42.5-100 MPM</span></span>
+            <div class="d-flex justify-content-between ms-2"><span><a href="/dances/country-two-step">Country Two Step</a><span><!--v-if--> (Two Step) </span><span style="font-size: 0.8rem;" class="ms-2">85-200 BPM/42.5-100 MPM</span></span>
               <div><a class="badge text-bg-primary text-decoration-none" href="/song/index?filter=.-OOX,C2S-Dances" style="line-height: 1.5;">songs (155)</a><a class="badge text-bg-primary text-decoration-none ms-2" href="/dances/country-two-step" style="line-height: 1.5;">info</a></div>
             </div>
           </div>
@@ -42,7 +42,7 @@ exports[`DanceIndex > Renders dance-index Page 1`] = `
             </div>
           </div>
           <div class="list-group-item list-group-item-light">
-            <div class="d-flex justify-content-between ms-2"><span><a href="/dances/night-club-two-step">Night Club Two Step</a><!--v-if--><span style="font-size: 0.8rem;" class="ms-2">50-92 BPM/12.5-23 MPM</span></span>
+            <div class="d-flex justify-content-between ms-2"><span><a href="/dances/night-club-two-step">Night Club Two Step</a><span><!--v-if--> (Night Club) </span><span style="font-size: 0.8rem;" class="ms-2">50-92 BPM/12.5-23 MPM</span></span>
               <div><a class="badge text-bg-primary text-decoration-none" href="/song/index?filter=.-OOX,NC2-Dances" style="line-height: 1.5;">songs (690)</a><a class="badge text-bg-primary text-decoration-none ms-2" href="/dances/night-club-two-step" style="line-height: 1.5;">info</a></div>
             </div>
           </div>
@@ -168,7 +168,7 @@ exports[`DanceIndex > Renders dance-index Page 1`] = `
             </div>
           </div>
           <div class="list-group-item list-group-item-light">
-            <div class="d-flex justify-content-between ms-2"><span><a href="/dances/country-two-step">Country Two Step</a><!--v-if--><span style="font-size: 0.8rem;" class="ms-2">85-200 BPM/42.5-100 MPM</span></span>
+            <div class="d-flex justify-content-between ms-2"><span><a href="/dances/country-two-step">Country Two Step</a><span><!--v-if--> (Two Step) </span><span style="font-size: 0.8rem;" class="ms-2">85-200 BPM/42.5-100 MPM</span></span>
               <div><a class="badge text-bg-primary text-decoration-none" href="/song/index?filter=.-OOX,C2S-Dances" style="line-height: 1.5;">songs (155)</a><a class="badge text-bg-primary text-decoration-none ms-2" href="/dances/country-two-step" style="line-height: 1.5;">info</a></div>
             </div>
           </div>
@@ -178,7 +178,7 @@ exports[`DanceIndex > Renders dance-index Page 1`] = `
             </div>
           </div>
           <div class="list-group-item list-group-item-light">
-            <div class="d-flex justify-content-between ms-2"><span><a href="/dances/night-club-two-step">Night Club Two Step</a><!--v-if--><span style="font-size: 0.8rem;" class="ms-2">50-92 BPM/12.5-23 MPM</span></span>
+            <div class="d-flex justify-content-between ms-2"><span><a href="/dances/night-club-two-step">Night Club Two Step</a><span><!--v-if--> (Night Club) </span><span style="font-size: 0.8rem;" class="ms-2">50-92 BPM/12.5-23 MPM</span></span>
               <div><a class="badge text-bg-primary text-decoration-none" href="/song/index?filter=.-OOX,NC2-Dances" style="line-height: 1.5;">songs (690)</a><a class="badge text-bg-primary text-decoration-none ms-2" href="/dances/night-club-two-step" style="line-height: 1.5;">info</a></div>
             </div>
           </div>
