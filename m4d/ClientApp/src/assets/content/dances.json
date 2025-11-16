@@ -49,7 +49,7 @@
       },
       {
         "style": "Country",
-        "organizations": ["UCWDC", "WORLDCDF", "ADCA"],
+        "organizations": ["UCWDC", "WORLDCDF", "ACDA"],
         "tempoRange": {
           "min": 84.0,
           "max": 91.0
@@ -72,7 +72,7 @@
             }
           },
           {
-            "organization": "ADCA",
+            "organization": "ACDA",
             "tempoRange": {
               "min": 80.0,
               "max": 90.0
@@ -280,7 +280,7 @@
       },
       {
         "style": "Country",
-        "organizations": ["ADCA"],
+        "organizations": ["ACDA"],
         "tempoRange": {
           "min": 145.0,
           "max": 162.0
@@ -356,10 +356,11 @@
       "denominator": 4
     },
     "blogTag": "cha-cha",
+    "searchonyms": [ "cha-cha", "cha cha cha" ],
     "instances": [
       {
         "style": "American Rhythm",
-        "organizations": ["DanceSport", "NDCA"],
+        "organizations": [ "DanceSport", "NDCA" ],
         "tempoRange": {
           "min": 120.0,
           "max": 120.0
@@ -369,7 +370,7 @@
       },
       {
         "style": "International Latin",
-        "organizations": ["DanceSport", "NDCA"],
+        "organizations": [ "DanceSport", "NDCA" ],
         "tempoRange": {
           "min": 120.0,
           "max": 128.0
@@ -388,7 +389,7 @@
       },
       {
         "style": "Country",
-        "organizations": ["UCWDC", "WORLDCDF", "ADCA"],
+        "organizations": [ "UCWDC", "WORLDCDF", "ACDA" ],
         "tempoRange": {
           "min": 100.0,
           "max": 120.0
@@ -404,7 +405,7 @@
             }
           },
           {
-            "organization": "ADCA",
+            "organization": "ACDA",
             "tempoRange": {
               "min": 102.0,
               "max": 118.0
@@ -546,7 +547,7 @@
       },
       {
         "style": "Country",
-        "organizations": ["UCWDC", "WORLDCDF", "ADCA"],
+        "organizations": ["UCWDC", "WORLDCDF", "ACDA"],
         "tempoRange": {
           "min": 126.0,
           "max": 148.0
@@ -569,7 +570,7 @@
             }
           },
           {
-            "organization": "ADCA",
+            "organization": "ACDA",
             "tempoRange": {
               "min": 126.0,
               "max": 144.0
@@ -607,7 +608,7 @@
       },
       {
         "style": "Country",
-        "organizations": ["UCWDC", "WORLDCDF", "ADCA"],
+        "organizations": ["UCWDC", "WORLDCDF", "ACDA"],
         "tempoRange": {
           "min": 92.0,
           "max": 120.0
@@ -630,7 +631,7 @@
             }
           },
           {
-            "organization": "ADCA",
+            "organization": "ACDA",
             "tempoRange": {
               "min": 92.0,
               "max": 112.0
@@ -821,7 +822,7 @@
       },
       {
         "style": "Country",
-        "organizations": ["UCWDC", "WORLDCDF", "ADCA"],
+        "organizations": ["UCWDC", "WORLDCDF", "ACDA"],
         "tempoRange": {
           "min": 100.0,
           "max": 118.0
@@ -844,7 +845,7 @@
             }
           },
           {
-            "organization": "ADCA",
+            "organization": "ACDA",
             "tempoRange": {
               "min": 106.0,
               "max": 120.0
@@ -915,11 +916,12 @@
       "numerator": 4,
       "denominator": 4
     },
-    "searchonyms": ["club two step"],
+    "searchonyms": [ "club two step" ],
+    "synonyms": [ "Night Club" ],
     "instances": [
       {
         "style": "American Rhythm",
-        "organizations": ["NDCA"],
+        "organizations": [ "NDCA" ],
         "tempoRange": {
           "min": 72.0,
           "max": 80.0
@@ -935,7 +937,7 @@
       },
       {
         "style": "Country",
-        "organizations": ["UCWDC", "WORLDCDF", "ADCA"],
+        "organizations": [ "UCWDC", "WORLDCDF", "ACDA" ],
         "tempoRange": {
           "min": 54.0,
           "max": 64.0
@@ -951,7 +953,7 @@
             }
           },
           {
-            "organization": "ADCA",
+            "organization": "ACDA",
             "tempoRange": {
               "min": 52.0,
               "max": 60.0
@@ -969,6 +971,7 @@
       "denominator": 4
     },
     "blogTag": "country-two-step",
+    "synonyms": [ "Two Step" ],
     "instances": [
       {
         "style": "Social",
@@ -979,7 +982,7 @@
       },
       {
         "style": "Country",
-        "organizations": ["UCWDC", "WORLDCDF", "ADCA"],
+        "organizations": ["UCWDC", "WORLDCDF", "ACDA" ],
         "tempoRange": {
           "min": 85.0,
           "max": 192.0
@@ -1002,7 +1005,7 @@
             }
           },
           {
-            "organization": "ADCA",
+            "organization": "ACDA",
             "tempoRange": {
               "min": 168.0,
               "max": 194.0
@@ -1023,7 +1026,7 @@
     "instances": [
       {
         "style": "Country",
-        "organizations": ["UCWDC", "WORLDCDF", "ADCA"],
+        "organizations": ["UCWDC", "WORLDCDF", "ACDA"],
         "tempoRange": {
           "min": 76.0,
           "max": 92.0
@@ -1046,7 +1049,7 @@
             }
           },
           {
-            "organization": "ADCA",
+            "organization": "ACDA",
             "tempoRange": {
               "min": 76.0,
               "max": 86.0
@@ -1480,3 +1483,4 @@
     ]
   }
 ]
+

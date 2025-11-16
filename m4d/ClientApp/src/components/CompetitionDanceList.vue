@@ -66,7 +66,7 @@ const competitionPageLink =
       <li>
         Click on any of the tempos in the table below (in the MPM,
         <template v-if="organizationType === 'ballroom'">DanceSport, or NDCA</template>
-        <template v-else>UCWDC, WORLDCDF, or ADCA</template>
+        <template v-else>UCWDC, WORLDCDF, or ACDA</template>
         columns) to go to a list of songs of that tempo
       </li>
       <li>Click on the dance names to go to our details information page for that dance style</li>

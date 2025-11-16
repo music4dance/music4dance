@@ -36,9 +36,9 @@ const showBpm = ref(true);
         >World Country Dance Federation (WORLDCDF)</a
       >, and
       <a
-        href="https://www.adca.org.au/wp-content/uploads/2024/11/ADCA-Rules-2025-Edition.pdf"
+        href="https://danceacda.com/wp-content/uploads/2025/08/2025-ACDA-Rules-rev-041325.pdf"
         target="_blank"
-        >Australian Dance Company Alliance (ADCA)</a
+        >American Country Dance Association (ACDA)</a
       >.
     </CompetitionDanceList>
 
@@ -53,7 +53,9 @@ const showBpm = ref(true);
     <div class="mt-3">
       <p>
         We've implemented Country Western competition dances with tempo ranges from major
-        organizations including UCWDC, WORLDCDF, and ADCA. Each dance includes the
+        organizations including <a href="https://ucwdc.org/" target="_blank">UCWDC</a>,
+        <a href="https://www.worldcdf.com/" target="_blank">WORLDCDF</a>, and
+        <a href="https://danceacda.com/" target="_blank">ACDA</a>. Each dance includes the
         organization-specific tempo requirements to help you find the perfect practice music.
       </p>
       <p>
