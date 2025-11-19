@@ -16,15 +16,15 @@
     <PackageVersion Include="MarkdownDeep.NET.Core" Version="1.5.0.4" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.Facebook" Version="9.0.9" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.9" />
-    <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.9" />
+    <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.9" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.9" />
     <PackageVersion Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="8.4.0" />
     <PackageVersion Include="Microsoft.Build" Version="17.10.46" />
     <PackageVersion Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.9" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.9" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.9" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Azure" Version="1.13.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.9" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.9" />
