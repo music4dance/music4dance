@@ -55,5 +55,7 @@
     <PackageVersion Include="UAParser" Version="3.1.47" />
     <PackageVersion Include="Vite.AspNetCore" Version="2.4.1" />
     <PackageVersion Include="X.PagedList.Mvc.Core" Version="10.5.9" />
+    <PackageVersion Include="Microsoft.Build.Tasks.Core" Version="18.0.2" />
+    <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="18.0.2" />
   </ItemGroup>
 </Project>
