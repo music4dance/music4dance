@@ -344,7 +344,7 @@ namespace m4dModels
 
         private async Task<List<SongChunk>> FilterUnbalanced(string user, List<SongChunk> chunks, DanceMusicCoreService dms)
         {
-            return chunks == null ? [] : await chunks.ToAsyncEnumerable()
+            return chunks == null ? [] : await System.Linq.AsyncEnumerable.ToAsyncEnumerable(chunks)
                     .WhereAwait(async x => !await AreRatingsBalanced(user, [x], dms))
                     .ToListAsync();
         }
