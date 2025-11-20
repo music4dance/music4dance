@@ -11,8 +11,15 @@ variables:
   BuildConfiguration: 'Release'
 
 steps:
+- task: UseDotNet@2
+  displayName: "Install .NET 10 SDK"
+  inputs:
+    packageType: "sdk"
+    version: "10.x"
+
 - script: dotnet build --configuration $(BuildConfiguration)
   displayName: 'dotnet build $(BuildConfiguration)'
+
 - task: DotNetCoreCLI@2
   displayName: publish web project
   inputs:
@@ -20,6 +27,7 @@ steps:
     publishWebProjects: true
     configuration: $(BuildConfiguration)
     arguments: -r linux-x64 --self-contained
+
 - task: AzureWebApp@1
   displayName: deploy
   inputs:
