@@ -21,6 +21,7 @@
     <PackageReference Include="Stripe.net" />
     <PackageReference Include="Vite.AspNetCore" />
     <PackageReference Include="X.PagedList.Mvc.Core" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" VersionOverride="10.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\m4d\m4d.csproj" />

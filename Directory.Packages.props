@@ -26,8 +26,8 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Azure" Version="1.13.0" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.9" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.9" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.9" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.9" />
     <PackageVersion Include="Microsoft.Extensions.Logging.AzureAppServices" Version="10.0.0" />
