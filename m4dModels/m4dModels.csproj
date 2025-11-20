@@ -19,4 +19,4 @@
   <ItemGroup>
     <ProjectReference Include="..\DanceLib\DanceLibrary.csproj" />
   </ItemGroup>
-</Project></Project>
+</Project>
