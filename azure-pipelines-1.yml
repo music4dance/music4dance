@@ -30,8 +30,10 @@ steps:
     workingDirectory: m4d/ClientApp/
 
   - task: UseDotNet@2
+    displayName: "Install .NET 10 SDK"
     inputs:
-      version: 9.x
+      packageType: "sdk"
+      version: "10.x"
 
   - script: dotnet build --configuration $(buildConfiguration)
     displayName: "dotnet build $(buildConfiguration)"
