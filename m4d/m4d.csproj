@@ -33,7 +33,6 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Azure" />
     <PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" />
     <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" />
     <PackageReference Include="Newtonsoft.Json" />
@@ -45,7 +44,6 @@
     <PackageReference Include="UAParser" />
     <PackageReference Include="Vite.AspNetCore" />
     <PackageReference Include="X.PagedList.Mvc.Core" />
-    <PackageReference Include="Microsoft.Build" VersionOverride="17.11.4" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DanceLib\DanceLibrary.csproj" />
