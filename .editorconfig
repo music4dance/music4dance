@@ -3,6 +3,9 @@ root = true
 [*]
 # guidelines = 80, 100
 guidelines=1 px dotted green 80, 1 px dotted red 100
+# Use CRLF line endings (Windows standard)
+end_of_line = crlf
+insert_final_newline = true
 
 [*.proto]
 indent_style=tab
