@@ -94,7 +94,7 @@ namespace m4dModels
                     {
                         result += " and";
                     }
-                    result += $" {field.Key.ToLower()} contains \"{field.Value}\"";
+                    result += $" {@field.Key.ToLower()} contains \"{@field.Value}\"";
                     first = false;
                 }
 
