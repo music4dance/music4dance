@@ -88,7 +88,7 @@ namespace m4dModels
                     first = false;
                 }
 
-                foreach (var field in fields)
+                foreach (var @field in fields)
                 {
                     if (!first)
                     {
@@ -133,7 +133,7 @@ namespace m4dModels
                     first = false;
                 }
 
-                foreach (var field in fields)
+                foreach (var @field in fields)
                 {
                     if (!first)
                     {
