@@ -139,7 +139,7 @@ namespace m4dModels
                     {
                         result += " and ";
                     }
-                    result += $"\"{field.Value}\" in {field.Key.ToLower()}";
+                    result += $"\"{@field.Value}\" in {@field.Key.ToLower()}";
                     first = false;
                 }
 
