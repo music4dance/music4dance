@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace m4dModels
@@ -88,13 +88,13 @@ namespace m4dModels
                     first = false;
                 }
 
-                foreach (var field in fields)
+                foreach (var @field in fields)
                 {
                     if (!first)
                     {
                         result += " and";
                     }
-                    result += $" {field.Key.ToLower()} contains \"{field.Value}\"";
+                    result += $" {@field.Key.ToLower()} contains \"{@field.Value}\"";
                     first = false;
                 }
 
@@ -133,13 +133,13 @@ namespace m4dModels
                     first = false;
                 }
 
-                foreach (var field in fields)
+                foreach (var @field in fields)
                 {
                     if (!first)
                     {
                         result += " and ";
                     }
-                    result += $"\"{field.Value}\" in {field.Key.ToLower()}";
+                    result += $"\"{@field.Value}\" in {@field.Key.ToLower()}";
                     first = false;
                 }
 

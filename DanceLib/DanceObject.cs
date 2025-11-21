@@ -1,10 +1,8 @@
-﻿using System.Collections.Generic;
-
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace DanceLibrary;
 
-public class DanceObject
+public abstract class DanceObject
 {
     public virtual string Id { get; set; }
 

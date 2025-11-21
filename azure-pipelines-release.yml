@@ -30,17 +30,19 @@ steps:
     workingDirectory: m4d/ClientApp/
 
   - task: UseDotNet@2
+    displayName: "Install .NET 10 SDK"
     inputs:
-      version: 9.x
+      packageType: "sdk"
+      version: "10.x"
 
   - script: dotnet build --configuration $(buildConfiguration)
     displayName: "dotnet build $(buildConfiguration)"
 
   - task: DotNetCoreCLI@2
-    displayName: publish web project
+    displayName: publish web project (self-contained)
     inputs:
       command: "publish"
-      arguments: "--configuration $(buildConfiguration)"
+      arguments: "--configuration $(buildConfiguration) --runtime linux-x64 --self-contained true"
       publishWebProjects: true
 
   - task: AzureWebApp@1
@@ -50,3 +52,4 @@ steps:
       appType: "webAppLinux"
       appName: "m4d-linux"
       package: "$(System.DefaultWorkingDirectory)/**/*.zip"
+

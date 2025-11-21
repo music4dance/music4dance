@@ -21,7 +21,8 @@ public class ErrorChecker : PageChecker, IDisposable
         @"[vite] connecting",
         @"[vite] connected",
         @"Third-party cookie will be blocked",
-        @"CSS Hot Reload ignoring"
+        @"CSS Hot Reload ignoring",
+        @"Ads are running",
     ];
 
     [TestMethod]
