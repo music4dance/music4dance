@@ -1,4 +1,4 @@
-﻿using m4dModels;
+using m4dModels;
 using Microsoft.AspNetCore.Identity;
 namespace m4d.Areas.Identity;
 

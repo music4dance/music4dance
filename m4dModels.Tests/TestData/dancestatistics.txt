@@ -1,4 +1,4 @@
-﻿{
+{
   "dances": [
     {
       "danceId": "SWZ",

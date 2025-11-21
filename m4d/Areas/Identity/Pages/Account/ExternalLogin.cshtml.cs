@@ -94,12 +94,12 @@ public class ExternalLoginModel : LoginModelBase
 
     public async Task<IActionResult> OnGetCallbackAsync(string returnUrl = null, string remoteError = null)
     {
-        returnUrl = CleanUrl(returnUrl);
+        ReturnUrl = CleanUrl(returnUrl);
         
         if (remoteError != null)
         {
             ErrorMessage = $"Error from external provider: {remoteError}";
-            return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
+            return RedirectToPage("./Login", new { ReturnUrl = ReturnUrl });
         }
         var info = await _signInManager.GetExternalLoginInfoAsync();
         if (info == null)
@@ -162,7 +162,8 @@ public class ExternalLoginModel : LoginModelBase
 
     public async Task<IActionResult> OnPostConfirmationAsync(string returnUrl = null)
     {
-        returnUrl ??= Url.Content("~/");
+        returnUrl = CleanUrl(returnUrl);
+        
         // Get the information about the user from the external login provider
         var info = await _signInManager.GetExternalLoginInfoAsync();
         if (info == null)

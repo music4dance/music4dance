@@ -99,14 +99,12 @@ public class LoginModel : LoginModelBase
             ModelState.AddModelError(string.Empty, ErrorMessage);
         }
 
-        returnUrl = CleanUrl(returnUrl);
+        ReturnUrl = CleanUrl(returnUrl);
 
         // Clear the existing external cookie to ensure a clean login process
         await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-
-        ReturnUrl = returnUrl;
 
         Provider = provider;
     }

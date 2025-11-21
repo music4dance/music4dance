@@ -11,7 +11,8 @@ public abstract class LoginModelBase : PageModel
 {
     private readonly IUrlHelperFactory _urlHelperFactory;
     private readonly ILogger _logger;
-    private readonly string _subStr = new('\u001a', 1);
+    // Changed from '\u001a' to '~' to avoid corrupt marker byte issues
+    private readonly string _subStr = "~";
 
     protected LoginModelBase(IUrlHelperFactory urlHelperFactory, ILogger logger)
     {
@@ -26,17 +27,10 @@ public abstract class LoginModelBase : PageModel
     /// <returns>A cleaned and validated local URL, or home page if invalid</returns>
     protected string CleanUrl(string returnUrl)
     {
-        returnUrl = returnUrl?.Replace(_subStr, "-");
-        try
-        {
-            return string.IsNullOrWhiteSpace(returnUrl) || !IsLocalUrl(returnUrl)
-                ? Url.Content("~/") : returnUrl;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Exception occurred while validating return URL: {ReturnUrl}", returnUrl);
-            return Url.Content("~/");
-        }
+        returnUrl ??= Url.Content("~/");
+        returnUrl = returnUrl.Replace(_subStr, "-");
+        
+        return IsLocalUrl(returnUrl) ? returnUrl : Url.Content("~/");
     }
 
     /// <summary>
