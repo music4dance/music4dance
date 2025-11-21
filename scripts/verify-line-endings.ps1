@@ -88,14 +88,29 @@ $files = Get-ChildItem -Path $repoRoot -Recurse -File -ErrorAction SilentlyConti
 foreach ($file in $files) {
     $filesProcessed++
     
-    # Get relative path for display
-    $relativePath = $file.FullName.Substring($repoRoot.Length + 1)
+    # Get relative path for display (use forward slashes for consistency)
+    $relativePath = $file.FullName.Substring($repoRoot.Length + 1).Replace('\', '/')
     
     try {
-        # Determine expected line ending
-        $isClientApp = $file.FullName -match [regex]::Escape('m4d\ClientApp')
+        # Determine expected line ending based on .gitattributes rules
+        # The order matters - more specific rules should be checked first
+        
+        $isClientApp = $relativePath -match '^m4d/ClientApp/'
         $isYaml = $file.Extension -eq '.yml' -or $file.Extension -eq '.yaml'
-        $shouldUseLF = $isClientApp -or $isYaml
+        $isShellScript = $file.Extension -eq '.sh'
+        
+        # Check for files that should use LF (matching .gitattributes order)
+        $shouldUseLF = $false
+        
+        if ($isClientApp) {
+            # All ClientApp files use LF (most specific rule)
+            $shouldUseLF = $true
+        }
+        elseif ($isYaml -or $isShellScript) {
+            # YAML and shell scripts use LF
+            $shouldUseLF = $true
+        }
+        # All other files use CRLF (default)
         
         # Read file as bytes to detect marker byte
         $bytes = [System.IO.File]::ReadAllBytes($file.FullName)
