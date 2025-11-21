@@ -25,6 +25,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Verify line endings
+        shell: pwsh
+        working-directory: .
+        run: |
+          Write-Host "Verifying line endings..." -ForegroundColor Cyan
+          ./scripts/verify-line-endings.ps1 -FailOnIssues
+
       - name: Set up Node.js 22.x
         uses: actions/setup-node@v4
         with:

@@ -16,6 +16,15 @@ steps:
       packageType: "sdk"
       version: "10.x"
 
+  - task: PowerShell@2
+    displayName: "Verify line endings"
+    inputs:
+      targetType: "filePath"
+      filePath: "scripts/verify-line-endings.ps1"
+      arguments: "-FailOnIssues"
+      pwsh: true
+      workingDirectory: "$(Build.SourcesDirectory)"
+
   - task: NodeTool@0
     inputs:
       versionSpec: "22.x"
