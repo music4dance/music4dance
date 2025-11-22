@@ -7,6 +7,18 @@ guidelines=1 px dotted green 80, 1 px dotted red 100
 end_of_line = crlf
 insert_final_newline = true
 
+# ClientApp files use LF (Vue.js convention, matches .gitattributes)
+[m4d/ClientApp/**]
+end_of_line = lf
+
+# YAML files use LF (CI/CD environments)
+[*.{yml,yaml}]
+end_of_line = lf
+
+# Shell scripts use LF
+[*.sh]
+end_of_line = lf
+
 [*.proto]
 indent_style=tab
 indent_size=tab
