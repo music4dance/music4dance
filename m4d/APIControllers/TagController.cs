@@ -1,4 +1,4 @@
-﻿using m4dModels;
+using m4dModels;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

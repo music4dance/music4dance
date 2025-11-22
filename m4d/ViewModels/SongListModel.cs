@@ -1,4 +1,4 @@
-﻿using m4dModels;
+using m4dModels;
 
 namespace m4d.ViewModels;
 

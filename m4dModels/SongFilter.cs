@@ -46,7 +46,8 @@ namespace m4dModels
         private static readonly Dictionary<string, object> AltDefaults =
             new() { { "Action", "index" }, { "Dances", "all" }, { "Page", 1 } };
 
-        private readonly string _subStr = new('\u001a', 1);
+        // Changed from '\u001a' to '~' to avoid corrupt marker byte issues
+        private readonly string _subStr = "~";
         private string _action;
 
         static SongFilter()
@@ -689,7 +690,7 @@ namespace m4dModels
 
         public string ToJson()
         {
-            var stream = new MemoryStream();
+            using var stream = new MemoryStream();
             var serializer = new DataContractJsonSerializer(typeof(SongFilter));
             serializer.WriteObject(stream, this);
             return Encoding.UTF8.GetString(stream.ToArray());

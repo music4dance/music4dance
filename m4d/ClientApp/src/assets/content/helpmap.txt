@@ -1,4 +1,4 @@
-﻿Songs and Search
+Songs and Search
 	Song Library	blog/music4dance-help/song-list/
 	Song Details	blog/music4dance-help/song-details/
 	Add Songs	blog/music4dance-help/add-songs/

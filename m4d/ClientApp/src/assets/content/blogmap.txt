@@ -1,4 +1,4 @@
-﻿About music4dance	blog/category/about-music4dance	Posts that are about the music4dance.net site features, excluding features that are specifically about searching for music.
+About music4dance	blog/category/about-music4dance	Posts that are about the music4dance.net site features, excluding features that are specifically about searching for music.
 	Introducing Music4Dance.Net/Blog	blog/hello-world/	I’m an amateur dancer and with some training in music who also happens to be a professional software engineer. I love dancing...	OneTime	1
 	Where to Start	blog/where-to-start/	I've been spinning my wheels a bit with respect to this blog. It is much easier for me to write code than to write prose, but I realize that for anyone to see what I've been doing coding-wise…	OneTime	2
 	The Two Questions that Inspired Music4Dance	blog/the-two-questions-that-inspired-music4dance	As a beginning ballroom dancer there were two questions that kept coming up...		3

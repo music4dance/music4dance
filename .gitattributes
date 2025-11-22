@@ -1,49 +1,44 @@
-# Auto detect text files and perform LF normalization
+# Set default behavior to automatically normalize line endings
 * text=auto
 
-# Force CRLF line endings for .NET/C# files (Windows standard)
+# Explicitly declare text files you want to always be normalized and converted
+# to native line endings on checkout
 *.cs text eol=crlf
+*.cshtml text eol=crlf
 *.csproj text eol=crlf
 *.sln text eol=crlf
 *.config text eol=crlf
-*.props text eol=crlf
-*.targets text eol=crlf
-
-# Force LF line endings for ClientApp (Vue/Vite/Node.js standard)
-m4d/ClientApp/** text eol=lf
-*.vue text eol=lf
-*.ts text eol=lf
-*.js text eol=lf
-*.mjs text eol=lf
-*.cjs text eol=lf
-*.json text eol=lf
-package.json text eol=lf
-*.lock text eol=lf
+*.json text eol=crlf
+*.xml text eol=crlf
 *.yml text eol=lf
 *.yaml text eol=lf
-
-# Mixed/Documentation files - can use CRLF for Windows
 *.md text eol=crlf
 *.txt text eol=crlf
-*.xml text eol=crlf
+*.ps1 text eol=crlf
+*.sh text eol=lf
 
-# Web files in non-ClientApp directories (Razor Pages, wwwroot) - use CRLF
-*.cshtml text eol=crlf
-*.html text eol=crlf
-*.css text eol=crlf
+# Default TypeScript/JavaScript files use CRLF (before ClientApp override)
+*.ts text eol=crlf
+*.tsx text eol=crlf
+*.js text eol=crlf
+*.jsx text eol=crlf
+*.vue text eol=crlf
 *.scss text eol=crlf
-*.razor text eol=crlf
+*.css text eol=crlf
+*.html text eol=crlf
 
-# Binary files
+# ALL text files in ClientApp use LF (Vue.js convention)
+# This single rule overrides all the specific rules above
+m4d/ClientApp/** text eol=lf
+
+# Denote all files that are truly binary and should not be modified
 *.png binary
 *.jpg binary
 *.jpeg binary
 *.gif binary
 *.ico binary
+*.pdf binary
+*.zip binary
 *.dll binary
 *.exe binary
 *.pdb binary
-*.woff binary
-*.woff2 binary
-*.ttf binary
-*.eot binary

@@ -94,18 +94,18 @@ public class ExternalLoginModel : LoginModelBase
 
     public async Task<IActionResult> OnGetCallbackAsync(string returnUrl = null, string remoteError = null)
     {
-        returnUrl = CleanUrl(returnUrl);
+        ReturnUrl = CleanUrl(returnUrl);
         
         if (remoteError != null)
         {
             ErrorMessage = $"Error from external provider: {remoteError}";
-            return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
+            return RedirectToPage("./Login", new { ReturnUrl });
         }
         var info = await _signInManager.GetExternalLoginInfoAsync();
         if (info == null)
         {
             ErrorMessage = "Error loading external login information.";
-            return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
+            return RedirectToPage("./Login", new { ReturnUrl });
         }
 
         // Sign in the user with this external login provider if the user already has a login.
@@ -130,7 +130,7 @@ public class ExternalLoginModel : LoginModelBase
                 _logger.LogWarning($"Failed to set last loging for user {user.UserName}");
             }
 
-            return LocalRedirect(returnUrl);
+            return LocalRedirect(ReturnUrl);
         }
         if (result.IsLockedOut)
         {
@@ -162,7 +162,8 @@ public class ExternalLoginModel : LoginModelBase
 
     public async Task<IActionResult> OnPostConfirmationAsync(string returnUrl = null)
     {
-        returnUrl ??= Url.Content("~/");
+        returnUrl = CleanUrl(returnUrl);
+        
         // Get the information about the user from the external login provider
         var info = await _signInManager.GetExternalLoginInfoAsync();
         if (info == null)

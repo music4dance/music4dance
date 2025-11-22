@@ -1,4 +1,4 @@
-﻿namespace m4d.ViewModels;
+namespace m4d.ViewModels;
 
 public class BreadCrumbItem
 {

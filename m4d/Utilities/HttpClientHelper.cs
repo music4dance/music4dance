@@ -1,4 +1,4 @@
-﻿namespace m4d.Utilities;
+namespace m4d.Utilities;
 
 public static class HttpClientHelper
 {
