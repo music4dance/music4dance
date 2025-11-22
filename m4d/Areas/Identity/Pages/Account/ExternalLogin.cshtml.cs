@@ -99,13 +99,13 @@ public class ExternalLoginModel : LoginModelBase
         if (remoteError != null)
         {
             ErrorMessage = $"Error from external provider: {remoteError}";
-            return RedirectToPage("./Login", new { ReturnUrl = ReturnUrl });
+            return RedirectToPage("./Login", new { ReturnUrl });
         }
         var info = await _signInManager.GetExternalLoginInfoAsync();
         if (info == null)
         {
             ErrorMessage = "Error loading external login information.";
-            return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
+            return RedirectToPage("./Login", new { ReturnUrl });
         }
 
         // Sign in the user with this external login provider if the user already has a login.
@@ -130,7 +130,7 @@ public class ExternalLoginModel : LoginModelBase
                 _logger.LogWarning($"Failed to set last loging for user {user.UserName}");
             }
 
-            return LocalRedirect(returnUrl);
+            return LocalRedirect(ReturnUrl);
         }
         if (result.IsLockedOut)
         {

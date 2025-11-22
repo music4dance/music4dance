@@ -690,7 +690,7 @@ namespace m4dModels
 
         public string ToJson()
         {
-            var stream = new MemoryStream();
+            using var stream = new MemoryStream();
             var serializer = new DataContractJsonSerializer(typeof(SongFilter));
             serializer.WriteObject(stream, this);
             return Encoding.UTF8.GetString(stream.ToArray());
