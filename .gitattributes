@@ -17,18 +17,7 @@
 *.ps1 text eol=crlf
 *.sh text eol=lf
 
-# TypeScript/JavaScript files in ClientApp use LF (Vue.js convention)
-m4d/ClientApp/**/*.ts text eol=lf
-m4d/ClientApp/**/*.tsx text eol=lf
-m4d/ClientApp/**/*.js text eol=lf
-m4d/ClientApp/**/*.jsx text eol=lf
-m4d/ClientApp/**/*.vue text eol=lf
-m4d/ClientApp/**/*.scss text eol=lf
-m4d/ClientApp/**/*.css text eol=lf
-m4d/ClientApp/**/*.html text eol=lf
-m4d/ClientApp/**/*.json text eol=lf
-
-# Other TypeScript/JavaScript files use CRLF
+# Default TypeScript/JavaScript files use CRLF (before ClientApp override)
 *.ts text eol=crlf
 *.tsx text eol=crlf
 *.js text eol=crlf
@@ -37,6 +26,10 @@ m4d/ClientApp/**/*.json text eol=lf
 *.scss text eol=crlf
 *.css text eol=crlf
 *.html text eol=crlf
+
+# ALL text files in ClientApp use LF (Vue.js convention)
+# This single rule overrides all the specific rules above
+m4d/ClientApp/** text eol=lf
 
 # Denote all files that are truly binary and should not be modified
 *.png binary
