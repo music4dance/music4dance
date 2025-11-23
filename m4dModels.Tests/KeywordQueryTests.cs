@@ -1,6 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-namespace m4dModels.Tests;
+﻿namespace m4dModels.Tests;
 
 [TestClass]
 public class KeywordQueryTests

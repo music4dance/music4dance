@@ -2,7 +2,8 @@
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <IsPackable>false</IsPackable>
-  </PropertyGroup>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
   <ItemGroup>
     <None Remove="TestData\dancestatistics.txt" />
     <None Remove="TestData\test-dances.json" />

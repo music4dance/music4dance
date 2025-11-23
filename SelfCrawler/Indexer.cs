@@ -3,17 +3,10 @@ using Azure.Search.Documents;
 
 using m4dModels;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 using OpenQA.Selenium;
-
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 
 namespace SelfCrawler;
 

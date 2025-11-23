@@ -1,9 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace m4dModels.Tests;
+﻿namespace m4dModels.Tests;
 
 [TestClass]
 public class ChunkingTests

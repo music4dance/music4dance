@@ -1,6 +1,3 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using System;
 using System.Diagnostics;
 
 namespace m4dModels.Tests;

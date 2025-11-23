@@ -2,7 +2,6 @@
 using m4d.Utilities;
 using m4d.ViewModels;
 
-using m4dModels;
 using m4dModels.Utilities;
 
 using Microsoft.AspNetCore.Identity;

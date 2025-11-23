@@ -5,8 +5,6 @@ using Azure.Search.Documents;
 using m4d.Services;
 using m4d.Utilities;
 
-using m4dModels;
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;

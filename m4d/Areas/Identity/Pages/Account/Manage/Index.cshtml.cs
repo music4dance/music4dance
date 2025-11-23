@@ -5,8 +5,6 @@
 using m4d.Controllers;
 using m4d.Utilities;
 
-using m4dModels;
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;

@@ -1,8 +1,6 @@
 ﻿using m4d.Services;
 using m4d.ViewModels;
 
-using m4dModels;
-
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

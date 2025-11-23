@@ -1,8 +1,6 @@
 ﻿using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
 
-using m4dModels;
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Azure;

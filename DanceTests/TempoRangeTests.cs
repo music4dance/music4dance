@@ -1,8 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using System;
-
-namespace DanceLibrary.Tests;
+﻿namespace DanceLibrary.Tests;
 
 [TestClass]
 public class TempoRangeTests

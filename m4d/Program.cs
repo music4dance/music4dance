@@ -5,8 +5,6 @@ using m4d.Services;
 using m4d.Utilities;
 using m4d.ViewModels;
 
-using m4dModels;
-
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;

@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
 
-using m4dModels;
-
 namespace m4d.ViewModels;
 
 public class DanceModel : SongListModel

@@ -1,7 +1,5 @@
 ﻿using m4d.ViewModels;
 
-using m4dModels;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
