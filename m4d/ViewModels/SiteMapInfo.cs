@@ -87,7 +87,7 @@ public sealed class SiteMapFile : SiteMapEntry
             else if (curdepth < depth)
             {
                 AddLevel(family);
-                depths.Pop();
+                _ = depths.Pop();
             }
 
             if (parts.Count <= 4 || !int.TryParse(parts[4], out var order))

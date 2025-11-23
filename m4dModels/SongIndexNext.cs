@@ -1,17 +1,16 @@
-﻿namespace m4dModels
+﻿namespace m4dModels;
+
+// SongIndexNext is now merged into SongIndex.
+// Retain as a stub for future breaking changes.
+public class SongIndexNext : SongIndex
 {
-    // SongIndexNext is now merged into SongIndex.
-    // Retain as a stub for future breaking changes.
-    public class SongIndexNext : SongIndex
+    // Stub for future use.
+    public SongIndexNext()
     {
-        // Stub for future use.
-        public SongIndexNext()
-        {
-        }
-
-        internal SongIndexNext(DanceMusicCoreService dms, string id) : base(dms, id)
-        {
-        }
-
     }
+
+    internal SongIndexNext(DanceMusicCoreService dms, string id) : base(dms, id)
+    {
+    }
+
 }

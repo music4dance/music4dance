@@ -1,18 +1,16 @@
-﻿using System.Diagnostics;
-using System.Net;
-using System.Net.Http.Headers;
-using System.Security.Principal;
-using System.Text;
-
-using DanceLibrary;
-
-using m4dModels;
+﻿using DanceLibrary;
 
 using Microsoft.Extensions.FileProviders;
 
 using Newtonsoft.Json;
 
 using SixLabors.ImageSharp;
+
+using System.Diagnostics;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Security.Principal;
+using System.Text;
 
 using TagList = m4dModels.TagList;
 
@@ -38,7 +36,7 @@ public class MusicServiceManager(IConfiguration configuration)
 
             if (await UpdateSongAndService(dms, sd, service))
             {
-                await UpdateAudioData(dms, service, sd);
+                _ = await UpdateAudioData(dms, service, sd);
                 changed = true;
             }
         }
@@ -94,7 +92,7 @@ public class MusicServiceManager(IConfiguration configuration)
         var tags = new TagList();
         foreach (var foundTrack in tracks)
         {
-            UpdateMusicServiceFromTrack(dms, edit, foundTrack, ref tags);
+            _ = UpdateMusicServiceFromTrack(dms, edit, foundTrack, ref tags);
         }
 
         var user = MusicService.GetService(tracks[0].Service).ApplicationUser;
@@ -431,9 +429,9 @@ public class MusicServiceManager(IConfiguration configuration)
             song = oldSong;
         }
 
-        await UpdateSongAndServices(dms, song);
-        await UpdateFromTracks(dms, song, [track]);
-        await UpdateAudioData(dms, service, song);
+        _ = await UpdateSongAndServices(dms, song);
+        _ = await UpdateFromTracks(dms, song, [track]);
+        _ = await UpdateAudioData(dms, service, song);
 
         if (found)
         {

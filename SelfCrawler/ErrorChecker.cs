@@ -1,9 +1,4 @@
-﻿using System;
-using System.Linq;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using OpenQA.Selenium;
+﻿using OpenQA.Selenium;
 
 namespace SelfCrawler;
 

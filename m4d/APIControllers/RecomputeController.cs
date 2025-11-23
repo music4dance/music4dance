@@ -1,7 +1,5 @@
 ﻿using m4d.Utilities;
 
-using m4dModels;
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -92,7 +90,7 @@ public class RecomputeController(
             {
                 if (await userManager.IsInRoleAsync(user, DanceMusicCoreService.PremiumRole))
                 {
-                    await userManager.RemoveFromRoleAsync(user, DanceMusicCoreService.PremiumRole);
+                    _ = await userManager.RemoveFromRoleAsync(user, DanceMusicCoreService.PremiumRole);
                     Logger.LogInformation($"Remove: {user.UserName}");
                 }
             }

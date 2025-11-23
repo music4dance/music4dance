@@ -1,17 +1,15 @@
 ﻿using Azure.Search.Documents.Models;
+
 using DanceLibrary;
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 
 using FacetResults =
     System.Collections.Generic.IDictionary<string, System.Collections.Generic.IList<
         Azure.Search.Documents.Models.FacetResult>>;
 
 namespace m4dModels;
+
 public class DanceBuilder(DanceMusicCoreService dms, string source)
 {
     protected DanceMusicCoreService Dms => dms ?? throw new ArgumentNullException(nameof(dms));
@@ -49,7 +47,7 @@ public class DanceBuilder(DanceMusicCoreService dms, string source)
         IReadOnlyDictionary<string, long> songCounts)
     {
         var stats = new List<DanceStats>();
-        await Dms.Context.LoadDances();
+        _ = await Dms.Context.LoadDances();
 
         foreach (var dt in dances)
         {
@@ -106,7 +104,7 @@ public class DanceBuilder(DanceMusicCoreService dms, string source)
                 songFilter.Dances = dance.DanceId;
                 songFilter.SortOrder = "Dances";
                 var azureFilter = songIndex.AzureParmsFromFilter(songFilter, 10);
-                SongIndex.AddAzureCategories(azureFilter, 
+                SongIndex.AddAzureCategories(azureFilter,
                     string.Join(",", GetDanceFacets(dance.DanceId)), 100);
                 var results = await songIndex.Search(
                     null, azureFilter);

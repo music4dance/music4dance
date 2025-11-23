@@ -2,8 +2,6 @@
 using m4d.Utilities;
 using m4d.ViewModels;
 
-using m4dModels;
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.FileProviders;
@@ -200,7 +198,7 @@ public class PaymentController : CommerceController
                         user.SubscriptionLevel = SubscriptionLevelDescription.FindSubscriptionLevel(amount).Level;
                         user.LifetimePurchased += amount;
 
-                        await UserManager.AddToRoleAsync(user, DanceMusicCoreService.PremiumRole);
+                        _ = await UserManager.AddToRoleAsync(user, DanceMusicCoreService.PremiumRole);
 
                         await signInManager.RefreshSignInAsync(user);
                     }
@@ -226,11 +224,11 @@ public class PaymentController : CommerceController
 
             if (!duplicate && await FeatureManager.IsEnabledAsync(FeatureFlags.ActivityLogging))
             {
-                Database.Context.ActivityLog.Add(new ActivityLog("Purchase", user, purchase));
-                await Database.SaveChanges();
+                _ = Database.Context.ActivityLog.Add(new ActivityLog("Purchase", user, purchase));
+                _ = await Database.SaveChanges();
             }
 
-            _completedSessions.Add(session_id);
+            _ = _completedSessions.Add(session_id);
             return View(purchase);
         }
 
@@ -248,15 +246,15 @@ public class PaymentController : CommerceController
         if (user != null)
         {
             user.FailedCardAttempts += 1;
-            await UserManager.UpdateAsync(user);
+            _ = await UserManager.UpdateAsync(user);
         }
 
         Logger.LogInformation(session.ToJson());
         if (await FeatureManager.IsEnabledAsync(FeatureFlags.ActivityLogging))
         {
-            Database.Context.ActivityLog.Add(new ActivityLog("FailedPurchase", user, session.ToJson()));
-            await Database.SaveChanges();
-        }        
+            _ = Database.Context.ActivityLog.Add(new ActivityLog("FailedPurchase", user, session.ToJson()));
+            _ = await Database.SaveChanges();
+        }
 
         return RedirectToAction("Contribute", "Home");
     }

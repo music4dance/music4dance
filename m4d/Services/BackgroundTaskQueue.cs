@@ -23,7 +23,7 @@ public class BackgroundTaskQueue : IBackgroundTaskQueue
         ArgumentNullException.ThrowIfNull(task);
 
         _items.Enqueue(task);
-        _signal.Release();
+        _ = _signal.Release();
     }
 
     public async Task<Func<IServiceScopeFactory, CancellationToken, Task>> DequeueAsync(CancellationToken cancellationToken)
@@ -31,7 +31,7 @@ public class BackgroundTaskQueue : IBackgroundTaskQueue
         // Wait for task to become available
         await _signal.WaitAsync(cancellationToken);
 
-        _items.TryDequeue(out var task);
+        _ = _items.TryDequeue(out var task);
         return task;
     }
 }

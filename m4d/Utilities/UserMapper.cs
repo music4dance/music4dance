@@ -1,6 +1,4 @@
-﻿using m4dModels;
-
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 
 namespace m4d.Utilities;
 
@@ -167,7 +165,7 @@ public static class UserMapper
         }
         finally
         {
-            s_semaphore.Release();
+            _ = s_semaphore.Release();
         }
     }
 

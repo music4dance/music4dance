@@ -1,149 +1,148 @@
 ﻿using Newtonsoft.Json;
 
-namespace DanceLibrary
+namespace DanceLibrary;
+
+public enum TempoKind
 {
-    public enum TempoKind
+    Bpm,
+    Mpm,
+    Bps
+}
+
+/// <summary>
+///     Represents a rate with a labe (MPM, BPM, BPS), in other word a tempo
+///     This is an immutable class
+/// </summary>
+public class TempoType
+{
+    public static readonly string TempoSyntaxError = "Sytax error in tempo";
+
+    private TempoType()
     {
-        Bpm,
-        Mpm,
-        Bps
+    }
+
+    [JsonConstructor]
+    public TempoType(TempoKind kind, Meter meter = null)
+    {
+        TempoKind = kind;
+        Meter = meter;
     }
 
     /// <summary>
-    ///     Represents a rate with a labe (MPM, BPM, BPS), in other word a tempo
-    ///     This is an immutable class
+    ///     Create a TempoType from a string of format "[BPS|BPM|([MPM ]{positive int}/{positive int})]"
     /// </summary>
-    public class TempoType
+    /// <param name="s"></param>
+    public TempoType(string s)
     {
-        public static readonly string TempoSyntaxError = "Sytax error in tempo";
-
-        private TempoType()
+        if (string.IsNullOrEmpty(s))
         {
+            TempoKind = TempoKind.Bpm;
+            return;
         }
 
-        [JsonConstructor]
-        public TempoType(TempoKind kind, Meter meter = null)
+        s = s.Trim();
+        var fields = s.Split([' ']);
+        if (fields == null || fields.Length < 1)
         {
-            TempoKind = kind;
-            Meter = meter;
+            throw new ArgumentOutOfRangeException(TempoSyntaxError);
         }
 
-        /// <summary>
-        ///     Create a TempoType from a string of format "[BPS|BPM|([MPM ]{positive int}/{positive int})]"
-        /// </summary>
-        /// <param name="s"></param>
-        public TempoType(string s)
+        if (string.Equals(fields[0], "BPS", StringComparison.OrdinalIgnoreCase))
         {
-            if (string.IsNullOrEmpty(s))
-            {
-                TempoKind = TempoKind.Bpm;
-                return;
-            }
-
-            s = s.Trim();
-            var fields = s.Split([' ']);
-            if (fields == null || fields.Length < 1)
+            TempoKind = TempoKind.Bps;
+            if (fields.Length > 1)
             {
                 throw new ArgumentOutOfRangeException(TempoSyntaxError);
             }
-
-            if (string.Equals(fields[0], "BPS", StringComparison.OrdinalIgnoreCase))
+        }
+        else if (string.Equals(fields[0], "BPM", StringComparison.OrdinalIgnoreCase))
+        {
+            TempoKind = TempoKind.Bpm;
+            if (fields.Length > 1)
             {
-                TempoKind = TempoKind.Bps;
-                if (fields.Length > 1)
-                {
-                    throw new ArgumentOutOfRangeException(TempoSyntaxError);
-                }
+                throw new ArgumentOutOfRangeException(TempoSyntaxError);
             }
-            else if (string.Equals(fields[0], "BPM", StringComparison.OrdinalIgnoreCase))
+        }
+        else
+        {
+            TempoKind = TempoKind.Mpm;
+            if (string.Equals(fields[0], "MPM", StringComparison.OrdinalIgnoreCase))
             {
-                TempoKind = TempoKind.Bpm;
-                if (fields.Length > 1)
+                if (fields.Length != 2)
                 {
                     throw new ArgumentOutOfRangeException(TempoSyntaxError);
                 }
+
+                Meter = new Meter(fields[1]);
             }
             else
             {
-                TempoKind = TempoKind.Mpm;
-                if (string.Equals(fields[0], "MPM", StringComparison.OrdinalIgnoreCase))
+                Meter = new Meter(fields[0]);
+                if (fields.Length > 1)
                 {
-                    if (fields.Length != 2)
-                    {
-                        throw new ArgumentOutOfRangeException(TempoSyntaxError);
-                    }
-
-                    Meter = new Meter(fields[1]);
-                }
-                else
-                {
-                    Meter = new Meter(fields[0]);
-                    if (fields.Length > 1)
-                    {
-                        throw new ArgumentOutOfRangeException(TempoSyntaxError);
-                    }
+                    throw new ArgumentOutOfRangeException(TempoSyntaxError);
                 }
             }
         }
+    }
 
-        /// <summary>
-        ///     Kind of tempo (MPM, BPM, BPS)
-        /// </summary>
-        public TempoKind TempoKind { get; }
+    /// <summary>
+    ///     Kind of tempo (MPM, BPM, BPS)
+    /// </summary>
+    public TempoKind TempoKind { get; }
 
-        /// <summary>
-        ///     Meter for MPM kinds
-        /// </summary>
-        public Meter Meter { get; }
+    /// <summary>
+    ///     Meter for MPM kinds
+    /// </summary>
+    public Meter Meter { get; }
 
-        [JsonIgnore]
-        public static string TypeName => "Tempo";
+    [JsonIgnore]
+    public static string TypeName => "Tempo";
 
-        public override string ToString()
+    public override string ToString()
+    {
+        switch (TempoKind)
         {
-            switch (TempoKind)
-            {
-                case TempoKind.Bpm: return "BPM";
-                case TempoKind.Bps: return "BPS";
-                case TempoKind.Mpm: return $"MPM {Meter}";
-                default:
-                    System.Diagnostics.Debug.Assert(false);
-                    return "#ERROR#";
-            }
+            case TempoKind.Bpm: return "BPM";
+            case TempoKind.Bps: return "BPS";
+            case TempoKind.Mpm: return $"MPM {Meter}";
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                return "#ERROR#";
+        }
+    }
+
+    public override bool Equals(object obj)
+    {
+        var tempo = obj as TempoType;
+        return tempo != null && (TempoKind == tempo.TempoKind && Meter == tempo.Meter);
+    }
+
+    public override int GetHashCode()
+    {
+        var hash = TempoKind.GetHashCode();
+        if (Meter != null)
+        {
+            hash += 7 * Meter.GetHashCode();
         }
 
-        public override bool Equals(object obj)
+        return hash;
+    }
+
+    public static bool operator ==(TempoType a, TempoType b)
+    {
+        // If both are null, or both are same instance, return true.
+        if (ReferenceEquals(a, b))
         {
-            var tempo = obj as TempoType;
-            return tempo != null && (TempoKind == tempo.TempoKind && Meter == tempo.Meter);
+            return true;
         }
 
-        public override int GetHashCode()
-        {
-            var hash = TempoKind.GetHashCode();
-            if (Meter != null)
-            {
-                hash += 7 * Meter.GetHashCode();
-            }
+        // Handle a is null case☺.
+        return a?.Equals(b) ?? false;
+    }
 
-            return hash;
-        }
-
-        public static bool operator ==(TempoType a, TempoType b)
-        {
-            // If both are null, or both are same instance, return true.
-            if (ReferenceEquals(a, b))
-            {
-                return true;
-            }
-
-            // Handle a is null case☺.
-            return a?.Equals(b) ?? false;
-        }
-
-        public static bool operator !=(TempoType a, TempoType b)
-        {
-            return !(a == b);
-        }
+    public static bool operator !=(TempoType a, TempoType b)
+    {
+        return !(a == b);
     }
 }

@@ -2,17 +2,15 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
-
-using m4dModels;
-
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
+
+using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace m4d.Areas.Identity.Pages.Account;
 
@@ -95,7 +93,7 @@ public class ExternalLoginModel : LoginModelBase
     public async Task<IActionResult> OnGetCallbackAsync(string returnUrl = null, string remoteError = null)
     {
         ReturnUrl = CleanUrl(returnUrl);
-        
+
         if (remoteError != null)
         {
             ErrorMessage = $"Error from external provider: {remoteError}";
@@ -163,7 +161,7 @@ public class ExternalLoginModel : LoginModelBase
     public async Task<IActionResult> OnPostConfirmationAsync(string returnUrl = null)
     {
         returnUrl = CleanUrl(returnUrl);
-        
+
         // Get the information about the user from the external login provider
         var info = await _signInManager.GetExternalLoginInfoAsync();
         if (info == null)
@@ -189,7 +187,7 @@ public class ExternalLoginModel : LoginModelBase
                     _logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
 
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    await _userManager.ConfirmEmailAsync(user, code);
+                    _ = await _userManager.ConfirmEmailAsync(user, code);
 
 
 

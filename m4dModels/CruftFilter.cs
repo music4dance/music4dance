@@ -1,5 +1,4 @@
-﻿using System;
-namespace m4dModels;
+﻿namespace m4dModels;
 
 [Flags]
 public enum CruftFilter

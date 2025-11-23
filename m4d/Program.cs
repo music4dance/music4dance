@@ -1,13 +1,9 @@
-using System.Reflection;
-
 using Azure.Identity;
 
 using m4d.Areas.Identity;
 using m4d.Services;
 using m4d.Utilities;
 using m4d.ViewModels;
-
-using m4dModels;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -25,6 +21,8 @@ using Microsoft.FeatureManagement;
 using Newtonsoft.Json.Serialization;
 
 using Owl.reCAPTCHA;
+
+using System.Reflection;
 
 using Vite.AspNetCore;
 
@@ -61,34 +59,34 @@ var isDevelopment = environment.IsDevelopment();
 var credentials = new DefaultAzureCredential();
 if (!isDevelopment)
 {
-    configuration.AddAzureAppConfiguration(options =>
+    _ = configuration.AddAzureAppConfiguration(options =>
     {
-        options.Connect(
+        _ = options.Connect(
             new Uri(configuration["AppConfig:Endpoint"]),
             credentials)
         .ConfigureKeyVault(
-            kv => { kv.SetCredential(credentials); })
+            kv => { _ = kv.SetCredential(credentials); })
         .UseFeatureFlags(featureFlagOptions =>
         {
-            featureFlagOptions.Select(LabelFilter.Null);
-            featureFlagOptions.Select(environment.EnvironmentName);
-            featureFlagOptions.SetRefreshInterval(TimeSpan.FromMinutes(5));
+            _ = featureFlagOptions.Select(LabelFilter.Null);
+            _ = featureFlagOptions.Select(environment.EnvironmentName);
+            _ = featureFlagOptions.SetRefreshInterval(TimeSpan.FromMinutes(5));
         })
         .Select(KeyFilter.Any, LabelFilter.Null)
         .Select(KeyFilter.Any, environment.EnvironmentName)
         .ConfigureRefresh(refresh =>
         {
-            refresh.Register("Configuration:Sentinel", environment.EnvironmentName, refreshAll: true)
+            _ = refresh.Register("Configuration:Sentinel", environment.EnvironmentName, refreshAll: true)
                 .SetRefreshInterval(TimeSpan.FromMinutes(5));
         });
     });
 
-    services.AddAzureAppConfiguration();
+    _ = services.AddAzureAppConfiguration();
 }
 
 services.AddAzureClients(clientBuilder =>
 {
-    clientBuilder.UseCredential(credentials);
+    _ = clientBuilder.UseCredential(credentials);
 
     // Dynamically add all configuration sections with an "indexname" field
     var indexSections = configuration.GetChildren()
@@ -97,7 +95,7 @@ services.AddAzureClients(clientBuilder =>
 
     foreach (var section in indexSections)
     {
-        clientBuilder.AddSearchClient(section).WithName(section.Key);
+        _ = clientBuilder.AddSearchClient(section).WithName(section.Key);
     }
 
     // Add a single SearchIndexClient named "SongIndex" based on the first section with key starting with "SongIndex"
@@ -120,7 +118,7 @@ services.AddAzureClients(clientBuilder =>
             }
         }
 
-        clientBuilder.AddSearchIndexClient(firstSongIndexSection).WithName("SongIndex");
+        _ = clientBuilder.AddSearchIndexClient(firstSongIndexSection).WithName("SongIndex");
     }
 });
 
@@ -259,7 +257,8 @@ services.AddControllers().AddNewtonsoftJson()
         });
 
 services.AddAutoMapper(
-    cfg => {
+    cfg =>
+    {
         cfg.LicenseKey = configuration["Authentication:AutoMapper:Key"];
     },
     typeof(SongFilterProfile),
@@ -275,7 +274,7 @@ var app = builder.Build();
 if (!isDevelopment)
 {
     // Add custom exception logging middleware BEFORE UseExceptionHandler
-    app.Use(async (context, next) =>
+    _ = app.Use(async (context, next) =>
     {
         try
         {
@@ -290,7 +289,7 @@ if (!isDevelopment)
         }
     });
 
-    app.UseAzureAppConfiguration();
+    _ = app.UseAzureAppConfiguration();
 }
 
 app.Logger.LogInformation("Builder Built");
@@ -318,17 +317,17 @@ app.Logger.LogInformation(@"Configuring request pipeline");
 
 if (isDevelopment)
 {
-    app.UseDeveloperExceptionPage();
+    _ = app.UseDeveloperExceptionPage();
     if (useVite)
     {
-        app.UseViteDevelopmentServer(true);
+        _ = app.UseViteDevelopmentServer(true);
     }
 }
 else
 {
-    app.UseExceptionHandler("/Error");
-    app.UseStatusCodePagesWithReExecute("/Error/{0}");
-    app.UseHsts();
+    _ = app.UseExceptionHandler("/Error");
+    _ = app.UseStatusCodePagesWithReExecute("/Error/{0}");
+    _ = app.UseHsts();
 }
 
 app.UseHttpsRedirection();

@@ -2,12 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using System.ComponentModel.DataAnnotations;
-using System.Text;
-
 using m4d.Utilities;
-
-using m4dModels;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -20,6 +15,9 @@ using Microsoft.FeatureManagement;
 
 using Owl.reCAPTCHA;
 using Owl.reCAPTCHA.v2;
+
+using System.ComponentModel.DataAnnotations;
+using System.Text;
 
 namespace m4d.Areas.Identity.Pages.Account;
 

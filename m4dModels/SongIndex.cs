@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using AutoMapper;
+﻿using AutoMapper;
 
 using Azure;
 using Azure.Search.Documents;
@@ -13,6 +6,9 @@ using Azure.Search.Documents.Indexes.Models;
 using Azure.Search.Documents.Models;
 
 using DanceLibrary;
+
+using System.Diagnostics;
+using System.Text;
 
 namespace m4dModels;
 
@@ -351,7 +347,7 @@ public class SongIndex
             return false;
         }
 
-        await song.AppendHistory(history, mapper, DanceMusicService);
+        _ = await song.AppendHistory(history, mapper, DanceMusicService);
         await SaveSong(song);
         return true;
     }
@@ -383,7 +379,7 @@ public class SongIndex
     {
         var merger = await MergeFromTitle(song);
 
-        return merger.MatchType == MatchType.Exact || merger.MatchType == MatchType.Length
+        return merger.MatchType is MatchType.Exact or MatchType.Length
             ? merger.Right
             : null;
     }
@@ -410,7 +406,7 @@ public class SongIndex
             TraceLevels.General.TraceVerbose,
             $"{delta}: {song.Title} {song.Artist}");
         song.Albums = [.. albums];
-        await EditSong(user, song);
+        _ = await EditSong(user, song);
         return delta;
     }
 
@@ -498,12 +494,12 @@ public class SongIndex
             Sample = song.Sample
         };
 
-        song.Edit(user, sd, null, DanceMusicService.DanceStats);
+        _ = song.Edit(user, sd, null, DanceMusicService.DanceStats);
 
         song.CreateAlbums(albums);
 
         song = await Song.Create(song.SongId, song.SongProperties, DanceMusicService);
-        await song.CleanupProperties(DanceMusicService, "RE");
+        _ = await song.CleanupProperties(DanceMusicService, "RE");
 
         await SaveSong(song);
 
@@ -600,7 +596,7 @@ public class SongIndex
                 continue;
             }
 
-            hash.Add(key);
+            _ = hash.Add(key);
             ret.Add(song);
         }
 
@@ -814,7 +810,7 @@ public class SongIndex
             stats.UpdateSong(song);
         }
 
-        await DanceMusicService.GetSongIndex(id).UpdateAzureIndex(songs, DanceMusicService);
+        _ = await DanceMusicService.GetSongIndex(id).UpdateAzureIndex(songs, DanceMusicService);
     }
 
     public async Task<int> UpdateAzureIndex(IEnumerable<Song> songs, DanceMusicCoreService dms)
@@ -933,7 +929,7 @@ public class SongIndex
                         {
                             Trace.WriteLine($"Bad header in change: {song.SongId}");
                         }
-                        replaces.Add(prop.Value);
+                        _ = replaces.Add(prop.Value);
                         prop.Value = user;
                     }
                 }
@@ -999,10 +995,10 @@ public class SongIndex
     {
         var parameters = new SearchOptions { Filter = filter };
 
-        await UpdateAzureIndex(
+        _ = await UpdateAzureIndex(
             await SongsFromAzureResult(await DoSearch(null, parameters)), DanceMusicService);
 
-        await DanceMusicService.SaveChanges();
+        _ = await DanceMusicService.SaveChanges();
     }
     #endregion
 
@@ -1255,17 +1251,17 @@ public class SongIndex
         var extra = new StringBuilder();
         if ((cruft & CruftFilter.NoPublishers) != CruftFilter.NoPublishers)
         {
-            extra.Append("Purchase/any()");
+            _ = extra.Append("Purchase/any()");
         }
 
         if ((cruft & CruftFilter.NoDances) != CruftFilter.NoDances)
         {
             if (extra.Length > 0)
             {
-                extra.Append(" and ");
+                _ = extra.Append(" and ");
             }
 
-            extra.Append("DanceTags/any()");
+            _ = extra.Append("DanceTags/any()");
         }
 
         if (parameters.Filter == null)
@@ -1274,7 +1270,7 @@ public class SongIndex
         }
         else
         {
-            extra.AppendFormat(" and {0}", parameters.Filter);
+            _ = extra.AppendFormat(" and {0}", parameters.Filter);
             parameters.Filter = extra.ToString();
         }
 

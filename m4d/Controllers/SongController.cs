@@ -1,8 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Net;
-
-using AutoMapper;
+﻿using AutoMapper;
 
 using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
@@ -13,8 +9,6 @@ using m4d.Services;
 using m4d.Utilities;
 using m4d.ViewModels;
 
-using m4dModels;
-
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -22,6 +16,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.FeatureManagement;
 using Microsoft.Net.Http.Headers;
+
+using System.Collections.Immutable;
+using System.Diagnostics;
+using System.Net;
 
 namespace m4d.Controllers;
 
@@ -134,7 +132,7 @@ public class SongController : ContentController
         }
 
         var filter =
-            $"ServiceIds/any(id: search.in(id, '{string.Join(',',playlist.Tracks.Select(t => $"S:{t.TrackId}"))}'))";
+            $"ServiceIds/any(id: search.in(id, '{string.Join(',', playlist.Tracks.Select(t => $"S:{t.TrackId}"))}'))";
         var options = new SearchOptions
         {
             QueryType = SearchQueryType.Full,
@@ -227,7 +225,7 @@ public class SongController : ContentController
         var user = UserName;
         if (user != null)
         {
-            Filter.Anonymize(user);
+            _ = Filter.Anonymize(user);
         }
 
         var histories = await AnonymizeSongs(songs);
@@ -663,7 +661,7 @@ public class SongController : ContentController
         var song = await SongIndex.FindSong(id);
         if (song == null)
         {
-            ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.");
+            _ = ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.");
         }
 
         if (await MusicServiceManager.UpdateSongAndServices(Database, song))
@@ -752,7 +750,7 @@ public class SongController : ContentController
         {
             // Building this before doing anything else purely for validation, it will
             //  be rebuilt further down the stack.
-            SongModifier.Build(properties);
+            _ = SongModifier.Build(properties);
         }
         catch (Exception ex)
         {
@@ -781,7 +779,7 @@ public class SongController : ContentController
             var tried = 0;
 
             var dms = Database.GetTransientService();
-            Task.Run(
+            _ = Task.Run(
                 async () =>
                 {
                     try
@@ -818,7 +816,7 @@ public class SongController : ContentController
                             Logger.LogInformation($"{tried} songs tried.");
                         }
 
-                        await dms.SongIndex.UpdateAzureIndex(succeeded.Concat(failed), dms);
+                        _ = await dms.SongIndex.UpdateAzureIndex(succeeded.Concat(failed), dms);
 
 
                         AdminMonitor.CompleteTask(
@@ -1021,9 +1019,9 @@ public class SongController : ContentController
         if (await FeatureManager.IsEnabledAsync(FeatureFlags.ActivityLogging))
         {
             var user = await Database.FindUser(User.Identity?.Name);
-            Database.Context.ActivityLog.Add(new ActivityLog(
+            _ = Database.Context.ActivityLog.Add(new ActivityLog(
                 "SpotifyExport", user, new SpotifyCreate { Id = metadata.Id, Info = info }));
-            await Database.SaveChanges();
+            _ = await Database.SaveChanges();
         }
         return View("SpotifyCreated", metadata);
     }
@@ -1098,8 +1096,8 @@ public class SongController : ContentController
         if (await FeatureManager.IsEnabledAsync(FeatureFlags.ActivityLogging))
         {
             var user = await Database.FindUser(User.Identity?.Name);
-            Database.Context.ActivityLog.Add(new ActivityLog("CsvExport", user, info));
-            await Database.SaveChanges();
+            _ = Database.Context.ActivityLog.Add(new ActivityLog("CsvExport", user, info));
+            _ = await Database.SaveChanges();
         }
 
         var spotifyId = await SpotifyFromFilter(filter, UserName);
@@ -1353,7 +1351,7 @@ public class SongController : ContentController
             Filter.Page = 1;
 
             var dms = Database.GetTransientService();
-            Task.Run(
+            _ = Task.Run(
                 async () => // Intentionally drop this async on the floor
                 {
                     try
@@ -1629,7 +1627,7 @@ public class SongController : ContentController
 
         foreach (var prop in del)
         {
-            props.Remove(prop);
+            _ = props.Remove(prop);
         }
 
         return true;
@@ -1726,7 +1724,7 @@ public class SongController : ContentController
 
         foreach (var prop in del)
         {
-            props.Remove(prop);
+            _ = props.Remove(prop);
         }
 
         return true;
@@ -1752,7 +1750,7 @@ public class SongController : ContentController
 
         foreach (var prop in del)
         {
-            props.Remove(prop);
+            _ = props.Remove(prop);
         }
 
         return true;
@@ -1783,7 +1781,7 @@ public class SongController : ContentController
 
         foreach (var prop in del)
         {
-            props.Remove(prop);
+            _ = props.Remove(prop);
         }
 
         return true;

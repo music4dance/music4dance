@@ -1,10 +1,6 @@
-﻿using System.Security.Authentication;
-
-using AutoMapper;
+﻿using AutoMapper;
 
 using m4d.Services;
-
-using m4dModels;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -12,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.FeatureManagement;
+
+using System.Security.Authentication;
 
 namespace m4d.Controllers;
 
@@ -45,7 +43,7 @@ public class SearchesController : ContentController
         Authenticate(user);
 
         IQueryable<Search> searches = Database.Searches.Include(s => s.ApplicationUser);
-        if (user != null && user != "all")
+        if (user is not null and not "all")
         {
             var appUser = await Database.FindUser(user);
             if (appUser != null)
@@ -60,7 +58,7 @@ public class SearchesController : ContentController
                 : searches.OrderByDescending(s => s.Count)).Take(250).ToList();
 
 
-        if (user != null && user != "all")
+        if (user is not null and not "all")
         {
             await SetSpotify(searches, user);
         }
@@ -112,8 +110,8 @@ public class SearchesController : ContentController
         if (search != null)
         {
             Authenticate(search.ApplicationUser?.UserName);
-            Database.Searches.Remove(search);
-            await Database.SaveChanges();
+            _ = Database.Searches.Remove(search);
+            _ = await Database.SaveChanges();
             return RedirectToAction("Index", new { sort, showDetails, user });
         }
 

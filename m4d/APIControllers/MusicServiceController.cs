@@ -1,9 +1,7 @@
-﻿using System.Net;
-
-using m4dModels;
-
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+
+using System.Net;
 
 namespace m4d.APIControllers;
 

@@ -1,239 +1,235 @@
 ﻿using System.Diagnostics;
-using System.Linq;
 using System.Web;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+namespace m4dModels.Tests;
 
-namespace m4dModels.Tests
+[TestClass]
+public class SongFilterTests
 {
-    [TestClass]
-    public class SongFilterTests
+    [ClassInitialize]
+    public static void ClassInitialize(TestContext _)
     {
-        [ClassInitialize]
-        public static void ClassInitialize(TestContext _)
-        {
-            var t = DanceMusicTester.LoadDances().Result;
-            Trace.WriteLine($"Loaded dances = {t}");
-        }
-
-        // TODO: after spending the time writing these test it occurs to me that a more robust way of doing this would
-        //  be to create a couple of static objects using json-like constructor syntax and go the other way, that way
-        //  the tests would be resilient to changing the encoding scheme - so take the time to rework this if I ever
-        //  change the scheme.
-        [TestMethod]
-        public void BasicFilter()
-        {
-            TestFilters(false);
-        }
-
-
-        [TestMethod]
-        public void FilterWithEncoding()
-        {
-            TestFilters(true);
-        }
-
-        [TestMethod]
-        public void FilterDescription()
-        {
-            var f1 = SongFilter.Create(false, @"Index-FXT-.-.-I-.-100-120-1-+Instrumental:Music");
-            var f2 = SongFilter.Create(false,
-                @"Index-ALL-Dances-Funk-.-.-.-.-.-+Rock & Roll:Music|\-Jazz:Music|\-Pop:Music");
-            var f3 = SongFilter.Create(false, @"Index-ALL-.-.--.-100-.-1");
-            var f4 = SongFilter.Create(false, @"Index-ALL-Title-.--.-.-150-1");
-            var f5 = SongFilter.Create(false, @"Advanced-.-.-.-.-+charlie|L-.-.-1");
-            var f6 = SongFilter.Create(false, @"Advanced-.-.-.-.-\-charlie|");
-            var f7 = SongFilter.Create(false,
-                @"Advanced-.-.-.-.-null-.-.-1-+R&B / Soul:Music|+Rhythm and Blues:Music|+Blues:Music|");
-            var f8 = SongFilter.Create(false,
-                @"Advanced-SLS-.-.-S-null-.-.-1-|\-Christian / Gospel:Music|\-TV Theme Song:Music|\-Doo Wop:Music");
-            var f9 = SongFilter.Create(false, @"Advanced-MBO,RMB,SMB-.-.-.-null-.-.-1-|");
-            var f10 = SongFilter.Create(false, @"Advanced-AND,ECS,FXT,TGO-.-.-A-null-.-.-1-|");
-            var f11 = SongFilter.Create(false, @"Advanced-RMB-Tempo-.-A-null-.-.-1-|");
-            var f12 = SongFilter.Create(false, @"Advanced-AND,RMB,BCH-Created_desc-.-.-null-.-180-1-|");
-
-            Trace.WriteLine(f1.Description);
-            Trace.WriteLine(f2.Description);
-            Trace.WriteLine(f3.Description);
-            Trace.WriteLine(f4.Description);
-            Trace.WriteLine(f5.Description);
-            Trace.WriteLine(f6.Description);
-            Trace.WriteLine(f7.Description);
-            Trace.WriteLine(f8.Description);
-            Trace.WriteLine(f9.Description);
-            Trace.WriteLine(f10.Description);
-            Trace.WriteLine(f11.Description);
-            Trace.WriteLine(f12.Description);
-
-            Assert.AreEqual(
-                @"All Foxtrot songs available on ITunes, including tag Instrumental, having tempo between 100 and 120 beats per minute. Sorted by Dance Rating from most popular to least popular.",
-                f1.Description);
-            Assert.AreEqual(
-                @"All songs containing the text ""Funk"", including tag Rock & Roll, excluding tags Jazz or Pop. Sorted by Dance Rating from most popular to least popular.",
-                f2.Description);
-            Assert.AreEqual(
-                @"All songs having tempo greater than 100 beats per minute. Sorted by Dance Rating from most popular to least popular.",
-                f3.Description);
-            Assert.AreEqual(
-                @"All songs having tempo less than 150 beats per minute. Sorted by Title from A to Z.",
-                f4.Description);
-            Assert.AreEqual(@"All songs liked by charlie. Sorted by Dance Rating from most popular to least popular.", f5.Description);
-            Assert.AreEqual(@"All songs not edited by charlie. Sorted by Dance Rating from most popular to least popular.", f6.Description);
-            Assert.AreEqual(
-                @"All songs including tags Blues, R&B / Soul and Rhythm and Blues. Sorted by Dance Rating from most popular to least popular.",
-                f7.Description);
-            Assert.AreEqual(
-                @"All Salsa songs available on Spotify, excluding tags Christian / Gospel, Doo Wop or TV Theme Song. Sorted by Dance Rating from most popular to least popular.",
-                f8.Description);
-            Assert.AreEqual(
-                @"All songs danceable to any of Mambo, Rumba or Samba. Sorted by Dance Rating from most popular to least popular.",
-                f9.Description);
-            Assert.AreEqual(
-                @"All songs danceable to all of East Coast Swing, Foxtrot and Tango (Ballroom) available on Amazon. Sorted by Dance Rating from most popular to least popular.",
-                f10.Description);
-            Assert.AreEqual(
-                @"All Rumba songs available on Amazon. Sorted by Tempo from slowest to fastest.",
-                f11.Description);
-            Assert.AreEqual(
-                @"All songs danceable to all of Rumba and Bachata having tempo less than 180 beats per minute. Sorted by When Added from oldest to newest.",
-                f12.Description);
-        }
-
-        [TestMethod]
-        public void FilterDescriptionV2()
-        {
-            var f1 = SongFilter.Create(false, F1V2);
-            var f2 = SongFilter.Create(false, F2V2);
-
-            Trace.WriteLine(f1.Description);
-            Trace.WriteLine(f2.Description);
-
-            Assert.AreEqual(
-                @"All Swing songs containing the text ""Goodman"", available on ITunes, including tag Pop, having tempo between 50 and 150 beats per minute, having length between 30 and 90 seconds. Sorted by Dance Rating from most popular to least popular.",
-                f1.Description);
-            Assert.AreEqual(
-                @"All Swing songs available on ITunes, having length between 30 and 90 seconds. Sorted by Dance Rating from most popular to least popular.",
-                f2.Description);
-        }
-
-        [TestMethod]
-        public void TestEmpty()
-        {
-            Assert.IsTrue(SongFilter.Create(false, @"Index-ALL").IsEmpty);
-            Assert.IsTrue(SongFilter.Create(false, @"Index").IsEmpty);
-            Assert.IsFalse(SongFilter.Create(false, @"Index-ALL-Title-.--.-.-150-1").IsEmpty);
-            Assert.IsTrue(SongFilter.Create(false, @"Index-.-Dances-.-.-.-.-.-1").IsEmpty);
-            Assert.IsFalse(SongFilter.Create(false, @"v2-Index-.-Dances-.-.-.-.-.-1").IsEmpty);
-            Assert.IsTrue(SongFilter.Create(false, @"v2-Index-.-Dances-.-.-.-.-.-.-.-1").IsEmpty);
-        }
-
-        private static void TestFilters(bool withEncoding)
-        {
-            const string trivial = "{0}Trivial filter fails round-trip: {1}";
-            var s = RoundTrip("", "", trivial, 1, false);
-            RoundTrip(s, "", trivial, 1, withEncoding);
-
-            const string simple = "{0}Simple filter fails round-trip: {1}";
-            s = RoundTrip(F1, F1, simple, 1, false);
-            RoundTrip(s, F1, simple, 1, withEncoding);
-
-            const string complex = "{0}Complex filter fails round-trip: {1}";
-            s = RoundTrip(F2, F2, complex, 1, false);
-            RoundTrip(s, F2, complex, 2, withEncoding);
-
-            const string simple2 = "{0}Simple v2 filter fails round-trip: {1}";
-            s = RoundTrip(F1V2, F1V2, simple2, 1, false);
-            RoundTrip(s, F1V2, simple2, 1, withEncoding);
-
-            const string complex2 = "{0}Complex v2 filter fails round-trip: {1}";
-            s = RoundTrip(F2V2, F2V2, complex2, 1, false);
-            RoundTrip(s, F2V2, complex2, 2, withEncoding);
-        }
-
-        private static void TestV2Filters(bool withEncoding)
-        {
-            const string trivial = "{0}Trivial filter fails round-trip: {1}";
-            var s = RoundTrip("", "", trivial, 1, false);
-            RoundTrip(s, "", trivial, 1, withEncoding);
-
-            const string simple = "{0}Simple filter fails round-trip: {1}";
-            s = RoundTrip(F1, F1, simple, 1, false);
-            RoundTrip(s, F1, simple, 1, withEncoding);
-
-            const string complex = "{0}Complex filter fails round-trip: {1}";
-            s = RoundTrip(F2, F2, complex, 1, false);
-            RoundTrip(s, F2, complex, 2, withEncoding);
-        }
-
-
-        private static string RoundTrip(string fi, string f0, string message, int n,
-            bool withEncoding)
-        {
-            var f = SongFilter.Create(false, fi);
-            var s = f.ToString();
-
-            // Round-trip http encoding to make sure that we preserve our values
-            if (withEncoding)
-            {
-                var enc = HttpUtility.HtmlEncode(s);
-                s = HttpUtility.HtmlDecode(enc);
-            }
-
-            Assert.AreEqual(
-                f0, s,
-                string.Format(message, withEncoding ? "Encoded " : string.Empty, n));
-            return s;
-        }
-
-        [TestMethod]
-        public void RawDanceQueryExtraction()
-        {
-            // Test raw dance query with DanceTags filter
-            var rawFilter = SongFilter.Create(false, @"azure+raw-DanceTags/any(t: t eq 'waltz')");
-            Assert.IsTrue(rawFilter.IsRaw, "Filter should be identified as raw");
-
-            var rawDanceQuery = rawFilter.RawDanceQuery;
-            Assert.IsNotNull(rawDanceQuery, "RawDanceQuery should not be null");
-
-            var danceItems = rawDanceQuery.DanceQueryItems.ToList();
-            Assert.AreEqual(1, danceItems.Count, "Should extract one dance from raw query");
-            Assert.AreEqual("wlz", danceItems[0].Id.ToLower(), "Should extract waltz dance with ID 'WLZ'");
-
-            // Test with 'all' variant
-            var rawFilter2 = SongFilter.Create(false, @"customsearch-DanceTags/all(t: t eq 'foxtrot')");
-            Assert.IsTrue(rawFilter2.IsRaw, "Filter should be identified as raw");
-
-            var rawDanceQuery2 = rawFilter2.RawDanceQuery;
-            var danceItems2 = rawDanceQuery2.DanceQueryItems.ToList();
-            Assert.AreEqual(1, danceItems2.Count, "Should extract one dance from raw query with 'all'");
-
-            // Test empty raw query
-            var emptyRawFilter = SongFilter.Create(false, @"azure+raw");
-            var emptyRawDanceQuery = emptyRawFilter.RawDanceQuery;
-            var emptyDanceItems = emptyRawDanceQuery.DanceQueryItems.ToList();
-            Assert.AreEqual(0, emptyDanceItems.Count, "Should extract no dances from empty raw query");
-        }
-
-        [TestMethod]
-        public void RawDanceQueryWithFlags()
-        {
-            // Test raw dance query with flags
-            var rawFilter = SongFilter.Create(false, @"customsearch-DanceTags/any(t: t eq 'tango')-.-.-.-.-.-.-1-singleDance");
-            Assert.IsTrue(rawFilter.IsRaw, "Filter should be identified as raw");
-
-            var rawDanceQuery = rawFilter.RawDanceQuery;
-            Assert.IsNotNull(rawDanceQuery, "RawDanceQuery should not be null");
-
-            Assert.IsTrue(rawDanceQuery.SingleDance, "Should recognize singleDance flag");
-
-            var flags = rawDanceQuery.FlagList;
-            Assert.AreEqual(1, flags.Count, "Should have one flag");
-            Assert.AreEqual("singleDance", flags[0], "Flag should be 'singleDance'");
-        }
-
-        private const string F1 = @"Index-SWG-Album-Goodman-X-.-50-150-1-+Pop:Music";
-        private const string F2 = @"Index-SWG-.-.-I";
-        private const string F1V2 = @"v2-Index-SWG-Album-Goodman-I-.-50-150-30-90-1-+Pop:Music";
-        private const string F2V2 = @"v2-Index-SWG-.-.-I-.-.-.-30-90";
+        var t = DanceMusicTester.LoadDances().Result;
+        Trace.WriteLine($"Loaded dances = {t}");
     }
+
+    // TODO: after spending the time writing these test it occurs to me that a more robust way of doing this would
+    //  be to create a couple of static objects using json-like constructor syntax and go the other way, that way
+    //  the tests would be resilient to changing the encoding scheme - so take the time to rework this if I ever
+    //  change the scheme.
+    [TestMethod]
+    public void BasicFilter()
+    {
+        TestFilters(false);
+    }
+
+
+    [TestMethod]
+    public void FilterWithEncoding()
+    {
+        TestFilters(true);
+    }
+
+    [TestMethod]
+    public void FilterDescription()
+    {
+        var f1 = SongFilter.Create(false, @"Index-FXT-.-.-I-.-100-120-1-+Instrumental:Music");
+        var f2 = SongFilter.Create(false,
+            @"Index-ALL-Dances-Funk-.-.-.-.-.-+Rock & Roll:Music|\-Jazz:Music|\-Pop:Music");
+        var f3 = SongFilter.Create(false, @"Index-ALL-.-.--.-100-.-1");
+        var f4 = SongFilter.Create(false, @"Index-ALL-Title-.--.-.-150-1");
+        var f5 = SongFilter.Create(false, @"Advanced-.-.-.-.-+charlie|L-.-.-1");
+        var f6 = SongFilter.Create(false, @"Advanced-.-.-.-.-\-charlie|");
+        var f7 = SongFilter.Create(false,
+            @"Advanced-.-.-.-.-null-.-.-1-+R&B / Soul:Music|+Rhythm and Blues:Music|+Blues:Music|");
+        var f8 = SongFilter.Create(false,
+            @"Advanced-SLS-.-.-S-null-.-.-1-|\-Christian / Gospel:Music|\-TV Theme Song:Music|\-Doo Wop:Music");
+        var f9 = SongFilter.Create(false, @"Advanced-MBO,RMB,SMB-.-.-.-null-.-.-1-|");
+        var f10 = SongFilter.Create(false, @"Advanced-AND,ECS,FXT,TGO-.-.-A-null-.-.-1-|");
+        var f11 = SongFilter.Create(false, @"Advanced-RMB-Tempo-.-A-null-.-.-1-|");
+        var f12 = SongFilter.Create(false, @"Advanced-AND,RMB,BCH-Created_desc-.-.-null-.-180-1-|");
+
+        Trace.WriteLine(f1.Description);
+        Trace.WriteLine(f2.Description);
+        Trace.WriteLine(f3.Description);
+        Trace.WriteLine(f4.Description);
+        Trace.WriteLine(f5.Description);
+        Trace.WriteLine(f6.Description);
+        Trace.WriteLine(f7.Description);
+        Trace.WriteLine(f8.Description);
+        Trace.WriteLine(f9.Description);
+        Trace.WriteLine(f10.Description);
+        Trace.WriteLine(f11.Description);
+        Trace.WriteLine(f12.Description);
+
+        Assert.AreEqual(
+            @"All Foxtrot songs available on ITunes, including tag Instrumental, having tempo between 100 and 120 beats per minute. Sorted by Dance Rating from most popular to least popular.",
+            f1.Description);
+        Assert.AreEqual(
+            @"All songs containing the text ""Funk"", including tag Rock & Roll, excluding tags Jazz or Pop. Sorted by Dance Rating from most popular to least popular.",
+            f2.Description);
+        Assert.AreEqual(
+            @"All songs having tempo greater than 100 beats per minute. Sorted by Dance Rating from most popular to least popular.",
+            f3.Description);
+        Assert.AreEqual(
+            @"All songs having tempo less than 150 beats per minute. Sorted by Title from A to Z.",
+            f4.Description);
+        Assert.AreEqual(@"All songs liked by charlie. Sorted by Dance Rating from most popular to least popular.", f5.Description);
+        Assert.AreEqual(@"All songs not edited by charlie. Sorted by Dance Rating from most popular to least popular.", f6.Description);
+        Assert.AreEqual(
+            @"All songs including tags Blues, R&B / Soul and Rhythm and Blues. Sorted by Dance Rating from most popular to least popular.",
+            f7.Description);
+        Assert.AreEqual(
+            @"All Salsa songs available on Spotify, excluding tags Christian / Gospel, Doo Wop or TV Theme Song. Sorted by Dance Rating from most popular to least popular.",
+            f8.Description);
+        Assert.AreEqual(
+            @"All songs danceable to any of Mambo, Rumba or Samba. Sorted by Dance Rating from most popular to least popular.",
+            f9.Description);
+        Assert.AreEqual(
+            @"All songs danceable to all of East Coast Swing, Foxtrot and Tango (Ballroom) available on Amazon. Sorted by Dance Rating from most popular to least popular.",
+            f10.Description);
+        Assert.AreEqual(
+            @"All Rumba songs available on Amazon. Sorted by Tempo from slowest to fastest.",
+            f11.Description);
+        Assert.AreEqual(
+            @"All songs danceable to all of Rumba and Bachata having tempo less than 180 beats per minute. Sorted by When Added from oldest to newest.",
+            f12.Description);
+    }
+
+    [TestMethod]
+    public void FilterDescriptionV2()
+    {
+        var f1 = SongFilter.Create(false, F1V2);
+        var f2 = SongFilter.Create(false, F2V2);
+
+        Trace.WriteLine(f1.Description);
+        Trace.WriteLine(f2.Description);
+
+        Assert.AreEqual(
+            @"All Swing songs containing the text ""Goodman"", available on ITunes, including tag Pop, having tempo between 50 and 150 beats per minute, having length between 30 and 90 seconds. Sorted by Dance Rating from most popular to least popular.",
+            f1.Description);
+        Assert.AreEqual(
+            @"All Swing songs available on ITunes, having length between 30 and 90 seconds. Sorted by Dance Rating from most popular to least popular.",
+            f2.Description);
+    }
+
+    [TestMethod]
+    public void TestEmpty()
+    {
+        Assert.IsTrue(SongFilter.Create(false, @"Index-ALL").IsEmpty);
+        Assert.IsTrue(SongFilter.Create(false, @"Index").IsEmpty);
+        Assert.IsFalse(SongFilter.Create(false, @"Index-ALL-Title-.--.-.-150-1").IsEmpty);
+        Assert.IsTrue(SongFilter.Create(false, @"Index-.-Dances-.-.-.-.-.-1").IsEmpty);
+        Assert.IsFalse(SongFilter.Create(false, @"v2-Index-.-Dances-.-.-.-.-.-1").IsEmpty);
+        Assert.IsTrue(SongFilter.Create(false, @"v2-Index-.-Dances-.-.-.-.-.-.-.-1").IsEmpty);
+    }
+
+    private static void TestFilters(bool withEncoding)
+    {
+        const string trivial = "{0}Trivial filter fails round-trip: {1}";
+        var s = RoundTrip("", "", trivial, 1, false);
+        _ = RoundTrip(s, "", trivial, 1, withEncoding);
+
+        const string simple = "{0}Simple filter fails round-trip: {1}";
+        s = RoundTrip(F1, F1, simple, 1, false);
+        _ = RoundTrip(s, F1, simple, 1, withEncoding);
+
+        const string complex = "{0}Complex filter fails round-trip: {1}";
+        s = RoundTrip(F2, F2, complex, 1, false);
+        _ = RoundTrip(s, F2, complex, 2, withEncoding);
+
+        const string simple2 = "{0}Simple v2 filter fails round-trip: {1}";
+        s = RoundTrip(F1V2, F1V2, simple2, 1, false);
+        _ = RoundTrip(s, F1V2, simple2, 1, withEncoding);
+
+        const string complex2 = "{0}Complex v2 filter fails round-trip: {1}";
+        s = RoundTrip(F2V2, F2V2, complex2, 1, false);
+        _ = RoundTrip(s, F2V2, complex2, 2, withEncoding);
+    }
+
+    private static void TestV2Filters(bool withEncoding)
+    {
+        const string trivial = "{0}Trivial filter fails round-trip: {1}";
+        var s = RoundTrip("", "", trivial, 1, false);
+        _ = RoundTrip(s, "", trivial, 1, withEncoding);
+
+        const string simple = "{0}Simple filter fails round-trip: {1}";
+        s = RoundTrip(F1, F1, simple, 1, false);
+        _ = RoundTrip(s, F1, simple, 1, withEncoding);
+
+        const string complex = "{0}Complex filter fails round-trip: {1}";
+        s = RoundTrip(F2, F2, complex, 1, false);
+        _ = RoundTrip(s, F2, complex, 2, withEncoding);
+    }
+
+
+    private static string RoundTrip(string fi, string f0, string message, int n,
+        bool withEncoding)
+    {
+        var f = SongFilter.Create(false, fi);
+        var s = f.ToString();
+
+        // Round-trip http encoding to make sure that we preserve our values
+        if (withEncoding)
+        {
+            var enc = HttpUtility.HtmlEncode(s);
+            s = HttpUtility.HtmlDecode(enc);
+        }
+
+        Assert.AreEqual(
+            f0, s,
+            string.Format(message, withEncoding ? "Encoded " : string.Empty, n));
+        return s;
+    }
+
+    [TestMethod]
+    public void RawDanceQueryExtraction()
+    {
+        // Test raw dance query with DanceTags filter
+        var rawFilter = SongFilter.Create(false, @"azure+raw-DanceTags/any(t: t eq 'waltz')");
+        Assert.IsTrue(rawFilter.IsRaw, "Filter should be identified as raw");
+
+        var rawDanceQuery = rawFilter.RawDanceQuery;
+        Assert.IsNotNull(rawDanceQuery, "RawDanceQuery should not be null");
+
+        var danceItems = rawDanceQuery.DanceQueryItems.ToList();
+        Assert.AreEqual(1, danceItems.Count, "Should extract one dance from raw query");
+        Assert.AreEqual("wlz", danceItems[0].Id.ToLower(), "Should extract waltz dance with ID 'WLZ'");
+
+        // Test with 'all' variant
+        var rawFilter2 = SongFilter.Create(false, @"customsearch-DanceTags/all(t: t eq 'foxtrot')");
+        Assert.IsTrue(rawFilter2.IsRaw, "Filter should be identified as raw");
+
+        var rawDanceQuery2 = rawFilter2.RawDanceQuery;
+        var danceItems2 = rawDanceQuery2.DanceQueryItems.ToList();
+        Assert.AreEqual(1, danceItems2.Count, "Should extract one dance from raw query with 'all'");
+
+        // Test empty raw query
+        var emptyRawFilter = SongFilter.Create(false, @"azure+raw");
+        var emptyRawDanceQuery = emptyRawFilter.RawDanceQuery;
+        var emptyDanceItems = emptyRawDanceQuery.DanceQueryItems.ToList();
+        Assert.AreEqual(0, emptyDanceItems.Count, "Should extract no dances from empty raw query");
+    }
+
+    [TestMethod]
+    public void RawDanceQueryWithFlags()
+    {
+        // Test raw dance query with flags
+        var rawFilter = SongFilter.Create(false, @"customsearch-DanceTags/any(t: t eq 'tango')-.-.-.-.-.-.-1-singleDance");
+        Assert.IsTrue(rawFilter.IsRaw, "Filter should be identified as raw");
+
+        var rawDanceQuery = rawFilter.RawDanceQuery;
+        Assert.IsNotNull(rawDanceQuery, "RawDanceQuery should not be null");
+
+        Assert.IsTrue(rawDanceQuery.SingleDance, "Should recognize singleDance flag");
+
+        var flags = rawDanceQuery.FlagList;
+        Assert.AreEqual(1, flags.Count, "Should have one flag");
+        Assert.AreEqual("singleDance", flags[0], "Flag should be 'singleDance'");
+    }
+
+    private const string F1 = @"Index-SWG-Album-Goodman-X-.-50-150-1-+Pop:Music";
+    private const string F2 = @"Index-SWG-.-.-I";
+    private const string F1V2 = @"v2-Index-SWG-Album-Goodman-I-.-50-150-30-90-1-+Pop:Music";
+    private const string F2V2 = @"v2-Index-SWG-.-.-I-.-.-.-30-90";
 }

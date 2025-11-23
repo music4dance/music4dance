@@ -1,10 +1,5 @@
-﻿using System.Net;
-using System.Security.Principal;
-
-using m4d.Services;
+﻿using m4d.Services;
 using m4d.Utilities;
-
-using m4dModels;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -13,6 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.FeatureManagement;
+
+using System.Net;
+using System.Security.Principal;
 
 namespace m4d.Controllers;
 
@@ -65,8 +63,8 @@ public class PlayListController(
             playList.Created = DateTime.Now;
             playList.Updated = null;
             playList.Deleted = false;
-            Database.PlayLists.Add(playList);
-            await Database.SaveChanges();
+            _ = Database.PlayLists.Add(playList);
+            _ = await Database.SaveChanges();
             return RedirectToAction("Index", new { playList.Type });
         }
 
@@ -96,7 +94,7 @@ public class PlayListController(
         if (ModelState.IsValid)
         {
             Database.Context.Entry(playList).State = EntityState.Modified;
-            await Database.SaveChanges();
+            _ = await Database.SaveChanges();
             return RedirectToAction("Index", new { playList.Type });
         }
 
@@ -126,8 +124,8 @@ public class PlayListController(
         var playList = await Database.PlayLists.FindAsync(id);
         if (playList != null)
         {
-            Database.PlayLists.Remove(playList);
-            await Database.SaveChanges();
+            _ = Database.PlayLists.Remove(playList);
+            _ = await Database.SaveChanges();
             return RedirectToAction("Index", new { playList.Type });
         }
 
@@ -257,7 +255,7 @@ public class PlayListController(
                 break;
         }
 
-        await Database.SaveChanges();
+        _ = await Database.SaveChanges();
 
         return View("Index", GetIndex(PlayListType.SpotifyFromSearch));
     }
@@ -321,7 +319,7 @@ public class PlayListController(
                 continue;
             }
 
-            oldS.TryGetValue(ds.DanceName, out var metadata);
+            _ = oldS.TryGetValue(ds.DanceName, out var metadata);
             var m4dExists = oldM.ContainsKey(ds.DanceName);
 
             if (metadata != null && m4dExists)
@@ -387,7 +385,7 @@ public class PlayListController(
 
             if (!exists)
             {
-                Database.PlayLists.Add(playlist);
+                _ = Database.PlayLists.Add(playlist);
             }
 
         }
@@ -408,7 +406,7 @@ public class PlayListController(
 
             var name = $"{title} {ds.DanceName}";
 
-            oldS.TryGetValue(name, out var metadata);
+            _ = oldS.TryGetValue(name, out var metadata);
             var m4dExists = oldM.ContainsKey(name);
 
             if (metadata != null && m4dExists)
@@ -458,7 +456,7 @@ public class PlayListController(
 
             if (!exists)
             {
-                Database.PlayLists.Add(playlist);
+                _ = Database.PlayLists.Add(playlist);
             }
         }
     }
@@ -534,7 +532,7 @@ public class PlayListController(
         {
             var spotify = MusicService.GetService(ServiceType.Spotify);
             var filter = Database.SearchService.GetSongFilter(playlist.Search);
-            
+
             // Override sort order to fix incorrect sort orders
             if (filter.IsRaw)
             {
@@ -558,7 +556,7 @@ public class PlayListController(
                 // For SongFilter, override the SortOrder property
                 filter.SortOrder = "Dances";
             }
-            
+
             filter.Purchase = spotify.CID.ToString();
 
             var sr = await dms.SongIndex.Search(
@@ -572,7 +570,7 @@ public class PlayListController(
             if (await MusicServiceManager.SetPlaylistTracks(spotify, principal, playlist.Id, tracks))
             {
                 playlist.Updated = DateTime.Now;
-                await dms.SaveChanges();
+                _ = await dms.SaveChanges();
                 return $"UpdateSpotifyFromSearch {playlist.Id}: Succeeded";
             }
 
@@ -756,8 +754,8 @@ public class PlayListController(
                 }
             }
 
-            playlist.AddSongs(songs.Select(s => s.GetPurchaseId(service.Id)));
-            await dms.SaveChanges();
+            _ = playlist.AddSongs(songs.Select(s => s.GetPurchaseId(service.Id)));
+            _ = await dms.SaveChanges();
 
             return $"Restore PlayList {playlist.Id} with {songs.Count} songs.  ";
         }
@@ -813,7 +811,7 @@ public class PlayListController(
     private async Task SpotifyAuthorization()
     {
         var authResult = await HttpContext.AuthenticateAsync();
-        await AdmAuthentication.GetServiceAuthorization(
+        _ = await AdmAuthentication.GetServiceAuthorization(
             Configuration, ServiceType.Spotify, User,
             authResult);
     }

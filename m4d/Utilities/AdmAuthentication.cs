@@ -1,12 +1,10 @@
-﻿using System.Runtime.Serialization;
-using System.Security.Principal;
-using System.Text;
-
-using m4dModels;
-
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 
 using Newtonsoft.Json;
+
+using System.Runtime.Serialization;
+using System.Security.Principal;
+using System.Text;
 
 namespace m4d.Utilities;
 
@@ -238,7 +236,7 @@ public abstract class AdmAuthentication(IConfiguration configuration) : CoreAuth
         if (expiresIn.TotalSeconds < 0)
         {
             Logger.LogWarning("Refresh token expired during create");
-            await auth.GetAccessToken();
+            _ = await auth.GetAccessToken();
         }
         else
         {

@@ -1,13 +1,11 @@
-﻿using System.Diagnostics;
-
-using Azure.Search.Documents;
+﻿using Azure.Search.Documents;
 
 using m4d.Utilities;
 
-using m4dModels;
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+
+using System.Diagnostics;
 
 namespace m4d.Services;
 
@@ -136,7 +134,7 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
                     }
                     else
                     {
-                        await context.Searches.AddAsync(
+                        _ = await context.Searches.AddAsync(
                             new()
                             {
                                 ApplicationUserId = userId,
@@ -147,7 +145,7 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
                             }, cancellationToken);
                     }
 
-                    await context.SaveChangesAsync(cancellationToken);
+                    _ = await context.SaveChangesAsync(cancellationToken);
                 }
                 catch (Exception ex)
                 {

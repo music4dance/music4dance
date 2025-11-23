@@ -2,18 +2,16 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using System.ComponentModel.DataAnnotations;
-
 using m4d.Controllers;
 using m4d.Utilities;
-
-using m4dModels;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.FeatureManagement;
+
+using System.ComponentModel.DataAnnotations;
 
 namespace m4d.Areas.Identity.Pages.Account.Manage;
 

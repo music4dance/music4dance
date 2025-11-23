@@ -29,7 +29,7 @@ public abstract class LoginModelBase : PageModel
     {
         returnUrl ??= Url.Content("~/");
         returnUrl = returnUrl.Replace(_subStr, "-");
-        
+
         return IsLocalUrl(returnUrl) ? returnUrl : Url.Content("~/");
     }
 
@@ -42,12 +42,12 @@ public abstract class LoginModelBase : PageModel
     {
         var urlHelper = _urlHelperFactory.GetUrlHelper(PageContext);
         var isLocal = urlHelper.IsLocalUrl(url);
-        
+
         if (!isLocal)
         {
             _logger.LogWarning("Non-local return URL detected: {ReturnUrl}", url);
         }
-        
+
         return isLocal;
     }
 }

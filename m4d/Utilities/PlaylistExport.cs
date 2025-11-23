@@ -1,11 +1,9 @@
-﻿using System.Diagnostics;
-using System.Text;
-
-using m4d.Services;
-
-using m4dModels;
+﻿using m4d.Services;
 
 using Microsoft.AspNetCore.Identity;
+
+using System.Diagnostics;
+using System.Text;
 
 namespace m4d.Utilities;
 
@@ -39,25 +37,25 @@ public class PlaylistExport(ExportInfo info, SongIndex songIndex, UserManager<Ap
         try
         {
             var results = await FindSongs(userName, info.Count);
-            csv.AppendLine(Song.GetCsvHeader(ExportLevel));
+            _ = csv.AppendLine(Song.GetCsvHeader(ExportLevel));
 
             foreach (var song in results.Songs)
             {
-                csv.Append(export(song));
+                _ = csv.Append(export(song));
             }
 
             if (!string.IsNullOrWhiteSpace(info.Description))
             {
-                csv.AppendLine();
-                csv.AppendLine($"\"Exported from https://www.music4dance.net on {DateTime.Now:f} - {info.Description}\"");
+                _ = csv.AppendLine();
+                _ = csv.AppendLine($"\"Exported from https://www.music4dance.net on {DateTime.Now:f} - {info.Description}\"");
                 if (info.Count > 0)
                 {
-                    csv.AppendLine(
+                    _ = csv.AppendLine(
                         $"Created by search:,\"https://www.music4dance.net/song/filtersearch?filter={_filter.ToString()}\"");
                 }
                 if (spotifyId != null)
                 {
-                    csv.AppendLine($"Spotify Playlist:,\"https://open.spotify.com/playlist/{spotifyId}\"");
+                    _ = csv.AppendLine($"Spotify Playlist:,\"https://open.spotify.com/playlist/{spotifyId}\"");
                 }
             }
         }

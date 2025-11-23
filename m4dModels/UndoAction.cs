@@ -1,8 +1,7 @@
-namespace m4dModels
+namespace m4dModels;
+
+public enum UndoAction
 {
-    public enum UndoAction
-    {
-        Undo,
-        Redo
-    };
-}
+    Undo,
+    Redo
+};

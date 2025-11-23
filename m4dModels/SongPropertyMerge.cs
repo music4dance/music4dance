@@ -1,12 +1,9 @@
-using System.Collections.Generic;
+namespace m4dModels;
 
-namespace m4dModels
+public class SongPropertyMerge
 {
-    public class SongPropertyMerge
-    {
-        public string Name { get; set; }
-        public int Selection { get; set; }
-        public bool AllowAlternates { get; set; }
-        public List<object> Values { get; set; }
-    }
+    public string Name { get; set; }
+    public int Selection { get; set; }
+    public bool AllowAlternates { get; set; }
+    public List<object> Values { get; set; }
 }
