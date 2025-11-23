@@ -2,92 +2,91 @@
 
 using System;
 
-namespace DanceLibrary.Tests
+namespace DanceLibrary.Tests;
+
+[TestClass]
+public class DurationTests
 {
-    [TestClass]
-    public class DurationTests
+    private static readonly SongDuration _d1 = new(90);
+    private static readonly SongDuration _d2 = new(180);
+    private static readonly SongDuration _d3 = new(181);
+    private static readonly SongDuration _d4 = new(5, new DurationType(DurationKind.Minute));
+
+    [TestMethod]
+    public void DurationInvalidConstructorLength()
     {
-        private static readonly SongDuration _d1 = new(90);
-        private static readonly SongDuration _d2 = new(180);
-        private static readonly SongDuration _d3 = new(181);
-        private static readonly SongDuration _d4 = new(5, new DurationType(DurationKind.Minute));
-
-        [TestMethod]
-        public void DurationInvalidConstructorLength()
+        try
         {
-            try
-            {
-                _ = new SongDuration(-1.0M);
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                return;
-            }
-
-            Assert.Fail();
+            _ = new SongDuration(-1.0M);
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return;
         }
 
-        [TestMethod]
-        public void DurationInvalidConstructorType()
-        {
-            try
-            {
-                _ = new SongDuration(1.0M, new DurationType(DurationKind.Measure));
-            }
-            catch (ArgumentNullException)
-            {
-                return;
-            }
+        Assert.Fail();
+    }
 
-            Assert.Fail();
+    [TestMethod]
+    public void DurationInvalidConstructorType()
+    {
+        try
+        {
+            _ = new SongDuration(1.0M, new DurationType(DurationKind.Measure));
+        }
+        catch (ArgumentNullException)
+        {
+            return;
         }
 
-        [TestMethod]
-        public void DurationShortFormats()
-        {
-            var s1 = _d1.Format(DurationFormat.Short);
-            _ = Equals("90s", s1);
+        Assert.Fail();
+    }
 
-            var s2 = _d2.Format(DurationFormat.Short);
-            _ = Equals("2m", s2);
+    [TestMethod]
+    public void DurationShortFormats()
+    {
+        var s1 = _d1.Format(DurationFormat.Short);
+        _ = Equals("90s", s1);
 
-            var s3 = _d3.Format(DurationFormat.Short);
-            _ = Equals("2m1s", s3);
+        var s2 = _d2.Format(DurationFormat.Short);
+        _ = Equals("2m", s2);
 
-            var s4 = _d4.Format(DurationFormat.Short);
-            _ = Equals("5m", s4);
-        }
+        var s3 = _d3.Format(DurationFormat.Short);
+        _ = Equals("2m1s", s3);
 
-        [TestMethod]
-        public void DurationLongFormats()
-        {
-            var s1 = _d1.Format(DurationFormat.Long);
-            _ = Equals("90 seconds", s1);
+        var s4 = _d4.Format(DurationFormat.Short);
+        _ = Equals("5m", s4);
+    }
 
-            var s2 = _d2.Format(DurationFormat.Long);
-            _ = Equals("2 minute(s)", s2);
+    [TestMethod]
+    public void DurationLongFormats()
+    {
+        var s1 = _d1.Format(DurationFormat.Long);
+        _ = Equals("90 seconds", s1);
 
-            var s3 = _d3.Format(DurationFormat.Long);
-            _ = Equals("2 minutes 1 seconds", s3);
+        var s2 = _d2.Format(DurationFormat.Long);
+        _ = Equals("2 minute(s)", s2);
 
-            var s4 = _d4.Format(DurationFormat.Long);
-            _ = Equals("5m", s4);
-        }
+        var s3 = _d3.Format(DurationFormat.Long);
+        _ = Equals("2 minutes 1 seconds", s3);
 
-        [TestMethod]
-        public void DurationColonFormats()
-        {
-            var s1 = _d1.Format(DurationFormat.Long);
-            _ = Equals("00:01:30", s1);
+        var s4 = _d4.Format(DurationFormat.Long);
+        _ = Equals("5m", s4);
+    }
 
-            var s2 = _d2.Format(DurationFormat.Long);
-            _ = Equals("02:00", s2);
+    [TestMethod]
+    public void DurationColonFormats()
+    {
+        var s1 = _d1.Format(DurationFormat.Long);
+        _ = Equals("00:01:30", s1);
 
-            var s3 = _d3.Format(DurationFormat.Long);
-            _ = Equals("00:02:01", s3);
+        var s2 = _d2.Format(DurationFormat.Long);
+        _ = Equals("02:00", s2);
 
-            var s4 = _d4.Format(DurationFormat.Long);
-            _ = Equals("00:05:00", s4);
-        }
+        var s3 = _d3.Format(DurationFormat.Long);
+        _ = Equals("00:02:01", s3);
+
+        var s4 = _d4.Format(DurationFormat.Long);
+        _ = Equals("00:05:00", s4);
     }
 }

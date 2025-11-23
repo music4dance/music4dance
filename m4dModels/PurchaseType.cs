@@ -1,10 +1,9 @@
-namespace m4dModels
+namespace m4dModels;
+
+public enum PurchaseType
 {
-    public enum PurchaseType
-    {
-        None,
-        Album,
-        Song,
-        Max
-    };
-}
+    None,
+    Album,
+    Song,
+    Max
+};

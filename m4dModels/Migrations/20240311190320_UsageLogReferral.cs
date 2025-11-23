@@ -2,28 +2,27 @@
 
 #nullable disable
 
-namespace m4dModels.Migrations
+namespace m4dModels.Migrations;
+
+/// <inheritdoc />
+public partial class UsageLogReferral : Migration
 {
     /// <inheritdoc />
-    public partial class UsageLogReferral : Migration
+    protected override void Up(MigrationBuilder migrationBuilder)
     {
-        /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
-            _ = migrationBuilder.AddColumn<string>(
-                name: "Referrer",
-                table: "UsageLog",
-                type: "nvarchar(1024)",
-                maxLength: 1024,
-                nullable: true);
-        }
+        _ = migrationBuilder.AddColumn<string>(
+            name: "Referrer",
+            table: "UsageLog",
+            type: "nvarchar(1024)",
+            maxLength: 1024,
+            nullable: true);
+    }
 
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            _ = migrationBuilder.DropColumn(
-                name: "Referrer",
-                table: "UsageLog");
-        }
+    /// <inheritdoc />
+    protected override void Down(MigrationBuilder migrationBuilder)
+    {
+        _ = migrationBuilder.DropColumn(
+            name: "Referrer",
+            table: "UsageLog");
     }
 }

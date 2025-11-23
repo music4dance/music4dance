@@ -1,127 +1,126 @@
-﻿namespace m4dModels
+﻿namespace m4dModels;
+
+public class SongMerge
 {
-    public class SongMerge
+    public string Name { get; set; }
+    public List<Song> Songs { get; set; }
+    public List<DanceMerge> Ratings { get; set; }
+    public string Tags { get; set; }
+    public List<SongPropertyMerge> Properties { get; set; }
+
+    public string SongIds
     {
-        public string Name { get; set; }
-        public List<Song> Songs { get; set; }
-        public List<DanceMerge> Ratings { get; set; }
-        public string Tags { get; set; }
-        public List<SongPropertyMerge> Properties { get; set; }
+        get { return string.Join(",", Songs.Select(s => s.SongId)); }
+    }
 
-        public string SongIds
+    public SongMerge(List<Song> songs, DanceStatsInstance stats)
+    {
+        Songs = songs;
+
+        Properties = [];
+
+        // Consider trying to sort the song list by the number of defaults...
+
+        // Create a merge table of basic properties
+
+        foreach (var field in MergeFields)
         {
-            get { return string.Join(",", Songs.Select(s => s.SongId)); }
-        }
+            // Slightly kdlugy, but for now we're allowing alternates only for album so do a direct compare
+            var allowAlternates = field.EndsWith("List");
 
-        public SongMerge(List<Song> songs, DanceStatsInstance stats)
-        {
-            Songs = songs;
-
-            Properties = [];
-
-            // Consider trying to sort the song list by the number of defaults...
-
-            // Create a merge table of basic properties
-
-            foreach (var field in MergeFields)
+            var spm = new SongPropertyMerge
             {
-                // Slightly kdlugy, but for now we're allowing alternates only for album so do a direct compare
-                var allowAlternates = field.EndsWith("List");
+                Name = field, AllowAlternates = allowAlternates, Values = []
+            };
 
-                var spm = new SongPropertyMerge
+            var defaultIdx = -1;
+            string fsCur = null;
+            var cTotal = 0;
+            var cMatch = 0;
+
+            // ReSharper disable once LoopCanBePartlyConvertedToQuery
+            foreach (var song in Songs)
+            {
+                var fo = song.GetType().GetProperty(field).GetValue(song, null);
+
+                spm.Values.Add(fo);
+
+                string fs = null;
+                if (fo != null)
                 {
-                    Name = field, AllowAlternates = allowAlternates, Values = []
-                };
-
-                var defaultIdx = -1;
-                string fsCur = null;
-                var cTotal = 0;
-                var cMatch = 0;
-
-                // ReSharper disable once LoopCanBePartlyConvertedToQuery
-                foreach (var song in Songs)
-                {
-                    var fo = song.GetType().GetProperty(field).GetValue(song, null);
-
-                    spm.Values.Add(fo);
-
-                    string fs = null;
-                    if (fo != null)
+                    fs = fo.ToString();
+                    if (string.IsNullOrWhiteSpace(fs))
                     {
-                        fs = fo.ToString();
-                        if (string.IsNullOrWhiteSpace(fs))
-                        {
-                            fs = null;
-                        }
+                        fs = null;
                     }
-
-                    if (fsCur == null && fs != null)
-                    {
-                        fsCur = fs;
-                        cMatch = 1;
-                        defaultIdx = cTotal;
-                    }
-                    else if (string.Equals(fsCur, fs, StringComparison.Ordinal))
-                    {
-                        cMatch += 1;
-                    }
-
-                    cTotal += 1;
                 }
 
-                if (cTotal == cMatch)
+                if (fsCur == null && fs != null)
                 {
-                    if (allowAlternates)
-                    {
-                        spm.Selection = 0;
-                    }
-                    else
-                    {
-                        spm.Selection = -1;
-                    }
+                    fsCur = fs;
+                    cMatch = 1;
+                    defaultIdx = cTotal;
+                }
+                else if (string.Equals(fsCur, fs, StringComparison.Ordinal))
+                {
+                    cMatch += 1;
+                }
+
+                cTotal += 1;
+            }
+
+            if (cTotal == cMatch)
+            {
+                if (allowAlternates)
+                {
+                    spm.Selection = 0;
                 }
                 else
                 {
-                    spm.Selection = defaultIdx;
+                    spm.Selection = -1;
                 }
-
-
-                Properties.Add(spm);
             }
-
-            // Create lists of dances and tags that can be merged
-            Ratings = [];
-            Tags = string.Empty;
-
-            var idx = 0;
-            foreach (var song in songs)
+            else
             {
-                // ReSharper disable once LoopCanBePartlyConvertedToQuery
-                foreach (var dr in song.DanceRatings)
-                {
-                    var dm = new DanceMerge
-                    {
-                        DanceId = dr.DanceId,
-                        DanceName = stats.Map[dr.DanceId].DanceName,
-                        SongIdx = idx,
-                        Weight = dr.Weight,
-                        Keep = true
-                    };
-
-                    Ratings.Add(dm);
-                }
-
-                idx += 1;
+                spm.Selection = defaultIdx;
             }
+
+
+            Properties.Add(spm);
         }
 
-        private static readonly string[] MergeFields =
-        [
-            Song.TitleField,
-            Song.ArtistField,
-            Song.AlbumListField,
-            Song.TempoField,
-            Song.LengthField
-        ];
+        // Create lists of dances and tags that can be merged
+        Ratings = [];
+        Tags = string.Empty;
+
+        var idx = 0;
+        foreach (var song in songs)
+        {
+            // ReSharper disable once LoopCanBePartlyConvertedToQuery
+            foreach (var dr in song.DanceRatings)
+            {
+                var dm = new DanceMerge
+                {
+                    DanceId = dr.DanceId,
+                    DanceName = stats.Map[dr.DanceId].DanceName,
+                    SongIdx = idx,
+                    Weight = dr.Weight,
+                    Keep = true
+                };
+
+                Ratings.Add(dm);
+            }
+
+            idx += 1;
+        }
     }
+
+    private static readonly string[] MergeFields =
+    [
+        Song.TitleField,
+        Song.ArtistField,
+        Song.AlbumListField,
+        Song.TempoField,
+        Song.LengthField
+    ];
 }

@@ -1,60 +1,59 @@
-﻿namespace m4dModels
+﻿namespace m4dModels;
+
+public class SongCache
 {
-    public class SongCache
+    private readonly Dictionary<Guid, Song> _queuedSongs = [];
+    private readonly Dictionary<Guid, Song> _songs = [];
+
+    public async Task LoadSongs(IEnumerable<string> songs, DanceMusicCoreService dms)
     {
-        private readonly Dictionary<Guid, Song> _queuedSongs = [];
-        private readonly Dictionary<Guid, Song> _songs = [];
+        var loaded = await dms.SongIndex.CreateSongs(songs);
+        AddSongs(loaded);
+    }
 
-        public async Task LoadSongs(IEnumerable<string> songs, DanceMusicCoreService dms)
+    public void AddSongs(IEnumerable<Song> songs)
+    {
+        foreach (var s in songs)
         {
-            var loaded = await dms.SongIndex.CreateSongs(songs);
-            AddSongs(loaded);
+            _songs[s.SongId] = s;
         }
+    }
 
-        public void AddSongs(IEnumerable<Song> songs)
+    public void UpdateSong(Song song)
+    {
+        lock (_queuedSongs)
         {
-            foreach (var s in songs)
+            _queuedSongs[song.SongId] = song;
+
+
+            if (song.IsNull)
             {
-                _songs[s.SongId] = s;
+                _ = _songs.Remove(song.SongId);
+            }
+            else
+            {
+                _songs[song.SongId] = song;
             }
         }
+    }
 
-        public void UpdateSong(Song song)
+    public IEnumerable<Song> DequeueSongs()
+    {
+        lock (_queuedSongs)
         {
-            lock (_queuedSongs)
-            {
-                _queuedSongs[song.SongId] = song;
-
-
-                if (song.IsNull)
-                {
-                    _ = _songs.Remove(song.SongId);
-                }
-                else
-                {
-                    _songs[song.SongId] = song;
-                }
-            }
+            var ret = _queuedSongs.Values.ToList();
+            _queuedSongs.Clear();
+            return ret;
         }
+    }
 
-        public IEnumerable<Song> DequeueSongs()
-        {
-            lock (_queuedSongs)
-            {
-                var ret = _queuedSongs.Values.ToList();
-                _queuedSongs.Clear();
-                return ret;
-            }
-        }
+    public Song FindSongDetails(Guid songId)
+    {
+        return _songs.GetValueOrDefault(songId);
+    }
 
-        public Song FindSongDetails(Guid songId)
-        {
-            return _songs.GetValueOrDefault(songId);
-        }
-
-        public List<string> Serialize()
-        {
-            return [.. _songs.Select(s => s.Value.ToString())];
-        }
+    public List<string> Serialize()
+    {
+        return [.. _songs.Select(s => s.Value.ToString())];
     }
 }

@@ -1,13 +1,12 @@
-﻿namespace m4dModels
+﻿namespace m4dModels;
+
+public class UserInfo
 {
-    public class UserInfo
-    {
-        public ApplicationUser User;
-        public List<string> Roles;
-        public List<string> Logins;
+    public ApplicationUser User;
+    public List<string> Roles;
+    public List<string> Logins;
 
-        public bool IsPseudo => User.IsPseudo;
+    public bool IsPseudo => User.IsPseudo;
 
-        public bool IsConfirmed => User.EmailConfirmed && !IsPseudo;
-    }
+    public bool IsConfirmed => User.EmailConfirmed && !IsPseudo;
 }

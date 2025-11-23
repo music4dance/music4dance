@@ -1,11 +1,10 @@
-﻿namespace m4d.Utilities
+﻿namespace m4d.Utilities;
+
+public static class ConfigurationExtensions
 {
-    public static class ConfigurationExtensions
+    // Accept IConfiguration so it works with injected _configuration
+    public static bool UseVite(this IConfiguration configuration)
     {
-        // Accept IConfiguration so it works with injected _configuration
-        public static bool UseVite(this IConfiguration configuration)
-        {
-            return configuration["ASPNETCORE_VITE"]?.ToLower() == "true";
-        }
+        return configuration["ASPNETCORE_VITE"]?.ToLower() == "true";
     }
 }

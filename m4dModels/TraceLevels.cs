@@ -1,34 +1,33 @@
 ﻿using System.Diagnostics;
 
-namespace m4dModels
+namespace m4dModels;
+
+public class TraceLevels
 {
-    public class TraceLevels
+    private static TraceSwitch _general;
+
+    public static TraceSwitch General
     {
-        private static TraceSwitch _general;
-
-        public static TraceSwitch General
+        get
         {
-            get
+            if (_general == null)
             {
-                if (_general == null)
-                {
-                    // ReSharper disable once UseObjectOrCollectionInitializer
-                    _general = new TraceSwitch("General", "Entire application");
+                // ReSharper disable once UseObjectOrCollectionInitializer
+                _general = new TraceSwitch("General", "Entire application");
 #if DEBUG
-                    _general.Level = TraceLevel.Info;
+                _general.Level = TraceLevel.Info;
 #else
-                    _general.Level = TraceLevel.Error;
+                _general.Level = TraceLevel.Error;
 #endif
-                }
-
-                return _general;
             }
-        }
 
-        public static void SetGeneralLevel(TraceLevel level)
-        {
-            var ts = General;
-            ts.Level = level;
+            return _general;
         }
+    }
+
+    public static void SetGeneralLevel(TraceLevel level)
+    {
+        var ts = General;
+        ts.Level = level;
     }
 }

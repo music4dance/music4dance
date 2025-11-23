@@ -1,18 +1,17 @@
-﻿namespace m4dModels
+﻿namespace m4dModels;
+
+public class AdminTaskException : Exception
 {
-    public class AdminTaskException : Exception
+    public AdminTaskException()
     {
-        public AdminTaskException()
-        {
-        }
+    }
 
-        public AdminTaskException(string message) : base(message)
-        {
-        }
+    public AdminTaskException(string message) : base(message)
+    {
+    }
 
-        public AdminTaskException(string message, Exception e)
-            : base(message, e)
-        {
-        }
+    public AdminTaskException(string message, Exception e)
+        : base(message, e)
+    {
     }
 }
