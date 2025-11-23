@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace m4dModels
+﻿namespace m4dModels
 {
     public class SongCache
     {
@@ -33,7 +28,7 @@ namespace m4dModels
 
                 if (song.IsNull)
                 {
-                    _songs.Remove(song.SongId);
+                    _ = _songs.Remove(song.SongId);
                 }
                 else
                 {

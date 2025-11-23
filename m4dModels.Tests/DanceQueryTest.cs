@@ -1,10 +1,9 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using System;
 using System.Diagnostics;
 using System.Linq;
-using System.Net.NetworkInformation;
 using System.Threading.Tasks;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace m4dModels.Tests
 {
@@ -15,7 +14,7 @@ namespace m4dModels.Tests
         [ClassInitialize]
         public static async Task ClassInitialize(TestContext _)
         {
-            _database =  await DanceMusicTester.CreateService("Cleanup");
+            _database = await DanceMusicTester.CreateService("Cleanup");
             //var t = DanceMusicTester.LoadDances().Result;
             //Trace.WriteLine($"Loaded dances = {t}");
         }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
 
 // ReSharper disable RedundantCast.0
@@ -21,7 +20,7 @@ namespace m4dModels
             var sb = new StringBuilder(title);
             if (track != null)
             {
-                sb.AppendFormat("|{0}", track);
+                _ = sb.AppendFormat("|{0}", track);
             }
 
             _val = sb.ToString();

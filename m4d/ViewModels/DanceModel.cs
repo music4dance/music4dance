@@ -17,7 +17,7 @@ public class DanceModel : SongListModel
         DanceTags = ds.DanceTags;
         if (!ds.RefreshTopSongs(database.DanceStats))
         {
-            database.ActivityLog.Add(
+            _ = database.ActivityLog.Add(
                 new ActivityLog("RefreshTopN", null, new { danceId = ds.DanceId }));
         }
         if (ds.TopSongs != null)

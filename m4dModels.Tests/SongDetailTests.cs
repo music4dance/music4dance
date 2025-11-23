@@ -1,10 +1,10 @@
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 //using System.Diagnostics;
 
@@ -330,7 +330,7 @@ namespace m4dModels.Tests
                 var song = songs[i];
                 if (tags != null)
                 {
-                    song.AddTags(tags, "dwgray", await GetStats(), song);
+                    _ = song.AddTags(tags, "dwgray", await GetStats(), song);
                 }
 
                 var r = DanceMusicTester.ReplaceTime(song.Serialize([Song.NoSongId]));

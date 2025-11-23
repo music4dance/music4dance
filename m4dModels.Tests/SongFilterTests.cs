@@ -1,8 +1,8 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using System.Diagnostics;
 using System.Linq;
 using System.Web;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace m4dModels.Tests
 {
@@ -131,38 +131,38 @@ namespace m4dModels.Tests
         {
             const string trivial = "{0}Trivial filter fails round-trip: {1}";
             var s = RoundTrip("", "", trivial, 1, false);
-            RoundTrip(s, "", trivial, 1, withEncoding);
+            _ = RoundTrip(s, "", trivial, 1, withEncoding);
 
             const string simple = "{0}Simple filter fails round-trip: {1}";
             s = RoundTrip(F1, F1, simple, 1, false);
-            RoundTrip(s, F1, simple, 1, withEncoding);
+            _ = RoundTrip(s, F1, simple, 1, withEncoding);
 
             const string complex = "{0}Complex filter fails round-trip: {1}";
             s = RoundTrip(F2, F2, complex, 1, false);
-            RoundTrip(s, F2, complex, 2, withEncoding);
+            _ = RoundTrip(s, F2, complex, 2, withEncoding);
 
             const string simple2 = "{0}Simple v2 filter fails round-trip: {1}";
             s = RoundTrip(F1V2, F1V2, simple2, 1, false);
-            RoundTrip(s, F1V2, simple2, 1, withEncoding);
+            _ = RoundTrip(s, F1V2, simple2, 1, withEncoding);
 
             const string complex2 = "{0}Complex v2 filter fails round-trip: {1}";
             s = RoundTrip(F2V2, F2V2, complex2, 1, false);
-            RoundTrip(s, F2V2, complex2, 2, withEncoding);
+            _ = RoundTrip(s, F2V2, complex2, 2, withEncoding);
         }
 
         private static void TestV2Filters(bool withEncoding)
         {
             const string trivial = "{0}Trivial filter fails round-trip: {1}";
             var s = RoundTrip("", "", trivial, 1, false);
-            RoundTrip(s, "", trivial, 1, withEncoding);
+            _ = RoundTrip(s, "", trivial, 1, withEncoding);
 
             const string simple = "{0}Simple filter fails round-trip: {1}";
             s = RoundTrip(F1, F1, simple, 1, false);
-            RoundTrip(s, F1, simple, 1, withEncoding);
+            _ = RoundTrip(s, F1, simple, 1, withEncoding);
 
             const string complex = "{0}Complex filter fails round-trip: {1}";
             s = RoundTrip(F2, F2, complex, 1, false);
-            RoundTrip(s, F2, complex, 2, withEncoding);
+            _ = RoundTrip(s, F2, complex, 2, withEncoding);
         }
 
 

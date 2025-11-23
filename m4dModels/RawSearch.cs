@@ -1,9 +1,7 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-
-using Azure.Search.Documents;
+﻿using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
+
+using System.ComponentModel.DataAnnotations;
 
 namespace m4dModels
 {

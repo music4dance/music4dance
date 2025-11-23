@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 
 namespace m4dModels
 {
@@ -141,7 +140,7 @@ namespace m4dModels
             }
 
             query = query.Trim().ToLower();
-            if (query[0] != '+' && query[0] != '-')
+            if (query[0] is not '+' and not '-')
             {
                 query = "+" + query;
             }
@@ -194,28 +193,17 @@ namespace m4dModels
 
             var ret = new StringBuilder(start);
 
-            switch (Modifier)
+            _ = Modifier switch
             {
-                case 'l':
-                    ret.Append(" liked");
-                    break;
-                case 'h':
-                    ret.Append(" liked");
-                    break;
-                case 'd':
-                    ret.Append(" voted for");
-                    break;
-                case 'x':
-                    ret.Append(" voted against");
-                    break;
-                default:
-                    ret.Append(" edited");
-                    break;
-            }
+                'l' => ret.Append(" liked"),
+                'h' => ret.Append(" liked"),
+                'd' => ret.Append(" voted for"),
+                'x' => ret.Append(" voted against"),
+                _ => ret.Append(" edited"),
+            };
+            _ = ret.Append(" by ");
 
-            ret.Append(" by ");
-
-            ret.Append(UserName);
+            _ = ret.Append(UserName);
 
             return ret.ToString();
         }

@@ -1,14 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Net.Http;
-
 using m4dModels;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using OpenQA.Selenium;
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Net.Http;
 
 namespace SelfCrawler;
 
@@ -121,7 +121,7 @@ public class LinkChecker : PageChecker, IDisposable
             if (_hardenedSites.Any(
                     s => reference.Contains(s, StringComparison.OrdinalIgnoreCase)))
             {
-                _manualTest.Add(reference);
+                _ = _manualTest.Add(reference);
                 continue;
             }
 
@@ -132,7 +132,7 @@ public class LinkChecker : PageChecker, IDisposable
                 Trace.WriteLine($"{result.StatusCode}: {reference}");
                 if (result.IsSuccessStatusCode)
                 {
-                    _knownGood.Add(reference);
+                    _ = _knownGood.Add(reference);
                 }
                 else
                 {

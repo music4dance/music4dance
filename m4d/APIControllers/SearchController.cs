@@ -1,6 +1,4 @@
-﻿using System.Net;
-
-using Azure.Search.Documents;
+﻿using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
 
 using m4dModels;
@@ -8,6 +6,8 @@ using m4dModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Azure;
+
+using System.Net;
 
 namespace m4d.APIControllers;
 

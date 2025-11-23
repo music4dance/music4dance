@@ -1,5 +1,3 @@
-using System;
-
 namespace m4dModels
 {
     [Flags]

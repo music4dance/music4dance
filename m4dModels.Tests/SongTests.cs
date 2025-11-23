@@ -1,8 +1,8 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace m4dModels.Tests
 {
@@ -303,7 +303,7 @@ namespace m4dModels.Tests
                 @".Create=	User=dwgray	Time=06/11/2017 17:17:51	Title=El distinguido ciudadano (The Distinguished Citizen) [1940]	Artist=Edgardo Donato & his orchestra	Length=149	Album:00=The best of Argentine Tango Vol. 2 / 78 rpm recordings 1927 - 1957	Track:00=17	Tag+=Argentine Tango:Dance	DanceRating=ATN+2	Purchase:00:SS=0ns4CpHDRcexy62FEQP0Fh	DanceRating=TNG+1	.Edit=	User=batch-a	Time=06/11/2017 17:23:40	Purchase:00:AS=D:B001VL341Y	Purchase:00:AA=D:B001VL4RKQ	Tag+=Latin:Music	.Edit=	User=batch-i	Time=06/11/2017 17:23:40	Album:01=The Best of Argentine Tango, Vol. 2 - 78 Rpm Recordings 1927-1957	Track:01=17	Purchase:01:IS=307599641	Purchase:01:IA=307599529	Tag+=Raíces:Music	.Edit=	User=batch-s	Time=06/11/2017 17:23:40	Purchase:00:SS=0ns4CpHDRcexy62FEQP0Fh[AD,AT,AU,BE,BG,BO,BR,CA,CH,CL,CO,CR,CY,CZ,DE,DK,DO,EC,EE,ES,FI,FR,GB,GR,GT,HK,HN,HU,ID,IE,IS,IT,JP,LI,LT,LU,LV,MC,MT,MX,MY,NI,NL,NO,NZ,PA,PE,PH,PL,PT,PY,SE,SG,SK,SV,TR,TW,US,UY]	Purchase:00:SA=1MCPFcQJSIrQ45lTjfxkYn	.Edit=	User=batch	Time=06/11/2017 17:28:52	Tempo=134.4	Danceability=0.717	Energy=0.378	Valence=0.693	Tag+=4/4:Tempo	.Edit=	User=batch-s	Time=06/11/2017 17:29:13	Sample=https://p.scdn.co/mp3-preview/92d2fe46e92d1040da43258f03f971225a7330ee?cid\<EQ>\e6dc118cd7604cd2b8bd0a979a18e6f8	.Edit=	User=batch	Time=07/23/2017 16:43:48	DanceRating=MGA+1";
             var song = new Song();
             await song.Load(init, service);
-            await song.AdminModify(
+            _ = await song.AdminModify(
                 @"{ExcludeUsers:null,Properties:[{Action:'ReplaceValue',Name:'Tag+',Value:'Argentine Tango:Dance',Replace:'Milonga:Dance'},{Action:'ReplaceValue',Name:'DanceRating',Value:'ATN+2',Replace:'MGA+2'},{Action:'Remove',Name:'DanceRating',Value:'MGA+1'}]}",
                 service);
 
@@ -340,7 +340,7 @@ namespace m4dModels.Tests
             var service = await GetService();
             var song = new Song();
             await song.Load(Vals, service);
-            await song.AdminModify(
+            _ = await song.AdminModify(
                 @"{Properties:[{Action:'ReplaceValue',Name:'Tag+',Value:'Argentine Tango:Dance',Replace:'Tango Vals:Dance'},{Action:'ReplaceValue',Name:'DanceRating',Value:'ATN+2',Replace:'TGV+2'},{Action:'Remove',Name:'DanceRating',Value:'MGA+1'},{Action:'Remove',Name:'DanceRating',Value:'TNG+1'}]}",
                 service);
 
@@ -359,7 +359,7 @@ namespace m4dModels.Tests
             var service = await GetService();
             var song = new Song();
             await song.Load(Tango, service);
-            await song.AdminModify(
+            _ = await song.AdminModify(
                 @"{Properties:[{Action:'ReplaceValue',Name:'Tag+',Value:'Tango:Dance',Replace:'Neo Tango:Dance'},{Action:'ReplaceValue',Name:'DanceRating',Value:'TNG',Replace:'NTN'}]}",
                 service);
 
@@ -389,7 +389,7 @@ namespace m4dModels.Tests
                 @".Create=	User=11101224127	Time=01/05/2018 02:39:33	Title=Pajaro Herido	Artist=Rodolfo Biagi	Length=136	Album:00=Tango Best	Track:00=17	Tag+=Argentine Tango:Dance	DanceRating=ATN+2	Purchase:00:SA=0OysrEZzotITS0fQ22yMne	Purchase:00:SS=7AddIMmrMNrAvfeVLggbdj	DanceRating=TNG+1	.Edit=	User=DWTS	Time=05/13/2015 14:09:23	Tag+=Argentine Tango:Dance|DWTS:Other|Episode 9:Other|Season 20:Other|United States:Other	DanceRating=ATN+2	DanceRating=TNG+1	Tag+:ATN=Allison:Other|Riker:Other	.Edit=	User=batch-a	Time=01/05/2018 02:41:52	Album:01=Rodolfo Biagi Con Sus Cantores: 1939-1947	Track:01=10	Purchase:01:AS=D:B075V5L1WH	Purchase:01:AA=D:B075V711N7	Album:02=The Essence of Tango: Rodolfo Biagi, Vol. 1	Track:02=3	Purchase:02:AS=D:B019EPP092	Purchase:02:AA=D:B019EPQLDQ	Album:03=Tango Classics 076: Cuatro palabras	Track:03=6	Purchase:03:AS=D:B004UPEU52	Purchase:03:AA=D:B004UPE43K	Album:04=A la luz del candil (1941 - 1943)	Track:04=12	Purchase:04:AS=D:B071DNT826	Purchase:04:AA=D:B0713R81XC	Tag+=International:Music|Latin:Music	.Edit=	User=batch-i	Time=01/05/2018 02:41:52	Purchase:04:IS=1231281699	Purchase:04:IA=1231281637	Album:05=Cuatro Palabras	Track:05=6	Purchase:05:IS=429503329	Purchase:05:IA=429503294	Tag+=Latino:Music|World:Music	.Edit=	User=batch-e	Time=01/05/2018 02:41:52	Tempo=107.1	Danceability=0.517	Energy=0.31	Valence=0.692	Tag+=3/4:Tempo";
             var song = new Song();
             await song.Load(init, service);
-            await song.AdminModify(
+            _ = await song.AdminModify(
                 @"{ExcludeUsers:['dwts'],Properties:[{Action:'ReplaceValue',Name:'Tag+',Value:'Argentine Tango:Dance',Replace:'Tango Vals:Dance'},{Action:'ReplaceValue',Name:'DanceRating',Value:'ATN',Replace:'TGV'},{Action:'Remove',Name:'DanceRating',Value:'MGA'},{Action:'Remove',Name:'DanceRating',Value:'TNG'}]}",
                 service);
 
@@ -414,7 +414,7 @@ namespace m4dModels.Tests
             Trace.WriteLine(song.TagSummary);
             Assert.AreEqual(@"4/4:Tempo:1|Cha Cha:Dance:1|Pop:Music:1|Rumba:Dance:1", song.TagSummary.ToString());
 
-            bool changed = await song.AdminAddUserProperties("UserAG|P",
+            var changed = await song.AdminAddUserProperties("UserAG|P",
                 [new SongProperty(Song.AddedTags, "Holiday:Other|Christmas:Other")],
                 service);
 
@@ -436,7 +436,7 @@ namespace m4dModels.Tests
             Trace.WriteLine(song.TagSummary);
             Assert.AreEqual(@"Cha Cha:Dance:1", song.TagSummary.ToString());
 
-            bool changed = await song.AdminAddUserProperties("UserAG|P",
+            var changed = await song.AdminAddUserProperties("UserAG|P",
                 [new SongProperty(Song.AddedTags, "Holiday:Other|Christmas:Other")],
                 service);
             Assert.IsTrue(changed);
@@ -457,7 +457,7 @@ namespace m4dModels.Tests
             Trace.WriteLine(song.TagSummary);
             Assert.AreEqual(@"Cha Cha:Dance:1|Christmas:Other:1|Holiday:Other:1", song.TagSummary.ToString());
 
-            bool changed = await song.AdminAddUserProperties("UserAG|P",
+            var changed = await song.AdminAddUserProperties("UserAG|P",
                 [new SongProperty(Song.AddedTags, "Holiday:Other|Christmas:Other")],
                 service);
             Assert.IsFalse(changed);

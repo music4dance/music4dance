@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace m4dModels
@@ -52,7 +51,7 @@ namespace m4dModels
             }
             else
             {
-                parts.Remove(part);
+                _ = parts.Remove(part);
             }
             return FromParts(parts);
         }
@@ -73,7 +72,7 @@ namespace m4dModels
 
                 var fields = Fields;
                 var all = fields.TryGetValue("Everywhere", out var value) ? value : "";
-                fields.Remove("Everywhere");
+                _ = fields.Remove("Everywhere");
 
                 if (!string.IsNullOrEmpty(all) && fields.Count == 0)
                 {
@@ -118,7 +117,7 @@ namespace m4dModels
 
                 var fields = Fields;
                 var all = fields.TryGetValue("Everywhere", out var value) ? value : "";
-                fields.Remove("Everywhere");
+                _ = fields.Remove("Everywhere");
 
                 if (!string.IsNullOrEmpty(all) && fields.Count == 0)
                 {

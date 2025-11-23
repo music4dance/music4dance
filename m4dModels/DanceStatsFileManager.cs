@@ -1,6 +1,4 @@
-﻿using System.IO;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace m4dModels
 {
@@ -43,7 +41,7 @@ namespace m4dModels
         public Task WriteStats(string stats)
         {
             var path = Path.Combine(AppData, $"{FileName}.json");
-            Directory.CreateDirectory(AppData);
+            _ = Directory.CreateDirectory(AppData);
             return File.WriteAllTextAsync(path, stats, Encoding.UTF8);
         }
     }

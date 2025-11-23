@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using AutoMapper;
+
 using System.Reflection;
 using System.Runtime.Serialization.Json;
 using System.Text;
-
-using AutoMapper;
 
 namespace m4dModels
 {
@@ -14,8 +10,8 @@ namespace m4dModels
     {
         public SongFilterProfile()
         {
-            CreateMap<SongFilter, SongFilterSparse>();
-            CreateMap<SongFilterSparse, SongFilter>();
+            _ = CreateMap<SongFilter, SongFilterSparse>();
+            _ = CreateMap<SongFilterSparse, SongFilter>();
         }
     }
 
@@ -78,7 +74,7 @@ namespace m4dModels
 
             var cells = SplitFilter(value);
 
-            int idx = 0;
+            var idx = 0;
 
             var versionString = ReadCell(cells, 0);
 
@@ -158,7 +154,7 @@ namespace m4dModels
         private static decimal? ReadDecimal(List<string> cells, int index)
         {
             var s = ReadCell(cells, index);
-            if (!string.IsNullOrWhiteSpace(s) && decimal.TryParse(s, out decimal d))
+            if (!string.IsNullOrWhiteSpace(s) && decimal.TryParse(s, out var d))
             {
                 return d;
             }
@@ -168,7 +164,7 @@ namespace m4dModels
         private static int? ReadInt(List<string> cells, int index)
         {
             var s = ReadCell(cells, index);
-            if (!string.IsNullOrWhiteSpace(s) && int.TryParse(s, out int i))
+            if (!string.IsNullOrWhiteSpace(s) && int.TryParse(s, out var i))
             {
                 return i;
             }
@@ -268,8 +264,8 @@ namespace m4dModels
         private IList<string> GetDanceSort(string order)
         {
             return IsRaw
-                ? RawDanceQuery?.ODataSort(order) ?? new List<string>()
-                : DanceQuery?.ODataSort(order) ?? new List<string>();
+                ? RawDanceQuery?.ODataSort(order) ?? []
+                : DanceQuery?.ODataSort(order) ?? [];
         }
 
         public bool IsSimple => !IsAdvanced;
@@ -321,10 +317,10 @@ namespace m4dModels
                 {
                     if (sb.Length > 0)
                     {
-                        sb.Append(" or ");
+                        _ = sb.Append(" or ");
                     }
 
-                    sb.AppendFormat("Purchase/any(t: t eq '{0}')", s);
+                    _ = sb.AppendFormat("Purchase/any(t: t eq '{0}')", s);
                 }
 
                 return $"{not}({sb})";
@@ -392,54 +388,54 @@ namespace m4dModels
 
                 if (!string.IsNullOrWhiteSpace(SearchString))
                 {
-                    sb.AppendFormat(" {0}", KeywordQuery.Description);
+                    _ = sb.AppendFormat(" {0}", KeywordQuery.Description);
                     separator = CommaSeparator;
                 }
 
                 if (!string.IsNullOrWhiteSpace(Purchase))
                 {
-                    sb.AppendFormat(
+                    _ = sb.AppendFormat(
                         "{0}available on {1}", separator,
                         MusicService.FormatPurchaseFilter(Purchase, " or "));
                     separator = CommaSeparator;
                 }
 
-                sb.Append(TagQuery.Description(ref separator));
+                _ = sb.Append(TagQuery.Description(ref separator));
 
                 if (TempoMin.HasValue && TempoMax.HasValue)
                 {
-                    sb.AppendFormat(
+                    _ = sb.AppendFormat(
                         "{0}having tempo between {1} and {2} beats per minute",
                         separator, TempoMin.Value, TempoMax.Value);
                 }
                 else if (TempoMin.HasValue)
                 {
-                    sb.AppendFormat(
+                    _ = sb.AppendFormat(
                         "{0}having tempo greater than {1} beats per minute", separator,
                         TempoMin.Value);
                 }
                 else if (TempoMax.HasValue)
                 {
-                    sb.AppendFormat(
+                    _ = sb.AppendFormat(
                         "{0}having tempo less than {1} beats per minute", separator,
                         TempoMax.Value);
                 }
 
                 if (LengthMin.HasValue && LengthMax.HasValue)
                 {
-                    sb.AppendFormat(
+                    _ = sb.AppendFormat(
                         "{0}having length between {1} and {2} seconds",
                         separator, LengthMin.Value, LengthMax.Value);
                 }
                 else if (LengthMin.HasValue)
                 {
-                    sb.AppendFormat(
+                    _ = sb.AppendFormat(
                         "{0}having length greater than {1} seconds", separator,
                         LengthMin.Value);
                 }
                 else if (LengthMax.HasValue)
                 {
-                    sb.AppendFormat(
+                    _ = sb.AppendFormat(
                         "{0}having length less than {1} seconds", separator,
                         LengthMax.Value);
                 }
@@ -450,10 +446,10 @@ namespace m4dModels
                 noUserFilter.Dances = null;
                 var trivialUser = noUserFilter.IsEmpty;
 
-                sb.Append(UserQuery.Description(trivialUser));
-                sb.Append('.');
+                _ = sb.Append(UserQuery.Description(trivialUser));
+                _ = sb.Append('.');
 
-                sb.Append(SongSort.Description);
+                _ = sb.Append(SongSort.Description);
 
                 return sb.ToString().Trim();
             }
@@ -474,54 +470,54 @@ namespace m4dModels
                 var dances = GetDanceShortDescription();
                 if (!string.IsNullOrWhiteSpace(dances))
                 {
-                    sb.AppendFormat("{0}: ", dances);
+                    _ = sb.AppendFormat("{0}: ", dances);
                 }
 
                 if (TextSearch)
                 {
-                    sb.AppendFormat("{0} ", KeywordQuery.ShortDescription);
+                    _ = sb.AppendFormat("{0} ", KeywordQuery.ShortDescription);
                 }
 
                 if (TempoMin.HasValue && TempoMax.HasValue)
                 {
-                    sb.AppendFormat(
+                    _ = sb.AppendFormat(
                         "Between {0} and {1} beats per minute", TempoMin.Value,
                         TempoMax.Value);
                 }
                 else if (TempoMin.HasValue)
                 {
-                    sb.AppendFormat("Tempo > {0} beats per minute", TempoMin.Value);
+                    _ = sb.AppendFormat("Tempo > {0} beats per minute", TempoMin.Value);
                 }
                 else if (TempoMax.HasValue)
                 {
-                    sb.AppendFormat("Tempo < {0} beats per minute", TempoMax.Value);
+                    _ = sb.AppendFormat("Tempo < {0} beats per minute", TempoMax.Value);
                 }
 
                 if (LengthMax.HasValue && LengthMin.HasValue)
                 {
-                    sb.AppendFormat(
+                    _ = sb.AppendFormat(
                         "Between {0} and {1} seconds", LengthMin.Value,
                         LengthMax.Value);
                 }
                 else if (LengthMin.HasValue)
                 {
-                    sb.AppendFormat("Length > {0} seconds", LengthMin.Value);
+                    _ = sb.AppendFormat("Length > {0} seconds", LengthMin.Value);
                 }
                 else if (LengthMax.HasValue)
                 {
-                    sb.AppendFormat("Length < {0} seconds", LengthMax.Value);
+                    _ = sb.AppendFormat("Length < {0} seconds", LengthMax.Value);
                 }
 
                 if (SortOrder != null && SortOrder.StartsWith(SongSort.Comments))
                 {
-                    sb.Append("only including songs with comments");
+                    _ = sb.Append("only including songs with comments");
                 }
                 if (sb.Length > 0)
                 {
-                    sb.Append(". ");
+                    _ = sb.Append(". ");
                 }
 
-                sb.Append(SongSort.Description);
+                _ = sb.Append(SongSort.Description);
 
                 return sb.ToString().Trim();
             }

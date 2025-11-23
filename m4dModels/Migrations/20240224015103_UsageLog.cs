@@ -1,6 +1,4 @@
-﻿using System;
-
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -12,14 +10,14 @@ namespace m4dModels.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<int>(
+            _ = migrationBuilder.AddColumn<int>(
                 name: "HitCount",
                 table: "AspNetUsers",
                 type: "int",
                 nullable: false,
                 defaultValue: 0);
 
-            migrationBuilder.CreateTable(
+            _ = migrationBuilder.CreateTable(
                 name: "UsageLog",
                 columns: table => new
                 {
@@ -35,15 +33,15 @@ namespace m4dModels.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UsageLog", x => x.Id);
+                    _ = table.PrimaryKey("PK_UsageLog", x => x.Id);
                 });
 
-            migrationBuilder.CreateIndex(
+            _ = migrationBuilder.CreateIndex(
                 name: "IX_UsageLog_UsageId",
                 table: "UsageLog",
                 column: "UsageId");
 
-            migrationBuilder.CreateIndex(
+            _ = migrationBuilder.CreateIndex(
                 name: "IX_UsageLog_UserName",
                 table: "UsageLog",
                 column: "UserName");
@@ -52,10 +50,10 @@ namespace m4dModels.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
+            _ = migrationBuilder.DropTable(
                 name: "UsageLog");
 
-            migrationBuilder.DropColumn(
+            _ = migrationBuilder.DropColumn(
                 name: "HitCount",
                 table: "AspNetUsers");
         }

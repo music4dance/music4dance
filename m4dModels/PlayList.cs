@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
 
 namespace m4dModels
 {
@@ -43,11 +40,11 @@ namespace m4dModels
 
         public static string GetData2Name(PlayListType type)
         {
-            switch (type)
+            return type switch
             {
-                case PlayListType.SongsFromSpotify: return "SongIds";
-                default: return "Data2";
-            }
+                PlayListType.SongsFromSpotify => "SongIds",
+                _ => "Data2",
+            };
         }
 
         /* SongsFromSpotify: The following members are valid when Type == SongsFromSpotify */

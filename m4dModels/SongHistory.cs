@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-using AutoMapper;
+﻿using AutoMapper;
 
 namespace m4dModels
 {
@@ -9,8 +6,8 @@ namespace m4dModels
     {
         public SongPropertyProfile()
         {
-            CreateMap<SongProperty, SongPropertySparse>();
-            CreateMap<SongPropertySparse, SongProperty>();
+            _ = CreateMap<SongProperty, SongPropertySparse>();
+            _ = CreateMap<SongPropertySparse, SongProperty>();
         }
     }
 

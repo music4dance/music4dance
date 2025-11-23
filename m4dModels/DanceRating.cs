@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.Serialization;
+﻿using DanceLibrary;
 
-using DanceLibrary;
+using System.Diagnostics;
+using System.Runtime.Serialization;
 
 namespace m4dModels
 {

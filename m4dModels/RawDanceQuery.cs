@@ -1,9 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
-
 using DanceLibrary;
+
+using System.Text.RegularExpressions;
 
 namespace m4dModels
 {
@@ -122,7 +119,7 @@ namespace m4dModels
         /// </summary>
         public IList<string> FlagList =>
             string.IsNullOrEmpty(_flags)
-                ? new List<string>()
+                ? []
                 : _flags.Split('|').ToList();
 
         /// <summary>
@@ -140,7 +137,7 @@ namespace m4dModels
         public IList<string> ODataSort(string order)
         {
             // For raw queries, no specific sort based on dance
-            return new List<string>();
+            return [];
         }
 
         /// <summary>

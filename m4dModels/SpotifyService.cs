@@ -1,11 +1,7 @@
-using System;
-using System.Collections.Generic;
+using Microsoft.CSharp.RuntimeBinder;
+
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
-
-using Microsoft.CSharp.RuntimeBinder;
 
 namespace m4dModels
 {
@@ -51,7 +47,7 @@ namespace m4dModels
                 }
                 else if (rg.Length > 1)
                 {
-                    return $"https://api.spotify.com/v1/playlists/{rg[rg.Length-1]}";
+                    return $"https://api.spotify.com/v1/playlists/{rg[rg.Length - 1]}";
                 }
             }
 

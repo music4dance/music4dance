@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace m4dModels
+﻿namespace m4dModels
 {
     public interface IDanceStatsManager
     {
@@ -130,13 +126,13 @@ namespace m4dModels
             Instance = instance;
             // This will save any tag types that were created via the load from azure
 
-            await dms.GetSongIndex(source).UpdateAzureIndex(null, dms);
+            _ = await dms.GetSongIndex(source).UpdateAzureIndex(null, dms);
             return instance;
         }
 
         public async Task InitializeDanceLibrary()
         {
-            DanceLibrary.Dances.Reset(
+            _ = DanceLibrary.Dances.Reset(
                 DanceLibrary.Dances.Load(await FileManager.GetDances(), await FileManager.GetGroups()));
         }
 

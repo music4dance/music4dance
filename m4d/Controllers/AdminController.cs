@@ -1,9 +1,4 @@
-﻿using System.Diagnostics;
-using System.Globalization;
-using System.Net.Mime;
-using System.Text;
-
-using CsvHelper;
+﻿using CsvHelper;
 
 using m4d.Areas.Identity;
 using m4d.Services;
@@ -21,9 +16,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.FeatureManagement;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.FeatureManagement;
+
+using System.Globalization;
+using System.Net.Mime;
+using System.Text;
 
 namespace m4d.Controllers;
 
@@ -244,7 +242,7 @@ public class AdminController(
         Logger.LogInformation($"Set Search Index: '{id}'");
         SearchService.DefaultId = id;
 
-        DanceStatsManager.LoadFromAzure(Database, id);
+        _ = DanceStatsManager.LoadFromAzure(Database, id);
 
         return RedirectToAction("Diagnostics");
     }
@@ -299,14 +297,14 @@ public class AdminController(
             var idx = Database.GetSongIndex(idxName);
             if (reset)
             {
-                await idx.ResetIndex();
+                _ = await idx.ResetIndex();
             }
 
             var c = await idx.UploadIndex(lines, !reset);
 
             if (SearchService.GetInfo(idxName).Id == SearchService.GetInfo("default").Id)
             {
-                await DanceStatsManager.LoadFromAzure(Database, idxName);
+                _ = await DanceStatsManager.LoadFromAzure(Database, idxName);
             }
 
             return CompleteAdminTask(true, $"Index {idxName} loaded with {c} songs");
@@ -462,7 +460,7 @@ public class AdminController(
 
             if (SearchService.GetInfo(idxName).Id == SearchService.GetInfo("default").Id)
             {
-                await DanceStatsManager.LoadFromAzure(Database, idxName);
+                _ = await DanceStatsManager.LoadFromAzure(Database, idxName);
             }
 
             return CompleteAdminTask(true, $"Index {idxName} fixed {user} in {c} songs");
@@ -523,8 +521,8 @@ public class AdminController(
             AdminMonitor.UpdateTask("UploadFile");
 
             //await Database.UsageLog.ExecuteDeleteAsync();
-            await Database.Context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE UsageLog");
-            await Database.Context.SaveChangesAsync();
+            _ = await Database.Context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE UsageLog");
+            _ = await Database.Context.SaveChangesAsync();
 
             var config = new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture) { Delimiter = "\t", Mode = CsvMode.NoEscape };
             using var stream = fileUpload.OpenReadStream();
@@ -536,10 +534,10 @@ public class AdminController(
             foreach (var record in records)
             {
                 record.Id = 0;
-                Database.UsageLog.Add(record);
+                _ = Database.UsageLog.Add(record);
                 count += 1;
             }
-            await Database.Context.SaveChangesAsync();
+            _ = await Database.Context.SaveChangesAsync();
             return CompleteAdminTask(true, $"Usage Loaded: {count} records");
         }
         catch (Exception e)
@@ -775,7 +773,7 @@ public class AdminController(
                     {
                         newTags = tagList.Subtract(oldTags);
                     }
-                    
+
                     if (!newTags.IsEmpty)
                     {
                         props.Add(SongProperty.Create(Song.AddedTags, newTags.ToString()));
@@ -784,7 +782,7 @@ public class AdminController(
 
                 if (props.Count > 0)
                 {
-                    await sd.AdminAppend(addHeader ? appuser : null, props, Database);
+                    _ = await sd.AdminAppend(addHeader ? appuser : null, props, Database);
                 }
             }
         }
@@ -1066,7 +1064,7 @@ public class AdminController(
         {
             if (Guid.TryParse(line, out var guid))
             {
-                exclusions.Add(guid);
+                _ = exclusions.Add(guid);
             }
         }
 
@@ -1175,7 +1173,7 @@ public class AdminController(
     {
         try
         {
-             StartAdminTask("UpdateSearchIdx");
+            StartAdminTask("UpdateSearchIdx");
 
             if (SearchService.DefaultId == SearchServiceManager.ExperimentalId)
             {
@@ -1206,7 +1204,7 @@ public class AdminController(
 
             AdminMonitor.UpdateTask("Reloading Stats");
 
-            await DanceStatsManager.LoadFromAzure(Database);
+            _ = await DanceStatsManager.LoadFromAzure(Database);
 
             ViewBag.Name = "Update Index";
             ViewBag.Success = true;
@@ -1237,7 +1235,7 @@ public class AdminController(
         if (delete)
         {
             Logger.LogInformation("Deleting Database");
-            context.Database.EnsureDeleted();
+            _ = context.Database.EnsureDeleted();
         }
 
         Logger.LogInformation($"Migrating to {targetMigration}");

@@ -1,5 +1,3 @@
-using System;
-
 namespace m4dModels
 {
     public class DanceRatingDelta

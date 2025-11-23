@@ -1,7 +1,6 @@
-using System;
-using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using m4dModels;
+
+using System;
 using System.Diagnostics;
 
 namespace m4dModels.Tests
@@ -45,10 +44,9 @@ namespace m4dModels.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
         public void FromValue_InvalidFormat_Throws()
         {
-            DanceQueryItem.FromValue("!invalid");
+            _ = Assert.ThrowsExactly<Exception>(() => _ = DanceQueryItem.FromValue("!invalid"));
         }
 
         [TestMethod]

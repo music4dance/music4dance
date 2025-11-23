@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-
 using Azure.Identity;
 using Azure.Search.Documents;
 
@@ -14,6 +9,11 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 using OpenQA.Selenium;
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace SelfCrawler
 {
@@ -90,7 +90,7 @@ namespace SelfCrawler
         private List<PageSearch> LoadPages()
         {
             var text = File.ReadAllText(@"C:\Temp\SearchIndex.json");
-            return JsonConvert.DeserializeObject<List<PageSearch>>(text) 
+            return JsonConvert.DeserializeObject<List<PageSearch>>(text)
                 ?? []; // Ensure a non-null return
         }
 

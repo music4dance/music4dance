@@ -1,7 +1,4 @@
-﻿using System.Net;
-using System.Security.Principal;
-
-using m4d.Services;
+﻿using m4d.Services;
 using m4d.Utilities;
 using m4d.ViewModels;
 
@@ -17,6 +14,9 @@ using Microsoft.Net.Http.Headers;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+
+using System.Net;
+using System.Security.Principal;
 
 namespace m4d.Controllers;
 
@@ -47,7 +47,7 @@ public class DanceMusicController(
         var userMetadata = await UserMetadata.Create(UserName, UserManager);
         ViewData["UserMetadata"] = userMetadata;
 
-        await next();
+        _ = await next();
 
         if (SpiderManager.CheckAnySpiders(userAgent, Configuration) ||
             !await FeatureManager.IsEnabledAsync(FeatureFlags.UsageLogging))
@@ -87,7 +87,7 @@ public class DanceMusicController(
                     using var scope = serviceScopeFactory.CreateScope();
                     var context = scope.ServiceProvider.GetRequiredService<DanceMusicContext>();
 
-                    await context.UsageLog.AddAsync(usage, cancellationToken);
+                    _ = await context.UsageLog.AddAsync(usage, cancellationToken);
                     if (user != null)
                     {
                         // Need to get the user from the context to update it
@@ -99,7 +99,7 @@ public class DanceMusicController(
                             user.HitCount += 1;
                         }
                     }
-                    await context.SaveChangesAsync(cancellationToken);
+                    _ = await context.SaveChangesAsync(cancellationToken);
                 }
                 catch (Exception ex)
                 {
@@ -110,9 +110,9 @@ public class DanceMusicController(
 
     private string GetUsageId()
     {
-        Request.Cookies.TryGetValue("Usage", out var usageString);
+        _ = Request.Cookies.TryGetValue("Usage", out var usageString);
         string usageId;
-        int usageCount = 1;
+        var usageCount = 1;
         if (string.IsNullOrEmpty(usageString))
         {
             usageId = Guid.NewGuid().ToString("D");
@@ -136,12 +136,11 @@ public class DanceMusicController(
         var user = UserName;
         var request = context.HttpContext.Request;
         var filterString = request.Query["filter"];
-        SongFilter filter = null;
-
         if (string.IsNullOrWhiteSpace(filterString) && request.Method.Equals("POST", StringComparison.OrdinalIgnoreCase))
         {
             filterString = context.HttpContext.Request.Form["filter"];
         }
+        SongFilter filter;
         if (!string.IsNullOrEmpty(filterString))
         {
             filter = Database.SearchService.GetSongFilter(filterString);
@@ -261,8 +260,8 @@ public class DanceMusicController(
         foreach (var song in modified)
         {
             AdminMonitor.UpdateTask("UpdateService", i);
-            await MusicServiceManager.UpdateSongAndServices(dms, song);
-            await song.CleanupProperties(dms, "HYE");
+            _ = await MusicServiceManager.UpdateSongAndServices(dms, song);
+            _ = await song.CleanupProperties(dms, "HYE");
             i += 1;
         }
 
@@ -342,7 +341,7 @@ public class DanceMusicController(
     protected List<string> UploadFile(IFormFile file)
     {
         var lines = new List<string>();
-        
+
         ViewBag.Key = file.Name;
         // ReSharper disable once PossibleNullReferenceException
         ViewBag.Size = file.Length;
@@ -369,7 +368,7 @@ public class DanceMusicController(
         var path = Path.Combine(environment.WebRootPath, "AppData");
         if (!Directory.Exists(path))
         {
-            Directory.CreateDirectory(path);
+            _ = Directory.CreateDirectory(path);
         }
 
         return path;

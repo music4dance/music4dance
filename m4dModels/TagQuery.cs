@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace m4dModels
@@ -92,7 +89,7 @@ namespace m4dModels
             var ret = new StringBuilder();
             if (count < 3)
             {
-                ret.AppendFormat(
+                _ = ret.AppendFormat(
                     "{0}{1}{2} {3}", separator, prefix, count > 1 ? "s" : "",
                     string.Join($" {connector} ", list));
                 separator = SongFilter.CommaSeparator;
@@ -101,7 +98,7 @@ namespace m4dModels
             {
                 var last = list[count - 1];
                 list.RemoveAt(count - 1);
-                ret.AppendFormat(
+                _ = ret.AppendFormat(
                     "{0}{1}s {2} {3} {4}", separator, prefix, string.Join(", ", list),
                     connector, last);
                 separator = SongFilter.CommaSeparator;
@@ -109,11 +106,11 @@ namespace m4dModels
             return ret.ToString();
         }
 
-    /// <summary>
-    /// Returns an OData filter for tags, targeting a specific dance field (e.g., "dance_{DanceId}").
-    /// If danceField is null, uses the global/dance_ALL field.
-    /// The excludeDanceTags parameter controls whether dance_ALL tags are excluded (true) or included (false, default).
-    /// </summary>
+        /// <summary>
+        /// Returns an OData filter for tags, targeting a specific dance field (e.g., "dance_{DanceId}").
+        /// If danceField is null, uses the global/dance_ALL field.
+        /// The excludeDanceTags parameter controls whether dance_ALL tags are excluded (true) or included (false, default).
+        /// </summary>
         public string GetODataFilterForDanceField(string danceField = null, DanceMusicCoreService dms = null)
         {
             return BuildODataFilter(
@@ -125,8 +122,8 @@ namespace m4dModels
             );
         }
 
-    // Returns an OData filter for tags, using the global/dance_ALL field and tag ring expansion.
-    // The excludeDanceTags parameter controls whether dance_ALL tags are excluded (true) or included (false, default).
+        // Returns an OData filter for tags, using the global/dance_ALL field and tag ring expansion.
+        // The excludeDanceTags parameter controls whether dance_ALL tags are excluded (true) or included (false, default).
         public string GetODataFilter(DanceMusicCoreService dms)
         {
             return BuildODataFilter(
@@ -219,25 +216,25 @@ namespace m4dModels
             foreach (var t in filtered.StripType())
             {
                 if (sb.Length > 0)
-                    sb.Append(" and ");
+                    _ = sb.Append(" and ");
 
                 var tt = t.Replace(@"'", @"''");
 
                 if (songFormat != null && danceFormat != null)
                 {
-                    sb.Append("(");
-                    sb.AppendFormat(songFormat, tagName, tt);
-                    sb.Append(" or ");
-                    sb.AppendFormat(danceFormat, tagName, tt);
-                    sb.Append(")");
+                    _ = sb.Append("(");
+                    _ = sb.AppendFormat(songFormat, tagName, tt);
+                    _ = sb.Append(" or ");
+                    _ = sb.AppendFormat(danceFormat, tagName, tt);
+                    _ = sb.Append(")");
                 }
                 else if (songFormat != null)
                 {
-                    sb.AppendFormat(songFormat, tagName, tt);
+                    _ = sb.AppendFormat(songFormat, tagName, tt);
                 }
                 else if (danceFormat != null)
                 {
-                    sb.AppendFormat(danceFormat, tagName, tt);
+                    _ = sb.AppendFormat(danceFormat, tagName, tt);
                 }
             }
         }

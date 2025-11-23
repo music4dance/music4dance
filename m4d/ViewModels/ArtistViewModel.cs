@@ -1,8 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-using AutoMapper;
+﻿using AutoMapper;
 
 using m4dModels;
+
+using System.ComponentModel.DataAnnotations;
 
 namespace m4d.ViewModels;
 

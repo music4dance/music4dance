@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
-
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
+
+using System.Diagnostics;
 
 namespace m4dModels
 {
@@ -28,8 +24,8 @@ namespace m4dModels
             }
 
             var builder = new DbContextOptionsBuilder<DanceMusicContext>();
-            builder.UseSqlServer(ConnectionString);
-            builder.EnableSensitiveDataLogging();
+            _ = builder.UseSqlServer(ConnectionString);
+            _ = builder.EnableSensitiveDataLogging();
 
             return new DanceMusicContext(builder.Options);
         }
@@ -38,45 +34,45 @@ namespace m4dModels
         {
             base.OnModelCreating(builder);
 
-            builder.Entity<Dance>().ToTable("Dances");
-            builder.Entity<DanceLink>().ToTable("DanceLink");
-            builder.Entity<PlayList>().ToTable("PlayLists");
-            builder.Entity<Search>().ToTable("Searches");
-            builder.Entity<TagGroup>().ToTable("TagGroups");
-            builder.Entity<ActivityLog>().ToTable("ActivityLog");
-            builder.Entity<UsageLog>().ToTable("UsageLog");
+            _ = builder.Entity<Dance>().ToTable("Dances");
+            _ = builder.Entity<DanceLink>().ToTable("DanceLink");
+            _ = builder.Entity<PlayList>().ToTable("PlayLists");
+            _ = builder.Entity<Search>().ToTable("Searches");
+            _ = builder.Entity<TagGroup>().ToTable("TagGroups");
+            _ = builder.Entity<ActivityLog>().ToTable("ActivityLog");
+            _ = builder.Entity<UsageLog>().ToTable("UsageLog");
 
-            builder.Entity<Dance>().Property(dance => dance.Id).HasMaxLength(5);
-            builder.Entity<Dance>().Ignore(dance => dance.Info);
+            _ = builder.Entity<Dance>().Property(dance => dance.Id).HasMaxLength(5);
+            _ = builder.Entity<Dance>().Ignore(dance => dance.Info);
 
-            builder.Entity<TagGroup>().HasKey(tt => tt.Key);
-            builder.Entity<TagGroup>().Ignore(tt => tt.Count);
-            builder.Entity<TagGroup>().Ignore(tt => tt.Value);
-            builder.Entity<TagGroup>().Ignore(tt => tt.Category);
-            builder.Entity<TagGroup>().Ignore(tt => tt.Children);
+            _ = builder.Entity<TagGroup>().HasKey(tt => tt.Key);
+            _ = builder.Entity<TagGroup>().Ignore(tt => tt.Count);
+            _ = builder.Entity<TagGroup>().Ignore(tt => tt.Value);
+            _ = builder.Entity<TagGroup>().Ignore(tt => tt.Category);
+            _ = builder.Entity<TagGroup>().Ignore(tt => tt.Children);
 
-            builder.Entity<DanceLink>().HasKey(dl => dl.Id);
-            builder.Entity<DanceLink>().Property(dl => dl.Id).ValueGeneratedNever();
+            _ = builder.Entity<DanceLink>().HasKey(dl => dl.Id);
+            _ = builder.Entity<DanceLink>().Property(dl => dl.Id).ValueGeneratedNever();
 
-            builder.Entity<ApplicationUser>().Property(u => u.Region).HasMaxLength(2);
-            builder.Entity<ApplicationUser>().Property(u => u.ServicePreference).HasMaxLength(10);
-            builder.Entity<ApplicationUser>().Property(u => u.LifetimePurchased).HasPrecision(18, 2);
-            builder.Entity<ApplicationUser>().Property(u => u.HitCount).HasDefaultValue(0);
+            _ = builder.Entity<ApplicationUser>().Property(u => u.Region).HasMaxLength(2);
+            _ = builder.Entity<ApplicationUser>().Property(u => u.ServicePreference).HasMaxLength(10);
+            _ = builder.Entity<ApplicationUser>().Property(u => u.LifetimePurchased).HasPrecision(18, 2);
+            _ = builder.Entity<ApplicationUser>().Property(u => u.HitCount).HasDefaultValue(0);
 
-            builder.Entity<Search>().Property(u => u.Query).IsRequired();
-            builder.Entity<Search>().Ignore(u => u.Filter);
+            _ = builder.Entity<Search>().Property(u => u.Query).IsRequired();
+            _ = builder.Entity<Search>().Ignore(u => u.Filter);
 
-            builder.Entity<UsageLog>().Property(u => u.UsageId).IsRequired();
-            builder.Entity<UsageLog>().Property(u => u.UsageId).HasMaxLength(40);
-            builder.Entity<UsageLog>().Property(u => u.UserName);
-            builder.Entity<UsageLog>().Property(u => u.Page).HasMaxLength(100);
-            builder.Entity<UsageLog>().Property(u => u.Query).HasMaxLength(256);
-            builder.Entity<UsageLog>().Property(u => u.Filter).HasMaxLength(256);
-            builder.Entity<UsageLog>().Property(u => u.Referrer).HasMaxLength(1024);
-            builder.Entity<UsageLog>().Property(u => u.UserAgent).HasMaxLength(256);
+            _ = builder.Entity<UsageLog>().Property(u => u.UsageId).IsRequired();
+            _ = builder.Entity<UsageLog>().Property(u => u.UsageId).HasMaxLength(40);
+            _ = builder.Entity<UsageLog>().Property(u => u.UserName);
+            _ = builder.Entity<UsageLog>().Property(u => u.Page).HasMaxLength(100);
+            _ = builder.Entity<UsageLog>().Property(u => u.Query).HasMaxLength(256);
+            _ = builder.Entity<UsageLog>().Property(u => u.Filter).HasMaxLength(256);
+            _ = builder.Entity<UsageLog>().Property(u => u.Referrer).HasMaxLength(1024);
+            _ = builder.Entity<UsageLog>().Property(u => u.UserAgent).HasMaxLength(256);
 
-            builder.Entity<UsageLog>().HasIndex(u => u.UserName);
-            builder.Entity<UsageLog>().HasIndex(u => u.UsageId);
+            _ = builder.Entity<UsageLog>().HasIndex(u => u.UserName);
+            _ = builder.Entity<UsageLog>().HasIndex(u => u.UsageId);
 
             // Customize the ASP.NET Identity model and override the defaults if needed.
             // For example, you can rename the ASP.NET Identity table names and more.

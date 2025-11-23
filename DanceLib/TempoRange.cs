@@ -56,13 +56,13 @@ namespace DanceLibrary
 
         private void Validate()
         {
-            if (Min <= 0M || Min > 1000)
+            if (Min is <= 0M or > 1000)
             // ReSharper disable once NotResolvedInText
             {
                 throw new ArgumentOutOfRangeException("_minTempo", PositiveDecimal);
             }
 
-            if (Max <= 0M || Max > 1000)
+            if (Max is <= 0M or > 1000)
             // ReSharper disable once NotResolvedInText
             {
                 throw new ArgumentOutOfRangeException("_maxTempo", PositiveDecimal);

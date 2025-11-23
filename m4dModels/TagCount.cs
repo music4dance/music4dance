@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Runtime.Serialization;
 
 namespace m4dModels
@@ -16,7 +13,7 @@ namespace m4dModels
             var list = s.Split([':'], StringSplitOptions.RemoveEmptyEntries).ToList();
             var c = 1;
 
-            if (list.Count < 1 || list.Count > 3)
+            if (list.Count is < 1 or > 3)
             {
                 return false;
             }

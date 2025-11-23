@@ -1,6 +1,4 @@
-﻿using System;
-
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -10,7 +8,7 @@ namespace m4dModels.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
+            _ = migrationBuilder.CreateTable(
                 name: "ActivityLog",
                 columns: table => new
                 {
@@ -23,15 +21,15 @@ namespace m4dModels.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ActivityLog", x => x.Id);
-                    table.ForeignKey(
+                    _ = table.PrimaryKey("PK_ActivityLog", x => x.Id);
+                    _ = table.ForeignKey(
                         name: "FK_ActivityLog_AspNetUsers_ApplicationUserId",
                         column: x => x.ApplicationUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                 });
 
-            migrationBuilder.CreateIndex(
+            _ = migrationBuilder.CreateIndex(
                 name: "IX_ActivityLog_ApplicationUserId",
                 table: "ActivityLog",
                 column: "ApplicationUserId");
@@ -39,7 +37,7 @@ namespace m4dModels.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
+            _ = migrationBuilder.DropTable(
                 name: "ActivityLog");
         }
     }

@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -155,8 +152,8 @@ namespace m4dModels
                     continue;
                 }
 
-                added.Add(c);
-                sb.Append(c);
+                _ = added.Add(c);
+                _ = sb.Append(c);
             }
 
             return sb.Length == 0 ? null : sb.ToString();
@@ -180,17 +177,17 @@ namespace m4dModels
 
             if (collection != null)
             {
-                sb.Append(BuildPurchaseInfo(PurchaseType.Album, ms, collection));
+                _ = sb.Append(BuildPurchaseInfo(PurchaseType.Album, ms, collection));
             }
 
             if (track != null)
             {
                 if (sb.Length != 0)
                 {
-                    sb.Append(';');
+                    _ = sb.Append(';');
                 }
 
-                sb.Append(BuildPurchaseInfo(PurchaseType.Song, ms, track));
+                _ = sb.Append(BuildPurchaseInfo(PurchaseType.Song, ms, track));
             }
 
             return sb.Length > 0 ? sb.ToString() : null;
@@ -257,8 +254,8 @@ namespace m4dModels
             var albumKey = service.BuildPurchaseKey(PurchaseType.Album);
             var songKey = service.BuildPurchaseKey(PurchaseType.Song);
 
-            Purchase.TryGetValue(albumKey, out var albumInfo);
-            Purchase.TryGetValue(songKey, out var songInfo);
+            _ = Purchase.TryGetValue(albumKey, out var albumInfo);
+            _ = Purchase.TryGetValue(songKey, out var songInfo);
 
             var link = service.GetPurchaseLink(pt, albumInfo, songInfo);
             return link != null && !string.IsNullOrWhiteSpace(region) &&
@@ -338,7 +335,7 @@ value, value);
                 key =>
                     old.Purchase == null || !old.Purchase.ContainsKey(key)))
             {
-                ChangeProperty(song, Index, Song.PurchaseField, key, null, Purchase[key]);
+                _ = ChangeProperty(song, Index, Song.PurchaseField, key, null, Purchase[key]);
             }
         }
 
@@ -384,7 +381,7 @@ value, value);
                     continue;
                 }
 
-                dict.Remove(name);
+                _ = dict.Remove(name);
                 merge.AddRange(MergeList(l));
             }
 
@@ -450,7 +447,7 @@ value, value);
             //  most members
             if (dict.TryGetValue(0, out var temp) && dict.Count > 1)
             {
-                dict.Remove(0);
+                _ = dict.Remove(0);
                 var max = dict.Values.Max(t => t.Count);
                 var l = dict.Values.First(t => t.Count == max);
                 l.AddRange(temp);
@@ -485,7 +482,7 @@ value, value);
                 // Case where both albums have purchase info: Merge the dictionaries keeping all unique entries
                 foreach (var key in Purchase.Keys)
                 {
-                    album.Purchase.Remove(key);
+                    _ = album.Purchase.Remove(key);
                 }
 
                 foreach (var p in album.Purchase)
@@ -527,15 +524,15 @@ value, value);
 
         public void Remove(Song song)
         {
-            ChangeProperty(song, Index, Song.AlbumField, null, Name, null);
+            _ = ChangeProperty(song, Index, Song.AlbumField, null, Name, null);
             if (Track.HasValue)
             {
-                ChangeProperty(song, Index, Song.TrackField, null, Track, null);
+                _ = ChangeProperty(song, Index, Song.TrackField, null, Track, null);
             }
 
             if (!string.IsNullOrWhiteSpace(Publisher))
             {
-                ChangeProperty(song, Index, Song.PublisherField, null, Publisher, null);
+                _ = ChangeProperty(song, Index, Song.PublisherField, null, Publisher, null);
             }
         }
 
@@ -589,7 +586,7 @@ value, value);
 
             if (op == null || Equals(op.Value, value))
             {
-                song.CreateProperty(fullName, value);
+                _ = song.CreateProperty(fullName, value);
             }
         }
 
@@ -602,7 +599,7 @@ value, value);
                 return false;
             }
 
-            song.CreateProperty(SongProperty.FormatName(name, idx, qual), newValue);
+            _ = song.CreateProperty(SongProperty.FormatName(name, idx, qual), newValue);
 
             return true;
         }
@@ -615,7 +612,7 @@ value, value);
                 return false;
             }
 
-            song.CreateProperty(SongProperty.FormatName(name, idx, qual), newValue);
+            _ = song.CreateProperty(SongProperty.FormatName(name, idx, qual), newValue);
 
             return true;
         }

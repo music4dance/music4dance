@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Azure.Search.Documents.Models;
 
-using Azure.Search.Documents.Models;
+using System.Collections.Concurrent;
+using System.Diagnostics;
 
 namespace m4dModels
 {
@@ -117,7 +113,7 @@ namespace m4dModels
 
         public void DeleteTagGroup(string key)
         {
-            TagMap.TryRemove(key, out var _);
+            _ = TagMap.TryRemove(key, out _);
         }
 
         public void ChangeTagName(string oldKey, string newKey)

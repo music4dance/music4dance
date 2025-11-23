@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-using FacetResults =
+﻿using FacetResults =
     System.Collections.Generic.IDictionary<string, System.Collections.Generic.IList<
         Azure.Search.Documents.Models.FacetResult>>;
 

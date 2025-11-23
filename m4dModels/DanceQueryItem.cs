@@ -1,8 +1,6 @@
-﻿using System;
-using System.Text.RegularExpressions;
-using System.Linq;
+﻿using DanceLibrary;
 
-using DanceLibrary;
+using System.Text.RegularExpressions;
 
 namespace m4dModels
 {

@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-
 using DanceLibrary;
+
+using System.Diagnostics;
 
 namespace m4dModels
 {
@@ -46,7 +42,7 @@ namespace m4dModels
         }
         public static bool GroupIsTight(string id)
         {
-            return id == "SWG" || id == "FXT" || id == "TNG" || id == "WLZ";
+            return id is "SWG" or "FXT" or "TNG" or "WLZ";
         }
     }
 
@@ -113,7 +109,7 @@ namespace m4dModels
                 }
                 foreach (var badProp in badProps)
                 {
-                    chunk.Properties.Remove(badProp);
+                    _ = chunk.Properties.Remove(badProp);
                     changed = true;
                 }
             }
@@ -172,7 +168,7 @@ namespace m4dModels
                                     badRating = true;
                                     break;
                                 }
-                                map.Add(property.Value);
+                                _ = map.Add(property.Value);
                             }
                         }
                     }
@@ -182,7 +178,7 @@ namespace m4dModels
                     }
                     foreach (var property in remove)
                     {
-                        chunk.Properties.Remove(property);
+                        _ = chunk.Properties.Remove(property);
                         changed = true;
                     }
                 }
@@ -223,7 +219,7 @@ namespace m4dModels
                                 replace = other.MatchRating(property.Value);
                                 if (replace != null)
                                 {
-                                    other.Properties.Remove(replace);
+                                    _ = other.Properties.Remove(replace);
                                     break;
                                 }
                                 ;
@@ -237,7 +233,7 @@ namespace m4dModels
                                     replace = bc.MatchRating(property.Value);
                                     if (replace != null)
                                     {
-                                        bc.Properties.Remove(replace);
+                                        _ = bc.Properties.Remove(replace);
                                         break;
                                     }
                                 }
@@ -274,7 +270,7 @@ namespace m4dModels
                     added.Clear();
                     foreach (var p in remove)
                     {
-                        chunk.Properties.Remove(p);
+                        _ = chunk.Properties.Remove(p);
                     }
                 }
             }
@@ -301,7 +297,7 @@ namespace m4dModels
 
             foreach (var rating in song.DanceRatings)
             {
-                if (rating.Weight != 1 && rating.Weight != 1)
+                if (rating.Weight is not 1 and not 1)
                 {
                     Trace.WriteLine($"{SongId}, Unbalanced rating ({user}): {rating.DanceId}={rating.Weight}");
                     balanced = false;
@@ -327,7 +323,7 @@ namespace m4dModels
                         }
                         else
                         {
-                            tagSet.Remove(name);
+                            _ = tagSet.Remove(name);
                         }
                     }
                 }
@@ -389,8 +385,8 @@ namespace m4dModels
                 }
                 foreach (var chunk in remove)
                 {
-                    pair.Value.Remove(chunk);
-                    Chunks.Remove(chunk);
+                    _ = pair.Value.Remove(chunk);
+                    _ = Chunks.Remove(chunk);
                 }
             }
 
@@ -402,7 +398,7 @@ namespace m4dModels
             Chunks.Clear();
             UserChunks.Clear();
 
-            int id = 1;
+            var id = 1;
             var chunk = new List<SongProperty>();
             string user = null;
 

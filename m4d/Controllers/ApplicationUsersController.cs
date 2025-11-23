@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using System.Net;
-
-using m4d.Services;
+﻿using m4d.Services;
 using m4d.Utilities;
 
 using m4dModels;
@@ -12,6 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.FeatureManagement;
+
+using System.Net;
 
 namespace m4d.Controllers;
 
@@ -80,7 +79,7 @@ public class ApplicationUsersController(
             return View(applicationUser);
         }
 
-        await Database.AddPseudoUser(applicationUser.UserName, applicationUser.Email);
+        _ = await Database.AddPseudoUser(applicationUser.UserName, applicationUser.Email);
         return RedirectToAction("Index");
     }
 
@@ -149,7 +148,7 @@ public class ApplicationUsersController(
                     applicationUser.Id, oldSubscriptionLevel,
                     applicationUser.SubscriptionLevel);
 
-                await Context.SaveChangesAsync();
+                _ = await Context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -185,9 +184,9 @@ public class ApplicationUsersController(
 
         if (Context.Roles.Any(r => r.Name == "premium"))
         {
-            await UserManager.RemoveFromRoleAsync(user, "premium");
+            _ = await UserManager.RemoveFromRoleAsync(user, "premium");
         }
-        await Context.SaveChangesAsync();
+        _ = await Context.SaveChangesAsync();
 
         UserMapper.Clear();
         return View("Details", user);
@@ -238,14 +237,14 @@ public class ApplicationUsersController(
             {
                 if (!await UserManager.IsInRoleAsync(user, role.Name))
                 {
-                    await UserManager.AddToRoleAsync(user, role.Name);
+                    _ = await UserManager.AddToRoleAsync(user, role.Name);
                 }
             }
             else
             {
                 if (await UserManager.IsInRoleAsync(user, role.Name))
                 {
-                    await UserManager.RemoveFromRoleAsync(user, role.Name);
+                    _ = await UserManager.RemoveFromRoleAsync(user, role.Name);
                 }
             }
         }
@@ -311,11 +310,11 @@ public class ApplicationUsersController(
         var searches = Context.Searches.Where(s => s.ApplicationUserId == applicationUser.Id);
         foreach (var search in searches)
         {
-            Context.Searches.Remove(search);
+            _ = Context.Searches.Remove(search);
         }
 
-        Context.Users.Remove(applicationUser);
-        await Context.SaveChangesAsync();
+        _ = Context.Users.Remove(applicationUser);
+        _ = await Context.SaveChangesAsync();
         UserMapper.Clear();
         return RedirectToAction("Index");
     }
@@ -343,12 +342,12 @@ public class ApplicationUsersController(
                     case SubscriptionLevel.None:
                         break;
                     case SubscriptionLevel.Trial:
-                        await UserManager.AddToRoleAsync(
+                        _ = await UserManager.AddToRoleAsync(
                             applicationUser,
                             DanceMusicCoreService.TrialRole);
                         break;
                     default:
-                        await UserManager.AddToRoleAsync(
+                        _ = await UserManager.AddToRoleAsync(
                             applicationUser,
                             DanceMusicCoreService.PremiumRole);
                         break;
@@ -359,17 +358,17 @@ public class ApplicationUsersController(
                 switch (newLevel)
                 {
                     case SubscriptionLevel.None:
-                        await UserManager.RemoveFromRoleAsync(
+                        _ = await UserManager.RemoveFromRoleAsync(
                             applicationUser,
                             DanceMusicCoreService.TrialRole);
                         break;
                     case SubscriptionLevel.Trial:
                         break;
                     default:
-                        await UserManager.AddToRoleAsync(
+                        _ = await UserManager.AddToRoleAsync(
                             applicationUser,
                             DanceMusicCoreService.PremiumRole);
-                        await UserManager.RemoveFromRoleAsync(
+                        _ = await UserManager.RemoveFromRoleAsync(
                             applicationUser,
                             DanceMusicCoreService.TrialRole);
                         break;
@@ -380,15 +379,15 @@ public class ApplicationUsersController(
                 switch (newLevel)
                 {
                     case SubscriptionLevel.None:
-                        await UserManager.RemoveFromRoleAsync(
+                        _ = await UserManager.RemoveFromRoleAsync(
                             applicationUser,
                             DanceMusicCoreService.PremiumRole);
                         break;
                     case SubscriptionLevel.Trial:
-                        await UserManager.AddToRoleAsync(
+                        _ = await UserManager.AddToRoleAsync(
                             applicationUser,
                             DanceMusicCoreService.TrialRole);
-                        await UserManager.RemoveFromRoleAsync(
+                        _ = await UserManager.RemoveFromRoleAsync(
                             applicationUser,
                             DanceMusicCoreService.PremiumRole);
                         break;

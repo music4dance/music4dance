@@ -1,4 +1,5 @@
 using m4dModels;
+
 using Microsoft.AspNetCore.Identity;
 namespace m4d.Areas.Identity;
 
@@ -54,7 +55,7 @@ public static class UserManagerHelpers
         {
             if (!roleManager.RoleExistsAsync(roleName).Result)
             {
-                var result = await roleManager.CreateAsync(new IdentityRole { Name = roleName });
+                _ = await roleManager.CreateAsync(new IdentityRole { Name = roleName });
             }
         }
     }

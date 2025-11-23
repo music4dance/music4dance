@@ -13,7 +13,7 @@ namespace m4d.ViewModels
             return new UserMetadata(user, roles);
         }
 
-        private UserMetadata(ApplicationUser user, IList<string> roles) 
+        private UserMetadata(ApplicationUser user, IList<string> roles)
         {
             User = user;
             if (user == null) return;

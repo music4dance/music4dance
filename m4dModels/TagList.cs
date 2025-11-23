@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace m4dModels
@@ -221,7 +218,7 @@ namespace m4dModels
 
             foreach (var tag in remove)
             {
-                tags.Remove(tag);
+                _ = tags.Remove(tag);
             }
 
             return new TagList(tags);
@@ -346,7 +343,7 @@ namespace m4dModels
 
         private static string TrimQualifier(string tag)
         {
-            return string.IsNullOrWhiteSpace(tag) ? tag : tag[0] == '+' || tag[0] == '-' ? tag[1..] : tag;
+            return string.IsNullOrWhiteSpace(tag) ? tag : tag[0] is '+' or '-' ? tag[1..] : tag;
         }
 
         private static readonly TextInfo s_ti = new CultureInfo("en-US", false).TextInfo;

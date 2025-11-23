@@ -1,7 +1,7 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace m4dModels.Tests;
 
@@ -11,7 +11,7 @@ public class ChunkingTests
     [ClassInitialize]
     public static async Task ClassInitialize(TestContext context)
     {
-        await DanceMusicTester.LoadDances();
+        _ = await DanceMusicTester.LoadDances();
     }
 
     [TestMethod]

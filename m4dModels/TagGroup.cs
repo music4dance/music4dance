@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Newtonsoft.Json;
 
-using Newtonsoft.Json;
+using System.Text;
 
 namespace m4dModels
 {
@@ -125,26 +122,26 @@ namespace m4dModels
             {
                 if (char.IsLetterOrDigit(c))
                 {
-                    sb.Append(c);
+                    _ = sb.Append(c);
                 }
                 else
                 {
                     switch (c)
                     {
                         case '-':
-                            sb.Append("--");
+                            _ = sb.Append("--");
                             break;
                         case ':':
-                            sb.Append("-p"); //seParator
+                            _ = sb.Append("-p"); //seParator
                             break;
                         case '&':
-                            sb.Append("-m"); //aMpersand
+                            _ = sb.Append("-m"); //aMpersand
                             break;
                         case '/':
-                            sb.Append("-s"); //Slash
+                            _ = sb.Append("-s"); //Slash
                             break;
                         case ' ':
-                            sb.Append("-w"); //whitespace
+                            _ = sb.Append("-w"); //whitespace
                             break;
                         default:
                             int i = c;
@@ -155,7 +152,7 @@ namespace m4dModels
                             }
                             else
                             {
-                                sb.AppendFormat("-{0:x2}", i);
+                                _ = sb.AppendFormat("-{0:x2}", i);
                             }
 
                             break;
@@ -174,7 +171,7 @@ namespace m4dModels
             }
 
             c = char.ToLower(c);
-            return c >= 'a' && c <= 'f';
+            return c is >= 'a' and <= 'f';
         }
 
         private static int ConvertHexDigit(char c)
@@ -203,19 +200,19 @@ namespace m4dModels
                     switch (c1)
                     {
                         case '-':
-                            sb.Append('-');
+                            _ = sb.Append('-');
                             break;
                         case 'p':
-                            sb.Append(':'); //seParator
+                            _ = sb.Append(':'); //seParator
                             break;
                         case 'm':
-                            sb.Append('&'); //aMpersand
+                            _ = sb.Append('&'); //aMpersand
                             break;
                         case 's':
-                            sb.Append('/'); //Slash
+                            _ = sb.Append('/'); //Slash
                             break;
                         case 'w':
-                            sb.Append(' '); //White
+                            _ = sb.Append(' '); //White
                             break;
                         default:
                             if (IsHexDigit(c1))
@@ -237,7 +234,7 @@ namespace m4dModels
 
                                 i += ConvertHexDigit(c2);
 
-                                sb.Append((char)i);
+                                _ = sb.Append((char)i);
                             }
                             else
                             {
@@ -250,7 +247,7 @@ namespace m4dModels
                 }
                 else
                 {
-                    sb.Append(c);
+                    _ = sb.Append(c);
                 }
             }
 

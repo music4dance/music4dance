@@ -1,4 +1,12 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+
+using Moq;
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -6,14 +14,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-
-using Moq;
 
 namespace m4dModels.Tests
 {
@@ -83,7 +83,7 @@ namespace m4dModels.Tests
         public static async Task<bool> LoadDances()
         {
             var files = new TestDSFileManager();
-            DanceLibrary.Dances.Reset(
+            _ = DanceLibrary.Dances.Reset(
                 DanceLibrary.Dances.Load(
                     await files.GetDances(), await files.GetGroups()));
             return true;
@@ -182,10 +182,10 @@ namespace m4dModels.Tests
 
             var songIndex = new Mock<SongIndex>();
             var service = new DanceMusicService(context, userManager, null, manager, songIndex.Object);
-            songIndex.Setup(m => m.UpdateIndex(new List<string>())).ReturnsAsync(true);
-            songIndex.Setup(m => m.DanceMusicService).Returns(service);
+            _ = songIndex.Setup(m => m.UpdateIndex(new List<string>())).ReturnsAsync(true);
+            _ = songIndex.Setup(m => m.DanceMusicService).Returns(service);
             await manager.Initialize(service);
-            songIndex.Setup(m => m.DanceMusicService).Returns(service);
+            _ = songIndex.Setup(m => m.DanceMusicService).Returns(service);
             await manager.Instance.FixupStats(service);
 
             await SeedRoles(roleManager);
@@ -218,7 +218,7 @@ namespace m4dModels.Tests
 
         private static async Task AddUser(DanceMusicService service, string name, bool pseudo)
         {
-            await service.FindOrAddUser(
+            _ = await service.FindOrAddUser(
                 name,
                 pseudo ? DanceMusicCoreService.PseudoRole : DanceMusicCoreService.EditRole,
                 pseudo ? null : $"{name}@hotmail.com");
@@ -267,7 +267,7 @@ namespace m4dModels.Tests
             {
                 if (!roleManager.RoleExistsAsync(roleName).Result)
                 {
-                    await roleManager.CreateAsync(new IdentityRole { Name = roleName });
+                    _ = await roleManager.CreateAsync(new IdentityRole { Name = roleName });
                 }
             }
         }

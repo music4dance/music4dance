@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-using Azure;
+﻿using Azure;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Indexes;
 using Azure.Search.Documents.Indexes.Models;
@@ -21,7 +16,7 @@ namespace m4dModels
         string RawEnvironment { get; }
         int CodeVersion { get; }
         int ConfigVersion { get; set; }
-        bool NextVersion { get; } 
+        bool NextVersion { get; }
         bool HasNextVersion { get; }
         bool HasId(string id);
         SongFilter GetSongFilter(string filter = null);
@@ -33,7 +28,7 @@ namespace m4dModels
     {
         public static readonly string ExperimentalId = "SongIndexExperimental";
 
-        public SearchServiceManager(IConfiguration configuration, 
+        public SearchServiceManager(IConfiguration configuration,
             IAzureClientFactory<SearchClient> searchFactory,
             IAzureClientFactory<SearchIndexClient> searchIndexFactory)
         {
@@ -41,7 +36,7 @@ namespace m4dModels
 
             foreach (var section in configuration.GetChildren()
                 .Where(s => s.GetChildren().Any(
-                    child => child.Key.Equals("indexname", StringComparison.OrdinalIgnoreCase) && 
+                    child => child.Key.Equals("indexname", StringComparison.OrdinalIgnoreCase) &&
                     child.Value.StartsWith("songs-"))))
             {
                 var parts = section.Key.Split('-');
@@ -88,7 +83,7 @@ namespace m4dModels
 
         public SearchServiceInfo GetInfo(string id = null)
         {
-            if (id == null || id == "default")
+            if (id is null or "default")
             {
                 id = DefaultId;
             }
@@ -133,7 +128,7 @@ namespace m4dModels
         public int CodeVersion => 2;
         public bool HasNextVersion =>
           CodeVersion == ConfigVersion &&
-          GetInfo().HasNextVersion;           
+          GetInfo().HasNextVersion;
 
         public int ConfigVersion { get; set; }
 
@@ -190,7 +185,8 @@ namespace m4dModels
             IList<ScoringProfile> scoringProfiles = null,
             string defaultScoringProfile = null,
             bool? isNext = null
-            ) {
+            )
+        {
             var index = new SearchIndex(GetVersionedName(isNext), fields);
             index.Suggesters.AddRange(suggesters ?? []);
             index.ScoringProfiles.AddRange(scoringProfiles ?? []);
@@ -219,7 +215,7 @@ namespace m4dModels
 
         private string GetVersionedId(bool? isNext = null) =>
             Id == SearchServiceManager.ExperimentalId
-                ? Id 
+                ? Id
                 : $"{Id}-{(isNext ?? manager.NextVersion ? manager.CodeVersion + 1 : manager.ConfigVersion)}";
 
         private string GetVersionedName(bool? isNext = null) =>

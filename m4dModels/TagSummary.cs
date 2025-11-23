@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
+﻿using Newtonsoft.Json;
 
-using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations.Schema;
 
 using FacetResults =
     System.Collections.Generic.IDictionary<string, System.Collections.Generic.IList<
@@ -42,7 +39,7 @@ namespace m4dModels
 
                 if (rg[1] == type)
                 {
-                    tags.Add(rg[0]);
+                    _ = tags.Add(rg[0]);
                 }
             }
 
@@ -201,7 +198,7 @@ namespace m4dModels
                     tc.Count -= 1;
                     if (tc.Count <= 0)
                     {
-                        tags.Remove(tc);
+                        _ = tags.Remove(tc);
                     }
                 }
             }
@@ -218,7 +215,7 @@ namespace m4dModels
                 return;
             }
 
-            tags.Remove(old);
+            _ = tags.Remove(old);
             Summary = Serialize(tags);
         }
 

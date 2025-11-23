@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
+﻿using Microsoft.EntityFrameworkCore;
 
-using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace m4dModels;
 
@@ -65,7 +61,8 @@ public partial class DanceMusicCoreService(DanceMusicContext context, ISearchSer
     public SongIndex SongIndex =>
         _songSearch ??= GetSongIndex("default");
 
-    public SongIndex GetSongIndex(string id, bool? isNext = null) {
+    public SongIndex GetSongIndex(string id, bool? isNext = null)
+    {
         if (_songSearch != null && isNext == null
             && (id == "default" || id == null))
         {
@@ -171,8 +168,8 @@ public partial class DanceMusicCoreService(DanceMusicContext context, ISearchSer
         }
 
         dance.Modified = DateTime.Now;
-        context.Update(dance);
-        await SaveChanges();
+        _ = context.Update(dance);
+        _ = await SaveChanges();
 
         await DanceStatsManager.ReloadDances(this);
         return dance;
@@ -308,7 +305,7 @@ public partial class DanceMusicCoreService(DanceMusicContext context, ISearchSer
         var dbGroup = await TagGroups.FindAsync(tagGroup.Key);
         if (dbGroup == null)
         {
-            TagGroups.Add(tagGroup.GetDisconnected());
+            _ = TagGroups.Add(tagGroup.GetDisconnected());
         }
         else
         {
@@ -318,7 +315,7 @@ public partial class DanceMusicCoreService(DanceMusicContext context, ISearchSer
         var dbPrimary = await TagGroups.FindAsync(primary.Key);
         if (dbPrimary == null)
         {
-            TagGroups.Add(primary.GetDisconnected());
+            _ = TagGroups.Add(primary.GetDisconnected());
         }
         return true;
 
@@ -353,7 +350,7 @@ public partial class DanceMusicCoreService(DanceMusicContext context, ISearchSer
         foreach (var tag in tags.Tags)
         {
             var tt = GetTagRing(tag);
-            map.TryAdd(tt.Key, tt);
+            _ = map.TryAdd(tt.Key, tt);
         }
 
         return map.Values;
@@ -385,7 +382,7 @@ public partial class DanceMusicCoreService(DanceMusicContext context, ISearchSer
             type.Modified = DateTime.Now;
             // CORETODO: In EF6 we were taking the tracking entity from TagGroups.Add and adding that
             //  to TagManager - should we be doing something similar now???
-            TagGroups.Add(type);
+            _ = TagGroups.Add(type);
             if (updateTagManager)
             {
                 TagManager.AddTagGroup(type);
@@ -404,20 +401,20 @@ public partial class DanceMusicCoreService(DanceMusicContext context, ISearchSer
         var lines = (await SongIndex.BackupIndex()).ToList();
         var toIndex = GetSongIndex(to);
         AdminMonitor.UpdateTask("StartReset");
-        await toIndex.ResetIndex();
+        _ = await toIndex.ResetIndex();
         AdminMonitor.UpdateTask("StartUpload");
-        await toIndex.UploadIndex(lines, false);
+        _ = await toIndex.UploadIndex(lines, false);
     }
 
     public async Task UpdateIndex()
     {
         AdminMonitor.UpdateTask("StartCreate");
         var toIndex = GetSongIndex(null, isNext: true);
-        await toIndex.ResetIndex();
+        _ = await toIndex.ResetIndex();
         AdminMonitor.UpdateTask("StartBackup");
         var lines = (await SongIndex.BackupIndex()).ToList();
         AdminMonitor.UpdateTask("StartUpload");
-        await toIndex.UploadIndex(lines, false);
+        _ = await toIndex.UploadIndex(lines, false);
         AdminMonitor.UpdateTask("RedirectToUpdate");
         _songSearch = null;
         SearchService.RedirectToUpdate();
@@ -447,7 +444,7 @@ public partial class DanceMusicCoreService(DanceMusicContext context, ISearchSer
 
     public void ClearCache()
     {
-        DanceStatsManager.ClearCache(this, true);
+        _ = DanceStatsManager.ClearCache(this, true);
         MergeCluster.ClearMergeCandidateCache();
         _songSearch = null;
     }
@@ -462,10 +459,10 @@ public partial class DanceMusicCoreService(DanceMusicContext context, ISearchSer
 
 
         var service = MusicService.GetService(ServiceType.Spotify) ?? throw new ArgumentOutOfRangeException(nameof(id));
-        playlist.AddSongs(songs.Select(s => s.GetPurchaseId(service.Id)));
+        _ = playlist.AddSongs(songs.Select(s => s.GetPurchaseId(service.Id)));
         playlist.Updated = DateTime.Now;
 
-        await SaveChanges();
+        _ = await SaveChanges();
     }
 
     public async Task AddPlaylist(string id, PlayListType type, string user, string tags)
@@ -478,8 +475,8 @@ public partial class DanceMusicCoreService(DanceMusicContext context, ISearchSer
             Data1 = tags,
             Created = DateTime.Now,
         };
-        PlayLists.Add(playlist);
-        await SaveChanges();
+        _ = PlayLists.Add(playlist);
+        _ = await SaveChanges();
     }
 
     #endregion

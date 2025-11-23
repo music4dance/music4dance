@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace m4dModels
 {
     public class SongPropertyMerge

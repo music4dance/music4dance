@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace m4dModels
+﻿namespace m4dModels
 {
     public static class CountryCodes
     {

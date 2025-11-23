@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace m4dModels
+﻿namespace m4dModels
 {
     public class BatchInfo
     {

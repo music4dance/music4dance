@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace m4dModels
+﻿namespace m4dModels
 {
     public class TagAccumulator
     {

@@ -1,8 +1,6 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using DanceLibrary;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 
 namespace DanceLibrary.Tests
 {
@@ -20,13 +18,13 @@ namespace DanceLibrary.Tests
         [TestMethod]
         public void InvalidConstructorZero()
         {
-            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new TempoRange(0, 0));
+            _ = Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new TempoRange(0, 0));
         }
 
         [TestMethod]
         public void InvalidConstructorOrder()
         {
-            Assert.ThrowsExactly<ArgumentException>(() => _ = new TempoRange(26.0M, 22.0M));
+            _ = Assert.ThrowsExactly<ArgumentException>(() => _ = new TempoRange(26.0M, 22.0M));
         }
 
         [TestMethod]

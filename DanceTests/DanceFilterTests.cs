@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
 
 using Newtonsoft.Json;
+
+using System.Collections.Generic;
+using System.Linq;
 
 namespace DanceLibrary.Tests
 {
@@ -273,7 +273,7 @@ namespace DanceLibrary.Tests
         {
             var g = groups.Select(g => new DanceGroup(g, g, ["D"])).ToList();
             var mock = new Mock<DanceType>();
-            mock.Setup(t => t.Groups).Returns(g);
+            _ = mock.Setup(t => t.Groups).Returns(g);
             return mock.Object;
         }
 

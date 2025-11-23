@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
+﻿using DanceLibrary;
 
-using DanceLibrary;
+using System.Diagnostics;
+using System.Text;
 
 namespace m4dModels
 {
@@ -94,7 +91,7 @@ namespace m4dModels
             {
                 if (sb.Length > 0)
                 {
-                    sb.Append($" {con} ");
+                    _ = sb.Append($" {con} ");
                 }
 
                 var item = Items.FirstOrDefault(dt => dt.Id == d.Id);
@@ -125,9 +122,9 @@ namespace m4dModels
                         }
                     }
 
-                    sb.Append('(');
-                    sb.Append(string.Join(" and ", filterParts));
-                    sb.Append(')');
+                    _ = sb.Append('(');
+                    _ = sb.Append(string.Join(" and ", filterParts));
+                    _ = sb.Append(')');
                 }
                 else
                 {

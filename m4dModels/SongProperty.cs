@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
 using System.Text;
 
 namespace m4dModels
@@ -32,7 +29,7 @@ namespace m4dModels
             return new TagList(Value).ToString() == new TagList(other.Value).ToString();
         }
 
-        private bool IsTag => BaseName == Song.AddedTags || BaseName == Song.RemovedTags;
+        private bool IsTag => BaseName is Song.AddedTags or Song.RemovedTags;
 
         public override int GetHashCode()
         {
@@ -237,7 +234,7 @@ namespace m4dModels
 
         public bool IsComplex => IsComplexName(Name);
         public bool IsAction => IsActionName(Name);
-        public bool IsEdit => BaseName == Song.EditCommand || BaseName == Song.CreateCommand;
+        public bool IsEdit => BaseName is Song.EditCommand or Song.CreateCommand;
 
         public bool IsNull => string.IsNullOrWhiteSpace(Value);
 

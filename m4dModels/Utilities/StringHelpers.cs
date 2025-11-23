@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace m4dModels.Utilities
 {
@@ -15,7 +14,7 @@ namespace m4dModels.Utilities
         private static partial Regex SingleSpacify();
 
         public static string CleanFilename(this string filename)
-        { 
+        {
             return new string([.. filename.Except(System.IO.Path.GetInvalidFileNameChars())]);
         }
     }

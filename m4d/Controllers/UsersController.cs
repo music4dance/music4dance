@@ -1,6 +1,4 @@
-﻿using System.Net;
-
-using m4d.Services;
+﻿using m4d.Services;
 using m4d.ViewModels;
 
 using m4dModels;
@@ -9,6 +7,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.FeatureManagement;
+
+using System.Net;
 
 namespace m4d.Controllers;
 

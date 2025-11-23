@@ -1,8 +1,6 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using DanceLibrary;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 
 namespace DanceLibrary.Tests
 {

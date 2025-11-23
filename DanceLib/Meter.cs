@@ -88,12 +88,12 @@ namespace DanceLibrary
 
         private void Validate()
         {
-            if (_numerator <= 0 || _numerator >= 1000)
+            if (_numerator is <= 0 or >= 1000)
             {
                 throw new ArgumentOutOfRangeException("numerator", PositiveIntegerNumerator);
             }
 
-            if (_denominator <= 0 || _denominator >= 1000)
+            if (_denominator is <= 0 or >= 1000)
             {
                 throw new ArgumentOutOfRangeException("denominator", PositiveIntegerDenominator);
             }

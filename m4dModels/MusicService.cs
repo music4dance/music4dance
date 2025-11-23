@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace m4dModels
 {
@@ -77,8 +73,8 @@ namespace m4dModels
         public string BuildPurchaseKey(PurchaseType pt)
         {
             var sb = new StringBuilder(3);
-            sb.Append(CID);
-            sb.Append(PurchaseTypes[(int)pt]);
+            _ = sb.Append(CID);
+            _ = sb.Append(PurchaseTypes[(int)pt]);
             return sb.ToString();
         }
 

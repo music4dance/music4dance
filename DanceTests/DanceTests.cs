@@ -1,9 +1,7 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using System.Diagnostics;
 using System.Threading.Tasks;
-
-using DanceLibrary;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DanceLibrary.Tests
 {

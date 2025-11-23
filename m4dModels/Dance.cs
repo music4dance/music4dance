@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using DanceLibrary;
 
-using DanceLibrary;
+using System.Text;
 
 namespace m4dModels
 {
@@ -110,12 +107,12 @@ namespace m4dModels
             desc = desc.Replace("\r", @"\r").Replace("\n", @"\n").Replace('\t', ' ');
             var sb = new StringBuilder();
 
-            sb.AppendFormat("{0}\t{1}\t{2}", id, desc, Modified.ToString("g"));
+            _ = sb.AppendFormat("{0}\t{1}\t{2}", id, desc, Modified.ToString("g"));
             if (DanceLinks != null)
             {
                 foreach (var dl in DanceLinks)
                 {
-                    sb.AppendFormat("\t{0}\t{1}\t{2}", dl.Id, dl.Description, dl.Link);
+                    _ = sb.AppendFormat("\t{0}\t{1}\t{2}", dl.Id, dl.Description, dl.Link);
                 }
             }
 

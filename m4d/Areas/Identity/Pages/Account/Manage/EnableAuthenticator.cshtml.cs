@@ -2,16 +2,16 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using System.ComponentModel.DataAnnotations;
-using System.Globalization;
-using System.Text;
-using System.Text.Encodings.Web;
-
 using m4dModels;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+
+using System.ComponentModel.DataAnnotations;
+using System.Globalization;
+using System.Text;
+using System.Text.Encodings.Web;
 
 namespace m4d.Areas.Identity.Pages.Account.Manage;
 
@@ -123,7 +123,7 @@ public class EnableAuthenticatorModel : PageModel
             return Page();
         }
 
-        await _userManager.SetTwoFactorEnabledAsync(user, true);
+        _ = await _userManager.SetTwoFactorEnabledAsync(user, true);
         var userId = await _userManager.GetUserIdAsync(user);
         _logger.LogInformation("User with ID '{UserId}' has enabled 2FA with an authenticator app.", userId);
 
@@ -147,7 +147,7 @@ public class EnableAuthenticatorModel : PageModel
         var unformattedKey = await _userManager.GetAuthenticatorKeyAsync(user);
         if (string.IsNullOrEmpty(unformattedKey))
         {
-            await _userManager.ResetAuthenticatorKeyAsync(user);
+            _ = await _userManager.ResetAuthenticatorKeyAsync(user);
             unformattedKey = await _userManager.GetAuthenticatorKeyAsync(user);
         }
 
@@ -160,15 +160,15 @@ public class EnableAuthenticatorModel : PageModel
     private string FormatKey(string unformattedKey)
     {
         var result = new StringBuilder();
-        int currentPosition = 0;
+        var currentPosition = 0;
         while (currentPosition + 4 < unformattedKey.Length)
         {
-            result.Append(unformattedKey.AsSpan(currentPosition, 4)).Append(' ');
+            _ = result.Append(unformattedKey.AsSpan(currentPosition, 4)).Append(' ');
             currentPosition += 4;
         }
         if (currentPosition < unformattedKey.Length)
         {
-            result.Append(unformattedKey.AsSpan(currentPosition));
+            _ = result.Append(unformattedKey.AsSpan(currentPosition));
         }
 
         return result.ToString().ToLowerInvariant();

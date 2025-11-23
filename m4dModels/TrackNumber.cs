@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 
 namespace m4dModels
 {
@@ -181,17 +180,17 @@ namespace m4dModels
 
             if (work.HasValue)
             {
-                sb.AppendFormat(format[0], work.Value);
+                _ = sb.AppendFormat(format[0], work.Value);
             }
 
             if (volume.HasValue)
             {
-                sb.AppendFormat(format[1], volume.Value);
+                _ = sb.AppendFormat(format[1], volume.Value);
             }
 
             if (track.HasValue)
             {
-                sb.AppendFormat(format[2], track.Value);
+                _ = sb.AppendFormat(format[2], track.Value);
             }
 
             return sb.ToString();

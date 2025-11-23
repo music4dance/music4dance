@@ -167,7 +167,7 @@ public static class UserMapper
         }
         finally
         {
-            s_semaphore.Release();
+            _ = s_semaphore.Release();
         }
     }
 

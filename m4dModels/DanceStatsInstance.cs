@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using DanceLibrary;
+﻿using DanceLibrary;
 
 using m4dModels.Utilities;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+
+using System.Diagnostics;
 
 namespace m4dModels
 {
@@ -80,7 +77,7 @@ namespace m4dModels
         public static async Task<DanceStatsInstance> BuildInstance(
             DanceMusicCoreService dms, string source)
         {
-            var builder = dms.SearchService.NextVersion 
+            var builder = dms.SearchService.NextVersion
                 ? new DanceBuilderNext(dms, source)
                 : new DanceBuilder(dms, source);
 
@@ -128,7 +125,8 @@ namespace m4dModels
 
             var newDances = new List<string>();
 
-            if (_songs != null && _songs.Any()) {
+            if (_songs != null && _songs.Any())
+            {
                 await _cache.LoadSongs(_songs, dms);
                 foreach (var dance in Dances)
                 {
@@ -157,14 +155,14 @@ namespace m4dModels
                 group.MaxWeight = group.Children.Max(d => d.MaxWeight);
             }
 
-           var saveChanges = false;
+            var saveChanges = false;
             foreach (var ds in
                 Dances.Concat(Groups).Where(s => s.Dance.Description == null))
             {
                 var dance = await dms.Dances.FindAsync(ds.DanceId);
                 if (dance == null)
                 {
-                    dms.Dances.Add(
+                    _ = dms.Dances.Add(
                         new Dance
                         {
                             Id = ds.DanceId,
@@ -186,12 +184,12 @@ namespace m4dModels
 
             if (saveChanges)
             {
-                await dms.SaveChanges();
+                _ = await dms.SaveChanges();
             }
 
             if (newDances.Count > 0)
             {
-                await dms.SongIndex.UpdateIndex(newDances);
+                _ = await dms.SongIndex.UpdateIndex(newDances);
             }
         }
 

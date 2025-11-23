@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace m4dModels
+﻿namespace m4dModels
 {
     // ReSharper disable once InconsistentNaming
     public class ITunesService : MusicService

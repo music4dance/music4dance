@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+
+using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace m4dModels
 {
@@ -230,7 +226,7 @@ namespace m4dModels
                     var logins = await UserManager.GetLoginsAsync(user);
                     foreach (var login in logins)
                     {
-                        await UserManager
+                        _ = await UserManager
                             .RemoveLoginAsync(user, login.LoginProvider, login.ProviderKey);
                     }
 
@@ -272,7 +268,7 @@ namespace m4dModels
             }
 
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving Changes");
-            await SaveChanges();
+            _ = await SaveChanges();
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting LoadUsers");
         }
 
@@ -303,7 +299,7 @@ namespace m4dModels
             }
 
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving Changes");
-            await SaveChanges();
+            _ = await SaveChanges();
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting LoadSearches");
         }
 
@@ -337,7 +333,7 @@ namespace m4dModels
 
                 if (search == null)
                 {
-                    Searches.Add(newSearch);
+                    _ = Searches.Add(newSearch);
                 }
                 else
                 {
@@ -371,7 +367,7 @@ namespace m4dModels
                         continue;
                     }
 
-                    Searches.Add(search);
+                    _ = Searches.Add(search);
                 }
             }
             finally
@@ -444,7 +440,7 @@ namespace m4dModels
                     {
                         Id = cells[0]
                     };
-                    Dances.Add(d);
+                    _ = Dances.Add(d);
                     modified = true;
                 }
 
@@ -455,7 +451,7 @@ namespace m4dModels
             if (modified)
             {
                 Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving Changes");
-                await SaveChanges();
+                _ = await SaveChanges();
             }
 
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting Dances");
@@ -484,7 +480,7 @@ namespace m4dModels
                     {
                         if (ttOld.Key != key)
                         {
-                            TagGroups.Remove(ttOld);
+                            _ = TagGroups.Remove(ttOld);
                             ttOld = null;
                         }
                     }
@@ -537,7 +533,7 @@ namespace m4dModels
             }
 
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving Changes");
-            await SaveChanges();
+            _ = await SaveChanges();
 
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting LoadTags");
         }
@@ -582,7 +578,7 @@ namespace m4dModels
                 var userId = cells[0];
 
                 // This is a special case for SongFromSpotify [m4did,DanceTags,url]
-                if ((cells.Length == 3 || cells.Length == 4))
+                if ((cells.Length is 3 or 4))
                 {
                     var r = new Regex(
                         @"https://open.spotify.com/(user/(?<user>[a-z0-9-]*)/)?playlist/(?<id>[a-z0-9]*)",
@@ -596,7 +592,7 @@ namespace m4dModels
                     id = m.Groups["id"].Value;
                     var email = cells.Length == 4 ? cells[3] : m.Groups["user"].Value;
 
-                    await FindOrAddUser(userId, PseudoRole, email + "@spotify.com");
+                    _ = await FindOrAddUser(userId, PseudoRole, email + "@spotify.com");
                     data1 = cells[1];
                 }
                 else
@@ -659,11 +655,11 @@ namespace m4dModels
 
                 if (isNew)
                 {
-                    PlayLists.Add(playlist);
+                    _ = PlayLists.Add(playlist);
                 }
             }
 
-            await SaveChanges();
+            _ = await SaveChanges();
             Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting LoadPlaylists");
         }
 
@@ -719,7 +715,7 @@ namespace m4dModels
                     var user = await FindOrAddUser(up != null ? up.Value : "batch", EditRole);
 
                     song = SongIndex.CreateSong(sd.SongId);
-                    await SongIndex.UpdateSong(user, song, sd);
+                    _ = await SongIndex.UpdateSong(user, song, sd);
 
                     // This was a merge so delete the input songs
                     if (sd.SongProperties.Count > 0 &&
@@ -742,7 +738,7 @@ namespace m4dModels
                     }
                     else
                     {
-                        await SongIndex.UpdateSong(user, song, sd);
+                        _ = await SongIndex.UpdateSong(user, song, sd);
                     }
                 }
 
@@ -787,7 +783,7 @@ namespace m4dModels
 
                 AdminMonitor.UpdateTask("UpdateSongs", c);
 
-                await SongIndex.AdminEditSong(line);
+                _ = await SongIndex.AdminEditSong(line);
 
                 c += 1;
                 if (c % 100 == 0)
@@ -814,7 +810,7 @@ namespace m4dModels
                                   where dance == null
                                   select new Dance { Id = d.Id })
             {
-                Context.Dances.Add(dance);
+                _ = Context.Dances.Add(dance);
             }
 
             foreach (var dance in from d in dances.AllDanceTypes
@@ -822,13 +818,13 @@ namespace m4dModels
                                   where dance == null
                                   select new Dance { Id = d.Id })
             {
-                Context.Dances.Add(dance);
+                _ = Context.Dances.Add(dance);
             }
         }
 
         private async Task LoadDances()
         {
-            await Context.LoadDances();
+            _ = await Context.LoadDances();
         }
 
         #endregion
@@ -1071,7 +1067,7 @@ namespace m4dModels
                     prop.Value = userName;
                 }
 
-                await song.AdminEdit(props, this);
+                _ = await song.AdminEdit(props, this);
             }
 
             await SongIndex.SaveSongs(songs);
@@ -1083,7 +1079,7 @@ namespace m4dModels
             user.Email = email;
             user.EmailConfirmed = true;
             user.Privacy = 255;
-            await Context.SaveChangesAsync();
+            _ = await Context.SaveChangesAsync();
             return user;
         }
 
@@ -1106,7 +1102,7 @@ namespace m4dModels
                 UserManager.AddToRoleAsync(user, role).Wait();
             }
 
-            _roleCache.Add(key);
+            _ = _roleCache.Add(key);
         }
 
         private readonly HashSet<string> _roleCache = [];

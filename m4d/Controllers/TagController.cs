@@ -1,6 +1,4 @@
-﻿using System.Net;
-
-using m4d.Services;
+﻿using m4d.Services;
 using m4d.ViewModels;
 
 using m4dModels;
@@ -11,6 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.FeatureManagement;
+
+using System.Net;
 
 namespace m4d.Controllers;
 
@@ -161,8 +161,8 @@ public class TagController : DanceMusicController
             return StatusCode((int)HttpStatusCode.NotAcceptable);
         }
         Database.DanceStats.TagManager.DeleteTagGroup(tagGroup.Key);
-        Database.TagGroups.Remove(tagGroup);
-        await Database.SaveChanges();
+        _ = Database.TagGroups.Remove(tagGroup);
+        _ = await Database.SaveChanges();
 
         return RedirectToAction("List");
     }
@@ -179,7 +179,7 @@ public class TagController : DanceMusicController
         {
             Database.Context.RemoveRange(delete);
         }
-        await Database.SaveChanges();
+        _ = await Database.SaveChanges();
 
         return RedirectToAction("List");
     }

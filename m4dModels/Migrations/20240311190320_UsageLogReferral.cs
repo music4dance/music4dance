@@ -10,7 +10,7 @@ namespace m4dModels.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
+            _ = migrationBuilder.AddColumn<string>(
                 name: "Referrer",
                 table: "UsageLog",
                 type: "nvarchar(1024)",
@@ -21,7 +21,7 @@ namespace m4dModels.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
+            _ = migrationBuilder.DropColumn(
                 name: "Referrer",
                 table: "UsageLog");
         }

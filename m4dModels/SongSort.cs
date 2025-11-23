@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 
 namespace m4dModels
 {
@@ -115,7 +112,7 @@ namespace m4dModels
                 }
 
                 var desc = Descending;
-                if (Id == Modified || Id == Created || Id == Edited)
+                if (Id is Modified or Created or Edited)
                 {
                     desc = !desc;
                 }
@@ -135,74 +132,38 @@ namespace m4dModels
                 }
 
                 var ret = new System.Text.StringBuilder();
-                ret.AppendFormat(" Sorted by {0} from ", FriendlyName);
+                _ = ret.AppendFormat(" Sorted by {0} from ", FriendlyName);
 
                 if (!Descending)
                 {
-                    switch (Id)
+                    _ = Id switch
                     {
-                        case Tempo:
-                            ret.Append("slowest to fastest");
-                            break;
-                        case Length:
-                            ret.Append("shortest to longest");
-                            break;
-                        case Modified:
-                        case Created:
-                        case Comments:
-                            ret.Append("newest to oldest");
-                            break;
-                        case Dances:
-                            ret.Append("most popular to least popular");
-                            break;
-                        case Beat:
-                            ret.Append("weakest to strongest");
-                            break;
-                        case Mood:
-                            ret.Append("saddest to happiest");
-                            break;
-                        case Energy:
-                            ret.Append("lowest to highest");
-                            break;
-                        default:
-                            ret.Append("A to Z");
-                            break;
-                    }
+                        Tempo => ret.Append("slowest to fastest"),
+                        Length => ret.Append("shortest to longest"),
+                        Modified or Created or Comments => ret.Append("newest to oldest"),
+                        Dances => ret.Append("most popular to least popular"),
+                        Beat => ret.Append("weakest to strongest"),
+                        Mood => ret.Append("saddest to happiest"),
+                        Energy => ret.Append("lowest to highest"),
+                        _ => ret.Append("A to Z"),
+                    };
                 }
                 else
                 {
-                    switch (Id)
+                    _ = Id switch
                     {
-                        case Tempo:
-                            ret.Append("fastest to slowest");
-                            break;
-                        case Length:
-                            ret.Append("longest to shortest");
-                            break;
-                        case Modified:
-                        case Created:
-                        case Comments:
-                            ret.Append("oldest to newest");
-                            break;
-                        case Dances:
-                            ret.Append("most popular to least popular");
-                            break;
-                        case Beat:
-                            ret.Append("strongest to weakest");
-                            break;
-                        case Mood:
-                            ret.Append("happiest to saddest");
-                            break;
-                        case Energy:
-                            ret.Append("highest to lowest");
-                            break;
-                        default:
-                            ret.Append("Z to A");
-                            break;
-                    }
+                        Tempo => ret.Append("fastest to slowest"),
+                        Length => ret.Append("longest to shortest"),
+                        Modified or Created or Comments => ret.Append("oldest to newest"),
+                        Dances => ret.Append("most popular to least popular"),
+                        Beat => ret.Append("strongest to weakest"),
+                        Mood => ret.Append("happiest to saddest"),
+                        Energy => ret.Append("highest to lowest"),
+                        _ => ret.Append("Z to A"),
+                    };
                 }
 
-                ret.Append('.');
+                _ = ret.Append('.');
                 return ret.ToString();
             }
         }

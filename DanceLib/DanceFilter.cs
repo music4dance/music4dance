@@ -1,7 +1,4 @@
-﻿using Newtonsoft.Json;
-using System.Text;
-
-namespace DanceLibrary
+﻿namespace DanceLibrary
 {
     public class DanceFilter(
         IEnumerable<string> styles = null, IEnumerable<string> organizations = null,

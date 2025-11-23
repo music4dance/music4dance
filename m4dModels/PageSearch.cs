@@ -1,6 +1,4 @@
-﻿using System;
-
-using Azure.Search.Documents.Indexes;
+﻿using Azure.Search.Documents.Indexes;
 
 namespace m4dModels
 {
