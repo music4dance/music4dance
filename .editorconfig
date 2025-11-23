@@ -30,7 +30,7 @@ indent_size=4
 tab_width=4
 
 [*.{appxmanifest,axml,build,config,csproj,dbml,discomap,dtd,json,jsproj,lsproj,njsproj,nuspec,proj,props,resjson,resw,resx,StyleCop,targets,tasks,vbproj,xml,xsd}]
-indent_style=spacedont_net
+indent_style=space
 indent_size=2
 tab_width=2
 
