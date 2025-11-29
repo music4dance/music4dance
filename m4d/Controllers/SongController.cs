@@ -907,7 +907,7 @@ public class SongController : ContentController
 
         var subscriptionLevel = _spotifyAuthService.GetSubscriptionLevel(applicationUser);
         var isPremium = _spotifyAuthService.IsPremium(User);
-        
+
         return View(
             new SpotifyCreateInfo
             {

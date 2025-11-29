@@ -44,7 +44,7 @@ public class SpotifyAuthService
     public bool IsPremium(ClaimsPrincipal user)
     {
         if (user == null) return false;
-        return user.IsInRole(DanceMusicCoreService.PremiumRole) || 
+        return user.IsInRole(DanceMusicCoreService.PremiumRole) ||
                user.IsInRole(DanceMusicCoreService.TrialRole);
     }
 
@@ -109,8 +109,8 @@ public class SpotifyAuthService
     /// <param name="authResult">The authentication result from HttpContext</param>
     /// <returns>Validation result with success status and error message if applicable</returns>
     public async Task<SpotifyAuthValidationResult> ValidateSpotifyAccess(
-        ClaimsPrincipal user, 
-        ApplicationUser? applicationUser, 
+        ClaimsPrincipal user,
+        ApplicationUser? applicationUser,
         AuthenticateResult authResult)
     {
         // Check authentication
@@ -151,16 +151,16 @@ public class SpotifyAuthValidationResult
         ErrorMessage = errorMessage;
     }
 
-    public static SpotifyAuthValidationResult Success() => 
+    public static SpotifyAuthValidationResult Success() =>
         new(true, SpotifyAuthErrorType.None);
 
-    public static SpotifyAuthValidationResult Unauthenticated() => 
+    public static SpotifyAuthValidationResult Unauthenticated() =>
         new(false, SpotifyAuthErrorType.Unauthenticated, "User is not authenticated");
 
-    public static SpotifyAuthValidationResult NotPremium() => 
+    public static SpotifyAuthValidationResult NotPremium() =>
         new(false, SpotifyAuthErrorType.NotPremium, "Premium subscription required");
 
-    public static SpotifyAuthValidationResult NoSpotifyOAuth() => 
+    public static SpotifyAuthValidationResult NoSpotifyOAuth() =>
         new(false, SpotifyAuthErrorType.NoSpotifyOAuth, "Spotify account not connected");
 }
 

@@ -20,7 +20,7 @@ public class SpotifyAuthServiceTests
     public void Setup()
     {
         _mockConfiguration = new Mock<IConfiguration>();
-        
+
         // Setup UserManager mock (requires complex setup due to constructor)
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type
         var userStoreMock = new Mock<IUserStore<ApplicationUser>>();
@@ -41,7 +41,7 @@ public class SpotifyAuthServiceTests
         var userManager = new Mock<UserManager<ApplicationUser>>(
             userStoreMock.Object, null, null, null, null, null, null, null, null).Object;
 #pragma warning restore CS8625
-        
+
         Assert.ThrowsExactly<ArgumentNullException>(() => new SpotifyAuthService(null!, userManager));
     }
 
@@ -93,7 +93,7 @@ public class SpotifyAuthServiceTests
         var claims = new List<Claim>();
         var identity = new ClaimsIdentity(claims, "Test");
         var user = new ClaimsPrincipal(identity);
-        
+
         var result = _service.IsPremium(user);
         Assert.IsFalse(result);
     }
@@ -286,10 +286,10 @@ public class SpotifyAuthServiceTests
     [TestMethod]
     public void GetSubscriptionLevel_UserWithGoldLevel_ReturnsGold()
     {
-        var user = new ApplicationUser 
-        { 
+        var user = new ApplicationUser
+        {
             UserName = "testuser",
-            SubscriptionLevel = SubscriptionLevel.Gold 
+            SubscriptionLevel = SubscriptionLevel.Gold
         };
 
         var result = _service.GetSubscriptionLevel(user);
@@ -299,10 +299,10 @@ public class SpotifyAuthServiceTests
     [TestMethod]
     public void GetSubscriptionLevel_UserWithTrialLevel_ReturnsTrial()
     {
-        var user = new ApplicationUser 
-        { 
+        var user = new ApplicationUser
+        {
             UserName = "testuser",
-            SubscriptionLevel = SubscriptionLevel.Trial 
+            SubscriptionLevel = SubscriptionLevel.Trial
         };
 
         var result = _service.GetSubscriptionLevel(user);
@@ -312,10 +312,10 @@ public class SpotifyAuthServiceTests
     [TestMethod]
     public void GetSubscriptionLevel_UserWithNoneLevel_ReturnsNone()
     {
-        var user = new ApplicationUser 
-        { 
+        var user = new ApplicationUser
+        {
             UserName = "testuser",
-            SubscriptionLevel = SubscriptionLevel.None 
+            SubscriptionLevel = SubscriptionLevel.None
         };
 
         var result = _service.GetSubscriptionLevel(user);
