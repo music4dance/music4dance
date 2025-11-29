@@ -26,15 +26,18 @@ namespace m4d.Controllers;
 public class SongController : ContentController
 {
     private static readonly HttpClient HttpClient = new();
+    private readonly SpotifyAuthService _spotifyAuthService;
 
     public SongController(
         DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
         IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-        IFeatureManagerSnapshot featureManager, ILogger<SongController> logger, LinkGenerator linkGenerator, IMapper mapper) :
+        IFeatureManagerSnapshot featureManager, ILogger<SongController> logger, LinkGenerator linkGenerator, IMapper mapper,
+        SpotifyAuthService spotifyAuthService) :
         base(context, userManager, searchService, danceStatsManager, configuration,
             fileProvider, backroundTaskQueue, featureManager, logger, linkGenerator, mapper)
     {
+        _spotifyAuthService = spotifyAuthService ?? throw new ArgumentNullException(nameof(spotifyAuthService));
         UseVue = UseVue.V3;
         HelpPage = "song-list";
     }
@@ -888,21 +891,23 @@ public class SongController : ContentController
         UseVue = UseVue.No;
         HelpPage = "spotify-playlist";
 
-        var canSpotify = await CanSpotify();
+        var authResult = await HttpContext.AuthenticateAsync();
+        var canSpotify = await _spotifyAuthService.CanSpotify(User, authResult);
 
         var applicationUser = await GetApplicationUser();
         if (!canSpotify && applicationUser != null)
         {
-            var logins = await UserManager.GetLoginsAsync(applicationUser);
-            if (logins.Any(l => l.LoginProvider == "Spotify"))
+            if (await _spotifyAuthService.HasSpotifyLogin(applicationUser))
             {
                 var returnUrl = Request.Path + Request.QueryString;
-                var redirectUrl = $"/Identity/Account/Login?provider=Spotify&returnUrl={returnUrl}";
+                var redirectUrl = _spotifyAuthService.GetSpotifyOAuthRedirectUrl(returnUrl);
                 return LocalRedirect(redirectUrl);
             }
         }
 
-        var subscriptionLevel = await GetSubscriptionLevel();
+        var subscriptionLevel = _spotifyAuthService.GetSubscriptionLevel(applicationUser);
+        var isPremium = _spotifyAuthService.IsPremium(User);
+        
         return View(
             new SpotifyCreateInfo
             {
@@ -915,17 +920,16 @@ public class SongController : ContentController
                 Count = 25,
                 Filter = Filter.ToString(),
                 IsAuthenticated = User.Identity?.IsAuthenticated ?? false,
-                IsPremium = User.IsInRole("premium") || User.IsInRole("trial"),
+                IsPremium = isPremium,
                 SubscriptionLevel = subscriptionLevel,
                 CanSpotify = canSpotify,
                 PageWarning = (Filter.Page.HasValue && Filter.Page > 1 && subscriptionLevel < SubscriptionLevel.Silver)
             });
     }
 
-    private async Task<bool> CanSpotify() => await AdmAuthentication.HasAccess(
-            Configuration, ServiceType.Spotify, User, await HttpContext.AuthenticateAsync());
+    private async Task<bool> CanSpotify() => await _spotifyAuthService.CanSpotify(User, await HttpContext.AuthenticateAsync());
 
-    private async Task<SubscriptionLevel> GetSubscriptionLevel() => (await GetApplicationUser())?.SubscriptionLevel ?? SubscriptionLevel.None;
+    private async Task<SubscriptionLevel> GetSubscriptionLevel() => _spotifyAuthService.GetSubscriptionLevel(await GetApplicationUser());
 
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -934,12 +938,14 @@ public class SongController : ContentController
         SpotifyCreateInfo info)
     {
         UseVue = UseVue.No;
-        var canSpotify = await CanSpotify();
+        var authResult = await HttpContext.AuthenticateAsync();
+        var canSpotify = await _spotifyAuthService.CanSpotify(User, authResult);
+        var applicationUser = await GetApplicationUser();
 
         info.IsAuthenticated = User.Identity?.IsAuthenticated ?? false;
-        info.IsPremium = User.IsInRole("premium") || User.IsInRole("trial");
+        info.IsPremium = _spotifyAuthService.IsPremium(User);
         info.CanSpotify = canSpotify;
-        info.SubscriptionLevel = await GetSubscriptionLevel();
+        info.SubscriptionLevel = _spotifyAuthService.GetSubscriptionLevel(applicationUser);
 
         var page = (Filter.Page.HasValue && Filter.Page > 1 && info.SubscriptionLevel < SubscriptionLevel.Silver) ? null : Filter.Page;
 
@@ -980,8 +986,9 @@ public class SongController : ContentController
             var search = new SongSearch(filter, UserName, true, SongIndex, UserManager, TaskQueue);
 
             var service = MusicService.GetService(ServiceType.Spotify);
+            var loginKey = await _spotifyAuthService.GetSpotifyLoginKey(User.Identity?.Name);
             metadata = await MusicServiceManager.CreatePlaylist(
-                service, User, await GetLoginKey("Spotify"), info.Title,
+                service, User, loginKey, info.Title,
                 $"{info.DescriptionPrefix} {filter.Description}", fileProvider);
 
             Logger.LogInformation($"CreateSpotify: {LogMetaData(metadata)}");

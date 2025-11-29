@@ -245,6 +245,8 @@ var appRoot = environment.WebRootPath;
 services.AddSingleton<ISearchServiceManager, SearchServiceManager>();
 services.AddSingleton<IDanceStatsManager>(new DanceStatsManager(new DanceStatsFileManager(appRoot)));
 
+services.AddScoped<m4d.Services.SpotifyAuthService>();
+
 services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
 services.AddHostedService<BackgroundQueueHostedService>();
 
