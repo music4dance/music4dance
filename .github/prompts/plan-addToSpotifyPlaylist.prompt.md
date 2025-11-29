@@ -47,6 +47,7 @@ public class SpotifyPlaylistController : DanceMusicApiController
 ```
 
 **Implementation Details**:
+
 - Use `AdmAuthentication.HasAccess()` to verify Spotify OAuth (pattern from `SongController.CanSpotify()`)
 - Check premium status: `User.IsInRole(DanceMusicCoreService.PremiumRole) || User.IsInRole(DanceMusicCoreService.TrialRole)`
 - Return HTTP 402 (Payment Required) for non-premium users with marketing message
@@ -95,16 +96,18 @@ public static async Task<List<PlaylistMetadata>> GetUserPlaylists(
 **Location**: `m4d/ClientApp/src/components/AddToPlaylistButton.vue`
 
 **Props**:
+
 ```typescript
 interface Props {
-  song: Song;           // Song to add
-  variant?: string;     // Button variant (default: "outline-primary")
-  size?: string;        // Button size (default: "sm")
-  showText?: boolean;   // Show button text vs icon-only (default: true)
+  song: Song; // Song to add
+  variant?: string; // Button variant (default: "outline-primary")
+  size?: string; // Button size (default: "sm")
+  showText?: boolean; // Show button text vs icon-only (default: true)
 }
 ```
 
 **State Management**:
+
 ```typescript
 const playlists = ref<PlaylistMetadata[]>([]);
 const loading = ref(false);
@@ -114,6 +117,7 @@ const playlistsCached = ref(false);
 ```
 
 **Key Methods**:
+
 - `fetchPlaylists()`: Lazy-load playlists on first click, cache client-side
 - `addToPlaylist(playlistId)`: Call backend API, show toast notification
 - `handleAuthError()`: Redirect to login with return URL
@@ -121,6 +125,7 @@ const playlistsCached = ref(false);
 - `handleSpotifyError()`: Redirect to external logins page
 
 **UI Pattern**:
+
 ```vue
 <BDropdown>
   <template #button-content>
@@ -137,6 +142,7 @@ const playlistsCached = ref(false);
 ```
 
 **Error Handling**:
+
 - 401 Unauthorized → Redirect to `/identity/account/login?returnUrl={current}`
 - 402 Payment Required → Show premium upgrade modal with link to `/home/contribute`
 - 403 Forbidden (no Spotify) → Redirect to `/identity/account/manage/externallogins?returnUrl={current}`
@@ -144,6 +150,7 @@ const playlistsCached = ref(false);
 - 500 Server Error → Toast: "Unable to add to playlist. Please try again."
 
 **Toast Notifications**:
+
 - Success: "Added '{song.title}' to '{playlist.name}'"
 - Error: Specific error message based on response
 
@@ -152,13 +159,15 @@ const playlistsCached = ref(false);
 **Location**: `m4d/ClientApp/src/components/PremiumRequiredModal.vue`
 
 **Props**:
+
 ```typescript
 interface Props {
-  featureName: string;  // "Add to Spotify Playlist"
+  featureName: string; // "Add to Spotify Playlist"
 }
 ```
 
 **Content** (based on `RequiresPremium.cshtml`):
+
 - Marketing message about premium benefits
 - Link to `/home/contribute` subscription page
 - Link to feature documentation on blog
@@ -171,6 +180,7 @@ interface Props {
 **File**: `m4d/ClientApp/src/components/PlayModal.vue`
 
 **Changes**:
+
 ```vue
 <template>
   <BModal>
@@ -201,6 +211,7 @@ const hasSpotifyTrack = computed(() => {
 **File**: `m4d/ClientApp/src/pages/song-details/components/PurchaseSection.vue`
 
 **Changes**:
+
 ```vue
 <template>
   <div class="purchase-section">
@@ -213,11 +224,7 @@ const hasSpotifyTrack = computed(() => {
 
     <!-- NEW: Add to Playlist button -->
     <div v-if="hasSpotifyTrack" class="mt-2">
-      <AddToPlaylistButton
-        :song="song"
-        :variant="'primary'"
-        :size="'md'"
-      />
+      <AddToPlaylistButton :song="song" :variant="'primary'" :size="'md'" />
     </div>
   </div>
 </template>
@@ -233,12 +240,12 @@ const hasSpotifyTrack = computed(() => {
 
 #### User States & Handling
 
-| State | Check | Action | UI Feedback |
-|-------|-------|--------|-------------|
-| **Not logged in** | `!menuContext.isAuthenticated` | Redirect to `/identity/account/login?returnUrl={url}` | Show login prompt |
-| **Not premium** | `!menuContext.isPremium` | Show `PremiumRequiredModal` | Marketing modal with upgrade link |
-| **No Spotify login** | Backend returns 403 | Redirect to `/identity/account/manage/externallogins?returnUrl={url}` | Link to external logins |
-| **All checks pass** | Backend returns 200 | Execute add to playlist | Success toast |
+| State                | Check                          | Action                                                                | UI Feedback                       |
+| -------------------- | ------------------------------ | --------------------------------------------------------------------- | --------------------------------- |
+| **Not logged in**    | `!menuContext.isAuthenticated` | Redirect to `/identity/account/login?returnUrl={url}`                 | Show login prompt                 |
+| **Not premium**      | `!menuContext.isPremium`       | Show `PremiumRequiredModal`                                           | Marketing modal with upgrade link |
+| **No Spotify login** | Backend returns 403            | Redirect to `/identity/account/manage/externallogins?returnUrl={url}` | Link to external logins           |
+| **All checks pass**  | Backend returns 200            | Execute add to playlist                                               | Success toast                     |
 
 #### Backend Validation Sequence
 
@@ -313,38 +320,95 @@ Show toast notification
 
 ## Implementation Steps
 
+### Phase 0: Refactoring & Test Coverage (Foundation)
+
+**Goal**: Extract reusable Spotify logic from `CreateSpotify` and establish test coverage before adding new features.
+
+1. **Extract Spotify Authentication & Validation Helper** (`m4d/Services/SpotifyAuthService.cs`)
+
+   - [ ] Create `SpotifyAuthService` class with dependency injection
+   - [ ] Extract `CanSpotify()` logic from `SongController`
+   - [ ] Extract premium validation logic
+   - [ ] Extract Spotify OAuth redirect logic
+   - [ ] Add method to get login key for Spotify
+   - [ ] Add XML documentation for all public methods
+
+2. **Add Unit Tests for SpotifyAuthService** (`m4d.Tests/Services/SpotifyAuthServiceTests.cs`)
+
+   - [ ] Test `CanSpotify()` returns true when user has Spotify OAuth
+   - [ ] Test `CanSpotify()` returns false when no OAuth
+   - [ ] Test premium validation with different role combinations
+   - [ ] Test OAuth redirect URL construction
+   - [ ] Mock `AdmAuthentication`, `UserManager`, and `HttpContext`
+
+3. **Add Unit Tests for MusicServiceManager** (`m4dModels.Tests/MusicServiceManagerTests.cs`)
+
+   - [ ] Test `CreatePlaylist()` with valid inputs
+   - [ ] Test `AddToPlaylist()` with single track (POST method)
+   - [ ] Test `SetPlaylistTracks()` with multiple tracks
+   - [ ] Test error handling for Spotify API failures
+   - [ ] Mock Spotify API responses
+   - [ ] Test pagination handling for large track lists
+
+4. **Refactor SongController.CreateSpotify** to use new services
+
+   - [ ] Replace inline `CanSpotify()` with `SpotifyAuthService.CanSpotify()`
+   - [ ] Replace inline premium check with `SpotifyAuthService.IsPremium()`
+   - [ ] Replace OAuth redirect logic with `SpotifyAuthService.GetSpotifyOAuthRedirect()`
+   - [ ] Verify existing CreateSpotify functionality still works
+   - [ ] Run regression tests
+
+5. **Document Refactored Code**
+   - [ ] Add XML comments to `SpotifyAuthService`
+   - [ ] Document MusicServiceManager Spotify methods
+   - [ ] Update inline comments in `SongController.CreateSpotify()`
+
+**Success Criteria for Phase 0**:
+
+- [ ] All CreateSpotify functionality preserved (no regressions)
+- [ ] SpotifyAuthService under test with >80% coverage
+- [ ] MusicServiceManager Spotify methods under test with >80% coverage
+- [ ] New service can be reused by Phase 1 API controller
+
 ### Phase 1: Backend Infrastructure
 
 1. **Create data models** (`m4dModels`)
+
    - [ ] `AddToPlaylistRequest.cs`
    - [ ] `AddToPlaylistResult.cs`
    - [ ] Update `PlaylistMetadata` if needed
 
 2. **Enhance MusicServiceManager** (`m4dModels/MusicServiceManager.cs`)
+
    - [ ] Add `GetUserPlaylists()` method
-   - [ ] Test with Spotify API
+   - [ ] Add unit tests for `GetUserPlaylists()`
+   - [ ] Test with Spotify API (integration test)
    - [ ] Handle pagination if user has >50 playlists
 
 3. **Create API controller** (`m4d/APIControllers/SpotifyPlaylistController.cs`)
-   - [ ] Implement `GetUserPlaylists` endpoint
-   - [ ] Implement `AddTrackToPlaylist` endpoint
+
+   - [ ] Inject `SpotifyAuthService` (from Phase 0)
+   - [ ] Implement `GetUserPlaylists` endpoint using `SpotifyAuthService`
+   - [ ] Implement `AddTrackToPlaylist` endpoint using `SpotifyAuthService`
    - [ ] Add proper error handling and logging
    - [ ] Add activity logging for tracking
 
 4. **Testing**
-   - [ ] Unit tests for controller methods
+   - [ ] Unit tests for controller methods (using mocked `SpotifyAuthService`)
    - [ ] Integration tests with mock Spotify API
    - [ ] Test all auth/permission scenarios
 
 ### Phase 2: Frontend Components
 
 1. **Create PremiumRequiredModal** (`components/PremiumRequiredModal.vue`)
+
    - [ ] Implement modal with marketing content
    - [ ] Add props for feature name
    - [ ] Link to contribute page
    - [ ] Add unit tests
 
 2. **Create AddToPlaylistButton** (`components/AddToPlaylistButton.vue`)
+
    - [ ] Implement button/dropdown UI
    - [ ] Add lazy playlist loading
    - [ ] Implement client-side caching
@@ -363,12 +427,14 @@ Show toast notification
 ### Phase 3: Integration
 
 1. **Integrate into PlayModal** (`components/PlayModal.vue`)
+
    - [ ] Import AddToPlaylistButton
    - [ ] Add conditional rendering based on Spotify track availability
    - [ ] Position between purchase links and audio player
    - [ ] Test in modal context
 
 2. **Integrate into PurchaseSection** (`pages/song-details/components/PurchaseSection.vue`)
+
    - [ ] Import AddToPlaylistButton
    - [ ] Add to UI layout
    - [ ] Ensure consistent styling
@@ -383,11 +449,13 @@ Show toast notification
 ### Phase 4: Documentation & Polish
 
 1. **User Documentation**
+
    - [ ] Update help docs on blog
    - [ ] Add feature to premium benefits list
    - [ ] Screenshot examples
 
 2. **Code Documentation**
+
    - [ ] Add XML comments to backend methods
    - [ ] Add JSDoc comments to Vue components
    - [ ] Update README if needed
@@ -405,6 +473,7 @@ Show toast notification
 The following patterns/methods can be reused from the existing `CreateSpotify` implementation:
 
 1. **Authentication checks**:
+
    ```csharp
    // From SongController.cs line 926
    private async Task<bool> CanSpotify() =>
@@ -414,12 +483,14 @@ The following patterns/methods can be reused from the existing `CreateSpotify` i
    ```
 
 2. **Premium validation**:
+
    ```csharp
    // From SongController.cs line 941
    info.IsPremium = User.IsInRole("premium") || User.IsInRole("trial");
    ```
 
 3. **Spotify OAuth redirect**:
+
    ```csharp
    // From SongController.cs line 894-900
    var logins = await UserManager.GetLoginsAsync(applicationUser);
@@ -432,6 +503,7 @@ The following patterns/methods can be reused from the existing `CreateSpotify` i
    ```
 
 4. **MusicServiceManager usage**:
+
    ```csharp
    // From SongController.cs line 986-989
    var service = MusicService.GetService(ServiceType.Spotify);
@@ -458,7 +530,7 @@ The following patterns/methods can be reused from the existing `CreateSpotify` i
 
 ```typescript
 // In AddToPlaylistButton.vue
-const CACHE_KEY = 'spotify_playlists';
+const CACHE_KEY = "spotify_playlists";
 const CACHE_DURATION = 1000 * 60 * 15; // 15 minutes
 
 interface CachedPlaylists {
@@ -487,34 +559,39 @@ const saveToCache = (playlists: PlaylistMetadata[]) => {
   const data: CachedPlaylists = {
     playlists,
     timestamp: Date.now(),
-    userId: menuContext.userId!
+    userId: menuContext.userId!,
   };
   localStorage.setItem(CACHE_KEY, JSON.stringify(data));
 };
 ```
 
 **Benefits**:
+
 - Reduces API calls (rate limiting consideration)
 - Faster UX (no loading spinner on subsequent uses)
 - Works offline-first for recently-loaded data
 
 **Limitations**:
+
 - May show stale data if user creates playlist elsewhere
 - Solution: Manual refresh button in dropdown
 
 ### Future Enhancements (Out of Scope)
 
 1. **Batch operations** from `SongTable`
+
    - Select multiple songs in search results
    - Add all selected to playlist in one operation
    - Requires UI for multi-select and batch API endpoint
 
 2. **Create new playlist** option in dropdown
+
    - Add "Create New Playlist" option in dropdown
    - Inline form to create playlist and add song
    - Requires additional API endpoint
 
 3. **Recently used playlists** quick-add
+
    - Track user's most-used playlists
    - Show shortcut buttons for top 3
    - Store in localStorage or user preferences
@@ -602,13 +679,13 @@ const saveToCache = (playlists: PlaylistMetadata[]) => {
 
 ## Risk Mitigation
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Spotify API rate limiting | High | Implement client-side caching, user rate limiting |
-| OAuth token expiration | Medium | Handle 401 responses, redirect to re-auth |
-| User has too many playlists | Low | Implement pagination or search in dropdown |
-| Song missing Spotify ID | Low | Hide button when no Spotify track available |
-| Network errors during add | Medium | Retry logic, clear error messages |
+| Risk                        | Impact | Mitigation                                        |
+| --------------------------- | ------ | ------------------------------------------------- |
+| Spotify API rate limiting   | High   | Implement client-side caching, user rate limiting |
+| OAuth token expiration      | Medium | Handle 401 responses, redirect to re-auth         |
+| User has too many playlists | Low    | Implement pagination or search in dropdown        |
+| Song missing Spotify ID     | Low    | Hide button when no Spotify track available       |
+| Network errors during add   | Medium | Retry logic, clear error messages                 |
 
 ## References
 
