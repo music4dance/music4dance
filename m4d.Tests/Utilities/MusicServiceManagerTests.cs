@@ -199,6 +199,8 @@ public class MusicServiceManagerTests
     // - CreatePlaylist (requires HttpClient mock, Spotify API responses)
     // - SetPlaylistTracks (requires HttpClient mock, Spotify API responses)
     // - GetPlaylists (requires HttpClient mock, Spotify API responses)
+    // - GetUserPlaylists (requires HttpClient mock, Spotify API responses) - Phase 1
+    // - AddTrackToPlaylist (requires HttpClient mock, Spotify API responses) - Phase 1
     // - LookupPlaylist (requires HttpClient mock, Spotify API responses)
     // - GetMusicServiceResults (requires HttpClient mock)
     // - MusicServiceAction (requires HttpClient mock)
