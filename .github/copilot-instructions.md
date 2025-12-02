@@ -90,6 +90,13 @@ music4dance.net is a sophisticated web application designed to help dancers find
   - Test happy path and edge cases (empty arrays, single items, duplicates)
   - Test error conditions (invalid IDs, undefined values)
   - Co-locate tests in `__tests__/` folders next to source files
+- **Icons**: Use unplugin-icons for icon components
+  - Icons auto-import as Vue components: `<IBi{IconName} />`
+  - Example: `<IBiCheckCircleFill />`, `<IBiCircle />`, `<IBiPencil />`
+  - Add CSS classes for styling: `<IBiCheckCircleFill class="text-success me-2" />`
+  - **NEVER** use `<i class="bi bi-icon-name">` (old Bootstrap Icons pattern)
+  - Icons from `@iconify-json/bi` package (Bootstrap Icons)
+  - No explicit imports needed - unplugin-icons handles auto-import
 
 ### File Organization
 
