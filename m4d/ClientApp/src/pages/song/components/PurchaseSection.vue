@@ -7,6 +7,7 @@ import AddToPlaylistButton from "@/components/AddToPlaylistButton.vue";
 const props = defineProps<{
   purchaseInfos: PurchaseInfo[];
   filter: SongFilter;
+  songId: string;
 }>();
 
 const hasSpotifyTrack = computed(() =>
@@ -24,7 +25,12 @@ const hasSpotifyTrack = computed(() =>
       />
     </span>
     <div v-if="hasSpotifyTrack" class="my-2">
-      <AddToPlaylistButton :purchase-infos="purchaseInfos" variant="primary" size="md" />
+      <AddToPlaylistButton
+        :purchase-infos="purchaseInfos"
+        :song-id="songId"
+        variant="primary"
+        size="md"
+      />
     </div>
     <BButton
       v-if="filter && !filter.isEmpty"

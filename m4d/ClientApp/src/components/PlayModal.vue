@@ -51,7 +51,12 @@ const onHidden = () => {
 
     <!-- Add to Playlist button -->
     <div v-if="hasSpotifyTrack" class="my-3">
-      <AddToPlaylistButton :purchase-infos="purchaseInfo" :show-text="true" variant="primary" />
+      <AddToPlaylistButton
+        :purchase-infos="purchaseInfo"
+        :song-id="song.songId"
+        :show-text="true"
+        variant="primary"
+      />
     </div>
 
     <!-- Audio player -->

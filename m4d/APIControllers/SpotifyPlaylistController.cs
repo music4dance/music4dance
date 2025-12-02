@@ -49,7 +49,7 @@ public class SpotifyPlaylistController : DanceMusicApiController
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status402PaymentRequired)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<ActionResult<IEnumerable<PlaylistMetadata>>> GetUserPlaylists()
+    public async Task<IActionResult> GetUserPlaylists()
     {
         // Validate authentication and authorization
         var authResult = await HttpContext.AuthenticateAsync();
@@ -75,7 +75,7 @@ public class SpotifyPlaylistController : DanceMusicApiController
             var service = MusicService.GetService(ServiceType.Spotify);
             var playlists = await MusicServiceManager.GetUserPlaylists(service, User);
 
-            return Ok(playlists);
+            return JsonCamelCase(playlists);
         }
         catch (Exception ex)
         {
@@ -105,7 +105,7 @@ public class SpotifyPlaylistController : DanceMusicApiController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<AddToPlaylistResult>> AddTrackToPlaylist(
+    public async Task<IActionResult> AddTrackToPlaylist(
         [FromBody] AddToPlaylistRequest request)
     {
         // Validate request
@@ -136,7 +136,12 @@ public class SpotifyPlaylistController : DanceMusicApiController
         try
         {
             // Get the song and validate it has a Spotify track
-            var song = await SongIndex.FindSong(Guid.Parse(request.SongId));
+            if (!Guid.TryParse(request.SongId, out var songGuid))
+            {
+                return BadRequest(AddToPlaylistResult.CreateFailure("Invalid song ID format"));
+            }
+
+            var song = await SongIndex.FindSong(songGuid);
             if (song == null)
             {
                 return NotFound(AddToPlaylistResult.CreateFailure("Song not found"));
@@ -176,7 +181,7 @@ public class SpotifyPlaylistController : DanceMusicApiController
                 _ = await Database.SaveChanges();
             }
 
-            return Ok(AddToPlaylistResult.CreateSuccess(snapshotId));
+            return JsonCamelCase(AddToPlaylistResult.CreateSuccess(snapshotId));
         }
         catch (Exception ex)
         {

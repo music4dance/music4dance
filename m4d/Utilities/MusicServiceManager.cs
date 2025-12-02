@@ -549,7 +549,7 @@ public class MusicServiceManager(IConfiguration configuration)
         var playlists = new List<PlaylistMetadata>();
         var url = "https://api.spotify.com/v1/me/playlists?limit=50";
 
-        while (url != null)
+        while (!string.IsNullOrEmpty(url))
         {
             var results = await GetMusicServiceResults(url, service, principal);
             if (results == null)
@@ -1000,7 +1000,7 @@ public class MusicServiceManager(IConfiguration configuration)
                 return null;
             }
 
-            using var req = new HttpRequestMessage(HttpMethod.Get, request);
+            using var req = new HttpRequestMessage(HttpMethod.Get, new Uri(request));
             req.Headers.Add("Accept", "application/json");
             string auth = null;
             if (service != null)

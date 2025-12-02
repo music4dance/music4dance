@@ -28,6 +28,7 @@ interface AddToPlaylistResult {
 const props = withDefaults(
   defineProps<{
     purchaseInfos: PurchaseInfo[];
+    songId: string;
     variant?: string;
     size?: string;
     showText?: boolean;
@@ -66,7 +67,7 @@ interface CachedPlaylists {
 
 const loadFromCache = (): PlaylistMetadata[] | null => {
   try {
-    const cached = localStorage.getItem(CACHE_KEY);
+    const cached = sessionStorage.getItem(CACHE_KEY);
     if (!cached) return null;
 
     const data: CachedPlaylists = JSON.parse(cached);
@@ -74,14 +75,14 @@ const loadFromCache = (): PlaylistMetadata[] | null => {
 
     // Invalidate if wrong user or too old
     if (data.userId !== menuContext.userId || age > CACHE_DURATION) {
-      localStorage.removeItem(CACHE_KEY);
+      sessionStorage.removeItem(CACHE_KEY);
       return null;
     }
 
     return data.playlists;
   } catch (error) {
     console.error("Error loading playlists from cache:", error);
-    localStorage.removeItem(CACHE_KEY);
+    sessionStorage.removeItem(CACHE_KEY);
     return null;
   }
 };
@@ -95,7 +96,7 @@ const saveToCache = (playlistsToSave: PlaylistMetadata[]) => {
       timestamp: Date.now(),
       userId: menuContext.userId,
     };
-    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
   } catch (error) {
     console.error("Error saving playlists to cache:", error);
   }
@@ -138,7 +139,7 @@ const addToPlaylist = async (playlistId: string, playlistName: string) => {
   loading.value = true;
   try {
     const request: AddToPlaylistRequest = {
-      songId: spotifyInfo.value.songId,
+      songId: props.songId,
       playlistId,
     };
 
@@ -148,6 +149,13 @@ const addToPlaylist = async (playlistId: string, playlistName: string) => {
     );
 
     if (response.data.success) {
+      // Update the playlist count in cache
+      const playlist = playlists.value.find((p) => p.id === playlistId);
+      if (playlist && playlist.count !== undefined) {
+        playlist.count += 1;
+        saveToCache(playlists.value);
+      }
+
       createToast({
         props: {
           title: "Success",
