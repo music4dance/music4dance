@@ -79,6 +79,9 @@ music4dance.net is a sophisticated web application designed to help dancers find
 - **Component Structure**: Single File Components (.vue)
 - **Testing**: Vitest with comprehensive component testing
 - **Naming**: PascalCase for components, camelCase for properties
+- **Line Endings**: ALL files in `m4d/ClientApp/**` MUST use LF (Unix) line endings, not CRLF
+  - This is enforced by `.gitattributes` for Vue.js/Node.js convention
+  - When creating new files in ClientApp, ensure LF line endings
 - **Functional Programming**: Prefer functional/method chaining style over imperative loops
   - Use `map()`, `filter()`, `reduce()`, `sort()` for array operations
   - Example: `items.map(x => x.value).filter(v => v > 0).sort()` instead of for-loops
