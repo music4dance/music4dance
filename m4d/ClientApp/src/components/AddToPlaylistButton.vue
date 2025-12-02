@@ -3,7 +3,7 @@ import { ref, computed } from "vue";
 import { useToast } from "bootstrap-vue-next";
 import { PurchaseInfo, ServiceType } from "@/models/Purchase";
 import { getMenuContext } from "@/helpers/GetMenuContext";
-import PremiumRequiredModal from "./PremiumRequiredModal.vue";
+import SpotifyRequirementsModal from "./SpotifyRequirementsModal.vue";
 
 interface PlaylistMetadata {
   id: string;
@@ -46,7 +46,7 @@ const menuContext = getMenuContext();
 const playlists = ref<PlaylistMetadata[]>([]);
 const loading = ref(false);
 const playlistsCached = ref(false);
-const showPremiumModal = ref(false);
+const showRequirementsModal = ref(false);
 
 const spotifyInfo = computed(() =>
   props.purchaseInfos.find((p) => p.service === ServiceType.Spotify),
@@ -185,24 +185,10 @@ const handleError = async (error: any, context: string) => {
 
   switch (status) {
     case 401: // Unauthorized
-      window.location.href = menuContext.getAccountLink("login");
-      break;
-
     case 402: // Payment Required (not premium)
-      showPremiumModal.value = true;
-      break;
-
     case 403: // Forbidden (no Spotify OAuth)
-      createToast({
-        props: {
-          title: "Spotify Account Required",
-          body: "Please connect your Spotify account to use this feature.",
-          variant: "warning",
-        },
-      });
-      setTimeout(() => {
-        window.location.href = `/identity/account/manage/externallogins?returnUrl=${window.location.pathname}`;
-      }, 2000);
+      // Show requirements modal for all auth-related errors
+      showRequirementsModal.value = true;
       break;
 
     case 404: // Not found (song not on Spotify)
@@ -248,8 +234,8 @@ const refreshPlaylists = async () => {
 <template>
   <div v-if="hasSpotifyTrack" class="d-inline-block">
     <BDropdown
-      :variant="variant"
-      :size="size"
+      :variant="variant as any"
+      :size="size as any"
       text="Add to Playlist"
       :disabled="loading"
       @show="onDropdownShow"
@@ -285,6 +271,12 @@ const refreshPlaylists = async () => {
       <BDropdownItem v-else disabled> No playlists found </BDropdownItem>
     </BDropdown>
 
-    <PremiumRequiredModal v-model="showPremiumModal" feature-name="Add to Spotify Playlist" />
+    <SpotifyRequirementsModal
+      v-model="showRequirementsModal"
+      feature-name="Add to Spotify Playlist"
+      :is-authenticated="menuContext.isAuthenticated"
+      :is-premium="menuContext.isPremium"
+      :has-spotify-o-auth="menuContext.hasRole('canSpotify')"
+    />
   </div>
 </template>

@@ -16,6 +16,7 @@ vi.mock("@/helpers/GetMenuContext", () => ({
     userId: "test-user-123",
     isPremium: true,
     isAuthenticated: true,
+    hasRole: (role: string) => role === "canSpotify", // Mock hasRole to return true for canSpotify
     axiosXsrf: {
       get: vi.fn(),
       post: vi.fn(),
@@ -53,14 +54,14 @@ describe("AddToPlaylistButton.vue", () => {
 
   test("renders button when song has Spotify track", () => {
     const wrapper = mount(AddToPlaylistButton, {
-      props: { purchaseInfos: mockPurchaseInfos },
+      props: { purchaseInfos: mockPurchaseInfos, songId: "test-song-id" },
     });
     expect(wrapper.find(".d-inline-block").exists()).toBe(true);
   });
 
   test("does not render when song has no Spotify track", () => {
     const wrapper = mount(AddToPlaylistButton, {
-      props: { purchaseInfos: [] },
+      props: { purchaseInfos: [], songId: "test-song-id" },
     });
     expect(wrapper.find(".d-inline-block").exists()).toBe(false);
   });
@@ -69,6 +70,7 @@ describe("AddToPlaylistButton.vue", () => {
     const wrapper = mount(AddToPlaylistButton, {
       props: {
         purchaseInfos: mockPurchaseInfos,
+        songId: "test-song-id",
         variant: "primary",
         size: "lg",
       },
@@ -81,6 +83,7 @@ describe("AddToPlaylistButton.vue", () => {
     const wrapperWithText = mount(AddToPlaylistButton, {
       props: {
         purchaseInfos: mockPurchaseInfos,
+        songId: "test-song-id",
         showText: true,
       },
     });
@@ -90,6 +93,7 @@ describe("AddToPlaylistButton.vue", () => {
     const wrapperWithoutText = mount(AddToPlaylistButton, {
       props: {
         purchaseInfos: mockPurchaseInfos,
+        songId: "test-song-id",
         showText: false,
       },
     });
@@ -97,9 +101,9 @@ describe("AddToPlaylistButton.vue", () => {
     expect(wrapperWithoutText.text()).not.toContain("Add to Playlist");
   });
 
-  test("caches playlists in localStorage", () => {
+  test("caches playlists in sessionStorage", () => {
     const wrapper = mount(AddToPlaylistButton, {
-      props: { purchaseInfos: mockPurchaseInfos },
+      props: { purchaseInfos: mockPurchaseInfos, songId: "test-song-id" },
     });
 
     const testPlaylists = [
@@ -112,7 +116,7 @@ describe("AddToPlaylistButton.vue", () => {
       testPlaylists,
     );
 
-    const cached = localStorage.getItem("spotify_playlists");
+    const cached = sessionStorage.getItem("spotify_playlists");
     expect(cached).toBeTruthy();
 
     const parsed = JSON.parse(cached!);
@@ -130,10 +134,10 @@ describe("AddToPlaylistButton.vue", () => {
       userId: "test-user-123",
     };
 
-    localStorage.setItem("spotify_playlists", JSON.stringify(cacheData));
+    sessionStorage.setItem("spotify_playlists", JSON.stringify(cacheData));
 
     const wrapper = mount(AddToPlaylistButton, {
-      props: { purchaseInfos: mockPurchaseInfos },
+      props: { purchaseInfos: mockPurchaseInfos, songId: "test-song-id" },
     });
 
     const loaded = (
@@ -151,17 +155,17 @@ describe("AddToPlaylistButton.vue", () => {
       userId: "different-user",
     };
 
-    localStorage.setItem("spotify_playlists", JSON.stringify(cacheData));
+    sessionStorage.setItem("spotify_playlists", JSON.stringify(cacheData));
 
     const wrapper = mount(AddToPlaylistButton, {
-      props: { purchaseInfos: mockPurchaseInfos },
+      props: { purchaseInfos: mockPurchaseInfos, songId: "test-song-id" },
     });
 
     const loaded = (
       wrapper.vm as unknown as { loadFromCache: () => PlaylistMetadata[] | null }
     ).loadFromCache();
     expect(loaded).toBeNull();
-    expect(localStorage.getItem("spotify_playlists")).toBeNull();
+    expect(sessionStorage.getItem("spotify_playlists")).toBeNull();
   });
 
   test("invalidates expired cache", () => {
@@ -171,10 +175,10 @@ describe("AddToPlaylistButton.vue", () => {
       userId: "test-user-123",
     };
 
-    localStorage.setItem("spotify_playlists", JSON.stringify(cacheData));
+    sessionStorage.setItem("spotify_playlists", JSON.stringify(cacheData));
 
     const wrapper = mount(AddToPlaylistButton, {
-      props: { purchaseInfos: mockPurchaseInfos },
+      props: { purchaseInfos: mockPurchaseInfos, songId: "test-song-id" },
     });
 
     const loaded = (
