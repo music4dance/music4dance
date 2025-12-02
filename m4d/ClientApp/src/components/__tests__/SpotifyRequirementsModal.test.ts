@@ -16,7 +16,7 @@ vi.mock("@/helpers/GetMenuContext", () => ({
 }));
 
 describe("SpotifyRequirementsModal", () => {
-  let wrapper: VueWrapper<any>;
+  let wrapper: VueWrapper;
 
   const createWrapper = (props = {}) => {
     return mount(SpotifyRequirementsModal, {

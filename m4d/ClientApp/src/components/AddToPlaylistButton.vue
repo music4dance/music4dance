@@ -126,7 +126,7 @@ const fetchPlaylists = async (forceRefresh = false) => {
     playlists.value = response.data;
     playlistsCached.value = true;
     saveToCache(response.data);
-  } catch (error: any) {
+  } catch (error: unknown) {
     await handleError(error, "fetching playlists");
   } finally {
     loading.value = false;
@@ -172,16 +172,20 @@ const addToPlaylist = async (playlistId: string, playlistName: string) => {
         },
       });
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     await handleError(error, `adding song to playlist`);
   } finally {
     loading.value = false;
   }
 };
 
-const handleError = async (error: any, context: string) => {
-  const status = error.response?.status;
-  const data = error.response?.data;
+const handleError = async (error: unknown, context: string) => {
+  const status = (
+    error as {
+      response?: { status?: number; data?: { message?: string } };
+    }
+  ).response?.status;
+  const data = (error as { response?: { data?: { message?: string } } }).response?.data;
 
   switch (status) {
     case 401: // Unauthorized
