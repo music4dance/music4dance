@@ -79,6 +79,9 @@ music4dance.net is a sophisticated web application designed to help dancers find
 - **Component Structure**: Single File Components (.vue)
 - **Testing**: Vitest with comprehensive component testing
 - **Naming**: PascalCase for components, camelCase for properties
+- **Line Endings**: ALL files in `m4d/ClientApp/**` MUST use LF (Unix) line endings, not CRLF
+  - This is enforced by `.gitattributes` for Vue.js/Node.js convention
+  - When creating new files in ClientApp, ensure LF line endings
 - **Functional Programming**: Prefer functional/method chaining style over imperative loops
   - Use `map()`, `filter()`, `reduce()`, `sort()` for array operations
   - Example: `items.map(x => x.value).filter(v => v > 0).sort()` instead of for-loops
@@ -87,6 +90,13 @@ music4dance.net is a sophisticated web application designed to help dancers find
   - Test happy path and edge cases (empty arrays, single items, duplicates)
   - Test error conditions (invalid IDs, undefined values)
   - Co-locate tests in `__tests__/` folders next to source files
+- **Icons**: Use unplugin-icons for icon components
+  - Icons auto-import as Vue components: `<IBi{IconName} />`
+  - Example: `<IBiCheckCircleFill />`, `<IBiCircle />`, `<IBiPencil />`
+  - Add CSS classes for styling: `<IBiCheckCircleFill class="text-success me-2" />`
+  - **NEVER** use `<i class="bi bi-icon-name">` (old Bootstrap Icons pattern)
+  - Icons from `@iconify-json/bi` package (Bootstrap Icons)
+  - No explicit imports needed - unplugin-icons handles auto-import
 
 ### File Organization
 

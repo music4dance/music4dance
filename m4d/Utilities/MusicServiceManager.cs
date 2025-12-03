@@ -531,6 +531,42 @@ public class MusicServiceManager(IConfiguration configuration)
         return playlists;
     }
 
+    /// <summary>
+    /// Gets the current user's Spotify playlists (owned or collaborative).
+    /// </summary>
+    /// <param name="service">The Spotify music service</param>
+    /// <param name="principal">The user principal with Spotify OAuth</param>
+    /// <returns>List of playlist metadata for user's playlists</returns>
+    public async Task<List<PlaylistMetadata>> GetUserPlaylists(MusicService service, IPrincipal principal)
+    {
+        if (service.Id != ServiceType.Spotify)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(service),
+                "GetUserPlaylists currently only supports Spotify");
+        }
+
+        var playlists = new List<PlaylistMetadata>();
+        var url = "https://api.spotify.com/v1/me/playlists?limit=50";
+
+        while (!string.IsNullOrEmpty(url))
+        {
+            var results = await GetMusicServiceResults(url, service, principal);
+            if (results == null)
+            {
+                break;
+            }
+
+            var parsedPlaylists = ParsePlaylistResults(results);
+            playlists.AddRange(parsedPlaylists);
+
+            // Handle pagination
+            url = results.next?.ToString();
+        }
+
+        return playlists;
+    }
+
     public async Task<ServiceUser> LookupServiceUser(MusicService service, string id, IPrincipal principal = null)
     {
         if (service.Id != ServiceType.Spotify)
@@ -832,6 +868,32 @@ public class MusicServiceManager(IConfiguration configuration)
         return response != null && response.snapshot_id != null;
     }
 
+    /// <summary>
+    /// Adds a single track to a Spotify playlist.
+    /// </summary>
+    /// <param name="service">The Spotify music service</param>
+    /// <param name="principal">The user principal with Spotify OAuth</param>
+    /// <param name="playlistId">The Spotify playlist ID</param>
+    /// <param name="trackId">The Spotify track ID to add</param>
+    /// <returns>The playlist snapshot ID if successful, null otherwise</returns>
+    public async Task<string> AddTrackToPlaylist(MusicService service, IPrincipal principal,
+        string playlistId, string trackId)
+    {
+        if (service.Id != ServiceType.Spotify)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(service),
+                "AddTrackToPlaylist currently only supports Spotify");
+        }
+
+        var response = await MusicServiceAction(
+            $"https://api.spotify.com/v1/playlists/{playlistId}/tracks",
+            $"{{\"uris\":[\"spotify:track:{trackId}\"]}}",
+            HttpMethod.Post, service, principal);
+
+        return response?.snapshot_id?.ToString();
+    }
+
     #endregion
 
     #region Utilities
@@ -938,7 +1000,18 @@ public class MusicServiceManager(IConfiguration configuration)
                 return null;
             }
 
-            using var req = new HttpRequestMessage(HttpMethod.Get, request);
+            Uri requestUri;
+            try
+            {
+                requestUri = new Uri(request);
+            }
+            catch (UriFormatException ex)
+            {
+                Logger.LogWarning(ex, "Invalid URI format for request: {Request}", request);
+                return null;
+            }
+
+            using var req = new HttpRequestMessage(HttpMethod.Get, requestUri);
             req.Headers.Add("Accept", "application/json");
             string auth = null;
             if (service != null)

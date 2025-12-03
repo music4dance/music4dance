@@ -245,6 +245,8 @@ var appRoot = environment.WebRootPath;
 services.AddSingleton<ISearchServiceManager, SearchServiceManager>();
 services.AddSingleton<IDanceStatsManager>(new DanceStatsManager(new DanceStatsFileManager(appRoot)));
 
+services.AddScoped<m4d.Services.SpotifyAuthService>();
+
 services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
 services.AddHostedService<BackgroundQueueHostedService>();
 
@@ -330,11 +332,20 @@ else
     _ = app.UseHsts();
 }
 
-app.UseHttpsRedirection();
-var options = new RewriteOptions();
-options.AddRedirectToHttps();
-options.AddRedirectToWwwPermanent("music4dance.net");
-app.UseRewriter(options);
+// Conditionally disable HTTPS redirection for Spotify OAuth testing (Spotify rejects https://localhost)
+var disableHttpsRedirect = configuration.GetValue<bool>("DISABLE_HTTPS_REDIRECT");
+if (!disableHttpsRedirect)
+{
+    app.UseHttpsRedirection();
+    var options = new RewriteOptions();
+    options.AddRedirectToHttps();
+    options.AddRedirectToWwwPermanent("music4dance.net");
+    app.UseRewriter(options);
+}
+else
+{
+    app.Logger.LogWarning("HTTPS redirection is DISABLED for Spotify OAuth testing. Do not use in production!");
+}
 app.MapStaticAssets();
 app.UseHttpLogging();
 app.UseRouting();

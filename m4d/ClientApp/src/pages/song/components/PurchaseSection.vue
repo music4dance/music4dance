@@ -1,11 +1,18 @@
 <script setup lang="ts">
-import { PurchaseInfo } from "@/models/Purchase";
+import { computed } from "vue";
+import { PurchaseInfo, ServiceType } from "@/models/Purchase";
 import { SongFilter } from "@/models/SongFilter";
+import AddToPlaylistButton from "@/components/AddToPlaylistButton.vue";
 
-defineProps<{
+const props = defineProps<{
   purchaseInfos: PurchaseInfo[];
   filter: SongFilter;
+  songId: string;
 }>();
+
+const hasSpotifyTrack = computed(() =>
+  props.purchaseInfos.some((pi) => pi.service === ServiceType.Spotify),
+);
 </script>
 
 <template>
@@ -17,6 +24,14 @@ defineProps<{
         styles="margin-right: .25rem; margin-bottom: .25rem"
       />
     </span>
+    <div v-if="hasSpotifyTrack" class="my-2">
+      <AddToPlaylistButton
+        :purchase-infos="purchaseInfos"
+        :song-id="songId"
+        variant="primary"
+        size="md"
+      />
+    </div>
     <BButton
       v-if="filter && !filter.isEmpty"
       :href="filter.url"

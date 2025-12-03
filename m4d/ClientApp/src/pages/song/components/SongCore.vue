@@ -345,7 +345,11 @@ onBeforeUnmount(() => {
     </BRow>
     <BRow class="mb-2">
       <BCol md="4"
-        ><PurchaseSection :purchase-infos="song.getPurchaseInfos()" :filter="model.filter" />
+        ><PurchaseSection
+          :purchase-infos="song.getPurchaseInfos()"
+          :filter="model.filter"
+          :song-id="song.songId"
+        />
       </BCol>
       <BCol md="4">
         <TagListEditor
