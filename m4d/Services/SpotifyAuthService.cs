@@ -1,4 +1,3 @@
-#nullable enable
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using m4dModels;
@@ -53,7 +52,7 @@ public class SpotifyAuthService
     /// </summary>
     /// <param name="userName">The user's username</param>
     /// <returns>The Spotify provider key, or null if not found</returns>
-    public async Task<string?> GetSpotifyLoginKey(string? userName)
+    public async Task<string> GetSpotifyLoginKey(string userName)
     {
         if (string.IsNullOrWhiteSpace(userName))
             return null;
@@ -71,7 +70,7 @@ public class SpotifyAuthService
     /// </summary>
     /// <param name="user">The application user</param>
     /// <returns>True if user has Spotify login, false otherwise</returns>
-    public async Task<bool> HasSpotifyLogin(ApplicationUser? user)
+    public async Task<bool> HasSpotifyLogin(ApplicationUser user)
     {
         if (user == null)
             return false;
@@ -95,7 +94,7 @@ public class SpotifyAuthService
     /// </summary>
     /// <param name="user">The application user</param>
     /// <returns>The user's subscription level, or None if user is null</returns>
-    public SubscriptionLevel GetSubscriptionLevel(ApplicationUser? user)
+    public SubscriptionLevel GetSubscriptionLevel(ApplicationUser user)
     {
         return user?.SubscriptionLevel ?? SubscriptionLevel.None;
     }
@@ -110,7 +109,7 @@ public class SpotifyAuthService
     /// <returns>Validation result with success status and error message if applicable</returns>
     public async Task<SpotifyAuthValidationResult> ValidateSpotifyAccess(
         ClaimsPrincipal user,
-        ApplicationUser? applicationUser,
+        ApplicationUser applicationUser,
         AuthenticateResult authResult)
     {
         // Check authentication
@@ -141,10 +140,10 @@ public class SpotifyAuthService
 public class SpotifyAuthValidationResult
 {
     public bool IsValid { get; private set; }
-    public string? ErrorMessage { get; private set; }
+    public string ErrorMessage { get; private set; }
     public SpotifyAuthErrorType ErrorType { get; private set; }
 
-    private SpotifyAuthValidationResult(bool isValid, SpotifyAuthErrorType errorType, string? errorMessage = null)
+    private SpotifyAuthValidationResult(bool isValid, SpotifyAuthErrorType errorType, string errorMessage = null)
     {
         IsValid = isValid;
         ErrorType = errorType;

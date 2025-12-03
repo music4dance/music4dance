@@ -58,16 +58,7 @@ public class SpotifyPlaylistController : DanceMusicApiController
 
         if (!validation.IsValid)
         {
-            return validation.ErrorType switch
-            {
-                SpotifyAuthErrorType.Unauthenticated => Unauthorized(new { message = validation.ErrorMessage }),
-                SpotifyAuthErrorType.NotPremium => StatusCode(StatusCodes.Status402PaymentRequired,
-                    new { message = validation.ErrorMessage, upgradeUrl = "/home/contribute" }),
-                SpotifyAuthErrorType.NoSpotifyOAuth => StatusCode(StatusCodes.Status403Forbidden,
-                    new { message = validation.ErrorMessage, connectUrl = "/identity/account/manage/externallogins" }),
-                _ => StatusCode(StatusCodes.Status500InternalServerError,
-                    new { message = "Unexpected validation error" })
-            };
+            return HandleValidationError(validation);
         }
 
         try
@@ -121,16 +112,7 @@ public class SpotifyPlaylistController : DanceMusicApiController
 
         if (!validation.IsValid)
         {
-            return validation.ErrorType switch
-            {
-                SpotifyAuthErrorType.Unauthenticated => Unauthorized(new { message = validation.ErrorMessage }),
-                SpotifyAuthErrorType.NotPremium => StatusCode(StatusCodes.Status402PaymentRequired,
-                    new { message = validation.ErrorMessage, upgradeUrl = "/home/contribute" }),
-                SpotifyAuthErrorType.NoSpotifyOAuth => StatusCode(StatusCodes.Status403Forbidden,
-                    new { message = validation.ErrorMessage, connectUrl = "/identity/account/manage/externallogins" }),
-                _ => StatusCode(StatusCodes.Status500InternalServerError,
-                    new { message = "Unexpected validation error" })
-            };
+            return HandleValidationError(validation);
         }
 
         try
@@ -190,5 +172,24 @@ public class SpotifyPlaylistController : DanceMusicApiController
             return StatusCode(StatusCodes.Status500InternalServerError,
                 AddToPlaylistResult.CreateFailure("Unable to add song to playlist. Please try again later."));
         }
+    }
+
+    /// <summary>
+    /// Handles validation errors by returning appropriate HTTP status codes and messages.
+    /// </summary>
+    /// <param name="validation">The validation result to handle</param>
+    /// <returns>ActionResult with appropriate status code and error message</returns>
+    private IActionResult HandleValidationError(SpotifyAuthValidationResult validation)
+    {
+        return validation.ErrorType switch
+        {
+            SpotifyAuthErrorType.Unauthenticated => Unauthorized(new { message = validation.ErrorMessage }),
+            SpotifyAuthErrorType.NotPremium => StatusCode(StatusCodes.Status402PaymentRequired,
+                new { message = validation.ErrorMessage, upgradeUrl = "/home/contribute" }),
+            SpotifyAuthErrorType.NoSpotifyOAuth => StatusCode(StatusCodes.Status403Forbidden,
+                new { message = validation.ErrorMessage, connectUrl = "/identity/account/manage/externallogins" }),
+            _ => StatusCode(StatusCodes.Status500InternalServerError,
+                new { message = "Unexpected validation error" })
+        };
     }
 }

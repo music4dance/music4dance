@@ -56,47 +56,50 @@ const hasSpotifyTrack = computed(() => spotifyInfo.value !== undefined);
 
 const buttonText = computed(() => (props.showText ? "Add to Playlist" : ""));
 
-const CACHE_KEY = "spotify_playlists";
-const CACHE_DURATION = 1000 * 60 * 15; // 15 minutes
+// SessionStorage cache (tab-specific) for playlist data
+// Note: sessionStorage is isolated per browser tab/window, not shared across tabs
+const CACHE_KEY_PREFIX = "spotify_playlists";
+const CACHE_DURATION_MS = 15 * 60 * 1000; // 15 minutes
+
+const getCacheKey = (): string => {
+  const userId = menuContext.userId || "anonymous";
+  return `${CACHE_KEY_PREFIX}_${userId}`;
+};
 
 interface CachedPlaylists {
   playlists: PlaylistMetadata[];
   timestamp: number;
-  userId: string;
 }
 
 const loadFromCache = (): PlaylistMetadata[] | null => {
   try {
-    const cached = sessionStorage.getItem(CACHE_KEY);
+    const cached = sessionStorage.getItem(getCacheKey());
     if (!cached) return null;
 
     const data: CachedPlaylists = JSON.parse(cached);
     const age = Date.now() - data.timestamp;
 
-    // Invalidate if wrong user or too old
-    if (data.userId !== menuContext.userId || age > CACHE_DURATION) {
-      sessionStorage.removeItem(CACHE_KEY);
+    // Invalidate if too old (15 minutes)
+    if (age > CACHE_DURATION_MS) {
+      sessionStorage.removeItem(getCacheKey());
       return null;
     }
 
     return data.playlists;
   } catch (error) {
     console.error("Error loading playlists from cache:", error);
-    sessionStorage.removeItem(CACHE_KEY);
+    sessionStorage.removeItem(getCacheKey());
     return null;
   }
 };
 
 const saveToCache = (playlistsToSave: PlaylistMetadata[]) => {
   try {
-    if (!menuContext.userId) return;
-
     const data: CachedPlaylists = {
       playlists: playlistsToSave,
       timestamp: Date.now(),
-      userId: menuContext.userId,
     };
-    sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    sessionStorage.setItem(getCacheKey(), JSON.stringify(data));
   } catch (error) {
     console.error("Error saving playlists to cache:", error);
   }

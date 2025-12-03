@@ -116,12 +116,11 @@ describe("AddToPlaylistButton.vue", () => {
       testPlaylists,
     );
 
-    const cached = sessionStorage.getItem("spotify_playlists");
+    const cached = sessionStorage.getItem("spotify_playlists_test-user-123");
     expect(cached).toBeTruthy();
 
     const parsed = JSON.parse(cached!);
     expect(parsed.playlists).toHaveLength(2);
-    expect(parsed.userId).toBe("test-user-123");
     expect(parsed.timestamp).toBeLessThanOrEqual(Date.now());
   });
 
@@ -131,10 +130,9 @@ describe("AddToPlaylistButton.vue", () => {
     const cacheData = {
       playlists: testPlaylists,
       timestamp: Date.now(),
-      userId: "test-user-123",
     };
 
-    sessionStorage.setItem("spotify_playlists", JSON.stringify(cacheData));
+    sessionStorage.setItem("spotify_playlists_test-user-123", JSON.stringify(cacheData));
 
     const wrapper = mount(AddToPlaylistButton, {
       props: { purchaseInfos: mockPurchaseInfos, songId: "test-song-id" },
@@ -148,34 +146,13 @@ describe("AddToPlaylistButton.vue", () => {
     expect(loaded?.[0]?.name).toBe("Cached Playlist");
   });
 
-  test("invalidates cache for different user", () => {
-    const cacheData = {
-      playlists: [{ id: "playlist1", name: "Other User Playlist" }],
-      timestamp: Date.now(),
-      userId: "different-user",
-    };
-
-    sessionStorage.setItem("spotify_playlists", JSON.stringify(cacheData));
-
-    const wrapper = mount(AddToPlaylistButton, {
-      props: { purchaseInfos: mockPurchaseInfos, songId: "test-song-id" },
-    });
-
-    const loaded = (
-      wrapper.vm as unknown as { loadFromCache: () => PlaylistMetadata[] | null }
-    ).loadFromCache();
-    expect(loaded).toBeNull();
-    expect(sessionStorage.getItem("spotify_playlists")).toBeNull();
-  });
-
   test("invalidates expired cache", () => {
     const cacheData = {
       playlists: [{ id: "playlist1", name: "Old Playlist" }],
       timestamp: Date.now() - 1000 * 60 * 20, // 20 minutes ago (expired)
-      userId: "test-user-123",
     };
 
-    sessionStorage.setItem("spotify_playlists", JSON.stringify(cacheData));
+    sessionStorage.setItem("spotify_playlists_test-user-123", JSON.stringify(cacheData));
 
     const wrapper = mount(AddToPlaylistButton, {
       props: { purchaseInfos: mockPurchaseInfos, songId: "test-song-id" },
@@ -185,5 +162,24 @@ describe("AddToPlaylistButton.vue", () => {
       wrapper.vm as unknown as { loadFromCache: () => PlaylistMetadata[] | null }
     ).loadFromCache();
     expect(loaded).toBeNull();
+  });
+
+  test("isolates cache by userId", () => {
+    // Set cache for different user
+    const otherUserCache = {
+      playlists: [{ id: "other-playlist", name: "Other User's Playlist" }],
+      timestamp: Date.now(),
+    };
+    sessionStorage.setItem("spotify_playlists_other-user-456", JSON.stringify(otherUserCache));
+
+    // Current user (test-user-123) should not see other user's cache
+    const wrapper = mount(AddToPlaylistButton, {
+      props: { purchaseInfos: mockPurchaseInfos, songId: "test-song-id" },
+    });
+
+    const loaded = (
+      wrapper.vm as unknown as { loadFromCache: () => PlaylistMetadata[] | null }
+    ).loadFromCache();
+    expect(loaded).toBeNull(); // Should not load other user's cache
   });
 });

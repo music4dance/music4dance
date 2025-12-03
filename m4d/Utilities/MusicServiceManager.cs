@@ -1000,7 +1000,18 @@ public class MusicServiceManager(IConfiguration configuration)
                 return null;
             }
 
-            using var req = new HttpRequestMessage(HttpMethod.Get, new Uri(request));
+            Uri requestUri;
+            try
+            {
+                requestUri = new Uri(request);
+            }
+            catch (UriFormatException ex)
+            {
+                Logger.LogWarning(ex, "Invalid URI format for request: {Request}", request);
+                return null;
+            }
+
+            using var req = new HttpRequestMessage(HttpMethod.Get, requestUri);
             req.Headers.Add("Accept", "application/json");
             string auth = null;
             if (service != null)
