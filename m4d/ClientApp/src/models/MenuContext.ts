@@ -77,7 +77,7 @@ export class MenuContext implements MenuContextInterface {
   }
 
   public getAccountLink(page: string): string {
-    return `/identity/account/${page}?returnUrl=${window.location.pathname}?${window.location.search}`;
+    return `/identity/account/${page}?returnUrl=${encodeURIComponent(window.location.pathname + window.location.search)}`;
   }
 
   public get axiosXsrf(): AxiosInstance {

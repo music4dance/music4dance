@@ -564,6 +564,8 @@ public class SongFilter
 
     public virtual SongFilter CreateCustomSearchFilter(string name = "holiday", string dance = null, int page = 1)
     {
+        name = string.IsNullOrWhiteSpace(name) ? "holiday" : name;
+
         var holidayFilter = name.ToLowerInvariant() switch
         {
             "halloween" => "OtherTags/any(t: t eq 'Halloween')",

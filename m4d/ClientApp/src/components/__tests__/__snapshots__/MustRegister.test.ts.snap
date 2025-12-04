@@ -2,8 +2,8 @@
 
 exports[`MustRegister.vue > Renders the MustRegister component 1`] = `
 "<div>Test <ul>
-    <li><a href="/identity/account/register?returnUrl=/?">Click here to register.</a></li>
-    <li> If you're already registered, <a href="/identity/account/login?returnUrl=/?">click here to log in.</a></li>
+    <li><a href="/identity/account/register?returnUrl=%2F">Click here to register.</a></li>
+    <li> If you're already registered, <a href="/identity/account/login?returnUrl=%2F">click here to log in.</a></li>
   </ul>
 </div>"
 `;
