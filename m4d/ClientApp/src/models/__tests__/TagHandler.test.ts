@@ -163,7 +163,7 @@ describe("TagHandler", () => {
     it("should generate global tag link with exclude modifier", () => {
       const link = tagHandler.getTagLink("-", false, true);
       expect(link).toContain("/song/filtersearch?filter=");
-      expect(link).toContain("%1Aromantic%3Aother");
+      expect(link).toContain("%5C-romantic%3Aother");
     });
 
     it("should generate dance-specific tag link when danceId is set", () => {
@@ -179,7 +179,7 @@ describe("TagHandler", () => {
       const link = tagHandler.getTagLink("+", false, false);
       expect(link).toContain("/song/filtersearch?filter=");
       // Should contain both existing and new tag
-      expect(link).toContain("existing%1Atag%3A");
+      expect(link).toContain("existing%5C-tag%3A");
       expect(link).toContain("%2Bromantic%3Aother");
     });
 
@@ -304,7 +304,7 @@ describe("TagHandler", () => {
       const link = handler.getTagLink("+", false, true);
       expect(link).toContain("/song/filtersearch?filter=");
       // Should contain the encoded tag
-      expect(link).toContain("special%1Atag%2Bwith%26chars%3Aother");
+      expect(link).toContain("special%5C-tag%2Bwith%26chars%3Aother");
     });
   });
 
