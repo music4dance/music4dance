@@ -41,7 +41,7 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
                   <!--teleport start-->
                   <!--teleport end-->
                 </div>
-              </div><a class="btn btn-md btn-primary my-1" href="/song/Index?filter=v2-Index-----%1Ame%7Ch" role="button" small=""><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" aria-hidden="true">
+              </div><a class="btn btn-md btn-primary my-1" href="/song/Index?filter=v2-Index-----%5C-me%7Ch" role="button" small=""><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" aria-hidden="true">
                   <path fill="currentColor" d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0a5.5 5.5 0 0 1 11 0"></path>
                 </svg> Back to Search</a><a class="btn btn-md btn-outline-primary ms-1 my-1" href="https://music4dance.blog/music4dance-help/song-details/" role="button" target="_blank" small=""><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" aria-hidden="true">
                   <g fill="currentColor">
@@ -223,7 +223,7 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
               <!--v-if-->
             </table>
             <!--v-if-->
-            <form id="undoForm" action="/song/undoUserChanges" method="post" style="display: none;"><input type="hidden" name="__RequestVerificationToken"><input type="hidden" name="id" value="ee9680db-423e-47d2-851a-f08ddcbe9ff9"><input type="hidden" name="filter" value="v2-Index-----me|h"></form>
+            <form id="undoForm" action="/song/undoUserChanges" method="post" style="display: none;"><input type="hidden" name="__RequestVerificationToken"><input type="hidden" name="id" value="ee9680db-423e-47d2-851a-f08ddcbe9ff9"><input type="hidden" name="filter" value="v2-Index-----\\-me|h"></form>
           </div>
         </div>
         <div class="row">

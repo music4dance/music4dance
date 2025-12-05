@@ -113,10 +113,10 @@ const chooseEvent = (id?: string, event?: MouseEvent): void => {
     event?.preventDefault();
   }
   if (id) {
-    // If filtering by a single family, pass it as the familyTag
-    const familyTag =
-      selectedStyleFamilies.value.length === 1 ? selectedStyleFamilies.value[0] : undefined;
-    choose(id, persist, familyTag);
+    // When clicking the main dance row, don't pass a familyTag
+    // The selectedStyleFamilies is only for filtering the UI list
+    // Family tags should only be added when explicitly clicking a dance instance
+    choose(id, persist, undefined);
   }
 };
 
