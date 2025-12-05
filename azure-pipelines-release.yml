@@ -39,7 +39,7 @@ steps:
     displayName: "dotnet build $(buildConfiguration)"
 
   - task: DotNetCoreCLI@2
-    displayName: publish web project (self-contained)
+    displayName: publish web project (hosted)
     inputs:
       command: "publish"
       arguments: "--configuration $(buildConfiguration) --runtime linux-x64"
@@ -52,4 +52,3 @@ steps:
       appType: "webAppLinux"
       appName: "m4d-linux"
       package: "$(System.DefaultWorkingDirectory)/**/*.zip"
-

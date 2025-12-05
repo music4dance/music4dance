@@ -7,30 +7,48 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  BuildConfiguration: 'Release'
+  buildConfiguration: "Release"
 
 steps:
-- task: UseDotNet@2
-  displayName: "Install .NET 10 SDK"
-  inputs:
-    packageType: "sdk"
-    version: "10.x"
+  - task: NodeTool@0
+    inputs:
+      versionSpec: "22.x"
 
-- script: dotnet build --configuration $(BuildConfiguration)
-  displayName: 'dotnet build $(BuildConfiguration)'
+  - script: corepack enable
+    displayName: "Enable Corepack"
 
-- task: DotNetCoreCLI@2
-  displayName: publish web project
-  inputs:
-    command: 'publish'
-    publishWebProjects: true
-    configuration: $(BuildConfiguration)
-    arguments: -r linux-x64 --self-contained
+  - script: yarn config set globalFolder "$(Agent.BuildDirectory)\Yarn\Berry"
+    displayName: "Set Yarn global folder"
+    workingDirectory: m4d/ClientApp/
 
-- task: AzureWebApp@1
-  displayName: deploy
-  inputs:
-    azureSubscription: 'm4d-release'
-    appType: 'webAppLinux'
-    appName: 'm4d-linux'
-    package: '$(System.DefaultWorkingDirectory)/**/*.zip'
+  - script: yarn install --network-timeout=300000
+    displayName: "Install Yarn for ClientApp"
+    workingDirectory: m4d/ClientApp/
+
+  - script: yarn build
+    displayName: "Build ClientApp"
+    workingDirectory: m4d/ClientApp/
+
+  - task: UseDotNet@2
+    displayName: "Install .NET 10 SDK"
+    inputs:
+      packageType: "sdk"
+      version: "10.x"
+
+  - script: dotnet build --configuration $(buildConfiguration)
+    displayName: "dotnet build $(buildConfiguration)"
+
+  - task: DotNetCoreCLI@2
+    displayName: publish web project (self-contained)
+    inputs:
+      command: "publish"
+      arguments: "--configuration $(buildConfiguration) --runtime linux-x64 --self-contained true"
+      publishWebProjects: true
+
+  - task: AzureWebApp@1
+    displayName: deploy
+    inputs:
+      azureSubscription: "m4d-release"
+      appType: "webAppLinux"
+      appName: "m4d-linux"
+      package: "$(System.DefaultWorkingDirectory)/**/*.zip"

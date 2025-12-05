@@ -39,7 +39,7 @@ steps:
     displayName: "dotnet build $(buildConfiguration)"
 
   - task: DotNetCoreCLI@2
-    displayName: publish web project (self-contained)
+    displayName: publish web project (hosted)
     inputs:
       command: "publish"
       arguments: "--configuration $(buildConfiguration) --runtime linux-x64"
