@@ -15,7 +15,12 @@ export class SongFilter {
   public static buildFilter(input: string): SongFilter {
     const filter = new SongFilter();
 
-    const cells = SongFilter.splitFilter(input);
+    // Clean up subChar artifacts from URL decoding before parsing
+    // When URLs are encoded/decoded, the subChar (\u001a) used for escaping hyphens
+    // can end up in the filter string and needs to be removed
+    const cleanInput = input.replaceAll(subChar, "");
+
+    const cells = SongFilter.splitFilter(cleanInput);
 
     let idx = 0;
 
@@ -360,7 +365,7 @@ export class SongFilter {
   }
 
   private encode(s: string | undefined): string {
-    return s ? s.replace(/-/g, subChar) : "";
+    return s ? s.replace(/-/g, "\\-") : "";
   }
 
   private trimEnd(s: string, charlist: string): string {

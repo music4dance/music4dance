@@ -684,7 +684,7 @@ public class SongFilter
 
     private string Format(string s) => string.IsNullOrWhiteSpace(s)
             ? "."
-            : s.Contains('-') ? s.Replace("-", _subStr) : s;
+            : s.Contains('-') ? s.Replace("-", @"\-") : s;
 
     public string ToJson()
     {
