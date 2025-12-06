@@ -1,7 +1,11 @@
-# ASP.NET Core
+# ASP.NET Core - Production Self-Contained
+# LEGACY: Consider using azure-pipelines-deploy.yml with parameters instead
 # Build and test ASP.NET Core projects targeting .NET Core.
 # Add steps that run tests, create a NuGet package, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+#
+# This pipeline deploys to: msc4dnc (Production)
+# Deployment mode: Self-Contained (bundles .NET runtime)
 
 pool:
   vmImage: ubuntu-latest
@@ -42,7 +46,7 @@ steps:
     displayName: publish web project (self-contained)
     inputs:
       command: "publish"
-      arguments: "--configuration $(buildConfiguration) --runtime linux-x64 --self-contained true"
+      arguments: "--configuration $(buildConfiguration) --runtime linux-x64 --self-contained true /p:SelfContained=true"
       publishWebProjects: true
 
   - task: AzureWebApp@1

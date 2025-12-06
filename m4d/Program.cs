@@ -8,6 +8,7 @@ using m4d.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Rewrite;
@@ -23,6 +24,7 @@ using Newtonsoft.Json.Serialization;
 using Owl.reCAPTCHA;
 
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 
 using Vite.AspNetCore;
 
@@ -49,6 +51,61 @@ logging.AddAzureWebAppDiagnostics();
 // Log level filters should be set via configuration (see appsettings.json / appsettings.Production.json)
 
 Console.WriteLine($"Environment: {environment.EnvironmentName}");
+
+// Configure Kestrel for self-contained deployments on Azure Linux
+var isSelfContained = configuration.GetValue<bool>("SELF_CONTAINED_DEPLOYMENT");
+if (isSelfContained)
+{
+    Console.WriteLine("Running in self-contained mode");
+
+    builder.WebHost.ConfigureKestrel(serverOptions =>
+    {
+        // Azure Web Apps use environment variables for port configuration
+        var port = Environment.GetEnvironmentVariable("PORT") ??
+                   Environment.GetEnvironmentVariable("WEBSITES_PORT") ?? "8080";
+
+        Console.WriteLine($"Binding to port {port}");
+        if (!int.TryParse(port, out var portNumber))
+        {
+            Console.WriteLine($"Invalid PORT value '{port}', using default 8080");
+            portNumber = 8080;
+        }
+        serverOptions.ListenAnyIP(portNumber);
+
+        // Load HTTPS certificate if available (Azure provides certificates via environment)
+        var certPath = Environment.GetEnvironmentVariable("WEBSITE_LOAD_CERTIFICATES");
+        var httpsPort = Environment.GetEnvironmentVariable("HTTPS_PORT");
+
+        if (!string.IsNullOrEmpty(certPath) && !string.IsNullOrEmpty(httpsPort))
+        {
+            try
+            {
+                // Azure Linux Web Apps place certificates in a specific location
+                var certFile = $"/var/ssl/private/{certPath}.p12";
+                if (File.Exists(certFile))
+                {
+                    if (int.TryParse(httpsPort, out var httpsPortNumber))
+                    {
+                    using var cert = X509CertificateLoader.LoadPkcs12FromFile(certFile, null);
+                    serverOptions.ListenAnyIP(int.Parse(httpsPort), listenOptions =>
+                        {
+                            listenOptions.UseHttps(cert);
+                        });
+                        Console.WriteLine($"HTTPS configured on port {httpsPortNumber}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Invalid HTTPS_PORT value '{httpsPort}', skipping HTTPS configuration");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to load certificate: {ex.Message}");
+            }
+        }
+    });
+}
 
 services.AddHttpLogging(o => { });
 builder.Services.AddFeatureManagement();
@@ -124,6 +181,27 @@ services.AddAzureClients(clientBuilder =>
 
 
 services.AddDbContext<DanceMusicContext>(options => options.UseSqlServer(connectionString));
+
+// Configure data protection for self-contained deployments
+if (isSelfContained)
+{
+    var dataProtectionPath = Environment.GetEnvironmentVariable("HOME");
+    if (!string.IsNullOrEmpty(dataProtectionPath))
+    {
+        var keyPath = Path.Combine(dataProtectionPath, "site", "keys");
+        Directory.CreateDirectory(keyPath);
+
+        services.AddDataProtection()
+            .PersistKeysToFileSystem(new DirectoryInfo(keyPath))
+            .SetApplicationName("music4dance");
+
+        Console.WriteLine($"Data protection keys stored at: {keyPath}");
+    }
+    else
+    {
+        Console.WriteLine("Warning: HOME environment variable not set, using default data protection");
+    }
+}
 
 services.AddDefaultIdentity<ApplicationUser>(
         options =>
