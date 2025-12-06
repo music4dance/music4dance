@@ -1,4 +1,5 @@
 using Azure.Identity;
+using Azure.Search.Documents;
 
 using m4d.Areas.Identity;
 using m4d.Services;
@@ -113,72 +114,150 @@ builder.Services.AddFeatureManagement();
 var useVite = configuration.UseVite();
 var isDevelopment = environment.IsDevelopment();
 
-var credentials = new DefaultAzureCredential();
 if (!isDevelopment)
 {
-    _ = configuration.AddAzureAppConfiguration(options =>
+    if (isSelfContained)
     {
-        _ = options.Connect(
-            new Uri(configuration["AppConfig:Endpoint"]),
-            credentials)
-        .ConfigureKeyVault(
-            kv => { _ = kv.SetCredential(credentials); })
-        .UseFeatureFlags(featureFlagOptions =>
+        // Use connection string for App Configuration in self-contained mode
+        var appConfigConnectionString = configuration["AppConfig:ConnectionString"];
+        if (!string.IsNullOrEmpty(appConfigConnectionString))
         {
-            _ = featureFlagOptions.Select(LabelFilter.Null);
-            _ = featureFlagOptions.Select(environment.EnvironmentName);
-            _ = featureFlagOptions.SetRefreshInterval(TimeSpan.FromMinutes(5));
-        })
-        .Select(KeyFilter.Any, LabelFilter.Null)
-        .Select(KeyFilter.Any, environment.EnvironmentName)
-        .ConfigureRefresh(refresh =>
-        {
-            _ = refresh.Register("Configuration:Sentinel", environment.EnvironmentName, refreshAll: true)
-                .SetRefreshInterval(TimeSpan.FromMinutes(5));
-        });
-    });
+            _ = configuration.AddAzureAppConfiguration(options =>
+            {
+                _ = options.Connect(appConfigConnectionString)
+                .UseFeatureFlags(featureFlagOptions =>
+                {
+                    _ = featureFlagOptions.Select(LabelFilter.Null);
+                    _ = featureFlagOptions.Select(environment.EnvironmentName);
+                    _ = featureFlagOptions.SetRefreshInterval(TimeSpan.FromMinutes(5));
+                })
+                .Select(KeyFilter.Any, LabelFilter.Null)
+                .Select(KeyFilter.Any, environment.EnvironmentName)
+                .ConfigureRefresh(refresh =>
+                {
+                    _ = refresh.Register("Configuration:Sentinel", environment.EnvironmentName, refreshAll: true)
+                        .SetRefreshInterval(TimeSpan.FromMinutes(5));
+                });
+            });
 
-    _ = services.AddAzureAppConfiguration();
+            _ = services.AddAzureAppConfiguration();
+        }
+        else
+        {
+            Console.WriteLine("Warning: AppConfig:ConnectionString not set for self-contained deployment");
+        }
+    }
+    else
+    {
+        // Use managed identity for App Configuration
+        var credentials = new DefaultAzureCredential();
+        _ = configuration.AddAzureAppConfiguration(options =>
+        {
+            _ = options.Connect(
+                new Uri(configuration["AppConfig:Endpoint"]),
+                credentials)
+            .ConfigureKeyVault(
+                kv => { _ = kv.SetCredential(credentials); })
+            .UseFeatureFlags(featureFlagOptions =>
+            {
+                _ = featureFlagOptions.Select(LabelFilter.Null);
+                _ = featureFlagOptions.Select(environment.EnvironmentName);
+                _ = featureFlagOptions.SetRefreshInterval(TimeSpan.FromMinutes(5));
+            })
+            .Select(KeyFilter.Any, LabelFilter.Null)
+            .Select(KeyFilter.Any, environment.EnvironmentName)
+            .ConfigureRefresh(refresh =>
+            {
+                _ = refresh.Register("Configuration:Sentinel", environment.EnvironmentName, refreshAll: true)
+                    .SetRefreshInterval(TimeSpan.FromMinutes(5));
+            });
+        });
+
+        _ = services.AddAzureAppConfiguration();
+    }
 }
 
-services.AddAzureClients(clientBuilder =>
+// Dynamically add all configuration sections with an "indexname" field
+var indexSections = configuration.GetChildren()
+    .Where(s => s.GetChildren().Any(child => child.Key.Equals("indexname", StringComparison.OrdinalIgnoreCase)))
+    .ToList();
+
+if (isSelfContained)
 {
-    _ = clientBuilder.UseCredential(credentials);
-
-    // Dynamically add all configuration sections with an "indexname" field
-    var indexSections = configuration.GetChildren()
-        .Where(s => s.GetChildren().Any(child => child.Key.Equals("indexname", StringComparison.OrdinalIgnoreCase)))
-        .ToList();
-
-    foreach (var section in indexSections)
+    // For self-contained deployments, register Azure Search clients with API key authentication
+    var searchApiKey = configuration["AzureSearch:ApiKey"];
+    if (!string.IsNullOrEmpty(searchApiKey))
     {
-        _ = clientBuilder.AddSearchClient(section).WithName(section.Key);
-    }
+        var keyCredential = new Azure.AzureKeyCredential(searchApiKey);
 
-    // Add a single SearchIndexClient named "SongIndex" based on the first section with key starting with "SongIndex"
-    var songIndexSections = indexSections
-        .Where(s => s.Key.StartsWith("SongIndex", StringComparison.OrdinalIgnoreCase))
-        .ToList();
+        // Add SearchIndexClient for SongIndex
+        var songIndexSections = indexSections
+            .Where(s => s.Key.StartsWith("SongIndex", StringComparison.OrdinalIgnoreCase))
+            .ToList();
 
-    if (songIndexSections.Any())
-    {
-        var firstSongIndexSection = songIndexSections.First();
-        var endpoint = firstSongIndexSection["endpoint"];
-
-        // Verify all SongIndex sections have the same endpoint
-        foreach (var section in songIndexSections)
+        if (songIndexSections.Any())
         {
-            var sectionEndpoint = section["endpoint"];
-            if (!string.Equals(endpoint, sectionEndpoint, StringComparison.OrdinalIgnoreCase))
+            var firstSongIndexSection = songIndexSections.First();
+            var endpoint = new Uri(firstSongIndexSection["endpoint"]);
+
+            // Verify all SongIndex sections have the same endpoint
+            foreach (var section in songIndexSections)
             {
-                throw new InvalidOperationException($"All SongIndex sections must have the same endpoint. Mismatch found in section '{section.Key}'.");
+                var sectionEndpoint = section["endpoint"];
+                if (!string.Equals(endpoint.ToString(), sectionEndpoint, StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new InvalidOperationException($"All SongIndex sections must have the same endpoint. Mismatch found in section '{section.Key}'.");
+                }
             }
+
+            var indexClient = new Azure.Search.Documents.Indexes.SearchIndexClient(endpoint, keyCredential);
+            services.AddSingleton(indexClient);
         }
 
-        _ = clientBuilder.AddSearchIndexClient(firstSongIndexSection).WithName("SongIndex");
+        Console.WriteLine($"Azure Search clients configured with API key authentication ({indexSections.Count} indexes)");
     }
-});
+    else
+    {
+        Console.WriteLine("Warning: AzureSearch:ApiKey not set for self-contained deployment");
+    }
+}
+else
+{
+    // For framework-dependent deployments, use Azure client builder with managed identity
+    services.AddAzureClients(clientBuilder =>
+    {
+        var credentials = new DefaultAzureCredential();
+        _ = clientBuilder.UseCredential(credentials);
 
+        foreach (var section in indexSections)
+        {
+            _ = clientBuilder.AddSearchClient(section).WithName(section.Key);
+        }
+
+        // Add a single SearchIndexClient named "SongIndex"
+        var songIndexSections = indexSections
+            .Where(s => s.Key.StartsWith("SongIndex", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        if (songIndexSections.Any())
+        {
+            var firstSongIndexSection = songIndexSections.First();
+            var endpoint = firstSongIndexSection["endpoint"];
+
+            // Verify all SongIndex sections have the same endpoint
+            foreach (var section in songIndexSections)
+            {
+                var sectionEndpoint = section["endpoint"];
+                if (!string.Equals(endpoint, sectionEndpoint, StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new InvalidOperationException($"All SongIndex sections must have the same endpoint. Mismatch found in section '{section.Key}'.");
+                }
+            }
+
+            _ = clientBuilder.AddSearchIndexClient(firstSongIndexSection).WithName("SongIndex");
+        }
+    });
+}
 
 services.AddDbContext<DanceMusicContext>(options => options.UseSqlServer(connectionString));
 
