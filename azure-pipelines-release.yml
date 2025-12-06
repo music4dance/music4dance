@@ -1,13 +1,18 @@
-# ASP.NET Core
+# ASP.NET Core - Test Environment (Flexible)
+# LEGACY: Consider using azure-pipelines-deploy.yml with parameters instead
 # Build and test ASP.NET Core projects targeting .NET Core.
 # Add steps that run tests, create a NuGet package, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+#
+# This pipeline deploys to: m4d-linux (Test)
+# Deployment mode: Controlled by useSelfContained variable
 
 pool:
   vmImage: ubuntu-latest
 
 variables:
   buildConfiguration: "Release"
+  useSelfContained: true # Set to false to use framework-dependent deployment
 
 steps:
   - task: NodeTool@0
@@ -39,7 +44,16 @@ steps:
     displayName: "dotnet build $(buildConfiguration)"
 
   - task: DotNetCoreCLI@2
-    displayName: publish web project (hosted)
+    displayName: "publish web project (self-contained)"
+    condition: eq(variables['useSelfContained'], true)
+    inputs:
+      command: "publish"
+      arguments: "--configuration $(buildConfiguration) --runtime linux-x64 --self-contained true /p:SelfContained=true"
+      publishWebProjects: true
+
+  - task: DotNetCoreCLI@2
+    displayName: "publish web project (framework-dependent)"
+    condition: ne(variables['useSelfContained'], true)
     inputs:
       command: "publish"
       arguments: "--configuration $(buildConfiguration) --runtime linux-x64"

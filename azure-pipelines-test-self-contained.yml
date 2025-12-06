@@ -1,7 +1,11 @@
-# ASP.NET Core
+# ASP.NET Core - Test Self-Contained
+# LEGACY: Consider using azure-pipelines-deploy.yml with parameters instead
 # Build and test ASP.NET Core projects targeting .NET Core.
 # Add steps that run tests, create a NuGet package, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+#
+# This pipeline deploys to: m4d-linux (Test)
+# Deployment mode: Self-Contained (bundles .NET runtime)
 
 pool:
   vmImage: ubuntu-latest

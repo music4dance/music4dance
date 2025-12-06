@@ -23,6 +23,7 @@ using Newtonsoft.Json.Serialization;
 using Owl.reCAPTCHA;
 
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 
 using Vite.AspNetCore;
 
@@ -49,6 +50,49 @@ logging.AddAzureWebAppDiagnostics();
 // Log level filters should be set via configuration (see appsettings.json / appsettings.Production.json)
 
 Console.WriteLine($"Environment: {environment.EnvironmentName}");
+
+// Configure Kestrel for self-contained deployments on Azure Linux
+var isSelfContained = configuration.GetValue<bool>("SELF_CONTAINED_DEPLOYMENT");
+if (isSelfContained)
+{
+    Console.WriteLine("Running in self-contained mode");
+
+    builder.WebHost.ConfigureKestrel(serverOptions =>
+    {
+        // Azure Web Apps use environment variables for port configuration
+        var port = Environment.GetEnvironmentVariable("PORT") ??
+                   Environment.GetEnvironmentVariable("WEBSITES_PORT") ?? "8080";
+
+        Console.WriteLine($"Binding to port {port}");
+        serverOptions.ListenAnyIP(int.Parse(port));
+
+        // Load HTTPS certificate if available (Azure provides certificates via environment)
+        var certPath = Environment.GetEnvironmentVariable("WEBSITE_LOAD_CERTIFICATES");
+        var httpsPort = Environment.GetEnvironmentVariable("HTTPS_PORT");
+
+        if (!string.IsNullOrEmpty(certPath) && !string.IsNullOrEmpty(httpsPort))
+        {
+            try
+            {
+                // Azure Linux Web Apps place certificates in a specific location
+                var certFile = $"/var/ssl/private/{certPath}.p12";
+                if (File.Exists(certFile))
+                {
+                    var cert = new X509Certificate2(certFile);
+                    serverOptions.ListenAnyIP(int.Parse(httpsPort), listenOptions =>
+                    {
+                        listenOptions.UseHttps(cert);
+                    });
+                    Console.WriteLine($"HTTPS configured on port {httpsPort}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to load certificate: {ex.Message}");
+            }
+        }
+    });
+}
 
 services.AddHttpLogging(o => { });
 builder.Services.AddFeatureManagement();
@@ -124,6 +168,27 @@ services.AddAzureClients(clientBuilder =>
 
 
 services.AddDbContext<DanceMusicContext>(options => options.UseSqlServer(connectionString));
+
+// Configure data protection for self-contained deployments
+if (isSelfContained)
+{
+    var dataProtectionPath = Environment.GetEnvironmentVariable("HOME");
+    if (!string.IsNullOrEmpty(dataProtectionPath))
+    {
+        var keyPath = Path.Combine(dataProtectionPath, "site", "keys");
+        Directory.CreateDirectory(keyPath);
+
+        services.AddDataProtection()
+            .PersistKeysToFileSystem(new DirectoryInfo(keyPath))
+            .SetApplicationName("music4dance");
+
+        Console.WriteLine($"Data protection keys stored at: {keyPath}");
+    }
+    else
+    {
+        Console.WriteLine("Warning: HOME environment variable not set, using default data protection");
+    }
+}
 
 services.AddDefaultIdentity<ApplicationUser>(
         options =>
