@@ -115,54 +115,85 @@ Individual pipeline files exist for backward compatibility:
 
 ### Required Application Settings
 
-Configure these in Azure Portal → Web App → Configuration → Application Settings:
+Configure these in Azure Portal → Web App → Configuration → Application Settings.
 
-#### For Self-Contained Deployments
+#### For Framework-Dependent Deployments (Recommended for Production)
 
-````text
-SELF_CONTAINED_DEPLOYMENT = true
-ASPNETCORE_ENVIRONMENT = Production
-AppConfig__ConnectionString = <connection string from Azure App Configuration>
-AzureSearch__ApiKey = <API key from Azure AI Search>
-#### For Framework-Dependent Deployments
-
-```text
-SELF_CONTAINED_DEPLOYMENT = false
-````
-
-(Or leave unset - defaults to framework-dependent mode)
-
-**Re-enable Managed Identity:**
-
-- Azure Portal → Your **Web App**
-- Settings → **Identity**
-- Under **System assigned** tab: Set **Status** to **On**
-- Click **Save**
-- Remove `AppConfig__ConnectionString` and `AzureSearch__ApiKey` settings (no longer needed)
-  - Azure Portal → Your **Azure App Configuration** resource
-  - Settings → **Access keys**
-  - Copy **Connection string** from Read-only keys (or Read-write if needed)
-
-1. **AzureSearch\_\_ApiKey**:
-
-   - Azure Portal → Your **Azure AI Search** service
-   - Settings → **Keys**
-   - Copy **Primary admin key** (or Query key for read-only)
-
-1. **Disable Managed Identity** (required for self-contained):
-   - Azure Portal → Your **Web App** (m4d-linux or msc4dnc)
-   - Settings → **Identity**
-   - Under **System assigned** tab: Set **Status** to **Off**
-   - Click **Save** → Confirm **Yes**
-   - This prevents the managed identity sidecar container from interfering with self-contained deployment
-
-#### For Framework-Dependent Deployments
+**Minimal Configuration Required:**
 
 ```text
 SELF_CONTAINED_DEPLOYMENT = false
 ```
 
 (Or leave unset - defaults to framework-dependent mode)
+
+**Managed Identity Setup:**
+
+1. **Enable Managed Identity:**
+
+   - Azure Portal → Your **Web App** (msc4dnc or m4d-linux)
+   - Settings → **Identity**
+   - Under **System assigned** tab: Set **Status** to **On**
+   - Click **Save**
+   - Copy the **Object (principal) ID** for use in next steps
+
+2. **Grant Azure AI Search Permissions:**
+
+   - Azure Portal → Your **Azure AI Search** service
+   - Access control (IAM) → Role assignments
+   - Click "+ Add" → "Add role assignment"
+   - Role: **Search Index Data Reader** (required)
+   - Members: Select **Managed identity** → Select your web app
+   - Review + assign
+
+3. **Grant Azure App Configuration Permissions:**
+   - Azure Portal → Your **Azure App Configuration** resource
+   - Access control (IAM) → Role assignments
+   - Click "+ Add" → "Add role assignment"
+   - Role: **App Configuration Data Reader** (required)
+   - Members: Select **Managed identity** → Select your web app
+   - Review + assign
+
+**That's it!** Framework-dependent deployments use managed identity - no connection strings or API keys needed.
+
+#### For Self-Contained Deployments
+
+**Application Settings Required:**
+
+```text
+SELF_CONTAINED_DEPLOYMENT = true
+ASPNETCORE_ENVIRONMENT = Production
+AppConfig__ConnectionString = <connection string from Azure App Configuration>
+AzureSearch__ApiKey = <API key from Azure AI Search>
+```
+
+**Getting Connection Strings and API Keys:**
+
+1. **AppConfig\_\_ConnectionString** (note: double underscore):
+
+   - Azure Portal → Your **Azure App Configuration** resource
+   - Settings → **Access keys**
+   - Copy **Connection string** from Read-only keys (or Read-write if needed)
+
+2. **AzureSearch\_\_ApiKey** (note: double underscore):
+   - Azure Portal → Your **Azure AI Search** service
+   - Settings → **Keys**
+   - Copy **Primary admin key** (or Query key for read-only access)
+
+**Disable Managed Identity** (required for self-contained):
+
+- Azure Portal → Your **Web App** (m4d-linux or msc4dnc)
+- Settings → **Identity**
+- Under **System assigned** tab: Set **Status** to **Off**
+- Click **Save** → Confirm **Yes**
+- This prevents the managed identity sidecar container from interfering with self-contained deployment
+
+**Set Startup Command:**
+
+- Azure Portal → Your **Web App**
+- Configuration → **General settings**
+- **Startup Command**: `/home/site/wwwroot/m4d`
+- Click **Save**
 
 ### Connection Strings & Secrets
 
