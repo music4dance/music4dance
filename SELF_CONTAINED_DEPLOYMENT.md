@@ -49,9 +49,9 @@ The application supports four deployment combinations:
 
 ### Unified Pipeline (Recommended)
 
-The unified pipeline (`azure-pipelines.yml`) supports all scenarios through parameters.
+The unified pipeline (`azure-pipelines.yml`) supports all scenarios through **runtime parameters**.
 
-#### Quick Setup - 4 Pipeline Instances
+#### Quick Setup - Single Pipeline with Runtime Selection
 
 1. **Navigate to Azure DevOps Pipelines**
 
@@ -69,41 +69,35 @@ The unified pipeline (`azure-pipelines.yml`) supports all scenarios through para
    - Select: `/azure-pipelines.yml`
    - Click "Continue"
 
-4. **Create First Pipeline**
+4. **Save the Pipeline**
 
-   - Click "Save" (dropdown arrow) → "Save" (don't run yet)
-   - Name it: `Deploy - Production (Self-Contained)`
+   - Click "Save" (dropdown arrow) → "Save"
+   - Name it: `Deploy - music4dance`
+   - That's it! No variables to configure.
 
-5. **Configure Pipeline Variables**
+5. **Running the Pipeline**
 
-   - Go to the saved pipeline
-   - Click "Edit"
-   - Click "Variables" (top right)
-   - Add two variables:
-     - Name: `deploymentMode`, Value: `self-contained`
-     - Name: `environment`, Value: `production`
-   - Save
+   Each time you run the pipeline, Azure DevOps will prompt you to select:
 
-6. **Repeat for Other Scenarios**
+   - **Deployment Mode**: `framework-dependent` or `self-contained`
+   - **Target Environment**: `production` or `test`
 
-   Create 3 more pipelines with these variable combinations:
+   The pipeline automatically:
 
-   | Pipeline Name                  | deploymentMode        | environment  |
-   | ------------------------------ | --------------------- | ------------ |
-   | Deploy - Production (Hosted)   | `framework-dependent` | `production` |
-   | Deploy - Test (Self-Contained) | `self-contained`      | `test`       |
-   | Deploy - Test (Hosted)         | `framework-dependent` | `test`       |
+   - Deploys to `msc4dnc` when environment = `production`
+   - Deploys to `m4d-linux` when environment = `test`
+   - Uses appropriate publish method based on deployment mode
 
-#### Alternative: Runtime Parameter Selection
+#### Alternative: Multiple Named Pipelines (Future Enhancement)
 
-For maximum flexibility, create **one** pipeline without setting variables:
+If you prefer dedicated pipelines for each scenario without runtime selection, you could modify the pipeline to use variables instead of parameters. This would allow creating 4 separate pipeline instances:
 
-1. Create pipeline pointing to `azure-pipelines.yml`
-2. Name it: `Deploy - music4dance`
-3. Don't set any variables
-4. When running, you'll get dropdown selections:
-   - **Deployment Mode**: framework-dependent or self-contained
-   - **Target Environment**: production or test
+- Deploy - Production (Self-Contained)
+- Deploy - Production (Hosted)
+- Deploy - Test (Self-Contained)
+- Deploy - Test (Hosted)
+
+This approach requires modifying `azure-pipelines.yml` to check variables instead of parameters. The current parameter-based approach is simpler and provides better visibility into what's being deployed.
 
 ### Legacy Pipeline Files
 
@@ -274,11 +268,21 @@ After deployment, monitor startup logs for:
 
 ### Common Issues
 
+#### Pipeline runs wrong deployment mode
+
+**Symptom:** Pipeline runs framework-dependent publish instead of self-contained (or vice versa)
+
+**Solution:** Parameters must be selected at **runtime**, not set as variables.
+
+- When you click "Run pipeline", Azure DevOps shows parameter dropdowns
+- **Don't set variables** named `deploymentMode` or `environment` - they won't work
+- Select the correct values from the dropdowns when running
+
 #### Pipeline targets wrong app
 
 **Symptom:** Deployment succeeds but goes to wrong Azure Web App
 
-**Solution:** Check `environment` parameter:
+**Solution:** Check `environment` parameter selected at runtime:
 
 - `production` → deploys to `msc4dnc`
 - `test` → deploys to `m4d-linux`
