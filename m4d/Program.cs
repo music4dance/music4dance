@@ -55,6 +55,7 @@ Console.WriteLine($"Environment: {environment.EnvironmentName}");
 
 // Configure Kestrel for self-contained deployments on Azure Linux
 var isSelfContained = configuration.GetValue<bool>("SELF_CONTAINED_DEPLOYMENT");
+Console.WriteLine($"SELF_CONTAINED_DEPLOYMENT flag: {isSelfContained}");
 if (isSelfContained)
 {
     Console.WriteLine("Running in self-contained mode");
@@ -116,10 +117,14 @@ var isDevelopment = environment.IsDevelopment();
 
 if (!isDevelopment)
 {
+    Console.WriteLine($"Production environment detected. isSelfContained={isSelfContained}");
     if (isSelfContained)
     {
+        Console.WriteLine("Using connection string authentication for App Configuration");
         // Use connection string for App Configuration in self-contained mode
+        // Azure env vars: Use AppConfig__ConnectionString (double underscore becomes colon)
         var appConfigConnectionString = configuration["AppConfig:ConnectionString"];
+        Console.WriteLine($"AppConfig:ConnectionString present: {!string.IsNullOrEmpty(appConfigConnectionString)}");
         if (!string.IsNullOrEmpty(appConfigConnectionString))
         {
             _ = configuration.AddAzureAppConfiguration(options =>
@@ -149,8 +154,12 @@ if (!isDevelopment)
     }
     else
     {
+        Console.WriteLine("Using managed identity (DefaultAzureCredential) for App Configuration");
         // Use managed identity for App Configuration
-        var credentials = new DefaultAzureCredential();
+        try
+        {
+            var credentials = new DefaultAzureCredential();
+            Console.WriteLine("DefaultAzureCredential created successfully for App Configuration");
         _ = configuration.AddAzureAppConfiguration(options =>
         {
             _ = options.Connect(
@@ -174,6 +183,13 @@ if (!isDevelopment)
         });
 
         _ = services.AddAzureAppConfiguration();
+            Console.WriteLine("Azure App Configuration added successfully with managed identity");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"ERROR creating DefaultAzureCredential for App Configuration: {ex.GetType().Name}: {ex.Message}");
+            throw;
+        }
     }
 }
 
@@ -181,11 +197,15 @@ if (!isDevelopment)
 var indexSections = configuration.GetChildren()
     .Where(s => s.GetChildren().Any(child => child.Key.Equals("indexname", StringComparison.OrdinalIgnoreCase)))
     .ToList();
+Console.WriteLine($"Found {indexSections.Count} search index configuration sections");
 
 if (isSelfContained)
 {
+    Console.WriteLine("Configuring Azure Search with API key authentication (self-contained mode)");
     // For self-contained deployments, register Azure Search clients with API key authentication
+    // Azure env vars: Use AzureSearch__ApiKey (double underscore becomes colon)
     var searchApiKey = configuration["AzureSearch:ApiKey"];
+    Console.WriteLine($"AzureSearch:ApiKey present: {!string.IsNullOrEmpty(searchApiKey)}");
     if (!string.IsNullOrEmpty(searchApiKey))
     {
         var keyCredential = new Azure.AzureKeyCredential(searchApiKey);
@@ -223,14 +243,20 @@ if (isSelfContained)
 }
 else
 {
+    Console.WriteLine("Configuring Azure Search with managed identity (framework-dependent mode)");
     // For framework-dependent deployments, use Azure client builder with managed identity
-    services.AddAzureClients(clientBuilder =>
+    try
     {
-        var credentials = new DefaultAzureCredential();
-        _ = clientBuilder.UseCredential(credentials);
+        services.AddAzureClients(clientBuilder =>
+        {
+            Console.WriteLine("Creating DefaultAzureCredential for Azure Search clients");
+            var credentials = new DefaultAzureCredential();
+            Console.WriteLine("DefaultAzureCredential created successfully for Azure Search");
+            _ = clientBuilder.UseCredential(credentials);
 
         foreach (var section in indexSections)
         {
+            Console.WriteLine($"Adding search client for index: {section.Key}, endpoint: {section["endpoint"]}");
             _ = clientBuilder.AddSearchClient(section).WithName(section.Key);
         }
 
@@ -254,12 +280,23 @@ else
                 }
             }
 
+            Console.WriteLine($"Adding SearchIndexClient for SongIndex, endpoint: {firstSongIndexSection["endpoint"]}");
             _ = clientBuilder.AddSearchIndexClient(firstSongIndexSection).WithName("SongIndex");
         }
+        Console.WriteLine("Azure Search clients configured successfully with managed identity");
     });
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"ERROR configuring Azure Search with managed identity: {ex.GetType().Name}: {ex.Message}");
+        Console.WriteLine($"Stack trace: {ex.StackTrace}");
+        throw;
+    }
 }
 
+Console.WriteLine("Configuring SQL Server database context");
 services.AddDbContext<DanceMusicContext>(options => options.UseSqlServer(connectionString));
+Console.WriteLine("Database context configured successfully");
 
 // Configure data protection for self-contained deployments
 if (isSelfContained)
@@ -428,7 +465,9 @@ services.AddViteServices();
 
 services.AddHostedService<DanceStatsHostedService>();
 
+Console.WriteLine("Building application...");
 var app = builder.Build();
+Console.WriteLine("Application built successfully");
 
 if (!isDevelopment)
 {

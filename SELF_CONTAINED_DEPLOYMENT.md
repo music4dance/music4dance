@@ -11,7 +11,6 @@ This guide covers deploying music4dance.net to Azure Linux Web Apps with support
 5. [Application Configuration](#application-configuration)
 6. [Testing & Validation](#testing--validation)
 7. [Troubleshooting](#troubleshooting)
-8. [Reference](#reference)
 
 ## Overview
 
@@ -120,10 +119,42 @@ Configure these in Azure Portal → Web App → Configuration → Application Se
 
 #### For Self-Contained Deployments
 
-```text
+````text
 SELF_CONTAINED_DEPLOYMENT = true
 ASPNETCORE_ENVIRONMENT = Production
-```
+AppConfig__ConnectionString = <connection string from Azure App Configuration>
+AzureSearch__ApiKey = <API key from Azure AI Search>
+#### For Framework-Dependent Deployments
+
+```text
+SELF_CONTAINED_DEPLOYMENT = false
+````
+
+(Or leave unset - defaults to framework-dependent mode)
+
+**Re-enable Managed Identity:**
+
+- Azure Portal → Your **Web App**
+- Settings → **Identity**
+- Under **System assigned** tab: Set **Status** to **On**
+- Click **Save**
+- Remove `AppConfig__ConnectionString` and `AzureSearch__ApiKey` settings (no longer needed)
+  - Azure Portal → Your **Azure App Configuration** resource
+  - Settings → **Access keys**
+  - Copy **Connection string** from Read-only keys (or Read-write if needed)
+
+1. **AzureSearch\_\_ApiKey**:
+
+   - Azure Portal → Your **Azure AI Search** service
+   - Settings → **Keys**
+   - Copy **Primary admin key** (or Query key for read-only)
+
+1. **Disable Managed Identity** (required for self-contained):
+   - Azure Portal → Your **Web App** (m4d-linux or msc4dnc)
+   - Settings → **Identity**
+   - Under **System assigned** tab: Set **Status** to **Off**
+   - Click **Save** → Confirm **Yes**
+   - This prevents the managed identity sidecar container from interfering with self-contained deployment
 
 #### For Framework-Dependent Deployments
 
@@ -280,15 +311,25 @@ After deployment, monitor startup logs for:
 
 #### Pipeline targets wrong app
 
-**Symptom:** Deployment succeeds but goes to wrong Azure Web App
-
-**Solution:** Check `environment` parameter selected at runtime:
-
-- `production` → deploys to `msc4dnc`
-- `test` → deploys to `m4d-linux`
-
 #### App doesn't start after deployment
 
+**Self-contained deployments:**
+
+- ✓ Verify `SELF_CONTAINED_DEPLOYMENT=true` in Azure App Settings
+- ✓ Verify `AppConfig__ConnectionString` is set with valid connection string
+- ✓ Verify `AzureSearch__ApiKey` is set with valid API key
+- ✓ Verify **Managed Identity is disabled** (Settings → Identity → System assigned = Off)
+- ✓ Check startup command is set to `/home/site/wwwroot/m4d` (Configuration → General settings)
+- ✓ Check port 8080 is accessible (Azure handles automatically)
+- ✓ Review deployment logs for missing dependencies
+- ✓ Check application logs at `/home/LogFiles/Application/console.log` in Kudu
+
+**Managed identity sidecar errors:**
+
+- **Symptom**: Logs show `m4d-linux_managedIdentity terminated during site startup`
+- **Solution**: Disable managed identity as shown above - self-contained mode uses connection strings instead
+
+**Framework-dependent deployments:**
 **Self-contained deployments:**
 
 - ✓ Verify `SELF_CONTAINED_DEPLOYMENT=true` in Azure App Settings
@@ -340,18 +381,29 @@ ls -la /var/ssl/private/
 
 # View application logs
 tail -f /home/LogFiles/Application/console.log
-```
+**To Self-Contained:**
 
-## Reference
+1. Set pipeline parameter: `deploymentMode: self-contained`
+2. In Azure Portal → Web App → Configuration → Application settings:
+   - Add: `SELF_CONTAINED_DEPLOYMENT=true`
+   - Add: `AppConfig__ConnectionString=<your connection string>`
+   - Add: `AzureSearch__ApiKey=<your API key>`
+3. Settings → Identity → System assigned: Set **Status** to **Off**
+4. Configuration → General settings → Startup Command: `/home/site/wwwroot/m4d`
+5. Redeploy
 
-### Deployment Mode Comparison
+**To Framework-Dependent:**
 
-| Feature            | Framework-Dependent      | Self-Contained           |
-| ------------------ | ------------------------ | ------------------------ |
-| Package Size       | ~20-30MB                 | ~100-150MB               |
-| Runtime Dependency | Requires .NET 10 on host | None (bundled)           |
-| Startup Speed      | Standard                 | Faster (ReadyToRun)      |
-| Security Patches   | Automatic via runtime    | Requires redeployment    |
+1. Set pipeline parameter: `deploymentMode: framework-dependent`
+2. In Azure Portal → Web App:
+   - Settings → Identity → System assigned: Set **Status** to **On**
+   - Configuration → Application settings:
+     - Set `SELF_CONTAINED_DEPLOYMENT=false` (or remove)
+     - Remove `AppConfig__ConnectionString` setting
+     - Remove `AzureSearch__ApiKey` setting
+   - Configuration → General settings → Startup Command: (clear/remove)
+3. Ensure .NET 10 runtime available on Azure
+4. RedeployPatches   | Automatic via runtime    | Requires redeployment    |
 | Use Case           | When runtime available   | .NET 10 not yet on Azure |
 
 ### Switching Deployment Modes
@@ -402,3 +454,4 @@ tail -f /home/LogFiles/Application/console.log
 
 - `production` → `msc4dnc`
 - `test` → `m4d-linux`
+```
