@@ -43,10 +43,10 @@ steps:
     displayName: "dotnet build $(buildConfiguration)"
 
   - task: DotNetCoreCLI@2
-    displayName: publish web project (hosted)
+    displayName: publish web project (self-contained)
     inputs:
       command: "publish"
-      arguments: "--configuration $(buildConfiguration) --runtime linux-x64"
+      arguments: "--configuration $(buildConfiguration) --runtime linux-x64 --self-contained true /p:SelfContained=true"
       publishWebProjects: true
 
   - task: AzureWebApp@1

@@ -8,6 +8,7 @@ using m4d.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Rewrite;
@@ -85,8 +86,8 @@ if (isSelfContained)
                 {
                     if (int.TryParse(httpsPort, out var httpsPortNumber))
                     {
-                        var cert = new X509Certificate2(certFile);
-                        serverOptions.ListenAnyIP(httpsPortNumber, listenOptions =>
+                    using var cert = X509CertificateLoader.LoadPkcs12FromFile(certFile, null);
+                    serverOptions.ListenAnyIP(int.Parse(httpsPort), listenOptions =>
                         {
                             listenOptions.UseHttps(cert);
                         });
