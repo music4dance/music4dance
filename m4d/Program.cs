@@ -64,7 +64,12 @@ if (isSelfContained)
                    Environment.GetEnvironmentVariable("WEBSITES_PORT") ?? "8080";
 
         Console.WriteLine($"Binding to port {port}");
-        serverOptions.ListenAnyIP(int.Parse(port));
+        if (!int.TryParse(port, out var portNumber))
+        {
+            Console.WriteLine($"Invalid PORT value '{port}', using default 8080");
+            portNumber = 8080;
+        }
+        serverOptions.ListenAnyIP(portNumber);
 
         // Load HTTPS certificate if available (Azure provides certificates via environment)
         var certPath = Environment.GetEnvironmentVariable("WEBSITE_LOAD_CERTIFICATES");
