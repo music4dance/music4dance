@@ -156,39 +156,64 @@ if (!isDevelopment)
     {
         Console.WriteLine("Using managed identity (DefaultAzureCredential) for App Configuration");
         // Use managed identity for App Configuration
-        try
+        var appConfigEndpoint = configuration["AppConfig:Endpoint"];
+        Console.WriteLine($"AppConfig:Endpoint = {appConfigEndpoint}");
+        
+        if (!string.IsNullOrEmpty(appConfigEndpoint))
         {
-            var credentials = new DefaultAzureCredential();
-            Console.WriteLine("DefaultAzureCredential created successfully for App Configuration");
-        _ = configuration.AddAzureAppConfiguration(options =>
-        {
-            _ = options.Connect(
-                new Uri(configuration["AppConfig:Endpoint"]),
-                credentials)
-            .ConfigureKeyVault(
-                kv => { _ = kv.SetCredential(credentials); })
-            .UseFeatureFlags(featureFlagOptions =>
+            try
             {
-                _ = featureFlagOptions.Select(LabelFilter.Null);
-                _ = featureFlagOptions.Select(environment.EnvironmentName);
-                _ = featureFlagOptions.SetRefreshInterval(TimeSpan.FromMinutes(5));
-            })
-            .Select(KeyFilter.Any, LabelFilter.Null)
-            .Select(KeyFilter.Any, environment.EnvironmentName)
-            .ConfigureRefresh(refresh =>
-            {
-                _ = refresh.Register("Configuration:Sentinel", environment.EnvironmentName, refreshAll: true)
-                    .SetRefreshInterval(TimeSpan.FromMinutes(5));
-            });
-        });
+                var credentials = new DefaultAzureCredential();
+                Console.WriteLine("DefaultAzureCredential created successfully for App Configuration");
+                
+                Console.WriteLine("Attempting to connect to App Configuration...");
+                _ = configuration.AddAzureAppConfiguration(options =>
+                {
+                    _ = options.Connect(
+                        new Uri(appConfigEndpoint),
+                        credentials)
+                    .ConfigureKeyVault(
+                        kv => { _ = kv.SetCredential(credentials); })
+                    .UseFeatureFlags(featureFlagOptions =>
+                    {
+                        _ = featureFlagOptions.Select(LabelFilter.Null);
+                        _ = featureFlagOptions.Select(environment.EnvironmentName);
+                        _ = featureFlagOptions.SetRefreshInterval(TimeSpan.FromMinutes(5));
+                    })
+                    .Select(KeyFilter.Any, LabelFilter.Null)
+                    .Select(KeyFilter.Any, environment.EnvironmentName)
+                    .ConfigureRefresh(refresh =>
+                    {
+                        _ = refresh.Register("Configuration:Sentinel", environment.EnvironmentName, refreshAll: true)
+                            .SetRefreshInterval(TimeSpan.FromMinutes(5));
+                    });
+                });
 
-        _ = services.AddAzureAppConfiguration();
-            Console.WriteLine("Azure App Configuration added successfully with managed identity");
+                _ = services.AddAzureAppConfiguration();
+                Console.WriteLine("Azure App Configuration added successfully with managed identity");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ERROR connecting to App Configuration: {ex.GetType().Name}");
+                try
+                {
+                    Console.WriteLine($"  Message: {ex.Message}");
+                    if (ex.InnerException != null)
+                    {
+                        Console.WriteLine($"  InnerException: {ex.InnerException.GetType().Name}: {ex.InnerException.Message}");
+                    }
+                }
+                catch
+                {
+                    Console.WriteLine("  (Exception details could not be printed)");
+                }
+                Console.WriteLine("WARNING: Continuing without App Configuration - using local configuration only");
+                // Don't throw - allow app to start with local configuration
+            }
         }
-        catch (Exception ex)
+        else
         {
-            Console.WriteLine($"ERROR creating DefaultAzureCredential for App Configuration: {ex.GetType().Name}: {ex.Message}");
-            throw;
+            Console.WriteLine("WARNING: AppConfig:Endpoint not configured - using local configuration only");
         }
     }
 }
