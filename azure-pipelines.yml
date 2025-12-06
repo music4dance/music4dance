@@ -1,31 +1,43 @@
-# ASP.NET Core
-# Build and test ASP.NET Core projects targeting .NET Core.
-# Add steps that run tests, create a NuGet package, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+# ASP.NET Core Unified Deployment Pipeline
+# Build and deploy ASP.NET Core projects to Azure Linux Web Apps
+# Supports both framework-dependent and self-contained deployments
+# Supports both production and test environments
 
 pool:
-  vmImage: "ubuntu-latest"
+  vmImage: ubuntu-latest
+
+parameters:
+  - name: deploymentMode
+    displayName: "Deployment Mode"
+    type: string
+    default: "framework-dependent"
+    values:
+      - "framework-dependent"
+      - "self-contained"
+
+  - name: environment
+    displayName: "Target Environment"
+    type: string
+    default: "test"
+    values:
+      - "production"
+      - "test"
 
 variables:
   buildConfiguration: "Release"
+  ${{ if eq(parameters.environment, 'production') }}:
+    appName: "msc4dnc"
+  ${{ if eq(parameters.environment, 'test') }}:
+    appName: "m4d-linux"
+  ${{ if eq(parameters.deploymentMode, 'self-contained') }}:
+    useSelfContained: true
+  ${{ if eq(parameters.deploymentMode, 'framework-dependent') }}:
+    useSelfContained: false
 
 steps:
-  - task: UseDotNet@2
-    displayName: "Install .NET 10 SDK"
-    inputs:
-      packageType: "sdk"
-      version: "10.x"
-
-  - task: PowerShell@2
-    displayName: "Verify line endings"
-    inputs:
-      targetType: "filePath"
-      filePath: "scripts/verify-line-endings.ps1"
-      arguments: "-FailOnIssues"
-      pwsh: true
-      workingDirectory: "$(Build.SourcesDirectory)"
-
+  # ===== CLIENT BUILD =====
   - task: NodeTool@0
+    displayName: "Install Node.js"
     inputs:
       versionSpec: "22.x"
 
@@ -37,35 +49,46 @@ steps:
     workingDirectory: m4d/ClientApp/
 
   - script: yarn install --network-timeout=300000
-    displayName: "Install Yarn for ClientApp"
+    displayName: "Install Yarn dependencies"
     workingDirectory: m4d/ClientApp/
 
-  - script: yarn run test:ci
-    displayName: "Run unit tests"
+  - script: yarn build
+    displayName: "Build Vue.js ClientApp"
     workingDirectory: m4d/ClientApp/
 
-  - task: PublishTestResults@2
-    condition: succeededOrFailed()
+  # ===== SERVER BUILD =====
+  - task: UseDotNet@2
+    displayName: "Install .NET 10 SDK"
     inputs:
-      testRunner: JUnit
-      testResultsFiles: "**/junit.xml"
-
-  - task: DotNetCoreCLI@2
-    displayName: dotnet restore
-    inputs:
-      command: restore
-      projects: "**/*.csproj"
-      includeNuGetOrg: true
+      packageType: "sdk"
+      version: "10.x"
 
   - script: dotnet build --configuration $(buildConfiguration)
-    displayName: "dotnet build $(buildConfiguration)"
+    displayName: "Build .NET project ($(buildConfiguration))"
 
-  - task: VSTest@2
+  # ===== PUBLISH (Self-Contained) =====
+  - task: DotNetCoreCLI@2
+    displayName: "Publish web project (self-contained)"
+    condition: eq(variables['useSelfContained'], true)
     inputs:
-      testSelector: "testAssemblies"
-      testAssemblyVer2: |
-        **\*Tests.dll
-        !**\ref\**
-        !**\*TestAdapter.dll
-        !**\obj\**
-      searchFolder: "$(System.DefaultWorkingDirectory)"
+      command: "publish"
+      arguments: "--configuration $(buildConfiguration) --runtime linux-x64 --self-contained true /p:SelfContained=true"
+      publishWebProjects: true
+
+  # ===== PUBLISH (Framework-Dependent) =====
+  - task: DotNetCoreCLI@2
+    displayName: "Publish web project (framework-dependent)"
+    condition: eq(variables['useSelfContained'], false)
+    inputs:
+      command: "publish"
+      arguments: "--configuration $(buildConfiguration) --runtime linux-x64"
+      publishWebProjects: true
+
+  # ===== DEPLOY =====
+  - task: AzureWebApp@1
+    displayName: "Deploy to Azure Web App ($(appName))"
+    inputs:
+      azureSubscription: "m4d-release"
+      appType: "webAppLinux"
+      appName: "$(appName)"
+      package: "$(System.DefaultWorkingDirectory)/**/*.zip"

@@ -49,7 +49,7 @@ The application supports four deployment combinations:
 
 ### Unified Pipeline (Recommended)
 
-The unified pipeline (`azure-pipelines-deploy.yml`) supports all scenarios through parameters.
+The unified pipeline (`azure-pipelines.yml`) supports all scenarios through parameters.
 
 #### Quick Setup - 4 Pipeline Instances
 
@@ -66,7 +66,7 @@ The unified pipeline (`azure-pipelines-deploy.yml`) supports all scenarios throu
 3. **Select Pipeline File**
 
    - Choose "Existing Azure Pipelines YAML file"
-   - Select: `/azure-pipelines-deploy.yml`
+   - Select: `/azure-pipelines.yml`
    - Click "Continue"
 
 4. **Create First Pipeline**
@@ -98,7 +98,7 @@ The unified pipeline (`azure-pipelines-deploy.yml`) supports all scenarios throu
 
 For maximum flexibility, create **one** pipeline without setting variables:
 
-1. Create pipeline pointing to `azure-pipelines-deploy.yml`
+1. Create pipeline pointing to `azure-pipelines.yml`
 2. Name it: `Deploy - music4dance`
 3. Don't set any variables
 4. When running, you'll get dropdown selections:
