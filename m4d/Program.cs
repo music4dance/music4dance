@@ -83,12 +83,19 @@ if (isSelfContained)
                 var certFile = $"/var/ssl/private/{certPath}.p12";
                 if (File.Exists(certFile))
                 {
-                    var cert = new X509Certificate2(certFile);
-                    serverOptions.ListenAnyIP(int.Parse(httpsPort), listenOptions =>
+                    if (int.TryParse(httpsPort, out var httpsPortNumber))
                     {
-                        listenOptions.UseHttps(cert);
-                    });
-                    Console.WriteLine($"HTTPS configured on port {httpsPort}");
+                        var cert = new X509Certificate2(certFile);
+                        serverOptions.ListenAnyIP(httpsPortNumber, listenOptions =>
+                        {
+                            listenOptions.UseHttps(cert);
+                        });
+                        Console.WriteLine($"HTTPS configured on port {httpsPortNumber}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Invalid HTTPS_PORT value '{httpsPort}', skipping HTTPS configuration");
+                    }
                 }
             }
             catch (Exception ex)
