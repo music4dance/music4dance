@@ -732,7 +732,7 @@ public class SongController : ContentController
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = "dbAdmin")]
-    public async Task<ActionResult> BatchAdminEdit(SongFilter filter, string properties, string user = null)
+    public async Task<ActionResult> BatchAdminEdit(string properties, string user = null)
     {
         UseVue = UseVue.No;
         Debug.Assert(User.Identity != null, "User.Identity != null");
