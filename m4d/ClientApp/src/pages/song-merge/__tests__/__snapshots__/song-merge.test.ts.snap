@@ -145,18 +145,20 @@ exports[`Song Merge > Renders the Merge Page 1`] = `
 <!---->
 </div><button class="btn btn-md btn-primary mt-2 collapsed" type="button" data-bvtoggle="dance-chooser" aria-expanded="false" aria-controls="dance-chooser">Add Dance Style</button></div>
 <div class="col-md-auto">
-  <table id="BootstrapVueNext__ID__v-25__" class="table b-table table-borderless table-sm">
-    <tr class="">
-      <th scope="col" class="">Length</th>
-      <td class=""><span data-v-b2e59ff0=""><input data-v-b2e59ff0="" type="number" class="form-control ml-2 number" style="display: inline;"></span> Seconds</td>
+  <table data-v-381110ba="" id="BootstrapVueNext__ID__v-25__" class="table b-table table-borderless table-sm">
+    <tr data-v-381110ba="" class="">
+      <th data-v-381110ba="" scope="col" class="">Length</th>
+      <td data-v-381110ba="" class=""><span data-v-b2e59ff0="" data-v-381110ba=""><input data-v-b2e59ff0="" type="number" class="form-control ml-2 number" style="display: inline;"></span> Seconds</td>
     </tr>
-    <tr class="">
-      <th scope="col" class="">Tempo</th>
-      <td class=""><span data-v-b2e59ff0=""><input data-v-b2e59ff0="" type="number" class="form-control ml-2 number" style="display: inline;"></span> BPM</td>
+    <tr data-v-381110ba="" class="">
+      <th data-v-381110ba="" scope="col" class="">Tempo</th>
+      <td data-v-381110ba="" class=""><span data-v-b2e59ff0="" data-v-381110ba=""><input data-v-b2e59ff0="" type="number" class="form-control ml-2 number" style="display: inline;"></span> BPM
+        <!--v-if-->
+      </td>
     </tr>
-    <tr class="">
-      <th scope="col" class="">Beat</th>
-      <td class=""><a id="__m4d__000004" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-26__popover____placeholder" style="display: none;"></span>
+    <tr data-v-381110ba="" class="">
+      <th data-v-381110ba="" scope="col" class="">Beat</th>
+      <td data-v-381110ba="" class=""><a data-v-381110ba="" id="__m4d__000004" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-26__popover____placeholder" style="display: none;"></span>
           <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
             <div id="BootstrapVueNext__ID__v-26__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
               <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
@@ -168,9 +170,9 @@ exports[`Song Merge > Renders the Merge Page 1`] = `
           </transition-stub>
         </a> 52.2%</td>
     </tr>
-    <tr class="">
-      <th scope="col" class="">Energy</th>
-      <td class=""><a id="__m4d__000005" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-8.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-27__popover____placeholder" style="display: none;"></span>
+    <tr data-v-381110ba="" class="">
+      <th data-v-381110ba="" scope="col" class="">Energy</th>
+      <td data-v-381110ba="" class=""><a data-v-381110ba="" id="__m4d__000005" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-8.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-27__popover____placeholder" style="display: none;"></span>
           <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
             <div id="BootstrapVueNext__ID__v-27__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
               <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
@@ -182,9 +184,9 @@ exports[`Song Merge > Renders the Merge Page 1`] = `
           </transition-stub>
         </a> 79.6%</td>
     </tr>
-    <tr class="">
-      <th scope="col" class="">Mood</th>
-      <td class=""><a id="__m4d__000006" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-7.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-28__popover____placeholder" style="display: none;"></span>
+    <tr data-v-381110ba="" class="">
+      <th data-v-381110ba="" scope="col" class="">Mood</th>
+      <td data-v-381110ba="" class=""><a data-v-381110ba="" id="__m4d__000006" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-7.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-28__popover____placeholder" style="display: none;"></span>
           <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
             <div id="BootstrapVueNext__ID__v-28__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
               <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
@@ -196,17 +198,17 @@ exports[`Song Merge > Renders the Merge Page 1`] = `
           </transition-stub>
         </a> 60.0%</td>
     </tr>
-    <tr class="">
-      <th scope="col" class="">Created</th>
-      <td class="">30-Apr-2017 05:09:57 PM</td>
+    <tr data-v-381110ba="" class="">
+      <th data-v-381110ba="" scope="col" class="">Created</th>
+      <td data-v-381110ba="" class="">30-Apr-2017 05:09:57 PM</td>
     </tr>
-    <tr class="">
-      <th scope="col" class="">Modified</th>
-      <td class="">07-Feb-2014 12:00:00 AM</td>
+    <tr data-v-381110ba="" class="">
+      <th data-v-381110ba="" scope="col" class="">Modified</th>
+      <td data-v-381110ba="" class="">07-Feb-2014 12:00:00 AM</td>
     </tr>
-    <tr class="">
-      <th scope="col" class="">Edited</th>
-      <td class="">07-Feb-2014 12:00:00 AM</td>
+    <tr data-v-381110ba="" class="">
+      <th data-v-381110ba="" scope="col" class="">Edited</th>
+      <td data-v-381110ba="" class="">07-Feb-2014 12:00:00 AM</td>
     </tr>
   </table>
   <!--v-if-->

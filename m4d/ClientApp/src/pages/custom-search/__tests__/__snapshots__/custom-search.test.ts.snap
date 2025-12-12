@@ -189,7 +189,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Moonglows">Moonglows</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=151.7">152</a>
+                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">152</a>
                 </td>
                 <td class="">
                   <!---->145
@@ -409,7 +409,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=The%20Pogues">The Pogues</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=78.1">78</a>
+                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">78</a>
                 </td>
                 <td class="">
                   <!---->272
@@ -691,7 +691,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=The%20Temptations">The Temptations</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=105">105</a>
+                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">105</a>
                 </td>
                 <td class="">
                   <!---->172
@@ -971,7 +971,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Dean%20Martin">Dean Martin</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=134">134</a>
+                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">134</a>
                 </td>
                 <td class="">
                   <!---->117
@@ -1164,7 +1164,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Faith%20Hill">Faith Hill</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=186.8">187</a>
+                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">187</a>
                 </td>
                 <td class="">
                   <!---->194
@@ -1328,7 +1328,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Seth%20MacFarlane">Seth MacFarlane</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=119.1">119</a>
+                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">119</a>
                 </td>
                 <td class="">
                   <!---->179
@@ -1516,7 +1516,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Ballroom%20Orchestra%20and%20Singers">Ballroom Orchestra and Singers</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=87.1">87</a>
+                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">87</a>
                 </td>
                 <td class="">
                   <!---->181
@@ -1636,7 +1636,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Frank%20Sinatra">Frank Sinatra</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=84.7">85</a>
+                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">85</a>
                 </td>
                 <td class="">
                   <!---->161
@@ -1740,7 +1740,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Michael%20Bubl%C3%A9">Michael Bublé</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=80.2">80</a>
+                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">80</a>
                 </td>
                 <td class="">
                   <!---->228
@@ -1885,7 +1885,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Great%20Lake%20Swimmers">Great Lake Swimmers</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=122">122</a>
+                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">122</a>
                 </td>
                 <td class="">
                   <!---->174
@@ -2024,7 +2024,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Ariana%20Grande">Ariana Grande</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=96">96</a>
+                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">96</a>
                 </td>
                 <td class="">
                   <!---->172
@@ -2188,7 +2188,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Elenowen">Elenowen</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=undefined"></a>
+                  <!----><span data-v-a7ef304f=""></span>
                 </td>
                 <td class="">
                   <!---->241
@@ -2258,7 +2258,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=She%20%26%20Him">She &amp; Him</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=126.9">127</a>
+                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">127</a>
                 </td>
                 <td class="">
                   <!---->178
@@ -2406,7 +2406,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Taylor%20Swift">Taylor Swift</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=134">134</a>
+                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">134</a>
                 </td>
                 <td class="">
                   <!---->228
@@ -2586,7 +2586,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Urban%20Bossa%20Club">Urban Bossa Club</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=undefined"></a>
+                  <!----><span data-v-a7ef304f=""></span>
                 </td>
                 <td class="">
                   <!---->183
@@ -2665,7 +2665,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Johnny%20Cash">Johnny Cash</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=undefined"></a>
+                  <!----><span data-v-a7ef304f=""></span>
                 </td>
                 <td class="">
                   <!---->154
@@ -2753,7 +2753,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Darin">Darin</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=undefined"></a>
+                  <!----><span data-v-a7ef304f=""></span>
                 </td>
                 <td class="">
                   <!---->176
@@ -2823,7 +2823,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Sabrina%20Claudio">Sabrina Claudio</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=125">125</a>
+                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">125</a>
                 </td>
                 <td class="">
                   <!---->205
@@ -2984,7 +2984,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Nat%20King%20Cole">Nat King Cole</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=86.9">87</a>
+                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">87</a>
                 </td>
                 <td class="">
                   <!---->177
@@ -3157,7 +3157,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Anne%20Vada">Anne Vada</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=88.7">89</a>
+                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">89</a>
                 </td>
                 <td class="">
                   <!---->286
@@ -3270,7 +3270,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=LadBaby">LadBaby</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=undefined"></a>
+                  <!----><span data-v-a7ef304f=""></span>
                 </td>
                 <td class="">
                   <!---->207
@@ -3368,7 +3368,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Thurl%20Ravenscroft">Thurl Ravenscroft</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=87.8">88</a>
+                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">88</a>
                 </td>
                 <td class="">
                   <!---->316
@@ -3493,7 +3493,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=L%C3%98L%C3%98">LØLØ</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=undefined"></a>
+                  <!----><span data-v-a7ef304f=""></span>
                 </td>
                 <td class="">
                   <!---->134
@@ -3577,7 +3577,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Ariana%20Grande">Ariana Grande</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=74.7">75</a>
+                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">75</a>
                 </td>
                 <td class="">
                   <!---->159
@@ -3791,7 +3791,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Mungo%20Jerry">Mungo Jerry</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=82.8">83</a>
+                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">83</a>
                 </td>
                 <td class="">
                   <!---->213

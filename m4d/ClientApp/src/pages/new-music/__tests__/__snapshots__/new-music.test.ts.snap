@@ -155,7 +155,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Morissette">Morissette</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=undefined"></a>
+                <!----><span data-v-a7ef304f=""></span>
               </td>
               <td class="">
                 <!---->
@@ -242,7 +242,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Bette%20Midler%2C%20Sarah%20Jessica%20Parker%20%26%20Kathy%20Najimy">Bette Midler, Sarah Jessica Parker &amp; Kathy Najimy</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=148">148</a>
+                <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">148</a>
               </td>
               <td class="">
                 <!----><a data-v-a7ef304f="" id="__m4d__000004" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-13__popover____placeholder" style="display: none;"></span>
@@ -542,7 +542,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=District%2078%20%26%20Mikayla%20Lynn">District 78 &amp; Mikayla Lynn</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=undefined"></a>
+                <!----><span data-v-a7ef304f=""></span>
               </td>
               <td class="">
                 <!---->
@@ -708,7 +708,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=M%C3%A5neskin">Måneskin</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=132.5">133</a>
+                <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">133</a>
               </td>
               <td class="">
                 <!----><a data-v-a7ef304f="" id="__m4d__000010" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-8.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-18__popover____placeholder" style="display: none;"></span>
@@ -1007,7 +1007,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=District%2078">District 78</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=168">168</a>
+                <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">168</a>
               </td>
               <td class="">
                 <!----><a data-v-a7ef304f="" id="__m4d__000013" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-22__popover____placeholder" style="display: none;"></span>
@@ -1207,7 +1207,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Mark%20Ronson%2C%20Passion%20Pit%20%26%20ASAP%20Ferg">Mark Ronson, Passion Pit &amp; ASAP Ferg</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=110">110</a>
+                <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">110</a>
               </td>
               <td class="">
                 <!----><a data-v-a7ef304f="" id="__m4d__000016" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-7.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-26__popover____placeholder" style="display: none;"></span>
@@ -1542,7 +1542,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Justin%20Bieber">Justin Bieber</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=153.9">154</a>
+                <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">154</a>
               </td>
               <td class="">
                 <!----><a data-v-a7ef304f="" id="__m4d__000019" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-7.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-30__popover____placeholder" style="display: none;"></span>
@@ -1751,7 +1751,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Ed%20Ivory%20%26%20Ken%20Page">Ed Ivory &amp; Ken Page</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=109.8">110</a>
+                <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">110</a>
               </td>
               <td class="">
                 <!----><a data-v-a7ef304f="" id="__m4d__000022" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-34__popover____placeholder" style="display: none;"></span>
@@ -1978,7 +1978,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Marshmello">Marshmello</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=120">120</a>
+                <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">120</a>
               </td>
               <td class="">
                 <!----><a data-v-a7ef304f="" id="__m4d__000025" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-8.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-38__popover____placeholder" style="display: none;"></span>
@@ -2157,7 +2157,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Chino%20Pons">Chino Pons</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=undefined"></a>
+                <!----><span data-v-a7ef304f=""></span>
               </td>
               <td class="">
                 <!---->
@@ -2230,7 +2230,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Michael%20Bubl%C3%A9">Michael Bublé</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=86.6">87</a>
+                <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">87</a>
               </td>
               <td class="">
                 <!----><a data-v-a7ef304f="" id="__m4d__000031" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-43__popover____placeholder" style="display: none;"></span>
@@ -2453,7 +2453,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Michael%20Bubl%C3%A9">Michael Bublé</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=134">134</a>
+                <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">134</a>
               </td>
               <td class="">
                 <!----><a data-v-a7ef304f="" id="__m4d__000034" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-47__popover____placeholder" style="display: none;"></span>
@@ -2676,7 +2676,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Francis%20Goya">Francis Goya</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=undefined"></a>
+                <!----><span data-v-a7ef304f=""></span>
               </td>
               <td class="">
                 <!---->
@@ -2763,7 +2763,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Mariza">Mariza</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=undefined"></a>
+                <!----><span data-v-a7ef304f=""></span>
               </td>
               <td class="">
                 <!---->
@@ -2850,7 +2850,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=THE%20SCHWINGS%20BAND">THE SCHWINGS BAND</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=undefined"></a>
+                <!----><span data-v-a7ef304f=""></span>
               </td>
               <td class="">
                 <!---->
@@ -2966,7 +2966,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=La%20Nueva%20Luna">La Nueva Luna</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=undefined"></a>
+                <!----><span data-v-a7ef304f=""></span>
               </td>
               <td class="">
                 <!---->
@@ -3039,7 +3039,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Rodrigo%20Tapari">Rodrigo Tapari</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=undefined"></a>
+                <!----><span data-v-a7ef304f=""></span>
               </td>
               <td class="">
                 <!---->
@@ -3112,7 +3112,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Klaus%20Hallen%20Tanzorchester">Klaus Hallen Tanzorchester</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=undefined"></a>
+                <!----><span data-v-a7ef304f=""></span>
               </td>
               <td class="">
                 <!---->
@@ -3188,7 +3188,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Alicia%20Gianni">Alicia Gianni</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=undefined"></a>
+                <!----><span data-v-a7ef304f=""></span>
               </td>
               <td class="">
                 <!---->
@@ -3275,7 +3275,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=No%C3%A9e">Noée</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=undefined"></a>
+                <!----><span data-v-a7ef304f=""></span>
               </td>
               <td class="">
                 <!---->
@@ -3362,7 +3362,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Ycare">Ycare</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=undefined"></a>
+                <!----><span data-v-a7ef304f=""></span>
               </td>
               <td class="">
                 <!---->
@@ -3449,7 +3449,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=The%20Script">The Script</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=162">162</a>
+                <!----><span data-v-a7ef304f="">162</span>
               </td>
               <td class="">
                 <!----><a data-v-a7ef304f="" id="__m4d__000064" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-60__popover____placeholder" style="display: none;"></span>
@@ -3595,7 +3595,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Ed%20Sheeran">Ed Sheeran</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=119.9">120</a>
+                <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">120</a>
               </td>
               <td class="">
                 <!----><a data-v-a7ef304f="" id="__m4d__000067" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-7.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-64__popover____placeholder" style="display: none;"></span>
@@ -3720,7 +3720,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Mario%20Luis">Mario Luis</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=undefined"></a>
+                <!----><span data-v-a7ef304f=""></span>
               </td>
               <td class="">
                 <!---->
@@ -3793,7 +3793,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Brandyn%20Burnette">Brandyn Burnette</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=undefined"></a>
+                <!----><span data-v-a7ef304f=""></span>
               </td>
               <td class="">
                 <!---->

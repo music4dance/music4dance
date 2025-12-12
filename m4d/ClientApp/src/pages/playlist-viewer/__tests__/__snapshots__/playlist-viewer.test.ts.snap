@@ -166,7 +166,7 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Frank%20Sinatra">Frank Sinatra</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=80.6">81</a>
+                <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">81</a>
               </td>
               <td class="">
                 <!----><a data-v-a7ef304f="" id="__m4d__000001" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-3.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-13__popover____placeholder" style="display: none;"></span>
@@ -321,7 +321,7 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Frank%20Sinatra">Frank Sinatra</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=94.2">94</a>
+                <!----><span data-v-a7ef304f="">94</span>
               </td>
               <td class="">
                 <!----><a data-v-a7ef304f="" id="__m4d__000004" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-3.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-18__popover____placeholder" style="display: none;"></span>
@@ -497,7 +497,7 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Frank%20Sinatra">Frank Sinatra</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=93.9">94</a>
+                <!----><span data-v-a7ef304f="">94</span>
               </td>
               <td class="">
                 <!----><a data-v-a7ef304f="" id="__m4d__000007" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-23__popover____placeholder" style="display: none;"></span>
@@ -607,7 +607,7 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Frank%20Sinatra">Frank Sinatra</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=134.6">135</a>
+                <!----><span data-v-a7ef304f="">135</span>
               </td>
               <td class="">
                 <!----><a data-v-a7ef304f="" id="__m4d__000010" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-3.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-28__popover____placeholder" style="display: none;"></span>
@@ -845,7 +845,7 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Frank%20Sinatra">Frank Sinatra</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=207.4">207</a>
+                <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">207</a>
               </td>
               <td class="">
                 <!----><a data-v-a7ef304f="" id="__m4d__000013" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-3.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-33__popover____placeholder" style="display: none;"></span>
@@ -1016,7 +1016,7 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Frank%20Sinatra">Frank Sinatra</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=76.2">76</a>
+                <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">76</a>
               </td>
               <td class="">
                 <!----><a data-v-a7ef304f="" id="__m4d__000016" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-2.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-38__popover____placeholder" style="display: none;"></span>
@@ -1215,7 +1215,7 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Perry%20Como">Perry Como</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=86.7">87</a>
+                <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">87</a>
               </td>
               <td class="">
                 <!----><a data-v-a7ef304f="" id="__m4d__000019" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-8.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-43__popover____placeholder" style="display: none;"></span>
@@ -1341,7 +1341,7 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/artist/?name=Frank%20Sinatra">Frank Sinatra</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/home/counter?numerator=4&amp;tempo=101.2">101</a>
+                <!----><span data-v-a7ef304f="">101</span>
               </td>
               <td class="">
                 <!----><a data-v-a7ef304f="" id="__m4d__000022" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-48__popover____placeholder" style="display: none;"></span>

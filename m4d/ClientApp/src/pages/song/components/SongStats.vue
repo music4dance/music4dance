@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Song } from "@/models/Song";
+import { PropertyType } from "@/models/SongProperty";
 import { computed } from "vue";
 import { formatDate } from "@/helpers/timeHelpers";
 
@@ -47,10 +48,16 @@ const formatEchoNest = (n: number): string => {
           :is-creator="isCreator"
           role="canTag"
           type="number"
-          v-bind="$attrs"
-        />
-        BPM</BTd
-      >
+          v-bind="$attrs" />
+        BPM<a
+          v-if="song.tempo && !song.isUserModified(PropertyType.tempoField) && !editing"
+          href="https://music4dance.blog/music4dance-help/song-list/#tempo-note"
+          target="_blank"
+          title="This tempo was algorithmically generated. Click to learn more."
+          class="algo-generated-icon"
+        >
+          <IBiCpuFill /> </a
+      ></BTd>
     </BTr>
     <BTr v-if="song.danceability">
       <BTh>Beat</BTh>
@@ -97,3 +104,36 @@ const formatEchoNest = (n: number): string => {
     </BTr>
   </BTableSimple>
 </template>
+
+<style scoped>
+.algo-generated-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.8em;
+  height: 1.8em;
+  margin-left: 0.5em;
+  border-radius: 50%;
+  background-color: rgba(108, 117, 125, 0.1);
+  border: 1px solid rgba(108, 117, 125, 0.2);
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.algo-generated-icon:hover {
+  background-color: rgba(108, 117, 125, 0.2);
+  border-color: rgba(108, 117, 125, 0.4);
+  transform: scale(1.1);
+}
+
+.algo-generated-icon svg {
+  width: 1em;
+  height: 1em;
+  color: #6c757d;
+}
+
+.algo-generated-icon:hover svg {
+  color: #495057;
+}
+</style>
