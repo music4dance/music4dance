@@ -6,6 +6,7 @@ import { Song } from "@/models/Song";
 import { SongChange } from "@/models/SongChange";
 import { SongEditor } from "@/models/SongEditor";
 import { SongFilter } from "@/models/SongFilter";
+import { PropertyType } from "@/models/SongProperty";
 import { SongHistory } from "@/models/SongHistory";
 import { SongSort, SortOrder } from "@/models/SongSort";
 import { Tag, TagContext } from "@/models/Tag";
@@ -272,8 +273,10 @@ const artistRef = (song: Song): string => {
   return `/song/artist/?name=${encodeURIComponent(song.artist)}`;
 };
 
-const tempoRef = (song: Song): string => {
-  return `/home/counter?numerator=4&tempo=${song.tempo}`; // TODO: smart numerator?
+const tempoRef = (song: Song): string | undefined => {
+  return song.tempo && !song.isUserModified(PropertyType.tempoField)
+    ? "https://music4dance.blog/music4dance-help/song-list/#tempo-note"
+    : undefined;
 };
 
 const tempoValue = (song: Song): string => {
@@ -560,7 +563,13 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
         />
       </template>
       <template #cell(tempo)="data">
-        <a :href="tempoRef(data.item.song)">{{ tempoValue(data.item.song) }}</a>
+        <div
+          v-if="tempoValue(data.item.song)"
+          style="display: flex; flex-direction: column; align-items: center"
+        >
+          <a href="/home/tempi">{{ tempoValue(data.item.song) }}</a>
+          <AlgoGeneratedIcon :song="data.item.song" :stacked="true" />
+        </div>
       </template>
       <template #head(length)>
         <SortableHeader
@@ -755,7 +764,8 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
         </template>
         <span v-if="tempoValue(data.item.song)">
           @
-          <a :href="tempoRef(data.item.song)">{{ tempoValue(data.item.song) }} BPM</a>
+          <a href="/home/tempi">{{ tempoValue(data.item.song) }} BPM</a>
+          <AlgoGeneratedIcon :song="data.item.song" />
         </span>
         <span v-if="lengthValue(data.item.song) && !isHidden('length')">
           - {{ lengthValue(data.item.song) }}s

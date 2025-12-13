@@ -152,7 +152,9 @@ exports[`Song Merge > Renders the Merge Page 1`] = `
     </tr>
     <tr class="">
       <th scope="col" class="">Tempo</th>
-      <td class=""><span data-v-b2e59ff0=""><input data-v-b2e59ff0="" type="number" class="form-control ml-2 number" style="display: inline;"></span> BPM</td>
+      <td class=""><span data-v-b2e59ff0=""><input data-v-b2e59ff0="" type="number" class="form-control ml-2 number" style="display: inline;"></span> BPM
+        <!--v-if-->
+      </td>
     </tr>
     <tr class="">
       <th scope="col" class="">Beat</th>

@@ -39,9 +39,20 @@ export class Song extends TaggableObject {
   @jsonArrayMember(ModifiedRecord) public modifiedBy?: ModifiedRecord[];
   @jsonArrayMember(AlbumDetails) public albums?: AlbumDetails[];
 
+  private userModifiedProperties = new Set<string>();
+
   public constructor(init?: Partial<Song>) {
     super();
     Object.assign(this, init);
+  }
+
+  /**
+   * Check if a property was modified by a real user (not a bot)
+   * @param field - Property field name (use PropertyType enum values)
+   * @returns true if the property was set by a real user, false otherwise
+   */
+  public isUserModified(field: string): boolean {
+    return this.userModifiedProperties.has(field);
   }
 
   public compareToHistory(history: SongHistory, user?: string): boolean {
@@ -272,7 +283,6 @@ export class Song extends TaggableObject {
   }
 
   private loadProperties(properties: SongProperty[], currentUser?: string): void {
-    const isUserModified = new Set<string>();
     let created = true;
     let creator = true;
     let user: string;
@@ -377,7 +387,7 @@ export class Song extends TaggableObject {
             }
 
             // Don't allow bot values to overwrite user values
-            const wasUser = isUserModified.has(baseName);
+            const wasUser = this.userModifiedProperties.has(baseName);
             if (wasUser && pseudo) {
               break;
             }
@@ -386,7 +396,7 @@ export class Song extends TaggableObject {
             (this as any)[pascalToCamel(baseName)] = value;
 
             if (!pseudo) {
-              isUserModified.add(baseName);
+              this.userModifiedProperties.add(baseName);
             }
           }
           break;

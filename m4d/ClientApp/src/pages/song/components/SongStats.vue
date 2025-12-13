@@ -47,10 +47,9 @@ const formatEchoNest = (n: number): string => {
           :is-creator="isCreator"
           role="canTag"
           type="number"
-          v-bind="$attrs"
-        />
-        BPM</BTd
-      >
+          v-bind="$attrs" />
+        BPM<AlgoGeneratedIcon v-if="!editing" :song="song"
+      /></BTd>
     </BTr>
     <BTr v-if="song.danceability">
       <BTh>Beat</BTh>
