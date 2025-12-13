@@ -161,23 +161,23 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
             </div><button class="btn btn-md btn-primary mt-2 collapsed" type="button" data-bvtoggle="dance-chooser" aria-expanded="false" aria-controls="dance-chooser">Add Dance Style</button>
           </div>
           <div class="col-md-auto">
-            <table data-v-381110ba="" id="BootstrapVueNext__ID__v-10__" class="table b-table table-borderless table-sm">
-              <tr data-v-381110ba="" class="">
-                <th data-v-381110ba="" scope="col" class="">Length</th>
-                <td data-v-381110ba="" class=""><span data-v-b2e59ff0="" data-v-381110ba=""><span data-v-b2e59ff0="">145</span></span> Seconds</td>
+            <table id="BootstrapVueNext__ID__v-10__" class="table b-table table-borderless table-sm">
+              <tr class="">
+                <th scope="col" class="">Length</th>
+                <td class=""><span data-v-b2e59ff0=""><span data-v-b2e59ff0="">145</span></span> Seconds</td>
               </tr>
-              <tr data-v-381110ba="" class="">
-                <th data-v-381110ba="" scope="col" class="">Tempo</th>
-                <td data-v-381110ba="" class=""><span data-v-b2e59ff0="" data-v-381110ba=""><span data-v-b2e59ff0="">151.7</span></span> BPM<a data-v-381110ba="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank" title="This tempo was algorithmically generated. Click to learn more." class="algo-generated-icon"><svg data-v-381110ba="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
+              <tr class="">
+                <th scope="col" class="">Tempo</th>
+                <td class=""><span data-v-b2e59ff0=""><span data-v-b2e59ff0="">151.7</span></span> BPM<a data-v-4d7308ba="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank" title="This tempo was algorithmically generated. Click to learn more." class="algo-generated-icon"><svg data-v-4d7308ba="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
                       <g fill="currentColor">
                         <path d="M6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z"></path>
                         <path d="M5.5.5a.5.5 0 0 0-1 0V2A2.5 2.5 0 0 0 2 4.5H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2A2.5 2.5 0 0 0 4.5 14v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14a2.5 2.5 0 0 0 2.5-2.5h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14A2.5 2.5 0 0 0 11.5 2V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1zm1 4.5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3A1.5 1.5 0 0 1 6.5 5"></path>
                       </g>
                     </svg></a></td>
               </tr>
-              <tr data-v-381110ba="" class="">
-                <th data-v-381110ba="" scope="col" class="">Beat</th>
-                <td data-v-381110ba="" class=""><a data-v-381110ba="" id="__m4d__000007" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-7.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-11__popover____placeholder" style="display: none;"></span>
+              <tr class="">
+                <th scope="col" class="">Beat</th>
+                <td class=""><a id="__m4d__000007" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-7.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-11__popover____placeholder" style="display: none;"></span>
                     <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
                       <div id="BootstrapVueNext__ID__v-11__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                         <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
@@ -189,9 +189,9 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
                     </transition-stub>
                   </a> 65.6%</td>
               </tr>
-              <tr data-v-381110ba="" class="">
-                <th data-v-381110ba="" scope="col" class="">Energy</th>
-                <td data-v-381110ba="" class=""><a data-v-381110ba="" id="__m4d__000008" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-12__popover____placeholder" style="display: none;"></span>
+              <tr class="">
+                <th scope="col" class="">Energy</th>
+                <td class=""><a id="__m4d__000008" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-12__popover____placeholder" style="display: none;"></span>
                     <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
                       <div id="BootstrapVueNext__ID__v-12__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                         <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
@@ -203,9 +203,9 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
                     </transition-stub>
                   </a> 41.4%</td>
               </tr>
-              <tr data-v-381110ba="" class="">
-                <th data-v-381110ba="" scope="col" class="">Mood</th>
-                <td data-v-381110ba="" class=""><a data-v-381110ba="" id="__m4d__000009" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-13__popover____placeholder" style="display: none;"></span>
+              <tr class="">
+                <th scope="col" class="">Mood</th>
+                <td class=""><a id="__m4d__000009" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-13__popover____placeholder" style="display: none;"></span>
                     <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
                       <div id="BootstrapVueNext__ID__v-13__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                         <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
@@ -217,13 +217,13 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
                     </transition-stub>
                   </a> 59.4%</td>
               </tr>
-              <tr data-v-381110ba="" class="">
-                <th data-v-381110ba="" scope="col" class="">Created</th>
-                <td data-v-381110ba="" class="">16-Dec-2017 03:18:42 AM</td>
+              <tr class="">
+                <th scope="col" class="">Created</th>
+                <td class="">16-Dec-2017 03:18:42 AM</td>
               </tr>
-              <tr data-v-381110ba="" class="">
-                <th data-v-381110ba="" scope="col" class="">Modified</th>
-                <td data-v-381110ba="" class="">11-Nov-2022 09:02:56 AM</td>
+              <tr class="">
+                <th scope="col" class="">Modified</th>
+                <td class="">11-Nov-2022 09:02:56 AM</td>
               </tr>
               <!--v-if-->
             </table>

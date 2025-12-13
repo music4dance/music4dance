@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Song } from "@/models/Song";
-import { PropertyType } from "@/models/SongProperty";
 import { computed } from "vue";
 import { formatDate } from "@/helpers/timeHelpers";
 
