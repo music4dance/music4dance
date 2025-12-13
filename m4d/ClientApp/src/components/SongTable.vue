@@ -563,10 +563,13 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
         />
       </template>
       <template #cell(tempo)="data">
-        <a v-if="tempoRef(data.item.song)" :href="tempoRef(data.item.song)" target="_blank">{{
-          tempoValue(data.item.song)
-        }}</a>
-        <span v-else>{{ tempoValue(data.item.song) }}</span>
+        <div
+          v-if="tempoValue(data.item.song)"
+          style="display: flex; flex-direction: column; align-items: center"
+        >
+          <a href="/home/tempi">{{ tempoValue(data.item.song) }}</a>
+          <AlgoGeneratedIcon :song="data.item.song" :stacked="true" />
+        </div>
       </template>
       <template #head(length)>
         <SortableHeader
@@ -761,10 +764,8 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
         </template>
         <span v-if="tempoValue(data.item.song)">
           @
-          <a v-if="tempoRef(data.item.song)" :href="tempoRef(data.item.song)" target="_blank">
-            {{ tempoValue(data.item.song) }} BPM
-          </a>
-          <span v-else>{{ tempoValue(data.item.song) }} BPM</span>
+          <a href="/home/tempi">{{ tempoValue(data.item.song) }} BPM</a>
+          <AlgoGeneratedIcon :song="data.item.song" />
         </span>
         <span v-if="lengthValue(data.item.song) && !isHidden('length')">
           - {{ lengthValue(data.item.song) }}s

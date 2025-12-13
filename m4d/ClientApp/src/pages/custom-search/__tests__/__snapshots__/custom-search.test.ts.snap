@@ -189,7 +189,13 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Moonglows">Moonglows</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">152</a>
+                  <!---->
+                  <div data-v-a7ef304f="" style="display: flex; flex-direction: column; align-items: center;"><a data-v-a7ef304f="" href="/home/tempi">152</a><a data-v-4d7308ba="" data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank" title="This tempo was algorithmically generated. Click to learn more." class="algo-generated-icon stacked"><svg data-v-4d7308ba="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                        <g fill="currentColor">
+                          <path d="M6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z"></path>
+                          <path d="M5.5.5a.5.5 0 0 0-1 0V2A2.5 2.5 0 0 0 2 4.5H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2A2.5 2.5 0 0 0 4.5 14v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14a2.5 2.5 0 0 0 2.5-2.5h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14A2.5 2.5 0 0 0 11.5 2V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1zm1 4.5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3A1.5 1.5 0 0 1 6.5 5"></path>
+                        </g>
+                      </svg></a></div>
                 </td>
                 <td class="">
                   <!---->145
@@ -409,7 +415,13 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=The%20Pogues">The Pogues</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">78</a>
+                  <!---->
+                  <div data-v-a7ef304f="" style="display: flex; flex-direction: column; align-items: center;"><a data-v-a7ef304f="" href="/home/tempi">78</a><a data-v-4d7308ba="" data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank" title="This tempo was algorithmically generated. Click to learn more." class="algo-generated-icon stacked"><svg data-v-4d7308ba="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                        <g fill="currentColor">
+                          <path d="M6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z"></path>
+                          <path d="M5.5.5a.5.5 0 0 0-1 0V2A2.5 2.5 0 0 0 2 4.5H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2A2.5 2.5 0 0 0 4.5 14v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14a2.5 2.5 0 0 0 2.5-2.5h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14A2.5 2.5 0 0 0 11.5 2V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1zm1 4.5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3A1.5 1.5 0 0 1 6.5 5"></path>
+                        </g>
+                      </svg></a></div>
                 </td>
                 <td class="">
                   <!---->272
@@ -691,7 +703,13 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=The%20Temptations">The Temptations</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">105</a>
+                  <!---->
+                  <div data-v-a7ef304f="" style="display: flex; flex-direction: column; align-items: center;"><a data-v-a7ef304f="" href="/home/tempi">105</a><a data-v-4d7308ba="" data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank" title="This tempo was algorithmically generated. Click to learn more." class="algo-generated-icon stacked"><svg data-v-4d7308ba="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                        <g fill="currentColor">
+                          <path d="M6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z"></path>
+                          <path d="M5.5.5a.5.5 0 0 0-1 0V2A2.5 2.5 0 0 0 2 4.5H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2A2.5 2.5 0 0 0 4.5 14v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14a2.5 2.5 0 0 0 2.5-2.5h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14A2.5 2.5 0 0 0 11.5 2V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1zm1 4.5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3A1.5 1.5 0 0 1 6.5 5"></path>
+                        </g>
+                      </svg></a></div>
                 </td>
                 <td class="">
                   <!---->172
@@ -971,7 +989,13 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Dean%20Martin">Dean Martin</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">134</a>
+                  <!---->
+                  <div data-v-a7ef304f="" style="display: flex; flex-direction: column; align-items: center;"><a data-v-a7ef304f="" href="/home/tempi">134</a><a data-v-4d7308ba="" data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank" title="This tempo was algorithmically generated. Click to learn more." class="algo-generated-icon stacked"><svg data-v-4d7308ba="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                        <g fill="currentColor">
+                          <path d="M6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z"></path>
+                          <path d="M5.5.5a.5.5 0 0 0-1 0V2A2.5 2.5 0 0 0 2 4.5H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2A2.5 2.5 0 0 0 4.5 14v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14a2.5 2.5 0 0 0 2.5-2.5h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14A2.5 2.5 0 0 0 11.5 2V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1zm1 4.5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3A1.5 1.5 0 0 1 6.5 5"></path>
+                        </g>
+                      </svg></a></div>
                 </td>
                 <td class="">
                   <!---->117
@@ -1164,7 +1188,13 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Faith%20Hill">Faith Hill</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">187</a>
+                  <!---->
+                  <div data-v-a7ef304f="" style="display: flex; flex-direction: column; align-items: center;"><a data-v-a7ef304f="" href="/home/tempi">187</a><a data-v-4d7308ba="" data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank" title="This tempo was algorithmically generated. Click to learn more." class="algo-generated-icon stacked"><svg data-v-4d7308ba="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                        <g fill="currentColor">
+                          <path d="M6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z"></path>
+                          <path d="M5.5.5a.5.5 0 0 0-1 0V2A2.5 2.5 0 0 0 2 4.5H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2A2.5 2.5 0 0 0 4.5 14v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14a2.5 2.5 0 0 0 2.5-2.5h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14A2.5 2.5 0 0 0 11.5 2V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1zm1 4.5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3A1.5 1.5 0 0 1 6.5 5"></path>
+                        </g>
+                      </svg></a></div>
                 </td>
                 <td class="">
                   <!---->194
@@ -1328,7 +1358,13 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Seth%20MacFarlane">Seth MacFarlane</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">119</a>
+                  <!---->
+                  <div data-v-a7ef304f="" style="display: flex; flex-direction: column; align-items: center;"><a data-v-a7ef304f="" href="/home/tempi">119</a><a data-v-4d7308ba="" data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank" title="This tempo was algorithmically generated. Click to learn more." class="algo-generated-icon stacked"><svg data-v-4d7308ba="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                        <g fill="currentColor">
+                          <path d="M6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z"></path>
+                          <path d="M5.5.5a.5.5 0 0 0-1 0V2A2.5 2.5 0 0 0 2 4.5H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2A2.5 2.5 0 0 0 4.5 14v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14a2.5 2.5 0 0 0 2.5-2.5h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14A2.5 2.5 0 0 0 11.5 2V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1zm1 4.5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3A1.5 1.5 0 0 1 6.5 5"></path>
+                        </g>
+                      </svg></a></div>
                 </td>
                 <td class="">
                   <!---->179
@@ -1516,7 +1552,13 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Ballroom%20Orchestra%20and%20Singers">Ballroom Orchestra and Singers</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">87</a>
+                  <!---->
+                  <div data-v-a7ef304f="" style="display: flex; flex-direction: column; align-items: center;"><a data-v-a7ef304f="" href="/home/tempi">87</a><a data-v-4d7308ba="" data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank" title="This tempo was algorithmically generated. Click to learn more." class="algo-generated-icon stacked"><svg data-v-4d7308ba="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                        <g fill="currentColor">
+                          <path d="M6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z"></path>
+                          <path d="M5.5.5a.5.5 0 0 0-1 0V2A2.5 2.5 0 0 0 2 4.5H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2A2.5 2.5 0 0 0 4.5 14v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14a2.5 2.5 0 0 0 2.5-2.5h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14A2.5 2.5 0 0 0 11.5 2V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1zm1 4.5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3A1.5 1.5 0 0 1 6.5 5"></path>
+                        </g>
+                      </svg></a></div>
                 </td>
                 <td class="">
                   <!---->181
@@ -1636,7 +1678,13 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Frank%20Sinatra">Frank Sinatra</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">85</a>
+                  <!---->
+                  <div data-v-a7ef304f="" style="display: flex; flex-direction: column; align-items: center;"><a data-v-a7ef304f="" href="/home/tempi">85</a><a data-v-4d7308ba="" data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank" title="This tempo was algorithmically generated. Click to learn more." class="algo-generated-icon stacked"><svg data-v-4d7308ba="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                        <g fill="currentColor">
+                          <path d="M6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z"></path>
+                          <path d="M5.5.5a.5.5 0 0 0-1 0V2A2.5 2.5 0 0 0 2 4.5H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2A2.5 2.5 0 0 0 4.5 14v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14a2.5 2.5 0 0 0 2.5-2.5h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14A2.5 2.5 0 0 0 11.5 2V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1zm1 4.5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3A1.5 1.5 0 0 1 6.5 5"></path>
+                        </g>
+                      </svg></a></div>
                 </td>
                 <td class="">
                   <!---->161
@@ -1740,7 +1788,13 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Michael%20Bubl%C3%A9">Michael Bublé</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">80</a>
+                  <!---->
+                  <div data-v-a7ef304f="" style="display: flex; flex-direction: column; align-items: center;"><a data-v-a7ef304f="" href="/home/tempi">80</a><a data-v-4d7308ba="" data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank" title="This tempo was algorithmically generated. Click to learn more." class="algo-generated-icon stacked"><svg data-v-4d7308ba="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                        <g fill="currentColor">
+                          <path d="M6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z"></path>
+                          <path d="M5.5.5a.5.5 0 0 0-1 0V2A2.5 2.5 0 0 0 2 4.5H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2A2.5 2.5 0 0 0 4.5 14v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14a2.5 2.5 0 0 0 2.5-2.5h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14A2.5 2.5 0 0 0 11.5 2V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1zm1 4.5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3A1.5 1.5 0 0 1 6.5 5"></path>
+                        </g>
+                      </svg></a></div>
                 </td>
                 <td class="">
                   <!---->228
@@ -1885,7 +1939,13 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Great%20Lake%20Swimmers">Great Lake Swimmers</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">122</a>
+                  <!---->
+                  <div data-v-a7ef304f="" style="display: flex; flex-direction: column; align-items: center;"><a data-v-a7ef304f="" href="/home/tempi">122</a><a data-v-4d7308ba="" data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank" title="This tempo was algorithmically generated. Click to learn more." class="algo-generated-icon stacked"><svg data-v-4d7308ba="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                        <g fill="currentColor">
+                          <path d="M6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z"></path>
+                          <path d="M5.5.5a.5.5 0 0 0-1 0V2A2.5 2.5 0 0 0 2 4.5H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2A2.5 2.5 0 0 0 4.5 14v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14a2.5 2.5 0 0 0 2.5-2.5h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14A2.5 2.5 0 0 0 11.5 2V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1zm1 4.5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3A1.5 1.5 0 0 1 6.5 5"></path>
+                        </g>
+                      </svg></a></div>
                 </td>
                 <td class="">
                   <!---->174
@@ -2024,7 +2084,13 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Ariana%20Grande">Ariana Grande</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">96</a>
+                  <!---->
+                  <div data-v-a7ef304f="" style="display: flex; flex-direction: column; align-items: center;"><a data-v-a7ef304f="" href="/home/tempi">96</a><a data-v-4d7308ba="" data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank" title="This tempo was algorithmically generated. Click to learn more." class="algo-generated-icon stacked"><svg data-v-4d7308ba="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                        <g fill="currentColor">
+                          <path d="M6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z"></path>
+                          <path d="M5.5.5a.5.5 0 0 0-1 0V2A2.5 2.5 0 0 0 2 4.5H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2A2.5 2.5 0 0 0 4.5 14v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14a2.5 2.5 0 0 0 2.5-2.5h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14A2.5 2.5 0 0 0 11.5 2V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1zm1 4.5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3A1.5 1.5 0 0 1 6.5 5"></path>
+                        </g>
+                      </svg></a></div>
                 </td>
                 <td class="">
                   <!---->172
@@ -2187,9 +2253,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                 <td class="">
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Elenowen">Elenowen</a>
                 </td>
-                <td class="">
-                  <!----><span data-v-a7ef304f=""></span>
-                </td>
+                <td class=""></td>
                 <td class="">
                   <!---->241
                 </td>
@@ -2258,7 +2322,13 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=She%20%26%20Him">She &amp; Him</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">127</a>
+                  <!---->
+                  <div data-v-a7ef304f="" style="display: flex; flex-direction: column; align-items: center;"><a data-v-a7ef304f="" href="/home/tempi">127</a><a data-v-4d7308ba="" data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank" title="This tempo was algorithmically generated. Click to learn more." class="algo-generated-icon stacked"><svg data-v-4d7308ba="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                        <g fill="currentColor">
+                          <path d="M6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z"></path>
+                          <path d="M5.5.5a.5.5 0 0 0-1 0V2A2.5 2.5 0 0 0 2 4.5H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2A2.5 2.5 0 0 0 4.5 14v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14a2.5 2.5 0 0 0 2.5-2.5h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14A2.5 2.5 0 0 0 11.5 2V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1zm1 4.5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3A1.5 1.5 0 0 1 6.5 5"></path>
+                        </g>
+                      </svg></a></div>
                 </td>
                 <td class="">
                   <!---->178
@@ -2406,7 +2476,13 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Taylor%20Swift">Taylor Swift</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">134</a>
+                  <!---->
+                  <div data-v-a7ef304f="" style="display: flex; flex-direction: column; align-items: center;"><a data-v-a7ef304f="" href="/home/tempi">134</a><a data-v-4d7308ba="" data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank" title="This tempo was algorithmically generated. Click to learn more." class="algo-generated-icon stacked"><svg data-v-4d7308ba="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                        <g fill="currentColor">
+                          <path d="M6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z"></path>
+                          <path d="M5.5.5a.5.5 0 0 0-1 0V2A2.5 2.5 0 0 0 2 4.5H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2A2.5 2.5 0 0 0 4.5 14v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14a2.5 2.5 0 0 0 2.5-2.5h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14A2.5 2.5 0 0 0 11.5 2V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1zm1 4.5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3A1.5 1.5 0 0 1 6.5 5"></path>
+                        </g>
+                      </svg></a></div>
                 </td>
                 <td class="">
                   <!---->228
@@ -2585,9 +2661,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                 <td class="">
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Urban%20Bossa%20Club">Urban Bossa Club</a>
                 </td>
-                <td class="">
-                  <!----><span data-v-a7ef304f=""></span>
-                </td>
+                <td class=""></td>
                 <td class="">
                   <!---->183
                 </td>
@@ -2664,9 +2738,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                 <td class="">
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Johnny%20Cash">Johnny Cash</a>
                 </td>
-                <td class="">
-                  <!----><span data-v-a7ef304f=""></span>
-                </td>
+                <td class=""></td>
                 <td class="">
                   <!---->154
                 </td>
@@ -2752,9 +2824,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                 <td class="">
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Darin">Darin</a>
                 </td>
-                <td class="">
-                  <!----><span data-v-a7ef304f=""></span>
-                </td>
+                <td class=""></td>
                 <td class="">
                   <!---->176
                 </td>
@@ -2823,7 +2893,13 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Sabrina%20Claudio">Sabrina Claudio</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">125</a>
+                  <!---->
+                  <div data-v-a7ef304f="" style="display: flex; flex-direction: column; align-items: center;"><a data-v-a7ef304f="" href="/home/tempi">125</a><a data-v-4d7308ba="" data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank" title="This tempo was algorithmically generated. Click to learn more." class="algo-generated-icon stacked"><svg data-v-4d7308ba="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                        <g fill="currentColor">
+                          <path d="M6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z"></path>
+                          <path d="M5.5.5a.5.5 0 0 0-1 0V2A2.5 2.5 0 0 0 2 4.5H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2A2.5 2.5 0 0 0 4.5 14v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14a2.5 2.5 0 0 0 2.5-2.5h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14A2.5 2.5 0 0 0 11.5 2V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1zm1 4.5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3A1.5 1.5 0 0 1 6.5 5"></path>
+                        </g>
+                      </svg></a></div>
                 </td>
                 <td class="">
                   <!---->205
@@ -2984,7 +3060,13 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Nat%20King%20Cole">Nat King Cole</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">87</a>
+                  <!---->
+                  <div data-v-a7ef304f="" style="display: flex; flex-direction: column; align-items: center;"><a data-v-a7ef304f="" href="/home/tempi">87</a><a data-v-4d7308ba="" data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank" title="This tempo was algorithmically generated. Click to learn more." class="algo-generated-icon stacked"><svg data-v-4d7308ba="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                        <g fill="currentColor">
+                          <path d="M6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z"></path>
+                          <path d="M5.5.5a.5.5 0 0 0-1 0V2A2.5 2.5 0 0 0 2 4.5H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2A2.5 2.5 0 0 0 4.5 14v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14a2.5 2.5 0 0 0 2.5-2.5h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14A2.5 2.5 0 0 0 11.5 2V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1zm1 4.5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3A1.5 1.5 0 0 1 6.5 5"></path>
+                        </g>
+                      </svg></a></div>
                 </td>
                 <td class="">
                   <!---->177
@@ -3157,7 +3239,13 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Anne%20Vada">Anne Vada</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">89</a>
+                  <!---->
+                  <div data-v-a7ef304f="" style="display: flex; flex-direction: column; align-items: center;"><a data-v-a7ef304f="" href="/home/tempi">89</a><a data-v-4d7308ba="" data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank" title="This tempo was algorithmically generated. Click to learn more." class="algo-generated-icon stacked"><svg data-v-4d7308ba="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                        <g fill="currentColor">
+                          <path d="M6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z"></path>
+                          <path d="M5.5.5a.5.5 0 0 0-1 0V2A2.5 2.5 0 0 0 2 4.5H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2A2.5 2.5 0 0 0 4.5 14v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14a2.5 2.5 0 0 0 2.5-2.5h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14A2.5 2.5 0 0 0 11.5 2V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1zm1 4.5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3A1.5 1.5 0 0 1 6.5 5"></path>
+                        </g>
+                      </svg></a></div>
                 </td>
                 <td class="">
                   <!---->286
@@ -3269,9 +3357,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                 <td class="">
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=LadBaby">LadBaby</a>
                 </td>
-                <td class="">
-                  <!----><span data-v-a7ef304f=""></span>
-                </td>
+                <td class=""></td>
                 <td class="">
                   <!---->207
                 </td>
@@ -3368,7 +3454,13 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Thurl%20Ravenscroft">Thurl Ravenscroft</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">88</a>
+                  <!---->
+                  <div data-v-a7ef304f="" style="display: flex; flex-direction: column; align-items: center;"><a data-v-a7ef304f="" href="/home/tempi">88</a><a data-v-4d7308ba="" data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank" title="This tempo was algorithmically generated. Click to learn more." class="algo-generated-icon stacked"><svg data-v-4d7308ba="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                        <g fill="currentColor">
+                          <path d="M6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z"></path>
+                          <path d="M5.5.5a.5.5 0 0 0-1 0V2A2.5 2.5 0 0 0 2 4.5H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2A2.5 2.5 0 0 0 4.5 14v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14a2.5 2.5 0 0 0 2.5-2.5h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14A2.5 2.5 0 0 0 11.5 2V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1zm1 4.5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3A1.5 1.5 0 0 1 6.5 5"></path>
+                        </g>
+                      </svg></a></div>
                 </td>
                 <td class="">
                   <!---->316
@@ -3492,9 +3584,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                 <td class="">
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=L%C3%98L%C3%98">LØLØ</a>
                 </td>
-                <td class="">
-                  <!----><span data-v-a7ef304f=""></span>
-                </td>
+                <td class=""></td>
                 <td class="">
                   <!---->134
                 </td>
@@ -3577,7 +3667,13 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Ariana%20Grande">Ariana Grande</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">75</a>
+                  <!---->
+                  <div data-v-a7ef304f="" style="display: flex; flex-direction: column; align-items: center;"><a data-v-a7ef304f="" href="/home/tempi">75</a><a data-v-4d7308ba="" data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank" title="This tempo was algorithmically generated. Click to learn more." class="algo-generated-icon stacked"><svg data-v-4d7308ba="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                        <g fill="currentColor">
+                          <path d="M6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z"></path>
+                          <path d="M5.5.5a.5.5 0 0 0-1 0V2A2.5 2.5 0 0 0 2 4.5H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2A2.5 2.5 0 0 0 4.5 14v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14a2.5 2.5 0 0 0 2.5-2.5h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14A2.5 2.5 0 0 0 11.5 2V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1zm1 4.5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3A1.5 1.5 0 0 1 6.5 5"></path>
+                        </g>
+                      </svg></a></div>
                 </td>
                 <td class="">
                   <!---->159
@@ -3791,7 +3887,13 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/artist/?name=Mungo%20Jerry">Mungo Jerry</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank">83</a>
+                  <!---->
+                  <div data-v-a7ef304f="" style="display: flex; flex-direction: column; align-items: center;"><a data-v-a7ef304f="" href="/home/tempi">83</a><a data-v-4d7308ba="" data-v-a7ef304f="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank" title="This tempo was algorithmically generated. Click to learn more." class="algo-generated-icon stacked"><svg data-v-4d7308ba="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                        <g fill="currentColor">
+                          <path d="M6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z"></path>
+                          <path d="M5.5.5a.5.5 0 0 0-1 0V2A2.5 2.5 0 0 0 2 4.5H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2A2.5 2.5 0 0 0 4.5 14v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14a2.5 2.5 0 0 0 2.5-2.5h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14A2.5 2.5 0 0 0 11.5 2V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1zm1 4.5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3A1.5 1.5 0 0 1 6.5 5"></path>
+                        </g>
+                      </svg></a></div>
                 </td>
                 <td class="">
                   <!---->213
