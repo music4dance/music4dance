@@ -11,18 +11,9 @@ interface PlaylistMetadata {
 }
 
 // Mock getMenuContext
+const mockGetMenuContext = vi.fn();
 vi.mock("@/helpers/GetMenuContext", () => ({
-  getMenuContext: () => ({
-    userId: "test-user-123",
-    isPremium: true,
-    isAuthenticated: true,
-    hasRole: (role: string) => role === "canSpotify", // Mock hasRole to return true for canSpotify
-    axiosXsrf: {
-      get: vi.fn(),
-      post: vi.fn(),
-    },
-    getAccountLink: (page: string) => `/identity/account/${page}`,
-  }),
+  getMenuContext: () => mockGetMenuContext(),
 }));
 
 // Mock bootstrap-vue-next toast
@@ -50,6 +41,19 @@ describe("AddToPlaylistButton.vue", () => {
 
     // Clear localStorage before each test
     localStorage.clear();
+
+    // Reset to default authenticated premium user
+    mockGetMenuContext.mockReturnValue({
+      userId: "test-user-123",
+      isPremium: true,
+      isAuthenticated: true,
+      hasRole: (role: string) => role === "canSpotify",
+      axiosXsrf: {
+        get: vi.fn(),
+        post: vi.fn(),
+      },
+      getAccountLink: (page: string) => `/identity/account/${page}`,
+    });
   });
 
   test("renders button when song has Spotify track", () => {
@@ -181,5 +185,83 @@ describe("AddToPlaylistButton.vue", () => {
       wrapper.vm as unknown as { loadFromCache: () => PlaylistMetadata[] | null }
     ).loadFromCache();
     expect(loaded).toBeNull(); // Should not load other user's cache
+  });
+
+  test("shows requirements button for unauthenticated user", () => {
+    // Mock unauthenticated user
+    mockGetMenuContext.mockReturnValue({
+      userId: null,
+      isPremium: false,
+      isAuthenticated: false,
+      hasRole: () => false,
+      axiosXsrf: { get: vi.fn(), post: vi.fn() },
+      getAccountLink: (page: string) => `/identity/account/${page}`,
+    });
+
+    const wrapper = mount(AddToPlaylistButton, {
+      props: { purchaseInfos: mockPurchaseInfos, songId: "test-song-id" },
+    });
+
+    // Should show a simple button (not dropdown) for unauthenticated user
+    const button = wrapper.find("button.btn");
+    expect(button.exists()).toBe(true);
+
+    // Verify it's not a dropdown by checking that BDropdown doesn't exist
+    const dropdownComponent = wrapper.html();
+    expect(dropdownComponent).not.toContain("dropdown-toggle");
+  });
+
+  test("shows requirements button for authenticated but non-premium user", () => {
+    // Mock authenticated but non-premium user
+    mockGetMenuContext.mockReturnValue({
+      userId: "test-user-123",
+      isPremium: false,
+      isAuthenticated: true,
+      hasRole: () => false,
+      axiosXsrf: { get: vi.fn(), post: vi.fn() },
+      getAccountLink: (page: string) => `/identity/account/${page}`,
+    });
+
+    const wrapper = mount(AddToPlaylistButton, {
+      props: { purchaseInfos: mockPurchaseInfos, songId: "test-song-id" },
+    });
+
+    // Should show a simple button (not dropdown) for non-premium user
+    const button = wrapper.find("button.btn");
+    expect(button.exists()).toBe(true);
+
+    // Verify it's not a dropdown by checking the HTML
+    const dropdownComponent = wrapper.html();
+    expect(dropdownComponent).not.toContain("dropdown-toggle");
+  });
+
+  test("clicking requirements button shows modal", async () => {
+    // Mock unauthenticated user
+    mockGetMenuContext.mockReturnValue({
+      userId: null,
+      isPremium: false,
+      isAuthenticated: false,
+      hasRole: () => false,
+      axiosXsrf: { get: vi.fn(), post: vi.fn() },
+      getAccountLink: (page: string) => `/identity/account/${page}`,
+    });
+
+    const wrapper = mount(AddToPlaylistButton, {
+      props: { purchaseInfos: mockPurchaseInfos, songId: "test-song-id" },
+    });
+
+    // Verify initial state
+    expect(
+      (wrapper.vm as unknown as { showRequirementsModal: boolean }).showRequirementsModal,
+    ).toBe(false);
+
+    // Find and click the requirements button
+    const button = wrapper.find("button.btn");
+    await button.trigger("click");
+
+    // Check that showRequirementsModal is set to true
+    expect(
+      (wrapper.vm as unknown as { showRequirementsModal: boolean }).showRequirementsModal,
+    ).toBe(true);
   });
 });
