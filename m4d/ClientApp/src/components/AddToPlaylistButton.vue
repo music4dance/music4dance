@@ -56,6 +56,10 @@ const hasSpotifyTrack = computed(() => spotifyInfo.value !== undefined);
 
 const buttonText = computed(() => (props.showText ? "Add to Playlist" : ""));
 
+// Note: We can't check Spotify OAuth status on the client side because it's not in roles.
+// The server will return 403 if OAuth is missing, which handleError() will catch and show the modal.
+const canAccessFeature = computed(() => menuContext.isAuthenticated && menuContext.isPremium);
+
 // SessionStorage cache (tab-specific) for playlist data
 // Note: sessionStorage is isolated per browser tab/window, not shared across tabs
 const CACHE_KEY_PREFIX = "spotify_playlists";
@@ -240,7 +244,21 @@ const refreshPlaylists = async () => {
 
 <template>
   <div v-if="hasSpotifyTrack" class="d-inline-block">
+    <!-- Show requirements button if user doesn't meet requirements -->
+    <BButton
+      v-if="!canAccessFeature"
+      :variant="variant as any"
+      :size="size as any"
+      :disabled="loading"
+      @click="showRequirementsModal = true"
+    >
+      <IBiSpotify aria-hidden="true" />
+      {{ buttonText }}
+    </BButton>
+
+    <!-- Show dropdown if user meets all requirements -->
     <BDropdown
+      v-else
       :variant="variant as any"
       :size="size as any"
       text="Add to Playlist"
