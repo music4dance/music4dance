@@ -21,6 +21,7 @@ const hasSpotifyTrack = computed(() => {
 const onShown = () => {
   //const player = document.getElementById(playerId) as HTMLAudioElement;
   if (player.value) {
+    player.value.volume = 0.5; // Set volume to 50%
     player.value.play();
   }
 };
