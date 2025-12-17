@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 
 using m4d.Services;
+using m4d.Services.ServiceHealth;
 using m4d.Utilities;
 using m4d.ViewModels;
 
@@ -21,9 +22,10 @@ public class CustomSearchController : ContentController
         DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
         IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-        IFeatureManagerSnapshot featureManager, ILogger<SongController> logger, LinkGenerator linkGenerator, IMapper mapper) :
+        IFeatureManagerSnapshot featureManager, ILogger<SongController> logger, LinkGenerator linkGenerator, IMapper mapper,
+        ServiceHealthManager serviceHealth) :
         base(context, userManager, searchService, danceStatsManager, configuration,
-            fileProvider, backroundTaskQueue, featureManager, logger, linkGenerator, mapper)
+            fileProvider, backroundTaskQueue, featureManager, logger, linkGenerator, mapper, serviceHealth)
     {
         UseVue = UseVue.V3;
         HelpPage = "song-list";
@@ -34,6 +36,29 @@ public class CustomSearchController : ContentController
     {
         Filter = Database.SearchService.GetSongFilter().CreateCustomSearchFilter(name, dance, page);
         HelpPage = Filter.IsSimple ? "song-list" : "advanced-search";
+
+        // Check if search service is available
+        if (!IsSearchAvailable())
+        {
+            Logger.LogWarning("Custom search requested but SearchService is unavailable");
+            ViewData["SearchUnavailable"] = true;
+            var title = char.ToUpper(name[0]) + name[1..];
+            return Vue3(
+                $"{title} Dance Music",
+                "Help finding holiday dance music for partner dancing - Foxtrot, Waltz, Swing and others.",
+                "custom-search",
+                new CustomSearchModel
+                {
+                    Name = name.ToLowerInvariant(),
+                    Description = null,
+                    Histories = new List<SongHistory>(), // Empty list
+                    Filter = Mapper.Map<SongFilterSparse>(Filter),
+                    Count = 0,
+                    Dance = dance,
+                    PlayListId = null,
+                },
+                danceEnvironment: true);
+        }
 
         try
         {
@@ -92,6 +117,27 @@ public class CustomSearchController : ContentController
                      Dance = dance,
                      PlayListId = playListId,
                  },
+                danceEnvironment: true);
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable"))
+        {
+            Logger.LogError(ex, "Custom search failed due to unavailable Azure Search service");
+            ViewData["SearchUnavailable"] = true;
+            var title = char.ToUpper(name[0]) + name[1..];
+            return Vue3(
+                $"{title} Dance Music",
+                "Help finding holiday dance music for partner dancing - Foxtrot, Waltz, Swing and others.",
+                "custom-search",
+                new CustomSearchModel
+                {
+                    Name = name.ToLowerInvariant(),
+                    Description = null,
+                    Histories = new List<SongHistory>(),
+                    Filter = Mapper.Map<SongFilterSparse>(Filter),
+                    Count = 0,
+                    Dance = dance,
+                    PlayListId = null,
+                },
                 danceEnvironment: true);
         }
         catch (RedirectException ex)

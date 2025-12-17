@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 
+using m4d.Services.ServiceHealth;
 using m4d.Utilities;
 
 using Microsoft.AspNetCore.Authorization;
@@ -16,7 +17,8 @@ namespace m4d.APIControllers;
 public class SongController(
     DanceMusicContext context, UserManager<ApplicationUser> userManager,
     ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-    IConfiguration configuration, ILogger<SongController> logger) : DanceMusicApiController(context, userManager, searchService, danceStatsManager, configuration, logger)
+    IConfiguration configuration, ILogger<SongController> logger,
+    ServiceHealthManager serviceHealth) : DanceMusicApiController(context, userManager, searchService, danceStatsManager, configuration, logger)
 {
     [HttpGet]
     public async Task<IActionResult> Get([FromServices] IMapper mapper,
@@ -25,50 +27,96 @@ public class SongController(
         Logger.LogInformation(
             $"Enter Search: Search = {search}, Title = {title}, Artist={artist}, Filter = {filter}, User = {User.Identity?.Name}");
 
-        IEnumerable<Song> songs;
-        if (!string.IsNullOrWhiteSpace(search))
+        // Check if search service is available
+        if (!serviceHealth.IsServiceHealthy("SearchService"))
         {
-            songs = await SongIndex.SimpleSearch(search);
-        }
-        else if (!string.IsNullOrWhiteSpace(title) && !string.IsNullOrWhiteSpace(artist))
-        {
-            songs = await SongIndex.SongsFromTitleArtist(title, artist);
-        }
-        else if (!string.IsNullOrWhiteSpace(filter))
-        {
-            var songFilter = Database.SearchService.GetSongFilter(filter);
-            var results = await SongIndex.Search(songFilter);
-            songs = results.Songs;
-        }
-        else
-        {
-            return StatusCode((int)HttpStatusCode.BadRequest);
+            Logger.LogWarning("API song search requested but SearchService is unavailable");
+            return StatusCode((int)HttpStatusCode.ServiceUnavailable, new
+            {
+                error = "Search service temporarily unavailable",
+                message = "Please try again in a few minutes"
+            });
         }
 
-        if (songs == null || !songs.Any())
+        try
         {
-            return StatusCode((int)HttpStatusCode.NotFound);
-        }
+            IEnumerable<Song> songs;
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                songs = await SongIndex.SimpleSearch(search);
+            }
+            else if (!string.IsNullOrWhiteSpace(title) && !string.IsNullOrWhiteSpace(artist))
+            {
+                songs = await SongIndex.SongsFromTitleArtist(title, artist);
+            }
+            else if (!string.IsNullOrWhiteSpace(filter))
+            {
+                var songFilter = Database.SearchService.GetSongFilter(filter);
+                var results = await SongIndex.Search(songFilter);
+                songs = results.Songs;
+            }
+            else
+            {
+                return StatusCode((int)HttpStatusCode.BadRequest);
+            }
 
-        var anonymized = new List<SongHistory>();
-        foreach (var song in songs)
+            if (songs == null || !songs.Any())
+            {
+                return StatusCode((int)HttpStatusCode.NotFound);
+            }
+
+            var anonymized = new List<SongHistory>();
+            foreach (var song in songs)
+            {
+                anonymized.Add(await UserMapper.AnonymizeHistory(song.GetHistory(mapper), UserManager));
+            }
+
+            return JsonCamelCase(anonymized);
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable"))
         {
-            anonymized.Add(await UserMapper.AnonymizeHistory(song.GetHistory(mapper), UserManager));
+            Logger.LogError(ex, "API song search failed due to unavailable Azure Search service");
+            return StatusCode((int)HttpStatusCode.ServiceUnavailable, new
+            {
+                error = "Search service temporarily unavailable",
+                message = "Please try again in a few minutes"
+            });
         }
-
-        return JsonCamelCase(anonymized);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> Get([FromServices] IMapper mapper, Guid id)
     {
-        Logger.LogInformation($"Enter Patch: SongId = {id}, User = {User.Identity?.Name}");
+        Logger.LogInformation($"Enter Get by ID: SongId = {id}, User = {User.Identity?.Name}");
 
-        var song = await SongIndex.FindSong(id);
-        return song == null
-            ? StatusCode((int)HttpStatusCode.NotFound)
-            : JsonCamelCase(
-                await UserMapper.AnonymizeHistory(song.GetHistory(mapper), UserManager));
+        // Check if search service is available
+        if (!serviceHealth.IsServiceHealthy("SearchService"))
+        {
+            Logger.LogWarning("API song get by ID requested but SearchService is unavailable");
+            return StatusCode((int)HttpStatusCode.ServiceUnavailable, new
+            {
+                error = "Search service temporarily unavailable",
+                message = "Please try again in a few minutes"
+            });
+        }
+
+        try
+        {
+            var song = await SongIndex.FindSong(id);
+            return song == null
+                ? StatusCode((int)HttpStatusCode.NotFound)
+                : JsonCamelCase(
+                    await UserMapper.AnonymizeHistory(song.GetHistory(mapper), UserManager));
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable"))
+        {
+            Logger.LogError(ex, "API song get by ID failed due to unavailable Azure Search service");
+            return StatusCode((int)HttpStatusCode.ServiceUnavailable, new
+            {
+                error = "Search service temporarily unavailable",
+                message = "Please try again in a few minutes"
+            });
+        }
     }
 
     [Authorize]

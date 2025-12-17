@@ -3,6 +3,7 @@
 using DanceLibrary;
 
 using m4d.Services;
+using m4d.Services.ServiceHealth;
 using m4d.ViewModels;
 
 using Microsoft.AspNetCore.Authorization;
@@ -43,10 +44,11 @@ public class DanceController : ContentController
         DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
         IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-        IFeatureManagerSnapshot featureManager, ILogger<DanceController> logger, LinkGenerator linkGenerator, IMapper mapper) :
+        IFeatureManagerSnapshot featureManager, ILogger<DanceController> logger, LinkGenerator linkGenerator, IMapper mapper,
+        ServiceHealthManager serviceHealth) :
         base(context, userManager, searchService, danceStatsManager,
             configuration, fileProvider, backroundTaskQueue, featureManager, logger,
-            linkGenerator, mapper)
+            linkGenerator, mapper, serviceHealth)
     {
         UseVue = UseVue.V3;
     }

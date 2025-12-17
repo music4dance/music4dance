@@ -122,15 +122,36 @@ public class ServiceHealthManager
     /// <summary>
     /// Get a summary of overall system health
     /// </summary>
-    public (int healthy, int degraded, int unavailable, int unknown) GetHealthSummary()
+    public HealthSummary GetHealthSummary()
     {
         var statuses = _serviceStatuses.Values.ToList();
-        return (
-            healthy: statuses.Count(s => s.Status == ServiceStatus.Healthy),
-            degraded: statuses.Count(s => s.Status == ServiceStatus.Degraded),
-            unavailable: statuses.Count(s => s.Status == ServiceStatus.Unavailable),
-            unknown: statuses.Count(s => s.Status == ServiceStatus.Unknown)
-        );
+        var healthyCount = statuses.Count(s => s.Status == ServiceStatus.Healthy);
+        var degradedCount = statuses.Count(s => s.Status == ServiceStatus.Degraded);
+        var unavailableCount = statuses.Count(s => s.Status == ServiceStatus.Unavailable);
+        var unknownCount = statuses.Count(s => s.Status == ServiceStatus.Unknown);
+
+        return new HealthSummary
+        {
+            HealthyCount = healthyCount,
+            DegradedCount = degradedCount,
+            UnavailableCount = unavailableCount,
+            UnknownCount = unknownCount,
+            IsFullyHealthy = unavailableCount == 0 && degradedCount == 0 && unknownCount == 0,
+            HasCriticalFailures = unavailableCount > 0
+        };
+    }
+
+    /// <summary>
+    /// Summary of system health status
+    /// </summary>
+    public class HealthSummary
+    {
+        public int HealthyCount { get; set; }
+        public int DegradedCount { get; set; }
+        public int UnavailableCount { get; set; }
+        public int UnknownCount { get; set; }
+        public bool IsFullyHealthy { get; set; }
+        public bool HasCriticalFailures { get; set; }
     }
 
     /// <summary>
@@ -175,14 +196,14 @@ public class ServiceHealthManager
         var summary = GetHealthSummary();
         report.AppendLine();
 
-        if (summary.unavailable > 0)
+        if (summary.UnavailableCount > 0)
         {
-            report.AppendLine($"Overall Status: DEGRADED ({summary.unavailable} service(s) unavailable)");
+            report.AppendLine($"Overall Status: DEGRADED ({summary.UnavailableCount} service(s) unavailable)");
             report.AppendLine("Application started in degraded mode.");
         }
-        else if (summary.degraded > 0)
+        else if (summary.DegradedCount > 0)
         {
-            report.AppendLine($"Overall Status: DEGRADED ({summary.degraded} service(s) degraded)");
+            report.AppendLine($"Overall Status: DEGRADED ({summary.DegradedCount} service(s) degraded)");
             report.AppendLine("Application started with degraded services.");
         }
         else

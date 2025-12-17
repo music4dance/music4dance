@@ -192,18 +192,20 @@ m4d/Views/Shared/
 
 #### 2.3 Page-Specific Degradation Strategy
 
-| Page/Feature                              | Required Services                   | Degraded Behavior                                                                              |
-| ----------------------------------------- | ----------------------------------- | ---------------------------------------------------------------------------------------------- |
-| Home and most other home controller pages | None (static content)               | Always renders fully - no database required                                                    |
-| Tempi and Counter pages                   | Database (with JSON cache fallback) | Serve from JSON file cache if database unavailable; show notice if cache also missing          |
-| Dance Pages                               | Database (with JSON cache fallback) | Serve from JSON file cache if database unavailable; show notice if cache also missing          |
-| Song Search                               | Database + Search                   | Show cached popular songs or empty state with notice                                           |
-| Song Details                              | Database                            | Show "Service temporarily unavailable" with menu                                               |
-| User Login                                | Database + Auth Providers           | Show email login only, disable social logins with notice; cannot authenticate without database |
-| User Registration                         | Database + Email Service            | Disabled when database unavailable (cannot create accounts)                                    |
-| Playlist Creation                         | Database + Spotify                  | Disable feature with explanatory message                                                       |
-| Browse Dances                             | Database                            | Show static dance list from JSON cache if available, otherwise menu only                       |
-| Admin Pages                               | Database                            | Show status dashboard, disable modification features                                           |
+| Page/Feature                              | Required Services                   | Degraded Behavior                                                                                                      | Phase |
+| ----------------------------------------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ----- |
+| Home and most other home controller pages | None (static content)               | Always renders fully - no database required                                                                            | 1     |
+| Tempi and Counter pages                   | Database (with JSON cache fallback) | Serve from JSON file cache if database unavailable; show notice if cache also missing                                  | 2     |
+| Dance Pages                               | Database (with JSON cache fallback) | Serve from JSON file cache if database unavailable; show notice if cache also missing                                  | 2     |
+| Song Search/List                          | Search Service                      | ✅ Phase 2: Backend returns empty results with ViewData flag; Phase 3: Show user-friendly notice                       | 2/3   |
+| Song Details                              | Search Service                      | ✅ Phase 2: Backend returns error view; **Phase 3**: Create Vue component with friendly message and navigation options | 2/3   |
+| User Login                                | Database + Auth Providers           | ✅ Phase 2: Check OAuth provider health, disable unavailable options                                                   | 2     |
+| User Registration                         | Database + Email Service            | Disabled when database unavailable (cannot create accounts)                                                            | 2     |
+| Playlist Creation                         | Database + Spotify                  | Disable feature with explanatory message                                                                               | 3     |
+| Browse Dances                             | Database                            | Show static dance list from JSON cache if available, otherwise menu only                                               | 2     |
+| Admin Pages                               | Database                            | Show status dashboard, disable modification features                                                                   | 3     |
+
+**Phase 2 vs Phase 3 Note**: Phase 2 focuses on backend graceful degradation (no exceptions, proper HTTP status codes, ViewData flags for views). Phase 3 will enhance user experience with Vue components, status banners, and friendly error messages. For example, song details pages currently return a generic error view in Phase 2, but Phase 3 will create a proper Vue error component with clear messaging and navigation options.
 
 **JSON File Cache Strategy**:
 
@@ -462,21 +464,61 @@ Before release, verify:
 
 ## Implementation Phases
 
-### Phase 1: Foundation (Week 1)
+### Phase 1: Foundation (Week 1) ✅ COMPLETE
 
 - Create ServiceHealthManager and health check infrastructure
 - Wrap all service registrations in try-catch blocks
 - Add basic logging
 - Ensure application starts with any service unavailable
 
-### Phase 2: Degradation (Week 2)
+### Phase 2: Backend Degradation (Week 2)
 
-- Implement controller-level health checks
-- Create fallback views
-- Add status banner component
-- Update critical pages for degraded operation
+**Scope**: Server-side health checks, error handling, and graceful degradation in controllers and APIs.
 
-### Phase 3: User Experience (Week 3)
+Backend Work:
+
+- ✅ Create ResilientController base class with health check helpers
+- ✅ Create HealthController with monitoring endpoints (/api/health, /api/health/status, /api/health/report)
+- ✅ Create service unavailability partial views (\_SearchUnavailable.cshtml, etc.)
+- ✅ Add health checks to API SearchController (page search)
+- ✅ Add health checks to Authentication pages (OAuth provider availability)
+- 🔄 Add ServiceHealthManager to ContentController for MVC controllers
+- 🔄 Update SongController to check SearchService health before all search operations
+- 🔄 Update CustomSearchController to check SearchService health
+- 🔄 Update API SongController to check SearchService health
+- 🔄 Wrap all Azure Search operations in try-catch to handle null factory exceptions gracefully
+- 🔄 Show appropriate error messages instead of empty results or exceptions
+
+**Key Deliverables**:
+
+- Controllers return proper HTTP status codes (503) when services unavailable
+- MVC controllers render views with degraded state notices (using partial views)
+- API controllers return JSON error responses
+- All pages render the navigation menu even when services are down
+- Proper logging of all degradation scenarios
+
+### Phase 3: Frontend User Experience (Week 3)
+
+**Scope**: Vue.js components to display service status and enhance user experience.
+
+Frontend Work:
+
+- Create status banner component
+- Add frontend health monitoring (poll /api/health/status endpoint)
+- Enhance error messages
+- Update Vue components to handle degraded states
+- Disable features that depend on unavailable services
+- Add explanatory tooltips
+- **Create proper error pages for song details when search unavailable** (replace generic error with Vue component showing clear message and navigation)
+- **Add "Search temporarily unavailable" notices to song list pages** (display banner when ViewData["SearchUnavailable"] is set)
+
+**Key Deliverables**:
+
+- User-friendly error messages for all degraded scenarios
+- Visual indicators (banners, badges) showing service status
+- Graceful UI degradation (disabled buttons with tooltips)
+- Polling mechanism to detect service recovery
+- Smooth user experience even during outages on disabled buttons
 
 - Create status page
 - Enhance error messages

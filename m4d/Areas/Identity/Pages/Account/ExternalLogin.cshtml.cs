@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
+using m4d.Services.ServiceHealth;
+
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -21,19 +23,22 @@ public class ExternalLoginModel : LoginModelBase
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IEmailSender _emailSender;
     private readonly ILogger<ExternalLoginModel> _logger;
+    private readonly ServiceHealthManager _serviceHealth;
 
     public ExternalLoginModel(
         SignInManager<ApplicationUser> signInManager,
         UserManager<ApplicationUser> userManager,
         ILogger<ExternalLoginModel> logger,
         IEmailSender emailSender,
-        IUrlHelperFactory urlHelperFactory)
+        IUrlHelperFactory urlHelperFactory,
+        ServiceHealthManager serviceHealth)
         : base(urlHelperFactory, logger)
     {
         _signInManager = signInManager;
         _userManager = userManager;
         _logger = logger;
         _emailSender = emailSender;
+        _serviceHealth = serviceHealth;
     }
 
     [BindProperty]
@@ -84,6 +89,15 @@ public class ExternalLoginModel : LoginModelBase
 
     public IActionResult OnPost(string provider, string returnUrl = null)
     {
+        // Check if the OAuth provider is healthy
+        var serviceName = $"{provider}OAuth";
+        if (!_serviceHealth.IsServiceHealthy(serviceName))
+        {
+            _logger.LogWarning("External login attempted for {Provider} but service is unavailable", provider);
+            ErrorMessage = $"{provider} sign-in is temporarily unavailable. Please try email/password login or a different provider.";
+            return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
+        }
+
         // Request a redirect to the external login provider.
         var redirectUrl = Url.Page("./ExternalLogin", pageHandler: "Callback", values: new { returnUrl });
         var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);

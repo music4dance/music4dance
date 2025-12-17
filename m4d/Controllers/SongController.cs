@@ -6,6 +6,7 @@ using Azure.Search.Documents.Models;
 using DanceLibrary;
 
 using m4d.Services;
+using m4d.Services.ServiceHealth;
 using m4d.Utilities;
 using m4d.ViewModels;
 
@@ -33,9 +34,10 @@ public class SongController : ContentController
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
         IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
         IFeatureManagerSnapshot featureManager, ILogger<SongController> logger, LinkGenerator linkGenerator, IMapper mapper,
-        SpotifyAuthService spotifyAuthService) :
+        SpotifyAuthService spotifyAuthService,
+        ServiceHealthManager serviceHealth) :
         base(context, userManager, searchService, danceStatsManager, configuration,
-            fileProvider, backroundTaskQueue, featureManager, logger, linkGenerator, mapper)
+            fileProvider, backroundTaskQueue, featureManager, logger, linkGenerator, mapper, serviceHealth)
     {
         _spotifyAuthService = spotifyAuthService ?? throw new ArgumentNullException(nameof(spotifyAuthService));
         UseVue = UseVue.V3;
@@ -191,6 +193,14 @@ public class SongController : ContentController
     {
         HelpPage = Filter.IsSimple ? "song-list" : "advanced-search";
 
+        // Check if search service is available
+        if (!IsSearchAvailable())
+        {
+            Logger.LogWarning("Song search requested but SearchService is unavailable");
+            ViewData["SearchUnavailable"] = true;
+            return await FormatSongList(Array.Empty<Song>(), 0, 0); // Empty list with notice
+        }
+
         try
         {
             if (!Filter.IsEmptyBot &&
@@ -201,6 +211,12 @@ public class SongController : ContentController
 
             var results = await new SongSearch(Filter, UserName, IsPremium(), SongIndex, UserManager, TaskQueue).Search();
             return await FormatResults(results);
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable"))
+        {
+            Logger.LogError(ex, "Search failed due to unavailable Azure Search service");
+            ViewData["SearchUnavailable"] = true;
+            return await FormatSongList(Array.Empty<Song>(), 0, 0); // Empty list with notice
         }
         catch (RedirectException ex)
         {
@@ -564,23 +580,40 @@ public class SongController : ContentController
             return spider;
         }
 
-        var gid = id ?? Guid.Empty;
-        var song = id.HasValue ? await SongIndex.FindSong(id.Value) : null;
-        if (song == null)
+        // Check if search service is available
+        if (!IsSearchAvailable())
         {
-            song = await SongIndex.FindMergedSong(gid);
-            return song != null
-                ? RedirectToActionPermanent(
-                    "details",
-                    new { id = song.SongId.ToString(), Filter })
-                : ReturnError(
-                    HttpStatusCode.NotFound,
-                    $"The song with id = {gid} has been deleted.");
+            Logger.LogWarning("Song details requested but SearchService is unavailable");
+            ViewData["SearchUnavailable"] = true;
+            return View("Error");
         }
 
-        var details = await GetSongDetails(song);
-        return Vue3(details.Title, $"music4dance catalog: {details.Title} dance information", "song",
-            details, danceEnvironment: true, tagEnvironment: true, helpPage: "song-details");
+        try
+        {
+            var gid = id ?? Guid.Empty;
+            var song = id.HasValue ? await SongIndex.FindSong(id.Value) : null;
+            if (song == null)
+            {
+                song = await SongIndex.FindMergedSong(gid);
+                return song != null
+                    ? RedirectToActionPermanent(
+                        "details",
+                        new { id = song.SongId.ToString(), Filter })
+                    : ReturnError(
+                        HttpStatusCode.NotFound,
+                        $"The song with id = {gid} has been deleted.");
+            }
+
+            var details = await GetSongDetails(song);
+            return Vue3(details.Title, $"music4dance catalog: {details.Title} dance information", "song",
+                details, danceEnvironment: true, tagEnvironment: true, helpPage: "song-details");
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable"))
+        {
+            Logger.LogError(ex, "Song details failed due to unavailable Azure Search service");
+            ViewData["SearchUnavailable"] = true;
+            return View("Error");
+        }
     }
 
     private async Task<SongDetailsModel> GetSongDetails(Song song)

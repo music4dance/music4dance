@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
+using m4d.Services.ServiceHealth;
+
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -18,18 +20,21 @@ public class LoginModel : LoginModelBase
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly ILogger<LoginModel> _logger;
     private readonly IEmailSender _emailSender;
+    private readonly ServiceHealthManager _serviceHealth;
 
     public LoginModel(SignInManager<ApplicationUser> signInManager,
         ILogger<LoginModel> logger,
         UserManager<ApplicationUser> userManager,
         IEmailSender emailSender,
-        IUrlHelperFactory urlHelperFactory)
+        IUrlHelperFactory urlHelperFactory,
+        ServiceHealthManager serviceHealth)
         : base(urlHelperFactory, logger)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _emailSender = emailSender;
         _logger = logger;
+        _serviceHealth = serviceHealth;
     }
 
     /// <summary>
@@ -103,6 +108,11 @@ public class LoginModel : LoginModelBase
         await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+        // Set ViewData for OAuth provider availability
+        ViewData["GoogleAvailable"] = _serviceHealth.IsServiceHealthy("GoogleOAuth");
+        ViewData["FacebookAvailable"] = _serviceHealth.IsServiceHealthy("FacebookOAuth");
+        ViewData["SpotifyAvailable"] = _serviceHealth.IsServiceHealthy("SpotifyOAuth");
 
         Provider = provider;
     }

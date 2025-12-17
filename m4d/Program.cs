@@ -1,5 +1,6 @@
 using Azure.Identity;
 using Azure.Search.Documents;
+using Azure.Search.Documents.Indexes;
 
 using m4d.Areas.Identity;
 using m4d.Services;
@@ -306,6 +307,24 @@ else
     // For framework-dependent deployments, use Azure client builder with managed identity
     try
     {
+        // Validate endpoints before attempting to register clients
+        bool hasValidEndpoints = true;
+        foreach (var section in indexSections)
+        {
+            var endpoint = section["endpoint"];
+            if (string.IsNullOrEmpty(endpoint) || !Uri.TryCreate(endpoint, UriKind.Absolute, out var uri))
+            {
+                Console.WriteLine($"WARNING: Invalid endpoint for index {section.Key}: {endpoint}");
+                hasValidEndpoints = false;
+                break;
+            }
+        }
+
+        if (!hasValidEndpoints)
+        {
+            throw new InvalidOperationException("One or more search index endpoints are invalid or missing");
+        }
+
         services.AddAzureClients(clientBuilder =>
         {
             Console.WriteLine("Creating DefaultAzureCredential for Azure Search clients");
@@ -350,8 +369,19 @@ else
     {
         serviceHealth.MarkUnavailable("SearchService", $"{ex.GetType().Name}: {ex.Message}");
         Console.WriteLine($"ERROR configuring Azure Search with managed identity: {ex.GetType().Name}: {ex.Message}");
-        Console.WriteLine($"Stack trace: {ex.StackTrace}");
         Console.WriteLine("WARNING: Continuing without Azure Search - search features will be unavailable");
+
+        // Register null/fallback clients to prevent dependency injection failures
+        // This allows the app to start even if search service configuration is invalid
+        services.AddSingleton<IAzureClientFactory<SearchClient>>(sp =>
+        {
+            return new NullSearchClientFactory();
+        });
+        services.AddSingleton<IAzureClientFactory<SearchIndexClient>>(sp =>
+        {
+            return new NullSearchIndexClientFactory();
+        });
+        Console.WriteLine("Registered fallback search client factories");
     }
 }
 
@@ -625,8 +655,30 @@ Console.WriteLine(serviceHealth.GenerateStartupReport());
 Console.WriteLine();
 
 Console.WriteLine("Building application...");
-var app = builder.Build();
-Console.WriteLine("Application built successfully");
+WebApplication app;
+try
+{
+    app = builder.Build();
+    Console.WriteLine("Application built successfully");
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"ERROR: Application failed to build: {ex.GetType().Name}: {ex.Message}");
+    Console.WriteLine("This may indicate a critical service configuration issue that prevents dependency injection.");
+    Console.WriteLine("Common causes:");
+    Console.WriteLine("  - Invalid Azure Search endpoint configuration");
+    Console.WriteLine("  - Missing required service dependencies");
+    Console.WriteLine("  - Service registration conflicts");
+    Console.WriteLine();
+    Console.WriteLine("To resolve:");
+    Console.WriteLine("  1. Check appsettings.Development.json for invalid endpoints");
+    Console.WriteLine("  2. Verify all required configuration values are present");
+    Console.WriteLine("  3. Check the startup health report above for failed services");
+    Console.WriteLine();
+    Console.WriteLine("Full exception details:");
+    Console.WriteLine(ex.ToString());
+    throw; // Re-throw to stop the application
+}
 
 if (!isDevelopment)
 {

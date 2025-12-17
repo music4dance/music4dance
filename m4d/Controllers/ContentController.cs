@@ -3,6 +3,7 @@
 using Azure.Search.Documents;
 
 using m4d.Services;
+using m4d.Services.ServiceHealth;
 using m4d.Utilities;
 
 using Microsoft.AspNetCore.Identity;
@@ -17,12 +18,14 @@ public class ContentController(
     DanceMusicContext context, UserManager<ApplicationUser> userManager,
     ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
     IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-    IFeatureManagerSnapshot featureManager, ILogger logger, LinkGenerator linkGenerator, IMapper mapper) : DanceMusicController(context, userManager, searchService, danceStatsManager, configuration,
+    IFeatureManagerSnapshot featureManager, ILogger logger, LinkGenerator linkGenerator, IMapper mapper,
+    ServiceHealthManager serviceHealth) : DanceMusicController(context, userManager, searchService, danceStatsManager, configuration,
         fileProvider, backroundTaskQueue, featureManager, logger)
 {
     protected SongFilter Filter { get; set; }
     protected readonly LinkGenerator LinkGenerator = linkGenerator;
     protected readonly IMapper Mapper = mapper;
+    protected readonly ServiceHealthManager ServiceHealth = serviceHealth;
 
     public override async Task OnActionExecutionAsync(
     ActionExecutingContext context, ActionExecutionDelegate next)
@@ -82,6 +85,46 @@ public class ContentController(
         }
 
         return View(redirect.View, model);
+    }
+
+    #endregion
+
+    #region Service Health Checks
+
+    /// <summary>
+    /// Check if the database service is available
+    /// </summary>
+    protected bool IsDatabaseAvailable()
+    {
+        return ServiceHealth.IsServiceHealthy("Database");
+    }
+
+    /// <summary>
+    /// Check if the search service is available
+    /// </summary>
+    protected bool IsSearchAvailable()
+    {
+        return ServiceHealth.IsServiceHealthy("SearchService");
+    }
+
+    /// <summary>
+    /// Check if a specific OAuth provider is available
+    /// </summary>
+    protected bool IsAuthProviderAvailable(string provider)
+    {
+        return ServiceHealth.IsServiceHealthy($"{provider}OAuth");
+    }
+
+    /// <summary>
+    /// Set ViewData for all service availability statuses
+    /// </summary>
+    protected void SetAllServiceStatuses()
+    {
+        ViewData["DatabaseAvailable"] = IsDatabaseAvailable();
+        ViewData["SearchAvailable"] = IsSearchAvailable();
+        ViewData["GoogleAvailable"] = IsAuthProviderAvailable("Google");
+        ViewData["FacebookAvailable"] = IsAuthProviderAvailable("Facebook");
+        ViewData["SpotifyAvailable"] = IsAuthProviderAvailable("Spotify");
     }
 
     #endregion

@@ -1,6 +1,8 @@
 ﻿using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
 
+using m4d.Services.ServiceHealth;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Azure;
@@ -16,7 +18,8 @@ public class SearchController(
     DanceMusicContext context, UserManager<ApplicationUser> userManager,
     ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
     IConfiguration configuration, ILogger<SearchController> logger,
-    IAzureClientFactory<SearchClient> searchFactory) : DanceMusicApiController(context, userManager, searchService, danceStatsManager, configuration, logger)
+    IAzureClientFactory<SearchClient> searchFactory,
+    ServiceHealthManager serviceHealth) : DanceMusicApiController(context, userManager, searchService, danceStatsManager, configuration, logger)
 {
     private readonly SearchClient _client = searchFactory.CreateClient("PageIndex");
 
@@ -28,6 +31,17 @@ public class SearchController(
         if (string.IsNullOrWhiteSpace(search))
         {
             return StatusCode((int)HttpStatusCode.BadRequest);
+        }
+
+        // Check if search service is available
+        if (!serviceHealth.IsServiceHealthy("SearchService"))
+        {
+            Logger.LogWarning("Search requested but SearchService is unavailable");
+            return StatusCode((int)HttpStatusCode.ServiceUnavailable, new
+            {
+                error = "Search service temporarily unavailable",
+                message = "Please try again in a few minutes"
+            });
         }
 
         var pages = await Search(search);

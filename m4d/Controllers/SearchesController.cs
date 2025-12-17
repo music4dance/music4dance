@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 
 using m4d.Services;
+using m4d.Services.ServiceHealth;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -20,9 +21,10 @@ public class SearchesController : ContentController
         DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
         IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-        IFeatureManagerSnapshot featureManager, ILogger<SearchesController> logger, LinkGenerator linkGenerator, IMapper mapper) :
+        IFeatureManagerSnapshot featureManager, ILogger<SearchesController> logger, LinkGenerator linkGenerator, IMapper mapper,
+        ServiceHealthManager serviceHealth) :
         base(context, userManager, searchService, danceStatsManager, configuration,
-            fileProvider, backroundTaskQueue, featureManager, logger, linkGenerator, mapper)
+            fileProvider, backroundTaskQueue, featureManager, logger, linkGenerator, mapper, serviceHealth)
     {
         HelpPage = "saved-searches";
     }
