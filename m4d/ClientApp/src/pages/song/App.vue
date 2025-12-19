@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { SongDetailsModel } from "@/models/SongDetailsModel";
 import { TypedJSON } from "typedjson";
+import { getMenuContext } from "@/helpers/GetMenuContext";
 
 declare const model_: string;
 const model = TypedJSON.parse(model_, SongDetailsModel)!;
+const context = getMenuContext();
+const searchAvailable = context.searchHealthy !== false;
 
 // TODO:
 //  Figure out how to be better about updating global taglist - this works, but we're doing
@@ -17,6 +20,6 @@ const model = TypedJSON.parse(model_, SongDetailsModel)!;
 
 <template>
   <PageFrame id="app">
-    <SongCore :model="model" />
+    <SongCore v-if="searchAvailable" :model="model" />
   </PageFrame>
 </template>

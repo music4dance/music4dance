@@ -3,6 +3,7 @@
 exports[`Artist > renders an artist page 1`] = `
 "<div><span context="[object Object]">MainMenu</span>
   <!--v-if-->
+  <!--v-if-->
   <div id="body-content" class="container-fluid body-content">
     <h1>Artist: Ricky Martin</h1>
     <div>

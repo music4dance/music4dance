@@ -33,9 +33,13 @@ const emit = defineEmits<{
 
 const undoForm = ref<HTMLFormElement | null>(null);
 
-const songStore = ref(Song.fromHistory(props.model.songHistory, props.model.userName));
+const songStore = ref(
+  props.model.songHistory
+    ? Song.fromHistory(props.model.songHistory, props.model.userName)
+    : new Song(),
+);
 const editor = ref<SongEditor | null>(
-  props.model.userName
+  props.model.userName && props.model.songHistory
     ? new SongEditor(context.axiosXsrf, props.model.userName, props.model.songHistory)
     : null,
 );

@@ -97,6 +97,11 @@ music4dance.net is a sophisticated web application designed to help dancers find
   - **NEVER** use `<i class="bi bi-icon-name">` (old Bootstrap Icons pattern)
   - Icons from `@iconify-json/bi` package (Bootstrap Icons)
   - No explicit imports needed - unplugin-icons handles auto-import
+- **Bootstrap Components**: ALWAYS prefer bootstrap-vue-next components over custom implementations or native Bootstrap 5
+  - Use `<BAccordion>`, `<BAlert>`, `<BButton>`, `<BCard>`, etc. from bootstrap-vue-next
+  - Avoid manual Bootstrap CSS/JS patterns when equivalent component exists
+  - Provides better Vue integration, reactivity, and type safety
+  - Docs: https://bootstrap-vue-next.github.io/bootstrap-vue-next/
 
 ### File Organization
 

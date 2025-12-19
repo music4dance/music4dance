@@ -2,6 +2,7 @@
 
 exports[`User Info > Renders User Info Page 1`] = `
 "<div><span context="[object Object]">MainMenu</span>
+  <!--v-if-->
   <nav aria-label="breadcrumb">
     <nav aria-label="breadcrumb" style="padding: 0.25rem 0.5rem;">
       <ol class="breadcrumb">

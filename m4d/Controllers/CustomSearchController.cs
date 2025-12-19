@@ -41,7 +41,6 @@ public class CustomSearchController : ContentController
         if (!IsSearchAvailable())
         {
             Logger.LogWarning("Custom search requested but SearchService is unavailable");
-            ViewData["SearchUnavailable"] = true;
             var title = char.ToUpper(name[0]) + name[1..];
             return Vue3(
                 $"{title} Dance Music",
@@ -55,7 +54,7 @@ public class CustomSearchController : ContentController
                     Filter = Mapper.Map<SongFilterSparse>(Filter),
                     Count = 0,
                     Dance = dance,
-                    PlayListId = null,
+                    PlayListId = null
                 },
                 danceEnvironment: true);
         }
@@ -122,7 +121,6 @@ public class CustomSearchController : ContentController
         catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable"))
         {
             Logger.LogError(ex, "Custom search failed due to unavailable Azure Search service");
-            ViewData["SearchUnavailable"] = true;
             var title = char.ToUpper(name[0]) + name[1..];
             return Vue3(
                 $"{title} Dance Music",
@@ -136,7 +134,7 @@ public class CustomSearchController : ContentController
                     Filter = Mapper.Map<SongFilterSparse>(Filter),
                     Count = 0,
                     Dance = dance,
-                    PlayListId = null,
+                    PlayListId = null
                 },
                 danceEnvironment: true);
         }

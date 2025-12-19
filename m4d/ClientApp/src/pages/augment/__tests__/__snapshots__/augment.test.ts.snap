@@ -3,6 +3,7 @@
 exports[`Augment Page > Renders the Augment Page 1`] = `
 "<div data-v-6c79bed6=""><span context="[object Object]">MainMenu</span>
   <!--v-if-->
+  <!--v-if-->
   <div id="body-content" class="container-fluid body-content">
     <div class="mt-2"></div>
     <div>

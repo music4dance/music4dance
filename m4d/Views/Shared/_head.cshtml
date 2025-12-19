@@ -4,12 +4,14 @@
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.FeatureManagement
 @using Newtonsoft.Json
+@using m4d.Services.ServiceHealth
 
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery _xsrf
 @inject UserManager<ApplicationUser> _userManager
 @inject ISearchServiceManager _searchService
 @inject IConfiguration _configuration
 @inject IFeatureManagerSnapshot _featureManager
+@inject ServiceHealthManager _serviceHealth
 
 @{
     var userAgent = Context.Request.Headers.UserAgent.ToString().ToLower();
@@ -113,7 +115,10 @@
         updateMessage: '@GlobalState.UpdateMessage',
         marketingMessage: "@Html.Raw(@marketingMessage)",
         customerReminder: @(customerReminder && !hideAds ? "true" : "false"),
-        xsrfToken: '@GetAntiXsrfRequestToken()'
+        xsrfToken: '@GetAntiXsrfRequestToken()',
+        searchHealthy: @(_serviceHealth.IsServiceHealthy("SearchService").ToString().ToLower()),
+        databaseHealthy: @(_serviceHealth.IsServiceHealthy("Database").ToString().ToLower()),
+        configurationHealthy: @(_serviceHealth.IsServiceHealthy("AppConfiguration").ToString().ToLower())
     };
 </script>
 
@@ -142,11 +147,11 @@
     </script>
 }
 
-<script> 
-    var $buoop = {required:{e:-3,f:-3,o:-3,s:-1,c:-3},insecure:true,api:2022.03 }; 
-    function $buo_f(){ 
-        var e = document.createElement("script"); 
-        e.src = "//browser-update.org/update.min.js"; 
+<script>
+    var $buoop = {required:{e:-3,f:-3,o:-3,s:-1,c:-3},insecure:true,api:2022.03 };
+    function $buo_f(){
+        var e = document.createElement("script");
+        e.src = "//browser-update.org/update.min.js";
         document.body.appendChild(e);
     };
     try {document.addEventListener("DOMContentLoaded", $buo_f,false)}

@@ -187,7 +187,6 @@ public class SongController : ContentController
         }
     }
 
-
     // TODO: Consider abstracting this (and maybe format) out into a builder/computer
     private async Task<ActionResult> DoAzureSearch()
     {
@@ -197,7 +196,6 @@ public class SongController : ContentController
         if (!IsSearchAvailable())
         {
             Logger.LogWarning("Song search requested but SearchService is unavailable");
-            ViewData["SearchUnavailable"] = true;
             return await FormatSongList(Array.Empty<Song>(), 0, 0); // Empty list with notice
         }
 
@@ -215,7 +213,6 @@ public class SongController : ContentController
         catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable"))
         {
             Logger.LogError(ex, "Search failed due to unavailable Azure Search service");
-            ViewData["SearchUnavailable"] = true;
             return await FormatSongList(Array.Empty<Song>(), 0, 0); // Empty list with notice
         }
         catch (RedirectException ex)
@@ -584,8 +581,13 @@ public class SongController : ContentController
         if (!IsSearchAvailable())
         {
             Logger.LogWarning("Song details requested but SearchService is unavailable");
-            ViewData["SearchUnavailable"] = true;
-            return View("Error");
+            return Vue3("Song Details Unavailable", "Song details are temporarily unavailable", "song",
+                new SongDetailsModel
+                {
+                    Title = "Song Details Unavailable",
+                    Filter = Mapper.Map<SongFilterSparse>(Filter),
+                    UserName = UserName
+                }, danceEnvironment: true, tagEnvironment: true, helpPage: "song-details");
         }
 
         try
@@ -611,8 +613,13 @@ public class SongController : ContentController
         catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable"))
         {
             Logger.LogError(ex, "Song details failed due to unavailable Azure Search service");
-            ViewData["SearchUnavailable"] = true;
-            return View("Error");
+            return Vue3("Song Details Unavailable", "Song details are temporarily unavailable", "song",
+                new SongDetailsModel
+                {
+                    Title = "Song Details Unavailable",
+                    Filter = Mapper.Map<SongFilterSparse>(Filter),
+                    UserName = UserName
+                }, danceEnvironment: true, tagEnvironment: true, helpPage: "song-details");
         }
     }
 
