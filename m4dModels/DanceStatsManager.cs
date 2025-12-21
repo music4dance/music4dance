@@ -12,12 +12,12 @@ public interface IDanceStatsManager
     IList<DanceStats> Groups { get; }
 
     Task ClearCache(DanceMusicCoreService dms, bool fromStore);
-    Task ReloadDances(DanceMusicCoreService dms);
+    Task ReloadDances(DanceMusicCoreService dms, object serviceHealthManager = null);
 
     Task<DanceStatsInstance>
-        LoadFromAzure(DanceMusicCoreService dms, string source = "default");
+        LoadFromAzure(DanceMusicCoreService dms, string source = "default", object serviceHealthManager = null);
 
-    Task Initialize(DanceMusicCoreService dms);
+    Task Initialize(DanceMusicCoreService dms, object serviceHealthManager = null);
 
     Task InitializeDanceLibrary();
 }
@@ -42,14 +42,14 @@ public class DanceStatsManager : IDanceStatsManager
 
     public DanceStatsInstance Instance { get; private set; }
 
-    public async Task Initialize(DanceMusicCoreService dms)
+    public async Task Initialize(DanceMusicCoreService dms, object serviceHealthManager = null)
     {
         if (Instance != null)
         {
             throw new Exception("Should only Initialize DanceStatsManager once");
         }
 
-        Instance = await LoadFromAppData(dms) ?? await LoadFromAzure(dms);
+        Instance = await LoadFromAppData(dms, serviceHealthManager) ?? await LoadFromAzure(dms, "default", serviceHealthManager);
     }
 
     public IList<DanceStats> Dances => Instance.Dances;
@@ -64,7 +64,7 @@ public class DanceStatsManager : IDanceStatsManager
     {
         var instance = fromStore
             ? await LoadFromAzure(dms)
-            : await LoadFromAppData(dms);
+            : await LoadFromAppData(dms, serviceHealthManager: null);
 
         if (instance != null)
         {
@@ -77,7 +77,7 @@ public class DanceStatsManager : IDanceStatsManager
     {
     }
 
-    public async Task ReloadDances(DanceMusicCoreService dms)
+    public async Task ReloadDances(DanceMusicCoreService dms, object serviceHealthManager = null)
     {
         foreach (var dance in await dms.Context.LoadDances())
         {
@@ -91,7 +91,7 @@ public class DanceStatsManager : IDanceStatsManager
         Source += " + reload";
     }
 
-    private async Task<DanceStatsInstance> LoadFromAppData(DanceMusicCoreService dms)
+    private async Task<DanceStatsInstance> LoadFromAppData(DanceMusicCoreService dms, object serviceHealthManager = null)
     {
         var json = await FileManager.GetStats();
         if (json == null)
@@ -101,23 +101,23 @@ public class DanceStatsManager : IDanceStatsManager
         await InitializeDanceLibrary();
         LastUpdate = DateTime.Now;
         Source = "AppData";
-        Instance = await DanceStatsInstance.LoadFromJson(json, dms, this);
+        Instance = await DanceStatsInstance.LoadFromJson(json, dms, this, serviceHealthManager);
         return Instance;
     }
 
-    public async Task<DanceStatsInstance> LoadFromJson(string json, DanceMusicCoreService dms)
+    public async Task<DanceStatsInstance> LoadFromJson(string json, DanceMusicCoreService dms, object serviceHealthManager = null)
     {
         Source = "Json";
-        Instance = await DanceStatsInstance.LoadFromJson(json, dms, this);
+        Instance = await DanceStatsInstance.LoadFromJson(json, dms, this, serviceHealthManager);
         return Instance;
     }
 
     public async Task<DanceStatsInstance> LoadFromAzure(
-        DanceMusicCoreService dms, string source = "default")
+        DanceMusicCoreService dms, string source = "default", object serviceHealthManager = null)
     {
         await InitializeDanceLibrary();
         var instance = await DanceStatsInstance.BuildInstance(
-            dms, source);
+            dms, source, serviceHealthManager);
 
         LastUpdate = DateTime.Now;
         Source = "Azure";

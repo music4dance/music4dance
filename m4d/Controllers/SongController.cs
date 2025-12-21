@@ -207,7 +207,7 @@ public class SongController : ContentController
                 throw new RedirectException("BotFilter", Filter);
             }
 
-            var results = await new SongSearch(Filter, UserName, IsPremium(), SongIndex, UserManager, TaskQueue).Search();
+            var results = await new SongSearch(Filter, UserName, IsPremium(), SongIndex, UserManager, TaskQueue, ServiceHealth).Search();
             return await FormatResults(results);
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable"))
@@ -228,7 +228,7 @@ public class SongController : ContentController
 
     private async Task<List<SongHistory>> AnonymizeSongs(IReadOnlyCollection<Song> songs)
     {
-        var dictionary = await UserMapper.GetUserNameDictionary(UserManager);
+        var dictionary = await UserMapper.GetUserNameDictionary(UserManager, ServiceHealth);
         return songs.Select(
             s =>
                 UserMapper.AnonymizeHistory(s.GetHistory(Mapper), dictionary)).ToList();
@@ -629,7 +629,7 @@ public class SongController : ContentController
         {
             Title = song.Title,
             SongHistory = await UserMapper.AnonymizeHistory(
-                song.GetHistory(Mapper), UserManager),
+                song.GetHistory(Mapper), UserManager, ServiceHealth),
             Filter = Mapper.Map<SongFilterSparse>(Filter),
             UserName = UserName,
         };
@@ -1023,7 +1023,7 @@ public class SongController : ContentController
             Logger.LogInformation($"CreateSpotify: {LogCreateInfo(info)}");
             var p = await AzureParmsFromFilter(filter);
             p.IncludeTotalCount = true;
-            var search = new SongSearch(filter, UserName, true, SongIndex, UserManager, TaskQueue);
+            var search = new SongSearch(filter, UserName, true, SongIndex, UserManager, TaskQueue, ServiceHealth);
 
             var service = MusicService.GetService(ServiceType.Spotify);
             var loginKey = await _spotifyAuthService.GetSpotifyLoginKey(User.Identity?.Name);
@@ -1695,7 +1695,7 @@ public class SongController : ContentController
             "H" => JsonCamelCase(
                                 results.Songs.Select(
                                         s =>
-                                            UserMapper.AnonymizeHistory(s.GetHistory(Mapper), UserManager))
+                                            UserMapper.AnonymizeHistory(s.GetHistory(Mapper), UserManager, ServiceHealth))
                                     .ToList()),
             _ => JsonCamelCase(null),
         };

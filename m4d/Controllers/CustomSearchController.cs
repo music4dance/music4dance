@@ -70,7 +70,7 @@ public class CustomSearchController : ContentController
             }
 
             var results = await new SongSearch(
-                Filter, UserName, IsPremium(), SongIndex, UserManager, TaskQueue).Search();
+                Filter, UserName, IsPremium(), SongIndex, UserManager, TaskQueue, ServiceHealth).Search();
 
             string playListId = null;
 
@@ -83,7 +83,7 @@ public class CustomSearchController : ContentController
                 playListId = playlist?.Id;
             }
 
-            var dictionary = await UserMapper.GetUserNameDictionary(UserManager);
+            var dictionary = await UserMapper.GetUserNameDictionary(UserManager, ServiceHealth);
             var histories = results.Songs
                 .Select(s => UserMapper.AnonymizeHistory(s.GetHistory(Mapper), dictionary))
                 .ToList();

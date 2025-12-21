@@ -1,4 +1,5 @@
 ﻿using m4d.Services;
+using m4d.Services.ServiceHealth;
 using m4d.Utilities;
 using m4d.ViewModels;
 
@@ -26,8 +27,9 @@ public class PaymentController : CommerceController
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
         IConfiguration configuration, IFileProvider fileProvider,
         IBackgroundTaskQueue backroundTaskQueue, IFeatureManagerSnapshot featureManager,
-        ILogger<PaymentController> logger, IreCAPTCHASiteVerifyV2 siteVerify) :
-        base(context, userManager, searchService, danceStatsManager, configuration, fileProvider, backroundTaskQueue, featureManager, logger)
+        ILogger<PaymentController> logger, IreCAPTCHASiteVerifyV2 siteVerify,
+        ServiceHealthManager serviceHealth) :
+        base(context, userManager, searchService, danceStatsManager, configuration, fileProvider, backroundTaskQueue, featureManager, logger, serviceHealth)
     {
         var test = GlobalState.UseTestKeys ? "Test" : "";
         StripeConfiguration.ApiKey = configuration[$"Authentication:Stripe{test}:SecretKey"];

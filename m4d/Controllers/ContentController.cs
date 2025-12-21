@@ -20,12 +20,11 @@ public class ContentController(
     IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
     IFeatureManagerSnapshot featureManager, ILogger logger, LinkGenerator linkGenerator, IMapper mapper,
     ServiceHealthManager serviceHealth) : DanceMusicController(context, userManager, searchService, danceStatsManager, configuration,
-        fileProvider, backroundTaskQueue, featureManager, logger)
+        fileProvider, backroundTaskQueue, featureManager, logger, serviceHealth)
 {
     protected SongFilter Filter { get; set; }
     protected readonly LinkGenerator LinkGenerator = linkGenerator;
     protected readonly IMapper Mapper = mapper;
-    protected readonly ServiceHealthManager ServiceHealth = serviceHealth;
 
     public override async Task OnActionExecutionAsync(
     ActionExecutingContext context, ActionExecutionDelegate next)
@@ -49,7 +48,7 @@ public class ContentController(
         SongFilter filter, int? pageSize = null)
     {
         return SongIndex.AzureParmsFromFilter(
-            await UserMapper.DeanonymizeFilter(filter, UserManager), pageSize);
+            await UserMapper.DeanonymizeFilter(filter, UserManager, ServiceHealth), pageSize);
     }
 
     protected bool IsPremium()

@@ -18,7 +18,7 @@ public class SongController(
     DanceMusicContext context, UserManager<ApplicationUser> userManager,
     ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
     IConfiguration configuration, ILogger<SongController> logger,
-    ServiceHealthManager serviceHealth) : DanceMusicApiController(context, userManager, searchService, danceStatsManager, configuration, logger)
+    ServiceHealthManager serviceHealth) : DanceMusicApiController(context, userManager, searchService, danceStatsManager, configuration, logger, serviceHealth)
 {
     [HttpGet]
     public async Task<IActionResult> Get([FromServices] IMapper mapper,
@@ -68,7 +68,7 @@ public class SongController(
             var anonymized = new List<SongHistory>();
             foreach (var song in songs)
             {
-                anonymized.Add(await UserMapper.AnonymizeHistory(song.GetHistory(mapper), UserManager));
+                anonymized.Add(await UserMapper.AnonymizeHistory(song.GetHistory(mapper), UserManager, ServiceHealth));
             }
 
             return JsonCamelCase(anonymized);
@@ -106,7 +106,7 @@ public class SongController(
             return song == null
                 ? StatusCode((int)HttpStatusCode.NotFound)
                 : JsonCamelCase(
-                    await UserMapper.AnonymizeHistory(song.GetHistory(mapper), UserManager));
+                    await UserMapper.AnonymizeHistory(song.GetHistory(mapper), UserManager, ServiceHealth));
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable"))
         {
@@ -139,7 +139,7 @@ public class SongController(
         //  updating the client - this will smooth out the situation where a tag gets
         //  transformed by the server
         return await SongIndex.AppendHistory(
-            await UserMapper.DeanonymizeHistory(history, UserManager), mapper)
+            await UserMapper.DeanonymizeHistory(history, UserManager, ServiceHealth), mapper)
             ? Ok()
             : StatusCode((int)HttpStatusCode.BadRequest);
     }
@@ -161,7 +161,7 @@ public class SongController(
         }
 
         return await SongIndex.AdminEditSong(
-            await UserMapper.DeanonymizeHistory(history, UserManager), mapper)
+            await UserMapper.DeanonymizeHistory(history, UserManager, ServiceHealth), mapper)
             ? Ok()
             : StatusCode((int)HttpStatusCode.BadRequest);
     }

@@ -42,29 +42,30 @@ Created a comprehensive health monitoring API with three endpoints:
 - Returns detailed health information for all services
 - Includes timestamps, error messages, response times, failure counts
 - Response format:
-  ```json
-  {
-    "timestamp": "2025-12-17T10:30:00Z",
-    "overallStatus": "healthy|degraded|unavailable",
-    "summary": {
-      "healthy": 7,
-      "degraded": 0,
-      "unavailable": 0,
-      "unknown": 0
-    },
-    "services": [
-      {
-        "name": "Database",
-        "status": "healthy",
-        "lastChecked": "2025-12-17T10:30:00Z",
-        "lastHealthy": "2025-12-17T10:30:00Z",
-        "errorMessage": null,
-        "responseTime": 25.5,
-        "consecutiveFailures": 0
-      }
-    ]
-  }
-  ```
+
+```json
+{
+  "timestamp": "2025-12-17T10:30:00Z",
+  "overallStatus": "healthy|degraded|unavailable",
+  "summary": {
+    "healthy": 7,
+    "degraded": 0,
+    "unavailable": 0,
+    "unknown": 0
+  },
+  "services": [
+    {
+      "name": "Database",
+      "status": "healthy",
+      "lastChecked": "2025-12-17T10:30:00Z",
+      "lastHealthy": "2025-12-17T10:30:00Z",
+      "errorMessage": null,
+      "responseTime": 25.5,
+      "consecutiveFailures": 0
+    }
+  ]
+}
+```
 
 #### `/api/health/report` - Human-Readable HTML Report
 
@@ -122,12 +123,13 @@ Controllers can inherit from `ResilientController` to gain resilience capabiliti
 - Added `ServiceHealthManager` injection
 - Health check before performing searches
 - Returns 503 with descriptive JSON message when search unavailable:
-  ```json
-  {
-    "error": "Search service temporarily unavailable",
-    "message": "Please try again in a few minutes"
-  }
-  ```
+
+```json
+{
+  "error": "Search service temporarily unavailable",
+  "message": "Please try again in a few minutes"
+}
+```
 
 ### 5. Authentication Resilience
 
@@ -192,7 +194,8 @@ Controllers can inherit from `ResilientController` to gain resilience capabiliti
 - Added `ServiceHealthManager` injection
 - Health check before performing searches
 - Returns 503 with descriptive JSON message when search unavailable:
-  ```json
+
+- ```json
   {
     "error": "Search service temporarily unavailable",
     "message": "Please try again in a few minutes"
@@ -284,7 +287,7 @@ Implemented null object pattern for Azure Search:
 - ✅ Application started successfully in degraded mode
 - ✅ Startup health report showed:
 
-  ```
+  ```text
   === music4dance.net Service Health Report ===
   ✓ Database: Healthy
   ✓ EmailService: Healthy
@@ -313,7 +316,7 @@ Implemented null object pattern for Azure Search:
 
 ### Test Suite Results
 
-```
+```text
 Test summary: total: 274, failed: 0, succeeded: 273, skipped: 1, duration: 66.1s
 ```
 
@@ -401,14 +404,14 @@ Health endpoints provide monitoring data:
 
 ## User Experience Improvements
 
-### Before Phase 2:
+### Before Phase 2
 
 - Service failures cause cryptic errors
 - Users see generic "500 Internal Server Error"
 - No way to know which service is down
 - No alternative actions suggested
 
-### After Phase 2:
+### After Phase 2
 
 - Clear, friendly error messages
 - Explanation of what's unavailable

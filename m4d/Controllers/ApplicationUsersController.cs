@@ -1,4 +1,5 @@
 ﻿using m4d.Services;
+using m4d.Services.ServiceHealth;
 using m4d.Utilities;
 
 using Microsoft.AspNetCore.Authorization;
@@ -18,8 +19,9 @@ public class ApplicationUsersController(
     DanceMusicContext context, UserManager<ApplicationUser> userManager,
     ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
     IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-    IFeatureManagerSnapshot featureManager, ILogger<ActivityLogController> logger) : DanceMusicController(context, userManager, searchService, danceStatsManager, configuration,
-        fileProvider, backroundTaskQueue, featureManager, logger)
+    IFeatureManagerSnapshot featureManager, ILogger<ActivityLogController> logger,
+    ServiceHealthManager serviceHealth) : DanceMusicController(context, userManager, searchService, danceStatsManager, configuration,
+        fileProvider, backroundTaskQueue, featureManager, logger, serviceHealth)
 {
 
 
@@ -37,7 +39,7 @@ public class ApplicationUsersController(
         ViewBag.ShowPseudo = showPseudo;
         ViewBag.HidePrivate = hidePrivate;
         ViewBag.Sort = sort;
-        return View("Index", await UserMapper.GetUserNameDictionary(Database.UserManager));
+        return View("Index", await UserMapper.GetUserNameDictionary(Database.UserManager, ServiceHealth));
     }
 
     // GET: ApplicationUsers/Details/5
@@ -55,7 +57,7 @@ public class ApplicationUsersController(
 
     public async Task<ActionResult> PremiumUsers()
     {
-        return View(await UserMapper.GetPremiumUsers(UserManager));
+        return View(await UserMapper.GetPremiumUsers(UserManager, ServiceHealth));
     }
 
     // GET: ApplicationUsers/Create
@@ -65,7 +67,7 @@ public class ApplicationUsersController(
     }
 
     // POST: Users/Create
-    // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+    // To protect from overposting attacks, please enable the specific properties you want to bind to, for
     // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -99,7 +101,7 @@ public class ApplicationUsersController(
     }
 
     // POST: ApplicationUsers/Edit/5
-    // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+    // To protect from overposting attacks, please enable the specific properties you want to bind to, for
     // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ActionName("Edit")]
@@ -209,7 +211,7 @@ public class ApplicationUsersController(
     }
 
     // POST: ApplicationUsers/ChangeRoles/5
-    // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+    // To protect from overposting attacks, please enable the specific properties you want to bind to, for
     // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -285,7 +287,7 @@ public class ApplicationUsersController(
         foreach (var record in records)
         {
             var user =
-                (await UserMapper.GetUserNameDictionary(Database.UserManager))
+                (await UserMapper.GetUserNameDictionary(Database.UserManager, ServiceHealth))
                 .GetValueOrDefault(record.UserId);
             if (user != null)
             {

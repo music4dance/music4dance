@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using m4d.Services.ServiceHealth;
+using Microsoft.AspNetCore.Identity;
 
 namespace m4d.Services;
 
@@ -14,11 +15,12 @@ public class DanceStatsHostedService(IServiceProvider serviceProvider) : IHosted
             scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var searchService = scope.ServiceProvider.GetRequiredService<ISearchServiceManager>();
         var stats = scope.ServiceProvider.GetRequiredService<IDanceStatsManager>();
+        var serviceHealth = scope.ServiceProvider.GetRequiredService<ServiceHealthManager>();
 
         var dms = new DanceMusicService(context, userManager, searchService, stats);
 
         // https://andrewlock.net/running-async-tasks-on-app-startup-in-asp-net-core-3/
-        await stats.Initialize(dms);
+        await stats.Initialize(dms, serviceHealth);
     }
 
     // noop

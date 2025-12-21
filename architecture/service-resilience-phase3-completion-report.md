@@ -87,7 +87,7 @@ interface ServiceHealthData {
 
 ### Global Integration
 
-**PageFrame.vue**
+#### PageFrame.vue
 
 - ServiceStatusBanner integrated at top of layout
 - Health polling initiated for all pages
@@ -95,25 +95,25 @@ interface ServiceHealthData {
 
 ### Page-Specific Integration
 
-**song-index.vue** (Song Search Results)
+#### song-index.vue (Song Search Results)
 
 - SearchUnavailableNotice when results empty due to search issues
 - Conditional rendering based on health status
 - Graceful fallback to empty state
 
-**song.vue** (Song Details)
+#### song.vue (Song Details)
 
 - ServiceUnavailableError when song details unavailable
 - Service-specific error messaging
 - Fallback content when search degraded
 
-**custom-search.vue** (Holiday/Custom Searches)
+#### custom-search.vue (Holiday/Custom Searches)
 
 - SearchUnavailableNotice for themed searches
 - Context-appropriate messaging
 - Empty state handling
 
-**advanced-search.vue** (Advanced Search Form)
+#### advanced-search.vue (Advanced Search Form)
 
 - SearchUnavailableNotice when form submitted during degradation
 - User guidance on search availability
@@ -140,11 +140,12 @@ Moved health status to global `MenuContext` for centralized, consistent access a
 
 1. Injected `ServiceHealthManager` into view
 2. Added three health properties to `menuContext` JavaScript object:
-   ```javascript
-   searchHealthy: @(_serviceHealth.IsServiceHealthy("SearchService").ToString().ToLower()),
-   databaseHealthy: @(_serviceHealth.IsServiceHealthy("Database").ToString().ToLower()),
-   configurationHealthy: @(_serviceHealth.IsServiceHealthy("AppConfiguration").ToString().ToLower())
-   ```
+
+```javascript
+searchHealthy: @(_serviceHealth.IsServiceHealthy("SearchService").ToString().ToLower()),
+databaseHealthy: @(_serviceHealth.IsServiceHealthy("Database").ToString().ToLower()),
+configurationHealthy: @(_serviceHealth.IsServiceHealthy("AppConfiguration").ToString().ToLower())
+```
 
 #### Frontend (MenuContext.ts)
 
@@ -231,6 +232,7 @@ Moved health status to global `MenuContext` for centralized, consistent access a
 - [ ] **Database Degraded**:
   - Banner appears with database-specific messaging
   - App continues functioning with limited features
+  - TODONEXT: We may need to guarantee that we've got a dance-environment.json file available (possiblly by generating, grabbing one at build time - then we'd give it a different name and fall back to it on failure)
 - [ ] **Configuration Degraded**:
   - Banner appears with configuration-specific messaging
   - Core features continue working
@@ -241,10 +243,10 @@ Moved health status to global `MenuContext` for centralized, consistent access a
   - Health polling detects recovery within 30 seconds
   - Banners/notices automatically clear
   - Normal functionality restored
-- [ ] **Banner Dismissibility**:
-  - Users can dismiss alerts
-  - Dismissed state persists during session
-- [ ] **Cross-Page Consistency**:
+- [x] **Banner Collapsibility**:
+  - Users can collapse alerts
+  - Collapse state persists during session
+- [x] **Cross-Page Consistency**:
   - Health status consistent across all pages
   - MenuContext provides accurate status globally
 

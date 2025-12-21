@@ -706,19 +706,36 @@ app.Logger.LogInformation($"Environment = {environment.EnvironmentName}");
 var sentinel = configuration["Configuration:Sentinel"];
 app.Logger.LogInformation($"Sentinel = {sentinel}");
 
-using (var scope = app.Services.CreateScope())
+Console.WriteLine("Running database migrations...");
+try
 {
-    var sp = scope.ServiceProvider;
-    var db = sp.GetRequiredService<DanceMusicContext>().Database;
-
-    db.Migrate();
-
-    if (isDevelopment)
+    using (var scope = app.Services.CreateScope())
     {
-        var userManager = sp.GetRequiredService<UserManager<ApplicationUser>>();
-        var roleManager = sp.GetRequiredService<RoleManager<IdentityRole>>();
-        await UserManagerHelpers.SeedData(userManager, roleManager, configuration);
+        var sp = scope.ServiceProvider;
+        var db = sp.GetRequiredService<DanceMusicContext>().Database;
+
+        db.Migrate();
+        Console.WriteLine("Database migrations completed successfully");
+
+        if (isDevelopment)
+        {
+            var userManager = sp.GetRequiredService<UserManager<ApplicationUser>>();
+            var roleManager = sp.GetRequiredService<RoleManager<IdentityRole>>();
+            await UserManagerHelpers.SeedData(userManager, roleManager, configuration);
+            Console.WriteLine("Development seed data applied successfully");
+        }
     }
+}
+catch (Exception ex)
+{
+    serviceHealth.MarkUnavailable("Database", $"Migration failed: {ex.GetType().Name}: {ex.Message}");
+    Console.WriteLine($"ERROR: Database migration failed: {ex.GetType().Name}: {ex.Message}");
+    Console.WriteLine("WARNING: Continuing without database - data features will be unavailable");
+    Console.WriteLine("To resolve:");
+    Console.WriteLine("  1. Verify SQL Server is running and accessible");
+    Console.WriteLine("  2. Check connection string in appsettings.json");
+    Console.WriteLine("  3. Ensure the database server allows remote connections");
+    // Don't throw - allow app to start with database features disabled
 }
 
 // Configure the HTTP request pipeline.

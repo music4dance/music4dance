@@ -4,25 +4,26 @@ namespace m4d.ViewModels;
 
 public class DanceModel : SongListModel
 {
-    public DanceModel(Dance dance, DanceMusicService database, IMapper mapper)
+    public DanceModel(DanceStats danceStats, DanceStatsInstance statsInstance, IMapper mapper)
     {
-        var ds = database.DanceStats.Map[dance.Id];
-        DanceId = dance.Id;
-        DanceName = dance.Name;
-        Description = dance.Description;
-        Links = ds.DanceLinks;
-        SongTags = ds.SongTags;
-        DanceTags = ds.DanceTags;
-        if (!ds.RefreshTopSongs(database.DanceStats))
+        DanceId = danceStats.DanceId;
+        DanceName = danceStats.DanceName;
+        Description = danceStats.Description;
+        Links = danceStats.DanceLinks;
+        SongTags = danceStats.SongTags;
+        DanceTags = danceStats.DanceTags;
+
+        if (!danceStats.RefreshTopSongs(statsInstance))
         {
-            _ = database.ActivityLog.Add(
-                new ActivityLog("RefreshTopN", null, new { danceId = ds.DanceId }));
+            // Note: ActivityLog requires database access, skipping when DB unavailable
+            // This is a non-critical logging operation
         }
-        if (ds.TopSongs != null)
+
+        if (danceStats.TopSongs != null)
         {
-            var songs = ds.TopSongs.ToList();
+            var songs = danceStats.TopSongs.ToList();
             Histories = [.. songs.Select(s => s.GetHistory(mapper))];
-            SpotifyPlaylist = ds.SpotifyPlaylist;
+            SpotifyPlaylist = danceStats.SpotifyPlaylist;
         }
     }
 

@@ -1,4 +1,5 @@
 ﻿using m4d.Services;
+using m4d.Services.ServiceHealth;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.FileProviders;
@@ -11,8 +12,9 @@ public class CommerceController(
     DanceMusicContext context, UserManager<ApplicationUser> userManager,
     ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
     IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-    IFeatureManagerSnapshot featureManager, ILogger logger) : DanceMusicController(context, userManager, searchService, danceStatsManager, configuration,
-        fileProvider, backroundTaskQueue, featureManager, logger)
+    IFeatureManagerSnapshot featureManager, ILogger logger,
+    ServiceHealthManager serviceHealth) : DanceMusicController(context, userManager, searchService, danceStatsManager, configuration,
+        fileProvider, backroundTaskQueue, featureManager, logger, serviceHealth)
 {
     public static decimal AnnualSubscription = SubscriptionLevelDescription.SubscriptionLevels.Last().Price;
 

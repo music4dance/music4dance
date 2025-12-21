@@ -75,14 +75,14 @@ public class DanceStatsInstance
     }
 
     public static async Task<DanceStatsInstance> BuildInstance(
-        DanceMusicCoreService dms, string source)
+        DanceMusicCoreService dms, string source, object serviceHealthManager = null)
     {
         var builder = dms.SearchService.NextVersion
             ? new DanceBuilderNext(dms, source)
             : new DanceBuilder(dms, source);
 
         var instance = await builder.Build();
-        await instance.FixupStats(dms);
+        await instance.FixupStats(dms, serviceHealthManager);
         return instance;
     }
 
@@ -111,19 +111,11 @@ public class DanceStatsInstance
         });
     }
 
-    public async Task FixupStats(DanceMusicCoreService dms)
+    public async Task FixupStats(DanceMusicCoreService dms, object serviceHealthManager = null)
     {
         dms.SetStatsInstance(this);
 
         Map = Dances.Concat(Groups).ToDictionary(ds => ds.DanceId);
-
-        var playlists =
-            dms.PlayLists.Where(p => p.Type == PlayListType.SpotifyFromSearch)
-                .Where(p => p.Name != null)
-                .Select(p => new PlaylistMetadata { Id = p.Id, Name = p.Name })
-                .ToDictionary(m => m.Name, m => m);
-
-        var newDances = new List<string>();
 
         if (_songs != null && _songs.Any())
         {
@@ -134,25 +126,45 @@ public class DanceStatsInstance
             }
         }
 
+        foreach (var group in Groups)
+        {
+            group.Children = [.. group.DanceGroup.DanceIds.Where(id => Map.ContainsKey(id)).Select(id => Map[id])];
+            group.SongTags = TagAccumulator.MergeSummaries(
+                group.Children.Select(c => c.SongTags));
+            // TODO: At some point we should ask azure search for this, since
+            //   we're double-counting by the current method.
+            group.DanceTags = TagAccumulator.MergeSummaries(
+                group.Children.Select(c => c.DanceTags));
+            group.SongCount = group.Children.Sum(d => d.SongCount);
+            group.MaxWeight = group.Children.Max(d => d.MaxWeight);
+        }
+
+        // Check if database is available before attempting database operations
+        // If ServiceHealthManager is provided and database is not healthy, return early
+        if (serviceHealthManager != null)
+        {
+            var healthManager = serviceHealthManager as dynamic;
+            if (!healthManager.IsServiceHealthy("Database"))
+            {
+                Console.WriteLine("Database unavailable - skipping database-dependent FixupStats operations");
+                return;
+            }
+        }
+
+        var playlists =
+            dms.PlayLists.Where(p => p.Type == PlayListType.SpotifyFromSearch)
+                .Where(p => p.Name != null)
+                .Select(p => new PlaylistMetadata { Id = p.Id, Name = p.Name })
+                .ToDictionary(m => m.Name, m => m);
+
+        var newDances = new List<string>();
+
         foreach (var dance in Dances)
         {
             if (playlists.TryGetValue(dance.DanceName, out var metadata))
             {
                 dance.SpotifyPlaylist = metadata.Id;
             }
-        }
-
-        foreach (var group in Groups)
-        {
-            group.Children = [.. group.DanceGroup.DanceIds.Where(id => Map.ContainsKey(id)).Select(id => Map[id])];
-            group.SongTags = TagAccumulator.MergeSummaries(
-                group.Children.Select(c => c.SongTags));
-            // TODO: At some point we should ask azure search for this, since 
-            //   we're double-counting by the current method.
-            group.DanceTags = TagAccumulator.MergeSummaries(
-                group.Children.Select(c => c.DanceTags));
-            group.SongCount = group.Children.Sum(d => d.SongCount);
-            group.MaxWeight = group.Children.Max(d => d.MaxWeight);
         }
 
         var saveChanges = false;
@@ -238,7 +250,7 @@ public class DanceStatsInstance
     }
 
     public static async Task<DanceStatsInstance> LoadFromJson(string json,
-        DanceMusicCoreService database, IDanceStatsManager manager = null)
+        DanceMusicCoreService database, IDanceStatsManager manager = null, object serviceHealthManager = null)
     {
         var settings = new JsonSerializerSettings
         {
@@ -249,7 +261,7 @@ public class DanceStatsInstance
         var instance = JsonConvert.DeserializeObject<DanceStatsInstance>(json, settings) ?? throw new Exception($"Unable to deserialize dance stats instance: {json}");
         if (database != null)
         {
-            await instance.FixupStats(database);
+            await instance.FixupStats(database, serviceHealthManager);
         }
 
         manager ??= database.DanceStatsManager;

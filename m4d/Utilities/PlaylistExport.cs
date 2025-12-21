@@ -74,7 +74,7 @@ public class PlaylistExport(ExportInfo info, SongIndex songIndex, UserManager<Ap
         var p = songIndex.AzureParmsFromFilter(_filter, count);
         p.IncludeTotalCount = true;
         var results = await new SongSearch(
-            _filter, userName, true, songIndex, userManager, queue, count).Search();
+            _filter, userName, true, songIndex, userManager, queue, serviceHealth: null, pageSize: count).Search();
 
         return results;
     }

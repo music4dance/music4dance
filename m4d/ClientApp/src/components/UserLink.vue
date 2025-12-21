@@ -1,4 +1,4 @@
-<script setup script lang="ts">
+<script setup lang="ts">
 import { UserQuery } from "@/models/UserQuery";
 
 const props = defineProps<{ user: string }>();
@@ -8,7 +8,8 @@ const userClasses = userQuery.isPseudo ? ["pseudo"] : [];
 </script>
 
 <template>
-  <a :href="userLink" :class="userClasses">{{ userQuery.displayName }}</a>
+  <strong v-if="userQuery.isUnavailable">{{ userQuery.displayName }}</strong>
+  <a v-else :href="userLink" :class="userClasses">{{ userQuery.displayName }}</a>
 </template>
 
 <style lang="scss" scoped>

@@ -73,7 +73,13 @@ public sealed class ApplicationUser : IdentityUser
     // Two character country code based on ISO 3166-1 alpha-2 country codes.
     public string Region { get; set; }
 
-    // Privacy level 0-255 (initial states are only 0 & 255)
+    /// <summary>
+    /// Privacy level bit-field (0-255).
+    /// Semantics: 0 = maximum privacy requested (hide username, show as anonymous),
+    ///           255 = no privacy / public (default - show username publicly).
+    /// Note: The semantics are counterintuitive (0=private, 255=public) due to legacy DB schema.
+    /// Currently treated as boolean: 0=private, any value > 0=public.
+    /// </summary>
     public byte Privacy { get; set; }
 
     // Contact bitfield

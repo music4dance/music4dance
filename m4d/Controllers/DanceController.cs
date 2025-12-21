@@ -125,9 +125,10 @@ public class DanceController : ContentController
         HelpPage = "dance-details";
 
         var ds = stats.FromName(dance);
-        var dbDance = ds == null ? null : Database.Dances.FirstOrDefault(d => d.Id == ds.DanceId);
 
-        if (dbDance == null)
+        // Check if dance exists in stats Map (cached data) to avoid database query
+        // This allows the app to function when database is unavailable
+        if (ds == null || !DanceStatsManager.Instance.Map.ContainsKey(ds.DanceId))
         {
             return ReturnError(
                 HttpStatusCode.NotFound,
@@ -144,7 +145,7 @@ public class DanceController : ContentController
             $"music4dance catalog: {ds.DanceName} Page",
             $"{ds.DanceName} Information, Top Ten List, and Resources.",
             "dance-details",
-            new DanceModel(dbDance, Database, Mapper)
+            new DanceModel(ds, DanceStatsManager.Instance, Mapper)
         );
     }
 

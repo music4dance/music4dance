@@ -1,4 +1,5 @@
 ﻿using m4d.Services;
+using m4d.Services.ServiceHealth;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,9 +14,10 @@ public class SearchController : DanceMusicController
         DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
         IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-        IFeatureManagerSnapshot featureManager, ILogger<ActivityLogController> logger) :
+        IFeatureManagerSnapshot featureManager, ILogger<ActivityLogController> logger,
+        ServiceHealthManager serviceHealth) :
         base(context, userManager, searchService, danceStatsManager, configuration,
-            fileProvider, backroundTaskQueue, featureManager, logger)
+            fileProvider, backroundTaskQueue, featureManager, logger, serviceHealth)
     {
         //HelpPage = "song-list";
     }

@@ -1,4 +1,5 @@
-﻿using m4d.Utilities;
+﻿using m4d.Services.ServiceHealth;
+using m4d.Utilities;
 
 using m4dModels.Utilities;
 
@@ -12,12 +13,14 @@ public class DanceMusicApiController(DanceMusicContext context,
     // ReSharper disable once UnusedParameter.Local
     UserManager<ApplicationUser> userManager,
     ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-    IConfiguration configuration, ILogger logger = null) : ControllerBase
+    IConfiguration configuration, ILogger logger = null,
+    ServiceHealthManager serviceHealth = null) : ControllerBase
 {
     protected DanceMusicService Database { get; } =
             new DanceMusicService(context, userManager, searchService, danceStatsManager);
     protected IConfiguration Configuration = configuration;
     protected ILogger Logger { get; } = logger;
+    protected ServiceHealthManager ServiceHealth { get; } = serviceHealth;
 
     private MusicServiceManager _musicServiceManager;
 

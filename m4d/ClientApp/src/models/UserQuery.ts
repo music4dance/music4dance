@@ -84,6 +84,10 @@ export class UserQuery {
     return userName.indexOf("-") !== -1 && userName.length === 36;
   }
 
+  public get isUnavailable(): boolean {
+    return this.userName === "*unavailable*";
+  }
+
   public get isPseudo(): boolean {
     return this.data.indexOf(this.queryPseudo) != -1;
   }
@@ -94,6 +98,9 @@ export class UserQuery {
   }
 
   public get displayName(): string {
+    if (this.isUnavailable) {
+      return "UNAVAILABLE";
+    }
     return this.isAnonymous ? "Anonymous" : this.userName;
   }
 
