@@ -63,10 +63,13 @@ const affectedFeatures = computed(() => {
   unavailableServices.value.forEach((service) => {
     switch (service.name) {
       case "SearchService":
-        features.push("song search", "song details");
+        features.push("search results", "song details");
         break;
       case "Database":
-        features.push("all data features");
+        features.push(
+          "account information including account creation, logging in, and saved searches",
+          "user information including attribution of contributions ",
+        );
         break;
       case "GoogleOAuth":
       case "FacebookOAuth":
