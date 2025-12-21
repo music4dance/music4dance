@@ -7,7 +7,7 @@ import { useServiceHealth } from "@/composables/useServiceHealth";
 import ServiceStatusBanner from "@/components/ServiceStatusBanner.vue";
 
 const menuContext: MenuContext = getMenuContext();
-const { healthData, startPolling, stopPolling } = useServiceHealth();
+const { healthData, startPolling } = useServiceHealth();
 
 defineProps<{
   id: string;

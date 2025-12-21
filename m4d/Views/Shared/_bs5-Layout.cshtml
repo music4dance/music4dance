@@ -3,9 +3,11 @@
 @using m4d.ViewModels
 @using Microsoft.AspNetCore.Mvc.Rendering
 @using Microsoft.FeatureManagement
+@using m4d.Services.ServiceHealth
 @inject IViteManifest Manifest
 @inject IConfiguration _configuration
 @inject IFeatureManagerSnapshot _featureManager
+@inject ServiceHealthManager _serviceHealth
 
 @{
     var help = "https://music4dance.blog/music4dance-help/";
@@ -15,6 +17,8 @@
     }
     ViewData["NoSiteCss"] = true;
     var entry = "src/pages/header/main.ts";
+    var isDatabaseHealthy = _serviceHealth.IsServiceHealthy("Database");
+    var isIdentityArea = ViewContext.RouteData.Values["area"]?.ToString() == "Identity";
 }
 <!DOCTYPE html>
 @{
@@ -76,7 +80,19 @@ List<BreadCrumbItem> breadCrumbs = ViewBag.BreadCrumbs;
 }
 
 <div id="body-content" class="container-fluid body-content">
+@if (isIdentityArea && !isDatabaseHealthy)
+{
+    <div class="alert alert-danger mt-3" role="alert">
+        <h4 class="alert-heading">Database Temporarily Unavailable</h4>
+        <p>The database service is currently unavailable. Account-related pages cannot be accessed at this time.</p>
+        <hr>
+        <p class="mb-0">Please try again in a few minutes. We apologize for the inconvenience.</p>
+    </div>
+}
+else
+{
     @RenderBody()
+}
 </div>
 
 <div id="footer-content">
@@ -88,7 +104,7 @@ List<BreadCrumbItem> breadCrumbs = ViewBag.BreadCrumbs;
             @Html.ActionLink("Terms of Service", "termsofservice", "Home") -
             @Html.ActionLink("Privacy Policy", "privacypolicy", "Home") -
             @Html.ActionLink("Credits", "credits", "Home") -
-            <a href="https://github.com/music4dance/music4dance" target="_blank">Code</a> - 
+            <a href="https://github.com/music4dance/music4dance" target="_blank">Code</a> -
             <a href="@help">Help</a>
         </p>
     </footer>
