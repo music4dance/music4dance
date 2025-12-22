@@ -4,7 +4,6 @@ exports[`MainMenu.vue > Renders MainMenu for an anonymous user 1`] = `
 "<div class="orchestrator-container"></div>
 <div>
   <!--v-if-->
-  <!--v-if-->
   <nav class="navbar bg-primary navbar-expand-lg" id="mainMenu" data-bs-theme="dark">
     <div class="container-fluid"><a class="navbar-brand" href="/"><img src="/vclient/src/assets/images/header-logo.png" height="40" width="170" title="music4dance"></a><button class="navbar-toggler" type="button" aria-label="Toggle navigation" id="drop-toggle"><span class="navbar-toggler-icon"></span></button>
       <transition-stub name="fade" enteractiveclass="collapsing" enterfromclass="" entertoclass="" leaveactiveclass="collapsing" leavefromclass="" leavetoclass="" appear="false" persisted="false" css="true">

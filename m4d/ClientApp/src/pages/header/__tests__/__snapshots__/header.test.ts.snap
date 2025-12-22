@@ -1,6 +1,8 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`Header > Renders Header Page 1`] = `
-"<header><span context="[object Object]">MainMenu</span></header>
+"<header><span context="[object Object]">MainMenu</span>
+  <!--v-if-->
+</header>
 <body></body>"
 `;
