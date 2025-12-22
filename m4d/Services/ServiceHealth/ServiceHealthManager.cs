@@ -9,10 +9,45 @@ public class ServiceHealthManager
 {
     private readonly ConcurrentDictionary<string, ServiceHealthStatus> _serviceStatuses = new();
     private readonly ILogger<ServiceHealthManager> _logger;
+    private ServiceHealthNotifier? _notifier;
 
     public ServiceHealthManager(ILogger<ServiceHealthManager> logger)
     {
         _logger = logger;
+    }
+
+    /// <summary>
+    /// Set the notifier (called after service registration)
+    /// </summary>
+    internal void SetNotifier(ServiceHealthNotifier notifier)
+    {
+        _notifier = notifier;
+    }
+
+    /// <summary>
+    /// Send consolidated startup failure notification if any services are unhealthy
+    /// </summary>
+    public async Task SendStartupFailureNotificationAsync()
+    {
+        if (_notifier == null)
+        {
+            return;
+        }
+
+        var failedServices = GetAllStatuses()
+            .Where(s => s.Status == ServiceStatus.Unavailable || s.Status == ServiceStatus.Degraded)
+            .ToList();
+
+        if (failedServices.Any())
+        {
+            var errorSummary = string.Join("; ", failedServices.Select(s => $"{s.ServiceName}: {s.ErrorMessage}"));
+            await _notifier.SendFailureNotificationAsync(
+                $"Startup Failures ({failedServices.Count} services)",
+                errorSummary,
+                this);
+
+            _logger.LogInformation("Startup failure notification sent for {Count} service(s)", failedServices.Count);
+        }
     }
 
     /// <summary>
@@ -46,6 +81,7 @@ public class ServiceHealthManager
         var status = _serviceStatuses.GetOrAdd(serviceName, _ => new ServiceHealthStatus { ServiceName = serviceName });
 
         var wasHealthy = status.Status == ServiceStatus.Healthy || status.Status == ServiceStatus.Unknown;
+        var isFirstFailure = wasHealthy && !status.NotificationSent;
 
         status.Status = ServiceStatus.Unavailable;
         status.LastChecked = DateTime.UtcNow;
@@ -56,6 +92,23 @@ public class ServiceHealthManager
         {
             _logger.LogError("Service '{ServiceName}' is now unavailable: {ErrorMessage}",
                 serviceName, errorMessage);
+
+            // Send notification on first failure only
+            if (isFirstFailure && _notifier != null)
+            {
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _notifier.SendFailureNotificationAsync(serviceName, errorMessage, this);
+                        status.NotificationSent = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Failed to send failure notification for {ServiceName}", serviceName);
+                    }
+                });
+            }
         }
         else
         {

@@ -387,8 +387,6 @@ Log the following events:
 
 #### 5.3 Startup Report
 
-#### 5.3 Startup Report
-
 Generate detailed startup report:
 
 ```
@@ -471,7 +469,7 @@ Before release, verify:
 - Add basic logging
 - Ensure application starts with any service unavailable
 
-### Phase 2: Backend Degradation (Week 2)
+### Phase 2: Backend Degradation ✅ COMPLETE
 
 **Scope**: Server-side health checks, error handling, and graceful degradation in controllers and APIs.
 
@@ -482,62 +480,66 @@ Backend Work:
 - ✅ Create service unavailability partial views (\_SearchUnavailable.cshtml, etc.)
 - ✅ Add health checks to API SearchController (page search)
 - ✅ Add health checks to Authentication pages (OAuth provider availability)
-- 🔄 Add ServiceHealthManager to ContentController for MVC controllers
-- 🔄 Update SongController to check SearchService health before all search operations
-- 🔄 Update CustomSearchController to check SearchService health
-- 🔄 Update API SongController to check SearchService health
-- 🔄 Wrap all Azure Search operations in try-catch to handle null factory exceptions gracefully
-- 🔄 Show appropriate error messages instead of empty results or exceptions
+- ✅ Add ServiceHealthManager to all controllers (threaded through entire hierarchy)
+- ✅ Background logging guards - skip when database unavailable
+- ✅ UserMapper resilience - stale cache preservation, Privacy field semantics documented
 
 **Key Deliverables**:
 
-- Controllers return proper HTTP status codes (503) when services unavailable
-- MVC controllers render views with degraded state notices (using partial views)
-- API controllers return JSON error responses
-- All pages render the navigation menu even when services are down
-- Proper logging of all degradation scenarios
+- ✅ Controllers return proper HTTP status codes (503) when services unavailable
+- ✅ MVC controllers render views with degraded state notices (using partial views)
+- ✅ API controllers return JSON error responses
+- ✅ All pages render the navigation menu even when services are down
+- ✅ Proper logging of all degradation scenarios
 
-### Phase 3: Frontend User Experience (Week 3)
+### Phase 3: Frontend User Experience ✅ COMPLETE
 
 **Scope**: Vue.js components to display service status and enhance user experience.
 
 Frontend Work:
 
-- Create status banner component
-- Add frontend health monitoring (poll /api/health/status endpoint)
-- Enhance error messages
-- Update Vue components to handle degraded states
-- Disable features that depend on unavailable services
-- Add explanatory tooltips
-- **Create proper error pages for song details when search unavailable** (replace generic error with Vue component showing clear message and navigation)
-- **Add "Search temporarily unavailable" notices to song list pages** (display banner when ViewData["SearchUnavailable"] is set)
+- ✅ Create ServiceStatusBanner component in header and PageFrame
+- ✅ Add frontend health monitoring (poll /api/health/status endpoint every 30 seconds)
+- ✅ UserQuery model with isUnavailable, isAnonymous, displayName getters
+- ✅ UserLink component renders <strong>UNAVAILABLE</strong> without link
+- ✅ Identity area pages blocked when database unavailable (\_bs5-Layout.cshtml)
+- ✅ Anonymous user handling when database down with no cache
+- ✅ Polling mechanism to detect service recovery
 
 **Key Deliverables**:
 
-- User-friendly error messages for all degraded scenarios
-- Visual indicators (banners, badges) showing service status
-- Graceful UI degradation (disabled buttons with tooltips)
-- Polling mechanism to detect service recovery
-- Smooth user experience even during outages on disabled buttons
+- ✅ User-friendly error messages for all degraded scenarios
+- ✅ Visual indicators (banners) showing service status
+- ✅ Polling mechanism to detect service recovery
+- ✅ Smooth user experience even during outages
 
-- Create status page
-- Enhance error messages
-- Add frontend health monitoring
-- Polish UI/UX for degraded states
+### Phase 4: Final Polish & Monitoring ✅ COMPLETE
 
-### Phase 4: Monitoring & Recovery (Week 4)
+**Scope**: Complete feature with email notifications and update warning integration.
 
-- Implement circuit breakers
-- Add automatic recovery
-- Enhance logging and metrics
-- Create status dashboard for admins
+**Final Tasks Before Completion**:
 
-### Phase 5: Testing & Documentation (Week 5)
+1. ✅ **Email Notifications on First Service Failure** (Section 5.2)
 
-- Write integration tests
-- Conduct resilience testing
-- Document all degraded behaviors
-- Create runbooks for common scenarios
+   - Send email to configured admin addresses on initial service failure
+   - Track notification state to prevent duplicate emails
+   - Use existing Azure Communication Services (same as password resets)
+   - Reset notification tracking when service recovers
+   - Implementation: ServiceHealthNotifier class with HTML email templates
+   - Configuration: `ServiceHealth:AdminNotifications` section in appsettings
+
+2. ✅ **Integrate Manual Update Warning into Health Polling**
+   - Add GlobalState.UpdateMessage to health status API response
+   - Update ServiceStatusBanner to display update messages (info style, separate from service warnings)
+   - Use same polling mechanism (30 seconds) so banner clears when warning removed
+   - Maintain existing UpdateWarning admin endpoint functionality
+   - Implementation: HealthController includes updateMessage, ServiceStatusBanner shows both update messages and service warnings
+
+**Key Deliverables**:
+
+- ✅ Email alerts for service failures (one per incident)
+- ✅ Update warning banner automatically refreshes with health polling
+- ✅ Unified status communication system (service health + manual updates)
 
 ## Configuration
 
@@ -758,6 +760,43 @@ The following enhancements can be considered after the core resilience features 
   - Serve from CDN when application is completely unavailable
   - Update snapshots daily or on content changes
   - Provides "read-only mode" during complete outages
+
+### 6. Enhanced Status Dashboard
+
+- **Comprehensive Admin Status Page**: Detailed dashboard showing service health metrics
+  - Real-time health status with auto-refresh
+  - Historical uptime information (last 24 hours)
+  - Response times and performance metrics
+  - Circuit breaker state visualization
+  - Manual recovery/reset controls
+
+### 7. Advanced Circuit Breaker Implementation
+
+- **Per-Service Circuit Breakers**: Implement full circuit breaker pattern for each external service
+  - **Closed**: Service healthy, requests go through
+  - **Open**: Service failed, requests blocked (return fallback immediately)
+  - **Half-Open**: Testing if service has recovered
+- **Configuration**: Failure threshold (3), reset timeout (30s), success threshold (2)
+
+### 8. Comprehensive Testing
+
+- **Integration Tests**: Simulate service failures for all external dependencies
+- **Resilience Tests**: Verify graceful degradation scenarios
+- **Load Testing**: Test system behavior under partial service availability
+- **Chaos Engineering**: Randomly inject failures to verify resilience
+
+### 9. Enhanced Monitoring & Metrics
+
+- **Service Uptime Tracking**: Track and expose uptime percentages per service
+- **Performance Metrics**: Average response times, failure rates, recovery times
+- **Fallback Activation Tracking**: Number of cache hits, circuit breaker activations
+- **Azure Monitor Integration**: Export metrics to Azure Monitor for alerting and dashboards
+
+### 10. Song Search Enhancements
+
+- **Vue Error Component for Song Details**: Replace generic error with proper Vue component showing clear message and navigation when search unavailable
+- **Song List Banner**: Display "Search temporarily unavailable" notice when ViewData["SearchUnavailable"] is set
+- **Graceful Search Degradation**: Show cached recent searches or top songs when search service unavailable
 
 ## References
 

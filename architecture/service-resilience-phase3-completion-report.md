@@ -229,17 +229,17 @@ configurationHealthy: @(_serviceHealth.IsServiceHealthy("AppConfiguration").ToSt
   - Banner appears at top of all pages
   - SearchUnavailableNotice shown on empty search results
   - Song details show ServiceUnavailableError
-- [ ] **Database Degraded**:
+- [x] **Database Degraded**:
   - Banner appears with database-specific messaging
   - App continues functioning with limited features
-  - TODONEXT: We may need to guarantee that we've got a dance-environment.json file available (possiblly by generating, grabbing one at build time - then we'd give it a different name and fall back to it on failure)
-- [ ] **Configuration Degraded**:
+    grabbing one at build time - then we'd give it a different name and fall back to it on failure)
+- [x] **Configuration Degraded**:
   - Banner appears with configuration-specific messaging
   - Core features continue working
-- [ ] **Multiple Services Down**:
+- [x] **Multiple Services Down**:
   - Multiple banners/alerts displayed simultaneously
   - Clear messaging for each degraded service
-- [ ] **Service Recovery**:
+- [x] **Service Recovery**:
   - Health polling detects recovery within 30 seconds
   - Banners/notices automatically clear
   - Normal functionality restored

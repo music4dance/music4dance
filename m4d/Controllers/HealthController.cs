@@ -2,6 +2,7 @@
 
 using Microsoft.AspNetCore.Mvc;
 using m4d.Services.ServiceHealth;
+using m4d.Utilities;
 using System.Text;
 
 namespace m4d.Controllers;
@@ -38,6 +39,7 @@ public class HealthController : ControllerBase
         {
             timestamp = DateTime.UtcNow,
             overallStatus = summary.IsFullyHealthy ? "healthy" : summary.HasCriticalFailures ? "unavailable" : "degraded",
+            updateMessage = GlobalState.UpdateMessage, // Include manual update warning
             summary = new
             {
                 healthy = summary.HealthyCount,

@@ -14,6 +14,7 @@ export interface ServiceHealthStatus {
 export interface ServiceHealthResponse {
   timestamp: string;
   overallStatus: "healthy" | "degraded" | "unavailable";
+  updateMessage?: string; // Manual update warning from admin
   summary: {
     healthy: number;
     degraded: number;
@@ -87,13 +88,21 @@ function createInitialHealthData(): ServiceHealthResponse {
  * Composable for monitoring service health status
  * Polls /api/health/status endpoint and provides reactive health data
  * Initializes from MenuContext for immediate display on page load
+ *
+ * Uses adaptive polling intervals:
+ * - When healthy: polls every hour (3600000ms) to reduce server load
+ * - When degraded/unavailable or showing update message: polls every 30 seconds to detect recovery
  */
-export function useServiceHealth(pollInterval = 30000) {
+export function useServiceHealth() {
   // Initialize with MenuContext data for immediate display
   const healthData = ref<ServiceHealthResponse | null>(createInitialHealthData());
   const loading = ref(false);
   const error = ref<string | null>(null);
   let intervalId: number | null = null;
+
+  // Adaptive polling intervals
+  const HEALTHY_POLL_INTERVAL = 60 * 60 * 1000; // 1 hour when everything is healthy
+  const UNHEALTHY_POLL_INTERVAL = 30 * 1000; // 30 seconds when showing warnings/errors
 
   const isServiceHealthy = (serviceName: string): boolean => {
     const service = healthData.value?.services.find((s) => s.name === serviceName);
@@ -143,16 +152,30 @@ export function useServiceHealth(pollInterval = 30000) {
     }
   };
 
+  const getCurrentPollInterval = (): number => {
+    // Use faster polling if services are unhealthy or if there's an update message
+    const hasIssues =
+      healthData.value?.overallStatus !== "healthy" ||
+      (healthData.value?.updateMessage?.trim().length ?? 0) > 0;
+    return hasIssues ? UNHEALTHY_POLL_INTERVAL : HEALTHY_POLL_INTERVAL;
+  };
+
   const startPolling = () => {
     if (intervalId !== null) return;
 
     // Initial fetch
     fetchHealthStatus();
 
-    // Set up polling
-    intervalId = window.setInterval(() => {
-      fetchHealthStatus();
-    }, pollInterval);
+    // Set up adaptive polling that adjusts interval based on health status
+    const poll = () => {
+      fetchHealthStatus().then(() => {
+        // Schedule next poll with appropriate interval based on current health
+        intervalId = window.setTimeout(poll, getCurrentPollInterval());
+      });
+    };
+
+    // Start first poll cycle
+    intervalId = window.setTimeout(poll, getCurrentPollInterval());
   };
 
   const stopPolling = () => {

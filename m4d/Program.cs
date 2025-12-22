@@ -120,6 +120,7 @@ var serviceHealthLogger = LoggerFactory.Create(builder => builder.AddConsole())
 var serviceHealth = new ServiceHealthManager(serviceHealthLogger);
 services.AddSingleton(serviceHealth);
 Console.WriteLine("ServiceHealthManager initialized");
+Console.WriteLine("Note: Email notifications will be initialized only if startup failures are detected");
 
 var useVite = configuration.UseVite();
 var isDevelopment = environment.IsDevelopment();
@@ -649,11 +650,6 @@ services.AddViteServices();
 
 services.AddHostedService<DanceStatsHostedService>();
 
-// Generate and log startup health report
-Console.WriteLine();
-Console.WriteLine(serviceHealth.GenerateStartupReport());
-Console.WriteLine();
-
 Console.WriteLine("Building application...");
 WebApplication app;
 try
@@ -679,6 +675,9 @@ catch (Exception ex)
     Console.WriteLine(ex.ToString());
     throw; // Re-throw to stop the application
 }
+
+// Set ApplicationLogging.LoggerFactory early so static loggers in services can initialize
+ApplicationLogging.LoggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
 
 if (!isDevelopment)
 {
@@ -706,36 +705,83 @@ app.Logger.LogInformation($"Environment = {environment.EnvironmentName}");
 var sentinel = configuration["Configuration:Sentinel"];
 app.Logger.LogInformation($"Sentinel = {sentinel}");
 
-Console.WriteLine("Running database migrations...");
-try
+// Skip database migration if database is already unavailable
+if (!serviceHealth.IsServiceAvailable("Database"))
 {
-    using (var scope = app.Services.CreateScope())
+    Console.WriteLine("Skipping database migrations - database service is unavailable");
+}
+else
+{
+    Console.WriteLine("Running database migrations...");
+    try
     {
-        var sp = scope.ServiceProvider;
-        var db = sp.GetRequiredService<DanceMusicContext>().Database;
-
-        db.Migrate();
-        Console.WriteLine("Database migrations completed successfully");
-
-        if (isDevelopment)
+        using (var scope = app.Services.CreateScope())
         {
-            var userManager = sp.GetRequiredService<UserManager<ApplicationUser>>();
-            var roleManager = sp.GetRequiredService<RoleManager<IdentityRole>>();
-            await UserManagerHelpers.SeedData(userManager, roleManager, configuration);
-            Console.WriteLine("Development seed data applied successfully");
+            var sp = scope.ServiceProvider;
+            var db = sp.GetRequiredService<DanceMusicContext>().Database;
+
+            db.Migrate();
+            Console.WriteLine("Database migrations completed successfully");
+
+            if (isDevelopment)
+            {
+                var userManager = sp.GetRequiredService<UserManager<ApplicationUser>>();
+                var roleManager = sp.GetRequiredService<RoleManager<IdentityRole>>();
+                await UserManagerHelpers.SeedData(userManager, roleManager, configuration);
+                Console.WriteLine("Development seed data applied successfully");
+            }
         }
     }
+    catch (Exception ex)
+    {
+        serviceHealth.MarkUnavailable("Database", $"Migration failed: {ex.GetType().Name}: {ex.Message}");
+        Console.WriteLine($"ERROR: Database migration failed: {ex.GetType().Name}: {ex.Message}");
+        Console.WriteLine("WARNING: Continuing without database - data features will be unavailable");
+        Console.WriteLine("To resolve:");
+        Console.WriteLine("  1. Verify SQL Server is running and accessible");
+        Console.WriteLine("  2. Check connection string in appsettings.json");
+        Console.WriteLine("  3. Ensure the database server allows remote connections");
+    }
 }
-catch (Exception ex)
+
+// Generate and log startup health report AFTER database migrations
+Console.WriteLine();
+Console.WriteLine(serviceHealth.GenerateStartupReport());
+Console.WriteLine();
+
+// Initialize email notifier and check for startup failures
+var summary = serviceHealth.GetHealthSummary();
+if (summary.UnavailableCount > 0 || summary.DegradedCount > 0)
 {
-    serviceHealth.MarkUnavailable("Database", $"Migration failed: {ex.GetType().Name}: {ex.Message}");
-    Console.WriteLine($"ERROR: Database migration failed: {ex.GetType().Name}: {ex.Message}");
-    Console.WriteLine("WARNING: Continuing without database - data features will be unavailable");
-    Console.WriteLine("To resolve:");
-    Console.WriteLine("  1. Verify SQL Server is running and accessible");
-    Console.WriteLine("  2. Check connection string in appsettings.json");
-    Console.WriteLine("  3. Ensure the database server allows remote connections");
-    // Don't throw - allow app to start with database features disabled
+    Console.WriteLine($"WARNING: {summary.UnavailableCount} service(s) unavailable, {summary.DegradedCount} degraded");
+
+    // Initialize email notifier now (only if failures detected) to send one consolidated email
+    try
+    {
+        var emailSender = app.Services.GetService<IEmailSender>();
+        // Create a simple console logger for startup notifications (ApplicationLogging.LoggerFactory isn't set yet)
+        using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+        var notifierLogger = loggerFactory.CreateLogger<ServiceHealthNotifier>();
+        var notifier = new ServiceHealthNotifier(configuration, emailSender, notifierLogger);
+        serviceHealth.SetNotifier(notifier);
+
+        // Send consolidated startup failure notification (async, don't block startup)
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await serviceHealth.SendStartupFailureNotificationAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to send startup failure notification: {ex.Message}");
+            }
+        });
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"WARNING: Failed to configure email notifications for startup failures: {ex.Message}");
+    }
 }
 
 // Configure the HTTP request pipeline.
@@ -814,8 +860,6 @@ app.MapControllerRoute(
     "default",
     "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
-
-ApplicationLogging.LoggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
 
 GlobalState.UseTestKeys = isDevelopment;
 

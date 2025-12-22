@@ -112,7 +112,6 @@
         started: @Html.Raw(string.IsNullOrWhiteSpace(started) ? "undefined" : $"new Date('{started}')"),
         hitCount: @userMetadata.HitCount,
         level: '@userMetadata.Level',
-        updateMessage: '@GlobalState.UpdateMessage',
         marketingMessage: "@Html.Raw(@marketingMessage)",
         customerReminder: @(customerReminder && !hideAds ? "true" : "false"),
         xsrfToken: '@GetAntiXsrfRequestToken()',
