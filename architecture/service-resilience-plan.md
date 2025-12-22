@@ -541,6 +541,63 @@ Frontend Work:
 - ✅ Update warning banner automatically refreshes with health polling
 - ✅ Unified status communication system (service health + manual updates)
 
+### Phase 5: Static Cache Fallback ✅ COMPLETE
+
+**Scope**: Ensure resilience during fresh deployments by maintaining static JSON cache in source control.
+
+**Problem Statement**: Current JSON cache mechanism works well for runtime failures, but most service failures occur during deployment when the cache hasn't been built yet. Need a "last known good" fallback available immediately on fresh deployments.
+
+**Implementation Tasks**:
+
+1. ✅ **Create Static Cache Directory Structure**
+
+   - Add `m4d/ClientApp/public/cache/` directory to source control
+   - Store fallback versions of critical JSON data files
+   - Include in build output for deployment
+
+2. ✅ **Export Current Data to Static Cache Files**
+
+   - Generate fallback JSON files from current database
+   - Dance database fallback (~29 KB)
+   - Tag database fallback (~164 KB)
+   - Dance groups fallback (~1 KB)
+   - Metrics fallback (~3 KB)
+
+3. ✅ **Update Frontend to Use Static Fallback**
+
+   - Created `LoadDanceDatabase.ts` helper with three-tier fallback chain
+   - Fallback order: Live API → Runtime cache → Static fallback
+   - Console logging when falling back to static cache
+   - Async loading with in-memory caching
+
+4. ✅ **Documentation & Maintenance**
+   - Documented static cache update process in `public/cache/README.md`
+   - Created `scripts/export-static-cache.js` for easy updates
+   - Quarterly update reminder documented
+   - Complete Phase 5 report in `architecture/service-resilience-phase5-completion-report.md`
+
+**Key Deliverables**:
+
+- ✅ Static JSON cache files in source control (~200 KB total)
+- ✅ Three-tier fallback: API → Runtime Cache → Static Cache
+- ✅ Protection against deployment-time failures
+- ✅ Simple quarterly update process with automated script
+- ✅ Comprehensive documentation for operators
+
+**Benefits**:
+
+- ✅ Immediate resilience on fresh deployments
+- ✅ No external dependencies during deployment failures
+- ✅ Simple to implement and maintain
+- ✅ Provides baseline functionality even in worst-case scenarios
+- ✅ Files are versioned with code (Git history)
+
+**Limitations**:
+
+- Static cache becomes stale over time (quarterly updates mitigate this)
+- Adds ~200KB to repository size (negligible impact)
+- Requires manual/scheduled updates (can be automated in future)
+
 ## Configuration
 
 Add new configuration section to `appsettings.json`:
@@ -717,7 +774,68 @@ The following decisions have been made and incorporated into the plan:
 
 The following enhancements can be considered after the core resilience features are implemented:
 
-### 1. Advanced Caching
+### 1. Deployment-Time Cache Strategies (Complements Phase 5)
+
+After implementing static cache fallback, consider these additional deployment resilience strategies:
+
+#### Option A: Pre-Generate Cache During CI/CD Build
+
+- **Description**: Export data from staging database during build pipeline before production deployment
+- **Benefits**: Fresh cache on every deployment, no stale data concerns
+- **Complexity**: Moderate - requires pipeline modifications, staging database access
+- **Implementation**:
+
+```yaml
+# Azure Pipeline task before deployment
+- task: PowerShell@2
+  displayName: "Export Database to JSON Cache"
+  inputs:
+    script: |
+      dotnet run --project CacheExporter -- export-all
+      # Include exported files in deployment artifact
+```
+
+#### Option B: Azure Blob Storage for Cache
+
+- **Description**: Store JSON cache in Azure Blob Storage, separate from application deployment
+- **Benefits**:
+  - Survives deployments completely
+  - Can be updated independently
+  - Highly available with CDN
+  - Easy to version/rollback
+- **Complexity**: High - requires new Azure resources, code changes, CDN setup
+- **Implementation**: Daily background job exports to blob, frontend tries API → Blob → Static fallback
+- **Cost**: ~$5-10/month for storage + bandwidth
+
+#### Option C: Deployment Slots with Cache Warming
+
+- **Description**: Use Azure deployment slots to warm cache before swapping to production
+- **Benefits**: Zero-downtime deployments with warm cache
+- **Complexity**: Moderate - requires Azure App Service Standard tier or higher
+- **Implementation**:
+  1. Deploy to staging slot
+  2. Health check verifies cache is built
+  3. Swap slots only when healthy
+- **Cost**: Requires higher App Service tier
+
+#### Option D: Database Export as Deployment Pre-Step
+
+- **Description**: Call production API to export current data before deploying new version
+- **Benefits**: Always have current production data in new deployment
+- **Complexity**: Low - just API call in pipeline
+- **Implementation**:
+
+  ```yaml
+  - task: AzureCLI@2
+    inputs:
+      inlineScript: |
+        # Export from current production
+        curl https://music4dance.net/api/export/all > wwwroot/cache/bootstrap.json
+  ```
+
+**Recommendation**: Start with Phase 5 (static cache in source control), then add Option D (pre-deployment export) as incremental improvement. Options B and C provide most resilience but require significant infrastructure investment.
+
+### 2. Advanced Caching
 
 - **Search Results Caching**: Cache common search queries and results for anonymous users
   - Reduces load on search service
@@ -728,7 +846,7 @@ The following enhancements can be considered after the core resilience features 
   - Improves performance
   - Requires careful cache invalidation on user actions
 
-### 2. Third-party Service Monitoring
+### 3. Third-party Service Monitoring
 
 - **Proactive Status Checks**: Check external service status pages before marking services as failed
   - Azure Status API: Check Azure service health
@@ -738,7 +856,7 @@ The following enhancements can be considered after the core resilience features 
 - **Benefits**: Distinguish between our issues vs. third-party outages, provide better user messaging
 - **Complexity**: Additional HTTP calls, parsing different status formats, reliability of status pages
 
-### 3. Partial Failure Handling
+### 4. Partial Failure Handling
 
 - **Adaptive Circuit Breakers**: Handle scenarios where service is partially available (e.g., 50% success rate)
   - Use sliding window to track success/failure rates
@@ -746,20 +864,12 @@ The following enhancements can be considered after the core resilience features 
   - Adaptive thresholds based on service patterns
 - **Request Hedging**: Send duplicate requests to increase reliability for critical operations
 
-### 4. Geographic Redundancy
+### 5. Geographic Redundancy
 
 - **Multi-region Failover**: Automatic failover to different Azure regions when primary region is unavailable
   - Requires: Database replication, geo-distributed search indexes, traffic management
   - Complexity: Data consistency, latency, cost
   - Best for: Scenarios requiring highest availability guarantees
-
-### 5. Static Fallback Generation
-
-- **Static HTML Snapshots**: Pre-generate static HTML versions of critical pages as ultimate fallbacks
-  - Generate snapshots of: Home, FAQ, Dance index, Popular dances
-  - Serve from CDN when application is completely unavailable
-  - Update snapshots daily or on content changes
-  - Provides "read-only mode" during complete outages
 
 ### 6. Enhanced Status Dashboard
 
@@ -809,4 +919,5 @@ The following enhancements can be considered after the core resilience features 
 
 | Date       | Version | Author         | Changes                              |
 | ---------- | ------- | -------------- | ------------------------------------ |
+| 2025-12-22 | 2.0     | GitHub Copilot | Added Phase 5: Static Cache Fallback |
 | 2025-12-14 | 1.0     | GitHub Copilot | Initial draft based on code analysis |

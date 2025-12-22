@@ -75,7 +75,7 @@ const affectedFeatures = computed(() => {
   unavailableServices.value.forEach((service) => {
     switch (service.name) {
       case "SearchService":
-        features.push("search results", "song details");
+        features.push("search results and details", "song data that is shown may be out of date");
         break;
       case "Database":
         features.push(
