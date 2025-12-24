@@ -672,7 +672,7 @@ catch (Exception ex)
     Console.WriteLine("  3. Check the startup health report above for failed services");
     Console.WriteLine();
     Console.WriteLine("Full exception details:");
-    Console.WriteLine(ex.ToString());
+    Console.WriteLine(ex);
     throw; // Re-throw to stop the application
 }
 

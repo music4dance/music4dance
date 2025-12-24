@@ -159,7 +159,7 @@ public class DanceStatsInstance
 
         var newDances = new List<string>();
 
-        foreach (var dance in Dances)
+        foreach (var dance in Dances.Where(d => playlists.ContainsKey(d.DanceName)))
         {
             if (playlists.TryGetValue(dance.DanceName, out var metadata))
             {

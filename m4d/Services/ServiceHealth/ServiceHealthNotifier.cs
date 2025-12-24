@@ -151,6 +151,7 @@ public class ServiceHealthNotifier
                 <th>Failures</th>
             </tr>";
 
+        var tableRows = new System.Text.StringBuilder();
         foreach (var status in serviceHealth.GetAllStatuses().OrderBy(s => s.ServiceName))
         {
             var statusClass = status.Status.ToString().ToLowerInvariant();
@@ -162,15 +163,16 @@ public class ServiceHealthNotifier
                 _ => "?"
             };
 
-            html += $@"
+            tableRows.AppendLine($@"
             <tr>
                 <td>{status.ServiceName}</td>
                 <td class='{statusClass}'>{statusIcon} {status.Status}</td>
                 <td>{status.LastChecked:yyyy-MM-dd HH:mm:ss}</td>
                 <td>{status.ConsecutiveFailures}</td>
-            </tr>";
+            </tr>");
         }
 
+        html += tableRows.ToString();
         html += @"
         </table>
 
