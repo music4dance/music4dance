@@ -3,6 +3,7 @@
 exports[`New Music > renders a new music page 1`] = `
 "<div><span context="[object Object]">MainMenu</span>
   <!--v-if-->
+  <!--v-if-->
   <div id="body-content" class="container-fluid body-content">
     <h1>New Music</h1>
     <div>

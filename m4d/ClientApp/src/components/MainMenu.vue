@@ -119,14 +119,6 @@ function search(s?: string): void {
       <a href="https://www.music4dance.net" class="alert-link">wwww.music4dance.net</a>
       to use the production site.</BAlert
     >
-    <BAlert
-      v-if="context.updateMessage"
-      v-model="renewal"
-      variant="danger"
-      style="margin-bottom: 0"
-      dismissable
-      >{{ context.updateMessage }}</BAlert
-    >
     <BNavbar id="mainMenu" data-bs-theme="dark" variant="primary" toggleable="lg">
       <BNavbarBrand href="/">
         <img :src="logo" height="40" width="170" title="music4dance" />

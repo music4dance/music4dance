@@ -30,12 +30,22 @@ public class DanceStatsFileManager(string appRoot, string fileName = "dance-envi
 
     public async Task<string> GetStats()
     {
+        // Try runtime cache first (AppData/dance-environment.json)
         var path = Path.Combine(AppData, $"{FileName}.json");
-        if (!File.Exists(path))
+        if (File.Exists(path))
         {
-            return await Task.FromResult<string>(null);
+            return await File.ReadAllTextAsync(path);
         }
-        return await File.ReadAllTextAsync(path);
+
+        // Fall back to static cache in source control (content/dance-environment-fallback.json)
+        var fallbackPath = Path.Combine(Content, $"{FileName}-fallback.json");
+        if (File.Exists(fallbackPath))
+        {
+            Console.WriteLine($"Runtime cache not found, loading from static fallback: {fallbackPath}");
+            return await File.ReadAllTextAsync(fallbackPath);
+        }
+
+        return await Task.FromResult<string>(null);
     }
 
     public Task WriteStats(string stats)

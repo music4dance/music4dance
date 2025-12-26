@@ -1,4 +1,5 @@
 ﻿using m4d.Services;
+using m4d.Services.ServiceHealth;
 using m4d.Utilities;
 using m4d.ViewModels;
 
@@ -23,7 +24,7 @@ public class DanceMusicController(
     DanceMusicContext context, UserManager<ApplicationUser> userManager,
     ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
     IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backgroundTaskQueue,
-    IFeatureManagerSnapshot featureManager, ILogger logger) : Controller
+    IFeatureManagerSnapshot featureManager, ILogger logger, ServiceHealthManager serviceHealth = null) : Controller
 {
     protected static readonly JsonSerializerSettings CamelCaseSerializerSettings = new()
     {
@@ -77,6 +78,12 @@ public class DanceMusicController(
             Referrer = referrer,
             UserAgent = userAgent
         };
+
+        // Skip logging if database is unavailable
+        if (ServiceHealth?.IsServiceHealthy("Database") == false)
+        {
+            return;
+        }
 
         TaskQueue.EnqueueTask(
             async (serviceScopeFactory, cancellationToken) =>
@@ -171,6 +178,7 @@ public class DanceMusicController(
     protected IFileProvider FileProvider { get; } = fileProvider;
     protected IFeatureManagerSnapshot FeatureManager { get; } = featureManager;
     protected IBackgroundTaskQueue TaskQueue { get; } = backgroundTaskQueue;
+    protected ServiceHealthManager ServiceHealth { get; } = serviceHealth;
 
     protected UserManager<ApplicationUser> UserManager => Database.UserManager;
 

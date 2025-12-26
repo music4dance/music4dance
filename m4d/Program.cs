@@ -1,8 +1,10 @@
 using Azure.Identity;
 using Azure.Search.Documents;
+using Azure.Search.Documents.Indexes;
 
 using m4d.Areas.Identity;
 using m4d.Services;
+using m4d.Services.ServiceHealth;
 using m4d.Utilities;
 using m4d.ViewModels;
 
@@ -112,6 +114,14 @@ if (isSelfContained)
 services.AddHttpLogging(o => { });
 builder.Services.AddFeatureManagement();
 
+// Initialize ServiceHealthManager early to track service registration health
+var serviceHealthLogger = LoggerFactory.Create(builder => builder.AddConsole())
+    .CreateLogger<ServiceHealthManager>();
+var serviceHealth = new ServiceHealthManager(serviceHealthLogger);
+services.AddSingleton(serviceHealth);
+Console.WriteLine("ServiceHealthManager initialized");
+Console.WriteLine("Note: Email notifications will be initialized only if startup failures are detected");
+
 var useVite = configuration.UseVite();
 var isDevelopment = environment.IsDevelopment();
 
@@ -127,28 +137,40 @@ if (!isDevelopment)
         Console.WriteLine($"AppConfig:ConnectionString present: {!string.IsNullOrEmpty(appConfigConnectionString)}");
         if (!string.IsNullOrEmpty(appConfigConnectionString))
         {
-            _ = configuration.AddAzureAppConfiguration(options =>
+            try
             {
-                _ = options.Connect(appConfigConnectionString)
-                .UseFeatureFlags(featureFlagOptions =>
+                _ = configuration.AddAzureAppConfiguration(options =>
                 {
-                    _ = featureFlagOptions.Select(LabelFilter.Null);
-                    _ = featureFlagOptions.Select(environment.EnvironmentName);
-                    _ = featureFlagOptions.SetRefreshInterval(TimeSpan.FromMinutes(5));
-                })
-                .Select(KeyFilter.Any, LabelFilter.Null)
-                .Select(KeyFilter.Any, environment.EnvironmentName)
-                .ConfigureRefresh(refresh =>
-                {
-                    _ = refresh.Register("Configuration:Sentinel", environment.EnvironmentName, refreshAll: true)
-                        .SetRefreshInterval(TimeSpan.FromMinutes(5));
+                    _ = options.Connect(appConfigConnectionString)
+                    .UseFeatureFlags(featureFlagOptions =>
+                    {
+                        _ = featureFlagOptions.Select(LabelFilter.Null);
+                        _ = featureFlagOptions.Select(environment.EnvironmentName);
+                        _ = featureFlagOptions.SetRefreshInterval(TimeSpan.FromMinutes(5));
+                    })
+                    .Select(KeyFilter.Any, LabelFilter.Null)
+                    .Select(KeyFilter.Any, environment.EnvironmentName)
+                    .ConfigureRefresh(refresh =>
+                    {
+                        _ = refresh.Register("Configuration:Sentinel", environment.EnvironmentName, refreshAll: true)
+                            .SetRefreshInterval(TimeSpan.FromMinutes(5));
+                    });
                 });
-            });
 
-            _ = services.AddAzureAppConfiguration();
+                _ = services.AddAzureAppConfiguration();
+                serviceHealth.MarkHealthy("AppConfiguration");
+                Console.WriteLine("Azure App Configuration configured successfully");
+            }
+            catch (Exception ex)
+            {
+                serviceHealth.MarkUnavailable("AppConfiguration", $"{ex.GetType().Name}: {ex.Message}");
+                Console.WriteLine($"ERROR connecting to App Configuration: {ex.GetType().Name}: {ex.Message}");
+                Console.WriteLine("WARNING: Continuing without App Configuration - using local configuration only");
+            }
         }
         else
         {
+            serviceHealth.MarkUnavailable("AppConfiguration", "Connection string not configured");
             Console.WriteLine("Warning: AppConfig:ConnectionString not set for self-contained deployment");
         }
     }
@@ -158,14 +180,14 @@ if (!isDevelopment)
         // Use managed identity for App Configuration
         var appConfigEndpoint = configuration["AppConfig:Endpoint"];
         Console.WriteLine($"AppConfig:Endpoint = {appConfigEndpoint}");
-        
+
         if (!string.IsNullOrEmpty(appConfigEndpoint))
         {
             try
             {
                 var credentials = new DefaultAzureCredential();
                 Console.WriteLine("DefaultAzureCredential created successfully for App Configuration");
-                
+
                 Console.WriteLine("Attempting to connect to App Configuration...");
                 _ = configuration.AddAzureAppConfiguration(options =>
                 {
@@ -190,10 +212,12 @@ if (!isDevelopment)
                 });
 
                 _ = services.AddAzureAppConfiguration();
+                serviceHealth.MarkHealthy("AppConfiguration");
                 Console.WriteLine("Azure App Configuration added successfully with managed identity");
             }
             catch (Exception ex)
             {
+                serviceHealth.MarkUnavailable("AppConfiguration", $"{ex.GetType().Name}: {ex.Message}");
                 Console.WriteLine($"ERROR connecting to App Configuration: {ex.GetType().Name}");
                 try
                 {
@@ -213,6 +237,7 @@ if (!isDevelopment)
         }
         else
         {
+            serviceHealth.MarkUnavailable("AppConfiguration", "Endpoint not configured");
             Console.WriteLine("WARNING: AppConfig:Endpoint not configured - using local configuration only");
         }
     }
@@ -233,36 +258,47 @@ if (isSelfContained)
     Console.WriteLine($"AzureSearch:ApiKey present: {!string.IsNullOrEmpty(searchApiKey)}");
     if (!string.IsNullOrEmpty(searchApiKey))
     {
-        var keyCredential = new Azure.AzureKeyCredential(searchApiKey);
-
-        // Add SearchIndexClient for SongIndex
-        var songIndexSections = indexSections
-            .Where(s => s.Key.StartsWith("SongIndex", StringComparison.OrdinalIgnoreCase))
-            .ToList();
-
-        if (songIndexSections.Any())
+        try
         {
-            var firstSongIndexSection = songIndexSections.First();
-            var endpoint = new Uri(firstSongIndexSection["endpoint"]);
+            var keyCredential = new Azure.AzureKeyCredential(searchApiKey);
 
-            // Verify all SongIndex sections have the same endpoint
-            foreach (var section in songIndexSections)
+            // Add SearchIndexClient for SongIndex
+            var songIndexSections = indexSections
+                .Where(s => s.Key.StartsWith("SongIndex", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            if (songIndexSections.Any())
             {
-                var sectionEndpoint = section["endpoint"];
-                if (!string.Equals(endpoint.ToString(), sectionEndpoint, StringComparison.OrdinalIgnoreCase))
+                var firstSongIndexSection = songIndexSections.First();
+                var endpoint = new Uri(firstSongIndexSection["endpoint"]);
+
+                // Verify all SongIndex sections have the same endpoint
+                foreach (var section in songIndexSections)
                 {
-                    throw new InvalidOperationException($"All SongIndex sections must have the same endpoint. Mismatch found in section '{section.Key}'.");
+                    var sectionEndpoint = section["endpoint"];
+                    if (!string.Equals(endpoint.ToString(), sectionEndpoint, StringComparison.OrdinalIgnoreCase))
+                    {
+                        throw new InvalidOperationException($"All SongIndex sections must have the same endpoint. Mismatch found in section '{section.Key}'.");
+                    }
                 }
+
+                var indexClient = new Azure.Search.Documents.Indexes.SearchIndexClient(endpoint, keyCredential);
+                services.AddSingleton(indexClient);
             }
 
-            var indexClient = new Azure.Search.Documents.Indexes.SearchIndexClient(endpoint, keyCredential);
-            services.AddSingleton(indexClient);
+            serviceHealth.MarkHealthy("SearchService");
+            Console.WriteLine($"Azure Search clients configured with API key authentication ({indexSections.Count} indexes)");
         }
-
-        Console.WriteLine($"Azure Search clients configured with API key authentication ({indexSections.Count} indexes)");
+        catch (Exception ex)
+        {
+            serviceHealth.MarkUnavailable("SearchService", $"{ex.GetType().Name}: {ex.Message}");
+            Console.WriteLine($"ERROR configuring Azure Search: {ex.GetType().Name}: {ex.Message}");
+            Console.WriteLine("WARNING: Continuing without Azure Search - search features will be unavailable");
+        }
     }
     else
     {
+        serviceHealth.MarkUnavailable("SearchService", "API key not configured");
         Console.WriteLine("Warning: AzureSearch:ApiKey not set for self-contained deployment");
     }
 }
@@ -272,6 +308,24 @@ else
     // For framework-dependent deployments, use Azure client builder with managed identity
     try
     {
+        // Validate endpoints before attempting to register clients
+        bool hasValidEndpoints = true;
+        foreach (var section in indexSections)
+        {
+            var endpoint = section["endpoint"];
+            if (string.IsNullOrEmpty(endpoint) || !Uri.TryCreate(endpoint, UriKind.Absolute, out var uri))
+            {
+                Console.WriteLine($"WARNING: Invalid endpoint for index {section.Key}: {endpoint}");
+                hasValidEndpoints = false;
+                break;
+            }
+        }
+
+        if (!hasValidEndpoints)
+        {
+            throw new InvalidOperationException("One or more search index endpoints are invalid or missing");
+        }
+
         services.AddAzureClients(clientBuilder =>
         {
             Console.WriteLine("Creating DefaultAzureCredential for Azure Search clients");
@@ -310,18 +364,43 @@ else
         }
         Console.WriteLine("Azure Search clients configured successfully with managed identity");
     });
+        serviceHealth.MarkHealthy("SearchService");
     }
     catch (Exception ex)
     {
+        serviceHealth.MarkUnavailable("SearchService", $"{ex.GetType().Name}: {ex.Message}");
         Console.WriteLine($"ERROR configuring Azure Search with managed identity: {ex.GetType().Name}: {ex.Message}");
-        Console.WriteLine($"Stack trace: {ex.StackTrace}");
-        throw;
+        Console.WriteLine("WARNING: Continuing without Azure Search - search features will be unavailable");
+
+        // Register null/fallback clients to prevent dependency injection failures
+        // This allows the app to start even if search service configuration is invalid
+        services.AddSingleton<IAzureClientFactory<SearchClient>>(sp =>
+        {
+            return new NullSearchClientFactory();
+        });
+        services.AddSingleton<IAzureClientFactory<SearchIndexClient>>(sp =>
+        {
+            return new NullSearchIndexClientFactory();
+        });
+        Console.WriteLine("Registered fallback search client factories");
     }
 }
 
 Console.WriteLine("Configuring SQL Server database context");
-services.AddDbContext<DanceMusicContext>(options => options.UseSqlServer(connectionString));
-Console.WriteLine("Database context configured successfully");
+try
+{
+    services.AddDbContext<DanceMusicContext>(options => options.UseSqlServer(connectionString));
+    serviceHealth.MarkHealthy("Database");
+    Console.WriteLine("Database context configured successfully");
+}
+catch (Exception ex)
+{
+    serviceHealth.MarkUnavailable("Database", $"{ex.GetType().Name}: {ex.Message}");
+    Console.WriteLine($"ERROR configuring database: {ex.GetType().Name}: {ex.Message}");
+    Console.WriteLine("WARNING: Continuing without database - using cached content where available");
+    // Register a placeholder to prevent dependency injection failures
+    // The actual health check and fallback logic will be in controllers
+}
 
 // Configure data protection for self-contained deployments
 if (isSelfContained)
@@ -397,8 +476,26 @@ var embeddedProvider = new EmbeddedFileProvider(Assembly.GetEntryAssembly());
 var compositeProvider = new CompositeFileProvider(physicalProvider, embeddedProvider);
 services.AddSingleton<IFileProvider>(compositeProvider);
 
-services.AddTransient<IEmailSender, EmailSender>(provider =>
-    new EmailSender(configuration["Authentication:AzureCommunicationServices:ConnectionString"]));
+// Email Service
+try
+{
+    var emailConnectionString = configuration["Authentication:AzureCommunicationServices:ConnectionString"];
+    if (string.IsNullOrEmpty(emailConnectionString))
+    {
+        throw new InvalidOperationException("Azure Communication Services connection string not configured");
+    }
+
+    services.AddTransient<IEmailSender, EmailSender>(provider =>
+        new EmailSender(emailConnectionString));
+    serviceHealth.MarkHealthy("EmailService");
+}
+catch (Exception ex)
+{
+    serviceHealth.MarkUnavailable("EmailService", $"{ex.GetType().Name}: {ex.Message}");
+    Console.WriteLine($"WARNING: Email service not configured: {ex.Message}");
+    // Register a null email sender as fallback
+    services.AddTransient<IEmailSender, EmailSender>(provider => new EmailSender(null));
+}
 
 services.Configure<AuthorizationOptions>(
     options =>
@@ -408,8 +505,12 @@ services.Configure<AuthorizationOptions>(
             policy => policy.AddRequirements(new TokenRequirement(configuration)));
     });
 
-services.AddAuthentication()
-    .AddGoogle(
+var authBuilder = services.AddAuthentication();
+
+// Google OAuth
+try
+{
+    authBuilder.AddGoogle(
         options =>
         {
             var googleAuthNSection =
@@ -417,8 +518,24 @@ services.AddAuthentication()
 
             options.ClientId = googleAuthNSection["ClientId"];
             options.ClientSecret = googleAuthNSection["ClientSecret"];
-        })
-    .AddFacebook(
+
+            if (string.IsNullOrEmpty(options.ClientId) || string.IsNullOrEmpty(options.ClientSecret))
+            {
+                throw new InvalidOperationException("Google ClientId or ClientSecret not configured");
+            }
+        });
+    serviceHealth.MarkHealthy("GoogleOAuth");
+}
+catch (Exception ex)
+{
+    serviceHealth.MarkUnavailable("GoogleOAuth", $"{ex.GetType().Name}: {ex.Message}");
+    Console.WriteLine($"WARNING: Google OAuth not configured: {ex.Message}");
+}
+
+// Facebook OAuth
+try
+{
+    authBuilder.AddFacebook(
         options =>
         {
             options.AppId = configuration["Authentication:Facebook:ClientId"];
@@ -426,12 +543,33 @@ services.AddAuthentication()
             options.Scope.Add("email");
             options.Fields.Add("name");
             options.Fields.Add("email");
-        })
-    .AddSpotify(
+
+            if (string.IsNullOrEmpty(options.AppId) || string.IsNullOrEmpty(options.AppSecret))
+            {
+                throw new InvalidOperationException("Facebook AppId or AppSecret not configured");
+            }
+        });
+    serviceHealth.MarkHealthy("FacebookOAuth");
+}
+catch (Exception ex)
+{
+    serviceHealth.MarkUnavailable("FacebookOAuth", $"{ex.GetType().Name}: {ex.Message}");
+    Console.WriteLine($"WARNING: Facebook OAuth not configured: {ex.Message}");
+}
+
+// Spotify OAuth
+try
+{
+    authBuilder.AddSpotify(
         options =>
         {
             options.ClientId = configuration["Authentication:Spotify:ClientId"];
             options.ClientSecret = configuration["Authentication:Spotify:ClientSecret"];
+
+            if (string.IsNullOrEmpty(options.ClientId) || string.IsNullOrEmpty(options.ClientSecret))
+            {
+                throw new InvalidOperationException("Spotify ClientId or ClientSecret not configured");
+            }
 
             options.Scope.Add("user-read-email");
             options.Scope.Add("playlist-modify-public");
@@ -452,13 +590,35 @@ services.AddAuthentication()
                 return Task.CompletedTask;
             };
         });
+    serviceHealth.MarkHealthy("SpotifyOAuth");
+}
+catch (Exception ex)
+{
+    serviceHealth.MarkUnavailable("SpotifyOAuth", $"{ex.GetType().Name}: {ex.Message}");
+    Console.WriteLine($"WARNING: Spotify OAuth not configured: {ex.Message}");
+}
 
-services.AddreCAPTCHAV2(
-    x =>
-    {
-        x.SiteKey = configuration["Authentication:reCAPTCHA:SiteKey"];
-        x.SiteSecret = configuration["Authentication:reCAPTCHA:SecretKey"];
-    });
+// reCAPTCHA
+try
+{
+    services.AddreCAPTCHAV2(
+        x =>
+        {
+            x.SiteKey = configuration["Authentication:reCAPTCHA:SiteKey"];
+            x.SiteSecret = configuration["Authentication:reCAPTCHA:SecretKey"];
+
+            if (string.IsNullOrEmpty(x.SiteKey) || string.IsNullOrEmpty(x.SiteSecret))
+            {
+                throw new InvalidOperationException("reCAPTCHA SiteKey or SecretKey not configured");
+            }
+        });
+    serviceHealth.MarkHealthy("ReCaptcha");
+}
+catch (Exception ex)
+{
+    serviceHealth.MarkUnavailable("ReCaptcha", $"{ex.GetType().Name}: {ex.Message}");
+    Console.WriteLine($"WARNING: reCAPTCHA not configured: {ex.Message}");
+}
 
 var appRoot = environment.WebRootPath;
 services.AddSingleton<ISearchServiceManager, SearchServiceManager>();
@@ -491,8 +651,33 @@ services.AddViteServices();
 services.AddHostedService<DanceStatsHostedService>();
 
 Console.WriteLine("Building application...");
-var app = builder.Build();
-Console.WriteLine("Application built successfully");
+WebApplication app;
+try
+{
+    app = builder.Build();
+    Console.WriteLine("Application built successfully");
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"ERROR: Application failed to build: {ex.GetType().Name}: {ex.Message}");
+    Console.WriteLine("This may indicate a critical service configuration issue that prevents dependency injection.");
+    Console.WriteLine("Common causes:");
+    Console.WriteLine("  - Invalid Azure Search endpoint configuration");
+    Console.WriteLine("  - Missing required service dependencies");
+    Console.WriteLine("  - Service registration conflicts");
+    Console.WriteLine();
+    Console.WriteLine("To resolve:");
+    Console.WriteLine("  1. Check appsettings.Development.json for invalid endpoints");
+    Console.WriteLine("  2. Verify all required configuration values are present");
+    Console.WriteLine("  3. Check the startup health report above for failed services");
+    Console.WriteLine();
+    Console.WriteLine("Full exception details:");
+    Console.WriteLine(ex);
+    throw; // Re-throw to stop the application
+}
+
+// Set ApplicationLogging.LoggerFactory early so static loggers in services can initialize
+ApplicationLogging.LoggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
 
 if (!isDevelopment)
 {
@@ -520,18 +705,82 @@ app.Logger.LogInformation($"Environment = {environment.EnvironmentName}");
 var sentinel = configuration["Configuration:Sentinel"];
 app.Logger.LogInformation($"Sentinel = {sentinel}");
 
-using (var scope = app.Services.CreateScope())
+// Skip database migration if database is already unavailable
+if (!serviceHealth.IsServiceAvailable("Database"))
 {
-    var sp = scope.ServiceProvider;
-    var db = sp.GetRequiredService<DanceMusicContext>().Database;
-
-    db.Migrate();
-
-    if (isDevelopment)
+    Console.WriteLine("Skipping database migrations - database service is unavailable");
+}
+else
+{
+    Console.WriteLine("Running database migrations...");
+    try
     {
-        var userManager = sp.GetRequiredService<UserManager<ApplicationUser>>();
-        var roleManager = sp.GetRequiredService<RoleManager<IdentityRole>>();
-        await UserManagerHelpers.SeedData(userManager, roleManager, configuration);
+        using (var scope = app.Services.CreateScope())
+        {
+            var sp = scope.ServiceProvider;
+            var db = sp.GetRequiredService<DanceMusicContext>().Database;
+
+            db.Migrate();
+            Console.WriteLine("Database migrations completed successfully");
+
+            if (isDevelopment)
+            {
+                var userManager = sp.GetRequiredService<UserManager<ApplicationUser>>();
+                var roleManager = sp.GetRequiredService<RoleManager<IdentityRole>>();
+                await UserManagerHelpers.SeedData(userManager, roleManager, configuration);
+                Console.WriteLine("Development seed data applied successfully");
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        serviceHealth.MarkUnavailable("Database", $"Migration failed: {ex.GetType().Name}: {ex.Message}");
+        Console.WriteLine($"ERROR: Database migration failed: {ex.GetType().Name}: {ex.Message}");
+        Console.WriteLine("WARNING: Continuing without database - data features will be unavailable");
+        Console.WriteLine("To resolve:");
+        Console.WriteLine("  1. Verify SQL Server is running and accessible");
+        Console.WriteLine("  2. Check connection string in appsettings.json");
+        Console.WriteLine("  3. Ensure the database server allows remote connections");
+    }
+}
+
+// Generate and log startup health report AFTER database migrations
+Console.WriteLine();
+Console.WriteLine(serviceHealth.GenerateStartupReport());
+Console.WriteLine();
+
+// Initialize email notifier and check for startup failures
+var summary = serviceHealth.GetHealthSummary();
+if (summary.UnavailableCount > 0 || summary.DegradedCount > 0)
+{
+    Console.WriteLine($"WARNING: {summary.UnavailableCount} service(s) unavailable, {summary.DegradedCount} degraded");
+
+    // Initialize email notifier now (only if failures detected) to send one consolidated email
+    try
+    {
+        var emailSender = app.Services.GetService<IEmailSender>();
+        // Create a simple console logger for startup notifications (ApplicationLogging.LoggerFactory isn't set yet)
+        using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+        var notifierLogger = loggerFactory.CreateLogger<ServiceHealthNotifier>();
+        var notifier = new ServiceHealthNotifier(configuration, emailSender, notifierLogger);
+        serviceHealth.SetNotifier(notifier);
+
+        // Send consolidated startup failure notification (async, don't block startup)
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await serviceHealth.SendStartupFailureNotificationAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to send startup failure notification: {ex.Message}");
+            }
+        });
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"WARNING: Failed to configure email notifications for startup failures: {ex.Message}");
     }
 }
 
@@ -611,8 +860,6 @@ app.MapControllerRoute(
     "default",
     "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
-
-ApplicationLogging.LoggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
 
 GlobalState.UseTestKeys = isDevelopment;
 

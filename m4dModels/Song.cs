@@ -1546,18 +1546,7 @@ public class Song : TaggableObject
                     currentModified = new ModifiedRecord(prop.Value);
                     user = currentModified.UserName;
                     currentModified = AddModifiedBy(currentModified);
-
-                    // TODO: Once we've updated all songs with the PseudoUser
-                    //  flag this will be redundant
-                    {
-                        var applicationUser = await database.FindUser(user) ??
-                            new ApplicationUser(user, true);
-                        var isPseudo = applicationUser.IsPseudo;
-                        currentModified.IsPseudo = isPseudo;
-                        prop.Value = isPseudo
-                            ? currentModified.DecoratedName
-                            : user;
-                    }
+                    currentModified = AddModifiedBy(currentModified);
                     prop.Value = currentModified.DecoratedName;
                     break;
                 case DanceRatingField:

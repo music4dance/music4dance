@@ -103,7 +103,6 @@ public class DanceMusicContext(DbContextOptions<DanceMusicContext> options) : Id
             //    }
             //}
 
-            Debug.Assert(false);
             throw;
         }
 

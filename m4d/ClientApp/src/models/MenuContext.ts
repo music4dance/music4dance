@@ -12,12 +12,14 @@ export interface MenuContextInterface {
   level?: string;
   hitCount?: number;
   customerReminder?: boolean;
-  updateMessage?: string;
   marketingMessage?: string;
   xsrfToken?: string;
   isLocal?: boolean;
   isTest?: boolean;
   isProduction?: boolean;
+  searchHealthy?: boolean;
+  databaseHealthy?: boolean;
+  configurationHealthy?: boolean;
 }
 
 export class MenuContext implements MenuContextInterface {
@@ -31,9 +33,11 @@ export class MenuContext implements MenuContextInterface {
   public level?: string;
   public hitCount?: number;
   public customerReminder?: boolean;
-  public updateMessage?: string;
   public marketingMessage?: string;
   public xsrfToken?: string;
+  public searchHealthy?: boolean;
+  public databaseHealthy?: boolean;
+  public configurationHealthy?: boolean;
   private axiosInstance?: AxiosInstance;
 
   public constructor(init?: MenuContextInterface) {

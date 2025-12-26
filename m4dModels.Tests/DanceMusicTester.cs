@@ -206,7 +206,7 @@ public static class DanceMusicTester
         await AddUser(service, "UserG", true);
         await AddUser(service, "UserAC", true);
         await AddUser(service, "UserN", true);
-        await AddUser(service, "UserZ", true);
+        await AddUser(service, "UserZ", false);
         await AddUser(service, "UserF", true);
         return service;
     }

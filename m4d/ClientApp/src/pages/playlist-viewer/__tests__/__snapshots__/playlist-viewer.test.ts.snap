@@ -3,6 +3,7 @@
 exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
 "<div><span context="[object Object]">MainMenu</span>
   <!--v-if-->
+  <!--v-if-->
   <div id="body-content" class="container-fluid body-content">
     <div class="mt-2"></div>
     <div>

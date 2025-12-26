@@ -1,4 +1,5 @@
 ﻿using m4d.Services;
+using m4d.Services.ServiceHealth;
 using m4d.ViewModels;
 
 using Microsoft.AspNetCore.Authorization;
@@ -18,9 +19,10 @@ public class TagController : DanceMusicController
         DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
         IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-        IFeatureManagerSnapshot featureManager, ILogger<ActivityLogController> logger) :
+        IFeatureManagerSnapshot featureManager, ILogger<ActivityLogController> logger,
+        ServiceHealthManager serviceHealth) :
         base(context, userManager, searchService, danceStatsManager, configuration,
-            fileProvider, backroundTaskQueue, featureManager, logger)
+            fileProvider, backroundTaskQueue, featureManager, logger, serviceHealth)
     {
         HelpPage = "tag-cloud";
     }
@@ -85,7 +87,7 @@ public class TagController : DanceMusicController
     }
 
     // POST: Tag/Edit/5
-    // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+    // To protect from overposting attacks, please enable the specific properties you want to bind to, for
     // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
     [Authorize(Roles = "dbAdmin")]
     [HttpPost]

@@ -1,5 +1,6 @@
 ﻿using Azure.Search.Documents;
 
+using m4d.Services.ServiceHealth;
 using m4d.Utilities;
 
 using Microsoft.AspNetCore.Identity;
@@ -10,7 +11,8 @@ using System.Diagnostics;
 namespace m4d.Services;
 
 public class SongSearch(SongFilter filter, string userName, bool isPremium, SongIndex songIndex,
-    UserManager<ApplicationUser> userManager, IBackgroundTaskQueue backgroundTaskQueue, int? pageSize = null)
+    UserManager<ApplicationUser> userManager, IBackgroundTaskQueue backgroundTaskQueue,
+    ServiceHealthManager serviceHealth = null, int? pageSize = null)
 {
     private SongFilter Filter { get; } = songIndex.DanceMusicService.SearchService.GetSongFilter(filter.ToString());
     private string UserName { get; } = userName;
@@ -18,6 +20,7 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
     private UserManager<ApplicationUser> UserManager { get; } = userManager;
     private SongIndex SongIndex { get; } = songIndex;
     private IBackgroundTaskQueue BackgroundTaskQueue { get; } = backgroundTaskQueue;
+    private ServiceHealthManager ServiceHealth { get; } = serviceHealth;
     private int? PageSize { get; } = pageSize;
 
     private bool IsAuthenticated => !string.IsNullOrWhiteSpace(UserName);
@@ -47,13 +50,13 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
             else if (!string.Equals(currentUser, userQuery.UserName))
             {
                 // In this case we want to intentionally overwrite the incoming filter
-                var temp = await UserMapper.AnonymizeFilter(Filter, UserManager);
+                var temp = await UserMapper.AnonymizeFilter(Filter, UserManager, ServiceHealth);
                 Filter.User = temp.User;
             }
         }
 
         var p = SongIndex.AzureParmsFromFilter(
-            await UserMapper.DeanonymizeFilter(Filter, UserManager), PageSize);
+            await UserMapper.DeanonymizeFilter(Filter, UserManager, ServiceHealth), PageSize);
 
         p.IncludeTotalCount = true;
 
@@ -69,7 +72,7 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
     }
 
     // TODO:
-    //  - Think about how to handle additional filter - continue down the path 
+    //  - Think about how to handle additional filter - continue down the path
     //    of truncation or move towards infinite scrolling
     //  - Can we use facets to get user's pages to have links to dance lists (no)
     public async Task<SearchResults> VoteSearch(SearchOptions options)
@@ -116,6 +119,12 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
         var userId = user?.Id;
 
         var now = DateTime.Now;
+
+        // Skip logging if database is unavailable
+        if (ServiceHealth?.IsServiceHealthy("Database") == false)
+        {
+            return;
+        }
 
         BackgroundTaskQueue.EnqueueTask(
             async (serviceScopeFactory, cancellationToken) =>

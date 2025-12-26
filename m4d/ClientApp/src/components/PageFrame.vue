@@ -3,8 +3,11 @@ import { MenuContext } from "@/models/MenuContext";
 import { getMenuContext } from "@/helpers/GetMenuContext";
 import { type BreadCrumbItem } from "@/models/BreadCrumbItem";
 import { computed, onMounted } from "vue";
+import { useServiceHealth } from "@/composables/useServiceHealth";
+import ServiceStatusBanner from "@/components/ServiceStatusBanner.vue";
 
 const menuContext: MenuContext = getMenuContext();
+const { healthData, startPolling } = useServiceHealth();
 
 defineProps<{
   id: string;
@@ -25,6 +28,7 @@ const year = computed(() => {
 });
 
 onMounted(() => {
+  startPolling();
   emit("loaded");
 });
 </script>
@@ -32,6 +36,7 @@ onMounted(() => {
 <template>
   <div>
     <MainMenu :context="menuContext" />
+    <ServiceStatusBanner :health-data="healthData" />
     <nav v-if="breadcrumbs" aria-label="breadcrumb">
       <BBreadcrumb :items="breadcrumbs" style="padding: 0.25rem 0.5rem" />
     </nav>

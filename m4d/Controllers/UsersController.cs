@@ -1,4 +1,5 @@
 ﻿using m4d.Services;
+using m4d.Services.ServiceHealth;
 using m4d.ViewModels;
 
 using Microsoft.AspNetCore.Identity;
@@ -14,8 +15,9 @@ public class UsersController(
     DanceMusicContext context, UserManager<ApplicationUser> userManager,
     ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
     IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-    IFeatureManagerSnapshot featureManager, ILogger<ActivityLogController> logger) : DanceMusicController(context, userManager, searchService, danceStatsManager, configuration,
-        fileProvider, backroundTaskQueue, featureManager, logger)
+    IFeatureManagerSnapshot featureManager, ILogger<ActivityLogController> logger,
+    ServiceHealthManager serviceHealth) : DanceMusicController(context, userManager, searchService, danceStatsManager, configuration,
+        fileProvider, backroundTaskQueue, featureManager, logger, serviceHealth)
 {
     private static readonly Dictionary<string, UserProfile> s_userCache = [];
 
