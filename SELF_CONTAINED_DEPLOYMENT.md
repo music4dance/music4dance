@@ -117,17 +117,16 @@ Individual pipeline files exist for backward compatibility:
 
 Configure these in Azure Portal → Web App → Configuration → Application Settings.
 
-#### For Framework-Dependent Deployments (Recommended for Production)
+#### For Both Framework-Dependent and Self-Contained Deployments
 
-**Minimal Configuration Required:**
+**Application Settings:**
 
 ```text
-SELF_CONTAINED_DEPLOYMENT = false
+SELF_CONTAINED_DEPLOYMENT = true   # For self-contained; false or unset for framework-dependent
+ASPNETCORE_ENVIRONMENT = Production
 ```
 
-(Or leave unset - defaults to framework-dependent mode)
-
-**Managed Identity Setup:**
+**Managed Identity Setup (Required for Both Modes):**
 
 1. **Enable Managed Identity:**
 
@@ -154,46 +153,22 @@ SELF_CONTAINED_DEPLOYMENT = false
    - Members: Select **Managed identity** → Select your web app
    - Review + assign
 
-**That's it!** Framework-dependent deployments use managed identity - no connection strings or API keys needed.
+**Authentication Method:**
 
-#### For Self-Contained Deployments
+Both deployment modes now use **managed identity** for:
 
-**Application Settings Required:**
+- Azure App Configuration (feature flags, configuration)
+- Azure Cognitive Search (all search indexes)
 
-```text
-SELF_CONTAINED_DEPLOYMENT = true
-ASPNETCORE_ENVIRONMENT = Production
-AppConfig__ConnectionString = <connection string from Azure App Configuration>
-AzureSearch__ApiKey = <API key from Azure AI Search>
-```
+No connection strings or API keys needed for these services!
 
-**Getting Connection Strings and API Keys:**
+**Self-Contained Additional Configuration:**
 
-1. **AppConfig\_\_ConnectionString** (note: double underscore):
+For self-contained deployments, also set:
 
-   - Azure Portal → Your **Azure App Configuration** resource
-   - Settings → **Access keys**
-   - Copy **Connection string** from Read-only keys (or Read-write if needed)
-
-2. **AzureSearch\_\_ApiKey** (note: double underscore):
-   - Azure Portal → Your **Azure AI Search** service
-   - Settings → **Keys**
-   - Copy **Primary admin key** (or Query key for read-only access)
-
-**Disable Managed Identity** (required for self-contained):
-
-- Azure Portal → Your **Web App** (m4d-linux or msc4dnc)
-- Settings → **Identity**
-- Under **System assigned** tab: Set **Status** to **Off**
-- Click **Save** → Confirm **Yes**
-- This prevents the managed identity sidecar container from interfering with self-contained deployment
-
-**Set Startup Command:**
-
-- Azure Portal → Your **Web App**
-- Configuration → **General settings**
 - **Startup Command**: `/home/site/wwwroot/m4d`
-- Click **Save**
+  - Azure Portal → Web App → Configuration → General settings
+  - Click **Save**
 
 ### Connection Strings & Secrets
 
@@ -322,9 +297,13 @@ ENTRYPOINT ["./m4d"]
 
 After deployment, monitor startup logs for:
 
-- "Running in self-contained mode"
-- "Binding to port {port}"
-- "Data protection keys stored at: {path}"
+- "Production environment detected. Deployment mode: {mode}"
+- "Configuring Azure App Configuration with managed identity"
+- "DefaultAzureCredential created successfully"
+- "Configuring Azure Search with managed identity"
+- Self-contained only: "Running in self-contained mode"
+- Self-contained only: "Binding to port {port}"
+- Self-contained only: "Data protection keys stored at: {path}"
 
 ## Troubleshooting
 
@@ -344,30 +323,22 @@ After deployment, monitor startup logs for:
 
 #### App doesn't start after deployment
 
-**Self-contained deployments:**
+**Both deployment modes:**
+
+- ✓ Verify **Managed Identity is enabled** (Settings → Identity → System assigned = On)
+- ✓ Verify RBAC permissions granted for App Configuration and Search
+- ✓ Check application logs at `/home/LogFiles/Application/console.log` in Kudu
+- ✓ Look for "DefaultAzureCredential created successfully" messages
+- ✓ Review startup logs for authentication errors
+
+**Self-contained specific:**
 
 - ✓ Verify `SELF_CONTAINED_DEPLOYMENT=true` in Azure App Settings
-- ✓ Verify `AppConfig__ConnectionString` is set with valid connection string
-- ✓ Verify `AzureSearch__ApiKey` is set with valid API key
-- ✓ Verify **Managed Identity is disabled** (Settings → Identity → System assigned = Off)
 - ✓ Check startup command is set to `/home/site/wwwroot/m4d` (Configuration → General settings)
 - ✓ Check port 8080 is accessible (Azure handles automatically)
 - ✓ Review deployment logs for missing dependencies
-- ✓ Check application logs at `/home/LogFiles/Application/console.log` in Kudu
 
-**Managed identity sidecar errors:**
-
-- **Symptom**: Logs show `m4d-linux_managedIdentity terminated during site startup`
-- **Solution**: Disable managed identity as shown above - self-contained mode uses connection strings instead
-
-**Framework-dependent deployments:**
-**Self-contained deployments:**
-
-- ✓ Verify `SELF_CONTAINED_DEPLOYMENT=true` in Azure App Settings
-- ✓ Check port 8080 is accessible (Azure handles automatically)
-- ✓ Review deployment logs for missing dependencies
-
-**Framework-dependent deployments:**
+**Framework-dependent specific:**
 
 - ✓ Verify .NET 10 runtime available on Azure Linux
 - ✓ Check runtime version compatibility
@@ -417,40 +388,26 @@ tail -f /home/LogFiles/Application/console.log
 1. Set pipeline parameter: `deploymentMode: self-contained`
 2. In Azure Portal → Web App → Configuration → Application settings:
    - Add: `SELF_CONTAINED_DEPLOYMENT=true`
-   - Add: `AppConfig__ConnectionString=<your connection string>`
-   - Add: `AzureSearch__ApiKey=<your API key>`
-3. Settings → Identity → System assigned: Set **Status** to **Off**
-4. Configuration → General settings → Startup Command: `/home/site/wwwroot/m4d`
-5. Redeploy
-
-**To Framework-Dependent:**
-
-1. Set pipeline parameter: `deploymentMode: framework-dependent`
-2. In Azure Portal → Web App:
-   - Settings → Identity → System assigned: Set **Status** to **On**
-   - Configuration → Application settings:
-     - Set `SELF_CONTAINED_DEPLOYMENT=false` (or remove)
-     - Remove `AppConfig__ConnectionString` setting
-     - Remove `AzureSearch__ApiKey` setting
-   - Configuration → General settings → Startup Command: (clear/remove)
-3. Ensure .NET 10 runtime available on Azure
-4. RedeployPatches   | Automatic via runtime    | Requires redeployment    |
-| Use Case           | When runtime available   | .NET 10 not yet on Azure |
-
 ### Switching Deployment Modes
 
 **To Self-Contained:**
 
 1. Set pipeline parameter: `deploymentMode: self-contained`
-2. Set Azure env var: `SELF_CONTAINED_DEPLOYMENT=true`
-3. Redeploy
+2. In Azure Portal → Web App → Configuration:
+   - Application settings: Set `SELF_CONTAINED_DEPLOYMENT=true`
+   - General settings → Startup Command: `/home/site/wwwroot/m4d`
+3. Ensure managed identity is **enabled** (both modes use it)
+4. Redeploy
 
 **To Framework-Dependent:**
 
 1. Set pipeline parameter: `deploymentMode: framework-dependent`
-2. Set Azure env var: `SELF_CONTAINED_DEPLOYMENT=false` (or remove)
+2. In Azure Portal → Web App → Configuration:
+   - Application settings: Set `SELF_CONTAINED_DEPLOYMENT=false` (or remove)
+   - General settings → Startup Command: (clear/remove)
 3. Ensure .NET 10 runtime available on Azure
-4. Redeploy
+4. Ensure managed identity is **enabled** (both modes use it)
+5. Redeploy
 
 ### Performance Considerations
 
@@ -463,15 +420,22 @@ tail -f /home/LogFiles/Application/console.log
 
 **Self-Contained Disadvantages:**
 
-- ✗ Larger deployment size
+- ✗ Larger deployment size (~100-150MB vs ~20-30MB)
 - ✗ Longer deployment time
 - ✗ Cannot auto-benefit from runtime security patches
 
 ### Security Notes
 
+**Both deployment modes:**
+- Use managed identity for Azure services (App Configuration, Search)
+- No secrets stored in application settings
+- Automatic credential rotation via Azure
+- RBAC-based access control
+
+**Additional security features:**
 - Certificates loaded from Azure-managed locations (`/var/ssl/private/`)
 - Data protection keys stored in `$HOME/site/keys` (persisted across deployments)
-- Use Azure Key Vault references for connection strings in production
+- SQL connection strings can use Azure Key Vault references
 - HTTPS redirection controlled by `DISABLE_HTTPS_REDIRECT` flag (disable for local Spotify OAuth testing only)
 
 ### Quick Reference: Pipeline Parameters

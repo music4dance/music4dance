@@ -127,119 +127,70 @@ var isDevelopment = environment.IsDevelopment();
 
 if (!isDevelopment)
 {
-    Console.WriteLine($"Production environment detected. isSelfContained={isSelfContained}");
-    if (isSelfContained)
+    Console.WriteLine($"Production environment detected. Deployment mode: {(isSelfContained ? "self-contained" : "framework-dependent")}");
+    Console.WriteLine("Configuring Azure App Configuration with managed identity");
+
+    var appConfigEndpoint = configuration["AppConfig:Endpoint"];
+    Console.WriteLine($"AppConfig:Endpoint = {appConfigEndpoint}");
+
+    if (!string.IsNullOrEmpty(appConfigEndpoint))
     {
-        Console.WriteLine("Using connection string authentication for App Configuration");
-        // Use connection string for App Configuration in self-contained mode
-        // Azure env vars: Use AppConfig__ConnectionString (double underscore becomes colon)
-        var appConfigConnectionString = configuration["AppConfig:ConnectionString"];
-        Console.WriteLine($"AppConfig:ConnectionString present: {!string.IsNullOrEmpty(appConfigConnectionString)}");
-        if (!string.IsNullOrEmpty(appConfigConnectionString))
+        try
         {
+            var credentials = new DefaultAzureCredential();
+            Console.WriteLine("DefaultAzureCredential created successfully for App Configuration");
+
+            Console.WriteLine("Attempting to connect to App Configuration...");
+            _ = configuration.AddAzureAppConfiguration(options =>
+            {
+                _ = options.Connect(
+                    new Uri(appConfigEndpoint),
+                    credentials)
+                .ConfigureKeyVault(
+                    kv => { _ = kv.SetCredential(credentials); })
+                .UseFeatureFlags(featureFlagOptions =>
+                {
+                    _ = featureFlagOptions.Select(LabelFilter.Null);
+                    _ = featureFlagOptions.Select(environment.EnvironmentName);
+                    _ = featureFlagOptions.SetRefreshInterval(TimeSpan.FromMinutes(5));
+                })
+                .Select(KeyFilter.Any, LabelFilter.Null)
+                .Select(KeyFilter.Any, environment.EnvironmentName)
+                .ConfigureRefresh(refresh =>
+                {
+                    _ = refresh.Register("Configuration:Sentinel", environment.EnvironmentName, refreshAll: true)
+                        .SetRefreshInterval(TimeSpan.FromMinutes(5));
+                });
+            });
+
+            _ = services.AddAzureAppConfiguration();
+            serviceHealth.MarkHealthy("AppConfiguration");
+            Console.WriteLine("Azure App Configuration configured successfully with managed identity");
+        }
+        catch (Exception ex)
+        {
+            serviceHealth.MarkUnavailable("AppConfiguration", $"{ex.GetType().Name}: {ex.Message}");
+            Console.WriteLine($"ERROR connecting to App Configuration: {ex.GetType().Name}");
             try
             {
-                _ = configuration.AddAzureAppConfiguration(options =>
+                Console.WriteLine($"  Message: {ex.Message}");
+                if (ex.InnerException != null)
                 {
-                    _ = options.Connect(appConfigConnectionString)
-                    .UseFeatureFlags(featureFlagOptions =>
-                    {
-                        _ = featureFlagOptions.Select(LabelFilter.Null);
-                        _ = featureFlagOptions.Select(environment.EnvironmentName);
-                        _ = featureFlagOptions.SetRefreshInterval(TimeSpan.FromMinutes(5));
-                    })
-                    .Select(KeyFilter.Any, LabelFilter.Null)
-                    .Select(KeyFilter.Any, environment.EnvironmentName)
-                    .ConfigureRefresh(refresh =>
-                    {
-                        _ = refresh.Register("Configuration:Sentinel", environment.EnvironmentName, refreshAll: true)
-                            .SetRefreshInterval(TimeSpan.FromMinutes(5));
-                    });
-                });
-
-                _ = services.AddAzureAppConfiguration();
-                serviceHealth.MarkHealthy("AppConfiguration");
-                Console.WriteLine("Azure App Configuration configured successfully");
+                    Console.WriteLine($"  InnerException: {ex.InnerException.GetType().Name}: {ex.InnerException.Message}");
+                }
             }
-            catch (Exception ex)
+            catch
             {
-                serviceHealth.MarkUnavailable("AppConfiguration", $"{ex.GetType().Name}: {ex.Message}");
-                Console.WriteLine($"ERROR connecting to App Configuration: {ex.GetType().Name}: {ex.Message}");
-                Console.WriteLine("WARNING: Continuing without App Configuration - using local configuration only");
+                Console.WriteLine("  (Exception details could not be printed)");
             }
-        }
-        else
-        {
-            serviceHealth.MarkUnavailable("AppConfiguration", "Connection string not configured");
-            Console.WriteLine("Warning: AppConfig:ConnectionString not set for self-contained deployment");
+            Console.WriteLine("WARNING: Continuing without App Configuration - using local configuration only");
+            // Don't throw - allow app to start with local configuration
         }
     }
     else
     {
-        Console.WriteLine("Using managed identity (DefaultAzureCredential) for App Configuration");
-        // Use managed identity for App Configuration
-        var appConfigEndpoint = configuration["AppConfig:Endpoint"];
-        Console.WriteLine($"AppConfig:Endpoint = {appConfigEndpoint}");
-
-        if (!string.IsNullOrEmpty(appConfigEndpoint))
-        {
-            try
-            {
-                var credentials = new DefaultAzureCredential();
-                Console.WriteLine("DefaultAzureCredential created successfully for App Configuration");
-
-                Console.WriteLine("Attempting to connect to App Configuration...");
-                _ = configuration.AddAzureAppConfiguration(options =>
-                {
-                    _ = options.Connect(
-                        new Uri(appConfigEndpoint),
-                        credentials)
-                    .ConfigureKeyVault(
-                        kv => { _ = kv.SetCredential(credentials); })
-                    .UseFeatureFlags(featureFlagOptions =>
-                    {
-                        _ = featureFlagOptions.Select(LabelFilter.Null);
-                        _ = featureFlagOptions.Select(environment.EnvironmentName);
-                        _ = featureFlagOptions.SetRefreshInterval(TimeSpan.FromMinutes(5));
-                    })
-                    .Select(KeyFilter.Any, LabelFilter.Null)
-                    .Select(KeyFilter.Any, environment.EnvironmentName)
-                    .ConfigureRefresh(refresh =>
-                    {
-                        _ = refresh.Register("Configuration:Sentinel", environment.EnvironmentName, refreshAll: true)
-                            .SetRefreshInterval(TimeSpan.FromMinutes(5));
-                    });
-                });
-
-                _ = services.AddAzureAppConfiguration();
-                serviceHealth.MarkHealthy("AppConfiguration");
-                Console.WriteLine("Azure App Configuration added successfully with managed identity");
-            }
-            catch (Exception ex)
-            {
-                serviceHealth.MarkUnavailable("AppConfiguration", $"{ex.GetType().Name}: {ex.Message}");
-                Console.WriteLine($"ERROR connecting to App Configuration: {ex.GetType().Name}");
-                try
-                {
-                    Console.WriteLine($"  Message: {ex.Message}");
-                    if (ex.InnerException != null)
-                    {
-                        Console.WriteLine($"  InnerException: {ex.InnerException.GetType().Name}: {ex.InnerException.Message}");
-                    }
-                }
-                catch
-                {
-                    Console.WriteLine("  (Exception details could not be printed)");
-                }
-                Console.WriteLine("WARNING: Continuing without App Configuration - using local configuration only");
-                // Don't throw - allow app to start with local configuration
-            }
-        }
-        else
-        {
-            serviceHealth.MarkUnavailable("AppConfiguration", "Endpoint not configured");
-            Console.WriteLine("WARNING: AppConfig:Endpoint not configured - using local configuration only");
-        }
+        serviceHealth.MarkUnavailable("AppConfiguration", "Endpoint not configured");
+        Console.WriteLine("WARNING: AppConfig:Endpoint not configured - using local configuration only");
     }
 }
 
@@ -249,89 +200,33 @@ var indexSections = configuration.GetChildren()
     .ToList();
 Console.WriteLine($"Found {indexSections.Count} search index configuration sections");
 
-if (isSelfContained)
+Console.WriteLine("Configuring Azure Search with managed identity");
+try
 {
-    Console.WriteLine("Configuring Azure Search with API key authentication (self-contained mode)");
-    // For self-contained deployments, register Azure Search clients with API key authentication
-    // Azure env vars: Use AzureSearch__ApiKey (double underscore becomes colon)
-    var searchApiKey = configuration["AzureSearch:ApiKey"];
-    Console.WriteLine($"AzureSearch:ApiKey present: {!string.IsNullOrEmpty(searchApiKey)}");
-    if (!string.IsNullOrEmpty(searchApiKey))
+    // Validate endpoints before attempting to register clients
+    bool hasValidEndpoints = true;
+    foreach (var section in indexSections)
     {
-        try
+        var endpoint = section["endpoint"];
+        if (string.IsNullOrEmpty(endpoint) || !Uri.TryCreate(endpoint, UriKind.Absolute, out var uri))
         {
-            var keyCredential = new Azure.AzureKeyCredential(searchApiKey);
-
-            // Add SearchIndexClient for SongIndex
-            var songIndexSections = indexSections
-                .Where(s => s.Key.StartsWith("SongIndex", StringComparison.OrdinalIgnoreCase))
-                .ToList();
-
-            if (songIndexSections.Any())
-            {
-                var firstSongIndexSection = songIndexSections.First();
-                var endpoint = new Uri(firstSongIndexSection["endpoint"]);
-
-                // Verify all SongIndex sections have the same endpoint
-                foreach (var section in songIndexSections)
-                {
-                    var sectionEndpoint = section["endpoint"];
-                    if (!string.Equals(endpoint.ToString(), sectionEndpoint, StringComparison.OrdinalIgnoreCase))
-                    {
-                        throw new InvalidOperationException($"All SongIndex sections must have the same endpoint. Mismatch found in section '{section.Key}'.");
-                    }
-                }
-
-                var indexClient = new Azure.Search.Documents.Indexes.SearchIndexClient(endpoint, keyCredential);
-                services.AddSingleton(indexClient);
-            }
-
-            serviceHealth.MarkHealthy("SearchService");
-            Console.WriteLine($"Azure Search clients configured with API key authentication ({indexSections.Count} indexes)");
-        }
-        catch (Exception ex)
-        {
-            serviceHealth.MarkUnavailable("SearchService", $"{ex.GetType().Name}: {ex.Message}");
-            Console.WriteLine($"ERROR configuring Azure Search: {ex.GetType().Name}: {ex.Message}");
-            Console.WriteLine("WARNING: Continuing without Azure Search - search features will be unavailable");
+            Console.WriteLine($"WARNING: Invalid endpoint for index {section.Key}: {endpoint}");
+            hasValidEndpoints = false;
+            break;
         }
     }
-    else
+
+    if (!hasValidEndpoints)
     {
-        serviceHealth.MarkUnavailable("SearchService", "API key not configured");
-        Console.WriteLine("Warning: AzureSearch:ApiKey not set for self-contained deployment");
+        throw new InvalidOperationException("One or more search index endpoints are invalid or missing");
     }
-}
-else
-{
-    Console.WriteLine("Configuring Azure Search with managed identity (framework-dependent mode)");
-    // For framework-dependent deployments, use Azure client builder with managed identity
-    try
+
+    services.AddAzureClients(clientBuilder =>
     {
-        // Validate endpoints before attempting to register clients
-        bool hasValidEndpoints = true;
-        foreach (var section in indexSections)
-        {
-            var endpoint = section["endpoint"];
-            if (string.IsNullOrEmpty(endpoint) || !Uri.TryCreate(endpoint, UriKind.Absolute, out var uri))
-            {
-                Console.WriteLine($"WARNING: Invalid endpoint for index {section.Key}: {endpoint}");
-                hasValidEndpoints = false;
-                break;
-            }
-        }
-
-        if (!hasValidEndpoints)
-        {
-            throw new InvalidOperationException("One or more search index endpoints are invalid or missing");
-        }
-
-        services.AddAzureClients(clientBuilder =>
-        {
-            Console.WriteLine("Creating DefaultAzureCredential for Azure Search clients");
-            var credentials = new DefaultAzureCredential();
-            Console.WriteLine("DefaultAzureCredential created successfully for Azure Search");
-            _ = clientBuilder.UseCredential(credentials);
+        Console.WriteLine("Creating DefaultAzureCredential for Azure Search clients");
+        var credentials = new DefaultAzureCredential();
+        Console.WriteLine("DefaultAzureCredential created successfully for Azure Search");
+        _ = clientBuilder.UseCredential(credentials);
 
         foreach (var section in indexSections)
         {
@@ -364,26 +259,25 @@ else
         }
         Console.WriteLine("Azure Search clients configured successfully with managed identity");
     });
-        serviceHealth.MarkHealthy("SearchService");
-    }
-    catch (Exception ex)
-    {
-        serviceHealth.MarkUnavailable("SearchService", $"{ex.GetType().Name}: {ex.Message}");
-        Console.WriteLine($"ERROR configuring Azure Search with managed identity: {ex.GetType().Name}: {ex.Message}");
-        Console.WriteLine("WARNING: Continuing without Azure Search - search features will be unavailable");
+    serviceHealth.MarkHealthy("SearchService");
+}
+catch (Exception ex)
+{
+    serviceHealth.MarkUnavailable("SearchService", $"{ex.GetType().Name}: {ex.Message}");
+    Console.WriteLine($"ERROR configuring Azure Search: {ex.GetType().Name}: {ex.Message}");
+    Console.WriteLine("WARNING: Continuing without Azure Search - search features will be unavailable");
 
-        // Register null/fallback clients to prevent dependency injection failures
-        // This allows the app to start even if search service configuration is invalid
-        services.AddSingleton<IAzureClientFactory<SearchClient>>(sp =>
-        {
-            return new NullSearchClientFactory();
-        });
-        services.AddSingleton<IAzureClientFactory<SearchIndexClient>>(sp =>
-        {
-            return new NullSearchIndexClientFactory();
-        });
-        Console.WriteLine("Registered fallback search client factories");
-    }
+    // Register null/fallback clients to prevent dependency injection failures
+    // This allows the app to start even if search service configuration is invalid
+    services.AddSingleton<IAzureClientFactory<SearchClient>>(sp =>
+    {
+        return new NullSearchClientFactory();
+    });
+    services.AddSingleton<IAzureClientFactory<SearchIndexClient>>(sp =>
+    {
+        return new NullSearchIndexClientFactory();
+    });
+    Console.WriteLine("Registered fallback search client factories");
 }
 
 Console.WriteLine("Configuring SQL Server database context");
