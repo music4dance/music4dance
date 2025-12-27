@@ -591,7 +591,16 @@ if (!isDevelopment)
         }
     });
 
-    _ = app.UseAzureAppConfiguration();
+    // Only use Azure App Configuration middleware if the service is available
+    if (serviceHealth.IsServiceAvailable("AppConfiguration"))
+    {
+        _ = app.UseAzureAppConfiguration();
+        Console.WriteLine("Azure App Configuration middleware enabled");
+    }
+    else
+    {
+        Console.WriteLine("Azure App Configuration middleware disabled - service unavailable");
+    }
 }
 
 app.Logger.LogInformation("Builder Built");
