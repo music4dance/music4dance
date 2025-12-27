@@ -18,8 +18,7 @@
     <PublishTrimmed>false</PublishTrimmed>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
-    <!-- Ensure static web assets manifest is generated for MapStaticAssets() -->
-    <GenerateStaticWebAssetsManifest>true</GenerateStaticWebAssetsManifest>
+    <!-- Note: MapStaticAssets() manifest doesn't work with PublishSingleFile, use UseStaticFiles() in code instead -->
   </PropertyGroup>
   <ItemGroup>
     <Content Include="wwwroot\vclient\.vite\**" CopyToPublishDirectory="PreserveNewest" Exclude="$(DefaultItemExcludes)" />

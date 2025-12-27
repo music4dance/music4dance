@@ -719,7 +719,21 @@ else
 {
     app.Logger.LogWarning("HTTPS redirection is DISABLED for Spotify OAuth testing. Do not use in production!");
 }
-app.MapStaticAssets();
+
+// MapStaticAssets() requires a manifest file that doesn't get properly included
+// in single-file (PublishSingleFile=true) self-contained deployments.
+// Use UseStaticFiles() instead for self-contained mode.
+if (isSelfContained)
+{
+    app.UseStaticFiles();
+    Console.WriteLine("Using UseStaticFiles() for self-contained deployment");
+}
+else
+{
+    app.MapStaticAssets();
+    Console.WriteLine("Using MapStaticAssets() for framework-dependent deployment");
+}
+
 app.UseHttpLogging();
 app.UseRouting();
 
