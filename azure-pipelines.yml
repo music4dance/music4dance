@@ -58,10 +58,10 @@ steps:
 
   # ===== SERVER BUILD =====
   - task: UseDotNet@2
-    displayName: "Install .NET 9 SDK"
+    displayName: "Install .NET 10 SDK"
     inputs:
       packageType: "sdk"
-      version: "9.x"
+      version: "10.x"
 
   - script: dotnet build --configuration $(buildConfiguration)
     displayName: "Build .NET project ($(buildConfiguration))"

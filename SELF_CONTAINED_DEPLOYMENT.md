@@ -115,7 +115,7 @@ Individual pipeline files exist for backward compatibility:
 
 ### Required Application Settings
 
-Configure these in Azure Portal → Web App → Configuration → Application Settings.
+Configure these in Azure Portal → Web App → Configuration → Application Settings:
 
 #### For Both Framework-Dependent and Self-Contained Deployments
 
