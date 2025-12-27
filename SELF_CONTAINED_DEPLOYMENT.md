@@ -146,12 +146,22 @@ ASPNETCORE_ENVIRONMENT = Production
    - Review + assign
 
 3. **Grant Azure App Configuration Permissions:**
+
    - Azure Portal → Your **Azure App Configuration** resource
    - Access control (IAM) → Role assignments
    - Click "+ Add" → "Add role assignment"
    - Role: **App Configuration Data Reader** (required)
    - Members: Select **Managed identity** → Select your web app
    - Review + assign
+
+4. **Grant Azure Key Vault Permissions:**
+   - Azure Portal → **Key vaults** → Your Key Vault (e.g., `music4dance`)
+   - Access control (IAM) → Role assignments
+   - Click "+ Add" → "Add role assignment"
+   - Role: **Key Vault Secrets User** (required for App Configuration Key Vault references)
+   - Members: Select **Managed identity** → Select your web app
+   - Review + assign
+   - **Note**: App Configuration stores some secrets as Key Vault references. Without this permission, App Configuration will fail to load those values.
 
 **Authentication Method:**
 
@@ -326,10 +336,28 @@ After deployment, monitor startup logs for:
 **Both deployment modes:**
 
 - ✓ Verify **Managed Identity is enabled** (Settings → Identity → System assigned = On)
-- ✓ Verify RBAC permissions granted for App Configuration and Search
+- ✓ Verify RBAC permissions granted for:
+  - **App Configuration** (App Configuration Data Reader)
+  - **Key Vault** (Key Vault Secrets User) - required for Key Vault references
+  - **Search** (Search Index Data Reader)
 - ✓ Check application logs at `/home/LogFiles/Application/console.log` in Kudu
 - ✓ Look for "DefaultAzureCredential created successfully" messages
 - ✓ Review startup logs for authentication errors
+
+#### Key Vault "Forbidden" errors
+
+**Symptom:** `KeyVaultReferenceException: Key vault error. ErrorCode:'Forbidden'`
+
+**Cause:** App Configuration contains references to Key Vault secrets, but managed identity doesn't have permission to read them.
+
+**Solution:**
+
+1. Azure Portal → **Key vaults** → Your Key Vault (NOT App Configuration)
+2. Access control (IAM) → Add role assignment
+3. Role: **Key Vault Secrets User**
+4. Members: Select your web app's managed identity
+5. After granting permission, **restart the app** (no redeployment needed)
+6. Allow 1-2 minutes for Azure AD permission propagation
 
 **Self-contained specific:**
 
