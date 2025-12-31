@@ -194,6 +194,24 @@ Update console logging to remove references to "self-contained mode" and "framew
 4. Members: Select managed identity → Select web app
 5. Review + assign
 
+#### Grant Key Vault Permissions
+
+**Current State (December 2025):** Key Vault "music4dance" uses **Vault access policy** permission model (legacy). Production (msc4dnc) and test (m4d-linux) instances both share this Key Vault.
+
+**Immediate Solution - Add Access Policy (Works Now):**
+
+1. Azure Portal → Key Vault "music4dance"
+2. Settings → Access policies → Create
+3. Permissions tab:
+   - Secret permissions: **Get**, **List**
+4. Principal tab:
+   - Search for and select: **m4d-linux** (or **msc4dnc** for production)
+5. Review + create → Create
+
+Repeat for each web app managed identity that needs access.
+
+**Long-term Solution - Migrate to RBAC:** See "Key Vault RBAC Migration Plan" section below.
+
 #### Remove Secrets from Configuration
 
 **Azure Web App → Configuration → Application Settings:**
@@ -389,6 +407,100 @@ Test with Azure CLI:
 az sql db show-connection-string --client ado.net --name dbname --server servername
 ```
 
+#### 4. Troubleshooting: Object ID Mismatch Issue (December 2025)
+
+**Problem Encountered with m4d-linux (Test Instance):**
+
+When attempting to grant SQL database access to the m4d-linux managed identity, the standard `CREATE USER [m4d-linux] FROM EXTERNAL PROVIDER` command creates a user, but with an **incorrect Object ID** that doesn't match the web app's managed identity.
+
+**Connection String Format (Working for msc4dnc, Failing for m4d-linux):**
+```
+Data Source=n8a541qjnq.database.windows.net,1433;Initial Catalog=music4dance_test;Authentication=ActiveDirectoryManagedIdentity
+```
+
+**Steps Attempted:**
+
+1. ✅ Verified Azure AD admin is set on SQL Server (Microsoft Entra admin)
+2. ✅ Created user with `CREATE USER [m4d-linux] FROM EXTERNAL PROVIDER`
+3. ✅ Granted roles: db_datareader, db_datawriter, db_ddladmin
+4. ❌ Verified Object ID - **SQL user has different Object ID than web app's managed identity**
+5. ❌ Dropped and recreated user - **still creates with wrong Object ID**
+6. ✅ Confirmed managed identity is enabled on m4d-linux web app
+7. ✅ Confirmed Key Vault access policy was successfully added and working
+8. ❌ Connection still fails: `Login failed for user '<token-identified principal>'`
+
+**Verification Queries Used:**
+
+```sql
+-- Check Object ID in SQL
+SELECT 
+    name,
+    type_desc,
+    CAST(sid AS uniqueidentifier) AS azure_object_id
+FROM sys.database_principals
+WHERE name = 'm4d-linux'
+AND type_desc = 'EXTERNAL_USER';
+
+-- Compare roles between working (msc4dnc) and non-working (m4d-linux)
+SELECT 
+    dp.name AS principal_name,
+    dp.type_desc,
+    drole.name AS role_name
+FROM sys.database_principals dp
+LEFT JOIN sys.database_role_members drm ON dp.principal_id = drm.member_principal_id
+LEFT JOIN sys.database_principals drole ON drm.role_principal_id = drole.principal_id
+WHERE dp.name IN ('msc4dnc', 'm4d-linux')
+ORDER BY dp.name;
+```
+
+**Root Cause Hypothesis:**
+
+When SQL Server executes `CREATE USER [m4d-linux] FROM EXTERNAL PROVIDER`, it queries Azure AD by name and may be finding a **different principal** with the same name (old service principal, deleted identity, or name collision). The `FROM EXTERNAL PROVIDER` clause doesn't allow specifying Object ID explicitly.
+
+**Potential Solutions to Try:**
+
+1. **Use Application ID instead of name** (if m4d-linux has one):
+   ```sql
+   CREATE USER [m4d-linux] FROM EXTERNAL PROVIDER WITH OBJECT_ID = 'actual-object-id-guid';
+   ```
+   *(Note: This syntax may not be supported in all SQL versions)*
+
+2. **Check for name conflicts in Azure AD:**
+   - Azure Portal → Azure Active Directory → Enterprise applications
+   - Search for "m4d-linux" - are there multiple results?
+   - Check for deleted/orphaned managed identities
+
+3. **Create user with SID directly** (bypassing name lookup):
+   ```sql
+   -- This is complex and may not work for managed identities
+   DECLARE @objectId UNIQUEIDENTIFIER = 'YOUR-OBJECT-ID-HERE';
+   DECLARE @sid VARBINARY(85) = CAST(@objectId AS VARBINARY(16));
+   EXEC sp_addrolemember 'db_datareader', [m4d-linux];
+   ```
+
+4. **Temporarily use SQL authentication** until managed identity issue resolved:
+   - Change connection string to include `User ID=...;Password=...`
+   - Store credentials in Key Vault
+   - Revisit managed identity setup later
+
+5. **Check SQL Server networking**:
+   - Azure Portal → SQL Server → Networking
+   - Verify "Allow Azure services and resources to access this server" = **ON**
+   - Check if any firewall rules are blocking managed identity connections
+
+**Current Status (December 29, 2025):**
+
+- ✅ Production (msc4dnc): SQL managed identity authentication **WORKING**
+- ❌ Test (m4d-linux): SQL managed identity authentication **FAILING** due to Object ID mismatch
+- ✅ All other services (App Config, Key Vault, Search): Working with managed identity
+
+**Next Steps to Investigate:**
+
+1. Check firewall rules on SQL Server
+2. Search Azure AD for duplicate "m4d-linux" principals
+3. Consider temporarily using SQL auth for test instance
+4. Open Azure support ticket if issue persists
+
 ### Testing Strategy
 
 #### Development Testing
@@ -466,6 +578,223 @@ After both phases complete:
 5. **Principle of Least Privilege**: Granular permissions per service
 6. **Reduced Attack Surface**: No credentials to leak or steal
 
+## Key Vault RBAC Migration Plan
+
+### Current State (December 2025)
+
+**Key Vault:** music4dance (westus)
+**Permission Model:** Vault access policy (legacy)
+**Shared By:**
+
+- Production: msc4dnc (Windows, framework-dependent)
+- Test/Staging: m4d-linux (Linux, framework-dependent)
+
+**Why Migrate to RBAC:**
+
+- Modern Azure security model
+- Consistent with App Configuration and Search (already using RBAC)
+- Better audit trail and access reviews
+- Easier to manage at scale
+- Required for some advanced Key Vault features
+
+### Migration Strategy: Zero-Downtime Approach
+
+The challenge: Both production and test use the same Key Vault. We can't switch the permission model without affecting both environments simultaneously.
+
+**Solution:** Dual-permission approach during migration
+
+Key Vault supports **both access policies AND RBAC simultaneously** when set to RBAC mode. This allows gradual migration.
+
+### Migration Steps
+
+#### Phase 1: Document Current Access Policies (Preparation)
+
+Before making changes, document all existing access policies:
+
+1. Azure Portal → Key Vault "music4dance" → Access policies
+2. Document each policy:
+   - Principal name (user, app, managed identity)
+   - Permissions (Get/List/Set/Delete for Keys, Secrets, Certificates)
+   - Purpose/owner
+
+Keep this documentation for audit and rollback purposes.
+
+#### Phase 2: Add RBAC Permissions (Non-Breaking)
+
+Add RBAC role assignments WITHOUT changing the permission model yet:
+
+1. Azure Portal → Key Vault "music4dance" → Access control (IAM)
+2. Add role assignments for each principal:
+
+**For Web App Managed Identities (msc4dnc, m4d-linux):**
+
+- Role: **Key Vault Secrets User** (read-only)
+- Scope: This Key Vault
+
+**For Admins/DevOps:**
+
+- Role: **Key Vault Administrator** (full access)
+- Scope: This Key Vault
+
+**For CI/CD Service Principals (if any):**
+
+- Role: **Key Vault Secrets Officer** (read/write secrets)
+- Scope: This Key Vault
+
+**Common Roles:**
+
+- `Key Vault Reader`: Read metadata only (not secret values)
+- `Key Vault Secrets User`: Read secret values
+- `Key Vault Secrets Officer`: Read/write secrets
+- `Key Vault Administrator`: Full Key Vault management
+
+At this point: Access policies still work, RBAC roles assigned but not active.
+
+#### Phase 3: Switch Permission Model (Breaking Change Window)
+
+**Prerequisites:**
+
+- All access policies documented
+- Equivalent RBAC roles assigned
+- Both production and test environments tested with RBAC in lower environment
+- Rollback plan ready
+- Maintenance window scheduled (low-traffic time)
+
+**Steps:**
+
+1. **Announce maintenance window** to stakeholders
+2. Azure Portal → Key Vault "music4dance" → Settings → **Access configuration**
+3. Change Permission model from **"Vault access policy"** to **"Azure role-based access control"**
+4. Save/Apply
+5. **Immediately test both production and test environments:**
+   - Verify app starts successfully
+   - Check startup logs for Key Vault access
+   - Test OAuth flows (Google, Facebook, Spotify)
+   - Verify no authentication errors
+
+**Expected Downtime:** < 5 minutes (time to switch and verify)
+
+#### Phase 4: Clean Up Access Policies (Post-Migration)
+
+After successful switch, old access policies are ignored but still visible:
+
+1. Azure Portal → Key Vault → Access policies
+2. Document that these are legacy (no longer active)
+3. Optionally delete them (they have no effect in RBAC mode)
+
+#### Phase 5: Verify and Monitor
+
+**Verification Checklist:**
+
+- ✅ Production (msc4dnc) starts without errors
+- ✅ Test (m4d-linux) starts without errors
+- ✅ All OAuth providers work (Google, Facebook, Amazon, Spotify)
+- ✅ App Configuration loads secrets from Key Vault
+- ✅ No "Forbidden" errors in logs
+- ✅ Admin users can still manage Key Vault secrets
+
+**Monitor for 24-48 hours:**
+
+- Application Insights for errors
+- Key Vault diagnostic logs
+- User-reported authentication issues
+
+### Rollback Plan
+
+If issues occur after switching to RBAC:
+
+**Quick Rollback (Immediate):**
+
+1. Azure Portal → Key Vault "music4dance" → Access configuration
+2. Switch back to **"Vault access policy"**
+3. Access policies automatically reactivate
+4. Apps work as before
+
+**Time to rollback:** < 2 minutes
+
+**Why This Works:**
+
+- Access policies are not deleted when switching to RBAC
+- They're preserved and reactivate when switching back
+- Zero data loss
+
+### Testing Plan Before Production Migration
+
+**Recommended:** Test in a separate Key Vault first
+
+1. Create test Key Vault: "music4dance-test"
+2. Copy a few test secrets
+3. Configure m4d-linux to use test Key Vault temporarily
+4. Practice migration steps:
+   - Add RBAC roles
+   - Switch to RBAC mode
+   - Verify access works
+   - Switch back to access policies
+   - Verify access still works
+5. Document any issues
+6. Schedule production migration
+
+### Migration Timeline
+
+**Estimated Effort:**
+
+- Phase 1 (Document): 30 minutes
+- Phase 2 (Add RBAC): 1 hour
+- Phase 3 (Switch): 30 minutes + testing
+- Phase 4 (Cleanup): 15 minutes
+- Phase 5 (Monitor): Ongoing
+
+**Total Active Work:** ~2-3 hours
+**Recommended Maintenance Window:** 30 minutes (during Phase 3)
+
+**Suggested Schedule:**
+
+1. **Week 1:** Document current state, add RBAC roles (non-breaking)
+2. **Week 2:** Test with test Key Vault if desired
+3. **Week 3:** Schedule maintenance window, perform migration
+4. **Week 4:** Monitor and verify, clean up access policies
+
+### Post-Migration: Fully RBAC-Based Security
+
+After migration complete, all Azure services use RBAC:
+
+| Service                 | Authentication Method | Permission Model |
+| ----------------------- | --------------------- | ---------------- |
+| Azure App Configuration | Managed Identity      | RBAC             |
+| Azure Cognitive Search  | Managed Identity      | RBAC             |
+| Azure Key Vault         | Managed Identity      | RBAC             |
+| Azure SQL Database      | Managed Identity      | Azure AD         |
+| Azure Communication Svc | Connection String\*   | Access Key       |
+
+\*Future consideration: Azure Communication Services also supports managed identity authentication
+
+### Additional Notes
+
+**App Configuration References:**
+
+- App Configuration stores Key Vault references (not actual secrets)
+- Format: `{"uri":"https://music4dance.vault.azure.net/secrets/SecretName"}`
+- When app requests config, App Configuration fetches from Key Vault using managed identity
+- Requires: App must have permission on BOTH App Configuration AND Key Vault
+
+**Current Implementation:**
+
+- ✅ App has RBAC on App Configuration
+- ✅ App has Access Policy on Key Vault (working)
+- 🔄 Future: App will have RBAC on Key Vault (after migration)
+
+**No Code Changes Required:**
+
+- The code already uses `DefaultAzureCredential`
+- Switching Key Vault to RBAC is purely Azure configuration
+- App behavior unchanged
+
+## References
+
+4. **Audit Trail**: Azure AD logs all authentication attempts
+5. **Principle of Least Privilege**: Granular permissions per service
+6. **Reduced Attack Surface**: No credentials to leak or steal
+
 ## References
 
 - [Azure Identity Client Library](https://learn.microsoft.com/en-us/dotnet/api/overview/azure/identity-readme)
@@ -473,9 +802,12 @@ After both phases complete:
 - [Azure SQL with Managed Identity](https://learn.microsoft.com/en-us/azure/azure-sql/database/authentication-azure-ad-user-assigned-managed-identity)
 - [App Configuration with Managed Identity](https://learn.microsoft.com/en-us/azure/azure-app-configuration/howto-integrate-azure-managed-service-identity)
 - [Azure Search with Managed Identity](https://learn.microsoft.com/en-us/azure/search/search-howto-managed-identities-data-sources)
+- [Key Vault Access Policies vs RBAC](https://learn.microsoft.com/en-us/azure/key-vault/general/rbac-migration)
+- [Key Vault RBAC Roles](https://learn.microsoft.com/en-us/azure/key-vault/general/rbac-guide)
 
 ## Revision History
 
-| Date       | Version | Author  | Changes                         |
-| ---------- | ------- | ------- | ------------------------------- |
-| 2025-12-26 | 1.0     | Initial | Created migration plan document |
+| Date       | Version | Author  | Changes                                                     |
+| ---------- | ------- | ------- | ----------------------------------------------------------- |
+| 2025-12-26 | 1.0     | Initial | Created migration plan document                             |
+| 2025-12-29 | 1.1     | Copilot | Added Key Vault RBAC migration plan and access policy notes |
