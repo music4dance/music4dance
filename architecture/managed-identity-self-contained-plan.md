@@ -2,7 +2,9 @@
 
 ## Overview
 
-This document outlines the plan to enable managed identity authentication for Azure services in self-contained deployments, eliminating the need for connection strings and API keys while improving security posture.
+This document outlines the implementation of managed identity authentication for Azure services in self-contained deployments, eliminating the need for connection strings and API keys while improving security posture.
+
+**Status:** ✅ **Phase 1 Complete** - Managed identity unified for both deployment modes. Deployment pipeline automatically configures deployment mode settings.
 
 ## Current State
 
@@ -82,6 +84,69 @@ Migrate SQL Server authentication from SQL authentication to Azure AD authentica
 - ✅ Centralized access management via Azure AD
 - ✅ Audit trail of database access
 - ✅ No connection string secrets
+
+## Pipeline Automation (December 2025)
+
+### Automatic Deployment Mode Configuration
+
+The deployment pipeline (`azure-pipelines.yml`) now automatically configures all deployment mode settings, eliminating the need for manual Azure Portal configuration.
+
+**What the Pipeline Automates:**
+
+1. **SELF_CONTAINED_DEPLOYMENT Environment Variable**
+
+   - Automatically set to `true` for self-contained deployments
+   - Automatically set to `false` for framework-dependent deployments
+   - Ensures environment variable always matches the deployment mode
+
+2. **Startup Command Configuration**
+   - Sets `/home/site/wwwroot/m4d` for self-contained deployments
+   - Clears startup command for framework-dependent deployments
+
+**Benefits:**
+
+- ✅ No manual Azure Portal configuration required
+- ✅ Deployment mode and configuration always in sync
+- ✅ Eliminates configuration drift between environments
+- ✅ Single source of truth (pipeline parameter)
+- ✅ Prevents errors from mismatched settings
+
+**How It Works:**
+
+The pipeline uses an Azure CLI task after deployment:
+
+```yaml
+- task: AzureCLI@2
+  displayName: "Configure app settings for deployment mode"
+  inputs:
+    inlineScript: |
+      # Set SELF_CONTAINED_DEPLOYMENT environment variable
+      az webapp config appsettings set \
+        --name $(appName) \
+        --settings SELF_CONTAINED_DEPLOYMENT=$(useSelfContained)
+
+      # Configure startup command based on deployment mode
+      if [ "$(useSelfContained)" = "true" ]; then
+        az webapp config set --startup-file "/home/site/wwwroot/m4d"
+      else
+        az webapp config set --startup-file ""
+      fi
+```
+
+**User Experience:**
+
+Before:
+
+1. Set pipeline parameter: `deploymentMode: self-contained`
+2. Run pipeline
+3. Go to Azure Portal
+4. Set `SELF_CONTAINED_DEPLOYMENT=true` in Application Settings
+5. Set startup command in General Settings
+
+After:
+
+1. Set pipeline parameter: `deploymentMode: self-contained`
+2. Run pipeline ✅ (everything else is automatic)
 
 ## Phase 1 Implementation Details
 
@@ -414,6 +479,7 @@ az sql db show-connection-string --client ado.net --name dbname --server servern
 When attempting to grant SQL database access to the m4d-linux managed identity, the standard `CREATE USER [m4d-linux] FROM EXTERNAL PROVIDER` command creates a user, but with an **incorrect Object ID** that doesn't match the web app's managed identity.
 
 **Connection String Format (Working for msc4dnc, Failing for m4d-linux):**
+
 ```
 Data Source=n8a541qjnq.database.windows.net,1433;Initial Catalog=music4dance_test;Authentication=ActiveDirectoryManagedIdentity
 ```
@@ -433,7 +499,7 @@ Data Source=n8a541qjnq.database.windows.net,1433;Initial Catalog=music4dance_tes
 
 ```sql
 -- Check Object ID in SQL
-SELECT 
+SELECT
     name,
     type_desc,
     CAST(sid AS uniqueidentifier) AS azure_object_id
@@ -442,7 +508,7 @@ WHERE name = 'm4d-linux'
 AND type_desc = 'EXTERNAL_USER';
 
 -- Compare roles between working (msc4dnc) and non-working (m4d-linux)
-SELECT 
+SELECT
     dp.name AS principal_name,
     dp.type_desc,
     drole.name AS role_name
@@ -460,17 +526,21 @@ When SQL Server executes `CREATE USER [m4d-linux] FROM EXTERNAL PROVIDER`, it qu
 **Potential Solutions to Try:**
 
 1. **Use Application ID instead of name** (if m4d-linux has one):
+
    ```sql
    CREATE USER [m4d-linux] FROM EXTERNAL PROVIDER WITH OBJECT_ID = 'actual-object-id-guid';
    ```
-   *(Note: This syntax may not be supported in all SQL versions)*
+
+   _(Note: This syntax may not be supported in all SQL versions)_
 
 2. **Check for name conflicts in Azure AD:**
+
    - Azure Portal → Azure Active Directory → Enterprise applications
    - Search for "m4d-linux" - are there multiple results?
    - Check for deleted/orphaned managed identities
 
 3. **Create user with SID directly** (bypassing name lookup):
+
    ```sql
    -- This is complex and may not work for managed identities
    DECLARE @objectId UNIQUEIDENTIFIER = 'YOUR-OBJECT-ID-HERE';
@@ -479,6 +549,7 @@ When SQL Server executes `CREATE USER [m4d-linux] FROM EXTERNAL PROVIDER`, it qu
    ```
 
 4. **Temporarily use SQL authentication** until managed identity issue resolved:
+
    - Change connection string to include `User ID=...;Password=...`
    - Store credentials in Key Vault
    - Revisit managed identity setup later
@@ -488,18 +559,33 @@ When SQL Server executes `CREATE USER [m4d-linux] FROM EXTERNAL PROVIDER`, it qu
    - Verify "Allow Azure services and resources to access this server" = **ON**
    - Check if any firewall rules are blocking managed identity connections
 
-**Current Status (December 29, 2025):**
+**Current Status (December 31, 2025):**
 
 - ✅ Production (msc4dnc): SQL managed identity authentication **WORKING**
 - ❌ Test (m4d-linux): SQL managed identity authentication **FAILING** due to Object ID mismatch
 - ✅ All other services (App Config, Key Vault, Search): Working with managed identity
 
-**Next Steps to Investigate:**
+**Service Connector Attempt (December 31, 2025):**
 
-1. Check firewall rules on SQL Server
-2. Search Azure AD for duplicate "m4d-linux" principals
-3. Consider temporarily using SQL auth for test instance
-4. Open Azure support ticket if issue persists
+Attempted to use Azure Service Connector (`az webapp connection create sql`) to automatically create SQL user with correct Object ID. **Result: FAILED**
+
+- Service Connector creation succeeded via Azure CLI
+- App service became completely unresponsive after Service Connector creation
+- Kudu deployment service hung during ZIP extraction
+- Suspected cause: Service Connector added environment variables (`AZURE_SQL_CONNECTIONSTRING`, `SQLCONNSTR_*`) that conflicted with existing connection string configuration
+- App would not recover even after redeployment attempts
+
+**Resolution Strategy:**
+
+1. **Short-term**: Delete Service Connector, revert to SQL authentication with username/password stored in Key Vault
+2. **Long-term**: Create new staging environment (m4d-staging) with fresh configuration to test managed identity setup from scratch
+
+**Next Steps:**
+
+1. Delete Service Connector on m4d-linux
+2. Restore SQL authentication connection string
+3. Verify m4d-linux recovers and deployments work
+4. Create fresh m4d-staging instance following setup guide: [Azure App Service Setup with Managed Identity](azure-app-service-setup-managed-identity.md)
 
 ### Testing Strategy
 
@@ -789,11 +875,26 @@ After migration complete, all Azure services use RBAC:
 - Switching Key Vault to RBAC is purely Azure configuration
 - App behavior unchanged
 
-## References
+## Setting Up New Instances
 
-4. **Audit Trail**: Azure AD logs all authentication attempts
-5. **Principle of Least Privilege**: Granular permissions per service
-6. **Reduced Attack Surface**: No credentials to leak or steal
+For detailed instructions on creating new App Service instances with managed identity authentication, see:
+
+**[Azure App Service Setup with Managed Identity Authentication](azure-app-service-setup-managed-identity.md)**
+
+This standalone guide covers:
+
+- Complete step-by-step setup instructions
+- Prerequisites and configuration details
+- Troubleshooting common issues
+- Verification and testing procedures
+- Success criteria checklist
+
+Use this guide when:
+
+- Creating new staging/test environments
+- Setting up production instances
+- Replacing problematic instances
+- Auditing existing configurations
 
 ## References
 

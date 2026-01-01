@@ -86,6 +86,9 @@ The unified pipeline (`azure-pipelines.yml`) supports all scenarios through **ru
    - Deploys to `msc4dnc` when environment = `production`
    - Deploys to `m4d-linux` when environment = `test`
    - Uses appropriate publish method based on deployment mode
+   - **Sets `SELF_CONTAINED_DEPLOYMENT` environment variable** to match deployment mode
+     - `true` for self-contained deployments
+     - `false` for framework-dependent deployments
 
 #### Alternative: Multiple Named Pipelines (Future Enhancement)
 
@@ -196,12 +199,15 @@ Ensure these are configured:
 
 **Self-Contained Mode Additional Settings:**
 
-| Setting                     | Value             | Description                                    |
-| --------------------------- | ----------------- | ---------------------------------------------- |
-| `PORT` or `WEBSITES_PORT`   | `8080`            | Azure auto-sets, can override                  |
-| `HOME`                      | Auto-set by Azure | Used for data protection keys                  |
-| `WEBSITE_LOAD_CERTIFICATES` | `{thumbprint}`    | Optional: Certificate thumbprint for HTTPS     |
-| `HTTPS_PORT`                | `443`             | Optional: HTTPS port if certificate configured |
+| Setting                     | Value             | Description                                           |
+| --------------------------- | ----------------- | ----------------------------------------------------- |
+| `SELF_CONTAINED_DEPLOYMENT` | Auto-set          | **Automatically configured by pipeline** (true/false) |
+| `PORT` or `WEBSITES_PORT`   | `8080`            | Azure auto-sets, can override                         |
+| `HOME`                      | Auto-set by Azure | Used for data protection keys                         |
+| `WEBSITE_LOAD_CERTIFICATES` | `{thumbprint}`    | Optional: Certificate thumbprint for HTTPS            |
+| `HTTPS_PORT`                | `443`             | Optional: HTTPS port if certificate configured        |
+
+**Note:** The `SELF_CONTAINED_DEPLOYMENT` setting is automatically managed by the deployment pipeline and should not be manually configured.
 
 ## Application Configuration
 
@@ -421,21 +427,20 @@ tail -f /home/LogFiles/Application/console.log
 **To Self-Contained:**
 
 1. Set pipeline parameter: `deploymentMode: self-contained`
-2. In Azure Portal → Web App → Configuration:
-   - Application settings: Set `SELF_CONTAINED_DEPLOYMENT=true`
-   - General settings → Startup Command: `/home/site/wwwroot/m4d`
+2. Run the pipeline
+   - The pipeline automatically sets `SELF_CONTAINED_DEPLOYMENT=true`
+   - The pipeline automatically sets startup command: `/home/site/wwwroot/m4d`
 3. Ensure managed identity is **enabled** (both modes use it)
-4. Redeploy
 
 **To Framework-Dependent:**
 
 1. Set pipeline parameter: `deploymentMode: framework-dependent`
-2. In Azure Portal → Web App → Configuration:
-   - Application settings: Set `SELF_CONTAINED_DEPLOYMENT=false` (or remove)
-   - General settings → Startup Command: (clear/remove)
+2. Run the pipeline
+   - The pipeline automatically sets `SELF_CONTAINED_DEPLOYMENT=false`
 3. Ensure .NET 10 runtime available on Azure
 4. Ensure managed identity is **enabled** (both modes use it)
-5. Redeploy
+
+**Note:** No manual Azure Portal configuration required - the pipeline handles all deployment mode settings automatically.
 
 ### Performance Considerations
 

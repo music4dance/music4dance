@@ -2,6 +2,11 @@
 # Build and deploy ASP.NET Core projects to Azure Linux Web Apps
 # Supports both framework-dependent and self-contained deployments
 # Supports both production and test environments
+#
+# The pipeline automatically configures the target app service based on deployment mode:
+# - Sets SELF_CONTAINED_DEPLOYMENT environment variable (true/false)
+# - Configures startup command (/home/site/wwwroot/m4d for self-contained, empty for framework-dependent)
+# - No manual Azure Portal configuration required
 
 pool:
   vmImage: ubuntu-latest
@@ -92,3 +97,37 @@ steps:
       appType: "webAppLinux"
       appName: "$(appName)"
       package: "$(System.DefaultWorkingDirectory)/**/*.zip"
+
+  # ===== CONFIGURE DEPLOYMENT MODE =====
+  - task: AzureCLI@2
+    displayName: "Configure app settings for deployment mode"
+    inputs:
+      azureSubscription: "m4d-release"
+      scriptType: "bash"
+      scriptLocation: "inlineScript"
+      inlineScript: |
+        echo "Configuring $(appName) for deployment mode: ${{ parameters.deploymentMode }}"
+
+        # Set SELF_CONTAINED_DEPLOYMENT environment variable
+        echo "Setting SELF_CONTAINED_DEPLOYMENT=$(useSelfContained)"
+        az webapp config appsettings set \
+          --name $(appName) \
+          --resource-group music4dance \
+          --settings SELF_CONTAINED_DEPLOYMENT=$(useSelfContained)
+
+        # Configure startup command based on deployment mode
+        if [ "$(useSelfContained)" = "true" ]; then
+          echo "Setting startup command for self-contained deployment"
+          az webapp config set \
+            --name $(appName) \
+            --resource-group music4dance \
+            --startup-file "/home/site/wwwroot/m4d"
+        else
+          echo "Clearing startup command for framework-dependent deployment"
+          az webapp config set \
+            --name $(appName) \
+            --resource-group music4dance \
+            --startup-file ""
+        fi
+
+        echo "Configuration complete"

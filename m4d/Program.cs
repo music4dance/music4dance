@@ -56,6 +56,8 @@ logging.AddAzureWebAppDiagnostics();
 Console.WriteLine($"Environment: {environment.EnvironmentName}");
 
 // Configure Kestrel for self-contained deployments on Azure Linux
+// Note: SELF_CONTAINED_DEPLOYMENT is automatically set by the deployment pipeline
+// based on the deploymentMode parameter (self-contained vs framework-dependent)
 var isSelfContained = configuration.GetValue<bool>("SELF_CONTAINED_DEPLOYMENT");
 Console.WriteLine($"SELF_CONTAINED_DEPLOYMENT flag: {isSelfContained}");
 if (isSelfContained)
@@ -283,7 +285,12 @@ catch (Exception ex)
 Console.WriteLine("Configuring SQL Server database context");
 try
 {
-    services.AddDbContext<DanceMusicContext>(options => options.UseSqlServer(connectionString));
+    services.AddDbContext<DanceMusicContext>(options =>
+        options.UseSqlServer(connectionString, sqlOptions =>
+            sqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(30),
+                errorNumbersToAdd: null)));
     serviceHealth.MarkHealthy("Database");
     Console.WriteLine("Database context configured successfully");
 }
