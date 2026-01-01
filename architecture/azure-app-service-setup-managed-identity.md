@@ -416,6 +416,80 @@ steps:
 - Look for Azure Resource Manager connection
 - Copy the name
 
+### 4.3 Grant Pipeline Service Principal Permissions (Required for Automated Configuration)
+
+The deployment pipeline automatically configures app settings and startup commands based on deployment mode. For this automation to work, the Azure DevOps service principal needs permissions on the App Service.
+
+**Required Permission**: **Website Contributor** role on the App Service
+
+**When to Do This**: Before running the pipeline, or if you see authorization errors during the "Configure app settings for deployment mode" step.
+
+#### Method 1: Azure Portal (Recommended for Beginners)
+
+Repeat for each web app (m4d-linux, msc4dnc, etc.):
+
+1. **Azure Portal** → Your **App Service** (e.g., m4d-staging)
+2. **Access control (IAM)** → **Add** → **Add role assignment**
+3. **Role** tab:
+   - Search for and select: **Website Contributor**
+   - Click **Next**
+4. **Members** tab:
+   - **Assign access to**: Select **User, group, or service principal**
+   - Click **+ Select members**
+   - Search for your service connection name (e.g., "m4d-release") OR paste the Object ID from error logs
+   - Select it from results
+   - Click **Select**
+   - Click **Next**
+5. **Review + assign** → **Review + assign**
+6. Wait 1-2 minutes for permissions to propagate
+
+**How to find the service principal**:
+
+- If you see authorization errors in pipeline logs, look for the Object ID in the error message
+- Example: `The client '***' with object id 'ef3d2c24-a8d6-47fd-8f26-7c25cd161d35'`
+- Copy that Object ID and paste it in the member search
+
+#### Method 2: Azure CLI (Faster for Multiple Apps)
+
+If you have Azure CLI installed and authenticated:
+
+```bash
+# Grant Website Contributor role to the service principal on m4d-linux
+az role assignment create --assignee <service-principal-object-id> --role "Website Contributor" --scope "/subscriptions/<subscription-id>/resourceGroups/music4dance/providers/Microsoft.Web/sites/m4d-linux"
+
+# Grant Website Contributor role to the service principal on msc4dnc
+az role assignment create --assignee <service-principal-object-id> --role "Website Contributor" --scope "/subscriptions/<subscription-id>/resourceGroups/music4dance/providers/Microsoft.Web/sites/msc4dnc"
+```
+
+**Replace placeholders**:
+
+- `<service-principal-object-id>`: Object ID from pipeline error logs (e.g., `ef3d2c24-a8d6-47fd-8f26-7c25cd161d35`)
+- `<subscription-id>`: Your Azure subscription ID (e.g., `35a37095-adba-4229-a691-e55bf38ecf36`)
+
+**Example (actual values)**:
+
+```bash
+az role assignment create --assignee ef3d2c24-a8d6-47fd-8f26-7c25cd161d35 --role "Website Contributor" --scope "/subscriptions/35a37095-adba-4229-a691-e55bf38ecf36/resourceGroups/music4dance/providers/Microsoft.Web/sites/m4d-linux"
+```
+
+**Note**: Azure CLI commands may occasionally encounter timeout issues. If this happens, use the Azure Portal method instead or retry after a few minutes.
+
+#### Verify Permissions
+
+After granting permissions:
+
+1. Wait 1-2 minutes for propagation
+2. Run the deployment pipeline again
+3. Look for success messages in the "Configure app settings for deployment mode" step:
+   - `✓ SELF_CONTAINED_DEPLOYMENT set successfully`
+   - `✓ Startup command set successfully`
+
+If you still see authorization errors, verify:
+
+- ✅ Correct service principal Object ID used
+- ✅ Role is "Website Contributor" (not "Contributor" or "Reader")
+- ✅ Scope is the specific App Service resource (not resource group or subscription)
+
 ## Phase 5: Deploy and Test
 
 ### 5.1 Initial Deployment

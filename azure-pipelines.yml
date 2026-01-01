@@ -101,6 +101,7 @@ steps:
   # ===== CONFIGURE DEPLOYMENT MODE =====
   - task: AzureCLI@2
     displayName: "Configure app settings for deployment mode"
+    continueOnError: true # Don't fail deployment if configuration fails
     inputs:
       azureSubscription: "m4d-release"
       scriptType: "bash"
@@ -110,24 +111,39 @@ steps:
 
         # Set SELF_CONTAINED_DEPLOYMENT environment variable
         echo "Setting SELF_CONTAINED_DEPLOYMENT=$(useSelfContained)"
-        az webapp config appsettings set \
+        if az webapp config appsettings set \
           --name $(appName) \
           --resource-group music4dance \
-          --settings SELF_CONTAINED_DEPLOYMENT=$(useSelfContained)
+          --settings SELF_CONTAINED_DEPLOYMENT=$(useSelfContained); then
+          echo "✓ SELF_CONTAINED_DEPLOYMENT set successfully"
+        else
+          echo "✗ Failed to set SELF_CONTAINED_DEPLOYMENT (insufficient permissions)"
+          echo "  Please set manually in Azure Portal or grant 'Website Contributor' role to service principal"
+        fi
 
         # Configure startup command based on deployment mode
         if [ "$(useSelfContained)" = "true" ]; then
-          echo "Setting startup command for self-contained deployment"
-          az webapp config set \
+          echo "Setting startup command for self-contained deployment: /home/site/wwwroot/m4d"
+          if az webapp config set \
             --name $(appName) \
             --resource-group music4dance \
-            --startup-file "/home/site/wwwroot/m4d"
+            --startup-file "/home/site/wwwroot/m4d"; then
+            echo "✓ Startup command set successfully"
+          else
+            echo "✗ Failed to set startup command (insufficient permissions)"
+            echo "  Please set manually in Azure Portal: /home/site/wwwroot/m4d"
+          fi
         else
-          echo "Clearing startup command for framework-dependent deployment"
-          az webapp config set \
+          echo "Setting startup command for framework-dependent deployment: dotnet m4d.dll"
+          if az webapp config set \
             --name $(appName) \
             --resource-group music4dance \
-            --startup-file ""
+            --startup-file "dotnet m4d.dll"; then
+            echo "✓ Startup command set successfully"
+          else
+            echo "✗ Failed to set startup command (insufficient permissions)"
+            echo "  Please set manually in Azure Portal: dotnet m4d.dll"
+          fi
         fi
 
-        echo "Configuration complete"
+        echo "Configuration step complete (check above for any failures)"
