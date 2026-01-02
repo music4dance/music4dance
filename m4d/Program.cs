@@ -55,14 +55,20 @@ logging.AddAzureWebAppDiagnostics();
 
 Console.WriteLine($"Environment: {environment.EnvironmentName}");
 
-// Configure Kestrel for self-contained deployments on Azure Linux
+// Determine if running in development
+var isDevelopment = environment.IsDevelopment();
+var useVite = configuration.UseVite();
+
+// Configure Kestrel for Azure Linux deployments (both self-contained and framework-dependent)
 // Note: SELF_CONTAINED_DEPLOYMENT is automatically set by the deployment pipeline
 // based on the deploymentMode parameter (self-contained vs framework-dependent)
 var isSelfContained = configuration.GetValue<bool>("SELF_CONTAINED_DEPLOYMENT");
 Console.WriteLine($"SELF_CONTAINED_DEPLOYMENT flag: {isSelfContained}");
-if (isSelfContained)
+
+// Azure Linux App Services require explicit port binding for both deployment modes
+if (!isDevelopment)
 {
-    Console.WriteLine("Running in self-contained mode");
+    Console.WriteLine($"Configuring Kestrel for Azure Linux (deployment mode: {(isSelfContained ? "self-contained" : "framework-dependent")})");
 
     builder.WebHost.ConfigureKestrel(serverOptions =>
     {
@@ -123,9 +129,6 @@ var serviceHealth = new ServiceHealthManager(serviceHealthLogger);
 services.AddSingleton(serviceHealth);
 Console.WriteLine("ServiceHealthManager initialized");
 Console.WriteLine("Note: Email notifications will be initialized only if startup failures are detected");
-
-var useVite = configuration.UseVite();
-var isDevelopment = environment.IsDevelopment();
 
 if (!isDevelopment)
 {
