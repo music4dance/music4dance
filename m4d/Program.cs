@@ -618,44 +618,8 @@ app.Logger.LogInformation($"Environment = {environment.EnvironmentName}");
 var sentinel = configuration["Configuration:Sentinel"];
 app.Logger.LogInformation($"Sentinel = {sentinel}");
 
-// Skip database migration if database is already unavailable
-if (!serviceHealth.IsServiceAvailable("Database"))
-{
-    Console.WriteLine("Skipping database migrations - database service is unavailable");
-}
-else
-{
-    Console.WriteLine("Running database migrations...");
-    try
-    {
-        using (var scope = app.Services.CreateScope())
-        {
-            var sp = scope.ServiceProvider;
-            var db = sp.GetRequiredService<DanceMusicContext>().Database;
-
-            db.Migrate();
-            Console.WriteLine("Database migrations completed successfully");
-
-            if (isDevelopment)
-            {
-                var userManager = sp.GetRequiredService<UserManager<ApplicationUser>>();
-                var roleManager = sp.GetRequiredService<RoleManager<IdentityRole>>();
-                await UserManagerHelpers.SeedData(userManager, roleManager, configuration);
-                Console.WriteLine("Development seed data applied successfully");
-            }
-        }
-    }
-    catch (Exception ex)
-    {
-        serviceHealth.MarkUnavailable("Database", $"Migration failed: {ex.GetType().Name}: {ex.Message}");
-        Console.WriteLine($"ERROR: Database migration failed: {ex.GetType().Name}: {ex.Message}");
-        Console.WriteLine("WARNING: Continuing without database - data features will be unavailable");
-        Console.WriteLine("To resolve:");
-        Console.WriteLine("  1. Verify SQL Server is running and accessible");
-        Console.WriteLine("  2. Check connection string in appsettings.json");
-        Console.WriteLine("  3. Ensure the database server allows remote connections");
-    }
-}
+// Database migrations will run in background after app starts accepting requests
+// This reduces startup time and allows health checks to pass sooner
 
 // Generate and log startup health report AFTER database migrations
 Console.WriteLine();
@@ -789,5 +753,43 @@ app.MapControllerRoute(
 app.MapRazorPages();
 
 GlobalState.UseTestKeys = isDevelopment;
+
+// Run database migrations in background after app starts accepting requests
+_ = Task.Run(async () =>
+{
+    // Wait a moment for app to start accepting HTTP requests
+    await Task.Delay(TimeSpan.FromSeconds(2));
+
+    if (!serviceHealth.IsServiceAvailable("Database"))
+    {
+        Console.WriteLine("Skipping database migrations - database service is unavailable");
+        return;
+    }
+
+    Console.WriteLine("Running database migrations in background...");
+    try
+    {
+        using var scope = app.Services.CreateScope();
+        var sp = scope.ServiceProvider;
+        var db = sp.GetRequiredService<DanceMusicContext>().Database;
+
+        db.Migrate();
+        Console.WriteLine("Database migrations completed successfully");
+
+        if (isDevelopment)
+        {
+            var userManager = sp.GetRequiredService<UserManager<ApplicationUser>>();
+            var roleManager = sp.GetRequiredService<RoleManager<IdentityRole>>();
+            await UserManagerHelpers.SeedData(userManager, roleManager, configuration);
+            Console.WriteLine("Development seed data applied successfully");
+        }
+    }
+    catch (Exception ex)
+    {
+        serviceHealth.MarkUnavailable("Database", $"Migration failed: {ex.GetType().Name}: {ex.Message}");
+        Console.WriteLine($"ERROR: Database migration failed: {ex.GetType().Name}: {ex.Message}");
+        Console.WriteLine("WARNING: Continuing without database - data features will be unavailable");
+    }
+});
 
 app.Run();
