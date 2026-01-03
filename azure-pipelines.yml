@@ -101,16 +101,7 @@ steps:
       arguments: "--configuration $(buildConfiguration) --runtime linux-x64"
       publishWebProjects: true
 
-  # ===== DEPLOY =====
-  - task: AzureWebApp@1
-    displayName: "Deploy to Azure Web App ($(appName))"
-    inputs:
-      azureSubscription: "m4d-release"
-      appType: "webAppLinux"
-      appName: "$(appName)"
-      package: "$(System.DefaultWorkingDirectory)/**/*.zip"
-
-  # ===== CONFIGURE DEPLOYMENT MODE =====
+  # ===== CONFIGURE DEPLOYMENT MODE (BEFORE DEPLOYMENT) =====
   - task: AzureCLI@2
     displayName: "Configure app settings for deployment mode"
     continueOnError: true # Don't fail deployment if configuration fails
@@ -165,3 +156,12 @@ steps:
         fi
 
         echo "Configuration step complete (check above for any failures)"
+
+  # ===== DEPLOY =====
+  - task: AzureWebApp@1
+    displayName: "Deploy to Azure Web App ($(appName))"
+    inputs:
+      azureSubscription: "m4d-release"
+      appType: "webAppLinux"
+      appName: "$(appName)"
+      package: "$(System.DefaultWorkingDirectory)/**/*.zip"
