@@ -27,7 +27,6 @@ using Newtonsoft.Json.Serialization;
 using Owl.reCAPTCHA;
 
 using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
 
 using Vite.AspNetCore;
 
@@ -40,8 +39,13 @@ Console.WriteLine("Entering Main");
 
 var builder = WebApplication.CreateBuilder(args);
 
+Console.WriteLine("Created Builder");
+
 // Smoke test mode - bypasses all Azure service configuration for container diagnostics
 var smokeTestMode = builder.Configuration.GetValue<bool>("SMOKE_TEST_MODE");
+
+Console.WriteLine($"SMOKE_TEST_MODE = {smokeTestMode}");
+
 if (smokeTestMode)
 {
     Console.WriteLine("⚠️  SMOKE TEST MODE ENABLED - Running minimal configuration");
@@ -90,12 +94,16 @@ if (smokeTestMode)
     return;
 }
 
+Console.WriteLine("Proceeding with normal startup - Finidng connection string");
+
 var connectionString = builder.Configuration.GetConnectionString("DanceMusicContextConnection")
     ?? throw new InvalidOperationException("Connection string 'DanceMusicContexstConnection' not found.");
 
 var services = builder.Services;
 var environment = builder.Environment;
 var configuration = builder.Configuration;
+
+Console.WriteLine("Configuring logging");
 
 var logging = builder.Logging;
 logging.ClearProviders();
