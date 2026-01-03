@@ -27,13 +27,25 @@ parameters:
     values:
       - "production"
       - "test"
+      - "staging"
 
 variables:
   buildConfiguration: "Release"
   ${{ if eq(parameters.environment, 'production') }}:
     appName: "msc4dnc"
+    aspnetEnvironment: "Production"
+    searchIndex: "SongIndexProd"
+    searchIndexVersion: "2"
   ${{ if eq(parameters.environment, 'test') }}:
     appName: "m4d-linux"
+    aspnetEnvironment: "Development"
+    searchIndex: "SongIndexTest"
+    searchIndexVersion: "2"
+  ${{ if eq(parameters.environment, 'staging') }}:
+    appName: "m4d-staging"
+    aspnetEnvironment: "Staging"
+    searchIndex: "SongIndexTest"
+    searchIndexVersion: "2"
   ${{ if eq(parameters.deploymentMode, 'self-contained') }}:
     useSelfContained: true
   ${{ if eq(parameters.deploymentMode, 'framework-dependent') }}:
@@ -108,16 +120,22 @@ steps:
       scriptLocation: "inlineScript"
       inlineScript: |
         echo "Configuring $(appName) for deployment mode: ${{ parameters.deploymentMode }}"
+        echo "Configuring environment: ${{ parameters.environment }} (ASPNETCORE_ENVIRONMENT=$(aspnetEnvironment))"
+        echo "Search index configuration: $(searchIndex) version $(searchIndexVersion)"
 
-        # Set SELF_CONTAINED_DEPLOYMENT environment variable
-        echo "Setting SELF_CONTAINED_DEPLOYMENT=$(useSelfContained)"
+        # Set application settings
+        echo "Setting application settings..."
         if az webapp config appsettings set \
           --name $(appName) \
           --resource-group music4dance \
-          --settings SELF_CONTAINED_DEPLOYMENT=$(useSelfContained); then
-          echo "✓ SELF_CONTAINED_DEPLOYMENT set successfully"
+          --settings \
+            SELF_CONTAINED_DEPLOYMENT=$(useSelfContained) \
+            ASPNETCORE_ENVIRONMENT=$(aspnetEnvironment) \
+            SEARCHINDEX=$(searchIndex) \
+            SEARCHINDEXVERSION=$(searchIndexVersion); then
+          echo "✓ Application settings configured successfully"
         else
-          echo "✗ Failed to set SELF_CONTAINED_DEPLOYMENT (insufficient permissions)"
+          echo "✗ Failed to set application settings (insufficient permissions)"
           echo "  Please set manually in Azure Portal or grant 'Website Contributor' role to service principal"
         fi
 

@@ -1,6 +1,6 @@
 # Azure App Service Setup with Managed Identity Authentication
 
-**Last Updated**: December 31, 2025
+**Last Updated**: January 2, 2026
 **Applies to**: music4dance.net ASP.NET Core application on Azure Linux App Service
 
 ## Overview
@@ -59,7 +59,7 @@ The application uses the following Azure services:
    - **Resource Group**: `m4d-Web` (or create new)
    - **Name**: `m4d-<environment>` (e.g., `m4d-staging`, `m4d-test2`)
    - **Publish**: Code
-   - **Runtime stack**: .NET 9 (or current version)
+   - **Runtime stack**: .NET 10
    - **Operating System**: **Linux**
    - **Region**: West US (same as other resources)
    - **Linux Plan**: Select existing or create new
@@ -91,18 +91,19 @@ The application uses the following Azure services:
 
 ### 1.3 Configure Basic App Settings
 
+**Note**: All required settings are configured automatically by the deployment pipeline:
+
+- **App Configuration endpoint** and **Search service endpoints**: In `appsettings.json` (source controlled)
+- **SELF_CONTAINED_DEPLOYMENT** and **ASPNETCORE_ENVIRONMENT**: Set by pipeline based on environment parameter
+- **SEARCHINDEX** and **SEARCHINDEXVERSION**: Set by pipeline (staging/test → SongIndexTest-2, production → SongIndexProd-2)
+
+**No manual configuration needed at this step** unless deploying outside the pipeline or overriding defaults.
+
+If you need to override settings manually:
+
 1. App Service → **Settings** → **Configuration**
-2. **Application settings** tab → **New application setting**
-
-Add these required settings:
-
-| Name                        | Value                             | Notes                                               |
-| --------------------------- | --------------------------------- | --------------------------------------------------- |
-| `SELF_CONTAINED_DEPLOYMENT` | `true`                            | Enables self-contained mode (Kestrel configuration) |
-| `ASPNETCORE_ENVIRONMENT`    | `Staging` or `Production`         | Environment name used for App Config labels         |
-| `AppConfig__Endpoint`       | `https://music4dance.azconfig.io` | App Configuration endpoint (no connection string!)  |
-
-3. Click **Save** → **Continue** to restart the app
+2. **Application settings** tab → **+ New application setting**
+3. Add any overrides (e.g., to use different search index)
 
 **Do NOT add** at this stage:
 
@@ -130,20 +131,38 @@ Add these required settings:
 
 ### 2.2 Azure Cognitive Search Access (RBAC)
 
-Repeat for each Search service (typically 2):
+The application needs two roles on each Search service:
 
-**Songs Index Search Service:**
+- **Search Index Data Reader** - Required for searching/reading documents
+- **Search Index Data Contributor** - Required for adding/editing songs (admin uploads, user edits)
+
+**Optional**: **Search Service Contributor** - Only needed for creating/deleting indexes (rare operation, can skip for non-production)
+
+Repeat for **each role** on **each Search service** (typically 2 services × 2 roles = 4 role assignments):
+
+**Songs Index Search Service (`music4dance`):**
 
 1. Azure Portal → **Azure Cognitive Search** resource (`music4dance`)
 2. **Access control (IAM)** → **Add role assignment**
-3. Role: **Search Index Data Reader**
-4. Members: **Managed identity** → **App Service** → `m4d-<environment>`
-5. **Review + assign**
+3. **Role** tab:
+   - Select: **Search Index Data Reader**
+   - Click **Next**
+4. **Members** tab:
+   - Assign access to: **Managed identity**
+   - Click **+ Select members**
+   - Managed identity: **App Service** → `m4d-<environment>`
+   - Click **Select**
+5. **Review + assign** → **Review + assign**
+6. **Repeat steps 2-5** for **Search Index Data Contributor** role
 
-**Page Index Search Service** (if different endpoint):
+**Page Index Search Service (`m4d`):**
 
 1. Azure Portal → **Azure Cognitive Search** resource (`m4d`)
-2. Repeat steps above
+2. Repeat steps above for both roles:
+   - **Search Index Data Reader**
+   - **Search Index Data Contributor**
+
+**Why two roles?** The app both searches indexes (read) and updates them when users add/edit songs or admins upload song lists (write). SelfCrawler also writes to the page index for site search.
 
 ### 2.3 Azure Key Vault Access Policy
 
@@ -186,6 +205,10 @@ Repeat for each Search service (typically 2):
 3. Click **Save** if changed
 
 ### 2.6 Azure SQL Database - Create SQL User for Managed Identity
+
+I am going to again attempt to use a Service Connector as that is what is currently working in production. Instructions [here](https://learn.microsoft.com/en-us/azure/service-connector/quickstart-portal-app-service-connection?tabs=SMI%2Cusing-managed-identity&pivots=azure-portal)
+
+If the above works, we'll replace the instructions below.
 
 This is the critical step that often causes issues. Use explicit Object ID to avoid mismatches.
 
@@ -356,7 +379,7 @@ If you have `azure-pipelines-self-contained.yml` or similar:
        appType: "webAppLinux"
        appName: "m4d-<environment>" # Change this!
        package: "$(Build.ArtifactStagingDirectory)"
-       runtimeStack: "DOTNETCORE|9.0"
+       runtimeStack: "DOTNETCORE|10.0"
    ```
 6. **Save and run**
 
@@ -380,7 +403,7 @@ pool:
 
 variables:
   buildConfiguration: "Release"
-  dotnetVersion: "9.x" # or '8.x'
+  dotnetVersion: "10.x"
 
 steps:
   - task: UseDotNet@2
