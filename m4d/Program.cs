@@ -61,9 +61,12 @@ if (smokeTestMode)
         $"""
         <!DOCTYPE html>
         <html>
-        <head><title>m4d-staging Smoke Test</title></head>
+        <head>
+            <title>m4d-staging Smoke Test</title>
+            <meta charset="utf-8">
+        </head>
         <body style="font-family: monospace; padding: 40px; background: #f0f0f0;">
-            <h1 style="color: #28a745;">✓ Container is Running</h1>
+            <h1 style="color: #28a745;">[OK] Container is Running</h1>
             <p><strong>Environment:</strong> {builder.Environment.EnvironmentName}</p>
             <p><strong>Port:</strong> {portNumber}</p>
             <p><strong>Time:</strong> {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC</p>
@@ -113,7 +116,9 @@ var useVite = configuration.UseVite();
 var isSelfContained = configuration.GetValue<bool>("SELF_CONTAINED_DEPLOYMENT");
 Console.WriteLine($"SELF_CONTAINED_DEPLOYMENT flag: {isSelfContained}");
 
-// Azure Linux App Services require explicit port binding for both deployment modes
+// DISABLED: Smoke test proved explicit Kestrel configuration is not needed for Azure App Service
+// Azure automatically configures port binding based on PORT/WEBSITES_PORT environment variables
+/*
 if (!isDevelopment)
 {
     Console.WriteLine($"Configuring Kestrel for Azure Linux (deployment mode: {(isSelfContained ? "self-contained" : "framework-dependent")})");
@@ -166,6 +171,7 @@ if (!isDevelopment)
         }
     });
 }
+*/
 
 services.AddHttpLogging(o => { });
 builder.Services.AddFeatureManagement();
@@ -190,10 +196,12 @@ if (!isDevelopment)
     {
         try
         {
+            Console.WriteLine("[AppConfig] Creating DefaultAzureCredential...");
             var credentials = new DefaultAzureCredential();
-            Console.WriteLine("DefaultAzureCredential created successfully for App Configuration");
+            Console.WriteLine("[AppConfig] DefaultAzureCredential created successfully");
 
-            Console.WriteLine("Attempting to connect to App Configuration...");
+            Console.WriteLine($"[AppConfig] Connecting to endpoint: {appConfigEndpoint}");
+            Console.WriteLine($"[AppConfig] Environment label: {environment.EnvironmentName}");
             _ = configuration.AddAzureAppConfiguration(options =>
             {
                 _ = options.Connect(
@@ -216,9 +224,10 @@ if (!isDevelopment)
                 });
             });
 
+            Console.WriteLine("[AppConfig] Configuration loaded, registering services...");
             _ = services.AddAzureAppConfiguration();
             serviceHealth.MarkHealthy("AppConfiguration");
-            Console.WriteLine("Azure App Configuration configured successfully with managed identity");
+            Console.WriteLine("[AppConfig] ✓ Configured successfully with managed identity");
         }
         catch (Exception ex)
         {
@@ -253,17 +262,19 @@ var indexSections = configuration.GetChildren()
     .ToList();
 Console.WriteLine($"Found {indexSections.Count} search index configuration sections");
 
-Console.WriteLine("Configuring Azure Search with managed identity");
+Console.WriteLine("[Search] Configuring Azure Search with managed identity");
 try
 {
     // Validate endpoints before attempting to register clients
+    Console.WriteLine($"[Search] Validating {indexSections.Count} search index endpoints...");
     bool hasValidEndpoints = true;
     foreach (var section in indexSections)
     {
         var endpoint = section["endpoint"];
+        Console.WriteLine($"[Search]   - {section.Key}: {endpoint}");
         if (string.IsNullOrEmpty(endpoint) || !Uri.TryCreate(endpoint, UriKind.Absolute, out var uri))
         {
-            Console.WriteLine($"WARNING: Invalid endpoint for index {section.Key}: {endpoint}");
+            Console.WriteLine($"[Search] ERROR: Invalid endpoint for index {section.Key}: {endpoint}");
             hasValidEndpoints = false;
             break;
         }
@@ -274,11 +285,12 @@ try
         throw new InvalidOperationException("One or more search index endpoints are invalid or missing");
     }
 
+    Console.WriteLine("[Search] All endpoints validated successfully");
     services.AddAzureClients(clientBuilder =>
     {
-        Console.WriteLine("Creating DefaultAzureCredential for Azure Search clients");
+        Console.WriteLine("[Search] Creating DefaultAzureCredential...");
         var credentials = new DefaultAzureCredential();
-        Console.WriteLine("DefaultAzureCredential created successfully for Azure Search");
+        Console.WriteLine("[Search] DefaultAzureCredential created successfully");
         _ = clientBuilder.UseCredential(credentials);
 
         foreach (var section in indexSections)
@@ -310,9 +322,10 @@ try
             Console.WriteLine($"Adding SearchIndexClient for SongIndex, endpoint: {firstSongIndexSection["endpoint"]}");
             _ = clientBuilder.AddSearchIndexClient(firstSongIndexSection).WithName("SongIndex");
         }
-        Console.WriteLine("Azure Search clients configured successfully with managed identity");
+        Console.WriteLine("[Search] All search clients registered successfully");
     });
     serviceHealth.MarkHealthy("SearchService");
+    Console.WriteLine("[Search] ✓ Configured successfully with managed identity");
 }
 catch (Exception ex)
 {
