@@ -101,67 +101,41 @@ steps:
       arguments: "--configuration $(buildConfiguration) --runtime linux-x64"
       publishWebProjects: true
 
-  # ===== CONFIGURE DEPLOYMENT MODE (BEFORE DEPLOYMENT) =====
-  - task: AzureCLI@2
-    displayName: "Configure app settings for deployment mode"
-    continueOnError: true # Don't fail deployment if configuration fails
-    inputs:
-      azureSubscription: "m4d-release"
-      scriptType: "bash"
-      scriptLocation: "inlineScript"
-      inlineScript: |
-        echo "Configuring $(appName) for deployment mode: ${{ parameters.deploymentMode }}"
-        echo "Configuring environment: ${{ parameters.environment }} (ASPNETCORE_ENVIRONMENT=$(aspnetEnvironment))"
-        echo "Search index configuration: $(searchIndex) version $(searchIndexVersion)"
+  # ===== DEPLOY WITH CONFIGURATION =====
+  # Deploy and configure app settings in a single atomic operation
+  # This approach uses the AzureWebApp task's built-in appSettings parameter
+  # which avoids permission issues and ensures settings are applied during deployment
 
-        # Set application settings
-        echo "Setting application settings..."
-        if az webapp config appsettings set \
-          --name $(appName) \
-          --resource-group music4dance \
-          --settings \
-            SELF_CONTAINED_DEPLOYMENT=$(useSelfContained) \
-            ASPNETCORE_ENVIRONMENT=$(aspnetEnvironment) \
-            SEARCHINDEX=$(searchIndex) \
-            SEARCHINDEXVERSION=$(searchIndexVersion); then
-          echo "✓ Application settings configured successfully"
-        else
-          echo "✗ Failed to set application settings (insufficient permissions)"
-          echo "  Please set manually in Azure Portal or grant 'Website Contributor' role to service principal"
-        fi
-
-        # Configure startup command based on deployment mode
-        if [ "$(useSelfContained)" = "true" ]; then
-          echo "Setting startup command for self-contained deployment: /home/site/wwwroot/m4d"
-          if az webapp config set \
-            --name $(appName) \
-            --resource-group music4dance \
-            --startup-file "/home/site/wwwroot/m4d"; then
-            echo "✓ Startup command set successfully"
-          else
-            echo "✗ Failed to set startup command (insufficient permissions)"
-            echo "  Please set manually in Azure Portal: /home/site/wwwroot/m4d"
-          fi
-        else
-          echo "Setting startup command for framework-dependent deployment: dotnet m4d.dll"
-          if az webapp config set \
-            --name $(appName) \
-            --resource-group music4dance \
-            --startup-file "dotnet m4d.dll"; then
-            echo "✓ Startup command set successfully"
-          else
-            echo "✗ Failed to set startup command (insufficient permissions)"
-            echo "  Please set manually in Azure Portal: dotnet m4d.dll"
-          fi
-        fi
-
-        echo "Configuration step complete (check above for any failures)"
-
-  # ===== DEPLOY =====
+  # Self-Contained Deployment
   - task: AzureWebApp@1
-    displayName: "Deploy to Azure Web App ($(appName))"
+    displayName: "Deploy to Azure Web App ($(appName)) - self-contained"
+    condition: eq(variables['useSelfContained'], true)
     inputs:
       azureSubscription: "m4d-release"
       appType: "webAppLinux"
       appName: "$(appName)"
       package: "$(System.DefaultWorkingDirectory)/**/*.zip"
+      startUpCommand: "/home/site/wwwroot/m4d"
+      appSettings: |
+        -SELF_CONTAINED_DEPLOYMENT true
+        -ASPNETCORE_ENVIRONMENT $(aspnetEnvironment)
+        -SEARCHINDEX $(searchIndex)
+        -SEARCHINDEXVERSION $(searchIndexVersion)
+        -WEBSITES_INCLUDE_CLOUD_CERTS true
+
+  # Framework-Dependent Deployment
+  - task: AzureWebApp@1
+    displayName: "Deploy to Azure Web App ($(appName)) - framework-dependent"
+    condition: eq(variables['useSelfContained'], false)
+    inputs:
+      azureSubscription: "m4d-release"
+      appType: "webAppLinux"
+      appName: "$(appName)"
+      package: "$(System.DefaultWorkingDirectory)/**/*.zip"
+      startUpCommand: "dotnet m4d.dll"
+      appSettings: |
+        -SELF_CONTAINED_DEPLOYMENT false
+        -ASPNETCORE_ENVIRONMENT $(aspnetEnvironment)
+        -SEARCHINDEX $(searchIndex)
+        -SEARCHINDEXVERSION $(searchIndexVersion)
+        -WEBSITES_INCLUDE_CLOUD_CERTS true
