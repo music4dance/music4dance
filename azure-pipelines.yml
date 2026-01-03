@@ -117,11 +117,33 @@ steps:
       package: "$(System.DefaultWorkingDirectory)/**/*.zip"
       startUpCommand: "/home/site/wwwroot/m4d"
       appSettings: |
-        SELF_CONTAINED_DEPLOYMENT true
-        ASPNETCORE_ENVIRONMENT $(aspnetEnvironment)
-        SEARCHINDEX $(searchIndex)
-        SEARCHINDEXVERSION $(searchIndexVersion)
-        WEBSITES_INCLUDE_CLOUD_CERTS true
+        [
+          {
+            "name": "SELF_CONTAINED_DEPLOYMENT",
+            "value": "true",
+            "slotSetting": false
+          },
+          {
+            "name": "ASPNETCORE_ENVIRONMENT",
+            "value": "$(aspnetEnvironment)",
+            "slotSetting": false
+          },
+          {
+            "name": "SEARCHINDEX",
+            "value": "$(searchIndex)",
+            "slotSetting": false
+          },
+          {
+            "name": "SEARCHINDEXVERSION",
+            "value": "$(searchIndexVersion)",
+            "slotSetting": false
+          },
+          {
+            "name": "WEBSITES_INCLUDE_CLOUD_CERTS",
+            "value": "true",
+            "slotSetting": false
+          }
+        ]
 
   # Framework-Dependent Deployment
   - task: AzureWebApp@1
@@ -134,8 +156,30 @@ steps:
       package: "$(System.DefaultWorkingDirectory)/**/*.zip"
       startUpCommand: "dotnet m4d.dll"
       appSettings: |
-        SELF_CONTAINED_DEPLOYMENT false
-        ASPNETCORE_ENVIRONMENT $(aspnetEnvironment)
-        SEARCHINDEX $(searchIndex)
-        SEARCHINDEXVERSION $(searchIndexVersion)
-        WEBSITES_INCLUDE_CLOUD_CERTS true
+        [
+          {
+            "name": "SELF_CONTAINED_DEPLOYMENT",
+            "value": "false",
+            "slotSetting": false
+          },
+          {
+            "name": "ASPNETCORE_ENVIRONMENT",
+            "value": "$(aspnetEnvironment)",
+            "slotSetting": false
+          },
+          {
+            "name": "SEARCHINDEX",
+            "value": "$(searchIndex)",
+            "slotSetting": false
+          },
+          {
+            "name": "SEARCHINDEXVERSION",
+            "value": "$(searchIndexVersion)",
+            "slotSetting": false
+          },
+          {
+            "name": "WEBSITES_INCLUDE_CLOUD_CERTS",
+            "value": "true",
+            "slotSetting": false
+          }
+        ]
