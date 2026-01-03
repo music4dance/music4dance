@@ -39,6 +39,54 @@ using Vite.AspNetCore;
 Console.WriteLine("Entering Main");
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Smoke test mode - bypasses all Azure service configuration for container diagnostics
+var smokeTestMode = builder.Configuration.GetValue<bool>("SMOKE_TEST_MODE");
+if (smokeTestMode)
+{
+    Console.WriteLine("⚠️  SMOKE TEST MODE ENABLED - Running minimal configuration");
+
+    // Configure Kestrel to listen on Azure's expected port
+    var portNumber = int.Parse(Environment.GetEnvironmentVariable("PORT")
+                              ?? Environment.GetEnvironmentVariable("WEBSITES_PORT")
+                              ?? "8080");
+    builder.WebHost.ConfigureKestrel(options =>
+    {
+        options.ListenAnyIP(portNumber);
+    });
+
+    var smokeApp = builder.Build();
+
+    smokeApp.MapGet("/", () => Results.Content(
+        $"""
+        <!DOCTYPE html>
+        <html>
+        <head><title>m4d-staging Smoke Test</title></head>
+        <body style="font-family: monospace; padding: 40px; background: #f0f0f0;">
+            <h1 style="color: #28a745;">✓ Container is Running</h1>
+            <p><strong>Environment:</strong> {builder.Environment.EnvironmentName}</p>
+            <p><strong>Port:</strong> {portNumber}</p>
+            <p><strong>Time:</strong> {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC</p>
+            <p><strong>Mode:</strong> Smoke Test (bypassing Azure services)</p>
+            <hr>
+            <p><em>If you see this, the container and .NET runtime are working correctly.</em></p>
+        </body>
+        </html>
+        """, "text/html"));
+
+    smokeApp.MapGet("/health", () => Results.Json(new
+    {
+        status = "healthy",
+        mode = "smoke-test",
+        environment = builder.Environment.EnvironmentName,
+        timestamp = DateTime.UtcNow
+    }));
+
+    Console.WriteLine($"✓ Smoke test app starting on port {portNumber}");
+    await smokeApp.RunAsync();
+    return;
+}
+
 var connectionString = builder.Configuration.GetConnectionString("DanceMusicContextConnection")
     ?? throw new InvalidOperationException("Connection string 'DanceMusicContexstConnection' not found.");
 
