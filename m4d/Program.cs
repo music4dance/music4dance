@@ -49,15 +49,7 @@ Console.WriteLine($"SMOKE_TEST_MODE = {smokeTestMode}");
 if (smokeTestMode)
 {
     Console.WriteLine("⚠️  SMOKE TEST MODE ENABLED - Running minimal configuration");
-
-    // Configure Kestrel to listen on Azure's expected port
-    var portNumber = int.Parse(Environment.GetEnvironmentVariable("PORT")
-                              ?? Environment.GetEnvironmentVariable("WEBSITES_PORT")
-                              ?? "8080");
-    builder.WebHost.ConfigureKestrel(options =>
-    {
-        options.ListenAnyIP(portNumber);
-    });
+    Console.WriteLine("Note: Azure automatically configures port binding via PORT/WEBSITES_PORT environment variables");
 
     var smokeApp = builder.Build();
 
@@ -72,7 +64,6 @@ if (smokeTestMode)
         <body style="font-family: monospace; padding: 40px; background: #f0f0f0;">
             <h1 style="color: #28a745;">[OK] Container is Running</h1>
             <p><strong>Environment:</strong> {builder.Environment.EnvironmentName}</p>
-            <p><strong>Port:</strong> {portNumber}</p>
             <p><strong>Time:</strong> {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC</p>
             <p><strong>Mode:</strong> Smoke Test (bypassing Azure services)</p>
             <hr>
@@ -89,7 +80,7 @@ if (smokeTestMode)
         timestamp = DateTime.UtcNow
     }));
 
-    Console.WriteLine($"✓ Smoke test app starting on port {portNumber}");
+    Console.WriteLine("✓ Smoke test app configured, starting...");
     await smokeApp.RunAsync();
     return;
 }
@@ -123,63 +114,6 @@ var useVite = configuration.UseVite();
 // based on the deploymentMode parameter (self-contained vs framework-dependent)
 var isSelfContained = configuration.GetValue<bool>("SELF_CONTAINED_DEPLOYMENT");
 Console.WriteLine($"SELF_CONTAINED_DEPLOYMENT flag: {isSelfContained}");
-
-// DISABLED: Smoke test proved explicit Kestrel configuration is not needed for Azure App Service
-// Azure automatically configures port binding based on PORT/WEBSITES_PORT environment variables
-/*
-if (!isDevelopment)
-{
-    Console.WriteLine($"Configuring Kestrel for Azure Linux (deployment mode: {(isSelfContained ? "self-contained" : "framework-dependent")})");
-
-    builder.WebHost.ConfigureKestrel(serverOptions =>
-    {
-        // Azure Web Apps use environment variables for port configuration
-        var port = Environment.GetEnvironmentVariable("PORT") ??
-                   Environment.GetEnvironmentVariable("WEBSITES_PORT") ?? "8080";
-
-        Console.WriteLine($"Binding to port {port}");
-        if (!int.TryParse(port, out var portNumber))
-        {
-            Console.WriteLine($"Invalid PORT value '{port}', using default 8080");
-            portNumber = 8080;
-        }
-        serverOptions.ListenAnyIP(portNumber);
-
-        // Load HTTPS certificate if available (Azure provides certificates via environment)
-        var certPath = Environment.GetEnvironmentVariable("WEBSITE_LOAD_CERTIFICATES");
-        var httpsPort = Environment.GetEnvironmentVariable("HTTPS_PORT");
-
-        if (!string.IsNullOrEmpty(certPath) && !string.IsNullOrEmpty(httpsPort))
-        {
-            try
-            {
-                // Azure Linux Web Apps place certificates in a specific location
-                var certFile = $"/var/ssl/private/{certPath}.p12";
-                if (File.Exists(certFile))
-                {
-                    if (int.TryParse(httpsPort, out var httpsPortNumber))
-                    {
-                    using var cert = X509CertificateLoader.LoadPkcs12FromFile(certFile, null);
-                    serverOptions.ListenAnyIP(int.Parse(httpsPort), listenOptions =>
-                        {
-                            listenOptions.UseHttps(cert);
-                        });
-                        Console.WriteLine($"HTTPS configured on port {httpsPortNumber}");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Invalid HTTPS_PORT value '{httpsPort}', skipping HTTPS configuration");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Failed to load certificate: {ex.Message}");
-            }
-        }
-    });
-}
-*/
 
 services.AddHttpLogging(o => { });
 builder.Services.AddFeatureManagement();
