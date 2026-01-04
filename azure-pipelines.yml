@@ -127,5 +127,6 @@ steps:
       appType: "webAppLinux"
       appName: "$(appName)"
       package: "$(System.DefaultWorkingDirectory)/**/*.zip"
+      runtimeStack: "DOTNETCORE|10.0"
       startUpCommand: "dotnet m4d.dll"
       appSettings: -SELF_CONTAINED_DEPLOYMENT false -ASPNETCORE_ENVIRONMENT $(aspnetEnvironment) -SEARCHINDEX $(searchIndex) -SEARCHINDEXVERSION $(searchIndexVersion) -WEBSITES_INCLUDE_CLOUD_CERTS true
