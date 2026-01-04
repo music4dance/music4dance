@@ -85,10 +85,28 @@ if (smokeTestMode)
     return;
 }
 
-Console.WriteLine("Proceeding with normal startup - Finidng connection string");
+Console.WriteLine("Proceeding with normal startup - Finding connection string");
 
-var connectionString = builder.Configuration.GetConnectionString("DanceMusicContextConnection")
-    ?? throw new InvalidOperationException("Connection string 'DanceMusicContexstConnection' not found.");
+// Prioritize Service Connector environment variable (Azure), fall back to appsettings.json (local development)
+var connectionString = builder.Configuration["AZURE_SQL_CONNECTIONSTRING"]
+    ?? builder.Configuration.GetConnectionString("DanceMusicContextConnection");
+
+if (!string.IsNullOrEmpty(connectionString))
+{
+    if (!string.IsNullOrEmpty(builder.Configuration["AZURE_SQL_CONNECTIONSTRING"]))
+    {
+        Console.WriteLine($"[Database] Using AZURE_SQL_CONNECTIONSTRING from Service Connector");
+    }
+    else
+    {
+        Console.WriteLine($"[Database] Using DanceMusicContextConnection from appsettings.json");
+    }
+}
+else
+{
+    Console.WriteLine("[Database] WARNING: No connection string found - database will be unavailable");
+    Console.WriteLine("[Database] Expected 'AZURE_SQL_CONNECTIONSTRING' (Azure Service Connector) or 'DanceMusicContextConnection' (local)");
+}
 
 var services = builder.Services;
 var environment = builder.Environment;
@@ -289,24 +307,41 @@ catch (Exception ex)
 }
 
 Console.WriteLine("Configuring SQL Server database context");
-try
+if (string.IsNullOrEmpty(connectionString))
 {
+    serviceHealth.MarkUnavailable("Database", "Connection string not configured");
+    Console.WriteLine("WARNING: Database unavailable - no connection string configured");
+    Console.WriteLine("App will continue without database - using cached/static content where available");
+
+    // Register a placeholder DbContext to prevent dependency injection failures
     services.AddDbContext<DanceMusicContext>(options =>
-        options.UseSqlServer(connectionString, sqlOptions =>
-            sqlOptions.EnableRetryOnFailure(
-                maxRetryCount: 5,
-                maxRetryDelay: TimeSpan.FromSeconds(30),
-                errorNumbersToAdd: null)));
-    serviceHealth.MarkHealthy("Database");
-    Console.WriteLine("Database context configured successfully");
+        options.UseSqlServer("Server=(placeholder);Database=placeholder;", sqlOptions =>
+            sqlOptions.EnableRetryOnFailure(maxRetryCount: 0)));
 }
-catch (Exception ex)
+else
 {
-    serviceHealth.MarkUnavailable("Database", $"{ex.GetType().Name}: {ex.Message}");
-    Console.WriteLine($"ERROR configuring database: {ex.GetType().Name}: {ex.Message}");
-    Console.WriteLine("WARNING: Continuing without database - using cached content where available");
-    // Register a placeholder to prevent dependency injection failures
-    // The actual health check and fallback logic will be in controllers
+    try
+    {
+        services.AddDbContext<DanceMusicContext>(options =>
+            options.UseSqlServer(connectionString, sqlOptions =>
+                sqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 5,
+                    maxRetryDelay: TimeSpan.FromSeconds(30),
+                    errorNumbersToAdd: null)));
+        serviceHealth.MarkHealthy("Database");
+        Console.WriteLine("Database context configured successfully");
+    }
+    catch (Exception ex)
+    {
+        serviceHealth.MarkUnavailable("Database", $"{ex.GetType().Name}: {ex.Message}");
+        Console.WriteLine($"ERROR configuring database: {ex.GetType().Name}: {ex.Message}");
+        Console.WriteLine("WARNING: Continuing without database - using cached content where available");
+
+        // Register a placeholder DbContext to prevent dependency injection failures
+        services.AddDbContext<DanceMusicContext>(options =>
+            options.UseSqlServer("Server=(placeholder);Database=placeholder;", sqlOptions =>
+                sqlOptions.EnableRetryOnFailure(maxRetryCount: 0)));
+    }
 }
 
 // Configure data protection for self-contained deployments

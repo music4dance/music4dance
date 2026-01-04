@@ -94,12 +94,14 @@ The application uses the following Azure services:
 **Note**: All required settings are configured automatically by the deployment pipeline:
 
 - **App Configuration endpoint** and **Search service endpoints**: In `appsettings.json` (source controlled)
-- **SELF_CONTAINED_DEPLOYMENT** and **ASPNETCORE_ENVIRONMENT**: Set by pipeline based on environment parameter
-- **SEARCHINDEX** and **SEARCHINDEXVERSION**: Set by pipeline (staging/test → SongIndexTest-2, production → SongIndexProd-2)
+- **SELF_CONTAINED_DEPLOYMENT**: Automatically set by pipeline (true for self-contained, false for framework-dependent)
+- **ASPNETCORE_ENVIRONMENT**: Automatically set by pipeline based on environment parameter (Production/Staging/Development)
+- **SEARCHINDEX** and **SEARCHINDEXVERSION**: Automatically set by pipeline (staging/test → SongIndexTest-2, production → SongIndexProd-2)
+- **WEBSITES_INCLUDE_CLOUD_CERTS**: Automatically set to true (optimizes certificate loading during startup)
 
-**No manual configuration needed at this step** unless deploying outside the pipeline or overriding defaults.
+**No manual configuration needed at this step**. The pipeline's `AzureWebApp@1` task uses the `appSettings` parameter to configure all necessary environment variables during deployment.
 
-If you need to override settings manually:
+If you need to override settings manually (e.g., for testing or when deploying outside the pipeline):
 
 1. App Service → **Settings** → **Configuration**
 2. **Application settings** tab → **+ New application setting**
@@ -204,15 +206,72 @@ Repeat for **each role** on **each Search service** (typically 2 services × 2 r
    - This is required for managed identity authentication
 3. Click **Save** if changed
 
-### 2.6 Azure SQL Database - Create SQL User for Managed Identity
+### 2.6 Azure SQL Database - Configure Service Connector (Recommended)
 
-I am going to again attempt to use a Service Connector as that is what is currently working in production. Instructions [here](https://learn.microsoft.com/en-us/azure/service-connector/quickstart-portal-app-service-connection?tabs=SMI%2Cusing-managed-identity&pivots=azure-portal)
+**This is the recommended approach** - Service Connector automatically handles all the complexity of creating SQL users, granting permissions, and configuring connection strings.
 
-If the above works, we'll replace the instructions below.
+1. Azure Portal → App Service (`m4d-staging` or your app)
+2. **Settings** → **Service Connector**
+3. Click **+ Create**
+4. **Basics** tab:
+   - **Service type**: **SQL Database**
+   - **Connection name**: Leave default or use `sql_connection`
+   - **Subscription**: (your subscription)
+   - **SQL server**: `n8a541qjnq`
+   - **SQL database**: `music4dance_test` (staging/test) or `music4dance` (production)
+   - **Client type**: **.NET**
+   - Click **Next**
+5. **Authentication** tab:
+   - **Authentication type**: **System assigned managed identity**
+   - **Username**: (leave blank - managed identity doesn't use username)
+   - Click **Next**
+6. **Networking** tab:
+   - **Network configuration**: Leave default settings
+   - Click **Next**
+7. **Review + create**:
+   - Review settings
+   - Click **Create**
+8. Wait for deployment to complete (1-2 minutes)
 
-This is the critical step that often causes issues. Use explicit Object ID to avoid mismatches.
+**What Service Connector Does**:
 
-**Option 1: Azure Portal Query Editor (Easiest)**
+- ✅ Creates SQL user automatically with correct Object ID
+- ✅ Grants necessary permissions (db_datareader, db_datawriter, db_ddladmin)
+- ✅ Configures connection string as `AZURE_SQL_CONNECTIONSTRING` environment variable
+- ✅ Updates automatically if managed identity changes
+
+**Important Note**: The Service Connector creates the environment variable `AZURE_SQL_CONNECTIONSTRING`, which the application code automatically prioritizes over the `DanceMusicContextConnection` connection string when present.
+
+**Verify Service Connector**:
+
+After creation:
+
+1. Service Connector blade → Click the connection
+2. **Validate** → Click **Validate**
+3. ✅ Should show "Validation passed"
+4. **Hidden value** section → Click **Show** to see connection string
+   - Should contain: `Authentication=Active Directory Managed Identity`
+   - Should NOT contain username/password
+
+**Troubleshooting Service Connector**:
+
+If validation fails:
+
+- Ensure firewall allows Azure services (Step 2.5)
+- Ensure Azure AD admin is configured (Step 2.4)
+- Delete and recreate the Service Connector
+- Check that managed identity is enabled and Object ID is correct
+
+---
+
+**Alternative: Manual SQL User Creation** (Skip if using Service Connector)
+
+<details>
+<summary>Click to expand manual instructions (only use if Service Connector fails)</summary>
+
+This is the fallback method that requires explicit SQL user creation. Only use if Service Connector doesn't work for your scenario.
+
+**Option 1: Azure Portal Query Editor**
 
 1. Azure Portal → SQL Database (`music4dance_test` or `music4dance`)
 2. **Query editor (preview)** → Sign in with Azure AD admin
@@ -268,18 +327,21 @@ ORDER BY name;
 2. Select database in dropdown
 3. Run SQL above
 
-**Critical Verification**:
+**Then add connection string manually** (Phase 3.1)
 
-After running the SQL, check the output:
-
-- `ObjectId_In_SQL` for your app **must exactly match** the Object ID from step 1.2
-- If mismatch: `DROP USER [<app-name>]` and re-run with correct Object ID
-
-**Common Pitfall**: If you omit `WITH OBJECT_ID`, SQL may find a different principal with the same name (old service principal, deleted identity) and create the user with wrong Object ID.
+</details>
 
 ## Phase 3: Configure Application Settings
 
-### 3.1 Add SQL Connection String (Managed Identity)
+### 3.1 Verify SQL Connection String
+
+**If using Service Connector** (recommended - Step 2.6):
+
+- ✅ Connection string is automatically configured as `AZURE_SQL_CONNECTIONSTRING` environment variable
+- ✅ No manual configuration needed
+- Skip to [Step 3.2](#32-verify-application-settings)
+
+**If using manual SQL user creation** (fallback):
 
 1. App Service → **Settings** → **Configuration**
 2. **Connection strings** tab → **+ New connection string**
@@ -300,21 +362,36 @@ After running the SQL, check the output:
 
 ### 3.2 Verify Application Settings
 
-At this point, your Application Settings should be minimal:
+After the first pipeline deployment, your Application Settings will be automatically configured:
 
 **Application settings:**
 
 ```
 AppConfig__Endpoint = https://music4dance.azconfig.io
 ASPNETCORE_ENVIRONMENT = Staging (or Production)
-SELF_CONTAINED_DEPLOYMENT = true
+SELF_CONTAINED_DEPLOYMENT = false (or true for self-contained deployments)
+SEARCHINDEX = SongIndexTest (staging/test) or SongIndexProd (production)
+SEARCHINDEXVERSION = 2
+WEBSITES_INCLUDE_CLOUD_CERTS = true
 ```
 
+**Note**: These settings are automatically configured by the deployment pipeline using the `appSettings` parameter in the `AzureWebApp@1` task. No manual configuration is required.
+
 **Connection strings:**
+
+If using Service Connector (recommended):
+
+```
+AZURE_SQL_CONNECTIONSTRING = Data Source=n8a541qjnq.database.windows.net,1433;Initial Catalog=music4dance_test;Authentication=Active Directory Managed Identity
+```
+
+If using manual configuration:
 
 ```
 DanceMusicContextConnection = Data Source=n8a541qjnq.database.windows.net,1433;Initial Catalog=music4dance_test;Authentication=ActiveDirectoryManagedIdentity
 ```
+
+**Note**: The application automatically uses `AZURE_SQL_CONNECTIONSTRING` when present, falling back to `DanceMusicContextConnection` for local development.
 
 **DO NOT ADD**:
 
@@ -365,23 +442,32 @@ Verify these match your current `m4d/appsettings.json` file.
 
 **Option A: Use Existing Pipeline** (Recommended)
 
-If you have `azure-pipelines-self-contained.yml` or similar:
+The unified `azure-pipelines.yml` supports all environments and deployment modes:
 
 1. Azure DevOps → Pipelines → **New pipeline** (or edit existing)
 2. Select repository: music4dance
 3. Configure pipeline → **Existing Azure Pipelines YAML file**
-4. Select: `azure-pipelines-self-contained.yml`
-5. Update the `AzureWebApp@1` task:
+4. Select: `azure-pipelines.yml`
+5. The pipeline includes automatic application settings configuration:
    ```yaml
    - task: AzureWebApp@1
+     displayName: "Deploy to Azure Web App ($(appName)) - framework-dependent"
+     condition: eq(variables['useSelfContained'], false)
      inputs:
-       azureSubscription: "<your-service-connection-name>"
+       azureSubscription: "m4d-release"
        appType: "webAppLinux"
-       appName: "m4d-<environment>" # Change this!
-       package: "$(Build.ArtifactStagingDirectory)"
-       runtimeStack: "DOTNETCORE|10.0"
+       appName: "$(appName)"
+       package: "$(System.DefaultWorkingDirectory)/**/*.zip"
+       startUpCommand: "dotnet m4d.dll"
+       appSettings: -SELF_CONTAINED_DEPLOYMENT false -ASPNETCORE_ENVIRONMENT $(aspnetEnvironment) -SEARCHINDEX $(searchIndex) -SEARCHINDEXVERSION $(searchIndexVersion) -WEBSITES_INCLUDE_CLOUD_CERTS true
    ```
 6. **Save and run**
+
+**Key Features**:
+
+- **Automatic environment configuration**: The `appSettings` parameter sets all required application settings during deployment
+- **No manual Portal configuration needed**: Settings are applied atomically with the deployment
+- **Environment-specific values**: Pipeline variables automatically configure the correct search index and environment name based on the `environment` parameter
 
 **Option B: Create New Pipeline**
 
