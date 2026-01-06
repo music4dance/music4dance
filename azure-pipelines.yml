@@ -38,7 +38,7 @@ variables:
     searchIndexVersion: "2"
   ${{ if eq(parameters.environment, 'test') }}:
     appName: "m4d-linux"
-    aspnetEnvironment: "Development"
+    aspnetEnvironment: "Staging"
     searchIndex: "SongIndexTest"
     searchIndexVersion: "2"
   ${{ if eq(parameters.environment, 'staging') }}:

@@ -95,7 +95,10 @@ The application uses the following Azure services:
 
 - **App Configuration endpoint** and **Search service endpoints**: In `appsettings.json` (source controlled)
 - **SELF_CONTAINED_DEPLOYMENT**: Automatically set by pipeline (true for self-contained, false for framework-dependent)
-- **ASPNETCORE_ENVIRONMENT**: Automatically set by pipeline based on environment parameter (Production/Staging/Development)
+- **ASPNETCORE_ENVIRONMENT**: Automatically set by pipeline based on environment parameter (Production/Staging only)
+  - **IMPORTANT**: Cloud instances (Azure App Service) must use Staging or Production only
+  - Development environment is **only** for local developer machines
+  - Development environment enables detailed error pages visible to all users (security risk in cloud)
 - **SEARCHINDEX** and **SEARCHINDEXVERSION**: Automatically set by pipeline (staging/test → SongIndexTest-2, production → SongIndexProd-2)
 - **WEBSITES_INCLUDE_CLOUD_CERTS**: Automatically set to true (optimizes certificate loading during startup)
 

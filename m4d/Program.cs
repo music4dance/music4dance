@@ -5,6 +5,7 @@ using Azure.Search.Documents.Indexes;
 using m4d.Areas.Identity;
 using m4d.Services;
 using m4d.Services.ServiceHealth;
+using m4d.Configuration;
 using m4d.Utilities;
 using m4d.ViewModels;
 
@@ -419,25 +420,7 @@ var compositeProvider = new CompositeFileProvider(physicalProvider, embeddedProv
 services.AddSingleton<IFileProvider>(compositeProvider);
 
 // Email Service
-try
-{
-    var emailConnectionString = configuration["Authentication:AzureCommunicationServices:ConnectionString"];
-    if (string.IsNullOrEmpty(emailConnectionString))
-    {
-        throw new InvalidOperationException("Azure Communication Services connection string not configured");
-    }
-
-    services.AddTransient<IEmailSender, EmailSender>(provider =>
-        new EmailSender(emailConnectionString));
-    serviceHealth.MarkHealthy("EmailService");
-}
-catch (Exception ex)
-{
-    serviceHealth.MarkUnavailable("EmailService", $"{ex.GetType().Name}: {ex.Message}");
-    Console.WriteLine($"WARNING: Email service not configured: {ex.Message}");
-    // Register a null email sender as fallback
-    services.AddTransient<IEmailSender, EmailSender>(provider => new EmailSender(null));
-}
+services.AddEmailSenderWithResilience(configuration, serviceHealth);
 
 services.Configure<AuthorizationOptions>(
     options =>
@@ -450,117 +433,16 @@ services.Configure<AuthorizationOptions>(
 var authBuilder = services.AddAuthentication();
 
 // Google OAuth
-try
-{
-    authBuilder.AddGoogle(
-        options =>
-        {
-            var googleAuthNSection =
-                configuration.GetSection("Authentication:Google");
-
-            options.ClientId = googleAuthNSection["ClientId"];
-            options.ClientSecret = googleAuthNSection["ClientSecret"];
-
-            if (string.IsNullOrEmpty(options.ClientId) || string.IsNullOrEmpty(options.ClientSecret))
-            {
-                throw new InvalidOperationException("Google ClientId or ClientSecret not configured");
-            }
-        });
-    serviceHealth.MarkHealthy("GoogleOAuth");
-}
-catch (Exception ex)
-{
-    serviceHealth.MarkUnavailable("GoogleOAuth", $"{ex.GetType().Name}: {ex.Message}");
-    Console.WriteLine($"WARNING: Google OAuth not configured: {ex.Message}");
-}
+authBuilder.AddGoogleWithResilience(configuration, serviceHealth);
 
 // Facebook OAuth
-try
-{
-    authBuilder.AddFacebook(
-        options =>
-        {
-            options.AppId = configuration["Authentication:Facebook:ClientId"];
-            options.AppSecret = configuration["Authentication:Facebook:ClientSecret"];
-            options.Scope.Add("email");
-            options.Fields.Add("name");
-            options.Fields.Add("email");
-
-            if (string.IsNullOrEmpty(options.AppId) || string.IsNullOrEmpty(options.AppSecret))
-            {
-                throw new InvalidOperationException("Facebook AppId or AppSecret not configured");
-            }
-        });
-    serviceHealth.MarkHealthy("FacebookOAuth");
-}
-catch (Exception ex)
-{
-    serviceHealth.MarkUnavailable("FacebookOAuth", $"{ex.GetType().Name}: {ex.Message}");
-    Console.WriteLine($"WARNING: Facebook OAuth not configured: {ex.Message}");
-}
+authBuilder.AddFacebookWithResilience(configuration, serviceHealth);
 
 // Spotify OAuth
-try
-{
-    authBuilder.AddSpotify(
-        options =>
-        {
-            options.ClientId = configuration["Authentication:Spotify:ClientId"];
-            options.ClientSecret = configuration["Authentication:Spotify:ClientSecret"];
-
-            if (string.IsNullOrEmpty(options.ClientId) || string.IsNullOrEmpty(options.ClientSecret))
-            {
-                throw new InvalidOperationException("Spotify ClientId or ClientSecret not configured");
-            }
-
-            options.Scope.Add("user-read-email");
-            options.Scope.Add("playlist-modify-public");
-            options.Scope.Add("ugc-image-upload");
-            //options.Scope.Add("user-read-playback-state");
-            //options.Scope.Add("user-read-playback-position");
-
-            //options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
-            //options.ClaimActions.MapJsonKey("urn:google:locale", "locale", "string");
-
-            options.SaveTokens = true;
-
-            options.Events.OnCreatingTicket = cxt =>
-            {
-                var tokens = cxt.Properties.GetTokens().ToList();
-                cxt.Properties.StoreTokens(tokens);
-
-                return Task.CompletedTask;
-            };
-        });
-    serviceHealth.MarkHealthy("SpotifyOAuth");
-}
-catch (Exception ex)
-{
-    serviceHealth.MarkUnavailable("SpotifyOAuth", $"{ex.GetType().Name}: {ex.Message}");
-    Console.WriteLine($"WARNING: Spotify OAuth not configured: {ex.Message}");
-}
+authBuilder.AddSpotifyWithResilience(configuration, serviceHealth);
 
 // reCAPTCHA
-try
-{
-    services.AddreCAPTCHAV2(
-        x =>
-        {
-            x.SiteKey = configuration["Authentication:reCAPTCHA:SiteKey"];
-            x.SiteSecret = configuration["Authentication:reCAPTCHA:SecretKey"];
-
-            if (string.IsNullOrEmpty(x.SiteKey) || string.IsNullOrEmpty(x.SiteSecret))
-            {
-                throw new InvalidOperationException("reCAPTCHA SiteKey or SecretKey not configured");
-            }
-        });
-    serviceHealth.MarkHealthy("ReCaptcha");
-}
-catch (Exception ex)
-{
-    serviceHealth.MarkUnavailable("ReCaptcha", $"{ex.GetType().Name}: {ex.Message}");
-    Console.WriteLine($"WARNING: reCAPTCHA not configured: {ex.Message}");
-}
+services.AddReCaptchaWithResilience(configuration, serviceHealth);
 
 var appRoot = environment.WebRootPath;
 services.AddSingleton<ISearchServiceManager, SearchServiceManager>();
