@@ -204,6 +204,17 @@ if (!isDevelopment)
                 {
                     _ = refresh.Register("Configuration:Sentinel", environment.EnvironmentName, refreshAll: true)
                         .SetRefreshInterval(TimeSpan.FromMinutes(5));
+                })
+                .ConfigureClientOptions(clientOptions =>
+                {
+                    // DIAGNOSTIC: Generous timeouts to verify if connection works given enough time
+                    // Total max time: 180 (NetworkTimeout) × 3 attempts = 540 seconds (9 minutes)
+                    clientOptions.Retry.NetworkTimeout = TimeSpan.FromSeconds(180);
+                    clientOptions.Retry.MaxRetries = 2; // Initial + 2 retries = 3 total attempts
+                    clientOptions.Retry.Delay = TimeSpan.FromSeconds(5);
+                    clientOptions.Retry.MaxDelay = TimeSpan.FromSeconds(10);
+                    clientOptions.Retry.Mode = Azure.Core.RetryMode.Exponential;
+                    Console.WriteLine("[AppConfig] Using diagnostic timeouts: 180s per attempt, 3 attempts max (540s total)");
                 });
             });
 
