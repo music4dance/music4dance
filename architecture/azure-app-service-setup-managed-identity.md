@@ -974,6 +974,54 @@ When troubleshooting or comparing environments, verify:
 6. ✅ No API keys or connection strings for App Config/Search in settings
 7. ✅ Application Insights connected and logging
 
+## Performance Optimization for Startup
+
+### Certificate Update Timeout
+
+Azure App Service on Linux automatically updates certificates on startup when `WEBSITES_INCLUDE_CLOUD_CERTS=true`. This process can take 2-3 minutes and may cause startup timeouts.
+
+**To disable certificate updates** (if certificate-based authentication is not needed):
+
+1. Portal → App Service → Configuration → Application settings
+2. Delete or set `WEBSITES_INCLUDE_CLOUD_CERTS=false`
+3. Save and restart
+
+**When to disable**: If the application doesn't use client certificates for authentication or doesn't connect to services requiring custom CA certificates.
+
+### Optimized Credential Chain
+
+The application uses an optimized `DefaultAzureCredential` chain that excludes slower credential types:
+
+- ❌ Visual Studio Credential
+- ❌ VS Code Credential
+- ❌ Azure CLI Credential
+- ❌ Azure PowerShell Credential
+- ❌ Interactive Browser Credential
+- ✅ Managed Identity Credential (fast, used in Azure)
+- ✅ Environment Credential (fallback)
+
+This reduces credential acquisition time from ~17s to ~2-3s.
+
+### Fast Health Check Endpoint
+
+The application exposes `/health/startup` which responds immediately after the app starts accepting requests, before all services (App Configuration, Search, etc.) are fully initialized.
+
+**Azure health probe configuration**:
+
+- Set health check path to `/health/startup` for fastest response
+- Portal → App Service → Health check → Path: `/health/startup`
+- This allows Azure to mark the app as healthy before slow service initialization completes
+
+### Deferred Service Initialization
+
+Some services can be initialized after the first request instead of at startup:
+
+- App Configuration refresh (happens in background every 5 minutes)
+- Database migrations (run in background hosted service)
+- Search index clients (lazy initialization on first use)
+
+The application is designed to accept requests even if some services are unavailable (resilience pattern).
+
 ## Related Documentation
 
 - [Managed Identity Self-Contained Plan](managed-identity-self-contained-plan.md) - Overall migration strategy and troubleshooting log
@@ -984,4 +1032,5 @@ When troubleshooting or comparing environments, verify:
 
 | Date       | Change                                              | Author                               |
 | ---------- | --------------------------------------------------- | ------------------------------------ |
+| 2026-01-06 | Added performance optimization section              | Startup timeout troubleshooting      |
 | 2025-12-31 | Initial version based on troubleshooting experience | Extracted from managed-identity plan |

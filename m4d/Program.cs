@@ -145,6 +145,24 @@ services.AddSingleton(serviceHealth);
 Console.WriteLine("ServiceHealthManager initialized");
 Console.WriteLine("Note: Email notifications will be initialized only if startup failures are detected");
 
+// Create optimized DefaultAzureCredential once for reuse across all Azure services
+// Excludes slower credential types (VisualStudio, AzureCLI, AzurePowerShell) for faster startup
+DefaultAzureCredential? azureCredential = null;
+if (!isDevelopment)
+{
+    Console.WriteLine("[Azure] Creating DefaultAzureCredential with optimized chain...");
+    azureCredential = new DefaultAzureCredential(new DefaultAzureCredentialOptions
+    {
+        ExcludeVisualStudioCredential = true,
+        ExcludeVisualStudioCodeCredential = true,
+        ExcludeAzureCliCredential = true,
+        ExcludeAzurePowerShellCredential = true,
+        ExcludeInteractiveBrowserCredential = true
+        // Only try ManagedIdentityCredential and EnvironmentCredential in Azure
+    });
+    Console.WriteLine("[Azure] DefaultAzureCredential created successfully (optimized)");
+}
+
 if (!isDevelopment)
 {
     Console.WriteLine($"Production environment detected. Deployment mode: {(isSelfContained ? "self-contained" : "framework-dependent")}");
@@ -157,19 +175,15 @@ if (!isDevelopment)
     {
         try
         {
-            Console.WriteLine("[AppConfig] Creating DefaultAzureCredential...");
-            var credentials = new DefaultAzureCredential();
-            Console.WriteLine("[AppConfig] DefaultAzureCredential created successfully");
-
             Console.WriteLine($"[AppConfig] Connecting to endpoint: {appConfigEndpoint}");
             Console.WriteLine($"[AppConfig] Environment label: {environment.EnvironmentName}");
             _ = configuration.AddAzureAppConfiguration(options =>
             {
                 _ = options.Connect(
                     new Uri(appConfigEndpoint),
-                    credentials)
+                    azureCredential!)
                 .ConfigureKeyVault(
-                    kv => { _ = kv.SetCredential(credentials); })
+                    kv => { _ = kv.SetCredential(azureCredential!); })
                 .UseFeatureFlags(featureFlagOptions =>
                 {
                     _ = featureFlagOptions.Select(LabelFilter.Null);
@@ -249,10 +263,8 @@ try
     Console.WriteLine("[Search] All endpoints validated successfully");
     services.AddAzureClients(clientBuilder =>
     {
-        Console.WriteLine("[Search] Creating DefaultAzureCredential...");
-        var credentials = new DefaultAzureCredential();
-        Console.WriteLine("[Search] DefaultAzureCredential created successfully");
-        _ = clientBuilder.UseCredential(credentials);
+        Console.WriteLine("[Search] Using shared DefaultAzureCredential");
+        _ = clientBuilder.UseCredential(azureCredential!);
 
         foreach (var section in indexSections)
         {
@@ -502,6 +514,15 @@ catch (Exception ex)
 
 // Set ApplicationLogging.LoggerFactory early so static loggers in services can initialize
 ApplicationLogging.LoggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
+
+// Add lightweight health check endpoint BEFORE any middleware for fast Azure health probes
+// This endpoint responds immediately, even if App Configuration or other services are still loading
+app.MapGet("/health/startup", () => Results.Json(new
+{
+    status = "healthy",
+    timestamp = DateTime.UtcNow,
+    message = "Application is accepting requests"
+})).AllowAnonymous();
 
 if (!isDevelopment)
 {
