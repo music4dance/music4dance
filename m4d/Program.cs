@@ -36,11 +36,18 @@ using Vite.AspNetCore;
 //  Or maybe implement https://learn.microsoft.com/en-us/ef/core/cli/dbcontext-creation?tabs=dotnet-core-cli#from-application-services
 //  Think that's working, but now have to figure out what is going on with UsageSummary and the aspnet fields that changed length
 
-Console.WriteLine("Entering Main");
+var startupTimer = System.Diagnostics.Stopwatch.StartNew();
+var processStart = System.Diagnostics.Process.GetCurrentProcess().StartTime;
+var timeSinceProcessStart = DateTime.Now - processStart;
+var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies().Length;
+
+Console.WriteLine($"[Process started {timeSinceProcessStart.TotalSeconds:F2}s ago]");
+Console.WriteLine($"[{startupTimer.Elapsed.TotalSeconds:F2}s] Entering Main");
+Console.WriteLine($"[Loaded assemblies at Main entry: {loadedAssemblies}]");
 
 var builder = WebApplication.CreateBuilder(args);
 
-Console.WriteLine("Created Builder");
+Console.WriteLine($"[{startupTimer.Elapsed.TotalSeconds:F2}s] Created Builder");
 
 // Smoke test mode - bypasses all Azure service configuration for container diagnostics
 var smokeTestMode = builder.Configuration.GetValue<bool>("SMOKE_TEST_MODE");
@@ -113,7 +120,7 @@ var services = builder.Services;
 var environment = builder.Environment;
 var configuration = builder.Configuration;
 
-Console.WriteLine("Configuring logging");
+Console.WriteLine($"[{startupTimer.Elapsed.TotalSeconds:F2}s] Configuring logging");
 
 var logging = builder.Logging;
 logging.ClearProviders();
@@ -122,7 +129,7 @@ logging.AddAzureWebAppDiagnostics();
 
 // Log level filters should be set via configuration (see appsettings.json / appsettings.Production.json)
 
-Console.WriteLine($"Environment: {environment.EnvironmentName}");
+Console.WriteLine($"[{startupTimer.Elapsed.TotalSeconds:F2}s] Environment: {environment.EnvironmentName}");
 
 // Determine if running in development
 var isDevelopment = environment.IsDevelopment();
@@ -142,7 +149,7 @@ var serviceHealthLogger = LoggerFactory.Create(builder => builder.AddConsole())
     .CreateLogger<ServiceHealthManager>();
 var serviceHealth = new ServiceHealthManager(serviceHealthLogger);
 services.AddSingleton(serviceHealth);
-Console.WriteLine("ServiceHealthManager initialized");
+Console.WriteLine($"[{startupTimer.Elapsed.TotalSeconds:F2}s] ServiceHealthManager initialized");
 Console.WriteLine("Note: Email notifications will be initialized only if startup failures are detected");
 
 // Create optimized DefaultAzureCredential once for reuse across all Azure services
@@ -150,7 +157,7 @@ Console.WriteLine("Note: Email notifications will be initialized only if startup
 DefaultAzureCredential? azureCredential = null;
 if (!isDevelopment)
 {
-    Console.WriteLine("[Azure] Creating DefaultAzureCredential with optimized chain...");
+    Console.WriteLine($"[{startupTimer.Elapsed.TotalSeconds:F2}s] [Azure] Creating DefaultAzureCredential with optimized chain...");
     azureCredential = new DefaultAzureCredential(new DefaultAzureCredentialOptions
     {
         ExcludeVisualStudioCredential = true,
@@ -160,12 +167,12 @@ if (!isDevelopment)
         ExcludeInteractiveBrowserCredential = true
         // Only try ManagedIdentityCredential and EnvironmentCredential in Azure
     });
-    Console.WriteLine("[Azure] DefaultAzureCredential created successfully (optimized)");
+    Console.WriteLine($"[{startupTimer.Elapsed.TotalSeconds:F2}s] [Azure] DefaultAzureCredential created successfully (optimized)");
 }
 
 if (!isDevelopment)
 {
-    Console.WriteLine($"Production environment detected. Deployment mode: {(isSelfContained ? "self-contained" : "framework-dependent")}");
+    Console.WriteLine($"[{startupTimer.Elapsed.TotalSeconds:F2}s] Production environment detected. Deployment mode: {(isSelfContained ? "self-contained" : "framework-dependent")}");
 
     var appConfigEndpoint = configuration["AppConfig:Endpoint"];
 
@@ -173,7 +180,7 @@ if (!isDevelopment)
     // Connection will be triggered by StartupInitializationService in background after app starts
     if (!string.IsNullOrEmpty(appConfigEndpoint))
     {
-        Console.WriteLine($"[AppConfig] Endpoint configured: {appConfigEndpoint}");
+        Console.WriteLine($"[{startupTimer.Elapsed.TotalSeconds:F2}s] [AppConfig] Endpoint configured: {appConfigEndpoint}");
         Console.WriteLine("[AppConfig] Registering service (connection deferred to background)");
 
         try
@@ -202,7 +209,7 @@ if (!isDevelopment)
 
             _ = services.AddAzureAppConfiguration();
             serviceHealth.MarkHealthy("AppConfiguration");
-            Console.WriteLine("[AppConfig] ✓ Service registered (will connect in background)");
+            Console.WriteLine($"[{startupTimer.Elapsed.TotalSeconds:F2}s] [AppConfig] ✓ Service registered (will connect in background)");
         }
         catch (Exception ex)
         {
@@ -222,7 +229,7 @@ if (!isDevelopment)
 var indexSections = configuration.GetChildren()
     .Where(s => s.GetChildren().Any(child => child.Key.Equals("indexname", StringComparison.OrdinalIgnoreCase)))
     .ToList();
-Console.WriteLine($"Found {indexSections.Count} search index configuration sections");
+Console.WriteLine($"[{startupTimer.Elapsed.TotalSeconds:F2}s] Found {indexSections.Count} search index configuration sections");
 
 Console.WriteLine("[Search] Configuring Azure Search with managed identity");
 try
@@ -447,12 +454,12 @@ services.AddViteServices();
 services.AddHostedService<DanceStatsHostedService>();
 services.AddHostedService<StartupInitializationService>();
 
-Console.WriteLine("Building application...");
+Console.WriteLine($"[{startupTimer.Elapsed.TotalSeconds:F2}s] Building application...");
 WebApplication app;
 try
 {
     app = builder.Build();
-    Console.WriteLine("Application built successfully");
+    Console.WriteLine($"[{startupTimer.Elapsed.TotalSeconds:F2}s] Application built successfully");
 }
 catch (Exception ex)
 {
