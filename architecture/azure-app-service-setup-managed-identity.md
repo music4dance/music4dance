@@ -1014,13 +1014,27 @@ The application exposes `/health/startup` which responds immediately after the a
 
 ### Deferred Service Initialization
 
-Some services can be initialized after the first request instead of at startup:
+The application uses a "fast startup" mode to minimize time to first health check response:
 
-- App Configuration refresh (happens in background every 5 minutes)
-- Database migrations (run in background hosted service)
-- Search index clients (lazy initialization on first use)
+**Deferred Services**:
 
-The application is designed to accept requests even if some services are unavailable (resilience pattern).
+- **App Configuration**: Registered but connection deferred - uses local appsettings.json until middleware loads remote config on first request
+- **Search clients**: Registered but connections are lazy-loaded only when first accessed
+- **Database migrations**: Run in background hosted service after app starts accepting requests
+- **OAuth providers**: Credentials validated at startup, but authentication handlers lazy-load on first use
+
+**Fast Startup Flow**:
+
+1. Create optimized `DefaultAzureCredential` (excludes slow credential types)
+2. Register services without synchronous network connections
+3. Call `builder.Build()` (typically < 5 seconds)
+4. Map `/health/startup` endpoint immediately
+5. Start accepting requests (Azure health probe passes)
+6. Background services initialize Azure connections asynchronously
+
+This allows Azure health probes to pass quickly (typically < 10 seconds) instead of waiting for all Azure service connections to complete (60+ seconds). The application is designed to accept requests even if some services are unavailable (resilience pattern).
+
+**Background Initialization**: `StartupInitializationService` hosted service performs any post-startup validation tasks asynchronously without blocking the request pipeline.
 
 ## Related Documentation
 

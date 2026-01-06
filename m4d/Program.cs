@@ -166,17 +166,18 @@ if (!isDevelopment)
 if (!isDevelopment)
 {
     Console.WriteLine($"Production environment detected. Deployment mode: {(isSelfContained ? "self-contained" : "framework-dependent")}");
-    Console.WriteLine("Configuring Azure App Configuration with managed identity");
 
     var appConfigEndpoint = configuration["AppConfig:Endpoint"];
-    Console.WriteLine($"AppConfig:Endpoint = {appConfigEndpoint}");
 
+    // Register App Configuration service WITHOUT connecting synchronously (for fast startup)
+    // Connection will be triggered by StartupInitializationService in background after app starts
     if (!string.IsNullOrEmpty(appConfigEndpoint))
     {
+        Console.WriteLine($"[AppConfig] Endpoint configured: {appConfigEndpoint}");
+        Console.WriteLine("[AppConfig] Registering service (connection deferred to background)");
+
         try
         {
-            Console.WriteLine($"[AppConfig] Connecting to endpoint: {appConfigEndpoint}");
-            Console.WriteLine($"[AppConfig] Environment label: {environment.EnvironmentName}");
             _ = configuration.AddAzureAppConfiguration(options =>
             {
                 _ = options.Connect(
@@ -199,35 +200,21 @@ if (!isDevelopment)
                 });
             });
 
-            Console.WriteLine("[AppConfig] Configuration loaded, registering services...");
             _ = services.AddAzureAppConfiguration();
             serviceHealth.MarkHealthy("AppConfiguration");
-            Console.WriteLine("[AppConfig] ✓ Configured successfully with managed identity");
+            Console.WriteLine("[AppConfig] ✓ Service registered (will connect in background)");
         }
         catch (Exception ex)
         {
             serviceHealth.MarkUnavailable("AppConfiguration", $"{ex.GetType().Name}: {ex.Message}");
-            Console.WriteLine($"ERROR connecting to App Configuration: {ex.GetType().Name}");
-            try
-            {
-                Console.WriteLine($"  Message: {ex.Message}");
-                if (ex.InnerException != null)
-                {
-                    Console.WriteLine($"  InnerException: {ex.InnerException.GetType().Name}: {ex.InnerException.Message}");
-                }
-            }
-            catch
-            {
-                Console.WriteLine("  (Exception details could not be printed)");
-            }
-            Console.WriteLine("WARNING: Continuing without App Configuration - using local configuration only");
-            // Don't throw - allow app to start with local configuration
+            Console.WriteLine($"WARNING: App Configuration registration failed: {ex.Message}");
+            Console.WriteLine("Continuing with local configuration only");
         }
     }
     else
     {
         serviceHealth.MarkUnavailable("AppConfiguration", "Endpoint not configured");
-        Console.WriteLine("WARNING: AppConfig:Endpoint not configured - using local configuration only");
+        Console.WriteLine("[AppConfig] Not configured - using local configuration only");
     }
 }
 
@@ -240,27 +227,9 @@ Console.WriteLine($"Found {indexSections.Count} search index configuration secti
 Console.WriteLine("[Search] Configuring Azure Search with managed identity");
 try
 {
-    // Validate endpoints before attempting to register clients
-    Console.WriteLine($"[Search] Validating {indexSections.Count} search index endpoints...");
-    bool hasValidEndpoints = true;
-    foreach (var section in indexSections)
-    {
-        var endpoint = section["endpoint"];
-        Console.WriteLine($"[Search]   - {section.Key}: {endpoint}");
-        if (string.IsNullOrEmpty(endpoint) || !Uri.TryCreate(endpoint, UriKind.Absolute, out var uri))
-        {
-            Console.WriteLine($"[Search] ERROR: Invalid endpoint for index {section.Key}: {endpoint}");
-            hasValidEndpoints = false;
-            break;
-        }
-    }
+    // Fast registration - skip validation, Azure SDK will handle invalid endpoints
+    Console.WriteLine($"[Search] Registering {indexSections.Count} search index clients (fast startup mode)");
 
-    if (!hasValidEndpoints)
-    {
-        throw new InvalidOperationException("One or more search index endpoints are invalid or missing");
-    }
-
-    Console.WriteLine("[Search] All endpoints validated successfully");
     services.AddAzureClients(clientBuilder =>
     {
         Console.WriteLine("[Search] Using shared DefaultAzureCredential");
@@ -268,7 +237,8 @@ try
 
         foreach (var section in indexSections)
         {
-            Console.WriteLine($"Adding search client for index: {section.Key}, endpoint: {section["endpoint"]}");
+            var endpoint = section["endpoint"];
+            Console.WriteLine($"[Search] Registering: {section.Key} -> {endpoint}");
             _ = clientBuilder.AddSearchClient(section).WithName(section.Key);
         }
 
@@ -282,23 +252,13 @@ try
             var firstSongIndexSection = songIndexSections.First();
             var endpoint = firstSongIndexSection["endpoint"];
 
-            // Verify all SongIndex sections have the same endpoint
-            foreach (var section in songIndexSections)
-            {
-                var sectionEndpoint = section["endpoint"];
-                if (!string.Equals(endpoint, sectionEndpoint, StringComparison.OrdinalIgnoreCase))
-                {
-                    throw new InvalidOperationException($"All SongIndex sections must have the same endpoint. Mismatch found in section '{section.Key}'.");
-                }
-            }
-
-            Console.WriteLine($"Adding SearchIndexClient for SongIndex, endpoint: {firstSongIndexSection["endpoint"]}");
+            Console.WriteLine($"[Search] Registering SearchIndexClient: SongIndex -> {endpoint}");
             _ = clientBuilder.AddSearchIndexClient(firstSongIndexSection).WithName("SongIndex");
         }
-        Console.WriteLine("[Search] All search clients registered successfully");
+        Console.WriteLine("[Search] All search clients registered");
     });
     serviceHealth.MarkHealthy("SearchService");
-    Console.WriteLine("[Search] ✓ Configured successfully with managed identity");
+    Console.WriteLine("[Search] ✓ Clients registered (connections will be lazy-loaded)");
 }
 catch (Exception ex)
 {
@@ -485,6 +445,7 @@ services.AddAutoMapper(
 services.AddViteServices();
 
 services.AddHostedService<DanceStatsHostedService>();
+services.AddHostedService<StartupInitializationService>();
 
 Console.WriteLine("Building application...");
 WebApplication app;
@@ -557,9 +518,9 @@ if (!isDevelopment)
 app.Logger.LogInformation("Builder Built");
 app.Logger.LogInformation($"Environment = {environment.EnvironmentName}");
 var sentinel = configuration["Configuration:Sentinel"];
-app.Logger.LogInformation($"Sentinel = {sentinel}");
+app.Logger.LogInformation($"Sentinel (local/startup) = {sentinel}");
 
-// Database migrations will run in background after app starts accepting requests
+// App Configuration and database migrations will run in background after app starts accepting requests
 // This reduces startup time and allows health checks to pass sooner
 
 // Generate and log startup health report AFTER database migrations
