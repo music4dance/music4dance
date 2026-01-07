@@ -59,7 +59,7 @@ exports[`User Info > Renders User Info Page 1`] = `
   <div id="footer-content">
     <hr>
     <footer>
-      <p> © 2025 - <a href="https://www.music4dance.net">Music4Dance.net</a> - <a href="https://www.music4dance.net/home/sitemap">Site Map</a> - <a href="https://www.music4dance.net/home/termsofservice">Terms of Service</a> - <a href="https://www.music4dance.net/home/privacypolicy">Privacy Policy</a> - <a href="https://www.music4dance.net/home/credits">Credits</a> - <a href="https://github.com/music4dance/music4dance" target="_blank">Code</a> - <a>Help</a></p>
+      <p> © 2026 - <a href="https://www.music4dance.net">Music4Dance.net</a> - <a href="https://www.music4dance.net/home/sitemap">Site Map</a> - <a href="https://www.music4dance.net/home/termsofservice">Terms of Service</a> - <a href="https://www.music4dance.net/home/privacypolicy">Privacy Policy</a> - <a href="https://www.music4dance.net/home/credits">Credits</a> - <a href="https://github.com/music4dance/music4dance" target="_blank">Code</a> - <a>Help</a></p>
     </footer>
   </div>
 </div>"

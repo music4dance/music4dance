@@ -100,7 +100,6 @@ The application uses the following Azure services:
   - Development environment is **only** for local developer machines
   - Development environment enables detailed error pages visible to all users (security risk in cloud)
 - **SEARCHINDEX** and **SEARCHINDEXVERSION**: Automatically set by pipeline (staging/test → SongIndexTest-2, production → SongIndexProd-2)
-- **WEBSITES_INCLUDE_CLOUD_CERTS**: Automatically set to true (optimizes certificate loading during startup)
 
 **No manual configuration needed at this step**. The pipeline's `AzureWebApp@1` task uses the `appSettings` parameter to configure all necessary environment variables during deployment.
 
@@ -411,12 +410,11 @@ After the first pipeline deployment, your Application Settings will be automatic
 **Application settings:**
 
 ```
-AppConfig__Endpoint = https://music4dance.azconfig.io
 ASPNETCORE_ENVIRONMENT = Staging (or Production)
 SELF_CONTAINED_DEPLOYMENT = false (or true for self-contained deployments)
 SEARCHINDEX = SongIndexTest (staging/test) or SongIndexProd (production)
 SEARCHINDEXVERSION = 2
-WEBSITES_INCLUDE_CLOUD_CERTS = true
+WEBSITES_CONTAINER_START_TIME_LIMIT = 600
 ```
 
 **Note**: These settings are automatically configured by the deployment pipeline using the `appSettings` parameter in the `AzureWebApp@1` task. No manual configuration is required.
@@ -503,7 +501,7 @@ The unified `azure-pipelines.yml` supports all environments and deployment modes
        appName: "$(appName)"
        package: "$(System.DefaultWorkingDirectory)/**/*.zip"
        startUpCommand: "dotnet m4d.dll"
-       appSettings: -SELF_CONTAINED_DEPLOYMENT false -ASPNETCORE_ENVIRONMENT $(aspnetEnvironment) -SEARCHINDEX $(searchIndex) -SEARCHINDEXVERSION $(searchIndexVersion) -WEBSITES_INCLUDE_CLOUD_CERTS true
+       appSettings: -SELF_CONTAINED_DEPLOYMENT false -ASPNETCORE_ENVIRONMENT $(aspnetEnvironment) -SEARCHINDEX $(searchIndex) -SEARCHINDEXVERSION $(searchIndexVersion)
    ```
 6. **Save and run**
 
@@ -957,11 +955,10 @@ Your new App Service instance is fully operational when:
 
 ### Required Application Settings Summary
 
-| Setting                     | Value                             | Purpose                               |
-| --------------------------- | --------------------------------- | ------------------------------------- |
-| `SELF_CONTAINED_DEPLOYMENT` | `true`                            | Enables self-contained mode (Kestrel) |
-| `ASPNETCORE_ENVIRONMENT`    | `Staging` or `Production`         | Environment-specific configuration    |
-| `AppConfig__Endpoint`       | `https://music4dance.azconfig.io` | App Configuration endpoint            |
+| Setting                     | Value                     | Purpose                               |
+| --------------------------- | ------------------------- | ------------------------------------- |
+| `SELF_CONTAINED_DEPLOYMENT` | `true`                    | Enables self-contained mode (Kestrel) |
+| `ASPNETCORE_ENVIRONMENT`    | `Staging` or `Production` | Environment-specific configuration    |
 
 ### Connection Strings Summary
 
