@@ -26,8 +26,9 @@ parameters:
     default: "test"
     values:
       - "production"
-      - "test"
       - "staging"
+      - "test"
+      - "test-linux"
 
 variables:
   buildConfiguration: "Release"
@@ -37,12 +38,17 @@ variables:
     searchIndex: "SongIndexProd"
     searchIndexVersion: "2"
   ${{ if eq(parameters.environment, 'test') }}:
-    appName: "m4d-linux"
+    appName: "m4d-test"
     aspnetEnvironment: "Staging"
     searchIndex: "SongIndexTest"
     searchIndexVersion: "2"
   ${{ if eq(parameters.environment, 'staging') }}:
     appName: "m4d-staging"
+    aspnetEnvironment: "Staging"
+    searchIndex: "SongIndexTest"
+    searchIndexVersion: "2"
+  ${{ if eq(parameters.environment, 'test-linux') }}:
+    appName: "m4d-linux"
     aspnetEnvironment: "Staging"
     searchIndex: "SongIndexTest"
     searchIndexVersion: "2"
