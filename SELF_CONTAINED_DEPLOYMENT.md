@@ -41,8 +41,8 @@ The application supports four deployment combinations:
 | ----------------------------- | ------------------- | -------------- | ----------- | ------------------------------------- |
 | Production Hosted             | Framework-Dependent | Production     | msc4dnc     | When .NET 10 runtime available        |
 | **Production Self-Contained** | **Self-Contained**  | **Production** | **msc4dnc** | **Current: .NET 10 not yet on Azure** |
-| Test Hosted                   | Framework-Dependent | Test           | m4d-linux   | Framework testing                     |
-| Test Self-Contained           | Self-Contained      | Test           | m4d-linux   | Self-contained testing                |
+| Test Hosted                   | Framework-Dependent | Test           | m4d-test    | Framework testing                     |
+| Test Self-Contained           | Self-Contained      | Test           | m4d-test    | Self-contained testing                |
 
 ## Azure DevOps Pipeline Setup
 
@@ -84,7 +84,7 @@ The unified pipeline (`azure-pipelines.yml`) supports all scenarios through **ru
    The pipeline automatically:
 
    - Deploys to `msc4dnc` when environment = `production`
-   - Deploys to `m4d-linux` when environment = `test`
+   - Deploys to `m4d-test` when environment = `test`
    - Uses appropriate publish method based on deployment mode
    - **Sets `SELF_CONTAINED_DEPLOYMENT` environment variable** to match deployment mode
      - `true` for self-contained deployments
@@ -109,8 +109,8 @@ Individual pipeline files exist for backward compatibility:
 | ----------------------------------------- | ------------------- | ----------- | ---------- |
 | `azure-pipelines-1.yml`                   | Framework-Dependent | Production  | msc4dnc    |
 | `azure-pipelines-self-contained.yml`      | Self-Contained      | Production  | msc4dnc    |
-| `azure-pipelines-release.yml`             | Flexible (variable) | Test        | m4d-linux  |
-| `azure-pipelines-test-self-contained.yml` | Self-Contained      | Test        | m4d-linux  |
+| `azure-pipelines-release.yml`             | Flexible (variable) | Test        | m4d-test   |
+| `azure-pipelines-test-self-contained.yml` | Self-Contained      | Test        | m4d-test   |
 
 **Note:** The unified pipeline is recommended for easier maintenance.
 
@@ -133,7 +133,7 @@ ASPNETCORE_ENVIRONMENT = Production
 
 1. **Enable Managed Identity:**
 
-   - Azure Portal → Your **Web App** (msc4dnc or m4d-linux)
+   - Azure Portal → Your **Web App** (msc4dnc or m4d-test)
    - Settings → **Identity**
    - Under **System assigned** tab: Set **Status** to **On**
    - Click **Save**
@@ -274,7 +274,7 @@ The unified pipeline uses:
 
 - **Parameters**: User-selectable deployment mode and environment
 - **Conditional Variables**:
-  - `appName`: `msc4dnc` (production) or `m4d-linux` (test)
+  - `appName`: `msc4dnc` (production) or `m4d-test` (test)
   - `useSelfContained`: `true` or `false`
 - **Conditional Steps**: Different publish commands based on mode
 
@@ -481,5 +481,5 @@ tail -f /home/LogFiles/Application/console.log
 **Resulting app names:**
 
 - `production` → `msc4dnc`
-- `test` → `m4d-linux`
+- `test` → `m4d-test`
 ```

@@ -66,7 +66,7 @@ if (smokeTestMode)
         <!DOCTYPE html>
         <html>
         <head>
-            <title>m4d-staging Smoke Test</title>
+            <title>m4d Smoke Test</title>
             <meta charset="utf-8">
         </head>
         <body style="font-family: monospace; padding: 40px; background: #f0f0f0;">
@@ -207,14 +207,14 @@ if (!isDevelopment)
                 })
                 .ConfigureClientOptions(clientOptions =>
                 {
-                    // DIAGNOSTIC: Generous timeouts to verify if connection works given enough time
-                    // Total max time: 180 (NetworkTimeout) × 3 attempts = 540 seconds (9 minutes)
-                    clientOptions.Retry.NetworkTimeout = TimeSpan.FromSeconds(180);
-                    clientOptions.Retry.MaxRetries = 2; // Initial + 2 retries = 3 total attempts
-                    clientOptions.Retry.Delay = TimeSpan.FromSeconds(5);
-                    clientOptions.Retry.MaxDelay = TimeSpan.FromSeconds(10);
+                    // Reasonable timeouts for production use
+                    // Total max time: 30s (NetworkTimeout) × 2 retries = 60 seconds max
+                    clientOptions.Retry.NetworkTimeout = TimeSpan.FromSeconds(30);
+                    clientOptions.Retry.MaxRetries = 1; // Initial + 1 retry = 2 total attempts
+                    clientOptions.Retry.Delay = TimeSpan.FromSeconds(2);
+                    clientOptions.Retry.MaxDelay = TimeSpan.FromSeconds(5);
                     clientOptions.Retry.Mode = Azure.Core.RetryMode.Exponential;
-                    Console.WriteLine("[AppConfig] Using diagnostic timeouts: 180s per attempt, 3 attempts max (540s total)");
+                    Console.WriteLine("[AppConfig] Timeout: 30s per attempt, 2 attempts max (60s total)");
                 });
             });
 
@@ -315,12 +315,17 @@ else
     {
         services.AddDbContext<DanceMusicContext>(options =>
             options.UseSqlServer(connectionString, sqlOptions =>
+            {
                 sqlOptions.EnableRetryOnFailure(
                     maxRetryCount: 5,
                     maxRetryDelay: TimeSpan.FromSeconds(30),
-                    errorNumbersToAdd: null)));
+                    errorNumbersToAdd: null);
+                // Set command timeout to 60 seconds to handle Azure SQL cold starts
+                // Default is 30s which can timeout when database is warming up
+                sqlOptions.CommandTimeout(60);
+            }));
         serviceHealth.MarkHealthy("Database");
-        Console.WriteLine("Database context configured successfully");
+        Console.WriteLine("Database context configured successfully (CommandTimeout: 60s)");
     }
     catch (Exception ex)
     {

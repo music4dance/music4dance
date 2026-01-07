@@ -57,7 +57,7 @@ The application uses the following Azure services:
 2. **Basics** tab:
    - **Subscription**: (same as existing instances)
    - **Resource Group**: `m4d-Web` (or create new)
-   - **Name**: `m4d-<environment>` (e.g., `m4d-staging`, `m4d-test2`)
+   - **Name**: `m4d-<environment>` (e.g., `m4d-test`, `m4d-test2`)
    - **Publish**: Code
    - **Runtime stack**: .NET 10
    - **Operating System**: **Linux**
@@ -171,24 +171,65 @@ Repeat for **each role** on **each Search service** (typically 2 services × 2 r
 
 ### 2.3 Azure Key Vault Access Policy
 
-**Note**: Key Vault uses Access Policy model (not RBAC). Migration to RBAC planned for future.
+**IMPORTANT**: The music4dance Key Vault currently uses the **Access Policy** authentication model (legacy), not RBAC. When you assign RBAC roles like "Key Vault Secrets User" in the IAM blade, they have **no effect** because the vault is not configured for RBAC.
+
+**Current State**: Access Policies (working)
+**Future Migration**: RBAC is the preferred modern approach - see migration steps below
+
+#### Configure Access Policy (Current Method)
 
 1. Azure Portal → **Key Vault** (`music4dance`)
 2. **Settings** → **Access policies**
-3. Click **Create**
+3. Click **+ Create**
 4. **Permissions** tab:
    - **Secret permissions**: Check **Get** and **List** (minimum required)
    - **Key permissions**: None
    - **Certificate permissions**: None
    - Click **Next**
 5. **Principal** tab:
-   - Search for: `m4d-<environment>`
-   - Select the managed identity
+   - Search for: `m4d-<environment>` (e.g., `m4d-test`)
+   - Select your App Service's managed identity
    - Click **Next**
 6. **Application** (optional) tab:
    - Leave blank
    - Click **Next**
 7. **Review + create** → **Create**
+
+**Verify**: After creation, you should see the app name in the Access policies list with "Get, List" permissions for Secrets.
+
+#### Future Migration to RBAC (Recommended)
+
+**Why RBAC is Better**:
+
+- Unified permission model across all Azure resources
+- Better audit trail via Activity Log
+- Supports Azure AD groups (easier bulk management)
+- Granular permissions (RBAC has more roles)
+- Integrates with Azure Policy for governance
+
+**Migration Steps** (when ready):
+
+1. **Enable RBAC on Key Vault** (requires Owner permission):
+
+   ```bash
+   az keyvault update --name music4dance --enable-rbac-authorization true
+   ```
+
+2. **Grant RBAC roles to all managed identities**:
+
+   ```bash
+   # For each app service (m4d-test, msc4dnc, etc.)
+   az role assignment create \
+     --assignee <managed-identity-principal-id> \
+     --role "Key Vault Secrets User" \
+     --scope "/subscriptions/35a37095-adba-4229-a691-e55bf38ecf36/resourceGroups/m4d-Web/providers/Microsoft.KeyVault/vaults/music4dance"
+   ```
+
+3. **Test each app** to ensure Key Vault access still works
+
+4. **Clean up old Access Policies** (Settings → Access policies → Delete all)
+
+**Note**: Once RBAC is enabled, all existing Access Policies are ignored. Plan the migration carefully to avoid downtime.
 
 ### 2.4 Azure SQL Server - Verify Azure AD Admin (One-time)
 
@@ -213,7 +254,7 @@ Repeat for **each role** on **each Search service** (typically 2 services × 2 r
 
 **This is the recommended approach** - Service Connector automatically handles all the complexity of creating SQL users, granting permissions, and configuring connection strings.
 
-1. Azure Portal → App Service (`m4d-staging` or your app)
+1. Azure Portal → App Service (`m4d-test` or your app)
 2. **Settings** → **Service Connector**
 3. Click **+ Create**
 4. **Basics** tab:
@@ -282,7 +323,7 @@ This is the fallback method that requires explicit SQL user creation. Only use i
 
 ```sql
 -- Replace placeholders with actual values
--- <app-name>: m4d-staging, m4d-test2, etc.
+-- <app-name>: m4d-test, msc4dnc, etc.
 -- <object-id-guid>: GUID from step 1.2
 DECLARE @appName NVARCHAR(128) = '<app-name>';
 DECLARE @objectId NVARCHAR(36) = '<object-id-guid>';
@@ -538,9 +579,9 @@ The deployment pipeline automatically configures app settings and startup comman
 
 #### Method 1: Azure Portal (Recommended for Beginners)
 
-Repeat for each web app (m4d-linux, msc4dnc, etc.):
+Repeat for each web app (m4d-test, msc4dnc, etc.):
 
-1. **Azure Portal** → Your **App Service** (e.g., m4d-staging)
+1. **Azure Portal** → Your **App Service** (e.g., m4d-test)
 2. **Access control (IAM)** → **Add** → **Add role assignment**
 3. **Role** tab:
    - Search for and select: **Website Contributor**
@@ -566,11 +607,8 @@ Repeat for each web app (m4d-linux, msc4dnc, etc.):
 If you have Azure CLI installed and authenticated:
 
 ```bash
-# Grant Website Contributor role to the service principal on m4d-linux
-az role assignment create --assignee <service-principal-object-id> --role "Website Contributor" --scope "/subscriptions/<subscription-id>/resourceGroups/music4dance/providers/Microsoft.Web/sites/m4d-linux"
-
-# Grant Website Contributor role to the service principal on msc4dnc
-az role assignment create --assignee <service-principal-object-id> --role "Website Contributor" --scope "/subscriptions/<subscription-id>/resourceGroups/music4dance/providers/Microsoft.Web/sites/msc4dnc"
+# Grant Website Contributor role to the service principal on m4d-test
+az role assignment create --assignee <service-principal-object-id> --role "Website Contributor" --scope "/subscriptions/<subscription-id>/resourceGroups/music4dance/providers/Microsoft.Web/sites/m4d-test"
 ```
 
 **Replace placeholders**:
@@ -581,7 +619,7 @@ az role assignment create --assignee <service-principal-object-id> --role "Websi
 **Example (actual values)**:
 
 ```bash
-az role assignment create --assignee ef3d2c24-a8d6-47fd-8f26-7c25cd161d35 --role "Website Contributor" --scope "/subscriptions/35a37095-adba-4229-a691-e55bf38ecf36/resourceGroups/music4dance/providers/Microsoft.Web/sites/m4d-linux"
+az role assignment create --assignee ef3d2c24-a8d6-47fd-8f26-7c25cd161d35 --role "Website Contributor" --scope "/subscriptions/35a37095-adba-4229-a691-e55bf38ecf36/resourceGroups/music4dance/providers/Microsoft.Web/sites/m4d-test"
 ```
 
 **Note**: Azure CLI commands may occasionally encounter timeout issues. If this happens, use the Azure Portal method instead or retry after a few minutes.

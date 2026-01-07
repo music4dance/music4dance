@@ -4,7 +4,7 @@
 # Add steps that run tests, create a NuGet package, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 #
-# This pipeline deploys to: m4d-linux (Test)
+# This pipeline deploys to: m4d-test (Test)
 # Deployment mode: Controlled by useSelfContained variable
 
 pool:
@@ -64,5 +64,5 @@ steps:
     inputs:
       azureSubscription: "m4d-release"
       appType: "webAppLinux"
-      appName: "m4d-linux"
+      appName: "m4d-test"
       package: "$(System.DefaultWorkingDirectory)/**/*.zip"
