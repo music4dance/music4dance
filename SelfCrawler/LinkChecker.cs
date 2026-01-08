@@ -12,7 +12,7 @@ public class LinkChecker : PageChecker, IDisposable
     private readonly HashSet<string> _knownGood = [];
     private readonly HashSet<string> _manualTest = [];
 
-    private new static readonly string _testUrl = @"https://m4d-linux.azurewebsites.net/";
+    private new static readonly string _testUrl = @"https://m4d-test.azurewebsites.net/";
 
     // TODO: Rather than adding manual tests, see if we can get selenium to test if the
     //  URL is live - https://stackoverflow.com/questions/6509628/how-to-get-http-response-code-using-selenium-webdriver

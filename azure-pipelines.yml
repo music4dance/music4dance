@@ -2,6 +2,11 @@
 # Build and deploy ASP.NET Core projects to Azure Linux Web Apps
 # Supports both framework-dependent and self-contained deployments
 # Supports both production and test environments
+#
+# The pipeline automatically configures the target app service based on deployment mode:
+# - Sets SELF_CONTAINED_DEPLOYMENT environment variable (true/false)
+# - Configures startup command (/home/site/wwwroot/m4d for self-contained, empty for framework-dependent)
+# - No manual Azure Portal configuration required
 
 pool:
   vmImage: ubuntu-latest
@@ -27,8 +32,14 @@ variables:
   buildConfiguration: "Release"
   ${{ if eq(parameters.environment, 'production') }}:
     appName: "msc4dnc"
+    aspnetEnvironment: "Production"
+    searchIndex: "SongIndexProd"
+    searchIndexVersion: "2"
   ${{ if eq(parameters.environment, 'test') }}:
-    appName: "m4d-linux"
+    appName: "m4d-test"
+    aspnetEnvironment: "Staging"
+    searchIndex: "SongIndexTest"
+    searchIndexVersion: "2"
   ${{ if eq(parameters.deploymentMode, 'self-contained') }}:
     useSelfContained: true
   ${{ if eq(parameters.deploymentMode, 'framework-dependent') }}:
@@ -58,10 +69,10 @@ steps:
 
   # ===== SERVER BUILD =====
   - task: UseDotNet@2
-    displayName: "Install .NET 9 SDK"
+    displayName: "Install .NET 10 SDK"
     inputs:
       packageType: "sdk"
-      version: "9.x"
+      version: "10.x"
 
   - script: dotnet build --configuration $(buildConfiguration)
     displayName: "Build .NET project ($(buildConfiguration))"
@@ -84,11 +95,32 @@ steps:
       arguments: "--configuration $(buildConfiguration) --runtime linux-x64"
       publishWebProjects: true
 
-  # ===== DEPLOY =====
+  # ===== DEPLOY WITH CONFIGURATION =====
+  # Deploy and configure app settings in a single atomic operation
+  # This approach uses the AzureWebApp task's built-in appSettings parameter
+  # which avoids permission issues and ensures settings are applied during deployment
+
+  # Self-Contained Deployment
   - task: AzureWebApp@1
-    displayName: "Deploy to Azure Web App ($(appName))"
+    displayName: "Deploy to Azure Web App ($(appName)) - self-contained"
+    condition: eq(variables['useSelfContained'], true)
     inputs:
       azureSubscription: "m4d-release"
       appType: "webAppLinux"
       appName: "$(appName)"
       package: "$(System.DefaultWorkingDirectory)/**/*.zip"
+      startUpCommand: "/home/site/wwwroot/m4d"
+      appSettings: -SELF_CONTAINED_DEPLOYMENT true -ASPNETCORE_ENVIRONMENT $(aspnetEnvironment) -SEARCHINDEX $(searchIndex) -SEARCHINDEXVERSION $(searchIndexVersion) -WEBSITES_CONTAINER_START_TIME_LIMIT 600
+
+  # Framework-Dependent Deployment
+  - task: AzureWebApp@1
+    displayName: "Deploy to Azure Web App ($(appName)) - framework-dependent"
+    condition: eq(variables['useSelfContained'], false)
+    inputs:
+      azureSubscription: "m4d-release"
+      appType: "webAppLinux"
+      appName: "$(appName)"
+      package: "$(System.DefaultWorkingDirectory)/**/*.zip"
+      runtimeStack: "DOTNETCORE|10.0"
+      startUpCommand: "dotnet m4d.dll"
+      appSettings: -SELF_CONTAINED_DEPLOYMENT false -ASPNETCORE_ENVIRONMENT $(aspnetEnvironment) -SEARCHINDEX $(searchIndex) -SEARCHINDEXVERSION $(searchIndexVersion) -WEBSITES_CONTAINER_START_TIME_LIMIT 600

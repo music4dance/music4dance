@@ -19,7 +19,7 @@ public class Indexer : IDisposable
     public Indexer()
     {
         _crawler = new Crawler<PageSearch>();
-        //_crawler = new Crawler<PageSearch>("https://m4d-linux.azurewebsites.net/");
+        //_crawler = new Crawler<PageSearch>("https://m4d-test.azurewebsites.net/");
     }
 
     public void Dispose()

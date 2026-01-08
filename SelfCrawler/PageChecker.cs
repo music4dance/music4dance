@@ -12,7 +12,7 @@ public abstract class PageChecker : IDisposable
     protected readonly HttpClient Client = new();
     protected int ErrorCount;
 
-    protected static readonly string _testUrl = @"https://m4d-linux.azurewebsites.net/";
+    protected static readonly string _testUrl = @"https://m4d-test.azurewebsites.net/";
 
     public PageChecker()
     {
