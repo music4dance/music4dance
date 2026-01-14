@@ -561,8 +561,27 @@ public class PlayListController(
 
             filter.Purchase = spotify.CID.ToString();
 
-            var sr = await dms.SongIndex.Search(
-                filter, playlist.Count == -1 ? 100 : playlist.Count);
+            // Check if search service is available
+            if (!ServiceHealth.IsServiceHealthy("SearchService"))
+            {
+                Logger.LogWarning("UpdateSpotifyFromSearch requested but SearchService is unavailable");
+                return $"UpdateSpotifyFromSearch {playlist.Id}: Search service unavailable";
+            }
+
+            SearchResults sr;
+            try
+            {
+                sr = await dms.SongIndex.Search(
+                    filter, playlist.Count == -1 ? 100 : playlist.Count);
+            }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable") ||
+                                                       ex.Message.Contains("Client registration requires a TokenCredential"))
+            {
+                Logger.LogError(ex, "Search service unavailable in UpdateSpotifyFromSearch");
+                ServiceHealth.MarkUnavailable("SearchService", $"Client error: {ex.Message}");
+                return $"UpdateSpotifyFromSearch {playlist.Id}: Search service unavailable";
+            }
+
             if (sr.Count == 0)
             {
                 return $"UpdateSpotifyFromSearch {playlist.Id}: Empty Playlist";

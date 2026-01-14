@@ -154,7 +154,7 @@ Console.WriteLine("Note: Email notifications will be initialized only if startup
 
 // Create optimized DefaultAzureCredential once for reuse across all Azure services
 // Excludes slower credential types (VisualStudio, AzureCLI, AzurePowerShell) for faster startup
-DefaultAzureCredential? azureCredential = null;
+DefaultAzureCredential azureCredential = null;
 if (!isDevelopment)
 {
     Console.WriteLine($"[{startupTimer.Elapsed.TotalSeconds:F2}s] [Azure] Creating DefaultAzureCredential with optimized chain...");
@@ -275,8 +275,9 @@ try
         }
         Console.WriteLine("[Search] All search clients registered");
     });
-    serviceHealth.MarkHealthy("SearchService");
-    Console.WriteLine("[Search] ✓ Clients registered (connections will be lazy-loaded)");
+    // NOTE: Don't mark SearchService as healthy here - we can't validate credentials until first use
+    // The service will be marked unavailable automatically on first error, then all subsequent requests fail fast
+    Console.WriteLine("[Search] ✓ Clients registered (connections will be lazy-loaded, health checked on first use)");
 }
 catch (Exception ex)
 {

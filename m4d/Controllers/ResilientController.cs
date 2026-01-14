@@ -39,41 +39,25 @@ public abstract class ResilientController : Controller
     }
 
     /// <summary>
-    /// Check if database is available. Sets ViewData flags for degraded UI.
+    /// Check if database is available.
     /// </summary>
     /// <returns>True if database is healthy</returns>
     protected bool IsDatabaseAvailable()
     {
-        var isHealthy = IsServiceHealthy("Database");
-        ViewData["DatabaseAvailable"] = isHealthy;
-
-        if (!isHealthy)
-        {
-            ViewData["ShowDatabaseUnavailableNotice"] = true;
-        }
-
-        return isHealthy;
+        return IsServiceHealthy("Database");
     }
 
     /// <summary>
-    /// Check if search service is available. Sets ViewData flags for degraded UI.
+    /// Check if search service is available.
     /// </summary>
     /// <returns>True if search service is healthy</returns>
     protected bool IsSearchAvailable()
     {
-        var isHealthy = IsServiceHealthy("SearchService");
-        ViewData["SearchAvailable"] = isHealthy;
-
-        if (!isHealthy)
-        {
-            ViewData["ShowSearchUnavailableNotice"] = true;
-        }
-
-        return isHealthy;
+        return IsServiceHealthy("SearchService");
     }
 
     /// <summary>
-    /// Check if an OAuth provider is available. Sets ViewData flags for degraded UI.
+    /// Check if an OAuth provider is available.
     /// </summary>
     /// <param name="provider">Provider name (Google, Facebook, Spotify)</param>
     /// <returns>True if provider is healthy</returns>

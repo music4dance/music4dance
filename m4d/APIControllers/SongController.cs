@@ -73,9 +73,11 @@ public class SongController(
 
             return JsonCamelCase(anonymized);
         }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable"))
+        catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable") ||
+                                                      ex.Message.Contains("Client registration requires a TokenCredential"))
         {
-            Logger.LogError(ex, "API song search failed due to unavailable Azure Search service");
+            Logger.LogError(ex, "API song search failed due to unavailable or misconfigured Azure Search service");
+            ServiceHealth.MarkUnavailable("SearchService", $"Client error: {ex.Message}");
             return StatusCode((int)HttpStatusCode.ServiceUnavailable, new
             {
                 error = "Search service temporarily unavailable",
@@ -108,9 +110,11 @@ public class SongController(
                 : JsonCamelCase(
                     await UserMapper.AnonymizeHistory(song.GetHistory(mapper), UserManager, ServiceHealth));
         }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable"))
+        catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable") ||
+                                                      ex.Message.Contains("Client registration requires a TokenCredential"))
         {
-            Logger.LogError(ex, "API song get by ID failed due to unavailable Azure Search service");
+            Logger.LogError(ex, "API song get by ID failed due to unavailable or misconfigured Azure Search service");
+            ServiceHealth.MarkUnavailable("SearchService", $"Client error: {ex.Message}");
             return StatusCode((int)HttpStatusCode.ServiceUnavailable, new
             {
                 error = "Search service temporarily unavailable",

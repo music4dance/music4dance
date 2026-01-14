@@ -90,6 +90,11 @@ public class SongIndex
 
             return await CreateSong(doc);
         }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("Client registration requires a TokenCredential"))
+        {
+            // Re-throw with a message that will be caught by upper layers
+            throw new InvalidOperationException("Azure Search service is unavailable", ex);
+        }
         catch (RequestFailedException e)
         {
             Trace.WriteLineIf(TraceLevels.General.TraceVerbose, e.Message);
@@ -1032,6 +1037,11 @@ public class SongIndex
                 search, songs.Count, response.TotalCount ?? -1, page, pageSize,
                 songs, facets);
         }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable"))
+        {
+            // Re-throw to let upper layers handle service unavailability
+            throw;
+        }
         catch (Exception e)
         {
             Trace.WriteLine($"Failed Search: ${e.Message}");
@@ -1301,7 +1311,15 @@ public class SongIndex
         //    parameters.ScoringProfile = "TitleArtist";
         //}
 
-        return await Client.SearchAsync<SearchDocument>(search, parameters);
+        try
+        {
+            return await Client.SearchAsync<SearchDocument>(search, parameters);
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("Client registration requires a TokenCredential"))
+        {
+            // Re-throw with a message that will be caught by upper layers
+            throw new InvalidOperationException("Azure Search service is unavailable", ex);
+        }
     }
     #endregion
 
@@ -1702,7 +1720,7 @@ public class SongIndex
                 continue;
             }
 
-            //var songs = chunk.Where(s => !s.IsNull).Select(s => 
+            //var songs = chunk.Where(s => !s.IsNull).Select(s =>
             //    new IndexDocumentsAction<SearchDocument>(
             //        IndexActionType.MergeOrUpload, s.GetIndexDocument()));
 
