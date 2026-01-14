@@ -118,12 +118,9 @@ public class CustomSearchController : ContentController
                  },
                 danceEnvironment: true);
         }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable") ||
-                                                     ex.Message.Contains("Client registration requires a TokenCredential"))
+        catch (InvalidOperationException ex) when (IsSearchServiceError(ex))
         {
-            Logger.LogError(ex, "Custom search failed due to unavailable or misconfigured Azure Search service");
-            ServiceHealth.MarkUnavailable("SearchService", $"Client error: {ex.Message}");
-
+            HandleSearchServiceError(ex);
             var title = char.ToUpper(name[0]) + name[1..];
             return Vue3(
                 $"{title} Dance Music",

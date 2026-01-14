@@ -39,8 +39,7 @@ public class MusicServiceController(
             {
                 song = await SongIndex.FindSong(id);
             }
-            catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable") ||
-                                                       ex.Message.Contains("Client registration requires a TokenCredential"))
+            catch (InvalidOperationException ex) when (IsSearchServiceError(ex))
             {
                 Logger.LogWarning(ex, "Search service unavailable, continuing with service lookup only");
                 ServiceHealth.MarkUnavailable("SearchService", $"Client error: {ex.Message}");

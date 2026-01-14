@@ -220,13 +220,9 @@ public class SongController : ContentController
             var results = await new SongSearch(Filter, UserName, IsPremium(), SongIndex, UserManager, TaskQueue, ServiceHealth).Search();
             return await FormatResults(results);
         }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable") ||
-                                                     ex.Message.Contains("Client registration requires a TokenCredential"))
+        catch (InvalidOperationException ex) when (IsSearchServiceError(ex))
         {
-            Logger.LogError(ex, "Search failed due to unavailable or misconfigured Azure Search service");
-            // Mark service as unavailable so future requests fail fast
-            ServiceHealth.MarkUnavailable("SearchService", $"Client error: {ex.Message}");
-
+            HandleSearchServiceError(ex);
             return await FormatSongList(Array.Empty<Song>(), 0, 0); // Empty list with notice
         }
         catch (RedirectException ex)
@@ -669,13 +665,9 @@ public class SongController : ContentController
             return Vue3(details.Title, $"music4dance catalog: {details.Title} dance information", "song",
                 details, danceEnvironment: true, tagEnvironment: true, helpPage: "song-details");
         }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable") ||
-                                                     ex.Message.Contains("Client registration requires a TokenCredential"))
+        catch (InvalidOperationException ex) when (IsSearchServiceError(ex))
         {
-            Logger.LogError(ex, "Song details failed due to unavailable or misconfigured Azure Search service");
-            // Mark service as unavailable so future requests fail fast
-            ServiceHealth.MarkUnavailable("SearchService", $"Client error: {ex.Message}");
-
+            HandleSearchServiceError(ex);
             return Vue3("Song Details Unavailable", "Song details are temporarily unavailable", "song",
                 new SongDetailsModel
                 {
@@ -775,11 +767,9 @@ public class SongController : ContentController
         {
             song = await SongIndex.FindSong(id);
         }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable") ||
-                                                   ex.Message.Contains("Client registration requires a TokenCredential"))
+        catch (InvalidOperationException ex) when (IsSearchServiceError(ex))
         {
-            Logger.LogError(ex, "Search service unavailable in UpdateSongAndServices");
-            ServiceHealth.MarkUnavailable("SearchService", $"Client error: {ex.Message}");
+            HandleSearchServiceError(ex);
             return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
         }
 
@@ -815,11 +805,9 @@ public class SongController : ContentController
         {
             song = await SongIndex.FindSong(id);
         }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable") ||
-                                                   ex.Message.Contains("Client registration requires a TokenCredential"))
+        catch (InvalidOperationException ex) when (IsSearchServiceError(ex))
         {
-            Logger.LogError(ex, "Search service unavailable in Delete");
-            ServiceHealth.MarkUnavailable("SearchService", $"Client error: {ex.Message}");
+            HandleSearchServiceError(ex);
             return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
         }
 
@@ -847,11 +835,9 @@ public class SongController : ContentController
         {
             song = await SongIndex.FindSong(id);
         }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable") ||
-                                                   ex.Message.Contains("Client registration requires a TokenCredential"))
+        catch (InvalidOperationException ex) when (IsSearchServiceError(ex))
         {
-            Logger.LogError(ex, "Search service unavailable in DeleteConfirmed");
-            ServiceHealth.MarkUnavailable("SearchService", $"Client error: {ex.Message}");
+            HandleSearchServiceError(ex);
             return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
         }
 
@@ -1017,11 +1003,9 @@ public class SongController : ContentController
         {
             song = await SongIndex.FindSong(id);
         }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable") ||
-                                                   ex.Message.Contains("Client registration requires a TokenCredential"))
+        catch (InvalidOperationException ex) when (IsSearchServiceError(ex))
         {
-            Logger.LogError(ex, "Search service unavailable in CleanupAlbums");
-            ServiceHealth.MarkUnavailable("SearchService", $"Client error: {ex.Message}");
+            HandleSearchServiceError(ex);
             return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
         }
 
@@ -1360,11 +1344,9 @@ public class SongController : ContentController
         {
             song = await SongIndex.FindSong(id);
         }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable") ||
-                                                   ex.Message.Contains("Client registration requires a TokenCredential"))
+        catch (InvalidOperationException ex) when (IsSearchServiceError(ex))
         {
-            Logger.LogError(ex, "Search service unavailable in UpdateRatings");
-            ServiceHealth.MarkUnavailable("SearchService", $"Client error: {ex.Message}");
+            HandleSearchServiceError(ex);
             return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
         }
 
@@ -1402,11 +1384,9 @@ public class SongController : ContentController
         {
             songs = await SongIndex.FindSongs(selectedSongs);
         }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable") ||
-                                                   ex.Message.Contains("Client registration requires a TokenCredential"))
+        catch (InvalidOperationException ex) when (IsSearchServiceError(ex))
         {
-            Logger.LogError(ex, "Search service unavailable in BulkEdit");
-            ServiceHealth.MarkUnavailable("SearchService", $"Client error: {ex.Message}");
+            HandleSearchServiceError(ex);
             return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
         }
 
@@ -1473,11 +1453,9 @@ public class SongController : ContentController
         {
             song = await SongIndex.FindSong(id);
         }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable") ||
-                                                   ex.Message.Contains("Client registration requires a TokenCredential"))
+        catch (InvalidOperationException ex) when (IsSearchServiceError(ex))
         {
-            Logger.LogError(ex, "Search service unavailable in CleanMusicServices");
-            ServiceHealth.MarkUnavailable("SearchService", $"Client error: {ex.Message}");
+            HandleSearchServiceError(ex);
             return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
         }
 
