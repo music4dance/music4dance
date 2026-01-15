@@ -1,3 +1,5 @@
+#nullable enable
+
 using System.Collections.Concurrent;
 
 namespace m4d.Services.ServiceHealth;
@@ -151,12 +153,19 @@ public class ServiceHealthManager
     }
 
     /// <summary>
-    /// Check if a service is healthy
+    /// Check if a service is healthy (or unknown - optimistic assumption)
+    /// Returns false only if service is explicitly marked as Unavailable
     /// </summary>
     public bool IsServiceHealthy(string serviceName)
     {
-        return _serviceStatuses.TryGetValue(serviceName, out var status)
-            && status.Status == ServiceStatus.Healthy;
+        if (!_serviceStatuses.TryGetValue(serviceName, out var status))
+        {
+            // Unknown service - assume healthy until proven otherwise (optimistic)
+            return true;
+        }
+
+        // Explicitly unavailable services return false, everything else returns true
+        return status.Status != ServiceStatus.Unavailable;
     }
 
     /// <summary>

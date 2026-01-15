@@ -73,9 +73,9 @@ public class SongController(
 
             return JsonCamelCase(anonymized);
         }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable"))
+        catch (InvalidOperationException ex) when (IsSearchServiceError(ex))
         {
-            Logger.LogError(ex, "API song search failed due to unavailable Azure Search service");
+            HandleSearchServiceError(ex);
             return StatusCode((int)HttpStatusCode.ServiceUnavailable, new
             {
                 error = "Search service temporarily unavailable",
@@ -108,9 +108,9 @@ public class SongController(
                 : JsonCamelCase(
                     await UserMapper.AnonymizeHistory(song.GetHistory(mapper), UserManager, ServiceHealth));
         }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable"))
+        catch (InvalidOperationException ex) when (IsSearchServiceError(ex))
         {
-            Logger.LogError(ex, "API song get by ID failed due to unavailable Azure Search service");
+            HandleSearchServiceError(ex);
             return StatusCode((int)HttpStatusCode.ServiceUnavailable, new
             {
                 error = "Search service temporarily unavailable",

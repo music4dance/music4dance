@@ -49,12 +49,22 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> Search(string searchString, string dances)
     {
+        if (!IsSearchAvailable())
+        {
+            return await FormatSongList(Array.Empty<Song>(), 0, 0);
+        }
+
         return await AzureSearch(searchString, 0, dances);
     }
 
     [AllowAnonymous]
     public async Task<ActionResult> NewMusic(string type = null, int? page = null)
     {
+        if (!IsSearchAvailable())
+        {
+            return await FormatSongList(Array.Empty<Song>(), 0, 0);
+        }
+
         Filter.Action = "newmusic";
         if (type != null)
         {
@@ -210,9 +220,9 @@ public class SongController : ContentController
             var results = await new SongSearch(Filter, UserName, IsPremium(), SongIndex, UserManager, TaskQueue, ServiceHealth).Search();
             return await FormatResults(results);
         }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable"))
+        catch (InvalidOperationException ex) when (IsSearchServiceError(ex))
         {
-            Logger.LogError(ex, "Search failed due to unavailable Azure Search service");
+            HandleSearchServiceError(ex);
             return await FormatSongList(Array.Empty<Song>(), 0, 0); // Empty list with notice
         }
         catch (RedirectException ex)
@@ -425,6 +435,11 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> Sort(string sortOrder)
     {
+        if (!IsSearchAvailable())
+        {
+            return await FormatSongList(Array.Empty<Song>(), 0, 0);
+        }
+
         Filter.SortOrder = new SongSort(sortOrder, Filter.TextSearch).ToString();
 
         return await DoAzureSearch();
@@ -433,6 +448,11 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> FilterUser(string user)
     {
+        if (!IsSearchAvailable())
+        {
+            return await FormatSongList(Array.Empty<Song>(), 0, 0);
+        }
+
         Filter.User = string.IsNullOrWhiteSpace(user) ? null : user;
         return await DoAzureSearch();
     }
@@ -442,6 +462,11 @@ public class SongController : ContentController
 
     public async Task<ActionResult> List(IFormFile fileUpload)
     {
+        if (!IsSearchAvailable())
+        {
+            return await FormatSongList(Array.Empty<Song>(), 0, 0);
+        }
+
         var ids = UploadFile(fileUpload);
 
         var results = await SongIndex.List(ids);
@@ -451,6 +476,11 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> FilterService(ICollection<string> services)
     {
+        if (!IsSearchAvailable())
+        {
+            return await FormatSongList(Array.Empty<Song>(), 0, 0);
+        }
+
         var purchase = string.Empty;
         if (services != null)
         {
@@ -470,6 +500,11 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> FilterTempo(decimal? tempoMin, decimal? tempoMax)
     {
+        if (!IsSearchAvailable())
+        {
+            return await FormatSongList(Array.Empty<Song>(), 0, 0);
+        }
+
         if (Filter.TempoMin == tempoMin && Filter.TempoMax == tempoMax)
         {
             return await DoAzureSearch();
@@ -488,6 +523,11 @@ public class SongController : ContentController
     public async Task<ActionResult> Index(string id = null, int? page = null,
         string purchase = null)
     {
+        if (!IsSearchAvailable())
+        {
+            return await FormatSongList(Array.Empty<Song>(), 0, 0);
+        }
+
         if (id != null && Dances.Instance.DanceFromId(id) != null)
         {
             Filter.Dances = id.ToUpper();
@@ -523,6 +563,11 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> Tags(string tags)
     {
+        if (!IsSearchAvailable())
+        {
+            return await FormatSongList(Array.Empty<Song>(), 0, 0);
+        }
+
         Filter.Tags = null;
         Filter.Page = null;
 
@@ -541,6 +586,11 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> AddTags(string tags)
     {
+        if (!IsSearchAvailable())
+        {
+            return await FormatSongList(Array.Empty<Song>(), 0, 0);
+        }
+
         var add = new m4dModels.TagList(tags);
         var old = new m4dModels.TagList(Filter.Tags);
 
@@ -556,6 +606,11 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> RemoveTags(string tags)
     {
+        if (!IsSearchAvailable())
+        {
+            return await FormatSongList(Array.Empty<Song>(), 0, 0);
+        }
+
         var sub = new m4dModels.TagList(tags);
         var old = new m4dModels.TagList(Filter.Tags);
         var ret = old.Subtract(sub);
@@ -610,9 +665,9 @@ public class SongController : ContentController
             return Vue3(details.Title, $"music4dance catalog: {details.Title} dance information", "song",
                 details, danceEnvironment: true, tagEnvironment: true, helpPage: "song-details");
         }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable"))
+        catch (InvalidOperationException ex) when (IsSearchServiceError(ex))
         {
-            Logger.LogError(ex, "Song details failed due to unavailable Azure Search service");
+            HandleSearchServiceError(ex);
             return Vue3("Song Details Unavailable", "Song details are temporarily unavailable", "song",
                 new SongDetailsModel
                 {
@@ -701,7 +756,23 @@ public class SongController : ContentController
     public async Task<ActionResult> UpdateSongAndServices(Guid id)
     {
         UseVue = UseVue.No;
-        var song = await SongIndex.FindSong(id);
+
+        if (!IsSearchAvailable())
+        {
+            return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
+        }
+
+        Song song;
+        try
+        {
+            song = await SongIndex.FindSong(id);
+        }
+        catch (InvalidOperationException ex) when (IsSearchServiceError(ex))
+        {
+            HandleSearchServiceError(ex);
+            return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
+        }
+
         if (song == null)
         {
             _ = ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.");
@@ -723,7 +794,23 @@ public class SongController : ContentController
     public async Task<ActionResult> Delete(Guid id)
     {
         UseVue = UseVue.No;
-        var song = await SongIndex.FindSong(id);
+
+        if (!IsSearchAvailable())
+        {
+            return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
+        }
+
+        Song song;
+        try
+        {
+            song = await SongIndex.FindSong(id);
+        }
+        catch (InvalidOperationException ex) when (IsSearchServiceError(ex))
+        {
+            HandleSearchServiceError(ex);
+            return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
+        }
+
         return song == null
             ? ReturnError(HttpStatusCode.NotFound, $"The song with id = {id} has been deleted.")
             : View(song);
@@ -738,7 +825,22 @@ public class SongController : ContentController
     [Authorize(Roles = "dbAdmin")]
     public async Task<ActionResult> DeleteConfirmed(Guid id)
     {
-        var song = await SongIndex.FindSong(id);
+        if (!IsSearchAvailable())
+        {
+            return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
+        }
+
+        Song song;
+        try
+        {
+            song = await SongIndex.FindSong(id);
+        }
+        catch (InvalidOperationException ex) when (IsSearchServiceError(ex))
+        {
+            HandleSearchServiceError(ex);
+            return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
+        }
+
         var userName = User.Identity?.Name;
         var user = await Database.FindUser(userName);
         await SongIndex.DeleteSong(user, song);
@@ -888,9 +990,25 @@ public class SongController : ContentController
     public async Task<ActionResult> CleanupAlbums(Guid id, SongFilter filter)
     {
         UseVue = UseVue.No;
+
+        if (!IsSearchAvailable())
+        {
+            return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
+        }
+
         var user = await Database.FindUser(User.Identity?.Name);
 
-        var song = await SongIndex.FindSong(id);
+        Song song;
+        try
+        {
+            song = await SongIndex.FindSong(id);
+        }
+        catch (InvalidOperationException ex) when (IsSearchServiceError(ex))
+        {
+            HandleSearchServiceError(ex);
+            return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
+        }
+
         if (await SongIndex.CleanupAlbums(user, song) != 0)
         {
             await SaveSong(song);
@@ -1215,7 +1333,23 @@ public class SongController : ContentController
     public async Task<ActionResult> UpdateRatings(Guid id)
     {
         UseVue = UseVue.No;
-        var song = await SongIndex.FindSong(id);
+
+        if (!IsSearchAvailable())
+        {
+            return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
+        }
+
+        Song song;
+        try
+        {
+            song = await SongIndex.FindSong(id);
+        }
+        catch (InvalidOperationException ex) when (IsSearchServiceError(ex))
+        {
+            HandleSearchServiceError(ex);
+            return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
+        }
+
         if (song == null)
         {
             return ReturnError(
@@ -1239,7 +1373,22 @@ public class SongController : ContentController
     public async Task<ActionResult> BulkEdit(Guid[] selectedSongs, string action)
     {
         UseVue = UseVue.No;
-        var songs = await SongIndex.FindSongs(selectedSongs);
+
+        if (!IsSearchAvailable())
+        {
+            return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
+        }
+
+        IEnumerable<Song> songs;
+        try
+        {
+            songs = await SongIndex.FindSongs(selectedSongs);
+        }
+        catch (InvalidOperationException ex) when (IsSearchServiceError(ex))
+        {
+            HandleSearchServiceError(ex);
+            return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
+        }
 
         switch (action)
         {
@@ -1293,7 +1442,23 @@ public class SongController : ContentController
         string type = "S")
     {
         UseVue = UseVue.No;
-        var song = await SongIndex.FindSong(id);
+
+        if (!IsSearchAvailable())
+        {
+            return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
+        }
+
+        Song song;
+        try
+        {
+            song = await SongIndex.FindSong(id);
+        }
+        catch (InvalidOperationException ex) when (IsSearchServiceError(ex))
+        {
+            HandleSearchServiceError(ex);
+            return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
+        }
+
         if (song == null)
         {
             return ReturnError(

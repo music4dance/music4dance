@@ -506,4 +506,26 @@ public class DanceMusicController(
     }
 
     #endregion
+
+    #region Search Service Error Handling
+
+    /// <summary>
+    /// Determines if an InvalidOperationException is related to Azure Search service availability or credential issues.
+    /// </summary>
+    protected static bool IsSearchServiceError(InvalidOperationException ex)
+    {
+        return ex.Message.Contains("Azure Search service is unavailable") ||
+               ex.Message.Contains("Client registration requires a TokenCredential");
+    }
+
+    /// <summary>
+    /// Handles search service errors by marking the service unavailable and logging the error.
+    /// </summary>
+    protected void HandleSearchServiceError(InvalidOperationException ex)
+    {
+        Logger.LogError(ex, "Search operation failed due to unavailable or misconfigured Azure Search service");
+        ServiceHealth.MarkUnavailable("SearchService", $"Client error: {ex.Message}");
+    }
+
+    #endregion
 }

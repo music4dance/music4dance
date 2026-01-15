@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using m4d.Services.ServiceHealth;
+
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 using System.Net;
@@ -11,7 +13,8 @@ namespace m4d.APIControllers;
 public class MusicServiceController(
     DanceMusicContext context, UserManager<ApplicationUser> userManager,
     ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-    IConfiguration configuration, ILogger<MusicServiceController> logger) : DanceMusicApiController(context, userManager, searchService, danceStatsManager, configuration, logger)
+    IConfiguration configuration, ILogger<MusicServiceController> logger,
+    ServiceHealthManager serviceHealth) : DanceMusicApiController(context, userManager, searchService, danceStatsManager, configuration, logger, serviceHealth)
 {
     // ReSharper disable once InconsistentNaming
     private static readonly Dictionary<string, IList<ServiceTrack>> s_cache = [];
@@ -27,7 +30,22 @@ public class MusicServiceController(
     public async Task<IActionResult> Get(Guid id, string service = null, string title = null
         , string artist = null, string album = null)
     {
-        var song = id == Guid.Empty ? null : await SongIndex.FindSong(id);
+        Song song = null;
+
+        // Only try search if service is healthy
+        if (id != Guid.Empty && ServiceHealth.IsServiceHealthy("SearchService"))
+        {
+            try
+            {
+                song = await SongIndex.FindSong(id);
+            }
+            catch (InvalidOperationException ex) when (IsSearchServiceError(ex))
+            {
+                Logger.LogWarning(ex, "Search service unavailable, continuing with service lookup only");
+                ServiceHealth.MarkUnavailable("SearchService", $"Client error: {ex.Message}");
+            }
+        }
+
         if (song != null && artist == null && title == null)
         {
             artist = song.Artist;

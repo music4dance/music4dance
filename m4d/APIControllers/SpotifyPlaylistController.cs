@@ -123,7 +123,26 @@ public class SpotifyPlaylistController : DanceMusicApiController
                 return BadRequest(AddToPlaylistResult.CreateFailure("Invalid song ID format"));
             }
 
-            var song = await SongIndex.FindSong(songGuid);
+            // Check if search service is available
+            if (!ServiceHealth.IsServiceHealthy("SearchService"))
+            {
+                Logger.LogWarning("Spotify playlist add requested but SearchService is unavailable");
+                return StatusCode(503, AddToPlaylistResult.CreateFailure("Search service temporarily unavailable"));
+            }
+
+            Song song;
+            try
+            {
+                song = await SongIndex.FindSong(songGuid);
+            }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable") ||
+                                                       ex.Message.Contains("Client registration requires a TokenCredential"))
+            {
+                Logger.LogError(ex, "Search service unavailable when adding song to Spotify playlist");
+                ServiceHealth.MarkUnavailable("SearchService", $"Client error: {ex.Message}");
+                return StatusCode(503, AddToPlaylistResult.CreateFailure("Search service temporarily unavailable"));
+            }
+
             if (song == null)
             {
                 return NotFound(AddToPlaylistResult.CreateFailure("Song not found"));

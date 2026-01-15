@@ -67,8 +67,17 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
             return await VoteSearch(p);
         }
 
-        return await SongIndex.Search(
-            Filter.SearchString, p, Filter.CruftFilter);
+        try
+        {
+            return await SongIndex.Search(
+                Filter.SearchString, p, Filter.CruftFilter);
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable") ||
+                                                   ex.Message.Contains("Client registration requires a TokenCredential"))
+        {
+            ServiceHealth?.MarkUnavailable("SearchService", $"Client error: {ex.Message}");
+            return new SearchResults(Filter.SearchString ?? "", 0, 0, 1, PageSize ?? 25, [], new Dictionary<string, IList<Azure.Search.Documents.Models.FacetResult>>());
+        }
     }
 
     // TODO:
@@ -80,8 +89,19 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
         var offset = options.Skip ?? 0;
         options.Skip = 0;
         options.Size = 500;
-        var results = await SongIndex.Search(
-            Filter.SearchString, options, Filter.CruftFilter);
+
+        SearchResults results;
+        try
+        {
+            results = await SongIndex.Search(
+                Filter.SearchString, options, Filter.CruftFilter);
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable") ||
+                                                   ex.Message.Contains("Client registration requires a TokenCredential"))
+        {
+            ServiceHealth?.MarkUnavailable("SearchService", $"Client error: {ex.Message}");
+            return new SearchResults(Filter.SearchString ?? "", 0, 0, 1, PageSize ?? 25, [], new Dictionary<string, IList<Azure.Search.Documents.Models.FacetResult>>());
+        }
 
         var userQuery = Filter.UserQuery;
         var vote = userQuery.IsUpVoted ? 1 : -1;

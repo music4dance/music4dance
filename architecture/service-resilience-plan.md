@@ -192,20 +192,31 @@ m4d/Views/Shared/
 
 #### 2.3 Page-Specific Degradation Strategy
 
-| Page/Feature                              | Required Services                   | Degraded Behavior                                                                                                      | Phase |
-| ----------------------------------------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ----- |
-| Home and most other home controller pages | None (static content)               | Always renders fully - no database required                                                                            | 1     |
-| Tempi and Counter pages                   | Database (with JSON cache fallback) | Serve from JSON file cache if database unavailable; show notice if cache also missing                                  | 2     |
-| Dance Pages                               | Database (with JSON cache fallback) | Serve from JSON file cache if database unavailable; show notice if cache also missing                                  | 2     |
-| Song Search/List                          | Search Service                      | ✅ Phase 2: Backend returns empty results with ViewData flag; Phase 3: Show user-friendly notice                       | 2/3   |
-| Song Details                              | Search Service                      | ✅ Phase 2: Backend returns error view; **Phase 3**: Create Vue component with friendly message and navigation options | 2/3   |
-| User Login                                | Database + Auth Providers           | ✅ Phase 2: Check OAuth provider health, disable unavailable options                                                   | 2     |
-| User Registration                         | Database + Email Service            | Disabled when database unavailable (cannot create accounts)                                                            | 2     |
-| Playlist Creation                         | Database + Spotify                  | Disable feature with explanatory message                                                                               | 3     |
-| Browse Dances                             | Database                            | Show static dance list from JSON cache if available, otherwise menu only                                               | 2     |
-| Admin Pages                               | Database                            | Show status dashboard, disable modification features                                                                   | 3     |
+| Page/Feature                              | Required Services                   | Degraded Behavior                                                                                    | Phase |
+| ----------------------------------------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------- | ----- |
+| Home and most other home controller pages | None (static content)               | Always renders fully - no database required                                                          | 1     |
+| Tempi and Counter pages                   | Database (with JSON cache fallback) | Serve from JSON file cache if database unavailable; show notice if cache also missing                | 2     |
+| Dance Pages                               | Database (with JSON cache fallback) | Serve from JSON file cache if database unavailable; show notice if cache also missing                | 2     |
+| Song Search/List                          | Search Service                      | ✅ Phase 6: Credential errors handled gracefully, empty results returned, service marked unavailable | 2/3/6 |
+| Song Details                              | Search Service                      | ✅ Phase 6: Credential errors caught, error view shown, service marked unavailable                   | 2/3/6 |
+| User Login                                | Database + Auth Providers           | ✅ Phase 2: Check OAuth provider health, disable unavailable options                                 | 2     |
+| User Registration                         | Database + Email Service            | Disabled when database unavailable (cannot create accounts)                                          | 2     |
+| Playlist Creation                         | Database + Spotify                  | Disable feature with explanatory message                                                             | 3     |
+| Browse Dances                             | Database                            | Show static dance list from JSON cache if available, otherwise menu only                             | 2     |
+| Admin Pages                               | Database                            | Show status dashboard, disable modification features                                                 | 3     |
 
-**Phase 2 vs Phase 3 Note**: Phase 2 focuses on backend graceful degradation (no exceptions, proper HTTP status codes, ViewData flags for views). Phase 3 will enhance user experience with Vue components, status banners, and friendly error messages. For example, song details pages currently return a generic error view in Phase 2, but Phase 3 will create a proper Vue error component with clear messaging and navigation options.
+**Phase 6 Implementation (✅ Complete)**: Azure Search credential error handling
+
+- Fixed error propagation from SongIndex → SongSearch → Controllers
+- Removed premature health marking during startup (Azure SDK uses lazy initialization)
+- Implemented optimistic unknown service handling
+- Fixed exception swallowing in generic catch blocks
+- Added fail-fast checks in all search entry points (15+ controller methods)
+- Service status communicated via menuContext (not ViewData)
+- Status banner appears on first failure and persists across requests
+- See [Phase 6 Completion Report](service-resilience-phase6-completion-report.md) for full details
+
+**Phase 2 vs Phase 3 Note**: Phase 2 focused on backend graceful degradation (no exceptions, proper HTTP status codes). Phase 3 will enhance user experience with Vue components, status banners, and friendly error messages. Phase 6 extended this with comprehensive credential error handling.
 
 **JSON File Cache Strategy**:
 

@@ -169,6 +169,13 @@ if (!isDevelopment)
     });
     Console.WriteLine($"[{startupTimer.Elapsed.TotalSeconds:F2}s] [Azure] DefaultAzureCredential created successfully (optimized)");
 }
+else
+{
+    // Development mode: Use full credential chain for local authentication
+    Console.WriteLine($"[{startupTimer.Elapsed.TotalSeconds:F2}s] [Azure] Creating DefaultAzureCredential with full chain for development...");
+    azureCredential = new DefaultAzureCredential();
+    Console.WriteLine($"[{startupTimer.Elapsed.TotalSeconds:F2}s] [Azure] DefaultAzureCredential created (will try: VS Code, Azure CLI, Azure PowerShell, etc.)");
+}
 
 if (!isDevelopment)
 {
@@ -275,8 +282,9 @@ try
         }
         Console.WriteLine("[Search] All search clients registered");
     });
-    serviceHealth.MarkHealthy("SearchService");
-    Console.WriteLine("[Search] ✓ Clients registered (connections will be lazy-loaded)");
+    // NOTE: Don't mark SearchService as healthy here - we can't validate credentials until first use
+    // The service will be marked unavailable automatically on first error, then all subsequent requests fail fast
+    Console.WriteLine("[Search] ✓ Clients registered (connections will be lazy-loaded, health checked on first use)");
 }
 catch (Exception ex)
 {
