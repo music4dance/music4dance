@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- This is a documentation-only project - no build output -->
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPublishable>false</IsPublishable>
+    <IsPackable>false</IsPackable>
+    
+    <!-- Exclude from solution-wide build -->
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+    
+    <!-- Suppress warnings about missing output -->
+    <NoWarn>$(NoWarn);CS1591;NU5128</NoWarn>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <!-- Include all markdown files for IDE visibility and search -->
+  <ItemGroup>
+    <None Include="**/*.md" />
+  </ItemGroup>
+
+  <!-- Empty compile to satisfy SDK requirements -->
+  <Target Name="Compile" />
+  <Target Name="CoreCompile" />
+
+</Project>
