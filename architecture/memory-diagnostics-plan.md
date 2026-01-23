@@ -13,7 +13,7 @@ This document outlines a plan to add memory diagnostic capabilities to the appli
 
 ---
 
-## Phase 1: Basic GC Metrics Display (Low Effort, High Value)
+## Phase 1: Core GC Diagnostics (Low Effort, High Value)
 
 ### 1.1 Add Inline GC Stats to Diagnostics Page
 
@@ -47,24 +47,52 @@ public record GcSnapshot(
 );
 ```
 
-### 1.2 Add "Capture GC Snapshot" Endpoint
+### 1.2 Add "Capture GC Snapshot" Link
 
-Create an endpoint that captures and stores a snapshot:
+Add a link on the Diagnostics page that captures and logs a snapshot:
 
 ```csharp
 [Authorize(Roles = "showDiagnostics")]
-[HttpPost]
+[HttpGet]
 public ActionResult CaptureGcSnapshot()
 {
     var snapshot = GcDiagnostics.CaptureSnapshot();
-    // Store in memory or persist to log/file
+    Logger.LogInformation("GC Snapshot captured: {Snapshot}", snapshot);
+    ViewBag.CapturedSnapshot = snapshot;
     return View("Diagnostics");
 }
 ```
 
+### 1.3 Force GC and Measure Impact
+
+Endpoint to force full GC and report before/after memory freed:
+
+```csharp
+[HttpPost]
+[Authorize(Roles = "dbAdmin")]
+public ActionResult ForceGarbageCollection()
+{
+    var before = GcDiagnostics.CaptureSnapshot();
+    
+    GC.Collect(2, GCCollectionMode.Forced, blocking: true, compacting: true);
+    GC.WaitForPendingFinalizers();
+    GC.Collect(2, GCCollectionMode.Forced, blocking: true, compacting: true);
+    
+    var after = GcDiagnostics.CaptureSnapshot();
+    
+    ViewBag.GcBefore = before;
+    ViewBag.GcAfter = after;
+    ViewBag.MemoryFreed = before.TotalMemoryBytes - after.TotalMemoryBytes;
+    
+    return View("Diagnostics");
+}
+```
+
+**Warning**: This should be admin-only and used sparingly in production.
+
 ---
 
-## Phase 2: Memory Snapshot History (Medium Effort)
+## Phase 2: Memory Snapshot History & Trends (Medium Effort)
 
 ### 2.1 In-Memory Snapshot Ring Buffer
 
@@ -111,34 +139,7 @@ Add a simple chart or table showing memory over time on diagnostics page.
 
 ## Phase 3: Advanced Diagnostics (Higher Effort)
 
-### 3.1 Force GC and Measure Impact
-
-Endpoint to force full GC and report before/after:
-
-```csharp
-[HttpPost]
-[Authorize(Roles = "dbAdmin")]
-public ActionResult ForceGarbageCollection()
-{
-    var before = GcDiagnostics.CaptureSnapshot();
-    
-    GC.Collect(2, GCCollectionMode.Forced, blocking: true, compacting: true);
-    GC.WaitForPendingFinalizers();
-    GC.Collect(2, GCCollectionMode.Forced, blocking: true, compacting: true);
-    
-    var after = GcDiagnostics.CaptureSnapshot();
-    
-    ViewBag.GcBefore = before;
-    ViewBag.GcAfter = after;
-    ViewBag.MemoryFreed = before.TotalMemoryBytes - after.TotalMemoryBytes;
-    
-    return View("GcResults");
-}
-```
-
-**Warning**: This should be admin-only and used sparingly in production.
-
-### 3.2 Object Allocation Tracking (dotnet-counters integration)
+### 3.1 Object Allocation Tracking (dotnet-counters integration)
 
 Add endpoint to capture EventCounter data:
 
@@ -149,7 +150,7 @@ Add endpoint to capture EventCounter data:
 
 Consider exposing via `/metrics` endpoint for external monitoring (Prometheus/Grafana).
 
-### 3.3 Memory Dump Trigger
+### 3.2 Memory Dump Trigger
 
 For serious investigation, add ability to trigger a mini-dump:
 
@@ -165,7 +166,7 @@ public ActionResult TriggerMiniDump()
 
 **Note**: Large dumps, use cautiously. Consider gcdump for managed-only analysis.
 
-### 3.4 Large Object Heap (LOH) Monitoring
+### 3.3 Large Object Heap (LOH) Monitoring
 
 Track LOH specifically since it's a common source of fragmentation:
 
@@ -249,15 +250,15 @@ m4d/
 | Phase | Feature | Effort | Value | Priority |
 |-------|---------|--------|-------|----------|
 | 1.1 | Inline GC stats display | Low | High | **P0** |
-| 1.2 | Capture snapshot endpoint | Low | High | **P0** |
+| 1.2 | Capture snapshot link | Low | High | **P0** |
+| 1.3 | Force GC endpoint | Low | High | **P0** |
 | 2.1 | Snapshot history buffer | Medium | Medium | P1 |
-| 3.1 | Force GC endpoint | Low | Medium | P1 |
-| 2.2 | Background sampling | Medium | Medium | P2 |
+| 2.2 | Background sampling | Medium | Medium | P1 |
+| 2.3 | Trend visualization | Medium | Medium | P1 |
 | 4.2 | Memory health check | Low | High | P1 |
-| 3.2 | EventCounter integration | Medium | Medium | P2 |
+| 3.1 | EventCounter integration | Medium | Medium | P2 |
 | 4.1 | App Insights metrics | Low | Medium | P2 |
-| 3.3 | Mini-dump trigger | Medium | Low | P3 |
-| 2.3 | Trend visualization | Medium | Medium | P2 |
+| 3.2 | Mini-dump trigger | Medium | Low | P3 |
 
 ---
 
@@ -283,6 +284,6 @@ m4d/
 
 1. ? Create this plan document
 2. ? Implement Phase 1.1 - Add GC stats section to Diagnostics.cshtml
-3. ? Implement Phase 1.2 - Add CaptureGcSnapshot endpoint
-4. ? Implement Phase 3.1 - Add ForceGarbageCollection endpoint
+3. ? Implement Phase 1.2 - Add CaptureGcSnapshot link
+4. ? Implement Phase 1.3 - Add ForceGarbageCollection endpoint
 5. ? Review and iterate based on findings
