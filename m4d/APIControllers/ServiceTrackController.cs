@@ -4,6 +4,7 @@ using m4d.ViewModels;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using m4d.Services.ServiceHealth;
 
 namespace m4d.APIControllers;
 
@@ -13,7 +14,8 @@ namespace m4d.APIControllers;
 public class ServiceTrackController(
     DanceMusicContext context, UserManager<ApplicationUser> userManager,
     ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-    IConfiguration configuration, ILogger<ServiceTrackController> logger, IMapper mapper) : DanceMusicApiController(context, userManager, searchService, danceStatsManager, configuration, logger)
+    IConfiguration configuration, ILogger<ServiceTrackController> logger, IMapper mapper,
+    ServiceHealthManager serviceHealth) : DanceMusicApiController(context, userManager, searchService, danceStatsManager, configuration, logger, serviceHealth)
 {
 
     // GET api/<controller>
