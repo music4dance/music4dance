@@ -2,6 +2,7 @@
 
 using m4d.Areas.Identity;
 using m4d.Services;
+using m4d.Services.Diagnostics;
 using m4d.Services.ServiceHealth;
 using m4d.Utilities;
 using m4d.ViewModels;
@@ -35,10 +36,23 @@ public class SetupDiagnosticsAttribute : ActionFilterAttribute
 {
     public override void OnActionExecuting(ActionExecutingContext context)
     {
-        // Do something before the action executes.
+        // Set up static diagnostic data before the action executes
         if (context.Controller is AdminController controller)
         {
             controller.SetupDiagnosticAttributes();
+        }
+    }
+
+    public override void OnResultExecuting(ResultExecutingContext context)
+    {
+        // Set up GC/dump data after action completes, but only for Diagnostics view
+        // and only if not already set by the action
+        if (context.Result is ViewResult viewResult &&
+            (viewResult.ViewName == "Diagnostics" || viewResult.ViewName == null && context.RouteData.Values["action"]?.ToString() == "Diagnostics") &&
+            context.Controller is AdminController controller)
+        {
+            controller.ViewBag.GcSnapshot ??= GcDiagnostics.CaptureSnapshot();
+            controller.ViewBag.RecentDumps ??= GcDiagnostics.GetRecentDumps();
         }
     }
 }
@@ -75,12 +89,59 @@ public class AdminController(
         return View();
     }
 
+
+
     //
     // GET: /Admin/Diagnostics
     [Authorize(Roles = "showDiagnostics")]
     public ActionResult Diagnostics()
     {
+        // GcSnapshot and RecentDumps set by filter
         return View();
+    }
+
+    //
+    // GET: /Admin/CaptureGcSnapshot
+    [Authorize(Roles = "showDiagnostics")]
+    public ActionResult CaptureGcSnapshot()
+    {
+        var snapshot = GcDiagnostics.CaptureSnapshot();
+        Logger.LogInformation("GC Snapshot captured: TotalMemory={TotalMB:F2}MB, Heap={HeapMB:F2}MB, Fragmented={FragMB:F2}MB, " +
+            "Gen0={Gen0}, Gen1={Gen1}, Gen2={Gen2}, WorkingSet={WorkingSetMB:F2}MB, MemoryLoad={LoadPct:F1}%",
+            snapshot.TotalMemoryMB, snapshot.HeapSizeMB, snapshot.FragmentedMB,
+            snapshot.Gen0Collections, snapshot.Gen1Collections, snapshot.Gen2Collections,
+            snapshot.WorkingSetMB, snapshot.MemoryLoadPercent);
+
+        ViewBag.GcSnapshot = snapshot; // Explicit - we want THIS snapshot logged
+        ViewBag.Message = $"GC Snapshot captured at {snapshot.CapturedAt:HH:mm:ss.fff} and logged.";
+        return View("Diagnostics");
+    }
+
+    //
+    // POST: /Admin/ForceGarbageCollection
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public ActionResult ForceGarbageCollection()
+    {
+        var (before, after, memoryDelta) = GcDiagnostics.ForceCollectionWithMetrics();
+
+        var deltaMB = memoryDelta / (1024.0 * 1024.0);
+        Logger.LogWarning("Forced GC: Before={BeforeMB:F2}MB, After={AfterMB:F2}MB, Delta={DeltaMB:F2}MB",
+            before.TotalMemoryMB, after.TotalMemoryMB, deltaMB);
+
+        // Explicit - we need before/after snapshots for comparison display
+        ViewBag.GcSnapshot = after;
+        ViewBag.GcBefore = before;
+        ViewBag.GcAfter = after;
+        ViewBag.MemoryDelta = memoryDelta;
+
+        if (memoryDelta >= 0)
+            ViewBag.Message = $"Forced GC completed. Freed {deltaMB:F2} MB.";
+        else
+            ViewBag.Message = $"Forced GC completed. Memory increased by {-deltaMB:F2} MB.";
+
+        return View("Diagnostics");
     }
 
     //
@@ -89,6 +150,107 @@ public class AdminController(
     public ActionResult ResetAdmin()
     {
         AdminMonitor.CompleteTask(false, "Force Reset");
+        ViewBag.Message = "Admin task reset.";
+        // GcSnapshot and RecentDumps set by filter
+        return View("Diagnostics");
+    }
+
+    //
+    // POST: /Admin/CreateMemoryDump
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> CreateMemoryDump(DumpType dumpType = DumpType.Heap, bool download = false)
+    {
+        Logger.LogWarning("Memory dump requested: Type={DumpType}, Download={Download}", dumpType, download);
+
+        var result = await GcDiagnostics.CreateDumpAsync(dumpType: dumpType);
+
+        if (result.Success && download && result.FilePath != null && System.IO.File.Exists(result.FilePath))
+        {
+            Logger.LogInformation("Memory dump created and downloading: {FilePath} ({SizeMB:F2} MB)",
+                result.FilePath, result.FileSizeMB);
+
+            return PhysicalFile(result.FilePath, "application/octet-stream", result.FileName);
+        }
+
+        ViewBag.DumpResult = result;
+
+        if (result.Success)
+        {
+            Logger.LogInformation("Memory dump created: {FilePath} ({SizeMB:F2} MB)",
+                result.FilePath, result.FileSizeMB);
+            ViewBag.Message = $"Memory dump created: {result.FilePath} ({result.FileSizeMB:F2} MB)";
+            ViewBag.ErrorMessage = null;
+        }
+        else
+        {
+            Logger.LogError("Memory dump failed: {Error}", result.ErrorMessage);
+            ViewBag.ErrorMessage = $"Memory dump failed: {result.ErrorMessage}";
+            ViewBag.Message = null;
+        }
+
+        // GcSnapshot and RecentDumps set by filter (will show new dump)
+        return View("Diagnostics");
+    }
+
+    //
+    // GET: /Admin/DownloadDump
+    [Authorize(Roles = "dbAdmin")]
+    public ActionResult DownloadDump(string fileName)
+    {
+        if (string.IsNullOrWhiteSpace(fileName))
+        {
+            return BadRequest("File name is required");
+        }
+
+        // Security: Only allow downloading from the known dump directory
+        var dumpDir = GcDiagnostics.DefaultDumpDirectory;
+        var filePath = Path.Combine(dumpDir, Path.GetFileName(fileName));
+
+        if (!System.IO.File.Exists(filePath))
+        {
+            return NotFound($"Dump file not found: {fileName}");
+        }
+
+        Logger.LogInformation("Downloading dump file: {FilePath}", filePath);
+        return PhysicalFile(filePath, "application/octet-stream", Path.GetFileName(filePath));
+    }
+
+    //
+    // POST: /Admin/DeleteDump
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public ActionResult DeleteDump(string fileName)
+    {
+        if (GcDiagnostics.DeleteDump(fileName))
+        {
+            Logger.LogInformation("Deleted dump file: {FileName}", fileName);
+            ViewBag.Message = $"Deleted dump file: {fileName}";
+        }
+        else
+        {
+            Logger.LogWarning("Failed to delete dump file: {FileName}", fileName);
+            ViewBag.ErrorMessage = $"Failed to delete dump file: {fileName}";
+        }
+
+        // GcSnapshot and RecentDumps set by filter (will show updated list)
+        return View("Diagnostics");
+    }
+
+    //
+    // POST: /Admin/DeleteAllDumps
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public ActionResult DeleteAllDumps()
+    {
+        var count = GcDiagnostics.DeleteAllDumps();
+        Logger.LogInformation("Deleted {Count} dump files", count);
+        ViewBag.Message = $"Deleted {count} dump file(s).";
+
+        // GcSnapshot and RecentDumps set by filter (will show empty list)
         return View("Diagnostics");
     }
 
@@ -98,6 +260,7 @@ public class AdminController(
     public ActionResult DumpCleanupCount()
     {
         Song.DumpCleanupCount();
+        // GcSnapshot and RecentDumps set by filter
         return View("Diagnostics");
     }
 

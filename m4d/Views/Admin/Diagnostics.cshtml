@@ -1,7 +1,8 @@
-﻿@using System.Globalization
+@using System.Globalization
 @using Microsoft.FeatureManagement
 @using m4d.Utilities
 @using m4d.ViewModels
+@using m4d.Services.Diagnostics
 @using m4dModels
 @using System
 @inject ISearchServiceManager SearchService
@@ -9,8 +10,30 @@
 @inject IFeatureManagerSnapshot FeatureManager
 
 @{
-    ViewBag.Title = "Logging";
+    ViewBag.Title = "Admin Diagnostics";
     ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
+    var gcSnapshot = ViewBag.GcSnapshot as GcSnapshot;
+    var gcBefore = ViewBag.GcBefore as GcSnapshot;
+    var gcAfter = ViewBag.GcAfter as GcSnapshot;
+    long? memoryDelta = ViewBag.MemoryDelta as long?;
+    var dumpResult = ViewBag.DumpResult as DumpResult;
+    var recentDumps = ViewBag.RecentDumps as IReadOnlyList<DumpFileInfo>;
+}
+
+@* Status Messages *@
+@if (ViewBag.Message != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @ViewBag.Message
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (ViewBag.ErrorMessage != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @ViewBag.ErrorMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 }
 
 <p>Start Time = <b>@SpiderManager.StartTime.ToString(CultureInfo.CurrentCulture)</b></p>
@@ -47,6 +70,219 @@
 </ul>
 
 <hr />
+<h3>Memory &amp; GC Diagnostics</h3>
+@if (gcSnapshot != null)
+{
+    <p><small>Captured at: @gcSnapshot.CapturedAt.ToString("yyyy-MM-dd HH:mm:ss.fff")</small></p>
+
+    <table class="table table-sm table-bordered" style="max-width: 600px;">
+        <thead class="table-light">
+            <tr><th colspan="2">Memory Overview</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><b>Total Managed Memory</b></td>
+                <td>@gcSnapshot.TotalMemoryMB.ToString("F2") MB</td>
+            </tr>
+            <tr>
+                <td><b>Heap Size</b></td>
+                <td>@gcSnapshot.HeapSizeMB.ToString("F2") MB</td>
+            </tr>
+            <tr>
+                <td><b>Working Set</b></td>
+                <td>@gcSnapshot.WorkingSetMB.ToString("F2") MB</td>
+            </tr>
+            <tr>
+                <td><b>Memory Load</b></td>
+                <td>@gcSnapshot.MemoryLoadPercent.ToString("F1")%</td>
+            </tr>
+        </tbody>
+        <thead class="table-light">
+            <tr><th colspan="2">Fragmentation</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><b>Fragmented Memory</b></td>
+                <td>@gcSnapshot.FragmentedMB.ToString("F2") MB (@gcSnapshot.FragmentationPercent.ToString("F1")%)</td>
+            </tr>
+            <tr>
+                <td><b>Large Object Heap (LOH)</b></td>
+                <td>@gcSnapshot.LargeObjectHeapSizeMB.ToString("F2") MB</td>
+            </tr>
+            <tr>
+                <td><b>Pinned Object Heap (POH)</b></td>
+                <td>@gcSnapshot.PinnedObjectHeapSizeMB.ToString("F2") MB</td>
+            </tr>
+        </tbody>
+        <thead class="table-light">
+            <tr><th colspan="2">GC Collection Counts</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><b>Gen 0 Collections</b></td>
+                <td>@gcSnapshot.Gen0Collections</td>
+            </tr>
+            <tr>
+                <td><b>Gen 1 Collections</b></td>
+                <td>@gcSnapshot.Gen1Collections</td>
+            </tr>
+            <tr>
+                <td><b>Gen 2 Collections</b></td>
+                <td>@gcSnapshot.Gen2Collections</td>
+            </tr>
+        </tbody>
+        <thead class="table-light">
+            <tr><th colspan="2">System Info</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><b>Process ID</b></td>
+                <td>@GcDiagnostics.GetProcessId()</td>
+            </tr>
+            <tr>
+                <td><b>Total Available Memory</b></td>
+                <td>@((gcSnapshot.TotalAvailableMemoryBytes / (1024.0 * 1024.0 * 1024.0)).ToString("F2")) GB</td>
+            </tr>
+        </tbody>
+    </table>
+
+    @if (gcBefore != null && gcAfter != null && memoryDelta.HasValue)
+    {
+        var deltaMB = memoryDelta.Value / (1024.0 * 1024.0);
+        <div class="alert alert-info" style="max-width: 600px;">
+            <h5>Force GC Results</h5>
+            <p>
+                <b>Before:</b> @gcBefore.TotalMemoryMB.ToString("F2") MB<br />
+                <b>After:</b> @gcAfter.TotalMemoryMB.ToString("F2") MB<br />
+                @if (deltaMB >= 0)
+                {
+                    <b>Freed:</b> <text>@deltaMB.ToString("F2") MB</text>
+                }
+                else
+                {
+                    <b>Increased:</b> <text>@((-deltaMB).ToString("F2")) MB</text>
+                }
+            </p>
+        </div>
+    }
+
+    @if (dumpResult != null)
+    {
+        <div class="alert @(dumpResult.Success ? "alert-success" : "alert-warning")" style="max-width: 600px;">
+            <h5>Memory Dump Result</h5>
+            @if (dumpResult.Success)
+            {
+                <p>
+                    <b>File:</b> @dumpResult.FilePath<br />
+                    <b>Size:</b> @dumpResult.FileSizeMB.ToString("F2") MB<br />
+                    <b>Type:</b> @dumpResult.DumpType
+                </p>
+                <a href="@Url.Action("DownloadDump", "Admin", new { fileName = dumpResult.FileName })" class="btn btn-sm btn-primary">
+                    Download Dump
+                </a>
+            }
+            else
+            {
+                <p><b>Error:</b> @dumpResult.ErrorMessage</p>
+            }
+        </div>
+    }
+}
+else
+{
+    <p><em>No GC snapshot available.</em></p>
+}
+
+<p>
+    @Html.ActionLink("Capture GC Snapshot", "CaptureGcSnapshot", "Admin") |
+    <span class="text-muted">Logs current memory state</span>
+</p>
+
+@using (Html.BeginForm("ForceGarbageCollection", "Admin", FormMethod.Post, new { style = "display:inline;" }))
+{
+    @Html.AntiForgeryToken()
+    <button type="submit" class="btn btn-warning btn-sm"
+            onclick="return confirm('This will force a full garbage collection. Continue?');">
+        Force GC
+    </button>
+    <span class="text-muted ms-2">Triggers Gen2 collection with compaction</span>
+}
+
+<h5 class="mt-3">Memory Dump</h5>
+@using (Html.BeginForm("CreateMemoryDump", "Admin", FormMethod.Post, new { @class = "mb-3" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="row g-2 align-items-center" style="max-width: 600px;">
+        <div class="col-auto">
+            <label class="col-form-label">Dump Type:</label>
+        </div>
+        <div class="col-auto">
+            <select name="dumpType" class="form-select form-select-sm">
+                <option value="Mini">Mini (smallest)</option>
+                <option value="Heap" selected>Heap (recommended)</option>
+                <option value="Full">Full (largest)</option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <div class="form-check">
+                <input type="checkbox" name="download" value="true" class="form-check-input" id="downloadCheck">
+                <label class="form-check-label" for="downloadCheck">Download</label>
+            </div>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-danger btn-sm"
+                    onclick="return confirm('This will create a memory dump which may be large and take time. Continue?');">
+                Create Dump
+            </button>
+        </div>
+    </div>
+    <small class="text-muted">Requires dotnet-dump tool: <code>dotnet tool install -g dotnet-dump</code></small>
+}
+
+@if (recentDumps != null && recentDumps.Count > 0)
+{
+    <h6 class="mt-3">Recent Dumps</h6>
+    <table class="table table-sm table-bordered" style="max-width: 700px;">
+        <thead class="table-light">
+            <tr>
+                <th>File</th>
+                <th>Size</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var dump in recentDumps)
+            {
+                <tr>
+                    <td><small>@dump.FileName</small></td>
+                    <td>@dump.FileSizeMB.ToString("F1") MB</td>
+                    <td><small>@dump.CreatedAt.ToString("yyyy-MM-dd HH:mm")</small></td>
+                    <td>
+                        <a href="@Url.Action("DownloadDump", "Admin", new { fileName = dump.FileName })" 
+                           class="btn btn-sm btn-outline-primary">Download</a>
+                        @using (Html.BeginForm("DeleteDump", "Admin", new { fileName = dump.FileName }, FormMethod.Post, antiforgery: null, new { style = "display:inline;" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                    onclick="return confirm('Delete this dump file?');">Delete</button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    @using (Html.BeginForm("DeleteAllDumps", "Admin", FormMethod.Post, new { style = "display:inline;" }))
+    {
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn btn-sm btn-danger"
+                onclick="return confirm('Delete ALL dump files? This cannot be undone.');">
+            Delete All Dumps (@recentDumps.Count)
+        </button>
+    }
+}
+
+<hr />
 <h3>Logging (Current Level = @(ViewData["CurrentLogLevel"] ?? "Unknown"))</h3>
 <p>
     <b>Note:</b> In the Debug environment, the Developer Exception Page and some logging providers may emit all log levels regardless of runtime changes. To allow runtime log level changes, ensure your <code>appsettings.Development.json</code> does not set a minimum log level lower than what you want to allow, and avoid hard-coded log filters in <code>Program.cs</code>.
@@ -61,10 +297,6 @@
         </li>
     }
 </ul>
-@if (ViewBag.Message != null)
-{
-    <p>@ViewBag.Message</p>
-}
 
 <h4>@Html.ActionLink("Throw an Exception", "ThrowException", "Admin")</h4>
 
