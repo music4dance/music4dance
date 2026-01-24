@@ -13,13 +13,14 @@ This document outlines a plan to add memory diagnostic capabilities to the appli
 
 ---
 
-## Phase 1: Core GC Diagnostics (Low Effort, High Value)
+## Phase 1: [COMPLETE] Core GC Diagnostics (Low Effort, High Value)
 
 ### 1.1 Add Inline GC Stats to Diagnostics Page
 
 Add a new section to `Views/Admin/Diagnostics.cshtml` showing current GC state:
 
 **Metrics to display:**
+
 - `GC.GetTotalMemory(false)` - Current estimated managed heap size
 - `GC.GetGCMemoryInfo()` - Detailed GC memory info including:
   - `HeapSizeBytes` - Total heap size
@@ -32,6 +33,7 @@ Add a new section to `Views/Admin/Diagnostics.cshtml` showing current GC state:
 - `Environment.WorkingSet` - Process working set
 
 **Implementation:**
+
 ```csharp
 // In AdminController or a new MemoryDiagnosticsController
 public record GcSnapshot(
@@ -73,17 +75,17 @@ Endpoint to force full GC and report before/after memory freed:
 public ActionResult ForceGarbageCollection()
 {
     var before = GcDiagnostics.CaptureSnapshot();
-    
+
     GC.Collect(2, GCCollectionMode.Forced, blocking: true, compacting: true);
     GC.WaitForPendingFinalizers();
     GC.Collect(2, GCCollectionMode.Forced, blocking: true, compacting: true);
-    
+
     var after = GcDiagnostics.CaptureSnapshot();
-    
+
     ViewBag.GcBefore = before;
     ViewBag.GcAfter = after;
     ViewBag.MemoryFreed = before.TotalMemoryBytes - after.TotalMemoryBytes;
-    
+
     return View("Diagnostics");
 }
 ```
@@ -103,7 +105,7 @@ public class GcSnapshotHistory
 {
     private readonly ConcurrentQueue<GcSnapshot> _snapshots = new();
     private readonly int _maxSnapshots = 100;
-    
+
     public void Add(GcSnapshot snapshot) { ... }
     public IReadOnlyList<GcSnapshot> GetRecent(int count) { ... }
 }
@@ -200,12 +202,12 @@ public class MemoryHealthCheck : IHealthCheck
     {
         var gcInfo = GC.GetGCMemoryInfo();
         var loadPercent = (double)gcInfo.MemoryLoadBytes / gcInfo.TotalAvailableMemoryBytes;
-        
+
         if (loadPercent > 0.9)
             return Task.FromResult(HealthCheckResult.Unhealthy("Memory pressure critical"));
         if (loadPercent > 0.75)
             return Task.FromResult(HealthCheckResult.Degraded("Memory pressure elevated"));
-            
+
         return Task.FromResult(HealthCheckResult.Healthy());
     }
 }
@@ -247,18 +249,18 @@ m4d/
 
 ## Implementation Priority
 
-| Phase | Feature | Effort | Value | Priority |
-|-------|---------|--------|-------|----------|
-| 1.1 | Inline GC stats display | Low | High | **P0** |
-| 1.2 | Capture snapshot link | Low | High | **P0** |
-| 1.3 | Force GC endpoint | Low | High | **P0** |
-| 2.1 | Snapshot history buffer | Medium | Medium | P1 |
-| 2.2 | Background sampling | Medium | Medium | P1 |
-| 2.3 | Trend visualization | Medium | Medium | P1 |
-| 4.2 | Memory health check | Low | High | P1 |
-| 3.1 | EventCounter integration | Medium | Medium | P2 |
-| 4.1 | App Insights metrics | Low | Medium | P2 |
-| 3.2 | Mini-dump trigger | Medium | Low | P3 |
+| Phase | Feature                  | Effort | Value  | Priority |
+| ----- | ------------------------ | ------ | ------ | -------- |
+| 1.1   | Inline GC stats display  | Low    | High   | **P0**   |
+| 1.2   | Capture snapshot link    | Low    | High   | **P0**   |
+| 1.3   | Force GC endpoint        | Low    | High   | **P0**   |
+| 2.1   | Snapshot history buffer  | Medium | Medium | P1       |
+| 2.2   | Background sampling      | Medium | Medium | P1       |
+| 2.3   | Trend visualization      | Medium | Medium | P1       |
+| 4.2   | Memory health check      | Low    | High   | P1       |
+| 3.1   | EventCounter integration | Medium | Medium | P2       |
+| 4.1   | App Insights metrics     | Low    | Medium | P2       |
+| 3.2   | Mini-dump trigger        | Medium | Low    | P3       |
 
 ---
 
