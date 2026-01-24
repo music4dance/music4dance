@@ -36,10 +36,23 @@ public class SetupDiagnosticsAttribute : ActionFilterAttribute
 {
     public override void OnActionExecuting(ActionExecutingContext context)
     {
-        // Do something before the action executes.
+        // Set up static diagnostic data before the action executes
         if (context.Controller is AdminController controller)
         {
             controller.SetupDiagnosticAttributes();
+        }
+    }
+
+    public override void OnResultExecuting(ResultExecutingContext context)
+    {
+        // Set up GC/dump data after action completes, but only for Diagnostics view
+        // and only if not already set by the action
+        if (context.Result is ViewResult viewResult &&
+            (viewResult.ViewName == "Diagnostics" || viewResult.ViewName == null && context.RouteData.Values["action"]?.ToString() == "Diagnostics") &&
+            context.Controller is AdminController controller)
+        {
+            controller.ViewBag.GcSnapshot ??= GcDiagnostics.CaptureSnapshot();
+            controller.ViewBag.RecentDumps ??= GcDiagnostics.GetRecentDumps();
         }
     }
 }
@@ -77,13 +90,13 @@ public class AdminController(
     }
 
 
+
     //
     // GET: /Admin/Diagnostics
     [Authorize(Roles = "showDiagnostics")]
     public ActionResult Diagnostics()
     {
-        ViewBag.GcSnapshot = GcDiagnostics.CaptureSnapshot();
-        ViewBag.RecentDumps = GcDiagnostics.GetRecentDumps();
+        // GcSnapshot and RecentDumps set by filter
         return View();
     }
 
@@ -99,7 +112,7 @@ public class AdminController(
             snapshot.Gen0Collections, snapshot.Gen1Collections, snapshot.Gen2Collections,
             snapshot.WorkingSetMB, snapshot.MemoryLoadPercent);
 
-        ViewBag.GcSnapshot = snapshot;
+        ViewBag.GcSnapshot = snapshot; // Explicit - we want THIS snapshot logged
         ViewBag.Message = $"GC Snapshot captured at {snapshot.CapturedAt:HH:mm:ss.fff} and logged.";
         return View("Diagnostics");
     }
@@ -117,6 +130,7 @@ public class AdminController(
         Logger.LogWarning("Forced GC: Before={BeforeMB:F2}MB, After={AfterMB:F2}MB, Delta={DeltaMB:F2}MB",
             before.TotalMemoryMB, after.TotalMemoryMB, deltaMB);
 
+        // Explicit - we need before/after snapshots for comparison display
         ViewBag.GcSnapshot = after;
         ViewBag.GcBefore = before;
         ViewBag.GcAfter = after;
@@ -136,8 +150,8 @@ public class AdminController(
     public ActionResult ResetAdmin()
     {
         AdminMonitor.CompleteTask(false, "Force Reset");
-        ViewBag.GcSnapshot = GcDiagnostics.CaptureSnapshot();
         ViewBag.Message = "Admin task reset.";
+        // GcSnapshot and RecentDumps set by filter
         return View("Diagnostics");
     }
 
@@ -160,8 +174,6 @@ public class AdminController(
             return PhysicalFile(result.FilePath, "application/octet-stream", result.FileName);
         }
 
-        ViewBag.GcSnapshot = GcDiagnostics.CaptureSnapshot();
-        ViewBag.RecentDumps = GcDiagnostics.GetRecentDumps();
         ViewBag.DumpResult = result;
 
         if (result.Success)
@@ -178,6 +190,7 @@ public class AdminController(
             ViewBag.Message = null;
         }
 
+        // GcSnapshot and RecentDumps set by filter (will show new dump)
         return View("Diagnostics");
     }
 
@@ -222,8 +235,7 @@ public class AdminController(
             ViewBag.ErrorMessage = $"Failed to delete dump file: {fileName}";
         }
 
-        ViewBag.GcSnapshot = GcDiagnostics.CaptureSnapshot();
-        ViewBag.RecentDumps = GcDiagnostics.GetRecentDumps();
+        // GcSnapshot and RecentDumps set by filter (will show updated list)
         return View("Diagnostics");
     }
 
@@ -238,8 +250,7 @@ public class AdminController(
         Logger.LogInformation("Deleted {Count} dump files", count);
         ViewBag.Message = $"Deleted {count} dump file(s).";
 
-        ViewBag.GcSnapshot = GcDiagnostics.CaptureSnapshot();
-        ViewBag.RecentDumps = GcDiagnostics.GetRecentDumps();
+        // GcSnapshot and RecentDumps set by filter (will show empty list)
         return View("Diagnostics");
     }
 
@@ -249,8 +260,7 @@ public class AdminController(
     public ActionResult DumpCleanupCount()
     {
         Song.DumpCleanupCount();
-        ViewBag.GcSnapshot = GcDiagnostics.CaptureSnapshot();
-        ViewBag.RecentDumps = GcDiagnostics.GetRecentDumps();
+        // GcSnapshot and RecentDumps set by filter
         return View("Diagnostics");
     }
 
