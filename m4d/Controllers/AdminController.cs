@@ -76,12 +76,14 @@ public class AdminController(
         return View();
     }
 
+
     //
     // GET: /Admin/Diagnostics
     [Authorize(Roles = "showDiagnostics")]
     public ActionResult Diagnostics()
     {
         ViewBag.GcSnapshot = GcDiagnostics.CaptureSnapshot();
+        ViewBag.RecentDumps = GcDiagnostics.GetRecentDumps();
         return View();
     }
 
@@ -109,16 +111,22 @@ public class AdminController(
     [Authorize(Roles = "dbAdmin")]
     public ActionResult ForceGarbageCollection()
     {
-        var (before, after, bytesFreed) = GcDiagnostics.ForceCollectionWithMetrics();
+        var (before, after, memoryDelta) = GcDiagnostics.ForceCollectionWithMetrics();
 
-        Logger.LogWarning("Forced GC: Before={BeforeMB:F2}MB, After={AfterMB:F2}MB, Freed={FreedMB:F2}MB",
-            before.TotalMemoryMB, after.TotalMemoryMB, bytesFreed / (1024.0 * 1024.0));
+        var deltaMB = memoryDelta / (1024.0 * 1024.0);
+        Logger.LogWarning("Forced GC: Before={BeforeMB:F2}MB, After={AfterMB:F2}MB, Delta={DeltaMB:F2}MB",
+            before.TotalMemoryMB, after.TotalMemoryMB, deltaMB);
 
         ViewBag.GcSnapshot = after;
         ViewBag.GcBefore = before;
         ViewBag.GcAfter = after;
-        ViewBag.MemoryFreed = bytesFreed;
-        ViewBag.Message = $"Forced GC completed. Freed {bytesFreed / (1024.0 * 1024.0):F2} MB.";
+        ViewBag.MemoryDelta = memoryDelta;
+
+        if (memoryDelta >= 0)
+            ViewBag.Message = $"Forced GC completed. Freed {deltaMB:F2} MB.";
+        else
+            ViewBag.Message = $"Forced GC completed. Memory increased by {-deltaMB:F2} MB.";
+
         return View("Diagnostics");
     }
 
@@ -138,23 +146,22 @@ public class AdminController(
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = "dbAdmin")]
-    public ActionResult CreateMemoryDump(DumpType dumpType = DumpType.Heap, bool download = false)
+    public async Task<ActionResult> CreateMemoryDump(DumpType dumpType = DumpType.Heap, bool download = false)
     {
         Logger.LogWarning("Memory dump requested: Type={DumpType}, Download={Download}", dumpType, download);
 
-        var result = GcDiagnostics.CreateDump(dumpType: dumpType);
+        var result = await GcDiagnostics.CreateDumpAsync(dumpType: dumpType);
 
         if (result.Success && download && result.FilePath != null && System.IO.File.Exists(result.FilePath))
         {
             Logger.LogInformation("Memory dump created and downloading: {FilePath} ({SizeMB:F2} MB)",
                 result.FilePath, result.FileSizeMB);
 
-            var fileStream = new FileStream(result.FilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
-            return File(fileStream, "application/octet-stream", result.FileName);
+            return PhysicalFile(result.FilePath, "application/octet-stream", result.FileName);
         }
 
-
         ViewBag.GcSnapshot = GcDiagnostics.CaptureSnapshot();
+        ViewBag.RecentDumps = GcDiagnostics.GetRecentDumps();
         ViewBag.DumpResult = result;
 
         if (result.Success)
@@ -194,8 +201,46 @@ public class AdminController(
         }
 
         Logger.LogInformation("Downloading dump file: {FilePath}", filePath);
-        var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
-        return File(fileStream, "application/octet-stream", Path.GetFileName(filePath));
+        return PhysicalFile(filePath, "application/octet-stream", Path.GetFileName(filePath));
+    }
+
+    //
+    // POST: /Admin/DeleteDump
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public ActionResult DeleteDump(string fileName)
+    {
+        if (GcDiagnostics.DeleteDump(fileName))
+        {
+            Logger.LogInformation("Deleted dump file: {FileName}", fileName);
+            ViewBag.Message = $"Deleted dump file: {fileName}";
+        }
+        else
+        {
+            Logger.LogWarning("Failed to delete dump file: {FileName}", fileName);
+            ViewBag.ErrorMessage = $"Failed to delete dump file: {fileName}";
+        }
+
+        ViewBag.GcSnapshot = GcDiagnostics.CaptureSnapshot();
+        ViewBag.RecentDumps = GcDiagnostics.GetRecentDumps();
+        return View("Diagnostics");
+    }
+
+    //
+    // POST: /Admin/DeleteAllDumps
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public ActionResult DeleteAllDumps()
+    {
+        var count = GcDiagnostics.DeleteAllDumps();
+        Logger.LogInformation("Deleted {Count} dump files", count);
+        ViewBag.Message = $"Deleted {count} dump file(s).";
+
+        ViewBag.GcSnapshot = GcDiagnostics.CaptureSnapshot();
+        ViewBag.RecentDumps = GcDiagnostics.GetRecentDumps();
+        return View("Diagnostics");
     }
 
     //
@@ -205,6 +250,7 @@ public class AdminController(
     {
         Song.DumpCleanupCount();
         ViewBag.GcSnapshot = GcDiagnostics.CaptureSnapshot();
+        ViewBag.RecentDumps = GcDiagnostics.GetRecentDumps();
         return View("Diagnostics");
     }
 

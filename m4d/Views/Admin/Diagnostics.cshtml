@@ -15,8 +15,9 @@
     var gcSnapshot = ViewBag.GcSnapshot as GcSnapshot;
     var gcBefore = ViewBag.GcBefore as GcSnapshot;
     var gcAfter = ViewBag.GcAfter as GcSnapshot;
-    long? memoryFreed = ViewBag.MemoryFreed as long?;
+    long? memoryDelta = ViewBag.MemoryDelta as long?;
     var dumpResult = ViewBag.DumpResult as DumpResult;
+    var recentDumps = ViewBag.RecentDumps as IReadOnlyList<DumpFileInfo>;
 }
 
 @* Status Messages *@
@@ -145,14 +146,22 @@
         </tbody>
     </table>
 
-    @if (gcBefore != null && gcAfter != null && memoryFreed.HasValue)
+    @if (gcBefore != null && gcAfter != null && memoryDelta.HasValue)
     {
+        var deltaMB = memoryDelta.Value / (1024.0 * 1024.0);
         <div class="alert alert-info" style="max-width: 600px;">
             <h5>Force GC Results</h5>
             <p>
                 <b>Before:</b> @gcBefore.TotalMemoryMB.ToString("F2") MB<br />
                 <b>After:</b> @gcAfter.TotalMemoryMB.ToString("F2") MB<br />
-                <b>Freed:</b> @((memoryFreed.Value / (1024.0 * 1024.0)).ToString("F2")) MB
+                @if (deltaMB >= 0)
+                {
+                    <b>Freed:</b> <text>@deltaMB.ToString("F2") MB</text>
+                }
+                else
+                {
+                    <b>Increased:</b> <text>@((-deltaMB).ToString("F2")) MB</text>
+                }
             </p>
         </div>
     }
@@ -228,6 +237,49 @@ else
         </div>
     </div>
     <small class="text-muted">Requires dotnet-dump tool: <code>dotnet tool install -g dotnet-dump</code></small>
+}
+
+@if (recentDumps != null && recentDumps.Count > 0)
+{
+    <h6 class="mt-3">Recent Dumps</h6>
+    <table class="table table-sm table-bordered" style="max-width: 700px;">
+        <thead class="table-light">
+            <tr>
+                <th>File</th>
+                <th>Size</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var dump in recentDumps)
+            {
+                <tr>
+                    <td><small>@dump.FileName</small></td>
+                    <td>@dump.FileSizeMB.ToString("F1") MB</td>
+                    <td><small>@dump.CreatedAt.ToString("yyyy-MM-dd HH:mm")</small></td>
+                    <td>
+                        <a href="@Url.Action("DownloadDump", "Admin", new { fileName = dump.FileName })" 
+                           class="btn btn-sm btn-outline-primary">Download</a>
+                        @using (Html.BeginForm("DeleteDump", "Admin", new { fileName = dump.FileName }, FormMethod.Post, antiforgery: null, new { style = "display:inline;" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                    onclick="return confirm('Delete this dump file?');">Delete</button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    @using (Html.BeginForm("DeleteAllDumps", "Admin", FormMethod.Post, new { style = "display:inline;" }))
+    {
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn btn-sm btn-danger"
+                onclick="return confirm('Delete ALL dump files? This cannot be undone.');">
+            Delete All Dumps (@recentDumps.Count)
+        </button>
+    }
 }
 
 <hr />

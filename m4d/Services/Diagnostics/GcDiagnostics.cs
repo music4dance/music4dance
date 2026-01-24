@@ -48,8 +48,8 @@ public static class GcDiagnostics
     /// <summary>
     /// Forces a full garbage collection and returns before/after snapshots.
     /// </summary>
-    /// <returns>A tuple containing the before snapshot, after snapshot, and bytes freed.</returns>
-    public static (GcSnapshot Before, GcSnapshot After, long BytesFreed) ForceCollectionWithMetrics()
+    /// <returns>A tuple containing the before snapshot, after snapshot, and memory delta (positive = freed, negative = increased).</returns>
+    public static (GcSnapshot Before, GcSnapshot After, long MemoryDelta) ForceCollectionWithMetrics()
     {
         var before = CaptureSnapshot();
 
@@ -59,9 +59,9 @@ public static class GcDiagnostics
         GC.Collect(2, GCCollectionMode.Forced, blocking: true, compacting: true);
 
         var after = CaptureSnapshot();
-        var bytesFreed = before.TotalMemoryBytes - after.TotalMemoryBytes;
+        var memoryDelta = before.TotalMemoryBytes - after.TotalMemoryBytes;
 
-        return (before, after, bytesFreed);
+        return (before, after, memoryDelta);
     }
 
     /// <summary>
@@ -69,8 +69,9 @@ public static class GcDiagnostics
     /// </summary>
     /// <param name="dumpDirectory">Directory to store the dump file. Uses default if null.</param>
     /// <param name="dumpType">Type of dump to create (Mini, Heap, or Full).</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Result containing the dump file path or error information.</returns>
-    public static DumpResult CreateDump(string? dumpDirectory = null, DumpType dumpType = DumpType.Heap)
+    public static async Task<DumpResult> CreateDumpAsync(string? dumpDirectory = null, DumpType dumpType = DumpType.Heap, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -82,8 +83,8 @@ public static class GcDiagnostics
             var filePath = Path.Combine(directory, fileName);
 
             // Use dotnet-dump or createdump tool
-            var success = TryCreateDumpWithDotnetDump(filePath, dumpType)
-                       || TryCreateDumpWithCreatedump(filePath, dumpType);
+            var success = await TryCreateDumpWithDotnetDumpAsync(filePath, dumpType, cancellationToken)
+                       || await TryCreateDumpWithCreatedumpAsync(filePath, dumpType, cancellationToken);
 
             if (success && File.Exists(filePath))
             {
@@ -105,6 +106,16 @@ public static class GcDiagnostics
                 DumpType: dumpType,
                 ErrorMessage: "Failed to create dump. Ensure dotnet-dump tool is installed: dotnet tool install -g dotnet-dump");
         }
+        catch (OperationCanceledException)
+        {
+            return new DumpResult(
+                Success: false,
+                FilePath: null,
+                FileName: null,
+                FileSizeBytes: 0,
+                DumpType: dumpType,
+                ErrorMessage: "Dump creation was cancelled.");
+        }
         catch (Exception ex)
         {
             return new DumpResult(
@@ -117,7 +128,7 @@ public static class GcDiagnostics
         }
     }
 
-    private static bool TryCreateDumpWithDotnetDump(string filePath, DumpType dumpType)
+    private static async Task<bool> TryCreateDumpWithDotnetDumpAsync(string filePath, DumpType dumpType, CancellationToken cancellationToken)
     {
         try
         {
@@ -133,8 +144,8 @@ public static class GcDiagnostics
             {
                 FileName = "dotnet-dump",
                 Arguments = $"collect -p {Environment.ProcessId} -o \"{filePath}\" --type {dumpTypeArg}",
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
+                RedirectStandardOutput = false,
+                RedirectStandardError = false,
                 UseShellExecute = false,
                 CreateNoWindow = true
             };
@@ -142,8 +153,12 @@ public static class GcDiagnostics
             using var process = Process.Start(startInfo);
             if (process == null) return false;
 
-            process.WaitForExit(TimeSpan.FromMinutes(5));
+            await process.WaitForExitAsync(cancellationToken);
             return process.ExitCode == 0;
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch
         {
@@ -151,7 +166,7 @@ public static class GcDiagnostics
         }
     }
 
-    private static bool TryCreateDumpWithCreatedump(string filePath, DumpType dumpType)
+    private static async Task<bool> TryCreateDumpWithCreatedumpAsync(string filePath, DumpType dumpType, CancellationToken cancellationToken)
     {
         // createdump is available on Linux with .NET runtime
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -178,8 +193,8 @@ public static class GcDiagnostics
             {
                 FileName = createdumpPath,
                 Arguments = $"{dumpTypeArg} -f \"{filePath}\" {Environment.ProcessId}",
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
+                RedirectStandardOutput = false,
+                RedirectStandardError = false,
                 UseShellExecute = false,
                 CreateNoWindow = true
             };
@@ -187,8 +202,12 @@ public static class GcDiagnostics
             using var process = Process.Start(startInfo);
             if (process == null) return false;
 
-            process.WaitForExit(TimeSpan.FromMinutes(5));
+            await process.WaitForExitAsync(cancellationToken);
             return process.ExitCode == 0;
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch
         {
@@ -200,4 +219,79 @@ public static class GcDiagnostics
     /// Gets the current process ID for use with external diagnostic tools.
     /// </summary>
     public static int GetProcessId() => Environment.ProcessId;
+
+    /// <summary>
+    /// Gets a list of recent dump files from the default dump directory.
+    /// </summary>
+    /// <param name="maxCount">Maximum number of dumps to return.</param>
+    /// <returns>List of dump file information, ordered by most recent first.</returns>
+    public static IReadOnlyList<DumpFileInfo> GetRecentDumps(int maxCount = 10)
+    {
+        var directory = DefaultDumpDirectory;
+        if (!Directory.Exists(directory))
+            return [];
+
+        return Directory.GetFiles(directory, "*.dmp")
+            .Select(f => new FileInfo(f))
+            .OrderByDescending(f => f.CreationTime)
+            .Take(maxCount)
+            .Select(f => new DumpFileInfo(
+                FileName: f.Name,
+                FilePath: f.FullName,
+                FileSizeBytes: f.Length,
+                CreatedAt: f.CreationTime))
+            .ToList();
+    }
+
+    /// <summary>
+    /// Deletes a specific dump file.
+    /// </summary>
+    /// <param name="fileName">The file name of the dump to delete.</param>
+    /// <returns>True if deleted successfully, false otherwise.</returns>
+    public static bool DeleteDump(string fileName)
+    {
+        if (string.IsNullOrWhiteSpace(fileName))
+            return false;
+
+        var filePath = Path.Combine(DefaultDumpDirectory, Path.GetFileName(fileName));
+        
+        if (!File.Exists(filePath))
+            return false;
+
+        try
+        {
+            File.Delete(filePath);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Deletes all dump files from the default dump directory.
+    /// </summary>
+    /// <returns>The number of files deleted.</returns>
+    public static int DeleteAllDumps()
+    {
+        var directory = DefaultDumpDirectory;
+        if (!Directory.Exists(directory))
+            return 0;
+
+        var count = 0;
+        foreach (var file in Directory.GetFiles(directory, "*.dmp"))
+        {
+            try
+            {
+                File.Delete(file);
+                count++;
+            }
+            catch
+            {
+                // Continue deleting other files even if one fails
+            }
+        }
+        return count;
+    }
 }

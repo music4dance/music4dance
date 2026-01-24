@@ -41,3 +41,19 @@ public record DumpResult(
     /// </summary>
     public double FileSizeMB => FileSizeBytes / (1024.0 * 1024.0);
 }
+
+/// <summary>
+/// Information about an existing dump file.
+/// </summary>
+public record DumpFileInfo(
+    string FileName,
+    string FilePath,
+    long FileSizeBytes,
+    DateTime CreatedAt
+)
+{
+    /// <summary>
+    /// Gets the file size in megabytes.
+    /// </summary>
+    public double FileSizeMB => FileSizeBytes / (1024.0 * 1024.0);
+}
