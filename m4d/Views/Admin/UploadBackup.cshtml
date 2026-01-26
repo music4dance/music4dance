@@ -108,7 +108,8 @@ using (Html.BeginForm("ReloadDatabase", "Admin", FormMethod.Post, new
         <label for="batchSize">Batch size:</label>
         <input type="number" name="batchSize" id="batchSize" value="5000" min="100" max="50000" style="width: 100px;" />
         <br />
-        <label><input type="checkbox" name="truncate" value="true" checked="checked" /> Truncate table first</label>
+        <input type="checkbox" name="truncate" id="truncate" value="true" checked="checked" />
+        <label for="truncate">Truncate table first</label>
         <br />
         <input type="submit" value="Load from AppData" />
     }
