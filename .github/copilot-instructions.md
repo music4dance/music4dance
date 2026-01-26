@@ -213,7 +213,7 @@ import { DanceQueryItem } from "@/models/DanceQueryItem";
 // Correct: Use TagQuery to extract tag information
 const tagQuery = item.tagQuery;
 const styleTags = tagQuery.tagList.tags.filter(
-  (tag) => tag.category === "Style"
+  (tag) => tag.category === "Style",
 );
 const styleValue = styleTags[0]?.value;
 
@@ -224,7 +224,7 @@ const value = parts[0]; // ❌ Don't do this
 // Correct: Use DanceQueryItem.fromValue to parse dance queries
 const queryItem = DanceQueryItem.fromValue("CHA|+International:Style");
 const styleTag = queryItem.tagQuery?.tagList.tags.find(
-  (t) => t.category === "Style"
+  (t) => t.category === "Style",
 )?.value;
 
 // WRONG: Never manually parse query strings
