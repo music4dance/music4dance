@@ -671,43 +671,137 @@ public class AdminController(
     }
 
     //
-    // Post: //LoadUsage
+    // Post: //LoadUsage (incremental - appends to existing data)
     [HttpPost]
     [ValidateAntiForgeryToken]
     [DisableRequestSizeLimit]
     [RequestFormLimits(ValueLengthLimit = int.MaxValue, MultipartBodyLengthLimit = int.MaxValue)]
     [Authorize(Roles = "dbAdmin")]
-    public async Task<ActionResult> LoadUsage(IFormFile fileUpload)
+    public async Task<ActionResult> LoadUsage(IFormFile fileUpload, int batchSize = 5000)
     {
         try
         {
             StartAdminTask("UploadUsage");
             AdminMonitor.UpdateTask("UploadFile");
 
-            //await Database.UsageLog.ExecuteDeleteAsync();
-            _ = await Database.Context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE UsageLog");
-            _ = await Database.Context.SaveChangesAsync();
+            var config = new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+                Delimiter = "\t",
+                Mode = CsvMode.NoEscape
+            };
 
-            var config = new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture) { Delimiter = "\t", Mode = CsvMode.NoEscape };
-            using var stream = fileUpload.OpenReadStream();
+            await using var stream = fileUpload.OpenReadStream();
             using var tr = new StreamReader(stream);
             using var csv = new CsvReader(tr, config);
 
-            var records = csv.GetRecords<UsageLog>();
-            var count = 0;
-            foreach (var record in records)
-            {
-                record.Id = 0;
-                _ = Database.UsageLog.Add(record);
-                count += 1;
-            }
-            _ = await Database.Context.SaveChangesAsync();
-            return CompleteAdminTask(true, $"Usage Loaded: {count} records");
+            var count = await LoadUsageRecordsAsync(csv, batchSize);
+
+            return CompleteAdminTask(true, $"Usage Loaded (incremental): {count} records");
         }
         catch (Exception e)
         {
             return FailAdminTask($"UploadUsage: {e.Message}", e);
         }
+    }
+
+    //
+    // Post: //LoadUsageFromAppData (streams large file from AppData directory)
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> LoadUsageFromAppData(
+        [FromServices] IWebHostEnvironment environment,
+        string fileName = "usage.tsv",
+        int batchSize = 5000,
+        bool truncate = true)
+    {
+        try
+        {
+            StartAdminTask("LoadUsageFromAppData");
+
+            var appDataPath = EnsureAppData(environment);
+            var filePath = Path.Combine(appDataPath, fileName);
+
+            if (!System.IO.File.Exists(filePath))
+            {
+                return FailAdminTask($"File not found: {filePath}", null);
+            }
+
+            var fileInfo = new FileInfo(filePath);
+            AdminMonitor.UpdateTask($"Found file: {fileInfo.Length / (1024.0 * 1024.0):F2} MB");
+
+            if (truncate)
+            {
+                AdminMonitor.UpdateTask("Truncating table");
+                _ = await Database.Context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE UsageLog");
+            }
+
+            var config = new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+                Delimiter = "\t",
+                Mode = CsvMode.NoEscape
+            };
+
+            AdminMonitor.UpdateTask("Streaming file");
+
+            // Use large buffer for efficient streaming of large files
+            await using var stream = new FileStream(
+                filePath,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.Read,
+                bufferSize: 65536,
+                useAsync: true);
+
+            using var tr = new StreamReader(stream, bufferSize: 65536);
+            using var csv = new CsvReader(tr, config);
+
+            var count = await LoadUsageRecordsAsync(csv, batchSize);
+
+            return CompleteAdminTask(true, $"Usage Loaded from AppData: {count:N0} records");
+        }
+        catch (Exception e)
+        {
+            return FailAdminTask($"LoadUsageFromAppData: {e.Message}", e);
+        }
+    }
+
+    /// <summary>
+    /// Shared helper to load UsageLog records from a CsvReader in batches.
+    /// </summary>
+    private async Task<int> LoadUsageRecordsAsync(CsvReader csv, int batchSize)
+    {
+        var records = csv.GetRecords<UsageLog>();
+        var count = 0;
+        var batch = new List<UsageLog>(batchSize);
+
+        foreach (var record in records)
+        {
+            record.Id = 0;
+            batch.Add(record);
+
+            if (batch.Count >= batchSize)
+            {
+                await Database.UsageLog.AddRangeAsync(batch);
+                _ = await Database.Context.SaveChangesAsync();
+                Database.Context.ChangeTracker.Clear();
+
+                count += batch.Count;
+                AdminMonitor.UpdateTask("Loading records", count);
+                batch.Clear();
+            }
+        }
+
+        // Handle remaining records in the final batch
+        if (batch.Count > 0)
+        {
+            await Database.UsageLog.AddRangeAsync(batch);
+            _ = await Database.Context.SaveChangesAsync();
+            count += batch.Count;
+            AdminMonitor.UpdateTask("Loading records", count);
+        }
+
+        return count;
     }
 
     //

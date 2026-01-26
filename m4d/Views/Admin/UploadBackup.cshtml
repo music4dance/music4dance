@@ -86,16 +86,32 @@ using (Html.BeginForm("ReloadDatabase", "Admin", FormMethod.Post, new
 <environment exclude="Production">
 
     <h3>Load Usage Data</h3>
-@using (Html.BeginForm("LoadUsage", "Admin", FormMethod.Post, new
-{
-    enctype = "multipart/form-data"
-}))
-{
-    @Html.AntiForgeryToken()
-    <input type="file" name="FileUpload" />
-    <br />
-    <input type="submit" name="reloadDatabase" id="Load" value="Load" />
-}
+    <p><strong>Incremental Load (from file upload):</strong></p>
+    @using (Html.BeginForm("LoadUsage", "Admin", FormMethod.Post, new
+    {
+        enctype = "multipart/form-data"
+    }))
+    {
+        @Html.AntiForgeryToken()
+        <input type="file" name="FileUpload" />
+        <br />
+        <input type="submit" name="reloadDatabase" id="Load" value="Load (Incremental)" />
+    }
+
+    <p><strong>Full Load from AppData (for large files &gt;2GB):</strong></p>
+    @using (Html.BeginForm("LoadUsageFromAppData", "Admin", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        <label for="fileName">File name in AppData:</label>
+        <input type="text" name="fileName" id="fileName" value="usage.tsv" style="width: 200px;" />
+        <br />
+        <label for="batchSize">Batch size:</label>
+        <input type="number" name="batchSize" id="batchSize" value="5000" style="width: 100px;" />
+        <br />
+        <label><input type="checkbox" name="truncate" value="true" checked="checked" /> Truncate table first</label>
+        <br />
+        <input type="submit" value="Load from AppData" />
+    }
 </environment>
 
     <h3>Reload the Index</h3>
