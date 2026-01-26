@@ -797,6 +797,7 @@ public class AdminController(
         {
             await Database.UsageLog.AddRangeAsync(batch);
             _ = await Database.Context.SaveChangesAsync();
+            Database.Context.ChangeTracker.Clear();
             count += batch.Count;
             AdminMonitor.UpdateTask("Loading records", count);
         }
