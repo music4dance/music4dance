@@ -736,7 +736,8 @@ public class AdminController(
             StartAdminTask("LoadUsageFromAppData");
 
             var appDataPath = EnsureAppData(environment);
-            var filePath = Path.Combine(appDataPath, fileName);
+            var safeFileName = Path.GetFileName(string.IsNullOrWhiteSpace(fileName) ? "usage.tsv" : fileName);
+            var filePath = Path.Combine(appDataPath, safeFileName);
 
             if (!System.IO.File.Exists(filePath))
             {
@@ -813,6 +814,7 @@ public class AdminController(
         {
             await Database.UsageLog.AddRangeAsync(batch);
             _ = await Database.Context.SaveChangesAsync();
+            Database.Context.ChangeTracker.Clear();
             count += batch.Count;
             AdminMonitor.UpdateTask("Loading records", count);
         }

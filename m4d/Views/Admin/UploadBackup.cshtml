@@ -106,7 +106,7 @@ using (Html.BeginForm("ReloadDatabase", "Admin", FormMethod.Post, new
         <input type="text" name="fileName" id="fileName" value="usage.tsv" style="width: 200px;" />
         <br />
         <label for="batchSize">Batch size:</label>
-        <input type="number" name="batchSize" id="batchSize" value="5000" style="width: 100px;" />
+        <input type="number" name="batchSize" id="batchSize" value="5000" min="100" max="50000" style="width: 100px;" />
         <br />
         <label><input type="checkbox" name="truncate" value="true" checked="checked" /> Truncate table first</label>
         <br />
