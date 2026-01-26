@@ -720,7 +720,8 @@ public class AdminController(
             StartAdminTask("LoadUsageFromAppData");
 
             var appDataPath = EnsureAppData(environment);
-            var filePath = Path.Combine(appDataPath, fileName);
+            var safeFileName = Path.GetFileName(string.IsNullOrWhiteSpace(fileName) ? "usage.tsv" : fileName);
+            var filePath = Path.Combine(appDataPath, safeFileName);
 
             if (!System.IO.File.Exists(filePath))
             {
