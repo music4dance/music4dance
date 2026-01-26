@@ -826,13 +826,14 @@ public class AdminController(
 
     private static bool TryGetValidUsageBatchSize(int requested, out int validBatchSize, out string? errorMessage)
     {
-        validBatchSize = Math.Clamp(requested, MinUsageBatchSize, MaxUsageBatchSize);
         if (requested < MinUsageBatchSize || requested > MaxUsageBatchSize)
         {
+            validBatchSize = default;
             errorMessage = $"Batch size must be between {MinUsageBatchSize} and {MaxUsageBatchSize}.";
             return false;
         }
 
+        validBatchSize = requested;
         errorMessage = null;
         return true;
     }
