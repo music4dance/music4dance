@@ -735,7 +735,20 @@ public class AdminController(
             StartAdminTask("LoadUsageFromAppData");
 
             var appDataPath = EnsureAppData(environment);
-            var safeFileName = Path.GetFileName(string.IsNullOrWhiteSpace(fileName) ? "usage.tsv" : fileName);
+
+            // Normalize and validate the requested file name before constructing the path
+            var effectiveFileName = string.IsNullOrWhiteSpace(fileName) ? "usage.tsv" : fileName;
+
+            // Reject filenames that contain invalid characters or path separators
+            if (effectiveFileName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0
+                || effectiveFileName.Contains(Path.DirectorySeparatorChar)
+                || effectiveFileName.Contains(Path.AltDirectorySeparatorChar)
+                || effectiveFileName.Contains("..", StringComparison.Ordinal))
+            {
+                return BadRequest("Invalid file name.");
+            }
+
+            var safeFileName = Path.GetFileName(effectiveFileName);
             var filePath = Path.Combine(appDataPath, safeFileName);
 
             if (!System.IO.File.Exists(filePath))
