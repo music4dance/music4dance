@@ -20,6 +20,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
 
+using System;
 using System.Globalization;
 using System.Net.Mime;
 using System.Text;
@@ -681,6 +682,16 @@ public class AdminController(
     {
         try
         {
+            if (fileUpload == null)
+            {
+                return BadRequest("Usage file is required.");
+            }
+
+            if (!TryGetValidUsageBatchSize(batchSize, out var validBatchSize, out var errorMessage))
+            {
+                return BadRequest(errorMessage);
+            }
+
             StartAdminTask("UploadUsage");
             AdminMonitor.UpdateTask("UploadFile");
 
@@ -694,7 +705,7 @@ public class AdminController(
             using var tr = new StreamReader(stream);
             using var csv = new CsvReader(tr, config);
 
-            var count = await LoadUsageRecordsAsync(csv, batchSize);
+            var count = await LoadUsageRecordsAsync(csv, validBatchSize);
 
             return CompleteAdminTask(true, $"Usage Loaded (incremental): {count} records");
         }
@@ -717,6 +728,11 @@ public class AdminController(
     {
         try
         {
+            if (!TryGetValidUsageBatchSize(batchSize, out var validBatchSize, out var errorMessage))
+            {
+                return BadRequest(errorMessage);
+            }
+
             StartAdminTask("LoadUsageFromAppData");
 
             var appDataPath = EnsureAppData(environment);
@@ -756,7 +772,7 @@ public class AdminController(
             using var tr = new StreamReader(stream, bufferSize: 65536);
             using var csv = new CsvReader(tr, config);
 
-            var count = await LoadUsageRecordsAsync(csv, batchSize);
+            var count = await LoadUsageRecordsAsync(csv, validBatchSize);
 
             return CompleteAdminTask(true, $"Usage Loaded from AppData: {count:N0} records");
         }
@@ -802,6 +818,22 @@ public class AdminController(
         }
 
         return count;
+    }
+
+    private const int MinUsageBatchSize = 100;
+    private const int MaxUsageBatchSize = 50000;
+
+    private static bool TryGetValidUsageBatchSize(int requested, out int validBatchSize, out string? errorMessage)
+    {
+        validBatchSize = Math.Clamp(requested, MinUsageBatchSize, MaxUsageBatchSize);
+        if (requested < MinUsageBatchSize || requested > MaxUsageBatchSize)
+        {
+            errorMessage = $"Batch size must be between {MinUsageBatchSize} and {MaxUsageBatchSize}.";
+            return false;
+        }
+
+        errorMessage = null;
+        return true;
     }
 
     //
