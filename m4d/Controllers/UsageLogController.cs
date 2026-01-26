@@ -14,9 +14,28 @@ public class UsageModel
     public DateTime LastUpdate { get; set; }
     public List<UsageSummary> Summaries { get; set; }
 }
+
+public class PageSummary
+{
+    public string Page { get; set; }
+    public int UniqueUsers { get; set; }
+    public DateTimeOffset MinDate { get; set; }
+    public DateTimeOffset MaxDate { get; set; }
+    public int Hits { get; set; }
+}
+
+public class PageUsageModel
+{
+    public DateTime LastUpdate { get; set; }
+    public List<PageSummary> Summaries { get; set; }
+    public bool UseBaseUrl { get; set; }
+}
+
 public class UsageLogController : DanceMusicController
 {
     private static UsageModel s_model;
+    private static PageUsageModel s_pageModelFull;
+    private static PageUsageModel s_pageModelBase;
 
     public UsageLogController(
         DanceMusicContext context, UserManager<ApplicationUser> userManager,
@@ -97,7 +116,111 @@ public class UsageLogController : DanceMusicController
     public IActionResult ClearCache()
     {
         s_model = null;
+        s_pageModelFull = null;
+        s_pageModelBase = null;
         return RedirectToAction("Index");
+    }
+
+    // GET: UsageLogs/Pages
+    public IActionResult Pages(bool useBaseUrl = false)
+    {
+        var cachedModel = useBaseUrl ? s_pageModelBase : s_pageModelFull;
+
+        if (cachedModel == null)
+        {
+            cachedModel = useBaseUrl
+                ? new PageUsageModel
+                {
+                    Summaries = [.. Context.Database.SqlQuery<PageSummary>(
+                        $"""
+                        SELECT 
+                            CASE 
+                                WHEN CHARINDEX('?', [Page]) > 0 
+                                THEN SUBSTRING([Page], 1, CHARINDEX('?', [Page]) - 1)
+                                ELSE [Page]
+                            END as Page,
+                            COUNT(DISTINCT [UsageId]) as UniqueUsers,
+                            MIN([Date]) as MinDate,
+                            MAX([Date]) as MaxDate,
+                            COUNT(*) as Hits
+                        FROM dbo.UsageLog 
+                        GROUP BY 
+                            CASE 
+                                WHEN CHARINDEX('?', [Page]) > 0 
+                                THEN SUBSTRING([Page], 1, CHARINDEX('?', [Page]) - 1)
+                                ELSE [Page]
+                            END
+                        HAVING COUNT(*) > 10 
+                        ORDER BY Hits DESC
+                        """)],
+                    LastUpdate = DateTime.Now,
+                    UseBaseUrl = true,
+                }
+                : new PageUsageModel
+                {
+                    Summaries = [.. Context.Database.SqlQuery<PageSummary>(
+                        $"""
+                        SELECT 
+                            [Page],
+                            COUNT(DISTINCT [UsageId]) as UniqueUsers,
+                            MIN([Date]) as MinDate,
+                            MAX([Date]) as MaxDate,
+                            COUNT(*) as Hits
+                        FROM dbo.UsageLog 
+                        GROUP BY [Page]
+                        HAVING COUNT(*) > 10 
+                        ORDER BY Hits DESC
+                        """)],
+                    LastUpdate = DateTime.Now,
+                    UseBaseUrl = false,
+                };
+
+            if (useBaseUrl)
+                s_pageModelBase = cachedModel;
+            else
+                s_pageModelFull = cachedModel;
+        }
+
+        return View(cachedModel);
+    }
+
+    // GET: UsageLogs/PageLog
+    public IActionResult PageLog(string page, bool exactMatch = true)
+    {
+        if (string.IsNullOrEmpty(page))
+        {
+            return NotFound();
+        }
+
+        ViewData["page"] = page;
+        ViewData["exactMatch"] = exactMatch;
+
+        var query = exactMatch
+            ? Database.Context.UsageLog.Where(l => l.Page == page)
+            : Database.Context.UsageLog.Where(l => l.Page.StartsWith(page));
+
+        return View(query
+            .OrderByDescending(l => l.Id)
+            .Take(5000));
+    }
+
+    // GET: UsageLogs/LowUsage
+    public IActionResult LowUsage()
+    {
+        var model = new UsageModel
+        {
+            Summaries = [.. Context.Database.SqlQuery<UsageSummary>(
+                $"""
+                SELECT [UsageId], MAX([UserName]) as UserName, MIN([Date]) as MinDate, MAX([Date]) as MaxDate, COUNT(*) as Hits 
+                FROM dbo.UsageLog 
+                GROUP BY [UsageId] 
+                HAVING COUNT(*) <= 5 
+                ORDER BY MaxDate DESC
+                """)],
+            LastUpdate = DateTime.Now,
+        };
+
+        return View(model);
     }
 
 }

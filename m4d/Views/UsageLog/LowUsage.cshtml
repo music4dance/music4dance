@@ -1,15 +1,15 @@
-﻿@using m4d.ViewModels
+@using m4d.ViewModels
 @model m4d.Controllers.UsageModel
 
 @{
-    ViewBag.Title = "Usage Log - High Usage";
+    ViewBag.Title = "Usage Log - Low Usage";
     var items = Model.Summaries;
 
     var breadCrumbs = new List<BreadCrumbItem>
     {
         BreadCrumbItem.AdminItem,
         new() { Title = "Usage Log", Link = "/usagelog" },
-        new() { Title = "High Usage", Active = true },
+        new() { Title = "Low Usage", Active = true },
     };
 
     ViewData["BreadCrumbs"] = breadCrumbs;
@@ -24,14 +24,14 @@
     <div class="col">
         @Html.ActionLink("High Usage", "Index", "UsageLog", null, new
             {
-                @class = "btn btn-primary",
+                @class = "btn btn-secondary",
                 role = "button"
             })
     </div>
     <div class="col">
         @Html.ActionLink("Low Usage", "LowUsage", "UsageLog", null, new
             {
-                @class = "btn btn-secondary",
+                @class = "btn btn-primary",
                 role = "button"
             })
     </div>
@@ -99,7 +99,7 @@
     </div>
 </div>
 
-
+<p class="text-muted">Showing tracking IDs with 5 or fewer hits, ordered by most recent activity.</p>
 
 <div class="row">
     <div class="col">
@@ -126,7 +126,7 @@
                 </th>
             </tr>
         </thead>
-
+        <tbody>
         @foreach (var item in items)
         {
             <tr>
@@ -160,6 +160,7 @@
                 </td>
             </tr>
         }
+        </tbody>
     </table>
     </div>
 </div>

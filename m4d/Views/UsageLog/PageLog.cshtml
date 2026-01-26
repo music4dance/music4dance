@@ -1,0 +1,54 @@
+@using m4d.ViewModels
+@using m4dModels
+@model IEnumerable<m4dModels.UsageLog>
+
+@{
+    ViewBag.Title = "Usage Log (Page)";
+
+    var page = ViewData["page"] as string;
+    var exactMatch = ViewData["exactMatch"] as bool? ?? true;
+    var items = Model.ToList();
+
+    var breadCrumbs = new List<BreadCrumbItem>
+    {
+        BreadCrumbItem.AdminItem,
+        new() { Title = "Usage Log", Link = "/usagelog" },
+        new() { Title = "Pages", Link = "/usagelog/pages" },
+        new() { Title = page?.Length > 30 ? page.Substring(0, 30) + "..." : page, Active = true }
+    };
+
+    ViewData["BreadCrumbs"] = breadCrumbs;
+}
+
+<h1>@ViewBag.Title</h1>
+<p>
+    <strong>Page:</strong> @(page)
+    <br />
+    <strong>Match Mode:</strong> @(exactMatch ? "Exact" : "Starts With")
+    <br />
+    <strong>Count:</strong> @items.Count()
+</p>
+
+<div class="row my-1">
+    <div class="col">
+        @Html.ActionLink("Back to Pages", "Pages", "UsageLog", null, new
+            {
+                @class = "btn btn-secondary",
+                role = "button"
+            })
+    </div>
+    @if (exactMatch)
+    {
+        <div class="col">
+            @Html.ActionLink("Show All with Base URL", "PageLog", "UsageLog", new { page = page, exactMatch = false }, new
+                {
+                    @class = "btn btn-secondary",
+                    role = "button"
+                })
+        </div>
+    }
+</div>
+
+<div class="row">
+	<partial name="_UsageLog" model="items" />
+</div>
