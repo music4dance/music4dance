@@ -24,18 +24,40 @@ public class PageSummary
     public int Hits { get; set; }
 }
 
+public enum PageType
+{
+    All,
+    Songs,
+    Other
+}
+
+public enum UserHitFilter
+{
+    All,
+    SingleHit,
+    MultiHit
+}
+
+public enum BotFilter
+{
+    All,
+    ExcludeBots,
+    BotsOnly
+}
+
 public class PageUsageModel
 {
     public DateTime LastUpdate { get; set; }
     public List<PageSummary> Summaries { get; set; }
     public bool UseBaseUrl { get; set; }
+    public UserHitFilter UserHitFilter { get; set; }
+    public PageType PageType { get; set; }
+    public BotFilter BotFilter { get; set; }
 }
 
 public class UsageLogController : DanceMusicController
 {
     private static UsageModel s_model;
-    private static PageUsageModel s_pageModelFull;
-    private static PageUsageModel s_pageModelBase;
 
     public UsageLogController(
         DanceMusicContext context, UserManager<ApplicationUser> userManager,
@@ -116,76 +138,120 @@ public class UsageLogController : DanceMusicController
     public IActionResult ClearCache()
     {
         s_model = null;
-        s_pageModelFull = null;
-        s_pageModelBase = null;
         return RedirectToAction("Index");
     }
 
+
     // GET: UsageLogs/Pages
-    public IActionResult Pages(bool useBaseUrl = false)
+    // Defaults: Other Pages, Base URL Only, Multi-Hit Users, Exclude Bots
+    public async Task<IActionResult> Pages(
+        bool useBaseUrl = true, 
+        UserHitFilter userHitFilter = UserHitFilter.MultiHit, 
+        PageType pageType = PageType.Other,
+        BotFilter botFilter = BotFilter.ExcludeBots)
     {
-        var cachedModel = useBaseUrl ? s_pageModelBase : s_pageModelFull;
-
-        if (cachedModel == null)
+        // Build the appropriate SQL query based on filters
+        // No caching since we have multiple filter combinations
+        var model = new PageUsageModel
         {
-            cachedModel = useBaseUrl
-                ? new PageUsageModel
-                {
-                    Summaries = [.. Context.Database.SqlQuery<PageSummary>(
-                        $"""
-                        SELECT 
-                            CASE 
-                                WHEN CHARINDEX('?', [Page]) > 0 
-                                THEN SUBSTRING([Page], 1, CHARINDEX('?', [Page]) - 1)
-                                ELSE [Page]
-                            END as Page,
-                            COUNT(DISTINCT [UsageId]) as UniqueUsers,
-                            MIN([Date]) as MinDate,
-                            MAX([Date]) as MaxDate,
-                            COUNT(*) as Hits
-                        FROM dbo.UsageLog 
-                        GROUP BY 
-                            CASE 
-                                WHEN CHARINDEX('?', [Page]) > 0 
-                                THEN SUBSTRING([Page], 1, CHARINDEX('?', [Page]) - 1)
-                                ELSE [Page]
-                            END
-                        HAVING COUNT(*) > 10 
-                        ORDER BY Hits DESC
-                        """)],
-                    LastUpdate = DateTime.Now,
-                    UseBaseUrl = true,
-                }
-                : new PageUsageModel
-                {
-                    Summaries = [.. Context.Database.SqlQuery<PageSummary>(
-                        $"""
-                        SELECT 
-                            [Page],
-                            COUNT(DISTINCT [UsageId]) as UniqueUsers,
-                            MIN([Date]) as MinDate,
-                            MAX([Date]) as MaxDate,
-                            COUNT(*) as Hits
-                        FROM dbo.UsageLog 
-                        GROUP BY [Page]
-                        HAVING COUNT(*) > 10 
-                        ORDER BY Hits DESC
-                        """)],
-                    LastUpdate = DateTime.Now,
-                    UseBaseUrl = false,
-                };
+            LastUpdate = DateTime.Now,
+            UseBaseUrl = useBaseUrl,
+            UserHitFilter = userHitFilter,
+            PageType = pageType,
+            BotFilter = botFilter,
+        };
 
-            if (useBaseUrl)
-                s_pageModelBase = cachedModel;
-            else
-                s_pageModelFull = cachedModel;
+        // Build page filter clause (safe - built from constants, not user input)
+        var pageFilter = pageType switch
+        {
+            PageType.Songs => "AND [Page] LIKE '/song/details/%'",
+            PageType.Other => "AND [Page] NOT LIKE '/song/details/%'",
+            _ => ""
+        };
+
+        // Build user hit filter - filter by users' total hit count
+        var userHitSqlFilter = userHitFilter switch
+        {
+            UserHitFilter.SingleHit => "AND u.[UsageId] IN (SELECT [UsageId] FROM dbo.UsageLog GROUP BY [UsageId] HAVING COUNT(*) = 1)",
+            UserHitFilter.MultiHit => "AND u.[UsageId] IN (SELECT [UsageId] FROM dbo.UsageLog GROUP BY [UsageId] HAVING COUNT(*) > 1)",
+            _ => ""
+        };
+
+        // Build bot filter - filter based on UserAgent patterns
+        // Common bot indicators: bot, spider, crawler, Googlebot, Bingbot, etc.
+        var botSqlFilter = botFilter switch
+        {
+            BotFilter.ExcludeBots => """
+                AND u.[UserAgent] NOT LIKE '%bot%' 
+                AND u.[UserAgent] NOT LIKE '%spider%' 
+                AND u.[UserAgent] NOT LIKE '%crawler%'
+                AND u.[UserAgent] NOT LIKE '%slurp%'
+                AND u.[UserAgent] NOT LIKE '%Mediapartners%'
+                """,
+            BotFilter.BotsOnly => """
+                AND (u.[UserAgent] LIKE '%bot%' 
+                    OR u.[UserAgent] LIKE '%spider%' 
+                    OR u.[UserAgent] LIKE '%crawler%'
+                    OR u.[UserAgent] LIKE '%slurp%'
+                    OR u.[UserAgent] LIKE '%Mediapartners%')
+                """,
+            _ => ""
+        };
+
+
+        var minHits = userHitFilter == UserHitFilter.SingleHit ? 1 : 10;
+
+        // Use SqlQueryRaw because we're building dynamic SQL from constants (not user input)
+        // SqlQuery with interpolation would try to parameterize the SQL fragments
+        if (useBaseUrl)
+        {
+            var sql = $"""
+                SELECT 
+                    CASE 
+                        WHEN CHARINDEX('?', u.[Page]) > 0
+                        THEN SUBSTRING(u.[Page], 1, CHARINDEX('?', u.[Page]) - 1)
+                        ELSE u.[Page]
+                    END as Page,
+                    COUNT(DISTINCT u.[UsageId]) as UniqueUsers,
+                    MIN(u.[Date]) as MinDate,
+                    MAX(u.[Date]) as MaxDate,
+                    COUNT(*) as Hits
+                FROM dbo.UsageLog u
+                WHERE 1=1 {pageFilter} {userHitSqlFilter} {botSqlFilter}
+                GROUP BY 
+                    CASE 
+                        WHEN CHARINDEX('?', u.[Page]) > 0 
+                        THEN SUBSTRING(u.[Page], 1, CHARINDEX('?', u.[Page]) - 1)
+                        ELSE u.[Page]
+                    END
+                HAVING COUNT(*) >= {minHits}
+                ORDER BY Hits DESC
+                """;
+            model.Summaries = [.. Context.Database.SqlQueryRaw<PageSummary>(sql)];
+        }
+        else
+        {
+            var sql = $"""
+                SELECT 
+                    u.[Page],
+                    COUNT(DISTINCT u.[UsageId]) as UniqueUsers,
+                    MIN(u.[Date]) as MinDate,
+                    MAX(u.[Date]) as MaxDate,
+                    COUNT(*) as Hits
+                FROM dbo.UsageLog u
+                WHERE 1=1 {pageFilter} {userHitSqlFilter} {botSqlFilter}
+                GROUP BY u.[Page]
+                HAVING COUNT(*) >= {minHits}
+                ORDER BY Hits DESC
+                """;
+            model.Summaries = [.. Context.Database.SqlQueryRaw<PageSummary>(sql)];
         }
 
-        return View(cachedModel);
+        return View(model);
     }
 
     // GET: UsageLogs/PageLog
-    public IActionResult PageLog(string page, bool exactMatch = true)
+    public async Task<IActionResult> PageLog(string page, bool exactMatch = true)
     {
         if (string.IsNullOrEmpty(page))
         {
@@ -194,6 +260,9 @@ public class UsageLogController : DanceMusicController
 
         ViewData["page"] = page;
         ViewData["exactMatch"] = exactMatch;
+
+        // If this is a song details page, look up the song info for the header
+        await EnrichPageWithSongInfo(page);
 
         var query = exactMatch
             ? Database.Context.UsageLog.Where(l => l.Page == page)
@@ -204,23 +273,39 @@ public class UsageLogController : DanceMusicController
             .Take(5000));
     }
 
-    // GET: UsageLogs/LowUsage
-    public IActionResult LowUsage()
+    /// <summary>
+    /// If the page is a song details page, looks up the song and adds title/artist to ViewData.
+    /// </summary>
+    private async Task EnrichPageWithSongInfo(string page)
     {
-        var model = new UsageModel
-        {
-            Summaries = [.. Context.Database.SqlQuery<UsageSummary>(
-                $"""
-                SELECT [UsageId], MAX([UserName]) as UserName, MIN([Date]) as MinDate, MAX([Date]) as MaxDate, COUNT(*) as Hits 
-                FROM dbo.UsageLog 
-                GROUP BY [UsageId] 
-                HAVING COUNT(*) <= 5 
-                ORDER BY MaxDate DESC
-                """)],
-            LastUpdate = DateTime.Now,
-        };
+        const string songDetailPrefix = "/song/details/";
 
-        return View(model);
+        if (!page.StartsWith(songDetailPrefix, StringComparison.OrdinalIgnoreCase))
+            return;
+
+        // Extract GUID from URL (handle query strings)
+        var guidPart = page[songDetailPrefix.Length..];
+        var queryIndex = guidPart.IndexOf('?');
+        if (queryIndex >= 0)
+            guidPart = guidPart[..queryIndex];
+
+        if (Guid.TryParse(guidPart, out var songGuid))
+        {
+            try
+            {
+                var song = await SongIndex.FindSong(songGuid);
+                if (song != null)
+                {
+                    ViewData["SongTitle"] = song.Title;
+                    ViewData["SongArtist"] = song.Artist;
+                    ViewData["SongId"] = song.SongId;
+                }
+            }
+            catch (Azure.RequestFailedException)
+            {
+                // Song not found in index - leave ViewData empty
+            }
+        }
     }
 
 }

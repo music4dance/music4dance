@@ -1,4 +1,5 @@
 @using m4d.ViewModels
+@using m4d.Controllers
 @model m4d.Controllers.PageUsageModel
 
 @{
@@ -13,69 +14,155 @@
     };
 
     ViewData["BreadCrumbs"] = breadCrumbs;
+
+    // Helper to preserve current filters when changing one option
+    object GetRouteValues(bool? useBaseUrl = null, UserHitFilter? userHitFilter = null, PageType? pageType = null, BotFilter? botFilter = null)
+    {
+        return new
+        {
+            useBaseUrl = useBaseUrl ?? Model.UseBaseUrl,
+            userHitFilter = userHitFilter ?? Model.UserHitFilter,
+            pageType = pageType ?? Model.PageType,
+            botFilter = botFilter ?? Model.BotFilter
+        };
+    }
 }
 
 <h1>@ViewBag.Title</h1>
 
 <div class="row my-1">
-    <div class="col">
-        Views:
+    <div class="col-auto">
+        <strong>Views:</strong>
     </div>
-    <div class="col">
+    <div class="col-auto">
         @Html.ActionLink("High Usage", "Index", "UsageLog", null, new
             {
-                @class = "btn btn-secondary",
+                @class = "btn btn-secondary btn-sm",
                 role = "button"
             })
     </div>
-    <div class="col">
-        @Html.ActionLink("Low Usage", "LowUsage", "UsageLog", null, new
-            {
-                @class = "btn btn-secondary",
-                role = "button"
-            })
-    </div>
-    <div class="col">
+    <div class="col-auto">
         @Html.ActionLink("Pages", "Pages", "UsageLog", null, new
             {
-                @class = "btn btn-primary",
+                @class = "btn btn-primary btn-sm",
                 role = "button"
             })
     </div>
 </div>
 
 <div class="row my-1">
-    <div class="col">
-        URL Mode:
+    <div class="col-auto">
+        <strong>Page Type:</strong>
     </div>
-    <div class="col">
-        @Html.ActionLink("Full URL", "Pages", "UsageLog", new { useBaseUrl = false }, new
+    <div class="col-auto">
+        @Html.ActionLink("All Pages", "Pages", "UsageLog", GetRouteValues(pageType: PageType.All), new
             {
-                @class = Model.UseBaseUrl ? "btn btn-secondary" : "btn btn-primary",
+                @class = Model.PageType == PageType.All ? "btn btn-primary btn-sm" : "btn btn-outline-secondary btn-sm",
                 role = "button"
             })
     </div>
-    <div class="col">
-        @Html.ActionLink("Base URL Only", "Pages", "UsageLog", new { useBaseUrl = true }, new
+    <div class="col-auto">
+        @Html.ActionLink("Song Details", "Pages", "UsageLog", GetRouteValues(pageType: PageType.Songs), new
             {
-                @class = Model.UseBaseUrl ? "btn btn-primary" : "btn btn-secondary",
+                @class = Model.PageType == PageType.Songs ? "btn btn-primary btn-sm" : "btn btn-outline-secondary btn-sm",
+                role = "button"
+            })
+    </div>
+    <div class="col-auto">
+        @Html.ActionLink("Other Pages", "Pages", "UsageLog", GetRouteValues(pageType: PageType.Other), new
+            {
+                @class = Model.PageType == PageType.Other ? "btn btn-primary btn-sm" : "btn btn-outline-secondary btn-sm",
                 role = "button"
             })
     </div>
 </div>
 
 <div class="row my-1">
-    <div class="col">Summary:</div>
-    <div class="col">
+    <div class="col-auto">
+        <strong>URL Mode:</strong>
+    </div>
+    <div class="col-auto">
+        @Html.ActionLink("Full URL", "Pages", "UsageLog", GetRouteValues(useBaseUrl: false), new
+            {
+                @class = !Model.UseBaseUrl ? "btn btn-primary btn-sm" : "btn btn-outline-secondary btn-sm",
+                role = "button"
+            })
+    </div>
+    <div class="col-auto">
+        @Html.ActionLink("Base URL Only", "Pages", "UsageLog", GetRouteValues(useBaseUrl: true), new
+            {
+                @class = Model.UseBaseUrl ? "btn btn-primary btn-sm" : "btn btn-outline-secondary btn-sm",
+                role = "button"
+            })
+    </div>
+</div>
+
+<div class="row my-1">
+    <div class="col-auto">
+        <strong>User Filter:</strong>
+    </div>
+    <div class="col-auto">
+        @Html.ActionLink("All Users", "Pages", "UsageLog", GetRouteValues(userHitFilter: UserHitFilter.All), new
+            {
+                @class = Model.UserHitFilter == UserHitFilter.All ? "btn btn-primary btn-sm" : "btn btn-outline-secondary btn-sm",
+                role = "button"
+            })
+    </div>
+    <div class="col-auto">
+        @Html.ActionLink("Multi-Hit Users", "Pages", "UsageLog", GetRouteValues(userHitFilter: UserHitFilter.MultiHit), new
+            {
+                @class = Model.UserHitFilter == UserHitFilter.MultiHit ? "btn btn-primary btn-sm" : "btn btn-outline-secondary btn-sm",
+                role = "button"
+            })
+    </div>
+    <div class="col-auto">
+        @Html.ActionLink("Single-Hit Users", "Pages", "UsageLog", GetRouteValues(userHitFilter: UserHitFilter.SingleHit), new
+            {
+                @class = Model.UserHitFilter == UserHitFilter.SingleHit ? "btn btn-primary btn-sm" : "btn btn-outline-secondary btn-sm",
+                role = "button"
+            })
+    </div>
+</div>
+
+<div class="row my-1">
+    <div class="col-auto">
+        <strong>Bot Filter:</strong>
+    </div>
+    <div class="col-auto">
+        @Html.ActionLink("All Traffic", "Pages", "UsageLog", GetRouteValues(botFilter: BotFilter.All), new
+            {
+                @class = Model.BotFilter == BotFilter.All ? "btn btn-primary btn-sm" : "btn btn-outline-secondary btn-sm",
+                role = "button"
+            })
+    </div>
+    <div class="col-auto">
+        @Html.ActionLink("Exclude Bots", "Pages", "UsageLog", GetRouteValues(botFilter: BotFilter.ExcludeBots), new
+            {
+                @class = Model.BotFilter == BotFilter.ExcludeBots ? "btn btn-primary btn-sm" : "btn btn-outline-secondary btn-sm",
+                role = "button"
+            })
+    </div>
+    <div class="col-auto">
+        @Html.ActionLink("Bots Only", "Pages", "UsageLog", GetRouteValues(botFilter: BotFilter.BotsOnly), new
+            {
+                @class = Model.BotFilter == BotFilter.BotsOnly ? "btn btn-primary btn-sm" : "btn btn-outline-secondary btn-sm",
+                role = "button"
+            })
+    </div>
+</div>
+
+<div class="row my-1">
+    <div class="col-auto"><strong>Summary:</strong></div>
+    <div class="col-auto">
         Count = @items.Count()
     </div>
-    <div class="col">
+    <div class="col-auto">
         Last Refresh = @Model.LastUpdate.ToString()
     </div>
-    <div class="col">
+    <div class="col-auto">
         @Html.ActionLink("Clear Cache", "ClearCache", "UsageLog", null, new
             {
-                @class = "btn btn-primary",
+                @class = "btn btn-secondary btn-sm",
                 role = "button"
             })
     </div>
@@ -86,16 +173,16 @@
     <table style="table-layout:fixed" class="table table-striped table-songs col-sm">
         <thead>
             <tr>
-                <th scope="col" style="width:3em">
+                <th scope="col" style="width:5em">
                     Hits
                 </th>
-                <th scope="col" style="width:3em">
+                <th scope="col" style="width:5em">
                     Users
                 </th>
                 <th scope="col">
                     Page
                 </th>
-                <th scope="col" style="width:2em">
+                <th scope="col" style="width:3em">
                     Days
                 </th>
                 <th scope="col" style="width:10em">

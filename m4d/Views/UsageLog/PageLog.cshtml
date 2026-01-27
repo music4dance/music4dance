@@ -9,6 +9,11 @@
     var exactMatch = ViewData["exactMatch"] as bool? ?? true;
     var items = Model.ToList();
 
+    // Song info (only populated for song detail pages)
+    var songTitle = ViewData["SongTitle"] as string;
+    var songArtist = ViewData["SongArtist"] as string;
+    var songId = ViewData["SongId"] as Guid?;
+
     var breadCrumbs = new List<BreadCrumbItem>
     {
         BreadCrumbItem.AdminItem,
@@ -24,6 +29,23 @@
 <p>
     <strong>Page:</strong> @(page)
     <br />
+    @if (!string.IsNullOrEmpty(songTitle))
+    {
+        <strong>Song:</strong>
+        if (songId.HasValue)
+        {
+            <a href="/song/details/@songId">@songTitle</a>
+        }
+        else
+        {
+            @songTitle
+        }
+        if (!string.IsNullOrEmpty(songArtist))
+        {
+            <text> by @songArtist</text>
+        }
+        <br />
+    }
     <strong>Match Mode:</strong> @(exactMatch ? "Exact" : "Starts With")
     <br />
     <strong>Count:</strong> @items.Count()
