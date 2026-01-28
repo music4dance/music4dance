@@ -58,7 +58,27 @@ public class PageUsageModel
 
 public class UsageLogController : DanceMusicController
 {
+    // Cached model for default Index view (static for cross-request caching)
     private static UsageModel s_model;
+
+    // Bot detection patterns - centralized to avoid duplication
+    private static readonly string[] BotPatterns = ["bot", "spider", "crawler", "slurp", "Mediapartners"];
+
+    /// <summary>
+    /// Generates SQL WHERE clause fragment to filter bot traffic based on UserAgent.
+    /// </summary>
+    /// <param name="filter">The bot filter to apply</param>
+    /// <param name="columnPrefix">Optional table alias prefix (e.g., "u." for aliased queries)</param>
+    private static string GetBotFilterSql(BotFilter filter, string columnPrefix = "")
+    {
+        var column = $"{columnPrefix}[UserAgent]";
+        return filter switch
+        {
+            BotFilter.ExcludeBots => string.Join(" ", BotPatterns.Select(p => $"AND {column} NOT LIKE '%{p}%'")),
+            BotFilter.BotsOnly => "AND (" + string.Join(" OR ", BotPatterns.Select(p => $"{column} LIKE '%{p}%'")) + ")",
+            _ => ""
+        };
+    }
 
     public UsageLogController(
         DanceMusicContext context, UserManager<ApplicationUser> userManager,
@@ -83,25 +103,8 @@ public class UsageLogController : DanceMusicController
             return View(s_model);
         }
 
-        // Build bot filter SQL (safe - built from constants, not user input)
-        var botSqlFilter = botFilter switch
-        {
-            BotFilter.ExcludeBots => """
-                AND [UserAgent] NOT LIKE '%bot%' 
-                AND [UserAgent] NOT LIKE '%spider%' 
-                AND [UserAgent] NOT LIKE '%crawler%'
-                AND [UserAgent] NOT LIKE '%slurp%'
-                AND [UserAgent] NOT LIKE '%Mediapartners%'
-                """,
-            BotFilter.BotsOnly => """
-                AND ([UserAgent] LIKE '%bot%' 
-                    OR [UserAgent] LIKE '%spider%' 
-                    OR [UserAgent] LIKE '%crawler%'
-                    OR [UserAgent] LIKE '%slurp%'
-                    OR [UserAgent] LIKE '%Mediapartners%')
-                """,
-            _ => ""
-        };
+        // Build bot filter SQL using shared helper
+        var botSqlFilter = GetBotFilterSql(botFilter);
 
         var sql = $"""
             SELECT [UsageId], MAX([UserName]) as UserName, MIN([Date]) as MinDate, MAX([Date]) as MaxDate, COUNT(*) as Hits 
@@ -185,7 +188,7 @@ public class UsageLogController : DanceMusicController
 
     // GET: UsageLogs/Pages
     // Defaults: Other Pages, Base URL Only, Multi-Hit Users, Exclude Bots
-    public async Task<IActionResult> Pages(
+    public IActionResult Pages(
         bool useBaseUrl = true, 
         UserHitFilter userHitFilter = UserHitFilter.MultiHit, 
         PageType pageType = PageType.Other,
@@ -218,26 +221,8 @@ public class UsageLogController : DanceMusicController
             _ => ""
         };
 
-        // Build bot filter - filter based on UserAgent patterns
-        // Common bot indicators: bot, spider, crawler, Googlebot, Bingbot, etc.
-        var botSqlFilter = botFilter switch
-        {
-            BotFilter.ExcludeBots => """
-                AND u.[UserAgent] NOT LIKE '%bot%' 
-                AND u.[UserAgent] NOT LIKE '%spider%' 
-                AND u.[UserAgent] NOT LIKE '%crawler%'
-                AND u.[UserAgent] NOT LIKE '%slurp%'
-                AND u.[UserAgent] NOT LIKE '%Mediapartners%'
-                """,
-            BotFilter.BotsOnly => """
-                AND (u.[UserAgent] LIKE '%bot%' 
-                    OR u.[UserAgent] LIKE '%spider%' 
-                    OR u.[UserAgent] LIKE '%crawler%'
-                    OR u.[UserAgent] LIKE '%slurp%'
-                    OR u.[UserAgent] LIKE '%Mediapartners%')
-                """,
-            _ => ""
-        };
+        // Build bot filter using shared helper (with table alias prefix)
+        var botSqlFilter = GetBotFilterSql(botFilter, "u.");
 
 
         var minHits = userHitFilter == UserHitFilter.SingleHit ? 1 : 10;
