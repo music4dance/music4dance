@@ -13,6 +13,7 @@ public class UsageModel
 {
     public DateTime LastUpdate { get; set; }
     public List<UsageSummary> Summaries { get; set; }
+    public BotFilter BotFilter { get; set; }
 }
 
 public class PageSummary
@@ -73,20 +74,60 @@ public class UsageLogController : DanceMusicController
     }
 
     // GET: UsageLogs
-    public IActionResult Index()
+    // Default: Exclude Bots (cached)
+    public IActionResult Index(BotFilter botFilter = BotFilter.ExcludeBots)
     {
-        var model = s_model ?? new UsageModel
+        // Only cache the default (ExcludeBots) result
+        if (botFilter == BotFilter.ExcludeBots && s_model != null)
         {
-            Summaries = [.. Context.Database.SqlQuery<UsageSummary>(
-                    $"""
-                        SELECT [UsageId], MAX([UserName]) as UserName, MIN([Date]) as MinDate, MAX([Date]) as MaxDate, COUNT(*) as Hits FROM dbo.UsageLog GROUP BY [UsageId] HAVING COUNT(*) > 5 ORDER BY Hits DESC
-                    """)],
-            LastUpdate = DateTime.Now,
+            return View(s_model);
+        }
+
+        // Build bot filter SQL (safe - built from constants, not user input)
+        var botSqlFilter = botFilter switch
+        {
+            BotFilter.ExcludeBots => """
+                AND [UserAgent] NOT LIKE '%bot%' 
+                AND [UserAgent] NOT LIKE '%spider%' 
+                AND [UserAgent] NOT LIKE '%crawler%'
+                AND [UserAgent] NOT LIKE '%slurp%'
+                AND [UserAgent] NOT LIKE '%Mediapartners%'
+                """,
+            BotFilter.BotsOnly => """
+                AND ([UserAgent] LIKE '%bot%' 
+                    OR [UserAgent] LIKE '%spider%' 
+                    OR [UserAgent] LIKE '%crawler%'
+                    OR [UserAgent] LIKE '%slurp%'
+                    OR [UserAgent] LIKE '%Mediapartners%')
+                """,
+            _ => ""
         };
-        s_model = model;
+
+        var sql = $"""
+            SELECT [UsageId], MAX([UserName]) as UserName, MIN([Date]) as MinDate, MAX([Date]) as MaxDate, COUNT(*) as Hits 
+            FROM dbo.UsageLog 
+            WHERE 1=1 {botSqlFilter}
+            GROUP BY [UsageId] 
+            HAVING COUNT(*) > 5 
+            ORDER BY Hits DESC
+            """;
+
+        var model = new UsageModel
+        {
+            Summaries = [.. Context.Database.SqlQueryRaw<UsageSummary>(sql)],
+            LastUpdate = DateTime.Now,
+            BotFilter = botFilter,
+        };
+
+        // Cache only the default view
+        if (botFilter == BotFilter.ExcludeBots)
+        {
+            s_model = model;
+        }
 
         return View(model);
     }
+
 
     // GET: UsageLogs/DayLog
     public IActionResult DayLog(int days = 0)
