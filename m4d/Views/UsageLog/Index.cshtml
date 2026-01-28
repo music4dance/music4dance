@@ -1,14 +1,16 @@
-﻿@using m4d.ViewModels
+@using m4d.ViewModels
+@using m4d.Controllers
 @model m4d.Controllers.UsageModel
 
 @{
-    ViewBag.Title = "Usage Log";
+    ViewBag.Title = "Usage Log - High Usage";
     var items = Model.Summaries;
 
     var breadCrumbs = new List<BreadCrumbItem>
     {
         BreadCrumbItem.AdminItem,
-        new() { Title = ViewBag.Title, Active=true },
+        new() { Title = "Usage Log", Link = "/usagelog" },
+        new() { Title = "High Usage", Active = true },
     };
 
     ViewData["BreadCrumbs"] = breadCrumbs;
@@ -17,60 +19,94 @@
 <h1>@ViewBag.Title</h1>
 
 <div class="row my-1">
-    <div class="col">
-        Days:
+    <div class="col-auto">
+        <strong>Views:</strong>
     </div>
-    <div class="col">
-        @Html.ActionLink("Today", "DayLog", "UsageLog", new
+    <div class="col-auto">
+        @Html.ActionLink("High Usage", "Index", "UsageLog", null, new
             {
-                day = 0
-            }, 
-            new
-            {
-                @class = "btn btn-secondary",
+                @class = "btn btn-primary btn-sm",
                 role = "button"
             })
     </div>
-    <div class="col">
-        @Html.ActionLink("Yesterday", "DayLog", "UsageLog", new
+    <div class="col-auto">
+        @Html.ActionLink("Pages", "Pages", "UsageLog", null, new
             {
-                day = -1
-            }, 
-            new {
-                @class = "btn btn-secondary",
+                @class = "btn btn-secondary btn-sm",
                 role = "button"
             })
-    </div>
-    <div class="col">
-        @Html.ActionLink("-2", "DayLog", "UsageLog", new
-        {
-            day = -2
-        },
-        new
-        {
-            @class = "btn btn-secondary",
-            role = "button"
-        })
     </div>
 </div>
 
 <div class="row my-1">
-    <div class="col">Summary:</div>
-    <div class="col">
-        Count = @items.Count()
+    <div class="col-auto">
+        <strong>Bot Filter:</strong>
     </div>
-    <div class="col">
-        Last Refresh = @Model.LastUpdate.ToString()
-    </div>
-    <div class="col">
-        @Html.ActionLink("Clear Cache", "ClearCache", "UsageLog", null, new
+    <div class="col-auto">
+        @Html.ActionLink("All Traffic", "Index", "UsageLog", new { botFilter = BotFilter.All }, new
             {
-                @class = "btn btn-primary",
+                @class = Model.BotFilter == BotFilter.All ? "btn btn-primary btn-sm" : "btn btn-outline-secondary btn-sm",
+                role = "button"
+            })
+    </div>
+    <div class="col-auto">
+        @Html.ActionLink("Exclude Bots", "Index", "UsageLog", new { botFilter = BotFilter.ExcludeBots }, new
+            {
+                @class = Model.BotFilter == BotFilter.ExcludeBots ? "btn btn-primary btn-sm" : "btn btn-outline-secondary btn-sm",
+                role = "button"
+            })
+    </div>
+    <div class="col-auto">
+        @Html.ActionLink("Bots Only", "Index", "UsageLog", new { botFilter = BotFilter.BotsOnly }, new
+            {
+                @class = Model.BotFilter == BotFilter.BotsOnly ? "btn btn-primary btn-sm" : "btn btn-outline-secondary btn-sm",
                 role = "button"
             })
     </div>
 </div>
 
+<div class="row my-1">
+    <div class="col-auto">
+        <strong>Days:</strong>
+    </div>
+    <div class="col-auto">
+        @Html.ActionLink("Today", "DayLog", "UsageLog", new { day = 0 }, new
+            {
+                @class = "btn btn-secondary btn-sm",
+                role = "button"
+            })
+    </div>
+    <div class="col-auto">
+        @Html.ActionLink("Yesterday", "DayLog", "UsageLog", new { day = -1 }, new
+            {
+                @class = "btn btn-secondary btn-sm",
+                role = "button"
+            })
+    </div>
+    <div class="col-auto">
+        @Html.ActionLink("-2", "DayLog", "UsageLog", new { day = -2 }, new
+            {
+                @class = "btn btn-secondary btn-sm",
+                role = "button"
+            })
+    </div>
+</div>
+
+<div class="row my-1">
+    <div class="col-auto"><strong>Summary:</strong></div>
+    <div class="col-auto">
+        Count = @items.Count()
+    </div>
+    <div class="col-auto">
+        Last Refresh = @Model.LastUpdate.ToString()
+    </div>
+    <div class="col-auto">
+        @Html.ActionLink("Clear Cache", "ClearCache", "UsageLog", null, new
+            {
+                @class = "btn btn-secondary btn-sm",
+                role = "button"
+            })
+    </div>
 </div>
 
 <div class="row">
