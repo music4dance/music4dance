@@ -6,7 +6,7 @@ import type { SongDetailsModel } from "@/models/SongDetailsModel";
 
 const context = getMenuContext();
 
-const props = defineProps<{ id?: string }>();
+const props = defineProps<{ id?: string; dance?: string }>();
 
 const emit = defineEmits<{
   "edit-song": [song: SongDetailsModel];
@@ -46,7 +46,7 @@ const onCancel = (): void => {
 const lookupService = async (s: string): Promise<void> => {
   searching.value = true;
   try {
-    const song = await serviceMatcher.findSong(s);
+    const song = await serviceMatcher.findSong(s, false, props.dance);
     if (song) {
       emit("edit-song", song);
     } else {

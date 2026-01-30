@@ -29,6 +29,7 @@ const tabIndex = ref(0);
 
 const canAugment = computed(() => !!context.userName);
 const computedId = computed(() => (model.id ? model.id : undefined));
+const computedDance = computed(() => (model.dance ? model.dance : undefined));
 
 onMounted(() => {
   tabIndex.value = model.id ? 1 : 0;
@@ -77,10 +78,13 @@ const reset = (saved: boolean): void => {
         <h1>Add Song</h1>
         <BTabs v-if="canAugment" v-model:index="tabIndex" card>
           <BTab title="by Title"
-            ><BCardText><AugmentSearch @edit-song="editSong($event)" /></BCardText
+            ><BCardText
+              ><AugmentSearch :dance="computedDance" @edit-song="editSong($event)" /></BCardText
           ></BTab>
           <BTab title="by Id">
-            <BCardText><AugmentLookup :id="computedId" @edit-song="editSong($event)" /></BCardText>
+            <BCardText
+              ><AugmentLookup :id="computedId" :dance="computedDance" @edit-song="editSong($event)"
+            /></BCardText>
           </BTab>
           <BTab v-if="context.isAdmin" title="Admin">
             <BCardText>
