@@ -76,8 +76,10 @@ public static class DanceValidationExtensions
             validation.FlagInvalidMeters != null && validation.FlagInvalidMeters.Contains(meter))
         {
             result.RequiresMeterFlag = true;
+            var danceName = dance?.Name ?? "this dance";
+            var expectedMeter = dance?.Meter?.ToString() ?? "4/4";
             result.MeterFlagReason = 
-                $"Invalid meter {meter} for {dance.Name} (expected {dance.Meter})";
+                $"Invalid meter {meter} for {danceName} (expected {expectedMeter})";
         }
         
         return result;

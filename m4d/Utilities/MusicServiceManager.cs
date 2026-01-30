@@ -784,7 +784,7 @@ public class MusicServiceManager(IConfiguration configuration)
     /// Validates tempo against dance-specific rules and corrects if needed.
     /// Only runs validation if the song has exactly one dance (first dance scenario).
     /// </summary>
-    private async Task<bool> ValidateAndCorrectTempo(DanceMusicCoreService dms, Song song)
+    internal async Task<bool> ValidateAndCorrectTempo(DanceMusicCoreService dms, Song song)
     {
         // Only validate if exactly one dance (first dance scenario)
         if (song.DanceRatings.Count != 1)
