@@ -63,7 +63,10 @@ music4dance.net is a sophisticated web application designed to help dancers find
 
 ### C# (.NET) Standards
 
-- Use nullable reference types (`string?`, `object?`)
+- **DO NOT use nullable reference types** (`string?`, `object?`) - This project does not have nullable reference types enabled
+  - Use regular types: `string`, `object`, `List<string>`, etc.
+  - Check for null explicitly using `if (value != null)` or null-coalescing operators
+  - Avoid CS8632 warnings by not using `?` annotations on reference types
 - Prefer records for immutable data structures
 - Use `readonly` fields where appropriate
 - Follow dependency injection patterns

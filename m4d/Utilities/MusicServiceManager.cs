@@ -11,6 +11,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Security.Principal;
 using System.Text;
+using System.Text.RegularExpressions;
 
 using TagList = m4dModels.TagList;
 
@@ -21,6 +22,8 @@ public class MusicServiceManager(IConfiguration configuration)
     private IConfiguration Configuration { get; } = configuration;
 
     private static readonly ILogger Logger = ApplicationLogging.CreateLogger<MusicServiceManager>();
+    
+    private static readonly Regex MeterRegex = new(@"^\d+/\d+$", RegexOptions.Compiled);
 
     public async Task<bool> UpdateSongAndServices(DanceMusicCoreService dms, Song sd,
         bool crossRetry = false)
@@ -50,6 +53,12 @@ public class MusicServiceManager(IConfiguration configuration)
         if (service.Id == ServiceType.Spotify && (sd.Tempo == null || sd.Danceability == null))
         {
             changed |= await GetEchoData(dms, sd);
+            
+            // After getting tempo from Spotify, validate and correct if needed
+            if (changed && sd.Tempo.HasValue)
+            {
+                changed |= await ValidateAndCorrectTempo(dms, sd);
+            }
         }
 
         if ((service.Id == ServiceType.Spotify || service.Id == ServiceType.ITunes) && sd.Sample == null)
@@ -769,6 +778,80 @@ public class MusicServiceManager(IConfiguration configuration)
         }
 
         return true;
+    }
+
+    /// <summary>
+    /// Validates tempo against dance-specific rules and corrects if needed.
+    /// Only runs validation if the song has exactly one dance (first dance scenario).
+    /// </summary>
+    private async Task<bool> ValidateAndCorrectTempo(DanceMusicCoreService dms, Song song)
+    {
+        // Only validate if exactly one dance (first dance scenario)
+        if (song.DanceRatings.Count != 1)
+        {
+            // Multiple dances or no dances - skip validation
+            return false;
+        }
+        
+        var danceId = song.DanceRatings[0].DanceId;
+        var dance = Dances.Instance.DanceFromId(danceId);
+        
+        if (dance == null)
+        {
+            return false;
+        }
+        
+        var currentTempo = song.Tempo;
+        
+        if (!currentTempo.HasValue)
+        {
+            return false;
+        }
+        
+        // Get meter from song properties - it's stored as a tag like "4/4:Tempo"
+        var tempoTags = song.TagSummary.GetTagSet("Tempo");
+        var meter = tempoTags.FirstOrDefault(t => MeterRegex.IsMatch(t));
+        
+        // Validate tempo against dance rules
+        var validation = dance.ValidateTempo(currentTempo.Value, meter);
+        
+        if (!validation.RequiresCorrection && !validation.RequiresMeterFlag)
+        {
+            // No corrections needed
+            return false;
+        }
+        
+        // Create a new edit as tempo-bot user
+        var tempoBot = new ApplicationUser("tempo-bot", pseudo: true);
+        var edit = await Song.Create(song, dms);
+        var tags = edit.GetUserTags(tempoBot.UserName);
+        
+        if (validation.RequiresCorrection)
+        {
+            // Apply tempo correction
+            edit.Tempo = validation.CorrectedTempo;
+            
+            Logger.LogInformation(
+                "Tempo-bot corrected {Title} by {Artist}: {Original} -> {Corrected} BPM. Reason: {Reason}",
+                song.Title, song.Artist, currentTempo.Value, validation.CorrectedTempo, validation.CorrectionReason);
+        }
+        
+        if (validation.RequiresMeterFlag)
+        {
+            // Add check-accuracy:Tempo tag for manual review
+            tags = tags.Add("check-accuracy:Tempo");
+            
+            Logger.LogWarning(
+                "Flagged {Title} by {Artist} for meter review: {Reason}",
+                song.Title, song.Artist, validation.MeterFlagReason);
+        }
+        
+        // Commit changes as tempo-bot
+        return await dms.SongIndex.EditSong(
+            tempoBot, song, edit,
+            [
+                new UserTag { Id = string.Empty, Tags = tags }
+            ]);
     }
 
     public async Task<bool> GetSampleData(DanceMusicCoreService dms, Song song)
