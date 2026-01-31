@@ -189,6 +189,13 @@ public static class DanceMusicTester
         
         var service = new DanceMusicService(context, userManager, null, manager, songIndex);
         
+        // If using TestSongIndex, attach the service immediately after creation
+        // This resolves the circular dependency before any initialization code runs
+        if (customSongIndex is TestSongIndex testIndex)
+        {
+            testIndex.AttachToService(service);
+        }
+        
         // Only setup mocks if we're using a mock
         if (customSongIndex == null)
         {

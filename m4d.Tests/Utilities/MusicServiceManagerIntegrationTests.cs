@@ -57,21 +57,22 @@ public class MusicServiceManagerIntegrationTests
 
     /// <summary>
     /// Helper to create a service with TestSongIndex that captures EditSong calls.
+    /// Uses late-binding pattern with automatic attachment by DanceMusicTester.
     /// </summary>
     private static async Task<(DanceMusicService service, TestSongIndex songIndex)> CreateServiceWithTestIndex(string dbName)
     {
-        // Create the real service first
-        var service = await DanceMusicTester.CreateService(dbName);
-
-        // Create TestSongIndex with the real service
-        var testIndex = new TestSongIndex(service, dbName);
-
-        // Attach the TestSongIndex to the service so that all operations use it
-        service.SongIndex = testIndex;
-
+        // Create TestSongIndex first (no service needed yet)
+        var testIndex = new TestSongIndex();
+        
+        // Create the real service with our TestSongIndex
+        // DanceMusicTester.CreateService properly injects the custom SongIndex and automatically
+        // calls AttachToService for TestSongIndex instances to resolve the circular dependency
+        var service = await DanceMusicTester.CreateService(dbName, customSongIndex: testIndex);
+        
         // Add users
         await DanceMusicTester.AddUser(service, "dwgray", false);
         await DanceMusicTester.AddUser(service, "batch", true);
+        
         return (service, testIndex);
     }
 
