@@ -60,19 +60,18 @@ public class MusicServiceManagerIntegrationTests
     /// </summary>
     private static async Task<(DanceMusicService service, TestSongIndex songIndex)> CreateServiceWithTestIndex(string dbName)
     {
-        // Create a temporary service first
-        var tempService = await DanceMusicTester.CreateService(dbName + "_temp");
-        
-        // Create TestSongIndex with the temp service
-        var testIndex = new TestSongIndex(tempService, dbName);
-        
-        // Create the real service with our TestSongIndex
-        var service = await DanceMusicTester.CreateService(dbName, customSongIndex: testIndex);
-        
+        // Create the real service first
+        var service = await DanceMusicTester.CreateService(dbName);
+
+        // Create TestSongIndex with the real service
+        var testIndex = new TestSongIndex(service, dbName);
+
+        // Attach the TestSongIndex to the service so that all operations use it
+        service.SongIndex = testIndex;
+
         // Add users
         await DanceMusicTester.AddUser(service, "dwgray", false);
         await DanceMusicTester.AddUser(service, "batch", true);
-        
         return (service, testIndex);
     }
 
