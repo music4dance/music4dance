@@ -79,7 +79,7 @@ public class MusicServiceManagerIntegrationTests
     #region Real Integration Tests
 
     [TestMethod]
-    public async Task ValidateAndCorrectTempo_RealService_NoDances_ReturnsFalse()
+    public async Task ValidateAndCorrectTempo_NoDances_ReturnsFalse()
     {
         // Arrange
         var dms = await DanceMusicTester.CreateServiceWithUsers("TestDb_NoDances");
@@ -100,7 +100,7 @@ public class MusicServiceManagerIntegrationTests
     }
 
     [TestMethod]
-    public async Task ValidateAndCorrectTempo_RealService_MultipleDances_ReturnsFalse()
+    public async Task ValidateAndCorrectTempo_MultipleDances_ReturnsFalse()
     {
         // Arrange
         var dms = await DanceMusicTester.CreateServiceWithUsers("TestDb_MultipleDances");
@@ -122,7 +122,7 @@ public class MusicServiceManagerIntegrationTests
     }
 
     [TestMethod]
-    public async Task ValidateAndCorrectTempo_RealService_NoTempo_ReturnsFalse()
+    public async Task ValidateAndCorrectTempo_NoTempo_ReturnsFalse()
     {
         // Arrange
         var dms = await DanceMusicTester.CreateServiceWithUsers("TestDb_NoTempo");
@@ -143,7 +143,7 @@ public class MusicServiceManagerIntegrationTests
     }
 
     [TestMethod]
-    public async Task ValidateAndCorrectTempo_RealService_UnknownDance_ReturnsFalse()
+    public async Task ValidateAndCorrectTempo_UnknownDance_ReturnsFalse()
     {
         // Arrange
         var dms = await DanceMusicTester.CreateServiceWithUsers("TestDb_UnknownDance");
@@ -164,7 +164,7 @@ public class MusicServiceManagerIntegrationTests
     }
 
     [TestMethod]
-    public async Task ValidateAndCorrectTempo_RealService_NoValidationRules_ReturnsFalse()
+    public async Task ValidateAndCorrectTempo_NoValidationRules_ReturnsFalse()
     {
         // Arrange
         var dms = await DanceMusicTester.CreateServiceWithUsers("TestDb_NoValidation");
@@ -188,7 +188,7 @@ public class MusicServiceManagerIntegrationTests
     }
 
     [TestMethod]
-    public async Task ValidateAndCorrectTempo_RealService_ValidTempoNoMeter_ReturnsFalse()
+    public async Task ValidateAndCorrectTempo_ValidTempoNoMeter_ReturnsFalse()
     {
         // Arrange
         var dms = await DanceMusicTester.CreateServiceWithUsers("TestDb_ValidTempo");
@@ -323,74 +323,82 @@ public class MusicServiceManagerIntegrationTests
 
     #region Meter Validation Tests
 
-    // TODO: Meter validation tests require adding meter tags to songs
-    // This is more complex and requires understanding how SongProperties/TagSummary work
-    // For now, documenting the expected behavior:
-    //
-    // [TestMethod]
-    // public async Task ValidateAndCorrectTempo_InvalidMeter_AddsCheckAccuracyTag()
-    // {
-    //     var song = new Song { Tempo = 180m, DanceId = "SLS" };
-    //     // Add meter tag: song.SongProperties.Add(new SongProperty { Name = "batch-s", Value = "3/4:Tempo" });
-    //     // song.LoadProperties();
-    //     
-    //     var result = await _manager.ValidateAndCorrectTempo(dms, song);
-    //     
-    //     Assert.IsTrue(result);
-    //     Assert.IsTrue(capturedTags.Any(t => t.Tags.Contains("check-accuracy:Tempo")));
-    // }
+    [TestMethod]
+    public async Task ValidateAndCorrectTempo_ValidMeter_NoCorrection()
+    {
+        // Arrange
+        var dms = await DanceMusicTester.CreateServiceWithUsers("TestDb_ValidMeter");
+        
+        // Create song with valid tempo (180) and valid meter (4/4) for Salsa
+        // 4/4 is NOT in flagInvalidMeters, so it should be valid
+        var songData = @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Valid Meter Salsa	Artist=Test Artist	Tempo=180.0	Tag+=Salsa:Dance	DanceRating=SLS+1	Tag+:SLS=4/4:Tempo";
+        var song = await Song.Create(songData, dms);
 
-    #endregion
+        // Act
+        var result = await _manager.ValidateAndCorrectTempo(dms, song);
 
-    #region Future Test Implementation Notes
+        // Assert
+        Assert.IsFalse(result, "Should return false when both tempo and meter are valid (no corrections needed)");
+    }
 
-    // To implement REAL validation/correction tests (not just documentation):
-    //
-    // 1. **Add Validation Rules to Test Data**
-    //    Create test-dances-with-validation.json:
-    //    {
-    //      "id": "SLS",
-    //      "name": "Salsa",
-    //      "instances": [{
-    //        "style": "Social",
-    //        "validation": {
-    //          "doubleTempoIfBelow": 120,
-    //          "halveTempoIfAbove": 250,
-    //          "flagInvalidMeters": ["3/4", "6/8"]
-    //        }
-    //      }]
-    //    }
-    //
-    // 2. **Mock SongIndex.EditSong**
-    //    var mockSongIndex = new Mock<SongIndex>();
-    //    Song capturedEdit = null;
-    //    ApplicationUser capturedUser = null;
-    //    ICollection<UserTag> capturedTags = null;
-    //    
-    //    mockSongIndex
-    //        .Setup(x => x.EditSong(
-    //            It.IsAny<ApplicationUser>(),
-    //            It.IsAny<Song>(),
-    //            It.IsAny<Song>(),
-    //            It.IsAny<ICollection<UserTag>>()))
-    //        .Callback((ApplicationUser user, Song orig, Song edit, ICollection<UserTag> tags) => {
-    //            capturedUser = user;
-    //            capturedEdit = edit;
-    //            capturedTags = tags;
-    //        })
-    //        .ReturnsAsync(true);
-    //
-    // 3. **Inject Mock into Service**
-    //    // Need to make DanceMusicCoreService.SongIndex settable or use constructor injection
-    //    var service = await DanceMusicTester.CreateService("TestDb");
-    //    service.SetSongIndex(mockSongIndex.Object); // Would need this method
-    //
-    // 4. **Verify Corrections**
-    //    Assert.IsTrue(result);
-    //    Assert.IsNotNull(capturedUser);
-    //    Assert.AreEqual("tempo-bot", capturedUser.UserName);
-    //    Assert.AreEqual(160m, capturedEdit.Tempo);
-    //    Assert.IsTrue(capturedTags.Any(t => t.Tags.Contains("check-accuracy:Tempo")));
+    [TestMethod]
+    public async Task ValidateAndCorrectTempo_InvalidMeter_AddsCheckAccuracyTag()
+    {
+        // Arrange
+        var (dms, testIndex) = await CreateServiceWithTestIndex("TestDb_InvalidMeter");
+        
+        // Create song with valid tempo (180) but invalid meter (3/4) for Salsa
+        // 3/4 IS in flagInvalidMeters, so it should trigger a flag
+        // NOTE: Meter tag is at song level (Tag+=), not dance level (Tag+:SLS=)
+        var songData = @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Invalid Meter Salsa	Artist=Test Artist	Tempo=180.0	Tag+=3/4:Tempo|Salsa:Dance	DanceRating=SLS+1";
+        var song = await Song.Create(songData, dms);
+
+        // Act
+        var result = await _manager.ValidateAndCorrectTempo(dms, song);
+
+        // Assert
+        Assert.IsTrue(result, "Should return true when meter is invalid (flag added)");
+        Assert.AreEqual(1, testIndex.EditCalls.Count, "EditSong should have been called once");
+        
+        var call = testIndex.EditCalls[0];
+        Assert.AreEqual("tempo-bot", call.User.UserName, "Should use tempo-bot user");
+        Assert.AreEqual(180m, call.Edit.Tempo, "Tempo should not be changed (was already valid)");
+        
+        // Verify check-accuracy:Tempo tag was added
+        Assert.IsNotNull(call.Tags, "Tags should be provided");
+        var allTags = call.Tags.SelectMany(ut => ut.Tags.Tags).ToList();
+        Assert.IsTrue(allTags.Contains("check-accuracy:Tempo"), 
+            $"Should add 'check-accuracy:Tempo' tag for invalid meter. Found tags: {string.Join(", ", allTags)}");
+    }
+
+    [TestMethod]
+    public async Task ValidateAndCorrectTempo_InvalidMeter_And_InvalidTempo_BothCorrections()
+    {
+        // Arrange
+        var (dms, testIndex) = await CreateServiceWithTestIndex("TestDb_InvalidBoth");
+        
+        // Create song with invalid tempo (80) AND invalid meter (3/4) for Salsa
+        // NOTE: Meter tag is at song level (Tag+=), not dance level (Tag+:SLS=)
+        var songData = @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Invalid Both Salsa	Artist=Test Artist	Tempo=80.0	Tag+=3/4:Tempo|Salsa:Dance	DanceRating=SLS+1";
+        var song = await Song.Create(songData, dms);
+
+        // Act
+        var result = await _manager.ValidateAndCorrectTempo(dms, song);
+
+        // Assert
+        Assert.IsTrue(result, "Should return true when both tempo and meter need correction");
+        Assert.AreEqual(1, testIndex.EditCalls.Count, "EditSong should have been called once");
+        
+        var call = testIndex.EditCalls[0];
+        Assert.AreEqual("tempo-bot", call.User.UserName, "Should use tempo-bot user");
+        Assert.AreEqual(160m, call.Edit.Tempo, "Tempo should be doubled from 80 to 160");
+        
+        // Verify check-accuracy:Tempo tag was added
+        Assert.IsNotNull(call.Tags, "Tags should be provided");
+        var allTags = call.Tags.SelectMany(ut => ut.Tags.Tags).ToList();
+        Assert.IsTrue(allTags.Contains("check-accuracy:Tempo"), 
+            $"Should add 'check-accuracy:Tempo' tag for invalid meter. Found tags: {string.Join(", ", allTags)}");
+    }
 
     #endregion
 }

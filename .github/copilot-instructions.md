@@ -242,6 +242,107 @@ const tagPart = parts[1]?.split(":"); // ❌ Don't do this
 - Changes to format only require updating one class
 - Reduces bugs from inconsistent parsing logic
 
+## Testing Strategy
+
+### Integration Testing Best Practices
+
+**Creating Songs for Tests**:
+
+Songs should be created using the serialization format, NOT by setting properties directly:
+
+```csharp
+// ✅ CORRECT: Use Song.Create with serialized properties
+var songData = @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=My Song	Artist=Artist Name	Tempo=180.0	Tag+=Salsa:Dance	DanceRating=SLS+1";
+var song = await Song.Create(songData, dms);
+
+// ❌ WRONG: Don't set properties directly (incomplete initialization)
+var song = new Song
+{
+    SongId = Guid.NewGuid(),
+    Title = "My Song",
+    Artist = "Artist Name",
+    Tempo = 180m
+};
+song.DanceRatings.Add(new DanceRating { DanceId = "SLS", Weight = 1 });
+```
+
+**Serialized Song Format**:
+
+- Tab-delimited key=value pairs
+- `.Create=` prefix indicates song creation
+- `User=` and `Time=` for audit trail
+- `Tag+=` for song-level tags (format: `value:Category` or `value1|value2:Category`)
+- `Tag+:DANCEID=` for dance-specific tags
+- `DanceRating=DANCEID+weight` for dance ratings
+
+**Tag Levels**:
+
+```csharp
+// Song-level tags (apply to entire song)
+Tag+=4/4:Tempo|Salsa:Dance    // Meter at song level
+
+// Dance-specific tags (apply to specific dance rating)
+Tag+:SLS=Traditional:Style    // Style tag for Salsa dance rating only
+```
+
+**Common Tag Categories**:
+
+- `Tempo` - Meter information (e.g., "4/4", "3/4", "6/8")
+- `Dance` - Dance type tags
+- `Style` - Dance style (e.g., "Traditional", "International", "American")
+- `Music` - Music genre
+- `Other` - General tags
+
+**Using DanceMusicTester**:
+
+```csharp
+// Basic service creation
+var dms = await DanceMusicTester.CreateServiceWithUsers("TestDb");
+
+// Service with custom SongIndex (for capturing EditSong calls)
+var tempService = await DanceMusicTester.CreateService(dbName + "_temp");
+var testIndex = new TestSongIndex(tempService, dbName);
+var service = await DanceMusicTester.CreateService(dbName, customSongIndex: testIndex);
+await DanceMusicTester.AddUser(service, "dwgray", false);
+```
+
+**Testing SongIndex Modifications**:
+
+To verify that code correctly modifies songs (via `SongIndex.EditSong`):
+
+1. Make `SongIndex.EditSong` virtual
+2. Create `TestSongIndex` that overrides and captures calls
+3. Inject `TestSongIndex` via `DanceMusicTester.CreateService`
+4. Verify captured parameters
+
+```csharp
+// TestSongIndex captures EditSong calls
+public class TestSongIndex : SongIndex
+{
+    public List<EditSongCall> EditCalls { get; } = new();
+    
+    public override async Task<bool> EditSong(ApplicationUser user, Song song, Song edit, ...)
+    {
+        EditCalls.Add(new EditSongCall(user, song, edit, tags?.ToList()));
+        return await base.EditSong(user, song, edit, tags);
+    }
+}
+
+// In tests, verify the captured data
+Assert.AreEqual(1, testIndex.EditCalls.Count);
+var call = testIndex.EditCalls[0];
+Assert.AreEqual("tempo-bot", call.User.UserName);
+Assert.AreEqual(160m, call.Edit.Tempo);
+```
+
+**Integration Test Structure**:
+
+- Use `[ClassInitialize]` to load dances once: `await DanceMusicTester.LoadDances();`
+- Use `[AssemblyInitialize]` to setup shared infrastructure (e.g., `ApplicationLogging`)
+- Create unique database names per test to avoid conflicts
+- Use proper song serialization format for realistic test data
+- Verify both return values AND side effects (EditSong calls, tag additions)
+
 ## Error Handling & Debugging
 
 ### Common Issues
