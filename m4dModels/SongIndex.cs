@@ -265,7 +265,7 @@ public class SongIndex
     }
 
     // Returns true if changed
-    public async Task<bool> EditSong(ApplicationUser user, Song song, Song edit,
+    public virtual async Task<bool> EditSong(ApplicationUser user, Song song, Song edit,
         IEnumerable<UserTag> tags = null)
     {
         var changed = song.Edit(user, edit, tags, DanceMusicService.DanceStats);

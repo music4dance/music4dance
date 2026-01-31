@@ -125,7 +125,7 @@ public static class DanceMusicTester
         }
     }
 
-    public static async Task<DanceMusicService> CreateService(string name)
+    public static async Task<DanceMusicService> CreateService(string name, SongIndex customSongIndex = null)
     {
         var contextOptions = new DbContextOptionsBuilder<DanceMusicContext>()
             .UseInMemoryDatabase(name).Options;
@@ -175,12 +175,34 @@ public static class DanceMusicTester
 
         var manager = new DanceStatsManager(new TestDSFileManager());
 
-        var songIndex = new Mock<SongIndex>();
-        var service = new DanceMusicService(context, userManager, null, manager, songIndex.Object);
-        _ = songIndex.Setup(m => m.UpdateIndex(new List<string>())).ReturnsAsync(true);
-        _ = songIndex.Setup(m => m.DanceMusicService).Returns(service);
+        // Use custom SongIndex if provided, otherwise create a mock
+        SongIndex songIndex;
+        if (customSongIndex != null)
+        {
+            songIndex = customSongIndex;
+        }
+        else
+        {
+            var mockSongIndex = new Mock<SongIndex>();
+            songIndex = mockSongIndex.Object;
+        }
+        
+        var service = new DanceMusicService(context, userManager, null, manager, songIndex);
+        
+        // Only setup mocks if we're using a mock
+        if (customSongIndex == null)
+        {
+            _ = Mock.Get(songIndex).Setup(m => m.UpdateIndex(new List<string>())).ReturnsAsync(true);
+            _ = Mock.Get(songIndex).Setup(m => m.DanceMusicService).Returns(service);
+        }
+        
         await manager.Initialize(service);
-        _ = songIndex.Setup(m => m.DanceMusicService).Returns(service);
+        
+        if (customSongIndex == null)
+        {
+            _ = Mock.Get(songIndex).Setup(m => m.DanceMusicService).Returns(service);
+        }
+        
         await manager.Instance.FixupStats(service);
 
         await SeedRoles(roleManager);
@@ -211,7 +233,7 @@ public static class DanceMusicTester
         return service;
     }
 
-    private static async Task AddUser(DanceMusicService service, string name, bool pseudo)
+    public static async Task AddUser(DanceMusicService service, string name, bool pseudo)
     {
         _ = await service.FindOrAddUser(
             name,

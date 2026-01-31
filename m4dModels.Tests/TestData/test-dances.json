@@ -988,7 +988,15 @@
                                             "numerator":  4,
                                             "denominator":  4
                                         },
-                              "style":  "Social"
+                              "style":  "Social",
+                              "validation":  {
+                                                 "doubleTempoIfBelow":  120.0,
+                                                 "halveTempoIfAbove":  250.0,
+                                                 "flagInvalidMeters":  [
+                                                                          "3/4",
+                                                                          "6/8"
+                                                                      ]
+                                             }
                           }
                       ]
     },
