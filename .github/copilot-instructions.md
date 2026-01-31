@@ -299,10 +299,10 @@ Tag+:SLS=Traditional:Style    // Style tag for Salsa dance rating only
 // Basic service creation
 var dms = await DanceMusicTester.CreateServiceWithUsers("TestDb");
 
-// Service with custom SongIndex (for capturing EditSong calls)
-var tempService = await DanceMusicTester.CreateService(dbName + "_temp");
-var testIndex = new TestSongIndex(tempService, dbName);
-var service = await DanceMusicTester.CreateService(dbName, customSongIndex: testIndex);
+// Service with TestSongIndex (for capturing EditSong calls)
+// DanceMusicTester creates and attaches TestSongIndex automatically
+var service = await DanceMusicTester.CreateService("TestDb", useTestSongIndex: true);
+var testIndex = (TestSongIndex)service.SongIndex;  // Get the TestSongIndex from service
 await DanceMusicTester.AddUser(service, "dwgray", false);
 ```
 
@@ -311,15 +311,29 @@ await DanceMusicTester.AddUser(service, "dwgray", false);
 To verify that code correctly modifies songs (via `SongIndex.EditSong`):
 
 1. Make `SongIndex.EditSong` virtual
-2. Create `TestSongIndex` that overrides and captures calls
-3. Inject `TestSongIndex` via `DanceMusicTester.CreateService`
-4. Verify captured parameters
+2. Create `TestSongIndex` that overrides and captures calls (using late-binding pattern)
+3. Pass `useTestSongIndex: true` to `DanceMusicTester.CreateService` (automatic creation & attachment)
+4. Get TestSongIndex from `service.SongIndex` and verify captured parameters
 
 ```csharp
-// TestSongIndex captures EditSong calls
+// TestSongIndex uses late-binding to avoid circular dependency
+// DanceMusicTester creates it and calls AttachToService automatically
 public class TestSongIndex : SongIndex
 {
+    private DanceMusicCoreService? _actualService;
     public List<EditSongCall> EditCalls { get; } = new();
+    
+    public TestSongIndex() : base()
+    {
+    }
+    
+    public void AttachToService(DanceMusicCoreService service)
+    {
+        _actualService = service;
+    }
+    
+    public override DanceMusicCoreService DanceMusicService => 
+        _actualService ?? throw new InvalidOperationException("TestSongIndex not attached");
     
     public override async Task<bool> EditSong(ApplicationUser user, Song song, Song edit, ...)
     {
@@ -328,7 +342,12 @@ public class TestSongIndex : SongIndex
     }
 }
 
-// In tests, verify the captured data
+// In tests, DanceMusicTester handles TestSongIndex creation and attachment
+var service = await DanceMusicTester.CreateService("TestDb", useTestSongIndex: true);
+var testIndex = (TestSongIndex)service.SongIndex;
+await DanceMusicTester.AddUser(service, "dwgray", false);
+
+// Verify the captured data
 Assert.AreEqual(1, testIndex.EditCalls.Count);
 var call = testIndex.EditCalls[0];
 Assert.AreEqual("tempo-bot", call.User.UserName);
@@ -342,6 +361,66 @@ Assert.AreEqual(160m, call.Edit.Tempo);
 - Create unique database names per test to avoid conflicts
 - Use proper song serialization format for realistic test data
 - Verify both return values AND side effects (EditSong calls, tag additions)
+
+### Testing Patterns: When to Use Moq vs TestSongIndex
+
+The codebase uses two distinct testing patterns for different purposes:
+
+**Mock Pattern (Moq) - For Unit Tests:**
+
+Use Moq when you want complete isolation and don't need real implementation behavior:
+
+```csharp
+// ✅ USE MOQ FOR: Unit tests with complete isolation
+var mockSongIndex = new Mock<SongIndex>();
+mockSongIndex.Setup(m => m.FindSong(It.IsAny<Guid>())).ReturnsAsync(someSong);
+mockSongIndex.Setup(m => m.UpdateIndex(It.IsAny<List<string>>())).ReturnsAsync(true);
+
+// Good for:
+// - Testing controllers/services in isolation
+// - Forcing specific return values or exceptions
+// - Fast, focused unit tests
+// - Default pattern in DanceMusicTester for simple tests
+```
+
+**Spy Pattern (TestSongIndex) - For Integration Tests:**
+
+Use TestSongIndex when you need to verify real method implementations and capture actual parameters:
+
+```csharp
+// ✅ USE TESTSONGINDEX FOR: Integration tests with real behavior
+var testIndex = new TestSongIndex();
+var service = await DanceMusicTester.CreateService("TestDb", customSongIndex: testIndex);
+
+// After test execution
+Assert.AreEqual(1, testIndex.EditCalls.Count);
+var call = testIndex.EditCalls[0];
+Assert.AreEqual("tempo-bot", call.User.UserName);
+Assert.AreEqual(160m, call.Edit.Tempo);
+
+// Good for:
+// - Testing end-to-end workflows (like tempo validation)
+// - Verifying real side effects (song actually gets updated)
+// - Inspecting complex parameters passed to methods
+// - Integration tests where you need both real behavior AND verification
+```
+
+**Decision Guide:**
+
+| Scenario | Pattern | Reason |
+|----------|---------|--------|
+| Testing a controller that uses `DanceMusicService` | **Moq** | Need isolation, don't care about SongIndex implementation |
+| Testing `MusicServiceManager.ValidateAndCorrectTempo` | **TestSongIndex** | Need to verify actual EditSong behavior and parameters |
+| Need to force an exception from SongIndex | **Moq** | Mock can force any return value/exception |
+| Need to verify exact parameters passed to `EditSong` | **TestSongIndex** | Spy captures real parameters for inspection |
+| Most basic tests in `DanceMusicTester` | **Moq** | Default for fast, isolated tests |
+| Testing real song updates with tags | **TestSongIndex** | Need real behavior + parameter verification |
+
+**Key Difference:**
+- **Moq = Mock Pattern**: Replace behavior entirely (no real code runs)
+- **TestSongIndex = Spy Pattern**: Real code runs, but you can observe it
+
+Both patterns are valuable and serve different testing needs. Choose based on whether you need isolation (Moq) or real behavior verification (TestSongIndex).
 
 ## Error Handling & Debugging
 

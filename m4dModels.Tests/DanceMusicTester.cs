@@ -125,7 +125,7 @@ public static class DanceMusicTester
         }
     }
 
-    public static async Task<DanceMusicService> CreateService(string name, SongIndex customSongIndex = null)
+    public static async Task<DanceMusicService> CreateService(string name, bool useTestSongIndex = false)
     {
         var contextOptions = new DbContextOptionsBuilder<DanceMusicContext>()
             .UseInMemoryDatabase(name).Options;
@@ -175,14 +175,16 @@ public static class DanceMusicTester
 
         var manager = new DanceStatsManager(new TestDSFileManager());
 
-        // Use custom SongIndex if provided, otherwise create a mock
+        // Create SongIndex based on parameters
         SongIndex songIndex;
-        if (customSongIndex != null)
+        if (useTestSongIndex)
         {
-            songIndex = customSongIndex;
+            // Create TestSongIndex for integration tests
+            songIndex = new TestSongIndex();
         }
         else
         {
+            // Create mock for basic tests
             var mockSongIndex = new Mock<SongIndex>();
             songIndex = mockSongIndex.Object;
         }
@@ -191,13 +193,13 @@ public static class DanceMusicTester
         
         // If using TestSongIndex, attach the service immediately after creation
         // This resolves the circular dependency before any initialization code runs
-        if (customSongIndex is TestSongIndex testIndex)
+        if (songIndex is TestSongIndex testIndex)
         {
             testIndex.AttachToService(service);
         }
         
         // Only setup mocks if we're using a mock
-        if (customSongIndex == null)
+        if (!useTestSongIndex)
         {
             _ = Mock.Get(songIndex).Setup(m => m.UpdateIndex(new List<string>())).ReturnsAsync(true);
             _ = Mock.Get(songIndex).Setup(m => m.DanceMusicService).Returns(service);
@@ -205,7 +207,7 @@ public static class DanceMusicTester
         
         await manager.Initialize(service);
         
-        if (customSongIndex == null)
+        if (!useTestSongIndex)
         {
             _ = Mock.Get(songIndex).Setup(m => m.DanceMusicService).Returns(service);
         }

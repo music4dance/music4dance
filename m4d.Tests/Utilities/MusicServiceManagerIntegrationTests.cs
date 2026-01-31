@@ -57,23 +57,18 @@ public class MusicServiceManagerIntegrationTests
 
     /// <summary>
     /// Helper to create a service with TestSongIndex that captures EditSong calls.
-    /// Uses late-binding pattern with automatic attachment by DanceMusicTester.
+    /// TestSongIndex is created and attached automatically by DanceMusicTester.
     /// </summary>
-    private static async Task<(DanceMusicService service, TestSongIndex songIndex)> CreateServiceWithTestIndex(string dbName)
+    private static async Task<DanceMusicService> CreateServiceWithTestIndex(string dbName)
     {
-        // Create TestSongIndex first (no service needed yet)
-        var testIndex = new TestSongIndex();
-        
-        // Create the real service with our TestSongIndex
-        // DanceMusicTester.CreateService properly injects the custom SongIndex and automatically
-        // calls AttachToService for TestSongIndex instances to resolve the circular dependency
-        var service = await DanceMusicTester.CreateService(dbName, customSongIndex: testIndex);
+        // Create service with TestSongIndex (DanceMusicTester creates and attaches it)
+        var service = await DanceMusicTester.CreateService(dbName, useTestSongIndex: true);
         
         // Add users
         await DanceMusicTester.AddUser(service, "dwgray", false);
         await DanceMusicTester.AddUser(service, "batch", true);
         
-        return (service, testIndex);
+        return service;
     }
 
     #region Real Integration Tests
@@ -225,7 +220,8 @@ public class MusicServiceManagerIntegrationTests
     public async Task ValidateAndCorrectTempo_LowTempo_DoublesTo160()
     {
         // Arrange
-        var (dms, testIndex) = await CreateServiceWithTestIndex("TestDb_LowTempo");
+        var dms = await CreateServiceWithTestIndex("TestDb_LowTempo");
+        var testIndex = (TestSongIndex)dms.SongIndex;
         
         // Create song properly using serialized properties (like SongDetailTests)
         var songData = @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Low Tempo Salsa	Artist=Test Artist	Tempo=80.0	Tag+=Salsa:Dance	DanceRating=SLS+1";
@@ -250,7 +246,8 @@ public class MusicServiceManagerIntegrationTests
     public async Task ValidateAndCorrectTempo_HighTempo_HalvesTo150()
     {
         // Arrange
-        var (dms, testIndex) = await CreateServiceWithTestIndex("TestDb_HighTempo");
+        var dms = await CreateServiceWithTestIndex("TestDb_HighTempo");
+        var testIndex = (TestSongIndex)dms.SongIndex;
         
         // Create song properly using serialized properties
         var songData = @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=High Tempo Salsa	Artist=Test Artist	Tempo=300.0	Tag+=Salsa:Dance	DanceRating=SLS+1";
@@ -345,7 +342,8 @@ public class MusicServiceManagerIntegrationTests
     public async Task ValidateAndCorrectTempo_InvalidMeter_AddsCheckAccuracyTag()
     {
         // Arrange
-        var (dms, testIndex) = await CreateServiceWithTestIndex("TestDb_InvalidMeter");
+        var dms = await CreateServiceWithTestIndex("TestDb_InvalidMeter");
+        var testIndex = (TestSongIndex)dms.SongIndex;
         
         // Create song with valid tempo (180) but invalid meter (3/4) for Salsa
         // 3/4 IS in flagInvalidMeters, so it should trigger a flag
@@ -375,7 +373,8 @@ public class MusicServiceManagerIntegrationTests
     public async Task ValidateAndCorrectTempo_InvalidMeter_And_InvalidTempo_BothCorrections()
     {
         // Arrange
-        var (dms, testIndex) = await CreateServiceWithTestIndex("TestDb_InvalidBoth");
+        var dms = await CreateServiceWithTestIndex("TestDb_InvalidBoth");
+        var testIndex = (TestSongIndex)dms.SongIndex;
         
         // Create song with invalid tempo (80) AND invalid meter (3/4) for Salsa
         // NOTE: Meter tag is at song level (Tag+=), not dance level (Tag+:SLS=)
