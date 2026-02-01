@@ -1394,7 +1394,7 @@ public class Song : TaggableObject
     }
 
     public static async Task<Song> UserCreateFromTrack(DanceMusicCoreService database,
-        ApplicationUser user, ServiceTrack track
+        ApplicationUser user, ServiceTrack track, string dances = null
     )
     {
         // Title;Artist;Duration;Album;Track;DanceRating;SongTags;DanceTags;PurchaseInfo;
@@ -1405,7 +1405,8 @@ public class Song : TaggableObject
             ArtistField,
             LengthField,
             AlbumField,
-            TrackField
+            TrackField,
+            DanceRatingField,
         };
 
         var cells = new List<string>
@@ -1414,7 +1415,8 @@ public class Song : TaggableObject
             track.Artist,
             track.Duration?.ToString(),
             track.Album,
-            track.TrackNumber?.ToString()
+            track.TrackNumber?.ToString(),
+            dances
         };
 
         // Now fix up the user: This leaves the creating user w/ a like

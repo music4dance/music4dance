@@ -25,6 +25,7 @@ const props = withDefaults(
     label?: string;
     size?: Size;
     autofocus?: boolean;
+    danceId?: string;
   }>(),
   {
     size: "md",
@@ -32,6 +33,7 @@ const props = withDefaults(
     label: undefined,
     hideSuggestions: false,
     hideButton: false,
+    danceId: undefined,
   },
 );
 
@@ -80,7 +82,7 @@ watch(
     debounce="100"
     :autofocus="autofocus"
     @keyup.enter="() => emit('search', model)"
-    @input="checkServiceAndWarn($event.target.value)"
+    @input="checkServiceAndWarn($event.target.value, danceId)"
   />
   <datalist :id="listId">
     <option v-for="suggestion in suggestions" :key="suggestion">

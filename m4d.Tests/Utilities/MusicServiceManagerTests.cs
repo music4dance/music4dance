@@ -5,6 +5,8 @@ using Moq;
 using m4d.Utilities;
 using m4dModels;
 using System.Security.Principal;
+using Microsoft.EntityFrameworkCore;
+using DanceLibrary;
 
 namespace m4d.Tests.Utilities;
 
@@ -194,21 +196,7 @@ public class MusicServiceManagerTests
 
     #endregion
 
-    // NOTE: The following methods require extensive mocking of HttpClient and are better suited
-    // for integration tests rather than unit tests:
-    // - CreatePlaylist (requires HttpClient mock, Spotify API responses)
-    // - SetPlaylistTracks (requires HttpClient mock, Spotify API responses)
-    // - GetPlaylists (requires HttpClient mock, Spotify API responses)
-    // - GetUserPlaylists (requires HttpClient mock, Spotify API responses) - Phase 1
-    // - AddTrackToPlaylist (requires HttpClient mock, Spotify API responses) - Phase 1
-    // - LookupPlaylist (requires HttpClient mock, Spotify API responses)
-    // - GetMusicServiceResults (requires HttpClient mock)
-    // - MusicServiceAction (requires HttpClient mock)
-    //
-    // These methods are tested indirectly through integration tests and manual testing.
-    // For Phase 0, we've established the pattern for unit testing the service layer,
-    // and the SpotifyAuthService provides the auth logic that can be unit tested.
-    //
-    // Future work: Consider refactoring MusicServiceManager to accept an IHttpClientFactory
-    // or similar abstraction to enable better unit testing of HTTP-dependent methods.
+    // NOTE: ValidateAndCorrectTempo integration tests are in MusicServiceManagerIntegrationTests.cs
+    // Those tests use DanceMusicTester to create real service instances and test the full workflow.
 }
+

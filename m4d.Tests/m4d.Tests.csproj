@@ -28,5 +28,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\m4d\m4d.csproj" />
+    <ProjectReference Include="..\m4dModels.Tests\m4dModels.Tests.csproj" />
   </ItemGroup>
 </Project>
+

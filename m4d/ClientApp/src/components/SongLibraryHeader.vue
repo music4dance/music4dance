@@ -61,6 +61,7 @@ const chooseDance = (danceId?: string, persist?: boolean, styleTag?: string): vo
         label="Title, Artist, Album, Key Words"
         placeholder="Enter part of a title, artist, album, etc."
         :autofocus="true"
+        :dance-id="filter.danceQuery.singleDance ? filter.danceQuery.danceList[0] : undefined"
         @search="search"
       />
     </BInputGroup>

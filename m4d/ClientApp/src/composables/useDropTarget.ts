@@ -6,7 +6,11 @@ const matcher: ServiceMatcher = new ServiceMatcher();
 export function useDropTarget() {
   const { create } = useModal();
 
-  async function checkServiceAndAdd(input: string, warn?: boolean): Promise<void> {
+  async function checkServiceAndAdd(
+    input: string,
+    warn?: boolean,
+    danceId?: string,
+  ): Promise<void> {
     const service = matcher.match(input);
     if (!service) {
       return;
@@ -26,13 +30,14 @@ export function useDropTarget() {
       }
       if (okay) {
         const id = matcher.parseId(input, service);
-        window.location.href = `/song/augment?id=${id}`;
+        const danceParam = danceId ? `&dance=${danceId}` : "";
+        window.location.href = `/song/augment?id=${id}${danceParam}`;
       }
     }
   }
 
-  async function checkServiceAndWarn(input: string): Promise<void> {
-    return checkServiceAndAdd(input, true);
+  async function checkServiceAndWarn(input: string, danceId?: string): Promise<void> {
+    return checkServiceAndAdd(input, true, danceId);
   }
 
   async function checkService(input: string): Promise<boolean> {

@@ -5,4 +5,5 @@ public class AugmentViewModel
     public string Title { get; set; }
     public string Artist { get; set; }
     public string Id { get; set; }
+    public string Dance { get; set; }
 }

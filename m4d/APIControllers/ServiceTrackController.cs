@@ -20,7 +20,7 @@ public class ServiceTrackController(
 
     // GET api/<controller>
     [HttpGet("{id}")]
-    public async Task<IActionResult> Get(string id, bool localOnly = false)
+    public async Task<IActionResult> Get(string id, bool localOnly = false, string danceId = null)
     {
         if (string.IsNullOrWhiteSpace(id) || id.Length < 2)
         {
@@ -57,7 +57,7 @@ public class ServiceTrackController(
 
         if (song == null && !localOnly)
         {
-            song = await MusicServiceManager.CreateSong(Database, user, id, service);
+            song = await MusicServiceManager.CreateSong(Database, user, id, service, danceId);
             if (song != null)
             {
                 try

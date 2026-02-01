@@ -79,12 +79,14 @@ export class ServiceMatcher {
   public async findSong(
     serviceString: string,
     localOnly = false,
+    danceId?: string,
   ): Promise<SongDetailsModel | undefined> {
     const service = this.match(serviceString);
     if (service) {
       try {
         const id = this.parseId(serviceString, service);
-        const uri = `/api/servicetrack/${service.id}${id}?localOnly=${localOnly}`;
+        const danceParam = danceId ? `&danceId=${encodeURIComponent(danceId)}` : "";
+        const uri = `/api/servicetrack/${service.id}${id}?localOnly=${localOnly}${danceParam}`;
         const response = await getAxiosXsrf().get(uri);
         const songModel = TypedJSON.parse(response.data, SongDetailsModel);
         return songModel;

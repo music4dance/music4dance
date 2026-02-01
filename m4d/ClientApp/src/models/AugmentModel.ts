@@ -5,4 +5,5 @@ export class AugmentModel {
   @jsonMember(String) public title?: string;
   @jsonMember(String) public artist?: string;
   @jsonMember(String) public id?: string;
+  @jsonMember(String) public dance?: string;
 }

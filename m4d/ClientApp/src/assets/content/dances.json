@@ -878,6 +878,11 @@
         "tempoRange": {
           "min": 160.0,
           "max": 220.0
+        },
+        "validation": {
+          "doubleTempoIfBelow": 120.0,
+          "halveTempoIfAbove": 250.0,
+          "flagInvalidMeters": ["3/4", "6/8"]
         }
       }
     ]

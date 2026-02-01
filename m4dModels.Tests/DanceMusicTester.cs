@@ -125,7 +125,7 @@ public static class DanceMusicTester
         }
     }
 
-    public static async Task<DanceMusicService> CreateService(string name)
+    public static async Task<DanceMusicService> CreateService(string name, bool useTestSongIndex = false)
     {
         var contextOptions = new DbContextOptionsBuilder<DanceMusicContext>()
             .UseInMemoryDatabase(name).Options;
@@ -175,12 +175,43 @@ public static class DanceMusicTester
 
         var manager = new DanceStatsManager(new TestDSFileManager());
 
-        var songIndex = new Mock<SongIndex>();
-        var service = new DanceMusicService(context, userManager, null, manager, songIndex.Object);
-        _ = songIndex.Setup(m => m.UpdateIndex(new List<string>())).ReturnsAsync(true);
-        _ = songIndex.Setup(m => m.DanceMusicService).Returns(service);
+        // Create SongIndex based on parameters
+        SongIndex songIndex;
+        if (useTestSongIndex)
+        {
+            // Create TestSongIndex for integration tests
+            songIndex = new TestSongIndex();
+        }
+        else
+        {
+            // Create mock for basic tests
+            var mockSongIndex = new Mock<SongIndex>();
+            songIndex = mockSongIndex.Object;
+        }
+        
+        var service = new DanceMusicService(context, userManager, null, manager, songIndex);
+        
+        // If using TestSongIndex, attach the service immediately after creation
+        // This resolves the circular dependency before any initialization code runs
+        if (songIndex is TestSongIndex testIndex)
+        {
+            testIndex.AttachToService(service);
+        }
+        
+        // Only setup mocks if we're using a mock
+        if (!useTestSongIndex)
+        {
+            _ = Mock.Get(songIndex).Setup(m => m.UpdateIndex(new List<string>())).ReturnsAsync(true);
+            _ = Mock.Get(songIndex).Setup(m => m.DanceMusicService).Returns(service);
+        }
+        
         await manager.Initialize(service);
-        _ = songIndex.Setup(m => m.DanceMusicService).Returns(service);
+        
+        if (!useTestSongIndex)
+        {
+            _ = Mock.Get(songIndex).Setup(m => m.DanceMusicService).Returns(service);
+        }
+        
         await manager.Instance.FixupStats(service);
 
         await SeedRoles(roleManager);
@@ -211,7 +242,7 @@ public static class DanceMusicTester
         return service;
     }
 
-    private static async Task AddUser(DanceMusicService service, string name, bool pseudo)
+    public static async Task AddUser(DanceMusicService service, string name, bool pseudo)
     {
         _ = await service.FindOrAddUser(
             name,
