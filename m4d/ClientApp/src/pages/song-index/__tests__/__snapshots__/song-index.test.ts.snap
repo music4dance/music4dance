@@ -25,13 +25,12 @@ exports[`Song Index > renders a song index page 1`] = `
         <!--teleport end-->
       </div>
       <div data-v-a7ef304f="">
-        <table data-v-a7ef304f="" id="BootstrapVueNext__ID__v-10__" class="table b-table table-borderless table-hover table-striped" aria-busy="false" sort-icon-left="">
+        <table data-v-a7ef304f="" id="BootstrapVueNext__ID__v-10__" class="table b-table table-borderless table-hover table-striped" aria-busy="false">
           <!---->
           <thead class="">
             <tr class="">
               <th scope="col" class="">
                 <div data-v-a7ef304f="" class="likeHeader">Like/Play</div>
-                <!---->
               </th>
               <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="/song/Index?filter=v2-Index--Title" id="Title">Title<!--v-if--></a><span id="BootstrapVueNext__ID__v-13__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
@@ -43,7 +42,6 @@ exports[`Song Index > renders a song index page 1`] = `
                     </div>
                   </div>
                 </transition-stub></span>
-                <!---->
               </th>
               <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="/song/Index?filter=v2-Index--Artist" id="Artist">Artist<!--v-if--></a><span id="BootstrapVueNext__ID__v-14__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
@@ -55,7 +53,6 @@ exports[`Song Index > renders a song index page 1`] = `
                     </div>
                   </div>
                 </transition-stub></span>
-                <!---->
               </th>
               <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="/song/Index?filter=v2-Index--Tempo" id="Tempo">Tempo (BPM)<!--v-if--></a><span id="BootstrapVueNext__ID__v-15__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
@@ -67,10 +64,9 @@ exports[`Song Index > renders a song index page 1`] = `
                     </div>
                   </div>
                 </transition-stub></span>
-                <!---->
               </th>
               <th scope="col" class="">
-                <div data-v-a7ef304f="" class="echoHeader"><span data-v-a7ef304f=""><a class="link-underline-light" href="/song/Index?filter=v2-Index--Beat" id="Beat"><img data-v-a7ef304f="" src="/vclient/src/assets/images/icons/beat-10.png" width="25" height="25"><!--v-if--></a><span id="BootstrapVueNext__ID__v-16__popover____placeholder" style="display: none;"></span>
+                <div data-v-a7ef304f="" class="echoHeader"><span data-v-a7ef304f=""><a class="link-underline-light" href="/song/Index?filter=v2-Index--Beat" id="Beat"><img data-v-a7ef304f="" src="/src/assets/images/icons/beat-10.png" width="25" height="25"><!--v-if--></a><span id="BootstrapVueNext__ID__v-16__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
                     <div id="BootstrapVueNext__ID__v-16__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
@@ -79,7 +75,7 @@ exports[`Song Index > renders a song index page 1`] = `
                         <div class="tooltip-inner">Click to sort by strength of the beat. <br> Strength of the beat (fuller icons represent a stronger beat).</div>
                       </div>
                     </div>
-                  </transition-stub></span><span data-v-a7ef304f=""><a class="link-underline-light" href="/song/Index?filter=v2-Index--Energy" id="Energy"><img data-v-a7ef304f="" src="/vclient/src/assets/images/icons/Energy-10.png" width="25" height="25"><!--v-if--></a><span id="BootstrapVueNext__ID__v-17__popover____placeholder" style="display: none;"></span>
+                  </transition-stub></span><span data-v-a7ef304f=""><a class="link-underline-light" href="/song/Index?filter=v2-Index--Energy" id="Energy"><img data-v-a7ef304f="" src="/src/assets/images/icons/Energy-10.png" width="25" height="25"><!--v-if--></a><span id="BootstrapVueNext__ID__v-17__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
                     <div id="BootstrapVueNext__ID__v-17__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
@@ -88,7 +84,7 @@ exports[`Song Index > renders a song index page 1`] = `
                         <div class="tooltip-inner">Click to sort by energy. <br> Energy of the song (fuller icons represent a higher energy).</div>
                       </div>
                     </div>
-                  </transition-stub></span><span data-v-a7ef304f=""><a class="link-underline-light" href="/song/Index?filter=v2-Index--Mood" id="Mood"><img data-v-a7ef304f="" src="/vclient/src/assets/images/icons/mood-10.png" width="25" height="25"><!--v-if--></a><span id="BootstrapVueNext__ID__v-18__popover____placeholder" style="display: none;"></span>
+                  </transition-stub></span><span data-v-a7ef304f=""><a class="link-underline-light" href="/song/Index?filter=v2-Index--Mood" id="Mood"><img data-v-a7ef304f="" src="/src/assets/images/icons/mood-10.png" width="25" height="25"><!--v-if--></a><span id="BootstrapVueNext__ID__v-18__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
                     <div id="BootstrapVueNext__ID__v-18__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
@@ -99,7 +95,6 @@ exports[`Song Index > renders a song index page 1`] = `
                     </div>
                   </transition-stub></span>
                 </div>
-                <!---->
               </th>
               <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="#" id="Dances">Dances<!--v-if--></a><span id="BootstrapVueNext__ID__v-19__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
@@ -113,7 +108,6 @@ exports[`Song Index > renders a song index page 1`] = `
                     </div>
                   </div>
                 </transition-stub></span>
-                <!---->
               </th>
               <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="#" id="Tags">Tags<!--v-if--></a><span id="BootstrapVueNext__ID__v-20__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
@@ -127,7 +121,6 @@ exports[`Song Index > renders a song index page 1`] = `
                     </div>
                   </div>
                 </transition-stub></span>
-                <!---->
               </th>
               <th scope="col" class=""><span data-v-a7ef304f="" class="orderHeader"><a class="link-underline-light" href="#" id="Order"><svg data-v-a7ef304f="" viewBox="0 0 16 16" width="1.2em" height="1.2em"><path fill="currentColor" d="M8 0a1 1 0 0 1 1 1v5.268l4.562-2.634a1 1 0 1 1 1 1.732L10 8l4.562 2.634a1 1 0 1 1-1 1.732L9 9.732V15a1 1 0 1 1-2 0V9.732l-4.562 2.634a1 1 0 1 1-1-1.732L6 8L1.438 5.366a1 1 0 0 1 1-1.732L7 6.268V1a1 1 0 0 1 1-1"></path></svg><!--v-if--></a><span id="BootstrapVueNext__ID__v-21__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
@@ -139,7 +132,6 @@ exports[`Song Index > renders a song index page 1`] = `
                     </div>
                   </div>
                 </transition-stub></span>
-                <!---->
               </th>
             </tr>
             <!---->

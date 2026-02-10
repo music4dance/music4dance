@@ -2,7 +2,6 @@
 import { defaultTempoLink } from "@/helpers/LinkHelpers";
 import { wordsToKebab } from "@/helpers/StringHelpers";
 import type { TableFieldRaw, BTableSortBy } from "bootstrap-vue-next";
-import type { LiteralUnion } from "@/helpers/bsvn-types";
 import { computed, ref } from "vue";
 import type { DanceType } from "@/models/DanceDatabase/DanceType";
 
@@ -21,53 +20,59 @@ const fields: Exclude<TableFieldRaw<DanceType>, string>[] = [
   {
     key: "name",
     sortable: true,
-    sortByFormatted: (_value: unknown, _key?: LiteralUnion<keyof DanceType>, item?: DanceType) =>
-      item!.name,
+    sortByFormatted: ({ item }: { value: unknown; key: string; item: DanceType }) =>
+      item.name,
     stickyColumn: true,
   },
   {
     key: "meter",
     sortable: true,
     sortByFormatted: true,
-    formatter: (_value: unknown, _key?: LiteralUnion<keyof DanceType>, item?: DanceType) =>
-      item!.meter.toString(),
+    formatter: ({ item }: { value: unknown; key: string; item: DanceType }) => {
+      return item?.meter?.toString() ?? "";
+    },
   },
   {
     key: "bpm",
     label: "BPM",
     sortable: true,
-    sortByFormatted: (_value: unknown, _key?: LiteralUnion<keyof DanceType>, item?: DanceType) =>
-      item!.tempoRange.min.toLocaleString("en", {
+    sortByFormatted: ({ item }: { value: unknown; key: string; item: DanceType }) => {
+      return item?.tempoRange?.min.toLocaleString("en", {
         minimumIntegerDigits: 4,
-      }) ?? "",
-    formatter: (_value: unknown, _key?: LiteralUnion<keyof DanceType>, item?: DanceType) =>
-      item!.tempoRange.toString() ?? "",
+      }) ?? "";
+    },
+    formatter: ({ item }: { value: unknown; key: string; item: DanceType }) => {
+      return item?.tempoRange?.toString() ?? "";
+    },
   },
   {
     key: "mpm",
     label: "MPM",
     sortable: true,
-    sortByFormatted: (_value: unknown, key?: LiteralUnion<keyof DanceType>, item?: DanceType) =>
-      item!.tempoRange.min.toLocaleString("en", {
+    sortByFormatted: ({ item }: { value: unknown; key: string; item: DanceType }) => {
+      return item?.tempoRange?.min.toLocaleString("en", {
         minimumIntegerDigits: 4,
-      }) ?? "",
-    formatter: (_value: unknown, _key?: LiteralUnion<keyof DanceType>, item?: DanceType) =>
-      item!.tempoRange.mpm(item!.meter.numerator) ?? "",
+      }) ?? "";
+    },
+    formatter: ({ item }: { value: unknown; key: string; item: DanceType }) => {
+      return item?.tempoRange?.mpm(item?.meter?.numerator ?? 1) ?? "";
+    },
   },
   {
     key: "groupName",
     label: "Type",
     sortable: true,
     sortByFormatted: true,
-    formatter: (_value: unknown, _key?: LiteralUnion<keyof DanceType>, item?: DanceType) =>
-      item!.groups!.map((g) => g.name).join(", "),
+    formatter: ({ item }: { value: unknown; key: string; item: DanceType }) => {
+      return item?.groups?.map((g) => g.name).join(", ") ?? "";
+    },
   },
   {
     key: "styles",
     sortable: true,
     sortByFormatted: true,
-    formatter: (_value: unknown, _key?: LiteralUnion<keyof DanceType>, item?: DanceType) => {
-      return item!.styles.join(", ") ?? "";
+    formatter: ({ item }: { value: unknown; key: string; item: DanceType }) => {
+      return item?.styles?.join(", ") ?? "";
     },
   },
 ];

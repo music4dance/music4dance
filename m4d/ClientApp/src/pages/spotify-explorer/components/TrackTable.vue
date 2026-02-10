@@ -17,14 +17,36 @@ const fields = [
   { key: "duration", sortable: true },
   {
     label: "BPM",
-    key: "audioData.beatsPerMinute",
+    key: "bpm",
     sortable: true,
-    formatter: (value: unknown) => (value as number).toFixed(1),
+    accessor: (item: EnhancedTrackModel) => item.audioData?.beatsPerMinute,
+    formatter: ({ value }: { value: unknown; key: string; item: EnhancedTrackModel }) =>
+      (value as number | undefined)?.toFixed(1) ?? "",
   },
-  { label: "Meter", key: "audioData.beatsPerMeasure", sortable: true },
-  { label: "Dancability", key: "audioData.danceability", sortable: true },
-  { label: "Energy", key: "audioData.energy", sortable: true },
-  { label: "Valence", key: "audioData.valence", sortable: true },
+  {
+    label: "Meter",
+    key: "meter",
+    sortable: true,
+    accessor: (item: EnhancedTrackModel) => item.audioData?.beatsPerMeasure,
+  },
+  {
+    label: "Dancability",
+    key: "danceability",
+    sortable: true,
+    accessor: (item: EnhancedTrackModel) => item.audioData?.danceability,
+  },
+  {
+    label: "Energy",
+    key: "energy",
+    sortable: true,
+    accessor: (item: EnhancedTrackModel) => item.audioData?.energy,
+  },
+  {
+    label: "Valence",
+    key: "valence",
+    sortable: true,
+    accessor: (item: EnhancedTrackModel) => item.audioData?.valence,
+  },
 ];
 
 const enhancedTracks = computed(() => {

@@ -9,6 +9,6 @@ describe("Playlist Viewer", () => {
     () => {
       testPageSnapshot(App, model);
     },
-    { timeout: 50000 },
+    50000,
   );
 });

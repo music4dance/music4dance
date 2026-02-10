@@ -13,7 +13,7 @@ describe("Song Index", () => {
       const t = document.getElementById("Title");
       expect(t).not.toBeNull();
     },
-    { timeout: 50000 },
+    50000,
   );
 
   test(
@@ -21,6 +21,6 @@ describe("Song Index", () => {
     () => {
       testPageSnapshot(App, model);
     },
-    { timeout: 50000 },
+    50000,
   );
 });

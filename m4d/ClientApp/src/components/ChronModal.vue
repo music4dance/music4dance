@@ -18,7 +18,7 @@ const chronOrder = computed(() => {
   return new SongSort(order).isChronological ? order : SortOrder.Match;
 });
 
-const chooseSort = (order: RadioValue) => {
+const chooseSort = (order: RadioValue | unknown) => {
   // INT-TODO: May be a bug in BFormRadioGroup value==="" evaluates to true
   const fixed = order === true ? SortOrder.Match : (order as SortOrder);
   emit("update:order", fixed);

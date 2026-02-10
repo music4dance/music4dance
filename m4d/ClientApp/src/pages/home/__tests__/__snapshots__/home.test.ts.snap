@@ -7,7 +7,7 @@ exports[`Home > Renders the Home Page 1`] = `
   <div id="body-content" class="container-fluid body-content">
     <div class="mt-2"></div>
     <div>
-      <div class="card-deck">
+      <div class="card-group" deck="">
         <div data-v-8758b3c2="" class="card border-primary" id="fun-info" style="margin-bottom: 1rem; min-width: 25rem;">
           <!---->
           <!---->
@@ -131,7 +131,7 @@ exports[`Home > Renders the Home Page 1`] = `
                   </svg> American Rhythm</a></li>
             </ul>
             <div data-v-8758b3c2="" style="margin-left: 2rem;">
-              <dd><img src="/vclient/src/assets/images/icons/info.png" alt="tools" width="24" height="24"> Read the <a href="https://music4dance.blog">music4dance blog</a> entries about <a href="https://music4dance.blog/tag/ballroom">Ballroom</a>. </dd>
+              <dd><img src="/src/assets/images/icons/info.png" alt="tools" width="24" height="24"> Read the <a href="https://music4dance.blog">music4dance blog</a> entries about <a href="https://music4dance.blog/tag/ballroom">Ballroom</a>. </dd>
             </div>
           </div>
           <!---->
@@ -210,7 +210,7 @@ exports[`Home > Renders the Home Page 1`] = `
                   </svg> Collegiate Shag</a></li>
             </ul>
             <div data-v-8758b3c2="" style="margin-left: 2rem;">
-              <dd><img src="/vclient/src/assets/images/icons/info.png" alt="tools" width="24" height="24"> Read the <a href="https://music4dance.blog">music4dance blog</a> entries about <a href="https://music4dance.blog/tag/swing">Swing</a>. </dd>
+              <dd><img src="/src/assets/images/icons/info.png" alt="tools" width="24" height="24"> Read the <a href="https://music4dance.blog">music4dance blog</a> entries about <a href="https://music4dance.blog/tag/swing">Swing</a>. </dd>
             </div>
           </div>
           <!---->
@@ -297,7 +297,7 @@ exports[`Home > Renders the Home Page 1`] = `
                   </svg> Bossa Nova</a></li>
             </ul>
             <div data-v-8758b3c2="" style="margin-left: 2rem;">
-              <dd><img src="/vclient/src/assets/images/icons/info.png" alt="tools" width="24" height="24"> Read the <a href="https://music4dance.blog">music4dance blog</a> entries about <a href="https://music4dance.blog/tag/latin">Latin</a>. </dd>
+              <dd><img src="/src/assets/images/icons/info.png" alt="tools" width="24" height="24"> Read the <a href="https://music4dance.blog">music4dance blog</a> entries about <a href="https://music4dance.blog/tag/latin">Latin</a>. </dd>
             </div>
           </div>
           <!---->
@@ -344,7 +344,7 @@ exports[`Home > Renders the Home Page 1`] = `
                   </svg> Ballroom Tango</a></li>
             </ul>
             <div data-v-8758b3c2="" style="margin-left: 2rem;">
-              <dd><img src="/vclient/src/assets/images/icons/info.png" alt="tools" width="24" height="24"> Read the <a href="https://music4dance.blog">music4dance blog</a> entries about <a href="https://music4dance.blog/tag/tango">Tango</a>. </dd>
+              <dd><img src="/src/assets/images/icons/info.png" alt="tools" width="24" height="24"> Read the <a href="https://music4dance.blog">music4dance blog</a> entries about <a href="https://music4dance.blog/tag/tango">Tango</a>. </dd>
             </div>
           </div>
           <!---->
@@ -391,7 +391,7 @@ exports[`Home > Renders the Home Page 1`] = `
                   </svg> Last Dance</a></li>
             </ul>
             <div data-v-8758b3c2="" style="margin-left: 2rem;">
-              <dd><img src="/vclient/src/assets/images/icons/info.png" alt="tools" width="24" height="24"> Read the <a href="https://music4dance.blog">music4dance blog</a> entries about <a href="https://music4dance.blog/tag/wedding">Wedding</a>. </dd>
+              <dd><img src="/src/assets/images/icons/info.png" alt="tools" width="24" height="24"> Read the <a href="https://music4dance.blog">music4dance blog</a> entries about <a href="https://music4dance.blog/tag/wedding">Wedding</a>. </dd>
             </div>
           </div>
           <!---->
@@ -621,23 +621,23 @@ exports[`Home > Renders the Home Page 1`] = `
         <div id="Info" style="margin-top: 1rem;" class="col-xl">
           <div class="row col" style="margin-bottom: 1rem;"><span><img src="/images/icons/info.png" alt="Info" width="48" height="48"><h2 class="info" style="padding-left: 0.5rem; display: inline; vertical-align: center;">Info</h2></span></div>
           <div style="margin-left: 2em;">
-            <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> About music4dance</div>
+            <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> About music4dance</div>
             <div style="margin-left: 2em;"><span>Posts that are about the music4dance.net site features, excluding features that are specifically about searching for music.</span><a href="https://music4dance.blog/category/about-music4dance" style="margin-left: 0.5em;">[Read more]</a></div>
             <div>
               <!--v-if-->
               <!--v-if-->
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> The Two Questions that Inspired Music4Dance</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> The Two Questions that Inspired Music4Dance</div>
                 <div style="margin-left: 2em;"><span>As a beginning ballroom dancer there were two questions that kept coming up...</span><a href="https://music4dance.blog/the-two-questions-that-inspired-music4dance" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Question 1: I’m learning to Cha Cha, where is some great music for practicing?</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Question 1: I’m learning to Cha Cha, where is some great music for practicing?</div>
                 <div style="margin-left: 2em;"><span>So how do I do that?  Dance generally co-evolves with music, so to get a very traditional song...</span><a href="https://music4dance.blog/question-1-im-learning-to-cha-cha-where-is-some-great-music-for-practicing" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Question 2: What dance styles can I dance to my favorite song(s)?</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Question 2: What dance styles can I dance to my favorite song(s)?</div>
                 <div style="margin-left: 2em;"><span>One of the things that amazes me about the best dance teachers...</span><a href="https://music4dance.blog/question-2-what-dance-styles-can-i-dance-to-my-favorite-songs" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
@@ -646,18 +646,18 @@ exports[`Home > Renders the Home Page 1`] = `
               <!--v-if-->
               <!--v-if-->
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Let's tag some songs</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Let's tag some songs</div>
                 <div style="margin-left: 2em;"><span>The tag editor is the first of a number of features that I'm planning that will enable you to customize your music4dance experience...</span><a href="https://music4dance.blog/lets-tag-some-songs" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <!--v-if-->
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Quality over Quantity?</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Quality over Quantity?</div>
                 <div style="margin-left: 2em;"><span>One of the things that I’m struggling with ... is the pull between finding lots of recommendations for songs to dance to against the desire that those recommendations being in some sense ‘good.’</span><a href="https://music4dance.blog/quality-over-quantity/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> EchoNest Integration - Loads of new tempo, meter and other information to help you find music to dance to</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> EchoNest Integration - Loads of new tempo, meter and other information to help you find music to dance to</div>
                 <div style="margin-left: 2em;"><span>I’ve cross indexed the <a href="https://www.music4dance.net/song">music4dance catalog</a> with the <a href="https://en.wikipedia.org/wiki/The_Echo_Nest">EchoNest database</a> and exposed some new features...</span><a href="https://music4dance.blog/echonest-integration-loads-of-new-tempo-meter-and-other-information-to-help-you-find-music-to-dance-to/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
@@ -665,12 +665,12 @@ exports[`Home > Renders the Home Page 1`] = `
               <!--v-if-->
               <!--v-if-->
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> How do I find the latest music added to music4dance?</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> How do I find the latest music added to music4dance?</div>
                 <div style="margin-left: 2em;"><span>I'm adding new music just about every week, so if you're a frequent visitor to music4dance how can you see what is new..</span><a href="https://music4dance.blog/how-do-i-find-the-latest-music-added-to-music4dance/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Share Your Favorite Searches</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Share Your Favorite Searches</div>
                 <div style="margin-left: 2em;"><span>Have you found a particularly useful or exciting way to search for music on the <a href="https://www.music4dance.net/">music4dance site?</a>  Just for instance...</span><a href="https://music4dance.blog/share-your-favorite-searches/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
@@ -678,372 +678,372 @@ exports[`Home > Renders the Home Page 1`] = `
               <!--v-if-->
               <!--v-if-->
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Please Support www.music4dance.net</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Please Support www.music4dance.net</div>
                 <div style="margin-left: 2em;"><span>With a <a href="https://www.music4dance.net/song">catalog of over twenty-five thousand songs</a> cross-referenced by <a href="https://www.music4dance.net/dances">dozens of dance styles</a> and <a href="https://www.music4dance.net/tag">hundreds of tags</a>, we've built a real treasure trove of music to explore...</span><a href="https://music4dance.blog/please-support-www-music4dance-net/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Check out our new Bonus Content Feature</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Check out our new Bonus Content Feature</div>
                 <div style="margin-left: 2em;"><span>As of this writing the publicly visible <a href="https://www.music4dance.net/song">music4dance catalog</a> contains just over twenty seven thousand songs.  But the underlying index ...</span><a href="https://music4dance.blog/check-out-our-new-bonus-content-feature/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Music for Dance Through the Decades</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Music for Dance Through the Decades</div>
                 <div style="margin-left: 2em;"><span>One of the ways that I like to search for music is by era.  At least as far as twentieth-century American music goes...</span><a href="https://music4dance.blog/music-for-dance-through-the-decades/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <!--v-if-->
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Announcing a music4dance Bug Bounty</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Announcing a music4dance Bug Bounty</div>
                 <div style="margin-left: 2em;"><span>Software bugs are miserable things in any context.  But when you have a small project like <a href="https://www.music4dance.net">music4dance</a> where there are so many external dependencies...</span><a href="https://music4dance.blog/announcing-a-musci4dance-bug-bounty/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <!--v-if-->
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Create a Spotify Playlist</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Create a Spotify Playlist</div>
                 <div style="margin-left: 2em;"><span>One of my initial goals with <a href="https://www.music4dance.net">music4dance</a> was to be able to create playlists to dance to.  I can finally say that I’ve got this working in a way that is close to my original vision...</span><a href="https://music4dance.blog/create-a-spotify-playlist/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Ask music4dance: Can I export music4dance playlists to play locally?</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Ask music4dance: Can I export music4dance playlists to play locally?</div>
                 <div style="margin-left: 2em;"><span>I’ve been thinking about the concept of <a href="https://www.music4dance.net">music4dance</a> since long before streaming services like <a href="spotify.com">Spotify</a> existed, so the idea of generating playlists...</span><a href="https://music4dance.blog/ask-music4dance-can-i-export-music4dance-playlist-to-play-locally/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <!--v-if-->
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Tempo Counter (Revisited)</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Tempo Counter (Revisited)</div>
                 <div style="margin-left: 2em;"><span>I just rewrote the <a href="https://www.music4dance.net/Home/tempi">Tempo tool</a> for the <a href="https://www.music4dance.net">music4dance site</a> as part of the current effort to update the site.  In the process I went back...</span><a href="https://music4dance.blog/tempo-counter-revisited/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Playing with Dance Tempos</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Playing with Dance Tempos</div>
                 <div style="margin-left: 2em;"><span>As I’ve <a href="https://music4dance.blog/2015/06/04/documentation-for-the-tempo-counter-and-tempi-tempos-tools/">mentioned before</a>, one of the things that I find helpful is to have access to a <a href="https://www.music4dance.net/Home/counter">tempo counter</a> that allows me to tap a beat and both measure the tempo and show me the dance style...</span><a href="https://music4dance.blog/playing-with-dance-tempos/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <!--v-if-->
               <!--v-if-->
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> How do you like to see lists of music to dance to?</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> How do you like to see lists of music to dance to?</div>
                 <div style="margin-left: 2em;"><span>One of the core features of music4dance is to be able to list songs for dancing ...  just roll out what I've got on <a href="https://music4dance.net/song/newmusic">some of the pages</a> and leave the old stuff in place on <a href="https://music4dance.net/song">others</a>. That will give you the opportunity to see them both and compare and give feedback...</span><a href="https://music4dance.blog/how-do-you-like-to-see-lists-of-music-to-dance-to/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Who else likes to dance to this song (and what do they dance to it)?</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Who else likes to dance to this song (and what do they dance to it)?</div>
                 <div style="margin-left: 2em;"><span>As I browse the <a href="https://www.music4dance.net/song">music4dance catalog</a> and find a song I like, it’s nice to be able to see who added it and use that as a way to find other songs that I might like.  To this end...</span><a href="https://music4dance.blog/who-else-likes-to-dance-to-this-song-and-what-do-they-dance-to-it/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> New Feature: Adding Songs to the music4dance Catalog</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> New Feature: Adding Songs to the music4dance Catalog</div>
                 <div style="margin-left: 2em;"><span>I'm excited to announce that I've nearly completed a feature that will let you <a href="https://www.music4dance.net/song/augment">add songs</a> to the <a href="https://www.music4dance.net/song">music4dance catalog</a>.  I've documented the feature <a href="https://music4dance.blog/music4dance-help/add-songs/">here</a>...  </span><a href="https://music4dance.blog/new-feature-adding-songs-to-the-music4dance-catalog/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> What is the difference between adding a song to Favorites and voting on a Song's Danceability?</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> What is the difference between adding a song to Favorites and voting on a Song's Danceability?</div>
                 <div style="margin-left: 2em;"><span>I realize that <a href="https://music4dance.blog/2016/01/29/if-you-like-to-dance-cha-cha-to-a-song-does-that-mean-you-like-that-song/">I still haven't made it easy</a> to understand the nuances of a couple of important features.&nbsp; So I made some changes in terminology and behavior and I'm interested to know if this makes more sense...</span><a href="https://music4dance.blog/what-is-the-difference-between-adding-a-song-to-favorites-and-voting-on-a-songs-danceability/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <!--v-if-->
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> New Feature: More ways to see what's going on at music4dance</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> New Feature: More ways to see what's going on at music4dance</div>
                 <div style="margin-left: 2em;"><span>One of my goals for <a href="https://www.music4dance.net">music4dance</a> is to build a system that people can use to share their knowledge of partner dance music with others.&nbsp; I probably spent too much time early on in this project...</span><a href="https://music4dance.blog/new-feature-more-ways-to-see-whats-going-on-at-music4dance/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Ask music4dance: Why am I listed as Anonymous?</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Ask music4dance: Why am I listed as Anonymous?</div>
                 <div style="margin-left: 2em;"><span>A few months ago I started working on a set of features with the goal of making <a href="https://www.music4dance.net">music4dance</a> more personalized.  ...   realized that almost all members of the music4dance community have chosen the privacy setting to not share their profile...</span><a href="https://music4dance.blog/ask-music4dance-why-am-i-listed-as-anonymous/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Ask music4dance: Should you add a Single Swing Dance category?</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Ask music4dance: Should you add a Single Swing Dance category?</div>
                 <div style="margin-left: 2em;"><span><a href="https://www.music4dance.net/users/info/arne">UserBK</a> had <a href="https://music4dance.blog/2022/02/20/new-feature-searching-for-a-song-from-spotify-or-itunes/">another</a> great question: I see Single Swing being danced a lot these days.&nbsp; Should music4dance add another <a href="https://www.music4dance.net/dances/swing">swing category</a>? Is Single Swing...</span><a href="https://music4dance.blog/ask-music4dance-should-you-add-a-single-swing-dance-category/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> New Feature: Saving and Sharing Searches</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> New Feature: Saving and Sharing Searches</div>
                 <div style="margin-left: 2em;"><span>Searching for music to dance to is what <a href="https://www.music4dance.net">music4dance</a> is all about ... Another thing that I hope music4dance will be used for is to share those songs with other dancers...</span><a href="https://music4dance.blog/new-feature-saving-and-sharing-searches/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Beta Feature: Export to a file</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Beta Feature: Export to a file</div>
                 <div style="margin-left: 2em;"><span>A number of the most active members of the <a href="https://www.music4dance.net/">music4dance.net</a> community have requested the ability to download all or part of the song database. My sense is that this has generally been with the intent tag songs in one’s local catalog with the <a href="https://www.music4dance.net/dances">dance style</a>...</span><a href="https://music4dance.blog/holiday-music-for-partner-dancing-2022/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Would you like more content on music4dance.net? If so, what kind?</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Would you like more content on music4dance.net? If so, what kind?</div>
                 <div style="margin-left: 2em;"><span><a href="https://ballroomdj.org/">Brad’s</a> comment on my <a href="https://music4dance.blog/2023/01/29/new-dance-single-swing/">Single Swing post</a> made me realize that I’ve done a bunch of research on dancing and dance music that I haven’t effectively conveyed on the site or the blog. He pointed me to a <a href="http://www.superdancing.com/tempo.asp">site</a> that listed tempo values for <a href="https://www.music4dance.net/dances/single-swing">Single Swing</a>...</span><a href="https://music4dance.blog/would-you-like-more-content-on-music4dance-net-if-so-what-kind/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
             </div>
           </div>
           <div style="margin-left: 2em;">
-            <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Searching for Music</div>
+            <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Searching for Music</div>
             <div style="margin-left: 2em;"><span>Posts that are about searching for songs, excluding those about special occasions.</span><a href="https://music4dance.blog/category/searching-for-music" style="margin-left: 0.5em;">[Read more]</a></div>
             <div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> I'm a competition ballroom dancer, can I find practice songs that are a specific tempo?</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> I'm a competition ballroom dancer, can I find practice songs that are a specific tempo?</div>
                 <div style="margin-left: 2em;"><span>The quick answer to this question is yes, definitely!First, many of the songs in our catalog have been tagged with a tempo, so it is easy...</span><a href="https://music4dance.blog/im-a-ballroom-dancer-can-i-find-practice-songs-that-are-at-competition-tempo-revisited" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> What if I want to build a list of songs that are tagged as either Bolero or Rumba?</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> What if I want to build a list of songs that are tagged as either Bolero or Rumba?</div>
                 <div style="margin-left: 2em;"><span>There are a bunch of different reasons that you might want to build lists of songs that are more sophisticated than just the songs that can be danced to a specific style...</span><a href="https://music4dance.blog/what-if-i-want-to-build-a-list-of-songs-that-are-tagged-as-either-bolero-or-rumba" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> I am learning the Foxtrot, where can I find some music?</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> I am learning the Foxtrot, where can I find some music?</div>
                 <div style="margin-left: 2em;"><span>The quick answer is to just <a href="https://www.music4dance.net/song/search?dances=FXT">click this link</a> where you will find a list of over a thousand songs...</span><a href="https://music4dance.blog/i-am-learning-the-foxtrot-where-can-i-find-some-music" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <!--v-if-->
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Are there songs that you never want to dance to again?</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Are there songs that you never want to dance to again?</div>
                 <div style="margin-left: 2em;"><span>I have been adding capabilities to the music4dance advanced search control as they are suggested and as time permits.  And it got a bit out of control, so to speak...</span><a href="https://music4dance.blog/are-there-songs-that-you-never-want-to-dance-to-again" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> What if I just want to search for songs on music4dance like I do on Google?</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> What if I just want to search for songs on music4dance like I do on Google?</div>
                 <div style="margin-left: 2em;"><span>One of the things that I've had a lot of fun with is building a sophisticated search engine where...</span><a href="https://music4dance.blog/what-if-i-just-want-to-search-for-songs-on-music4dance-like-i-do-on-google/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Search like Google Part II: Autocomplete, Filter by Dance Style and Sorting</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Search like Google Part II: Autocomplete, Filter by Dance Style and Sorting</div>
                 <div style="margin-left: 2em;"><span>Auto-complete is something everyone expects when searching...</span><a href="https://music4dance.blog/search-like-google-part-ii-autocomplete-filter-by-dance-style-and-sorting" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Search like Google Part III: Advanced Search - The Best of Both Worlds?</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Search like Google Part III: Advanced Search - The Best of Both Worlds?</div>
                 <div style="margin-left: 2em;"><span>I've just updated the music4dance site with the remaining features for our search beta...</span><a href="https://music4dance.blog/search-like-google-part-iii-advanced-search-the-best-of-both-worlds" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <!--v-if-->
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Finding the latest music on music4dance (take 2)</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Finding the latest music on music4dance (take 2)</div>
                 <div style="margin-left: 2em;"><span>There are enough people that visit music4dance regularly that I thought...</span><a href="https://music4dance.blog/finding-the-latest-music-on-music4dance-take-2/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Ask music4dance: Why don't you have info about musical genres like you do about dance styles?</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Ask music4dance: Why don't you have info about musical genres like you do about dance styles?</div>
                 <div style="margin-left: 2em;"><span>I searched on your webpage, I could not find info about genre Pop. Can you show me info about genre Pop...</span><a href="https://music4dance.blog/ask-music4dance-why-dont-you-have-info-about-musical-genres-like-you-do-about-dance-styles/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Ask music4Dance: How do I find a "Pop Rock" song to dance a Slow Foxtrot to?</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Ask music4Dance: How do I find a "Pop Rock" song to dance a Slow Foxtrot to?</div>
                 <div style="margin-left: 2em;"><span>This is another question that I’ve seen a bunch of variations on over the years. I love <a href="https://en.wikipedia.org/wiki/Big_band">Big Band</a> music and grew up playing <a href="https://en.wikipedia.org/wiki/Count_Basie">Basie</a> and <a href="https://en.wikipedia.org/wiki/Benny_Goodman">Goodman</a> in Jazz bands...</span><a href="https://music4dance.blog/ask-music4dance-how-do-i-find-a-pop-rock-song-to-dance-a-slow-foxtrot-to/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> New Feature: General Search</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> New Feature: General Search</div>
                 <div style="margin-left: 2em;"><span>I've finally added a feature that should really be a part of any good website. A general search of the entire site is available by typing one or more keywords in the search box in the upper right and clicking search. Try it out, and let me know what you think...</span><a href="https://music4dance.blog/new-feature-general-search/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> New Feature: Searching for a Song from Soptify or ITunes</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> New Feature: Searching for a Song from Soptify or ITunes</div>
                 <div style="margin-left: 2em;"><span>A new member of the <a href="https://www.music4dance.net">music4dance</a> community, <a href="https://www.music4dance.net/users/info/arne">UserBK</a>, pointed out that he expected to be able to search by Spotify Id. Furthermore, he figured out how to do that...</span><a href="https://music4dance.blog/new-feature-searching-for-a-song-from-spotify-or-itunes/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> New Feature: Filter by Song Length</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> New Feature: Filter by Song Length</div>
                 <div style="margin-left: 2em;"><span>If you're trying to get a playlist together for a social dance, it would be nice for the songs to be a reasonable length for your audience.&nbsp;I realize that DJ tools will...</span><a href="https://music4dance.blog/new-feature-filter-by-song-length/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> New Feature: Searching for only the songs that someone has voted for</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> New Feature: Searching for only the songs that someone has voted for</div>
                 <div style="margin-left: 2em;"><span><a href="https://www.music4dance.net/users/info/arne">UserBK</a> pointed out the other day that it would be useful to be able to build a playlist for just the songs that he had <a href="https://music4dance.blog/music4dance-help/dance-tags/">voted</a> for dancing <a href="https://www.music4dance.net/dances/cha-cha">Cha Cha</a>. I scratched my head a bit...</span><a href="https://music4dance.blog/new-feature-searching-for-only-the-songs-that-someone-has-voted-for/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> New Dance: Single Swing</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> New Dance: Single Swing</div>
                 <div style="margin-left: 2em;"><span>I’ve added <a href="https://www.music4dance.net/dances/single-swing">Single Swing</a> as a <a href="https://www.music4dance.net/dances">dance style</a> that can be <a href="https://music4dance.blog/music4dance-help/song-list/">searched on</a> and <a href="https://music4dance.blog/music4dance-help/dance-tags/">voted for</a> in the <a href="https://www.music4dance.net/song" music4dance="" catalog<="" a="">. While I think of this dance as a short-cut to use when I want to dance East Coast Swing to faster Jive or Lindy-Hop music, I’ve received </a><a href="https://music4dance.blog/2022/03/27/ask-music4dance-should-you-add-a-single-swing-dance-category/">enough feedback</a> from the community...</span><a href="https://music4dance.blog/new-dance-single-swing/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
             </div>
           </div>
           <div style="margin-left: 2em;">
-            <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Special Occasions</div>
+            <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Special Occasions</div>
             <div style="margin-left: 2em;"><span>Searching for music related to special occasions (Holidays, Weddings, etc.)</span><a href="https://music4dance.blog/category/special-occasions" style="margin-left: 0.5em;">[Read more]</a></div>
             <div>
               <!--v-if-->
               <!--v-if-->
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Holiday Music for Partner Dancing</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Holiday Music for Partner Dancing</div>
                 <div style="margin-left: 2em;"><span>It is that time of year when dancers are looking for holiday music for dancing...</span><a href="https://music4dance.blog/holiday-music-for-partner-dancing/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Holiday Music for Partner Dancing (Take 2)</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Holiday Music for Partner Dancing (Take 2)</div>
                 <div style="margin-left: 2em;"><span>It's that time of year again - people are searching for holiday music for showcases and holiday party dances...</span><a href="https://music4dance.blog/holiday-music-for-partner-dancing-take-2/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Holiday Music for Partner Dancing 2019</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Holiday Music for Partner Dancing 2019</div>
                 <div style="margin-left: 2em;"><span>And yet again, it’s that time of year when dancers and DJs are looking for holiday music for routines and holiday dance parties.  In my third annual installment...</span><a href="https://music4dance.blog/holiday-music-for-partner-dancing-2019/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Are you looking for Halloween Music to dance to?</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Are you looking for Halloween Music to dance to?</div>
                 <div style="margin-left: 2em;"><span>Halloween is almost here and yet again I am late setting up something for Halloween related playlists.  In past years, I've just let this go since it feels like it's too late to get something together when I start thinking about it...</span><a href="https://music4dance.blog/are-you-looking-for-halloween-music-to-dance-to/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Holiday Music for Partner Dancing 2020</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Holiday Music for Partner Dancing 2020</div>
                 <div style="margin-left: 2em;"><span>On a normal year, this would be a bit late for my normal <a href="https://music4dance.blog/tag/holiday-music/">Holiday Music</a> blog post.  But if you're like me, you're not planning to participate in a holiday dance party in the middle of a pandemic.  So it's more of a case of thinking about past and future years...</span><a href="https://music4dance.blog/holiday-music-for-partner-dancing-2020/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Holiday Music for Partner Dancing 2021</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Holiday Music for Partner Dancing 2021</div>
                 <div style="margin-left: 2em;"><span>It's the time of year again to talk about&nbsp;<a href="https://www.music4dance.net/song/customsearch?name=holiday">Holiday Music</a><a>....</a></span><a href="https://music4dance.blog/holiday-music-for-partner-dancing-2021/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Valentine's Day Edition: Love Songs that We Love to Dance to</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Valentine's Day Edition: Love Songs that We Love to Dance to</div>
                 <div style="margin-left: 2em;"><span>I’ve been making an effort to tag songs and write sophisticated searches to find good songs for <a href="https://www.music4dance.net/customsearch?name=holiday">holiday dances</a>. The <a href="http://www.music4dance.net/song">music4dance catalog</a> is set up for this kind of search. Not only that, but I’ve always really enjoyed doing exhibition pieces for holiday parties...</span><a href="https://music4dance.blog/valentines-day-edition-love-songs-that-we-love-to-dance-to/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Holiday Music for Partner Dancing 2022</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Holiday Music for Partner Dancing 2022</div>
                 <div style="margin-left: 2em;"><span>It’s the time of year again to talk about <a href="https://music4dance.blog/tag/holiday-music/">Holiday Music</a>. For the second year in a row, I haven’t done any new work on the <a href="https://music4dance.blog/tag/holiday-music/">Holiday Music</a> page...</span><a href="https://music4dance.blog/holiday-music-for-partner-dancing-2022/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> We’d like to dance a "real" partner dance as the first dance at our wedding (Part I: We already chose our song)</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> We’d like to dance a "real" partner dance as the first dance at our wedding (Part I: We already chose our song)</div>
                 <div style="margin-left: 2em;"><span>Wedding season is upon us, and one of the things that come with weddings is receptions with <a href="https://www.music4dance.net/Song/?filter=Index-.-.-.-.-.-.-.-.-+First%20Dance:Other">first dances</a>, <a href="https://www.music4dance.net/Song/?filter=Index-.-.-.-.-.-.-.-.-+Father%20Daughter:Other">father/daughter dances</a>, <a href="https://www.music4dance.net/Song/?filter=Index-.-.-.-.-.-.-.-.-+Mother%20Son:Other"> mother/son dances</a>, <a href="https://www.music4dance.net/Song/?filter=Index-.-.-.-.-.-.-.-.-+Mother%20Daughter:Other"> mother/daughter dances</a>, and any other variation you can think of. I think it’s extra special when those dances are recognizably partner <a href="https://www.music4dance.net/dances">dances</a>...</span><a href="https://music4dance.blog/wed-like-to-dance-a-real-partner-dance-as-the-first-dance-at-our-wedding-part-i-we-already-chose-our-song/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> We’d like to dance a "real" partner dance as the first dance at our wedding (Part II: We already chose our dance)</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> We’d like to dance a "real" partner dance as the first dance at our wedding (Part II: We already chose our dance)</div>
                 <div style="margin-left: 2em;"><span>Last time I wrote about how <a href="https://www.music4dance.net">music4dance</a> can help you find a dance to match the song you’d like to dance to for your first dance (or other wedding dances). This time, I’ll cover how the site can help you find a song if you already know what dance style you want to dance. Before I dig into that, I’d like to repeat that your local dance studio and your wedding DJ are both excellent sources of ideas...</span><a href="https://music4dance.blog/wed-like-to-dance-a-real-partner-dance-as-the-first-dance-at-our-wedding-part-ii-we-already-chose-our-dance/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
             </div>
           </div>
           <div style="margin-left: 2em;">
-            <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Music and Dance</div>
+            <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Music and Dance</div>
             <div style="margin-left: 2em;"><span>Posts that are about music as it relates to dance and dance as it relates to music.</span><a href="https://music4dance.blog/category/music-and-dance" style="margin-left: 0.5em;">[Read more]</a></div>
             <div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> The Pink Martini Solution</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> The Pink Martini Solution</div>
                 <div style="margin-left: 2em;"><span>Not all artists are created equal when it comes to creating dance-able music. For instance...</span><a href="https://music4dance.blog/the-pink-martini-solution" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> The “Dancing with the Stars” Solution</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> The “Dancing with the Stars” Solution</div>
                 <div style="margin-left: 2em;"><span>I learned to dance in part because <a href="http://www.imdb.com/title/tt0092890/?ref_=nv_sr_1"><i>Dirty Dancing</i></a> made me want to be Johnny Castle...</span><a href="https://music4dance.blog/the-dancing-with-the-stars-solution" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Top Songs of 2015 -- And what to dance to them.</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Top Songs of 2015 -- And what to dance to them.</div>
                 <div style="margin-left: 2em;"><span>What better than a top 100 list to end the year? I've taken the <a href="https://open.spotify.com/user/spotifyyearinmusic/playlist/55tXTZZg4Xtk0BA3kPoJ1s">Spotify top 100 songs of 2015 (for the USA)</a> and ...</span><a href="https://music4dance.blog/top-songs-of-2015-and-what-to-dance-to-them" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> What are Your Favorite Song to Dance Bachata?</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> What are Your Favorite Song to Dance Bachata?</div>
                 <div style="margin-left: 2em;"><span>Since I’m going to be taking <a href="https://www.music4dance.net/dances/bachata">Bachata</a> lessons for the first time starting next week...</span><a href="https://music4dance.blog/what-are-your-favorite-song-to-dance-bachata" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> What are your favorite Prince songs for partner dancing?</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> What are your favorite Prince songs for partner dancing?</div>
                 <div style="margin-left: 2em;"><span>I, like many, am mourning and listening to Prince's music. Over and over again...</span><a href="https://music4dance.blog/what-are-your-favorite-prince-songs-for-partner-dancing" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Do Dancers Think in Eights?</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Do Dancers Think in Eights?</div>
                 <div style="margin-left: 2em;"><span>I was tickled to hear <a href="https://en.wikipedia.org/wiki/Nigel_Lythgoe">Nigel Lythgoe</a> talk a little about choreographing tap on a <a href="http://www.hulu.com/watch/977710">recent episode</a> of <a href="https://en.wikipedia.org/wiki/So_You_Think_You_Can_Dance:_The_Next_Generation_(U.S.)">So You Think You Can Dance</a>...</span><a href="https://music4dance.blog/do-dancers-think-in-eights/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Farewell to Rio 2016, but we'll always have The Samba</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Farewell to Rio 2016, but we'll always have The Samba</div>
                 <div style="margin-left: 2em;"><span>Now that the 2016 <a href="https://www.olympic.org">Olympics</a> are over and the <a href="https://www.paralympic.org/">Paralympics</a> are wrapping up,</span><a href="https://music4dance.blog/farewell-to-rio-2016-but-well-always-have-the-samba/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Dancing With The Stars, Revisited</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Dancing With The Stars, Revisited</div>
                 <div style="margin-left: 2em;"><span>I use this show and other as a source for new music, but that biases things...</span><a href="https://music4dance.blog/dancing-with-the-stars-revisited/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> What is a Fake Waltz?</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> What is a Fake Waltz?</div>
                 <div style="margin-left: 2em;"><span>I was recently asked why there are songs tagged as <a href="https://www.music4dance.net/dances/waltz">Waltz</a> in the <a href="https://www.music4dance.net/song">music4dance catalog</a> that are in <a href="https://www.music4dance.net/song/addtags?tags=%2B4%2F4:Tempo">4/4</a> time...</span><a href="https://music4dance.blog/what-is-a-fake-waltz/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Musicians for Dancers</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Musicians for Dancers</div>
                 <div style="margin-left: 2em;"><span>One of the things I enjoy most about the <a href="https://www.music4dance.net/song">music4dance project</a> is when I get feedback from people who have found the site useful...</span><a href="https://music4dance.blog/musicians-for-dancers/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> World of Dance</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> World of Dance</div>
                 <div style="margin-left: 2em;"><span>Have you seen the new TV series <a href="https://worldofdance.com/">World of DanceL</a>?  If you have any appreciation of dance you should really...</span><a href="https://music4dance.blog/world-of-dance/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Tango, Argentine Tango, Ballroom Tango, Oh My!</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Tango, Argentine Tango, Ballroom Tango, Oh My!</div>
                 <div style="margin-left: 2em;"><span>I just took a beginning Argentine Tango class and really enjoyed the experience.  I’ve had some experience</span><a href="https://music4dance.blog/tango-argentine-tango-ballroom-tango-oh-my/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Dance Pride</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Dance Pride</div>
                 <div style="margin-left: 2em;"><span>Each year <a href="https://www.spotify.com">Spotify</a> does a number of fun playlists in support of <a href="https://www.seattlepride.org/">Pride weekend</a>.  With this being the 50th anniversary of the <a href="https://en.wikipedia.org/wiki/Stonewall_riots" stonewall<="" a=""> riots...   </a></span><a href="https://music4dance.blog/dance-pride/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Ask music4dance: Why is the tempo that you're listing for Ricky Martin's "Casi Un Bolero" wrong?</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Ask music4dance: Why is the tempo that you're listing for Ricky Martin's "Casi Un Bolero" wrong?</div>
                 <div style="margin-left: 2em;"><span>I’ve seen a number of questions recently about why information on the site is wrong.  So I’ll start with one of the easier ones, which I’ve seen a number of variations on...</span><a href="https://music4dance.blog/ask-music4dance-why-is-the-tempo-that-youre-listing-for-ricky-martins-casi-un-bolero-wrong/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Ask music4dance: Why is a song tagged with the wrong dance style?</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Ask music4dance: Why is a song tagged with the wrong dance style?</div>
                 <div style="margin-left: 2em;"><span>Variations on that question make up a significant amount of the <a href="https://music4dance.blog/feedback/">feedback</a> I get here at <a href="https://www.music4dance.net">music4dance</a>.  The first answer to these questions is that <a href="https://www.music4dance.net">music4dance</a> is crowd-sourced.  So someone...</span><a href="https://music4dance.blog/ask-music4dance-why-is-a-song-tagged-with-the-wrong-dance-style/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
             </div>
           </div>
           <div style="margin-left: 2em;">
-            <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Reviews</div>
+            <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Reviews</div>
             <div style="margin-left: 2em;"><span>Posts that are about music as it relates to dance and dance as it relates to music.</span><a href="https://music4dance.blog/category/reviews" style="margin-left: 0.5em;">[Read more]</a></div>
             <div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Feel the Beat</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Feel the Beat</div>
                 <div style="margin-left: 2em;"><span>If you want to be able to enjoy partner dancing and look good while doing it, you have to be able to dance to the music...</span><a href="https://music4dance.blog/feel-the-beat/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <!--v-if-->
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Book Review: The meaning of TANGO</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Book Review: The meaning of TANGO</div>
                 <div style="margin-left: 2em;"><span>This is a fun book for Tango dancers of all types.  The book is very centered around traditional Argentine Tango and does an excellent job of...</span><a href="https://music4dance.blog/book-review-the-meaning-of-tango/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Beautiful Dance</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Beautiful Dance</div>
                 <div style="margin-left: 2em;"><span><a href="https://www.music4dance.net">music4dance</a> is all about the relationship between music and dance.  And naturally, on the website and the blog, I tend to concentrate on the musical aspect...But every once in a while it's nice to step back and remember that dance is visually beautiful...   </span><a href="https://music4dance.blog/beautiful-dance/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Book Review: Hear the Beat, Feel the Music</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Book Review: Hear the Beat, Feel the Music</div>
                 <div style="margin-left: 2em;"><span>As anyone who has spent any time reading my <a href="https://music4dance.blog">blog</a> or interacting with my <a href="https://www.music4dance.net">website</a> should know by now, I’m very passionate about music, dance and the relationship between the two...</span><a href="https://music4dance.blog/hear-the-beat-feel-the-music/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Book Review: Partner Dance Success</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Book Review: Partner Dance Success</div>
                 <div style="margin-left: 2em;"><span>This book is a great collection of practical advice for anyone new to partner dancing.  The author is a professional drummer turned social dancer who brings experience from building skill as a musician to the dance floor...</span><a href="https://music4dance.blog/book-review-partner-dance-success/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Dance in Science Fiction and Fantasy</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Dance in Science Fiction and Fantasy</div>
                 <div style="margin-left: 2em;"><span>The music4dance project is an expression of the overlap of three of my lifelong interests – music, partner dancing, and programming. Reading Science Fiction and Fantasy is another life-long pass time that precedes both my entry into computer science and my introduction to ballroom dance...</span><a href="https://music4dance.blog/dance-in-science-fiction-and-fantasy/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Dance as Language</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Dance as Language</div>
                 <div style="margin-left: 2em;"><span>I was delighted to find that the folks at the <a href="https://www.npr.org/podcasts/510324/rough-translation">Rough Translation</a> podcast produced an episode called <a href="https://www.npr.org/2021/12/22/1066965712/may-we-have-this-dance">May We Have This Dance?</a>&nbsp; For those who haven't heard of it...</span><a href="https://music4dance.blog/dance-as-language/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Book Review: Swingin' at the Savoy: The Memoir of a Jazz Dancer</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Book Review: Swingin' at the Savoy: The Memoir of a Jazz Dancer</div>
                 <div style="margin-left: 2em;"><span><a href="https://amzn.to/3RXnS6t">Swingin’ at the Savoy</a> is a beautiful memoir of one of the greatest <a href="https://www.music4dance.net/dances/lindy-hop">Lindy Hop</a> dancers of all time. Ms. Miller was not only one of the dancers that defined Lindy Hop, but as Lindy Hop faded for a while post World War II, she launched a career as a Jazz Dancer....</span><a href="https://music4dance.blog/book-review-swingin-the-savoy-the-memoir-of-a-jazz-dancer/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>
               <div style="margin-left: 2em;">
-                <div class="info"><img src="/vclient/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Book Review: How to Read Music in 30 Days</div>
+                <div class="info"><img src="/src/assets/images/icons/info.png" alt="info" width="24" height="24"> Book Review: How to Read Music in 30 Days</div>
                 <div style="margin-left: 2em;"><span>While dancers definitely don’t need to be able to read music, it is helpful to be able to dig up sheet music for a song and understand the meter and tempo markings. This can act as a sanity check against what you hear, tap out in a <a href="https://www.music4dance.net/home/counter">tempo counter</a>, or find by just stepping out the dance. <a href="https://amzn.to/3AH5gji">How to Read Music in 30 Days</a>...</span><a href="https://music4dance.blog/book-review-how-to-read-music-in-30-days/" style="margin-left: 0.5em;">[Read more]</a></div>
                 <!--v-if-->
               </div>

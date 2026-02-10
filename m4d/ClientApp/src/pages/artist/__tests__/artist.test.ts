@@ -9,6 +9,6 @@ describe("Artist", () => {
     () => {
       testPageSnapshot(App, model);
     },
-    { timeout: 50000 },
+    50000,
   );
 });

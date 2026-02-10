@@ -28,21 +28,11 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
               <!---->
               <thead class="">
                 <tr class="">
-                  <th scope="col" class="b-table-sticky-column">Dance Style
-                    <!---->
-                  </th>
-                  <th scope="col" class=""><a data-v-3bbd14d4="" href="/Song/?filter=Index-.-.-.-.-.-.-.-.-+Wedding:Other">Wedding</a>
-                    <!---->
-                  </th>
-                  <th scope="col" class=""><a data-v-3bbd14d4="" href="/Song/?filter=Index-.-.-.-.-.-.-.-.-+First Dance:Other">First Dance</a>
-                    <!---->
-                  </th>
-                  <th scope="col" class=""><a data-v-3bbd14d4="" href="/Song/?filter=Index-.-.-.-.-.-.-.-.-+Mother Son:Other">Mother/<wbr>Son</a>
-                    <!---->
-                  </th>
-                  <th scope="col" class=""><a data-v-3bbd14d4="" href="/Song/?filter=Index-.-.-.-.-.-.-.-.-+Father Daughter:Other">Father/<wbr>Daughter</a>
-                    <!---->
-                  </th>
+                  <th scope="col" class="b-table-sticky-column">Dance Style</th>
+                  <th scope="col" class=""><a data-v-3bbd14d4="" href="/Song/?filter=Index-.-.-.-.-.-.-.-.-+Wedding:Other">Wedding</a></th>
+                  <th scope="col" class=""><a data-v-3bbd14d4="" href="/Song/?filter=Index-.-.-.-.-.-.-.-.-+First Dance:Other">First Dance</a></th>
+                  <th scope="col" class=""><a data-v-3bbd14d4="" href="/Song/?filter=Index-.-.-.-.-.-.-.-.-+Mother Son:Other">Mother/<wbr>Son</a></th>
+                  <th scope="col" class=""><a data-v-3bbd14d4="" href="/Song/?filter=Index-.-.-.-.-.-.-.-.-+Father Daughter:Other">Father/<wbr>Daughter</a></th>
                 </tr>
                 <!---->
               </thead>
@@ -870,7 +860,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
       </div>
       <dl>
         <div>
-          <dd><img src="/vclient/src/assets/images/icons/info.png" alt="tools" width="24" height="24"> Read the <a href="https://music4dance.blog">music4dance blog</a> entries about <a href="https://music4dance.blog/tag/wedding">Wedding Music</a>. </dd>
+          <dd><img src="/src/assets/images/icons/info.png" alt="tools" width="24" height="24"> Read the <a href="https://music4dance.blog">music4dance blog</a> entries about <a href="https://music4dance.blog/tag/wedding">Wedding Music</a>. </dd>
         </div>
       </dl>
     </div>

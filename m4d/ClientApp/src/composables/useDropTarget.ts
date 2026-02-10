@@ -26,7 +26,7 @@ export function useDropTarget() {
           okTitle: "Yes",
           cancelTitle: "No",
         }).show();
-        okay = (result == true || (result as BvTriggerableEvent)?.ok) ?? false;
+        okay = typeof result === "boolean" ? result : (result as BvTriggerableEvent)?.ok ?? false;
       }
       if (okay) {
         const id = matcher.parseId(input, service);
