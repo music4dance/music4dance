@@ -23,7 +23,7 @@ function buildFields(): Exclude<TableFieldRaw<TagRow>, string>[] {
       key: "dance",
       label: "Dance Style",
       stickyColumn: true,
-      formatter: (value: unknown) => (value as NamedObject).name,
+      accessor: (item: TagRow) => item.dance?.name ?? "",
     },
   ];
 
@@ -33,12 +33,9 @@ function buildFields(): Exclude<TableFieldRaw<TagRow>, string>[] {
     fields.push({
       key: column.tag,
       label: column.title.replace("/", "/<wbr>"),
-      formatter: (value: unknown, key?: string, item?: unknown) => {
-        // In bootstrap-vue-next 0.43.1, the item parameter may be undefined
-        // and value may contain the entire row object
-        const row = (item as TagRow) || (value as TagRow);
-        if (!row || !row.counts) return "0";
-        return countFromKey(key as string, row);
+      formatter: ({ value, key, item }: { value: unknown; key: string; item: TagRow }) => {
+        if (!item || !item.counts) return "0";
+        return countFromKey(key, item);
       },
     });
   }

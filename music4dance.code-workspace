@@ -2,12 +2,12 @@
   "folders": [
     {
       "name": "Server (.NET)",
-      "path": "."
+      "path": ".",
     },
     {
       "name": "Client (Vue/TypeScript)",
-      "path": "./m4d/ClientApp"
-    }
+      "path": "./m4d/ClientApp",
+    },
   ],
   "settings": {
     // Global workspace settings
@@ -16,17 +16,17 @@
       "**/bin": true,
       "**/obj": true,
       "**/.vs": true,
-      "**/packages": true
+      "**/packages": true,
     },
     "search.exclude": {
       "**/node_modules": true,
       "**/bin": true,
-      "**/obj": true
+      "**/obj": true,
     },
     "editor.formatOnSave": true,
     "files.autoSave": "onFocusChange",
     "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": "explicit"
+      "source.fixAll.eslint": "explicit",
     },
     "workbench.colorCustomizations": {
       "activityBar.activeBackground": "#1f6fd0",
@@ -45,9 +45,12 @@
       "titleBar.activeBackground": "#1857a4",
       "titleBar.activeForeground": "#e7e7e7",
       "titleBar.inactiveBackground": "#1857a499",
-      "titleBar.inactiveForeground": "#e7e7e799"
+      "titleBar.inactiveForeground": "#e7e7e799",
     },
-    "peacock.color": "#1857a4"
+    "peacock.color": "#1857a4",
+    "chat.tools.terminal.autoApprove": {
+      "ForEach-Object": true,
+    },
   },
   "extensions": {
     "recommendations": [
@@ -59,8 +62,8 @@
       "github.copilot-chat",
       "esbenp.prettier-vscode",
       "dbaeumer.vscode-eslint",
-      "ms-vscode.test-adapter-converter"
-    ]
+      "ms-vscode.test-adapter-converter",
+    ],
   },
   "tasks": {
     "version": "2.0.0",
@@ -74,9 +77,9 @@
           "echo": true,
           "reveal": "silent",
           "focus": false,
-          "panel": "shared"
+          "panel": "shared",
         },
-        "problemMatcher": "$msCompile"
+        "problemMatcher": "$msCompile",
       },
       {
         "label": "Server: Test",
@@ -88,9 +91,9 @@
           "echo": true,
           "reveal": "always",
           "focus": false,
-          "panel": "shared"
+          "panel": "shared",
         },
-        "problemMatcher": "$msCompile"
+        "problemMatcher": "$msCompile",
       },
       {
         "label": "Server: Test SelfCrawler",
@@ -102,8 +105,8 @@
           "echo": true,
           "reveal": "always",
           "focus": true,
-          "panel": "shared"
-        }
+          "panel": "shared",
+        },
       },
       {
         "label": "Client: Install",
@@ -111,15 +114,15 @@
         "command": "yarn",
         "args": ["install"],
         "options": {
-          "cwd": "${workspaceFolder:Client (Vue/TypeScript)}"
+          "cwd": "${workspaceFolder:Client (Vue/TypeScript)}",
         },
         "group": "build",
         "presentation": {
           "echo": true,
           "reveal": "silent",
           "focus": false,
-          "panel": "shared"
-        }
+          "panel": "shared",
+        },
       },
       {
         "label": "Client: Build",
@@ -127,16 +130,16 @@
         "command": "yarn",
         "args": ["build"],
         "options": {
-          "cwd": "${workspaceFolder:Client (Vue/TypeScript)}"
+          "cwd": "${workspaceFolder:Client (Vue/TypeScript)}",
         },
         "group": "build",
         "presentation": {
           "echo": true,
           "reveal": "silent",
           "focus": false,
-          "panel": "shared"
+          "panel": "shared",
         },
-        "problemMatcher": ["$tsc", "$eslint-stylish"]
+        "problemMatcher": ["$tsc", "$eslint-stylish"],
       },
       {
         "label": "Client: Lint",
@@ -144,16 +147,16 @@
         "command": "yarn",
         "args": ["lint"],
         "options": {
-          "cwd": "${workspaceFolder:Client (Vue/TypeScript)}"
+          "cwd": "${workspaceFolder:Client (Vue/TypeScript)}",
         },
         "group": "test",
         "presentation": {
           "echo": true,
           "reveal": "always",
           "focus": false,
-          "panel": "shared"
+          "panel": "shared",
         },
-        "problemMatcher": "$eslint-stylish"
+        "problemMatcher": "$eslint-stylish",
       },
       {
         "label": "Client: Test",
@@ -161,15 +164,15 @@
         "command": "yarn",
         "args": ["test:unit", "run"],
         "options": {
-          "cwd": "${workspaceFolder:Client (Vue/TypeScript)}"
+          "cwd": "${workspaceFolder:Client (Vue/TypeScript)}",
         },
         "group": "test",
         "presentation": {
           "echo": true,
           "reveal": "always",
           "focus": false,
-          "panel": "shared"
-        }
+          "panel": "shared",
+        },
       },
       {
         "label": "Client: Type Check",
@@ -177,16 +180,16 @@
         "command": "yarn",
         "args": ["type-check"],
         "options": {
-          "cwd": "${workspaceFolder:Client (Vue/TypeScript)}"
+          "cwd": "${workspaceFolder:Client (Vue/TypeScript)}",
         },
         "group": "test",
         "presentation": {
           "echo": true,
           "reveal": "always",
           "focus": false,
-          "panel": "shared"
+          "panel": "shared",
         },
-        "problemMatcher": "$tsc"
+        "problemMatcher": "$tsc",
       },
       {
         "label": "Build All",
@@ -194,14 +197,14 @@
         "dependsOn": ["Server: Build", "Client: Install", "Client: Build"],
         "group": {
           "kind": "build",
-          "isDefault": true
+          "isDefault": true,
         },
         "presentation": {
           "echo": true,
           "reveal": "always",
           "focus": false,
-          "panel": "shared"
-        }
+          "panel": "shared",
+        },
       },
       {
         "label": "Test All",
@@ -209,14 +212,14 @@
         "dependsOn": ["Server: Test", "Client: Test", "Client: Lint"],
         "group": {
           "kind": "test",
-          "isDefault": true
+          "isDefault": true,
         },
         "presentation": {
           "echo": true,
           "reveal": "always",
           "focus": false,
-          "panel": "shared"
-        }
+          "panel": "shared",
+        },
       },
       {
         "label": "Full CI Check",
@@ -227,10 +230,10 @@
           "echo": true,
           "reveal": "always",
           "focus": false,
-          "panel": "shared"
-        }
-      }
-    ]
+          "panel": "shared",
+        },
+      },
+    ],
   },
   "launch": {
     "version": "0.2.0",
@@ -246,12 +249,12 @@
         "stopAtEntry": false,
         "serverReadyAction": {
           "action": "openExternally",
-          "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+          "pattern": "\\bNow listening on:\\s+(https?://\\S+)",
         },
         "env": {
-          "ASPNETCORE_ENVIRONMENT": "Development"
-        }
-      }
-    ]
-  }
+          "ASPNETCORE_ENVIRONMENT": "Development",
+        },
+      },
+    ],
+  },
 }

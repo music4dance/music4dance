@@ -59,7 +59,7 @@ exports[`Country > Renders the Country Western Competition Page 1`] = `
                   <!----><a href="/song/advancedsearch?dances=TTW&amp;tempomin=80&amp;tempomax=92&amp;sortorder=Dances">80-92</a>
                 </td>
                 <td class="">
-                  <!---->
+                  <!---->4/4
                 </td>
               </tr>
               <!---->
@@ -77,7 +77,7 @@ exports[`Country > Renders the Country Western Competition Page 1`] = `
                   <!----><a href="/song/advancedsearch?dances=PLK&amp;tempomin=103&amp;tempomax=118&amp;sortorder=Dances">103-118</a>
                 </td>
                 <td class="">
-                  <!---->
+                  <!---->2/4
                 </td>
               </tr>
               <!---->
@@ -95,7 +95,7 @@ exports[`Country > Renders the Country Western Competition Page 1`] = `
                   <!----><a href="/song/advancedsearch?dances=NC2&amp;tempomin=54&amp;tempomax=64&amp;sortorder=Dances">54-64</a>
                 </td>
                 <td class="">
-                  <!---->
+                  <!---->4/4
                 </td>
               </tr>
               <!---->
@@ -113,7 +113,7 @@ exports[`Country > Renders the Country Western Competition Page 1`] = `
                   <!----><a href="/song/advancedsearch?dances=CHA&amp;tempomin=100&amp;tempomax=120&amp;sortorder=Dances">100-120</a>
                 </td>
                 <td class="">
-                  <!---->
+                  <!---->4/4
                 </td>
               </tr>
               <!---->
@@ -131,7 +131,7 @@ exports[`Country > Renders the Country Western Competition Page 1`] = `
                   <!----><a href="/song/advancedsearch?dances=SWZ&amp;tempomin=88&amp;tempomax=91&amp;sortorder=Dances">88-91</a>
                 </td>
                 <td class="">
-                  <!---->
+                  <!---->3/4
                 </td>
               </tr>
               <!---->
@@ -149,7 +149,7 @@ exports[`Country > Renders the Country Western Competition Page 1`] = `
                   <!----><a href="/song/advancedsearch?dances=C2S&amp;tempomin=170&amp;tempomax=194&amp;sortorder=Dances">170-194</a>
                 </td>
                 <td class="">
-                  <!---->
+                  <!---->2/4
                 </td>
               </tr>
               <!---->
@@ -167,7 +167,7 @@ exports[`Country > Renders the Country Western Competition Page 1`] = `
                   <!----><a href="/song/advancedsearch?dances=ECS&amp;tempomin=133&amp;tempomax=148&amp;sortorder=Dances">133-148</a>
                 </td>
                 <td class="">
-                  <!---->
+                  <!---->4/4
                 </td>
               </tr>
               <!---->
@@ -185,7 +185,7 @@ exports[`Country > Renders the Country Western Competition Page 1`] = `
                   <!----><a href="/song/advancedsearch?dances=WCS&amp;tempomin=98&amp;tempomax=120&amp;sortorder=Dances">98-120</a>
                 </td>
                 <td class="">
-                  <!---->
+                  <!---->4/4
                 </td>
               </tr>
               <!---->

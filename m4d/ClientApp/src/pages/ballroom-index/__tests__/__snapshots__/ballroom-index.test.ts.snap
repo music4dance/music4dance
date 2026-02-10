@@ -56,7 +56,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href="/song/advancedsearch?dances=SWZ&amp;tempomin=90&amp;tempomax=90&amp;sortorder=Dances">90</a>
                   </td>
                   <td class="">
-                    <!---->
+                    <!---->3/4
                   </td>
                 </tr>
                 <!---->
@@ -71,7 +71,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href="/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=120&amp;sortorder=Dances">120</a>
                   </td>
                   <td class="">
-                    <!---->
+                    <!---->4/4
                   </td>
                 </tr>
                 <!---->
@@ -86,7 +86,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href="/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=120&amp;sortorder=Dances">120</a>
                   </td>
                   <td class="">
-                    <!---->
+                    <!---->4/4
                   </td>
                 </tr>
                 <!---->
@@ -101,7 +101,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href="/song/advancedsearch?dances=VWZ&amp;tempomin=159&amp;tempomax=159&amp;sortorder=Dances">159</a>
                   </td>
                   <td class="">
-                    <!---->
+                    <!---->3/4
                   </td>
                 </tr>
                 <!---->
@@ -145,7 +145,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href="/song/advancedsearch?dances=SWZ&amp;tempomin=87&amp;tempomax=87&amp;sortorder=Dances">87</a>
                   </td>
                   <td class="">
-                    <!---->
+                    <!---->3/4
                   </td>
                 </tr>
                 <!---->
@@ -160,7 +160,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href="/song/advancedsearch?dances=TGO&amp;tempomin=124&amp;tempomax=132&amp;sortorder=Dances">124-132</a>
                   </td>
                   <td class="">
-                    <!---->
+                    <!---->4/4
                   </td>
                 </tr>
                 <!---->
@@ -175,7 +175,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href="/song/advancedsearch?dances=VWZ&amp;tempomin=174&amp;tempomax=174&amp;sortorder=Dances">174</a>
                   </td>
                   <td class="">
-                    <!---->
+                    <!---->3/4
                   </td>
                 </tr>
                 <!---->
@@ -190,7 +190,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href="/song/advancedsearch?dances=SFT&amp;tempomin=112&amp;tempomax=112&amp;sortorder=Dances">112</a>
                   </td>
                   <td class="">
-                    <!---->
+                    <!---->4/4
                   </td>
                 </tr>
                 <!---->
@@ -205,7 +205,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href="/song/advancedsearch?dances=QST&amp;tempomin=200&amp;tempomax=200&amp;sortorder=Dances">200</a>
                   </td>
                   <td class="">
-                    <!---->
+                    <!---->4/4
                   </td>
                 </tr>
                 <!---->
@@ -249,7 +249,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href="/song/advancedsearch?dances=CHA&amp;tempomin=120&amp;tempomax=120&amp;sortorder=Dances">120</a>
                   </td>
                   <td class="">
-                    <!---->
+                    <!---->4/4
                   </td>
                 </tr>
                 <!---->
@@ -264,7 +264,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href="/song/advancedsearch?dances=RMB&amp;tempomin=124&amp;tempomax=124&amp;sortorder=Dances">124</a>
                   </td>
                   <td class="">
-                    <!---->
+                    <!---->4/4
                   </td>
                 </tr>
                 <!---->
@@ -279,7 +279,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href="/song/advancedsearch?dances=ECS&amp;tempomin=140&amp;tempomax=140&amp;sortorder=Dances">140</a>
                   </td>
                   <td class="">
-                    <!---->
+                    <!---->4/4
                   </td>
                 </tr>
                 <!---->
@@ -294,7 +294,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href="/song/advancedsearch?dances=BOL&amp;tempomin=96&amp;tempomax=96&amp;sortorder=Dances">96</a>
                   </td>
                   <td class="">
-                    <!---->
+                    <!---->4/4
                   </td>
                 </tr>
                 <!---->
@@ -309,7 +309,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href="/song/advancedsearch?dances=MBO&amp;tempomin=188&amp;tempomax=188&amp;sortorder=Dances">188</a>
                   </td>
                   <td class="">
-                    <!---->
+                    <!---->4/4
                   </td>
                 </tr>
                 <!---->
@@ -353,7 +353,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href="/song/advancedsearch?dances=CHA&amp;tempomin=124&amp;tempomax=124&amp;sortorder=Dances">124</a>
                   </td>
                   <td class="">
-                    <!---->
+                    <!---->4/4
                   </td>
                 </tr>
                 <!---->
@@ -368,7 +368,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href="/song/advancedsearch?dances=SMB&amp;tempomin=100&amp;tempomax=100&amp;sortorder=Dances">100</a>
                   </td>
                   <td class="">
-                    <!---->
+                    <!---->2/4
                   </td>
                 </tr>
                 <!---->
@@ -383,7 +383,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href="/song/advancedsearch?dances=RMB&amp;tempomin=100&amp;tempomax=100&amp;sortorder=Dances">100</a>
                   </td>
                   <td class="">
-                    <!---->
+                    <!---->4/4
                   </td>
                 </tr>
                 <!---->
@@ -398,7 +398,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href="/song/advancedsearch?dances=PDL&amp;tempomin=110&amp;tempomax=110&amp;sortorder=Dances">110</a>
                   </td>
                   <td class="">
-                    <!---->
+                    <!---->2/4
                   </td>
                 </tr>
                 <!---->
@@ -413,7 +413,7 @@ exports[`CompetitionCategory > Renders the Ballroom Index Page 1`] = `
                     <!----><a href="/song/advancedsearch?dances=JIV&amp;tempomin=172&amp;tempomax=172&amp;sortorder=Dances">172</a>
                   </td>
                   <td class="">
-                    <!---->
+                    <!---->4/4
                   </td>
                 </tr>
                 <!---->

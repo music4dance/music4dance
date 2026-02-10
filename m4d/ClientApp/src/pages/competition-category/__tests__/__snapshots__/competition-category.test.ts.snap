@@ -55,7 +55,7 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
                   <!----><a href="/song/advancedsearch?dances=SWZ&amp;tempomin=90&amp;tempomax=90&amp;sortorder=Dances">90</a>
                 </td>
                 <td class="">
-                  <!---->
+                  <!---->3/4
                 </td>
               </tr>
               <!---->
@@ -70,7 +70,7 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
                   <!----><a href="/song/advancedsearch?dances=TGO&amp;tempomin=120&amp;tempomax=120&amp;sortorder=Dances">120</a>
                 </td>
                 <td class="">
-                  <!---->
+                  <!---->4/4
                 </td>
               </tr>
               <!---->
@@ -85,7 +85,7 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
                   <!----><a href="/song/advancedsearch?dances=SFT&amp;tempomin=120&amp;tempomax=120&amp;sortorder=Dances">120</a>
                 </td>
                 <td class="">
-                  <!---->
+                  <!---->4/4
                 </td>
               </tr>
               <!---->
@@ -100,7 +100,7 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
                   <!----><a href="/song/advancedsearch?dances=VWZ&amp;tempomin=159&amp;tempomax=159&amp;sortorder=Dances">159</a>
                 </td>
                 <td class="">
-                  <!---->
+                  <!---->3/4
                 </td>
               </tr>
               <!---->
@@ -141,7 +141,7 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
                   <!----><a href="/song/advancedsearch?dances=PBD&amp;tempomin=240&amp;tempomax=240&amp;sortorder=Dances">240</a>
                 </td>
                 <td class="">
-                  <!---->
+                  <!---->4/4
                 </td>
               </tr>
               <!---->

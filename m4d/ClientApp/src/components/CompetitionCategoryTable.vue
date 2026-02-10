@@ -2,7 +2,6 @@
 import { DanceInstance } from "@/models/DanceDatabase/DanceInstance";
 import { danceLink, filteredTempoLink } from "@/helpers/LinkHelpers";
 import type { TableFieldRaw } from "bootstrap-vue-next";
-import type { LiteralUnion } from "@/helpers/bsvn-types";
 import { computed } from "vue";
 
 const props = defineProps<{
@@ -45,7 +44,7 @@ const fields = computed<Exclude<TableFieldRaw<DanceInstance>, string>[]>(() => {
   baseFields.push({
     key: "meter",
     label: "Meter",
-    formatter: (value: unknown, _key?: LiteralUnion<keyof DanceInstance>, item?: DanceInstance) => {
+    formatter: ({ value, item }: { value: unknown; key: string; item: DanceInstance }) => {
       // Prefer meter from the row item when available; otherwise treat value as the meter cell value
       const meterValue = item?.meter ?? value;
       if (meterValue === null || meterValue === undefined) {
