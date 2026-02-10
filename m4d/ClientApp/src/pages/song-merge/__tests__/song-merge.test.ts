@@ -29,6 +29,6 @@ describe("Song Merge", () => {
       });
       testPageSnapshot(App, model, m4dContext());
     },
-    { timeout: 50000 },
+    50000,
   );
 });

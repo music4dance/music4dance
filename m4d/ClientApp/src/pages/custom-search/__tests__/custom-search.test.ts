@@ -8,7 +8,6 @@ describe(
   () => {
     test("renders a custom search page", () => {
       testPageSnapshot(App, model);
-    });
+    }, 50000);
   },
-  { timeout: 50000 },
 );

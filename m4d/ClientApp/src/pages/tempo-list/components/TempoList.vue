@@ -29,45 +29,58 @@ const fields: Exclude<TableFieldRaw<DanceType>, string>[] = [
     key: "meter",
     sortable: true,
     sortByFormatted: true,
-    formatter: (_value: unknown, _key?: LiteralUnion<keyof DanceType>, item?: DanceType) =>
-      item!.meter.toString(),
+    formatter: (value: unknown, _key?: LiteralUnion<keyof DanceType>, item?: DanceType) => {
+      const dance = item || (value as DanceType);
+      return dance?.meter?.toString() ?? "";
+    },
   },
   {
     key: "bpm",
     label: "BPM",
     sortable: true,
-    sortByFormatted: (_value: unknown, _key?: LiteralUnion<keyof DanceType>, item?: DanceType) =>
-      item!.tempoRange.min.toLocaleString("en", {
+    sortByFormatted: (value: unknown, _key?: LiteralUnion<keyof DanceType>, item?: DanceType) => {
+      const dance = item || (value as DanceType);
+      return dance?.tempoRange?.min.toLocaleString("en", {
         minimumIntegerDigits: 4,
-      }) ?? "",
-    formatter: (_value: unknown, _key?: LiteralUnion<keyof DanceType>, item?: DanceType) =>
-      item!.tempoRange.toString() ?? "",
+      }) ?? "";
+    },
+    formatter: (value: unknown, _key?: LiteralUnion<keyof DanceType>, item?: DanceType) => {
+      const dance = item || (value as DanceType);
+      return dance?.tempoRange?.toString() ?? "";
+    },
   },
   {
     key: "mpm",
     label: "MPM",
     sortable: true,
-    sortByFormatted: (_value: unknown, key?: LiteralUnion<keyof DanceType>, item?: DanceType) =>
-      item!.tempoRange.min.toLocaleString("en", {
+    sortByFormatted: (value: unknown, key?: LiteralUnion<keyof DanceType>, item?: DanceType) => {
+      const dance = item || (value as DanceType);
+      return dance?.tempoRange?.min.toLocaleString("en", {
         minimumIntegerDigits: 4,
-      }) ?? "",
-    formatter: (_value: unknown, _key?: LiteralUnion<keyof DanceType>, item?: DanceType) =>
-      item!.tempoRange.mpm(item!.meter.numerator) ?? "",
+      }) ?? "";
+    },
+    formatter: (value: unknown, _key?: LiteralUnion<keyof DanceType>, item?: DanceType) => {
+      const dance = item || (value as DanceType);
+      return dance?.tempoRange?.mpm(dance?.meter?.numerator ?? 1) ?? "";
+    },
   },
   {
     key: "groupName",
     label: "Type",
     sortable: true,
     sortByFormatted: true,
-    formatter: (_value: unknown, _key?: LiteralUnion<keyof DanceType>, item?: DanceType) =>
-      item!.groups!.map((g) => g.name).join(", "),
+    formatter: (value: unknown, _key?: LiteralUnion<keyof DanceType>, item?: DanceType) => {
+      const dance = item || (value as DanceType);
+      return dance?.groups?.map((g) => g.name).join(", ") ?? "";
+    },
   },
   {
     key: "styles",
     sortable: true,
     sortByFormatted: true,
-    formatter: (_value: unknown, _key?: LiteralUnion<keyof DanceType>, item?: DanceType) => {
-      return item!.styles.join(", ") ?? "";
+    formatter: (value: unknown, _key?: LiteralUnion<keyof DanceType>, item?: DanceType) => {
+      const dance = item || (value as DanceType);
+      return dance?.styles?.join(", ") ?? "";
     },
   },
 ];

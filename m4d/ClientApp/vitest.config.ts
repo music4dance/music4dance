@@ -19,14 +19,6 @@ export default mergeConfig(
       teardownTimeout: 30000, // 30 seconds for cleanup
       // Worker timeout settings to prevent "onTaskUpdate" timeout errors
       pool: "threads",
-      poolOptions: {
-        threads: {
-          // Increase worker timeout and memory limits
-          minThreads: 1,
-          maxThreads: 3,
-          useAtomics: true,
-        },
-      },
       // Increase worker communication settings
       chaiConfig: {
         truncateThreshold: 10000,

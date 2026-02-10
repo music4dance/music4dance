@@ -33,8 +33,13 @@ function buildFields(): Exclude<TableFieldRaw<TagRow>, string>[] {
     fields.push({
       key: column.tag,
       label: column.title.replace("/", "/<wbr>"),
-      formatter: (_value: unknown, key: unknown, item: unknown) =>
-        countFromKey(key as string, item as TagRow),
+      formatter: (value: unknown, key?: string, item?: unknown) => {
+        // In bootstrap-vue-next 0.43.1, the item parameter may be undefined
+        // and value may contain the entire row object
+        const row = (item as TagRow) || (value as TagRow);
+        if (!row || !row.counts) return "0";
+        return countFromKey(key as string, row);
+      },
     });
   }
 

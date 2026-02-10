@@ -45,8 +45,11 @@ const fields = computed<Exclude<TableFieldRaw<DanceInstance>, string>[]>(() => {
   baseFields.push({
     key: "meter",
     label: "Meter",
-    formatter: (_value: unknown, _key?: LiteralUnion<keyof DanceInstance>, item?: DanceInstance) =>
-      item!.meter.toString(),
+    formatter: (value: unknown, _key?: LiteralUnion<keyof DanceInstance>, item?: DanceInstance) => {
+      // In bootstrap-vue-next 0.43.1, item may be undefined and value contains the row
+      const dance = item || (value as DanceInstance);
+      return dance?.meter?.toString() ?? "";
+    },
   });
 
   return baseFields;

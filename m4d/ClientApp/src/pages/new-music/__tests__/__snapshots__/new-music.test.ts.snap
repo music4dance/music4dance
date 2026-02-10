@@ -9,13 +9,12 @@ exports[`New Music > renders a new music page 1`] = `
     <div>
       <div class="btn-group" role="group" aria-label="Group"><button class="btn btn-md btn-outline-primary active" aria-pressed="true" autocomplete="off" type="button">Recently Added</button><button class="btn btn-md btn-outline-primary" aria-pressed="false" autocomplete="off" type="button">Recently Changed</button><button class="btn btn-md btn-outline-primary" aria-pressed="false" autocomplete="off" type="button">Recently Commented</button></div>
       <div data-v-a7ef304f="">
-        <table data-v-a7ef304f="" id="BootstrapVueNext__ID__v-0__" class="table b-table table-borderless table-hover table-striped" aria-busy="false" sort-icon-left="">
+        <table data-v-a7ef304f="" id="BootstrapVueNext__ID__v-0__" class="table b-table table-borderless table-hover table-striped" aria-busy="false">
           <!---->
           <thead class="">
             <tr class="">
               <th scope="col" class="">
                 <div data-v-a7ef304f="" class="likeHeader">Like/Play</div>
-                <!---->
               </th>
               <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="#" id="Title">Title<!--v-if--></a><span id="BootstrapVueNext__ID__v-3__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
@@ -29,7 +28,6 @@ exports[`New Music > renders a new music page 1`] = `
                     </div>
                   </div>
                 </transition-stub></span>
-                <!---->
               </th>
               <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="#" id="Artist">Artist<!--v-if--></a><span id="BootstrapVueNext__ID__v-4__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
@@ -43,7 +41,6 @@ exports[`New Music > renders a new music page 1`] = `
                     </div>
                   </div>
                 </transition-stub></span>
-                <!---->
               </th>
               <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="#" id="Tempo">Tempo (BPM)<!--v-if--></a><span id="BootstrapVueNext__ID__v-5__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
@@ -57,10 +54,9 @@ exports[`New Music > renders a new music page 1`] = `
                     </div>
                   </div>
                 </transition-stub></span>
-                <!---->
               </th>
               <th scope="col" class="">
-                <div data-v-a7ef304f="" class="echoHeader"><span data-v-a7ef304f=""><a class="link-underline-light" href="#" id="Beat"><img data-v-a7ef304f="" src="/vclient/src/assets/images/icons/beat-10.png" width="25" height="25"><!--v-if--></a><span id="BootstrapVueNext__ID__v-6__popover____placeholder" style="display: none;"></span>
+                <div data-v-a7ef304f="" class="echoHeader"><span data-v-a7ef304f=""><a class="link-underline-light" href="#" id="Beat"><img data-v-a7ef304f="" src="/src/assets/images/icons/beat-10.png" width="25" height="25"><!--v-if--></a><span id="BootstrapVueNext__ID__v-6__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
                     <div id="BootstrapVueNext__ID__v-6__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
@@ -71,7 +67,7 @@ exports[`New Music > renders a new music page 1`] = `
                         </div>
                       </div>
                     </div>
-                  </transition-stub></span><span data-v-a7ef304f=""><a class="link-underline-light" href="#" id="Energy"><img data-v-a7ef304f="" src="/vclient/src/assets/images/icons/Energy-10.png" width="25" height="25"><!--v-if--></a><span id="BootstrapVueNext__ID__v-7__popover____placeholder" style="display: none;"></span>
+                  </transition-stub></span><span data-v-a7ef304f=""><a class="link-underline-light" href="#" id="Energy"><img data-v-a7ef304f="" src="/src/assets/images/icons/Energy-10.png" width="25" height="25"><!--v-if--></a><span id="BootstrapVueNext__ID__v-7__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
                     <div id="BootstrapVueNext__ID__v-7__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
@@ -82,7 +78,7 @@ exports[`New Music > renders a new music page 1`] = `
                         </div>
                       </div>
                     </div>
-                  </transition-stub></span><span data-v-a7ef304f=""><a class="link-underline-light" href="#" id="Mood"><img data-v-a7ef304f="" src="/vclient/src/assets/images/icons/mood-10.png" width="25" height="25"><!--v-if--></a><span id="BootstrapVueNext__ID__v-8__popover____placeholder" style="display: none;"></span>
+                  </transition-stub></span><span data-v-a7ef304f=""><a class="link-underline-light" href="#" id="Mood"><img data-v-a7ef304f="" src="/src/assets/images/icons/mood-10.png" width="25" height="25"><!--v-if--></a><span id="BootstrapVueNext__ID__v-8__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
                     <div id="BootstrapVueNext__ID__v-8__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
@@ -95,7 +91,6 @@ exports[`New Music > renders a new music page 1`] = `
                     </div>
                   </transition-stub></span>
                 </div>
-                <!---->
               </th>
               <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="#" id="Dances">Dances<!--v-if--></a><span id="BootstrapVueNext__ID__v-9__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
@@ -109,7 +104,6 @@ exports[`New Music > renders a new music page 1`] = `
                     </div>
                   </div>
                 </transition-stub></span>
-                <!---->
               </th>
               <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="#" id="Tags">Tags<!--v-if--></a><span id="BootstrapVueNext__ID__v-10__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
@@ -123,11 +117,9 @@ exports[`New Music > renders a new music page 1`] = `
                     </div>
                   </div>
                 </transition-stub></span>
-                <!---->
               </th>
               <th scope="col" class="">
                 <div data-v-a7ef304f="" class="changeHeader">Latest Changes</div>
-                <!---->
               </th>
             </tr>
             <!---->

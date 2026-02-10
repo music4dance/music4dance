@@ -10,7 +10,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
       <h1 class="col-sm-12" style="font-size: 22px; text-align: center;">Advanced Song Search</h1>
       <div style="max-width: 600px; margin-left: auto; margin-right: auto;">
         <form id="advanced-search" novalidate="" class="">
-          <div id="search-string-group" role="group" class="b-form-group mb-3">
+          <div id="search-string-group" role="group" class="mb-3 b-form-group">
             <!---->
             <!----><label id="BootstrapVueNext__ID__v-1___BV_label____" for="search-string" class="form-label d-block">Keywords:</label>
             <div class="input-group mb-1" role="group">
@@ -31,7 +31,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
             <!---->
             <!---->
             <legend id="BootstrapVueNext__ID__v-7___BV_label____" tabindex="-1" class="form-label bv-no-focus-ring col-form-label pt-0">Dances:</legend>
-            <div style="border-radius: 0.25rem;">
+            <div style="border: 1px solid rgb(206, 212, 218); border-radius: 0.25rem;">
               <div id="dance-selector" class="b-form-tags form-control h-auto mb-2 mt-2" role="group" tabindex="-1" style="border-style: hidden;"><output id="BootstrapVueNext__ID__v-11__selected_tags__" class="visually-hidden" for="BootstrapVueNext__ID__v-11__input__" aria-live="off" aria-atomic="true" aria-relevant="additions text">BOL, RMB</output>
                 <div id="BootstrapVueNext__ID__v-11__removed_tags__" role="status" aria-live="off" aria-atomic="true" class="visually-hidden"> (Tag removed) </div>
                 <ul class="list-inline d-inline-block mb-2">
@@ -47,11 +47,10 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
                       <div>
                         <li role="presentation">
                           <form class="dropdown-item-text">
-                            <div id="BootstrapVueNext__ID__v-15__" role="group" class="b-form-group mb-0">
+                            <div id="BootstrapVueNext__ID__v-15__" role="group" class="mb-0 b-form-group">
                               <!---->
                               <!---->
-                              <div class="row d-flex flex-wrap">
-                                <div class="col-md-auto"><label id="BootstrapVueNext__ID__v-16___BV_label____" for="tag-search-input" class="col-form-label col-form-label col-form-label-sm">Search Dances</label></div>
+                              <div class="row d-flex flex-wrap"><label class="col-md-auto col-form-label col-form-label col-form-label-sm" id="BootstrapVueNext__ID__v-16___BV_label____" for="tag-search-input">Search Dances</label>
                                 <div class="col"><input id="BootstrapVueNext__ID__v-20__input___" class="form-control form-control-sm" type="search" autocomplete="off" trim="" value="">
                                   <!---->
                                   <!---->
@@ -129,7 +128,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
                 <!---->
               </div>
               <div class="d-flex mb-2">
-                <div id="dance-connector" role="radiogroup" class="btn-group btn-group-sm bv-no-focus-ring mx-3" tabindex="-1"><input id="BootstrapVueNext__ID__v-23__form-check___" class="btn-check" type="radio" name="BootstrapVueNext__ID__v-22__checkbox___" value="any"><label for="BootstrapVueNext__ID__v-23__form-check___" class="btn btn-outline-secondary btn-sm">Any</label><input id="BootstrapVueNext__ID__v-24__form-check___" class="btn-check" type="radio" name="BootstrapVueNext__ID__v-22__checkbox___" value="all"><label for="BootstrapVueNext__ID__v-24__form-check___" class="btn btn-outline-secondary btn-sm">All</label></div>
+                <div id="dance-connector" role="radiogroup" class="btn-group btn-group-sm bv-no-focus-ring mx-3" tabindex="-1"><input id="BootstrapVueNext__ID__v-23__form-check___" class="btn-check" type="radio" name="BootstrapVueNext__ID__v-22__radio___" value="any"><label for="BootstrapVueNext__ID__v-23__form-check___" class="btn btn-outline-secondary btn-sm">Any</label><input id="BootstrapVueNext__ID__v-24__form-check___" class="btn-check" type="radio" name="BootstrapVueNext__ID__v-22__radio___" value="all"><label for="BootstrapVueNext__ID__v-24__form-check___" class="btn btn-outline-secondary btn-sm">All</label></div>
                 <div class="form-check form-switch"><input id="show-dance-details" class="form-check-input" type="checkbox" true-value="true" false-value="false" value="true"><label for="show-dance-details" class="form-check-label"> Show Dance Details </label></div>
               </div>
               <!--v-if-->
@@ -142,7 +141,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
             <!---->
             <!---->
             <legend id="BootstrapVueNext__ID__v-27___BV_label____" tabindex="-1" class="form-label bv-no-focus-ring col-form-label pt-0">Song Tags:</legend>
-            <div style="border-radius: 0.25rem;" class="p-3">
+            <div style="border: 1px solid rgb(206, 212, 218); border-radius: 0.25rem;" class="p-3">
               <div>
                 <fieldset id="BootstrapVueNext__ID__v-31__" class="b-form-group">
                   <!---->
@@ -160,11 +159,10 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
                           <div>
                             <li role="presentation">
                               <form class="dropdown-item-text">
-                                <div id="BootstrapVueNext__ID__v-38__" role="group" class="b-form-group mb-0">
+                                <div id="BootstrapVueNext__ID__v-38__" role="group" class="mb-0 b-form-group">
                                   <!---->
                                   <!---->
-                                  <div class="row d-flex flex-wrap">
-                                    <div class="col-md-auto"><label id="BootstrapVueNext__ID__v-39___BV_label____" for="tag-search-input" class="col-form-label col-form-label col-form-label-sm">Search Tags</label></div>
+                                  <div class="row d-flex flex-wrap"><label class="col-md-auto col-form-label col-form-label col-form-label-sm" id="BootstrapVueNext__ID__v-39___BV_label____" for="tag-search-input">Search Tags</label>
                                     <div class="col"><input id="BootstrapVueNext__ID__v-43__input___" class="form-control form-control-sm" type="search" autocomplete="off" trim="" value="">
                                       <!---->
                                       <!---->
@@ -205,11 +203,10 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
                           <div>
                             <li role="presentation">
                               <form class="dropdown-item-text">
-                                <div id="BootstrapVueNext__ID__v-51__" role="group" class="b-form-group mb-0">
+                                <div id="BootstrapVueNext__ID__v-51__" role="group" class="mb-0 b-form-group">
                                   <!---->
                                   <!---->
-                                  <div class="row d-flex flex-wrap">
-                                    <div class="col-md-auto"><label id="BootstrapVueNext__ID__v-52___BV_label____" for="tag-search-input" class="col-form-label col-form-label col-form-label-sm">Search Tags</label></div>
+                                  <div class="row d-flex flex-wrap"><label class="col-md-auto col-form-label col-form-label col-form-label-sm" id="BootstrapVueNext__ID__v-52___BV_label____" for="tag-search-input">Search Tags</label>
                                     <div class="col"><input id="BootstrapVueNext__ID__v-56__input___" class="form-control form-control-sm" type="search" autocomplete="off" trim="" value="">
                                       <!---->
                                       <!---->
@@ -292,7 +289,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
             <!---->
             <!---->
           </div>
-          <div id="services-group" role="group" class="b-form-group mx-2 mb-2">
+          <div id="services-group" role="group" class="mx-2 mb-2 b-form-group">
             <!---->
             <!----><label id="BootstrapVueNext__ID__v-90___BV_label____" for="services" class="form-label d-block">Available on:</label>
             <div id="services" role="group" class="btn-group-md bv-no-focus-ring" tabindex="-1">
@@ -304,7 +301,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
             <!---->
             <!---->
           </div>
-          <div id="bonuses-group" role="group" class="b-form-group mx-2 mb-2">
+          <div id="bonuses-group" role="group" class="mx-2 mb-2 b-form-group">
             <!---->
             <!----><label id="BootstrapVueNext__ID__v-100___BV_label____" for="bonuses" class="form-label d-block">Bonus content:</label>
             <div id="bonuses" role="group" class="btn-group-md bv-no-focus-ring" tabindex="-1">
