@@ -644,6 +644,40 @@ else
 app.UseHttpLogging();
 app.UseRouting();
 
+// Authentication is handled by Identity UI (implicitly via UseAuthorization)
+// Cache control middleware: Allow Azure Front Door to cache anonymous pages, but prevent caching for authenticated users
+app.Use(async (context, next) =>
+{
+    // Register callback to modify headers just before they're sent (after pipeline completes)
+    context.Response.OnStarting(() =>
+    {
+        // Only modify cache headers on successful responses (200-299)
+        if (context.Response.StatusCode >= 200 && context.Response.StatusCode < 300)
+        {
+            if (context.User.Identity?.IsAuthenticated == true)
+            {
+                // Authenticated users: Prevent all caching
+                context.Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate";
+                context.Response.Headers["Pragma"] = "no-cache";
+            }
+            else
+            {
+                // Anonymous users: Remove no-cache headers and allow caching by Azure Front Door
+                // Remove any existing cache control headers that prevent caching
+                context.Response.Headers.Remove("Cache-Control");
+                context.Response.Headers.Remove("Pragma");
+                
+                // Set cache-friendly headers for Azure Front Door
+                // Cache for 5 minutes, allow both client and proxy (CDN) caching
+                context.Response.Headers["Cache-Control"] = "public, max-age=300";
+            }
+        }
+        return Task.CompletedTask;
+    });
+
+    await next();
+});
+
 app.UseAuthorization();
 app.UseResponseCaching();
 
