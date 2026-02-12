@@ -4,6 +4,12 @@
 
 This document outlines the implementation of Azure Front Door with intelligent caching to reduce origin server load while maintaining security for authenticated users.
 
+**Related Documents:**
+
+- [Client-Side Usage Logging Architecture](./client-side-usage-logging.md) - Required dependency for accurate analytics with caching
+
+**Critical Dependency:** The client-side usage logging system (see related document above) **must be implemented before** enabling Front Door caching. Server-side usage logging in `DMController.OnActionExecutionAsync` will not function for cached responses.
+
 ## 2. Cache Control Middleware Implementation
 
 ### 2.1 The Problem
@@ -303,8 +309,11 @@ Monitor these metrics to verify caching is working:
 - ✅ Verify headers in browser dev tools (Section 2.7)
 - ✅ Test authenticated vs. anonymous behavior
 - ✅ Deploy to production App Service
+- ⚠️ **BLOCKING:** Implement client-side usage logging (see [Client-Side Usage Logging Architecture](./client-side-usage-logging.md))
 
-### Phase 2 — Front Door Deployment (PENDING)
+**Note:** Phase 2 cannot proceed until client-side usage logging is fully implemented and tested. Server-side usage logging will not capture analytics for cached pages.
+
+### Phase 2 — Front Door Deployment (⏸️ BLOCKED - Waiting for Usage Logging)
 
 - Create Front Door Standard profile
 - Add origin pointing to App Service
