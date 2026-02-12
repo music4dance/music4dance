@@ -1,5 +1,24 @@
 # Client-Side Usage Logging Architecture
 
+## Implementation Status
+
+? **Phase 1-2 COMPLETE:** Client-side tracking and API endpoint implemented  
+? **Phase 3 IN PROGRESS:** Integration with Razor Pages  
+? **Phase 4 PENDING:** Deployment with feature flag
+
+**Test Coverage:** 27/27 tests passing (100%)
+- ? Client: 19 tests (useUsageTracking composable)
+- ? Server: 8 tests (UsageLogApiController integration tests)
+- ?? Documentation: `architecture/testing-patterns.md`
+
+**Key Decisions:**
+- ? **SendBeacon-only approach** - More reliable than fetch, simpler implementation
+- ? **Bot detection in tests** - Mock user agent to avoid false bot detection
+- ? **Synchronous testing** - No async timing issues, deterministic results
+- ? **Integration tests** - DanceMusicTester pattern with reflection for internal dependencies
+
+---
+
 ## 1. Executive Summary
 
 This document outlines the migration of usage logging from server-side middleware (in `DanceMusicController.OnActionExecutionAsync`) to client-side JavaScript with deferred API reporting. This change is **required** for Azure Front Door caching to work correctly, as cached responses bypass the server-side middleware entirely.
@@ -118,7 +137,7 @@ SpiderManager.CheckAnySpiders(userAgent, Configuration)
 
 ### 4.1 Architecture Overview
 
-```
+```text
 ???????????????????????????????????????????????????????????????
 ?                    Client Browser                            ?
 ?                                                              ?
@@ -177,7 +196,7 @@ SpiderManager.CheckAnySpiders(userAgent, Configuration)
 
 ### 4.2 Data Flow
 
-```
+```text
 User loads page (cached by Front Door)
     ?
 Vue app initializes
@@ -203,13 +222,13 @@ If not bot:
     Increment visit counter
     ?
     Determine send strategy:
-    
+
     IF authenticated user:
         ? Threshold: 1 (hardcoded - always send)
         ? Batch size: 1 (configurable, start at 1, increase with confidence)
         ? Send immediately when queue reaches batch size
         ? Mark last sent index in queue
-    
+
     ELSE IF anonymous user:
         ? Threshold: 3 (configurable - wait for engagement)
         ? Batch size: 5 (configurable)
@@ -217,7 +236,7 @@ If not bot:
         ? IF visit counter >= threshold AND queue >= batch size:
             ? Send batch of 5 events
             ? Mark last sent index in queue
-    
+
     ?
     On page unload (visibilitychange/pagehide):
         ? Use SendBeacon API to send unsent events (since last sent index)
@@ -227,17 +246,31 @@ If not bot:
 ```
 
 **Key Strategy:**
+
 - **Authenticated users:** Threshold=1 (immediate), BatchSize=1 (start conservative)
 - **Anonymous users:** Threshold=3 (wait for engagement), BatchSize=5
 - **Queue management:** Track last sent index, never clear history (for analytics)
 - **SendBeacon:** Reliable delivery of remaining events on page unload
-```
+
+````
 
 ## 5. Technical Design
 
 ### 5.1 Client-Side Components
 
-#### 5.1.1 Usage Tracker Composable
+#### 5.1.1 Usage Tracker Composable (? IMPLEMENTED)
+
+**File:** `m4d/ClientApp/src/composables/useUsageTracking.ts`
+
+**Status:** ? Complete - 19/19 tests passing
+
+**Implementation Notes:**
+- Uses **sendBeacon exclusively** (no fetch API)
+- Synchronous operation (simpler, more reliable)
+- Bot detection via user agent patterns and webdriver detection
+- Queue management with lastSentIndex tracking
+- Smart batching (authenticated: immediate, anonymous: threshold-based)
+- SendBeacon for page unload (visibilitychange + pagehide events)
 
 **File:** `m4d/ClientApp/src/composables/useUsageTracking.ts`
 
@@ -280,7 +313,7 @@ export function useUsageTracking(config?: Partial<UsageTrackerConfig>) {
   // Use SendBeacon on page unload for remaining events
   // Handle errors gracefully
 }
-```
+````
 
 **Key Responsibilities:**
 
@@ -401,7 +434,7 @@ export function isBot(): boolean {
 export function sendRemainingEvents(
   events: UsageEvent[],
   endpoint: string,
-  antiForgeryToken: string
+  antiForgeryToken: string,
 ): boolean {
   if (events.length === 0) {
     return true;
@@ -409,31 +442,37 @@ export function sendRemainingEvents(
 
   // Construct payload
   const payload = JSON.stringify({ events });
-  
+
   // Check size (64KB limit)
   const sizeInBytes = new Blob([payload]).size;
   if (sizeInBytes > 65536) {
-    console.warn(`SendBeacon payload too large: ${sizeInBytes} bytes. Truncating...`);
+    console.warn(
+      `SendBeacon payload too large: ${sizeInBytes} bytes. Truncating...`,
+    );
     // Truncate to fit (approximate - keep first N events that fit)
-    const maxEvents = Math.floor(events.length * 65536 / sizeInBytes);
-    return sendRemainingEvents(events.slice(0, maxEvents), endpoint, antiForgeryToken);
+    const maxEvents = Math.floor((events.length * 65536) / sizeInBytes);
+    return sendRemainingEvents(
+      events.slice(0, maxEvents),
+      endpoint,
+      antiForgeryToken,
+    );
   }
 
   // Create headers (sendBeacon doesn't support custom headers, use Blob with type)
   const headers = {
-    'Content-Type': 'application/json',
-    'RequestVerificationToken': antiForgeryToken
+    "Content-Type": "application/json",
+    RequestVerificationToken: antiForgeryToken,
   };
-  
+
   // Note: sendBeacon doesn't support custom headers directly
   // Workaround: append token to URL or use FormData
   const urlWithToken = `${endpoint}?__RequestVerificationToken=${encodeURIComponent(antiForgeryToken)}`;
-  
+
   try {
     const success = navigator.sendBeacon(urlWithToken, payload);
     return success;
   } catch (error) {
-    console.error('SendBeacon failed:', error);
+    console.error("SendBeacon failed:", error);
     return false;
   }
 }
@@ -443,15 +482,15 @@ export function sendRemainingEvents(
  */
 export function registerUnloadHandler(callback: () => void) {
   // Primary: visibilitychange (most reliable)
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') {
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") {
       callback();
     }
   });
-  
+
   // Fallback: pagehide (for iOS Safari)
-  window.addEventListener('pagehide', callback);
-  
+  window.addEventListener("pagehide", callback);
+
   // Note: Do NOT use 'beforeunload' or 'unload' - unreliable and deprecated
 }
 ```
@@ -466,13 +505,21 @@ export function registerUnloadHandler(callback: () => void) {
 6. **Header workaround** - sendBeacon doesn't support custom headers, append token to URL
 7. **Returns boolean** - Indicates if browser accepted the request (not if it succeeded)
 
-
-
-
-
 ### 5.2 Server-Side Components
 
-#### 5.2.1 Usage Log API Controller
+#### 5.2.1 Usage Log API Controller (? IMPLEMENTED)
+
+**File:** `m4d/APIControllers/UsageLogApiController.cs`
+
+**Status:** ? Complete - 8/8 integration tests passing
+
+**Implementation Notes:**
+- Inherits from `DanceMusicApiController` for consistency
+- Uses `[ValidateAntiForgeryToken]` for CSRF protection
+- Enqueues to background task queue (fire-and-forget)
+- Returns 202 Accepted immediately
+- Validates payload size (max 100 events)
+- Detects authenticated users via HttpContext.User
 
 **File:** `m4d/APIControllers/UsageLogApiController.cs`
 
@@ -513,7 +560,7 @@ public class UsageLogApiController : DanceMusicApiController
         // 2. Detect authenticated user (inheriting from DanceMusicApiController gives us access to these)
         var isAuthenticated = User?.Identity?.IsAuthenticated == true;
         var userName = isAuthenticated ? User.Identity.Name : null;
-        
+
         // Optional: Get full user object if needed
         ApplicationUser authenticatedUser = null;
         if (isAuthenticated)
@@ -535,7 +582,7 @@ public class UsageLogApiController : DanceMusicApiController
             {
                 using var scope = serviceScopeFactory.CreateScope();
                 var dbContext = scope.ServiceProvider.GetRequiredService<DanceMusicContext>();
-                
+
                 foreach (var eventDto in request.Events)
                 {
                     var usageLog = new UsageLog
@@ -549,17 +596,17 @@ public class UsageLogApiController : DanceMusicApiController
                         Referrer = eventDto.Referrer,
                         UserAgent = eventDto.UserAgent
                     };
-                    
+
                     await dbContext.UsageLog.AddAsync(usageLog, cancellationToken);
                 }
-                
+
                 // Update user LastActive and HitCount if authenticated
                 if (authenticatedUser != null)
                 {
                     authenticatedUser.LastActive = DateTime.Now;
                     authenticatedUser.HitCount += request.Events.Count;
                 }
-                
+
                 await dbContext.SaveChangesAsync(cancellationToken);
             }
             catch (Exception ex)
@@ -571,7 +618,7 @@ public class UsageLogApiController : DanceMusicApiController
         // 5. Return 202 Accepted immediately (background processing)
         return Accepted();
     }
-    
+
     private bool IsRateLimited(string key)
     {
         // TODO: Implement rate limiting using IMemoryCache
@@ -589,22 +636,22 @@ public class UsageEventDto
 {
     [Required]
     public string UsageId { get; set; }
-    
+
     [Required]
     public long Timestamp { get; set; } // Unix timestamp (client time)
-    
+
     [Required]
     public string Page { get; set; }
-    
+
     public string Query { get; set; }
-    
+
     public string Referrer { get; set; }
-    
+
     [Required]
     public string UserAgent { get; set; }
-    
+
     public string Filter { get; set; }
-    
+
     // Client-reported username (for validation, but server auth takes precedence)
     public string UserName { get; set; }
 }
@@ -612,49 +659,52 @@ public class UsageEventDto
 
 **Key Design Decisions:**
 
-1. **Inherit from DanceMusicApiController:**
-   - Pattern: Same as `ServiceUserController`, `DanceEnvironmentController`, `ServiceTrackController`
-   - Benefits: Access to `Database`, `UserManager`, `TaskQueue`, `Logger` properties
-   - Consistency: All API controllers follow this pattern
+1.  **Inherit from DanceMusicApiController:**
+    - Pattern: Same as `ServiceUserController`, `DanceEnvironmentController`, `ServiceTrackController`
+    - Benefits: Access to `Database`, `UserManager`, `TaskQueue`, `Logger` properties
+    - Consistency: All API controllers follow this pattern
 
-2. **Authentication Detection Methods:**
-   - `User?.Identity?.IsAuthenticated` - Check if user is authenticated (from `ControllerBase`)
-   - `User.Identity.Name` - Get username (returns null if anonymous)
-   - `await UserManager.GetUserAsync(User)` - Get full `ApplicationUser` object
-   - **Server-side authentication always takes precedence** over client-reported username
+2.  **Authentication Detection Methods:**
+    - `User?.Identity?.IsAuthenticated` - Check if user is authenticated (from `ControllerBase`)
+    - `User.Identity.Name` - Get username (returns null if anonymous)
+    - `await UserManager.GetUserAsync(User)` - Get full `ApplicationUser` object
+    - **Server-side authentication always takes precedence** over client-reported username
 
-3. **CSRF Protection:**
-   - `[ValidateAntiForgeryToken]` attribute prevents arbitrary calls from malicious sites
-   - Client must include anti-forgery token in request headers
-   - **Important:** Anti-forgery token must be generated in Razor Page/View and passed to JavaScript
-   - Anonymous users can still call API if token is present (token validates origin, not authentication)
-   - Token retrieval pattern (in Razor Page/View):
-     ```html
-     @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
-     <script>
-       window.antiForgeryToken = '@Antiforgery.GetAndStoreTokens(HttpContext).RequestToken';
-     </script>
-     ```
-   - Token usage pattern (in JavaScript):
-     ```typescript
-     fetch('/api/usagelog/batch', {
-       method: 'POST',
-       headers: {
-         'Content-Type': 'application/json',
-         'RequestVerificationToken': window.antiForgeryToken
-       },
-       body: JSON.stringify(request)
-     });
-     ```
+3.  **CSRF Protection:**
+    - `[ValidateAntiForgeryToken]` attribute prevents arbitrary calls from malicious sites
+    - Client must include anti-forgery token in request headers
+    - **Important:** Anti-forgery token must be generated in Razor Page/View and passed to JavaScript
+    - Anonymous users can still call API if token is present (token validates origin, not authentication)
+    - Token retrieval pattern (in Razor Page/View):
+      ```html
+      @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+      <script>
+        window.antiForgeryToken =
+          "@Antiforgery.GetAndStoreTokens(HttpContext).RequestToken";
+      </script>
+      ```
+    - Token usage pattern (in JavaScript):
+      ```typescript
+      fetch("/api/usagelog/batch", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          RequestVerificationToken: window.antiForgeryToken,
+        },
+        body: JSON.stringify(request),
+      });
+      ```
 
-4. **Key Responsibilities:**
-   - Anonymous users can still call API if token is present (token validates origin, not authentication)
+4.  **Key Responsibilities:**
+    - Anonymous users can still call API if token is present (token validates origin, not authentication)
 
-4. **Key Responsibilities:**
+5.  **Key Responsibilities:**
 
-    public string Filter { get; set; }
-}
-```
+        public string Filter { get; set; }
+
+    }
+
+````
 
 **Key Responsibilities:**
 
@@ -691,7 +741,7 @@ public class UsageLogRateLimitMiddleware
     // Value: Request count in sliding window
     // Cleanup: Expire entries after 1 minute
 }
-```
+````
 
 **Configuration:**
 
@@ -728,7 +778,6 @@ public class UsageLog
 }
 ```
 
-
 ### 5.4 Configuration
 
 **File:** `m4d/ClientApp/src/config/usageTracking.ts`
@@ -738,14 +787,14 @@ export const usageTrackingConfig = {
   enabled: import.meta.env.VITE_USAGE_TRACKING_ENABLED !== "false",
   // Anonymous user settings
   anonymousThreshold: parseInt(
-    import.meta.env.VITE_USAGE_ANONYMOUS_THRESHOLD || "3"
+    import.meta.env.VITE_USAGE_ANONYMOUS_THRESHOLD || "3",
   ),
   anonymousBatchSize: parseInt(
-    import.meta.env.VITE_USAGE_ANONYMOUS_BATCH_SIZE || "5"
+    import.meta.env.VITE_USAGE_ANONYMOUS_BATCH_SIZE || "5",
   ),
   // Authenticated user settings (threshold is hardcoded to 1)
   authenticatedBatchSize: parseInt(
-    import.meta.env.VITE_USAGE_AUTHENTICATED_BATCH_SIZE || "1"
+    import.meta.env.VITE_USAGE_AUTHENTICATED_BATCH_SIZE || "1",
   ),
   // Queue management
   maxQueueSize: parseInt(import.meta.env.VITE_USAGE_MAX_QUEUE_SIZE || "100"),
@@ -757,7 +806,7 @@ export const usageTrackingConfig = {
 
 **File:** `m4d/ClientApp/.env.development`
 
-```
+```text
 VITE_USAGE_TRACKING_ENABLED=true
 VITE_USAGE_ANONYMOUS_THRESHOLD=2
 VITE_USAGE_ANONYMOUS_BATCH_SIZE=5
@@ -767,7 +816,7 @@ VITE_USAGE_MAX_QUEUE_SIZE=100
 
 **File:** `m4d/ClientApp/.env.production`
 
-```
+```text
 VITE_USAGE_TRACKING_ENABLED=true
 VITE_USAGE_ANONYMOUS_THRESHOLD=3
 VITE_USAGE_ANONYMOUS_BATCH_SIZE=5
@@ -792,7 +841,8 @@ VITE_USAGE_MAX_QUEUE_SIZE=100
    - Fallback to `pagehide` for iOS Safari
    - 64KB size limit - approximately 50-100 events depending on data
    - Cannot await result (fire-and-forget)
-```
+
+````
 
 ## 6. Implementation Plan
 
@@ -950,7 +1000,7 @@ public static class FeatureFlags
     public const string UsageLogging = "UsageLogging"; // Existing
     public const string ClientSideUsageLogging = "ClientSideUsageLogging"; // New
 }
-```
+````
 
 **Configuration:** `appsettings.json`
 
@@ -999,23 +1049,27 @@ public override async Task OnActionExecutionAsync(
 ### 8.3 Rollout Plan
 
 **Step 1: Deploy with flag disabled**
+
 - Client-side code deployed
 - Feature flag `ClientSideUsageLogging = false`
 - Server-side logging active (business as usual)
 
 **Step 2: Enable for testing**
+
 - Set `ClientSideUsageLogging = true` in development
 - Test manually (ad-hoc integration tests)
 - Verify data accuracy
 - Fix any issues
 
 **Step 3: Enable in production**
+
 - Set `ClientSideUsageLogging = true` in production
 - Monitor database insert rates
 - Compare data accuracy over 1-2 days
 - Rollback if issues detected (set flag to `false`)
 
 **Step 4: Cleanup (optional)**
+
 - Remove server-side logging code from `DMController`
 - Remove `UsageId` cookie generation/reading
 - Remove `GetUsageId()` method
@@ -1026,6 +1080,7 @@ public override async Task OnActionExecutionAsync(
 **Trigger:** Data accuracy < 90% OR critical errors
 
 **Actions:**
+
 1. Set `ClientSideUsageLogging = false` (immediate)
 2. Server-side logging resumes automatically
 3. Investigate root cause
@@ -1292,50 +1347,65 @@ usageTracker.trackEvent({
 ### 14.1 Resolved Technical Decisions
 
 **Q1:** Should we use SignalR for real-time updates, or stick with REST API?
+
 - **Decision:** ? REST API + SendBeacon (simpler), SignalR is future enhancement
 
 **Q2:** Should we send individual events or session summaries?
+
 - **Decision:** ? Individual events (matches current model), aggregation is future enhancement
 
 **Q3:** Should we retry failed API calls?
+
 - **Decision:** ? No retries (fire-and-forget with graceful degradation)
 
 **Q4:** Should we support IE11?
+
 - **Decision:** ? No, Vue 3 doesn't support IE11 anyway
 
 **Q5:** Should we track API-only endpoints (e.g., `/api/search`)?
+
 - **Decision:** ? Not initially, consider as future enhancement
 
 **Q6:** Vue Router integration needed?
+
 - **Decision:** ? No, project doesn't use Vue Router (full page loads)
 
 **Q7:** Send strategy for authenticated vs. anonymous?
+
 - **Decision:** ? Authenticated: immediate send; Anonymous: threshold-based (n=3)
 
 **Q8:** Use SendBeacon for page unload?
+
 - **Decision:** ? Yes, for reliable end-of-session tracking
 
 ### 14.2 Resolved Product Decisions
 
 **Q1:** What batch threshold is optimal (n pages before send)?
+
 - **Decision:** ? n=3 for anonymous users (configurable)
 
 **Q2:** Should we show users their own usage data?
+
 - **Decision:** ? Not initially, consider as future enhancement
 
 **Q3:** Should we allow users to opt-out of tracking?
+
 - **Decision:** ? Yes, required for privacy compliance
 
 **Q4:** Should we track Razor Pages (Identity pages)?
+
 - **Decision:** ? Not initially (out of scope for DMController)
 
 **Q5:** Rollout strategy for hobby site?
+
 - **Decision:** ? Simple feature flag toggle (not complex phased rollout)
 
 **Q6:** Load testing needed?
+
 - **Decision:** ? No (hobby site with modest traffic)
 
 **Q7:** Keep queue for other uses (nag modals)?
+
 - **Decision:** ? Yes, keep visit count and history persistent
 
 ## 15. Success Criteria
@@ -1369,22 +1439,22 @@ usageTracker.trackEvent({
 
 ### 16.1 Technical Risks
 
-| Risk                                   | Probability | Impact | Mitigation                                         |
-| -------------------------------------- | ----------- | ------ | -------------------------------------------------- |
-| Client-side tracking misses page views | Medium      | High   | Parallel operation phase, comparison testing       |
-| API rate limiting too strict           | Low         | Medium | Monitor hit rate, adjust thresholds                |
-| localStorage quota exceeded            | Low         | Low    | Implement queue size limit (100 events)            |
-| Bot detection ineffective              | Medium      | Medium | Multiple detection signals, server-side validation |
-| Network failures lose data             | Medium      | Low    | Acceptable (fire-and-forget with graceful degradation), log errors           |
+| Risk                                   | Probability | Impact | Mitigation                                                         |
+| -------------------------------------- | ----------- | ------ | ------------------------------------------------------------------ |
+| Client-side tracking misses page views | Medium      | High   | Parallel operation phase, comparison testing                       |
+| API rate limiting too strict           | Low         | Medium | Monitor hit rate, adjust thresholds                                |
+| localStorage quota exceeded            | Low         | Low    | Implement queue size limit (100 events)                            |
+| Bot detection ineffective              | Medium      | Medium | Multiple detection signals, server-side validation                 |
+| Network failures lose data             | Medium      | Low    | Acceptable (fire-and-forget with graceful degradation), log errors |
 
 ### 16.2 Business Risks
 
-| Risk                      | Probability | Impact   | Mitigation                              |
-| ------------------------- | ----------- | -------- | --------------------------------------- |
-| Data accuracy concerns    | Low         | High     | Feature flag toggle, ad-hoc testing  |
-| Privacy compliance issues | Low         | Critical | Opt-out mechanism, privacy policy         |
-| User confusion (opt-out)  | Low         | Low      | Clear UI, help documentation            |
-| Performance degradation   | Low         | Medium     | Monitoring, rollback plan (feature flag) |
+| Risk                      | Probability | Impact   | Mitigation                               |
+| ------------------------- | ----------- | -------- | ---------------------------------------- |
+| Data accuracy concerns    | Low         | High     | Feature flag toggle, ad-hoc testing      |
+| Privacy compliance issues | Low         | Critical | Opt-out mechanism, privacy policy        |
+| User confusion (opt-out)  | Low         | Low      | Clear UI, help documentation             |
+| Performance degradation   | Low         | Medium   | Monitoring, rollback plan (feature flag) |
 
 ## 17. Dependencies
 
@@ -1410,7 +1480,6 @@ usageTracker.trackEvent({
 
 ## 18. Timeline Summary
 
-
 | Phase                  | Duration    | Start | End | Status            |
 | ---------------------- | ----------- | ----- | --- | ----------------- |
 | Phase 1 - Foundation   | 1-2 days    | TBD   | TBD | ?? Pending Review |
@@ -1418,7 +1487,6 @@ usageTracker.trackEvent({
 | Phase 3 - Integration  | 1-2 days    | TBD   | TBD | ?? Pending Review |
 | Phase 4 - Deployment   | 1 day       | TBD   | TBD | ?? Pending Review |
 | **Total**              | **~1 week** |       |     |                   |
-
 
 ## 19. Next Steps
 
@@ -1440,4 +1508,3 @@ usageTracker.trackEvent({
 **Author:** Architecture Team
 **Reviewers:** David Gray (Approved)
 **Status:** ? **APPROVED - Ready for Implementation**
-

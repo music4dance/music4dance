@@ -49,6 +49,12 @@ public class DanceMusicController(
 
         _ = await next();
 
+        // Check if client-side tracking is enabled
+        if (await FeatureManager.IsEnabledAsync(FeatureFlags.ClientSideUsageLogging))
+        {
+            return; // Skip server-side logging
+        }
+
         if (SpiderManager.CheckAnySpiders(userAgent, Configuration) ||
             !await FeatureManager.IsEnabledAsync(FeatureFlags.UsageLogging))
         {

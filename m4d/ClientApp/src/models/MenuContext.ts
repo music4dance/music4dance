@@ -20,29 +20,43 @@ export interface MenuContextInterface {
   searchHealthy?: boolean;
   databaseHealthy?: boolean;
   configurationHealthy?: boolean;
+  usageTracking?: {
+    enabled: boolean;
+    anonymousThreshold: number;
+    anonymousBatchSize: number;
+    authenticatedBatchSize: number;
+    maxQueueSize: number;
+  };
 }
 
 export class MenuContext implements MenuContextInterface {
-  public helpLink?: string;
-  public userName?: string;
-  public userId?: string;
-  public roles?: string[];
-  public indexId?: string;
-  public expiration?: Date;
-  public started?: Date;
-  public level?: string;
-  public hitCount?: number;
-  public customerReminder?: boolean;
-  public marketingMessage?: string;
-  public xsrfToken?: string;
-  public searchHealthy?: boolean;
-  public databaseHealthy?: boolean;
-  public configurationHealthy?: boolean;
-  private axiosInstance?: AxiosInstance;
+public helpLink?: string;
+public userName?: string;
+public userId?: string;
+public roles?: string[];
+public indexId?: string;
+public expiration?: Date;
+public started?: Date;
+public level?: string;
+public hitCount?: number;
+public customerReminder?: boolean;
+public marketingMessage?: string;
+public xsrfToken?: string;
+public searchHealthy?: boolean;
+public databaseHealthy?: boolean;
+public configurationHealthy?: boolean;
+public usageTracking?: {
+  enabled: boolean;
+  anonymousThreshold: number;
+  anonymousBatchSize: number;
+  authenticatedBatchSize: number;
+  maxQueueSize: number;
+};
+private axiosInstance?: AxiosInstance;
 
-  public constructor(init?: MenuContextInterface) {
-    Object.assign(this, init);
-  }
+public constructor(init?: MenuContextInterface) {
+  Object.assign(this, init);
+}
 
   public get isAdmin(): boolean {
     return !!this.roles?.find((r) => r === "dbAdmin");
