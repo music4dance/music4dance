@@ -20,6 +20,7 @@ export interface MenuContextInterface {
   searchHealthy?: boolean;
   databaseHealthy?: boolean;
   configurationHealthy?: boolean;
+  useClientSideTracking?: boolean;
   usageTracking?: {
     enabled: boolean;
     anonymousThreshold: number;
@@ -45,6 +46,7 @@ public xsrfToken?: string;
 public searchHealthy?: boolean;
 public databaseHealthy?: boolean;
 public configurationHealthy?: boolean;
+public useClientSideTracking?: boolean;
 public usageTracking?: {
   enabled: boolean;
   anonymousThreshold: number;

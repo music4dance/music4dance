@@ -8,16 +8,17 @@ using m4dModels;
 using m4dModels.Tests;
 using System.Security.Claims;
 using System.Security.Principal;
+using System.Text.Json;
 
 namespace m4d.Tests.APIControllers;
 
 /// <summary>
-/// Integration tests for UsageLogApiController.
+/// Integration tests for UsageLogController.
 /// Tests the controller logic including request validation and task enqueueing.
 /// Background task execution is tested separately (would require full service provider setup).
 /// </summary>
 [TestClass]
-public class UsageLogApiControllerIntegrationTests
+public class UsageLogControllerIntegrationTests
 {
     private static IConfiguration CreateTestConfiguration()
     {
@@ -33,7 +34,7 @@ public class UsageLogApiControllerIntegrationTests
         return configBuilder.Build();
     }
 
-    private static (UsageLogApiController controller, TestBackgroundTaskQueue taskQueue) CreateController(
+    private static (UsageLogController controller, TestBackgroundTaskQueue taskQueue) CreateController(
         DanceMusicService dms, IConfiguration? config = null)
     {
         config ??= CreateTestConfiguration();
@@ -53,13 +54,13 @@ public class UsageLogApiControllerIntegrationTests
 
         var danceStats = (IDanceStatsManager)danceStatsManagerField.GetValue(dms)!;
 
-        var controller = new UsageLogApiController(
+        var controller = new UsageLogController(
             dms.Context,
             dms.UserManager,
             dms.SearchService,
             danceStats,
             config,
-            NullLogger<UsageLogApiController>.Instance,
+            NullLogger<UsageLogController>.Instance,
             taskQueue
         );
 
@@ -78,24 +79,23 @@ public class UsageLogApiControllerIntegrationTests
             HttpContext = new DefaultHttpContext()
         };
 
-        var request = new UsageLogBatchRequest
+        var events = new List<UsageEventDto>
         {
-            Events = new List<UsageEventDto>
-            {
-                new() {
-                    UsageId = Guid.NewGuid().ToString(),
-                    Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-                    Page = "/test/page",
-                    Query = "?filter=test",
-                    Referrer = "https://google.com",
-                    UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-                    Filter = "test-filter"
-                }
+            new() {
+                UsageId = Guid.NewGuid().ToString(),
+                Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                Page = "/test/page",
+                Query = "?filter=test",
+                Referrer = "https://google.com",
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                Filter = "test-filter"
             }
         };
 
+        var eventsJson = JsonSerializer.Serialize(events);
+
         // Act
-        var result = await controller.LogBatch(request);
+        var result = await controller.LogBatch(eventsJson);
 
         // Assert
         Assert.IsInstanceOfType<AcceptedResult>(result, "Should return 202 Accepted");
@@ -118,21 +118,20 @@ public class UsageLogApiControllerIntegrationTests
             HttpContext = new DefaultHttpContext { User = principal }
         };
 
-        var request = new UsageLogBatchRequest
+        var events = new List<UsageEventDto>
         {
-            Events = new List<UsageEventDto>
-            {
-                new() {
-                    UsageId = Guid.NewGuid().ToString(),
-                    Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-                    Page = "/admin",
-                    UserAgent = "Mozilla/5.0",
-                }
+            new() {
+                UsageId = Guid.NewGuid().ToString(),
+                Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                Page = "/admin",
+                UserAgent = "Mozilla/5.0",
             }
         };
 
+        var eventsJson = JsonSerializer.Serialize(events);
+
         // Act
-        var result = await controller.LogBatch(request);
+        var result = await controller.LogBatch(eventsJson);
 
         // Assert
         Assert.IsInstanceOfType<AcceptedResult>(result, "Should return 202 Accepted for authenticated user");
@@ -151,33 +150,32 @@ public class UsageLogApiControllerIntegrationTests
             HttpContext = new DefaultHttpContext()
         };
 
-        var request = new UsageLogBatchRequest
+        var events = new List<UsageEventDto>
         {
-            Events =
-            [
-                new() {
-                    UsageId = Guid.NewGuid().ToString(),
-                    Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-                    Page = "/page1",
-                    UserAgent = "Mozilla/5.0"
-                },
-                new() {
-                    UsageId = Guid.NewGuid().ToString(),
-                    Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + 1000,
-                    Page = "/page2",
-                    UserAgent = "Mozilla/5.0"
-                },
-                new() {
-                    UsageId = Guid.NewGuid().ToString(),
-                    Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + 2000,
-                    Page = "/page3",
-                    UserAgent = "Mozilla/5.0"
-                }
-            ]
+            new() {
+                UsageId = Guid.NewGuid().ToString(),
+                Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                Page = "/page1",
+                UserAgent = "Mozilla/5.0"
+            },
+            new() {
+                UsageId = Guid.NewGuid().ToString(),
+                Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + 1000,
+                Page = "/page2",
+                UserAgent = "Mozilla/5.0"
+            },
+            new() {
+                UsageId = Guid.NewGuid().ToString(),
+                Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + 2000,
+                Page = "/page3",
+                UserAgent = "Mozilla/5.0"
+            }
         };
 
+        var eventsJson = JsonSerializer.Serialize(events);
+
         // Act
-        var result = await controller.LogBatch(request);
+        var result = await controller.LogBatch(eventsJson);
 
         // Assert
         Assert.IsInstanceOfType<AcceptedResult>(result);
@@ -196,13 +194,11 @@ public class UsageLogApiControllerIntegrationTests
             HttpContext = new DefaultHttpContext()
         };
 
-        var request = new UsageLogBatchRequest
-        {
-            Events = new List<UsageEventDto>()
-        };
+        var events = new List<UsageEventDto>();
+        var eventsJson = JsonSerializer.Serialize(events);
 
         // Act
-        var result = await controller.LogBatch(request);
+        var result = await controller.LogBatch(eventsJson);
 
         // Assert
         Assert.IsInstanceOfType<BadRequestObjectResult>(result);
@@ -244,19 +240,18 @@ public class UsageLogApiControllerIntegrationTests
         };
 
         // Create 101 events (over the limit of 100)
-        var request = new UsageLogBatchRequest
+        var events = Enumerable.Range(0, 101).Select(i => new UsageEventDto
         {
-            Events = Enumerable.Range(0, 101).Select(i => new UsageEventDto
-            {
-                UsageId = Guid.NewGuid().ToString(),
-                Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-                Page = $"/test{i}",
-                UserAgent = "Mozilla/5.0"
-            }).ToList()
-        };
+            UsageId = Guid.NewGuid().ToString(),
+            Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+            Page = $"/test{i}",
+            UserAgent = "Mozilla/5.0"
+        }).ToList();
+
+        var eventsJson = JsonSerializer.Serialize(events);
 
         // Act
-        var result = await controller.LogBatch(request);
+        var result = await controller.LogBatch(eventsJson);
 
         // Assert
         Assert.IsInstanceOfType<BadRequestObjectResult>(result);

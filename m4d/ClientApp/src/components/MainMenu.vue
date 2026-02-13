@@ -4,12 +4,30 @@ import { computed, ref, useTemplateRef } from "vue";
 import logo from "@/assets/images/header-logo.png";
 import dancers from "@/assets/images/swing-ui.png";
 import { onClickOutside } from "@vueuse/core";
+import { useUsageTracking } from "@/composables/useUsageTracking";
 
 const renewalTag = "renewal-acknowledged";
 const marketingTag = "marketing-acknowledged";
 const customerReminder = "reminder-acknowledged";
 
 const props = defineProps<{ context: MenuContext }>();
+
+// Initialize usage tracking - composable is always called, tracking happens conditionally inside
+const tracker = props.context.useClientSideTracking ? useUsageTracking({
+  enabled: props.context.usageTracking?.enabled ?? true,
+  anonymousThreshold: props.context.usageTracking?.anonymousThreshold ?? 3,
+  anonymousBatchSize: props.context.usageTracking?.anonymousBatchSize ?? 5,
+  authenticatedBatchSize: props.context.usageTracking?.authenticatedBatchSize ?? 1,
+  maxQueueSize: props.context.usageTracking?.maxQueueSize ?? 100,
+  xsrfToken: props.context.xsrfToken ?? '',
+  userName: props.context.userName ?? null,
+  isAuthenticated: !!props.context.userName
+}) : null;
+
+// Track page view on load if tracking is enabled
+if (tracker) {
+  tracker.trackPageView(window.location.pathname, window.location.search);
+}
 
 const isNavExpanded = ref(false);
 const collapseElement = useTemplateRef<HTMLElement>("collapse-element");

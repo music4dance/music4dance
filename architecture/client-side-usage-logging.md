@@ -2,20 +2,34 @@
 
 ## Implementation Status
 
-? **Phase 1-2 COMPLETE:** Client-side tracking and API endpoint implemented  
-? **Phase 3 IN PROGRESS:** Integration with Razor Pages  
+? **Phase 1-2 COMPLETE:** Client-side tracking and API endpoint implemented
+? **Phase 3 COMPLETE:** Integration with Razor Pages
 ? **Phase 4 PENDING:** Deployment with feature flag
 
 **Test Coverage:** 27/27 tests passing (100%)
+
 - ? Client: 19 tests (useUsageTracking composable)
 - ? Server: 8 tests (UsageLogApiController integration tests)
 - ?? Documentation: `architecture/testing-patterns.md`
 
 **Key Decisions:**
+
 - ? **SendBeacon-only approach** - More reliable than fetch, simpler implementation
 - ? **Bot detection in tests** - Mock user agent to avoid false bot detection
 - ? **Synchronous testing** - No async timing issues, deterministic results
 - ? **Integration tests** - DanceMusicTester pattern with reflection for internal dependencies
+- ? **Feature flag gated** - ClientSideUsageLogging controls initialization
+
+**Phase 3 Implementation:**
+
+- ? Script module added to `_head.cshtml`
+- ? Feature flag check (`FeatureFlags.ClientSideUsageLogging`)
+- ? **Path exclusions (case-insensitive):** `/identity/`, `/api/`
+- ? Imports composable from Vite build output (`/vclient/`)
+- ? Initializes with server configuration from `menuContext`
+- ? Tracks page view on load
+- ? Passes authentication state (userName, isAuthenticated)
+- ? Includes XSRF token for API calls
 
 ---
 
@@ -363,23 +377,49 @@ export function useUsageTracking(config?: Partial<UsageTrackerConfig>) {
    - Update lastSentIndex only on successful send
    - Clear problematic events from queue if persistent errors
 
-#### 5.1.2 Page Load Integration
+#### 5.1.2 Page Load Integration (? IMPLEMENTED)
 
-**File:** `m4d/Views/Shared/_Layout.cshtml` or individual page scripts
+**File:** `m4d/Views/Shared/_head.cshtml`
 
-Since this project doesn't use Vue Router (full page loads), integrate tracking via:
+**Status:** ? Complete - Integrated with feature flag
 
-```typescript
-// In main application initialization or layout script
-import { useUsageTracking } from "@/composables/useUsageTracking";
+**Implementation:**
 
-const usageTracker = useUsageTracking();
+```html
+@* Initialize client-side usage tracking *@ @if (await
+_featureManager.IsEnabledAsync(FeatureFlags.ClientSideUsageLogging)) {
+<script type="module">
+  import { useUsageTracking } from "/vclient/composables/useUsageTracking.js";
 
-// Track page view on load
-usageTracker.trackPageView(window.location.pathname + window.location.search);
+  // Initialize usage tracker with configuration from server
+  const tracker = useUsageTracking({
+    enabled: menuContext.usageTracking?.enabled ?? true,
+    anonymousThreshold: menuContext.usageTracking?.anonymousThreshold ?? 3,
+    anonymousBatchSize: menuContext.usageTracking?.anonymousBatchSize ?? 5,
+    authenticatedBatchSize:
+      menuContext.usageTracking?.authenticatedBatchSize ?? 1,
+    maxQueueSize: menuContext.usageTracking?.maxQueueSize ?? 100,
+    xsrfToken: menuContext.xsrfToken,
+    userName: menuContext.userName || null,
+    isAuthenticated: menuContext.userName && menuContext.userName.length > 0,
+  });
+
+  // Track page view on load
+  tracker.trackPageView(window.location.pathname, window.location.search);
+</script>
+}
 ```
 
-**Note:** For Vue 3 SPA pages within the site, manually call `trackPageView()` when the component mounts.
+**Key Features:**
+
+- Feature flag gated (`FeatureFlags.ClientSideUsageLogging`)
+- ES6 module import from Vite build output (`/vclient/`)
+- Configuration from server-side `menuContext`
+- Automatic page view tracking on load
+- Authentication state passed to composable
+- XSRF token included for API security
+
+**Note:** This project doesn't use Vue Router (full page loads), so tracking happens on each page load automatically.
 
 #### 5.1.3 Bot Detection Logic
 
@@ -514,6 +554,7 @@ export function registerUnloadHandler(callback: () => void) {
 **Status:** ? Complete - 8/8 integration tests passing
 
 **Implementation Notes:**
+
 - Inherits from `DanceMusicApiController` for consistency
 - Uses `[ValidateAntiForgeryToken]` for CSRF protection
 - Enqueues to background task queue (fire-and-forget)

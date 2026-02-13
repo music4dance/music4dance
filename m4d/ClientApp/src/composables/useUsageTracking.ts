@@ -31,6 +31,10 @@ interface UsageTrackerConfig {
   apiEndpoint: string;
   debug: boolean;
   menuContext?: MenuContextInterface;
+  // Alternative to menuContext - pass individual properties
+  xsrfToken?: string;
+  userName?: string | null;
+  isAuthenticated?: boolean;
 }
 
 const STORAGE_KEY_USAGE_ID = 'usageId';
@@ -50,7 +54,7 @@ const defaultConfig: UsageTrackerConfig = {
 };
 
 const finalConfig = { ...defaultConfig, ...config };
-const xsrfToken = finalConfig.menuContext?.xsrfToken || '';
+const xsrfToken = finalConfig.xsrfToken || finalConfig.menuContext?.xsrfToken || '';
 
 if (!finalConfig.enabled) {
   return {
@@ -121,7 +125,11 @@ if (!finalConfig.enabled) {
 
   // Detect if user is authenticated
   function isAuthenticated(): boolean {
-    // Check MenuContext first (most reliable)
+    // Check explicit config first
+    if (finalConfig.isAuthenticated !== undefined) {
+      return finalConfig.isAuthenticated;
+    }
+    // Check MenuContext (most reliable)
     if (finalConfig.menuContext?.userName) {
       return true;
     }
@@ -131,6 +139,10 @@ if (!finalConfig.enabled) {
 
   // Get username if authenticated
   function getUserName(): string | null {
+    // Get from explicit config first
+    if (finalConfig.userName !== undefined) {
+      return finalConfig.userName;
+    }
     // Get from MenuContext (server-provided)
     return finalConfig.menuContext?.userName || null;
   }
@@ -168,32 +180,29 @@ if (!finalConfig.enabled) {
     return false;
   }
 
-  // Send batch using sendBeacon
+  // Send batch using sendBeacon with FormData
   function sendBatch(events: UsageEvent[]): boolean {
     if (events.length === 0) {
       return true;
     }
 
-    const payload = JSON.stringify({ events });
+    // Create FormData with JSON payload and XSRF token
+    const formData = new FormData();
+    formData.append('events', JSON.stringify(events));
+    formData.append('__RequestVerificationToken', xsrfToken);
 
-    // Check 64KB limit
-    const sizeInBytes = new Blob([payload]).size;
-    if (sizeInBytes > 65536) {
-      if (finalConfig.debug) {
-        console.warn(
-          `SendBeacon payload too large: ${sizeInBytes} bytes. Truncating...`
-        );
-      }
-      // Truncate to fit
-      const maxEvents = Math.floor((events.length * 65536) / sizeInBytes);
-      return sendBatch(events.slice(0, maxEvents));
+    if (finalConfig.debug) {
+      console.log('SendBeacon request:', {
+        endpoint: finalConfig.apiEndpoint,
+        eventsCount: events.length,
+        hasToken: !!xsrfToken,
+        tokenLength: xsrfToken?.length,
+        tokenPreview: xsrfToken?.substring(0, 20) + '...'
+      });
     }
 
-    // sendBeacon doesn't support custom headers, append token to URL
-    const urlWithToken = `${finalConfig.apiEndpoint}?__RequestVerificationToken=${encodeURIComponent(xsrfToken)}`;
-
     try {
-      const success = navigator.sendBeacon(urlWithToken, payload);
+      const success = navigator.sendBeacon(finalConfig.apiEndpoint, formData);
       if (finalConfig.debug) {
         console.log(
           `SendBeacon: ${success ? 'Accepted' : 'Rejected'} ${events.length} events`
@@ -264,6 +273,16 @@ if (!finalConfig.enabled) {
       ? finalConfig.authenticatedBatchSize
       : finalConfig.anonymousBatchSize;
 
+    if (finalConfig.debug) {
+      console.log('Usage tracking: Send check', {
+        visitCount,
+        threshold,
+        unsentEventsCount: unsentEvents.length,
+        batchSize,
+        willSend: visitCount >= threshold && unsentEvents.length >= batchSize,
+      });
+    }
+
     // Check if we should send
     if (visitCount >= threshold && unsentEvents.length >= batchSize) {
       const eventsToSend = unsentEvents.slice(0, batchSize);
@@ -276,13 +295,75 @@ if (!finalConfig.enabled) {
         const newQueue = loadQueue();
         newQueue.lastSentIndex += eventsToSend.length;
         saveQueue(newQueue);
+        
+        if (finalConfig.debug) {
+          console.log('Usage tracking: Batch sent', {
+            eventsCount: eventsToSend.length,
+            newLastSentIndex: newQueue.lastSentIndex,
+          });
+        }
       }
     }
   }
 
-  // Register page unload handler
+  // Register page unload handler with Navigation API support
+  // Uses Navigation API to detect same-origin navigations and skip sending,
+  // while still sending for external navigation or tab close
   function registerUnloadHandler(): void {
+    let isInternalNavigation = false;
+
+    // Try to use Navigation API (modern browsers)
+    if ('navigation' in window && (window as any).navigation) {
+      try {
+        (window as any).navigation.addEventListener('navigate', (event: any) => {
+          // Check if destination is same-origin
+          const destinationUrl = event.destination?.url;
+          if (destinationUrl) {
+            try {
+              const destination = new URL(destinationUrl);
+              const isSameOrigin = destination.origin === window.location.origin;
+              
+              if (isSameOrigin) {
+                // Internal navigation - set flag to skip unload send
+                isInternalNavigation = true;
+                
+                // Clear flag after navigation completes (or timeout as fallback)
+                setTimeout(() => {
+                  isInternalNavigation = false;
+                }, 100);
+                
+                if (finalConfig.debug) {
+                  console.log('Usage tracking: Internal navigation detected, will skip unload send');
+                }
+              }
+            } catch (e) {
+              // Invalid URL, treat as external
+              if (finalConfig.debug) {
+                console.warn('Usage tracking: Could not parse destination URL:', e);
+              }
+            }
+          }
+        });
+        
+        if (finalConfig.debug) {
+          console.log('Usage tracking: Navigation API enabled for smart unload handling');
+        }
+      } catch (e) {
+        if (finalConfig.debug) {
+          console.warn('Usage tracking: Navigation API setup failed, using fallback:', e);
+        }
+      }
+    }
+
     const handleUnload = () => {
+      // Skip send if we detected an internal navigation
+      if (isInternalNavigation) {
+        if (finalConfig.debug) {
+          console.log('Usage tracking: Skipping unload send (internal navigation)');
+        }
+        return;
+      }
+
       const queue = loadQueue();
       const unsentEvents = queue.events.slice(queue.lastSentIndex + 1);
       const visitCount = getVisitCount();
@@ -291,6 +372,13 @@ if (!finalConfig.enabled) {
 
       // Only send if visit count >= threshold
       if (visitCount >= threshold && unsentEvents.length > 0) {
+        if (finalConfig.debug) {
+          console.log('Usage tracking: Sending unsent events on unload', {
+            eventCount: unsentEvents.length,
+            reason: 'external navigation or tab close'
+          });
+        }
+        
         const success = sendBatch(unsentEvents);
         if (success) {
           // Update lastSentIndex (optimistic)
@@ -311,7 +399,7 @@ if (!finalConfig.enabled) {
     window.addEventListener('pagehide', handleUnload);
   }
 
-  // Initialize
+  // Initialize with smart unload handling
   registerUnloadHandler();
 
   return {

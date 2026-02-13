@@ -130,6 +130,7 @@ afterEach(() => {
       const tracker = useUsageTracking({
         anonymousThreshold: 2,
         anonymousBatchSize: 3,
+        xsrfToken: 'test-token',
         debug: false,
       });
 
@@ -140,15 +141,16 @@ afterEach(() => {
       // Verify sendBeacon was called (synchronous)
       expect(global.navigator.sendBeacon).toHaveBeenCalledTimes(1);
       
-      // Verify the URL includes XSRF token
+      // Verify the URL and FormData
       const callArgs = (global.navigator.sendBeacon as any).mock.calls[0];
-      expect(callArgs[0]).toContain('/api/usagelog/batch');
-      expect(callArgs[0]).toContain('__RequestVerificationToken=');
+      expect(callArgs[0]).toBe('/api/usagelog/batch');
       
-      // Verify payload is a string (JSON)
-      expect(typeof callArgs[1]).toBe('string');
-      const payload = JSON.parse(callArgs[1]);
-      expect(payload.events).toHaveLength(3);
+      // Verify payload is FormData with token and events
+      const formData = callArgs[1] as FormData;
+      expect(formData.get('__RequestVerificationToken')).toBeTruthy();
+      const eventsJson = formData.get('events') as string;
+      const events = JSON.parse(eventsJson);
+      expect(events).toHaveLength(3);
     });
   });
 
@@ -170,9 +172,10 @@ afterEach(() => {
       // Verify sendBeacon was called (synchronous)
       expect(global.navigator.sendBeacon).toHaveBeenCalledTimes(1);
       
-      // Verify XSRF token in URL
+      // Verify XSRF token in FormData
       const callArgs = (global.navigator.sendBeacon as any).mock.calls[0];
-      expect(callArgs[0]).toContain('__RequestVerificationToken=test-token');
+      const formData = callArgs[1] as FormData;
+      expect(formData.get('__RequestVerificationToken')).toBe('test-token');
     });
   });
 
@@ -236,10 +239,10 @@ afterEach(() => {
 
       tracker.trackPageView('/test');
 
-      // Verify sendBeacon was called with correct token in URL
+      // Verify sendBeacon was called with correct token in FormData
       expect(global.navigator.sendBeacon).toHaveBeenCalled();
-      const url = (global.navigator.sendBeacon as any).mock.calls[0][0];
-      expect(url).toContain('__RequestVerificationToken=my-xsrf-token');
+      const formData = (global.navigator.sendBeacon as any).mock.calls[0][1] as FormData;
+      expect(formData.get('__RequestVerificationToken')).toBe('my-xsrf-token');
     });
   });
 
@@ -332,6 +335,134 @@ afterEach(() => {
       
       // With threshold=1 and batchSize=1, this should have triggered send
       expect(global.navigator.sendBeacon).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('Detailed Batching Logic - Anonymous Users', () => {
+    it('should NOT send before reaching threshold (3 pages)', () => {
+      const tracker = useUsageTracking({
+        anonymousThreshold: 3,
+        anonymousBatchSize: 5,
+        xsrfToken: 'test-token',
+        isAuthenticated: false,
+      });
+
+      // Page 1
+      tracker.trackPageView('/page1');
+      expect(global.navigator.sendBeacon).not.toHaveBeenCalled();
+
+      // Page 2
+      tracker.trackPageView('/page2');
+      expect(global.navigator.sendBeacon).not.toHaveBeenCalled();
+
+      // Check localStorage
+      const queue = JSON.parse(localStorage.getItem('usageQueue')!);
+      expect(queue.events).toHaveLength(2);
+      expect(queue.lastSentIndex).toBe(-1);
+    });
+
+    it('should send EXACTLY 5 events on page 5 (first batch)', () => {
+      const tracker = useUsageTracking({
+        anonymousThreshold: 3,
+        anonymousBatchSize: 5,
+        xsrfToken: 'test-token',
+        isAuthenticated: false,
+      });
+
+      // Pages 1-4
+      tracker.trackPageView('/page1');
+      tracker.trackPageView('/page2');
+      tracker.trackPageView('/page3');
+      tracker.trackPageView('/page4');
+
+      // Page 5 - should trigger send
+      tracker.trackPageView('/page5');
+
+      // Verify send happened
+      expect(global.navigator.sendBeacon).toHaveBeenCalledTimes(1);
+
+      // Get the FormData that was sent
+      const formData = (global.navigator.sendBeacon as any).mock.calls[0][1] as FormData;
+      const eventsJson = formData.get('events') as string;
+      const sentEvents = JSON.parse(eventsJson);
+
+      // Should send EXACTLY 5 events
+      expect(sentEvents).toHaveLength(5);
+      expect(sentEvents[0].page).toBe('/page1');
+      expect(sentEvents[4].page).toBe('/page5');
+
+      // Check lastSentIndex
+      const queue = JSON.parse(localStorage.getItem('usageQueue')!);
+      expect(queue.lastSentIndex).toBe(4); // 0-based index
+    });
+
+    it('should send EXACTLY 5 events in second batch (pages 6-10)', () => {
+      const tracker = useUsageTracking({
+        anonymousThreshold: 3,
+        anonymousBatchSize: 5,
+        xsrfToken: 'test-token',
+        isAuthenticated: false,
+      });
+
+      // First batch (pages 1-5)
+      for (let i = 1; i <= 5; i++) {
+        tracker.trackPageView(`/page${i}`);
+      }
+      expect(global.navigator.sendBeacon).toHaveBeenCalledTimes(1);
+
+      // Pages 6-9 (4 more events, should NOT send)
+      for (let i = 6; i <= 9; i++) {
+        tracker.trackPageView(`/page${i}`);
+      }
+      expect(global.navigator.sendBeacon).toHaveBeenCalledTimes(1); // Still just 1
+
+      // Page 10 (5th unsent event, should send)
+      tracker.trackPageView('/page10');
+      expect(global.navigator.sendBeacon).toHaveBeenCalledTimes(2);
+
+      // Check second batch
+      const secondFormData = (global.navigator.sendBeacon as any).mock.calls[1][1] as FormData;
+      const secondEventsJson = secondFormData.get('events') as string;
+      const secondSentEvents = JSON.parse(secondEventsJson);
+
+      // Should send EXACTLY 5 events (pages 6-10)
+      expect(secondSentEvents).toHaveLength(5);
+      expect(secondSentEvents[0].page).toBe('/page6');
+      expect(secondSentEvents[4].page).toBe('/page10');
+
+      // Check lastSentIndex
+      const queue = JSON.parse(localStorage.getItem('usageQueue')!);
+      expect(queue.lastSentIndex).toBe(9); // 0-based, 10 events sent
+    });
+
+    it('should correctly track lastSentIndex across batches', () => {
+      const tracker = useUsageTracking({
+        anonymousThreshold: 3,
+        anonymousBatchSize: 5,
+        xsrfToken: 'test-token',
+        isAuthenticated: false,
+      });
+
+      // First batch
+      for (let i = 1; i <= 5; i++) {
+        tracker.trackPageView(`/page${i}`);
+      }
+      let queue = JSON.parse(localStorage.getItem('usageQueue')!);
+      expect(queue.lastSentIndex).toBe(4); // 0-4 sent
+
+      // Second batch
+      for (let i = 6; i <= 10; i++) {
+        tracker.trackPageView(`/page${i}`);
+      }
+      queue = JSON.parse(localStorage.getItem('usageQueue')!);
+      expect(queue.lastSentIndex).toBe(9); // 0-9 sent
+
+      // Third batch
+      for (let i = 11; i <= 15; i++) {
+        tracker.trackPageView(`/page${i}`);
+      }
+      queue = JSON.parse(localStorage.getItem('usageQueue')!);
+      expect(queue.lastSentIndex).toBe(14); // 0-14 sent
     });
   });
 });

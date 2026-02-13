@@ -118,6 +118,7 @@ music4dance.net is a sophisticated web application designed to help dancers find
 ### Comprehensive Testing Documentation
 
 **Primary Reference:** See `architecture/testing-patterns.md` for complete testing guide including:
+
 - Server-side integration testing patterns (DanceMusicTester)
 - Client-side testing patterns (Vitest/Vue)
 - Helper methods and test infrastructure
@@ -333,19 +334,19 @@ public class TestSongIndex : SongIndex
 {
     private DanceMusicCoreService? _actualService;
     public List<EditSongCall> EditCalls { get; } = new();
-    
+
     public TestSongIndex() : base()
     {
     }
-    
+
     public void AttachToService(DanceMusicCoreService service)
     {
         _actualService = service;
     }
-    
-    public override DanceMusicCoreService DanceMusicService => 
+
+    public override DanceMusicCoreService DanceMusicService =>
         _actualService ?? throw new InvalidOperationException("TestSongIndex not attached");
-    
+
     public override async Task<bool> EditSong(ApplicationUser user, Song song, Song edit, ...)
     {
         EditCalls.Add(new EditSongCall(user, song, edit, tags?.ToList()));
@@ -418,16 +419,17 @@ Assert.AreEqual(160m, call.Edit.Tempo);
 
 **Decision Guide:**
 
-| Scenario | Pattern | Reason |
-|----------|---------|--------|
-| Testing a controller that uses `DanceMusicService` | **Moq** | Need isolation, don't care about SongIndex implementation |
-| Testing `MusicServiceManager.ValidateAndCorrectTempo` | **TestSongIndex** | Need to verify actual EditSong behavior and parameters |
-| Need to force an exception from SongIndex | **Moq** | Mock can force any return value/exception |
-| Need to verify exact parameters passed to `EditSong` | **TestSongIndex** | Spy captures real parameters for inspection |
-| Most basic tests in `DanceMusicTester` | **Moq** | Default for fast, isolated tests |
-| Testing real song updates with tags | **TestSongIndex** | Need real behavior + parameter verification |
+| Scenario                                              | Pattern           | Reason                                                    |
+| ----------------------------------------------------- | ----------------- | --------------------------------------------------------- |
+| Testing a controller that uses `DanceMusicService`    | **Moq**           | Need isolation, don't care about SongIndex implementation |
+| Testing `MusicServiceManager.ValidateAndCorrectTempo` | **TestSongIndex** | Need to verify actual EditSong behavior and parameters    |
+| Need to force an exception from SongIndex             | **Moq**           | Mock can force any return value/exception                 |
+| Need to verify exact parameters passed to `EditSong`  | **TestSongIndex** | Spy captures real parameters for inspection               |
+| Most basic tests in `DanceMusicTester`                | **Moq**           | Default for fast, isolated tests                          |
+| Testing real song updates with tags                   | **TestSongIndex** | Need real behavior + parameter verification               |
 
 **Key Difference:**
+
 - **Moq = Mock Pattern**: Replace behavior entirely (no real code runs)
 - **TestSongIndex = Spy Pattern**: Real code runs, but you can observe it
 
@@ -455,24 +457,24 @@ public class MyApiControllerIntegrationTests
     }
 
     // Helper to create controller with dependencies
-    private static (MyController controller, TestBackgroundTaskQueue queue) 
+    private static (MyController controller, TestBackgroundTaskQueue queue)
         CreateController(DanceMusicService dms, IConfiguration? config = null)
     {
         config ??= CreateTestConfiguration();
         var taskQueue = new TestBackgroundTaskQueue();
-        
+
         // Access internal properties via reflection if needed
         var internalField = typeof(DanceMusicCoreService)
-            .GetField("<PropertyName>k__BackingField", 
+            .GetField("<PropertyName>k__BackingField",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-        
+
         if (internalField == null)
         {
             throw new InvalidOperationException("Reflection failed");
         }
-        
+
         var service = (IService)internalField.GetValue(dms)!;
-        
+
         var controller = new MyController(
             dms.Context,
             dms.UserManager,
@@ -482,7 +484,7 @@ public class MyApiControllerIntegrationTests
             NullLogger<MyController>.Instance,
             taskQueue
         );
-        
+
         return (controller, taskQueue);
     }
 
@@ -492,15 +494,15 @@ public class MyApiControllerIntegrationTests
         // Arrange
         var dms = await DanceMusicTester.CreateServiceWithUsers("TestDb_Unique");
         var (controller, taskQueue) = CreateController(dms);
-        
+
         controller.ControllerContext = new ControllerContext
         {
             HttpContext = new DefaultHttpContext()
         };
-        
+
         // Act
         var result = await controller.MyMethod(request);
-        
+
         // Assert
         Assert.IsInstanceOfType(result, typeof(OkObjectResult));
         Assert.AreEqual(1, taskQueue.Count);
@@ -509,6 +511,7 @@ public class MyApiControllerIntegrationTests
 ```
 
 **Key Points:**
+
 1. ✅ Use unique database names per test
 2. ✅ Use reflection for internal dependencies (document why)
 3. ✅ Use `NullLogger<T>.Instance` for logging
@@ -524,21 +527,21 @@ public class MyApiControllerIntegrationTests
 **Example:** `m4d/ClientApp/src/composables/__tests__/useUsageTracking.test.ts`
 
 ```typescript
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 
-describe('useMyComposable', () => {
+describe("useMyComposable", () => {
   beforeEach(() => {
     // Mock browser APIs
     localStorage.clear();
     global.navigator.sendBeacon = vi.fn(() => true);
-    
+
     // Mock user agent to NOT be a bot
-    Object.defineProperty(navigator, 'userAgent', {
-      value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+    Object.defineProperty(navigator, "userAgent", {
+      value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
       configurable: true,
     });
-    
-    Object.defineProperty(navigator, 'webdriver', {
+
+    Object.defineProperty(navigator, "webdriver", {
       value: false,
       configurable: true,
     });
@@ -548,21 +551,22 @@ describe('useMyComposable', () => {
     vi.restoreAllMocks();
   });
 
-  it('should do something', () => {
+  it("should do something", () => {
     // Arrange
-    const composable = useMyComposable({ option: 'value' });
-    
+    const composable = useMyComposable({ option: "value" });
+
     // Act
     composable.doSomething();
-    
+
     // Assert (synchronous - no await needed for sendBeacon)
-    expect(composable.state).toBe('expected');
+    expect(composable.state).toBe("expected");
     expect(global.navigator.sendBeacon).toHaveBeenCalledTimes(1);
   });
 });
 ```
 
 **Key Points:**
+
 1. ✅ Mock user agent to avoid bot detection
 2. ✅ Use `configurable: true` for property mocks
 3. ✅ Restore mocks in `afterEach`
@@ -572,6 +576,7 @@ describe('useMyComposable', () => {
 ### Testing Checklists
 
 **For New API Controllers:**
+
 - [ ] Valid requests (200/202)
 - [ ] Invalid requests (400)
 - [ ] Authentication (anonymous vs authenticated)
@@ -580,6 +585,7 @@ describe('useMyComposable', () => {
 - [ ] Error handling
 
 **For New Composables:**
+
 - [ ] Initial state
 - [ ] State changes
 - [ ] API calls (mock sendBeacon/fetch)
@@ -623,3 +629,4 @@ This is a specialized domain where precision matters:
 - Social dancers have more flexibility than competitive dancers
 
 When suggesting code changes or new features, consider the impact on both competitive and social dancing communities, and ensure tempo/dance relationships remain accurate.
+
