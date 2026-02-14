@@ -23,8 +23,14 @@ public class UsageLogController(
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> LogBatch([FromForm] string events)
-    { 
-        // 1. Deserialize events from form field
+    {
+        // 1. Validate input is not null/empty
+        if (string.IsNullOrWhiteSpace(events))
+        {
+            return BadRequest("No events provided");
+        }
+
+        // 2. Deserialize events from form field
         List<UsageEventDto> eventList;
         try
         {
@@ -40,7 +46,7 @@ public class UsageLogController(
             return BadRequest("Invalid JSON format");
         }
 
-        // 2. Validate payload
+        // 3. Validate payload
         if (eventList == null || eventList.Count == 0)
         {
             return BadRequest("No events provided");
@@ -51,7 +57,7 @@ public class UsageLogController(
             return BadRequest("Batch size exceeds limit (100 events)");
         }
 
-        // 3. Detect authenticated user
+        // 4. Detect authenticated user
         var isAuthenticated = User?.Identity?.IsAuthenticated == true;
         var userName = isAuthenticated ? User.Identity.Name : null;
 
@@ -62,10 +68,10 @@ public class UsageLogController(
             authenticatedUser = await UserManager.GetUserAsync(User);
         }
 
-        // 4. Rate limit check (basic implementation)
+        // 5. Rate limit check (basic implementation)
         // TODO: Implement proper rate limiting using IMemoryCache
 
-        // 5. Enqueue to background task
+        // 6. Enqueue to background task
         TaskQueue.EnqueueTask(async (serviceScopeFactory, cancellationToken) =>
         {
             try
@@ -110,7 +116,7 @@ public class UsageLogController(
             }
         });
 
-        // 6. Return 202 Accepted immediately (background processing)
+        // 7. Return 202 Accepted immediately (background processing)
         return Accepted();
     }
 }

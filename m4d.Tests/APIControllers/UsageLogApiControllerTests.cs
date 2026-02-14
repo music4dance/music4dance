@@ -20,6 +20,13 @@ namespace m4d.Tests.APIControllers;
 [TestClass]
 public class UsageLogControllerIntegrationTests
 {
+    [ClassInitialize]
+    public static async Task ClassInitialize(TestContext context)
+    {
+        // Load dances once for all tests to avoid concurrency issues
+        await DanceMusicTester.LoadDances();
+    }
+
     private static IConfiguration CreateTestConfiguration()
     {
         var configBuilder = new ConfigurationBuilder();

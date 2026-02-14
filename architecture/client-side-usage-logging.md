@@ -1364,28 +1364,285 @@ usageTracker.trackEvent({
 - Train model on known bot vs. human patterns
 - Flag suspicious sessions for review
 
-## 13. Documentation Updates
+## 13. Future Enhancements
 
-**At conclusion of feature work, this document should reflect:**
+### 13.1 Client-Side Path Filtering
 
-- ? What was implemented (mark completed sections)
-- ? Any deviations from original plan
-- ? Future enhancements moved to Could Have section
-- ? Lessons learned
+**Status:** Documented (Not Implemented)
+**Priority:** Low
 
-**Other documentation:**
+**Current State:**
 
-- [ ] Add JSDoc comments to `useUsageTracking.ts`
-- [ ] Add XML comments to `UsageLogApiController.cs`
-- [ ] Update this architecture doc with "as-built" details
+- Path exclusions handled server-side in `_head.cshtml`
+- Excluded: `/admin/`, `/identity/`, `/api/`
+- Pattern matches existing architecture (server-driven configuration)
 
-**No need to update CONTRIBUTING.md** - This is internal implementation detail
+**Proposed Enhancement:**
+Allow client-side path exclusions without server restart for dynamic configuration updates.
 
-## 14. Open Questions
+**Implementation:**
 
-### 14.1 Technical Decisions
+```typescript
+interface UsageTrackerConfig {
+  excludePaths?: string[]; // Regex patterns or exact matches
+}
 
-### 14.1 Resolved Technical Decisions
+// In trackPageView()
+function trackPageView(page: string, query: string = "") {
+  if (config.excludePaths?.some((pattern) => page.match(pattern))) {
+    return; // Skip tracking
+  }
+  // ... continue with tracking
+}
+```
+
+**Benefits:**
+
+- Dynamic configuration updates without deployment
+- Per-user exclusions (privacy-focused users)
+- More flexible than server-side only
+
+**Considerations:**
+
+- Server-side exclusions are sufficient for current needs
+- Adds client-side complexity
+- Feature flag already provides master on/off switch
+
+---
+
+### 13.2 Anti-Replay Protection (Timestamp Validation)
+
+**Status:** Documented (Not Implemented)
+**Priority:** Low
+
+**Current State:**
+
+- Timestamps are informational (client local time)
+- Server uses server timestamp for database
+- XSRF token already prevents cross-origin replay attacks
+- Same-origin replay is low-value attack (just duplicates own data)
+
+**Why Not Critical:**
+
+1. XSRF token prevents cross-origin replay
+2. XSRF token is tied to session (expires)
+3. Rate limiting mitigates spam
+4. Usage tracking is non-sensitive (not financial transactions)
+
+**Proposed Enhancement:**
+Add timestamp age validation to prevent replay of old captured events.
+
+**Implementation:**
+
+```csharp
+// In UsageLogController.LogBatch
+foreach (var eventDto in eventList)
+{
+    var eventAge = DateTime.UtcNow - DateTimeOffset.FromUnixTimeMilliseconds(eventDto.Timestamp).DateTime;
+    if (eventAge.TotalHours > 24)
+    {
+        Logger.LogWarning("Rejecting event older than 24 hours: {UsageId}", eventDto.UsageId);
+        continue; // Skip old events
+    }
+
+    // ... save event
+}
+```
+
+**Benefits:**
+
+- Prevents replay of old captured events (edge case)
+- Filters out client clock skew issues
+- Reduces database pollution from stale events
+
+**Considerations:**
+
+- XSRF token provides sufficient protection already
+- Adds validation overhead
+- 24-hour window may be too strict for legitimate use cases
+
+---
+
+### 13.3 Navigation API Testing Limitations
+
+**Status:** Documented
+**Priority:** N/A (Documentation)
+
+**Challenge:**
+Navigation API is not available in JSDOM (Vitest environment), requiring complex mocking for automated tests.
+
+**Current Testing Coverage:**
+
+- ? Batching logic (23 unit tests)
+- ? Queue management (unit tested)
+- ? SendBeacon calls (unit tested)
+- ? lastSentIndex tracking (unit tested)
+- ?? Navigation API detection (manual tested)
+- ?? Unload handler skip logic (manual tested)
+
+**Mitigation:**
+
+- Manual testing documented in architecture
+- Browser DevTools verification
+- Graceful degradation tested (older browsers)
+
+**Manual Test Checklist:**
+
+1. **Chrome/Edge 102+** - Verify "Internal navigation detected" in console
+2. **Firefox 123+** - Same verification
+3. **Safari 17.0+** - Same verification
+4. **Chrome 101 (older)** - Verify graceful degradation (sends on every page)
+
+**Future Consideration:**
+Consider Playwright for E2E tests with real browsers to test Navigation API integration.
+
+**Implementation Example (Playwright):**
+
+```typescript
+// playwright.config.ts
+test("Navigation API prevents unload send on internal navigation", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.goto("/dances");
+
+  // Verify no sendBeacon call made
+  const beaconCalls = await page.evaluate(() => window.beaconCallCount);
+  expect(beaconCalls).toBe(0);
+});
+```
+
+---
+
+### 13.4 Health Check Endpoint
+
+**Status:** Documented (Not Implemented)
+**Priority:** Medium
+
+**Current State:**
+
+- Background task queue handles processing
+- Errors logged to Application Insights
+- No dedicated health check endpoint
+
+**Why Not Implemented:**
+
+- Usage logging is non-critical (doesn't block user functionality)
+- Failure is silent by design (fire-and-forget)
+- Adding health check adds operational complexity without immediate value
+
+**Proposed Enhancement:**
+Monitor usage logging system health for production monitoring.
+
+**Implementation:**
+
+```csharp
+// In UsageLogController or separate HealthController
+[HttpGet("health")]
+[AllowAnonymous]
+public IActionResult GetHealth()
+{
+    var queueDepth = GetQueueDepth(); // Access IBackgroundTaskQueue
+    var lastProcessedTime = GetLastProcessedTime(); // Track in static variable
+    var errorRate = GetRecentErrorRate(); // Calculate from last N operations
+
+    var status = "Healthy";
+    if (queueDepth > 1000) status = "Degraded";
+    if (errorRate > 0.05) status = "Unhealthy";
+    if ((DateTime.UtcNow - lastProcessedTime).TotalMinutes > 5) status = "Unhealthy";
+
+    return Ok(new
+    {
+        Status = status,
+        QueueDepth = queueDepth,
+        LastProcessedTime = lastProcessedTime,
+        ErrorRate = errorRate,
+        Timestamp = DateTime.UtcNow
+    });
+}
+```
+
+**Monitoring Alerts:**
+
+- Alert if queue depth > 1000 (backlog building)
+- Alert if error rate > 5% (systemic issues)
+- Alert if no processing for > 5 minutes (service down)
+
+**Benefits:**
+
+- Proactive monitoring
+- Early detection of issues
+- Integration with monitoring tools (Application Insights, Azure Monitor)
+
+**Considerations:**
+
+- Non-critical feature (nice-to-have)
+- Adds operational overhead
+- Should be low priority given fire-and-forget nature
+
+---
+
+### 13.5 Code Quality Improvements (Implemented)
+
+**Status:** ? Implemented
+
+**JSDoc Comments:**
+
+- ? Added comprehensive JSDoc to `useUsageTracking()` function
+- ? Documents parameters, return values, usage examples
+- ? Explains batching behavior for anonymous vs authenticated users
+
+**XSRF Token Validation:**
+
+- ? Debug warnings for missing/invalid tokens
+- ? Helps developers catch configuration issues
+- ? Doesn't block functionality (fire-and-forget approach)
+
+**Error Handling:**
+
+- ? FormData creation wrapped in try/catch (already in place)
+- ? JSON.stringify errors caught
+- ? Graceful degradation on all errors
+
+---
+
+## 14. Implementation Timeline for Future Enhancements
+
+| Enhancement                      | Priority | Effort    | Benefit | Recommended Timeline     |
+| -------------------------------- | -------- | --------- | ------- | ------------------------ |
+| Client-side path filtering       | Low      | 2-3 hours | Low     | After 6 months if needed |
+| Anti-replay protection           | Low      | 1-2 hours | Low     | After 6 months if needed |
+| Navigation API E2E tests         | Low      | 4-6 hours | Medium  | When adding Playwright   |
+| Health check endpoint            | Medium   | 2-3 hours | Medium  | After 3 months in prod   |
+| Code quality (JSDoc, validation) | High     | ? Done    | High    | ? Complete               |
+
+---
+
+## 15. Lessons Learned
+
+**What Worked Well:**
+
+- ? FormData approach with SendBeacon (simpler than expected)
+- ? Navigation API integration (excellent browser support)
+- ? Smart batching (anonymous vs authenticated)
+- ? Server-side path exclusions (clean, maintainable)
+- ? Feature flag rollout strategy (safe, reversible)
+
+**What Could Be Improved:**
+
+- ?? Could add more E2E tests (Playwright)
+- ?? Health check endpoint would be nice (non-critical)
+- ?? Client-side path filtering (maybe overkill)
+
+**Recommendations for Similar Features:**
+
+1. Start with server-side configuration (simpler)
+2. Use feature flags for safe rollout
+3. Navigation API is mature enough for production use
+4. FormData + SendBeacon is the right pattern for fire-and-forget APIs
+5. Document testing limitations upfront
+
+## 14. Resolved Technical Decisions
 
 **Q1:** Should we use SignalR for real-time updates, or stick with REST API?
 

@@ -41,6 +41,37 @@ const STORAGE_KEY_USAGE_ID = 'usageId';
 const STORAGE_KEY_USAGE_QUEUE = 'usageQueue';
 const STORAGE_KEY_USAGE_COUNT = 'usageCount';
 
+/**
+ * Client-side usage tracking composable
+ * Tracks page views and sends batched events to server API with smart unload handling
+ * 
+ * @param config - Configuration options (all optional)
+ * @returns Object with tracking methods: trackPageView, getUsageId, getVisitCount
+ * 
+ * @example
+ * ```typescript
+ * // Initialize with configuration
+ * const tracker = useUsageTracking({
+ *   anonymousThreshold: 3,
+ *   anonymousBatchSize: 5,
+ *   xsrfToken: 'token',
+ *   isAuthenticated: false
+ * });
+ * 
+ * // Track page view
+ * tracker.trackPageView('/dances', '?filter=CHA');
+ * 
+ * // Get current visit count
+ * const count = tracker.getVisitCount(); // Returns number of pages visited
+ * ```
+ * 
+ * @remarks
+ * - Anonymous users: Batch of 5 events sent after 3 page threshold
+ * - Authenticated users: Immediate send (batch size 1)
+ * - Uses Navigation API for smart unload handling (85-90% browser support)
+ * - Graceful degradation for older browsers
+ * - Bot detection via user agent and webdriver
+ */
 export function useUsageTracking(config: Partial<UsageTrackerConfig> = {}) {
 const defaultConfig: UsageTrackerConfig = {
   enabled: true,
@@ -55,6 +86,15 @@ const defaultConfig: UsageTrackerConfig = {
 
 const finalConfig = { ...defaultConfig, ...config };
 const xsrfToken = finalConfig.xsrfToken || finalConfig.menuContext?.xsrfToken || '';
+
+// Validate XSRF token in debug mode
+if (finalConfig.debug) {
+  if (!xsrfToken) {
+    console.warn('Usage tracking: No XSRF token provided, API calls will fail');
+  } else if (xsrfToken.length < 20) {
+    console.warn('Usage tracking: XSRF token seems too short, may be invalid');
+  }
+}
 
 if (!finalConfig.enabled) {
   return {
