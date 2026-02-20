@@ -79,22 +79,19 @@ public class UsageLogController(
                 using var scope = serviceScopeFactory.CreateScope();
                 var dbContext = scope.ServiceProvider.GetRequiredService<DanceMusicContext>();
 
-                foreach (var eventDto in eventList)
+                var usageLogs = eventList.Select(eventDto => new UsageLog
                 {
-                    var usageLog = new UsageLog
-                    {
-                        UsageId = eventDto.UsageId,
-                        UserName = userName ?? eventDto.UserName, // Server-side auth takes precedence
-                        Date = DateTimeOffset.FromUnixTimeMilliseconds(eventDto.Timestamp).DateTime,
-                        Page = eventDto.Page,
-                        Query = eventDto.Query,
-                        Filter = eventDto.Filter,
-                        Referrer = eventDto.Referrer,
-                        UserAgent = eventDto.UserAgent
-                    };
+                    UsageId = eventDto.UsageId,
+                    UserName = userName ?? eventDto.UserName, // Server-side auth takes precedence
+                    Date = DateTimeOffset.FromUnixTimeMilliseconds(eventDto.Timestamp).DateTime,
+                    Page = eventDto.Page,
+                    Query = eventDto.Query,
+                    Filter = eventDto.Filter,
+                    Referrer = eventDto.Referrer,
+                    UserAgent = eventDto.UserAgent
+                });
 
-                    await dbContext.UsageLog.AddAsync(usageLog, cancellationToken);
-                }
+                await dbContext.UsageLog.AddRangeAsync(usageLogs, cancellationToken);
 
                 // Update user LastActive and HitCount if authenticated
                 if (authenticatedUser != null)

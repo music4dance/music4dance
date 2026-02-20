@@ -364,13 +364,9 @@ if (!finalConfig.enabled) {
               const isSameOrigin = destination.origin === window.location.origin;
               
               if (isSameOrigin) {
-                // Internal navigation - set flag to skip unload send
+                // Internal navigation - set flag to skip unload send for this page lifecycle
+                // The flag will effectively reset on the next full page load when this composable re-initializes
                 isInternalNavigation = true;
-                
-                // Clear flag after navigation completes (or timeout as fallback)
-                setTimeout(() => {
-                  isInternalNavigation = false;
-                }, 100);
                 
                 if (finalConfig.debug) {
                   console.log('Usage tracking: Internal navigation detected, will skip unload send');
