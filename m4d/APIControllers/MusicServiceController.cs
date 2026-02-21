@@ -12,9 +12,10 @@ namespace m4d.APIControllers;
 [ValidateAntiForgeryToken]
 [Route("api/[controller]")]
 public class MusicServiceController(
-    DanceMusicContext context, UserManager<ApplicationUser> userManager,
-    ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-    IConfiguration configuration, ILogger<MusicServiceController> logger) : DanceMusicApiController(context, userManager, searchService, danceStatsManager, configuration, logger)
+DanceMusicContext context, UserManager<ApplicationUser> userManager,
+ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+IConfiguration configuration, ILogger<MusicServiceController> logger,
+ServiceHealthManager serviceHealth) : DanceMusicApiController(context, userManager, searchService, danceStatsManager, configuration, logger, serviceHealth: serviceHealth)
 {
     // ReSharper disable once InconsistentNaming
     private static readonly Dictionary<string, IList<ServiceTrack>> s_cache = [];

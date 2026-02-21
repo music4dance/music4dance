@@ -16,9 +16,10 @@ namespace m4d.APIControllers;
 [ValidateAntiForgeryToken]
 [Route("api/[controller]")]
 public class SongController(
-    DanceMusicContext context, UserManager<ApplicationUser> userManager,
-    ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-    IConfiguration configuration, ILogger<SongController> logger) : DanceMusicApiController(context, userManager, searchService, danceStatsManager, configuration, logger)
+DanceMusicContext context, UserManager<ApplicationUser> userManager,
+ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+IConfiguration configuration, ILogger<SongController> logger,
+ServiceHealthManager serviceHealth) : DanceMusicApiController(context, userManager, searchService, danceStatsManager, configuration, logger, serviceHealth: serviceHealth)
 {
     [HttpGet]
     public async Task<IActionResult> Get([FromServices] IMapper mapper,

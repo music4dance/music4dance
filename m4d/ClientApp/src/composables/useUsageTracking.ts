@@ -3,7 +3,7 @@
  * Tracks page views and sends to server API with smart batching
  */
 
-import type { MenuContextInterface } from '@/models/MenuContext';
+import type { MenuContextInterface } from "@/models/MenuContext";
 
 interface UsageEvent {
   usageId: string;
@@ -37,17 +37,17 @@ interface UsageTrackerConfig {
   isAuthenticated?: boolean;
 }
 
-const STORAGE_KEY_USAGE_ID = 'usageId';
-const STORAGE_KEY_USAGE_QUEUE = 'usageQueue';
-const STORAGE_KEY_USAGE_COUNT = 'usageCount';
+const STORAGE_KEY_USAGE_ID = "usageId";
+const STORAGE_KEY_USAGE_QUEUE = "usageQueue";
+const STORAGE_KEY_USAGE_COUNT = "usageCount";
 
 /**
  * Client-side usage tracking composable
  * Tracks page views and sends batched events to server API with smart unload handling
- * 
+ *
  * @param config - Configuration options (all optional)
  * @returns Object with tracking methods: trackPageView, getUsageId, getVisitCount
- * 
+ *
  * @example
  * ```typescript
  * // Initialize with configuration
@@ -57,14 +57,14 @@ const STORAGE_KEY_USAGE_COUNT = 'usageCount';
  *   xsrfToken: 'token',
  *   isAuthenticated: false
  * });
- * 
+ *
  * // Track page view
  * tracker.trackPageView('/dances', '?filter=CHA');
- * 
+ *
  * // Get current visit count
  * const count = tracker.getVisitCount(); // Returns number of pages visited
  * ```
- * 
+ *
  * @remarks
  * - Anonymous users: Batch of 5 events sent after 3 page threshold
  * - Authenticated users: Immediate send (batch size 1)
@@ -73,36 +73,36 @@ const STORAGE_KEY_USAGE_COUNT = 'usageCount';
  * - Bot detection via user agent and webdriver
  */
 export function useUsageTracking(config: Partial<UsageTrackerConfig> = {}) {
-const defaultConfig: UsageTrackerConfig = {
-  enabled: true,
-  anonymousThreshold: 3,
-  anonymousBatchSize: 5,
-  authenticatedBatchSize: 1,
-  maxQueueSize: 100,
-  apiEndpoint: '/api/usagelog/batch',
-  debug: import.meta.env.DEV,
-  menuContext: undefined,
-};
-
-const finalConfig = { ...defaultConfig, ...config };
-const xsrfToken = finalConfig.xsrfToken || finalConfig.menuContext?.xsrfToken || '';
-
-// Validate XSRF token in debug mode
-if (finalConfig.debug) {
-  if (!xsrfToken) {
-    console.warn('Usage tracking: No XSRF token provided, API calls will fail');
-  } else if (xsrfToken.length < 20) {
-    console.warn('Usage tracking: XSRF token seems too short, may be invalid');
-  }
-}
-
-if (!finalConfig.enabled) {
-  return {
-    trackPageView: () => {},
-    getUsageId: () => null,
-    getVisitCount: () => 0,
+  const defaultConfig: UsageTrackerConfig = {
+    enabled: true,
+    anonymousThreshold: 3,
+    anonymousBatchSize: 5,
+    authenticatedBatchSize: 1,
+    maxQueueSize: 100,
+    apiEndpoint: "/api/usagelog/batch",
+    debug: import.meta.env.DEV,
+    menuContext: undefined,
   };
-}
+
+  const finalConfig = { ...defaultConfig, ...config };
+  const xsrfToken = finalConfig.xsrfToken || finalConfig.menuContext?.xsrfToken || "";
+
+  // Validate XSRF token in debug mode
+  if (finalConfig.debug) {
+    if (!xsrfToken) {
+      console.warn("Usage tracking: No XSRF token provided, API calls will fail");
+    } else if (xsrfToken.length < 20) {
+      console.warn("Usage tracking: XSRF token seems too short, may be invalid");
+    }
+  }
+
+  if (!finalConfig.enabled) {
+    return {
+      trackPageView: () => {},
+      getUsageId: () => null,
+      getVisitCount: () => 0,
+    };
+  }
 
   // Initialize or load UsageId
   function getUsageId(): string {
@@ -135,12 +135,12 @@ if (!finalConfig.enabled) {
         const parsed = JSON.parse(stored) as UsageQueue;
         return {
           events: parsed.events || [],
-          lastSentIndex: parsed.lastSentIndex || -1,
+          lastSentIndex: parsed.lastSentIndex ?? -1,
         };
       }
     } catch (error) {
       if (finalConfig.debug) {
-        console.error('Failed to load usage queue:', error);
+        console.error("Failed to load usage queue:", error);
       }
     }
     return { events: [], lastSentIndex: -1 };
@@ -158,7 +158,7 @@ if (!finalConfig.enabled) {
       localStorage.setItem(STORAGE_KEY_USAGE_QUEUE, JSON.stringify(queue));
     } catch (error) {
       if (finalConfig.debug) {
-        console.error('Failed to save usage queue:', error);
+        console.error("Failed to save usage queue:", error);
       }
     }
   }
@@ -174,7 +174,7 @@ if (!finalConfig.enabled) {
       return true;
     }
     // Fallback: check for authentication cookie
-    return document.cookie.includes('.AspNetCore.Identity.Application');
+    return document.cookie.includes(".AspNetCore.Identity.Application");
   }
 
   // Get username if authenticated
@@ -208,7 +208,7 @@ if (!finalConfig.enabled) {
     }
 
     // Check for headless Chrome/Firefox
-    if ('__nightmare' in window || '__phantomas' in window) {
+    if ("__nightmare" in window || "__phantomas" in window) {
       return true;
     }
 
@@ -228,30 +228,26 @@ if (!finalConfig.enabled) {
 
     // Create FormData with JSON payload and XSRF token
     const formData = new FormData();
-    formData.append('events', JSON.stringify(events));
-    formData.append('__RequestVerificationToken', xsrfToken);
+    formData.append("events", JSON.stringify(events));
+    formData.append("__RequestVerificationToken", xsrfToken);
 
     if (finalConfig.debug) {
-      console.log('SendBeacon request:', {
+      console.log("SendBeacon request:", {
         endpoint: finalConfig.apiEndpoint,
         eventsCount: events.length,
         hasToken: !!xsrfToken,
-        tokenLength: xsrfToken?.length,
-        tokenPreview: xsrfToken?.substring(0, 20) + '...'
       });
     }
 
     try {
       const success = navigator.sendBeacon(finalConfig.apiEndpoint, formData);
       if (finalConfig.debug) {
-        console.log(
-          `SendBeacon: ${success ? 'Accepted' : 'Rejected'} ${events.length} events`
-        );
+        console.log(`SendBeacon: ${success ? "Accepted" : "Rejected"} ${events.length} events`);
       }
       return success;
     } catch (error) {
       if (finalConfig.debug) {
-        console.error('SendBeacon failed:', error);
+        console.error("SendBeacon failed:", error);
       }
       return false;
     }
@@ -260,11 +256,11 @@ if (!finalConfig.enabled) {
   // Track page view
   function trackPageView(
     page: string = window.location.pathname,
-    query: string = window.location.search
+    query: string = window.location.search,
   ): void {
     if (isBot()) {
       if (finalConfig.debug) {
-        console.log('Usage tracking: Bot detected, skipping');
+        console.log("Usage tracking: Bot detected, skipping");
       }
       return;
     }
@@ -276,7 +272,7 @@ if (!finalConfig.enabled) {
 
     // Extract filter from query string
     const urlParams = new URLSearchParams(query);
-    const filter = urlParams.get('filter');
+    const filter = urlParams.get("filter");
 
     // Create event
     const event: UsageEvent = {
@@ -297,7 +293,7 @@ if (!finalConfig.enabled) {
     saveQueue(queue);
 
     if (finalConfig.debug) {
-      console.log('Usage tracking: Event queued', {
+      console.log("Usage tracking: Event queued", {
         page,
         authenticated,
         visitCount,
@@ -314,7 +310,7 @@ if (!finalConfig.enabled) {
       : finalConfig.anonymousBatchSize;
 
     if (finalConfig.debug) {
-      console.log('Usage tracking: Send check', {
+      console.log("Usage tracking: Send check", {
         visitCount,
         threshold,
         unsentEventsCount: unsentEvents.length,
@@ -329,15 +325,15 @@ if (!finalConfig.enabled) {
 
       // Send synchronously using sendBeacon
       const success = sendBatch(eventsToSend);
-      
+
       if (success) {
         // Update lastSentIndex
         const newQueue = loadQueue();
         newQueue.lastSentIndex += eventsToSend.length;
         saveQueue(newQueue);
-        
+
         if (finalConfig.debug) {
-          console.log('Usage tracking: Batch sent', {
+          console.log("Usage tracking: Batch sent", {
             eventsCount: eventsToSend.length,
             newLastSentIndex: newQueue.lastSentIndex,
           });
@@ -353,40 +349,42 @@ if (!finalConfig.enabled) {
     let isInternalNavigation = false;
 
     // Try to use Navigation API (modern browsers)
-    if ('navigation' in window && (window as any).navigation) {
+    if ("navigation" in window && (window as any).navigation) {
       try {
-        (window as any).navigation.addEventListener('navigate', (event: any) => {
+        (window as any).navigation.addEventListener("navigate", (event: any) => {
           // Check if destination is same-origin
           const destinationUrl = event.destination?.url;
           if (destinationUrl) {
             try {
               const destination = new URL(destinationUrl);
               const isSameOrigin = destination.origin === window.location.origin;
-              
+
               if (isSameOrigin) {
                 // Internal navigation - set flag to skip unload send for this page lifecycle
                 // The flag will effectively reset on the next full page load when this composable re-initializes
                 isInternalNavigation = true;
-                
+
                 if (finalConfig.debug) {
-                  console.log('Usage tracking: Internal navigation detected, will skip unload send');
+                  console.log(
+                    "Usage tracking: Internal navigation detected, will skip unload send",
+                  );
                 }
               }
             } catch (e) {
               // Invalid URL, treat as external
               if (finalConfig.debug) {
-                console.warn('Usage tracking: Could not parse destination URL:', e);
+                console.warn("Usage tracking: Could not parse destination URL:", e);
               }
             }
           }
         });
-        
+
         if (finalConfig.debug) {
-          console.log('Usage tracking: Navigation API enabled for smart unload handling');
+          console.log("Usage tracking: Navigation API enabled for smart unload handling");
         }
       } catch (e) {
         if (finalConfig.debug) {
-          console.warn('Usage tracking: Navigation API setup failed, using fallback:', e);
+          console.warn("Usage tracking: Navigation API setup failed, using fallback:", e);
         }
       }
     }
@@ -395,7 +393,7 @@ if (!finalConfig.enabled) {
       // Skip send if we detected an internal navigation
       if (isInternalNavigation) {
         if (finalConfig.debug) {
-          console.log('Usage tracking: Skipping unload send (internal navigation)');
+          console.log("Usage tracking: Skipping unload send (internal navigation)");
         }
         return;
       }
@@ -409,12 +407,12 @@ if (!finalConfig.enabled) {
       // Only send if visit count >= threshold
       if (visitCount >= threshold && unsentEvents.length > 0) {
         if (finalConfig.debug) {
-          console.log('Usage tracking: Sending unsent events on unload', {
+          console.log("Usage tracking: Sending unsent events on unload", {
             eventCount: unsentEvents.length,
-            reason: 'external navigation or tab close'
+            reason: "external navigation or tab close",
           });
         }
-        
+
         const success = sendBatch(unsentEvents);
         if (success) {
           // Update lastSentIndex (optimistic)
@@ -425,14 +423,14 @@ if (!finalConfig.enabled) {
     };
 
     // Primary: visibilitychange (most reliable)
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'hidden') {
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") {
         handleUnload();
       }
     });
 
     // Fallback: pagehide (for iOS Safari)
-    window.addEventListener('pagehide', handleUnload);
+    window.addEventListener("pagehide", handleUnload);
   }
 
   // Initialize with smart unload handling

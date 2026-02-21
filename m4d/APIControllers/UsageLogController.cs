@@ -21,7 +21,6 @@ public class UsageLogController(
     [HttpPost("batch")]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> LogBatch([FromForm] string events)
     {
         // 1. Validate input is not null/empty
@@ -83,7 +82,7 @@ public class UsageLogController(
                 {
                     UsageId = eventDto.UsageId,
                     UserName = userName ?? eventDto.UserName, // Server-side auth takes precedence
-                    Date = DateTimeOffset.FromUnixTimeMilliseconds(eventDto.Timestamp).DateTime,
+                    Date = DateTimeOffset.FromUnixTimeMilliseconds(eventDto.Timestamp).UtcDateTime,
                     Page = eventDto.Page,
                     Query = eventDto.Query,
                     Filter = eventDto.Filter,
