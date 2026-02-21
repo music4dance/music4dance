@@ -645,33 +645,71 @@ app.UseHttpLogging();
 app.UseRouting();
 
 // Authentication is handled by Identity UI (implicitly via UseAuthorization)
-// Cache control middleware: Allow Azure Front Door to cache anonymous pages, but prevent caching for authenticated users
+// Cache control middleware: Allow Azure Front Door to cache anonymous pages with careful exclusions
 app.Use(async (context, next) =>
 {
     // Register callback to modify headers just before they're sent (after pipeline completes)
     context.Response.OnStarting(() =>
     {
-        // Only modify cache headers on successful responses (200-299)
-        if (context.Response.StatusCode >= 200 && context.Response.StatusCode < 300)
+        // Only cache GET requests
+        if (context.Request.Method != "GET")
         {
-            if (context.User.Identity?.IsAuthenticated == true)
-            {
-                // Authenticated users: Prevent all caching
-                context.Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate";
-                context.Response.Headers["Pragma"] = "no-cache";
-            }
-            else
-            {
-                // Anonymous users: Remove no-cache headers and allow caching by Azure Front Door
-                // Remove any existing cache control headers that prevent caching
-                context.Response.Headers.Remove("Cache-Control");
-                context.Response.Headers.Remove("Pragma");
-                
-                // Set cache-friendly headers for Azure Front Door
-                // Cache for 5 minutes, allow both client and proxy (CDN) caching
-                context.Response.Headers["Cache-Control"] = "public, max-age=300";
-            }
+            return Task.CompletedTask;
         }
+
+        // Only modify cache headers on successful responses (200-299)
+        if (context.Response.StatusCode < 200 || context.Response.StatusCode >= 300)
+        {
+            return Task.CompletedTask;
+        }
+
+        // Get the request path for exclusion checks
+        var path = context.Request.Path.Value?.ToLowerInvariant() ?? "";
+
+        // Exclude API endpoints from caching (dynamic data)
+        if (path.StartsWith("/api/"))
+        {
+            return Task.CompletedTask;
+        }
+
+        // Exclude specific pages that have anti-forgery tokens for anonymous users
+        // RawSearchForm has a form with anti-forgery token that must not be cached
+        if (path.StartsWith("/song/rawsearchform"))
+        {
+            return Task.CompletedTask;
+        }
+
+        // Don't cache responses that set cookies (includes anti-forgery cookies, auth cookies, etc.)
+        if (context.Response.Headers.ContainsKey("Set-Cookie"))
+        {
+            return Task.CompletedTask;
+        }
+
+        // Only cache HTML responses (not JSON, XML, etc.)
+        var contentType = context.Response.ContentType?.ToLowerInvariant() ?? "";
+        if (!contentType.Contains("text/html"))
+        {
+            return Task.CompletedTask;
+        }
+
+        if (context.User.Identity?.IsAuthenticated == true)
+        {
+            // Authenticated users: Prevent all caching
+            context.Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate";
+            context.Response.Headers["Pragma"] = "no-cache";
+        }
+        else
+        {
+            // Anonymous users: Remove no-cache headers and allow caching by Azure Front Door
+            // Remove any existing cache control headers that prevent caching
+            context.Response.Headers.Remove("Cache-Control");
+            context.Response.Headers.Remove("Pragma");
+            
+            // Set cache-friendly headers for Azure Front Door
+            // Cache for 5 minutes, allow both client and proxy (CDN) caching
+            context.Response.Headers["Cache-Control"] = "public, max-age=300";
+        }
+        
         return Task.CompletedTask;
     });
 

@@ -41,6 +41,166 @@ This document outlines the migration of usage logging from server-side middlewar
 
 - [Azure Front Door Implementation](./fromt-door-implementation.md) - Parent architecture requiring this change
 
+---
+
+## 1.1 Cache Control Middleware & Security
+
+### Overview
+
+The cache control middleware is critical for Azure Front Door caching to work correctly. It allows caching of anonymous GET requests to HTML pages while protecting sensitive content.
+
+### Security Analysis: Why Set-Cookie Exclusion is Required
+
+**The Problem with Caching Anti-Forgery Tokens:**
+
+Identity pages (like `/identity/account/login`) set anti-forgery cookies on GET requests for CSRF protection. If we cache these responses without checking for `Set-Cookie` headers, we create a serious security vulnerability.
+
+**Scenario 1: CDN Strips Set-Cookie (Standard Behavior)**
+```
+User A requests /identity/account/login
+? Server sets cookie Token-ABC-123
+? CDN caches HTML (with Token-ABC-123 in form)
+? CDN strips Set-Cookie header from cache
+
+User B requests /identity/account/login  
+? CDN serves cached HTML (Token-ABC-123 in form)
+? NO cookie set for User B (CDN stripped it)
+? User B submits form with Token-ABC-123
+? Server checks: form token = ABC-123, cookie token = null
+? VALIDATION FAILS ?
+```
+
+**Scenario 2: CDN Doesn't Strip Set-Cookie (Misconfigured)**
+```
+User A requests /identity/account/login
+? Server sets cookie Token-ABC-123
+? CDN caches EVERYTHING including Set-Cookie header
+
+User B requests /identity/account/login
+? CDN serves cached response WITH Set-Cookie header
+? User B gets SAME token as User A (Token-ABC-123)
+? User B submits form with Token-ABC-123  
+? Server checks: form token = ABC-123, cookie token = ABC-123
+? VALIDATION PASSES ?
+? BUT: Multiple users share the same token
+? CSRF PROTECTION BROKEN ???
+```
+
+**Security Risk:**
+If multiple users share the same anti-forgery token:
+- Attacker can get token from cached page (or their own request)
+- Attacker can use that token to submit forms on behalf of OTHER users
+- CSRF protection is completely bypassed
+
+**Decision: Keep Set-Cookie Check**
+
+The `Set-Cookie` check MUST stay for security. This means:
+- ? Identity pages won't be cached
+- ? No bot protection via caching for `/identity/*`
+- ? CSRF protection maintained
+- ? Security over performance
+
+**Alternative Bot Protection:**
+- Rate limiting (implemented below)
+- CAPTCHA (already configured)
+- Azure Front Door built-in bot detection
+- IP-based blocking
+
+### Middleware Guards
+
+The cache control middleware implements these guards (in order):
+
+1. **? Only GET requests** - POSTs are never cacheable
+2. **? Only 2xx responses** - Don't cache errors
+3. **? Exclude `/api/*`** - API endpoints remain dynamic
+4. **? Exclude `/song/rawsearchform`** - Has anti-forgery token for anonymous users
+5. **? No Set-Cookie header** - Critical security check (prevents token sharing)
+6. **? Only `text/html` responses** - Don't cache JSON, XML, etc.
+7. **? Authenticated users** - Force no-cache
+8. **? Anonymous users** - Allow 5-minute cache
+
+### What Gets Cached
+
+**Anonymous Users Only:**
+- GET requests to HTML pages
+- 2xx status codes
+- No cookies being set
+- Not `/api/*`
+- Not `/song/rawsearchform`
+- Examples: `/song/index`, `/song/details/{id}`, `/song/search`
+
+**What Does NOT Get Cached:**
+- **API endpoints:** `/api/*` (dynamic data)
+- **Anti-forgery pages:** `/song/rawsearchform` (token would be shared)
+- **Identity pages:** `/identity/*` (set cookies, caught by Set-Cookie check)
+- **Authenticated users:** All pages (personalized content)
+- **POST/PUT/DELETE:** Not GET requests
+- **Non-HTML:** JSON, XML, images, etc.
+- **Responses with cookies:** Anti-forgery cookies, auth cookies, etc.
+
+### RawSearchForm Protection
+
+**Found:** `/Song/RawSearchForm`
+- **Location:** `m4d/Controllers/SongController.cs` (line 278-284)
+- **Attribute:** `[AllowAnonymous]`
+- **View:** `m4d/Views/Song/RawSearchForm.cshtml`
+- **Anti-Forgery Token:** Line 11: `@Html.AntiForgeryToken()`
+- **Risk:** If cached, multiple users would share the same anti-forgery token
+- **Mitigation:** Explicitly excluded from caching
+
+### Code Location
+
+**File:** `m4d/Program.cs` (lines ~648-713)
+
+**Implementation:**
+```csharp
+app.Use(async (context, next) =>
+{
+    context.Response.OnStarting(() =>
+    {
+        // Only cache GET requests
+        if (context.Request.Method != "GET") return Task.CompletedTask;
+        
+        // Only 2xx responses
+        if (context.Response.StatusCode < 200 || context.Response.StatusCode >= 300) 
+            return Task.CompletedTask;
+        
+        var path = context.Request.Path.Value?.ToLowerInvariant() ?? "";
+        
+        // Exclude API endpoints
+        if (path.StartsWith("/api/")) return Task.CompletedTask;
+        
+        // Exclude anti-forgery pages
+        if (path.StartsWith("/song/rawsearchform")) return Task.CompletedTask;
+        
+        // CRITICAL: Don't cache responses that set cookies
+        if (context.Response.Headers.ContainsKey("Set-Cookie")) return Task.CompletedTask;
+        
+        // Only HTML responses
+        var contentType = context.Response.ContentType?.ToLowerInvariant() ?? "";
+        if (!contentType.Contains("text/html")) return Task.CompletedTask;
+        
+        if (context.User.Identity?.IsAuthenticated == true)
+        {
+            context.Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate";
+            context.Response.Headers["Pragma"] = "no-cache";
+        }
+        else
+        {
+            context.Response.Headers.Remove("Cache-Control");
+            context.Response.Headers.Remove("Pragma");
+            context.Response.Headers["Cache-Control"] = "public, max-age=300";
+        }
+        
+        return Task.CompletedTask;
+    });
+    
+    await next();
+});
+```
+
+---
+
 ## 2. Current State Analysis
 
 ### 2.1 Server-Side Implementation
