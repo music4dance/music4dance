@@ -6,6 +6,20 @@ music4dance.net is a sophisticated web application designed to help dancers find
 
 **Core Mission**: Match music to dance styles based on meter, tempo, and competitive ballroom dance requirements established by World Dance Council and National Dance Council of America.
 
+## Documentation Guidelines
+
+**Architecture Documents:**
+- **ALWAYS place architecture documents in the `architecture/` directory**
+- **Prefer updating existing documents** over creating new ones when the content is related
+- Keep the number of architecture documents minimal and well-organized
+- Consolidate related information (e.g., rate limiting + random delays = identity endpoint protection)
+- Use clear, descriptive names that cover the full scope (e.g., `identity-endpoint-protection.md` not `rate-limiting.md`)
+
+**Temporary Working Documents:**
+- Can be placed in root for active development/PR work
+- Should be moved to `architecture/` or deleted after completion
+- Examples: implementation guides, PR summaries, task lists
+
 ## Architecture
 
 ### Backend (.NET)

@@ -37,6 +37,16 @@ public class RateLimitingMiddleware
             return;
         }
 
+        // Add random delay for authentication attempts to slow down brute force attacks
+        if (IsAuthenticationAttempt(context))
+        {
+            var delayMs = Random.Shared.Next(200, 400);
+            _logger.LogDebug(
+                "Adding {DelayMs}ms random delay for authentication attempt on {Path} from {ClientId}",
+                delayMs, path, GetClientIdentifier(context));
+            await Task.Delay(delayMs);
+        }
+
         // Get client identifier (IP address)
         var clientId = GetClientIdentifier(context);
         var cacheKey = $"RateLimit:{path}:{clientId}";
@@ -89,6 +99,49 @@ public class RateLimitingMiddleware
         // Rate limit specific high-value endpoints if needed
         // Add more paths here as needed
         
+        return false;
+    }
+
+    private bool IsAuthenticationAttempt(HttpContext context)
+    {
+        // Only delay POST requests (actual authentication attempts)
+        if (context.Request.Method != "POST")
+        {
+            return false;
+        }
+
+        var path = context.Request.Path.Value?.ToLowerInvariant() ?? "";
+
+        // Login attempts
+        if (path.Contains("/identity/account/login"))
+        {
+            return true;
+        }
+
+        // Registration attempts
+        if (path.Contains("/identity/account/register"))
+        {
+            return true;
+        }
+
+        // External login callbacks
+        if (path.Contains("/identity/account/externallogin"))
+        {
+            return true;
+        }
+
+        // Password reset attempts
+        if (path.Contains("/identity/account/resetpassword"))
+        {
+            return true;
+        }
+
+        // Two-factor authentication attempts
+        if (path.Contains("/identity/account/loginwith2fa"))
+        {
+            return true;
+        }
+
         return false;
     }
 
