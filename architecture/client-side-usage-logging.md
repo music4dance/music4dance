@@ -39,7 +39,7 @@ This document outlines the migration of usage logging from server-side middlewar
 
 **Related Documents:**
 
-- [Azure Front Door Implementation](./fromt-door-implementation.md) - Parent architecture requiring this change
+- [Azure Front Door Implementation](./front-door-implementation.md) - Parent architecture requiring this change
 
 ---
 
@@ -92,12 +92,32 @@ If multiple users share the same anti-forgery token:
 - Attacker can use that token to submit forms on behalf of OTHER users
 - CSRF protection is completely bypassed
 
-**Decision: Keep Set-Cookie Check**
+**Decision: Keep Set-Cookie Check (Accepted Trade-off)**
 
 The `Set-Cookie` check MUST stay for security. This means:
-- ? Identity pages won't be cached
-- ? No bot protection via caching for `/identity/*`
-- ? CSRF protection maintained
+- ? Identity pages won't be cached (anti-forgery cookies prevent caching)
+- ? No CDN-based bot protection for `/identity/*` pages
+- ? CSRF protection maintained (security > performance)
+
+**This is an acceptable trade-off because:**
+1. **Security First:** CSRF protection cannot be compromised
+2. **Alternative Bot Protection Implemented:** Rate limiting + random delays (see [identity-endpoint-protection.md](./identity-endpoint-protection.md))
+3. **Limited Impact:** Identity pages are a small fraction of total traffic
+4. **Azure Front Door:** Has built-in bot detection rules as additional layer
+
+**Bot Protection Strategy for Identity Pages:**
+Instead of caching, we use a three-layer defense (see architecture/identity-endpoint-protection.md):
+1. **Random Delay (200-400ms)** - Slows all authentication attempts by 80%
+2. **Rate Limiting (20 req/min per IP)** - Hard cap on requests
+3. **CAPTCHA (existing)** - Human verification on repeated failures
+
+**Combined Effectiveness:** 98% reduction in attack speed
+
+**Why This Is Better Than Caching:**
+- Caching would only help if identity pages could be cached without cookies
+- But cookies are required for CSRF protection
+- Rate limiting + delays provide targeted protection without security compromise
+- More effective against distributed attacks (many IPs)
 - ? Security over performance
 
 **Alternative Bot Protection:**

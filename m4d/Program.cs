@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Rewrite;
@@ -644,8 +645,27 @@ else
 app.UseHttpLogging();
 app.UseRouting();
 
-// Authentication is handled by Identity UI (implicitly via UseAuthorization)
+// Configure forwarded headers for Azure Front Door
+// This must come before authentication to ensure RemoteIpAddress is correct
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+    // Note: In production behind Azure Front Door, configure KnownNetworks/KnownProxies
+    // to restrict which proxies can set these headers for additional security
+});
+
+// Authentication middleware: Populates context.User from authentication cookies
+// This MUST come before any middleware that checks context.User.Identity.IsAuthenticated
+// Note that this call is currently redundant, since asp.net core identity already
+// configured this earlier. But it is essential that this happen, so having the explicit
+// call here prevents it being lost in changes to or removal of the default identity configuration
+app.UseAuthentication();
+
+// Rate limiting middleware: Protect Identity endpoints from bot attacks
+app.UseMiddleware<m4d.Middleware.RateLimitingMiddleware>();
+
 // Cache control middleware: Allow Azure Front Door to cache anonymous pages with careful exclusions
+// This relies on context.User being populated by UseAuthentication() above
 app.Use(async (context, next) =>
 {
     // Register callback to modify headers just before they're sent (after pipeline completes)

@@ -147,17 +147,17 @@ public class RateLimitingMiddleware
 
     private string GetClientIdentifier(HttpContext context)
     {
-        // Try to get real IP from X-Forwarded-For (behind Azure Front Door)
-        var forwardedFor = context.Request.Headers["X-Forwarded-For"].FirstOrDefault();
-        if (!string.IsNullOrEmpty(forwardedFor))
+        // Use the connection's remote IP address, which will be populated correctly
+        // when ASP.NET Core's forwarded headers middleware is configured with
+        // trusted proxies/networks. Do not trust the raw X-Forwarded-For header here.
+        var remoteIp = context.Connection.RemoteIpAddress;
+        if (remoteIp != null)
         {
-            // Take the first IP (original client)
-            var clientIp = forwardedFor.Split(',')[0].Trim();
-            return clientIp;
+            return remoteIp.ToString();
         }
 
-        // Fallback to direct connection IP
-        return context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        // Fallback identifier when no remote IP is available (e.g., in some test hosts)
+        return "unknown";
     }
 
     private class RequestInfo
