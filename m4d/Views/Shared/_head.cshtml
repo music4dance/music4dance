@@ -43,6 +43,12 @@
     var marketing = GlobalState.GetMarketing(user, Context.Request.Path);
     var marketingMessage = marketing.Enabled ? marketing.Banner : String.Empty;
     var customerReminder = !noWarnings && !isPremium && userMetadata.User != null && await _featureManager.IsEnabledAsync(FeatureFlags.CustomerReminder);
+    
+    // Client-side usage tracking - check if should track this path
+    var currentPath = Context.Request.Path.ToString();
+    var excludedPaths = new[] { "/admin/", "/identity/", "/api/" };
+    var shouldTrack = !excludedPaths.Any(p => currentPath.StartsWith(p, StringComparison.OrdinalIgnoreCase));
+    var clientSideTracking = await _featureManager.IsEnabledAsync(FeatureFlags.ClientSideUsageLogging);
 }
 
 @functions{
@@ -117,9 +123,19 @@
         xsrfToken: '@GetAntiXsrfRequestToken()',
         searchHealthy: @(_serviceHealth.IsServiceHealthy("SearchService").ToString().ToLower()),
         databaseHealthy: @(_serviceHealth.IsServiceHealthy("Database").ToString().ToLower()),
-        configurationHealthy: @(_serviceHealth.IsServiceHealthy("AppConfiguration").ToString().ToLower())
+        configurationHealthy: @(_serviceHealth.IsServiceHealthy("AppConfiguration").ToString().ToLower()),
+        useClientSideTracking: @((shouldTrack && clientSideTracking).ToString().ToLower()),
+        usageTracking: {
+            enabled: @(_configuration.GetValue<bool>("UsageTracking:Enabled", true).ToString().ToLower()),
+            anonymousThreshold: @(_configuration.GetValue<int>("UsageTracking:AnonymousThreshold", 3)),
+            anonymousBatchSize: @(_configuration.GetValue<int>("UsageTracking:AnonymousBatchSize", 5)),
+            authenticatedBatchSize: @(_configuration.GetValue<int>("UsageTracking:AuthenticatedBatchSize", 1)),
+            maxQueueSize: @(_configuration.GetValue<int>("UsageTracking:MaxQueueSize", 100))
+        }
     };
 </script>
+
+@* Client-side usage tracking initialization moved to MainMenu.vue *@
 
 @if (await _featureManager.IsEnabledAsync(FeatureFlags.GoogleTagManager))
 {

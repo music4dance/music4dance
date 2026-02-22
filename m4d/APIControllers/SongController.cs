@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 
+using m4d.Services;
 using m4d.Services.ServiceHealth;
 using m4d.Utilities;
 
@@ -15,10 +16,10 @@ namespace m4d.APIControllers;
 [ValidateAntiForgeryToken]
 [Route("api/[controller]")]
 public class SongController(
-    DanceMusicContext context, UserManager<ApplicationUser> userManager,
-    ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
-    IConfiguration configuration, ILogger<SongController> logger,
-    ServiceHealthManager serviceHealth) : DanceMusicApiController(context, userManager, searchService, danceStatsManager, configuration, logger, serviceHealth)
+DanceMusicContext context, UserManager<ApplicationUser> userManager,
+ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+IConfiguration configuration, ILogger<SongController> logger,
+ServiceHealthManager serviceHealth) : DanceMusicApiController(context, userManager, searchService, danceStatsManager, configuration, logger, serviceHealth: serviceHealth)
 {
     [HttpGet]
     public async Task<IActionResult> Get([FromServices] IMapper mapper,
@@ -28,7 +29,7 @@ public class SongController(
             $"Enter Search: Search = {search}, Title = {title}, Artist={artist}, Filter = {filter}, User = {User.Identity?.Name}");
 
         // Check if search service is available
-        if (!serviceHealth.IsServiceHealthy("SearchService"))
+        if (ServiceHealth != null && !ServiceHealth.IsServiceHealthy("SearchService"))
         {
             Logger.LogWarning("API song search requested but SearchService is unavailable");
             return StatusCode((int)HttpStatusCode.ServiceUnavailable, new
@@ -90,7 +91,7 @@ public class SongController(
         Logger.LogInformation($"Enter Get by ID: SongId = {id}, User = {User.Identity?.Name}");
 
         // Check if search service is available
-        if (!serviceHealth.IsServiceHealthy("SearchService"))
+        if (ServiceHealth != null && !ServiceHealth.IsServiceHealthy("SearchService"))
         {
             Logger.LogWarning("API song get by ID requested but SearchService is unavailable");
             return StatusCode((int)HttpStatusCode.ServiceUnavailable, new

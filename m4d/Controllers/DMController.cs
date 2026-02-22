@@ -41,11 +41,22 @@ public class DanceMusicController(
     public override async Task OnActionExecutionAsync(
         ActionExecutingContext context, ActionExecutionDelegate next)
     {
+        // Create UserMetadata early (needed for both tracking modes)
+        var userMetadata = await UserMetadata.Create(UserName, UserManager);
+        ViewData["UserMetadata"] = userMetadata;
+
+        // Check if client-side tracking is enabled early to avoid setting cookies
+        if (await FeatureManager.IsEnabledAsync(FeatureFlags.ClientSideUsageLogging))
+        {
+            // Skip server-side usage tracking (including cookie generation)
+            _ = await next();
+            return;
+        }
+
+        // Server-side tracking flow
         var usageId = GetUsageId();
         var time = DateTime.Now;
         var userAgent = Request.Headers[HeaderNames.UserAgent];
-        var userMetadata = await UserMetadata.Create(UserName, UserManager);
-        ViewData["UserMetadata"] = userMetadata;
 
         _ = await next();
 
