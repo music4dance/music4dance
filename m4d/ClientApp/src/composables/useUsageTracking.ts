@@ -104,27 +104,73 @@ export function useUsageTracking(config: Partial<UsageTrackerConfig> = {}) {
     };
   }
 
+  // Storage availability tracking with fallback
+  // Use a canonical GUID to indicate localStorage is unavailable
+  // This allows us to identify these users in analytics
+  let storageAvailable = true;
+  const FALLBACK_USAGE_ID = "00000000-0000-0000-0000-000000000001"; // Special ID for localStorage unavailable
+
   // Initialize or load UsageId
   function getUsageId(): string {
-    let usageId = localStorage.getItem(STORAGE_KEY_USAGE_ID);
-    if (!usageId) {
-      usageId = crypto.randomUUID();
-      localStorage.setItem(STORAGE_KEY_USAGE_ID, usageId);
+    if (!storageAvailable) {
+      return FALLBACK_USAGE_ID;
     }
-    return usageId;
+
+    try {
+      let usageId = localStorage.getItem(STORAGE_KEY_USAGE_ID);
+      if (!usageId) {
+        usageId = crypto.randomUUID();
+        localStorage.setItem(STORAGE_KEY_USAGE_ID, usageId);
+      }
+      return usageId;
+    } catch (error) {
+      storageAvailable = false;
+      if (finalConfig.debug) {
+        console.error("Failed to access usageId in localStorage, using fallback:", error);
+      }
+      return FALLBACK_USAGE_ID;
+    }
   }
 
   // Get visit count
   function getVisitCount(): number {
-    const count = localStorage.getItem(STORAGE_KEY_USAGE_COUNT);
-    return count ? parseInt(count, 10) : 0;
+    if (!storageAvailable) {
+      // In MPA, we can't track visit count without storage
+      // Return 0 so threshold checks work correctly
+      return 0;
+    }
+
+    try {
+      const count = localStorage.getItem(STORAGE_KEY_USAGE_COUNT);
+      return count ? parseInt(count, 10) : 0;
+    } catch (error) {
+      storageAvailable = false;
+      if (finalConfig.debug) {
+        console.error("Failed to access visit count in localStorage:", error);
+      }
+      return 0;
+    }
   }
 
   // Increment visit count
   function incrementVisitCount(): number {
-    const newCount = getVisitCount() + 1;
-    localStorage.setItem(STORAGE_KEY_USAGE_COUNT, newCount.toString());
-    return newCount;
+    if (!storageAvailable) {
+      // Can't persist count without storage
+      // Return 0 so anonymous users never reach threshold
+      return 0;
+    }
+
+    try {
+      const newCount = getVisitCount() + 1;
+      localStorage.setItem(STORAGE_KEY_USAGE_COUNT, newCount.toString());
+      return newCount;
+    } catch (error) {
+      storageAvailable = false;
+      if (finalConfig.debug) {
+        console.error("Failed to increment visit count in localStorage:", error);
+      }
+      return 0;
+    }
   }
 
   // Load queue from localStorage
