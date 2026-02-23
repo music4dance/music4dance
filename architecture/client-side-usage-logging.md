@@ -1,4 +1,4 @@
-﻿# Client-Side Usage Logging Architecture
+# Client-Side Usage Logging Architecture
 
 ## Overview
 
@@ -6,10 +6,10 @@ Music4Dance implements a hybrid usage tracking system that captures page view an
 
 **System Status:** ? **Production Ready** (Feature flag controlled)
 
-**Test Coverage:** 27/27 tests passing (100%)
+**Test Coverage:** 31/31 tests passing (100%)
 
-- ? Client: 19 tests (useUsageTracking composable)
-- ? Server: 8 tests (UsageLogApiController integration tests)
+- ? Client: 23 tests (useUsageTracking composable)
+- ? Server: 8 tests (UsageLogController integration tests)
 - ?? Testing Documentation: `architecture/testing-patterns.md`
 
 **Key Features:**
@@ -32,7 +32,7 @@ Music4Dance implements a hybrid usage tracking system that captures page view an
 
 ## 1. Why Client-Side Tracking?
 
-**Problem:** When Azure Front Door caches a response, server-side middleware (`DMController.OnActionExecutionAsync`) never executes for cached requests.
+**Problem:** When Azure Front Door caches a response, server-side middleware (`DanceMusicController.OnActionExecutionAsync`) never executes for cached requests.
 
 **Impact:**
 
@@ -158,28 +158,36 @@ Music4Dance implements a hybrid usage tracking system that captures page view an
 
 ### 3.2 Configuration
 
-**Server-Side:** `m4d/Views/Shared/_head.cshtml`
+**Client-Side:** `m4d/ClientApp/src/components/MainMenu.vue`
 
-```html
-@if (await _featureManager.IsEnabledAsync(FeatureFlags.ClientSideUsageLogging))
-{
-<script type="module">
-  import { useUsageTracking } from "/vclient/composables/useUsageTracking.js";
+```typescript
+// Configuration populated by server in _head.cshtml
+const config = {
+  enabled: menuContext.usageTracking?.enabled ?? true,
+  anonymousThreshold: menuContext.usageTracking?.anonymousThreshold ?? 3,
+  anonymousBatchSize: menuContext.usageTracking?.anonymousBatchSize ?? 5,
+  authenticatedBatchSize: menuContext.usageTracking?.authenticatedBatchSize ?? 1,
+  maxQueueSize: menuContext.usageTracking?.maxQueueSize ?? 100,
+  xsrfToken: menuContext.xsrfToken,
+  userName: menuContext.userName || null,
+  isAuthenticated: menuContext.userName && menuContext.userName.length > 0,
+};
 
-  const tracker = useUsageTracking({
-    enabled: menuContext.usageTracking?.enabled ?? true,
-    anonymousThreshold: 3,
-    anonymousBatchSize: 5,
-    authenticatedBatchSize: 1,
-    maxQueueSize: 100,
-    xsrfToken: menuContext.xsrfToken,
-    userName: menuContext.userName || null,
-    isAuthenticated: menuContext.userName && menuContext.userName.length > 0,
-  });
+const tracker = useUsageTracking(config);
+tracker.trackPageView(window.location.pathname, window.location.search);
+```
 
-  tracker.trackPageView(window.location.pathname, window.location.search);
-</script>
-}
+**Server-Side Configuration:** `m4d/Views/Shared/_head.cshtml`
+
+```csharp
+// Populates menuContext.usageTracking from IConfiguration
+menuContext.usageTracking = new {
+    enabled = Configuration.GetValue("UsageTracking:Enabled", true),
+    anonymousThreshold = Configuration.GetValue("UsageTracking:AnonymousThreshold", 3),
+    anonymousBatchSize = Configuration.GetValue("UsageTracking:AnonymousBatchSize", 5),
+    authenticatedBatchSize = Configuration.GetValue("UsageTracking:AuthenticatedBatchSize", 1),
+    maxQueueSize = Configuration.GetValue("UsageTracking:MaxQueueSize", 100)
+};
 ```
 
 **Path Exclusions (Server-Side):**
@@ -242,7 +250,7 @@ formData.append(
   JSON.stringify([
     {
       usageId: "uuid",
-      timestamp: 1234567890,
+      timestamp: 1706020800000, // Unix milliseconds (Date.now())
       page: "/dances",
       query: "?filter=CHA",
       referrer: "https://google.com",
@@ -260,7 +268,7 @@ formData.append("__RequestVerificationToken", xsrfToken);
 
 ### 4.2 Legacy Server-Side Tracking
 
-**File:** `m4d/Controllers/DMController.cs`
+**File:** `m4d/Controllers/DanceMusicController.cs`
 
 **Status:** ? **Still Active** (disabled when client-side tracking enabled)
 
@@ -440,10 +448,10 @@ Instead of caching, use three-layer defense:
 ```csharp
 public class UsageLog
 {
-    public int UsageLogId { get; set; }
+    public long Id { get; set; }              // Primary key
     public string UsageId { get; set; }       // GUID or canonical fallback
     public string UserName { get; set; }      // Server-side auth (priority)
-    public DateTime Date { get; set; }        // Server timestamp (converted from client)
+    public DateTimeOffset Date { get; set; }  // Server timestamp (converted from client Unix ms)
     public string Page { get; set; }          // Request path
     public string Query { get; set; }         // Query string
     public string Filter { get; set; }        // Extracted from query
