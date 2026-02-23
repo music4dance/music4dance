@@ -1,4 +1,4 @@
-# Client-Side Usage Logging Architecture
+﻿# Client-Side Usage Logging Architecture
 
 ## Overview
 
@@ -288,7 +288,6 @@ formData.append("__RequestVerificationToken", xsrfToken);
 
 - No JavaScript required
 - Works for browsers with scripts disabled
-- Tracks Razor Pages (Identity pages)
 
 **Disadvantages:**
 
@@ -344,7 +343,7 @@ public static class FeatureFlags
 
 **Result:**
 
-- ? Client-side tracking initializes in `_head.cshtml`
+- ? Client-side tracking initializes in `MainMenu.vue`
 - ? Server-side tracking skips logging in `DMController`
 - ? API endpoint receives batched events
 - ? Works with cached pages
@@ -633,7 +632,7 @@ customEvents
 
 ### 11.1 Storage Fallback Strategies
 
-**Status:** ? Not Yet Implemented  
+**Status:** ⏳ Not Yet Implemented  
 **Priority:** TBD (depends on canonical GUID usage data)
 
 **Problem:**  
@@ -677,15 +676,15 @@ function getUsageId(): string {
 ```
 
 **Trade-offs:**
-- ? sessionStorage often works in private browsing (Safari, Firefox)
-- ? Better than canonical GUID (tracks session, not just page)
-- ? Doesn't persist across browser sessions
-- ? Each new session = new UsageId (inflates DAU metrics)
+- ✅ sessionStorage often works in private browsing (Safari, Firefox)
+- ✅ Better than canonical GUID (tracks session, not just page)
+- ❌ Doesn't persist across browser sessions
+- ❌ Each new session = new UsageId (inflates DAU metrics)
 
 **Option 2: Client-Side Cookie Fallback**
 ```typescript
 function getUsageId(): string {
-  // Try localStorage ? sessionStorage ? cookies
+  // Try localStorage → sessionStorage → cookies
   // ...existing fallbacks...
   
   // Fallback to client-side cookie
@@ -699,11 +698,11 @@ function getUsageId(): string {
 ```
 
 **Trade-offs:**
-- ? Works when localStorage/sessionStorage unavailable
-- ? Persists across sessions (if user accepts cookies)
-- ? Cookie sent with every request (bandwidth overhead)
-- ? 4KB size limit (less than localStorage)
-- ? May require cookie consent banner update
+- ✅ Works when localStorage/sessionStorage unavailable
+- ✅ Persists across sessions (if user accepts cookies)
+- ❌ Cookie sent with every request (bandwidth overhead)
+- ❌ 4KB size limit (less than localStorage)
+- ❌ May require cookie consent banner update
 
 **Option 3: Server-Side Tracking Fallback**
 ```typescript
@@ -743,12 +742,12 @@ if (await FeatureManager.IsEnabledAsync(FeatureFlags.ClientSideUsageLogging))
 ```
 
 **Trade-offs:**
-- ? Best coverage (tracks users even without client-side storage)
-- ? No data loss for private browsing users
-- ? Reuses existing server-side infrastructure
-- ? More complex coordination (client signals failure, server responds)
-- ? Requires detecting canonical GUID in multiple places
-- ? Higher server load for private browsing users
+- ✅ Best coverage (tracks users even without client-side storage)
+- ✅ No data loss for private browsing users
+- ✅ Reuses existing server-side infrastructure
+- ❌ More complex coordination (client signals failure, server responds)
+- ❌ Requires detecting canonical GUID in multiple places
+- ❌ Higher server load for private browsing users
 
 **Recommendation:**
 
@@ -764,10 +763,10 @@ Wait for production data before implementing. After feature is enabled:
    ```
 
 2. **Decision Matrix:**
-   - If < 1% of users ? **Don't implement** (not worth complexity)
-   - If 1-5% of users ? **Consider sessionStorage** (simple, low risk)
-   - If 5-10% of users ? **Add cookie fallback** (better coverage)
-   - If > 10% of users ? **Implement server-side fallback** (best coverage)
+   - If < 1% of users → **Don't implement** (not worth complexity)
+   - If 1-5% of users → **Consider sessionStorage** (simple, low risk)
+   - If 5-10% of users → **Add cookie fallback** (better coverage)
+   - If > 10% of users → **Implement server-side fallback** (best coverage)
 
 3. **Browser-Specific Analysis:**
    ```sql
@@ -792,10 +791,10 @@ Wait for production data before implementing. After feature is enabled:
 
 | Browser              | Private Mode | localStorage | sessionStorage | Cookies |
 |---------------------|--------------|--------------|----------------|---------|
-| Chrome/Edge         | Incognito    | ? Blocked    | ? Available    | ? Available |
-| Firefox             | Private      | ? Blocked    | ? Available    | ? Available |
-| Safari              | Private      | ? Blocked    | ? Available    | ?? Limited |
-| Safari (ITP strict) | Normal       | ?? Cleared    | ?? Cleared     | ?? Limited |
+| Chrome/Edge         | Incognito    | ❌ Blocked    | ✅ Available    | ✅ Available |
+| Firefox             | Private      | ❌ Blocked    | ✅ Available    | ✅ Available |
+| Safari              | Private      | ❌ Blocked    | ✅ Available    | ⚠️ Limited |
+| Safari (ITP strict) | Normal       | ⚠️ Cleared    | ⚠️ Cleared     | ⚠️ Limited |
 
 **Key Insight:** sessionStorage appears to be the best first fallback (widely available in private browsing).
 
@@ -874,7 +873,6 @@ Wait for production data before implementing. After feature is enabled:
 **Server-Side Tracking:**
 
 - ? Works without JavaScript
-- ? Tracks Razor Pages (Identity)
 - ? Simple bot detection
 - ? Bypassed by CDN caching
 - ? Higher server load
