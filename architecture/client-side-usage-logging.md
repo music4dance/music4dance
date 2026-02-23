@@ -1,1988 +1,946 @@
 # Client-Side Usage Logging Architecture
 
-## Implementation Status
+## Overview
 
-? **Phase 1-2 COMPLETE:** Client-side tracking and API endpoint implemented
-? **Phase 3 COMPLETE:** Integration with Razor Pages
-? **Phase 4 PENDING:** Deployment with feature flag
+Music4Dance implements a hybrid usage tracking system that captures page view analytics for both cached and uncached responses. This architecture enables Azure Front Door CDN caching while maintaining accurate user behavior data.
+
+**System Status:** ? **Production Ready** (Feature flag controlled)
 
 **Test Coverage:** 27/27 tests passing (100%)
 
 - ? Client: 19 tests (useUsageTracking composable)
 - ? Server: 8 tests (UsageLogApiController integration tests)
-- ?? Documentation: `architecture/testing-patterns.md`
+- ?? Testing Documentation: `architecture/testing-patterns.md`
 
-**Key Decisions:**
+**Key Features:**
 
-- ? **SendBeacon-only approach** - More reliable than fetch, simpler implementation
-- ? **Bot detection in tests** - Mock user agent to avoid false bot detection
-- ? **Synchronous testing** - No async timing issues, deterministic results
-- ? **Integration tests** - DanceMusicTester pattern with reflection for internal dependencies
-- ? **Feature flag gated** - ClientSideUsageLogging controls initialization
-
-**Phase 3 Implementation:**
-
-- ? Script module added to `_head.cshtml`
-- ? Feature flag check (`FeatureFlags.ClientSideUsageLogging`)
-- ? **Path exclusions (case-insensitive):** `/identity/`, `/api/`
-- ? Imports composable from Vite build output (`/vclient/`)
-- ? Initializes with server configuration from `menuContext`
-- ? Tracks page view on load
-- ? Passes authentication state (userName, isAuthenticated)
-- ? Includes XSRF token for API calls
-
----
-
-## 1. Executive Summary
-
-This document outlines the migration of usage logging from server-side middleware (in `DanceMusicController.OnActionExecutionAsync`) to client-side JavaScript with deferred API reporting. This change is **required** for Azure Front Door caching to work correctly, as cached responses bypass the server-side middleware entirely.
+- ? **Client-side tracking** - Works with CDN-cached pages
+- ? **Server-side fallback** - Legacy tracking still available
+- ? **Feature flag controlled** - Toggle between client/server tracking
+- ? **Smart batching** - Different strategies for anonymous vs authenticated users
+- ? **Bot detection** - Client and server-side filtering
+- ? **Graceful degradation** - Handles localStorage unavailability
+- ? **Privacy compliant** - GDPR-compatible with canonical fallback ID
 
 **Related Documents:**
 
-- [Azure Front Door Implementation](./front-door-implementation.md) - Parent architecture requiring this change
+- [Azure Front Door Implementation](./front-door-implementation.md) - CDN caching architecture
+- [Identity Endpoint Protection](./identity-endpoint-protection.md) - Rate limiting & random delays
+- [Testing Patterns](./testing-patterns.md) - Test infrastructure and patterns
 
 ---
 
-## 1.1 Cache Control Middleware & Security
+## 1. Why Client-Side Tracking?
 
-### Overview
+**Problem:** When Azure Front Door caches a response, server-side middleware (`DMController.OnActionExecutionAsync`) never executes for cached requests.
 
-The cache control middleware is critical for Azure Front Door caching to work correctly. It allows caching of anonymous GET requests to HTML pages while protecting sensitive content.
+**Impact:**
 
-### Security Analysis: Why Set-Cookie Exclusion is Required
+- ? No usage tracking for anonymous cached pages
+- ? No user activity updates (`LastActive`, `HitCount`)
+- ? Inaccurate analytics and user behavior data
+- ? Cannot distinguish real users from bots on cached content
 
-**The Problem with Caching Anti-Forgery Tokens:**
-
-Identity pages (like `/identity/account/login`) set anti-forgery cookies on GET requests for CSRF protection. If we cache these responses without checking for `Set-Cookie` headers, we create a serious security vulnerability.
-
-**Scenario 1: CDN Strips Set-Cookie (Standard Behavior)**
-```
-User A requests /identity/account/login
-? Server sets cookie Token-ABC-123
-? CDN caches HTML (with Token-ABC-123 in form)
-? CDN strips Set-Cookie header from cache
-
-User B requests /identity/account/login  
-? CDN serves cached HTML (Token-ABC-123 in form)
-? NO cookie set for User B (CDN stripped it)
-? User B submits form with Token-ABC-123
-? Server checks: form token = ABC-123, cookie token = null
-? VALIDATION FAILS ?
-```
-
-**Scenario 2: CDN Doesn't Strip Set-Cookie (Misconfigured)**
-```
-User A requests /identity/account/login
-? Server sets cookie Token-ABC-123
-? CDN caches EVERYTHING including Set-Cookie header
-
-User B requests /identity/account/login
-? CDN serves cached response WITH Set-Cookie header
-? User B gets SAME token as User A (Token-ABC-123)
-? User B submits form with Token-ABC-123  
-? Server checks: form token = ABC-123, cookie token = ABC-123
-? VALIDATION PASSES ?
-? BUT: Multiple users share the same token
-? CSRF PROTECTION BROKEN ???
-```
-
-**Security Risk:**
-If multiple users share the same anti-forgery token:
-- Attacker can get token from cached page (or their own request)
-- Attacker can use that token to submit forms on behalf of OTHER users
-- CSRF protection is completely bypassed
-
-**Decision: Keep Set-Cookie Check (Accepted Trade-off)**
-
-The `Set-Cookie` check MUST stay for security. This means:
-- ? Identity pages won't be cached (anti-forgery cookies prevent caching)
-- ? No CDN-based bot protection for `/identity/*` pages
-- ? CSRF protection maintained (security > performance)
-
-**This is an acceptable trade-off because:**
-1. **Security First:** CSRF protection cannot be compromised
-2. **Alternative Bot Protection Implemented:** Rate limiting + random delays (see [identity-endpoint-protection.md](./identity-endpoint-protection.md))
-3. **Limited Impact:** Identity pages are a small fraction of total traffic
-4. **Azure Front Door:** Has built-in bot detection rules as additional layer
-
-**Bot Protection Strategy for Identity Pages:**
-Instead of caching, we use a three-layer defense (see architecture/identity-endpoint-protection.md):
-1. **Random Delay (200-400ms)** - Slows all authentication attempts by 80%
-2. **Rate Limiting (20 req/min per IP)** - Hard cap on requests
-3. **CAPTCHA (existing)** - Human verification on repeated failures
-
-**Combined Effectiveness:** 98% reduction in attack speed
-
-**Why This Is Better Than Caching:**
-- Caching would only help if identity pages could be cached without cookies
-- But cookies are required for CSRF protection
-- Rate limiting + delays provide targeted protection without security compromise
-- More effective against distributed attacks (many IPs)
-- ? Security over performance
-
-**Alternative Bot Protection:**
-- Rate limiting (implemented below)
-- CAPTCHA (already configured)
-- Azure Front Door built-in bot detection
-- IP-based blocking
-
-### Middleware Guards
-
-The cache control middleware implements these guards (in order):
-
-1. **? Only GET requests** - POSTs are never cacheable
-2. **? Only 2xx responses** - Don't cache errors
-3. **? Exclude `/api/*`** - API endpoints remain dynamic
-4. **? Exclude `/song/rawsearchform`** - Has anti-forgery token for anonymous users
-5. **? No Set-Cookie header** - Critical security check (prevents token sharing)
-6. **? Only `text/html` responses** - Don't cache JSON, XML, etc.
-7. **? Authenticated users** - Force no-cache
-8. **? Anonymous users** - Allow 5-minute cache
-
-### What Gets Cached
-
-**Anonymous Users Only:**
-- GET requests to HTML pages
-- 2xx status codes
-- No cookies being set
-- Not `/api/*`
-- Not `/song/rawsearchform`
-- Examples: `/song/index`, `/song/details/{id}`, `/song/search`
-
-**What Does NOT Get Cached:**
-- **API endpoints:** `/api/*` (dynamic data)
-- **Anti-forgery pages:** `/song/rawsearchform` (token would be shared)
-- **Identity pages:** `/identity/*` (set cookies, caught by Set-Cookie check)
-- **Authenticated users:** All pages (personalized content)
-- **POST/PUT/DELETE:** Not GET requests
-- **Non-HTML:** JSON, XML, images, etc.
-- **Responses with cookies:** Anti-forgery cookies, auth cookies, etc.
-
-### RawSearchForm Protection
-
-**Found:** `/Song/RawSearchForm`
-- **Location:** `m4d/Controllers/SongController.cs` (line 278-284)
-- **Attribute:** `[AllowAnonymous]`
-- **View:** `m4d/Views/Song/RawSearchForm.cshtml`
-- **Anti-Forgery Token:** Line 11: `@Html.AntiForgeryToken()`
-- **Risk:** If cached, multiple users would share the same anti-forgery token
-- **Mitigation:** Explicitly excluded from caching
-
-### Code Location
-
-**File:** `m4d/Program.cs` (lines ~648-713)
-
-**Implementation:**
-```csharp
-app.Use(async (context, next) =>
-{
-    context.Response.OnStarting(() =>
-    {
-        // Only cache GET requests
-        if (context.Request.Method != "GET") return Task.CompletedTask;
-        
-        // Only 2xx responses
-        if (context.Response.StatusCode < 200 || context.Response.StatusCode >= 300) 
-            return Task.CompletedTask;
-        
-        var path = context.Request.Path.Value?.ToLowerInvariant() ?? "";
-        
-        // Exclude API endpoints
-        if (path.StartsWith("/api/")) return Task.CompletedTask;
-        
-        // Exclude anti-forgery pages
-        if (path.StartsWith("/song/rawsearchform")) return Task.CompletedTask;
-        
-        // CRITICAL: Don't cache responses that set cookies
-        if (context.Response.Headers.ContainsKey("Set-Cookie")) return Task.CompletedTask;
-        
-        // Only HTML responses
-        var contentType = context.Response.ContentType?.ToLowerInvariant() ?? "";
-        if (!contentType.Contains("text/html")) return Task.CompletedTask;
-        
-        if (context.User.Identity?.IsAuthenticated == true)
-        {
-            context.Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate";
-            context.Response.Headers["Pragma"] = "no-cache";
-        }
-        else
-        {
-            context.Response.Headers.Remove("Cache-Control");
-            context.Response.Headers.Remove("Pragma");
-            context.Response.Headers["Cache-Control"] = "public, max-age=300";
-        }
-        
-        return Task.CompletedTask;
-    });
-    
-    await next();
-});
-```
+**Solution:** Client-side JavaScript tracking that works regardless of cache status, with deferred API reporting to reduce server load.
 
 ---
 
-## 2. Current State Analysis
+## 2. Architecture Overview
 
-### 2.1 Server-Side Implementation
+### 2.1 System Components
 
-**Location:** `m4d/Controllers/DMController.cs` - `OnActionExecutionAsync` method
-
-**Current Flow:**
-
-1. Request arrives at controller
-2. `OnActionExecutionAsync` executes BEFORE controller action
-3. Generates/retrieves UsageId from cookie
-4. Creates UserMetadata (checks authentication)
-5. Controller action executes
-6. `OnActionExecutionAsync` executes AFTER controller action
-7. Checks if spider (via `SpiderManager.CheckAnySpiders`)
-8. Checks if UsageLogging feature is enabled
-9. Extracts filter from context
-10. Creates `UsageLog` record
-11. Enqueues background task to save to database
-12. Updates `User.LastActive` and `User.HitCount`
-
-**Data Captured:**
-
-```csharp
-var usage = new UsageLog
-{
-    UsageId = usageId,           // From cookie, format: {guid}_{count}
-    UserName = user?.UserName,   // From authenticated user
-    Date = time,                 // Server timestamp
-    Page = page,                 // Request.Path
-    Query = query,               // Request.QueryString
-    Filter = filterString,       // Extracted from query/form
-    Referrer = referrer,         // Request.GetTypedHeaders().Referer
-    UserAgent = userAgent        // Request.Headers["User-Agent"]
-};
+```
+????????????????????????????????????????
+?         Browser (Client)             ?
+?                                      ?
+?  ?????????????????????????????????? ?
+?  ?  useUsageTracking Composable   ? ?
+?  ?  - Bot detection               ? ?
+?  ?  - localStorage management     ? ?
+?  ?  - Smart batching              ? ?
+?  ?  - SendBeacon API              ? ?
+?  ?????????????????????????????????? ?
+?             ?                        ?
+????????????????????????????????????????
+              ? POST /api/usagelog/batch
+              ? (FormData + XSRF token)
+              ?
+????????????????????????????????????????
+?      App Service (Origin)            ?
+?                                      ?
+?  ?????????????????????????????????? ?
+?  ?  UsageLogController (API)      ? ?
+?  ?  - [ValidateAntiForgeryToken]  ? ?
+?  ?  - Payload validation          ? ?
+?  ?  - Background task enqueue     ? ?
+?  ?????????????????????????????????? ?
+?             ?                        ?
+?  ?????????????????????????????????? ?
+?  ?  Background Task Queue         ? ?
+?  ?  - Batch DB insert             ? ?
+?  ?  - Update User stats           ? ?
+?  ?????????????????????????????????? ?
+????????????????????????????????????????
 ```
 
-**Cookie Management:**
+### 2.2 Data Flow
 
-- Cookie name: `"Usage"`
-- Format: `{guid}_{visitCount}`
-- Incremented on each page view
-- No expiration set (session cookie)
+**Page Load:**
 
-**Bot Detection:**
+1. Browser loads page (may be cached by Azure Front Door)
+2. `useUsageTracking` composable initializes
+3. Checks if bot ? if yes, skip tracking
+4. Generates/loads UsageId from localStorage
+5. Creates usage event and adds to local queue
+6. Increments visit counter
 
-```csharp
-SpiderManager.CheckAnySpiders(userAgent, Configuration)
-```
+**Sending Strategy:**
 
-### 2.2 Limitations with CDN Caching
+**Authenticated Users:**
 
-**Critical Issue:** When Azure Front Door caches a response, the server-side `OnActionExecutionAsync` **never executes** for cached requests. This means:
+- Threshold: 1 page (immediate)
+- Batch size: 1 event
+- Sends after every page view
 
-? No usage tracking for anonymous cached pages
-? No user activity updates (`LastActive`, `HitCount`)
-? Inaccurate analytics and user behavior data
-? Cannot distinguish between real users and bots on cached content
+**Anonymous Users:**
 
-**Current Scope:**
+- Threshold: 3 pages (wait for engagement)
+- Batch size: 5 events
+- Queues first 2 pages, sends batch after page 3+
 
-- Only tracks MVC controller pages (classes inheriting from `DanceMusicController`)
-- Does NOT track Razor Pages (e.g., Identity pages like `/Identity/Account/Login`)
-- Does NOT track static assets
-- Does NOT track API-only endpoints
+**Page Unload:**
 
-## 3. Problem Statement
+- Navigation API detects same-origin navigation ? skip send
+- External navigation or tab close ? send remaining events via SendBeacon
 
-### 3.1 Requirements
+---
 
-**Must Have:**
+## 3. Client-Side Implementation
 
-1. ? Track page views for both cached and uncached responses
-2. ? Maintain user session tracking across visits
-3. ? Filter bot traffic on client-side
-4. ? Reduce server load by batching/throttling requests
-5. ? Preserve data fidelity (same information as current implementation)
-6. ? Work with Azure Front Door caching
-7. ? Handle authenticated and anonymous users
-8. ? Maintain privacy compliance (GDPR)
-9. ? **Graceful degradation if API fails** - Don't break site functionality
-
-**Should Have:**
-
-1. ?? Configurable throttling (n pages before first send for anonymous users, default n=3)
-2. ?? Configurable batch size for beacon sends (default m=5)
-3. ?? Persistent queue with visit count tracking (useful for nag modals, usage analytics)
-4. ?? Use SendBeacon API for reliable end-of-session tracking
-
-**Could Have (Future Enhancements):**
-
-1. ?? Shared client/server bot detection patterns (via configuration API)
-2. ?? Client-side analytics aggregation
-3. ?? Offline support with sync on reconnect
-4. ?? Real-time dashboard updates (SignalR)
-5. ?? Client-side A/B testing integration
-
-### 3.2 Constraints
-
-1. **Privacy:** Must comply with GDPR and cookie consent
-2. **Performance:** Must not impact page load times
-3. **Reliability:** Must handle network failures gracefully
-4. **Security:** API endpoint must prevent abuse
-5. **Compatibility:** Must work in all supported browsers
-6. **Migration:** Must run alongside server-side logging during transition
-
-## 4. Proposed Solution
-
-### 4.1 Architecture Overview
-
-```text
-???????????????????????????????????????????????????????????????
-?                    Client Browser                            ?
-?                                                              ?
-?  ??????????????????????????????????????????????????????    ?
-?  ?  Vue Application (SPA)                              ?    ?
-?  ?                                                      ?    ?
-?  ?  ????????????????????????????????????????????????  ?    ?
-?  ?  ?  Usage Tracker (Composable)                  ?  ?    ?
-?  ?  ?  - Detects page navigation                   ?  ?    ?
-?  ?  ?  - Filters bots (client-side)               ?  ?    ?
-?  ?  ?  - Generates/loads UsageId from localStorage?  ?    ?
-?  ?  ?  - Queues events locally                     ?  ?    ?
-?  ?  ?  - Sends batch after n pages                 ?  ?    ?
-?  ?  ????????????????????????????????????????????????  ?    ?
-?  ?                        ?                             ?    ?
-?  ?                        ? (when threshold reached)    ?    ?
-?  ?                        ?                             ?    ?
-?  ?  ????????????????????????????????????????????????  ?    ?
-?  ?  ?  API Client (Axios/Fetch)                    ?  ?    ?
-?  ?  ?  - Async POST to /api/usage                  ?  ?    ?
-?  ?  ?  - Fire-and-forget (no await)                ?  ?    ?
-?  ?  ?  - Error logging only                        ?  ?    ?
-?  ?  ????????????????????????????????????????????????  ?    ?
-?  ??????????????????????????????????????????????????????    ?
-?                                                              ?
-?  ??????????????????????????????????????????????????????    ?
-?  ?  localStorage                                       ?    ?
-?  ?  - usageId: "{guid}"                               ?    ?
-?  ?  - usageQueue: [{page, time, ...}, ...]          ?    ?
-?  ?  - usageCount: number                              ?    ?
-?  ??????????????????????????????????????????????????????    ?
-???????????????????????????????????????????????????????????????
-                            ?
-                            ? POST /api/usage/batch
-                            ?
-???????????????????????????????????????????????????????????????
-?                    App Service (Origin)                      ?
-?                                                              ?
-?  ??????????????????????????????????????????????????????    ?
-?  ?  UsageLogController (API)                          ?    ?
-?  ?  - [AllowAnonymous]                                ?    ?
-?  ?  - Rate limiting (per IP/UsageId)                  ?    ?
-?  ?  - Validates payload                               ?    ?
-?  ?  - Enqueues to background task                     ?    ?
-?  ??????????????????????????????????????????????????????    ?
-?                        ?                                     ?
-?                        ?                                     ?
-?  ??????????????????????????????????????????????????????    ?
-?  ?  Background Task Queue                              ?    ?
-?  ?  - Batch insert to UsageLog table                  ?    ?
-?  ?  - Update User.LastActive, User.HitCount           ?    ?
-?  ?  - Error handling and retry                        ?    ?
-?  ??????????????????????????????????????????????????????    ?
-???????????????????????????????????????????????????????????????
-```
-
-### 4.2 Data Flow
-
-```text
-User loads page (cached by Front Door)
-    ?
-Vue app initializes
-    ?
-Usage tracker composable activates
-    ?
-Load or generate UsageId from localStorage
-    ?
-Detect if bot (user-agent patterns, behavior)
-    ?
-If not bot:
-    ?
-    Capture page view event
-        - Page URL
-        - Timestamp
-        - Referrer
-        - User-Agent
-        - Filter (from URL query)
-        - Authentication state
-    ?
-    Add to local queue (localStorage)
-    ?
-    Increment visit counter
-    ?
-    Determine send strategy:
-
-    IF authenticated user:
-        ? Threshold: 1 (hardcoded - always send)
-        ? Batch size: 1 (configurable, start at 1, increase with confidence)
-        ? Send immediately when queue reaches batch size
-        ? Mark last sent index in queue
-
-    ELSE IF anonymous user:
-        ? Threshold: 3 (configurable - wait for engagement)
-        ? Batch size: 5 (configurable)
-        ? IF visit counter < threshold: Queue only (don't send)
-        ? IF visit counter >= threshold AND queue >= batch size:
-            ? Send batch of 5 events
-            ? Mark last sent index in queue
-
-    ?
-    On page unload (visibilitychange/pagehide):
-        ? Use SendBeacon API to send unsent events (since last sent index)
-        ? For anonymous: Only if visit counter >= threshold
-        ? For authenticated: Always send remaining events
-        ? SendBeacon has 64KB size limit - send what fits
-```
-
-**Key Strategy:**
-
-- **Authenticated users:** Threshold=1 (immediate), BatchSize=1 (start conservative)
-- **Anonymous users:** Threshold=3 (wait for engagement), BatchSize=5
-- **Queue management:** Track last sent index, never clear history (for analytics)
-- **SendBeacon:** Reliable delivery of remaining events on page unload
-
-````
-
-## 5. Technical Design
-
-### 5.1 Client-Side Components
-
-#### 5.1.1 Usage Tracker Composable (? IMPLEMENTED)
+### 3.1 Usage Tracking Composable
 
 **File:** `m4d/ClientApp/src/composables/useUsageTracking.ts`
 
-**Status:** ? Complete - 19/19 tests passing
+**Responsibilities:**
 
-**Implementation Notes:**
-- Uses **sendBeacon exclusively** (no fetch API)
-- Synchronous operation (simpler, more reliable)
-- Bot detection via user agent patterns and webdriver detection
-- Queue management with lastSentIndex tracking
-- Smart batching (authenticated: immediate, anonymous: threshold-based)
-- SendBeacon for page unload (visibilitychange + pagehide events)
+1. **Session Management**
+   - Generates UUID v4 for new sessions
+   - Stores in `localStorage.usageId`
+   - Canonical fallback: `00000000-0000-0000-0000-000000000001` (localStorage unavailable)
+   - Persists visit count in `localStorage.usageCount`
 
-**File:** `m4d/ClientApp/src/composables/useUsageTracking.ts`
+2. **Bot Detection**
+   - User-agent pattern matching (`/bot/`, `/crawl/`, `/spider/`, etc.)
+   - Headless browser detection (`__nightmare`, `__phantomas`)
+   - WebDriver detection (`navigator.webdriver === true`)
 
-```typescript
-interface UsageEvent {
-  usageId: string;
-  timestamp: number; // Unix timestamp
-  page: string;
-  query: string;
-  referrer: string | null;
-  userAgent: string;
-  filter: string | null;
-  userName: string | null; // From authentication
-  isAuthenticated: boolean;
-}
+3. **Event Queueing**
+   - Stores events in `localStorage.usageQueue`
+   - Tracks `lastSentIndex` to identify unsent events
+   - Max queue size: 100 events (trims oldest when exceeded)
+   - Never clears queue (useful for analytics, nag modals)
 
-interface UsageQueue {
-  events: UsageEvent[];
-  lastSentIndex: number; // Track last sent event for batching
-}
+4. **Smart Batching**
+   - **Authenticated:** Threshold=1, BatchSize=1 (immediate send)
+   - **Anonymous:** Threshold=3, BatchSize=5 (wait for engagement)
+   - Only sends when visit count ? threshold AND unsent events ? batch size
 
-interface UsageTrackerConfig {
-  enabled: boolean;
-  // Anonymous user settings
-  anonymousThreshold: number; // Pages before sending (default: 3)
-  anonymousBatchSize: number; // Events per batch (default: 5)
-  // Authenticated user settings
-  authenticatedBatchSize: number; // Events per batch (default: 1, increase with confidence)
-  // Queue management
-  maxQueueSize: number; // Prevent localStorage overflow (default: 100)
-  apiEndpoint: string; // "/api/usagelog/batch"
-  botPatterns: RegExp[]; // Client-side bot detection
-}
+5. **SendBeacon Integration**
+   - Uses `visibilitychange` event (most reliable)
+   - Fallback: `pagehide` event (iOS Safari)
+   - Respects 64KB size limit
+   - Fire-and-forget (no await, no retries)
 
-export function useUsageTracking(config?: Partial<UsageTrackerConfig>) {
-  // Load or generate UsageId
-  // Track page views (manual call, no Vue Router)
-  // Queue events with lastSentIndex tracking
-  // Send batches based on user type
-  // Use SendBeacon on page unload for remaining events
-  // Handle errors gracefully
-}
-````
+6. **Graceful Degradation**
+   - localStorage unavailable ? uses canonical GUID, no tracking sent
+   - API failure ? logs error, doesn't break page
+   - Returns visit count = 0 when storage fails (anonymous users never reach threshold)
 
-**Key Responsibilities:**
+### 3.2 Configuration
 
-1. **Session Management:**
-   - Generate UUID v4 for new sessions
-   - Store in `localStorage.usageId`
-   - Persist across page reloads
-   - Track visit count in `localStorage.usageCount`
-
-2. **Bot Detection:**
-   - Check user-agent against patterns
-   - Monitor rapid navigation (< 100ms between pages)
-   - Check for headless browser indicators
-   - Flag suspicious localStorage access patterns
-
-3. **Event Queueing with Index Tracking:**
-   - Store events in `localStorage.usageQueue`
-   - Track `lastSentIndex` to identify unsent events
-   - Always keep queue for analytics (nag modals, etc.)
-   - Limit queue size to prevent overflow (trim oldest)
-   - Never clear queue entirely (keep for history)
-
-4. **Smart Batching Strategy:**
-   - **Authenticated users:**
-     - Threshold: 1 (hardcoded - always send)
-     - Batch size: 1 (configurable, start conservative)
-     - Send when queue has >= batchSize unsent events
-   - **Anonymous users:**
-     - Threshold: 3 (configurable - wait for engagement)
-     - Batch size: 5 (configurable)
-     - Don't send until visit counter >= threshold
-     - Send when queue has >= batchSize unsent events
-
-5. **SendBeacon Integration:**
-   - Use `visibilitychange` event (more reliable than `beforeunload`)
-   - Fallback to `pagehide` event for iOS Safari
-   - Send only unsent events (from lastSentIndex to end)
-   - Respect 64KB size limit (truncate if needed)
-   - For anonymous: Only send if visit counter >= threshold
-   - For authenticated: Always send remaining events
-   - Cannot await result (fire-and-forget)
-
-6. **Error Handling:**
-   - Log errors to console (dev mode)
-   - **Graceful degradation:** If API fails, don't break site
-   - Don't retry failed sends (fire-and-forget)
-   - Update lastSentIndex only on successful send
-   - Clear problematic events from queue if persistent errors
-
-#### 5.1.2 Page Load Integration (? IMPLEMENTED)
-
-**File:** `m4d/Views/Shared/_head.cshtml`
-
-**Status:** ? Complete - Integrated with feature flag
-
-**Implementation:**
+**Server-Side:** `m4d/Views/Shared/_head.cshtml`
 
 ```html
-@* Initialize client-side usage tracking *@ @if (await
-_featureManager.IsEnabledAsync(FeatureFlags.ClientSideUsageLogging)) {
+@if (await _featureManager.IsEnabledAsync(FeatureFlags.ClientSideUsageLogging))
+{
 <script type="module">
   import { useUsageTracking } from "/vclient/composables/useUsageTracking.js";
 
-  // Initialize usage tracker with configuration from server
   const tracker = useUsageTracking({
     enabled: menuContext.usageTracking?.enabled ?? true,
-    anonymousThreshold: menuContext.usageTracking?.anonymousThreshold ?? 3,
-    anonymousBatchSize: menuContext.usageTracking?.anonymousBatchSize ?? 5,
-    authenticatedBatchSize:
-      menuContext.usageTracking?.authenticatedBatchSize ?? 1,
-    maxQueueSize: menuContext.usageTracking?.maxQueueSize ?? 100,
+    anonymousThreshold: 3,
+    anonymousBatchSize: 5,
+    authenticatedBatchSize: 1,
+    maxQueueSize: 100,
     xsrfToken: menuContext.xsrfToken,
     userName: menuContext.userName || null,
     isAuthenticated: menuContext.userName && menuContext.userName.length > 0,
   });
 
-  // Track page view on load
   tracker.trackPageView(window.location.pathname, window.location.search);
 </script>
 }
 ```
 
-**Key Features:**
+**Path Exclusions (Server-Side):**
 
-- Feature flag gated (`FeatureFlags.ClientSideUsageLogging`)
-- ES6 module import from Vite build output (`/vclient/`)
-- Configuration from server-side `menuContext`
-- Automatic page view tracking on load
-- Authentication state passed to composable
-- XSRF token included for API security
+- `/admin/` - Admin pages (excluded in `_head.cshtml`)
+- `/identity/` - Login/register pages (excluded in `_head.cshtml`)
+- `/api/` - API endpoints (excluded in `_head.cshtml`)
 
-**Note:** This project doesn't use Vue Router (full page loads), so tracking happens on each page load automatically.
+### 3.3 localStorage Fallback Strategy
 
-#### 5.1.3 Bot Detection Logic
+**Problem:** In Multi-Page Application (MPA), localStorage unavailability means every page load resets the composable. In-memory fallback is useless.
 
-**File:** `m4d/ClientApp/src/utils/botDetection.ts`
+**Solution:** Canonical GUID `00000000-0000-0000-0000-000000000001`
 
-```typescript
-export function isBot(): boolean {
-  const ua = navigator.userAgent.toLowerCase();
+**Why:**
 
-  // Check common bot patterns
-  const botPatterns = [
-    /bot/i,
-    /crawl/i,
-    /spider/i,
-    /slurp/i,
-    /headless/i,
-    /phantom/i,
-    /puppeteer/i,
-    /selenium/i,
-    /webdriver/i,
-  ];
+- Identifies "localStorage unavailable" users in analytics
+- Returns `visitCount = 0` so anonymous users never reach threshold
+- No page crashes or errors
+- Easy to filter in database queries
 
-  if (botPatterns.some((pattern) => pattern.test(ua))) {
-    return true;
-  }
-
-  // Check for headless Chrome/Firefox
-  if ("__nightmare" in window || "__phantomas" in window) {
-    return true;
-  }
-
-  // Check for webdriver
-  if (navigator.webdriver === true) {
-    return true;
-  }
-
-  return false;
-}
-```
-
-**Future Enhancement (Could Have):** Share bot detection patterns between client and server via configuration API endpoint. This would allow updating patterns without redeploying client code and ensure consistency with server-side `SpiderManager`.
-
-#### 5.1.4 SendBeacon Best Practices (from Mozilla)
-
-**File:** `m4d/ClientApp/src/utils/sendBeacon.ts`
+**Behavior:**
 
 ```typescript
-/**
- * Sends remaining usage events using navigator.sendBeacon()
- * Based on Mozilla best practices: https://developer.mozilla.org/en-US/docs/Web/API/Navigator/sendBeacon
- */
-export function sendRemainingEvents(
-  events: UsageEvent[],
-  endpoint: string,
-  antiForgeryToken: string,
-): boolean {
-  if (events.length === 0) {
-    return true;
-  }
+// localStorage unavailable
+getUsageId() ? "00000000-0000-0000-0000-000000000001"
+getVisitCount() ? 0
+incrementVisitCount() ? 0
 
-  // Construct payload
-  const payload = JSON.stringify({ events });
-
-  // Check size (64KB limit)
-  const sizeInBytes = new Blob([payload]).size;
-  if (sizeInBytes > 65536) {
-    console.warn(
-      `SendBeacon payload too large: ${sizeInBytes} bytes. Truncating...`,
-    );
-    // Truncate to fit (approximate - keep first N events that fit)
-    const maxEvents = Math.floor((events.length * 65536) / sizeInBytes);
-    return sendRemainingEvents(
-      events.slice(0, maxEvents),
-      endpoint,
-      antiForgeryToken,
-    );
-  }
-
-  // Create headers (sendBeacon doesn't support custom headers, use Blob with type)
-  const headers = {
-    "Content-Type": "application/json",
-    RequestVerificationToken: antiForgeryToken,
-  };
-
-  // Note: sendBeacon doesn't support custom headers directly
-  // Workaround: append token to URL or use FormData
-  const urlWithToken = `${endpoint}?__RequestVerificationToken=${encodeURIComponent(antiForgeryToken)}`;
-
-  try {
-    const success = navigator.sendBeacon(urlWithToken, payload);
-    return success;
-  } catch (error) {
-    console.error("SendBeacon failed:", error);
-    return false;
-  }
-}
-
-/**
- * Registers event listeners for page unload using recommended approach
- */
-export function registerUnloadHandler(callback: () => void) {
-  // Primary: visibilitychange (most reliable)
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "hidden") {
-      callback();
-    }
-  });
-
-  // Fallback: pagehide (for iOS Safari)
-  window.addEventListener("pagehide", callback);
-
-  // Note: Do NOT use 'beforeunload' or 'unload' - unreliable and deprecated
-}
+// Anonymous user with visitCount = 0 never sends (threshold = 3)
+// Authenticated user detection would require cookie check (separate logic)
 ```
 
-**Key Points from Mozilla Docs:**
+---
 
-1. **Use `visibilitychange` event** - Most reliable, fires when tab/window loses focus
-2. **Fallback to `pagehide`** - For iOS Safari compatibility
-3. **Avoid `beforeunload` and `unload`** - Unreliable, deprecated, may not fire
-4. **64KB size limit** - Check payload size and truncate if needed
-5. **Cannot await result** - Fire-and-forget, no error handling
-6. **Header workaround** - sendBeacon doesn't support custom headers, append token to URL
-7. **Returns boolean** - Indicates if browser accepted the request (not if it succeeded)
+## 4. Server-Side Implementation
 
-### 5.2 Server-Side Components
+### 4.1 API Controller
 
-#### 5.2.1 Usage Log API Controller (? IMPLEMENTED)
+**File:** `m4d/APIControllers/UsageLogController.cs`
 
-**File:** `m4d/APIControllers/UsageLogApiController.cs`
+**Features:**
 
-**Status:** ? Complete - 8/8 integration tests passing
-
-**Implementation Notes:**
-
-- Inherits from `DanceMusicApiController` for consistency
-- Uses `[ValidateAntiForgeryToken]` for CSRF protection
-- Enqueues to background task queue (fire-and-forget)
-- Returns 202 Accepted immediately
+- Inherits from `DanceMusicApiController`
+- `[ValidateAntiForgeryToken]` for CSRF protection
+- Accepts `FormData` with XSRF token
+- Returns 202 Accepted immediately (fire-and-forget)
+- Enqueues to `IBackgroundTaskQueue`
 - Validates payload size (max 100 events)
-- Detects authenticated users via HttpContext.User
+- Server-side authentication takes precedence over client-reported username
 
-**File:** `m4d/APIControllers/UsageLogApiController.cs`
+**Endpoint:** `POST /api/usagelog/batch`
 
-```csharp
-[ApiController]
-[Route("api/[controller]")]
-[ValidateAntiForgeryToken] // Prevent CSRF attacks from malicious sites
-public class UsageLogApiController : DanceMusicApiController
-{
-    public UsageLogApiController(
-        DanceMusicContext context,
-        UserManager<ApplicationUser> userManager,
-        ISearchServiceManager searchService,
-        IDanceStatsManager danceStatsManager,
-        IConfiguration configuration,
-        ILogger<UsageLogApiController> logger)
-        : base(context, userManager, searchService, danceStatsManager, configuration, logger)
-    {
-    }
-
-    [HttpPost("batch")]
-    [ProducesResponseType(StatusCodes.Status202Accepted)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
-    public async Task<IActionResult> LogBatch([FromBody] UsageLogBatchRequest request)
-    {
-        // 1. Validate payload
-        if (request?.Events == null || request.Events.Count == 0)
-        {
-            return BadRequest("No events provided");
-        }
-
-        if (request.Events.Count > 100)
-        {
-            return BadRequest("Batch size exceeds limit (100 events)");
-        }
-
-        // 2. Detect authenticated user (inheriting from DanceMusicApiController gives us access to these)
-        var isAuthenticated = User?.Identity?.IsAuthenticated == true;
-        var userName = isAuthenticated ? User.Identity.Name : null;
-
-        // Optional: Get full user object if needed
-        ApplicationUser authenticatedUser = null;
-        if (isAuthenticated)
-        {
-            authenticatedUser = await UserManager.GetUserAsync(User);
-        }
-
-        // 3. Rate limit check
-        var rateLimitKey = isAuthenticated ? $"user:{userName}" : $"ip:{HttpContext.Connection.RemoteIpAddress}";
-        if (IsRateLimited(rateLimitKey))
-        {
-            return StatusCode(StatusCodes.Status429TooManyRequests, "Rate limit exceeded");
-        }
-
-        // 4. Enqueue to background task (using inherited TaskQueue from base controller)
-        TaskQueue.EnqueueTask(async (serviceScopeFactory, cancellationToken) =>
-        {
-            try
-            {
-                using var scope = serviceScopeFactory.CreateScope();
-                var dbContext = scope.ServiceProvider.GetRequiredService<DanceMusicContext>();
-
-                foreach (var eventDto in request.Events)
-                {
-                    var usageLog = new UsageLog
-                    {
-                        UsageId = eventDto.UsageId,
-                        UserName = userName ?? eventDto.UserName, // Server-side auth takes precedence
-                        Date = DateTimeOffset.FromUnixTimeMilliseconds(eventDto.Timestamp).DateTime,
-                        Page = eventDto.Page,
-                        Query = eventDto.Query,
-                        Filter = eventDto.Filter,
-                        Referrer = eventDto.Referrer,
-                        UserAgent = eventDto.UserAgent
-                    };
-
-                    await dbContext.UsageLog.AddAsync(usageLog, cancellationToken);
-                }
-
-                // Update user LastActive and HitCount if authenticated
-                if (authenticatedUser != null)
-                {
-                    authenticatedUser.LastActive = DateTime.Now;
-                    authenticatedUser.HitCount += request.Events.Count;
-                }
-
-                await dbContext.SaveChangesAsync(cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "Failed to save usage log batch");
-            }
-        });
-
-        // 5. Return 202 Accepted immediately (background processing)
-        return Accepted();
-    }
-
-    private bool IsRateLimited(string key)
-    {
-        // TODO: Implement rate limiting using IMemoryCache
-        // Return true if rate limit exceeded
-        return false;
-    }
-}
-
-public class UsageLogBatchRequest
-{
-    public List<UsageEventDto> Events { get; set; }
-}
-
-public class UsageEventDto
-{
-    [Required]
-    public string UsageId { get; set; }
-
-    [Required]
-    public long Timestamp { get; set; } // Unix timestamp (client time)
-
-    [Required]
-    public string Page { get; set; }
-
-    public string Query { get; set; }
-
-    public string Referrer { get; set; }
-
-    [Required]
-    public string UserAgent { get; set; }
-
-    public string Filter { get; set; }
-
-    // Client-reported username (for validation, but server auth takes precedence)
-    public string UserName { get; set; }
-}
-```
-
-**Key Design Decisions:**
-
-1.  **Inherit from DanceMusicApiController:**
-    - Pattern: Same as `ServiceUserController`, `DanceEnvironmentController`, `ServiceTrackController`
-    - Benefits: Access to `Database`, `UserManager`, `TaskQueue`, `Logger` properties
-    - Consistency: All API controllers follow this pattern
-
-2.  **Authentication Detection Methods:**
-    - `User?.Identity?.IsAuthenticated` - Check if user is authenticated (from `ControllerBase`)
-    - `User.Identity.Name` - Get username (returns null if anonymous)
-    - `await UserManager.GetUserAsync(User)` - Get full `ApplicationUser` object
-    - **Server-side authentication always takes precedence** over client-reported username
-
-3.  **CSRF Protection:**
-    - `[ValidateAntiForgeryToken]` attribute prevents arbitrary calls from malicious sites
-    - Client must include anti-forgery token in request headers
-    - **Important:** Anti-forgery token must be generated in Razor Page/View and passed to JavaScript
-    - Anonymous users can still call API if token is present (token validates origin, not authentication)
-    - Token retrieval pattern (in Razor Page/View):
-      ```html
-      @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
-      <script>
-        window.antiForgeryToken =
-          "@Antiforgery.GetAndStoreTokens(HttpContext).RequestToken";
-      </script>
-      ```
-    - Token usage pattern (in JavaScript):
-      ```typescript
-      fetch("/api/usagelog/batch", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          RequestVerificationToken: window.antiForgeryToken,
-        },
-        body: JSON.stringify(request),
-      });
-      ```
-
-4.  **Key Responsibilities:**
-    - Anonymous users can still call API if token is present (token validates origin, not authentication)
-
-5.  **Key Responsibilities:**
-
-        public string Filter { get; set; }
-
-    }
-
-````
-
-**Key Responsibilities:**
-
-1. **Validation:**
-   - Check payload size (max 100 events per batch)
-   - Validate UsageId format (GUID)
-   - Validate timestamps (not too old, not in future)
-   - Validate URLs (must be from same domain)
-
-2. **Rate Limiting:**
-   - Per IP: 100 requests/minute
-   - Per UsageId: 10 batches/minute
-   - Return 429 Too Many Requests if exceeded
-
-3. **Authentication Matching:**
-   - Check if `HttpContext.User.Identity.IsAuthenticated`
-   - Match UsageId to authenticated user if possible
-   - Update `User.LastActive` and `User.HitCount`
-
-4. **Background Processing:**
-   - Enqueue to existing `IBackgroundTaskQueue`
-   - Batch insert to `UsageLog` table
-   - Handle database errors gracefully
-
-#### 5.2.2 Rate Limiting Middleware
-
-**File:** `m4d/Middleware/UsageLogRateLimitMiddleware.cs`
-
-```csharp
-public class UsageLogRateLimitMiddleware
-{
-    // Use in-memory cache (IMemoryCache) for rate limit tracking
-    // Key: IP address or UsageId
-    // Value: Request count in sliding window
-    // Cleanup: Expire entries after 1 minute
-}
-````
-
-**Configuration:**
-
-```json
-{
-  "UsageLogging": {
-    "RateLimit": {
-      "PerIp": 100,
-      "PerUsageId": 10,
-      "WindowMinutes": 1
-    }
-  }
-}
-```
-
-### 5.3 Data Model Changes
-
-**No database schema changes required.** The existing `UsageLog` table schema already supports all required fields.
-
-**Existing Schema:**
-
-```csharp
-public class UsageLog
-{
-    public int UsageLogId { get; set; }
-    public string UsageId { get; set; }       // ? Already GUID-compatible
-    public string UserName { get; set; }      // ? Will be matched server-side
-    public DateTime Date { get; set; }        // ? Convert from client timestamp
-    public string Page { get; set; }          // ? From client
-    public string Query { get; set; }         // ? From client
-    public string Filter { get; set; }        // ? From client
-    public string Referrer { get; set; }      // ? From client
-    public string UserAgent { get; set; }     // ? From client
-}
-```
-
-### 5.4 Configuration
-
-**File:** `m4d/ClientApp/src/config/usageTracking.ts`
+**Request Format:**
 
 ```typescript
-export const usageTrackingConfig = {
-  enabled: import.meta.env.VITE_USAGE_TRACKING_ENABLED !== "false",
-  // Anonymous user settings
-  anonymousThreshold: parseInt(
-    import.meta.env.VITE_USAGE_ANONYMOUS_THRESHOLD || "3",
-  ),
-  anonymousBatchSize: parseInt(
-    import.meta.env.VITE_USAGE_ANONYMOUS_BATCH_SIZE || "5",
-  ),
-  // Authenticated user settings (threshold is hardcoded to 1)
-  authenticatedBatchSize: parseInt(
-    import.meta.env.VITE_USAGE_AUTHENTICATED_BATCH_SIZE || "1",
-  ),
-  // Queue management
-  maxQueueSize: parseInt(import.meta.env.VITE_USAGE_MAX_QUEUE_SIZE || "100"),
-  apiEndpoint: "/api/usagelog/batch",
-  antiForgeryToken: (window as any).antiForgeryToken, // From Razor Page
-  debug: import.meta.env.DEV,
-};
+// FormData (not JSON)
+formData.append(
+  "events",
+  JSON.stringify([
+    {
+      usageId: "uuid",
+      timestamp: 1234567890,
+      page: "/dances",
+      query: "?filter=CHA",
+      referrer: "https://google.com",
+      userAgent: "Mozilla/5.0...",
+      filter: "CHA",
+      userName: null, // Client-reported (server overrides if authenticated)
+      isAuthenticated: false,
+    },
+  ]),
+);
+formData.append("__RequestVerificationToken", xsrfToken);
 ```
 
-**File:** `m4d/ClientApp/.env.development`
+**Response:** 202 Accepted (immediate return, background processing)
 
-```text
-VITE_USAGE_TRACKING_ENABLED=true
-VITE_USAGE_ANONYMOUS_THRESHOLD=2
-VITE_USAGE_ANONYMOUS_BATCH_SIZE=5
-VITE_USAGE_AUTHENTICATED_BATCH_SIZE=1
-VITE_USAGE_MAX_QUEUE_SIZE=100
-```
+### 4.2 Legacy Server-Side Tracking
 
-**File:** `m4d/ClientApp/.env.production`
+**File:** `m4d/Controllers/DMController.cs`
 
-```text
-VITE_USAGE_TRACKING_ENABLED=true
-VITE_USAGE_ANONYMOUS_THRESHOLD=3
-VITE_USAGE_ANONYMOUS_BATCH_SIZE=5
-VITE_USAGE_AUTHENTICATED_BATCH_SIZE=1
-VITE_USAGE_MAX_QUEUE_SIZE=100
-```
+**Status:** ? **Still Active** (disabled when client-side tracking enabled)
 
-**Key Configuration Points:**
+**Location:** `OnActionExecutionAsync` method
 
-1. **Authenticated users:**
-   - Threshold: Hardcoded to 1 (always send after first page)
-   - Batch size: Configurable, starts at 1 (conservative)
-   - Increase batch size once confident (e.g., to 3 or 5)
+**How It Works:**
 
-2. **Anonymous users:**
-   - Threshold: 3 pages (wait for engagement)
-   - Batch size: 5 events per batch
-   - Reduces server load for casual browsers
+1. Request arrives at controller
+2. Middleware executes before/after controller action
+3. Checks if spider (via `SpiderManager.CheckAnySpiders`)
+4. **Checks feature flag:** `FeatureFlags.ClientSideUsageLogging`
+   - If enabled ? skip server-side logging
+   - If disabled ? continue with server-side logging
+5. Creates `UsageLog` record
+6. Enqueues to background task queue
+7. Updates `User.LastActive` and `User.HitCount`
 
-3. **SendBeacon considerations:**
-   - Mozilla recommends using `visibilitychange` event
-   - Fallback to `pagehide` for iOS Safari
-   - 64KB size limit - approximately 50-100 events depending on data
-   - Cannot await result (fire-and-forget)
+**Cookie Management:**
 
-````
+- Cookie name: `"Usage"`
+- Format: `{guid}_{visitCount}`
+- Only used when server-side tracking is active
 
-## 6. Implementation Plan
+**Advantages:**
 
-### Phase 1 - Client-Side Foundation
+- No JavaScript required
+- Works for browsers with scripts disabled
+- Tracks Razor Pages (Identity pages)
 
-**Goal:** Set up basic client-side tracking infrastructure
+**Disadvantages:**
 
-**Tasks:**
-1. ? Create `useUsageTracking` composable
-2. ? Implement localStorage management (UsageId, queue, count)
-3. ? Implement bot detection logic
-4. ? Add page load integration (no Vue Router needed)
-5. ? Add SendBeacon integration
-6. ? Add configuration management
-7. ? Unit tests for composable
+- Bypassed by Azure Front Door caching
+- Higher server load (runs on every request)
+- Cannot track cached pages
 
-**Deliverables:**
-- Client-side tracking code (no API calls yet)
-- Unit tests
-- Development mode console logging
+---
 
-**Testing (Automated Unit Tests):**
-- ? UsageId generation and persistence
-- ? Bot detection patterns
-- ? Queue management (add, overflow, trim oldest)
-- ? Visit count tracking
-- ? Send strategy (authenticated vs. anonymous)
+## 5. Feature Flag Strategy
 
-### Phase 2 - API Endpoint
+### 5.1 Configuration
 
-**Goal:** Create server-side API to receive usage data
-
-**Tasks:**
-1. ? Create `UsageLogApiController`
-2. ? Implement request validation
-3. ? Implement rate limiting middleware
-4. ? Integrate with existing `IBackgroundTaskQueue`
-5. ? Add authentication matching logic
-6. ? Unit tests for API controller
-
-**Deliverables:**
-- API endpoint `/api/usagelog/batch`
-- Rate limiting middleware
-- Unit tests
-
-**Testing (Automated Unit Tests):**
-- ? Valid/invalid payloads
-- ? Rate limiting logic
-- ? Authentication matching
-- ? Background task enqueueing
-
-### Phase 3 - Integration & Feature Flag
-
-**Goal:** Connect client-side tracking to API and add feature flag
-
-**Tasks:**
-1. ? Implement API client in composable (fetch + SendBeacon)
-2. ? Add smart sending logic (authenticated vs. anonymous)
-3. ? Add error handling with graceful degradation
-4. ? Add feature flag: `FeatureFlags.ClientSideUsageLogging`
-5. ? Conditional server-side logging (disabled if feature flag on)
-6. ? Ad-hoc integration testing (manual by developer)
-
-**Deliverables:**
-- Working end-to-end usage tracking
-- Feature flag for toggling client/server tracking
-- Error handling and logging
-
-**Testing:**
-- Ad-hoc integration tests by developer
-- Test full flow (page view ? queue ? API ? database)
-- Test with network failures (graceful degradation)
-- Test with authenticated/anonymous users
-- Compare data accuracy between client/server modes
-
-### Phase 4 - Deployment & Monitoring
-
-**Goal:** Deploy to production with feature flag disabled, then gradually enable
-
-**Tasks:**
-1. ? Deploy code with feature flag disabled (server-side logging active)
-2. ? Enable feature flag for testing
-3. ? Monitor database insert rates
-4. ? Verify data accuracy
-5. ? Enable feature flag for production
-6. ? Remove server-side logging code from `DMController`
-
-**Deliverables:**
-- Production deployment
-- Monitoring dashboard
-- Documentation updates
-
-**Testing:**
-- Monitor API error rates
-- Verify no data loss
-- Spot-check database records for accuracy
-
-### Estimated Timeline
-
-- **Phase 1:** 1-2 days (client-side foundation + unit tests)
-- **Phase 2:** 1-2 days (API endpoint + unit tests)
-- **Phase 3:** 1-2 days (integration + feature flag + manual testing)
-- **Phase 4:** 1 day (deployment + monitoring)
-- **Total:** ~1 week (for hobby site with 2 developers)
-
-## 7. Testing Strategy
-
-### 7.1 Automated Unit Tests
-
-**Client-Side (Vitest):**
-
-- ? `useUsageTracking.test.ts`
-  - UsageId generation and persistence
-  - Queue management (add, overflow, trim oldest)
-  - Visit count tracking
-  - Bot detection
-  - Send strategy (authenticated vs. anonymous)
-  - SendBeacon integration
-
-- ? `botDetection.test.ts`
-  - Bot user-agent patterns
-  - Headless browser detection
-  - Webdriver detection
-
-**Server-Side (MSTest):**
-
-- ? `UsageLogApiControllerTests.cs`
-  - Request validation
-  - Rate limiting
-  - Authentication matching
-  - Background task enqueuing
-
-### 7.2 Ad-Hoc Integration Testing (Manual)
-
-**Performed by developers during Phase 3:**
-
-- ? End-to-end flow (page view ? queue ? API ? database)
-- ? Network failure handling (graceful degradation)
-- ? Authentication state matching
-- ? Rate limiting enforcement (via curl/Postman)
-- ? Compare client-side vs. server-side data accuracy
-- ? Test with various browsers and devices
-
-**No automated load testing required** (hobby site with modest traffic)
-
-## 8. Feature Flag Strategy
-
-### 8.1 Feature Flag Configuration
-
-**File:** `m4dModels/FeatureFlags.cs`
+**Feature Flags:**
 
 ```csharp
 public static class FeatureFlags
 {
-    public const string UsageLogging = "UsageLogging"; // Existing
-    public const string ClientSideUsageLogging = "ClientSideUsageLogging"; // New
+    public const string UsageLogging = "UsageLogging"; // Master switch
+    public const string ClientSideUsageLogging = "ClientSideUsageLogging"; // Client vs Server
 }
-````
+```
 
-**Configuration:** `appsettings.json`
+**appsettings.json:**
 
 ```json
 {
   "FeatureManagement": {
     "UsageLogging": true,
     "ClientSideUsageLogging": false
+  },
+  "UsageTracking": {
+    "Enabled": true,
+    "AnonymousThreshold": 3,
+    "AnonymousBatchSize": 5,
+    "AuthenticatedBatchSize": 1,
+    "MaxQueueSize": 100
   }
 }
 ```
 
-### 8.2 Server-Side Conditional Logic
+### 5.2 Toggling Between Client and Server
 
-**File:** `m4d/Controllers/DMController.cs`
+**Enable Client-Side Tracking:**
+
+```json
+{
+  "FeatureManagement": {
+    "ClientSideUsageLogging": true
+  }
+}
+```
+
+**Result:**
+
+- ? Client-side tracking initializes in `_head.cshtml`
+- ? Server-side tracking skips logging in `DMController`
+- ? API endpoint receives batched events
+- ? Works with cached pages
+
+**Disable Client-Side Tracking:**
+
+```json
+{
+  "FeatureManagement": {
+    "ClientSideUsageLogging": false
+  }
+}
+```
+
+**Result:**
+
+- ? Client-side tracking doesn't initialize
+- ? Server-side tracking resumes in `DMController`
+- ? API endpoint still available but not used
+- ? Cached pages not tracked
+
+### 5.3 Rollback Plan
+
+**If client-side tracking fails:**
+
+1. Set `ClientSideUsageLogging = false` in App Configuration
+2. Server-side tracking resumes immediately
+3. No code changes required
+4. Data continues flowing
+
+---
+
+## 6. Cache Control Middleware
+
+### 6.1 Security Architecture
+
+**File:** `m4d/Program.cs` (lines ~648-720)
+
+**Purpose:** Set cache headers for Azure Front Door while protecting sensitive content
+
+**Guards (Applied in Order):**
+
+1. ? Only GET requests
+2. ? Only 2xx responses
+3. ? Exclude `/api/*` endpoints
+4. ? Exclude `/song/rawsearchform` (has anti-forgery token)
+5. ? **No Set-Cookie header** (critical for CSRF protection)
+6. ? Only `text/html` responses
+7. ? Check authentication state
+
+**Caching Rules:**
+
+**Authenticated Users:**
+
+```http
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+```
+
+**Anonymous Users (cacheable):**
+
+```http
+Cache-Control: public, max-age=300
+```
+
+### 6.2 Why Identity Pages Aren't Cached
+
+**Problem:** Identity pages (e.g., `/identity/account/login`) set anti-forgery cookies on GET requests.
+
+**Security Risk if Cached:**
+
+- Scenario 1 (CDN strips Set-Cookie): Users can't submit forms (validation fails)
+- Scenario 2 (CDN doesn't strip): Multiple users share same token (CSRF broken)
+
+**Decision:** Keep Set-Cookie check, don't cache Identity pages
+
+**Alternative Bot Protection:**
+Instead of caching, use three-layer defense:
+
+1. **Random Delay (200-400ms)** - Slows authentication attempts by 80%
+2. **Rate Limiting (20 req/min)** - Hard cap on requests
+3. **CAPTCHA (existing)** - Human verification on failures
+
+**See:** `architecture/identity-endpoint-protection.md`
+
+---
+
+## 7. Data Model
+
+### 7.1 UsageLog Table
+
+**Schema:** (No changes required from server-side implementation)
 
 ```csharp
-public override async Task OnActionExecutionAsync(
-    ActionExecutingContext context, ActionExecutionDelegate next)
+public class UsageLog
 {
-    var usageId = GetUsageId();
-    var time = DateTime.Now;
-    var userAgent = Request.Headers[HeaderNames.UserAgent];
-    var userMetadata = await UserMetadata.Create(UserName, UserManager);
-    ViewData["UserMetadata"] = userMetadata;
-
-    _ = await next();
-
-    // Check if client-side tracking is enabled
-    if (await FeatureManager.IsEnabledAsync(FeatureFlags.ClientSideUsageLogging))
-    {
-        return; // Skip server-side logging
-    }
-
-    // Existing server-side logging logic...
-    if (SpiderManager.CheckAnySpiders(userAgent, Configuration) ||
-        !await FeatureManager.IsEnabledAsync(FeatureFlags.UsageLogging))
-    {
-        return;
-    }
-
-    // ... rest of usage logging code
+    public int UsageLogId { get; set; }
+    public string UsageId { get; set; }       // GUID or canonical fallback
+    public string UserName { get; set; }      // Server-side auth (priority)
+    public DateTime Date { get; set; }        // Server timestamp (converted from client)
+    public string Page { get; set; }          // Request path
+    public string Query { get; set; }         // Query string
+    public string Filter { get; set; }        // Extracted from query
+    public string Referrer { get; set; }      // HTTP Referer
+    public string UserAgent { get; set; }     // Browser user-agent
 }
 ```
 
-### 8.3 Rollout Plan
+### 7.2 Querying Data
 
-**Step 1: Deploy with flag disabled**
+**Identify localStorage Unavailable Users:**
 
-- Client-side code deployed
-- Feature flag `ClientSideUsageLogging = false`
-- Server-side logging active (business as usual)
-
-**Step 2: Enable for testing**
-
-- Set `ClientSideUsageLogging = true` in development
-- Test manually (ad-hoc integration tests)
-- Verify data accuracy
-- Fix any issues
-
-**Step 3: Enable in production**
-
-- Set `ClientSideUsageLogging = true` in production
-- Monitor database insert rates
-- Compare data accuracy over 1-2 days
-- Rollback if issues detected (set flag to `false`)
-
-**Step 4: Cleanup (optional)**
-
-- Remove server-side logging code from `DMController`
-- Remove `UsageId` cookie generation/reading
-- Remove `GetUsageId()` method
-- Update documentation
-
-### 8.4 Rollback Plan
-
-**Trigger:** Data accuracy < 90% OR critical errors
-
-**Actions:**
-
-1. Set `ClientSideUsageLogging = false` (immediate)
-2. Server-side logging resumes automatically
-3. Investigate root cause
-4. Fix and re-test
-5. Resume rollout
-
-## 9. Migration Strategy Simplified
-
-**No complex phased rollout** - Use feature flag toggle:
-
-- ? Deploy code with flag disabled
-- ? Test with flag enabled (development)
-- ? Enable flag in production
-- ? Monitor for 1-2 days
-- ? Remove old code (optional)
-
-## 10. Privacy and Compliance
-
-### 9.1 GDPR Considerations
-
-**Data Collected:**
-
-- UsageId (UUID, not personally identifiable)
-- Page URL (may contain user-specific routes)
-- Timestamp (client local time)
-- Referrer (may contain PII if external site)
-- User-Agent (browser fingerprinting concern)
-- Username (only if authenticated)
-
-**Privacy Measures:**
-
-1. **Consent:** Require cookie consent banner before tracking
-2. **Anonymization:** UsageId is not linked to user until authentication
-3. **Retention:** Delete usage logs after 90 days (configurable)
-4. **Access:** Users can request their usage data
-5. **Deletion:** Users can request deletion of usage data
-
-### 9.2 Cookie Policy Updates
-
-**Current:** Session cookie `"Usage"` stores UsageId
-
-**New:** localStorage `usageId` stores UUID
-
-**Impact:**
-
-- localStorage is not a cookie ? No cookie banner update needed
-- However, localStorage is persistent ? May require privacy policy update
-- Consider: Add "Clear Tracking Data" button in user settings
-
-### 9.3 Opt-Out Mechanism
-
-**Implementation:**
-
-```typescript
-// User can opt-out of tracking
-localStorage.setItem("usageTrackingOptOut", "true");
-
-// Check opt-out in composable
-if (localStorage.getItem("usageTrackingOptOut") === "true") {
-  return; // Don't track
-}
+```sql
+SELECT *
+FROM UsageLog
+WHERE UsageId = '00000000-0000-0000-0000-000000000001'
 ```
 
-**UI:**
+**Count Unique Users (Excluding Fallback):**
 
-- Add toggle in user account settings
-- Add "Do Not Track" browser setting respect
+```sql
+SELECT COUNT(DISTINCT UsageId)
+FROM UsageLog
+WHERE UsageId != '00000000-0000-0000-0000-000000000001'
+```
 
-## 10. Monitoring and Alerting
+---
 
-### 10.1 Metrics to Track
+## 8. Testing
+
+### 8.1 Automated Tests
+
+**Client-Side (Vitest):**
+
+- ? UsageId generation and persistence
+- ? Bot detection patterns
+- ? Queue management (add, overflow, trim)
+- ? Visit count tracking
+- ? Batching logic (anonymous vs authenticated)
+- ? lastSentIndex tracking
+- ? FormData with XSRF token
+- ? SendBeacon calls
+
+**File:** `m4d/ClientApp/src/composables/__tests__/useUsageTracking.test.ts`
+
+**Server-Side (MSTest):**
+
+- ? Request validation
+- ? Background task enqueueing
+- ? Authentication detection
+- ? FormData parsing
+
+**File:** `m4d.Tests/APIControllers/UsageLogApiControllerTests.cs`
+
+### 8.2 Manual Testing
+
+**localStorage Fallback:**
+
+1. Open browser in private/incognito mode
+2. Disable localStorage (DevTools ? Application ? Storage)
+3. Load page, check console for fallback warnings
+4. Verify no errors, page loads normally
+5. Check UsageId in debug output: `00000000-0000-0000-0000-000000000001`
+
+**Batching Behavior:**
+
+1. Open browser with localStorage enabled
+2. Enable debug mode (dev environment)
+3. Visit 3 pages as anonymous user
+4. Check console: should see batching messages
+5. Visit 5 pages total: should send first batch
+6. Close tab: should send remaining events via SendBeacon
+
+**SendBeacon on Unload:**
+
+1. Visit multiple pages (3+) as anonymous user
+2. Open browser DevTools Network tab
+3. Filter for `/api/usagelog/batch`
+4. Close tab or navigate away
+5. Verify beacon request sent with remaining events
+
+---
+
+## 9. Monitoring & Observability
+
+### 9.1 Application Insights Queries
+
+**Client-Side Errors:**
+
+```kusto
+traces
+| where message contains "Failed to access localStorage"
+| summarize count() by bin(timestamp, 1h)
+| render timechart
+```
+
+**API Request Rate:**
+
+```kusto
+requests
+| where url contains "/api/usagelog/batch"
+| summarize count() by bin(timestamp, 1h), resultCode
+| render timechart
+```
+
+**Fallback UsageId Usage:**
+
+```kusto
+customEvents
+| where name == "UsageLog"
+| extend UsageId = tostring(customDimensions.UsageId)
+| where UsageId == "00000000-0000-0000-0000-000000000001"
+| summarize count() by bin(timestamp, 1d)
+```
+
+### 9.2 Key Metrics
 
 **Client-Side:**
 
-- Usage events queued per session
 - Batch send success rate
-- Batch send error rate (by error type)
 - Average queue size
 - Bot detection rate
+- localStorage failure rate
 
 **Server-Side:**
 
-- API request rate (requests/sec)
-- API error rate (by status code)
-- Rate limit hit rate
-- Database insert rate
+- API request rate
+- API error rate
 - Background task queue depth
+- Database insert rate
 
-**Business Metrics:**
+**Business:**
 
 - Daily active users (by UsageId)
 - Pages per session
-- Session duration
+- Anonymous vs authenticated ratio
 - Top pages visited
-- Bot traffic percentage
-
-### 10.2 Alerts
-
-**Critical:**
-
-- API error rate > 5%
-- Database insert failures > 1%
-- Rate limit hit rate > 10%
-
-**Warning:**
-
-- Client-side error rate > 2%
-- Queue overflow events > 1%
-- Bot detection rate changes > 20%
-
-### 10.3 Dashboards
-
-**Development Dashboard:**
-
-- Real-time usage events (console)
-- Queue status
-- API call history
-- Error log
-
-**Production Dashboard (Application Insights):**
-
-- Usage trends (daily, weekly)
-- Top pages
-- User retention
-- Bot traffic analysis
-- Performance metrics
-
-## 11. Security Considerations
-
-### 11.1 API Security
-
-**Threats:**
-
-1. **DDoS:** Flood API with fake usage events
-2. **Data Poisoning:** Submit false data to skew analytics
-3. **PII Leakage:** Expose sensitive user data in logs
-4. **CSRF:** Submit forged requests from other domains
-
-**Mitigations:**
-
-1. **Rate Limiting:** 100 req/min per IP, 10 batches/min per UsageId
-2. **Validation:** Strict payload validation (size, format, content)
-3. **Origin Checking:** Verify requests come from same domain
-4. **Sanitization:** Strip PII from URLs and referrers
-5. **Anti-CSRF:** Validate request origin headers
-
-### 11.2 Client-Side Security
-
-**Threats:**
-
-1. **Script Injection:** XSS attack modifies tracking code
-2. **localStorage Tampering:** User modifies UsageId or queue
-3. **Bot Spoofing:** Bots bypass detection logic
-
-**Mitigations:**
-
-1. **CSP:** Content Security Policy prevents script injection
-2. **Integrity Checking:** Validate localStorage data format
-3. **Bot Detection:** Multiple signals (user-agent, behavior, timing)
-
-### 11.3 Data Privacy
-
-**Best Practices:**
-
-1. **Minimal Data:** Only collect necessary fields
-2. **Anonymization:** Don't log sensitive query parameters
-3. **Encryption:** HTTPS for API calls (already enforced)
-4. **Retention:** Auto-delete old logs (90 days)
-
-## 12. Future Enhancements
-
-### 12.1 Real-Time Analytics (SignalR)
-
-**Goal:** Push usage data to dashboard in real-time
-
-**Implementation:**
-
-```csharp
-// Server: Broadcast usage events to connected clients
-await Clients.Group("Admins").SendAsync("UsageEvent", usageEvent);
-```
-
-```typescript
-// Client: Subscribe to usage events
-signalRConnection.on("UsageEvent", (event) => {
-  updateDashboard(event);
-});
-```
-
-### 12.2 Offline Support
-
-**Goal:** Queue events when offline, sync when reconnected
-
-**Implementation:**
-
-```typescript
-window.addEventListener("online", () => {
-  usageTracker.sendQueuedEvents();
-});
-```
-
-### 12.3 Client-Side Aggregation
-
-**Goal:** Reduce API calls by aggregating events on client
-
-**Implementation:**
-
-```typescript
-// Instead of sending individual page views, send session summary
-{
-  usageId: "...",
-  sessionStart: 1234567890,
-  sessionEnd: 1234567899,
-  pagesVisited: ["/", "/dances", "/songs"],
-  totalTime: 9000 // milliseconds
-}
-```
-
-### 12.4 A/B Testing Integration
-
-**Goal:** Track which variant users see
-
-**Implementation:**
-
-```typescript
-usageTracker.trackEvent({
-  type: "ab_test",
-  testName: "homepage_layout",
-  variant: "B",
-});
-```
-
-### 12.5 Bot Behavior Analysis
-
-**Goal:** ML model to detect sophisticated bots
-
-**Implementation:**
-
-- Track user behavior patterns (mouse movement, scroll, timing)
-- Train model on known bot vs. human patterns
-- Flag suspicious sessions for review
-
-## 13. Future Enhancements
-
-### 13.1 Client-Side Path Filtering
-
-**Status:** Documented (Not Implemented)
-**Priority:** Low
-
-**Current State:**
-
-- Path exclusions handled server-side in `_head.cshtml`
-- Excluded: `/admin/`, `/identity/`, `/api/`
-- Pattern matches existing architecture (server-driven configuration)
-
-**Proposed Enhancement:**
-Allow client-side path exclusions without server restart for dynamic configuration updates.
-
-**Implementation:**
-
-```typescript
-interface UsageTrackerConfig {
-  excludePaths?: string[]; // Regex patterns or exact matches
-}
-
-// In trackPageView()
-function trackPageView(page: string, query: string = "") {
-  if (config.excludePaths?.some((pattern) => page.match(pattern))) {
-    return; // Skip tracking
-  }
-  // ... continue with tracking
-}
-```
-
-**Benefits:**
-
-- Dynamic configuration updates without deployment
-- Per-user exclusions (privacy-focused users)
-- More flexible than server-side only
-
-**Considerations:**
-
-- Server-side exclusions are sufficient for current needs
-- Adds client-side complexity
-- Feature flag already provides master on/off switch
 
 ---
 
-### 13.2 Anti-Replay Protection (Timestamp Validation)
+## 10. Security Considerations
 
-**Status:** Documented (Not Implemented)
-**Priority:** Low
+### 10.1 CSRF Protection
 
-**Current State:**
-
-- Timestamps are informational (client local time)
-- Server uses server timestamp for database
-- XSRF token already prevents cross-origin replay attacks
-- Same-origin replay is low-value attack (just duplicates own data)
-
-**Why Not Critical:**
-
-1. XSRF token prevents cross-origin replay
-2. XSRF token is tied to session (expires)
-3. Rate limiting mitigates spam
-4. Usage tracking is non-sensitive (not financial transactions)
-
-**Proposed Enhancement:**
-Add timestamp age validation to prevent replay of old captured events.
+**Mechanism:** `[ValidateAntiForgeryToken]` attribute on API controller
 
 **Implementation:**
 
-```csharp
-// In UsageLogController.LogBatch
-foreach (var eventDto in eventList)
-{
-    var eventAge = DateTime.UtcNow - DateTimeOffset.FromUnixTimeMilliseconds(eventDto.Timestamp).DateTime;
-    if (eventAge.TotalHours > 24)
-    {
-        Logger.LogWarning("Rejecting event older than 24 hours: {UsageId}", eventDto.UsageId);
-        continue; // Skip old events
+1. Server generates token in `_head.cshtml`
+2. Token passed to client via `menuContext.xsrfToken`
+3. Client includes token in FormData: `__RequestVerificationToken`
+4. Server validates token origin
+
+**Why FormData (Not JSON):**
+
+- Standard ASP.NET Core validation works without custom filters
+- Token not logged in URLs
+- More secure than query string
+
+### 10.2 Rate Limiting
+
+**See:** `architecture/identity-endpoint-protection.md`
+
+**API Rate Limiting:** (Future enhancement)
+
+- Per IP: 100 req/min
+- Per UsageId: 10 batches/min
+
+### 10.3 Data Privacy
+
+**GDPR Compliance:**
+
+- UsageId is not personally identifiable
+- Canonical fallback ID doesn't track users
+- localStorage (not cookies) - no banner update needed
+- Opt-out mechanism available (set `usageTrackingOptOut` in localStorage)
+
+**Retention:**
+
+- Usage logs retained for 90 days (configurable)
+- Automatic cleanup recommended
+
+---
+
+## 11. Future Enhancements
+
+### 11.1 Storage Fallback Strategies
+
+**Status:** ? Not Yet Implemented  
+**Priority:** TBD (depends on canonical GUID usage data)
+
+**Problem:**  
+Currently, when localStorage is unavailable (private browsing, strict privacy settings), we use a canonical fallback GUID (`00000000-0000-0000-0000-000000000001`) and don't track these users. However, other storage mechanisms might still be available.
+
+**Proposed Fallback Chain:**
+
+1. **localStorage** (primary) - Best: persists across sessions, large storage
+2. **sessionStorage** (fallback 1) - Good: available in private browsing on some browsers
+3. **Client-side cookies** (fallback 2) - Fair: smaller storage, sent with every request
+4. **Server-side tracking** (fallback 3) - Last resort: fall back to legacy cookie-based tracking
+
+**Implementation Considerations:**
+
+**Option 1: sessionStorage Fallback**
+```typescript
+function getUsageId(): string {
+  // Try localStorage first
+  try {
+    let usageId = localStorage.getItem(STORAGE_KEY_USAGE_ID);
+    if (!usageId) {
+      usageId = crypto.randomUUID();
+      localStorage.setItem(STORAGE_KEY_USAGE_ID, usageId);
     }
-
-    // ... save event
+    return usageId;
+  } catch (error) {
+    // Fallback to sessionStorage
+    try {
+      let usageId = sessionStorage.getItem(STORAGE_KEY_USAGE_ID);
+      if (!usageId) {
+        usageId = crypto.randomUUID();
+        sessionStorage.setItem(STORAGE_KEY_USAGE_ID, usageId);
+      }
+      return usageId;
+    } catch (sessionError) {
+      // Final fallback: canonical GUID
+      return FALLBACK_USAGE_ID;
+    }
+  }
 }
 ```
 
-**Benefits:**
+**Trade-offs:**
+- ? sessionStorage often works in private browsing (Safari, Firefox)
+- ? Better than canonical GUID (tracks session, not just page)
+- ? Doesn't persist across browser sessions
+- ? Each new session = new UsageId (inflates DAU metrics)
 
-- Prevents replay of old captured events (edge case)
-- Filters out client clock skew issues
-- Reduces database pollution from stale events
-
-**Considerations:**
-
-- XSRF token provides sufficient protection already
-- Adds validation overhead
-- 24-hour window may be too strict for legitimate use cases
-
----
-
-### 13.3 Navigation API Testing Limitations
-
-**Status:** Documented
-**Priority:** N/A (Documentation)
-
-**Challenge:**
-Navigation API is not available in JSDOM (Vitest environment), requiring complex mocking for automated tests.
-
-**Current Testing Coverage:**
-
-- ? Batching logic (23 unit tests)
-- ? Queue management (unit tested)
-- ? SendBeacon calls (unit tested)
-- ? lastSentIndex tracking (unit tested)
-- ?? Navigation API detection (manual tested)
-- ?? Unload handler skip logic (manual tested)
-
-**Mitigation:**
-
-- Manual testing documented in architecture
-- Browser DevTools verification
-- Graceful degradation tested (older browsers)
-
-**Manual Test Checklist:**
-
-1. **Chrome/Edge 102+** - Verify "Internal navigation detected" in console
-2. **Firefox 123+** - Same verification
-3. **Safari 17.0+** - Same verification
-4. **Chrome 101 (older)** - Verify graceful degradation (sends on every page)
-
-**Future Consideration:**
-Consider Playwright for E2E tests with real browsers to test Navigation API integration.
-
-**Implementation Example (Playwright):**
-
+**Option 2: Client-Side Cookie Fallback**
 ```typescript
-// playwright.config.ts
-test("Navigation API prevents unload send on internal navigation", async ({
-  page,
-}) => {
-  await page.goto("/");
-  await page.goto("/dances");
-
-  // Verify no sendBeacon call made
-  const beaconCalls = await page.evaluate(() => window.beaconCallCount);
-  expect(beaconCalls).toBe(0);
-});
+function getUsageId(): string {
+  // Try localStorage ? sessionStorage ? cookies
+  // ...existing fallbacks...
+  
+  // Fallback to client-side cookie
+  const cookieUsageId = getCookie('usageId');
+  if (cookieUsageId) return cookieUsageId;
+  
+  const newId = crypto.randomUUID();
+  setCookie('usageId', newId, 365); // 1 year expiration
+  return newId;
+}
 ```
 
+**Trade-offs:**
+- ? Works when localStorage/sessionStorage unavailable
+- ? Persists across sessions (if user accepts cookies)
+- ? Cookie sent with every request (bandwidth overhead)
+- ? 4KB size limit (less than localStorage)
+- ? May require cookie consent banner update
+
+**Option 3: Server-Side Tracking Fallback**
+```typescript
+function initializeTracking(): boolean {
+  // Test if localStorage is available
+  if (!isStorageAvailable()) {
+    if (finalConfig.debug) {
+      console.log("Storage unavailable, using server-side tracking");
+    }
+    // Don't initialize client-side tracking
+    // Server-side middleware will handle via cookie
+    return false;
+  }
+  
+  // Initialize client-side tracking
+  return true;
+}
+```
+
+**Server-Side Detection:**
+```csharp
+// In DMController.cs
+if (await FeatureManager.IsEnabledAsync(FeatureFlags.ClientSideUsageLogging))
+{
+    // Check if client sent UsageId = canonical GUID (storage failed)
+    var clientUsageId = ExtractUsageIdFromRequest();
+    if (clientUsageId == "00000000-0000-0000-0000-000000000001")
+    {
+        // Fall back to server-side tracking for this user
+        await TrackUsageServerSide(context);
+        return;
+    }
+    
+    // Skip server-side tracking (client-side handles it)
+    return;
+}
+```
+
+**Trade-offs:**
+- ? Best coverage (tracks users even without client-side storage)
+- ? No data loss for private browsing users
+- ? Reuses existing server-side infrastructure
+- ? More complex coordination (client signals failure, server responds)
+- ? Requires detecting canonical GUID in multiple places
+- ? Higher server load for private browsing users
+
+**Recommendation:**
+
+Wait for production data before implementing. After feature is enabled:
+
+1. **Query canonical GUID usage:**
+   ```sql
+   SELECT 
+       COUNT(*) as FallbackUsers,
+       COUNT(*) * 100.0 / (SELECT COUNT(DISTINCT UsageId) FROM UsageLog) as Percentage
+   FROM UsageLog
+   WHERE UsageId = '00000000-0000-0000-0000-000000000001'
+   ```
+
+2. **Decision Matrix:**
+   - If < 1% of users ? **Don't implement** (not worth complexity)
+   - If 1-5% of users ? **Consider sessionStorage** (simple, low risk)
+   - If 5-10% of users ? **Add cookie fallback** (better coverage)
+   - If > 10% of users ? **Implement server-side fallback** (best coverage)
+
+3. **Browser-Specific Analysis:**
+   ```sql
+   SELECT 
+       UserAgent,
+       COUNT(*) as FallbackCount
+   FROM UsageLog
+   WHERE UsageId = '00000000-0000-0000-0000-000000000001'
+   GROUP BY UserAgent
+   ORDER BY FallbackCount DESC
+   ```
+   
+   If fallbacks concentrated in specific browsers (e.g., Safari private), targeted solution may be better.
+
+**Why Not Implemented Now:**
+- Don't know scale of problem yet
+- Canonical GUID lets us measure need accurately
+- Adding complexity before validating need is premature optimization
+- Can implement later without breaking changes
+
+**Browser Compatibility Research:**
+
+| Browser              | Private Mode | localStorage | sessionStorage | Cookies |
+|---------------------|--------------|--------------|----------------|---------|
+| Chrome/Edge         | Incognito    | ? Blocked    | ? Available    | ? Available |
+| Firefox             | Private      | ? Blocked    | ? Available    | ? Available |
+| Safari              | Private      | ? Blocked    | ? Available    | ?? Limited |
+| Safari (ITP strict) | Normal       | ?? Cleared    | ?? Cleared     | ?? Limited |
+
+**Key Insight:** sessionStorage appears to be the best first fallback (widely available in private browsing).
+
 ---
 
-### 13.4 Health Check Endpoint
+### 11.2 Other Enhancements (Not Yet Implemented)
 
-**Status:** Documented (Not Implemented)
-**Priority:** Medium
+**Priority: Low**
 
-**Current State:**
+- ? **Client-side path filtering** - Dynamic exclusions without server restart
+- ? **Anti-replay protection** - Timestamp age validation (XSRF already prevents cross-origin)
+- ? **Health check endpoint** - Monitor background task queue health
+- ? **API rate limiting** - Per IP/UsageId limits (fire-and-forget currently)
 
-- Background task queue handles processing
-- Errors logged to Application Insights
-- No dedicated health check endpoint
+**Priority: Medium**
 
-**Why Not Implemented:**
+- ? **Navigation API E2E tests** - Playwright for real browser testing
+- ? **Offline support** - Queue events when offline, sync on reconnect
+- ? **Session aggregation** - Send summaries instead of individual events
+
+**Priority: Future**
+
+- ? **Real-time analytics** - SignalR dashboard updates
+- ? **A/B testing integration** - Track experiment variants
+- ? **Bot behavior analysis** - ML model for sophisticated bot detection
+
+### 11.3 Why Not Implemented?
+
+**Rate Limiting:**
+
+- Fire-and-forget approach means API failures don't block users
+- Background task queue naturally throttles database writes
+- Can add later if abuse detected
+
+**Anti-Replay:**
+
+- XSRF token prevents cross-origin replay
+- Same-origin replay just duplicates own data (low value attack)
+- Timestamp validation adds overhead without clear benefit
+
+**Health Check:**
 
 - Usage logging is non-critical (doesn't block user functionality)
-- Failure is silent by design (fire-and-forget)
-- Adding health check adds operational complexity without immediate value
-
-**Proposed Enhancement:**
-Monitor usage logging system health for production monitoring.
-
-**Implementation:**
-
-```csharp
-// In UsageLogController or separate HealthController
-[HttpGet("health")]
-[AllowAnonymous]
-public IActionResult GetHealth()
-{
-    var queueDepth = GetQueueDepth(); // Access IBackgroundTaskQueue
-    var lastProcessedTime = GetLastProcessedTime(); // Track in static variable
-    var errorRate = GetRecentErrorRate(); // Calculate from last N operations
-
-    var status = "Healthy";
-    if (queueDepth > 1000) status = "Degraded";
-    if (errorRate > 0.05) status = "Unhealthy";
-    if ((DateTime.UtcNow - lastProcessedTime).TotalMinutes > 5) status = "Unhealthy";
-
-    return Ok(new
-    {
-        Status = status,
-        QueueDepth = queueDepth,
-        LastProcessedTime = lastProcessedTime,
-        ErrorRate = errorRate,
-        Timestamp = DateTime.UtcNow
-    });
-}
-```
-
-**Monitoring Alerts:**
-
-- Alert if queue depth > 1000 (backlog building)
-- Alert if error rate > 5% (systemic issues)
-- Alert if no processing for > 5 minutes (service down)
-
-**Benefits:**
-
-- Proactive monitoring
-- Early detection of issues
-- Integration with monitoring tools (Application Insights, Azure Monitor)
-
-**Considerations:**
-
-- Non-critical feature (nice-to-have)
-- Adds operational overhead
-- Should be low priority given fire-and-forget nature
+- Errors logged to Application Insights
+- Can add later for proactive monitoring
 
 ---
 
-### 13.5 Code Quality Improvements (Implemented)
+## 12. Decision Log
 
-**Status:** ? Implemented
+### 12.1 Key Architectural Decisions
 
-**JSDoc Comments:**
+| Decision                        | Rationale                                         | Status        |
+| ------------------------------- | ------------------------------------------------- | ------------- |
+| **SendBeacon-only** (no fetch)  | Simpler, more reliable, better unload handling    | ? Implemented |
+| **FormData (not JSON)**         | Standard validation works, more secure            | ? Implemented |
+| **Smart batching**              | Reduce server load, wait for anonymous engagement | ? Implemented |
+| **Feature flag toggle**         | Safe rollout, easy rollback                       | ? Implemented |
+| **Canonical fallback ID**       | Better than random UUID in MPA                    | ? Implemented |
+| **No Vue Router**               | Project uses full page loads                      | ? Documented  |
+| **Server-side path exclusions** | Cleaner than client-side, centralized             | ? Implemented |
+| **Fire-and-forget API**         | Don't block page, graceful degradation            | ? Implemented |
+| **Navigation API**              | 85-90% browser support, graceful fallback         | ? Implemented |
+| **Keep server-side tracking**   | Fallback mechanism, Razor Pages support           | ? Implemented |
 
-- ? Added comprehensive JSDoc to `useUsageTracking()` function
-- ? Documents parameters, return values, usage examples
-- ? Explains batching behavior for anonymous vs authenticated users
+### 12.2 Trade-Offs
 
-**XSRF Token Validation:**
+**Client-Side Tracking:**
 
-- ? Debug warnings for missing/invalid tokens
-- ? Helps developers catch configuration issues
-- ? Doesn't block functionality (fire-and-forget approach)
+- ? Works with CDN caching
+- ? Reduces server load (batching)
+- ? Requires JavaScript enabled
+- ? Can be blocked by ad blockers
+- ? Bot detection more complex
 
-**Error Handling:**
+**Server-Side Tracking:**
 
-- ? FormData creation wrapped in try/catch (already in place)
-- ? JSON.stringify errors caught
-- ? Graceful degradation on all errors
+- ? Works without JavaScript
+- ? Tracks Razor Pages (Identity)
+- ? Simple bot detection
+- ? Bypassed by CDN caching
+- ? Higher server load
+- ? Cannot track cached pages
 
 ---
 
-## 14. Implementation Timeline for Future Enhancements
+## 13. Historical Notes
 
-| Enhancement                      | Priority | Effort    | Benefit | Recommended Timeline     |
-| -------------------------------- | -------- | --------- | ------- | ------------------------ |
-| Client-side path filtering       | Low      | 2-3 hours | Low     | After 6 months if needed |
-| Anti-replay protection           | Low      | 1-2 hours | Low     | After 6 months if needed |
-| Navigation API E2E tests         | Low      | 4-6 hours | Medium  | When adding Playwright   |
-| Health check endpoint            | Medium   | 2-3 hours | Medium  | After 3 months in prod   |
-| Code quality (JSDoc, validation) | High     | ? Done    | High    | ? Complete               |
+### 13.1 Implementation Timeline
 
----
+**Phase 1 (2 days):** Client-side foundation
 
-## 15. Lessons Learned
+- Created `useUsageTracking` composable
+- Implemented localStorage management
+- Bot detection logic
+- Unit tests (19 tests)
+
+**Phase 2 (2 days):** API endpoint
+
+- Created `UsageLogController`
+- Background task integration
+- FormData + XSRF validation
+- Integration tests (8 tests)
+
+**Phase 3 (2 days):** Integration
+
+- Added feature flag
+- Updated `_head.cshtml`
+- Conditional server-side logging
+- End-to-end manual testing
+
+**Phase 4 (In progress):** Production deployment
+
+- Feature flag disabled by default
+- Staged rollout plan
+- Monitoring setup
+
+### 13.2 Lessons Learned
 
 **What Worked Well:**
 
-- ? FormData approach with SendBeacon (simpler than expected)
+- ? FormData + SendBeacon approach (simpler than expected)
 - ? Navigation API integration (excellent browser support)
-- ? Smart batching (anonymous vs authenticated)
+- ? Smart batching (reduces server load effectively)
+- ? Feature flag strategy (safe, reversible)
 - ? Server-side path exclusions (clean, maintainable)
-- ? Feature flag rollout strategy (safe, reversible)
 
 **What Could Be Improved:**
 
 - ?? Could add more E2E tests (Playwright)
 - ?? Health check endpoint would be nice (non-critical)
-- ?? Client-side path filtering (maybe overkill)
+- ?? Canonical GUID discovered late (initial in-memory approach wouldn't work in MPA)
 
 **Recommendations for Similar Features:**
 
-1. Start with server-side configuration (simpler)
+1. Start with server-side configuration
 2. Use feature flags for safe rollout
-3. Navigation API is mature enough for production use
-4. FormData + SendBeacon is the right pattern for fire-and-forget APIs
-5. Document testing limitations upfront
-
-## 14. Resolved Technical Decisions
-
-**Q1:** Should we use SignalR for real-time updates, or stick with REST API?
-
-- **Decision:** ? REST API + SendBeacon (simpler), SignalR is future enhancement
-
-**Q2:** Should we send individual events or session summaries?
-
-- **Decision:** ? Individual events (matches current model), aggregation is future enhancement
-
-**Q3:** Should we retry failed API calls?
-
-- **Decision:** ? No retries (fire-and-forget with graceful degradation)
-
-**Q4:** Should we support IE11?
-
-- **Decision:** ? No, Vue 3 doesn't support IE11 anyway
-
-**Q5:** Should we track API-only endpoints (e.g., `/api/search`)?
-
-- **Decision:** ? Not initially, consider as future enhancement
-
-**Q6:** Vue Router integration needed?
-
-- **Decision:** ? No, project doesn't use Vue Router (full page loads)
-
-**Q7:** Send strategy for authenticated vs. anonymous?
-
-- **Decision:** ? Authenticated: immediate send; Anonymous: threshold-based (n=3)
-
-**Q8:** Use SendBeacon for page unload?
-
-- **Decision:** ? Yes, for reliable end-of-session tracking
-
-### 14.2 Resolved Product Decisions
-
-**Q1:** What batch threshold is optimal (n pages before send)?
-
-- **Decision:** ? n=3 for anonymous users (configurable)
-
-**Q2:** Should we show users their own usage data?
-
-- **Decision:** ? Not initially, consider as future enhancement
-
-**Q3:** Should we allow users to opt-out of tracking?
-
-- **Decision:** ? Yes, required for privacy compliance
-
-**Q4:** Should we track Razor Pages (Identity pages)?
-
-- **Decision:** ? Not initially (out of scope for DMController)
-
-**Q5:** Rollout strategy for hobby site?
-
-- **Decision:** ? Simple feature flag toggle (not complex phased rollout)
-
-**Q6:** Load testing needed?
-
-- **Decision:** ? No (hobby site with modest traffic)
-
-**Q7:** Keep queue for other uses (nag modals)?
-
-- **Decision:** ? Yes, keep visit count and history persistent
-
-## 15. Success Criteria
-
-### 15.1 Functional Requirements
-
-? Client-side tracking captures ?90% of page views (vs. server-side, accounting for bots)
-? Bot detection filters known bots effectively
-? API endpoint handles expected traffic without errors
-? Data integrity matches server-side implementation
-? No impact on page load times (< 50ms overhead)
-? Graceful degradation if API fails
-
-### 15.2 Non-Functional Requirements
-
-? Privacy compliant (GDPR)
-? Secure (no data leakage, rate-limited)
-? Reliable (< 1% error rate for non-network issues)
-? Maintainable (well-documented, tested)
-? Scalable (handles 10x traffic growth)
-
-### 15.3 Business Goals
-
-? Accurate usage analytics for Azure Front Door caching
-? Reduced server load (background processing)
-? Improved user experience (no server-side overhead)
-? Better bot detection and filtering
-? Foundation for advanced analytics
-
-## 16. Risks and Mitigation
-
-### 16.1 Technical Risks
-
-| Risk                                   | Probability | Impact | Mitigation                                                         |
-| -------------------------------------- | ----------- | ------ | ------------------------------------------------------------------ |
-| Client-side tracking misses page views | Medium      | High   | Parallel operation phase, comparison testing                       |
-| API rate limiting too strict           | Low         | Medium | Monitor hit rate, adjust thresholds                                |
-| localStorage quota exceeded            | Low         | Low    | Implement queue size limit (100 events)                            |
-| Bot detection ineffective              | Medium      | Medium | Multiple detection signals, server-side validation                 |
-| Network failures lose data             | Medium      | Low    | Acceptable (fire-and-forget with graceful degradation), log errors |
-
-### 16.2 Business Risks
-
-| Risk                      | Probability | Impact   | Mitigation                               |
-| ------------------------- | ----------- | -------- | ---------------------------------------- |
-| Data accuracy concerns    | Low         | High     | Feature flag toggle, ad-hoc testing      |
-| Privacy compliance issues | Low         | Critical | Opt-out mechanism, privacy policy        |
-| User confusion (opt-out)  | Low         | Low      | Clear UI, help documentation             |
-| Performance degradation   | Low         | Medium   | Monitoring, rollback plan (feature flag) |
-
-## 17. Dependencies
-
-### 17.1 External Dependencies
-
-- Vue 3 (already in use)
-- Fetch API (browser built-in)
-- SendBeacon API (browser built-in)
-- localStorage API (browser built-in)
-
-### 17.2 Internal Dependencies
-
-- Azure Front Door implementation (parent requirement)
-- Feature flag system (already in use)
-- Background task queue (already in use)
-- Database schema (no changes required)
-
-### 17.3 Team Dependencies
-
-- 2 developers (can work on frontend and backend concurrently)
-- No QA team (ad-hoc integration testing by developers)
-- No separate DevOps (developers deploy)
-
-## 18. Timeline Summary
-
-| Phase                  | Duration    | Start | End | Status            |
-| ---------------------- | ----------- | ----- | --- | ----------------- |
-| Phase 1 - Foundation   | 1-2 days    | TBD   | TBD | ?? Pending Review |
-| Phase 2 - API Endpoint | 1-2 days    | TBD   | TBD | ?? Pending Review |
-| Phase 3 - Integration  | 1-2 days    | TBD   | TBD | ?? Pending Review |
-| Phase 4 - Deployment   | 1 day       | TBD   | TBD | ?? Pending Review |
-| **Total**              | **~1 week** |       |     |                   |
-
-## 19. Next Steps
-
-**After Architecture Review:**
-
-1. ? Create feature branch `feature/client-side-usage-tracking`
-2. ? Begin Phase 1 implementation (client-side foundation)
-3. ? Implement automated unit tests
-4. ? Continue through Phases 2-4
-5. ? Deploy with feature flag and test
-6. ? Update this document with "as-built" details
-
-**No legal review needed** - Same data as existing server-side tracking
+3. Navigation API is production-ready
+4. FormData + SendBeacon is the right pattern
+5. Consider MPA vs SPA implications early
+6. Document testing limitations upfront
 
 ---
 
-**Document Version:** 2.0 (Revised based on feedback)
-**Last Updated:** 2024
+**Document Version:** 3.0 (Current State Architecture)
+**Last Updated:** 2025-01-21
 **Author:** Architecture Team
-**Reviewers:** David Gray (Approved)
-**Status:** ? **APPROVED - Ready for Implementation**
+**Status:** ? **Production Ready** (Feature Flag Controlled)
