@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from "vue";
 import { SongListModel } from "@/models/SongListModel";
 import { getMenuContext } from "@/helpers/GetMenuContext";
 import type { BvEvent } from "bootstrap-vue-next";
@@ -15,6 +16,22 @@ const model = props.model;
 const filter = props.model.filter;
 const pageNumber = filter.page ?? 1;
 const pageCount = Math.max(1, Math.ceil(model.count / 25));
+const editPageNumber = ref(pageNumber);
+
+const goToPage = () => {
+  let page = editPageNumber.value;
+  if (typeof page !== "number" || isNaN(page)) {
+    editPageNumber.value = pageNumber;
+    return;
+  }
+  page = Math.floor(page);
+  if (page < 1) page = 1;
+  if (page > pageCount) page = pageCount;
+  editPageNumber.value = page;
+  if (page !== pageNumber) {
+    window.location.href = linkGen(page);
+  }
+};
 const newSearch = filter.isSimple(context.userName) ? "/song" : "/song/advancedsearchform";
 const playListRef = filter.getPlayListRef(context.userName);
 
@@ -50,7 +67,22 @@ const onPageClick = (event: BvEvent, pageNum: number) => {
         @page-click="onPageClick"
       />
     </BCol>
-    <BCol md="2">Page {{ pageNumber }} of {{ pageCount }} ({{ model.count }} songs found)</BCol>
+    <BCol md="2"
+      >Page
+      <input
+        v-model.number="editPageNumber"
+        type="number"
+        step="1"
+        :min="1"
+        :max="pageCount"
+        class="form-control form-control-sm d-inline-block"
+        style="width: 4em"
+        aria-label="Page number"
+        @keydown.enter="goToPage"
+        @blur="goToPage"
+      />
+      of {{ pageCount }} ({{ model.count }} songs found)</BCol
+    >
     <BCol md="2"
       ><div><a :href="newSearch">New Search</a></div>
       <div v-if="playListRef">

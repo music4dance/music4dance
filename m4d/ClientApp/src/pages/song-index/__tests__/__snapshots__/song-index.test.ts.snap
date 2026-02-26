@@ -5162,7 +5162,7 @@ exports[`Song Index > renders a song index page 1`] = `
             <li class="page-item" role="presentation" displayindex="12"><button is="button" class="page-link text-center" aria-label="Go to next page" role="menuitem" type="button" tabindex="-1">›</button></li>
           </ul>
         </div>
-        <div class="col-md-2">Page 1 of 2494 (62336 songs found)</div>
+        <div class="col-md-2">Page <input type="number" step="1" min="1" max="2494" class="form-control form-control-sm d-inline-block" style="width: 4em;" aria-label="Page number"> of 2494 (62336 songs found)</div>
         <div class="col-md-2">
           <div><a href="/song">New Search</a></div>
           <!--v-if-->
