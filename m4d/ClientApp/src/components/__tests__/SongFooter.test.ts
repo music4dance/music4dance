@@ -156,14 +156,14 @@ describe("SongFooter.vue", () => {
 
   test("shows advanced search link for non-simple filter", () => {
     const model = createModel();
-    // Make filter non-simple by adding a raw/lucene property
-    model.filter.lucene = "test query";
+    // Make filter non-simple by setting action to customsearch (isRaw = true)
+    model.filter.action = "customsearch";
 
-    const wrapper = mountFooter(createModel());
-    // Default simple filter should point to /song
+    const wrapper = mountFooter(model);
     const links = wrapper.findAll("a");
     const newSearchLink = links.find((l) => l.text() === "New Search");
     expect(newSearchLink).toBeDefined();
+    expect(newSearchLink!.attributes("href")).toBe("/song/advancedsearchform");
   });
 
   test("shows export link for diagnostics role", () => {
