@@ -3922,7 +3922,7 @@ exports[`New Music > renders a new music page 1`] = `
             <li class="page-item" role="presentation" displayindex="12"><button is="button" class="page-link text-center" aria-label="Go to next page" role="menuitem" type="button" tabindex="-1">›</button></li>
           </ul>
         </div>
-        <div class="col-md-2">Page 1 of 1235 (30870 songs found)</div>
+        <div class="col-md-2">Page <input type="number" min="1" max="1235" class="form-control form-control-sm d-inline-block" style="width: 4em;"> of 1235 (30870 songs found)</div>
         <div class="col-md-2">
           <div><a href="/song/advancedsearchform">New Search</a></div>
           <div><a href="/song/createspotify?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Create Spotify Playlist</a></div>
