@@ -20,7 +20,12 @@ const editPageNumber = ref(pageNumber);
 
 const goToPage = () => {
   let page = editPageNumber.value;
-  if (isNaN(page) || page < 1) page = 1;
+  if (typeof page !== "number" || isNaN(page)) {
+    editPageNumber.value = pageNumber;
+    return;
+  }
+  page = Math.floor(page);
+  if (page < 1) page = 1;
   if (page > pageCount) page = pageCount;
   editPageNumber.value = page;
   if (page !== pageNumber) {
@@ -72,6 +77,7 @@ const onPageClick = (event: BvEvent, pageNum: number) => {
         :max="pageCount"
         class="form-control form-control-sm d-inline-block"
         style="width: 4em"
+        aria-label="Page number"
         @keydown.enter="goToPage"
         @blur="goToPage"
       />
