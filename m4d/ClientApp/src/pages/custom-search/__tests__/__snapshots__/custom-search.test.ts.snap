@@ -4071,7 +4071,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
               <li class="page-item" role="presentation" displayindex="12"><button is="button" class="page-link text-center" aria-label="Go to next page" role="menuitem" type="button" tabindex="-1">›</button></li>
             </ul>
           </div>
-          <div class="col-md-2">Page <input type="number" min="1" max="29" class="form-control form-control-sm d-inline-block" style="width: 4em;"> of 29 (707 songs found)</div>
+          <div class="col-md-2">Page <input type="number" step="1" min="1" max="29" class="form-control form-control-sm d-inline-block" style="width: 4em;"> of 29 (707 songs found)</div>
           <div class="col-md-2">
             <div><a href="/song/advancedsearchform">New Search</a></div>
             <div><a href="/song/createspotify?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))">Create Spotify Playlist</a></div>

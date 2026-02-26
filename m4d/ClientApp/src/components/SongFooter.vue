@@ -67,6 +67,7 @@ const onPageClick = (event: BvEvent, pageNum: number) => {
       <input
         v-model.number="editPageNumber"
         type="number"
+        step="1"
         :min="1"
         :max="pageCount"
         class="form-control form-control-sm d-inline-block"
