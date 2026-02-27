@@ -1152,8 +1152,12 @@ public class AdminController(
     //
     // Get: //IndexBackup
     [Authorize(Roles = "showDiagnostics")]
-    public async Task<ActionResult> IndexBackup([FromServices] IWebHostEnvironment environment,
-        string name = "default", int count = -1, string filter = null)
+    public async Task<ActionResult> IndexBackup(
+        [FromServices] IWebHostEnvironment environment,
+        string name = "default",
+        string filter = null,
+        int writeBufferSize = 100,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -1163,23 +1167,46 @@ public class AdminController(
             var fname = $"index-{dt.Year:d4}-{dt.Month:d2}-{dt.Day:d2}.txt";
             var path = Path.Combine(EnsureAppData(environment), fname);
 
+            var songFilter = filter == null ? null : Database.SearchService.GetSongFilter(filter);
+
             var n = 0;
+            var buffer = new List<string>(writeBufferSize);
+
             await using (var file = System.IO.File.CreateText(path))
             {
-                var lines = await Database.GetSongIndex(name).BackupIndex(
-                    count,
-                    filter == null ? null : Database.SearchService.GetSongFilter(filter));
-                foreach (var line in lines)
+                // Use streaming method that handles continuation tokens (no 100K skip limit)
+                await foreach (var line in Database.GetSongIndex(name)
+                    .BackupIndexStreamingAsync(songFilter, cancellationToken))
                 {
-                    await file.WriteLineAsync(line);
-                    AdminMonitor.UpdateTask("writeSongs", ++n);
+                    buffer.Add(line);
+                    n++;
+
+                    // Write in chunks for efficiency
+                    if (buffer.Count >= writeBufferSize)
+                    {
+                        await file.WriteAsync(string.Join(Environment.NewLine, buffer));
+                        await file.WriteAsync(Environment.NewLine);
+                        await file.FlushAsync(cancellationToken);
+
+                        AdminMonitor.UpdateTask("writeSongs", n);
+                        buffer.Clear();
+                    }
                 }
 
-                file.Close();
+                // Write remaining buffer
+                if (buffer.Count > 0)
+                {
+                    await file.WriteAsync(string.Join(Environment.NewLine, buffer));
+                    await file.WriteAsync(Environment.NewLine);
+                }
             }
 
             AdminMonitor.CompleteTask(true, $"Backup ({n} songs) complete to: {path}");
             return File("~/AppData/" + fname, MediaTypeNames.Text.Plain, fname);
+        }
+        catch (OperationCanceledException)
+        {
+            return FailAdminTask("Backup cancelled by user", null);
         }
         catch (Exception e)
         {

@@ -8,6 +8,7 @@ using Azure.Search.Documents.Models;
 using DanceLibrary;
 
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace m4dModels;
@@ -1759,6 +1760,7 @@ public class SongIndex
         return added;
     }
 
+    [Obsolete("Use BackupIndexStreamingAsync for large datasets. This method hits Azure Search's 100K $skip limit.")]
     public async Task<IEnumerable<string>> BackupIndex(int count = -1, SongFilter filter = null)
     {
         filter ??= Manager.GetSongFilter();
@@ -1781,6 +1783,80 @@ public class SongIndex
                     r.Document.GetString(SongIdField),
                     r.Document.GetString(PropertiesField)));
 
+    }
+
+    /// <summary>
+    /// Streams song backup data using key-set pagination with SongId.
+    /// This avoids the 100K limit on $skip by filtering on the last seen ID.
+    /// Backs up ALL songs in the index by default.
+    /// Note: Results are ordered by SongId, not Modified date.
+    /// </summary>
+    /// <param name="filter">Optional filter to apply</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Async stream of serialized songs</returns>
+    public async IAsyncEnumerable<string> BackupIndexStreamingAsync(
+        SongFilter filter = null,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        filter ??= Manager.GetSongFilter();
+
+        // Get base filter (may be null or have user filters)
+        var baseFilter = filter.GetOdataFilter(DanceMusicService);
+        
+        string lastId = null;
+        bool hasMore = true;
+
+        while (hasMore)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            // Build search options for this batch
+            var parameters = new SearchOptions
+            {
+                Size = 1000, // Batch size per request
+                Skip = null, // Key-set pagination doesn't use skip
+                IncludeTotalCount = false // Don't need count for streaming
+            };
+            
+            parameters.OrderBy.Add($"{SongIdField} asc"); // Order by SongId for key-set pagination
+            parameters.Select.AddRange([SongIdField, ModifiedField, PropertiesField]);
+
+            // Build filter: base filter AND SongId > lastId
+            if (lastId != null)
+            {
+                var idFilter = $"{SongIdField} gt '{lastId}'";
+                parameters.Filter = string.IsNullOrEmpty(baseFilter)
+                    ? idFilter
+                    : $"({baseFilter}) and ({idFilter})";
+            }
+            else
+            {
+                parameters.Filter = baseFilter;
+            }
+
+            var searchString = string.IsNullOrWhiteSpace(filter.SearchString) ? "*" : filter.SearchString;
+
+            // Fetch next batch
+            var response = await Client.SearchAsync<SearchDocument>(searchString, parameters, cancellationToken);
+            
+            // Stream results from this batch
+            var batchCount = 0;
+            foreach (var result in response.Value.GetResults())
+            {
+                yield return Song.Serialize(
+                    result.Document.GetString(SongIdField),
+                    result.Document.GetString(PropertiesField));
+                
+                lastId = result.Document.GetString(SongIdField);
+                batchCount++;
+            }
+
+            // If we got fewer than Size results, we're done
+            if (batchCount < 1000)
+            {
+                hasMore = false;
+            }
+        }
     }
     #endregion
 
