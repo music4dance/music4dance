@@ -1760,36 +1760,11 @@ public class SongIndex
         return added;
     }
 
-    [Obsolete("Use BackupIndexStreamingAsync for large datasets. This method hits Azure Search's 100K $skip limit.")]
-    public async Task<IEnumerable<string>> BackupIndex(int count = -1, SongFilter filter = null)
-    {
-        filter ??= Manager.GetSongFilter();
-
-        var parameters = AzureParmsFromFilter(filter);
-        parameters.IncludeTotalCount = false;
-        parameters.Skip = null;
-        parameters.Size = count == -1 ? null : count;
-        parameters.OrderBy.Add("Modified desc");
-        parameters.Select.AddRange(
-            [SongIdField, ModifiedField, PropertiesField]);
-
-        var searchString = string.IsNullOrWhiteSpace(filter.SearchString)
-            ? null
-            : filter.SearchString;
-        var response = await Client.SearchAsync<SearchDocument>(searchString, parameters);
-        return response.Value.GetResults().Select(
-            r =>
-                Song.Serialize(
-                    r.Document.GetString(SongIdField),
-                    r.Document.GetString(PropertiesField)));
-
-    }
-
     /// <summary>
-    /// Streams song backup data using key-set pagination with SongId.
-    /// This avoids the 100K limit on $skip by filtering on the last seen ID.
-    /// Backs up ALL songs in the index by default.
-    /// Note: Results are ordered by SongId, not Modified date.
+
+    /// Streams song backup data using composite key-set pagination (Modified desc, SongId desc).
+    /// This avoids the 100K limit on $skip by filtering on the last seen Modified/SongId pair.
+    /// Backs up ALL songs in the index by default, ordered by most recently modified first.
     /// </summary>
     /// <param name="filter">Optional filter to apply</param>
     /// <param name="cancellationToken">Cancellation token</param>
@@ -1803,6 +1778,7 @@ public class SongIndex
         // Get base filter (may be null or have user filters)
         var baseFilter = filter.GetOdataFilter(DanceMusicService);
         
+        DateTimeOffset? lastModified = null;
         string lastId = null;
         bool hasMore = true;
 
@@ -1818,16 +1794,21 @@ public class SongIndex
                 IncludeTotalCount = false // Don't need count for streaming
             };
             
-            parameters.OrderBy.Add($"{SongIdField} asc"); // Order by SongId for key-set pagination
+            // Composite ordering: Modified desc, then SongId desc for deterministic ordering
+            parameters.OrderBy.Add($"{ModifiedField} desc");
+            parameters.OrderBy.Add($"{SongIdField} desc");
             parameters.Select.AddRange([SongIdField, ModifiedField, PropertiesField]);
 
-            // Build filter: base filter AND SongId > lastId
-            if (lastId != null)
+            // Build composite filter: base filter AND (Modified < lastModified OR (Modified = lastModified AND SongId < lastId))
+            if (lastModified != null && lastId != null)
             {
-                var idFilter = $"{SongIdField} gt '{lastId}'";
+                // Format: (Modified lt lastModified) or (Modified eq lastModified and SongId lt lastId)
+                var modifiedStr = lastModified.Value.ToString("o"); // ISO 8601 format
+                var compositeFilter = $"({ModifiedField} lt {modifiedStr}) or ({ModifiedField} eq {modifiedStr} and {SongIdField} lt '{lastId}')";
+                
                 parameters.Filter = string.IsNullOrEmpty(baseFilter)
-                    ? idFilter
-                    : $"({baseFilter}) and ({idFilter})";
+                    ? compositeFilter
+                    : $"({baseFilter}) and ({compositeFilter})";
             }
             else
             {
@@ -1847,6 +1828,8 @@ public class SongIndex
                     result.Document.GetString(SongIdField),
                     result.Document.GetString(PropertiesField));
                 
+                // Track last Modified and SongId for next iteration
+                lastModified = result.Document.GetDateTimeOffset(ModifiedField);
                 lastId = result.Document.GetString(SongIdField);
                 batchCount++;
             }
@@ -1859,6 +1842,7 @@ public class SongIndex
         }
     }
     #endregion
+
 
     #region Helpers
     protected virtual Task<Song> CreateSong(SearchDocument document)

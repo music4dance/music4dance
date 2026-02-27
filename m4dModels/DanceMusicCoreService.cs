@@ -398,7 +398,18 @@ public partial class DanceMusicCoreService(DanceMusicContext context, ISearchSer
     public async Task CloneIndex(string to)
     {
         AdminMonitor.UpdateTask("StartBackup");
-        var lines = (await SongIndex.BackupIndex()).ToList();
+        
+        // Use streaming backup to avoid 100K limit
+        var lines = new List<string>();
+        await foreach (var line in SongIndex.BackupIndexStreamingAsync())
+        {
+            lines.Add(line);
+            if (lines.Count % 10000 == 0)
+            {
+                AdminMonitor.UpdateTask("Backup", lines.Count);
+            }
+        }
+        
         var toIndex = GetSongIndex(to);
         AdminMonitor.UpdateTask("StartReset");
         _ = await toIndex.ResetIndex();
@@ -412,7 +423,18 @@ public partial class DanceMusicCoreService(DanceMusicContext context, ISearchSer
         var toIndex = GetSongIndex(null, isNext: true);
         _ = await toIndex.ResetIndex();
         AdminMonitor.UpdateTask("StartBackup");
-        var lines = (await SongIndex.BackupIndex()).ToList();
+        
+        // Use streaming backup to avoid 100K limit
+        var lines = new List<string>();
+        await foreach (var line in SongIndex.BackupIndexStreamingAsync())
+        {
+            lines.Add(line);
+            if (lines.Count % 10000 == 0)
+            {
+                AdminMonitor.UpdateTask("Backup", lines.Count);
+            }
+        }
+        
         AdminMonitor.UpdateTask("StartUpload");
         _ = await toIndex.UploadIndex(lines, false);
         AdminMonitor.UpdateTask("RedirectToUpdate");
