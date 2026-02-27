@@ -56,7 +56,7 @@ Problems:
 
 **Key Implementation Details:**
 
-1. **Azure Search Pagination:** Uses `GetResultsAsync()` which internally handles continuation tokens, completely avoiding the 100K `$skip` limit
+1. **Composite Key-Set Pagination:** Uses `(Modified desc, SongId desc)` ordering with OData filters to avoid the 100K `$skip` limit completely
 2. **Memory Efficiency:** Streams results one page at a time (default 1000 songs per page = ~500KB memory)
 3. **Buffered Writes:** Writes to disk in chunks (default 100 songs per write) for I/O efficiency
 4. **Cancellation Support:** Properly handles `CancellationToken` throughout the pipeline
@@ -64,16 +64,16 @@ Problems:
 
 **Performance Characteristics:**
 - **Memory Usage:** O(pageSize) = ~500KB constant (vs O(total) = potentially GBs)
-- **Works with unlimited songs:** No 100K limit thanks to continuation tokens
+- **Works with unlimited songs:** No 100K limit thanks to key-set pagination with filters (not skip)
 - **Write efficiency:** Buffered writes reduce syscalls by 100x
 
 ### High-Level Approach
 
-Implement true streaming using `IAsyncEnumerable<string>` with Azure Search pagination:
+Implement true streaming using `IAsyncEnumerable<string>` with Azure Search composite key-set pagination:
 
-1. **SongIndex.BackupIndexStreaming** - Yield results page-by-page using continuation tokens
-2. **AdminController.IndexBackup** - Consume async stream and write incrementally
-3. **Background task** - Move to background processing for large backups
+1. **SongIndex.BackupIndexStreamingAsync** - Yield results using composite key-set pagination (Modified desc, SongId desc)
+2. **Service layer updates** - Consume async stream with progress reporting (CloneIndex, UpdateIndex, SerializeSongs)
+3. **Background task** - Optional: Move to background processing for very large backups
 4. **Progress tracking** - Real-time progress via AdminMonitor
 
 ### Design Principles
@@ -286,7 +286,7 @@ public async Task<IList<string>> SerializeSongs(
 }
 ```
 
-**Note:** The `AdminController.IndexBackup` action already uses the streaming method via `SerializeSongs`, so no direct controller changes were needed.
+**Note:** The `AdminController.IndexBackup` action now calls `BackupIndexStreamingAsync` directly. The `SerializeSongs` method also uses `BackupIndexStreamingAsync` internally for streaming backups.
 
 For very large backups, move to background processing:
 
@@ -319,7 +319,7 @@ public async Task<ActionResult> IndexBackupBackground(
             await using (var file = System.IO.File.CreateText(path))
             {
                 await foreach (var line in Database.GetSongIndex(name)
-                    .BackupIndexStreamingAsync(pageSize, songFilter, token))
+                    .BackupIndexStreamingAsync(songFilter, token))
                 {
                     buffer.Add(line);
                     n++;

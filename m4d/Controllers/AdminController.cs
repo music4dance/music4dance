@@ -1163,6 +1163,9 @@ public class AdminController(
         {
             StartAdminTask("Index Backup");
 
+            // Validate writeBufferSize to prevent allocation issues
+            writeBufferSize = Math.Clamp(writeBufferSize, 1, 1000);
+
             var dt = DateTime.Now;
             var fname = $"index-{dt.Year:d4}-{dt.Month:d2}-{dt.Day:d2}.txt";
             var path = Path.Combine(EnsureAppData(environment), fname);
@@ -1174,7 +1177,7 @@ public class AdminController(
 
             await using (var file = System.IO.File.CreateText(path))
             {
-                // Use streaming method that handles continuation tokens (no 100K skip limit)
+                // Use streaming method with composite key-set pagination (no 100K skip limit)
                 await foreach (var line in Database.GetSongIndex(name)
                     .BackupIndexStreamingAsync(songFilter, cancellationToken))
                 {
