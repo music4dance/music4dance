@@ -8,6 +8,7 @@ using Azure.Search.Documents.Models;
 using DanceLibrary;
 
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace m4dModels;
@@ -1759,30 +1760,89 @@ public class SongIndex
         return added;
     }
 
-    public async Task<IEnumerable<string>> BackupIndex(int count = -1, SongFilter filter = null)
+    /// <summary>
+
+    /// Streams song backup data using composite key-set pagination (Modified desc, SongId desc).
+    /// This avoids the 100K limit on $skip by filtering on the last seen Modified/SongId pair.
+    /// Backs up ALL songs in the index by default, ordered by most recently modified first.
+    /// </summary>
+    /// <param name="filter">Optional filter to apply</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Async stream of serialized songs</returns>
+    public async IAsyncEnumerable<string> BackupIndexStreamingAsync(
+        SongFilter filter = null,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         filter ??= Manager.GetSongFilter();
 
-        var parameters = AzureParmsFromFilter(filter);
-        parameters.IncludeTotalCount = false;
-        parameters.Skip = null;
-        parameters.Size = count == -1 ? null : count;
-        parameters.OrderBy.Add("Modified desc");
-        parameters.Select.AddRange(
-            [SongIdField, ModifiedField, PropertiesField]);
+        // Get base filter (may be null or have user filters)
+        var baseFilter = filter.GetOdataFilter(DanceMusicService);
+        
+        DateTimeOffset? lastModified = null;
+        string lastId = null;
+        bool hasMore = true;
 
-        var searchString = string.IsNullOrWhiteSpace(filter.SearchString)
-            ? null
-            : filter.SearchString;
-        var response = await Client.SearchAsync<SearchDocument>(searchString, parameters);
-        return response.Value.GetResults().Select(
-            r =>
-                Song.Serialize(
-                    r.Document.GetString(SongIdField),
-                    r.Document.GetString(PropertiesField)));
+        while (hasMore)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
 
+            // Build search options for this batch
+            var parameters = new SearchOptions
+            {
+                Size = 1000, // Batch size per request
+                Skip = null, // Key-set pagination doesn't use skip
+                IncludeTotalCount = false // Don't need count for streaming
+            };
+            
+            // Composite ordering: Modified desc, then SongId desc for deterministic ordering
+            parameters.OrderBy.Add($"{ModifiedField} desc");
+            parameters.OrderBy.Add($"{SongIdField} desc");
+            parameters.Select.AddRange([SongIdField, ModifiedField, PropertiesField]);
+
+            // Build composite filter: base filter AND (Modified < lastModified OR (Modified = lastModified AND SongId < lastId))
+            if (lastModified != null && lastId != null)
+            {
+                // Format: (Modified lt lastModified) or (Modified eq lastModified and SongId lt lastId)
+                var modifiedStr = lastModified.Value.ToString("o"); // ISO 8601 format
+                var compositeFilter = $"({ModifiedField} lt {modifiedStr}) or ({ModifiedField} eq {modifiedStr} and {SongIdField} lt '{lastId}')";
+                
+                parameters.Filter = string.IsNullOrEmpty(baseFilter)
+                    ? compositeFilter
+                    : $"({baseFilter}) and ({compositeFilter})";
+            }
+            else
+            {
+                parameters.Filter = baseFilter;
+            }
+
+            var searchString = string.IsNullOrWhiteSpace(filter.SearchString) ? "*" : filter.SearchString;
+
+            // Fetch next batch
+            var response = await Client.SearchAsync<SearchDocument>(searchString, parameters, cancellationToken);
+            
+            // Stream results from this batch
+            var batchCount = 0;
+            foreach (var result in response.Value.GetResults())
+            {
+                yield return Song.Serialize(
+                    result.Document.GetString(SongIdField),
+                    result.Document.GetString(PropertiesField));
+                
+                // Track last Modified and SongId for next iteration
+                lastModified = result.Document.GetDateTimeOffset(ModifiedField);
+                lastId = result.Document.GetString(SongIdField);
+                batchCount++;
+            }
+
+            // If we got fewer than Size results, we're done
+            if (batchCount < 1000)
+            {
+                hasMore = false;
+            }
+        }
     }
     #endregion
+
 
     #region Helpers
     protected virtual Task<Song> CreateSong(SearchDocument document)

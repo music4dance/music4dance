@@ -946,7 +946,19 @@ public class DanceMusicService(DanceMusicContext context,
             songs.Add(SongBreak);
         }
 
-        songs.AddRange(await SongIndex.BackupIndex(max, filter));
+        // Use streaming backup to avoid 100K limit
+        var count = 0;
+        await foreach (var line in SongIndex.BackupIndexStreamingAsync(filter))
+        {
+            // Skip if max is set and we've reached it
+            if (max != -1 && count >= max)
+            {
+                break;
+            }
+            
+            songs.Add(line);
+            count++;
+        }
 
         return songs;
     }

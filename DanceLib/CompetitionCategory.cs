@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Collections.Concurrent;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 namespace DanceLibrary;
@@ -11,11 +12,9 @@ public class CompetitionCategory
     public const string Rhythm = "American Rhythm";
     public const string Ballroom = "Ballroom";
 
-    private static readonly Dictionary<string, List<CompetitionCategory>> s_mapGroups =
-        [];
+    private static readonly ConcurrentDictionary<string, List<CompetitionCategory>> s_mapGroups = new();
 
-    private static readonly Dictionary<string, CompetitionCategory> s_mapCategories =
-        [];
+    private static readonly ConcurrentDictionary<string, CompetitionCategory> s_mapCategories = new();
 
     private readonly List<DanceInstance> _extra = [];
 
@@ -76,14 +75,7 @@ public class CompetitionCategory
 
     internal static IEnumerable<CompetitionCategory> GetCategoryList(string name)
     {
-        if (s_mapGroups.TryGetValue(name, out var categories))
-        {
-            return categories;
-        }
-
-        categories = [];
-        s_mapGroups[name] = categories;
-        return categories;
+        return s_mapGroups.GetOrAdd(name, _ => []);
     }
 
     public static CompetitionCategory GetCategory(string name)
