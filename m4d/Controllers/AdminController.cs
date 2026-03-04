@@ -304,6 +304,18 @@ public class AdminController(
     }
 
     //
+    // POST: /Admin/ToggleRateLimitLogging
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "showDiagnostics")]
+    public ActionResult ToggleRateLimitLogging()
+    {
+        GlobalState.RateLimitLogging = !GlobalState.RateLimitLogging;
+        TempData["Message"] = $"Rate limit logging is now {(GlobalState.RateLimitLogging ? "ON" : "OFF")}";
+        return RedirectToAction("Diagnostics");
+    }
+
+    //
     // GET: /Admin/UploadBackup
     [Authorize(Roles = "dbAdmin")]
     public ActionResult UploadBackup()

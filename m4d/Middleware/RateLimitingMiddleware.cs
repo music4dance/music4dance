@@ -1,3 +1,4 @@
+using m4d.Utilities;
 using Microsoft.Extensions.Caching.Memory;
 using System.Net;
 
@@ -30,20 +31,23 @@ public class RateLimitingMiddleware
     {
         // Only rate limit specific paths
         var path = context.Request.Path.Value?.ToLowerInvariant() ?? "";
-        
+
         if (!ShouldRateLimit(path))
         {
             await _next(context);
             return;
         }
 
+        var verbose = GlobalState.RateLimitLogging;
+
         // Add random delay for authentication attempts to slow down brute force attacks
         if (IsAuthenticationAttempt(context))
         {
             var delayMs = Random.Shared.Next(200, 400);
-            _logger.LogDebug(
-                "Adding {DelayMs}ms random delay for authentication attempt on {Path} from {ClientId}",
-                delayMs, path, GetClientIdentifier(context));
+            if (verbose)
+                _logger.LogInformation(
+                    "RateLimit: Adding {DelayMs}ms random delay for auth POST on {Path} from {ClientId}",
+                    delayMs, path, AnonymizeIp(GetClientIdentifier(context)));
             await Task.Delay(delayMs);
         }
 
@@ -62,14 +66,20 @@ public class RateLimitingMiddleware
             };
         });
 
-        requestInfo!.Count++;
+        // Thread-safe increment
+        var currentCount = Interlocked.Increment(ref requestInfo!.Count);
+
+        if (verbose)
+            _logger.LogInformation(
+                "RateLimit: {Method} {Path} from {ClientId} — request {Count}/{Max} in {Window}min window",
+                context.Request.Method, path, AnonymizeIp(clientId), currentCount, _options.MaxRequestsPerWindow, _options.WindowMinutes);
 
         // Check if rate limit exceeded
-        if (requestInfo.Count > _options.MaxRequestsPerWindow)
+        if (currentCount > _options.MaxRequestsPerWindow)
         {
             _logger.LogWarning(
-                "Rate limit exceeded for {ClientId} on {Path}: {Count} requests in {Window} minutes",
-                clientId, path, requestInfo.Count, _options.WindowMinutes);
+                "RateLimit: EXCEEDED for {ClientId} on {Path}: {Count} requests in {Window} minutes",
+                AnonymizeIp(clientId), path, currentCount, _options.WindowMinutes);
 
             context.Response.StatusCode = (int)HttpStatusCode.TooManyRequests;
             context.Response.Headers["Retry-After"] = "60";
@@ -98,7 +108,7 @@ public class RateLimitingMiddleware
 
         // Rate limit specific high-value endpoints if needed
         // Add more paths here as needed
-        
+
         return false;
     }
 
@@ -160,9 +170,41 @@ public class RateLimitingMiddleware
         return "unknown";
     }
 
+    private string AnonymizeIp(string ipAddress)
+    {
+        // Anonymize IP address for logging to reduce PII exposure
+        // For IPv4: show first 3 octets only (e.g., 192.168.1.xxx)
+        // For IPv6: show first 4 groups only (e.g., 2001:db8:85a3:8d3:xxxx...)
+        if (string.IsNullOrEmpty(ipAddress) || ipAddress == "unknown")
+        {
+            return ipAddress;
+        }
+
+        if (ipAddress.Contains('.'))
+        {
+            // IPv4
+            var lastDot = ipAddress.LastIndexOf('.');
+            if (lastDot > 0)
+            {
+                return string.Concat(ipAddress.AsSpan(0, lastDot), ".xxx");
+            }
+        }
+        else if (ipAddress.Contains(':'))
+        {
+            // IPv6
+            var parts = ipAddress.Split(':');
+            if (parts.Length > 4)
+            {
+                return string.Join(":", parts.Take(4)) + ":xxxx...";
+            }
+        }
+
+        return ipAddress;
+    }
+
     private class RequestInfo
     {
-        public int Count { get; set; }
+        public int Count; // Field (not property) required for Interlocked.Increment
         public DateTime WindowStart { get; set; }
     }
 }
@@ -172,13 +214,13 @@ public class RateLimitingMiddleware
 /// </summary>
 public class RateLimitingOptions
 {
-    public int MaxRequestsPerWindow { get; set; } = 20;
+    public int MaxRequestsPerWindow { get; set; } = 10;
     public int WindowMinutes { get; set; } = 1;
 
     public RateLimitingOptions(IConfiguration configuration)
     {
         var section = configuration.GetSection("RateLimiting");
-        MaxRequestsPerWindow = section.GetValue<int>("MaxRequestsPerWindow", 20);
+        MaxRequestsPerWindow = section.GetValue<int>("MaxRequestsPerWindow", 10);
         WindowMinutes = section.GetValue<int>("WindowMinutes", 1);
     }
 }
