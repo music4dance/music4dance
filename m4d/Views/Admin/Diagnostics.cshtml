@@ -401,7 +401,13 @@ else
 <h3>Rate Limiting</h3>
 <p>
     Verbose Logging: <b>@(m4d.Utilities.GlobalState.RateLimitLogging ? "ON" : "OFF")</b>
-    — @Html.ActionLink(m4d.Utilities.GlobalState.RateLimitLogging ? "Turn OFF" : "Turn ON", "ToggleRateLimitLogging", "Admin")
+    — @using (Html.BeginForm("ToggleRateLimitLogging", "Admin", FormMethod.Post, new { @class = "d-inline" }))
+    {
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn btn-link p-0 align-baseline">
+            @(m4d.Utilities.GlobalState.RateLimitLogging ? "Turn OFF" : "Turn ON")
+        </button>
+    }
 </p>
 <p class="text-muted">When ON, logs every identity-path request at Information level with IP, count and method.</p>
 
