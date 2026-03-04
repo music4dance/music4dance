@@ -1,3 +1,4 @@
+using m4d.Utilities;
 using Microsoft.Extensions.Caching.Memory;
 using System.Net;
 
@@ -30,20 +31,23 @@ public class RateLimitingMiddleware
     {
         // Only rate limit specific paths
         var path = context.Request.Path.Value?.ToLowerInvariant() ?? "";
-        
+
         if (!ShouldRateLimit(path))
         {
             await _next(context);
             return;
         }
 
+        var verbose = GlobalState.RateLimitLogging;
+
         // Add random delay for authentication attempts to slow down brute force attacks
         if (IsAuthenticationAttempt(context))
         {
             var delayMs = Random.Shared.Next(200, 400);
-            _logger.LogDebug(
-                "Adding {DelayMs}ms random delay for authentication attempt on {Path} from {ClientId}",
-                delayMs, path, GetClientIdentifier(context));
+            if (verbose)
+                _logger.LogInformation(
+                    "RateLimit: Adding {DelayMs}ms random delay for auth POST on {Path} from {ClientId}",
+                    delayMs, path, GetClientIdentifier(context));
             await Task.Delay(delayMs);
         }
 
@@ -64,11 +68,16 @@ public class RateLimitingMiddleware
 
         requestInfo!.Count++;
 
+        if (verbose)
+            _logger.LogInformation(
+                "RateLimit: {Method} {Path} from {ClientId} — request {Count}/{Max} in {Window}min window",
+                context.Request.Method, path, clientId, requestInfo.Count, _options.MaxRequestsPerWindow, _options.WindowMinutes);
+
         // Check if rate limit exceeded
         if (requestInfo.Count > _options.MaxRequestsPerWindow)
         {
             _logger.LogWarning(
-                "Rate limit exceeded for {ClientId} on {Path}: {Count} requests in {Window} minutes",
+                "RateLimit: EXCEEDED for {ClientId} on {Path}: {Count} requests in {Window} minutes",
                 clientId, path, requestInfo.Count, _options.WindowMinutes);
 
             context.Response.StatusCode = (int)HttpStatusCode.TooManyRequests;
@@ -98,7 +107,7 @@ public class RateLimitingMiddleware
 
         // Rate limit specific high-value endpoints if needed
         // Add more paths here as needed
-        
+
         return false;
     }
 
@@ -172,13 +181,13 @@ public class RateLimitingMiddleware
 /// </summary>
 public class RateLimitingOptions
 {
-    public int MaxRequestsPerWindow { get; set; } = 20;
+    public int MaxRequestsPerWindow { get; set; } = 10;
     public int WindowMinutes { get; set; } = 1;
 
     public RateLimitingOptions(IConfiguration configuration)
     {
         var section = configuration.GetSection("RateLimiting");
-        MaxRequestsPerWindow = section.GetValue<int>("MaxRequestsPerWindow", 20);
+        MaxRequestsPerWindow = section.GetValue<int>("MaxRequestsPerWindow", 10);
         WindowMinutes = section.GetValue<int>("WindowMinutes", 1);
     }
 }

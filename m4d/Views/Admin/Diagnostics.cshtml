@@ -259,7 +259,7 @@ else
                     <td>@dump.FileSizeMB.ToString("F1") MB</td>
                     <td><small>@dump.CreatedAt.ToString("yyyy-MM-dd HH:mm")</small></td>
                     <td>
-                        <a href="@Url.Action("DownloadDump", "Admin", new { fileName = dump.FileName })" 
+                        <a href="@Url.Action("DownloadDump", "Admin", new { fileName = dump.FileName })"
                            class="btn btn-sm btn-outline-primary">Download</a>
                         @using (Html.BeginForm("DeleteDump", "Admin", new { fileName = dump.FileName }, FormMethod.Post, antiforgery: null, new { style = "display:inline;" }))
                         {
@@ -396,6 +396,14 @@ else
     <input type="file" name="FileUpload" />
     <input type="submit" name="list" id="List" value="List" />
 }
+
+<hr />
+<h3>Rate Limiting</h3>
+<p>
+    Verbose Logging: <b>@(m4d.Utilities.GlobalState.RateLimitLogging ? "ON" : "OFF")</b>
+    — @Html.ActionLink(m4d.Utilities.GlobalState.RateLimitLogging ? "Turn OFF" : "Turn ON", "ToggleRateLimitLogging", "Admin")
+</p>
+<p class="text-muted">When ON, logs every identity-path request at Information level with IP, count and method.</p>
 
 <hr />
 <h3>Bot Stats</h3>

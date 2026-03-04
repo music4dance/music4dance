@@ -304,6 +304,16 @@ public class AdminController(
     }
 
     //
+    // GET: /Admin/ToggleRateLimitLogging
+    [Authorize(Roles = "showDiagnostics")]
+    public ActionResult ToggleRateLimitLogging()
+    {
+        GlobalState.RateLimitLogging = !GlobalState.RateLimitLogging;
+        ViewBag.Message = $"Rate limit logging is now {(GlobalState.RateLimitLogging ? "ON" : "OFF")}";
+        return View("Diagnostics");
+    }
+
+    //
     // GET: /Admin/UploadBackup
     [Authorize(Roles = "dbAdmin")]
     public ActionResult UploadBackup()

@@ -31,6 +31,7 @@ public static class GlobalState
 {
     public static string UpdateMessage { get; set; }
     public static bool UseTestKeys { get; set; }
+    public static bool RateLimitLogging { get; set; }
 
     private static MarketingInfo Marketing { get; set; }
 
