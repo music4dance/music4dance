@@ -304,13 +304,15 @@ public class AdminController(
     }
 
     //
-    // GET: /Admin/ToggleRateLimitLogging
+    // POST: /Admin/ToggleRateLimitLogging
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     [Authorize(Roles = "showDiagnostics")]
     public ActionResult ToggleRateLimitLogging()
     {
         GlobalState.RateLimitLogging = !GlobalState.RateLimitLogging;
-        ViewBag.Message = $"Rate limit logging is now {(GlobalState.RateLimitLogging ? "ON" : "OFF")}";
-        return View("Diagnostics");
+        TempData["Message"] = $"Rate limit logging is now {(GlobalState.RateLimitLogging ? "ON" : "OFF")}";
+        return RedirectToAction("Diagnostics");
     }
 
     //
