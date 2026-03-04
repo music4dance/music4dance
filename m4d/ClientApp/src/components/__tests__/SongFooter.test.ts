@@ -32,19 +32,18 @@ function getInput(wrapper: ReturnType<typeof mount>) {
   return wrapper.find("input[aria-label='Page number']");
 }
 
-describe("SongFooter.vue", () => {
-  let locationHref: string;
+const INITIAL_HREF = "http://localhost/song";
 
+describe("SongFooter.vue", () => {
   beforeEach(() => {
     mockGetMenuContext.mockReturnValue({
       userName: "test-user",
       hasRole: () => false,
     });
 
-    // Mock window.location.href
-    locationHref = window.location.href;
+    // Mock window.location with a fixed URL so tests are not order-dependent
     Object.defineProperty(window, "location", {
-      value: { href: locationHref },
+      value: { href: INITIAL_HREF },
       writable: true,
       configurable: true,
     });
