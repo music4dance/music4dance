@@ -1,6 +1,7 @@
 ﻿using CsvHelper;
 
 using m4d.Areas.Identity;
+using m4d.Security;
 using m4d.Services;
 using m4d.Services.Diagnostics;
 using m4d.Services.ServiceHealth;
@@ -66,10 +67,14 @@ public class AdminController(
     IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
     IFeatureManagerSnapshot featureManager, ILogger<ActivityLogController> logger,
     IOptionsMonitor<LoggerFilterOptions> loggerFilterOptions,
-    ServiceHealthManager serviceHealth
+    ServiceHealthManager serviceHealth,
+    AuthenticationTracker authTracker,
+    RateLimitingTracker rateLimitingTracker
 ) : DanceMusicController(context, userManager, searchService, danceStatsManager, configuration,
     fileProvider, backroundTaskQueue, featureManager, logger, serviceHealth)
 {
+    private readonly AuthenticationTracker _authTracker = authTracker;
+    private readonly RateLimitingTracker _rateLimitingTracker = rateLimitingTracker;
 
     #region Commands
 
@@ -97,6 +102,9 @@ public class AdminController(
     public ActionResult Diagnostics()
     {
         // GcSnapshot and RecentDumps set by filter
+        // Add security stats for Phase 1
+        ViewBag.AuthStats = _authTracker.GetStats();
+        ViewBag.RateLimitStats = _rateLimitingTracker.GetStats();
         return View();
     }
 

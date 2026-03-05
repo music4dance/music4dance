@@ -377,6 +377,11 @@ services.AddDefaultIdentity<ApplicationUser>(
             options.User.RequireUniqueEmail = true;
             options.User.AllowedUserNameCharacters = string.Empty;
             options.Stores.MaxLengthForKeys = 128;
+
+            // Explicit lockout configuration - Phase 1 security hardening
+            options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+            options.Lockout.MaxFailedAccessAttempts = 3;
+            options.Lockout.AllowedForNewUsers = true;
         })
     .AddUserValidator<UsernameValidator<ApplicationUser>>()
     .AddRoles<IdentityRole>()
@@ -453,6 +458,10 @@ services.AddSingleton<ISearchServiceManager, SearchServiceManager>();
 services.AddSingleton<IDanceStatsManager>(new DanceStatsManager(new DanceStatsFileManager(appRoot)));
 
 services.AddScoped<m4d.Services.SpotifyAuthService>();
+
+// Security trackers for Phase 1 - singletons for in-memory tracking
+services.AddSingleton<m4d.Security.AuthenticationTracker>();
+services.AddSingleton<m4d.Security.RateLimitingTracker>();
 
 services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
 services.AddHostedService<BackgroundQueueHostedService>();
@@ -724,12 +733,12 @@ app.Use(async (context, next) =>
             // Remove any existing cache control headers that prevent caching
             context.Response.Headers.Remove("Cache-Control");
             context.Response.Headers.Remove("Pragma");
-            
+
             // Set cache-friendly headers for Azure Front Door
             // Cache for 5 minutes, allow both client and proxy (CDN) caching
             context.Response.Headers["Cache-Control"] = "public, max-age=300";
         }
-        
+
         return Task.CompletedTask;
     });
 

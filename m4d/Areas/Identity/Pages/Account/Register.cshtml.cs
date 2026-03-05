@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
+using m4d.Security;
 using m4d.Utilities;
 
 using Microsoft.AspNetCore.Authentication;
@@ -30,6 +31,7 @@ public class RegisterModel : LoginModelBase
     private readonly IreCAPTCHASiteVerifyV2 _siteVerify;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IFeatureManagerSnapshot _featureManager;
+    private readonly AuthenticationTracker _authTracker;
 
     public RegisterModel(
         UserManager<ApplicationUser> userManager,
@@ -39,7 +41,8 @@ public class RegisterModel : LoginModelBase
         IreCAPTCHASiteVerifyV2 siteVerify,
         IConfiguration configuration,
         IFeatureManagerSnapshot featureManager,
-        IUrlHelperFactory urlHelperFactory)
+        IUrlHelperFactory urlHelperFactory,
+        AuthenticationTracker authTracker)
         : base(urlHelperFactory, logger)
     {
         _userManager = userManager;
@@ -48,6 +51,7 @@ public class RegisterModel : LoginModelBase
         _emailSender = emailSender;
         _featureManager = featureManager;
         _siteVerify = siteVerify;
+        _authTracker = authTracker;
     }
 
     /// <summary>
@@ -99,13 +103,18 @@ public class RegisterModel : LoginModelBase
         ExternalLogins =
             (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
-        if (await UseCaptcha())
+        var clientIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+        // Check if CAPTCHA is required (always enabled for registration + GlobalState check)
+        var captchaRequired = await UseCaptcha() || GlobalState.RequireCaptcha;
+
+        if (captchaRequired)
         {
             var response = await _siteVerify.Verify(
                 new reCAPTCHASiteVerifyRequest
                 {
                     Response = Input.RecaptchaToken,
-                    RemoteIp = HttpContext.Connection.RemoteIpAddress.ToString()
+                    RemoteIp = clientIp
                 });
 
             if (!response.Success)
@@ -123,6 +132,9 @@ public class RegisterModel : LoginModelBase
             if (result.Succeeded)
             {
                 _logger.LogInformation("User created a new account with password.");
+
+                // Track successful registration
+                _authTracker.RecordAttempt(user.UserName, clientIp, success: true);
 
                 var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                 code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
@@ -153,6 +165,8 @@ public class RegisterModel : LoginModelBase
 
             foreach (var error in result.Errors)
             {
+                // Track failed registration attempt
+                _authTracker.RecordAttempt(Input.UserName, clientIp, success: false, failureReason: error.Code);
                 ModelState.AddModelError(string.Empty, error.Description);
             }
         }
