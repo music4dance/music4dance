@@ -404,16 +404,15 @@ else
     — @using (Html.BeginForm("ToggleRateLimitLogging", "Admin", FormMethod.Post, new { @class = "d-inline" }))
     {
         @Html.AntiForgeryToken()
-        <button type="submit" class="btn btn-link p-0 alignbaseline">
+        <button type="submit" class="btn btn-link p-0 align-baseline">
             @(m4d.Utilities.GlobalState.RateLimitLogging ? "Turn OFF" : "Turn ON")
         </button>
     }
 </p>
 <p class="text-muted">When ON, logs every identity-path request at Information level with IP, count and method.</p>
 
-@if (ViewBag.RateLimitStats != null)
+@if (ViewBag.RateLimitStats is m4d.Security.RateLimitingStats rateLimitStats)
 {
-    var rateLimitStats = ViewBag.RateLimitStats as m4d.Security.RateLimitingStats;
     <div class="card mb-3">
         <div class="card-header">
             <strong>Rate Limiting Activity (Last Hour)</strong>

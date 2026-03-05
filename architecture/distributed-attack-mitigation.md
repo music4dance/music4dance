@@ -4,7 +4,7 @@
 
 On March 5, 2026, we observed a coordinated distributed attack targeting identity endpoints (`/identity/account/login` and `/identity/account/register`). The attack used 10+ distinct IP addresses from a botnet to bypass per-IP rate limiting while probing for vulnerabilities including open redirects, username enumeration, and credential stuffing.
 
-**Implementation Status**: ✅ **Phase 1 COMPLETE** (March 5, 2026)
+**Implementation Status**: ✅ **Phase 1 COMPLETE**
 
 All Phase 1 components have been implemented, tested, and verified:
 
@@ -1249,7 +1249,7 @@ private async Task<bool> IsKnownBadActor(string ipAddress)
 
 ## Implementation Status
 
-### ✅ Phase 1: COMPLETE (January 2025)
+### ✅ Phase 1: COMPLETE (March 5, 2026)
 
 **Test Results:** 335 tests total, 334 passed, 0 failed, 1 skipped
 
@@ -1603,7 +1603,7 @@ When Phase 2 is implemented, success will be demonstrated by:
 ---
 
 **Document Version**: 2.0
-**Last Updated**: January 2025
+**Last Updated**: March 5, 2026
 **Status**: Phase 1 Complete, Phase 2 Planning
 **Owner**: Security/Infrastructure Team
 **Next Review**: After Phase 2 implementation (or if attack patterns change)

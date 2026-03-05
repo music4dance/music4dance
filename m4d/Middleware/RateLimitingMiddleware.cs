@@ -198,8 +198,13 @@ public class RateLimitingMiddleware
 
     private async Task ReturnRateLimitResponse(HttpContext context, bool isGlobal)
     {
-        context.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-        context.Response.Headers["Retry-After"] = "60";
+        context.Response.StatusCode = (int)HttpStatusCode.TooManyRequests;
+
+        // Calculate Retry-After from appropriate configured window
+        var windowMinutes = isGlobal ? _options.GlobalWindowMinutes : _options.WindowMinutes;
+        var retryAfterSeconds = (int)TimeSpan.FromMinutes(windowMinutes).TotalSeconds;
+        context.Response.Headers.RetryAfter = retryAfterSeconds.ToString();
+
         context.Response.ContentType = "text/html";
 
         var html = @"<!DOCTYPE html>
