@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
+using m4d.Security;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Routing;
 
@@ -11,13 +12,15 @@ public abstract class LoginModelBase : PageModel
 {
     private readonly IUrlHelperFactory _urlHelperFactory;
     private readonly ILogger _logger;
+    private readonly AuthenticationTracker _authTracker;
     // Changed from '\u001a' to '~' to avoid corrupt marker byte issues
     private readonly string _subStr = "~";
 
-    protected LoginModelBase(IUrlHelperFactory urlHelperFactory, ILogger logger)
+    protected LoginModelBase(IUrlHelperFactory urlHelperFactory, ILogger logger, AuthenticationTracker authTracker)
     {
         _urlHelperFactory = urlHelperFactory;
         _logger = logger;
+        _authTracker = authTracker;
     }
 
     /// <summary>
@@ -46,6 +49,10 @@ public abstract class LoginModelBase : PageModel
         if (!isLocal)
         {
             _logger.LogWarning("Non-local return URL detected: {ReturnUrl}", url);
+
+            // Track this suspicious activity
+            var clientIp = HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? "unknown";
+            _authTracker?.RecordSuspiciousActivity(clientIp, "Non-local returnUrl");
         }
 
         return isLocal;

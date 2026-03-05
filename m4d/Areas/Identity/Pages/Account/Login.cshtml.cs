@@ -40,7 +40,7 @@ public class LoginModel : LoginModelBase
         AuthenticationTracker authTracker,
         IreCAPTCHASiteVerifyV2 siteVerify,
         IFeatureManagerSnapshot featureManager)
-        : base(urlHelperFactory, logger)
+        : base(urlHelperFactory, logger, authTracker)
     {
         _userManager = userManager;
         _signInManager = signInManager;

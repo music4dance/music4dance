@@ -5,6 +5,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
+using m4d.Security;
 
 namespace m4d.Areas.Identity.Pages.Account;
 
@@ -15,8 +16,9 @@ public class LogoutModel : LoginModelBase
 
     public LogoutModel(SignInManager<ApplicationUser> signInManager,
         ILogger<LogoutModel> logger,
-        IUrlHelperFactory urlHelperFactory)
-        : base(urlHelperFactory, logger)
+        IUrlHelperFactory urlHelperFactory,
+        AuthenticationTracker authTracker)
+        : base(urlHelperFactory, logger, authTracker)
     {
         _signInManager = signInManager;
         _logger = logger;

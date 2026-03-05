@@ -481,11 +481,15 @@ else
         </div>
         <div class="card-body">
             <div class="row">
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <h4 class="text-danger">@authStats.FailedAttempts</h4>
                     <p class="text-muted">Failed Attempts</p>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
+                    <h4 class="text-warning">@authStats.SuspiciousActivityCount</h4>
+                    <p class="text-muted">Suspicious Activity</p>
+                </div>
+                <div class="col-md-2">
                     <h4>@authStats.UniqueIPs</h4>
                     <p class="text-muted">Unique IPs</p>
                 </div>

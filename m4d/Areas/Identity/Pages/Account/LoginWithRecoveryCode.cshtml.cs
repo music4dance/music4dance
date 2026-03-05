@@ -5,6 +5,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
+using m4d.Security;
 
 using System.ComponentModel.DataAnnotations;
 
@@ -20,8 +21,9 @@ public class LoginWithRecoveryCodeModel : LoginModelBase
         SignInManager<ApplicationUser> signInManager,
         UserManager<ApplicationUser> userManager,
         ILogger<LoginWithRecoveryCodeModel> logger,
-        IUrlHelperFactory urlHelperFactory)
-        : base(urlHelperFactory, logger)
+        IUrlHelperFactory urlHelperFactory,
+        AuthenticationTracker authTracker)
+        : base(urlHelperFactory, logger, authTracker)
     {
         _signInManager = signInManager;
         _userManager = userManager;

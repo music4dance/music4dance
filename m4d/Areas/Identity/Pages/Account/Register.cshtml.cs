@@ -43,7 +43,7 @@ public class RegisterModel : LoginModelBase
         IFeatureManagerSnapshot featureManager,
         IUrlHelperFactory urlHelperFactory,
         AuthenticationTracker authTracker)
-        : base(urlHelperFactory, logger)
+        : base(urlHelperFactory, logger, authTracker)
     {
         _userManager = userManager;
         _signInManager = signInManager;

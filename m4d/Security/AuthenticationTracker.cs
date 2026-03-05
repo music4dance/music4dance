@@ -16,6 +16,7 @@ public class AuthenticationTracker
 
     private readonly List<AuthAttempt> _recentAttempts = new List<AuthAttempt>();
     private readonly object _lock = new object();
+    private int _suspiciousActivityCount = 0;
 
     // Keep last 1000 attempts or 24 hours, whichever is less
     private const int MAX_TRACKED_ATTEMPTS = 1000;
@@ -75,6 +76,19 @@ public class AuthenticationTracker
             });
     }
 
+    /// <summary>
+    /// Record suspicious activity detected before authentication (nested returnUrls, non-local URLs, etc.)
+    /// </summary>
+    public void RecordSuspiciousActivity(string ipAddress, string activity)
+    {
+        // Increment counter (thread-safe)
+        Interlocked.Increment(ref _suspiciousActivityCount);
+
+        // Optionally log the activity for detailed tracking
+        // We're not storing individual events to keep memory low,
+        // but the counter gives us visibility into attack volume
+    }
+
     public AuthenticationStats GetStats()
     {
         lock (_lock)
@@ -87,6 +101,7 @@ public class AuthenticationTracker
                 TotalAttempts = _recentAttempts.Count,
                 LastHourAttempts = recentAttempts.Count,
                 FailedAttempts = recentAttempts.Count(a => !a.Success),
+                SuspiciousActivityCount = _suspiciousActivityCount,
                 UniqueIPs = recentAttempts.Select(a => a.IpAddress).Distinct().Count(),
                 UniqueUsernames = recentAttempts.Select(a => a.Username).Distinct().Count(),
                 TopTargetedUsernames = recentAttempts
@@ -158,6 +173,7 @@ public class AuthenticationStats
     public int TotalAttempts { get; set; }
     public int LastHourAttempts { get; set; }
     public int FailedAttempts { get; set; }
+    public int SuspiciousActivityCount { get; set; }
     public int UniqueIPs { get; set; }
     public int UniqueUsernames { get; set; }
     public List<UsernameStats> TopTargetedUsernames { get; set; }

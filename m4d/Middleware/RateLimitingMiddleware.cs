@@ -63,6 +63,9 @@ public class RateLimitingMiddleware
                 "Suspicious returnUrl detected from {ClientId}: {ReturnUrl}",
                 AnonymizeIp(clientId), returnUrl);
 
+            // Track this suspicious activity
+            _authTracker.RecordSuspiciousActivity(AnonymizeIp(clientId), "Suspicious returnUrl");
+
             // Force CAPTCHA requirement
             GlobalState.RequireCaptcha = true;
         }
