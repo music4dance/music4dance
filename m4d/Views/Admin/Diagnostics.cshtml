@@ -411,6 +411,148 @@ else
 </p>
 <p class="text-muted">When ON, logs every identity-path request at Information level with IP, count and method.</p>
 
+@if (ViewBag.RateLimitStats is m4d.Security.RateLimitingStats rateLimitStats)
+{
+    <div class="card mb-3">
+        <div class="card-header">
+            <strong>Rate Limiting Activity (Last Hour)</strong>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-2">
+                    <h4>@rateLimitStats.LastHourRequests</h4>
+                    <p class="text-muted">Total Requests</p>
+                </div>
+                <div class="col-md-2">
+                    <h4 class="text-danger">@rateLimitStats.LastHourLimited</h4>
+                    <p class="text-muted">Limited Requests</p>
+                </div>
+                <div class="col-md-2">
+                    <h4>@rateLimitStats.UniqueIPsLastHour</h4>
+                    <p class="text-muted">Unique IPs</p>
+                </div>
+                <div class="col-md-3">
+                    <h4 class="text-warning">@rateLimitStats.GlobalLimitHitsLastHour</h4>
+                    <p class="text-muted">Global Limit Hits</p>
+                </div>
+                <div class="col-md-3">
+                    <h4>@rateLimitStats.PerIPLimitHitsLastHour</h4>
+                    <p class="text-muted">Per-IP Limit Hits</p>
+                </div>
+            </div>
+
+            @if (rateLimitStats.TopRequestingIPs.Any())
+            {
+                <h6 class="mt-3">Top Requesting IPs</h6>
+                <table class="table table-sm table-bordered" style="max-width: 600px;">
+                    <thead class="table-light">
+                        <tr>
+                            <th>IP Address</th>
+                            <th>Total Requests</th>
+                            <th>Limited</th>
+                            <th>Last Request</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var ip in rateLimitStats.TopRequestingIPs.Take(5))
+                        {
+                            <tr class="@(ip.LimitedRequests > 0 ? "table-warning" : "")">
+                                <td><code>@ip.IpAddress</code></td>
+                                <td>@ip.TotalRequests</td>
+                                <td>@ip.LimitedRequests</td>
+                                <td><small>@ip.LastRequestTime.ToString("HH:mm:ss")</small></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+}
+
+<hr />
+<h3>Authentication Security (Last Hour)</h3>
+@if (ViewBag.AuthStats != null)
+{
+    var authStats = ViewBag.AuthStats as m4d.Security.AuthenticationStats;
+    <div class="card mb-3">
+        <div class="card-header">
+            <strong>Failed Login Attempts</strong>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <h4 class="text-danger">@authStats.FailedAttempts</h4>
+                    <p class="text-muted">Failed Attempts</p>
+                </div>
+                <div class="col-md-3">
+                    <h4>@authStats.UniqueIPs</h4>
+                    <p class="text-muted">Unique IPs</p>
+                </div>
+                <div class="col-md-3">
+                    <h4>@authStats.UniqueUsernames</h4>
+                    <p class="text-muted">Targeted Usernames</p>
+                </div>
+                <div class="col-md-3">
+                    <h4>@authStats.LastHourAttempts</h4>
+                    <p class="text-muted">Total Attempts</p>
+                </div>
+            </div>
+
+            @if (authStats.TopTargetedUsernames.Any())
+            {
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <h6>Most Targeted Usernames</h6>
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Failed</th>
+                                    <th>Distinct IPs</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var stat in authStats.TopTargetedUsernames.Take(10))
+                                {
+                                    <tr class="@(stat.DistinctIPs > 5 ? "table-danger" : "")">
+                                        <td>@stat.Username</td>
+                                        <td>@stat.FailedAttempts</td>
+                                        <td>@stat.DistinctIPs</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Most Active Attacking IPs</h6>
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>IP Address</th>
+                                    <th>Failed</th>
+                                    <th>Usernames</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var stat in authStats.TopAttackingIPs.Take(10))
+                                {
+                                    <tr>
+                                        <td><code>@stat.IpAddress</code></td>
+                                        <td>@stat.FailedAttempts</td>
+                                        <td>@stat.TargetedUsernames</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+
 <hr />
 <h3>Bot Stats</h3>
 <partial name="_botreport" model="ViewBag.BotReport" />

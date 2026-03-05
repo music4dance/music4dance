@@ -1,5 +1,6 @@
 ﻿@page
 @model LoginModel
+@addTagHelper *, Owl.reCAPTCHA
 
 @{
     ViewData["HasIcons"] = true;
@@ -40,6 +41,13 @@ ViewData["Title"] = "Log in";
                         @Html.DisplayNameFor(m => m.Input.RememberMe)
                     </label>
                 </div>
+                @if (Model.ShowCaptcha && await Model.UseCaptcha())
+                {
+                    <input id="Input_RecaptchaToken" name="Input.RecaptchaToken" type="hidden" />
+                    <div class="mb-3">
+                        <recaptcha-div-v2 callback="recaptchaCallback" />
+                    </div>
+                }
                 <div>
                     <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
                 </div>
@@ -72,6 +80,15 @@ ViewData["Title"] = "Log in";
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    @if (Model.ShowCaptcha && await Model.UseCaptcha())
+    {
+        <recaptcha-script-v2 />
+        <script type="text/javascript">
+            function recaptchaCallback(token) {
+                document.getElementById("Input_RecaptchaToken").value = token;
+            }
+        </script>
+    }
 }
 
 @section Styles {

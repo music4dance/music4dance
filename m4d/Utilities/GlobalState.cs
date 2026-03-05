@@ -33,6 +33,53 @@ public static class GlobalState
     public static bool UseTestKeys { get; set; }
     public static bool RateLimitLogging { get; set; }
 
+    private static DateTime _requireCaptchaUntil = DateTime.MinValue;
+    private static readonly object _captchaLock = new object();
+
+    /// <summary>
+    /// Gets or sets whether CAPTCHA is required. When set to true, automatically expires after 5 minutes.
+    /// Use SetRequireCaptcha() for explicit timeout control.
+    /// </summary>
+    public static bool RequireCaptcha
+    {
+        get
+        {
+            lock (_captchaLock)
+            {
+                return DateTime.UtcNow < _requireCaptchaUntil;
+            }
+        }
+        set
+        {
+            if (value)
+            {
+                SetRequireCaptcha(TimeSpan.FromMinutes(5));
+            }
+            else
+            {
+                lock (_captchaLock)
+                {
+                    _requireCaptchaUntil = DateTime.MinValue;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Enables CAPTCHA requirement for a specific duration.
+    /// </summary>
+    public static void SetRequireCaptcha(TimeSpan duration)
+    {
+        lock (_captchaLock)
+        {
+            var newExpiry = DateTime.UtcNow.Add(duration);
+            if (newExpiry > _requireCaptchaUntil)
+            {
+                _requireCaptchaUntil = newExpiry;
+            }
+        }
+    }
+
     private static MarketingInfo Marketing { get; set; }
 
     internal static void SetMarketing(IConfigurationSection configurationSection)
