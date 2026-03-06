@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
+using m4d.Security;
 
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
@@ -31,8 +32,9 @@ public class ExternalLoginModel : LoginModelBase
         ILogger<ExternalLoginModel> logger,
         IEmailSender emailSender,
         IUrlHelperFactory urlHelperFactory,
-        ServiceHealthManager serviceHealth)
-        : base(urlHelperFactory, logger)
+        ServiceHealthManager serviceHealth,
+        AuthenticationTracker authTracker)
+        : base(urlHelperFactory, logger, authTracker)
     {
         _signInManager = signInManager;
         _userManager = userManager;

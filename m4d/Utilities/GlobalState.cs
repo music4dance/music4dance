@@ -29,6 +29,16 @@ public class MarketingInfo
 
 public static class GlobalState
 {
+    /// <summary>
+    /// Application start time (UTC). Used for uptime calculations across various subsystems.
+    /// </summary>
+    public static DateTime StartTime { get; } = DateTime.UtcNow;
+
+    /// <summary>
+    /// Time elapsed since application start.
+    /// </summary>
+    public static TimeSpan UpTime => DateTime.UtcNow - StartTime;
+
     public static string UpdateMessage { get; set; }
     public static bool UseTestKeys { get; set; }
     public static bool RateLimitLogging { get; set; }
