@@ -22,8 +22,8 @@ public class BotFilterInfo
 
 public static class SpiderManager
 {
-    public static DateTime StartTime { get; } = DateTime.Now;
-    public static TimeSpan UpTime => DateTime.Now - StartTime;
+    public static DateTime StartTime => GlobalState.StartTime;
+    public static TimeSpan UpTime => GlobalState.UpTime;
 
     public static bool CheckAnySpiders(string userAgent, IConfiguration configuration)
     {

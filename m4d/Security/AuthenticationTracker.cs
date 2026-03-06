@@ -16,7 +16,7 @@ public class AuthenticationTracker
 
     private readonly List<AuthAttempt> _recentAttempts = new List<AuthAttempt>();
     private readonly object _lock = new object();
-    private int _suspiciousActivityCount = 0;
+    private readonly List<SuspiciousActivityEvent> _suspiciousActivity = new List<SuspiciousActivityEvent>();
 
     // Keep last 1000 attempts or 24 hours, whichever is less
     private const int MAX_TRACKED_ATTEMPTS = 1000;
@@ -79,14 +79,33 @@ public class AuthenticationTracker
     /// <summary>
     /// Record suspicious activity detected before authentication (nested returnUrls, non-local URLs, etc.)
     /// </summary>
+    /// <param name="ipAddress">IP address of the suspicious request (currently not stored to minimize memory)</param>
+    /// <param name="activity">Type of suspicious activity (e.g., "Suspicious returnUrl", "Non-local returnUrl")</param>
     public void RecordSuspiciousActivity(string ipAddress, string activity)
     {
-        // Increment counter (thread-safe)
-        Interlocked.Increment(ref _suspiciousActivityCount);
+        var evt = new SuspiciousActivityEvent
+        {
+            Timestamp = DateTime.UtcNow,
+            Activity = activity ?? "Unknown"
+        };
 
-        // Optionally log the activity for detailed tracking
-        // We're not storing individual events to keep memory low,
-        // but the counter gives us visibility into attack volume
+        lock (_lock)
+        {
+            _suspiciousActivity.Add(evt);
+
+            // Trim old entries (same retention as auth attempts)
+            if (_suspiciousActivity.Count > MAX_TRACKED_ATTEMPTS)
+            {
+                _suspiciousActivity.RemoveAt(0);
+            }
+
+            // Remove entries older than retention period
+            var cutoff = DateTime.UtcNow - RETENTION_PERIOD;
+            _suspiciousActivity.RemoveAll(a => a.Timestamp < cutoff);
+        }
+
+        // Note: ipAddress is accepted for API consistency and potential future use,
+        // but not currently stored to keep memory footprint low
     }
 
     public AuthenticationStats GetStats()
@@ -95,13 +114,27 @@ public class AuthenticationTracker
         {
             var cutoff = DateTime.UtcNow - TimeSpan.FromMinutes(60);
             var recentAttempts = _recentAttempts.Where(a => a.Timestamp >= cutoff).ToList();
+            var recentSuspicious = _suspiciousActivity.Where(a => a.Timestamp >= cutoff).ToList();
+
+            // Calculate uptime for rate calculation
+            var uptimeHours = m4d.Utilities.GlobalState.UpTime.TotalHours;
+            var suspiciousPerHour = uptimeHours > 0 ? _suspiciousActivity.Count / uptimeHours : 0;
+
+            // Build activity type breakdown
+            var activityByType = _suspiciousActivity
+                .GroupBy(a => a.Activity)
+                .ToDictionary(g => g.Key, g => g.Count());
 
             return new AuthenticationStats
             {
                 TotalAttempts = _recentAttempts.Count,
                 LastHourAttempts = recentAttempts.Count,
                 FailedAttempts = recentAttempts.Count(a => !a.Success),
-                SuspiciousActivityCount = _suspiciousActivityCount,
+                SuspiciousActivityCount = _suspiciousActivity.Count,
+                SuspiciousActivityLastHour = recentSuspicious.Count,
+                SuspiciousActivityPerHour = suspiciousPerHour,
+                SuspiciousActivityByType = activityByType,
+                UptimeHours = uptimeHours,
                 UniqueIPs = recentAttempts.Select(a => a.IpAddress).Distinct().Count(),
                 UniqueUsernames = recentAttempts.Select(a => a.Username).Distinct().Count(),
                 TopTargetedUsernames = recentAttempts
@@ -168,12 +201,22 @@ public class AuthAttempt
     public string FailureReason { get; set; }
 }
 
+public class SuspiciousActivityEvent
+{
+    public DateTime Timestamp { get; set; }
+    public string Activity { get; set; }
+}
+
 public class AuthenticationStats
 {
     public int TotalAttempts { get; set; }
     public int LastHourAttempts { get; set; }
     public int FailedAttempts { get; set; }
     public int SuspiciousActivityCount { get; set; }
+    public int SuspiciousActivityLastHour { get; set; }
+    public double SuspiciousActivityPerHour { get; set; }
+    public double UptimeHours { get; set; }
+    public Dictionary<string, int> SuspiciousActivityByType { get; set; }
     public int UniqueIPs { get; set; }
     public int UniqueUsernames { get; set; }
     public List<UsernameStats> TopTargetedUsernames { get; set; }
