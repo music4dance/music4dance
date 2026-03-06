@@ -415,35 +415,52 @@ else
 {
     <div class="card mb-3">
         <div class="card-header">
-            <strong>Rate Limiting Activity (Last Hour)</strong>
+            <strong>Rate Limiting Activity by Hour</strong>
+            <small class="text-muted ms-2">(Showing up to 48 hours of data, most recent first)</small>
         </div>
         <div class="card-body">
-            <div class="row">
-                <div class="col-md-2">
-                    <h4>@rateLimitStats.LastHourRequests</h4>
-                    <p class="text-muted">Total Requests</p>
+            @if (rateLimitStats.HourlyStats != null && rateLimitStats.HourlyStats.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Hour</th>
+                                <th>Total Requests</th>
+                                <th>Limited</th>
+                                <th>Unique IPs</th>
+                                <th>Global Limit Hits</th>
+                                <th>Per-IP Limit Hits</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var hourStat in rateLimitStats.HourlyStats)
+                            {
+                                var hasLimited = hourStat.LimitedRequests > 0;
+                                <tr class="@(hasLimited ? "table-warning" : "")">
+                                    <td>
+                                        @hourStat.HourStart.ToLocalTime().ToString("MMM dd HH:mm")
+                                        <small class="text-muted">- @hourStat.HourEnd.ToLocalTime().ToString("HH:mm")</small>
+                                    </td>
+                                    <td>@hourStat.TotalRequests</td>
+                                    <td class="@(hasLimited ? "text-danger fw-bold" : "")">@hourStat.LimitedRequests</td>
+                                    <td>@hourStat.UniqueIPs</td>
+                                    <td class="@(hourStat.GlobalLimitHits > 0 ? "text-warning" : "")">@hourStat.GlobalLimitHits</td>
+                                    <td>@hourStat.PerIPLimitHits</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
                 </div>
-                <div class="col-md-2">
-                    <h4 class="text-danger">@rateLimitStats.LastHourLimited</h4>
-                    <p class="text-muted">Limited Requests</p>
-                </div>
-                <div class="col-md-2">
-                    <h4>@rateLimitStats.UniqueIPsLastHour</h4>
-                    <p class="text-muted">Unique IPs</p>
-                </div>
-                <div class="col-md-3">
-                    <h4 class="text-warning">@rateLimitStats.GlobalLimitHitsLastHour</h4>
-                    <p class="text-muted">Global Limit Hits</p>
-                </div>
-                <div class="col-md-3">
-                    <h4>@rateLimitStats.PerIPLimitHitsLastHour</h4>
-                    <p class="text-muted">Per-IP Limit Hits</p>
-                </div>
-            </div>
+            }
+            else
+            {
+                <p class="text-muted">No rate limiting data available yet.</p>
+            }
 
             @if (rateLimitStats.TopRequestingIPs.Any())
             {
-                <h6 class="mt-3">Top Requesting IPs</h6>
+                <h6 class="mt-3">Top Requesting IPs (All Time)</h6>
                 <table class="table table-sm table-bordered" style="max-width: 600px;">
                     <thead class="table-light">
                         <tr>
@@ -454,13 +471,13 @@ else
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var ip in rateLimitStats.TopRequestingIPs.Take(5))
+                        @foreach (var ip in rateLimitStats.TopRequestingIPs.Take(10))
                         {
                             <tr class="@(ip.LimitedRequests > 0 ? "table-warning" : "")">
                                 <td><code>@ip.IpAddress</code></td>
                                 <td>@ip.TotalRequests</td>
                                 <td>@ip.LimitedRequests</td>
-                                <td><small>@ip.LastRequestTime.ToString("HH:mm:ss")</small></td>
+                                <td><small>@ip.LastRequestTime.ToLocalTime().ToString("MMM dd HH:mm:ss")</small></td>
                             </tr>
                         }
                     </tbody>
