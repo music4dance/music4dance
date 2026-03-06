@@ -112,7 +112,8 @@ public class AuthenticationTracker
     {
         lock (_lock)
         {
-            var cutoff = DateTime.UtcNow - TimeSpan.FromMinutes(60);
+            var now = DateTime.UtcNow;
+            var cutoff = now - TimeSpan.FromMinutes(60);
             var recentAttempts = _recentAttempts.Where(a => a.Timestamp >= cutoff).ToList();
             var recentSuspicious = _suspiciousActivity.Where(a => a.Timestamp >= cutoff).ToList();
 
@@ -124,6 +125,38 @@ public class AuthenticationTracker
             var activityByType = _suspiciousActivity
                 .GroupBy(a => a.Activity)
                 .ToDictionary(g => g.Key, g => g.Count());
+
+            // Generate hourly statistics (up to 48 hours)
+            var hourlyStats = new List<HourlyAuthStats>();
+            if (_recentAttempts.Any())
+            {
+                var oldestEvent = _recentAttempts.Min(a => a.Timestamp);
+                var hoursOfData = (int)Math.Ceiling((now - oldestEvent).TotalHours);
+                var hoursToReport = Math.Min(hoursOfData, 48);
+
+                for (int i = 0; i < hoursToReport; i++)
+                {
+                    var hourEnd = now.AddHours(-i);
+                    var hourStart = hourEnd.AddHours(-1);
+                    var hourAttempts = _recentAttempts.Where(a => a.Timestamp >= hourStart && a.Timestamp < hourEnd).ToList();
+                    var hourSuspicious = _suspiciousActivity.Where(a => a.Timestamp >= hourStart && a.Timestamp < hourEnd).ToList();
+
+                    // Only add hours that have events
+                    if (hourAttempts.Any() || hourSuspicious.Any())
+                    {
+                        hourlyStats.Add(new HourlyAuthStats
+                        {
+                            HourStart = hourStart,
+                            HourEnd = hourEnd,
+                            TotalAttempts = hourAttempts.Count,
+                            FailedAttempts = hourAttempts.Count(a => !a.Success),
+                            SuspiciousActivity = hourSuspicious.Count,
+                            UniqueIPs = hourAttempts.Select(a => a.IpAddress).Distinct().Count(),
+                            UniqueUsernames = hourAttempts.Select(a => a.Username).Distinct().Count()
+                        });
+                    }
+                }
+            }
 
             return new AuthenticationStats
             {
@@ -137,6 +170,9 @@ public class AuthenticationTracker
                 UptimeHours = uptimeHours,
                 UniqueIPs = recentAttempts.Select(a => a.IpAddress).Distinct().Count(),
                 UniqueUsernames = recentAttempts.Select(a => a.Username).Distinct().Count(),
+                UniqueIPsAllTime = _recentAttempts.Select(a => a.IpAddress).Distinct().Count(),
+                UniqueUsernamesAllTime = _recentAttempts.Select(a => a.Username).Distinct().Count(),
+                HourlyAuthStats = hourlyStats,
                 TopTargetedUsernames = recentAttempts
                     .Where(a => !a.Success)
                     .GroupBy(a => a.Username)
@@ -219,9 +255,23 @@ public class AuthenticationStats
     public Dictionary<string, int> SuspiciousActivityByType { get; set; }
     public int UniqueIPs { get; set; }
     public int UniqueUsernames { get; set; }
+    public int UniqueIPsAllTime { get; set; }
+    public int UniqueUsernamesAllTime { get; set; }
+    public List<HourlyAuthStats> HourlyAuthStats { get; set; }
     public List<UsernameStats> TopTargetedUsernames { get; set; }
     public List<IPStats> TopAttackingIPs { get; set; }
     public List<AuthAttempt> RecentAttempts { get; set; }
+}
+
+public class HourlyAuthStats
+{
+    public DateTime HourStart { get; set; }
+    public DateTime HourEnd { get; set; }
+    public int TotalAttempts { get; set; }
+    public int FailedAttempts { get; set; }
+    public int SuspiciousActivity { get; set; }
+    public int UniqueIPs { get; set; }
+    public int UniqueUsernames { get; set; }
 }
 
 public class UsernameStats

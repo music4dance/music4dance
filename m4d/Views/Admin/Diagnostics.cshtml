@@ -450,6 +450,24 @@ else
                                 </tr>
                             }
                         </tbody>
+                        <tfoot class="table-secondary">
+                            <tr>
+                                @{
+                                    var totalRequests = rateLimitStats.HourlyStats.Sum(h => h.TotalRequests);
+                                    var totalLimited = rateLimitStats.HourlyStats.Sum(h => h.LimitedRequests);
+                                    var totalGlobalHits = rateLimitStats.HourlyStats.Sum(h => h.GlobalLimitHits);
+                                    var totalPerIPHits = rateLimitStats.HourlyStats.Sum(h => h.PerIPLimitHits);
+                                    var oldestHour = rateLimitStats.HourlyStats.Min(h => h.HourStart);
+                                    var hoursOfData = (DateTime.UtcNow - oldestHour).TotalHours;
+                                }
+                                <th>Total (@hoursOfData.ToString("F1") hours)</th>
+                                <th>@totalRequests</th>
+                                <th class="@(totalLimited > 0 ? "text-danger" : "")">@totalLimited</th>
+                                <th>@rateLimitStats.UniqueIPsAllTime</th>
+                                <th class="@(totalGlobalHits > 0 ? "text-warning" : "")">@totalGlobalHits</th>
+                                <th>@totalPerIPHits</th>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
             }
@@ -488,72 +506,132 @@ else
 }
 
 <hr />
-<h3>Authentication Security (Last Hour)</h3>
+<h3>Authentication Security</h3>
 @if (ViewBag.AuthStats != null)
 {
     var authStats = ViewBag.AuthStats as m4d.Security.AuthenticationStats;
-    <div class="card mb-3">
-        <div class="card-header">
-            <strong>Failed Login Attempts</strong>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-2">
-                    <h4 class="text-danger">@authStats.FailedAttempts</h4>
-                    <p class="text-muted">Failed Attempts</p>
-                </div>
-                <div class="col-md-2">
-                    <h4 class="text-warning">@authStats.SuspiciousActivityLastHour</h4>
-                    <p class="text-muted">Suspicious Activity</p>
-                    <small class="text-muted">
-                        @authStats.SuspiciousActivityCount total
-                        (@authStats.SuspiciousActivityPerHour.ToString("F1")/hr avg)<br/>
-                        <span title="Application uptime">@authStats.UptimeHours.ToString("F1") hours up</span>
-                    </small>
-                </div>
-                <div class="col-md-2">
-                    <h4>@authStats.UniqueIPs</h4>
-                    <p class="text-muted">Unique IPs</p>
-                </div>
-                <div class="col-md-3">
-                    <h4>@authStats.UniqueUsernames</h4>
-                    <p class="text-muted">Targeted Usernames</p>
-                </div>
-                <div class="col-md-3">
-                    <h4>@authStats.LastHourAttempts</h4>
-                    <p class="text-muted">Total Attempts</p>
+
+    @if (authStats.HourlyAuthStats != null && authStats.HourlyAuthStats.Any())
+    {
+        <div class="card mb-3">
+            <div class="card-header">
+                <strong>Authentication Attempts by Hour (Up to 48 hours, most recent first)</strong>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Hour</th>
+                                <th>Total Attempts</th>
+                                <th>Failed</th>
+                                <th>Suspicious</th>
+                                <th>Unique IPs</th>
+                                <th>Unique Usernames</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var hourStats in authStats.HourlyAuthStats)
+                            {
+                                var hasFailures = hourStats.FailedAttempts > 0;
+                                <tr class="@(hasFailures ? "table-warning" : "")">
+                                    <td>@hourStats.HourStart.ToString("yyyy-MM-dd HH:mm") - @hourStats.HourEnd.ToString("HH:mm")</td>
+                                    <td>@hourStats.TotalAttempts</td>
+                                    <td>
+                                        @if (hasFailures)
+                                        {
+                                            <strong class="text-danger">@hourStats.FailedAttempts</strong>
+                                        }
+                                        else
+                                        {
+                                            @hourStats.FailedAttempts
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (hourStats.SuspiciousActivity > 0)
+                                        {
+                                            <strong class="text-warning">@hourStats.SuspiciousActivity</strong>
+                                        }
+                                        else
+                                        {
+                                            @hourStats.SuspiciousActivity
+                                        }
+                                    </td>
+                                    <td>@hourStats.UniqueIPs</td>
+                                    <td>@hourStats.UniqueUsernames</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot class="table-secondary">
+                            <tr>
+                                @{
+                                    var totalAttempts = authStats.HourlyAuthStats.Sum(h => h.TotalAttempts);
+                                    var totalFailed = authStats.HourlyAuthStats.Sum(h => h.FailedAttempts);
+                                    var totalSuspicious = authStats.HourlyAuthStats.Sum(h => h.SuspiciousActivity);
+                                    var oldestAuthHour = authStats.HourlyAuthStats.Min(h => h.HourStart);
+                                    var authHoursOfData = (DateTime.UtcNow - oldestAuthHour).TotalHours;
+                                }
+                                <th>Total (@authHoursOfData.ToString("F1") hours)</th>
+                                <th>@totalAttempts</th>
+                                <th class="@(totalFailed > 0 ? "text-danger" : "")">@totalFailed</th>
+                                <th class="@(totalSuspicious > 0 ? "text-warning" : "")">@totalSuspicious</th>
+                                <th>@authStats.UniqueIPsAllTime</th>
+                                <th>@authStats.UniqueUsernamesAllTime</th>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
             </div>
+        </div>
+    }
+    else
+    {
+        <div class="card mb-3">
+            <div class="card-header">
+                <strong>Authentication Attempts by Hour</strong>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">No authentication data available yet.</p>
+            </div>
+        </div>
+    }
 
-            @if (authStats.SuspiciousActivityByType != null && authStats.SuspiciousActivityByType.Any())
-            {
-                <div class="row mt-3">
-                    <div class="col-12">
-                        <h6>Suspicious Activity Breakdown</h6>
-                        <table class="table table-sm table-bordered">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Activity Type</th>
-                                    <th>Count</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var activity in authStats.SuspiciousActivityByType.OrderByDescending(kvp => kvp.Value))
-                                {
-                                    <tr>
-                                        <td>@activity.Key</td>
-                                        <td>@activity.Value</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            }
+    @if (authStats.SuspiciousActivityByType != null && authStats.SuspiciousActivityByType.Any())
+    {
+        <div class="card mb-3">
+            <div class="card-header">
+                <strong>Suspicious Activity Breakdown</strong>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Activity Type</th>
+                            <th>Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var activity in authStats.SuspiciousActivityByType.OrderByDescending(kvp => kvp.Value))
+                        {
+                            <tr>
+                                <td>@activity.Key</td>
+                                <td>@activity.Value</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
 
-            @if (authStats.TopTargetedUsernames.Any())
-            {
-                <div class="row mt-3">
+    @if (authStats.TopTargetedUsernames.Any())
+    {
+        <div class="card mb-3">
+            <div class="card-header">
+                <strong>Top Targeted Usernames and Attacking IPs</strong>
+            </div>
+            <div class="card-body">
+                <div class="row">
                     <div class="col-md-6">
                         <h6>Most Targeted Usernames</h6>
                         <table class="table table-sm table-bordered">
@@ -599,9 +677,9 @@ else
                         </table>
                     </div>
                 </div>
-            }
+            </div>
         </div>
-    </div>
+    }
 }
 
 

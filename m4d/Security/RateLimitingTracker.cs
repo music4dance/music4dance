@@ -84,6 +84,7 @@ public class RateLimitingTracker
                 LastHourRequests = recentEvents.Count,
                 LastHourLimited = recentEvents.Count(e => e.WasLimited),
                 UniqueIPsLastHour = recentEvents.Select(e => e.IpAddress).Distinct().Count(),
+                UniqueIPsAllTime = allEvents.Select(e => e.IpAddress).Distinct().Count(),
                 GlobalLimitHitsLastHour = recentEvents.Count(e => e.IsGlobalLimit),
                 PerIPLimitHitsLastHour = recentEvents.Count(e => e.WasLimited && !e.IsGlobalLimit),
                 HourlyStats = hourlyStats,
@@ -169,6 +170,7 @@ public class RateLimitingStats
     public int LastHourRequests { get; set; }
     public int LastHourLimited { get; set; }
     public int UniqueIPsLastHour { get; set; }
+    public int UniqueIPsAllTime { get; set; }
     public int GlobalLimitHitsLastHour { get; set; }
     public int PerIPLimitHitsLastHour { get; set; }
     public List<HourlyStats> HourlyStats { get; set; }
