@@ -125,7 +125,7 @@ public class RateLimitingTrackerTests
     }
 
     [TestMethod]
-    public void GetStats_TimeSlices_Creates12Buckets()
+    public void GetStats_HourlyStats_IncludesHoursWithEvents()
     {
         // Arrange
         var tracker = new RateLimitingTracker();
@@ -136,9 +136,16 @@ public class RateLimitingTrackerTests
         // Act
         var stats = tracker.GetStats();
 
-        // Assert
-        Assert.AreEqual(12, stats.TimeSlices.Count);
-        Assert.IsTrue(stats.TimeSlices[0].StartTime < stats.TimeSlices[11].StartTime); // Oldest to newest
+        // Assert - Should have at least 1 hour with events (the current hour)
+        Assert.IsTrue(stats.HourlyStats.Count >= 1, "Should have at least one hour with events");
+        Assert.IsTrue(stats.HourlyStats[0].TotalRequests >= 1, "Current hour should have requests");
+        
+        // Verify most recent first (descending order)
+        if (stats.HourlyStats.Count > 1)
+        {
+            Assert.IsTrue(stats.HourlyStats[0].HourStart > stats.HourlyStats[^1].HourStart, 
+                "Should be ordered most recent first");
+        }
     }
 
     [TestMethod]
