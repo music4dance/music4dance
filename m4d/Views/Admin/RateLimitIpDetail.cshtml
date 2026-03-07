@@ -5,8 +5,17 @@
     ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
     var ipAddress = ViewBag.IpAddress as string;
     var events = ViewBag.Events as List<RateLimitEvent> ?? new List<RateLimitEvent>();
-    var uniqueUAs = events.Select(e => e.UserAgent).Where(ua => !string.IsNullOrEmpty(ua)).Distinct().ToList();
-    var uniquePaths = events.Select(e => e.Path).Distinct().OrderBy(p => p).ToList();
+    var uaCounts = events
+        .Where(e => !string.IsNullOrEmpty(e.UserAgent))
+        .GroupBy(e => e.UserAgent)
+        .OrderByDescending(g => g.Count())
+        .Select(g => new { UserAgent = g.Key, Count = g.Count() })
+        .ToList();
+    var pathGroups = events
+        .GroupBy(e => e.Path)
+        .OrderBy(g => g.Key)
+        .Select(g => new { Path = g.Key, Total = g.Count(), Limited = g.Count(e => e.WasLimited) })
+        .ToList();
 }
 
 <h3>Rate Limit Events for <code>@ipAddress</code></h3>
@@ -36,26 +45,25 @@
     }
 </div>
 
-@if (uniqueUAs.Any())
+@if (uaCounts.Any())
 {
     <div class="card mb-3">
-        <div class="card-header"><strong>User-Agents Observed (@uniqueUAs.Count)</strong></div>
+        <div class="card-header"><strong>User-Agents Observed (@uaCounts.Count)</strong></div>
         <div class="card-body">
             <ul class="mb-0">
-                @foreach (var ua in uniqueUAs)
+                @foreach (var ua in uaCounts)
                 {
-                    var count = events.Count(e => e.UserAgent == ua);
-                    <li><code class="text-break">@ua</code> <span class="badge bg-secondary">@count</span></li>
+                    <li><code class="text-break">@ua.UserAgent</code> <span class="badge bg-secondary">@ua.Count</span></li>
                 }
             </ul>
         </div>
     </div>
 }
 
-@if (uniquePaths.Any())
+@if (pathGroups.Any())
 {
     <div class="card mb-3">
-        <div class="card-header"><strong>Paths Targeted (@uniquePaths.Count)</strong></div>
+        <div class="card-header"><strong>Paths Targeted (@pathGroups.Count)</strong></div>
         <div class="card-body">
             <table class="table table-sm table-bordered" style="max-width: 600px;">
                 <thead class="table-light">
@@ -66,13 +74,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var path in uniquePaths)
+                    @foreach (var pg in pathGroups)
                     {
-                        var pathEvents = events.Where(e => e.Path == path).ToList();
                         <tr>
-                            <td><code>@path</code></td>
-                            <td>@pathEvents.Count</td>
-                            <td class="@(pathEvents.Any(e => e.WasLimited) ? "text-danger fw-bold" : "")">@pathEvents.Count(e => e.WasLimited)</td>
+                            <td><code>@pg.Path</code></td>
+                            <td>@pg.Total</td>
+                            <td class="@(pg.Limited > 0 ? "text-danger fw-bold" : "")">@pg.Limited</td>
                         </tr>
                     }
                 </tbody>

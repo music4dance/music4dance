@@ -161,6 +161,93 @@ public class RateLimitingTrackerTests
         var stats = tracker.GetStats();
         Assert.IsTrue(stats.TotalEventsTracked >= 1);
     }
+
+    [TestMethod]
+    public void GetEventsForIp_ReturnsOnlyMatchingIp()
+    {
+        // Arrange
+        var tracker = new RateLimitingTracker();
+        var targetIp = "10.99.1.1";
+        var otherIp = "10.99.1.2";
+
+        tracker.RecordEvent(targetIp, "/identity/account/login", false, 1, false, "Mozilla/5.0");
+        tracker.RecordEvent(otherIp, "/identity/account/register", false, 1, false, "Bot/1.0");
+        tracker.RecordEvent(targetIp, "/identity/account/login", true, 2, false, "Mozilla/5.0");
+
+        // Act
+        var result = tracker.GetEventsForIp(targetIp);
+
+        // Assert
+        Assert.AreEqual(2, result.Count);
+        Assert.IsTrue(result.All(e => e.IpAddress == targetIp), "Should only contain events for the target IP");
+    }
+
+    [TestMethod]
+    public void GetEventsForIp_ReturnsTimestampDescending()
+    {
+        // Arrange
+        var tracker = new RateLimitingTracker();
+        var ip = "10.99.2.1";
+
+        // Record events with small delays to ensure distinct timestamps
+        tracker.RecordEvent(ip, "/identity/first", false, 1, false);
+        Thread.Sleep(10);
+        tracker.RecordEvent(ip, "/identity/second", false, 2, false);
+        Thread.Sleep(10);
+        tracker.RecordEvent(ip, "/identity/third", false, 3, false);
+
+        // Act
+        var result = tracker.GetEventsForIp(ip);
+
+        // Assert
+        Assert.AreEqual(3, result.Count);
+        for (int i = 1; i < result.Count; i++)
+        {
+            Assert.IsTrue(result[i - 1].Timestamp >= result[i].Timestamp,
+                $"Event at index {i - 1} (path={result[i - 1].Path}) should have timestamp >= event at index {i} (path={result[i].Path})");
+        }
+        // Most recent should be first
+        Assert.AreEqual("/identity/third", result[0].Path);
+    }
+
+    [TestMethod]
+    public void GetEventsForIp_NoMatch_ReturnsEmpty()
+    {
+        // Arrange
+        var tracker = new RateLimitingTracker();
+        tracker.RecordEvent("10.99.3.1", "/identity/account/login", false, 1, false);
+
+        // Act
+        var result = tracker.GetEventsForIp("10.99.3.99");
+
+        // Assert
+        Assert.AreEqual(0, result.Count);
+    }
+
+    [TestMethod]
+    public void GetStats_TopRequestingIPs_IncludesTopUserAgent()
+    {
+        // Arrange
+        var tracker = new RateLimitingTracker();
+        var ip = "10.99.4.1";
+        var commonUA = "Mozilla/5.0 (Windows NT 10.0)";
+        var rareUA = "facebookexternalhit/1.1";
+
+        // Record 3 events with the common UA, 1 with the rare UA
+        tracker.RecordEvent(ip, "/identity/account/login", false, 1, false, commonUA);
+        tracker.RecordEvent(ip, "/identity/account/login", false, 2, false, commonUA);
+        tracker.RecordEvent(ip, "/identity/account/login", false, 3, false, commonUA);
+        tracker.RecordEvent(ip, "/identity/account/login", false, 4, false, rareUA);
+
+        // Act
+        var stats = tracker.GetStats();
+
+        // Assert
+        var ipStats = stats.TopRequestingIPs.FirstOrDefault(s => s.IpAddress == ip);
+        Assert.IsNotNull(ipStats, "Should find the test IP in top requesting IPs");
+        Assert.AreEqual(commonUA, ipStats.TopUserAgent,
+            "TopUserAgent should be the most frequently seen UA string");
+    }
 }
 
 [TestClass]
