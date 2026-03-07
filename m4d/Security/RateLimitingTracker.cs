@@ -9,7 +9,7 @@ public class RateLimitingTracker
     private readonly CircularBuffer<RateLimitEvent> _events = new CircularBuffer<RateLimitEvent>(10000);
     private readonly object _lock = new object();
 
-    public void RecordEvent(string ipAddress, string path, bool wasLimited, int requestCount, bool isGlobal)
+    public void RecordEvent(string ipAddress, string path, bool wasLimited, int requestCount, bool isGlobal, string userAgent = "")
     {
         var evt = new RateLimitEvent
         {
@@ -18,12 +18,24 @@ public class RateLimitingTracker
             Path = path ?? "/",
             WasLimited = wasLimited,
             RequestCount = requestCount,
-            IsGlobalLimit = isGlobal
+            IsGlobalLimit = isGlobal,
+            UserAgent = userAgent ?? ""
         };
 
         lock (_lock)
         {
             _events.Add(evt);
+        }
+    }
+
+    public List<RateLimitEvent> GetEventsForIp(string ipAddress)
+    {
+        lock (_lock)
+        {
+            return _events.ToList()
+                .Where(e => e.IpAddress == ipAddress)
+                .OrderByDescending(e => e.Timestamp)
+                .ToList();
         }
     }
 
@@ -97,7 +109,12 @@ public class RateLimitingTracker
                         IpAddress = g.Key,
                         TotalRequests = g.Count(),
                         LimitedRequests = g.Count(e => e.WasLimited),
-                        LastRequestTime = g.Max(e => e.Timestamp)
+                        LastRequestTime = g.Max(e => e.Timestamp),
+                        TopUserAgent = g.Where(e => !string.IsNullOrEmpty(e.UserAgent))
+                            .GroupBy(e => e.UserAgent)
+                            .OrderByDescending(ug => ug.Count())
+                            .Select(ug => ug.Key)
+                            .FirstOrDefault() ?? ""
                     })
                     .ToList(),
                 MostTargetedPaths = recentEvents
@@ -162,6 +179,7 @@ public class RateLimitEvent
     public bool WasLimited { get; set; }
     public int RequestCount { get; set; }
     public bool IsGlobalLimit { get; set; }
+    public string UserAgent { get; set; } = "";
 }
 
 public class RateLimitingStats
@@ -206,6 +224,10 @@ public class IPRequestStats
     public int TotalRequests { get; set; }
     public int LimitedRequests { get; set; }
     public DateTime LastRequestTime { get; set; }
+    /// <summary>
+    /// Most frequently seen User-Agent string for this IP
+    /// </summary>
+    public string TopUserAgent { get; set; } = "";
 }
 
 public class PathStats
