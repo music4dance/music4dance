@@ -686,6 +686,19 @@ app.Use(async (context, next) =>
             return Task.CompletedTask;
         }
 
+        // Prevent caching of redirect responses to identity paths.
+        // Meta crawlers and proxies caching 302→/login amplifies redirect loops.
+        if (context.Response.StatusCode >= 300 && context.Response.StatusCode < 400)
+        {
+            var reqPath = context.Request.Path.Value?.ToLowerInvariant() ?? "";
+            if (reqPath.StartsWith("/identity/"))
+            {
+                context.Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate";
+                context.Response.Headers["Pragma"] = "no-cache";
+            }
+            return Task.CompletedTask;
+        }
+
         // Only modify cache headers on successful responses (200-299)
         if (context.Response.StatusCode < 200 || context.Response.StatusCode >= 300)
         {
@@ -694,6 +707,14 @@ app.Use(async (context, next) =>
 
         // Get the request path for exclusion checks
         var path = context.Request.Path.Value?.ToLowerInvariant() ?? "";
+
+        // Never cache Identity responses regardless of auth state or Set-Cookie presence.
+        // The Meta crawler short-circuit returns 200 without Set-Cookie on /identity/,
+        // which would otherwise be treated as cacheable for anonymous users.
+        if (path.StartsWith("/identity/"))
+        {
+            return Task.CompletedTask;
+        }
 
         // Exclude API endpoints from caching (dynamic data)
         if (path.StartsWith("/api/"))

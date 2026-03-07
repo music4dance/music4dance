@@ -52,6 +52,24 @@ public class RateLimitingMiddleware
             return;
         }
 
+        // Short-circuit known Meta/Facebook crawlers on identity pages.
+        // These crawlers get stuck in a redirect loop when a shared URL requires auth
+        // (302 → /login → retry → 302 → ...). Return a clean 200 with OpenGraph metadata
+        // instead of letting them enter the rate-limiting / anti-forgery pipeline.
+        // This does NOT affect Facebook Login OAuth — those use POST callbacks to /signin-facebook.
+        if (IsMetaCrawler(context))
+        {
+            var userAgent = context.Request.Headers.UserAgent.ToString();
+            GlobalState.MetaCrawlerStats.Record(userAgent);
+
+            _logger.LogInformation(
+                "MetaCrawler: Returning static response for {UserAgent} on {Path} from {ClientId}",
+                userAgent, path, AnonymizeIp(GetClientIdentifier(context)));
+
+            await ReturnCrawlerResponse(context, path);
+            return;
+        }
+
         var verbose = GlobalState.RateLimitLogging;
         var clientId = GetClientIdentifier(context);
 
@@ -278,6 +296,62 @@ public class RateLimitingMiddleware
     </div>") + @"
     <p>Please wait a moment and try again.</p>
     <a href=""javascript:history.back()"" class=""retry-button"">Go Back</a>
+</body>
+</html>";
+
+        await context.Response.WriteAsync(html);
+    }
+
+    /// <summary>
+    /// Known Meta/Facebook crawler user-agent fragments.
+    /// These are dedicated crawler identifiers (used for link previews), not generic app names.
+    /// Note: "whatsapp" and "instagram" are intentionally excluded — those tokens appear in
+    /// in-app browser UAs for real users, and we don't want to short-circuit their Identity flow.
+    /// </summary>
+    private static readonly string[] MetaCrawlerFragments =
+    [
+        "facebookexternalhit",
+        "facebot",
+        "meta-externalfetcher"
+    ];
+
+    private static bool IsMetaCrawler(HttpContext context)
+    {
+        // Only intercept GET requests — OAuth callbacks are POST
+        if (context.Request.Method != "GET")
+            return false;
+
+        var ua = context.Request.Headers.UserAgent.ToString();
+        if (string.IsNullOrEmpty(ua))
+            return false;
+
+        var uaLower = ua.ToLowerInvariant();
+        return MetaCrawlerFragments.Any(fragment => uaLower.Contains(fragment));
+    }
+
+    private static async Task ReturnCrawlerResponse(HttpContext context, string path)
+    {
+        context.Response.StatusCode = 200;
+        context.Response.ContentType = "text/html; charset=utf-8";
+        context.Response.Headers.CacheControl = "no-store, no-cache";
+
+        // HTML-encode path to prevent markup injection from crafted URLs (UA check can be spoofed)
+        var encodedPath = System.Net.WebUtility.HtmlEncode(path);
+
+        var html = @"<!DOCTYPE html>
+<html lang=""en"">
+<head>
+    <meta charset=""utf-8"">
+    <meta name=""robots"" content=""noindex, nofollow"">
+    <meta property=""og:title"" content=""Music4Dance - Login Required"">
+    <meta property=""og:description"" content=""Sign in to access this page on Music4Dance."">
+    <meta property=""og:type"" content=""website"">
+    <meta property=""og:url"" content=""https://music4dance.net" + encodedPath + @""">
+    <title>Music4Dance - Login Required</title>
+</head>
+<body>
+    <h1>Login Required</h1>
+    <p>This page requires authentication. Visit <a href=""https://music4dance.net"">music4dance.net</a> to sign in.</p>
 </body>
 </html>";
 

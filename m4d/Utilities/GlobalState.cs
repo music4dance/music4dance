@@ -1,4 +1,6 @@
-﻿namespace m4d.Utilities;
+﻿using System.Collections.Concurrent;
+
+namespace m4d.Utilities;
 
 // TODO: This only works for single application instances, eventually
 //  move this to some kin of data store/azure supported settings manager
@@ -95,6 +97,53 @@ public static class GlobalState
     internal static void SetMarketing(IConfigurationSection configurationSection)
     {
         Marketing = configurationSection.Get<MarketingInfo>();
+    }
+
+    /// <summary>
+    /// Tracks Meta/Facebook crawler requests that were short-circuited by the rate limiting middleware.
+    /// These requests never reach the rate-limiting pipeline, so they aren't captured by RateLimitingTracker.
+    /// </summary>
+    public static class MetaCrawlerStats
+    {
+        private static long _totalCount;
+        private static readonly ConcurrentDictionary<string, long> _byCrawler = new();
+        private static long _lastSeenTicks = DateTime.MinValue.Ticks;
+
+        public static long TotalCount => Interlocked.Read(ref _totalCount);
+        public static DateTime LastSeen => new DateTime(Interlocked.Read(ref _lastSeenTicks), DateTimeKind.Utc);
+        public static IReadOnlyDictionary<string, long> ByCrawler => _byCrawler;
+
+        /// <summary>
+        /// Average short-circuited requests per hour since server start.
+        /// </summary>
+        public static double AveragePerHour
+        {
+            get
+            {
+                var total = TotalCount;
+                if (total == 0) return 0;
+                var hours = (DateTime.UtcNow - GlobalState.StartTime).TotalHours;
+                return hours > 0 ? total / hours : total;
+            }
+        }
+
+        public static void Record(string userAgent)
+        {
+            Interlocked.Increment(ref _totalCount);
+            Interlocked.Exchange(ref _lastSeenTicks, DateTime.UtcNow.Ticks);
+
+            var crawlerName = CategorizeCrawler(userAgent);
+            _byCrawler.AddOrUpdate(crawlerName, 1, (_, count) => count + 1);
+        }
+
+        private static string CategorizeCrawler(string ua)
+        {
+            var lower = ua.ToLowerInvariant();
+            if (lower.Contains("facebookexternalhit")) return "facebookexternalhit";
+            if (lower.Contains("facebot")) return "Facebot";
+            if (lower.Contains("meta-externalfetcher")) return "meta-externalfetcher";
+            return "Other Meta";
+        }
     }
 
     public static MarketingInfo GetMarketing(ApplicationUser user, string page)

@@ -411,6 +411,66 @@ else
 </p>
 <p class="text-muted">When ON, logs every identity-path request at Information level with IP, count and method.</p>
 
+@{
+    var metaTotal = GlobalState.MetaCrawlerStats.TotalCount;
+    var metaAvgPerHour = GlobalState.MetaCrawlerStats.AveragePerHour;
+    var metaLastSeen = GlobalState.MetaCrawlerStats.LastSeen;
+    var metaByCrawler = GlobalState.MetaCrawlerStats.ByCrawler;
+    var uptimeHours = GlobalState.UpTime.TotalHours;
+}
+<div class="card mb-3">
+    <div class="card-header">
+        <strong>Meta Crawler Short-Circuits</strong>
+        <small class="text-muted ms-2">(since server start, @uptimeHours.ToString("F1") hours ago)</small>
+    </div>
+    <div class="card-body">
+        @if (metaTotal > 0)
+        {
+            <div class="row mb-3">
+                <div class="col-auto">
+                    <span class="fs-4 fw-bold">@metaTotal</span>
+                    <span class="text-muted">total requests blocked</span>
+                </div>
+                <div class="col-auto">
+                    <span class="fs-4 fw-bold">@metaAvgPerHour.ToString("F1")</span>
+                    <span class="text-muted">avg / hour</span>
+                </div>
+                <div class="col-auto">
+                    <span class="text-muted">Last seen:</span>
+                    <span>@metaLastSeen.ToLocalTime().ToString("MMM dd HH:mm:ss")</span>
+                </div>
+            </div>
+
+            @if (metaByCrawler.Any())
+            {
+                <table class="table table-sm table-bordered" style="max-width: 500px;">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Crawler</th>
+                            <th>Requests</th>
+                            <th>% of Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var crawler in metaByCrawler.OrderByDescending(c => c.Value))
+                        {
+                            <tr>
+                                <td><code>@crawler.Key</code></td>
+                                <td>@crawler.Value</td>
+                                <td>@((crawler.Value * 100.0 / metaTotal).ToString("F1"))%</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        }
+        else
+        {
+            <p class="text-muted mb-0">No Meta crawler requests intercepted yet.</p>
+        }
+    </div>
+</div>
+
 @if (ViewBag.RateLimitStats is m4d.Security.RateLimitingStats rateLimitStats)
 {
     <div class="card mb-3">
