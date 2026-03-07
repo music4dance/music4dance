@@ -1,5 +1,6 @@
 import type { AxiosInstance } from "axios";
 import axios from "axios";
+import type { EngagementConfig } from "./EngagementConfig";
 
 export interface MenuContextInterface {
   helpLink?: string;
@@ -21,6 +22,7 @@ export interface MenuContextInterface {
   databaseHealthy?: boolean;
   configurationHealthy?: boolean;
   useClientSideTracking?: boolean;
+  googleAdsActive?: boolean;
   usageTracking?: {
     enabled: boolean;
     anonymousThreshold: number;
@@ -28,37 +30,40 @@ export interface MenuContextInterface {
     authenticatedBatchSize: number;
     maxQueueSize: number;
   };
+  engagementConfig?: EngagementConfig;
 }
 
 export class MenuContext implements MenuContextInterface {
-public helpLink?: string;
-public userName?: string;
-public userId?: string;
-public roles?: string[];
-public indexId?: string;
-public expiration?: Date;
-public started?: Date;
-public level?: string;
-public hitCount?: number;
-public customerReminder?: boolean;
-public marketingMessage?: string;
-public xsrfToken?: string;
-public searchHealthy?: boolean;
-public databaseHealthy?: boolean;
-public configurationHealthy?: boolean;
-public useClientSideTracking?: boolean;
-public usageTracking?: {
-  enabled: boolean;
-  anonymousThreshold: number;
-  anonymousBatchSize: number;
-  authenticatedBatchSize: number;
-  maxQueueSize: number;
-};
-private axiosInstance?: AxiosInstance;
+  public helpLink?: string;
+  public userName?: string;
+  public userId?: string;
+  public roles?: string[];
+  public indexId?: string;
+  public expiration?: Date;
+  public started?: Date;
+  public level?: string;
+  public hitCount?: number;
+  public customerReminder?: boolean;
+  public marketingMessage?: string;
+  public xsrfToken?: string;
+  public searchHealthy?: boolean;
+  public databaseHealthy?: boolean;
+  public configurationHealthy?: boolean;
+  public useClientSideTracking?: boolean;
+  public googleAdsActive?: boolean;
+  public usageTracking?: {
+    enabled: boolean;
+    anonymousThreshold: number;
+    anonymousBatchSize: number;
+    authenticatedBatchSize: number;
+    maxQueueSize: number;
+  };
+  public engagementConfig?: EngagementConfig;
+  private axiosInstance?: AxiosInstance;
 
-public constructor(init?: MenuContextInterface) {
-  Object.assign(this, init);
-}
+  public constructor(init?: MenuContextInterface) {
+    Object.assign(this, init);
+  }
 
   public get isAdmin(): boolean {
     return !!this.roles?.find((r) => r === "dbAdmin");

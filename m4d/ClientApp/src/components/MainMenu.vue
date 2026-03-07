@@ -5,6 +5,8 @@ import logo from "@/assets/images/header-logo.png";
 import dancers from "@/assets/images/swing-ui.png";
 import { onClickOutside } from "@vueuse/core";
 import { useUsageTracking } from "@/composables/useUsageTracking";
+import { useEngagementOffcanvas } from "@/composables/useEngagementOffcanvas";
+import EngagementOffcanvas from "@/components/EngagementOffcanvas.vue";
 import { usageTrackingConfig } from "@/config/usageTracking";
 
 const renewalTag = "renewal-acknowledged";
@@ -23,9 +25,41 @@ const tracker = props.context.useClientSideTracking
     })
   : null;
 
+// Initialize engagement offcanvas for anonymous users only
+const engagement =
+  !props.context.userName && props.context.engagementConfig
+    ? useEngagementOffcanvas(props.context.engagementConfig, false)
+    : null;
+
 // Track page view on load if tracking is enabled
 if (tracker) {
   tracker.trackPageView(window.location.pathname, window.location.search);
+}
+
+// Control Google Ads based on engagement system (if ads are loaded)
+// Note: Each page load creates a new component instance, so this runs once per page
+if (engagement && props.context.googleAdsActive) {
+  const adsbygoogle = (window as any).adsbygoogle;
+  if (adsbygoogle) {
+    // Check cookie consent first - respect user's choice
+    const hasCookieConsent = document.cookie.indexOf("cookieconsent_status=dismiss") !== -1;
+
+    // Only show ads if:
+    // 1. User has given cookie consent (privacy requirement)
+    // 2. Engagement rules allow ads (page 2+ timing rule)
+    // 3. This is NOT a page where we show our engagement offcanvas
+    //    (on pages 2, 7, 12, etc. where we show our message, we've used enough
+    //    of the user's attention - keep ads disabled for the entire page view)
+    const shouldEnableAds =
+      hasCookieConsent && engagement.shouldShowAds.value && !engagement.shouldShowOffcanvas.value;
+
+    adsbygoogle.pauseAdRequests = shouldEnableAds ? 0 : 1;
+    console.log(
+      `Google Ads ${shouldEnableAds ? "enabled" : "paused"} ` +
+        `(consent: ${hasCookieConsent}, engagement: ${engagement.shouldShowAds.value}, ` +
+        `offcanvas: ${engagement.shouldShowOffcanvas.value})`,
+    );
+  }
 }
 
 const isNavExpanded = ref(false);
@@ -290,6 +324,15 @@ function search(s?: string): void {
       </p>
       <BButton href="/home/contribute" variant="primary" size="sm">Contribute</BButton>
     </BAlert>
+
+    <!-- Engagement Offcanvas for anonymous users -->
+    <EngagementOffcanvas
+      v-if="engagement"
+      v-model="engagement.shouldShowOffcanvas.value"
+      :engagement-data="engagement.currentLevel.value"
+      @dismiss="engagement.dismiss"
+    />
+
     <form id="logoutForm" action="/identity/account/logout" method="post" style="height: 0">
       <input name="__RequestVerificationToken" type="hidden" :value="context.xsrfToken" />
       <input type="hidden" name="returnUrl" value="/" />
