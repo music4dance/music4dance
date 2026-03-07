@@ -304,15 +304,15 @@ public class RateLimitingMiddleware
 
     /// <summary>
     /// Known Meta/Facebook crawler user-agent fragments.
-    /// These crawlers fetch URLs shared on Facebook, Instagram, and WhatsApp to generate link previews.
+    /// These are dedicated crawler identifiers (used for link previews), not generic app names.
+    /// Note: "whatsapp" and "instagram" are intentionally excluded — those tokens appear in
+    /// in-app browser UAs for real users, and we don't want to short-circuit their Identity flow.
     /// </summary>
     private static readonly string[] MetaCrawlerFragments =
     [
         "facebookexternalhit",
         "facebot",
-        "meta-externalfetcher",
-        "whatsapp",
-        "instagram"
+        "meta-externalfetcher"
     ];
 
     private static bool IsMetaCrawler(HttpContext context)
@@ -335,6 +335,9 @@ public class RateLimitingMiddleware
         context.Response.ContentType = "text/html; charset=utf-8";
         context.Response.Headers.CacheControl = "no-store, no-cache";
 
+        // HTML-encode path to prevent markup injection from crafted URLs (UA check can be spoofed)
+        var encodedPath = System.Net.WebUtility.HtmlEncode(path);
+
         var html = @"<!DOCTYPE html>
 <html lang=""en"">
 <head>
@@ -343,7 +346,7 @@ public class RateLimitingMiddleware
     <meta property=""og:title"" content=""Music4Dance - Login Required"">
     <meta property=""og:description"" content=""Sign in to access this page on Music4Dance."">
     <meta property=""og:type"" content=""website"">
-    <meta property=""og:url"" content=""https://music4dance.net" + path + @""">
+    <meta property=""og:url"" content=""https://music4dance.net" + encodedPath + @""">
     <title>Music4Dance - Login Required</title>
 </head>
 <body>

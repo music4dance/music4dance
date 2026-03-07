@@ -708,6 +708,14 @@ app.Use(async (context, next) =>
         // Get the request path for exclusion checks
         var path = context.Request.Path.Value?.ToLowerInvariant() ?? "";
 
+        // Never cache Identity responses regardless of auth state or Set-Cookie presence.
+        // The Meta crawler short-circuit returns 200 without Set-Cookie on /identity/,
+        // which would otherwise be treated as cacheable for anonymous users.
+        if (path.StartsWith("/identity/"))
+        {
+            return Task.CompletedTask;
+        }
+
         // Exclude API endpoints from caching (dynamic data)
         if (path.StartsWith("/api/"))
         {

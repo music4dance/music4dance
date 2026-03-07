@@ -107,10 +107,10 @@ public static class GlobalState
     {
         private static long _totalCount;
         private static readonly ConcurrentDictionary<string, long> _byCrawler = new();
-        private static DateTime _lastSeen = DateTime.MinValue;
+        private static long _lastSeenTicks = DateTime.MinValue.Ticks;
 
         public static long TotalCount => Interlocked.Read(ref _totalCount);
-        public static DateTime LastSeen => _lastSeen;
+        public static DateTime LastSeen => new DateTime(Interlocked.Read(ref _lastSeenTicks), DateTimeKind.Utc);
         public static IReadOnlyDictionary<string, long> ByCrawler => _byCrawler;
 
         /// <summary>
@@ -130,7 +130,7 @@ public static class GlobalState
         public static void Record(string userAgent)
         {
             Interlocked.Increment(ref _totalCount);
-            _lastSeen = DateTime.UtcNow; // benign race — approximate is fine
+            Interlocked.Exchange(ref _lastSeenTicks, DateTime.UtcNow.Ticks);
 
             var crawlerName = CategorizeCrawler(userAgent);
             _byCrawler.AddOrUpdate(crawlerName, 1, (_, count) => count + 1);
@@ -142,8 +142,6 @@ public static class GlobalState
             if (lower.Contains("facebookexternalhit")) return "facebookexternalhit";
             if (lower.Contains("facebot")) return "Facebot";
             if (lower.Contains("meta-externalfetcher")) return "meta-externalfetcher";
-            if (lower.Contains("whatsapp")) return "WhatsApp";
-            if (lower.Contains("instagram")) return "Instagram";
             return "Other Meta";
         }
     }
