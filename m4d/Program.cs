@@ -686,6 +686,19 @@ app.Use(async (context, next) =>
             return Task.CompletedTask;
         }
 
+        // Prevent caching of redirect responses to identity paths.
+        // Meta crawlers and proxies caching 302→/login amplifies redirect loops.
+        if (context.Response.StatusCode >= 300 && context.Response.StatusCode < 400)
+        {
+            var reqPath = context.Request.Path.Value?.ToLowerInvariant() ?? "";
+            if (reqPath.StartsWith("/identity/"))
+            {
+                context.Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate";
+                context.Response.Headers["Pragma"] = "no-cache";
+            }
+            return Task.CompletedTask;
+        }
+
         // Only modify cache headers on successful responses (200-299)
         if (context.Response.StatusCode < 200 || context.Response.StatusCode >= 300)
         {
