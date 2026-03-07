@@ -106,7 +106,8 @@ public class RateLimitingMiddleware
 
         if (globalCount > _options.GlobalMaxRequestsPerWindow)
         {
-            _rateLimitingTracker.RecordEvent(AnonymizeIp(clientId), path, true, globalCount, true);
+            _rateLimitingTracker.RecordEvent(AnonymizeIp(clientId), path, true, globalCount, true,
+                TruncateUserAgent(context));
 
             _logger.LogWarning(
                 "GLOBAL rate limit exceeded: {Count} requests in {Window} minutes (limit: {Max})",
@@ -165,7 +166,8 @@ public class RateLimitingMiddleware
         // Check if per-IP rate limit exceeded
         if (currentCount > _options.MaxRequestsPerWindow)
         {
-            _rateLimitingTracker.RecordEvent(AnonymizeIp(clientId), path, true, currentCount, false);
+            _rateLimitingTracker.RecordEvent(AnonymizeIp(clientId), path, true, currentCount, false,
+                TruncateUserAgent(context));
 
             _logger.LogWarning(
                 "RateLimit: EXCEEDED for {ClientId} on {Path}: {Count} requests in {Window} minutes",
@@ -176,7 +178,8 @@ public class RateLimitingMiddleware
         }
 
         // Record successful request (not limited)
-        _rateLimitingTracker.RecordEvent(AnonymizeIp(clientId), path, false, currentCount, false);
+        _rateLimitingTracker.RecordEvent(AnonymizeIp(clientId), path, false, currentCount, false,
+            TruncateUserAgent(context));
 
         // Update cache
         _cache.Set(cacheKey, requestInfo, TimeSpan.FromMinutes(_options.WindowMinutes));
@@ -413,6 +416,20 @@ public class RateLimitingMiddleware
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Extract and truncate the User-Agent header to a safe length for storage.
+    /// Prevents memory abuse from oversized UA strings in the circular buffer.
+    /// </summary>
+    private const int MaxUserAgentLength = 256;
+
+    private static string TruncateUserAgent(HttpContext context)
+    {
+        var ua = context.Request.Headers.UserAgent.ToString();
+        if (string.IsNullOrEmpty(ua))
+            return "";
+        return ua.Length <= MaxUserAgentLength ? ua : ua[..MaxUserAgentLength];
     }
 
     private string GetClientIdentifier(HttpContext context)

@@ -1,0 +1,132 @@
+@using m4d.Security
+@using m4d.ViewModels
+@{
+    ViewBag.Title = "Rate Limit IP Detail";
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
+    var ipAddress = ViewBag.IpAddress as string;
+    var events = ViewBag.Events as List<RateLimitEvent> ?? new List<RateLimitEvent>();
+    var uaCounts = events
+        .Where(e => !string.IsNullOrEmpty(e.UserAgent))
+        .GroupBy(e => e.UserAgent)
+        .OrderByDescending(g => g.Count())
+        .Select(g => new { UserAgent = g.Key, Count = g.Count() })
+        .ToList();
+    var pathGroups = events
+        .GroupBy(e => e.Path)
+        .OrderBy(g => g.Key)
+        .Select(g => new { Path = g.Key, Total = g.Count(), Limited = g.Count(e => e.WasLimited) })
+        .ToList();
+}
+
+<h3>Rate Limit Events for <code>@ipAddress</code></h3>
+<p>
+    <a href="@Url.Action("Diagnostics")" class="btn btn-outline-secondary btn-sm">&larr; Back to Diagnostics</a>
+</p>
+
+<div class="row mb-3">
+    <div class="col-auto">
+        <span class="fs-4 fw-bold">@events.Count</span>
+        <span class="text-muted">total events in buffer</span>
+    </div>
+    <div class="col-auto">
+        <span class="fs-4 fw-bold text-danger">@events.Count(e => e.WasLimited)</span>
+        <span class="text-muted">rate-limited</span>
+    </div>
+    @if (events.Any())
+    {
+        <div class="col-auto">
+            <span class="text-muted">First seen:</span>
+            <span>@events.Last().Timestamp.ToLocalTime().ToString("MMM dd HH:mm:ss")</span>
+        </div>
+        <div class="col-auto">
+            <span class="text-muted">Last seen:</span>
+            <span>@events.First().Timestamp.ToLocalTime().ToString("MMM dd HH:mm:ss")</span>
+        </div>
+    }
+</div>
+
+@if (uaCounts.Any())
+{
+    <div class="card mb-3">
+        <div class="card-header"><strong>User-Agents Observed (@uaCounts.Count)</strong></div>
+        <div class="card-body">
+            <ul class="mb-0">
+                @foreach (var ua in uaCounts)
+                {
+                    <li><code class="text-break">@ua.UserAgent</code> <span class="badge bg-secondary">@ua.Count</span></li>
+                }
+            </ul>
+        </div>
+    </div>
+}
+
+@if (pathGroups.Any())
+{
+    <div class="card mb-3">
+        <div class="card-header"><strong>Paths Targeted (@pathGroups.Count)</strong></div>
+        <div class="card-body">
+            <table class="table table-sm table-bordered" style="max-width: 600px;">
+                <thead class="table-light">
+                    <tr>
+                        <th>Path</th>
+                        <th>Requests</th>
+                        <th>Limited</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var pg in pathGroups)
+                    {
+                        <tr>
+                            <td><code>@pg.Path</code></td>
+                            <td>@pg.Total</td>
+                            <td class="@(pg.Limited > 0 ? "text-danger fw-bold" : "")">@pg.Limited</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@if (events.Any())
+{
+    <div class="card mb-3">
+        <div class="card-header">
+            <strong>Raw Events</strong>
+            <small class="text-muted ms-2">(most recent first, up to @events.Count in buffer)</small>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered table-hover" style="font-size: 0.85rem;">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Path</th>
+                            <th>Count</th>
+                            <th>Limited</th>
+                            <th>Global</th>
+                            <th>User-Agent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var evt in events)
+                        {
+                            <tr class="@(evt.WasLimited ? "table-warning" : "")">
+                                <td class="text-nowrap">@evt.Timestamp.ToLocalTime().ToString("MMM dd HH:mm:ss.fff")</td>
+                                <td><code>@evt.Path</code></td>
+                                <td>@evt.RequestCount</td>
+                                <td>@(evt.WasLimited ? "Yes" : "")</td>
+                                <td>@(evt.IsGlobalLimit ? "Yes" : "")</td>
+                                <td><small class="text-break" style="max-width: 400px; display: inline-block;">@evt.UserAgent</small></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">No events found for this IP address in the current buffer.</div>
+}

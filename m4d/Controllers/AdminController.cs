@@ -324,6 +324,21 @@ public class AdminController(
     }
 
     //
+    // GET: /Admin/RateLimitIpDetail?ip=...
+    [Authorize(Roles = "showDiagnostics")]
+    public ActionResult RateLimitIpDetail(string ip)
+    {
+        if (string.IsNullOrEmpty(ip))
+        {
+            return RedirectToAction("Diagnostics");
+        }
+
+        ViewBag.IpAddress = ip;
+        ViewBag.Events = _rateLimitingTracker.GetEventsForIp(ip);
+        return View();
+    }
+
+    //
     // GET: /Admin/UploadBackup
     [Authorize(Roles = "dbAdmin")]
     public ActionResult UploadBackup()
