@@ -1,5 +1,12 @@
 User-agent: *
 Disallow: /defaultcaptcha/
+Disallow: /Identity/
+
+User-agent: facebookexternalhit
+Disallow: /Identity/
+
+User-agent: Facebot
+Disallow: /Identity/
 
 User-agent: Baiduspider
 Disallow: /
