@@ -6,7 +6,176 @@ Music4Dance needs a strategic approach to convert anonymous visitors into regist
 
 **Context:** This is a **Multi-Page Application (MPA)**, where each page load represents user engagement—whether through navigation within the site or returning from an external source. We track cumulative page loads as a proxy for engagement level, without distinguishing navigation from return visits.
 
-**Status:** � **Implementation Phase**
+**Status:** 🔄 **Major Redesign Phase** (March 8, 2026)
+
+**Previous Status:** ✅ Phase 1 complete (62 passing tests, core functionality working) - Now undergoing significant UX and scope expansion redesign.
+
+---
+
+## REDESIGN SUMMARY (March 8, 2026)
+
+### What's Changing
+
+**🔄 Major UX Redesign: Persistent Bottom Bar + BOffcanvas Pattern**
+
+The experience is being redesigned around a **persistent trigger bar** (similar to BSVN docs sidebar pattern):
+
+**Collapsed State (Default):**
+- Small bottom bar (~40px height)
+- Text: "How to support music4dance"  
+- Up arrow icon (▲) to expand
+- **Always visible** for non-premium users
+- Doesn't interfere with Google Ads
+
+**Expanded State:**
+- BOffcanvas covers bottom bar from bottom placement
+- Full engagement content (messages, CTAs, benefits)
+- Down arrow icon (▼) at top to collapse
+- Google Ads **paused** when expanded
+- Scrollable content area for long content
+
+**Key Benefit:** Unobtrusive persistent reminder that doesn't interrupt UX until user chooses to expand.
+
+### Scope Expansion
+
+**1. Anonymous User Flow Simplification**
+
+**Before (Phase 1):** Different CTAs per level, short messages, no benefits explanation
+**After (Redesign):** 
+- ✅ **Same 3 CTAs all levels**: "Sign Up Free", "Sign In", "Maybe Later"
+- ✅ **Inline benefits from _WhySignUp.cshtml**: Tag songs, search tagged, save searches, like/unlike, hide songs
+- ✅ **Progressive messaging only**: Friendly → Insistent → Very insistent (no page count stats)
+- ✅ **Clear value proposition**: What you get as registered user (free account benefits)
+
+**Example Level Progression:**
+- **Level 1 (Page 2)**: "Exploring music4dance? Create a free account to unlock helpful features."
+- **Level 2 (Page 7)**: "Still searching for music? We notice you're using the site quite a bit. Creating a free account unlocks features like saving searches and tagging songs."
+- **Level 3 (Page 12+)**: "You're clearly finding music4dance useful! Create a free account to get the most out of the platform - you can tag songs, save searches, and customize your experience."
+
+**2. Logged-In Non-Premium Users (NEW)**
+
+**Major New Feature:** Extend engagement system to registered users who haven't subscribed.
+
+**Content Differences:**
+- **Message**: "Upgrade to Premium" (not "Create Account")
+- **Benefits**: Premium-only features bullet list (not free account benefits)
+- **Tone**: "Membership includes..." (not exhaustive list)
+- **Link**: Point to subscriptions blog page for complete details
+- **Timing**: May use different page count rules (TBD)
+
+**Example Premium Benefits:**
+```html
+<h4>Upgrade to Premium Membership</h4>
+<p>Your membership includes:</p>
+<ul>
+  <li>✓ Advanced search filters</li>
+  <li>✓ Spotify playlist integration</li>
+  <li>✓ Custom dance categories</li>
+  <li>✓ Priority email support</li>
+  <li>✓ Ad-free experience</li>
+  <li>...and more!</li>
+</ul>
+<p><a href="https://music4dance.blog/music4dance-help/subscriptions/">View complete feature list</a></p>
+```
+
+**3. Feature Flag Coordination**
+
+**Requirement:** Hide existing alert-based reminder when new engagement system is enabled.
+
+**Current Alerts to Hide:**
+- `showReminder` / `customerReminder` - Logged-in non-premium user banner alert
+- Controlled by same feature flag as engagement offcanvas
+
+**Implementation:**
+```vue
+<!-- OLD: Banner alert system (hide when engagement enabled) -->
+<BAlert
+  v-if="showReminder && !engagementEnabled"
+  id="premium-alert"
+  ...
+>
+  ...
+</BAlert>
+
+<!-- NEW: Engagement system -->
+<EngagementBottomBar v-if="engagementEnabled && !isPremium" ... />
+```
+
+### Technical Architecture Changes
+
+**New Components:**
+
+1. **`EngagementBottomBar.vue`** (NEW)
+   - Persistent collapsed trigger bar (40px height, fixed bottom)
+   - Shows: "How to support music4dance" + up arrow
+   - Click expands BOffcanvas
+   - Always rendered for non-premium users
+
+2. **`EngagementOffcanvas.vue`** (MAJOR REFACTOR)
+   - Still uses BOffcanvas (placement="bottom")
+   - **Two audiences now**: Anonymous users + logged-in non-premium
+   - Anonymous: Show _WhySignUp content inline, consistent CTAs
+   - Logged-in: Show premium benefits, subscription CTAs
+   - Down arrow button at top to collapse (return to bottom bar)
+
+3. **`useEngagementOffcanvas.ts`** (ENHANCED)
+   - Add `isAuthenticated` parameter
+   - Add `isPremium` parameter  
+   - Support logged-in non-premium user timing rules
+   - Track collapsed/expanded state (not just dismissed)
+
+**Updated Flow:**
+
+```
+Non-Premium User (Anonymous or Logged-In)
+└─> Page Load
+    ├─> Bottom bar visible (collapsed)
+    ├─> User clicks up arrow
+    │   └─> BOffcanvas expands (covers bottom bar)
+    │       ├─> Shows content (anonymous or logged-in specific)
+    │       ├─> Google Ads pause
+    │       └─> User clicks down arrow or backdrop
+    │           └─> BOffcanvas closes, bottom bar reappears, ads resume
+    └─> Ads behavior:
+        ├─> Collapsed: Ads show (if cookies + not page 1/2/7/12)
+        └─> Expanded: Ads pause
+```
+
+### Why This Redesign?
+
+**Problem with Phase 1 Approach:**
+1. ❌ Different CTAs per level confused conversion funnel (subscribe vs register)
+2. ❌ No clear explanation of free account benefits (just short messages)
+3. ❌ Dismissal removed UI entirely (lost conversion opportunity)
+4. ❌ Didn't address logged-in non-premium users (separate alert system needed coordination)
+5. ❌ Too aggressive at Level 2/3 (subscription push before account creation)
+
+**Solutions in Redesign:**
+1. ✅ Consistent CTAs = clear conversion path (always push free account first)
+2. ✅ Inline _WhySignUp benefits = user understands value proposition
+3. ✅ Persistent bottom bar = always available, never fully dismissed
+4. ✅ Unified system for anonymous + logged-in = single codebase, feature flag
+5. ✅ Progressive insistence in messaging only (not CTAs or benefits list)
+
+### Implementation Status
+
+**Phase 1 (Completed March 7):**
+- ✅ 62 passing tests (37 composable, 25 component)
+- ✅ Server configuration infrastructure
+- ✅ Anonymous user timing logic
+- ✅ Google Ads control
+- ✅ Cookie consent integration
+
+**Phase 2 (Redesign - Starting March 8):**
+- 🔄 Planning document update (this document)
+- ⏳ Component architecture redesign
+- ⏳ Logged-in user support
+- ⏳ Feature flag coordination
+- ⏳ Test updates (62 tests need refactoring)
+
+---
+
+**Status:** 🚧 **Redesign Phase - Planning Complete, Implementation Next**
 
 **Key Design Principle: Full Server-Side Configurability**
 
@@ -1564,5 +1733,941 @@ var suppressEngagement = hideAds || isPremium;
 - Week 4+ (TBD): Gradual rollout + optimization (PAUSED)
 
 **Status:** **Paused at 85% completion** for higher priority work. Core functionality complete and tested (62 passing unit tests), but manual testing and CTA priority adjustment needed before production.
+
+---
+
+## 12. Phase 2 Redesign: Detailed Implementation Plan
+
+### 12.1 Component Architecture
+
+#### 12.1.1 EngagementBottomBar.vue (NEW Component)
+
+**Purpose:** Persistent trigger bar that non-premium users see at all times
+
+**Visual Design:**
+```
+┌─────────────────────────────────────────────────┐
+│  How to support music4dance            ▲        │  <- 40px height
+└─────────────────────────────────────────────────┘
+     Fixed position, bottom: 0, z-index: 1030
+```
+
+**Technical Specification:**
+```vue
+<template>
+  <div 
+    class="engagement-bottom-bar"
+    @click="onExpand"
+    role="button"
+    tabindex="0"
+    @keydown.enter="onExpand"
+    @keydown.space.prevent="onExpand"
+    aria-label="Expand engagement options"
+  >
+    <div class="container-fluid d-flex justify-content-between align-items-center py-2">
+      <span class="text-muted small">How to support music4dance</span>
+      <IBiChevronUp class="text-muted" />
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+interface Emits {
+  (event: 'expand'): void;
+}
+
+const emit = defineEmits<Emits>();
+
+function onExpand() {
+  emit('expand');
+}
+</script>
+
+<style scoped lang="scss">
+.engagement-bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background-color: var(--bs-light);
+  border-top: 1px solid var(--bs-border-color);
+  cursor: pointer;
+  transition: background-color 0.2s;
+  z-index: 1030; // Below modals (1055), above nav (1020)
+
+  &:hover {
+    background-color: var(--bs-gray-200);
+  }
+
+  &:focus {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: -2px;
+  }
+}
+
+// Add padding to body when bottom bar is present
+body {
+  padding-bottom: 40px;
+}
+</style>
+```
+
+**Props:** None (stateless trigger)
+
+**Events:** 
+- `expand`: Emitted when user clicks bar or presses Enter/Space
+
+**Accessibility:**
+- Keyboard navigable (Tab focuses, Enter/Space activates)
+- ARIA label describes action
+- Focus visible indicator
+
+#### 12.1.2 EngagementOffcanvas.vue (MAJOR REFACTOR)
+
+**Purpose:** Full content area shown when user expands from bottom bar
+
+**Key Changes from Phase 1:**
+- ✅ **Same CTAs for all levels** (anonymous users)
+- ✅ **Inline _WhySignUp benefits** (not just short message)
+- ✅ **Logged-in user support** (premium benefits)
+- ✅ **Down arrow collapse** (not just X)
+- ✅ **Covers bottom bar** when expanded
+
+**Visual Design (Expanded):**
+```
+┌─────────────────────────────────────────────────┐
+│  ▼  Exploring music4dance?                      │ <- Header with down arrow
+├─────────────────────────────────────────────────┤
+│  [Progressive Message - Gets More Insistent]    │
+│                                                  │
+│  [Anonymous Users:]                              │
+│  When you've signed up you can:                  │
+│  • Tag songs                                     │
+│  • Search on songs you've tagged                 │
+│  • Like and unlike songs                         │
+│  • Hide songs you've "unliked"                   │
+│  • Save your searches                            │
+│                                                  │
+│  [Logged-In Users:]                              │
+│  Upgrade to Premium Membership                   │
+│  Your membership includes:                       │
+│  • Advanced search filters                       │
+│  • Spotify playlist integration                  │
+│  • Custom dance categories                       │
+│  • Priority email support                        │
+│  • Ad-free experience                            │
+│  • ...and more!                                  │
+│  [Link to complete feature list]                 │
+│                                                  │
+├─────────────────────────────────────────────────┤
+│  [Sign Up Free] [Sign In] [Maybe Later]         │ <- Anonymous
+│  [Subscribe Now] [Learn More] [Maybe Later]     │ <- Logged-In
+└─────────────────────────────────────────────────┘
+      BOffcanvas, placement="bottom", covers bottom bar
+```
+
+**Technical Specification:**
+```vue
+<template>
+  <BOffcanvas
+    v-model="isOpen"
+    placement="bottom"
+    :backdrop="true"
+    :scroll="false"
+    body-class="engagement-offcanvas-body"
+    no-header
+    @hidden="onHidden"
+  >
+    <!-- Custom header with collapse button -->
+    <div class="engagement-offcanvas-header d-flex align-items-center border-bottom pb-2 mb-3">
+      <button
+        type="button"
+        class="btn btn-sm btn-link text-muted p-0 me-2"
+        @click="onCollapse"
+        aria-label="Collapse"
+      >
+        <IBiChevronDown />
+      </button>
+      <h5 class="mb-0">{{ headerTitle }}</h5>
+    </div>
+
+    <!-- Dynamic message (progressive insistence) -->
+    <div class="engagement-message mb-3" v-html="engagementData?.message"></div>
+
+    <!-- Conditional content based on user type -->
+    <div v-if="!isAuthenticated" class="free-account-benefits mb-3">
+      <h6>When you've signed up you can:</h6>
+      <ul class="list-clean-aligned">
+        <li><IBiTagsFill class="text-primary me-2" />Tag songs</li>
+        <li><IBiSearch class="text-primary me-2" />Search on songs you've tagged</li>
+        <li><IBiHeartFill class="text-primary me-2" />Like and unlike songs</li>
+        <li><IBiXCircleFill class="text-primary me-2" />Hide songs you've "unliked"</li>
+        <li><IBiFolderFill class="text-primary me-2" />Save your searches</li>
+      </ul>
+    </div>
+
+    <div v-else class="premium-benefits mb-3">
+      <h6>Upgrade to Premium Membership</h6>
+      <p class="text-muted small">Your membership includes:</p>
+      <ul class="list-clean-aligned">
+        <li><IBiCheckCircleFill class="text-success me-2" />Advanced search filters</li>
+        <li><IBiCheckCircleFill class="text-success me-2" />Spotify playlist integration</li>
+        <li><IBiCheckCircleFill class="text-success me-2" />Custom dance categories</li>
+        <li><IBiCheckCircleFill class="text-success me-2" />Priority email support</li>
+        <li><IBiCheckCircleFill class="text-success me-2" />Ad-free experience</li>
+        <li><IBiCheckCircleFill class="text-success me-2" />...and more!</li>
+      </ul>
+      <p class="small">
+        <a :href="premiumFeaturesUrl" target="_blank">View complete feature list</a>
+      </p>
+    </div>
+
+    <!-- CTAs (different for anonymous vs logged-in) -->
+    <div class="engagement-cta-buttons d-flex flex-wrap gap-2">
+      <template v-if="!isAuthenticated">
+        <!-- Anonymous: Always same 3 buttons -->
+        <BButton
+          href="/identity/account/register"
+          variant="primary"
+          size="sm"
+          class="flex-fill"
+        >
+          Sign Up Free
+        </BButton>
+        <BButton
+          href="/identity/account/login"
+          variant="outline-primary"
+          size="sm"
+          class="flex-fill"
+        >
+          Sign In
+        </BButton>
+        <BButton
+          variant="outline-secondary"
+          size="sm"
+          class="flex-fill"
+          @click="onCollapse"
+        >
+          Maybe Later
+        </BButton>
+      </template>
+
+      <template v-else>
+        <!-- Logged-in: Premium upgrade -->
+        <BButton
+          href="/home/contribute"
+          variant="success"
+          size="sm"
+          class="flex-fill"
+        >
+          Subscribe Now
+        </BButton>
+        <BButton
+          :href="premiumFeaturesUrl"
+          variant="outline-primary"
+          size="sm"
+          class="flex-fill"
+          target="_blank"
+        >
+          Learn More
+        </BButton>
+        <BButton
+          variant="outline-secondary"
+          size="sm"
+          class="flex-fill"
+          @click="onCollapse"
+        >
+          Maybe Later
+        </BButton>
+      </template>
+    </div>
+  </BOffcanvas>
+</template>
+
+<script setup lang="ts">
+import { ref, watch, computed } from 'vue';
+import type { EngagementLevel } from '@/composables/useEngagementOffcanvas';
+
+interface Props {
+  modelValue: boolean;
+  engagementData: EngagementLevel | null;
+  isAuthenticated: boolean;
+  premiumFeaturesUrl: string;
+}
+
+interface Emits {
+  (event: 'update:modelValue', value: boolean): void;
+  (event: 'collapse'): void;
+}
+
+const props = defineProps<Props>();
+const emit = defineEmits<Emits>();
+
+const isOpen = ref(props.modelValue);
+
+watch(() => props.modelValue, (newValue) => {
+  isOpen.value = newValue;
+});
+
+watch(isOpen, (newValue) => {
+  emit('update:modelValue', newValue);
+});
+
+const headerTitle = computed(() => {
+  if (!props.isAuthenticated) {
+    // Anonymous users - progressive messaging
+    if (!props.engagementData) return 'Exploring music4dance?';
+    
+    switch (props.engagementData.level) {
+      case 1: return 'Exploring music4dance?';
+      case 2: return 'Still searching for music?';
+      case 3: return 'Finding everything you need?';
+      default: return 'Exploring music4dance?';
+    }
+  } else {
+    // Logged-in users - premium upgrade
+    return 'Upgrade to Premium';
+  }
+});
+
+function onCollapse() {
+  isOpen.value = false;
+  emit('collapse');
+}
+
+function onHidden() {
+  emit('collapse');
+}
+</script>
+
+<style scoped lang="scss">
+.engagement-offcanvas-body {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.engagement-offcanvas-header {
+  button {
+    &:hover {
+      color: var(--bs-primary) !important;
+    }
+  }
+}
+
+.list-clean-aligned {
+  list-style: none;
+  padding-left: 0;
+  
+  li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+}
+
+.engagement-message {
+  :deep(h4) {
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+  }
+  
+  :deep(p) {
+    margin-bottom: 0.75rem;
+  }
+}
+</style>
+```
+
+**Props:**
+- `modelValue: boolean` - Controls visibility (v-model)
+- `engagementData: EngagementLevel | null` - Message and level info
+- `isAuthenticated: boolean` - Determines content (free benefits vs premium)
+- `premiumFeaturesUrl: string` - Link to blog subscriptions page
+
+**Events:**
+- `update:modelValue` - Two-way binding for visibility
+- `collapse` - Emitted when user collapses (down arrow, Maybe Later, or backdrop click)
+
+#### 12.1.3 useEngagementOffcanvas.ts (ENHANCED)
+
+**New Parameters & Return Values:**
+```typescript
+interface UseEngagementOffcanvasOptions {
+  config: EngagementConfig;
+  isAuthenticated: boolean;  // NEW
+  isPremium: boolean;         // NEW
+}
+
+export function useEngagementOffcanvas(options: UseEngagementOffcanvasOptions) {
+  const { config, isAuthenticated, isPremium } = options;
+  
+  // Never show for premium users
+  if (isPremium) {
+    return {
+      shouldShowBottomBar: ref(false),
+      shouldShowOffcanvas: ref(false),
+      isExpanded: ref(false),
+      currentLevel: computed(() => null),
+      expand: () => {},
+      collapse: () => {},
+      shouldShowAds: computed(() => true), // Ads OK for premium users
+    };
+  }
+  
+  // Component state
+  const isExpanded = ref(false);
+  const pageCount = ref(getPageCount());
+  
+  // Determine if bottom bar should be visible (always, for non-premium)
+  const shouldShowBottomBar = computed(() => {
+    return config.enabled && !isPremium && pageCount.value >= config.firstShowPageCount;
+  });
+  
+  // Calculate if offcanvas should auto-show (on trigger pages: 2, 7, 12...)
+  const shouldAutoShow = computed(() => {
+    return calculateShouldShow(pageCount.value);
+  });
+  
+  // ... rest of logic similar to Phase 1, but now tracking expanded state
+  
+  function expand() {
+    isExpanded.value = true;
+    // Pause Google Ads when expanded
+    if (window.adsbygoogle && window.adsbygoogle.pauseAdRequests) {
+      window.adsbygoogle.pauseAdRequests = 1;
+    }
+  }
+  
+  function collapse() {
+    isExpanded.value = false;
+    // Resume Google Ads when collapsed
+    if (window.adsbygoogle && window.ads bygoogle.pauseAdRequests !== undefined) {
+      window.adsbygoogle.pauseAdRequests = 0;
+    }
+    // Don't store dismissal - bottom bar stays visible
+  }
+  
+  return {
+    shouldShowBottomBar,
+    shouldShowOffcanvas: isExpanded,
+    isExpanded,
+    currentLevel,
+    shouldShowAds: computed(() => {
+      // Ads show when:
+      // 1. Not on first page
+      // 2. Not expanded
+      // 3. Cookie consent given
+      return pageCount.value > 1 && !isExpanded.value && hasCookieConsent();
+    }),
+    expand,
+    collapse,
+  };
+}
+```
+
+**Key Changes:**
+- Tracks `isExpanded` state (not just dismissed)
+- `shouldShowBottomBar` - Always true for non-premium users (after page threshold)
+- `shouldAutoShow` - Still calculates trigger pages, but doesn't auto-expand (UX choice TBD)
+- `collapse()` - Doesn't store dismissal, just closes offcanvas
+- Google Ads control now based on `isExpanded` state
+- Returns early for premium users (no engagement UI)
+
+### 12.2 Anonymous User Content
+
+**Progressive Messages (All Levels Get Same CTAs):**
+
+**Level 1 (Page 2):**
+```html
+<p>Exploring music4dance? We're glad you're here! Create a <strong>free account</strong> to unlock helpful features that make finding dance music even easier.</p>
+```
+
+**Level 2 (Page 7):**
+```html
+<p>Still searching for music? We've noticed you're using the site quite a bit. Creating a <strong>free account</strong> unlocks features like saving searches, tagging songs, and customizing your experience. It only takes a minute!</p>
+```
+
+**Level 3 (Page 12+):**
+```html
+<p>You're clearly finding music4dance useful for your dance music needs! Create a <strong>free account</strong> to get the most out of the platform. You'll be able to tag songs, save your favorite searches, and build your perfect dance music collection.</p>
+```
+
+**Free Account Benefits (from _WhySignUp.cshtml - Always Shown):**
+- 🏷️ **Tag songs** - Add your own tags for easy searching
+- 🔍 **Search on tags** - Find songs by your custom tags
+- ❤️ **Like and unlike** - Mark your favorite and least favorite songs
+- ❌ **Hide unliked songs** - Clean up your search results
+- 💾 **Save searches** - Quick access to your frequent searches
+
+**CTAs (All Levels - Consistent):**
+1. **Primary**: "Sign Up Free" → `/identity/account/register`
+2. **Secondary**: "Sign In" → `/identity/account/login`
+3. **Tertiary**: "Maybe Later" → Collapses offcanvas (bottom bar remains)
+
+### 12.3 Logged-In Non-Premium User Content
+
+**Message:**
+```html
+<p>Upgrade to Premium membership to unlock advanced features and support the music4dance community.</p>
+```
+
+**Premium Benefits (from appsettings.json):**
+- ✓ **Advanced search filters** - More precise music discovery
+- ✓ **Spotify playlist integration** - Build playlists directly
+- ✓ **Custom dance categories** - Organize music your way
+- ✓ **Priority email support** - Get help faster
+- ✓ **Ad-free experience** - Cleaner interface
+- ✓ **...and more!** - [View complete feature list](blog link)
+
+**CTAs:**
+1. **Primary**: "Subscribe Now" → `/home/contribute`
+2. **Secondary**: "Learn More" → `https://music4dance.blog/music4dance-help/subscriptions/` (new tab)
+3. **Tertiary**: "Maybe Later" → Collapses offcanvas (bottom bar remains)
+
+**Note:** "Membership includes..." phrasing (not "Get these features") - suggests non-exhaustive list, encourages clicking "Learn More"
+
+### 12.4 Feature Flag Integration
+
+**appsettings.json Updates:**
+```json
+{
+  "EngagementOffcanvas": {
+    "Enabled": true,
+    "ShowForAnonymous": true,
+    "ShowForLoggedIn": true,
+    "FirstShowPageCount": 2,
+    "RepeatInterval": 5,
+    "SessionDismissalTimeout": 5,
+    "Messages": {
+      "AnonymousLevel1": "Exploring music4dance? We're glad you're here! Create a <strong>free account</strong> to unlock helpful features that make finding dance music even easier.",
+      "AnonymousLevel2": "Still searching for music? We've noticed you're using the site quite a bit. Creating a <strong>free account</strong> unlocks features like saving searches, tagging songs, and customizing your experience. It only takes a minute!",
+      "AnonymousLevel3": "You're clearly finding music4dance useful for your dance music needs! Create a <strong>free account</strong> to get the most out of the platform. You'll be able to tag songs, save your favorite searches, and build your perfect dance music collection.",
+      "LoggedInUpgrade": "Upgrade to Premium membership to unlock advanced features and support the music4dance community."
+    },
+    "PremiumBenefits": {
+      "Items": [
+        "Advanced search filters",
+        "Spotify playlist integration",
+        "Custom dance categories",
+        "Priority email support",
+        "Ad-free experience"
+      ],
+      "MoreText": "...and more!",
+      "CompleteListUrl": "https://music4dance.blog/music4dance-help/subscriptions/"
+    },
+    "CtaUrls": {
+      "Register": "/identity/account/register",
+      "Login": "/identity/account/login",
+      "Subscribe": "/home/contribute",
+      "Features": "https://music4dance.blog/music4dance-help/subscriptions/"
+    }
+  }
+}
+```
+
+**MainMenu.vue Integration:**
+```vue
+<script setup>
+// Hide old alert when engagement system enabled
+const engagementEnabled = computed(() => 
+  props.context.engagementConfig?.enabled ?? false
+);
+
+const showOldReminder = computed(() => 
+  props.context.customerReminder && 
+  !reminderAcknowledged() && 
+  !engagementEnabled.value  // NEW: Hide if engagement on
+);
+
+// Initialize engagement for non-premium users (anonymous OR logged-in)
+const engagement = props.context.isPremium
+  ? null
+  : useEngagementOffcanvas({
+      config: props.context.engagementConfig,
+      isAuthenticated: !!props.context.userName,
+      isPremium: props.context.isPremium,
+    });
+</script>
+
+<template>
+  <!-- OLD: Only show if engagement disabled -->
+  <BAlert
+    v-if="showOldReminder"
+    id="premium-alert"
+    ...
+  >
+    ...
+  </BAlert>
+
+  <!-- NEW: Engagement system -->
+  <EngagementBottomBar
+    v-if="engagement?.shouldShowBottomBar.value"
+    @expand="engagement.expand()"
+  />
+
+  <EngagementOffcanvas
+    v-if="engagement"
+    v-model="engagement.isExpanded.value"
+    :engagement-data="engagement.currentLevel.value"
+    :is-authenticated="!!context.userName"
+    :premium-features-url="context.engagementConfig?.ctaUrls.features"
+    @collapse="engagement.collapse()"
+  />
+</template>
+```
+
+### 12.5 Implementation Timeline
+
+#### Phase 2.1: Core Components (5-7 days)
+
+**Tasks:**
+- [ ] Create `EngagementBottomBar.vue` component (1 day)
+  - [ ] Layout and styling
+  - [ ] Keyboard navigation
+  - [ ] Accessibility (ARIA)
+  - [ ] Unit tests (10 tests)
+  
+- [ ] Refactor `EngagementOffcanvas.vue` (2-3 days)
+  - [ ] Add down arrow header
+  - [ ] Add anonymous user content (inline _WhySignUp benefits)
+  - [ ] Add logged-in user content (premium benefits)
+  - [ ] Consistent CTAs per user type
+  - [ ] Update 25 existing tests
+  - [ ] Add 10 new tests (logged-in, collapsed/expanded)
+  
+- [ ] Update `useEngagementOffcanvas.ts` (2 days)
+  - [ ] Add `isAuthenticated` parameter
+  - [ ] Add `isPremium` parameter
+  - [ ] Track `isExpanded` state (not dismissal)
+  - [ ] Return `shouldShowBottomBar` computed
+  - [ ] Update 37 existing tests
+  - [ ] Add 8 new tests (premium filtering, state tracking)
+  
+- [ ] Update `EngagementConfig.ts` types (1 day)
+  - [ ] Add premium benefits structure
+  - [ ] Add logged-in message
+  - [ ] Add showForAnonymous/showForLoggedIn flags
+
+**Deliverables:**
+- Working bottom bar + offcanvas pattern
+- Anonymous user flow with _WhySignUp content
+- Logged-in user flow with premium benefits
+- ~90 passing tests (62 refactored + 28 new)
+
+#### Phase 2.2: Integration & Feature Flag (3-4 days)
+
+**Tasks:**
+- [ ] Update `_head.cshtml` (1 day)
+  - [ ] Send `engagementConfig` to logged-in non-premium users
+  - [ ] Add `isPremium` flag to menuContext
+  - [ ] Add premium benefits to config object
+  
+- [ ] Update `MainMenu.vue` (1-2 days)
+  - [ ] Initialize engagement for both anonymous + logged-in
+  - [ ] Hide old `showReminder` alert when engagement enabled
+  - [ ] Integrate bottom bar + offcanvas components
+  - [ ] Update Google Ads control (expanded/collapsed based)
+  
+- [ ] Update `appsettings.json` (1 day)
+  - [ ] Add logged-in messages
+  - [ ] Add premium benefits list
+  - [ ] Add showForAnonymous/showForLoggedIn flags
+  - [ ] Set SessionDismissalTimeout to 5 minutes (production value)
+  
+- [ ] Add body padding for bottom bar (40px)
+
+**Testing:**
+- [ ] Manual testing: Anonymous user flow (all 3 levels)
+- [ ] Manual testing: Logged-in non-premium user flow
+- [ ] Manual testing: Feature flag toggle (old alert vs new system)
+- [ ] Manual testing: Premium users see nothing
+- [ ] Manual testing: Google Ads pause when expanded
+- [ ] Manual testing: Bottom bar always visible (collapsed state)
+
+**Deliverables:**
+- Full anonymous + logged-in user experience
+- Feature flag controlling old vs new system
+- Production-ready configuration
+
+#### Phase 2.3: Testing & Optimization (5-7 days)
+
+**Tasks:**
+- [ ] Cross-browser testing (2 days)
+  - [ ] Chrome, Firefox, Safari, Edge
+  - [ ] Desktop and mobile
+  
+- [ ] Mobile responsive testing (1 day)
+  - [ ] Bottom bar on small screens
+  - [ ] Offcanvas readability
+  - [ ] Touch interactions
+  
+- [ ] Accessibility audit (1 day)
+  - [ ] Screen reader testing (NVDA, JAWS)
+  - [ ] Keyboard navigation
+  - [ ] Color contrast
+  - [ ] Focus management
+  
+- [ ] Performance testing (1 day)
+  - [ ] Page load impact
+  - [ ] Memory usage
+  - [ ] Animation smoothness
+  
+- [ ] A/B test setup (1 day)
+  - [ ] Message variations (anonymous levels)
+  - [ ] Analytics events
+  - [ ] Conversion tracking
+  
+- [ ] Documentation (1 day)
+  - [ ] Update README
+  - [ ] Configuration guide
+  - [ ] Troubleshooting
+
+**Deliverables:**
+- All manual test scenarios passed
+- Accessibility compliance (WCAG 2.1 AA)
+- Performance benchmarks
+- Analytics dashboard
+- Complete documentation
+
+**Total Estimated Time:** 2.5-3 weeks
+
+### 12.6 Testing Strategy
+
+**Updated Test Coverage:**
+
+**Component Tests:**
+- `EngagementBottomBar.vue`: **10 tests** (new)
+  - Click handler emits expand event
+  - Enter key emits expand event
+  - Space key emits expand event
+  - Focus management (keyboard nav)
+  - Accessibility (ARIA labels, role)
+  - Hover state
+  - Fixed positioning
+  - Z-index layering
+  - Mobile responsiveness
+  - Screen reader announcements
+  
+- `EngagementOffcanvas.vue`: **35 tests** (25 existing + 10 new)
+  - **Existing (refactored):**
+    - Anonymous user rendering
+    - v-model two-way binding
+    - Backdrop click closes
+    - Progressive messages (3 levels)
+    - CTA button rendering
+    - Dismiss event emission
+    - Props validation
+    - Accessibility
+  - **New:**
+    - Logged-in user rendering
+    - _WhySignUp benefits display
+    - Premium benefits display
+    - Different CTAs (anonymous vs logged-in)
+    - Down arrow collapse button
+    - Header title per user type
+    - Collapsed state handling
+    - "Learn More" opens new tab
+    - "Maybe Later" collapses
+    - Content scrolling (overflow)
+  
+- `useEngagementOffcanvas.ts`: **45 tests** (37 existing + 8 new)
+  - **Existing (refactored):**
+    - Page count tracking
+    - Engagement level calculation (1, 2, 3)
+    - First show (page 2)
+    - Repeat interval (every 5 pages)
+    - Should show logic
+    - Google Ads control
+    - Config enabled/disabled
+    - Feature flags
+  - **New:**
+    - Premium user filtering (no engagement UI)
+    - Logged-in non-premium user logic
+    - isPremium parameter handling
+    - isAuthenticated parameter handling
+    - Expanded/collapsed state tracking
+    - Bottom bar visibility logic
+    - Collapse doesn't store dismissal
+    - Google Ads pause on expand, resume on collapse
+
+**Total Test Count:** **~90 tests** (increased from 62)
+
+**Manual Testing Scenarios:**
+
+**1. Anonymous User Journey:**
+- [ ] Page 1: No bottom bar (clean first impression)
+- [ ] Page 2: Bottom bar appears at bottom (40px)
+- [ ] Click bar: Offcanvas expands, Level 1 message shows
+- [ ] Verify: _WhySignUp benefits inline (5 bullet points)
+- [ ] Verify: CTAs "Sign Up Free", "Sign In", "Maybe Later"
+- [ ] Click "Maybe Later": Offcanvas collapses, bottom bar remains
+- [ ] Pages 3-6: Bottom bar visible (collapsed), Google Ads show
+- [ ] Page 7: Click bar, Level 2 message (more insistent)
+- [ ] Page 12: Level 3 message (very insistent)
+- [ ] Click "Sign Up Free": Navigated to /identity/account/register
+- [ ] Click "Sign In": Navigated to /identity/account/login
+
+**2. Logged-In Non-Premium Journey:**
+- [ ] Page 2: Bottom bar appears
+- [ ] Click bar: Offcanvas expands with premium benefits
+- [ ] Verify: Premium benefits list (6 items + "...and more!")
+- [ ] Verify: CTAs "Subscribe Now", "Learn More", "Maybe Later"
+- [ ] Click "Learn More": Opens blog in new tab
+- [ ] Click "Subscribe Now": Navigated to /home/contribute
+- [ ] Click "Maybe Later": Offcanvas collapses, bottom bar remains
+- [ ] Verify: Same experience across all pages (no levels)
+
+**3. Premium User:**
+- [ ] No bottom bar at all
+- [ ] No offcanvas
+- [ ] Old alerts still work (expiration, renewal)
+- [ ] Google Ads show normally (if applicable)
+
+**4. Feature Flag Toggle:**
+- [ ] `Enabled: false` → Old alert system works (logged-in non-premium)
+- [ ] `Enabled: true` → New system, old alert hidden
+- [ ] Toggle doesn't break page rendering
+
+**5. Google Ads Control:**
+- [ ] Bottom bar collapsed: Ads show (if cookies + not page 1)
+- [ ] Click to expand: Ads pause immediately
+- [ ] Click "Maybe Later": Ads resume
+- [ ] Backdrop click: Ads resume
+
+**6. Mobile Responsiveness:**
+- [ ] Bottom bar spans full width
+- [ ] Bottom bar height appropriate (40px)
+- [ ] Offcanvas covers 60-70% of screen
+- [ ] CTAs stack properly (flex-wrap)
+- [ ] Touch interactions work
+- [ ] No horizontal scroll
+- [ ] Text readable at small sizes
+
+**7. Accessibility:**
+- [ ] Tab to bottom bar: Focuses
+- [ ] Enter/Space: Expands offcanvas
+- [ ] Tab through offcanvas: Focus order logical
+- [ ] Escape: Closes offcanvas (if BSVN supports)
+- [ ] Screen reader: Announces content correctly
+- [ ] Screen reader: Announces state changes
+- [ ] Color contrast: Passes WCAG AA
+- [ ] Focus indicators visible
+
+### 12.7 Design Decisions & Rationale
+
+| Decision | Rationale | Alternatives Considered |
+|----------|-----------|-------------------------|
+| Persistent bottom bar (never fully dismisses) | Maximum conversion opportunity always available; less intrusive than modal | Full dismissal (loses conversion), badge/icon only (less discoverable), sticky header (clutters top) |
+| Same CTAs all levels  (anonymous) | Clear conversion path: always push free account first before subscription | Progressive CTAs (confuses funnel), subscription at Level 3 (too aggressive before account) |
+| Inline _WhySignUp benefits | Users understand free account value before clicking; reduces friction | External link (adds friction), short bullet list (insufficient detail), no benefits (weak value prop) |
+| Extend to logged-in users | Unified system, feature parity with anonymous, no code duplication | Separate logged-in system (code duplication), keep old alert (inconsistent UX), email-only (low conversion) |
+| BOffcanvas overlay pattern | Leverage BSVN component, familiar UI pattern, mobile-friendly | Custom collapsible (more code), slide-in from side (less mobile-friendly), modal (too intrusive) |
+| "Membership includes..." (not exhaustive) | Encourages "Learn More" click, avoids overwhelming with long list | Full feature list (too long), vague description (not compelling), bullet points only (no CTA) |
+| Bottom bar ~40px height | Noticeable but not obtrusive, room for text + icon | Larger (too intrusive), smaller (easy to ignore), badge only (not clear what it is) |
+| Down arrow at top of offcanvas | Clear collapse affordance, consistent with up arrow in bar | Close X only (no obvious collapse), no header (less polished), both X and arrow (cluttered) |
+| Collapsed = bottom bar, Expanded = offcanvas | Two-state system users understand; always dismissible but never fully gone | Auto-expand on trigger pages (too aggressive), stay expanded until dismissed (too persistent) |
+| "How to support music4dance" text | Friendly, informative, non-aggressive tone | "Upgrade to Premium" (too salesy), "Support Us" (sounds like charity), No text (unclear purpose) |
+
+### 12.8 Success Metrics (Phase 2 Goals)
+
+**Primary Goals (30 days post-launch):**
+- 📊 Free account registrations: **+40%** (increased from +30% in Phase 1)
+  - Hypothesis: Inline _WhySignUp benefits + consistent CTAs improve conversion
+- 📊 Premium subscriptions: **+20%** (maintained from Phase 1)
+  - Hypothesis: Unified system for logged-in users maintains subscription rate
+- 📊 Bottom bar→expansion rate: **>20%** 
+  - Hypothesis: Persistent bar encourages engagement without being too intrusive
+
+**Secondary Goals:**
+- 📊 Logged-in conversion: **10-15%** of logged-in users subscribe within 30 days
+  - Hypothesis: Targeted premium benefits messaging improves logged-in conversion
+- 📊 Anonymous CTA click rate: "Sign Up Free" **>60%**, "Sign In" **>20%**
+  - Hypothesis: Consistent CTAs make free account creation the obvious choice
+- 📊 Logged-in CTA click rate: "Subscribe Now" **>40%**, "Learn More" **>30%**
+  - Hypothesis: "Membership includes..." phrasing drives interest in full feature list
+- 📊 Bounce rate: **<5% increase** (verify bottom bar doesn't hurt UX)
+  - Hypothesis: 40px bar at bottom is not intrusive enough to drive users away
+
+**Tertiary Goals:**
+- 📊 Mobile expansion rate: Similar to desktop (**±5%**)
+  - Hypothesis: BOffcanvas pattern works well on mobile
+- 📊 Average time expanded: **>15 seconds** (users reading content)
+  - Hypothesis: _WhySignUp and premium benefits content is compelling
+- 📊 Collapse→re-expansion rate: **>10%** (persistent interest)
+  - Hypothesis: Bottom bar reminder encourages revisiting
+- 📊 Old alert vs new system: **A/B test** (logged-in users)
+  - Hypothesis: New system outperforms old alert for logged-in users
+
+**Analytics Events to Track:**
+1. `engagement_bottom_bar_shown` (page number, user type)
+2. `engagement_bottom_bar_clicked` (page number, user type)
+3. `engagement_offcanvas_expanded` (page number, level, user type)
+4. `engagement_offcanvas_collapsed` (duration expanded, user type)
+5. `engagement_cta_clicked` (button: "Sign Up Free" | "Sign In" | "Subscribe Now" | "Learn More" | "Maybe Later", page number, level, user type)
+6. `engagement_google_ads_resumed` (after collapse)
+
+### 12.9 Risk Assessment
+
+| Risk | Likelihood | Impact | Mitigation |
+|------|------------|--------|------------|
+| Bottom bar considered intrusive by users | **Medium** | **High** | A/B test with/without; collect feedback; make dismissible after X pages |
+| Logged-in users annoyed by subscription push | **Medium** | **Medium** | Feature flag for quick disable; tune timing (show less frequently); honor opt-out |
+| Premium users accidentally see UI (isPremium logic fails) | **Low** | **High** | Comprehensive testing; fallback checks; monitoring |
+| Performance impact (bottom bar + offcanvas) | **Low** | **Low** | Lazy load offcanvas content; optimize CSS; measure page load |
+| Mobile UX issues (small screens) | **Medium** | **Medium** | Extensive mobile testing; responsive design; adjust heights/font sizes |
+| Feature flag coordination fails (both old and new show) | **Low** | **High** | Integration tests; manual testing; phased rollout |
+| Google Ads pause/resume bugs | **Medium** | **Medium** | Fallback to default (show ads); monitoring; try-catch in ad control logic |
+| Test refactoring introduces regressions | **Medium** | **High** | Update tests incrementally; keep Phase 1 tests passing; manual testing |
+
+### 12.10 Rollout Plan
+
+**Phase A: Development (Internal)**
+- Week 1-3: Implementation as per timeline above
+- Internal testing on dev/staging environments
+- Feature flag: `Enabled: true` (dev), `false` (production)
+
+**Phase B: Soft Launch (10% of Users)**
+- Week 4: Enable for 10% of users (random sampling via feature flag)
+- Monitor metrics: bounce rate, expansion rate, CTA clicks
+- Collect feedback: User surveys, support tickets
+- Fix critical issues
+
+**Phase C: Gradual Rollout (50% of Users)**
+- Week 5: Enable for 50% of users
+- A/B test old alert vs new system (logged-in users)
+- Refine messaging based on Week 4 data
+- Monitor server load (bottom bar adds minimal overhead)
+
+**Phase D: Full Launch (100% of Users)**
+- Week 6: Enable for all users
+- Deprecate old alert system (keep code for rollback)
+- Final metrics review (30-day baseline)
+- Document lessons learned
+
+**Rollback Criteria:**
+- Bounce rate increases >10%
+- Site performance degrades >20%
+- Critical bugs affecting >5% of users
+- Negative feedback exceeds positive 3:1
+
+---
+
+**Implementation Status Summary:**
+
+- **Phase 1 (Anonymous Users):** ✅ Complete (62 tests passing)
+- **Phase 2 (Redesign):** 📋 Planning Complete, Ready for Implementation
+  - **2.1 Core Components:** ⏳ Not Started (5-7 days estimated)
+  - **2.2 Integration:** ⏳ Not Started (3-4 days estimated)
+  - **2.3 Testing & Optimization:** ⏳ Not Started (5-7 days estimated)
+  - **Total Estimated:** 2.5-3 weeks
+
+---
+
+**Document Version:** 2.1  
+**Last Updated:** March 8, 2026  
+**Author:** GitHub Copilot (Claude Sonnet 4.5)  
+**Reviewed By:** David Gray (Pending)  
+**Status:** 🚧 **Phase 2 Redesign - Planning Complete, Awaiting Implementation Approval**
 
 ---
