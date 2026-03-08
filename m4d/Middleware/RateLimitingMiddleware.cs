@@ -315,6 +315,7 @@ public class RateLimitingMiddleware
     [
         "facebookexternalhit",
         "facebot",
+        "meta-externalagent",
         "meta-externalfetcher"
     ];
 
