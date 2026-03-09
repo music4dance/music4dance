@@ -33,6 +33,13 @@
       <h6>When you've signed up you can:</h6>
       <ul class="list-clean-aligned">
         <li>
+          <IBiHandThumbsUp class="text-primary me-2" /><a
+            href="https://music4dance.blog/music4dance-help/dance-tags/"
+            target="_blank"
+            >Vote on dances</a
+          >
+        </li>
+        <li>
           <IBiTagsFill class="text-primary me-2" /><a
             href="https://music4dance.blog/music4dance-help/tag-editing/"
             target="_blank"
@@ -47,24 +54,24 @@
           >
         </li>
         <li>
-          <IBiHeartFill class="text-primary me-2" /><a
-            href="https://music4dance.blog/are-there-songs-that-you-never-want-to-dance-to-again/"
-            target="_blank"
-            >Like and unlike songs</a
-          >
-        </li>
-        <li>
-          <IBiXCircleFill class="text-primary me-2" /><a
-            href="https://music4dance.blog/are-there-songs-that-you-never-want-to-dance-to-again/"
-            target="_blank"
-            >Hide songs you've "unliked"</a
-          >
-        </li>
-        <li>
           <IBiFolderFill class="text-primary me-2" /><a
             href="https://music4dance.blog/music4dance-help/saved-searches/"
             target="_blank"
             >Save your searches</a
+          >
+        </li>
+        <li>
+          <IBiHeartFill class="text-primary me-2" /><a
+            href="https://music4dance.blog/2021/10/15/what-is-the-difference-between-adding-a-song-to-favorites-and-voting-on-a-songs-danceability/"
+            target="_blank"
+            >Add songs to favorites</a
+          >
+        </li>
+        <li>
+          <IBiCurrencyDollar class="text-primary me-2" /><a
+            href="https://music4dance.blog/music4dance-help/subscriptions/"
+            target="_blank"
+            >Purchase a premium subscription to unlock even more features</a
           >
         </li>
       </ul>

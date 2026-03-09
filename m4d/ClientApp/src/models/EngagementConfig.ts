@@ -74,12 +74,10 @@ export const defaultEngagementConfig: EngagementConfig = {
   },
   premiumBenefits: {
     items: [
-      "<a href='https://music4dance.blog/music4dance-help/advanced-search/' target='_blank'>Advanced search filters</a>",
+      "<a href='https://music4dance.blog/music4dance-help/subscriptions/' target='_blank'>Ad-free experience</a>",
       "<a href='https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/spotify-playlist/' target='_blank'>Spotify playlist integration</a>",
       "<a href='https://music4dance.blog/music4dance-help/bonus-content/' target='_blank'>Bonus content access</a>",
-      "Custom dance categories",
       "Priority email support",
-      "Ad-free experience",
     ],
     moreText: "...and more!",
     completeListUrl: "https://music4dance.blog/music4dance-help/subscriptions/",
