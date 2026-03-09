@@ -8,16 +8,20 @@
     no-header
     @hidden="onHidden"
   >
-    <!-- Custom header with collapse button -->
-    <div class="engagement-offcanvas-header d-flex align-items-center border-bottom pb-2 mb-3">
-      <button
-        type="button"
-        class="btn btn-sm btn-link text-muted p-0 me-2"
-        @click="onCollapse"
-        aria-label="Collapse"
-      >
+    <!-- Custom header with collapse button (entire header is clickable) -->
+    <div
+      class="engagement-offcanvas-header d-flex align-items-center border-bottom pb-2 mb-3"
+      role="button"
+      tabindex="0"
+      @click="onCollapse"
+      @keydown.enter="onCollapse"
+      @keydown.space.prevent="onCollapse"
+      aria-label="Collapse"
+      style="cursor: pointer"
+    >
+      <span class="me-2 text-muted">
         <IBiChevronDown />
-      </button>
+      </span>
       <h5 class="mb-0">{{ headerTitle }}</h5>
     </div>
 
