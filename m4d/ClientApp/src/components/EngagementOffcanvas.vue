@@ -1,122 +1,161 @@
 <template>
   <BOffcanvas
+    id="engagement-offcanvas"
     v-model="isOpen"
     placement="bottom"
     :backdrop="true"
     :scroll="false"
-    title="Exploring music4dance?"
-    body-class="engagement-offcanvas-body"
+    no-header
     @hidden="onHidden"
   >
-    <!-- Dynamic message content (HTML from server) -->
-    <div class="engagement-message" v-html="engagementData?.message"></div>
-
-    <!-- Call-to-action buttons (level-specific order) -->
-    <div class="engagement-cta-buttons mt-3 d-flex flex-wrap gap-2">
-      <template v-if="engagementData?.level === 1">
-        <!-- Level 1: Register, Features, Dismiss -->
-        <BButton
-          :href="engagementData.ctaUrls.primary"
-          variant="primary"
-          size="sm"
-          class="flex-fill"
-        >
-          Create Account
-        </BButton>
-        <BButton
-          :href="engagementData.ctaUrls.secondary"
-          variant="outline-secondary"
-          size="sm"
-          class="flex-fill"
-        >
-          Learn More
-        </BButton>
-        <BButton variant="outline-secondary" size="sm" class="flex-fill" @click="onDismiss">
-          Maybe Later
-        </BButton>
-      </template>
-
-      <template v-else-if="engagementData?.level === 2">
-        <!-- Level 2: Subscribe, Register, Features, Dismiss -->
-        <BButton
-          :href="engagementData.ctaUrls.tertiary"
-          variant="success"
-          size="sm"
-          class="flex-fill"
-        >
-          Subscribe
-        </BButton>
-        <BButton
-          :href="engagementData.ctaUrls.primary"
-          variant="primary"
-          size="sm"
-          class="flex-fill"
-        >
-          Create Account
-        </BButton>
-        <BButton
-          :href="engagementData.ctaUrls.secondary"
-          variant="outline-secondary"
-          size="sm"
-          class="flex-fill"
-        >
-          Learn More
-        </BButton>
-        <BButton variant="outline-secondary" size="sm" class="flex-fill" @click="onDismiss">
-          Dismiss
-        </BButton>
-      </template>
-
-      <template v-else-if="engagementData?.level === 3">
-        <!-- Level 3: Subscribe (emphasized), Features, Register, Dismiss -->
-        <BButton
-          :href="engagementData.ctaUrls.tertiary"
-          variant="success"
-          size="md"
-          class="flex-fill fw-bold"
-        >
-          Subscribe Now
-        </BButton>
-        <BButton
-          :href="engagementData.ctaUrls.secondary"
-          variant="outline-primary"
-          size="sm"
-          class="flex-fill"
-        >
-          View Features
-        </BButton>
-        <BButton
-          :href="engagementData.ctaUrls.primary"
-          variant="outline-secondary"
-          size="sm"
-          class="flex-fill"
-        >
-          Free Account
-        </BButton>
-        <BButton variant="outline-secondary" size="sm" class="flex-fill" @click="onDismiss">
-          Dismiss
-        </BButton>
-      </template>
+    <!-- Custom header with collapse button -->
+    <div class="engagement-offcanvas-header d-flex align-items-center border-bottom pb-2 mb-3">
+      <button
+        type="button"
+        class="btn btn-sm btn-link text-muted p-0 me-2"
+        @click="onCollapse"
+        aria-label="Collapse"
+      >
+        <IBiChevronDown />
+      </button>
+      <h5 class="mb-0">{{ headerTitle }}</h5>
     </div>
+
+    <!-- Dynamic message (progressive insistence) -->
+    <div
+      v-if="engagementData?.message"
+      class="engagement-message mb-3"
+      v-html="engagementData.message"
+    ></div>
+
+    <!-- Conditional content based on user type -->
+    <div v-if="!isAuthenticated" class="free-account-benefits mb-3">
+      <h6>When you've signed up you can:</h6>
+      <ul class="list-clean-aligned">
+        <li>
+          <IBiTagsFill class="text-primary me-2" /><a
+            href="https://music4dance.blog/music4dance-help/tag-editing/"
+            target="_blank"
+            >Tag songs</a
+          >
+        </li>
+        <li>
+          <IBiSearch class="text-primary me-2" /><a
+            href="https://music4dance.blog/music4dance-help/advanced-search/"
+            target="_blank"
+            >Search on songs you've tagged</a
+          >
+        </li>
+        <li>
+          <IBiHeartFill class="text-primary me-2" /><a
+            href="https://music4dance.blog/are-there-songs-that-you-never-want-to-dance-to-again/"
+            target="_blank"
+            >Like and unlike songs</a
+          >
+        </li>
+        <li>
+          <IBiXCircleFill class="text-primary me-2" /><a
+            href="https://music4dance.blog/are-there-songs-that-you-never-want-to-dance-to-again/"
+            target="_blank"
+            >Hide songs you've "unliked"</a
+          >
+        </li>
+        <li>
+          <IBiFolderFill class="text-primary me-2" /><a
+            href="https://music4dance.blog/music4dance-help/saved-searches/"
+            target="_blank"
+            >Save your searches</a
+          >
+        </li>
+      </ul>
+    </div>
+
+    <div v-else class="premium-benefits mb-3">
+      <h6>Upgrade to Premium Membership</h6>
+      <p class="text-muted small">Your membership includes:</p>
+      <ul class="list-clean-aligned">
+        <li v-for="(benefit, index) in premiumBenefits" :key="index">
+          <IBiCheckCircleFill class="text-success me-2" /><span v-html="benefit"></span>
+        </li>
+        <li v-if="premiumBenefitsMoreText">
+          <IBiCheckCircleFill class="text-success me-2" />{{ premiumBenefitsMoreText }}
+        </li>
+      </ul>
+      <p v-if="premiumFeaturesUrl" class="small">
+        <a :href="premiumFeaturesUrl" target="_blank">View complete feature list</a>
+      </p>
+    </div>
+
+    <!-- CTAs (different for anonymous vs logged-in) -->
+    <BRow class="g-2">
+      <template v-if="!isAuthenticated">
+        <!-- Anonymous: Always same 3 buttons -->
+        <BCol cols="12" sm="4">
+          <BButton :href="registerUrl" variant="primary" size="sm" class="w-100">
+            Sign Up Free
+          </BButton>
+        </BCol>
+        <BCol cols="12" sm="4">
+          <BButton :href="loginUrl" variant="outline-primary" size="sm" class="w-100">
+            Sign In
+          </BButton>
+        </BCol>
+        <BCol cols="12" sm="4">
+          <BButton variant="outline-secondary" size="sm" class="w-100" @click="onCollapse">
+            Maybe Later
+          </BButton>
+        </BCol>
+      </template>
+
+      <template v-else>
+        <!-- Logged-in: Premium upgrade -->
+        <BCol cols="12" sm="4">
+          <BButton :href="subscribeUrl" variant="success" size="sm" class="w-100">
+            Subscribe Now
+          </BButton>
+        </BCol>
+        <BCol cols="12" sm="4">
+          <BButton
+            :href="premiumFeaturesUrl"
+            variant="outline-primary"
+            size="sm"
+            class="w-100"
+            target="_blank"
+          >
+            Learn More
+          </BButton>
+        </BCol>
+        <BCol cols="12" sm="4">
+          <BButton variant="outline-secondary" size="sm" class="w-100" @click="onCollapse">
+            Maybe Later
+          </BButton>
+        </BCol>
+      </template>
+    </BRow>
   </BOffcanvas>
 </template>
 
 <script setup lang="ts">
 import { ref, watch, computed } from "vue";
 import type { EngagementLevel } from "@/composables/useEngagementOffcanvas";
+import type { EngagementConfig } from "@/models/EngagementConfig";
 
 interface Props {
   /** Whether offcanvas should be visible */
   modelValue: boolean;
-  /** Engagement level data (message, level, CTAs) */
+  /** Engagement level data (message, level) */
   engagementData: EngagementLevel | null;
+  /** Whether user is authenticated */
+  isAuthenticated: boolean;
+  /** Engagement configuration from server */
+  config: EngagementConfig;
 }
 
 interface Emits {
   /** Emitted when modal visibility changes */
   (event: "update:modelValue", value: boolean): void;
-  /** Emitted when user dismisses the offcanvas */
-  (event: "dismiss"): void;
+  /** Emitted when user collapses the offcanvas */
+  (event: "collapse"): void;
 }
 
 const props = defineProps<Props>();
@@ -138,42 +177,79 @@ watch(isOpen, (newValue) => {
   emit("update:modelValue", newValue);
 });
 
-// Dynamic title based on engagement level
-const offcanvasTitle = computed(() => {
-  if (!props.engagementData) return "";
+// Dynamic header title based on user type and level
+const headerTitle = computed(() => {
+  if (!props.isAuthenticated) {
+    // Anonymous users - progressive messaging
+    if (!props.engagementData) return "Exploring music4dance?";
 
-  switch (props.engagementData.level) {
-    case 1:
-      return "Exploring music4dance?";
-    case 2:
-      return "Finding what you need?";
-    case 3:
-      return "You've discovered a lot!";
-    default:
-      return "";
+    switch (props.engagementData.level) {
+      case 1:
+        return "Exploring music4dance?";
+      case 2:
+        return "Still searching for music?";
+      case 3:
+        return "Finding everything you need?";
+      default:
+        return "Exploring music4dance?";
+    }
+  } else {
+    // Logged-in users - premium upgrade
+    return "Upgrade to Premium";
   }
 });
 
+// Extract CTA URLs from config
+const registerUrl = computed(() => props.config.ctaUrls.register);
+const loginUrl = computed(() => props.config.ctaUrls.login || "/identity/account/login");
+const subscribeUrl = computed(() => props.config.ctaUrls.subscribe);
+const premiumFeaturesUrl = computed(() => props.config.ctaUrls.features);
+
+// Extract premium benefits from config
+const premiumBenefits = computed(() => props.config.premiumBenefits?.items || []);
+const premiumBenefitsMoreText = computed(() => props.config.premiumBenefits?.moreText);
+
 /**
- * Handle offcanvas dismissal (both close button and "Dismiss" CTA)
+ * Handle offcanvas collapse (down arrow or "Maybe Later" CTA)
  */
-function onDismiss(): void {
+function onCollapse(): void {
   isOpen.value = false;
-  emit("dismiss");
+  emit("collapse");
 }
 
 /**
  * Handle offcanvas hidden event (after animation completes)
  */
 function onHidden(): void {
-  // Always emit dismiss when offcanvas closes (any method: backdrop, X, or dismiss button)
-  emit("dismiss");
+  // Always emit collapse when offcanvas closes (any method: backdrop, down arrow, or Maybe Later button)
+  emit("collapse");
 }
 </script>
 
 <style scoped lang="scss">
-.engagement-offcanvas-body {
-  padding-bottom: 1rem;
+/* Set offcanvas container height to 75vh max */
+:global(#engagement-offcanvas) {
+  height: auto !important;
+  max-height: 75vh !important;
+}
+
+.engagement-offcanvas-header {
+  button {
+    &:hover {
+      color: var(--bs-primary) !important;
+    }
+  }
+}
+
+.list-clean-aligned {
+  list-style: none;
+  padding-left: 0;
+
+  li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
 }
 
 .engagement-message {
@@ -190,23 +266,6 @@ function onHidden(): void {
 
   :deep(strong) {
     font-weight: 600;
-  }
-}
-
-.engagement-cta-buttons {
-  .flex-fill {
-    min-width: fit-content;
-  }
-}
-
-/* Responsive: Stack buttons on very small screens */
-@media (max-width: 576px) {
-  .engagement-cta-buttons {
-    flex-direction: column;
-
-    .flex-fill {
-      width: 100%;
-    }
   }
 }
 </style>

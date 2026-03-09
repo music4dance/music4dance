@@ -6,6 +6,12 @@ export interface EngagementConfig {
   /** Master switch for engagement system */
   enabled: boolean;
 
+  /** Show engagement UI for anonymous users */
+  showForAnonymous?: boolean;
+
+  /** Show engagement UI for logged-in non-premium users */
+  showForLoggedIn?: boolean;
+
   /** Page count at which to first show engagement offcanvas (default: 2) */
   firstShowPageCount: number;
 
@@ -17,17 +23,30 @@ export interface EngagementConfig {
 
   /** HTML messages for each engagement level (configured server-side) */
   messages: {
-    /** Level 1: Awareness - shown at page 2 */
+    /** Level 1: Awareness - shown at page 2 (anonymous users) */
     level1: string;
-    /** Level 2: Consideration - shown at page 7 */
+    /** Level 2: Consideration - shown at page 7 (anonymous users) */
     level2: string;
-    /** Level 3: Conversion - shown at page 12+ */
+    /** Level 3: Conversion - shown at page 12+ (anonymous users) */
     level3: string;
+    /** Logged-in non-premium users message */
+    loggedInUpgrade?: string;
+  };
+
+  /** Premium membership benefits (for logged-in users) */
+  premiumBenefits?: {
+    /** List of premium feature items */
+    items: string[];
+    /** Text for "more features" indicator */
+    moreText?: string;
+    /** URL to complete features list */
+    completeListUrl: string;
   };
 
   /** Call-to-action URLs */
   ctaUrls: {
     register: string;
+    login?: string;
     subscribe: string;
     features: string;
   };
@@ -38,19 +57,36 @@ export interface EngagementConfig {
  */
 export const defaultEngagementConfig: EngagementConfig = {
   enabled: false,
+  showForAnonymous: true,
+  showForLoggedIn: true,
   firstShowPageCount: 2,
   repeatInterval: 5,
   sessionDismissalTimeout: 60,
   messages: {
     level1:
-      "<h4>Welcome to music4dance!</h4><p>The core service is <strong>free</strong>, but costs money to run. Create a <strong>free account</strong> to save your searches and build playlists.</p>",
+      "<p>Exploring music4dance? We're glad you're here! Create a <strong>free account</strong> to unlock helpful features that make finding dance music even easier.</p>",
     level2:
-      "<h4>Still exploring?</h4><p>If you find this site useful, please consider <strong>subscribing</strong> to help keep it running. Your contribution covers hosting and gives you access to <a href='https://music4dance.blog/music4dance-help/subscriptions/'>exclusive features</a>.</p>",
+      "<p>Still searching for music? We've noticed you're using the site quite a bit. Creating a <strong>free account</strong> unlocks features like saving searches, tagging songs, and customizing your experience. It only takes a minute!</p>",
     level3:
-      "<h4>Thank you for using music4dance!</h4><p>This site is supported by user subscriptions. If you find it valuable, please <strong>consider subscribing</strong> to help cover hosting costs and keep it running for everyone.</p>",
+      "<p>You're clearly finding music4dance useful for your dance music needs! Create a <strong>free account</strong> to get the most out of the platform. You'll be able to tag songs, save your favorite searches, and build your perfect dance music collection.</p>",
+    loggedInUpgrade:
+      "<p>Upgrade to Premium membership to unlock advanced features and support the music4dance community.</p>",
+  },
+  premiumBenefits: {
+    items: [
+      "<a href='https://music4dance.blog/music4dance-help/advanced-search/' target='_blank'>Advanced search filters</a>",
+      "<a href='https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/spotify-playlist/' target='_blank'>Spotify playlist integration</a>",
+      "<a href='https://music4dance.blog/music4dance-help/bonus-content/' target='_blank'>Bonus content access</a>",
+      "Custom dance categories",
+      "Priority email support",
+      "Ad-free experience",
+    ],
+    moreText: "...and more!",
+    completeListUrl: "https://music4dance.blog/music4dance-help/subscriptions/",
   },
   ctaUrls: {
     register: "/identity/account/register",
+    login: "/identity/account/login",
     subscribe: "/home/contribute",
     features: "https://music4dance.blog/music4dance-help/subscriptions/",
   },

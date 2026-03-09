@@ -21,12 +21,7 @@ const computedId = function (): string {
 </script>
 
 <template>
-  <BCard
-    :id="computedId()"
-    no-body
-    border-variant="primary"
-    style="margin-bottom: 1rem; min-width: 25rem"
-  >
+  <BCard :id="computedId()" no-body border-variant="primary" class="home-info-card">
     <BCardHeader variant="primary">
       <InfoLink
         :link="card.title.link"
@@ -48,6 +43,20 @@ const computedId = function (): string {
 </template>
 
 <style scoped>
+/* Match Bootstrap's selector structure but with our class for higher specificity */
+:global(.card-group > .home-info-card.card) {
+  margin-bottom: 1rem;
+  min-width: 25rem;
+}
+
+/* On small screens, remove min-width to prevent horizontal scrolling */
+@media (max-width: 576px) {
+  :global(.card-group > .home-info-card.card) {
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
 .home-list {
   list-style-type: none;
   font-size: 1.5rem;

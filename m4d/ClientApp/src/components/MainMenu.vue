@@ -25,10 +25,14 @@ const tracker = props.context.useClientSideTracking
     })
   : null;
 
-// Initialize engagement offcanvas for anonymous users only
+// Initialize engagement offcanvas for both anonymous and logged-in non-premium users
 const engagement =
-  !props.context.userName && props.context.engagementConfig
-    ? useEngagementOffcanvas(props.context.engagementConfig, false)
+  props.context.engagementConfig && !props.context.isPremium
+    ? useEngagementOffcanvas({
+        config: props.context.engagementConfig,
+        isAuthenticated: !!props.context.userName,
+        isPremium: props.context.isPremium ?? false,
+      })
     : null;
 
 // Track page view on load if tracking is enabled
@@ -95,7 +99,15 @@ const reminderAcknowledged = () => {
 };
 
 const renewal = ref(!sessionStorage.getItem(renewalTag));
-const showReminder = ref(props.context.customerReminder && !reminderAcknowledged());
+
+// Check if engagement system is enabled (feature flag for old alert coordination)
+const engagementEnabled = computed(() => props.context.engagementConfig?.enabled ?? false);
+
+// Hide old reminder alert when engagement system is enabled
+const showReminder = ref(
+  props.context.customerReminder && !reminderAcknowledged() && !engagementEnabled.value,
+);
+
 const marketing = ref(!sessionStorage.getItem(marketingTag));
 
 const songIndex = computed(() => {
@@ -325,12 +337,18 @@ function search(s?: string): void {
       <BButton href="/home/contribute" variant="primary" size="sm">Contribute</BButton>
     </BAlert>
 
-    <!-- Engagement Offcanvas for anonymous users -->
+    <!-- Engagement system for both anonymous and logged-in non-premium users -->
+    <EngagementBottomBar
+      v-if="engagement?.shouldShowBottomBar.value"
+      @expand="engagement.expand()"
+    />
     <EngagementOffcanvas
       v-if="engagement"
-      v-model="engagement.shouldShowOffcanvas.value"
+      v-model="engagement.isExpanded.value"
       :engagement-data="engagement.currentLevel.value"
-      @dismiss="engagement.dismiss"
+      :is-authenticated="!!context.userName"
+      :config="context.engagementConfig!"
+      @collapse="engagement.collapse()"
     />
 
     <form id="logoutForm" action="/identity/account/logout" method="post" style="height: 0">
