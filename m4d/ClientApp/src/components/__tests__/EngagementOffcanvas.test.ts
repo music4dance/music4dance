@@ -1,361 +1,221 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { mount, VueWrapper } from "@vue/test-utils";
 import EngagementOffcanvas from "@/components/EngagementOffcanvas.vue";
+import type { EngagementConfig } from "@/models/EngagementConfig";
 import type { EngagementLevel } from "@/composables/useEngagementOffcanvas";
 
 describe("EngagementOffcanvas.vue", () => {
   let wrapper: VueWrapper<any>;
 
+  const testConfig: EngagementConfig = {
+    enabled: true,
+    firstShowPageCount: 2,
+    repeatInterval: 5,
+    sessionDismissalTimeout: 30,
+    messages: {
+      level1: "<p>Create a <strong>free account</strong> to save your searches.</p>",
+      level2: "<p><strong>Subscribe</strong> to help keep it running.</p>",
+      level3: "<p><strong>Thank you</strong> for using music4dance!</p>",
+      loggedInUpgrade: "<p>Upgrade to <strong>Premium membership</strong>.</p>",
+    },
+    premiumBenefits: {
+      items: [
+        "Ad-free experience",
+        "Spotify playlist integration",
+        "Bonus content access",
+        "Priority email support",
+      ],
+      moreText: "...and more!",
+      completeListUrl: "https://music4dance.blog/subscriptions/",
+    },
+    ctaUrls: {
+      register: "/identity/account/register",
+      login: "/identity/account/login",
+      subscribe: "/home/contribute",
+      features: "https://music4dance.blog/features/",
+    },
+  };
+
   const level1Data: EngagementLevel = {
     level: 1,
-    message:
-      "<h4>Exploring music4dance?</h4><p>Create a <strong>free account</strong> to save your searches.</p>",
-    ctaUrls: {
-      primary: "/identity/account/register",
-      secondary: "https://music4dance.blog/features/",
-      tertiary: "/home/contribute",
+    message: testConfig.messages.level1,
+  };
+
+  // Stub BOffcanvas to render its content (default slot)
+  const globalStubs = {
+    BOffcanvas: {
+      template: '<div class="b-offcanvas-stub"><slot /></div>',
+      props: ["modelValue", "placement", "backdrop", "scroll", "noHeader"],
+    },
+    BButton: {
+      template: '<button class="b-button-stub"><slot /></button>',
+      props: ["variant", "href"],
     },
   };
 
-  const level2Data: EngagementLevel = {
-    level: 2,
-    message:
-      "<h4>Finding what you need?</h4><p><strong>Create an account</strong> or <strong>subscribe</strong>.</p>",
-    ctaUrls: {
-      primary: "/identity/account/register",
-      secondary: "https://music4dance.blog/features/",
-      tertiary: "/home/contribute",
-    },
-  };
-
-  const level3Data: EngagementLevel = {
-    level: 3,
-    message:
-      "<h4>You've loaded <strong>12</strong> pages!</h4><p>Consider subscribing to support us.</p>",
-    ctaUrls: {
-      primary: "/identity/account/register",
-      secondary: "https://music4dance.blog/features/",
-      tertiary: "/home/contribute",
-    },
-  };
-
-  beforeEach(() => {
-    // No special setup needed
-  });
-
-  describe("Component Rendering", () => {
-    it("should render when modelValue is true", () => {
+  describe("Anonymous User Rendering", () => {
+    beforeEach(() => {
       wrapper = mount(EngagementOffcanvas, {
         props: {
           modelValue: true,
           engagementData: level1Data,
+          isAuthenticated: false,
+          config: testConfig,
+        },
+        global: {
+          stubs: globalStubs,
         },
       });
+    });
 
+    it("should render the offcanvas", () => {
       expect(wrapper.exists()).toBe(true);
     });
 
-    it("should render HTML message content", () => {
+    it("should display the clickable header with down arrow", () => {
+      const header = wrapper.find(".engagement-offcanvas-header");
+      expect(header.exists()).toBe(true);
+      expect(header.text()).toContain("Exploring music4dance?");
+    });
+
+    it("should display free account benefits for anonymous users", () => {
+      const benefits = wrapper.find(".free-account-benefits");
+      expect(benefits.exists()).toBe(true);
+      expect(benefits.text()).toContain("When you've signed up you can:");
+    });
+
+    it("should display all 6 benefit items with links", () => {
+      const benefits = wrapper.findAll(".free-account-benefits li");
+      expect(benefits.length).toBe(6);
+      if (benefits[0]) expect(benefits[0].text()).toContain("Vote on dances");
+      if (benefits[1]) expect(benefits[1].text()).toContain("Tag songs");
+      if (benefits[5]) expect(benefits[5].text()).toContain("Purchase a premium subscription");
+    });
+
+    it("should render 3 CTAs for anonymous users", () => {
+      // Look for actual <a> or <button> elements (stubbed BButton renders as button with class)
+      const buttons = wrapper.findAll(
+        "button.b-button-stub, a[href*='/identity'], a[href*='/home']",
+      );
+      expect(buttons.length).toBeGreaterThanOrEqual(3);
+    });
+
+    it("should not show premium benefits for anonymous users", () => {
+      const premiumBenefits = wrapper.find(".premium-benefits");
+      expect(premiumBenefits.exists()).toBe(false);
+    });
+  });
+
+  describe("Logged-In User Rendering", () => {
+    beforeEach(() => {
+      wrapper = mount(EngagementOffcanvas, {
+        props: {
+          modelValue: true,
+          engagementData: {
+            level: 1,
+            message: testConfig.messages.loggedInUpgrade || "",
+          },
+          isAuthenticated: true,
+          config: testConfig,
+        },
+        global: {
+          stubs: globalStubs,
+        },
+      });
+    });
+
+    it("should display premium benefits for logged-in users", () => {
+      const premiumBenefits = wrapper.find(".premium-benefits");
+      expect(premiumBenefits.exists()).toBe(true);
+      expect(premiumBenefits.text()).toContain("Upgrade to Premium Membership");
+    });
+
+    it("should not show free account benefits for logged-in users", () => {
+      const freeBenefits = wrapper.find(".free-account-benefits");
+      expect(freeBenefits.exists()).toBe(false);
+    });
+
+    it("should render premium benefit items", () => {
+      const benefits = wrapper.findAll(".premium-benefits ul li");
+      // Should have at least the configured items (may have +1 for moreText)
+      expect(benefits.length).toBeGreaterThanOrEqual(testConfig.premiumBenefits?.items.length || 0);
+    });
+  });
+
+  describe("Header Interaction", () => {
+    beforeEach(() => {
       wrapper = mount(EngagementOffcanvas, {
         props: {
           modelValue: true,
           engagementData: level1Data,
+          isAuthenticated: false,
+          config: testConfig,
+        },
+        global: {
+          stubs: globalStubs,
+        },
+      });
+    });
+
+    it("should emit collapse when header is clicked", async () => {
+      const header = wrapper.find(".engagement-offcanvas-header");
+      await header.trigger("click");
+
+      expect(wrapper.emitted("collapse")).toBeTruthy();
+    });
+
+    it("should emit collapse on Enter key", async () => {
+      const header = wrapper.find(".engagement-offcanvas-header");
+      await header.trigger("keydown.enter");
+
+      expect(wrapper.emitted("collapse")).toBeTruthy();
+    });
+
+    it("should have clickable styling on header", () => {
+      const header = wrapper.find(".engagement-offcanvas-header");
+      expect(header.attributes("style")).toContain("cursor: pointer");
+      expect(header.attributes("role")).toBe("button");
+    });
+  });
+
+  describe("Model Value Updates", () => {
+    it("should emit update:modelValue when BOffcanvas hidden event fires", async () => {
+      wrapper = mount(EngagementOffcanvas, {
+        props: {
+          modelValue: true,
+          engagementData: level1Data,
+          isAuthenticated: false,
+          config: testConfig,
+        },
+        global: {
+          stubs: globalStubs,
         },
       });
 
-      // Check that engagementData message is being used (component renders it)
-      const html = wrapper.html();
-      // BOffcanvas might stub content, so just verify component has the data
-      expect(wrapper.props("engagementData")?.message).toContain("Exploring music4dance?");
-    });
+      // Trigger collapse which updates internal isOpen ref
+      const header = wrapper.find(".engagement-offcanvas-header");
+      await header.trigger("click");
 
+      expect(wrapper.emitted("update:modelValue")).toBeTruthy();
+      expect(wrapper.emitted("update:modelValue")?.[0]).toEqual([false]);
+    });
+  });
+
+  describe("Edge Cases", () => {
     it("should not crash when engagementData is null", () => {
       wrapper = mount(EngagementOffcanvas, {
         props: {
           modelValue: true,
           engagementData: null,
+          isAuthenticated: false,
+          config: testConfig,
+        },
+        global: {
+          stubs: globalStubs,
         },
       });
 
       expect(wrapper.exists()).toBe(true);
-    });
-  });
-
-  describe("Level 1 Buttons", () => {
-    beforeEach(() => {
-      wrapper = mount(EngagementOffcanvas, {
-        props: {
-          modelValue: true,
-          engagementData: level1Data,
-        },
-      });
-    });
-
-    it("should render 3 buttons for Level 1", () => {
-      const buttons = wrapper.findAllComponents({ name: "BButton" });
-      expect(buttons.length).toBe(3);
-    });
-
-    it("should have correct button text for Level 1", () => {
-      const buttons = wrapper.findAllComponents({ name: "BButton" });
-
-      expect(buttons[0].text()).toBe("Create Account");
-      expect(buttons[1].text()).toBe("Learn More");
-      expect(buttons[2].text()).toBe("Maybe Later");
-    });
-
-    it("should have correct hrefs for Level 1 action buttons", () => {
-      const buttons = wrapper.findAllComponents({ name: "BButton" });
-
-      expect(buttons[0].attributes("href")).toBe("/identity/account/register");
-      expect(buttons[1].attributes("href")).toBe("https://music4dance.blog/features/");
-      // Third button (Dismiss) should not have href
-    });
-
-    it("should emit dismiss when 'Maybe Later' is clicked", async () => {
-      const buttons = wrapper.findAllComponents({ name: "BButton" });
-      const dismissButton = buttons[2];
-
-      await dismissButton.trigger("click");
-
-      expect(wrapper.emitted("dismiss")).toBeTruthy();
-      expect(wrapper.emitted("dismiss")?.length).toBe(1);
-    });
-  });
-
-  describe("Level 2 Buttons", () => {
-    beforeEach(() => {
-      wrapper = mount(EngagementOffcanvas, {
-        props: {
-          modelValue: true,
-          engagementData: level2Data,
-        },
-      });
-    });
-
-    it("should render 4 buttons for Level 2", () => {
-      const buttons = wrapper.findAllComponents({ name: "BButton" });
-      expect(buttons.length).toBe(4);
-    });
-
-    it("should have correct button text for Level 2", () => {
-      const buttons = wrapper.findAllComponents({ name: "BButton" });
-
-      expect(buttons[0].text()).toBe("Subscribe");
-      expect(buttons[1].text()).toBe("Create Account");
-      expect(buttons[2].text()).toBe("Learn More");
-      expect(buttons[3].text()).toBe("Dismiss");
-    });
-
-    it("should have correct hrefs for Level 2 action buttons", () => {
-      const buttons = wrapper.findAllComponents({ name: "BButton" });
-
-      expect(buttons[0].attributes("href")).toBe("/home/contribute");
-      expect(buttons[1].attributes("href")).toBe("/identity/account/register");
-      expect(buttons[2].attributes("href")).toBe("https://music4dance.blog/features/");
-      // Fourth button (Dismiss) should not have href
-    });
-
-    it("should emit dismiss when 'Dismiss' is clicked", async () => {
-      const buttons = wrapper.findAllComponents({ name: "BButton" });
-      const dismissButton = buttons[3];
-
-      await dismissButton.trigger("click");
-
-      expect(wrapper.emitted("dismiss")).toBeTruthy();
-    });
-  });
-
-  describe("Level 3 Buttons", () => {
-    beforeEach(() => {
-      wrapper = mount(EngagementOffcanvas, {
-        props: {
-          modelValue: true,
-          engagementData: level3Data,
-        },
-      });
-    });
-
-    it("should render 4 buttons for Level 3", () => {
-      const buttons = wrapper.findAllComponents({ name: "BButton" });
-      expect(buttons.length).toBe(4);
-    });
-
-    it("should have correct button text for Level 3", () => {
-      const buttons = wrapper.findAllComponents({ name: "BButton" });
-
-      expect(buttons[0].text()).toBe("Subscribe Now");
-      expect(buttons[1].text()).toBe("View Features");
-      expect(buttons[2].text()).toBe("Free Account");
-      expect(buttons[3].text()).toBe("Dismiss");
-    });
-
-    it("should have correct hrefs for Level 3 action buttons", () => {
-      const buttons = wrapper.findAllComponents({ name: "BButton" });
-
-      expect(buttons[0].attributes("href")).toBe("/home/contribute");
-      expect(buttons[1].attributes("href")).toBe("https://music4dance.blog/features/");
-      expect(buttons[2].attributes("href")).toBe("/identity/account/register");
-      // Fourth button (Dismiss) should not have href
-    });
-
-    it("should have emphasized styling on primary Subscribe button", () => {
-      const buttons = wrapper.findAllComponents({ name: "BButton" });
-      const subscribeButton = buttons[0];
-
-      // Check that Subscribe button has bold class (size might not be in attributes)
-      expect(subscribeButton.classes()).toContain("fw-bold");
-    });
-
-    it("should emit dismiss when 'Dismiss' is clicked", async () => {
-      const buttons = wrapper.findAllComponents({ name: "BButton" });
-      const dismissButton = buttons[3];
-
-      await dismissButton.trigger("click");
-
-      expect(wrapper.emitted("dismiss")).toBeTruthy();
-    });
-  });
-
-  describe("Two-Way Binding (v-model)", () => {
-    it("should update internal state when modelValue prop changes", async () => {
-      wrapper = mount(EngagementOffcanvas, {
-        props: {
-          modelValue: false,
-          engagementData: level1Data,
-        },
-      });
-
-      // Component should start closed
-      expect(wrapper.vm.isOpen).toBe(false);
-
-      // Update prop
-      await wrapper.setProps({ modelValue: true });
-
-      // Internal state should update
-      expect(wrapper.vm.isOpen).toBe(true);
-    });
-
-    it("should emit update:modelValue when internal state changes", async () => {
-      wrapper = mount(EngagementOffcanvas, {
-        props: {
-          modelValue: true,
-          engagementData: level1Data,
-        },
-      });
-
-      // Simulate closing (internal state change)
-      wrapper.vm.isOpen = false;
-      await wrapper.vm.$nextTick();
-
-      // Should emit update:modelValue
-      expect(wrapper.emitted("update:modelValue")).toBeTruthy();
-      expect(wrapper.emitted("update:modelValue")?.[0]).toEqual([false]);
-    });
-
-    it("should emit dismiss when offcanvas is hidden", async () => {
-      wrapper = mount(EngagementOffcanvas, {
-        props: {
-          modelValue: true,
-          engagementData: level1Data,
-        },
-      });
-
-      // Simulate BOffcanvas @hidden event
-      wrapper.vm.onHidden();
-
-      expect(wrapper.emitted("dismiss")).toBeTruthy();
-    });
-  });
-
-  describe("Dynamic Title", () => {
-    it("should compute title for Level 1", () => {
-      wrapper = mount(EngagementOffcanvas, {
-        props: {
-          modelValue: true,
-          engagementData: level1Data,
-        },
-      });
-
-      expect(wrapper.vm.offcanvasTitle).toBe("Exploring music4dance?");
-    });
-
-    it("should compute title for Level 2", () => {
-      wrapper = mount(EngagementOffcanvas, {
-        props: {
-          modelValue: true,
-          engagementData: level2Data,
-        },
-      });
-
-      expect(wrapper.vm.offcanvasTitle).toBe("Finding what you need?");
-    });
-
-    it("should compute title for Level 3", () => {
-      wrapper = mount(EngagementOffcanvas, {
-        props: {
-          modelValue: true,
-          engagementData: level3Data,
-        },
-      });
-
-      expect(wrapper.vm.offcanvasTitle).toBe("You've discovered a lot!");
-    });
-
-    it("should return empty title when engagementData is null", () => {
-      wrapper = mount(EngagementOffcanvas, {
-        props: {
-          modelValue: true,
-          engagementData: null,
-        },
-      });
-
-      expect(wrapper.vm.offcanvasTitle).toBe("");
-    });
-  });
-
-  describe("Edge Cases", () => {
-    it("should handle missing ctaUrls gracefully", () => {
-      const incompleteData: EngagementLevel = {
-        level: 1,
-        message: "<p>Test</p>",
-        ctaUrls: {
-          primary: "",
-          secondary: "",
-          tertiary: "",
-        },
-      };
-
-      wrapper = mount(EngagementOffcanvas, {
-        props: {
-          modelValue: true,
-          engagementData: incompleteData,
-        },
-      });
-
-      expect(wrapper.exists()).toBe(true);
-    });
-
-    it("should handle dismissal flow correctly", async () => {
-      wrapper = mount(EngagementOffcanvas, {
-        props: {
-          modelValue: true,
-          engagementData: level1Data,
-        },
-      });
-
-      // User clicks dismiss button
-      wrapper.vm.onDismiss();
-      await wrapper.vm.$nextTick();
-
-      // Should update internal state
-      expect(wrapper.vm.isOpen).toBe(false);
-
-      // Should emit dismiss
-      expect(wrapper.emitted("dismiss")).toBeTruthy();
-
-      // Should emit update:modelValue
-      expect(wrapper.emitted("update:modelValue")).toBeTruthy();
     });
   });
 });

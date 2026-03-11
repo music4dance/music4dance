@@ -8,7 +8,7 @@ exports[`Home > Renders the Home Page 1`] = `
     <div class="mt-2"></div>
     <div>
       <div class="card-group" deck="">
-        <div data-v-8758b3c2="" class="card border-primary" id="fun-info" style="margin-bottom: 1rem; min-width: 25rem;">
+        <div data-v-8758b3c2="" class="card border-primary home-info-card" id="fun-info">
           <!---->
           <!---->
           <!---->
@@ -90,7 +90,7 @@ exports[`Home > Renders the Home Page 1`] = `
           <!---->
           <!---->
         </div>
-        <div data-v-8758b3c2="" class="card border-primary" id="ballroom-info" style="margin-bottom: 1rem; min-width: 25rem;">
+        <div data-v-8758b3c2="" class="card border-primary home-info-card" id="ballroom-info">
           <!---->
           <!---->
           <!---->
@@ -137,7 +137,7 @@ exports[`Home > Renders the Home Page 1`] = `
           <!---->
           <!---->
         </div>
-        <div data-v-8758b3c2="" class="card border-primary" id="swing-info" style="margin-bottom: 1rem; min-width: 25rem;">
+        <div data-v-8758b3c2="" class="card border-primary home-info-card" id="swing-info">
           <!---->
           <!---->
           <!---->
@@ -216,7 +216,7 @@ exports[`Home > Renders the Home Page 1`] = `
           <!---->
           <!---->
         </div>
-        <div data-v-8758b3c2="" class="card border-primary" id="latin-info" style="margin-bottom: 1rem; min-width: 25rem;">
+        <div data-v-8758b3c2="" class="card border-primary home-info-card" id="latin-info">
           <!---->
           <!---->
           <!---->
@@ -303,7 +303,7 @@ exports[`Home > Renders the Home Page 1`] = `
           <!---->
           <!---->
         </div>
-        <div data-v-8758b3c2="" class="card border-primary" id="tango-info" style="margin-bottom: 1rem; min-width: 25rem;">
+        <div data-v-8758b3c2="" class="card border-primary home-info-card" id="tango-info">
           <!---->
           <!---->
           <!---->
@@ -350,7 +350,7 @@ exports[`Home > Renders the Home Page 1`] = `
           <!---->
           <!---->
         </div>
-        <div data-v-8758b3c2="" class="card border-primary" id="wedding-info" style="margin-bottom: 1rem; min-width: 25rem;">
+        <div data-v-8758b3c2="" class="card border-primary home-info-card" id="wedding-info">
           <!---->
           <!---->
           <!---->
