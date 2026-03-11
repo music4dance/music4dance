@@ -10,6 +10,8 @@
     @keydown.enter="onExpand"
     @keydown.space.prevent="onExpand"
     aria-label="Expand engagement options"
+    data-engagement-element="bottom-bar"
+    data-engagement-action="impression"
   >
     <div class="d-flex align-items-center">
       <IBiChevronUp class="me-3" />

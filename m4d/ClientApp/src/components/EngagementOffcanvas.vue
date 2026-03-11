@@ -7,6 +7,10 @@
     :scroll="false"
     no-header
     @hidden="onHidden"
+    :data-engagement-element="'offcanvas'"
+    :data-engagement-level="engagementData?.level || (isAuthenticated ? 'loggedin' : '1')"
+    :data-engagement-user-type="isAuthenticated ? 'authenticated' : 'anonymous'"
+    :data-engagement-action="'impression'"
   >
     <!-- Custom header with collapse button (entire header is clickable) -->
     <div
@@ -18,6 +22,7 @@
       @keydown.space.prevent="onCollapse"
       aria-label="Collapse"
       style="cursor: pointer"
+      data-engagement-action="collapse-click"
     >
       <span class="me-2 text-muted">
         <IBiChevronDown />
@@ -102,17 +107,35 @@
       <template v-if="!isAuthenticated">
         <!-- Anonymous: Always same 3 buttons -->
         <BCol cols="12" sm="4">
-          <BButton :href="registerUrl" variant="primary" size="sm" class="w-100">
+          <BButton
+            :href="registerUrl"
+            variant="primary"
+            size="sm"
+            class="w-100"
+            data-engagement-action="signup-click"
+          >
             Sign Up Free
           </BButton>
         </BCol>
         <BCol cols="12" sm="4">
-          <BButton :href="loginUrl" variant="outline-primary" size="sm" class="w-100">
+          <BButton
+            :href="loginUrl"
+            variant="outline-primary"
+            size="sm"
+            class="w-100"
+            data-engagement-action="signin-click"
+          >
             Sign In
           </BButton>
         </BCol>
         <BCol cols="12" sm="4">
-          <BButton variant="outline-secondary" size="sm" class="w-100" @click="onCollapse">
+          <BButton
+            variant="outline-secondary"
+            size="sm"
+            class="w-100"
+            @click="onCollapse"
+            data-engagement-action="dismiss-click"
+          >
             Maybe Later
           </BButton>
         </BCol>
@@ -121,7 +144,13 @@
       <template v-else>
         <!-- Logged-in: Premium upgrade -->
         <BCol cols="12" sm="4">
-          <BButton :href="subscribeUrl" variant="success" size="sm" class="w-100">
+          <BButton
+            :href="subscribeUrl"
+            variant="success"
+            size="sm"
+            class="w-100"
+            data-engagement-action="subscribe-click"
+          >
             Subscribe Now
           </BButton>
         </BCol>
@@ -132,12 +161,19 @@
             size="sm"
             class="w-100"
             target="_blank"
+            data-engagement-action="learnmore-click"
           >
             Learn More
           </BButton>
         </BCol>
         <BCol cols="12" sm="4">
-          <BButton variant="outline-secondary" size="sm" class="w-100" @click="onCollapse">
+          <BButton
+            variant="outline-secondary"
+            size="sm"
+            class="w-100"
+            @click="onCollapse"
+            data-engagement-action="dismiss-click"
+          >
             Maybe Later
           </BButton>
         </BCol>

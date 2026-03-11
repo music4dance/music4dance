@@ -857,33 +857,63 @@ After initial stability (1-2 weeks), begin iterating:
 
 **Key Metrics to Track:**
 
-1. **Engagement Rate:**
-   - Bottom bar impressions
-   - Offcanvas expansions
-   - CTA click-through rates
+1. **Impression Rate by Message:**
+   - **Level 1 impressions** ("Exploring music4dance?") - Pages 2-6
+   - **Level 2 impressions** ("Still searching for music?") - Pages 7-11
+   - **Level 3 impressions** ("Finding everything you need?") - Pages 12+
+   - **Logged-in impressions** ("Upgrade to Premium") - All pages for authenticated users
+   - Track which messages users see most frequently
 
-2. **Conversion Rate:**
-   - Anonymous → Registered (Sign Up clicks)
+2. **Engagement Funnel:**
+   - Bottom bar impressions (baseline visibility)
+   - Offcanvas impressions (auto-expand or manual click)
+   - CTA click-through rates by message level
+   - Conversion completion (signup/subscription)
+
+3. **Conversion Rate by Message:**
+   - Anonymous → Registered (Sign Up clicks) per level
    - Logged-In → Premium (Subscribe clicks)
-   - Overall conversion funnel
+   - Which message drives highest conversion?
 
-3. **User Experience:**
+4. **Dismissal Patterns:**
+   - "Maybe Later" clicks by level
+   - Header collapse actions by level
+   - Do users reject certain messages more than others?
+
+5. **User Experience:**
    - Bounce rate changes
    - Session duration
    - Pages per session
    - User complaints/feedback
 
-4. **Revenue Impact:**
+6. **Revenue Impact:**
    - Subscription revenue growth
    - Ad revenue changes (ads paused during expansion)
    - Net revenue per user
 
 **Instrumentation:**
 
-- Use existing `useUsageTracking` for page views
-- Add click tracking to CTAs (Sign Up, Subscribe, Maybe Later)
-- Track expand/collapse events
-- Send to Google Analytics or Azure Application Insights
+✅ **Google Tag Manager Integration Ready** - All components now include data attributes for easy GTM tracking:
+
+- `data-engagement-element` (bottom-bar, offcanvas)
+- `data-engagement-level` (1, 2, 3, loggedin)
+- `data-engagement-user-type` (anonymous, authenticated)
+- `data-engagement-action` (impression, signup-click, subscribe-click, etc.)
+
+📖 **Complete GTM Setup Guide:** See [gtm-tracking-guide.md](gtm-tracking-guide.md) for:
+
+- CSS selectors for all triggers
+- Recommended event names and parameters
+- GA4 conversion funnel setup
+- Testing procedures
+- Data analysis examples
+
+**Priority Tracking (Week 1):**
+
+1. **Offcanvas Impressions by Level** - Which messages do users see?
+2. **Sign Up Clicks** - Primary anonymous conversion
+3. **Subscribe Clicks** - Primary logged-in conversion
+4. **Dismissal Rate by Level** - Are users rejecting certain messages?
 
 ### Rollback Plan
 
@@ -950,31 +980,36 @@ Not necessary - components are small and render conditionally (v-if). Premium us
 
 ### Immediate Priorities (Post-Launch)
 
-**1. Analytics Integration (High Priority)**
+**1. Configure Google Tag Manager Tracking (Week 1)**
 
-- Add Google Analytics events for:
-  - Bottom bar impressions (pageview with engagement UI present)
-  - Offcanvas expansions (event: "engagement_expand", level: 1/2/3)
-  - CTA clicks (event: "engagement_cta_click", action: "signup"/"subscribe"/"later")
-  - Collapse actions (event: "engagement_collapse", method: "header"/"button"/"backdrop")
-- Track conversion funnel from expansion → CTA click → account creation/subscription
+✅ Code is instrumented - Follow [gtm-tracking-guide.md](gtm-tracking-guide.md) to configure GTM:
 
-**2. A/B Testing Framework**
+- Set up impression tracking for all 4 message types
+- Configure CTA click tracking
+- Create GA4 conversion funnel
+- Test in GTM Preview mode
 
-- Implement simple variant system:
-  - Variant A: Current messages (Level 1/2/3)
-  - Variant B: Alternative messaging (more direct/less direct)
-  - Variant C: Different timing (firstShow: 3, interval: 7)
-- Randomly assign users to variants (stored in localStorage)
-- Compare conversion rates across variants
+**Focus on impression tracking** to understand:
 
-**3. Message Optimization**
+- How many users see Level 1 vs Level 2 vs Level 3 messages?
+- Is logged-in upgrade message reaching the right users?
+- Which message level has highest conversion rate?
 
-- Test different Level 1 messages:
+**2. Message Optimization (Weeks 2-4)**
+
+- Analyze conversion rate by engagement level (Level 1 vs 2 vs 3)
+- Test alternative Level 1 messages if conversion is low:
   - Current: "Exploring music4dance?"
-  - Alternative: "Create a free account to unlock more features"
-  - More direct: "Sign up to save your searches and tag songs"
-- Measure which drives more sign-ups
+  - Alternative A: "Create a free account to unlock more features"
+  - Alternative B: "Sign up to save your searches and tag songs"
+- Use GTM to implement A/B test (randomize message shown)
+
+**3. Timing Optimization (Month 2)**
+
+- Experiment with `firstShowPageCount` (2 vs 3 vs 4)
+- Test `repeatInterval` (5 vs 7 vs 10)
+- Find balance between engagement and annoyance
+- Monitor dismissal rate as timing changes
 
 ### Medium-Term Enhancements
 
