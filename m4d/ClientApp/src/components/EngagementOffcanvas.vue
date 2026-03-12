@@ -211,6 +211,9 @@ const emit = defineEmits<Emits>();
 // Internal state synced with modelValue (two-way binding)
 const isOpen = ref(props.modelValue);
 
+// Track if collapse was user-initiated to prevent double-emit
+const userInitiatedCollapse = ref(false);
+
 // Watch for external changes to modelValue
 watch(
   () => props.modelValue,
@@ -260,7 +263,9 @@ const premiumBenefitsMoreText = computed(() => props.config.premiumBenefits?.mor
  * Handle offcanvas collapse (down arrow or "Maybe Later" CTA)
  */
 function onCollapse(): void {
+  userInitiatedCollapse.value = true;
   isOpen.value = false;
+  // Emit immediately for user-initiated collapse (needed for tests and immediate feedback)
   emit("collapse");
 }
 
@@ -268,8 +273,12 @@ function onCollapse(): void {
  * Handle offcanvas hidden event (after animation completes)
  */
 function onHidden(): void {
-  // Always emit collapse when offcanvas closes (any method: backdrop, down arrow, or Maybe Later button)
-  emit("collapse");
+  // Only emit collapse if it wasn't already emitted from user action (e.g., backdrop click)
+  if (!userInitiatedCollapse.value) {
+    emit("collapse");
+  }
+  // Reset flag for next interaction
+  userInitiatedCollapse.value = false;
 }
 </script>
 

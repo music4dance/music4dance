@@ -219,7 +219,16 @@ export function useEngagementOffcanvas(options: UseEngagementOffcanvasOptions) {
 
   // Computed properties
   const shouldShowBottomBar = computed(() => {
-    return finalConfig.enabled && !isPremium && pageCount.value >= finalConfig.firstShowPageCount;
+    if (!finalConfig.enabled) return false;
+    if (isPremium) return false;
+
+    // Respect auth gating: honor showForAnonymous / showForLoggedIn
+    if (!isAuthenticated && !finalConfig.showForAnonymous) return false;
+    if (isAuthenticated && !finalConfig.showForLoggedIn) return false;
+
+    // Note: Bottom bar does NOT respect session dismissal (by design - "No Dismissal Penalty")
+    // Bottom bar stays visible from firstShowPageCount onwards
+    return pageCount.value >= finalConfig.firstShowPageCount;
   });
 
   const shouldShowOffcanvas = computed(() => isExpanded.value);

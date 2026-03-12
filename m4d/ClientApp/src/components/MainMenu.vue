@@ -25,7 +25,14 @@ const tracker = props.context.useClientSideTracking
     })
   : null;
 
+// Track page view on load if tracking is enabled (BEFORE initializing engagement)
+// This ensures usageCount is incremented before engagement reads it
+if (tracker) {
+  tracker.trackPageView(window.location.pathname, window.location.search);
+}
+
 // Initialize engagement offcanvas for both anonymous and logged-in non-premium users
+// Must be AFTER trackPageView so it reads the current page count
 const engagement =
   props.context.engagementConfig && !props.context.isPremium
     ? useEngagementOffcanvas({
@@ -34,11 +41,6 @@ const engagement =
         isPremium: props.context.isPremium ?? false,
       })
     : null;
-
-// Track page view on load if tracking is enabled
-if (tracker) {
-  tracker.trackPageView(window.location.pathname, window.location.search);
-}
 
 // Control Google Ads based on engagement system (if ads are loaded)
 // Note: Each page load creates a new component instance, so this runs once per page

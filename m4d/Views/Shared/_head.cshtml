@@ -51,7 +51,7 @@
     var clientSideTracking = await _featureManager.IsEnabledAsync(FeatureFlags.ClientSideUsageLogging);
 
     // Engagement system - don't show on pages with ads suppressed (Contribute, identity pages, etc.)
-    var suppressEngagement = hideAds || isPremium;
+    var suppressEngagement = hideAds || isPremium || !shouldTrack;
     var googleAdsLoaded = !hideAds && !isPremium && !customerReminder && !userAgent.Contains("googlebot");
 }
 
@@ -146,21 +146,21 @@
             repeatInterval: @(_configuration.GetValue<int>("EngagementOffcanvas:RepeatInterval", 5)),
             sessionDismissalTimeout: @(_configuration.GetValue<int>("EngagementOffcanvas:SessionDismissalTimeout", 60)),
             messages: {
-                level1: "@Html.Raw(_configuration.GetValue<string>("EngagementOffcanvas:Messages:Level1", ""))",
-                level2: "@Html.Raw(_configuration.GetValue<string>("EngagementOffcanvas:Messages:Level2", ""))",
-                level3: "@Html.Raw(_configuration.GetValue<string>("EngagementOffcanvas:Messages:Level3", ""))",
-                loggedInUpgrade: "@Html.Raw(_configuration.GetValue<string>("EngagementOffcanvas:Messages:LoggedInUpgrade", ""))"
+                level1: @Html.Raw(JsonConvert.SerializeObject(_configuration.GetValue<string>("EngagementOffcanvas:Messages:Level1", ""))),
+                level2: @Html.Raw(JsonConvert.SerializeObject(_configuration.GetValue<string>("EngagementOffcanvas:Messages:Level2", ""))),
+                level3: @Html.Raw(JsonConvert.SerializeObject(_configuration.GetValue<string>("EngagementOffcanvas:Messages:Level3", ""))),
+                loggedInUpgrade: @Html.Raw(JsonConvert.SerializeObject(_configuration.GetValue<string>("EngagementOffcanvas:Messages:LoggedInUpgrade", "")))
             },
             premiumBenefits: {
                 items: @Html.Raw(JsonConvert.SerializeObject(_configuration.GetSection("EngagementOffcanvas:PremiumBenefits:Items").Get<string[]>() ?? Array.Empty<string>())),
-                moreText: "@(_configuration.GetValue<string>("EngagementOffcanvas:PremiumBenefits:MoreText", "..and more!"))",
-                completeListUrl: "@(_configuration.GetValue<string>("EngagementOffcanvas:PremiumBenefits:CompleteListUrl", "https://music4dance.blog/music4dance-help/subscriptions/"))"
+                moreText: @Html.Raw(JsonConvert.SerializeObject(_configuration.GetValue<string>("EngagementOffcanvas:PremiumBenefits:MoreText", "..and more!"))),
+                completeListUrl: @Html.Raw(JsonConvert.SerializeObject(_configuration.GetValue<string>("EngagementOffcanvas:PremiumBenefits:CompleteListUrl", "https://music4dance.blog/music4dance-help/subscriptions/")))
             },
             ctaUrls: {
-                register: "@(_configuration.GetValue<string>("EngagementOffcanvas:CtaUrls:Register", "/identity/account/register"))",
-                login: "@(_configuration.GetValue<string>("EngagementOffcanvas:CtaUrls:Login", "/identity/account/login"))",
-                subscribe: "@(_configuration.GetValue<string>("EngagementOffcanvas:CtaUrls:Subscribe", "/home/contribute"))",
-                features: "@(_configuration.GetValue<string>("EngagementOffcanvas:CtaUrls:Features", "https://music4dance.blog/music4dance-help/subscriptions/"))"
+                register: @Html.Raw(JsonConvert.SerializeObject(_configuration.GetValue<string>("EngagementOffcanvas:CtaUrls:Register", "/identity/account/register"))),
+                login: @Html.Raw(JsonConvert.SerializeObject(_configuration.GetValue<string>("EngagementOffcanvas:CtaUrls:Login", "/identity/account/login"))),
+                subscribe: @Html.Raw(JsonConvert.SerializeObject(_configuration.GetValue<string>("EngagementOffcanvas:CtaUrls:Subscribe", "/home/contribute"))),
+                features: @Html.Raw(JsonConvert.SerializeObject(_configuration.GetValue<string>("EngagementOffcanvas:CtaUrls:Features", "https://music4dance.blog/music4dance-help/subscriptions/")))
             }
         }</text>}
     };
