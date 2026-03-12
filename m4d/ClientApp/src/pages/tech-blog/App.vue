@@ -27,7 +27,7 @@ const breadcrumbs: BreadCrumbItem[] = [...infoTrail, { text: "Technical Blog", a
     >
       <template #summary>
         This is a loose series of articles that relate specifically to keeping music4dance.net up
-        and running consitently while keeping costs relatively low.
+        and running consistently while keeping costs relatively low.
       </template>
       <BlogArticle
         title="Maintaining a Small Asp.Net Core Website hosted as an Azure Web App: Introduction"
