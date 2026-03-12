@@ -5,6 +5,8 @@ import logo from "@/assets/images/header-logo.png";
 import dancers from "@/assets/images/swing-ui.png";
 import { onClickOutside } from "@vueuse/core";
 import { useUsageTracking } from "@/composables/useUsageTracking";
+import { useEngagementOffcanvas } from "@/composables/useEngagementOffcanvas";
+import EngagementOffcanvas from "@/components/EngagementOffcanvas.vue";
 import { usageTrackingConfig } from "@/config/usageTracking";
 
 const renewalTag = "renewal-acknowledged";
@@ -23,9 +25,47 @@ const tracker = props.context.useClientSideTracking
     })
   : null;
 
-// Track page view on load if tracking is enabled
+// Track page view on load if tracking is enabled (BEFORE initializing engagement)
+// This ensures usageCount is incremented before engagement reads it
 if (tracker) {
   tracker.trackPageView(window.location.pathname, window.location.search);
+}
+
+// Initialize engagement offcanvas for both anonymous and logged-in non-premium users
+// Must be AFTER trackPageView so it reads the current page count
+const engagement =
+  props.context.engagementConfig && !props.context.isPremium
+    ? useEngagementOffcanvas({
+        config: props.context.engagementConfig,
+        isAuthenticated: !!props.context.userName,
+        isPremium: props.context.isPremium ?? false,
+      })
+    : null;
+
+// Control Google Ads based on engagement system (if ads are loaded)
+// Note: Each page load creates a new component instance, so this runs once per page
+if (engagement && props.context.googleAdsActive) {
+  const adsbygoogle = (window as any).adsbygoogle;
+  if (adsbygoogle) {
+    // Check cookie consent first - respect user's choice
+    const hasCookieConsent = document.cookie.indexOf("cookieconsent_status=dismiss") !== -1;
+
+    // Only show ads if:
+    // 1. User has given cookie consent (privacy requirement)
+    // 2. Engagement rules allow ads (page 2+ timing rule)
+    // 3. This is NOT a page where we show our engagement offcanvas
+    //    (on pages 2, 7, 12, etc. where we show our message, we've used enough
+    //    of the user's attention - keep ads disabled for the entire page view)
+    const shouldEnableAds =
+      hasCookieConsent && engagement.shouldShowAds.value && !engagement.shouldShowOffcanvas.value;
+
+    adsbygoogle.pauseAdRequests = shouldEnableAds ? 0 : 1;
+    console.log(
+      `Google Ads ${shouldEnableAds ? "enabled" : "paused"} ` +
+        `(consent: ${hasCookieConsent}, engagement: ${engagement.shouldShowAds.value}, ` +
+        `offcanvas: ${engagement.shouldShowOffcanvas.value})`,
+    );
+  }
 }
 
 const isNavExpanded = ref(false);
@@ -61,7 +101,15 @@ const reminderAcknowledged = () => {
 };
 
 const renewal = ref(!sessionStorage.getItem(renewalTag));
-const showReminder = ref(props.context.customerReminder && !reminderAcknowledged());
+
+// Check if engagement system is enabled (feature flag for old alert coordination)
+const engagementEnabled = computed(() => props.context.engagementConfig?.enabled ?? false);
+
+// Hide old reminder alert when engagement system is enabled
+const showReminder = ref(
+  props.context.customerReminder && !reminderAcknowledged() && !engagementEnabled.value,
+);
+
 const marketing = ref(!sessionStorage.getItem(marketingTag));
 
 const songIndex = computed(() => {
@@ -290,6 +338,21 @@ function search(s?: string): void {
       </p>
       <BButton href="/home/contribute" variant="primary" size="sm">Contribute</BButton>
     </BAlert>
+
+    <!-- Engagement system for both anonymous and logged-in non-premium users -->
+    <EngagementBottomBar
+      v-if="engagement?.shouldShowBottomBar.value"
+      @expand="engagement.expand()"
+    />
+    <EngagementOffcanvas
+      v-if="engagement"
+      v-model="engagement.isExpanded.value"
+      :engagement-data="engagement.currentLevel.value"
+      :is-authenticated="!!context.userName"
+      :config="context.engagementConfig!"
+      @collapse="engagement.collapse()"
+    />
+
     <form id="logoutForm" action="/identity/account/logout" method="post" style="height: 0">
       <input name="__RequestVerificationToken" type="hidden" :value="context.xsrfToken" />
       <input type="hidden" name="returnUrl" value="/" />
