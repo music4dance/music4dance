@@ -8,7 +8,7 @@ public class ErrorChecker : PageChecker, IDisposable
 {
     private readonly string[] _knownLogs =
     [
-        @"""Ads are paused""",
+        @"Ads paused",
         @"""Download the Vue Devtools extension for a better development experience",
         @"""You are running Vue in development mode.",
         @"""[BootstrapVue warn]: tooltip - The provided target is no valid HTML element.""",
@@ -17,7 +17,8 @@ public class ErrorChecker : PageChecker, IDisposable
         @"[vite] connected",
         @"Third-party cookie will be blocked",
         @"CSS Hot Reload ignoring",
-        @"Ads are running",
+        @"Ads running",
+        @"Ads are"
     ];
 
     [TestMethod]

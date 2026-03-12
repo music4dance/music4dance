@@ -22,6 +22,21 @@ const breadcrumbs: BreadCrumbItem[] = [...infoTrail, { text: "Technical Blog", a
     </p>
 
     <BlogSeries
+      title="Maintaining a Small Asp.Net Core Website hosted as an Azure Web App"
+      link="https://medium.com/@dwgray/maintaining-a-small-asp-net-core-website-hosted-as-an-azure-web-app-introduction-f5bb5cd4595f"
+    >
+      <template #summary>
+        This is a loose series of articles that relate specifically to keeping music4dance.net up
+        and running consitently while keeping costs relatively low.
+      </template>
+      <BlogArticle
+        title="Maintaining a Small Asp.Net Core Website hosted as an Azure Web App: Introduction"
+        link="https://medium.com/@dwgray/maintaining-a-small-asp-net-core-website-hosted-as-an-azure-web-app-introduction-f5bb5cd4595f"
+        summary="A few months ago, I had what should have been an avoidable downtime incident on my website that took me longer to recover from than it should have..."
+      />
+    </BlogSeries>
+
+    <BlogSeries
       title="Building a multi-page website using Asp.Net Core and Vue.js"
       link="https://medium.com/@dwgray/list/building-a-multipage-site-with-aspnet-vuejs-vitejs-271605db680f"
     >
