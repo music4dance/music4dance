@@ -7,7 +7,7 @@
   <ItemGroup>
     <!-- Updated to latest versions -->
     <PackageVersion Include="AspNet.Security.OAuth.Spotify" Version="10.0.0" />
-    <PackageVersion Include="AutoMapper" Version="16.0.0" />
+    <PackageVersion Include="AutoMapper" Version="16.1.1" />
     <PackageVersion Include="Azure.Communication.Email" Version="1.0.2" />
     <PackageVersion Include="Azure.Identity" Version="1.17.1" />
     <PackageVersion Include="Azure.Search.Documents" Version="11.7.0" />
