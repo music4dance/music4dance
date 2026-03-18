@@ -621,7 +621,7 @@ Horizontal bar chart showing:
    - **Rows:** **Date**
    - **Breakdown:** **Event name**
    - **Values:** **Event count**
-   - **Filter:** Event name contains `engagement_impression`
+   - **Filter:** Event name contains `impression`
 
 #### Result
 
