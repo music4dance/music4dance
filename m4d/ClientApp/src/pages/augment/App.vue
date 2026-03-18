@@ -64,7 +64,11 @@ const reset = (saved: boolean): void => {
   phase.value = AugmentPhase.lookup;
   model.id = undefined;
   songModel.value = null;
+  tabIndex.value = 0; // Reset to "by Title" tab to prevent re-triggering lookup
 };
+
+// Exposed for testing
+defineExpose({ phase, songModel, lastSong, created, tabIndex, editSong, reset });
 </script>
 
 <template>
