@@ -464,6 +464,311 @@ Logged-In Conversions / Logged-In Impressions
 
 ---
 
+## Creating GA4 Reports - Event Frequency Over Time
+
+### Quick Validation - Real-Time Report (Start Here)
+
+Before building time-series reports, validate your tracking is working:
+
+1. **GA4** → **Reports** → **Realtime**
+2. Keep this open in one tab
+3. In another tab, open music4dance.net
+4. Navigate to page 2 (trigger engagement)
+5. Watch Realtime for:
+   - Event name: `engagement_level1_impression` appears
+   - Event count increments by 1
+6. Click "Sign Up" button
+7. Watch for: `engagement_cta_click` with action=signup
+
+**✅ If you see these events in real-time, your tracking is working!** Now you can build the reports below.
+
+---
+
+### Option 1: Standard Events Report (Fastest)
+
+**Best for:** Quick overview of all engagement events
+
+#### Steps
+
+1. **Navigate to Events:**
+   - Left sidebar → **Reports** → **Engagement** → **Events**
+
+2. **Filter to Engagement Events:**
+   - Click **Add filter** (top right)
+   - Select **Event name**
+   - Choose **contains**
+   - Type: `engagement_`
+   - Click **Apply**
+
+3. **View as Chart:**
+   - Click 📊 graph icon above the table
+   - Use date range selector to adjust timeframe
+   - You'll see a line graph showing daily event counts
+
+**Limitation:** Shows all `engagement_*` events combined. For individual event tracking, use Explorations below.
+
+---
+
+### Option 2: Line Chart Exploration (Recommended)
+
+**Best for:** Visualizing individual event trends over time
+
+#### Step 1: Create New Exploration
+
+1. Left sidebar → **Explore** (⚡ icon)
+2. Click **Blank** template
+3. Name it: "Engagement Events Over Time"
+
+#### Step 2: Configure Dimensions
+
+1. Under **Dimensions** (left panel), click ➕
+2. Search and add:
+   - **Event name** (standard dimension)
+   - **Date** (should already be added)
+   - **engagement_level** (custom event parameter)
+   - **engagement_user_type** (custom event parameter)
+3. Click **Import**
+
+#### Step 3: Configure Metrics
+
+1. Under **Metrics** (left panel), click ➕
+2. Add:
+   - **Event count** (should already be there)
+   - **Total users** (optional - unique users who triggered event)
+3. Click **Import**
+
+#### Step 4: Build Line Chart
+
+1. **Technique:** Select **Line chart** from visualization types
+2. **Canvas Configuration:**
+   - **Rows:** Drag **Date** here
+   - **Values:** Drag **Event count** here
+   - **Breakdown:** Drag **Event name** here
+
+#### Step 5: Filter to Engagement Events
+
+1. Under **Tab settings** → **Filters**, click ➕
+2. Select **Event name**
+3. Choose **contains**
+4. Type: `engagement_`
+5. Click **Apply**
+
+**Result:** Multiple lines showing each event's frequency over time.
+
+#### Step 6: Customize Views
+
+**To see only impressions:**
+
+- Add filter: **Event name** contains `impression`
+- Shows: Level 1/2/3/loggedin impression patterns
+
+**To segment by user type:**
+
+- Change **Breakdown** from **Event name** to **engagement_user_type**
+- Shows: Anonymous vs authenticated event patterns
+
+**To segment by message level:**
+
+- Change **Breakdown** to **engagement_level**
+- Shows: Which levels (1, 2, 3, loggedin) fire most often
+
+**To adjust time granularity:**
+
+- Click **Date** in Rows → Choose:
+  - **Date** (daily) - Default, good for first few weeks
+  - **Week** - Better after 2+ months of data
+  - **Month** - Long-term trends (6+ months of data)
+
+---
+
+### Option 3: Bar Chart Comparison
+
+**Best for:** Comparing total event counts side-by-side
+
+#### Setup
+
+1. Create new Exploration (Blank template)
+2. **Technique:** Select **Bar chart**
+3. **Configuration:**
+   - **Rows:** **Event name**
+   - **Values:** **Event count**
+   - **Filter:** Event name contains `engagement_`
+
+#### Result
+
+Horizontal bar chart showing:
+
+- `engagement_level1_impression` (longest bar = most common)
+- `engagement_level2_impression`
+- `engagement_level3_impression`
+- `engagement_loggedin_impression`
+- `engagement_cta_click`
+- `engagement_bottom_bar_impression`
+- etc.
+
+**Answers:** "Which events fire most often overall?" (regardless of time period)
+
+---
+
+### Option 4: Multi-Line Comparison Chart
+
+**Best for:** Comparing message level performance on one chart
+
+#### Setup
+
+1. Create Exploration with **Line chart**
+2. Configuration:
+   - **Rows:** **Date**
+   - **Breakdown:** **Event name**
+   - **Values:** **Event count**
+   - **Filter:** Event name contains `engagement_impression`
+
+#### Result
+
+Multiple colored lines on one chart:
+
+- Blue line = Level 1 impressions
+- Red line = Level 2 impressions
+- Green line = Level 3 impressions
+- Purple line = Logged-in impressions
+
+**Answers:**
+
+- "Are most users seeing Level 1 or progressing to Level 2/3?"
+- "Is logged-in upgrade message showing as often as anonymous messages?"
+- "Do impression counts follow the expected funnel pattern?"
+
+---
+
+### Recommended Starting Configuration
+
+**For your first week of tracking:**
+
+```
+Exploration Type: Line chart
+Date Range: Last 30 days
+Date Granularity: Day
+
+Chart 1 - All Events:
+  Rows: Date
+  Values: Event count
+  Breakdown: Event name
+  Filter: Event name contains "engagement_"
+
+Chart 2 - Impressions Only (duplicate above):
+  Filter: Event name contains "impression"
+```
+
+This setup gives you:
+
+1. **All engagement events** - See impressions + clicks together
+2. **Impressions only** - Focus on message delivery pattern
+
+**Why two charts?** Impression counts are typically much higher than clicks, so clicks can be hard to see when plotted with impressions. Separate charts make trends clearer.
+
+---
+
+### What to Look For (First Week)
+
+#### Healthy Patterns ✅
+
+- **Level 1 impressions highest** - Most users see first message (pages 2-6)
+- **Level 2/3 progressively lower** - Normal funnel (fewer users reach higher page counts)
+- **Daily consistency** - Events fire every day system is live
+- **Some CTA clicks** - Even small numbers (5-10/day) validate tracking works
+- **Dismiss rate < 50%** - Most users don't actively reject the message
+
+#### Warning Signs ⚠️
+
+- **No events firing at all** - GTM not published, or triggers misconfigured
+- **All events equal count** - Possible double-firing, check GTM trigger limits
+- **Only Level 3 firing** - Page count calculation may be incorrect
+- **Zero clicks for 3+ days** - Click triggers may need debugging
+- **Dismiss rate > 80%** - Messaging may be too aggressive or poorly targeted
+
+---
+
+### Advanced: Segmentation Examples
+
+Once you have 1-2 weeks of data, try these segmented views:
+
+#### By User Type (Anonymous vs Logged-In)
+
+**Configuration:**
+
+- **Rows:** Date
+- **Breakdown:** engagement_user_type
+- **Values:** Event count
+- **Filter:** Event name = `engagement_offcanvas_impression`
+
+**Answers:** "Do anonymous users engage more than logged-in users?"
+
+#### By Message Level
+
+**Configuration:**
+
+- **Rows:** Date
+- **Breakdown:** engagement_level
+- **Values:** Event count
+- **Filter:** Event name contains `impression`
+
+**Answers:** "What's the distribution of message levels shown to users?"
+
+#### CTA Actions Over Time
+
+**Configuration:**
+
+- **Rows:** Date
+- **Breakdown:** engagement_action (custom parameter)
+- **Values:** Event count
+- **Filter:** Event name = `engagement_cta_click`
+
+**Answers:** "Which CTAs are most popular: signup, signin, subscribe, or dismiss?"
+
+---
+
+### Exporting Data
+
+**To export for deeper analysis:**
+
+1. In any Exploration, click **⬇️ Export** (top right)
+2. Choose format:
+   - **Google Sheets** - Live connection, updates automatically
+   - **CSV** - One-time snapshot for Excel/analysis tools
+   - **PDF** - Share with stakeholders
+
+**Use exports for:**
+
+- Calculating custom metrics (CTR, conversion rate by level)
+- Combining with other data sources (revenue, user cohorts)
+- Creating presentations for stakeholders
+
+---
+
+### Pro Tips
+
+1. **Save your Explorations** - Click **💾 Save** before closing (or lose your work)
+2. **Duplicate for variations** - Use **⋮ menu** → **Make a copy** to try different breakdowns
+3. **Share with stakeholders** - Click **Share** → Generate read-only link (no GA4 access needed)
+4. **Create dashboards** - Pin favorite Explorations to your GA4 navigation
+5. **Set up alerts** - In Reports → Create custom alert if event counts drop to zero (broken tracking indicator)
+
+---
+
+### Next Steps After Initial Data Collection
+
+Once you have 1-2 weeks of solid data:
+
+1. **Add rate calculations** - Divide clicks by impressions for CTR by level
+2. **Correlate with conversions** - Link engagement events to signups/purchases
+3. **Build funnel explorations** - Use GA4's Funnel Exploration template
+4. **A/B test messages** - Compare conversion rates for different messaging
+5. **Optimize timing** - Adjust firstShowPageCount/repeatInterval based on performance
+
+**We can walk through conversion tracking and funnel setup once you have baseline event data!**
+
+---
+
 ## Troubleshooting
 
 ### Impressions Not Firing
