@@ -478,7 +478,7 @@ Before building time-series reports, validate your tracking is working:
    - Event name: `engagement_level1_impression` appears
    - Event count increments by 1
 6. Click "Sign Up" button
-7. Watch for: `engagement_cta_click` with action=signup
+7. Watch for: `engagement_cta_click` with parameter `engagement_action = "signup"`
 
 **✅ If you see these events in real-time, your tracking is working!** Now you can build the reports below.
 
