@@ -4,7 +4,6 @@ import { testPageSnapshot } from "@/helpers/TestPageSnapshot";
 import App from "../App.vue";
 import { SongDetailsModel } from "@/models/SongDetailsModel";
 import { SongHistory } from "@/models/SongHistory";
-import { Song } from "@/models/Song";
 
 // Mock the global model_ variable
 declare global {
@@ -28,7 +27,7 @@ vi.mock("@/components/PageFrame.vue", () => ({
   },
 }));
 
-vi.mock("../AugmentSearch.vue", () => ({
+vi.mock("../components/AugmentSearch.vue", () => ({
   default: {
     name: "AugmentSearch",
     template: "<div>AugmentSearch</div>",
@@ -36,7 +35,7 @@ vi.mock("../AugmentSearch.vue", () => ({
   },
 }));
 
-vi.mock("../AugmentLookup.vue", () => ({
+vi.mock("../components/AugmentLookup.vue", () => ({
   default: {
     name: "AugmentLookup",
     template: "<div>AugmentLookup</div>",
@@ -44,18 +43,18 @@ vi.mock("../AugmentLookup.vue", () => ({
   },
 }));
 
-vi.mock("../AugmentInfo.vue", () => ({
+vi.mock("../components/AugmentInfo.vue", () => ({
   default: {
     name: "AugmentInfo",
     template: "<div>AugmentInfo</div>",
   },
 }));
 
-vi.mock("@/components/SongCore.vue", () => ({
+vi.mock("../../song/components/SongCore.vue", () => ({
   default: {
     name: "SongCore",
     template: "<div>SongCore</div>",
-    emits: ["songSaved", "cancelChanges"],
+    emits: ["song-saved", "cancel-changes"],
   },
 }));
 

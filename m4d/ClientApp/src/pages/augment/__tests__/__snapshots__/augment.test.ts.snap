@@ -18,82 +18,12 @@ exports[`Augment Page > Renders the Augment Page 1`] = `
         <div class="tab-content">
           <div data-v-6c79bed6="" id="BootstrapVueNext__ID__v-2__tabpane___" class="tab-pane card-body fade" role="tabpanel" aria-labelledby="BootstrapVueNext__ID__v-3__tab___">
             <p data-v-6c79bed6="" class="card-text">
-            <div data-v-c37f1201="" data-v-6c79bed6="">
-              <p data-v-c37f1201=""> Search for a song by entering title, artist and optional album and clicking the <b data-v-c37f1201="">Search</b> button </p>
-              <form data-v-c37f1201="" novalidate="" class="mb-3">
-                <div data-v-c37f1201="" id="title-group" role="group" class="b-form-group">
-                  <!---->
-                  <!----><label id="BootstrapVueNext__ID__v-5___BV_label____" for="title" class="form-label d-block">Title:</label><input data-v-c37f1201="" id="input-1" class="form-control" type="text" placeholder="A very danceable song" required="" aria-required="true" value="">
-                  <div data-v-c37f1201="" class="invalid-feedback">You must include a Title</div>
-                  <!---->
-                  <!---->
-                  <!---->
-                </div>
-                <div data-v-c37f1201="" id="artist-group" role="group" class="b-form-group">
-                  <!---->
-                  <!----><label id="BootstrapVueNext__ID__v-11___BV_label____" for="artist" class="form-label d-block">Artist:</label><input data-v-c37f1201="" id="artist" class="form-control" type="text" placeholder="An amazing artist" required="" aria-required="true" value="">
-                  <div data-v-c37f1201="" class="invalid-feedback">You must include an Artist</div>
-                  <!---->
-                  <!---->
-                  <!---->
-                </div>
-                <div data-v-c37f1201="" class="mt-3 d-flex justify-content-between"><button data-v-c37f1201="" class="btn btn-md btn-primary me-2" type="submit">Search</button><button data-v-c37f1201="" class="btn btn-md btn-danger" type="reset">Reset</button></div>
-              </form>
-              <transition-stub data-v-c37f1201="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                <div class="alert alert-info fade" tabindex="0" style="display: none;">
-                  <!---->
-                  <div class="d-flex gap-2">
-                    <div class="alert-body"><span data-v-c37f1201="" class="spinner-border me-3" aria-hidden="true"><!----></span><span data-v-c37f1201="">Searching for </span> by in the music4dance catalog. </div>
-                    <!---->
-                  </div>
-                  <!---->
-                </div>
-              </transition-stub>
-              <!--v-if-->
-              <!--v-if-->
-              <!--v-if-->
-              <!--v-if-->
-              <!--v-if-->
-            </div>
+            <div data-v-6c79bed6="">AugmentSearch</div>
             </p>
           </div>
-          <div data-v-6c79bed6="" id="BootstrapVueNext__ID__v-17__tabpane___" class="tab-pane card-body fade" role="tabpanel" aria-labelledby="BootstrapVueNext__ID__v-18__tab___">
+          <div data-v-6c79bed6="" id="BootstrapVueNext__ID__v-4__tabpane___" class="tab-pane card-body fade" role="tabpanel" aria-labelledby="BootstrapVueNext__ID__v-5__tab___">
             <p data-v-6c79bed6="" class="card-text">
-            <div data-v-36f90687="" data-v-6c79bed6="">
-              <p data-v-36f90687=""> Add a song by entering an ID or URL from ITunes or Spotify (or dragging the song into the text box) and clicking the <b data-v-36f90687="">Find</b> button </p>
-              <form data-v-36f90687="" class="" inline="">
-                <div data-v-36f90687="" class="input-group" role="group"><span class="input-group-text"><span>Service Id</span></span><input data-v-36f90687="" id="service-id" class="form-control" type="text" palceholder="Apple Music or Spotify Id" aria-describedby="service-id-feedback" value=""><button data-v-36f90687="" class="btn btn-md btn-primary" type="button">Find</button>
-                  <div data-v-36f90687="" id="service-id-feedback" class="invalid-feedback" disabled="true"> Enter a valid iTunes or Spotify id or url </div>
-                  <!---->
-                </div>
-                <!--v-if-->
-              </form>
-              <transition-stub data-v-36f90687="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                <div class="alert alert-info fade" tabindex="0" style="display: none;">
-                  <!---->
-                  <div class="d-flex gap-2">
-                    <div class="alert-body"><span data-v-36f90687="" class="spinner-border me-3" aria-hidden="true"><!----></span><span data-v-36f90687="">Searching for </span><span data-v-36f90687="" style="display: none;">Failed to find </span> on music4dance.net and <button data-v-36f90687="" class="btn btn-md btn-outline-warning" type="button" style="display: none;"> Cancel</button></div>
-                    <!---->
-                  </div>
-                  <!---->
-                </div>
-              </transition-stub><br data-v-36f90687="">
-              <div data-v-36f90687="">
-                <p> Each source of music has a different way of identifying songs, in general you can copy whatever sharing link they provide and paste it into the box above. Below are some samples of the recognized formats of each type. More help is available <a href="https://music4dance.blog/adding-songs-beta/">here</a>. </p>
-                <h3>Apple Music</h3>
-                <ul>
-                  <li><b>ID:</b> 988542090</li>
-                  <li><b>URL/Link:</b> https://music.apple.com/us/album/ill-build-a-stairway-to-paradise/988541990?i=988542090 </li>
-                </ul>
-                <h3>Spotify</h3>
-                <ul>
-                  <li><b>ID:</b> 5kXbjaPptGdfQmMfeJCXlS</li>
-                  <li><b>URL/Link:</b> https://open.spotify.com/track/5kXbjaPptGdfQmMfeJCXlS </li>
-                </ul>
-              </div>
-              <form data-v-36f90687="" id="createSong" action="/song/create" method="post" style="display: none;"><input data-v-36f90687="" type="hidden" name="__RequestVerificationToken"><input data-v-36f90687="" id="service" type="hidden" name="service"><input data-v-36f90687="" id="purchase" type="hidden" name="purchase"></form>
-              <form data-v-36f90687="" id="editSong" action="/song/edit" method="post" style="display: none;"><input data-v-36f90687="" type="hidden" name="__RequestVerificationToken"><input data-v-36f90687="" id="id" type="hidden" name="id" value=""></form>
-            </div>
+            <div data-v-6c79bed6="">AugmentLookup</div>
             </p>
           </div>
           <!--v-if-->

@@ -19,7 +19,7 @@ declare const model_: AugmentModel;
 
 const context = getMenuContext();
 
-const model = TypedJSON.parse(model_, AugmentModel) ?? {};
+const model = ref(TypedJSON.parse(model_, AugmentModel) ?? {});
 const phase = ref<AugmentPhase>(AugmentPhase.lookup);
 const songModel = ref<SongDetailsModel | null>(null);
 const lastSong = ref<Song | null>(null);
@@ -28,11 +28,11 @@ const propertiesString = ref("");
 const tabIndex = ref(0);
 
 const canAugment = computed(() => !!context.userName);
-const computedId = computed(() => (model.id ? model.id : undefined));
-const computedDance = computed(() => (model.dance ? model.dance : undefined));
+const computedId = computed(() => (model.value.id ? model.value.id : undefined));
+const computedDance = computed(() => (model.value.dance ? model.value.dance : undefined));
 
 onMounted(() => {
-  tabIndex.value = model.id ? 1 : 0;
+  tabIndex.value = model.value.id ? 1 : 0;
 });
 
 const editSong = (model: SongDetailsModel): void => {
@@ -62,7 +62,7 @@ const reset = (saved: boolean): void => {
     created.value = !!songModel.value!.created;
   }
   phase.value = AugmentPhase.lookup;
-  model.id = undefined;
+  model.value.id = undefined;
   songModel.value = null;
   tabIndex.value = 0; // Reset to "by Title" tab to prevent re-triggering lookup
 };
