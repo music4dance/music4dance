@@ -31,6 +31,7 @@ public class Dances
         DefaultValueHandling = DefaultValueHandling.Ignore
     };
 
+    private static readonly object s_lock = new();
     private static Dances s_instance;
     private readonly List<DanceInstance> _allDanceInstances = [];
     private readonly List<DanceObject> _allDanceObjects = [];
@@ -224,6 +225,9 @@ public class Dances
 
     public static Dances Reset(Dances instance)
     {
-        return s_instance = instance;
+        lock (s_lock)
+        {
+            return s_instance = instance;
+        }
     }
 }

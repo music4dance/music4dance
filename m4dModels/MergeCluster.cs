@@ -24,10 +24,9 @@ internal class MergeCluster(int hash)
 
         var clusters = new Dictionary<int, MergeCluster>();
 
-        // ReSharper disable once LoopCanBePartlyConvertedToQuery
-
+        // Use streaming to avoid 100K skip limit
         var songIndex = dms.SongIndex;
-        foreach (var song in await songIndex.LoadLightSongs())
+        await foreach (var song in songIndex.LoadLightSongsStreamingAsync())
         {
             var hash = song.TitleHash;
             if (level != 2)

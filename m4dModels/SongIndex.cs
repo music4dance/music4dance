@@ -1136,35 +1136,83 @@ public class SongIndex
         return await CreateSongs(response.GetResults());
     }
 
-    public async Task<IEnumerable<Song>> LoadLightSongs()
+    /// <summary>
+    /// Streams lightweight song data using composite key-set pagination (Modified desc, SongId desc).
+    /// This avoids the 100K limit on $skip by filtering on the last seen Modified/SongId pair.
+    /// Loads only essential fields: SongId, Title, Artist, Length, Tempo for merge candidate analysis.
+    /// </summary>
+    public async IAsyncEnumerable<Song> LoadLightSongsStreamingAsync(
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var parameters = new SearchOptions
+        DateTimeOffset? lastModified = null;
+        string lastId = null;
+        bool hasMore = true;
+
+        while (hasMore)
         {
-            QueryType = SearchQueryType.Simple,
-            Size = int.MaxValue,
-        };
-        parameters.Select.AddRange(
-            [
-                SongIdField, Song.TitleField, Song.ArtistField, Song.LengthField,
-                Song.TempoField
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var parameters = new SearchOptions
+            {
+                QueryType = SearchQueryType.Simple,
+                Size = 1000, // Batch size per request
+                Skip = null, // Key-set pagination doesn't use skip
+                IncludeTotalCount = false
+            };
+
+            // Composite ordering: Modified desc, then SongId desc for deterministic ordering
+            parameters.OrderBy.Add($"{ModifiedField} desc");
+            parameters.OrderBy.Add($"{SongIdField} desc");
+
+            // Select only fields needed for merge candidates
+            parameters.Select.AddRange([
+                SongIdField, ModifiedField, Song.TitleField, Song.ArtistField, 
+                Song.LengthField, Song.TempoField
             ]);
 
-        var results = new List<Song>();
-        var response = await Client.SearchAsync<SearchDocument>("", parameters);
-
-        // ReSharper disable once LoopCanBeConvertedToQuery
-        foreach (var res in response.Value.GetResults())
-        {
-            var doc = res.Document;
-            var title = doc[Song.TitleField] as string;
-            if (string.IsNullOrEmpty(title))
+            // Build composite filter for key-set pagination
+            if (lastModified != null && lastId != null)
             {
-                continue;
+                var modifiedStr = lastModified.Value.ToString("o");
+                parameters.Filter = $"({ModifiedField} lt {modifiedStr}) or ({ModifiedField} eq {modifiedStr} and {SongIdField} lt '{lastId}')";
             }
 
-            results.Add(Song.CreateLightSong(doc));
-        }
+            var response = await Client.SearchAsync<SearchDocument>("*", parameters, cancellationToken);
 
+            var batchCount = 0;
+            foreach (var res in response.Value.GetResults())
+            {
+                var doc = res.Document;
+                var title = doc[Song.TitleField] as string;
+                if (string.IsNullOrEmpty(title))
+                {
+                    continue;
+                }
+
+                yield return Song.CreateLightSong(doc);
+
+                // Track last Modified and SongId for next iteration
+                lastModified = res.Document.GetDateTimeOffset(ModifiedField);
+                lastId = res.Document.GetString(SongIdField);
+                batchCount++;
+            }
+
+            // If we got fewer than Size results, we're done
+            if (batchCount < 1000)
+            {
+                hasMore = false;
+            }
+        }
+    }
+
+    [Obsolete("Use LoadLightSongsStreamingAsync for large datasets. This method tries to load all songs at once and will fail with >100K songs.")]
+    public async Task<IEnumerable<Song>> LoadLightSongs()
+    {
+        var results = new List<Song>();
+        await foreach (var song in LoadLightSongsStreamingAsync())
+        {
+            results.Add(song);
+        }
         return results;
     }
 
