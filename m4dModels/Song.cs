@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 
 using Azure.Search.Documents.Models;
 
@@ -5089,6 +5089,66 @@ public class Song : TaggableObject
         AlbumOrder
     ];
 
+    /// <summary>
+    /// Common dance names that appear in remix titles.
+    /// Used to detect dance-specific remixes that should not be merged with originals.
+    /// </summary>
+    private static readonly HashSet<string> CommonDanceNames =
+    [
+        "SALSA", "WALTZ", "TANGO", "FOXTROT", "QUICKSTEP", "SAMBA", "RUMBA",
+        "CHA CHA", "CHACHA", "JIVE", "PASO DOBLE", "VIENNESE WALTZ",
+        "SWING", "BOLERO", "MAMBO", "MERENGUE", "BACHATA", "HUSTLE",
+        "LINDY HOP", "WEST COAST SWING", "EAST COAST SWING",
+        "TWO STEP", "COUNTRY TWO STEP", "POLKA", "NIGHT CLUB"
+    ];
+
+    /// <summary>
+    /// Detects if parenthetical content contains dance-specific remix indicators.
+    /// Returns true if the content contains:
+    /// 1. Numeric BPM marker (e.g., "128 BPM", "130 BPM")
+    /// 2. Dance name/synonym + remix keyword (Remix, Version, Mix, Edit)
+    /// These indicate remixes that should NOT be merged with originals.
+    /// </summary>
+    private static bool ContainsDanceRemixIndicators(string parenContent)
+    {
+        if (string.IsNullOrWhiteSpace(parenContent))
+        {
+            return false;
+        }
+
+        var upper = parenContent.ToUpperInvariant();
+
+        // Check for numeric BPM marker (e.g., "128 BPM", "130 BPM", "128BPM")
+        // Pattern: digit(s) + optional space(s) + "BPM"
+        if (System.Text.RegularExpressions.Regex.IsMatch(upper, @"\d+\s*BPM"))
+        {
+            return true;
+        }
+
+        // Check for common dance-specific remix keywords combined with dance names
+        var remixKeywords = new[] { "REMIX", "VERSION", "MIX", "EDIT" };
+        var hasRemixKeyword = remixKeywords.Any(keyword => upper.Contains(keyword));
+
+        // If no remix keyword, not a dance remix
+        if (!hasRemixKeyword)
+        {
+            return false;
+        }
+
+        // Get dance names and synonyms from the actual dance library
+        var danceLibrary = DanceLibrary.Dances.Instance;
+        if (danceLibrary == null)
+        {
+            // Fallback: if library not loaded yet, assume it might be a dance remix
+            // This is conservative - better to not merge than to incorrectly merge
+            return true;
+        }
+
+        // Check if any dance words (names, synonyms, or fragments) appear in the parenthetical content
+        var allDanceWords = danceLibrary.GetAllDanceWordsUpper();
+        return allDanceWords.Any(danceWord => upper.Contains(danceWord));
+    }
+
     // TOOD: This should really end up in a utility class as some point
     public static string MungeString(string s, bool normalize,
         IEnumerable<string> extraIgnore = null)
@@ -5109,6 +5169,7 @@ public class Song : TaggableObject
         var wordBreak = 0;
 
         var paren = false;
+        var parenStart = -1;
         var bracket = false;
         var space = false;
         var lastC = ' ';
@@ -5130,6 +5191,15 @@ public class Song : TaggableObject
             {
                 if (c == ')')
                 {
+                    // Check if parenthetical content contains dance remix indicators
+                    // Extract from norm (not s) since we're iterating through norm and lengths may differ
+                    var parenContent = norm.Substring(parenStart, i - parenStart);
+                    if (normalize && ContainsDanceRemixIndicators(parenContent))
+                    {
+                        // This is a dance remix - preserve the parenthetical content
+                        var normalizedParen = NormalizeAlbumString(parenContent, keepWhitespace: false);
+                        _ = sb.Append(normalizedParen);
+                    }
                     paren = false;
                 }
             }
@@ -5181,6 +5251,7 @@ public class Song : TaggableObject
                     {
                         case '(':
                             paren = true;
+                            parenStart = i + 1; // Track where parenthetical content starts
                             break;
                         case '[':
                             bracket = true;

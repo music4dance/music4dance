@@ -191,6 +191,80 @@ public class SongTests
     }
 
     [TestMethod]
+    public void DanceRemixDetection()
+    {
+        // Original and remix with dance name should have DIFFERENT hashes
+        var original = "Let's Dance";
+        var salsaRemix = "Let's Dance (Salsa Remix 128 BPM)";
+        var waltzVersion = "Let's Dance (Waltz Version)";
+
+        var hashOriginal = Song.CreateTitleHash(original);
+        var hashSalsa = Song.CreateTitleHash(salsaRemix);
+        var hashWaltz = Song.CreateTitleHash(waltzVersion);
+
+        // Remixes should NOT equal original
+        Assert.AreNotEqual(hashOriginal, hashSalsa, "Salsa remix should not match original");
+        Assert.AreNotEqual(hashOriginal, hashWaltz, "Waltz version should not match original");
+
+        // Different remixes should be different from each other
+        Assert.AreNotEqual(hashSalsa, hashWaltz, "Different dance remixes should not match");
+
+        // Different BPMs of same dance should be different
+        var salsa128 = "Let's Dance (Salsa 128 BPM)";
+        var salsa130 = "Let's Dance (Salsa 130 BPM)";
+        Assert.AreNotEqual(Song.CreateTitleHash(salsa128), Song.CreateTitleHash(salsa130), 
+            "Different BPM remixes should not match");
+    }
+
+    [TestMethod]
+    public void BPMDetectionRequiresNumericPrefix()
+    {
+        // BPM with number should create different hash
+        var original = "Summer Nights";
+        var bpm128 = "Summer Nights (128 BPM)";
+        var bpm130 = "Summer Nights (130BPM)"; // No space
+        var bpm120Space = "Summer Nights (120 BPM)"; // With space
+
+        var hashOriginal = Song.CreateTitleHash(original);
+        var hash128 = Song.CreateTitleHash(bpm128);
+        var hash130 = Song.CreateTitleHash(bpm130);
+        var hash120 = Song.CreateTitleHash(bpm120Space);
+
+        // All BPM versions should differ from original
+        Assert.AreNotEqual(hashOriginal, hash128, "128 BPM version should not match original");
+        Assert.AreNotEqual(hashOriginal, hash130, "130BPM version should not match original");
+        Assert.AreNotEqual(hashOriginal, hash120, "120 BPM version should not match original");
+
+        // Different BPMs should differ from each other
+        Assert.AreNotEqual(hash128, hash130, "128 BPM and 130BPM should not match");
+        Assert.AreNotEqual(hash128, hash120, "128 BPM and 120 BPM should not match");
+        Assert.AreNotEqual(hash130, hash120, "130BPM and 120 BPM should not match");
+
+        // Just "BPM" without number should still be ignored (not a tempo marker)
+        var justBPM = "Summer Nights (Just BPM)";
+        var hashJustBPM = Song.CreateTitleHash(justBPM);
+        Assert.AreEqual(hashOriginal, hashJustBPM, 
+            "BPM without number should be ignored like other parenthetical content");
+    }
+
+    [TestMethod]
+    public void NonDanceParenthesesStillIgnored()
+    {
+        // Parentheses without dance/remix keywords should still be ignored (existing behavior)
+        var title1 = "Satisfaction (I Can't Get No)";
+        var title2 = "Satisfaction";
+
+        Assert.AreEqual(Song.CreateTitleHash(title1), Song.CreateTitleHash(title2),
+            "Non-remix parenthetical content should still be ignored");
+
+        // Year markers should be ignored
+        var withYear = "Hotel California (2013 Remaster)";
+        var withoutYear = "Hotel California";
+        Assert.AreEqual(Song.CreateTitleHash(withYear), Song.CreateTitleHash(withoutYear),
+            "Year remasters should still be considered equal");
+    }
+
+    [TestMethod]
     public void AlbumFields()
     {
         Assert.IsTrue(Song.IsAlbumField(Song.AlbumField));
