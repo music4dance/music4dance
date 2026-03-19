@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import { ProfileModel } from "@/models/ProfileModel";
+import type { MenuContext } from "@/models/MenuContext";
 import { computed } from "vue";
 
-const props = defineProps<{ model: ProfileModel }>();
+const props = defineProps<{ model: ProfileModel; menuContext: MenuContext }>();
+
+const isCurrentUser = computed(() => {
+  return props.model.userName.toLowerCase() === props.menuContext.userName?.toLowerCase();
+});
 
 const hasSongs = computed(() => {
   return !!(props.model?.favoriteCount ?? props.model?.editCount ?? props.model?.blockedCount);
@@ -72,8 +77,8 @@ const links = computed(() => {
       />
     </ul>
     <div>
-      <p v-if="!hasSongs">
-        {{ model.displayName }} in order to add songs to your lists, either
+      <p v-if="!hasSongs && isCurrentUser">
+        In order to add songs to your lists, either
         <BLink href="https://music4dance.blog/music4dance-help/dance-tags/"
           >vote on songs to dance to</BLink
         >

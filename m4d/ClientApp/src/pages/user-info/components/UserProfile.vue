@@ -10,7 +10,7 @@ const spotifyProfile = computed(() => {
 });
 
 const isCurrentUser = computed(() => {
-  return props.model.userName === props.model.userName;
+  return props.model.userName.toLowerCase() === props.menuContext.userName?.toLowerCase();
 });
 </script>
 
@@ -34,27 +34,24 @@ const isCurrentUser = computed(() => {
       libraries of friend's of music4dance.
     </div>
     <div v-else>
-      <p>
-        The User Profile feature is still being designed. We are considering including the option to
-        have a free form "about me" section, a possibly more structured section to specify what
-        dance styles you're interested and/or expert in and the ability to link back to your own
-        website if you are a dance/music professional. Please contact us with any suggestions
-        <a href="https://music4dance.blog/feedback/">here.</a>
+      <p v-if="model.isAnonymous">
+        This user has chosen to remain anonymous, so no profile information is displayed. Their song
+        lists are shown below.
       </p>
-      <p v-if="isCurrentUser && !model.isPublic">
-        Your are currently set to not share this profile page and your activity with others. This
-        may have been becuase that was the default setting when you created your account. By
-        changing to show your profile publicly, you'll help other members learn by being able to see
-        what you've tagged songs with.
-      </p>
-      <p v-else-if="!model.isPublic">
-        This user has opted out of displaying profile information in the future.
-      </p>
-      <p>
-        To change your preferences, please go to your
-        <a href="/identity/account/manage">my profile</a> page and check the box next to "Share my
-        profile with other members"
-      </p>
+      <template v-else>
+        <p>
+          The User Profile feature is still being designed. We are considering including the option
+          to have a free form "about me" section, a possibly more structured section to specify what
+          dance styles you're interested and/or expert in and the ability to link back to your own
+          website if you are a dance/music professional. Please contact us with any suggestions
+          <a href="https://music4dance.blog/feedback/">here.</a>
+        </p>
+        <p v-if="isCurrentUser">
+          To change your preferences, please go to your
+          <a href="/identity/account/manage">my profile</a> page and check the box next to "Share my
+          profile with other members"
+        </p>
+      </template>
     </div>
   </div>
 </template>

@@ -164,13 +164,9 @@ public static class UserMapper
     {
         if (dictionary.TryGetValue(id, out var user))
         {
-            // Privacy == 0 means maximum privacy requested (keep as ID)
-            // Privacy > 0 means public (deanonymize to username)
-            if (user.User.Privacy > 0)
-            {
-                return user.User.UserName;
-            }
-            return id;
+            // Always return the real username for backend operations (search, history editing).
+            // Anonymization for public display is handled separately by Anonymize().
+            return user.User.UserName;
         }
 
         // User not in dictionary (database unavailable) - keep current value

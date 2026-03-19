@@ -41,10 +41,12 @@ public class UsersController(
         if (!s_userCache.TryGetValue(id, out var profile))
         {
             var songIndex = Database.SongIndex;
+            // For anonymous (private) users always expose the GUID, not the real username,
+            // even if the profile was looked up by username.
+            var profileUserName = user.Privacy == 0 && !user.IsPseudo ? user.Id : id;
             profile = new UserProfile
             {
-                UserName = id, // This will be username or id depending on what came in
-                IsPublic = user.Privacy > 0,
+                UserName = profileUserName,
                 IsPseudo = user.IsPseudo,
                 SpotifyId = user.SpotifyId,
                 FavoriteCount = await songIndex.UserSongCount(userName, true),
