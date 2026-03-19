@@ -1,42 +1,50 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`Augment Page > Renders the Augment Page 1`] = `
-"<div data-v-6c79bed6=""><span context="[object Object]">MainMenu</span>
-  <!--v-if-->
-  <!--v-if-->
-  <div id="body-content" class="container-fluid body-content">
-    <div class="mt-2"></div>
-    <div>
-      <div data-v-6c79bed6="" class="row">
-        <div data-v-6c79bed6="" class="col">
-          <!--v-if-->
-          <h1 data-v-6c79bed6="">Add Song</h1>
-          <div data-v-6c79bed6="">
-            <p> In order to add songs, you must first <a href="/identity/account/register?returnUrl=/song/augment">register</a> and <a href="/identity/account/login?returnUrl=/song/augment">sign in.</a></p>
-          </div>
+"<div data-v-6c79bed6="" id="app">
+  <div data-v-6c79bed6="" class="row">
+    <div data-v-6c79bed6="" class="col">
+      <!--v-if-->
+      <h1 data-v-6c79bed6="">Add Song</h1>
+      <div data-v-6c79bed6="" class="tabs">
+        <!---->
+        <!---->
+        <div class="card-header">
+          <ul class="nav card-header-tabs nav-tabs" role="tablist" aria-orientation="horizontal">
+            <li class="nav-item" role="presentation"><button class="nav-link active" role="tab" aria-controls="BootstrapVueNext__ID__v-0__tabpane___" aria-selected="true" type="button">by Title</button></li>
+            <li class="nav-item" role="presentation"><button class="nav-link" role="tab" aria-controls="BootstrapVueNext__ID__v-1__tabpane___" aria-selected="false" tabindex="-1" type="button">by Id</button></li>
+          </ul>
         </div>
-      </div>
-      <div data-v-6c79bed6="" class="row">
-        <div data-v-6c79bed6="" class="col">
-          <transition-stub data-v-6c79bed6="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="true" persisted="false" css="true">
-            <div class="alert alert-warning show" tabindex="0" role="alert" aria-live="assertive" aria-atomic="true">
-              <!---->
-              <div class="d-flex gap-2">
-                <div class="alert-body"> Adding songs is a new feature so if you run into bugs or have suggestions for improving this feature please don't hesitate to send email to <a data-v-6c79bed6="" href="mailto:info@music4dance.net">info@music4dance.net</a> or fill out our <a data-v-6c79bed6="" href="https://music4dance.blog/feedback/">feedback form</a> and we'll be happy to take your input as we contineu to improve the feature. </div>
-                <!---->
-              </div>
-              <!---->
-            </div>
-          </transition-stub>
+        <div class="tab-content">
+          <div data-v-6c79bed6="" id="BootstrapVueNext__ID__v-2__tabpane___" class="tab-pane card-body fade" role="tabpanel" aria-labelledby="BootstrapVueNext__ID__v-3__tab___">
+            <p data-v-6c79bed6="" class="card-text">
+            <div data-v-6c79bed6="">AugmentSearch</div>
+            </p>
+          </div>
+          <div data-v-6c79bed6="" id="BootstrapVueNext__ID__v-4__tabpane___" class="tab-pane card-body fade" role="tabpanel" aria-labelledby="BootstrapVueNext__ID__v-5__tab___">
+            <p data-v-6c79bed6="" class="card-text">
+            <div data-v-6c79bed6="">AugmentLookup</div>
+            </p>
+          </div>
+          <!--v-if-->
+          <!---->
         </div>
       </div>
     </div>
   </div>
-  <div id="footer-content">
-    <hr>
-    <footer>
-      <p> © 2026 - <a href="https://www.music4dance.net">Music4Dance.net</a> - <a href="https://www.music4dance.net/home/sitemap">Site Map</a> - <a href="https://www.music4dance.net/home/termsofservice">Terms of Service</a> - <a href="https://www.music4dance.net/home/privacypolicy">Privacy Policy</a> - <a href="https://www.music4dance.net/home/credits">Credits</a> - <a href="https://github.com/music4dance/music4dance" target="_blank">Code</a> - <a>Help</a></p>
-    </footer>
+  <div data-v-6c79bed6="" class="row">
+    <div data-v-6c79bed6="" class="col">
+      <transition-stub data-v-6c79bed6="" name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="true" persisted="false" css="true">
+        <div class="alert alert-warning show" tabindex="0" role="alert" aria-live="assertive" aria-atomic="true">
+          <!---->
+          <div class="d-flex gap-2">
+            <div class="alert-body"> Adding songs is a new feature so if you run into bugs or have suggestions for improving this feature please don't hesitate to send email to <a data-v-6c79bed6="" href="mailto:info@music4dance.net">info@music4dance.net</a> or fill out our <a data-v-6c79bed6="" href="https://music4dance.blog/feedback/">feedback form</a> and we'll be happy to take your input as we contineu to improve the feature. </div>
+            <!---->
+          </div>
+          <!---->
+        </div>
+      </transition-stub>
+    </div>
   </div>
 </div>"
 `;
