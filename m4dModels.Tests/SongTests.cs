@@ -96,7 +96,7 @@ public class SongTests
         "SATISFACTION",
         "SATISFACTION",
         "MOLIENDOCAFE",
-        "ISLIFE",
+        "THISISLIFE",    // THIS no longer ignored
         "HOWSTRANGERCANLIVE",
         "SATISFACTION",
         "SATISFACTION",
@@ -116,7 +116,7 @@ public class SongTests
         "Satisfaction",
         "Satisfaction",
         "Moliendo Café",
-        "is Life",
+        "This is Life",  // THIS no longer ignored
         "How Stranger can Live",
         "Satisfaction",
         "Satisfaction",

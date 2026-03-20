@@ -28,13 +28,6 @@ internal class MergeCluster(int hash)
         var songIndex = dms.SongIndex;
         await foreach (var song in songIndex.LoadLightSongsStreamingAsync())
         {
-            // Skip songs with .NoMerge command
-            if (song.SongProperties != null && 
-                song.SongProperties.Any(p => p.Name == Song.NoMergeCommand))
-            {
-                continue;
-            }
-
             var hash = song.TitleHash;
             if (level != 2)
             {

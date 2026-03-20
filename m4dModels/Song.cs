@@ -5116,6 +5116,12 @@ public class Song : TaggableObject
     ];
 
     /// <summary>
+    /// Regex pattern for detecting numeric BPM markers (e.g., "128 BPM", "130BPM").
+    /// Compiled for performance during merge scans.
+    /// </summary>
+    private static readonly Regex BpmPattern = new(@"\d+\s*BPM", RegexOptions.Compiled);
+
+    /// <summary>
     /// Detects if parenthetical content contains dance-specific indicators or exclusion words.
     /// Returns true if the content contains:
     /// 1. Numeric BPM marker (e.g., "128 BPM", "130 BPM")
@@ -5145,7 +5151,7 @@ public class Song : TaggableObject
 
         // Check for numeric BPM marker (e.g., "128 BPM", "130 BPM", "128BPM")
         // Pattern: digit(s) + optional space(s) + "BPM"
-        if (System.Text.RegularExpressions.Regex.IsMatch(upper, @"\d+\s*BPM"))
+        if (BpmPattern.IsMatch(upper))
         {
             return true;
         }
@@ -5161,9 +5167,9 @@ public class Song : TaggableObject
         var danceLibrary = DanceLibrary.Dances.Instance;
         if (danceLibrary == null)
         {
-            // Fallback: if library not loaded yet, assume it might be a dance-specific version
-            // This is conservative - better to not merge than to incorrectly merge
-            return false;
+            // Fallback: use CommonDanceNames when library isn't loaded yet
+            // This is conservative - better to preserve potential dance versions
+            return CommonDanceNames.Any(danceWord => upper.Contains(danceWord));
         }
 
         // Check if any dance words (names, synonyms, or fragments) appear in the parenthetical content

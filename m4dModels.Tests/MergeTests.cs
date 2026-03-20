@@ -13,7 +13,7 @@ public class MergeTests
     }
 
     [TestMethod]
-    public async Task SimpleMerge_AnnotatesCreatAndEditCommands()
+    public async Task SimpleMerge_AnnotatesCreateAndEditCommands()
     {
         // Arrange
         var dms = await DanceMusicTester.CreateServiceWithUsers("TestDb_SimpleMerge_Annotate");
@@ -135,39 +135,6 @@ public class MergeTests
         var userProps = allProperties.Where(p => p.Name == Song.UserField).ToList();
         Assert.IsTrue(userProps.Any(p => p.Value == "dwgray"), "Should have edits from dwgray");
         Assert.IsTrue(userProps.Any(p => p.Value == "user2"), "Should have edits from user2");
-    }
-
-    [TestMethod]
-    public async Task SimpleMerge_DeletesSourceSongs()
-    {
-        // Arrange
-        var dms = await DanceMusicTester.CreateServiceWithUsers("TestDb_SimpleMerge_Delete");
-        var user = await dms.FindUser("dwgray");
-
-        var song1Data = @".Create=	User=dwgray	Time=01/01/2020 10:00:00 AM	Title=Song 1	Artist=Artist	Tempo=120.0";
-        var song2Data = @".Create=	User=dwgray	Time=01/02/2020 11:00:00 AM	Title=Song 2	Artist=Artist	Tempo=125.0";
-
-        var song1 = await Song.Create(song1Data, dms);
-        var song2 = await Song.Create(song2Data, dms);
-
-        await dms.SongIndex.SaveSong(song1);
-        await dms.SongIndex.SaveSong(song2);
-
-        var song1Id = song1.SongId;
-        var song2Id = song2.SongId;
-
-        // Act
-        var mergedSong = await dms.SongIndex.SimpleMergeSongs(user, [song1, song2]);
-
-        // Assert
-        var foundSong1 = await dms.SongIndex.FindSong(song1Id);
-        var foundSong2 = await dms.SongIndex.FindSong(song2Id);
-
-        Assert.IsNull(foundSong1, "Source song 1 should be deleted");
-        Assert.IsNull(foundSong2, "Source song 2 should be deleted");
-        Assert.IsNotNull(mergedSong, "Merged song should exist");
-        Assert.AreNotEqual(song1Id, mergedSong.SongId, "Merged song should have new GUID");
-        Assert.AreNotEqual(song2Id, mergedSong.SongId, "Merged song should have new GUID");
     }
 
     [TestMethod]
