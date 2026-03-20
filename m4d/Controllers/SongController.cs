@@ -2063,14 +2063,8 @@ public class SongController : ContentController
         // These songs are coming from "light loading", so need to reload the full songs before merging
         songs = [.. (await SongIndex.FindSongs(songs.Select(s => s.SongId)))];
 
-        var song = await SongIndex.MergeSongs(
-            user, songs,
-            ResolveStringField(Song.TitleField, songs),
-            ResolveStringField(Song.ArtistField, songs),
-            ResolveDecimalField(Song.TempoField, songs),
-            ResolveIntField(Song.LengthField, songs),
-            Song.BuildAlbumInfo(songs)
-        );
+        // Use simple merge: concatenates all properties, annotates with song GUIDs, sorts by date
+        var song = await SongIndex.SimpleMergeSongs(user, songs);
 
         Database.RemoveMergeCandidates(songs);
 

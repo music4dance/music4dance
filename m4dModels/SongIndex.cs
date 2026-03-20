@@ -521,6 +521,96 @@ public class SongIndex
             MergeAlbums(songs, defAlbums, keys, artist));
     }
 
+    /// <summary>
+    /// Simple merge: concatenates all song properties, annotates .Create/.Edit with original song GUID,
+    /// and sorts by timestamp. Preserves all information for potential unmerging.
+    /// </summary>
+    public async Task<Song> SimpleMergeSongs(ApplicationUser user, List<Song> songs)
+    {
+        var songIds = songs.Select(s => s.SongId).ToList();
+        var stringIds = string.Join(";", songIds.Select(id => id.ToString()));
+
+        // Ensure all songs are fully loaded
+        if (songs.Any(s => s.SongProperties == null))
+        {
+            songs = [.. (await DanceMusicService.SongIndex.FindSongs(songIds))];
+        }
+
+        // Collect all properties from all songs, grouped by their edit blocks
+        var editBlocks = new List<(DateTime timestamp, List<SongProperty> properties)>();
+
+        foreach (var song in songs)
+        {
+            var currentBlock = new List<SongProperty>();
+            DateTime? currentTimestamp = null;
+
+            foreach (var prop in song.SongProperties)
+            {
+                // When we hit a .Create or .Edit, annotate it with the song GUID
+                if (prop.Name == Song.CreateCommand || prop.Name == Song.EditCommand)
+                {
+                    currentBlock.Add(new SongProperty(prop.Name, song.SongId.ToString()));
+                }
+                else if (prop.Name == Song.TimeField)
+                {
+                    // Capture the timestamp for this block
+                    if (DateTime.TryParse(prop.Value, out var dt))
+                    {
+                        currentTimestamp = dt;
+                    }
+                    currentBlock.Add(prop);
+                }
+                else if (prop.Name == Song.UserField)
+                {
+                    currentBlock.Add(prop);
+
+                    // End of an edit block - save it with timestamp
+                    if (currentTimestamp.HasValue && currentBlock.Count > 0)
+                    {
+                        editBlocks.Add((currentTimestamp.Value, currentBlock));
+                        currentBlock = new List<SongProperty>();
+                        currentTimestamp = null;
+                    }
+                }
+                else
+                {
+                    currentBlock.Add(prop);
+                }
+            }
+
+            // Add any remaining properties
+            if (currentBlock.Count > 0)
+            {
+                editBlocks.Add((currentTimestamp ?? DateTime.MinValue, currentBlock));
+            }
+        }
+
+        // Sort edit blocks by timestamp
+        var sortedBlocks = editBlocks.OrderBy(b => b.timestamp).ToList();
+
+        // Flatten back to a single list of properties
+        var sortedProperties = sortedBlocks.SelectMany(b => b.properties).ToList();
+
+        // Add merge command at the end
+        sortedProperties.Add(new SongProperty(Song.MergeCommand, stringIds));
+        sortedProperties.Add(new SongProperty(Song.UserField, user.UserName));
+        sortedProperties.Add(new SongProperty(Song.TimeField, DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss tt")));
+
+        // Create the merged song
+        var mergedSongId = Guid.NewGuid();
+        var mergedSong = await Song.Create(mergedSongId, sortedProperties, DanceMusicService);
+
+        // Delete the source songs
+        foreach (var song in songs)
+        {
+            await DeleteSong(user, song);
+        }
+
+        await SaveSong(mergedSong);
+
+        return mergedSong;
+    }
+
 
     public IEnumerable<Song> MergeCatalog(ApplicationUser user, IList<LocalMerger> merges,
         IEnumerable<string> dances = null)
