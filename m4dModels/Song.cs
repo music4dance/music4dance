@@ -278,6 +278,7 @@ public class Song : TaggableObject
     public const string DeleteCommand = ".Delete";
     public const string UndoCommand = ".Undo";
     public const string MergeCommand = ".Merge";
+    public const string NoMergeCommand = ".NoMerge";
     public const string FailedLookup = ".FailedLookup";
     public const string NoSongId = ".NoSongId"; // Pseudo action for serialization
 
@@ -5103,10 +5104,23 @@ public class Song : TaggableObject
     ];
 
     /// <summary>
-    /// Detects if parenthetical content contains dance-specific indicators.
+    /// Parenthetical words that indicate different versions and should prevent merging.
+    /// Examples: "Song (Instrumental)", "Song (Vocal)", "Song (A Cappella)"
+    /// These indicate distinct versions that should remain separate.
+    /// </summary>
+    private static readonly HashSet<string> ExclusionWords =
+    [
+        "INSTRUMENTAL", "VOCAL", "VOCALS", "A CAPPELLA", "ACAPPELLA",
+        "KARAOKE", "ACOUSTIC", "LIVE", "RADIO EDIT", "EXTENDED",
+        "UNPLUGGED", "ORCHESTRAL", "REPRISE", "REMIX"
+    ];
+
+    /// <summary>
+    /// Detects if parenthetical content contains dance-specific indicators or exclusion words.
     /// Returns true if the content contains:
     /// 1. Numeric BPM marker (e.g., "128 BPM", "130 BPM")
     /// 2. Dance name or synonym (e.g., "Salsa", "Bachata", "Waltz")
+    /// 3. Exclusion words (e.g., "Instrumental", "Vocal", "Live")
     /// These indicate different versions that should NOT be merged with originals.
     /// </summary>
     private static bool ContainsDanceRemixIndicators(string parenContent)
@@ -5132,6 +5146,12 @@ public class Song : TaggableObject
         // Check for numeric BPM marker (e.g., "128 BPM", "130 BPM", "128BPM")
         // Pattern: digit(s) + optional space(s) + "BPM"
         if (System.Text.RegularExpressions.Regex.IsMatch(upper, @"\d+\s*BPM"))
+        {
+            return true;
+        }
+
+        // Check for exclusion words (e.g., "Instrumental", "Vocal", "Live")
+        if (ExclusionWords.Any(word => upper.Contains(word)))
         {
             return true;
         }
@@ -5355,11 +5375,8 @@ public class Song : TaggableObject
         "IN",
         "OF",
         "OR",
-        "THE",
-        "THAT",
-        "THIS"
+        "THE"
     ];
-
     private static readonly string[] ArtIgnore =
         ["BAND", "FEAT", "FEATURING", "HIS", "HER", "ORCHESTRA", "WITH"];
 

@@ -283,6 +283,40 @@ public class SongTests
     }
 
     [TestMethod]
+    public void ExclusionWordsPreventMerging()
+    {
+        // Songs with exclusion words in parentheses should not match originals
+        var original = "Wonderful Tonight";
+        var instrumental = "Wonderful Tonight (Instrumental)";
+        var vocal = "Wonderful Tonight (Vocal)";
+        var live = "Wonderful Tonight (Live)";
+        var acoustic = "Wonderful Tonight (Acoustic)";
+        var extended = "Wonderful Tonight (Extended Version)";
+        var remix = "Wonderful Tonight (Remix)";
+
+        var hashOriginal = Song.CreateTitleHash(original);
+        var hashInstrumental = Song.CreateTitleHash(instrumental);
+        var hashVocal = Song.CreateTitleHash(vocal);
+        var hashLive = Song.CreateTitleHash(live);
+        var hashAcoustic = Song.CreateTitleHash(acoustic);
+        var hashExtended = Song.CreateTitleHash(extended);
+        var hashRemix = Song.CreateTitleHash(remix);
+
+        // All exclusion word versions should differ from original
+        Assert.AreNotEqual(hashOriginal, hashInstrumental, "Instrumental version should not match original");
+        Assert.AreNotEqual(hashOriginal, hashVocal, "Vocal version should not match original");
+        Assert.AreNotEqual(hashOriginal, hashLive, "Live version should not match original");
+        Assert.AreNotEqual(hashOriginal, hashAcoustic, "Acoustic version should not match original");
+        Assert.AreNotEqual(hashOriginal, hashExtended, "Extended version should not match original");
+        Assert.AreNotEqual(hashOriginal, hashRemix, "Remix version should not match original");
+
+        // Different versions should differ from each other
+        Assert.AreNotEqual(hashInstrumental, hashVocal, "Instrumental and Vocal should not match");
+        Assert.AreNotEqual(hashLive, hashAcoustic, "Live and Acoustic should not match");
+        Assert.AreNotEqual(hashRemix, hashInstrumental, "Remix and Instrumental should not match");
+    }
+
+    [TestMethod]
     public void NonDanceParenthesesStillIgnored()
     {
         // Parentheses without dance/remix keywords should still be ignored (existing behavior)

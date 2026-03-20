@@ -95,7 +95,52 @@ Pattern: `\d+\s*BPM`
 - "Satisfaction (I Can't Get No)" = "Satisfaction"
 - "Hotel California (2013 Remaster)" = "Hotel California"
 
-**Future Enhancement**: We may explore adding remix keywords ("REMIX", "VERSION", "MIX", "EDIT") as an additional filter in the future, requiring both a dance name AND a remix keyword for more precise detection. Currently, dance name alone is sufficient to preserve the distinction.
+#### 3. Exclusion Words
+
+**Exclusion Words**: Parenthetical content indicating different versions that should remain separate
+
+**Words List** (in `Song.cs`):
+- "INSTRUMENTAL", "VOCAL", "VOCALS"
+- "A CAPPELLA", "ACAPPELLA", "KARAOKE"
+- "ACOUSTIC", "LIVE", "UNPLUGGED"
+- "RADIO EDIT", "EXTENDED", "ORCHESTRAL", "REPRISE", "REMIX"
+
+**Examples that are preserved:**
+
+- "Wonderful Tonight (Instrumental)" ≠ "Wonderful Tonight"
+- "Hotel California (Live)" ≠ "Hotel California"
+- "Bohemian Rhapsody (Acoustic)" ≠ "Bohemian Rhapsody"
+- "Paradise (Extended Version)" ≠ "Paradise"
+- "Despacito (Remix)" ≠ "Despacito"
+
+**Rationale**: These words indicate significantly different musical arrangements or performance contexts that should be preserved as distinct songs.
+
+**Future Enhancement**: This list can be expanded based on observed false merges in production data.
+
+### Manual Merge Prevention (.NoMerge Sentinel)
+
+Songs can be explicitly excluded from merge candidates by adding a `.NoMerge` command to their history:
+
+**Format**:
+```
+.NoMerge=    User={admin}    Time=MM/dd/yyyy hh:mm:ss tt
+```
+
+**Usage**:
+1. Admin identifies songs that should never be merged (e.g., live vs studio versions with same title)
+2. Adds `.NoMerge` command via `BatchAdminEdit` or direct song editing
+3. Song is automatically excluded from all future merge candidate queries
+
+**Implementation**: `MergeCluster.GetMergeCandidates()` checks for `.NoMerge` command during candidate collection
+
+**Example**:
+```
+.Create=    User=dwgray     Time=01/01/2020 10:00:00 AM    Title=Shape of You    Artist=Ed Sheeran
+.Edit=      User=admin      Time=06/15/2023 02:00:00 PM    Tag+=Live:Other
+.NoMerge=   User=admin      Time=06/15/2023 02:01:00 PM
+```
+
+This song will never appear in merge candidates, even if another "Shape of You" by Ed Sheeran exists.
 
 ### Artist Normalization
 
@@ -178,90 +223,166 @@ Albums are merged using `AlbumDetails.BuildAlbumInfo()`:
 
 ## Merge Execution Modes
 
-### Manual Merge (Admin UI)
+The system provides **two merge strategies**: Smart Merge and Simple Merge.
 
-**Access**: `GET /Song/BulkEdit` → Select "Merge" action
+### Smart Merge (Manual Admin Operations)
 
-**Process:**
+**Implementation**: `SongIndex.MergeSongs()`  
+**Location**: `m4dModels\SongIndex.cs`
 
+**Used For**:
+- Manual admin merges via UI (`GET /Song/BulkEdit` → "Merge" action)
+- Requires admin review and conflict resolution
+
+**Process**:
 1. Admin selects songs to merge from search results
 2. System presents merge form showing conflicts (title, artist, tempo, length)
 3. Admin resolves conflicts by selecting preferred values
-4. System executes merge with selected resolutions
-5. `SongIndex.MergeSongs()` creates final merged song
+4. Creates new merged song with resolved fields
+5. Merges user histories (preserves every edit)
+6. Combines tags (song-level and dance-level)
+7. Sums dance ratings across all songs
+8. Merges album information
+9. Records `.Merge=` command in song history
+10. Deletes source songs from index
+11. Returns new consolidated song
 
-**Result**: Precise control over merged song properties
+**Conflict Resolution**:
+- If form data provided: Uses admin's selection
+- Otherwise: Uses first non-null value
 
-### Auto Merge (Batch Processing)
+**Result**: Precise control over merged song properties with smart field selection
 
-**Access**: `GET /Song/MergeCandidates?autoCommit=true&level=1`
+### Simple Merge (Automatic Batch Operations)
 
-**Process:**
+**Implementation**: `SongIndex.SimpleMergeSongs()`  
+**Location**: `m4dModels\SongIndex.cs`
 
-1. System finds all merge candidates at specified level
-2. Groups candidates by title hash
-3. For each cluster:
-   - Reloads full songs (light loading → full loading)
-   - Auto-resolves conflicts (first non-null value)
-   - Calls `SongIndex.MergeSongs()` with resolved values
-   - Removes merged songs from candidates cache
-4. Returns list of merged songs
+**Used For**:
+- Auto-merge batch processing (`GET /Song/MergeCandidates?autoCommit=true`)
+- Admin simple merge via UI (`POST /Song/BulkEdit` → "SimpleMerge" button)
+- Preserves complete history for potential unmerging
 
-**Result**: Batch processing of high-confidence duplicates
+**Admin UI Access**:
+- Navigate to Admin → Initialization Tasks → "Merge Songs" section
+- Enter two song GUIDs in the text boxes
+- Click **"SimpleMerge"** button to execute automatic merge
+- Click **"Preview"** button to see Vue3 merge preview (no actual merge)
 
-### Simple Merge (Development/API)
+**Algorithm**:
+1. **Load full songs** - Ensures all SongProperties are available
+2. **Group by edit blocks** - Properties between `.Create`/`.Edit` and `.User=` are kept together
+3. **Annotate commands** - Replaces empty `.Create=` and `.Edit=` with `.Create={songGUID}` and `.Edit={songGUID}`
+4. **Sort by timestamp** - Orders all edit blocks chronologically
+5. **Add merge metadata** - Appends `.Merge=` command with source song GUIDs
+6. **Create new song** - Generates new GUID, creates song from merged properties
+7. **Delete source songs** - Removes original songs from database
 
-**Access**: `SongMerge` method (Vue3 UI)
+**Benefits**:
+- **100% information preservation** - Every edit from every source song retained
+- **Unmerge capability** - Original song GUIDs allow reconstruction
+- **Simpler logic** - No complex conflict resolution
+- **Complete audit trail** - User attributions preserved with original song context
 
-**Process:**
+**Example Merge**:
 
-1. Concatenates all properties from all songs
-2. Minimal conflict resolution
-3. Primarily used for presenting merge preview in UI
+**Song 1** (created 01/01/2020):
+```
+.Create=    User=dwgray  Time=01/01/2020 10:00:00 AM    Title=Song    Artist=Artist    Tempo=120.0    Tag+=Salsa:Dance
+```
 
-**Note**: This is NOT used by AutoMerge - it's a display/preview mechanism
+**Song 2** (created 01/02/2020, edited 01/03/2020):
+```
+.Create=    User=user2   Time=01/02/2020 11:00:00 AM    Title=Song    Artist=Artist    Tempo=125.0    Tag+=Bachata:Dance
+.Edit=      User=user2   Time=01/03/2020 12:00:00 PM    Tempo=130.0
+```
 
-## Auto Merge Answer (Question 3)
+**Merged Song** (merged 01/04/2020):
+```
+.Create={song1-guid}    User=dwgray  Time=01/01/2020 10:00:00 AM    Title=Song    Artist=Artist    Tempo=120.0    Tag+=Salsa:Dance
+.Create={song2-guid}    User=user2   Time=01/02/2020 11:00:00 AM    Title=Song    Artist=Artist    Tempo=125.0    Tag+=Bachata:Dance
+.Edit={song2-guid}      User=user2   Time=01/03/2020 12:00:00 PM    Tempo=130.0
+.Merge={song1-guid};{song2-guid}    User=dwgray  Time=01/04/2020 01:00:00 PM
+```
 
-**AutoMerge uses the "smart" merge technique via `SongIndex.MergeSongs()`:**
+**Result**: Verbose but accurate - contains complete history from all source songs
+
+### Comparison: Smart vs Simple Merge
+
+| Aspect | Smart Merge | Simple Merge |
+|--------|-------------|--------------|
+| **Properties** | Merged/deduplicated | All preserved (concatenated) |
+| **Conflicts** | Manual/auto resolution | All versions kept |
+| **Size** | Smaller | Larger (all properties) |
+| **Accuracy** | May lose data | 100% accurate |
+| **Unmerge** | Difficult/impossible | Straightforward |
+| **Complexity** | High (conflict logic) | Low (concat + sort) |
+| **GUID Annotation** | No | Yes (every command) |
+| **Use Case** | Manual admin merge | Auto-merge batches |
+| **Implementation** | `MergeSongs()` | `SimpleMergeSongs()` |
+
+### Auto Merge Behavior
+
+**Current Implementation** (as of latest update):
 
 ```csharp
+// Location: m4d\Controllers\SongController.cs
 private async Task<Song> AutoMerge(List<Song> songs, ApplicationUser user)
 {
     // Reload full songs (candidates are light-loaded)
     songs = [.. (await SongIndex.FindSongs(songs.Select(s => s.SongId)))];
 
-    // Call MergeSongs with auto-resolved fields
-    var song = await SongIndex.MergeSongs(
-        user, songs,
-        ResolveStringField(Song.TitleField, songs),      // Smart resolution
-        ResolveStringField(Song.ArtistField, songs),     // Smart resolution
-        ResolveDecimalField(Song.TempoField, songs),     // Smart resolution
-        ResolveIntField(Song.LengthField, songs),        // Smart resolution
-        Song.BuildAlbumInfo(songs)                        // Album merging
-    );
+    // Uses Simple Merge for complete history preservation
+    var song = await SongIndex.SimpleMergeSongs(user, songs);
 
     Database.RemoveMergeCandidates(songs);
     return song;
 }
 ```
 
-**What `MergeSongs` does:**
+**Access**: `GET /Song/MergeCandidates?autoCommit=true&level=1`
 
-1. Creates new merged song with resolved fields
-2. Merges all user histories (preserves every edit)
-3. Combines all tags (song-level and dance-level)
-4. Sums dance ratings across all songs
-5. Merges album information
-6. Records merge in song history
-7. Deletes source songs from index
-8. Returns new consolidated song
+**Process**:
+1. System finds all merge candidates at specified level (2, 1, 3, or 0)
+2. Groups candidates by title hash
+3. For each cluster:
+   - Reloads full songs (light loading → full loading)
+   - Calls `SimpleMergeSongs()` to preserve complete history
+   - Removes merged songs from candidates cache
+4. Returns list of merged songs
 
-**Simple Merge (`SongMerge`) is only used for:**
+**Result**: Batch processing of high-confidence duplicates with complete audit trail
 
-- Displaying merge preview in Vue3 UI
-- Admin review interface
-- NOT used in auto-merge batch processing
+### Future: Unmerge Functionality
+
+With Simple Merge's GUID annotation, unmerging becomes feasible:
+
+```csharp
+public async Task<List<Song>> UnmergeSong(Guid mergedSongId)
+{
+    var merged = await FindSong(mergedSongId);
+    var mergeCommand = merged.SongProperties.First(p => p.Name == Song.MergeCommand);
+    var sourceIds = mergeCommand.Value.Split(';').Select(Guid.Parse).ToList();
+
+    var reconstructedSongs = new List<Song>();
+    foreach (var sourceId in sourceIds)
+    {
+        // Filter properties annotated with this GUID
+        var props = merged.SongProperties
+            .Where(p => 
+                (p.Name == Song.CreateCommand || p.Name == Song.EditCommand) && 
+                p.Value == sourceId.ToString())
+            // Get properties until next command
+            .SelectMany(GetPropertiesUntilNextCommand)
+            .ToList();
+
+        var song = await Song.Create(sourceId, props, DanceMusicService);
+        reconstructedSongs.Add(song);
+    }
+
+    return reconstructedSongs;
+}
+```
 
 ## Database Integration
 

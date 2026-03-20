@@ -1401,6 +1401,8 @@ public class SongController : ContentController
             case "Merge":
                 return Merge(songs);
             case "SimpleMerge":
+                return await SimpleMerge(songs);
+            case "Preview":
                 return SongMerge(songs);
             case "Delete":
                 return await Delete(songs, Filter);
@@ -2059,7 +2061,6 @@ public class SongController : ContentController
 
     private async Task<Song> AutoMerge(List<Song> songs, ApplicationUser user)
     {
-        UseVue = UseVue.No;
         // These songs are coming from "light loading", so need to reload the full songs before merging
         songs = [.. (await SongIndex.FindSongs(songs.Select(s => s.SongId)))];
 
@@ -2076,6 +2077,27 @@ public class SongController : ContentController
         var sm = new SongMerge([.. songs], Database.DanceStats);
 
         return View("Merge", sm);
+    }
+
+    private async Task<ActionResult> SimpleMerge(IEnumerable<Song> songs)
+    {
+        UseVue = UseVue.No;
+
+        // Get the logged in user
+        var user = await Database.FindUser(User.Identity?.Name);
+
+        // Execute simple merge
+        var mergedSong = await SongIndex.SimpleMergeSongs(user, songs.ToList());
+
+        // Clear merge candidates cache
+        Database.RemoveMergeCandidates(songs.ToList());
+
+        // Clear dance stats cache
+        await DanceStatsManager.ClearCache(Database, true);
+
+        ViewBag.BackAction = "MergeCandidates";
+
+        return await Details(mergedSong?.SongId);
     }
 
     private ActionResult SongMerge(IEnumerable<Song> songs)
