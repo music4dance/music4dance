@@ -2014,9 +2014,8 @@ public class SongController : ContentController
     private async Task<IReadOnlyCollection<Song>> AutoMerge(IReadOnlyCollection<Song> songs,
         int level)
     {
-        // Get the logged in user
-        var userName = UserName;
-        var user = await Database.FindUser(userName);
+        // Use system user for automerge operations instead of logged-in admin
+        var user = new ApplicationUser("automerge", true);
 
         var ret = new List<Song>();
         List<Song> cluster = null;
