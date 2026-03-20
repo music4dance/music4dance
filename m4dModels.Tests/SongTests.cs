@@ -5,6 +5,13 @@ namespace m4dModels.Tests;
 [TestClass]
 public class SongTests
 {
+    [ClassInitialize]
+    public static async Task ClassInitialize(TestContext context)
+    {
+        // Load dances library so dance name detection works
+        await DanceMusicTester.LoadDances();
+    }
+
     private const string Vals =
         @".Create=	User=11101224127	Time=01/05/2018 02:39:33	Title=Pajaro Herido	Artist=Rodolfo Biagi	Length=136	Album:00=Tango Best	Track:00=17	Tag+=Argentine Tango:Dance	DanceRating=ATN+2	Purchase:00:SA=0OysrEZzotITS0fQ22yMne	Purchase:00:SS=7AddIMmrMNrAvfeVLggbdj	DanceRating=TNG+1	.Edit=	User=batch-a	Time=01/05/2018 02:41:52	Album:01=Rodolfo Biagi Con Sus Cantores: 1939-1947	Track:01=10	Purchase:01:AS=D:B075V5L1WH	Purchase:01:AA=D:B075V711N7	Album:02=The Essence of Tango: Rodolfo Biagi, Vol. 1	Track:02=3	Purchase:02:AS=D:B019EPP092	Purchase:02:AA=D:B019EPQLDQ	Album:03=Tango Classics 076: Cuatro palabras	Track:03=6	Purchase:03:AS=D:B004UPEU52	Purchase:03:AA=D:B004UPE43K	Album:04=A la luz del candil (1941 - 1943)	Track:04=12	Purchase:04:AS=D:B071DNT826	Purchase:04:AA=D:B0713R81XC	Tag+=International:Music|Latin:Music	.Edit=	User=batch-i	Time=01/05/2018 02:41:52	Purchase:04:IS=1231281699	Purchase:04:IA=1231281637	Album:05=Cuatro Palabras	Track:05=6	Purchase:05:IS=429503329	Purchase:05:IA=429503294	Tag+=Latino:Music|World:Music	.Edit=	User=batch-e	Time=01/05/2018 02:41:52	Tempo=107.1	Danceability=0.517	Energy=0.31	Valence=0.692	Tag+=3/4:Tempo";
 
@@ -193,27 +200,30 @@ public class SongTests
     [TestMethod]
     public void DanceRemixDetection()
     {
-        // Original and remix with dance name should have DIFFERENT hashes
+        // Original and version with dance name should have DIFFERENT hashes
         var original = "Let's Dance";
         var salsaRemix = "Let's Dance (Salsa Remix 128 BPM)";
         var waltzVersion = "Let's Dance (Waltz Version)";
+        var salsaOnly = "Let's Dance (Salsa)"; // NEW: Dance name alone should block matching
 
         var hashOriginal = Song.CreateTitleHash(original);
         var hashSalsa = Song.CreateTitleHash(salsaRemix);
         var hashWaltz = Song.CreateTitleHash(waltzVersion);
+        var hashSalsaOnly = Song.CreateTitleHash(salsaOnly);
 
-        // Remixes should NOT equal original
+        // Dance-specific versions should NOT equal original
         Assert.AreNotEqual(hashOriginal, hashSalsa, "Salsa remix should not match original");
         Assert.AreNotEqual(hashOriginal, hashWaltz, "Waltz version should not match original");
+        Assert.AreNotEqual(hashOriginal, hashSalsaOnly, "Dance name alone should not match original");
 
-        // Different remixes should be different from each other
-        Assert.AreNotEqual(hashSalsa, hashWaltz, "Different dance remixes should not match");
+        // Different dance versions should be different from each other
+        Assert.AreNotEqual(hashSalsa, hashWaltz, "Different dance versions should not match");
 
         // Different BPMs of same dance should be different
         var salsa128 = "Let's Dance (Salsa 128 BPM)";
         var salsa130 = "Let's Dance (Salsa 130 BPM)";
         Assert.AreNotEqual(Song.CreateTitleHash(salsa128), Song.CreateTitleHash(salsa130), 
-            "Different BPM remixes should not match");
+            "Different BPM versions should not match");
     }
 
     [TestMethod]
@@ -245,6 +255,31 @@ public class SongTests
         var hashJustBPM = Song.CreateTitleHash(justBPM);
         Assert.AreEqual(hashOriginal, hashJustBPM, 
             "BPM without number should be ignored like other parenthetical content");
+    }
+
+    [TestMethod]
+    public void AccentedDanceNamesDetected()
+    {
+        // Spanish "Versión Bachata" should be detected as different (has dance name)
+        var original = "Me Vuelvo un Cobarde";
+        var bachataVersion = "Me Vuelvo un Cobarde (Versión Bachata)";
+        var bachataOnly = "Me Vuelvo un Cobarde (Bachata)"; // Dance name alone
+
+        var hashOriginal = Song.CreateTitleHash(original);
+        var hashBachataVersion = Song.CreateTitleHash(bachataVersion);
+        var hashBachataOnly = Song.CreateTitleHash(bachataOnly);
+
+        // Both should be detected as different (dance name is present)
+        Assert.AreNotEqual(hashOriginal, hashBachataVersion, 
+            "Bachata with 'Versión' should not match original");
+        Assert.AreNotEqual(hashOriginal, hashBachataOnly,
+            "Bachata alone should not match original");
+
+        // Accented dance names also work
+        var salsaAccented = "Summer Nights (Sálsa)"; // Accented 'a'
+        var hashSalsa = Song.CreateTitleHash(salsaAccented);
+        Assert.AreNotEqual(Song.CreateTitleHash("Summer Nights"), hashSalsa,
+            "Accented 'Sálsa' should be detected");
     }
 
     [TestMethod]

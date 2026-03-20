@@ -1302,16 +1302,22 @@ public class SongController : ContentController
             Filter.Level = level;
         }
 
-        var songs =
+        var allSongs =
             await Database.FindMergeCandidates(
                 autoCommit == true ? 10000 : 500, Filter.Level ?? 1);
 
         if (autoCommit.HasValue && autoCommit.Value)
         {
-            songs = await AutoMerge(songs, Filter.Level ?? 1);
+            allSongs = await AutoMerge(allSongs, Filter.Level ?? 1);
         }
 
-        return await FormatSongList(songs, hiddenColumns: ["dances", "echo", "length", "order", "play", "tags", "track"]);
+        // Apply paging
+        var pageNumber = Filter.Page ?? 1;
+        var pageSize = 25;
+        var totalCount = allSongs.Count;
+        var songs = allSongs.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+
+        return await FormatSongList(songs, totalCount, totalCount, hiddenColumns: ["dances", "echo", "length", "order", "play", "tags", "track"]);
     }
 
     //

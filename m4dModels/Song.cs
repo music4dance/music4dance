@@ -5103,11 +5103,11 @@ public class Song : TaggableObject
     ];
 
     /// <summary>
-    /// Detects if parenthetical content contains dance-specific remix indicators.
+    /// Detects if parenthetical content contains dance-specific indicators.
     /// Returns true if the content contains:
     /// 1. Numeric BPM marker (e.g., "128 BPM", "130 BPM")
-    /// 2. Dance name/synonym + remix keyword (Remix, Version, Mix, Edit)
-    /// These indicate remixes that should NOT be merged with originals.
+    /// 2. Dance name or synonym (e.g., "Salsa", "Bachata", "Waltz")
+    /// These indicate different versions that should NOT be merged with originals.
     /// </summary>
     private static bool ContainsDanceRemixIndicators(string parenContent)
     {
@@ -5116,7 +5116,18 @@ public class Song : TaggableObject
             return false;
         }
 
-        var upper = parenContent.ToUpperInvariant();
+        // Normalize to remove accents (e.g., "Versión" → "Version")
+        var normalized = parenContent.Normalize(NormalizationForm.FormD);
+        var sb = new StringBuilder();
+        foreach (var c in normalized)
+        {
+            var uc = GetUnicodeCategory(c);
+            if (uc != UnicodeCategory.NonSpacingMark)
+            {
+                _ = sb.Append(c);
+            }
+        }
+        var upper = sb.ToString().ToUpperInvariant();
 
         // Check for numeric BPM marker (e.g., "128 BPM", "130 BPM", "128BPM")
         // Pattern: digit(s) + optional space(s) + "BPM"
@@ -5125,23 +5136,14 @@ public class Song : TaggableObject
             return true;
         }
 
-        // Check for common dance-specific remix keywords combined with dance names
-        var remixKeywords = new[] { "REMIX", "VERSION", "MIX", "EDIT" };
-        var hasRemixKeyword = remixKeywords.Any(keyword => upper.Contains(keyword));
-
-        // If no remix keyword, not a dance remix
-        if (!hasRemixKeyword)
-        {
-            return false;
-        }
-
+        // Check if any dance words (names, synonyms, or fragments) appear
         // Get dance names and synonyms from the actual dance library
         var danceLibrary = DanceLibrary.Dances.Instance;
         if (danceLibrary == null)
         {
-            // Fallback: if library not loaded yet, assume it might be a dance remix
+            // Fallback: if library not loaded yet, assume it might be a dance-specific version
             // This is conservative - better to not merge than to incorrectly merge
-            return true;
+            return false;
         }
 
         // Check if any dance words (names, synonyms, or fragments) appear in the parenthetical content
