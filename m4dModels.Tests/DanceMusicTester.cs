@@ -62,17 +62,35 @@ public class TestDSFileManager : IDanceStatsFileManager
         return DanceMusicTester.ReadResourceFile("test-groups.json");
     }
 
-    public Task<string> GetStats()
+    public async Task<string> GetStats()
     {
-        // Return minimal valid stats JSON with empty song cache
-        // This provides a clean slate for each test while avoiding Azure Search
-        var emptyStats = @"{
-            ""dances"": [],
-            ""groups"": [],
-            ""cachedSongs"": [],
-            ""tagGroups"": []
-        }";
-        return Task.FromResult(emptyStats);
+        // Load the real stats file (which has proper tag groups and dance stats)
+        // but clear the cachedSongs array to start with empty cache for each test
+        var statsJson = await DanceMusicTester.ReadResourceFile("dancestatistics.txt");
+
+        if (string.IsNullOrEmpty(statsJson))
+        {
+            // Fallback to minimal valid structure if file not found
+            return @"{
+                ""dances"": [],
+                ""groups"": [],
+                ""cachedSongs"": [],
+                ""tagGroups"": []
+            }";
+        }
+
+        // Parse, clear cachedSongs, and re-serialize
+        var stats = Newtonsoft.Json.JsonConvert.DeserializeObject<DanceStatsInstance>(statsJson);
+
+        // Return the stats with empty song cache (ensures tests start fresh)
+        // but preserve tag groups and dance stats for proper tag processing
+        return Newtonsoft.Json.JsonConvert.SerializeObject(new
+        {
+            dances = stats.Dances,
+            groups = stats.Groups,
+            cachedSongs = new string[0], // Empty song cache for test isolation
+            tagGroups = stats.TagGroups
+        });
     }
 
     public Task WriteStats(string stats)
