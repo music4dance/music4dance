@@ -29,8 +29,22 @@ The system uses **four** merge levels defined in `MergeCluster.cs`. **The levels
 
 ### Level 3: Title + Artist + Length Filter (MEDIUM-STRICT)
 - **Same as Level 1** but adds length validation
-- **Length Filter**: Songs must be within ±20 seconds of the cluster average length
+- **Length Filter**: Songs must be within ±20 seconds of the cluster **median** length
 - **Implementation**: Level 1 logic + `FilterLength()` method
+
+**FilterLength Algorithm** (median-based, robust to outliers):
+1. Collect lengths of all songs that have a length value
+2. Sort lengths and compute the **median** (middle value for odd count; average of two middle values for even count)
+3. Keep songs whose length is within 20 seconds of the median, plus all songs with no length data
+
+**Why median, not mean**: A single outlier (e.g. a 5-minute DJ remix in a cluster of 3-minute songs) skews the mean so far that all songs may fall outside the ±20s window. The median is unaffected by outlier magnitude and anchors to the majority cluster.
+
+**Example**:
+```
+Cluster: [180s, 195s, 300s]
+Mean  = 225s  → |180-225|=45 > 20 → all filtered out ❌
+Median= 195s  → |180-195|=15 ✓, |195-195|=0 ✓, |300-195|=105 → removes 300s ✅
+```
 
 **Use Case**: Level 1 with length check to avoid merging live vs studio, extended vs radio edit
 
@@ -519,6 +533,25 @@ Common variations handled automatically:
 - `AccentedDanceNamesDetected`: Confirms "Bachata", "Sálsa", etc. properly detected
 - `NonDanceParenthesesStillIgnored`: Confirms "(Remaster)" still ignored
 
+**FilterLength Tests**: `m4dModels.Tests/FilterLengthTests.cs`
+
+- `FilterLength_SingleOutlier_RemovesOutlier`: Median keeps main cluster, drops lone outlier
+- `FilterLength_MultipleOutliers_KeepsMedianCluster`: Both high and low outliers removed
+- `FilterLength_NoLengthSongs_AllKept`: Songs with null length always pass through
+- `FilterLength_EvenCount_UsesAverageOfTwoMiddle`: Correct median for even-sized lists
+- `FilterLength_BoundaryExactly20_Excluded`: Exactly 20s difference = excluded (strict `<`)
+- Plus 6 additional edge-case tests
+
+**MergeManager Tests**: `m4dModels.Tests/MergeManagerTests.cs`
+
+- `GetMergeCandidates_Level1_GroupsByTitleAndArtist`
+- `GetMergeCandidates_Level2_GroupsByTitleOnly`
+- `GetMergeCandidates_Level0_RequiresFullEquivalence`
+- `GetMergeCandidates_Level3_FiltersLengthDivergence`
+- `GetMergeCandidates_EmptyArtist_IncludesAllSongsInCluster` (Level 2)
+- `AutoMerge_MergesCluster_ReturnsMergedSong`
+- Plus 8 additional tests for edge cases and .NoMerge filtering
+
 **Integration Tests**: Merge workflow tests
 
 - Multi-song merge with conflict resolution
@@ -569,3 +602,4 @@ GET /Song/MergeCandidates?level=1&autoCommit=true
 - **Dance Library**: `DanceLib/Dances.cs`
 - **Song Model**: `m4dModels/Song.cs` (especially `MungeString` method)
 - **Merge Controller**: `m4d/Controllers/SongController.cs` (`MergeCandidates`, `AutoMerge`, `MergeResults`)
+- **Block Parser**: `m4dModels/SongPropertyBlockParser.cs` — shared infrastructure used by both `SimpleMergeSongs` (chronological sorting) and `ChunkedSong` (batch cleanup); keeps the block-layout contract (`[Action, User, Time, content…]`) in one place
