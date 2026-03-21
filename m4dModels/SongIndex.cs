@@ -536,60 +536,29 @@ public class SongIndex
             songs = [.. (await DanceMusicService.SongIndex.FindSongs(songIds))];
         }
 
-        // Collect all properties from all songs, grouped by their edit blocks
-        var editBlocks = new List<(DateTime timestamp, List<SongProperty> properties)>();
+        // Parse all songs into blocks and annotate with source song GUID
+        var allBlocks = new List<SongPropertyBlock>();
 
         foreach (var song in songs)
         {
-            var currentBlock = new List<SongProperty>();
-            DateTime? currentTimestamp = null;
+            // Parse blocks for this song (only .Create and .Edit commands)
+            var blocks = SongPropertyBlockParser.ParseBlocks(
+                song.SongProperties,
+                SongPropertyBlockParser.CreateEditFilter());
 
-            foreach (var prop in song.SongProperties)
+            // Annotate each block's action command with the source song GUID
+            foreach (var block in blocks)
             {
-                // When we hit a .Create or .Edit, we are starting a new edit block.
-                // First, flush any existing block (if present), then start a new one
-                // and annotate it with the song GUID.
-                if (prop.Name == Song.CreateCommand || prop.Name == Song.EditCommand)
-                {
-                    if (currentBlock.Count > 0)
-                    {
-                        editBlocks.Add((currentTimestamp ?? DateTime.MinValue, currentBlock));
-                        currentBlock = new List<SongProperty>();
-                        currentTimestamp = null;
-                    }
-
-                    currentBlock.Add(new SongProperty(prop.Name, song.SongId.ToString()));
-                }
-                else if (prop.Name == Song.TimeField)
-                {
-                    // Capture the timestamp for this block (supports both CUT and CTU order)
-                    if (DateTime.TryParse(prop.Value, out var dt))
-                    {
-                        currentTimestamp = dt;
-                    }
-                    currentBlock.Add(prop);
-                }
-                else
-                {
-                    // UserField and all other properties just belong to the current block;
-                    // the block will be closed when the next .Create/.Edit is encountered
-                    // or at the end of the song.
-                    currentBlock.Add(prop);
-                }
-            }
-
-            // Add any remaining properties as the last block
-            if (currentBlock.Count > 0)
-            {
-                editBlocks.Add((currentTimestamp ?? DateTime.MinValue, currentBlock));
+                block.ActionValue = song.SongId.ToString();
+                allBlocks.Add(block);
             }
         }
 
-        // Sort edit blocks by timestamp
-        var sortedBlocks = editBlocks.OrderBy(b => b.timestamp).ToList();
+        // Sort all blocks chronologically
+        var sortedBlocks = allBlocks.OrderBy(b => b.Timestamp ?? DateTime.MinValue).ToList();
 
-        // Flatten back to a single list of properties
-        var sortedProperties = sortedBlocks.SelectMany(b => b.properties).ToList();
+        // Flatten blocks back to properties
+        var sortedProperties = SongPropertyBlockParser.FlattenBlocks(sortedBlocks);
 
         // Add merge command at the end
         sortedProperties.Add(new SongProperty(Song.MergeCommand, stringIds));
@@ -888,12 +857,12 @@ public class SongIndex
     #endregion
 
     #region Index Update
-    public async Task SaveSong(Song song, string id = "default")
+    public virtual async Task SaveSong(Song song, string id = "default")
     {
         await SaveSongs([song], id);
     }
 
-    public async Task SaveSongs(IEnumerable<Song> songs, string id = "default")
+    public virtual async Task SaveSongs(IEnumerable<Song> songs, string id = "default")
     {
         if (songs == null || !songs.Any())
         {

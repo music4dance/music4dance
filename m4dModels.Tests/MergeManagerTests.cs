@@ -137,7 +137,7 @@ public class MergeManagerTests
         await CreateAndSaveSong(song3Data, dms);
 
         // Act
-        var candidates = await dms.MergeManager.GetMergeCandidates(n: 100, level: 1);
+        var candidates = await dms.MergeManager.GetMergeCandidates(n: 100, level: 2);
 
         // Assert
         Assert.AreEqual(3, candidates.Count, "When any song has empty artist, should include all songs with same title");

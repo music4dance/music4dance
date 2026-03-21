@@ -64,12 +64,21 @@ public class TestDSFileManager : IDanceStatsFileManager
 
     public Task<string> GetStats()
     {
-        return DanceMusicTester.ReadResourceFile("dancestatistics.txt");
+        // Return minimal valid stats JSON with empty song cache
+        // This provides a clean slate for each test while avoiding Azure Search
+        var emptyStats = @"{
+            ""dances"": [],
+            ""groups"": [],
+            ""cachedSongs"": [],
+            ""tagGroups"": []
+        }";
+        return Task.FromResult(emptyStats);
     }
 
     public Task WriteStats(string stats)
     {
-        throw new NotImplementedException();
+        // No-op in tests - don't persist stats
+        return Task.CompletedTask;
     }
 }
 

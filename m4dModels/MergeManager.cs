@@ -178,6 +178,10 @@ public class MergeManager
         return ret;
     }
 
+    /// <summary>
+    /// Filters out songs whose length diverges significantly (>20s) from the cluster median.
+    /// Uses median instead of mean for robustness to outliers.
+    /// </summary>
     private static List<Song> FilterLength(List<Song> lump)
     {
         if (lump.Count < 2)
@@ -185,23 +189,33 @@ public class MergeManager
             return lump;
         }
 
-        var total = 0;
-        var count = 0;
-        foreach (var song in lump.Where(song => song.Length.HasValue))
-        {
-            count += 1;
-            total += song.Length.Value;
-        }
+        // Get all songs with lengths
+        var songsWithLength = lump.Where(song => song.Length.HasValue).ToList();
 
         // No songs have length, so this filter makes no sense
-        if (count == 0)
+        if (songsWithLength.Count == 0)
         {
             return lump;
         }
 
-        var avg = total / count;
+        // Calculate median length (more robust to outliers than mean)
+        var sortedLengths = songsWithLength.Select(s => s.Length.Value).OrderBy(l => l).ToList();
+        int median;
+
+        if (sortedLengths.Count % 2 == 0)
+        {
+            // Even count: average of two middle values
+            median = (sortedLengths[sortedLengths.Count / 2 - 1] + sortedLengths[sortedLengths.Count / 2]) / 2;
+        }
+        else
+        {
+            // Odd count: middle value
+            median = sortedLengths[sortedLengths.Count / 2];
+        }
+
+        // Filter: keep songs within 20s of median, or songs without length data
         return lump.Where(song =>
-            !song.Length.HasValue || Math.Abs(song.Length.Value - avg) < 20
+            !song.Length.HasValue || Math.Abs(song.Length.Value - median) < 20
         ).ToList();
     }
 
