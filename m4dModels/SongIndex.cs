@@ -1230,8 +1230,9 @@ public class SongIndex
     /// Streams lightweight song data using composite key-set pagination (Modified desc, SongId desc).
     /// This avoids the 100K limit on $skip by filtering on the last seen Modified/SongId pair.
     /// Loads only essential fields: SongId, Title, Artist, Length, Tempo for merge candidate analysis.
+    /// Virtual to allow test implementations to provide in-memory light songs.
     /// </summary>
-    public async IAsyncEnumerable<Song> LoadLightSongsStreamingAsync(
+    public virtual async IAsyncEnumerable<Song> LoadLightSongsStreamingAsync(
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         DateTimeOffset? lastModified = null;

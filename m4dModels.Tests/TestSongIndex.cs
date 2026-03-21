@@ -45,7 +45,7 @@ public class TestSongIndex : SongIndex
     {
         // Capture the call
         EditCalls.Add(new EditSongCall(user, song, edit, tags?.ToList()));
-        
+
         // Call the base implementation (which updates the song in memory)
         return await base.EditSong(user, song, edit, tags);
     }

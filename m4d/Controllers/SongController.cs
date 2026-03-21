@@ -1302,13 +1302,13 @@ public class SongController : ContentController
             Filter.Level = level;
         }
 
-        var allSongs =
-            await Database.FindMergeCandidates(
-                autoCommit == true ? 10000 : 500, Filter.Level ?? 1);
+        var allSongs = await Database.MergeManager.GetMergeCandidates(
+            autoCommit == true ? 10000 : 500, Filter.Level ?? 1);
 
         if (autoCommit.HasValue && autoCommit.Value)
         {
-            allSongs = await AutoMerge(allSongs, Filter.Level ?? 1);
+            var user = new ApplicationUser("automerge", true);
+            allSongs = await Database.MergeManager.AutoMerge(allSongs, Filter.Level ?? 1, user);
         }
 
         // Apply paging
@@ -2010,98 +2010,6 @@ public class SongController : ContentController
     #endregion
 
     #region Merge
-
-    private async Task<IReadOnlyCollection<Song>> AutoMerge(IReadOnlyCollection<Song> songs,
-        int level)
-    {
-        // Use system user for automerge operations instead of logged-in admin
-        var user = new ApplicationUser("automerge", true);
-
-        var ret = new List<Song>();
-        List<Song> cluster = null;
-
-        try
-        {
-            foreach (var song in new List<Song>(songs))
-            {
-                if (cluster == null)
-                {
-                    cluster = [song];
-                }
-                else if (level == 0 && song.Equivalent(cluster[0])
-                    || level == 1 && song.WeakEquivalent(cluster[0])
-                    || level == 3 && song.TitleArtistEquivalent(cluster[0]))
-                {
-                    cluster.Add(song);
-                }
-                else
-                {
-                    if (cluster.Count > 1)
-                    {
-                        var s = await AutoMerge(cluster, user);
-                        if (s != null)  // Handle .NoMerge filtering
-                        {
-                            ret.Add(s);
-                        }
-                    }
-                    else if (cluster.Count == 1)
-                    {
-                        Logger.LogInformation($"Bad Merge: {cluster[0].Title}");
-                    }
-
-                    cluster = [song];
-                }
-            }
-
-            // Handle final cluster after loop ends
-            if (cluster != null)
-            {
-                if (cluster.Count > 1)
-                {
-                    var s = await AutoMerge(cluster, user);
-                    if (s != null)  // Handle .NoMerge filtering
-                    {
-                        ret.Add(s);
-                    }
-                }
-                else if (cluster.Count == 1)
-                {
-                    Logger.LogInformation($"Bad Merge: {cluster[0].Title}");
-                }
-            }
-        }
-        finally
-        {
-            await DanceStatsManager.ClearCache(Database, false);
-        }
-
-        return ret;
-    }
-
-    private async Task<Song> AutoMerge(List<Song> songs, ApplicationUser user)
-    {
-        // These songs are coming from "light loading", so need to reload the full songs before merging
-        songs = [.. (await SongIndex.FindSongs(songs.Select(s => s.SongId)))];
-
-        // Filter out songs with .NoMerge command (now that we have full properties)
-        songs = songs.Where(s => 
-            !s.SongProperties.Any(p => p.Name == Song.NoMergeCommand)
-        ).ToList();
-
-        // If filtering removed all songs or left only one, skip merge
-        if (songs.Count < 2)
-        {
-            Logger.LogInformation($"AutoMerge: Filtered to {songs.Count} songs (possible .NoMerge), skipping merge");
-            return null;
-        }
-
-        // Use simple merge: concatenates all properties, annotates with song GUIDs, sorts by date
-        var song = await SongIndex.SimpleMergeSongs(user, songs);
-
-        Database.RemoveMergeCandidates(songs);
-
-        return song;
-    }
 
     private ActionResult Merge(IEnumerable<Song> songs)
     {
