@@ -172,7 +172,8 @@ public class MergeTests
         Assert.AreEqual(4, createAndEditIndices.Count, "Should have 1 create + 2 edits from song1, plus 1 create from song2");
     }
 
-    // NOTE: .NoMerge functionality is implemented but test requires LoadLightSongsStreamingAsync to load SongProperties
-    // To test .NoMerge manually: Add ".NoMerge=  User=admin  Time=MM/dd/yyyy hh:mm:ss tt" to a song's history
-    // That song will be excluded from merge candidates
+    // NOTE: .NoMerge filtering is implemented in SongController.AutoMerge after full song reload.
+    // Songs with .NoMerge in their history are excluded from AutoMerge execution.
+    // To test manually: Add ".NoMerge=  User=admin  Time=MM/dd/yyyy hh:mm:ss tt" to a song's history,
+    // then verify it doesn't appear in merge results when running AutoMerge on the InitializationTasks page.
 }

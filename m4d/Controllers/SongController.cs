@@ -2039,7 +2039,10 @@ public class SongController : ContentController
                     if (cluster.Count > 1)
                     {
                         var s = await AutoMerge(cluster, user);
-                        ret.Add(s);
+                        if (s != null)  // Handle .NoMerge filtering
+                        {
+                            ret.Add(s);
+                        }
                     }
                     else if (cluster.Count == 1)
                     {
@@ -2047,6 +2050,23 @@ public class SongController : ContentController
                     }
 
                     cluster = [song];
+                }
+            }
+
+            // Handle final cluster after loop ends
+            if (cluster != null)
+            {
+                if (cluster.Count > 1)
+                {
+                    var s = await AutoMerge(cluster, user);
+                    if (s != null)  // Handle .NoMerge filtering
+                    {
+                        ret.Add(s);
+                    }
+                }
+                else if (cluster.Count == 1)
+                {
+                    Logger.LogInformation($"Bad Merge: {cluster[0].Title}");
                 }
             }
         }
@@ -2062,6 +2082,18 @@ public class SongController : ContentController
     {
         // These songs are coming from "light loading", so need to reload the full songs before merging
         songs = [.. (await SongIndex.FindSongs(songs.Select(s => s.SongId)))];
+
+        // Filter out songs with .NoMerge command (now that we have full properties)
+        songs = songs.Where(s => 
+            !s.SongProperties.Any(p => p.Name == Song.NoMergeCommand)
+        ).ToList();
+
+        // If filtering removed all songs or left only one, skip merge
+        if (songs.Count < 2)
+        {
+            Logger.LogInformation($"AutoMerge: Filtered to {songs.Count} songs (possible .NoMerge), skipping merge");
+            return null;
+        }
 
         // Use simple merge: concatenates all properties, annotates with song GUIDs, sorts by date
         var song = await SongIndex.SimpleMergeSongs(user, songs);

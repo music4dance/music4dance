@@ -546,39 +546,39 @@ public class SongIndex
 
             foreach (var prop in song.SongProperties)
             {
-                // When we hit a .Create or .Edit, annotate it with the song GUID
+                // When we hit a .Create or .Edit, we are starting a new edit block.
+                // First, flush any existing block (if present), then start a new one
+                // and annotate it with the song GUID.
                 if (prop.Name == Song.CreateCommand || prop.Name == Song.EditCommand)
                 {
+                    if (currentBlock.Count > 0)
+                    {
+                        editBlocks.Add((currentTimestamp ?? DateTime.MinValue, currentBlock));
+                        currentBlock = new List<SongProperty>();
+                        currentTimestamp = null;
+                    }
+
                     currentBlock.Add(new SongProperty(prop.Name, song.SongId.ToString()));
                 }
                 else if (prop.Name == Song.TimeField)
                 {
-                    // Capture the timestamp for this block
+                    // Capture the timestamp for this block (supports both CUT and CTU order)
                     if (DateTime.TryParse(prop.Value, out var dt))
                     {
                         currentTimestamp = dt;
                     }
                     currentBlock.Add(prop);
                 }
-                else if (prop.Name == Song.UserField)
-                {
-                    currentBlock.Add(prop);
-
-                    // End of an edit block - save it with timestamp
-                    if (currentTimestamp.HasValue && currentBlock.Count > 0)
-                    {
-                        editBlocks.Add((currentTimestamp.Value, currentBlock));
-                        currentBlock = new List<SongProperty>();
-                        currentTimestamp = null;
-                    }
-                }
                 else
                 {
+                    // UserField and all other properties just belong to the current block;
+                    // the block will be closed when the next .Create/.Edit is encountered
+                    // or at the end of the song.
                     currentBlock.Add(prop);
                 }
             }
 
-            // Add any remaining properties
+            // Add any remaining properties as the last block
             if (currentBlock.Count > 0)
             {
                 editBlocks.Add((currentTimestamp ?? DateTime.MinValue, currentBlock));
@@ -593,7 +593,7 @@ public class SongIndex
 
         // Add merge command at the end
         sortedProperties.Add(new SongProperty(Song.MergeCommand, stringIds));
-        sortedProperties.Add(new SongProperty(Song.UserField, user.UserName));
+        sortedProperties.Add(new SongProperty(Song.UserField, user.DecoratedName));
         sortedProperties.Add(new SongProperty(Song.TimeField, DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss tt")));
 
         // Create the merged song

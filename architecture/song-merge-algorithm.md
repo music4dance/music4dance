@@ -119,6 +119,8 @@ Pattern: `\d+\s*BPM`
 
 ### Manual Merge Prevention (.NoMerge Sentinel)
 
+**Status**: ✅ Implemented
+
 Songs can be explicitly excluded from merge candidates by adding a `.NoMerge` command to their history:
 
 **Format**:
@@ -129,9 +131,29 @@ Songs can be explicitly excluded from merge candidates by adding a `.NoMerge` co
 **Usage**:
 1. Admin identifies songs that should never be merged (e.g., live vs studio versions with same title)
 2. Adds `.NoMerge` command via `BatchAdminEdit` or direct song editing
-3. Song is automatically excluded from all future merge candidate queries
+3. Song is automatically excluded during AutoMerge execution
 
-**Implementation**: `MergeCluster.GetMergeCandidates()` checks for `.NoMerge` command during candidate collection
+**Implementation**: `.NoMerge` check occurs in `SongController.AutoMerge(List<Song>, ApplicationUser)` after full song reload, where SongProperties are available. This design is optimal because:
+
+- **Efficient Light-Song Clustering**: Initial candidate selection uses light-loaded songs (Title, Artist, Tempo, Length) for fast clustering via `MergeCluster.GetMergeCandidates()`
+- **Equivalence Checks**: Methods like `Equivalent()`, `WeakEquivalent()`, and `TitleArtistEquivalent()` only need light-song fields, so they remain fast
+- **Strategic Full Reload**: Full songs (with SongProperties) are only loaded once clusters are identified, minimizing expensive database I/O
+- **.NoMerge Filtering**: Check happens after full reload but before `SimpleMergeSongs()` execution, preventing merges of marked songs
+
+**Code Flow**:
+```
+1. MergeCluster.GetMergeCandidates()
+   → LoadLightSongsStreamingAsync() (Title, Artist, Tempo, Length only)
+
+2. AutoMerge(IReadOnlyCollection<Song>, int)
+   → Equivalence checks using light songs (fast)
+   → Groups into merge clusters
+
+3. AutoMerge(List<Song>, ApplicationUser)
+   → FindSongs() - Reload FULL songs with SongProperties
+   → .NoMerge check HERE ← filters before merge
+   → SimpleMergeSongs() - executes merge
+```
 
 **Example**:
 ```
@@ -140,7 +162,7 @@ Songs can be explicitly excluded from merge candidates by adding a `.NoMerge` co
 .NoMerge=   User=admin      Time=06/15/2023 02:01:00 PM
 ```
 
-This song will never appear in merge candidates, even if another "Shape of You" by Ed Sheeran exists.
+This song will never be merged, even if another "Shape of You" by Ed Sheeran exists. The merge operation will be skipped with a log entry indicating .NoMerge filtering.
 
 ### Artist Normalization
 
