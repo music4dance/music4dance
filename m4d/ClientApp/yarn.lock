@@ -1378,15 +1378,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vitejs/plugin-vue@npm:^6.0.4":
-  version: 6.0.4
-  resolution: "@vitejs/plugin-vue@npm:6.0.4"
+"@vitejs/plugin-vue@npm:^6.0.5":
+  version: 6.0.5
+  resolution: "@vitejs/plugin-vue@npm:6.0.5"
   dependencies:
     "@rolldown/pluginutils": "npm:1.0.0-rc.2"
   peerDependencies:
-    vite: ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0
+    vite: ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0
     vue: ^3.2.25
-  checksum: 10c0/38ba89e52cb663b0da8a0c202f315e92e47874bc1347ce5591c8e982342c33ad046389f174237bcf7c215fbad08c927c2c582d36ae76f9ababe7763a388a5b63
+  checksum: 10c0/b1f7d9983751dca7ead541de7e563ef953b9eba623d5c9b3cd14eb4d77bbaa31d44ea5f1b9291354ff5da4337f52aa25cb64ab585f428e768e12b547e17582c2
   languageName: node
   linkType: hard
 
@@ -3540,7 +3540,7 @@ __metadata:
     "@types/node": "npm:^25.2.2"
     "@types/uuid": "npm:^11.0.0"
     "@typescript-eslint/utils": "npm:^8.55.0"
-    "@vitejs/plugin-vue": "npm:^6.0.4"
+    "@vitejs/plugin-vue": "npm:^6.0.5"
     "@vitest/eslint-plugin": "npm:^1.6.6"
     "@vitest/ui": "npm:^4.0.18"
     "@vue/compiler-dom": "npm:^3.5.28"
@@ -3575,7 +3575,7 @@ __metadata:
     unplugin-icons: "npm:^23.0.1"
     unplugin-vue-components: "npm:^31.0.0"
     uuid: "npm:^13.0.0"
-    vite: "npm:^7.3.1"
+    vite: "npm:^7.0.0"
     vite-plugin-inspect: "npm:^11.3.3"
     vite-plugin-mkcert: "npm:^1.17.9"
     vitest: "npm:^4.0.18"
@@ -5035,7 +5035,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^6.0.0 || ^7.0.0, vite@npm:^7.3.1":
+"vite@npm:^6.0.0 || ^7.0.0, vite@npm:^7.0.0":
   version: 7.3.1
   resolution: "vite@npm:7.3.1"
   dependencies:

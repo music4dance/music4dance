@@ -17,7 +17,7 @@ export function loadTestPage(app: unknown, model?: unknown, menuContext?: MenuCo
   const bsvn = createBootstrap();
 
   if (model) {
-    window.model_ = model;
+    (window as unknown as Record<string, unknown>).model_ = model;
   }
 
   if (menuContext) {
