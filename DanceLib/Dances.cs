@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 // NEXTSTEPS:
@@ -31,6 +31,7 @@ public class Dances
         DefaultValueHandling = DefaultValueHandling.Ignore
     };
 
+    private static readonly object s_lock = new();
     private static Dances s_instance;
     private readonly List<DanceInstance> _allDanceInstances = [];
     private readonly List<DanceObject> _allDanceObjects = [];
@@ -58,6 +59,56 @@ public class Dances
     public IEnumerable<DanceGroup> AllDanceGroups => _allDanceGroups;
 
     public static Dances Instance => s_instance;
+
+    private HashSet<string> _allDanceWordsUpperCache;
+
+    /// <summary>
+    /// Gets a flat list of all dance names and synonyms in uppercase for remix detection.
+    /// Includes both full names and significant words (fragments) from multi-word names.
+    /// Cached for performance since this is called frequently during merge operations.
+    /// </summary>
+    public HashSet<string> GetAllDanceWordsUpper()
+    {
+        if (_allDanceWordsUpperCache != null)
+        {
+            return _allDanceWordsUpperCache;
+        }
+
+        var words = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        // Collect all names and synonyms
+        var allNamesAndSynonyms = new List<string>();
+        foreach (var dance in AllDances)
+        {
+            allNamesAndSynonyms.Add(dance.Name);
+            
+            if (dance.Synonyms != null)
+            {
+                allNamesAndSynonyms.AddRange(dance.Synonyms.Where(s => !string.IsNullOrWhiteSpace(s)));
+            }
+        }
+
+        // Process all names and synonyms together
+        foreach (var name in allNamesAndSynonyms)
+        {
+            // Add the full name/synonym
+            words.Add(name.ToUpperInvariant());
+
+            // Split into words and add significant ones
+            var nameWords = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            foreach (var word in nameWords)
+            {
+                // Only add words that are likely dance names (not common words like "Dance", "The", etc.)
+                if (word.Length > 3 && !word.Equals("DANCE", StringComparison.OrdinalIgnoreCase))
+                {
+                    words.Add(word.ToUpperInvariant());
+                }
+            }
+        }
+
+        _allDanceWordsUpperCache = words;
+        return _allDanceWordsUpperCache;
+    }
 
     public IEnumerable<DanceObject> ExpandGroups(IEnumerable<DanceObject> dances)
     {
@@ -224,6 +275,9 @@ public class Dances
 
     public static Dances Reset(Dances instance)
     {
-        return s_instance = instance;
+        lock (s_lock)
+        {
+            return s_instance = instance;
+        }
     }
 }

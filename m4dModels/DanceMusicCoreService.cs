@@ -61,6 +61,11 @@ public partial class DanceMusicCoreService(DanceMusicContext context, ISearchSer
     public SongIndex SongIndex =>
         _songSearch ??= GetSongIndex("default");
 
+    private MergeManager _mergeManager;
+
+    public MergeManager MergeManager =>
+        _mergeManager ??= new MergeManager(SongIndex, DanceStatsManager);
+
     public SongIndex GetSongIndex(string id, bool? isNext = null)
     {
         if (_songSearch != null && isNext == null
@@ -448,26 +453,26 @@ public partial class DanceMusicCoreService(DanceMusicContext context, ISearchSer
 
     public async Task<IReadOnlyCollection<Song>> FindMergeCandidates(int n, int level)
     {
-        return await MergeCluster.GetMergeCandidates(this, n, level);
+        return await MergeManager.GetMergeCandidates(n, level);
     }
 
     public void RemoveMergeCandidates(IEnumerable<Song> songs)
     {
         foreach (var song in songs)
         {
-            MergeCluster.RemoveMergeCandidate(song);
+            MergeManager.RemoveMergeCandidate(song);
         }
     }
 
     public void ClearMergeCandidates()
     {
-        MergeCluster.ClearMergeCandidateCache();
+        MergeManager.ClearMergeCandidateCache();
     }
 
     public void ClearCache()
     {
         _ = DanceStatsManager.ClearCache(this, true);
-        MergeCluster.ClearMergeCandidateCache();
+        MergeManager.ClearMergeCandidateCache();
         _songSearch = null;
     }
 

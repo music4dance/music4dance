@@ -60,12 +60,15 @@ public class ChunkedSong
         Chunk(song.SongProperties);
     }
 
-    public List<SongProperty> SongProperties => [.. Chunks.SelectMany(x => x.Properties)];
+    public List<SongProperty> SongProperties => SongPropertyBlockParser.FlattenBlocks(
+        Chunks.Select(c => new SongPropertyBlock
+        {
+            ActionCommand = c.Properties[0].Name,
+            ActionValue = c.Properties[0].Value,
+            Properties = c.Properties[1..]
+        }));
 
-    public string Serialize()
-    {
-        return string.Join("\t", SongProperties);
-    }
+    public string Serialize() => string.Join("\t", SongProperties);
 
     public bool HasInvalidBatch()
     {
@@ -398,38 +401,11 @@ public class ChunkedSong
         Chunks.Clear();
         UserChunks.Clear();
 
+        // SongChunk.Properties includes the action command at index 0 (same layout as SongPropertyBlock.AllProperties)
         var id = 1;
-        var chunk = new List<SongProperty>();
-        string user = null;
-
-        foreach (var property in properties)
+        foreach (var block in SongPropertyBlockParser.ParseBlocks(properties))
         {
-            if (property.IsAction)
-            {
-                if (chunk.Count != 0)
-                {
-                    AddChunk(id++, user, chunk);
-                    chunk.Clear();
-                    user = null;
-                }
-            }
-            chunk.Add(property);
-            if (property.BaseName == Song.UserField)
-            {
-                if (user == null)
-                {
-                    user = property.Value;
-                }
-                else
-                {
-                    throw new Exception("Multiple users in a chunk");
-                }
-            }
-        }
-
-        if (chunk.Count != 0)
-        {
-            AddChunk(id++, user, chunk);
+            AddChunk(id++, block.User, [.. block.AllProperties]);
         }
     }
 

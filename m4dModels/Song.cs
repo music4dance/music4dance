@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 
 using Azure.Search.Documents.Models;
 
@@ -278,6 +278,7 @@ public class Song : TaggableObject
     public const string DeleteCommand = ".Delete";
     public const string UndoCommand = ".Undo";
     public const string MergeCommand = ".Merge";
+    public const string NoMergeCommand = ".NoMerge";
     public const string FailedLookup = ".FailedLookup";
     public const string NoSongId = ".NoSongId"; // Pseudo action for serialization
 
@@ -5089,7 +5090,94 @@ public class Song : TaggableObject
         AlbumOrder
     ];
 
-    // TOOD: This should really end up in a utility class as some point
+    /// <summary>
+    /// Common dance names that appear in remix titles.
+    /// Used to detect dance-specific remixes that should not be merged with originals.
+    /// </summary>
+    private static readonly HashSet<string> CommonDanceNames =
+    [
+        "SALSA", "WALTZ", "TANGO", "FOXTROT", "QUICKSTEP", "SAMBA", "RUMBA",
+        "CHA CHA", "CHACHA", "JIVE", "PASO DOBLE", "VIENNESE WALTZ",
+        "SWING", "BOLERO", "MAMBO", "MERENGUE", "BACHATA", "HUSTLE",
+        "LINDY HOP", "WEST COAST SWING", "EAST COAST SWING",
+        "TWO STEP", "COUNTRY TWO STEP", "POLKA", "NIGHT CLUB"
+    ];
+
+    /// <summary>
+    /// Parenthetical words that indicate different versions and should prevent merging.
+    /// Examples: "Song (Instrumental)", "Song (Vocal)", "Song (A Cappella)"
+    /// These indicate distinct versions that should remain separate.
+    /// </summary>
+    private static readonly HashSet<string> ExclusionWords =
+    [
+        "INSTRUMENTAL", "VOCAL", "VOCALS", "A CAPPELLA", "ACAPPELLA",
+        "KARAOKE", "ACOUSTIC", "LIVE", "RADIO EDIT", "EXTENDED",
+        "UNPLUGGED", "ORCHESTRAL", "REPRISE", "REMIX"
+    ];
+
+    /// <summary>
+    /// Regex pattern for detecting numeric BPM markers (e.g., "128 BPM", "130BPM").
+    /// Compiled for performance during merge scans.
+    /// </summary>
+    private static readonly Regex BpmPattern = new(@"\d+\s*BPM", RegexOptions.Compiled);
+
+    /// <summary>
+    /// Detects if parenthetical content contains dance-specific indicators or exclusion words.
+    /// Returns true if the content contains:
+    /// 1. Numeric BPM marker (e.g., "128 BPM", "130 BPM")
+    /// 2. Dance name or synonym (e.g., "Salsa", "Bachata", "Waltz")
+    /// 3. Exclusion words (e.g., "Instrumental", "Vocal", "Live")
+    /// These indicate different versions that should NOT be merged with originals.
+    /// </summary>
+    private static bool ContainsDanceRemixIndicators(string parenContent)
+    {
+        if (string.IsNullOrWhiteSpace(parenContent))
+        {
+            return false;
+        }
+
+        // Normalize to remove accents (e.g., "Versión" → "Version")
+        var normalized = parenContent.Normalize(NormalizationForm.FormD);
+        var sb = new StringBuilder();
+        foreach (var c in normalized)
+        {
+            var uc = GetUnicodeCategory(c);
+            if (uc != UnicodeCategory.NonSpacingMark)
+            {
+                _ = sb.Append(c);
+            }
+        }
+        var upper = sb.ToString().ToUpperInvariant();
+
+        // Check for numeric BPM marker (e.g., "128 BPM", "130 BPM", "128BPM")
+        // Pattern: digit(s) + optional space(s) + "BPM"
+        if (BpmPattern.IsMatch(upper))
+        {
+            return true;
+        }
+
+        // Check for exclusion words (e.g., "Instrumental", "Vocal", "Live")
+        if (ExclusionWords.Any(word => upper.Contains(word)))
+        {
+            return true;
+        }
+
+        // Check if any dance words (names, synonyms, or fragments) appear
+        // Get dance names and synonyms from the actual dance library
+        var danceLibrary = DanceLibrary.Dances.Instance;
+        if (danceLibrary == null)
+        {
+            // Fallback: use CommonDanceNames when library isn't loaded yet
+            // This is conservative - better to preserve potential dance versions
+            return CommonDanceNames.Any(danceWord => upper.Contains(danceWord));
+        }
+
+        // Check if any dance words (names, synonyms, or fragments) appear in the parenthetical content
+        var allDanceWords = danceLibrary.GetAllDanceWordsUpper();
+        return allDanceWords.Any(danceWord => upper.Contains(danceWord));
+    }
+
+    // TODO: This should really end up in a utility class at some point
     public static string MungeString(string s, bool normalize,
         IEnumerable<string> extraIgnore = null)
     {
@@ -5109,6 +5197,7 @@ public class Song : TaggableObject
         var wordBreak = 0;
 
         var paren = false;
+        var parenStart = -1;
         var bracket = false;
         var space = false;
         var lastC = ' ';
@@ -5130,6 +5219,15 @@ public class Song : TaggableObject
             {
                 if (c == ')')
                 {
+                    // Check if parenthetical content contains dance remix indicators
+                    // Extract from norm (not s) since we're iterating through norm and lengths may differ
+                    var parenContent = norm.Substring(parenStart, i - parenStart);
+                    if (normalize && ContainsDanceRemixIndicators(parenContent))
+                    {
+                        // This is a dance remix - preserve the parenthetical content
+                        var normalizedParen = NormalizeAlbumString(parenContent, keepWhitespace: false);
+                        _ = sb.Append(normalizedParen);
+                    }
                     paren = false;
                 }
             }
@@ -5181,6 +5279,7 @@ public class Song : TaggableObject
                     {
                         case '(':
                             paren = true;
+                            parenStart = i + 1; // Track where parenthetical content starts
                             break;
                         case '[':
                             bracket = true;
@@ -5282,11 +5381,8 @@ public class Song : TaggableObject
         "IN",
         "OF",
         "OR",
-        "THE",
-        "THAT",
-        "THIS"
+        "THE"
     ];
-
     private static readonly string[] ArtIgnore =
         ["BAND", "FEAT", "FEATURING", "HIS", "HER", "ORCHESTRA", "WITH"];
 

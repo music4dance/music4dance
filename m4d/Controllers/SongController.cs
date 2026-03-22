@@ -1302,16 +1302,22 @@ public class SongController : ContentController
             Filter.Level = level;
         }
 
-        var songs =
-            await Database.FindMergeCandidates(
-                autoCommit == true ? 10000 : 500, Filter.Level ?? 1);
+        var allSongs = await Database.MergeManager.GetMergeCandidates(
+            autoCommit == true ? 10000 : 500, Filter.Level ?? 1);
 
         if (autoCommit.HasValue && autoCommit.Value)
         {
-            songs = await AutoMerge(songs, Filter.Level ?? 1);
+            var user = new ApplicationUser("automerge", true);
+            allSongs = await Database.MergeManager.AutoMerge(allSongs, Filter.Level ?? 1, user);
         }
 
-        return await FormatSongList(songs, hiddenColumns: ["dances", "echo", "length", "order", "play", "tags", "track"]);
+        // Apply paging
+        var pageNumber = Filter.Page ?? 1;
+        var pageSize = 25;
+        var totalCount = allSongs.Count;
+        var songs = allSongs.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+
+        return await FormatSongList(songs, totalCount, totalCount, hiddenColumns: ["dances", "echo", "length", "order", "play", "tags", "track"]);
     }
 
     //
@@ -1395,6 +1401,8 @@ public class SongController : ContentController
             case "Merge":
                 return Merge(songs);
             case "SimpleMerge":
+                return await SimpleMerge(songs);
+            case "Preview":
                 return SongMerge(songs);
             case "Delete":
                 return await Delete(songs, Filter);
@@ -2003,79 +2011,40 @@ public class SongController : ContentController
 
     #region Merge
 
-    private async Task<IReadOnlyCollection<Song>> AutoMerge(IReadOnlyCollection<Song> songs,
-        int level)
-    {
-        // Get the logged in user
-        var userName = UserName;
-        var user = await Database.FindUser(userName);
-
-        var ret = new List<Song>();
-        List<Song> cluster = null;
-
-        try
-        {
-            foreach (var song in new List<Song>(songs))
-            {
-                if (cluster == null)
-                {
-                    cluster = [song];
-                }
-                else if (level == 0 && song.Equivalent(cluster[0])
-                    || level == 1 && song.WeakEquivalent(cluster[0])
-                    || level == 3 && song.TitleArtistEquivalent(cluster[0]))
-                {
-                    cluster.Add(song);
-                }
-                else
-                {
-                    if (cluster.Count > 1)
-                    {
-                        var s = await AutoMerge(cluster, user);
-                        ret.Add(s);
-                    }
-                    else if (cluster.Count == 1)
-                    {
-                        Logger.LogInformation($"Bad Merge: {cluster[0].Title}");
-                    }
-
-                    cluster = [song];
-                }
-            }
-        }
-        finally
-        {
-            await DanceStatsManager.ClearCache(Database, false);
-        }
-
-        return ret;
-    }
-
-    private async Task<Song> AutoMerge(List<Song> songs, ApplicationUser user)
-    {
-        UseVue = UseVue.No;
-        // These songs are coming from "light loading", so need to reload the full songs before merging
-        songs = [.. (await SongIndex.FindSongs(songs.Select(s => s.SongId)))];
-
-        var song = await SongIndex.MergeSongs(
-            user, songs,
-            ResolveStringField(Song.TitleField, songs),
-            ResolveStringField(Song.ArtistField, songs),
-            ResolveDecimalField(Song.TempoField, songs),
-            ResolveIntField(Song.LengthField, songs),
-            Song.BuildAlbumInfo(songs)
-        );
-
-        Database.RemoveMergeCandidates(songs);
-
-        return song;
-    }
-
     private ActionResult Merge(IEnumerable<Song> songs)
     {
         var sm = new SongMerge([.. songs], Database.DanceStats);
 
         return View("Merge", sm);
+    }
+
+    private async Task<ActionResult> SimpleMerge(IEnumerable<Song> songs)
+    {
+        UseVue = UseVue.No;
+
+        var songList = songs.ToList();
+        if (songList.Count < 2)
+        {
+            ViewBag.Title = "SimpleMerge Error";
+            ViewBag.Message = "SimpleMerge requires at least 2 songs. Please select 2 or more songs to merge.";
+            return View("Info");
+        }
+
+        // Get the logged in user
+        var user = await Database.FindUser(User.Identity?.Name);
+
+        // Execute simple merge
+        var mergedSong = await SongIndex.SimpleMergeSongs(user, songList);
+
+        // Clear merge candidates cache
+        Database.RemoveMergeCandidates(songList);
+
+        // Clear dance stats cache
+        await DanceStatsManager.ClearCache(Database, true);
+
+        ViewBag.BackAction = "MergeCandidates";
+
+        return await Details(mergedSong?.SongId);
     }
 
     private ActionResult SongMerge(IEnumerable<Song> songs)
