@@ -80,7 +80,7 @@
     </script>
 }
 
-@if (Context.Request.Host.HasValue && !Context.Request.Host.Value.Contains("music4dance.net"))
+@if ((Context.Request.Host.HasValue && !Context.Request.Host.Value.Contains("music4dance.net")) || ViewData["NoIndex"] as bool? == true)
 {
     <meta name="robots" content="noindex, nofollow" />
 }
