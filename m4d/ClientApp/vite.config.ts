@@ -59,10 +59,11 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if (id.includes("node_modules")) {
-            if (id.includes("bootstrap-vue-next")) return "bsvn";
-            if (id.includes("vue-showdown") || id.includes("showdown")) return "showdown";
-            if (id.includes("/vue/") || id.includes("/vue-demi/") || id.includes("/@vue/")) return "vue";
+          const normalizedId = normalizePath(id);
+          if (normalizedId.includes("node_modules")) {
+            if (normalizedId.includes("bootstrap-vue-next")) return "bsvn";
+            if (normalizedId.includes("vue-showdown") || normalizedId.includes("showdown")) return "showdown";
+            if (normalizedId.includes("/vue/") || normalizedId.includes("/vue-demi/") || normalizedId.includes("/@vue/")) return "vue";
           }
         },
       },
