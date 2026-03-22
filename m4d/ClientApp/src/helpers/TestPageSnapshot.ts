@@ -7,7 +7,7 @@ import { setupTestEnvironment } from "./TestHelpers";
 declare global {
   interface Window {
     menuContext: MenuContext;
-    model_: unknown;
+    model_: any;
   }
 }
 
