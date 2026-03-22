@@ -49,7 +49,7 @@ public class MergeManager
             var hash = song.TitleHash;
             if (level != 2)
             {
-                hash = Song.CreateTitleHash(song.Title + song.Artist);
+                hash = Song.CreateTitleHash(song.Title + "\t" + song.Artist);
             }
 
             if (!clusters.TryGetValue(hash, out var mc))
@@ -63,21 +63,30 @@ public class MergeManager
 
         var ret = new List<Song>();
 
-        foreach (var cluster in clusters.Values
-                .TakeWhile(cluster => ret.Count + cluster.Songs.Count <= n)
-                .Where(cluster => cluster.Songs.Count > 1))
+        foreach (var cluster in clusters.Values.Where(cluster => cluster.Songs.Count > 1))
         {
+            if (ret.Count >= n)
+            {
+                break;
+            }
+
+            var remaining = n - ret.Count;
+
             if (level == 2)
             {
-                ret.AddRange(cluster.Songs);
+                // Only add this cluster if it fully fits within the remaining capacity
+                if (cluster.Songs.Count <= remaining)
+                {
+                    ret.AddRange(cluster.Songs);
+                }
             }
             else if (level == 0)
             {
-                ret.AddRange(GetEquivalentLumps(cluster.Songs, n - ret.Count));
+                ret.AddRange(GetEquivalentLumps(cluster.Songs, remaining));
             }
             else // level == 1 or 3
             {
-                ret.AddRange(GetWeakEquivalentLumps(cluster.Songs, n - ret.Count, level));
+                ret.AddRange(GetWeakEquivalentLumps(cluster.Songs, remaining, level));
             }
         }
 
@@ -140,8 +149,11 @@ public class MergeManager
 
         if (emptyArtist)
         {
-            // Add all songs in the cluster
-            return clusterSongs;
+            // All songs share a title but have mixed/empty artists - treat the whole cluster as one merge group,
+            // but do not exceed the remaining capacity.
+            return clusterSongs.Count <= remaining
+                ? clusterSongs
+                : clusterSongs.Take(remaining).ToList();
         }
 
         foreach (var s in clusterSongs)
@@ -298,7 +310,7 @@ public class MergeManager
         }
         finally
         {
-            await _danceStats.ClearCache(null, false);
+            await _danceStats.ClearCache(_songIndex.DanceMusicService, false);
         }
 
         return ret;

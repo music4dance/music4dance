@@ -70,7 +70,7 @@ public class SongIndex
 
     #region Lookup
 
-    public async Task<Song> FindSong(Guid id)
+    public virtual async Task<Song> FindSong(Guid id)
     {
         try
         {
@@ -530,26 +530,26 @@ public class SongIndex
         var songIds = songs.Select(s => s.SongId).ToList();
         var stringIds = string.Join(";", songIds.Select(id => id.ToString()));
 
-        // Ensure all songs are fully loaded
-        if (songs.Any(s => s.SongProperties == null))
-        {
-            songs = [.. (await DanceMusicService.SongIndex.FindSongs(songIds))];
-        }
+        // Always reload by ID to ensure full song properties are available
+        songs = [.. (await DanceMusicService.SongIndex.FindSongs(songIds))];
 
-        // Parse all songs into blocks and annotate with source song GUID
+        // Parse all songs into blocks and annotate .Create/.Edit blocks with source song GUID.
+        // All action types (including .Merge, .Delete, .NoMerge) are parsed and sorted so that
+        // audit history is preserved in chronological order regardless of action type.
         var allBlocks = new List<SongPropertyBlock>();
 
         foreach (var song in songs)
         {
-            // Parse blocks for this song (only .Create and .Edit commands)
-            var blocks = SongPropertyBlockParser.ParseBlocks(
-                song.SongProperties,
-                SongPropertyBlockParser.CreateEditFilter());
+            var blocks = SongPropertyBlockParser.ParseBlocks(song.SongProperties);
 
-            // Annotate each block's action command with the source song GUID
             foreach (var block in blocks)
             {
-                block.ActionValue = song.SongId.ToString();
+                // Only stamp .Create and .Edit blocks with the source GUID; other action types
+                // (e.g. .Merge, .Delete, .NoMerge) keep their original value.
+                if (block.ActionCommand == Song.CreateCommand || block.ActionCommand == Song.EditCommand)
+                {
+                    block.ActionValue = song.SongId.ToString();
+                }
                 allBlocks.Add(block);
             }
         }

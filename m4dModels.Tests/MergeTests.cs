@@ -16,7 +16,8 @@ public class MergeTests
     public async Task SimpleMerge_AnnotatesCreateAndEditCommands()
     {
         // Arrange
-        var dms = await DanceMusicTester.CreateServiceWithUsers("TestDb_SimpleMerge_Annotate");
+        var dms = await DanceMusicTester.CreateService("TestDb_SimpleMerge_Annotate", useTestSongIndex: true);
+        await DanceMusicTester.AddUser(dms, "dwgray", false);
         var user = await dms.FindUser("dwgray");
 
         // Create first song
@@ -57,7 +58,8 @@ public class MergeTests
     public async Task SimpleMerge_SortsByTimestamp()
     {
         // Arrange
-        var dms = await DanceMusicTester.CreateServiceWithUsers("TestDb_SimpleMerge_Sort");
+        var dms = await DanceMusicTester.CreateService("TestDb_SimpleMerge_Sort", useTestSongIndex: true);
+        await DanceMusicTester.AddUser(dms, "dwgray", false);
         var user = await dms.FindUser("dwgray");
 
         // Create songs with different timestamps (chronologically out of order)
@@ -94,7 +96,9 @@ public class MergeTests
     public async Task SimpleMerge_PreservesAllProperties()
     {
         // Arrange
-        var dms = await DanceMusicTester.CreateServiceWithUsers("TestDb_SimpleMerge_Preserve");
+        var dms = await DanceMusicTester.CreateService("TestDb_SimpleMerge_Preserve", useTestSongIndex: true);
+        await DanceMusicTester.AddUser(dms, "dwgray", false);
+        await DanceMusicTester.AddUser(dms, "user2", false);
         var user = await dms.FindUser("dwgray");
 
         // Create songs with different properties
@@ -141,7 +145,9 @@ public class MergeTests
     public async Task SimpleMerge_MultipleEditsFromSameSong()
     {
         // Arrange
-        var dms = await DanceMusicTester.CreateServiceWithUsers("TestDb_SimpleMerge_MultiEdit");
+        var dms = await DanceMusicTester.CreateService("TestDb_SimpleMerge_MultiEdit", useTestSongIndex: true);
+        await DanceMusicTester.AddUser(dms, "dwgray", false);
+        await DanceMusicTester.AddUser(dms, "user2", false);
         var user = await dms.FindUser("dwgray");
 
         // Song with multiple edits

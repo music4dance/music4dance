@@ -8,7 +8,8 @@ namespace m4dModels.Tests;
 public class TestSongIndex : SongIndex
 {
     private DanceMusicCoreService? _actualService;
-    
+    private readonly Dictionary<Guid, Song> _songStore = [];
+
     public List<EditSongCall> EditCalls { get; } = new();
 
     /// <summary>
@@ -51,11 +52,13 @@ public class TestSongIndex : SongIndex
     }
 
     /// <summary>
-    /// Override SaveSong to skip Azure Search updates in tests.
-    /// Only updates DanceStats, does not call UpdateAzureIndex.
+    /// Override SaveSong to store the full song in the local store (for FindSong retrieval)
+    /// and update DanceStats, without calling Azure Search.
     /// </summary>
     public override async Task SaveSong(Song song, string id = "default")
     {
+        _songStore[song.SongId] = song;
+
         // Update stats but skip Azure Search index update
         var stats = DanceMusicService.DanceStats;
         stats.UpdateSong(song);
@@ -136,6 +139,16 @@ public class TestSongIndex : SongIndex
         }
 
         await Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Override FindSong to return from the local store populated by SaveSong.
+    /// Avoids Azure Search client creation in tests.
+    /// </summary>
+    public override Task<Song> FindSong(Guid id)
+    {
+        _songStore.TryGetValue(id, out var song);
+        return Task.FromResult(song);
     }
 
     // Record for capturing EditSong calls

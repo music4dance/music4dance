@@ -6,7 +6,7 @@ The music4dance merge system identifies and consolidates duplicate songs in the 
 
 ## Merge Levels
 
-The system uses **four** merge levels defined in `MergeCluster.cs`. **The levels are NOT numbered sequentially by strictness** - this is legacy behavior.
+The system uses **four** merge levels implemented in `MergeManager.cs`. **The levels are NOT numbered sequentially by strictness** - this is legacy behavior.
 
 **Actual Strictness Order**: Level 2 (loosest) → Level 1 (medium) → Level 3 (medium-strict) → Level 0 (strictest)
 
@@ -147,23 +147,23 @@ Songs can be explicitly excluded from merge candidates by adding a `.NoMerge` co
 2. Adds `.NoMerge` command via `BatchAdminEdit` or direct song editing
 3. Song is automatically excluded during AutoMerge execution
 
-**Implementation**: `.NoMerge` check occurs in `SongController.AutoMerge(List<Song>, ApplicationUser)` after full song reload, where SongProperties are available. This design is optimal because:
+**Implementation**: `.NoMerge` check occurs in `MergeManager.AutoMergeSingleCluster()` after full song reload, where SongProperties are available. This design is optimal because:
 
-- **Efficient Light-Song Clustering**: Initial candidate selection uses light-loaded songs (Title, Artist, Tempo, Length) for fast clustering via `MergeCluster.GetMergeCandidates()`
+- **Efficient Light-Song Clustering**: Initial candidate selection uses light-loaded songs (Title, Artist, Tempo, Length) for fast clustering via `MergeManager.GetMergeCandidates()`
 - **Equivalence Checks**: Methods like `Equivalent()`, `WeakEquivalent()`, and `TitleArtistEquivalent()` only need light-song fields, so they remain fast
 - **Strategic Full Reload**: Full songs (with SongProperties) are only loaded once clusters are identified, minimizing expensive database I/O
 - **.NoMerge Filtering**: Check happens after full reload but before `SimpleMergeSongs()` execution, preventing merges of marked songs
 
 **Code Flow**:
 ```
-1. MergeCluster.GetMergeCandidates()
+1. MergeManager.GetMergeCandidates()
    → LoadLightSongsStreamingAsync() (Title, Artist, Tempo, Length only)
 
-2. AutoMerge(IReadOnlyCollection<Song>, int)
+2. MergeManager.AutoMerge(IReadOnlyCollection<Song>, int, ApplicationUser)
    → Equivalence checks using light songs (fast)
    → Groups into merge clusters
 
-3. AutoMerge(List<Song>, ApplicationUser)
+3. MergeManager.AutoMergeSingleCluster(List<Song>, ApplicationUser)
    → FindSongs() - Reload FULL songs with SongProperties
    → .NoMerge check HERE ← filters before merge
    → SimpleMergeSongs() - executes merge
@@ -362,27 +362,32 @@ The system provides **two merge strategies**: Smart Merge and Simple Merge.
 **Current Implementation** (as of latest update):
 
 ```csharp
-// Location: m4d\Controllers\SongController.cs
-private async Task<Song> AutoMerge(List<Song> songs, ApplicationUser user)
+// Location: m4dModels\MergeManager.cs
+private async Task<Song> AutoMergeSingleCluster(List<Song> songs, ApplicationUser user)
 {
     // Reload full songs (candidates are light-loaded)
-    songs = [.. (await SongIndex.FindSongs(songs.Select(s => s.SongId)))];
+    songs = [.. (await _songIndex.FindSongs(songs.Select(s => s.SongId)))];
+
+    // Filter out .NoMerge songs now that we have full properties
+    songs = songs.Where(s =>
+        !s.SongProperties.Any(p => p.Name == Song.NoMergeCommand)
+    ).ToList();
+
+    if (songs.Count < 2) return null;
 
     // Uses Simple Merge for complete history preservation
-    var song = await SongIndex.SimpleMergeSongs(user, songs);
-
-    Database.RemoveMergeCandidates(songs);
-    return song;
+    return await _songIndex.SimpleMergeSongs(user, songs);
 }
 ```
 
-**Access**: `GET /Song/MergeCandidates?autoCommit=true&level=1`
+**Entry point**: `SongController` receives `GET /Song/MergeCandidates?autoCommit=true&level=1` and delegates to `MergeManager.AutoMerge()`.
 
 **Process**:
 1. System finds all merge candidates at specified level (2, 1, 3, or 0)
 2. Groups candidates by title hash
 3. For each cluster:
    - Reloads full songs (light loading → full loading)
+   - Filters `.NoMerge` songs
    - Calls `SimpleMergeSongs()` to preserve complete history
    - Removes merged songs from candidates cache
 4. Returns list of merged songs

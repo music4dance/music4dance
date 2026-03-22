@@ -2022,14 +2022,22 @@ public class SongController : ContentController
     {
         UseVue = UseVue.No;
 
+        var songList = songs.ToList();
+        if (songList.Count < 2)
+        {
+            ViewBag.Title = "SimpleMerge Error";
+            ViewBag.Message = "SimpleMerge requires at least 2 songs. Please select 2 or more songs to merge.";
+            return View("Info");
+        }
+
         // Get the logged in user
         var user = await Database.FindUser(User.Identity?.Name);
 
         // Execute simple merge
-        var mergedSong = await SongIndex.SimpleMergeSongs(user, songs.ToList());
+        var mergedSong = await SongIndex.SimpleMergeSongs(user, songList);
 
         // Clear merge candidates cache
-        Database.RemoveMergeCandidates(songs.ToList());
+        Database.RemoveMergeCandidates(songList);
 
         // Clear dance stats cache
         await DanceStatsManager.ClearCache(Database, true);
