@@ -11,6 +11,7 @@ The system uses **four** merge levels implemented in `MergeManager.cs`. **The le
 **Actual Strictness Order**: Level 2 (loosest) → Level 1 (medium) → Level 3 (medium-strict) → Level 0 (strictest)
 
 ### Level 2: Title Only (LOOSEST)
+
 - **Title Hash Match**: Normalized titles must match exactly
 - **Artist**: Completely ignored
 - **All other fields**: Ignored
@@ -19,6 +20,7 @@ The system uses **four** merge levels implemented in `MergeManager.cs`. **The le
 **Use Case**: Find ALL songs with similar titles regardless of artist (covers, different performers)
 
 ### Level 1: Title + Artist (MEDIUM - DEFAULT)
+
 - **Title+Artist Hash Match**: Combined hash of title+artist must match
 - **Artist Hash Match**: Then groups by artist hash within cluster
 - **Tempo**: May differ
@@ -28,11 +30,13 @@ The system uses **four** merge levels implemented in `MergeManager.cs`. **The le
 **Use Case**: Most common merge - same song by same artist with different tempo/length metadata
 
 ### Level 3: Title + Artist + Length Filter (MEDIUM-STRICT)
+
 - **Same as Level 1** but adds length validation
 - **Length Filter**: Songs must be within ±20 seconds of the cluster **median** length
 - **Implementation**: Level 1 logic + `FilterLength()` method
 
 **FilterLength Algorithm** (median-based, robust to outliers):
+
 1. Collect lengths of all songs that have a length value
 2. Sort lengths and compute the **median** (middle value for odd count; average of two middle values for even count)
 3. Keep songs whose length is within 20 seconds of the median, plus all songs with no length data
@@ -40,6 +44,7 @@ The system uses **four** merge levels implemented in `MergeManager.cs`. **The le
 **Why median, not mean**: A single outlier (e.g. a 5-minute DJ remix in a cluster of 3-minute songs) skews the mean so far that all songs may fall outside the ±20s window. The median is unaffected by outlier magnitude and anchors to the majority cluster.
 
 **Example**:
+
 ```
 Cluster: [180s, 195s, 300s]
 Mean  = 225s  → |180-225|=45 > 20 → all filtered out ❌
@@ -49,6 +54,7 @@ Median= 195s  → |180-195|=15 ✓, |195-195|=0 ✓, |300-195|=105 → removes 3
 **Use Case**: Level 1 with length check to avoid merging live vs studio, extended vs radio edit
 
 ### Level 0: Full Equivalence (STRICTEST)
+
 - **Title+Artist Hash Match**: Combined hash must match
 - **Song.Equivalent() Required**: ALL fields must match or be empty:
   - Artist must match (or be empty)
@@ -114,6 +120,7 @@ Pattern: `\d+\s*BPM`
 **Exclusion Words**: Parenthetical content indicating different versions that should remain separate
 
 **Words List** (in `Song.cs`):
+
 - "INSTRUMENTAL", "VOCAL", "VOCALS"
 - "A CAPPELLA", "ACAPPELLA", "KARAOKE"
 - "ACOUSTIC", "LIVE", "UNPLUGGED"
@@ -138,11 +145,13 @@ Pattern: `\d+\s*BPM`
 Songs can be explicitly excluded from merge candidates by adding a `.NoMerge` command to their history:
 
 **Format**:
+
 ```
 .NoMerge=    User={admin}    Time=MM/dd/yyyy hh:mm:ss tt
 ```
 
 **Usage**:
+
 1. Admin identifies songs that should never be merged (e.g., live vs studio versions with same title)
 2. Adds `.NoMerge` command via `BatchAdminEdit` or direct song editing
 3. Song is automatically excluded during AutoMerge execution
@@ -155,6 +164,7 @@ Songs can be explicitly excluded from merge candidates by adding a `.NoMerge` co
 - **.NoMerge Filtering**: Check happens after full reload but before `SimpleMergeSongs()` execution, preventing merges of marked songs
 
 **Code Flow**:
+
 ```
 1. MergeManager.GetMergeCandidates()
    → LoadLightSongsStreamingAsync() (Title, Artist, Tempo, Length only)
@@ -170,6 +180,7 @@ Songs can be explicitly excluded from merge candidates by adding a `.NoMerge` co
 ```
 
 **Example**:
+
 ```
 .Create=    User=dwgray     Time=01/01/2020 10:00:00 AM    Title=Shape of You    Artist=Ed Sheeran
 .Edit=      User=admin      Time=06/15/2023 02:00:00 PM    Tag+=Live:Other
@@ -263,14 +274,16 @@ The system provides **two merge strategies**: Smart Merge and Simple Merge.
 
 ### Smart Merge (Manual Admin Operations)
 
-**Implementation**: `SongIndex.MergeSongs()`  
+**Implementation**: `SongIndex.MergeSongs()`
 **Location**: `m4dModels\SongIndex.cs`
 
 **Used For**:
+
 - Manual admin merges via UI (`GET /Song/BulkEdit` → "Merge" action)
 - Requires admin review and conflict resolution
 
 **Process**:
+
 1. Admin selects songs to merge from search results
 2. System presents merge form showing conflicts (title, artist, tempo, length)
 3. Admin resolves conflicts by selecting preferred values
@@ -284,6 +297,7 @@ The system provides **two merge strategies**: Smart Merge and Simple Merge.
 11. Returns new consolidated song
 
 **Conflict Resolution**:
+
 - If form data provided: Uses admin's selection
 - Otherwise: Uses first non-null value
 
@@ -291,21 +305,24 @@ The system provides **two merge strategies**: Smart Merge and Simple Merge.
 
 ### Simple Merge (Automatic Batch Operations)
 
-**Implementation**: `SongIndex.SimpleMergeSongs()`  
+**Implementation**: `SongIndex.SimpleMergeSongs()`
 **Location**: `m4dModels\SongIndex.cs`
 
 **Used For**:
+
 - Auto-merge batch processing (`GET /Song/MergeCandidates?autoCommit=true`)
 - Admin simple merge via UI (`POST /Song/BulkEdit` → "SimpleMerge" button)
 - Preserves complete history for potential unmerging
 
 **Admin UI Access**:
+
 - Navigate to Admin → Initialization Tasks → "Merge Songs" section
 - Enter two song GUIDs in the text boxes
 - Click **"SimpleMerge"** button to execute automatic merge
 - Click **"Preview"** button to see Vue3 merge preview (no actual merge)
 
 **Algorithm**:
+
 1. **Load full songs** - Ensures all SongProperties are available
 2. **Group by edit blocks** - Properties between `.Create`/`.Edit` and `.User=` are kept together
 3. **Annotate commands** - Replaces empty `.Create=` and `.Edit=` with `.Create={songGUID}` and `.Edit={songGUID}`
@@ -315,6 +332,7 @@ The system provides **two merge strategies**: Smart Merge and Simple Merge.
 7. **Delete source songs** - Removes original songs from database
 
 **Benefits**:
+
 - **100% information preservation** - Every edit from every source song retained
 - **Unmerge capability** - Original song GUIDs allow reconstruction
 - **Simpler logic** - No complex conflict resolution
@@ -323,17 +341,20 @@ The system provides **two merge strategies**: Smart Merge and Simple Merge.
 **Example Merge**:
 
 **Song 1** (created 01/01/2020):
+
 ```
 .Create=    User=dwgray  Time=01/01/2020 10:00:00 AM    Title=Song    Artist=Artist    Tempo=120.0    Tag+=Salsa:Dance
 ```
 
 **Song 2** (created 01/02/2020, edited 01/03/2020):
+
 ```
 .Create=    User=user2   Time=01/02/2020 11:00:00 AM    Title=Song    Artist=Artist    Tempo=125.0    Tag+=Bachata:Dance
 .Edit=      User=user2   Time=01/03/2020 12:00:00 PM    Tempo=130.0
 ```
 
 **Merged Song** (merged 01/04/2020):
+
 ```
 .Create={song1-guid}    User=dwgray  Time=01/01/2020 10:00:00 AM    Title=Song    Artist=Artist    Tempo=120.0    Tag+=Salsa:Dance
 .Create={song2-guid}    User=user2   Time=01/02/2020 11:00:00 AM    Title=Song    Artist=Artist    Tempo=125.0    Tag+=Bachata:Dance
@@ -345,17 +366,17 @@ The system provides **two merge strategies**: Smart Merge and Simple Merge.
 
 ### Comparison: Smart vs Simple Merge
 
-| Aspect | Smart Merge | Simple Merge |
-|--------|-------------|--------------|
-| **Properties** | Merged/deduplicated | All preserved (concatenated) |
-| **Conflicts** | Manual/auto resolution | All versions kept |
-| **Size** | Smaller | Larger (all properties) |
-| **Accuracy** | May lose data | 100% accurate |
-| **Unmerge** | Difficult/impossible | Straightforward |
-| **Complexity** | High (conflict logic) | Low (concat + sort) |
-| **GUID Annotation** | No | Yes (every command) |
-| **Use Case** | Manual admin merge | Auto-merge batches |
-| **Implementation** | `MergeSongs()` | `SimpleMergeSongs()` |
+| Aspect              | Smart Merge            | Simple Merge                 |
+| ------------------- | ---------------------- | ---------------------------- |
+| **Properties**      | Merged/deduplicated    | All preserved (concatenated) |
+| **Conflicts**       | Manual/auto resolution | All versions kept            |
+| **Size**            | Smaller                | Larger (all properties)      |
+| **Accuracy**        | May lose data          | 100% accurate                |
+| **Unmerge**         | Difficult/impossible   | Straightforward              |
+| **Complexity**      | High (conflict logic)  | Low (concat + sort)          |
+| **GUID Annotation** | No                     | Yes (every command)          |
+| **Use Case**        | Manual admin merge     | Auto-merge batches           |
+| **Implementation**  | `MergeSongs()`         | `SimpleMergeSongs()`         |
 
 ### Auto Merge Behavior
 
@@ -383,6 +404,7 @@ private async Task<Song> AutoMergeSingleCluster(List<Song> songs, ApplicationUse
 **Entry point**: `SongController` receives `GET /Song/MergeCandidates?autoCommit=true&level=1` and delegates to `MergeManager.AutoMerge()`.
 
 **Process**:
+
 1. System finds all merge candidates at specified level (2, 1, 3, or 0)
 2. Groups candidates by title hash
 3. For each cluster:
@@ -410,8 +432,8 @@ public async Task<List<Song>> UnmergeSong(Guid mergedSongId)
     {
         // Filter properties annotated with this GUID
         var props = merged.SongProperties
-            .Where(p => 
-                (p.Name == Song.CreateCommand || p.Name == Song.EditCommand) && 
+            .Where(p =>
+                (p.Name == Song.CreateCommand || p.Name == Song.EditCommand) &&
                 p.Value == sourceId.ToString())
             // Get properties until next command
             .SelectMany(GetPropertiesUntilNextCommand)

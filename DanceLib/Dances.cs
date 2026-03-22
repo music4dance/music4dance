@@ -76,15 +76,20 @@ public class Dances
 
         var words = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        // Collect all names and synonyms
+        // Collect all names, synonyms, and searchonyms
         var allNamesAndSynonyms = new List<string>();
         foreach (var dance in AllDances)
         {
             allNamesAndSynonyms.Add(dance.Name);
-            
+
             if (dance.Synonyms != null)
             {
                 allNamesAndSynonyms.AddRange(dance.Synonyms.Where(s => !string.IsNullOrWhiteSpace(s)));
+            }
+
+            if (dance.Searchonyms != null)
+            {
+                allNamesAndSynonyms.AddRange(dance.Searchonyms.Where(s => !string.IsNullOrWhiteSpace(s)));
             }
         }
 

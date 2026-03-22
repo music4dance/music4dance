@@ -222,8 +222,28 @@ public class SongTests
         // Different BPMs of same dance should be different
         var salsa128 = "Let's Dance (Salsa 128 BPM)";
         var salsa130 = "Let's Dance (Salsa 130 BPM)";
-        Assert.AreNotEqual(Song.CreateTitleHash(salsa128), Song.CreateTitleHash(salsa130), 
+        Assert.AreNotEqual(Song.CreateTitleHash(salsa128), Song.CreateTitleHash(salsa130),
             "Different BPM versions should not match");
+    }
+
+    [TestMethod]
+    public void SearchonymDetectionPreventsWrongMerge()
+    {
+        // Searchonyms (e.g. "cha-cha") should be treated the same as dance names
+        var original = "Smooth";
+        var chaChaHyphen = "Smooth (Cha-Cha)";       // searchonym for Cha Cha
+        var chaChaChaTriple = "Smooth (Cha Cha Cha)"; // searchonym for Cha Cha
+
+        var hashOriginal = Song.CreateTitleHash(original);
+        var hashChaChaHyphen = Song.CreateTitleHash(chaChaHyphen);
+        var hashChaChaCha = Song.CreateTitleHash(chaChaChaTriple);
+
+        Assert.AreNotEqual(hashOriginal, hashChaChaHyphen,
+            "Searchonym 'cha-cha' should not match original");
+        Assert.AreNotEqual(hashOriginal, hashChaChaCha,
+            "Searchonym 'cha cha cha' should not match original");
+        Assert.AreNotEqual(hashChaChaHyphen, hashChaChaCha,
+            "Different cha-cha searchonym variants should not match each other");
     }
 
     [TestMethod]
@@ -253,7 +273,7 @@ public class SongTests
         // Just "BPM" without number should still be ignored (not a tempo marker)
         var justBPM = "Summer Nights (Just BPM)";
         var hashJustBPM = Song.CreateTitleHash(justBPM);
-        Assert.AreEqual(hashOriginal, hashJustBPM, 
+        Assert.AreEqual(hashOriginal, hashJustBPM,
             "BPM without number should be ignored like other parenthetical content");
     }
 
@@ -270,7 +290,7 @@ public class SongTests
         var hashBachataOnly = Song.CreateTitleHash(bachataOnly);
 
         // Both should be detected as different (dance name is present)
-        Assert.AreNotEqual(hashOriginal, hashBachataVersion, 
+        Assert.AreNotEqual(hashOriginal, hashBachataVersion,
             "Bachata with 'Versión' should not match original");
         Assert.AreNotEqual(hashOriginal, hashBachataOnly,
             "Bachata alone should not match original");
