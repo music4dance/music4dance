@@ -1,8 +1,11 @@
+User-agent: *
+Disallow: /identity/
+
 User-agent: facebookexternalhit
-Disallow: /Identity/
+Disallow: /identity/
 
 User-agent: Facebot
-Disallow: /Identity/
+Disallow: /identity/
 
 User-agent: Baiduspider
 Disallow: /
