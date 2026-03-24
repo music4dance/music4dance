@@ -33,7 +33,25 @@ public abstract class LoginModelBase : PageModel
         returnUrl ??= Url.Content("~/");
         returnUrl = returnUrl.Replace(_subStr, "-");
 
-        return IsLocalUrl(returnUrl) ? returnUrl : Url.Content("~/");
+        if (!IsLocalUrl(returnUrl)) return Url.Content("~/");
+
+        // Never redirect back to auth action pages — they should never be a final destination
+        string[] authPaths = ["/identity/account/login", "/identity/account/register", "/identity/account/logout"];
+        if (authPaths.Any(p => returnUrl.StartsWith(p, StringComparison.OrdinalIgnoreCase)))
+        {
+            // Try to extract a nested returnUrl from the auth page URL
+            var marker = "?returnUrl=";
+            var qIndex = returnUrl.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
+            if (qIndex >= 0)
+            {
+                var nested = Uri.UnescapeDataString(returnUrl[(qIndex + marker.Length)..]);
+                if (!authPaths.Any(p => nested.StartsWith(p, StringComparison.OrdinalIgnoreCase)) && IsLocalUrl(nested))
+                    return nested;
+            }
+            return Url.Content("~/");
+        }
+
+        return returnUrl;
     }
 
     /// <summary>

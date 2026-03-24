@@ -158,7 +158,11 @@ const isTest = computed(() => {
 });
 
 function accountLink(type: string): string {
-  const url = window.location.pathname + window.location.search;
+  // If already on an identity page, pass through the existing returnUrl rather than chaining
+  const isIdentityPage = window.location.pathname.toLowerCase().startsWith("/identity/");
+  const url = isIdentityPage
+    ? (new URLSearchParams(window.location.search).get("returnUrl") ?? "/")
+    : window.location.pathname + window.location.search;
   return `/identity/account/${type}?returnUrl=${url}`;
 }
 
