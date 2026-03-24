@@ -29,8 +29,12 @@ public abstract class LoginModelBase : PageModel
     /// </summary>
     /// <param name="returnUrl">The return URL to clean and validate</param>
     /// <returns>A cleaned and validated local URL, or home page if invalid</returns>
-    protected string CleanUrl(string returnUrl)
+    protected string CleanUrl(string returnUrl) => CleanUrl(returnUrl, 0);
+
+    private string CleanUrl(string returnUrl, int depth)
     {
+        if (depth > 10) return Url.Content("~/");
+
         returnUrl ??= Url.Content("~/");
         returnUrl = returnUrl.Replace(_subStr, "-");
 
@@ -48,14 +52,8 @@ public abstract class LoginModelBase : PageModel
                 var query = QueryHelpers.ParseQuery(returnUrl[qIndex..]);
                 if (query.TryGetValue("returnUrl", out var nested))
                 {
-                    var nestedUrl = nested.ToString();
-                    // Apply the same cleaning step to nested returnUrl values so that
-                    // any substitute characters introduced via encoding are normalized.
-                    nestedUrl = nestedUrl.Replace(_subStr, "-");
-
-                    // Re-validate after cleaning: must still be local and not point to auth pages.
-                    if (!authPaths.Any(p => nestedUrl.StartsWith(p, StringComparison.OrdinalIgnoreCase)) && IsLocalUrl(nestedUrl))
-                        return nestedUrl;
+                    // Recursively clean the nested URL — fully unwinds any depth of chained auth pages
+                    return CleanUrl(nested.ToString(), depth + 1);
                 }
             }
             return Url.Content("~/");
@@ -69,7 +67,7 @@ public abstract class LoginModelBase : PageModel
     /// </summary>
     /// <param name="url">The URL to validate</param>
     /// <returns>True if the URL is local, false otherwise</returns>
-    protected bool IsLocalUrl(string url)
+    protected virtual bool IsLocalUrl(string url)
     {
         var urlHelper = _urlHelperFactory.GetUrlHelper(PageContext);
         var isLocal = urlHelper.IsLocalUrl(url);

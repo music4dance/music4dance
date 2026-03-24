@@ -50,6 +50,15 @@ describe("MenuContext.getAccountLink", () => {
       );
     });
 
+    it("falls back to / if the extracted returnUrl is itself an auth page", () => {
+      // e.g. login?returnUrl=/identity/account/register — no real destination, don't chain
+      mockLocation("/identity/account/login", "?returnUrl=%2Fidentity%2Faccount%2Fregister");
+      const ctx = new MenuContext({});
+      expect(ctx.getAccountLink("register")).toBe(
+        `/identity/account/register?returnUrl=${encodeURIComponent("/")}`,
+      );
+    });
+
     it("does not chain returnUrls when switching between login and register", () => {
       // On the login page with a real returnUrl — simulates clicking "register" from here
       mockLocation("/identity/account/login", "?returnUrl=%2Fsong");
