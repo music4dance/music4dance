@@ -158,12 +158,7 @@ const isTest = computed(() => {
 });
 
 function accountLink(type: string): string {
-  // If already on an identity page, pass through the existing returnUrl rather than chaining
-  const isIdentityPage = window.location.pathname.toLowerCase().startsWith("/identity/");
-  const url = isIdentityPage
-    ? (new URLSearchParams(window.location.search).get("returnUrl") ?? "/")
-    : window.location.pathname + window.location.search;
-  return `/identity/account/${type}?returnUrl=${url}`;
+  return props.context.getAccountLink(type);
 }
 
 function onDismissed(target: string): void {

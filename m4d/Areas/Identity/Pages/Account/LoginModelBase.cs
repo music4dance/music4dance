@@ -5,6 +5,7 @@
 using m4d.Security;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace m4d.Areas.Identity.Pages.Account;
 
@@ -39,14 +40,18 @@ public abstract class LoginModelBase : PageModel
         string[] authPaths = ["/identity/account/login", "/identity/account/register", "/identity/account/logout"];
         if (authPaths.Any(p => returnUrl.StartsWith(p, StringComparison.OrdinalIgnoreCase)))
         {
-            // Try to extract a nested returnUrl from the auth page URL
-            var marker = "?returnUrl=";
-            var qIndex = returnUrl.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
+            // Use the framework query parser to safely extract a nested returnUrl.
+            // This handles both ?returnUrl= and &returnUrl=, and won't throw on malformed encoding.
+            var qIndex = returnUrl.IndexOf('?');
             if (qIndex >= 0)
             {
-                var nested = Uri.UnescapeDataString(returnUrl[(qIndex + marker.Length)..]);
-                if (!authPaths.Any(p => nested.StartsWith(p, StringComparison.OrdinalIgnoreCase)) && IsLocalUrl(nested))
-                    return nested;
+                var query = QueryHelpers.ParseQuery(returnUrl[qIndex..]);
+                if (query.TryGetValue("returnUrl", out var nested))
+                {
+                    var nestedUrl = nested.ToString();
+                    if (!authPaths.Any(p => nestedUrl.StartsWith(p, StringComparison.OrdinalIgnoreCase)) && IsLocalUrl(nestedUrl))
+                        return nestedUrl;
+                }
             }
             return Url.Content("~/");
         }
