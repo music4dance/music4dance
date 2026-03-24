@@ -49,6 +49,11 @@ public abstract class LoginModelBase : PageModel
                 if (query.TryGetValue("returnUrl", out var nested))
                 {
                     var nestedUrl = nested.ToString();
+                    // Apply the same cleaning step to nested returnUrl values so that
+                    // any substitute characters introduced via encoding are normalized.
+                    nestedUrl = nestedUrl.Replace(_subStr, "-");
+
+                    // Re-validate after cleaning: must still be local and not point to auth pages.
                     if (!authPaths.Any(p => nestedUrl.StartsWith(p, StringComparison.OrdinalIgnoreCase)) && IsLocalUrl(nestedUrl))
                         return nestedUrl;
                 }
