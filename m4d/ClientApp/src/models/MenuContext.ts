@@ -104,9 +104,13 @@ export class MenuContext implements MenuContextInterface {
   public getAccountLink(page: string): string {
     // If already on an identity page, pass through the existing returnUrl rather than chaining
     const isIdentityPage = window.location.pathname.toLowerCase().startsWith("/identity/");
-    const returnUrl = isIdentityPage
-      ? (new URLSearchParams(window.location.search).get("returnUrl") ?? "/")
+    let returnUrl = isIdentityPage
+      ? new URLSearchParams(window.location.search).get("returnUrl") ?? "/"
       : window.location.pathname + window.location.search;
+    // Normalize blank/whitespace returnUrl to "/" to match server-side fallback
+    if (!returnUrl || !returnUrl.trim()) {
+      returnUrl = "/";
+    }
     return `/identity/account/${page}?returnUrl=${encodeURIComponent(returnUrl)}`;
   }
 
