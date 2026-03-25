@@ -142,7 +142,13 @@ public static class GlobalState
             if (lower.Contains("facebookexternalhit")) return "facebookexternalhit";
             if (lower.Contains("facebot")) return "Facebot";
             if (lower.Contains("meta-externalfetcher")) return "meta-externalfetcher";
-            return "Other Meta";
+            if (lower.Contains("googlebot")) return "Googlebot";
+            if (lower.Contains("gptbot")) return "GPTBot";
+            if (lower.Contains("dotbot")) return "DotBot";
+            if (lower.Contains("sogou")) return "Sogou";
+            if (lower.Contains("petalbot")) return "PetalBot";
+            if (lower.Contains("newsai")) return "newsai";
+            return "Other";
         }
     }
 
