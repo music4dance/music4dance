@@ -158,8 +158,7 @@ const isTest = computed(() => {
 });
 
 function accountLink(type: string): string {
-  const url = window.location.pathname + window.location.search;
-  return `/identity/account/${type}?returnUrl=${url}`;
+  return props.context.getAccountLink(type);
 }
 
 function onDismissed(target: string): void {

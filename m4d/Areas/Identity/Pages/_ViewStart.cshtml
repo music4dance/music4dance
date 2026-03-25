@@ -2,5 +2,7 @@
 @{
     ViewData["HideAds"] = true;
     ViewData["NoIndex"] = true;
+    var identityPath = Context.Request.Path.Value?.ToLowerInvariant() ?? "/identity/";
+    ViewData["Canonical"] = $"{Context.Request.Scheme}://{Context.Request.Host}{identityPath}";
     Layout = "/Views/Shared/_bs5-Layout.cshtml";
 }

@@ -102,7 +102,25 @@ export class MenuContext implements MenuContextInterface {
   }
 
   public getAccountLink(page: string): string {
-    return `/identity/account/${page}?returnUrl=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+    // If already on an identity page, pass through the existing returnUrl rather than chaining
+    const isIdentityPage = window.location.pathname.toLowerCase().startsWith("/identity/");
+    let returnUrl = isIdentityPage
+      ? (new URLSearchParams(window.location.search).get("returnUrl") ?? "/")
+      : window.location.pathname + window.location.search;
+    // Normalize blank/whitespace returnUrl to "/" to match server-side fallback
+    if (!returnUrl || !returnUrl.trim()) {
+      returnUrl = "/";
+    }
+    // If the destination is itself an auth page, don't chain through it — use home instead
+    const authPages = [
+      "/identity/account/login",
+      "/identity/account/register",
+      "/identity/account/logout",
+    ];
+    if (authPages.some((p) => returnUrl.toLowerCase().startsWith(p))) {
+      returnUrl = "/";
+    }
+    return `/identity/account/${page}?returnUrl=${encodeURIComponent(returnUrl)}`;
   }
 
   public get axiosXsrf(): AxiosInstance {

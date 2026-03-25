@@ -80,8 +80,8 @@ exports[`MainMenu.vue > Renders MainMenu for an anonymous user 1`] = `
                 </div>
               </form>
             </li>
-            <li class="nav-item" right=""><a class="nav-link" href="/identity/account/register?returnUrl=/">Register</a></li>
-            <li class="nav-item" right=""><a class="nav-link" href="/identity/account/login?returnUrl=/">Login</a></li>
+            <li class="nav-item" right=""><a class="nav-link" href="/identity/account/register?returnUrl=%2F">Register</a></li>
+            <li class="nav-item" right=""><a class="nav-link" href="/identity/account/login?returnUrl=%2F">Login</a></li>
           </ul>
         </div>
       </transition-stub>
