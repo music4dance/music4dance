@@ -62,7 +62,7 @@ public class SearchesController : ContentController
 
         if (user is not null and not "all")
         {
-            await SetSpotify(searches, user);
+            await SetSpotify(model, user);
         }
 
         if (spotifyOnly)
@@ -156,7 +156,7 @@ public class SearchesController : ContentController
             return RedirectToAction("Index", new { sort, showDetails, spotifyOnly, user });
         }
 
-        ViewBag.errorMessage = $"Search ${id} not found.";
+        ViewBag.errorMessage = $"Search {id} not found.";
         return View("Error");
     }
 
