@@ -48,10 +48,11 @@ public class SearchesController : ContentController
         if (user is not null and not "all")
         {
             var appUser = await Database.FindUser(user);
-            if (appUser != null)
+            if (appUser == null)
             {
-                searches = searches.Where(s => s.ApplicationUserId == appUser.Id);
+                return NotFound();
             }
+            searches = searches.Where(s => s.ApplicationUserId == appUser.Id);
         }
 
         var model =
@@ -65,7 +66,7 @@ public class SearchesController : ContentController
             await SetSpotify(model, user);
         }
 
-        if (spotifyOnly)
+        if (spotifyOnly && user is not null and not "all")
         {
             model = model.Where(s => !string.IsNullOrWhiteSpace(s.Spotify)).ToList();
         }

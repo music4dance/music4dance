@@ -177,6 +177,7 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
                                 Count = 1,
                                 Created = now,
                                 Modified = now,
+                                MostRecentPage = userId != null ? mostRecentPage : null,
                             }, cancellationToken);
                     }
 

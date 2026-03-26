@@ -154,8 +154,7 @@ public class SongSearchLogTests
     [TestMethod]
     public async Task LogSearch_PageOne_StoresSearchRow()
     {
-        // Establishes baseline: page 1 is logged and creates a row.
-        // TODO (Phase 1): Assert that MostRecentPage is null for a page-1 visit.
+        // Page 1 is logged and creates a row with MostRecentPage = null.
         const string dbName = "SongSearchLogTests_PageOne";
         var filter = SongFilter.Create(false, ".-CHA-.-.-.-.-120.0-124.0");
         filter.Page = 1;
@@ -242,5 +241,52 @@ public class SongSearchLogTests
         await songSearch.LogSearch(filter);
 
         Assert.AreEqual(0, queue.Count, "'customsearch' action must not enqueue any background task");
+    }
+
+    [TestMethod]
+    public async Task LogSearch_FirstVisitPageTwo_SetsMostRecentPageOnInsert()
+    {
+        // Verifies that the very first visit to a search on page > 1 captures MostRecentPage
+        // on insert, so Resume / Page N work without requiring a second visit.
+        const string dbName = "SongSearchLogTests_FirstVisitPageTwo";
+        var filter = SongFilter.Create(false, ".-WLZ-.-.-.-.-84.0-90.0");
+        filter.Page = 3;
+
+        var (songSearch, queue, taskProvider) =
+            await CreateSongSearchAsync(dbName, "dwgray", filter);
+
+        await songSearch.LogSearch(filter);
+        await queue.ExecuteAllAsync(taskProvider);
+
+        var verifyOpts = new DbContextOptionsBuilder<DanceMusicContext>()
+            .UseInMemoryDatabase(dbName).Options;
+        using var verifyCtx = new DanceMusicContext(verifyOpts);
+
+        var searches = verifyCtx.Searches.ToList();
+        Assert.AreEqual(1, searches.Count, "First visit on page 3 should create a row");
+        Assert.AreEqual(3, searches[0].MostRecentPage, "MostRecentPage should be set on insert for authenticated user");
+    }
+
+    [TestMethod]
+    public async Task LogSearch_AnonymousFirstVisitPageTwo_LeavesMostRecentPageNull()
+    {
+        // Anonymous rows must never store MostRecentPage (it has no meaning without a user).
+        const string dbName = "SongSearchLogTests_AnonFirstVisitPageTwo";
+        var filter = SongFilter.Create(false, ".-WLZ-.-.-.-.-84.0-90.0");
+        filter.Page = 3;
+
+        var (songSearch, queue, taskProvider) =
+            await CreateSongSearchAsync(dbName, "", filter);
+
+        await songSearch.LogSearch(filter);
+        await queue.ExecuteAllAsync(taskProvider);
+
+        var verifyOpts = new DbContextOptionsBuilder<DanceMusicContext>()
+            .UseInMemoryDatabase(dbName).Options;
+        using var verifyCtx = new DanceMusicContext(verifyOpts);
+
+        var searches = verifyCtx.Searches.ToList();
+        Assert.AreEqual(1, searches.Count);
+        Assert.IsNull(searches[0].MostRecentPage, "Anonymous rows should never store MostRecentPage");
     }
 }

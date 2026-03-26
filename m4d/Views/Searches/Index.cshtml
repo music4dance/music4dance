@@ -86,7 +86,7 @@ ViewData["BreadCrumbs"] = new List<BreadCrumbItem>
         <div class="form-check form-switch">
             <input class="form-check-input" type="checkbox" role="switch" id="spotifyOnlySwitch"
                 @(spotifyOnly ? "checked" : "")
-                onchange="window.location.href='@Url.Action("Index", "Searches", new { showDetails, spotifyOnly = !spotifyOnly, user = userName, sort })'">
+                onchange="window.location.href='@Url.Action("Index", "Searches", new { showDetails, spotifyOnly = !spotifyOnly, user = userName, sort, filter })'">
             <label class="form-check-label" for="spotifyOnlySwitch">Spotify Only</label>
         </div>
     </div>
