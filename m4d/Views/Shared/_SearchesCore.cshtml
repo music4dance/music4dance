@@ -29,11 +29,31 @@ var sort = ViewData.ContainsKey("Sort") ? ViewBag.Sort : null;
             </th>
         </tr>
 }
+    else
+    {
+    <tr>
+            <th scope="col">Search</th>
+            <th scope="col">
+                @if (string.Equals(sort, "recent"))
+            {
+                @Html.DisplayNameFor(model => model.Modified)
+            }
+            else
+            {
+                @Html.DisplayNameFor(model => model.Count)
+            }
+            </th>
+        </tr>
+    }
 
     @foreach (var item in Model)
 {
     var userName = item.ApplicationUser?.UserName ?? "anonymous";
     var t = item.Filter;
+    if (item.MostRecentPage.HasValue && item.MostRecentPage.Value > 1)
+    {
+        t.Page = item.MostRecentPage;
+    }
     if (t.IsAzure == false)
     {
         t.Action = "Advanced";
@@ -70,7 +90,7 @@ var sort = ViewData.ContainsKey("Sort") ? ViewBag.Sort : null;
 
                 @t.Description
             </td>
-            @if (showDetails)
+        @if (showDetails)
         {
             <td>
                     @Html.DisplayFor(modelItem => item.Query)
@@ -86,6 +106,19 @@ var sort = ViewData.ContainsKey("Sort") ? ViewBag.Sort : null;
                 </td>
             <td>
                     @Html.DisplayFor(modelItem => item.Modified)
+                </td>
+        }
+        else
+        {
+            <td>
+                @if (string.Equals(sort, "recent"))
+                {
+                    @Html.DisplayFor(modelItem => item.Modified)
+                }
+                else
+                {
+                    @Html.DisplayFor(modelItem => item.Count)
+                }
                 </td>
         }
         </tr>

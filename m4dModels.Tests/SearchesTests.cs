@@ -120,4 +120,54 @@ public class SearchesTests
 
         Assert.AreEqual(1, filtered.Count, "A recently-modified record should appear after the cutoff");
     }
+
+    [TestMethod]
+    public async Task LoadSearches_SevenFieldFormat_MostRecentPageIsNull()
+    {
+        // Backward-compatibility: old 7-field backup files must load without error and
+        // produce null MostRecentPage on every row.
+        using var service = await DanceMusicTester.CreateServiceWithUsers("SearchesTests_SevenField");
+
+        var lines = new List<string>
+        {
+            "dwgray\tMy CHA Search\t.-CHA-.-.-.-.-120.0-124.0\tFalse\t3\t1/1/2024 12:00 PM\t1/1/2024 12:00 PM",
+            "batch\tMy FXT Search\t.-FXT-.-.-.-.\tFalse\t5\t1/1/2024 12:00 PM\t1/1/2024 12:00 PM"
+        };
+        await service.LoadSearches(lines);
+
+        var searches = service.Context.Searches.ToList();
+        Assert.AreEqual(2, searches.Count, "Both 7-field records should load successfully");
+        Assert.IsTrue(searches.All(s => s.MostRecentPage == null),
+            "MostRecentPage should be null when loading 7-field (old) backup format");
+    }
+
+    [TestMethod]
+    public async Task SerializeSearches_WithMostRecentPage_RoundTripsCorrectly()
+    {
+        using var service = await DanceMusicTester.CreateServiceWithUsers("SearchesTests_MRPRoundTrip");
+
+        var now = DateTime.Now;
+        var lines = new List<string>
+        {
+            $"dwgray\tMy CHA Search\t.-CHA-.-.-.-.-120.0-124.0\tFalse\t3\t{now:g}\t{now:g}"
+        };
+        await service.LoadSearches(lines);
+
+        // Manually set MostRecentPage on the loaded record to simulate a page-2 visit
+        var loaded = service.Context.Searches.First();
+        loaded.MostRecentPage = 3;
+        _ = await service.Context.SaveChangesAsync();
+
+        // Round-trip
+        var serialized = service.SerializeSearches(withHeader: false);
+        Assert.AreEqual(1, serialized.Count);
+
+        service.Context.Searches.RemoveRange(service.Context.Searches);
+        _ = await service.Context.SaveChangesAsync();
+
+        await service.LoadSearches(new List<string>(serialized), reload: true);
+
+        var restored = service.Context.Searches.First();
+        Assert.AreEqual(3, restored.MostRecentPage, "MostRecentPage should survive a serialize/reload round-trip");
+    }
 }

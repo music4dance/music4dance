@@ -148,7 +148,7 @@ public class SongSearchLogTests
         var searches = verifyCtx.Searches.ToList();
         Assert.AreEqual(1, searches.Count, "Still exactly one Search row");
         Assert.AreEqual(2, searches[0].Count, "Count should be 2 after second visit");
-        // TODO (Phase 1): Assert.IsNull(searches[0].MostRecentPage) after second page-1 visit
+        Assert.IsNull(searches[0].MostRecentPage, "Page-1/no-page visit should leave MostRecentPage null");
     }
 
     [TestMethod]
@@ -173,6 +173,35 @@ public class SongSearchLogTests
         var searches = verifyCtx.Searches.ToList();
         Assert.AreEqual(1, searches.Count, "Page-1 visit should create a Search row");
         Assert.AreEqual(1, searches[0].Count);
+        Assert.IsNull(searches[0].MostRecentPage, "Page-1 visit should store null MostRecentPage");
+    }
+
+    [TestMethod]
+    public async Task LogSearch_PageTwo_SetsMostRecentPage()
+    {
+        const string dbName = "SongSearchLogTests_PageTwo";
+        var filter = SongFilter.Create(false, ".-CHA-.-.-.-.-120.0-124.0");
+
+        var (songSearch, queue, taskProvider) =
+            await CreateSongSearchAsync(dbName, "dwgray", filter);
+
+        // First visit creates the row
+        await songSearch.LogSearch(filter);
+        await queue.ExecuteAllAsync(taskProvider);
+
+        // Second visit on page 2 should store MostRecentPage = 2
+        filter.Page = 2;
+        await songSearch.LogSearch(filter);
+        await queue.ExecuteAllAsync(taskProvider);
+
+        var verifyOpts = new DbContextOptionsBuilder<DanceMusicContext>()
+            .UseInMemoryDatabase(dbName).Options;
+        using var verifyCtx = new DanceMusicContext(verifyOpts);
+
+        var searches = verifyCtx.Searches.ToList();
+        Assert.AreEqual(1, searches.Count);
+        Assert.AreEqual(2, searches[0].Count);
+        Assert.AreEqual(2, searches[0].MostRecentPage, "Page-2 visit should set MostRecentPage to 2");
     }
 
     [TestMethod]

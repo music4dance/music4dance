@@ -302,71 +302,43 @@ Note: the `_SearchesCore` partial is also used from `_userDetails.cshtml` (admin
 
 ---
 
-## Database Migration Runbook
+## Database Migrations
 
-Migrations are **not automatically applied** at startup. Each environment must be updated manually.
+Migrations run **automatically at startup** via a background `Task.Run` in `Program.cs` (after a 2-second delay to let the app begin accepting HTTP requests). This applies to all environments — local dev, staging, and production. In development, role-seeding also runs after migrations.
 
-### Step 1: Generate migration and SQL script
+The relevant startup code (see `m4d/Program.cs`):
 
-```bash
-# From the repo root (after adding the migration):
-dotnet ef migrations add SearchMostRecentPage \
-  --project m4dModels \
-  --startup-project m4d
+```csharp
+_ = Task.Run(async () =>
+{
+    await Task.Delay(TimeSpan.FromSeconds(2));
+    // ...
+    db.Migrate();   // runs pending migrations in all environments
 
-# Generate an idempotent SQL script (safe to run multiple times):
-dotnet ef migrations script --idempotent \
-  --project m4dModels \
-  --startup-project m4d \
-  --output SearchMostRecentPage-migration.sql
+    if (isDevelopment)
+        await UserManagerHelpers.SeedData(...);   // dev only
+});
 ```
 
-The idempotent script checks whether each migration has already been applied before running, so it is safe to use across all environments.
+**Deploying this change**: just deploy the app normally. The `SearchMostRecentPage` migration will be applied on first startup against each database. No manual SQL scripts or `dotnet ef database update` steps are needed.
 
-### Step 2: Apply to local (dev) database
+### Generating a new migration (for future schema changes)
 
 ```bash
-dotnet ef database update --project m4dModels --startup-project m4d
+dotnet ef migrations add <MigrationName> --project m4dModels --startup-project m4d
 ```
 
-This updates the `m4d` LocalDB. Verify with SQL Server Object Explorer that `Searches.MostRecentPage` column exists.
-
-### Step 3: Apply to Staging (`music4dance_test`)
-
-1. Open the generated `SearchMostRecentPage-migration.sql`.
-2. In [Azure Portal](https://portal.azure.com) → SQL Server `n8a541qjnq` → Database `music4dance_test` → **Query editor (preview)**.
-3. Sign in using your Azure AD credentials (or SQL auth if configured).
-4. Paste and execute the migration SQL.
-5. Verify: `SELECT TOP 1 MostRecentPage FROM Searches;` should succeed.
-
-Alternatively, use Azure Data Studio or `sqlcmd` with the Service Connector connection string.
-
-### Step 4: Apply to Production (`music4dance`)
-
-> ⚠️ **Perform during a low-traffic window.** The `ALTER TABLE ... ADD COLUMN` is a metadata-only change in SQL Server and will not lock the table for reads, but confirm this in the Azure portal.
-
-Same process as staging, targeting database `music4dance`:
-
-1. Open Azure Portal → SQL Server `n8a541qjnq` → Database `music4dance` → **Query editor**.
-2. Paste and execute the same idempotent `SearchMostRecentPage-migration.sql`.
-3. Verify: `SELECT TOP 1 MostRecentPage FROM Searches;`
+The generated migration is picked up automatically on next deploy.
 
 ### Rollback
 
-To roll back (if needed before production deployment):
-
-```sql
-ALTER TABLE Searches DROP COLUMN MostRecentPage;
-DELETE FROM [__EFMigrationsHistory] WHERE MigrationId = '<timestamp>_SearchMostRecentPage';
-```
-
-Or via EF tooling:
+If a migration must be reversed after deployment, run the EF Down method manually:
 
 ```bash
-dotnet ef database update UsageLogReferral --project m4dModels --startup-project m4d
+dotnet ef database update <PreviousMigrationName> --project m4dModels --startup-project m4d
 ```
 
-(Targets the previous migration by name, running the `Down` method.)
+Then remove the migration file from source and redeploy.
 
 ---
 

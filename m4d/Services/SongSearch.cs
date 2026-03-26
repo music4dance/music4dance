@@ -140,6 +140,8 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
 
         var now = DateTime.Now;
 
+        var mostRecentPage = (filter.Page.HasValue && filter.Page.Value > 1) ? filter.Page : null;
+
         // Skip logging if database is unavailable
         if (ServiceHealth?.IsServiceHealthy("Database") == false)
         {
@@ -160,6 +162,10 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
                     {
                         old.Modified = now;
                         old.Count += 1;
+                        if (userId != null)
+                        {
+                            old.MostRecentPage = mostRecentPage;
+                        }
                     }
                     else
                     {
