@@ -407,6 +407,7 @@ public class DanceMusicService(DanceMusicContext context,
 
         search.ApplicationUser =
             string.IsNullOrWhiteSpace(userName) ? null : await FindUser(userName);
+        search.ApplicationUserId = search.ApplicationUser?.Id;
 
         return search;
     }
@@ -955,7 +956,7 @@ public class DanceMusicService(DanceMusicContext context,
             {
                 break;
             }
-            
+
             songs.Add(line);
             count++;
         }

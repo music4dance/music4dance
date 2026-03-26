@@ -124,7 +124,7 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
         }
     }
 
-    private async Task LogSearch(SongFilter filter)
+    internal async Task LogSearch(SongFilter filter)
     {
         if (filter.IsEmptyUser(UserName) || filter.Action == "customsearch")
         {
