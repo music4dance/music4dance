@@ -50,10 +50,6 @@ var sort = ViewData.ContainsKey("Sort") ? ViewBag.Sort : null;
 {
     var userName = item.ApplicationUser?.UserName ?? "anonymous";
     var t = item.Filter;
-    if (item.MostRecentPage.HasValue && item.MostRecentPage.Value > 1)
-    {
-        t.Page = item.MostRecentPage;
-    }
     if (t.IsAzure == false)
     {
         t.Action = "Advanced";
@@ -69,6 +65,24 @@ var sort = ViewData.ContainsKey("Sort") ? ViewBag.Sort : null;
                 role = "button",
                 @class = "btn btn-success"
             })
+                @if (item.MostRecentPage.HasValue && item.MostRecentPage.Value > 1)
+            {
+                var tPage = item.Filter;
+                tPage.Page = item.MostRecentPage;
+                if (tPage.IsAzure == false)
+                {
+                    tPage.Action = "Advanced";
+                }
+                @:&nbsp;
+                @Html.ActionLink($"Page {item.MostRecentPage}", "Index", "Song", new
+                {
+                    filter = tPage
+                }, new
+                {
+                    role = "button",
+                    @class = "btn btn-outline-success"
+                })
+            }
                 &nbsp;
                 @Html.ActionLink("Delete", "Delete", "Searches", new
             {
