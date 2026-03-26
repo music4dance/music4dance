@@ -10,16 +10,17 @@ Saved searches allow authenticated (and optionally anonymous) users to have thei
 
 **Entity**: `m4dModels.Search` ([Search.cs](../m4dModels/Search.cs))
 
-| Column              | Type                    | Notes                                                                   |
-| ------------------- | ----------------------- | ----------------------------------------------------------------------- |
-| `Id`                | `long` (PK, identity)   | Auto-increment                                                          |
-| `ApplicationUserId` | `string` (FK, nullable) | `null` for anonymous users                                              |
-| `Name`              | `string` (nullable)     | User-defined label (currently unused in UI)                             |
-| `Query`             | `string` (required)     | Normalized serialized `SongFilter` string — **page is always stripped** |
-| `Favorite`          | `bool`                  | Reserved for future use                                                 |
-| `Count`             | `int`                   | Number of times this search has been visited                            |
-| `Created`           | `DateTime`              | Timestamp of first visit                                                |
-| `Modified`          | `DateTime`              | Timestamp of most recent visit                                          |
+| Column              | Type                    | Notes                                                                         |
+| ------------------- | ----------------------- | ----------------------------------------------------------------------------- |
+| `Id`                | `long` (PK, identity)   | Auto-increment                                                                |
+| `ApplicationUserId` | `string` (FK, nullable) | `null` for anonymous users                                                    |
+| `Name`              | `string` (nullable)     | User-defined label (currently unused in UI)                                   |
+| `Query`             | `string` (required)     | Normalized serialized `SongFilter` string — **page is always stripped**       |
+| `Favorite`          | `bool`                  | Reserved for future use                                                       |
+| `Count`             | `int`                   | Number of times this search has been visited                                  |
+| `Created`           | `DateTime`              | Timestamp of first visit                                                      |
+| `Modified`          | `DateTime`              | Timestamp of most recent visit                                                |
+| `MostRecentPage`    | `int?` (nullable)       | Last page the authenticated user was on; `null` or `1` → start from beginning |
 
 **Non-mapped (runtime) properties**:
 
@@ -59,11 +60,12 @@ Logging is triggered inside `SongSearch.LogSearch()` ([SongSearch.cs](../m4d/Ser
 
 ### For authenticated users
 
-1. Normalize the filter (strips page, resolves identity).
-2. Look up an existing `Search` row by `(ApplicationUserId, normalized Query)`.
-3. **If found**: increment `Count` and update `Modified` to now.
-4. **If not found**: insert a new row with `Count = 1`, `Created = now`, `Modified = now`.
-5. All database writes are enqueued to `IBackgroundTaskQueue` to avoid blocking the HTTP request.
+1. Capture the current page from the filter before normalization (for `MostRecentPage` tracking).
+2. Normalize the filter (strips page, resolves identity).
+3. Look up an existing `Search` row by `(ApplicationUserId, normalized Query)`.
+4. **If found**: increment `Count`, update `Modified` to now, and set `MostRecentPage` to the captured page (stored as `null` when page ≤ 1 or absent).
+5. **If not found**: insert a new row with `Count = 1`, `Created = now`, `Modified = now`, `MostRecentPage = null`.
+6. All database writes are enqueued to `IBackgroundTaskQueue` to avoid blocking the HTTP request.
 
 ### For anonymous users
 
@@ -81,15 +83,21 @@ Accepts:
 
 - `user` — which user's searches to display (defaults to current user; `"all"` shows everyone for admins)
 - `sort` — `"recent"` for Modified-descending; anything else for Count-descending (**Most Popular**)
-- `showDetails` — `bool` flag to show extra columns
+- `showDetails` — `bool` flag to show extra columns (admin-only toggle in the view)
+- `spotifyOnly` — `bool` flag to filter the list to only searches that have a linked Spotify playlist
 
 Processing:
 
 1. Resolve the user (defaults to current authenticated user; `UserQuery.IdentityUser` sentinel → current user).
 2. Authenticate: non-admins can only see their own searches.
-3. Query `Searches` table filtered by user, ordered by `Modified` or `Count`, limited to 250 rows.
+3. Query `Searches` table filtered by user, ordered by `Modified` or `Count`, capped at the top 250 rows (hard-coded `Take(250)`). Users who have logged more than 250 searches will not see the older ones.
 4. If showing a single user's searches, call `SetSpotify` to populate the runtime `Spotify` property for each row.
-5. Pass bag values `Sort`, `ShowDetails`, `SongFilter`, `User` to the view.
+5. If `spotifyOnly`, filter the in-memory list to rows with a non-empty `Spotify` value.
+6. Pass bag values `Sort`, `ShowDetails`, `SpotifyOnly`, `SongFilter`, `User` to the view.
+
+### `Resume` action
+
+Redirects the current authenticated user directly into their most-recently-modified saved search, restoring the page they were on. Looks up the user's most recently `Modified` search, reconstructs the filter, applies `MostRecentPage` if > 1, then redirects to `Song/Index`.
 
 ### Authentication / Authorization
 
@@ -99,7 +107,7 @@ Processing:
 
 ### `Delete` and `DeleteConfirmed` actions
 
-Standard GET/POST delete with anti-forgery token. After deletion, redirects back to `Index` with original `sort` / `showDetails` / `user` parameters preserved.
+Standard GET/POST delete with anti-forgery token. After deletion, redirects back to `Index` with original `sort` / `showDetails` / `spotifyOnly` / `user` parameters preserved.
 
 ---
 
@@ -114,12 +122,16 @@ Rendered from:
 
 ### Column behavior
 
-| Condition                       | Columns shown                                                                        |
-| ------------------------------- | ------------------------------------------------------------------------------------ |
-| `showDetails = false` (default) | Single cell: Search button, Delete button, optional Spotify icon, filter description |
-| `showDetails = true`            | All columns: Search, Query, User, Count, Created, Modified                           |
+| Condition                       | Columns shown                                                                                        |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `showDetails = false` (default) | Two columns: (Search buttons + Spotify icon + description) and (Count or Modified depending on sort) |
+| `showDetails = true`            | All columns: Search, Query, User, Count, Created, Modified                                           |
 
-The Search button uses the filter reconstructed from `item.Filter` (the deserialized `Query`). For non-Azure filters, the action is forced to `"Advanced"`.
+When `showDetails = false`, the second column always shows the active ranking value — `Count` on Most Popular, `Modified` on Most Recent — so users can see relevance at a glance.
+
+The **Search** button always goes to page 1. When `MostRecentPage > 1`, an additional **Page N** button (`btn-outline-success`) appears beside it, linking directly to the last-visited page.
+
+For non-Azure filters, the action is forced to `"Advanced"` before building either link.
 
 ---
 
@@ -140,10 +152,10 @@ For saved searches the stored `Query` always has `page` as empty/null (normalize
 `DanceMusicService.SerializeSearches()` exports searches as tab-delimited rows:
 
 ```
-userName\tname\tquery\tfavorite\tcount\tcreated\tmodified
+userName\tname\tquery\tfavorite\tcount\tcreated\tmodified\tMostRecentPage
 ```
 
-`DanceMusicService.LoadSearches()` imports this format (both bulk and incremental modes). This is used by the admin backup/restore workflow and the index backup streaming feature.
+The 8th field (`MostRecentPage`) was added when that column was introduced. `DanceMusicService.LoadSearches()` reads this field if present, leaving `MostRecentPage = null` when loading older 7-field backup data. Both bulk and incremental import modes are supported. This is used by the admin backup/restore workflow and the index backup streaming feature.
 
 ---
 
@@ -160,37 +172,34 @@ Connection strings are managed via:
 - Local: `appsettings.json` → `ConnectionStrings:DanceMusicContextConnection`
 - Azure: Service Connector → `AZURE_SQL_CONNECTIONSTRING` environment variable (takes precedence)
 
-**Migrations are NOT automatically applied at startup.** They must be applied manually (see [Applying Migrations](#applying-migrations)).
+**Migrations run automatically at startup** via a background `Task.Run` in `Program.cs` (after a 2-second delay). This applies to all environments — local dev, staging, and production. No manual SQL scripts or `dotnet ef database update` steps are needed on deploy.
 
 ### Migration History
 
-| Migration                         | Date       | Change                   |
-| --------------------------------- | ---------- | ------------------------ |
-| `20191123233600_CreateSchema`     | 2019-11-23 | Created `Searches` table |
-| `20211128222327_ActivityLog`      | 2021-11-28 | Unrelated                |
-| `20211223033025_CardTracking`     | 2021-12-23 | Unrelated                |
-| `20240224015103_UsageLog`         | 2024-02-24 | Unrelated                |
-| `20240311190320_UsageLogReferral` | 2024-03-11 | Unrelated                |
+| Migration                             | Date       | Change                        |
+| ------------------------------------- | ---------- | ----------------------------- |
+| `20191123233600_CreateSchema`         | 2019-11-23 | Created `Searches` table      |
+| `20211128222327_ActivityLog`          | 2021-11-28 | Unrelated                     |
+| `20211223033025_CardTracking`         | 2021-12-23 | Unrelated                     |
+| `20240224015103_UsageLog`             | 2024-02-24 | Unrelated                     |
+| `20240311190320_UsageLogReferral`     | 2024-03-11 | Unrelated                     |
+| `20260326002120_SearchMostRecentPage` | 2026-03-26 | Added `MostRecentPage` column |
 
-### Applying Migrations
-
-Generate an idempotent SQL script from the latest migration:
-
-```bash
-# From the repo root
-dotnet ef migrations script --idempotent \
-  --project m4dModels \
-  --startup-project m4d \
-  --output migration.sql
-```
-
-Apply locally:
+### Generating a new migration
 
 ```bash
-dotnet ef database update --project m4dModels --startup-project m4d
+dotnet ef migrations add <MigrationName> --project m4dModels --startup-project m4d
 ```
 
-Apply to Azure (staging or production): run the generated SQL script in Azure Portal → SQL Database → Query Editor or via `sqlcmd`/Azure Data Studio against the appropriate database (`music4dance_test` or `music4dance`).
+### Rollback
+
+If a migration must be reversed after deployment:
+
+```bash
+dotnet ef database update <PreviousMigrationName> --project m4dModels --startup-project m4d
+```
+
+Then remove the migration file and redeploy.
 
 ---
 
@@ -207,3 +216,14 @@ Apply to Azure (staging or production): run the generated SQL script in Azure Po
 | [m4d/Views/Searches/Index.cshtml](../m4d/Views/Searches/Index.cshtml)              | My Searches list view                                |
 | [m4d/Views/Shared/\_SearchesCore.cshtml](../m4d/Views/Shared/_SearchesCore.cshtml) | Shared search table partial                          |
 | [m4dModels/Migrations/](../m4dModels/Migrations/)                                  | EF Core migration history                            |
+
+---
+
+## Future Improvements
+
+- **Pagination** — The My Searches list is currently capped at 250 rows. Power users who log many unique searches will silently lose visibility into older ones. The list should be paginated (server-side or client-side) so all searches are accessible.
+- **Vue front-end** — The My Searches page (`Index.cshtml` + `_SearchesCore.cshtml`) is a classic Razor/Bootstrap view with full-page reloads for every sort, filter, and delete operation. Moving it to a Vue 3 component (backed by a JSON API endpoint) would enable:
+  - In-place filtering and sorting without page reloads
+  - Inline delete with optimistic UI updates
+  - Easier integration with the existing client-side filter model (`SongFilter`, `DanceQueryItem`, etc.)
+  - Co-location with other Vue pages and the main client-side routing model
