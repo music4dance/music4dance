@@ -1,0 +1,46 @@
+@using m4d.ViewModels
+
+@{
+    ViewBag.Title = "Clear Search History";
+
+ViewData["BreadCrumbs"] = new List<BreadCrumbItem>
+{
+    BreadCrumbItem.HomeItem,
+    new()
+    {
+        Title = User.Identity.Name,
+        Link = "/Identity/Account/Manage"
+    },
+    new()
+    {
+        Title = "Searches",
+        Link = "/Searches",
+    },
+    new()
+    {
+        Title = ViewBag.Title,
+        Active = true
+    }
+};
+
+var sort = ViewBag.Sort;
+var showDetails = ViewBag.ShowDetails;
+var spotifyOnly = ViewBag.SpotifyOnly;
+int count = ViewBag.Count;
+}
+
+<h1>@ViewBag.Title</h1>
+<hr/>
+
+<h3>Are you sure you want to clear your search history (@count @(count == 1 ? "entry" : "entries"))?</h3>
+<p>Your searches will be removed from your personal history. The underlying search data will be kept for site-wide statistics.</p>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-actions no-color">
+        <input type="submit" value="Clear My History" class="btn btn-danger"/> |
+        @Html.ActionLink("Cancel", "Index", "Searches", new { sort, showDetails, spotifyOnly }, null)
+    </div>
+}

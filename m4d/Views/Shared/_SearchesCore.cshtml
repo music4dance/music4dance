@@ -3,6 +3,7 @@
 @{
     var showDetails = ViewData.ContainsKey("ShowDetails") ? ViewBag.ShowDetails : false;
 var sort = ViewData.ContainsKey("Sort") ? ViewBag.Sort : null;
+var spotifyOnly = ViewData.ContainsKey("SpotifyOnly") ? ViewBag.SpotifyOnly : false;
 }
 
 <table class="table table-striped table-songs col-sm">
@@ -29,6 +30,22 @@ var sort = ViewData.ContainsKey("Sort") ? ViewBag.Sort : null;
             </th>
         </tr>
 }
+    else
+    {
+    <tr>
+            <th scope="col">Search</th>
+            <th scope="col">
+                @if (string.Equals(sort, "recent"))
+            {
+                @Html.DisplayNameFor(model => model.Modified)
+            }
+            else
+            {
+                @Html.DisplayNameFor(model => model.Count)
+            }
+            </th>
+        </tr>
+    }
 
     @foreach (var item in Model)
 {
@@ -49,12 +66,31 @@ var sort = ViewData.ContainsKey("Sort") ? ViewBag.Sort : null;
                 role = "button",
                 @class = "btn btn-success"
             })
+                @if (item.MostRecentPage.HasValue && item.MostRecentPage.Value > 1)
+            {
+                var tPage = item.Filter;
+                tPage.Page = item.MostRecentPage;
+                if (tPage.IsAzure == false)
+                {
+                    tPage.Action = "Advanced";
+                }
+                @:&nbsp;
+                @Html.ActionLink($"Page {item.MostRecentPage}", "Index", "Song", new
+                {
+                    filter = tPage
+                }, new
+                {
+                    role = "button",
+                    @class = "btn btn-outline-success"
+                })
+            }
                 &nbsp;
                 @Html.ActionLink("Delete", "Delete", "Searches", new
             {
                 id = item.Id,
                 user = item.ApplicationUser?.UserName,
                 showDetails,
+                spotifyOnly,
                 sort
             },new
             {
@@ -70,7 +106,7 @@ var sort = ViewData.ContainsKey("Sort") ? ViewBag.Sort : null;
 
                 @t.Description
             </td>
-            @if (showDetails)
+        @if (showDetails)
         {
             <td>
                     @Html.DisplayFor(modelItem => item.Query)
@@ -86,6 +122,19 @@ var sort = ViewData.ContainsKey("Sort") ? ViewBag.Sort : null;
                 </td>
             <td>
                     @Html.DisplayFor(modelItem => item.Modified)
+                </td>
+        }
+        else
+        {
+            <td>
+                @if (string.Equals(sort, "recent"))
+                {
+                    @Html.DisplayFor(modelItem => item.Modified)
+                }
+                else
+                {
+                    @Html.DisplayFor(modelItem => item.Count)
+                }
                 </td>
         }
         </tr>

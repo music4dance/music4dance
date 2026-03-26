@@ -339,7 +339,8 @@ public class DanceMusicService(DanceMusicContext context,
             {
                 search.Update(
                     newSearch.ApplicationUser, newSearch.Name, newSearch.Query,
-                    newSearch.Favorite, newSearch.Count, newSearch.Created, newSearch.Modified);
+                    newSearch.Favorite, newSearch.Count, newSearch.Created, newSearch.Modified,
+                    newSearch.MostRecentPage);
             }
         }
     }
@@ -405,8 +406,14 @@ public class DanceMusicService(DanceMusicContext context,
             search.Modified = modified;
         }
 
+        if (cells.Length >= 8 && int.TryParse(cells[7], out var mostRecentPage) && mostRecentPage > 1)
+        {
+            search.MostRecentPage = mostRecentPage;
+        }
+
         search.ApplicationUser =
             string.IsNullOrWhiteSpace(userName) ? null : await FindUser(userName);
+        search.ApplicationUserId = search.ApplicationUser?.Id;
 
         return search;
     }
@@ -923,7 +930,7 @@ public class DanceMusicService(DanceMusicContext context,
                 ? search.ApplicationUser.UserName
                 : string.Empty;
             searches.Add(
-                $"{userName}\t{search.Name}\t{search.Query}\t{search.Favorite}\t{search.Count}\t{search.Created:g}\t{search.Modified:g}");
+                $"{userName}\t{search.Name}\t{search.Query}\t{search.Favorite}\t{search.Count}\t{search.Created:g}\t{search.Modified:g}\t{search.MostRecentPage?.ToString() ?? ""}");
         }
 
         if (withHeader && searches.Count > 0)
@@ -955,7 +962,7 @@ public class DanceMusicService(DanceMusicContext context,
             {
                 break;
             }
-            
+
             songs.Add(line);
             count++;
         }

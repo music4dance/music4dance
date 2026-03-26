@@ -2,7 +2,7 @@
 @model m4dModels.Search
 
 @{
-    ViewBag.Title = "Delete";
+    ViewBag.Title = "Remove from History";
 
 ViewData["BreadCrumbs"] = new List<BreadCrumbItem>
 {
@@ -26,6 +26,7 @@ ViewData["BreadCrumbs"] = new List<BreadCrumbItem>
 
 var sort = ViewBag.Sort;
 var showDetails = ViewBag.ShowDetails;
+var spotifyOnly = ViewBag.SpotifyOnly;
 var user = ViewBag.User;
 }
 
@@ -33,7 +34,8 @@ var user = ViewBag.User;
 <h1>@ViewBag.Title</h1>
 <hr/>
 
-<h3>Are you sure you want to delete this search?</h3>
+<h3>Remove this search from your history?</h3>
+<p class="text-muted">The search data will be kept for site-wide statistics.</p>
 <div>
     <p>@Model.Filter.Description</p>
 
@@ -42,8 +44,8 @@ var user = ViewBag.User;
     @Html.AntiForgeryToken()
 
     <div class="form-actions no-color">
-            <input type="submit" value="Delete" class="btn btn-danger"/> |
-            @Html.ActionLink("Back to Search", "Index", new { sort, showDetails, user})
+            <input type="submit" value="Remove from History" class="btn btn-danger"/> |
+            @Html.ActionLink("Back to Search", "Index", new { sort, showDetails, spotifyOnly, user})
         </div>
 }
 </div>
