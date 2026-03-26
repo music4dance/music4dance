@@ -31,7 +31,7 @@ public class SearchesController : ContentController
 
     // GET: Searches
     public async Task<IActionResult> Index(string user, string sort = null,
-        bool showDetails = false)
+        bool showDetails = false, bool spotifyOnly = false)
     {
         if (string.IsNullOrWhiteSpace(user) || user.Equals(
             UserQuery.IdentityUser,
@@ -65,11 +65,49 @@ public class SearchesController : ContentController
             await SetSpotify(searches, user);
         }
 
+        if (spotifyOnly)
+        {
+            model = model.Where(s => !string.IsNullOrWhiteSpace(s.Spotify)).ToList();
+        }
+
         ViewBag.Sort = sort;
         ViewBag.ShowDetails = showDetails;
+        ViewBag.SpotifyOnly = spotifyOnly;
         ViewBag.SongFilter = Filter;
         ViewBag.User = user;
         return View(model);
+    }
+
+    // GET: Searches/Resume
+    public async Task<IActionResult> Resume()
+    {
+        var appUser = await Database.FindUser(UserName);
+        if (appUser == null)
+        {
+            return RedirectToAction("Index");
+        }
+
+        var latest = await Database.Searches
+            .Where(s => s.ApplicationUserId == appUser.Id)
+            .OrderByDescending(s => s.Modified)
+            .FirstOrDefaultAsync();
+
+        if (latest == null)
+        {
+            return RedirectToAction("Index");
+        }
+
+        var filter = latest.Filter;
+        if (filter.IsAzure == false)
+        {
+            filter.Action = "Advanced";
+        }
+        if (latest.MostRecentPage.HasValue && latest.MostRecentPage.Value > 1)
+        {
+            filter.Page = latest.MostRecentPage;
+        }
+
+        return RedirectToAction("Index", "Song", new { filter });
     }
 
     private async Task SetSpotify(IEnumerable<Search> searches, string userName)
@@ -82,7 +120,7 @@ public class SearchesController : ContentController
 
     // GET: Searches/Delete/5
     [Authorize]
-    public async Task<ActionResult> Delete(long id, string sort, bool showDetails = false, string user = null)
+    public async Task<ActionResult> Delete(long id, string sort, bool showDetails = false, bool spotifyOnly = false, string user = null)
     {
         var search = await Find(id);
         if (search == null)
@@ -92,6 +130,7 @@ public class SearchesController : ContentController
 
         ViewBag.Sort = sort;
         ViewBag.ShowDetails = showDetails;
+        ViewBag.SpotifyOnly = spotifyOnly;
         ViewBag.User = user;
 
         user ??= search.ApplicationUser?.UserName;
@@ -105,7 +144,7 @@ public class SearchesController : ContentController
     [ActionName("Delete")]
     [ValidateAntiForgeryToken]
     [Authorize]
-    public async Task<ActionResult> DeleteConfirmed(long id, string sort, bool showDetails = false, string user = null)
+    public async Task<ActionResult> DeleteConfirmed(long id, string sort, bool showDetails = false, bool spotifyOnly = false, string user = null)
     {
         var search = await Find(id);
 
@@ -114,7 +153,7 @@ public class SearchesController : ContentController
             Authenticate(search.ApplicationUser?.UserName);
             _ = Database.Searches.Remove(search);
             _ = await Database.SaveChanges();
-            return RedirectToAction("Index", new { sort, showDetails, user });
+            return RedirectToAction("Index", new { sort, showDetails, spotifyOnly, user });
         }
 
         ViewBag.errorMessage = $"Search ${id} not found.";

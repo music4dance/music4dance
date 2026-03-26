@@ -234,6 +234,9 @@ function search(s?: string): void {
             <BDropdownItem href="/home/counter">Tempo Counter</BDropdownItem>
             <BDropdownItem href="/home/tempi">Tempi (Tempos)</BDropdownItem>
             <BDropdownItem href="/song/advancedsearchform">Advanced Search</BDropdownItem>
+            <BDropdownItem v-if="context.userName" href="/Searches/Resume"
+              >Resume Search</BDropdownItem
+            >
             <BDropdownItem v-if="context.isBeta || context.isAdmin" href="/home/spotifyexplorer"
               >Spotify Explorer (BETA)</BDropdownItem
             >

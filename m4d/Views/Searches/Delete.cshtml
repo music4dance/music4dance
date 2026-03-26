@@ -26,6 +26,7 @@ ViewData["BreadCrumbs"] = new List<BreadCrumbItem>
 
 var sort = ViewBag.Sort;
 var showDetails = ViewBag.ShowDetails;
+var spotifyOnly = ViewBag.SpotifyOnly;
 var user = ViewBag.User;
 }
 
@@ -43,7 +44,7 @@ var user = ViewBag.User;
 
     <div class="form-actions no-color">
             <input type="submit" value="Delete" class="btn btn-danger"/> |
-            @Html.ActionLink("Back to Search", "Index", new { sort, showDetails, user})
+            @Html.ActionLink("Back to Search", "Index", new { sort, showDetails, spotifyOnly, user})
         </div>
 }
 </div>

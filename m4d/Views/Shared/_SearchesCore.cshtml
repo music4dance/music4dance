@@ -3,6 +3,7 @@
 @{
     var showDetails = ViewData.ContainsKey("ShowDetails") ? ViewBag.ShowDetails : false;
 var sort = ViewData.ContainsKey("Sort") ? ViewBag.Sort : null;
+var spotifyOnly = ViewData.ContainsKey("SpotifyOnly") ? ViewBag.SpotifyOnly : false;
 }
 
 <table class="table table-striped table-songs col-sm">
@@ -89,6 +90,7 @@ var sort = ViewData.ContainsKey("Sort") ? ViewBag.Sort : null;
                 id = item.Id,
                 user = item.ApplicationUser?.UserName,
                 showDetails,
+                spotifyOnly,
                 sort
             },new
             {
