@@ -42,6 +42,8 @@ exports[`MainMenu.vue > Renders MainMenu for an anonymous user 1`] = `
                     <li role="presentation"><a class="dropdown-item" href="/home/counter" role="menuitem">Tempo Counter</a></li>
                     <li role="presentation"><a class="dropdown-item" href="/home/tempi" role="menuitem">Tempi (Tempos)</a></li>
                     <li role="presentation"><a class="dropdown-item" href="/song/advancedsearchform" role="menuitem">Advanced Search</a></li>
+                    <li role="presentation"><button class="dropdown-item" role="menuitem" type="button">Resume Search</button></li>
+                    <li role="presentation"><button class="dropdown-item" role="menuitem" type="button">Search History</button></li>
                     <!--v-if-->
                   </ul>
                 </transition-stub>
@@ -93,5 +95,7 @@ exports[`MainMenu.vue > Renders MainMenu for an anonymous user 1`] = `
   <!--v-if-->
   <!--v-if-->
   <form id="logoutForm" action="/identity/account/logout" method="post" style="height: 0px;"><input name="__RequestVerificationToken" type="hidden"><input type="hidden" name="returnUrl" value="/"><button id="logout" type="submit" class="btn btn-link"></button></form>
+  <!--teleport start-->
+  <!--teleport end-->
 </div>"
 `;

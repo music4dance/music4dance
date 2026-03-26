@@ -106,3 +106,19 @@ ViewData["BreadCrumbs"] = new List<BreadCrumbItem>
     sort
 }, null)
 }
+@if (userName != "all")
+{
+<div class="row mt-2">
+    <div class="col-sm">
+        @Html.ActionLink("Clear My Search History", "DeleteAll", "Searches", new
+    {
+        sort,
+        showDetails,
+        spotifyOnly
+    }, new
+    {
+        @class = "btn btn-outline-danger btn-sm"
+    })
+    </div>
+</div>
+}

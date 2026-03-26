@@ -107,7 +107,14 @@ Redirects the current authenticated user directly into their most-recently-modif
 
 ### `Delete` and `DeleteConfirmed` actions
 
-Standard GET/POST delete with anti-forgery token. After deletion, redirects back to `Index` with original `sort` / `showDetails` / `spotifyOnly` / `user` parameters preserved.
+GET/POST flow with anti-forgery token. After the POST, redirects back to `Index` with original `sort` / `showDetails` / `spotifyOnly` / `user` parameters preserved.
+
+**Anonymize-rather-than-delete**: `DeleteConfirmed` does not hard-delete the row. Instead it applies the same anonymize/merge logic as `DeleteAllConfirmed`:
+
+- If an anonymous row exists with the same `Query`: merge the user row into it (counts summed, date range widened to earliest `Created` / latest `Modified`), then remove the user row.
+- Otherwise: set `ApplicationUserId = null` to detach the row from the user (the data is preserved for site-wide statistics).
+
+The confirmation view (`Delete.cshtml`) reflects this: the title is **"Remove from History"** and the button reads **"Remove from History"** with an explanatory note that the underlying data is kept for site statistics.
 
 ---
 
@@ -216,6 +223,22 @@ Then remove the migration file and redeploy.
 | [m4d/Views/Searches/Index.cshtml](../m4d/Views/Searches/Index.cshtml)              | My Searches list view                                |
 | [m4d/Views/Shared/\_SearchesCore.cshtml](../m4d/Views/Shared/_SearchesCore.cshtml) | Shared search table partial                          |
 | [m4dModels/Migrations/](../m4dModels/Migrations/)                                  | EF Core migration history                            |
+
+---
+
+## Anonymize / Merge Logic (shared by single-delete and bulk-clear)
+
+Both `DeleteConfirmed` (single item) and `DeleteAllConfirmed` (bulk "Clear My Search History") use the same pattern rather than hard-deleting rows:
+
+1. For each user-owned `Search` row, look for an anonymous row (`ApplicationUserId = null`) with the same `Query`.
+2. **Match found** — merge into the anonymous row:
+   - `anon.Count += search.Count`
+   - `anon.Created = Min(anon.Created, search.Created)`
+   - `anon.Modified = Max(anon.Modified, search.Modified)`
+   - Remove the user row.
+3. **No match** — detach the user row: set `ApplicationUserId = null` (and `ApplicationUser = null`). The row continues to contribute to anonymous aggregate statistics.
+
+This design preserves the statistical value of search data while honouring the user's intent to remove it from their personal history.
 
 ---
 

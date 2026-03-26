@@ -151,13 +151,93 @@ public class SearchesController : ContentController
         if (search != null)
         {
             Authenticate(search.ApplicationUser?.UserName);
-            _ = Database.Searches.Remove(search);
+
+            // Anonymize rather than hard-delete so the data is preserved for site statistics
+            var anon = await Database.Searches
+                .FirstOrDefaultAsync(s => s.ApplicationUserId == null && s.Query == search.Query);
+
+            if (anon != null)
+            {
+                // Merge counts and widen the time range into the existing anonymous row
+                anon.Count += search.Count;
+                if (search.Modified > anon.Modified)
+                    anon.Modified = search.Modified;
+                if (search.Created < anon.Created)
+                    anon.Created = search.Created;
+                Database.Searches.Remove(search);
+            }
+            else
+            {
+                // No anonymous entry yet — detach this row from the user
+                search.ApplicationUserId = null;
+                search.ApplicationUser = null;
+            }
+
             _ = await Database.SaveChanges();
             return RedirectToAction("Index", new { sort, showDetails, spotifyOnly, user });
         }
 
         ViewBag.errorMessage = $"Search {id} not found.";
         return View("Error");
+    }
+
+    // GET: Searches/DeleteAll
+    public async Task<IActionResult> DeleteAll(string sort, bool showDetails = false, bool spotifyOnly = false)
+    {
+        var appUser = await Database.FindUser(UserName);
+        if (appUser == null)
+        {
+            return RedirectToAction("Index");
+        }
+
+        var count = await Database.Searches.CountAsync(s => s.ApplicationUserId == appUser.Id);
+        ViewBag.Count = count;
+        ViewBag.Sort = sort;
+        ViewBag.ShowDetails = showDetails;
+        ViewBag.SpotifyOnly = spotifyOnly;
+        return View();
+    }
+
+    // POST: Searches/DeleteAll
+    [HttpPost]
+    [ActionName("DeleteAll")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteAllConfirmed(string sort, bool showDetails = false, bool spotifyOnly = false)
+    {
+        var appUser = await Database.FindUser(UserName);
+        if (appUser != null)
+        {
+            var userSearches = await Database.Searches
+                .Where(s => s.ApplicationUserId == appUser.Id)
+                .ToListAsync();
+
+            foreach (var search in userSearches)
+            {
+                // Look for an existing anonymous entry with the same normalized query
+                var anon = await Database.Searches
+                    .FirstOrDefaultAsync(s => s.ApplicationUserId == null && s.Query == search.Query);
+
+                if (anon != null)
+                {
+                    // Merge counts and widen the time range into the existing anonymous row
+                    anon.Count += search.Count;
+                    if (search.Modified > anon.Modified)
+                        anon.Modified = search.Modified;
+                    if (search.Created < anon.Created)
+                        anon.Created = search.Created;
+                    Database.Searches.Remove(search);
+                }
+                else
+                {
+                    // No anonymous entry yet — detach this row from the user
+                    search.ApplicationUserId = null;
+                    search.ApplicationUser = null;
+                }
+            }
+
+            _ = await Database.SaveChanges();
+        }
+        return RedirectToAction("Index", new { sort, showDetails, spotifyOnly });
     }
 
     private async Task<Search> Find(long id)
