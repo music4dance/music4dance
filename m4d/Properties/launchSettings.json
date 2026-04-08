@@ -53,7 +53,9 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "SEARCHINDEX": "SongIndexProd",
-        "ASPNETCORE_VITE": "true"
+        "ASPNETCORE_VITE": "true",
+        "SKIP_MIGRATIONS": "true",
+        "ConnectionStrings__DanceMusicContextConnection": "Server=n8a541qjnq.database.windows.net,1433;Initial Catalog=music4dance_db;Authentication=Active Directory Interactive;Encrypt=True;TrustServerCertificate=False"
       },
       "applicationUrl": "https://localhost:5001;http://localhost:5000"
     },

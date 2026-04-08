@@ -694,27 +694,23 @@ If you see errors, proceed to Phase 6 (Troubleshooting).
 1. **Browse to**: `https://m4d-<environment>.azurewebsites.net`
 
 2. **Verify Home Page**:
-
    - ✅ Page loads without errors
    - ✅ Navigation menu appears
    - ✅ No error messages
    - Tests: Azure Search, App Configuration
 
 3. **Verify Search**:
-
    - Click "Songs" or search for a dance/song
    - ✅ Search results appear
    - Tests: Azure Search indexes
 
 4. **Verify User Registration/Login**:
-
    - Click "Register" or "Log In"
    - ✅ Form appears
    - ✅ Can create account or sign in
    - Tests: SQL Database connection
 
 5. **Verify OAuth Providers** (if enabled):
-
    - Click "Log in with Google" (or Facebook, Spotify)
    - ✅ Redirect to provider
    - ✅ Can authenticate
@@ -1071,6 +1067,85 @@ This allows Azure health probes to pass quickly (typically < 10 seconds) instead
 
 **Background Initialization**: `StartupInitializationService` hosted service performs any post-startup validation tasks asynchronously without blocking the request pipeline.
 
+## Local Development: Access Production Database via Azure AD
+
+Enable local development access to the production Azure SQL database using your Microsoft Entra ID (Azure AD) credentials. No passwords are stored — authentication flows through `Microsoft.Data.SqlClient`'s `Active Directory Interactive` mode, which prompts a browser login with MFA support.
+
+### Prerequisites
+
+- Azure CLI installed (`az --version`)
+- Your Microsoft account is configured as the Azure AD admin on SQL Server `n8a541qjnq` (see [Phase 2.4](#24-azure-sql-server---verify-azure-ad-admin-one-time))
+
+### Step 1: Add Dev Machine IP to SQL Server Firewall
+
+1. Azure Portal → **SQL Server** (`n8a541qjnq`)
+2. **Security** → **Networking** → **Firewall rules**
+3. Click **+ Add your client IPv4 address** (or add manually):
+   - **Rule name**: `dev-machine`
+   - **Start IP**: `<your-public-IP>`
+   - **End IP**: `<your-public-IP>`
+4. Click **Save**
+
+**Note**: If your IP changes frequently, you'll need to update this rule. A static IP or VPN is ideal.
+
+### Step 2: Sign In to Azure CLI
+
+```bash
+az login --tenant 77fd022e-b4cb-4681-aa1d-c4f8ec6bec90
+```
+
+The `--tenant` flag is required because the Azure AD admin is a personal Microsoft account (`live.com#`) which requires MFA — without it, `az login` fails with `AADSTS50076`.
+
+Authenticate with the same Microsoft account that is the SQL Server Azure AD admin.
+
+Verify:
+
+```bash
+az account show --query "{name:name, user:user.name}" -o table
+```
+
+### Step 3: Launch with Production Database Profile
+
+The `m4d-prod-db` launch profile in `Properties/launchSettings.json` is pre-configured with everything needed:
+
+- `ConnectionStrings__DanceMusicContextConnection` — production connection string using `Active Directory Interactive` authentication (environment variables use `__` as a separator and take highest priority in ASP.NET Core configuration)
+- `SEARCHINDEX=SongIndexProd` — uses the production search index
+- `SKIP_MIGRATIONS=true` — **prevents** running `db.Migrate()` and dev seed data against production
+
+```bash
+dotnet run --launch-profile m4d-prod-db --project m4d
+```
+
+Or launch via VS Code / Visual Studio using the **m4d-prod-db** profile.
+
+**Why environment variable instead of user secrets?** User secrets override `appsettings.json` for ALL launch profiles, so every profile (`m4d-vite`, `m4d-build`, etc.) would hit the production database. By using an environment variable in `launchSettings.json`, the production connection is scoped to only the `m4d-prod-db` profile. All other profiles continue using LocalDB from `appsettings.json`.
+
+**Note**: `launchSettings.json` is not deployed to production (it's a local development file). The production connection string uses `Active Directory Interactive` which prompts a browser login with MFA support on first connection — no passwords are stored.
+
+### Step 4: Verify
+
+On launch, a browser window will open for Azure AD authentication (with MFA). After signing in, check the console output for:
+
+```
+Skipping database migrations and seed data - SKIP_MIGRATIONS is set
+```
+
+Browse to `https://localhost:5001` and verify production song data loads. The interactive login prompt serves as a deliberate reminder that you are running against the production database.
+
+### Switching Back to LocalDB
+
+Simply use any other launch profile (e.g., `m4d-vite`, `m4d-build`). The production connection string is scoped to `m4d-prod-db` only — no cleanup needed.
+
+### Security Considerations
+
+- **No passwords stored**: Authentication uses your Azure AD identity via interactive browser login
+- **Visible reminder**: The interactive login prompt on each launch makes it unmistakable that you're connected to production
+- **Auditable**: All database access is logged under your Azure AD identity
+- **Migration guard**: `SKIP_MIGRATIONS=true` in the launch profile prevents accidental schema changes or dev seed data on production
+- **Firewall scoped**: Only your specific IP address can connect (not open to all)
+- **Profile-scoped**: The production connection string only applies when using the `m4d-prod-db` profile — other profiles use LocalDB
+- **No deployment risk**: `launchSettings.json` is a local development file, not deployed to Azure
+
 ## Related Documentation
 
 - [Managed Identity Self-Contained Plan](managed-identity-self-contained-plan.md) - Overall migration strategy and troubleshooting log
@@ -1081,5 +1156,6 @@ This allows Azure health probes to pass quickly (typically < 10 seconds) instead
 
 | Date       | Change                                              | Author                               |
 | ---------- | --------------------------------------------------- | ------------------------------------ |
+| 2025-07-12 | Added local development production DB access guide  | Azure AD Interactive auth setup      |
 | 2026-01-06 | Added performance optimization section              | Startup timeout troubleshooting      |
 | 2025-12-31 | Initial version based on troubleshooting experience | Extracted from managed-identity plan |

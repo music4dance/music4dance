@@ -821,6 +821,13 @@ _ = Task.Run(async () =>
         return;
     }
 
+    var skipMigrations = configuration.GetValue<bool>("SKIP_MIGRATIONS");
+    if (skipMigrations)
+    {
+        Console.WriteLine("Skipping database migrations and seed data - SKIP_MIGRATIONS is set");
+        return;
+    }
+
     Console.WriteLine("Running database migrations in background...");
     try
     {
