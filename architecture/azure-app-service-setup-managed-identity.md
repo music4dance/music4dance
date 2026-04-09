@@ -1108,7 +1108,7 @@ The `m4d-prod-db` launch profile in `Properties/launchSettings.json` is pre-conf
 - `PROD_DB=true` — signals `Program.cs` to load `ProdConnectionString` from user secrets
 - `SEARCHINDEX=SongIndexProd` — uses the production search index
 
-Migrations are **automatically skipped** when the connection string targets `*.database.windows.net` in Development mode — no opt-in flag needed.
+Migrations are **automatically skipped** when `PROD_DB` is set — no separate opt-in flag needed.
 
 ```bash
 dotnet run --launch-profile m4d-prod-db --project m4d
@@ -1124,7 +1124,7 @@ On launch, a browser window will open for Azure AD authentication (with MFA). Af
 
 ```txt
 [Database] PROD_DB mode: Using ProdConnectionString from user secrets
-Skipping database migrations and seed data - Azure SQL detected in Development mode
+Skipping database migrations and seed data - PROD_DB is set
 ```
 
 Browse to `https://localhost:5001` and verify production song data loads.
@@ -1140,7 +1140,8 @@ Simply use any other launch profile (e.g., `m4d-vite`, `m4d-build`). The product
 - **No passwords stored**: Authentication uses your Azure AD identity via interactive browser login
 - **Visible reminder**: The interactive login prompt on each launch makes it unmistakable that you're connected to production
 - **Auditable**: All database access is logged under your Azure AD identity
-- **Automatic migration guard**: Migrations are automatically skipped when the connection string targets `*.database.windows.net` in Development mode — no opt-in flag to forget
+- **Automatic migration guard**: Migrations are automatically skipped when `PROD_DB` is set — no separate flag to forget
+- **Development-only**: `PROD_DB` is ignored outside the Development environment, so it can't accidentally change the DB in staging/production
 - **Connection string not in source control**: Stored in user secrets, loaded only when `PROD_DB=true`
 - **Firewall scoped**: Only your specific IP address can connect (not open to all)
 - **Profile-scoped**: `PROD_DB=true` only applies when using the `m4d-prod-db` profile — other profiles use LocalDB
