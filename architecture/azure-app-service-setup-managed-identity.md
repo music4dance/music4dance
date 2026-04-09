@@ -1073,7 +1073,7 @@ Enable local development access to the production Azure SQL database using your 
 
 ### Prerequisites
 
-- Azure CLI installed (`az --version`)
+- Azure CLI installed (`az --version`) — needed for managing firewall rules
 - Your Microsoft account is configured as the Azure AD admin on SQL Server `n8a541qjnq` (see [Phase 2.4](#24-azure-sql-server---verify-azure-ad-admin-one-time))
 
 ### Step 1: Add Dev Machine IP to SQL Server Firewall
@@ -1088,29 +1088,27 @@ Enable local development access to the production Azure SQL database using your 
 
 **Note**: If your IP changes frequently, you'll need to update this rule. A static IP or VPN is ideal.
 
-### Step 2: Sign In to Azure CLI
+### Step 2: Store Production Connection String in User Secrets
+
+The production connection string is stored in [user secrets](https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets) — never in source control.
 
 ```bash
-az login --tenant 77fd022e-b4cb-4681-aa1d-c4f8ec6bec90
+cd m4d
+dotnet user-secrets set ProdConnectionString "Server=n8a541qjnq.database.windows.net,1433;Initial Catalog=music4dance_db;Authentication=Active Directory Interactive;Encrypt=True;TrustServerCertificate=False"
 ```
 
-The `--tenant` flag is required because the Azure AD admin is a personal Microsoft account (`live.com#`) which requires MFA — without it, `az login` fails with `AADSTS50076`.
+`Active Directory Interactive` prompts a browser login with MFA support on first connection. This is both secure and serves as a visible reminder that you're running against production.
 
-Authenticate with the same Microsoft account that is the SQL Server Azure AD admin.
-
-Verify:
-
-```bash
-az account show --query "{name:name, user:user.name}" -o table
-```
+**Note**: `az login` is **not** required for database access — `Active Directory Interactive` handles authentication directly. You only need `az login` for Azure CLI management tasks (e.g., updating firewall rules).
 
 ### Step 3: Launch with Production Database Profile
 
-The `m4d-prod-db` launch profile in `Properties/launchSettings.json` is pre-configured with everything needed:
+The `m4d-prod-db` launch profile in `Properties/launchSettings.json` is pre-configured with:
 
-- `ConnectionStrings__DanceMusicContextConnection` — production connection string using `Active Directory Interactive` authentication (environment variables use `__` as a separator and take highest priority in ASP.NET Core configuration)
+- `PROD_DB=true` — signals `Program.cs` to load `ProdConnectionString` from user secrets
 - `SEARCHINDEX=SongIndexProd` — uses the production search index
-- `SKIP_MIGRATIONS=true` — **prevents** running `db.Migrate()` and dev seed data against production
+
+Migrations are **automatically skipped** when the connection string targets `*.database.windows.net` in Development mode — no opt-in flag needed.
 
 ```bash
 dotnet run --launch-profile m4d-prod-db --project m4d
@@ -1118,19 +1116,20 @@ dotnet run --launch-profile m4d-prod-db --project m4d
 
 Or launch via VS Code / Visual Studio using the **m4d-prod-db** profile.
 
-**Why environment variable instead of user secrets?** User secrets override `appsettings.json` for ALL launch profiles, so every profile (`m4d-vite`, `m4d-build`, etc.) would hit the production database. By using an environment variable in `launchSettings.json`, the production connection is scoped to only the `m4d-prod-db` profile. All other profiles continue using LocalDB from `appsettings.json`.
-
-**Note**: `launchSettings.json` is not deployed to production (it's a local development file). The production connection string uses `Active Directory Interactive` which prompts a browser login with MFA support on first connection — no passwords are stored.
+**Why user secrets + PROD_DB flag?** User secrets keep the production connection string out of source control. The `PROD_DB` flag ensures the production connection string is only loaded for this specific profile — all other profiles continue using LocalDB from `appsettings.json`.
 
 ### Step 4: Verify
 
 On launch, a browser window will open for Azure AD authentication (with MFA). After signing in, check the console output for:
 
-```
-Skipping database migrations and seed data - SKIP_MIGRATIONS is set
+```txt
+[Database] PROD_DB mode: Using ProdConnectionString from user secrets
+Skipping database migrations and seed data - Azure SQL detected in Development mode
 ```
 
-Browse to `https://localhost:5001` and verify production song data loads. The interactive login prompt serves as a deliberate reminder that you are running against the production database.
+Browse to `https://localhost:5001` and verify production song data loads.
+
+If you see `PROD_DB is set but ProdConnectionString is not configured`, run the `dotnet user-secrets set` command from Step 2.
 
 ### Switching Back to LocalDB
 
@@ -1141,9 +1140,10 @@ Simply use any other launch profile (e.g., `m4d-vite`, `m4d-build`). The product
 - **No passwords stored**: Authentication uses your Azure AD identity via interactive browser login
 - **Visible reminder**: The interactive login prompt on each launch makes it unmistakable that you're connected to production
 - **Auditable**: All database access is logged under your Azure AD identity
-- **Migration guard**: `SKIP_MIGRATIONS=true` in the launch profile prevents accidental schema changes or dev seed data on production
+- **Automatic migration guard**: Migrations are automatically skipped when the connection string targets `*.database.windows.net` in Development mode — no opt-in flag to forget
+- **Connection string not in source control**: Stored in user secrets, loaded only when `PROD_DB=true`
 - **Firewall scoped**: Only your specific IP address can connect (not open to all)
-- **Profile-scoped**: The production connection string only applies when using the `m4d-prod-db` profile — other profiles use LocalDB
+- **Profile-scoped**: `PROD_DB=true` only applies when using the `m4d-prod-db` profile — other profiles use LocalDB
 - **No deployment risk**: `launchSettings.json` is a local development file, not deployed to Azure
 
 ## Related Documentation
@@ -1154,8 +1154,8 @@ Simply use any other launch profile (e.g., `m4d-vite`, `m4d-build`). The product
 
 ## Change Log
 
-| Date       | Change                                              | Author                               |
-| ---------- | --------------------------------------------------- | ------------------------------------ |
-| 2025-07-12 | Added local development production DB access guide  | Azure AD Interactive auth setup      |
-| 2026-01-06 | Added performance optimization section              | Startup timeout troubleshooting      |
-| 2025-12-31 | Initial version based on troubleshooting experience | Extracted from managed-identity plan |
+| Date       | Change                                                 | Author                                               |
+| ---------- | ------------------------------------------------------ | ---------------------------------------------------- |
+| 2026-04-08 | Local dev prod DB: user secrets + auto migration guard | PROD_DB flag, no connection string in source control |
+| 2026-01-06 | Added performance optimization section                 | Startup timeout troubleshooting                      |
+| 2025-12-31 | Initial version based on troubleshooting experience    | Extracted from managed-identity plan                 |

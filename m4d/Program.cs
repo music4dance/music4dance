@@ -117,6 +117,24 @@ else
     Console.WriteLine("[Database] Expected 'AZURE_SQL_CONNECTIONSTRING' (Azure Service Connector) or 'DanceMusicContextConnection' (local)");
 }
 
+// When PROD_DB is set, override connection string from ProdConnectionString
+// (stored in user secrets via: dotnet user-secrets set ProdConnectionString "<connection-string>")
+var useProdDb = builder.Configuration.GetValue<bool>("PROD_DB");
+if (useProdDb)
+{
+    var prodConnectionString = builder.Configuration["ProdConnectionString"];
+    if (!string.IsNullOrEmpty(prodConnectionString))
+    {
+        connectionString = prodConnectionString;
+        Console.WriteLine("[Database] PROD_DB mode: Using ProdConnectionString from user secrets");
+    }
+    else
+    {
+        Console.WriteLine("[Database] WARNING: PROD_DB is set but ProdConnectionString is not configured");
+        Console.WriteLine("[Database] Set it via: dotnet user-secrets set ProdConnectionString \"Server=<server>.database.windows.net,1433;Initial Catalog=<db>;Authentication=Active Directory Interactive;Encrypt=True;TrustServerCertificate=False\"");
+    }
+}
+
 var services = builder.Services;
 var environment = builder.Environment;
 var configuration = builder.Configuration;
@@ -821,10 +839,12 @@ _ = Task.Run(async () =>
         return;
     }
 
-    var skipMigrations = configuration.GetValue<bool>("SKIP_MIGRATIONS");
+    var skipMigrations = isDevelopment
+        && !string.IsNullOrEmpty(connectionString)
+        && connectionString.Contains(".database.windows.net", StringComparison.OrdinalIgnoreCase);
     if (skipMigrations)
     {
-        Console.WriteLine("Skipping database migrations and seed data - SKIP_MIGRATIONS is set");
+        Console.WriteLine("Skipping database migrations and seed data - Azure SQL detected in Development mode");
         return;
     }
 
