@@ -53,7 +53,8 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "SEARCHINDEX": "SongIndexProd",
-        "ASPNETCORE_VITE": "true"
+        "ASPNETCORE_VITE": "true",
+        "PROD_DB": "true"
       },
       "applicationUrl": "https://localhost:5001;http://localhost:5000"
     },

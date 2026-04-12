@@ -114,7 +114,29 @@ if (!string.IsNullOrEmpty(connectionString))
 else
 {
     Console.WriteLine("[Database] WARNING: No connection string found - database will be unavailable");
-    Console.WriteLine("[Database] Expected 'AZURE_SQL_CONNECTIONSTRING' (Azure Service Connector) or 'DanceMusicContextConnection' (local)");
+    Console.WriteLine("[Database] Expected 'AZURE_SQL_CONNECTIONSTRING' (Azure Service Connector), 'DanceMusicContextConnection' (local), or PROD_DB + ProdConnectionString (user secrets)");
+}
+
+// When PROD_DB is set in Development, override connection string from ProdConnectionString
+// (stored in user secrets via: dotnet user-secrets set ProdConnectionString "<connection-string>")
+var useProdDb = builder.Configuration.GetValue<bool>("PROD_DB") && builder.Environment.IsDevelopment();
+if (useProdDb)
+{
+    var prodConnectionString = builder.Configuration["ProdConnectionString"];
+    if (!string.IsNullOrEmpty(prodConnectionString))
+    {
+        connectionString = prodConnectionString;
+        Console.WriteLine("[Database] PROD_DB mode: Using ProdConnectionString from user secrets");
+    }
+    else
+    {
+        Console.WriteLine("[Database] WARNING: PROD_DB is set but ProdConnectionString is not configured");
+        Console.WriteLine("[Database] Set it via: dotnet user-secrets set ProdConnectionString \"Server=<server>.database.windows.net,1433;Initial Catalog=<db>;Authentication=Active Directory Interactive;Encrypt=True;TrustServerCertificate=False\"");
+    }
+}
+else if (builder.Configuration.GetValue<bool>("PROD_DB") && !builder.Environment.IsDevelopment())
+{
+    Console.WriteLine("[Database] WARNING: PROD_DB is set but ignored outside Development environment");
 }
 
 var services = builder.Services;
@@ -818,6 +840,12 @@ _ = Task.Run(async () =>
     if (!serviceHealth.IsServiceAvailable("Database"))
     {
         Console.WriteLine("Skipping database migrations - database service is unavailable");
+        return;
+    }
+
+    if (useProdDb)
+    {
+        Console.WriteLine("Skipping database migrations and seed data - PROD_DB is set");
         return;
     }
 
