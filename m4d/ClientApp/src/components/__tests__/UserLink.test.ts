@@ -19,6 +19,13 @@ describe("UserLink.vue", () => {
       expect(wrapper.find("strong").exists()).toBe(true);
     });
 
+    it("renders strong (no link) for the unattributed batch user", () => {
+      const wrapper = shallowMount(UserLink, { props: { user: "batch" } });
+      expect(wrapper.find("a").exists()).toBe(false);
+      expect(wrapper.find("strong").exists()).toBe(true);
+      expect(wrapper.text()).toBe("Anonymous Import");
+    });
+
     it("applies pseudo class for a proxy user", () => {
       const wrapper = shallowMount(UserLink, { props: { user: "dwgray|P" } });
       expect(wrapper.find("a").classes()).toContain("pseudo");

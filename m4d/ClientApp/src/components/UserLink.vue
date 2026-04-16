@@ -9,7 +9,7 @@ const userClasses = computed(() => (userQuery.value.isPseudo ? ["pseudo"] : []))
 </script>
 
 <template>
-  <strong v-if="userQuery.isUnavailable || userQuery.isAlgorithmic">{{
+  <strong v-if="userQuery.isUnavailable || userQuery.isAlgorithmic || userQuery.isBatch">{{
     userQuery.displayName
   }}</strong>
   <a v-else :href="userLink" :class="userClasses">{{ userQuery.displayName }}</a>

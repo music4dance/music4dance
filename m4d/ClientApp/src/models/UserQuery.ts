@@ -3,7 +3,7 @@ export class UserQuery {
   queryPseudo = "[p]";
 
   private static readonly systemUserNames: Record<string, string> = {
-    batch: "Catalog",
+    batch: "Anonymous Import",
     "batch-s": "Spotify",
     "batch-a": "Amazon Music",
     "batch-i": "iTunes",
