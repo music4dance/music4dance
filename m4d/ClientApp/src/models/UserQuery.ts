@@ -2,6 +2,26 @@ export class UserQuery {
   namePseudo = "|p";
   queryPseudo = "[p]";
 
+  private static readonly systemUserNames: Record<string, string> = {
+    batch: "Catalog",
+    "batch-s": "Spotify",
+    "batch-a": "Amazon Music",
+    "batch-i": "iTunes",
+    "batch-x": "Xbox Music",
+    "batch-e": "EchoNest",
+    "tempo-bot": "Tempo Bot",
+  };
+
+  /** Service imports and algo bots — excludes Catalog ("batch") which is human-curated. */
+  private static readonly algorithmicUserNames = new Set([
+    "batch-s",
+    "batch-a",
+    "batch-i",
+    "batch-x",
+    "batch-e",
+    "tempo-bot",
+  ]);
+
   public static fromParts(parts?: string, user?: string): UserQuery {
     if (!parts || parts === "NT") {
       return new UserQuery("");
@@ -97,11 +117,23 @@ export class UserQuery {
     return !!user && (user === "batch" || user.startsWith("batch-"));
   }
 
+  /** True for algorithmic sources (streaming metadata, tempo-bot). False for Catalog and real users. */
+  public get isAlgorithmic(): boolean {
+    return UserQuery.algorithmicUserNames.has(this.userName);
+  }
+
   public get displayName(): string {
     if (this.isUnavailable) {
       return "UNAVAILABLE";
     }
-    return this.isAnonymous ? "Anonymous" : this.userName;
+    if (this.isAnonymous) {
+      return "Anonymous";
+    }
+    const systemName = UserQuery.systemUserNames[this.userName];
+    if (systemName) {
+      return systemName;
+    }
+    return this.userName;
   }
 
   public isDefault(userName?: string): boolean {

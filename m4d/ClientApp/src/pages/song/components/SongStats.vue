@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Song } from "@/models/Song";
+import { PropertyType } from "@/models/SongProperty";
 import { computed } from "vue";
 import { formatDate } from "@/helpers/timeHelpers";
 
@@ -9,7 +10,13 @@ const props = defineProps<{
   song: Song;
   editing?: boolean;
   isCreator?: boolean;
+  user?: string;
 }>();
+
+const isSystemTempo = computed(
+  () => !!props.song.tempo && !props.song.isUserModified(PropertyType.tempoField),
+);
+const canOverrideTempo = computed(() => !!props.user && isSystemTempo.value);
 
 const modifiedFormatted = computed(() => formatDate(props.song.modified));
 const createdFormatted = computed(() => formatDate(props.song.created));
@@ -46,6 +53,7 @@ const formatEchoNest = (n: number): string => {
           :editing="editing"
           :is-creator="isCreator"
           role="canTag"
+          :override-permission="canOverrideTempo"
           type="number"
           v-bind="$attrs" />
         BPM<AlgoGeneratedIcon v-if="!editing" :song="song"

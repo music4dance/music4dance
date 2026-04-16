@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { PropertyType, SongProperty } from "@/models/SongProperty";
 import { Tag, TagCategory } from "@/models/Tag";
 import { TagList } from "@/models/TagList";
@@ -9,6 +10,7 @@ import DanceViewer from "@/components/DanceViewer.vue";
 
 const props = defineProps<{
   property: SongProperty;
+  activeTags?: Set<string>;
 }>();
 
 const emit = defineEmits<{
@@ -16,13 +18,15 @@ const emit = defineEmits<{
   "tag-clicked": [handler: TagHandler];
 }>();
 
-const tags = new TagList(props.property.value).tags;
-const isAdd = props.property.baseName.endsWith("+");
-const danceId = props.property.danceQualifier;
-const isComment =
-  props.property.baseName === PropertyType.addCommentField ||
-  props.property.baseName === PropertyType.removeCommentField;
-const isTempo = props.property.baseName === PropertyType.tempoField;
+const tags = computed(() => new TagList(props.property.value).tags);
+const isAdd = computed(() => props.property.baseName.endsWith("+"));
+const danceId = computed(() => props.property.danceQualifier);
+const isComment = computed(
+  () =>
+    props.property.baseName === PropertyType.addCommentField ||
+    props.property.baseName === PropertyType.removeCommentField,
+);
+const isTempo = computed(() => props.property.baseName === PropertyType.tempoField);
 const viewer = (tag: Tag) => (isDance(tag) ? DanceViewer : TagViewer);
 const isDance = (tag: Tag) => tag.category === TagCategory.Dance;
 </script>
@@ -39,6 +43,7 @@ const isDance = (tag: Tag) => tag.category === TagCategory.Dance;
         :tag="tag"
         :added="isAdd"
         :dance-id="danceId"
+        :active-tags="activeTags"
         @dance-clicked="emit('dance-clicked', $event as DanceHandler)"
         @tag-clicked="emit('tag-clicked', $event as TagHandler)"
       />

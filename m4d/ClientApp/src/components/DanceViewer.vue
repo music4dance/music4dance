@@ -2,10 +2,12 @@
 import { DanceHandler } from "@/models/DanceHandler";
 import { DanceRating } from "@/models/DanceRating";
 import { Tag } from "@/models/Tag";
+import { computed } from "vue";
 
 const props = defineProps<{
   tag: Tag;
   added?: boolean;
+  activeTags?: Set<string>;
 }>();
 
 const emit = defineEmits<{
@@ -16,10 +18,13 @@ const danceRating = DanceRating.fromTag(props.tag);
 const danceHandler = danceRating
   ? new DanceHandler({ danceRating, tag: props.tag.neutral })
   : undefined;
+const isRemoved = computed(
+  () => !!props.activeTags && !!props.added && !props.activeTags.has(props.tag.toString()),
+);
 </script>
 
 <template>
-  <div>
+  <div :class="{ 'text-decoration-line-through text-muted': isRemoved }">
     <span class="me-2">
       <IBiArrowCounterclockwise v-if="!added" :style="{ color: 'red', fontSize: '.75em' }" />
       <IBiHandThumbsUp v-if="props.tag.positive" :style="{ color: 'green' }" />

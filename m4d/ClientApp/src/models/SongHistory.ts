@@ -175,7 +175,7 @@ export class SongHistory {
       date?: Date,
       actValue?: string,
     ) {
-      const last = changes.length > 1 ? changes[changes.length - 1] : undefined;
+      const last = changes.length > 0 ? changes[changes.length - 1] : undefined;
       if (last && last.user === user && date?.toDateString() === last.date?.toDateString()) {
         last.properties = [...last.properties, ...properties];
       } else {
@@ -237,11 +237,16 @@ export class SongHistory {
     });
   }
 
-  public get userChanges(): SongChange[] {
-    return this.changes.filter(
+  /**
+   * Filters a set of changes to those with at least one viewable property.
+   * When humanOnly=true, excludes algorithmic batch users (batch-*) and tempo-bot;
+   * pseudo users (|P proxies for real users) are included in the default view.
+   */
+  private filterChanges(changes: SongChange[], humanOnly: boolean): SongChange[] {
+    return changes.filter(
       (c) =>
         c.user &&
-        !c.isBatch &&
+        (!humanOnly || (!c.isAlgorithmic && !c.isBatch)) &&
         !!c.properties.find(
           (p) =>
             p.baseName === PropertyType.addedTags ||
@@ -252,6 +257,87 @@ export class SongHistory {
             p.baseName === PropertyType.tempoField,
         ),
     );
+  }
+
+  /** Changes by human and pseudo (proxy) users — excludes all batch/algorithmic imports. */
+  public get userChanges(): SongChange[] {
+    return this.filterChanges(this.changes, true);
+  }
+
+  /**
+   * All changes (human, pseudo, and algorithmic) with at least one viewable property,
+   * using the same property track as userChanges for consistent rendering.
+   * Use this to power the "Include automated" toggle in the history viewer.
+   */
+  public get inclusiveChanges(): SongChange[] {
+    return this.filterChanges(this.changes, false);
+  }
+
+  /**
+   * Tag keys (value:Category) at the song level whose last touching action
+   * was by a system/batch user. Any key subsequently modified by a human is excluded.
+   */
+  public get systemTagKeys(): Set<string> {
+    const tagLastSystem = new Map<string, boolean>();
+    let isSystem = false;
+
+    for (const p of this.properties) {
+      if (p.isAction) {
+        isSystem = false;
+        continue;
+      }
+      const baseName = p.baseName;
+      if (baseName === PropertyType.userField || baseName === PropertyType.userProxy) {
+        const uq = new UserQuery(p.value);
+        isSystem = uq.isPseudo || uq.isBatch;
+        continue;
+      }
+      // Only song-level tags (no dance qualifier)
+      if (baseName === PropertyType.addedTags && !p.danceQualifier) {
+        for (const key of p.value
+          .split("|")
+          .map((k) => k.trim())
+          .filter((k) => k)) {
+          tagLastSystem.set(key, isSystem);
+        }
+      } else if (baseName === PropertyType.removedTags && !p.danceQualifier) {
+        for (const key of p.value
+          .split("|")
+          .map((k) => k.trim())
+          .filter((k) => k)) {
+          tagLastSystem.delete(key);
+        }
+      }
+    }
+
+    return new Set([...tagLastSystem.entries()].filter(([, v]) => v).map(([k]) => k));
+  }
+
+  /**
+   * The set of song-level tag keys (value:Category) that are currently active
+   * (added and not subsequently removed). Used to render struck-through tags
+   * in the history view for additions that were later undone.
+   */
+  public get activeTags(): Set<string> {
+    const active = new Set<string>();
+    for (const p of this.properties) {
+      if (p.baseName === PropertyType.addedTags && !p.danceQualifier) {
+        for (const key of p.value
+          .split("|")
+          .map((k) => k.trim())
+          .filter((k) => k)) {
+          active.add(key);
+        }
+      } else if (p.baseName === PropertyType.removedTags && !p.danceQualifier) {
+        for (const key of p.value
+          .split("|")
+          .map((k) => k.trim())
+          .filter((k) => k)) {
+          active.delete(key);
+        }
+      }
+    }
+    return active;
   }
 
   public get isSorted(): boolean {
