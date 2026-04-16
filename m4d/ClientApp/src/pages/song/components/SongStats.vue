@@ -22,6 +22,8 @@ const modifiedFormatted = computed(() => formatDate(props.song.modified));
 const createdFormatted = computed(() => formatDate(props.song.created));
 const editedFormatted = computed(() => formatDate(props.song.edited!));
 
+const emit = defineEmits<{ edit: [] }>();
+
 const formatEchoNest = (n: number): string => {
   return (n * 100).toFixed(1).toString() + "%";
 };
@@ -56,8 +58,12 @@ const formatEchoNest = (n: number): string => {
           :override-permission="canOverrideTempo"
           type="number"
           v-bind="$attrs" />
-        BPM<AlgoGeneratedIcon v-if="!editing" :song="song"
-      /></BTd>
+        BPM<AlgoGeneratedIcon v-if="!editing" :song="song" /><BLink
+          v-if="canOverrideTempo && !editing"
+          href="#"
+          @click="emit('edit')"
+          ><IBiPencilFill class="ms-1" /></BLink
+      ></BTd>
     </BTr>
     <BTr v-if="song.danceability">
       <BTh>Beat</BTh>

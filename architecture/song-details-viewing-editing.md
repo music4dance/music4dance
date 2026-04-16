@@ -155,13 +155,16 @@ Selecting a dance calls `addDance(danceId, persist, familyTag)`:
 
 ### Song History Viewer
 
-`<SongHistoryViewer>` renders a `<BCard>` listing entries from `SongHistory.userChanges`. The filtering logic has two layers:
+`<SongHistoryViewer>` renders a `<BCard>` listing a filtered change history. It accepts two props: `history: SongHistory` and `authenticated: boolean`.
 
-**Layer 1 — `userChanges` property** (`SongHistory.ts`):
-Iterates all properties grouped into edit blocks (each block starts with a `.Create` or `.Edit` action marker). A block is included only when all three conditions hold:
+**Toggle — "Include automated":**
+Authenticated users see a switch in the card header (with a CPU icon). When off (default), `SongHistory.userChanges` is used. When on, `SongHistory.inclusiveChanges` is used, which includes batch/algorithmic blocks alongside human edits.
+
+**Layer 1 — `userChanges` / `inclusiveChanges`** (`SongHistory.ts`):
+Iterates all properties grouped into edit blocks (each block starts with a `.Create` or `.Edit` action marker). A block is included when:
 
 1. A `User` property is present (system/service edits without a user are excluded).
-2. The block is not a batch import (`user === "batch|P"` or `user.startsWith("batch-")`).
+2. (`userChanges` only) The block is not a batch import — excludes `user === "batch|P"` or `user.startsWith("batch-")`.
 3. The block contains at least one property whose `baseName` is one of: `Tag+`, `Tag-`, `Like`, `Comment+`, `Comment-`, `Tempo`.
 
 Blocks from the same user on the same calendar day are merged into a single `SongChange` entry.
@@ -174,8 +177,12 @@ Within each `SongChange`, only properties whose `baseName` starts with `"Tag"` o
 - A like/heart icon if the change includes a `Like` property (❤️ for liked, 💔 for disliked, ✏️ otherwise).
 - `"Added by [user] on [date]"` for the song's `.Create` block; `"Changed by [user] on [date]"` for all others.
 - One row per tag, comment, or tempo property in the block.
+- Batch/algorithmic users are shown with friendly display names (e.g., "Spotify", "Amazon Music", "Tempo Bot", "Anonymous Import") and rendered as plain text (no profile link).
 
-**What is intentionally excluded:** album edits, purchase links, dance rating weight changes, service-attributed edits, and any batch-import block.
+**What is intentionally excluded:** album edits, purchase links, dance rating weight changes, and any system/batch block when the toggle is off.
+
+**Strike-through for removed tags:**
+`SongHistory.activeTags` computes the set of song-level tag keys currently active (added and not subsequently removed). Tags shown in history that are no longer active are rendered with a strike-through via `TagViewer`. Dance-qualified tags (e.g., `Tag+:JIV=Modern:Style`) are explicitly excluded from this strike-through logic since they are not tracked in `activeTags`.
 
 ### Tag Modal
 
@@ -248,24 +255,29 @@ Role checks are resolved via `MenuContext` (injected from server into the page's
 
 ## Related Files
 
-| File                                              | Purpose                                            |
-| ------------------------------------------------- | -------------------------------------------------- |
-| `m4d/Controllers/SongController.cs`               | MVC controller, `Details` action, `GetSongDetails` |
-| `m4d/APIControllers/SongController.cs`            | REST API (GET/PATCH/PUT/POST)                      |
-| `src/pages/song/App.vue`                          | Vue app entry point                                |
-| `src/pages/song/components/SongCore.vue`          | Top-level song details component                   |
-| `src/pages/song/components/DanceDetails.vue`      | Dance ratings card                                 |
-| `src/pages/song/components/SongStats.vue`         | Tempo/length/EchoNest table                        |
-| `src/pages/song/components/SongHistoryLog.vue`    | Admin raw history editor                           |
-| `src/pages/song/components/SongHistoryViewer.vue` | User-facing change summary                         |
-| `src/pages/song/components/AlbumList.vue`         | Album list with purchase links                     |
-| `src/pages/song/components/TrackList.vue`         | Admin track search/import                          |
-| `src/pages/song/components/FieldEditor.vue`       | Inline view/edit field switcher                    |
-| `src/components/TagListEditor.vue`                | Tag add/remove widget                              |
-| `src/models/SongDetailsModel.ts`                  | Root view model                                    |
-| `src/models/SongEditor.ts`                        | Client-side edit state manager                     |
-| `src/models/SongHistory.ts`                       | Event-sourced property log                         |
-| `src/models/SongProperty.ts`                      | Property name/value pair + `PropertyType` enum     |
-| `src/models/Song.ts`                              | Computed song view derived from `SongHistory`      |
-| `architecture/SongUploadFormat.md`                | Property serialization format reference            |
-| `architecture/VOTING_WITH_DANCE_FAMILIES.md`      | Dance family voting details                        |
+| File                                              | Purpose                                                                                      |
+| ------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `m4d/Controllers/SongController.cs`               | MVC controller, `Details` action, `GetSongDetails`                                           |
+| `m4d/APIControllers/SongController.cs`            | REST API (GET/PATCH/PUT/POST)                                                                |
+| `src/pages/song/App.vue`                          | Vue app entry point                                                                          |
+| `src/pages/song/components/SongCore.vue`          | Top-level song details component                                                             |
+| `src/pages/song/components/DanceDetails.vue`      | Dance ratings card                                                                           |
+| `src/pages/song/components/SongStats.vue`         | Tempo/length/EchoNest table                                                                  |
+| `src/pages/song/components/SongHistoryLog.vue`    | Admin raw history editor                                                                     |
+| `src/pages/song/components/SongHistoryViewer.vue` | User-facing change summary; "Include automated" toggle                                       |
+| `src/pages/song/components/AlbumList.vue`         | Album list with purchase links                                                               |
+| `src/pages/song/components/TrackList.vue`         | Admin track search/import                                                                    |
+| `src/pages/song/components/FieldEditor.vue`       | Inline view/edit field switcher                                                              |
+| `src/components/TagListEditor.vue`                | Tag add/remove widget                                                                        |
+| `src/components/TagViewer.vue`                    | Single tag chip; strike-through for removed tags                                             |
+| `src/components/SongPropertyViewer.vue`           | Renders a single `SongProperty` (tempo, tag, or comment row)                                 |
+| `src/components/SongChangeViewer.vue`             | Renders one change block (user + date + properties)                                          |
+| `src/components/UserLink.vue`                     | User display name; links for humans, plain text for batch/algorithmic users                  |
+| `src/models/SongDetailsModel.ts`                  | Root view model                                                                              |
+| `src/models/SongEditor.ts`                        | Client-side edit state manager                                                               |
+| `src/models/SongHistory.ts`                       | Event-sourced property log; `userChanges`, `inclusiveChanges`, `activeTags`, `systemTagKeys` |
+| `src/models/SongProperty.ts`                      | Property name/value pair + `PropertyType` enum                                               |
+| `src/models/UserQuery.ts`                         | User identity; friendly display names for all system users                                   |
+| `src/models/Song.ts`                              | Computed song view derived from `SongHistory`                                                |
+| `architecture/SongUploadFormat.md`                | Property serialization format reference                                                      |
+| `architecture/VOTING_WITH_DANCE_FAMILIES.md`      | Dance family voting details                                                                  |

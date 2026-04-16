@@ -411,6 +411,7 @@ onBeforeUnmount(() => {
           :is-creator="isCreator"
           :user="model.userName"
           @update-field="updateField($event)"
+          @edit="setEdit"
         /><BButton
           v-if="hasUserChanges && !editing"
           variant="outline-primary"
