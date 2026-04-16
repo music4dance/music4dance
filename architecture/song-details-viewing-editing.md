@@ -142,7 +142,7 @@ The first time `modified` becomes true, a "Don't Forget!" bootstrap-vue-next toa
 - **Undo User Edits** — admin-only per-user undo buttons.
 - **Update Services** — admin-only button linking to `/song/UpdateSongAndServices`.
 - **History log** (`<SongHistoryLog>`) — admin-only; shows individual properties with move/delete/insert controls.
-- **Song history viewer** (`<SongHistoryViewer>`) — shows `userChanges` (grouped change summary) to all authenticated users.
+- **Song history viewer** (`<SongHistoryViewer>`) — shows a filtered change summary visible to all users. See [Song History Viewer](#song-history-viewer) below for what is included.
 
 ### Dance Chooser Modal
 
@@ -152,6 +152,30 @@ Selecting a dance calls `addDance(danceId, persist, familyTag)`:
 1. If only one style family exists for the dance, auto-selects it.
 2. For multi-family dances with no family tag provided, votes without a family tag.
 3. Calls `editor.danceVote(new DanceRatingVote(danceId, VoteDirection.Up, [familyTag]))`.
+
+### Song History Viewer
+
+`<SongHistoryViewer>` renders a `<BCard>` listing entries from `SongHistory.userChanges`. The filtering logic has two layers:
+
+**Layer 1 — `userChanges` property** (`SongHistory.ts`):
+Iterates all properties grouped into edit blocks (each block starts with a `.Create` or `.Edit` action marker). A block is included only when all three conditions hold:
+
+1. A `User` property is present (system/service edits without a user are excluded).
+2. The block is not a batch import (`user === "batch|P"` or `user.startsWith("batch-")`).
+3. The block contains at least one property whose `baseName` is one of: `Tag+`, `Tag-`, `Like`, `Comment+`, `Comment-`, `Tempo`.
+
+Blocks from the same user on the same calendar day are merged into a single `SongChange` entry.
+
+**Layer 2 — `SongChangeViewer` component** (`SongChangeViewer.vue`):
+Within each `SongChange`, only properties whose `baseName` starts with `"Tag"` or `"Comment"`, or equals `"Tempo"`, are rendered as text rows. This means a like-only change displays just the heart icon (❤️/💔) with the user and date, and no property rows.
+
+**What each entry shows:**
+
+- A like/heart icon if the change includes a `Like` property (❤️ for liked, 💔 for disliked, ✏️ otherwise).
+- `"Added by [user] on [date]"` for the song's `.Create` block; `"Changed by [user] on [date]"` for all others.
+- One row per tag, comment, or tempo property in the block.
+
+**What is intentionally excluded:** album edits, purchase links, dance rating weight changes, service-attributed edits, and any batch-import block.
 
 ### Tag Modal
 
@@ -203,17 +227,20 @@ All endpoints are in `m4d/APIControllers/SongController.cs`:
 
 ## Permission Model
 
-| Capability          | Anonymous | Authenticated | Creator | Admin |
-| ------------------- | --------- | ------------- | ------- | ----- |
-| View song details   | ✅        | ✅            | ✅      | ✅    |
-| Vote on dances      | ❌        | ✅            | ✅      | ✅    |
-| Add/remove tags     | ❌        | ✅            | ✅      | ✅    |
-| Edit Title/Artist   | ❌        | ❌            | ✅      | ✅    |
-| Edit Tempo/Length   | ❌        | ✅ (`canTag`) | ✅      | ✅    |
-| Delete dances       | ❌        | ❌            | ❌      | ✅    |
-| Admin textarea edit | ❌        | ❌            | ❌      | ✅    |
-| Undo per-user edits | ❌        | ❌            | ❌      | ✅    |
-| Raw history log     | ❌        | ❌            | ❌      | ✅    |
+| Capability               | Anonymous | Authenticated | `canTag` | `canEdit` | Creator | Admin (`dbAdmin`) |
+| ------------------------ | --------- | ------------- | -------- | --------- | ------- | ----------------- |
+| View song details        | ✅        | ✅            | ✅       | ✅        | ✅      | ✅                |
+| Vote on dances           | ❌        | ✅            | ✅       | ✅        | ✅      | ✅                |
+| Add/remove own tags      | ❌        | ✅            | ✅       | ✅        | ✅      | ✅                |
+| Remove other users' tags | ❌        | ❌            | ❌       | ✅        | ❌      | ✅                |
+| Edit Tempo/Length        | ❌        | ❌            | ✅       | ✅        | ✅      | ✅                |
+| Edit Title/Artist        | ❌        | ❌            | ❌       | ❌        | ✅      | ✅                |
+| Delete dances            | ❌        | ❌            | ❌       | ❌        | ❌      | ✅                |
+| Admin textarea edit      | ❌        | ❌            | ❌       | ❌        | ❌      | ✅                |
+| Undo per-user edits      | ❌        | ❌            | ❌       | ❌        | ❌      | ✅                |
+| Raw history log          | ❌        | ❌            | ❌       | ❌        | ❌      | ✅                |
+
+Role hierarchy (additive): `dbAdmin` implies all other roles. `canEdit` implies `canTag`-level capabilities. Roles are resolved via `MenuContext` (injected from server into the page's JS environment). The "Remove other users' tags" capability is gated by `menuContext.canEdit` inside `TagListEditor.vue`.
 
 Role checks are resolved via `MenuContext` (injected from server into the page's JS environment).
 
