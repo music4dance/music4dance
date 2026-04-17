@@ -9,6 +9,7 @@ import { computed } from "vue";
 const props = defineProps<{
   change: SongChange;
   oneUser?: boolean;
+  activeTags?: Set<string>;
 }>();
 
 const emit = defineEmits<{
@@ -16,6 +17,7 @@ const emit = defineEmits<{
   "tag-clicked": [handler: TagHandler];
 }>();
 
+const isAlgorithmic = computed(() => props.change.isAlgorithmic);
 const action = computed(() =>
   props.change.action === PropertyType.createdField ? "Added" : "Changed",
 );
@@ -41,12 +43,19 @@ const viewableProperties = computed(() =>
     <template v-if="!oneUser">
       {{ action }} by
       <UserLink :user="change.user!" />
+      <IBiCpuFill
+        v-if="isAlgorithmic"
+        class="ms-1 text-secondary"
+        style="font-size: 0.85em"
+        title="Algorithmically generated"
+      />
     </template>
     on
     {{ formattedDate }}
     <div v-for="(property, index) in viewableProperties" :key="index" class="ms-4">
       <SongPropertyViewer
         :property="property"
+        :active-tags="activeTags"
         @dance-clicked="emit('dance-clicked', $event as DanceHandler)"
         @tag-clicked="emit('tag-clicked', $event as TagHandler)"
       />

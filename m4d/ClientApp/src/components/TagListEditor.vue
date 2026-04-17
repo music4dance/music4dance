@@ -19,6 +19,7 @@ const props = defineProps<{
   editor?: SongEditor;
   edit?: boolean;
   context?: TagContext;
+  systemTagKeys?: Set<string>;
 }>();
 
 const emit = defineEmits<{
@@ -74,6 +75,12 @@ const otherTags = computed(() => {
   return props.context ? Tag.filterByContext(filteredTags, props.context) : filteredTags;
 });
 
+const systemTags = computed(() => {
+  const keys = props.systemTagKeys;
+  if (!keys || keys.size === 0) return [];
+  return otherTags.value.filter((t) => keys.has(t.key));
+});
+
 const keyDifference = (long: string[], short: string[]): string => {
   return long.find((k) => !short.includes(k))!;
 };
@@ -120,6 +127,16 @@ const tagHandler = (tag: Tag): TagHandler => {
         <span v-if="otherTags.length" class="title mr-2">Remove Tags:</span>
         <TagButtonOther
           v-for="tag in otherTags"
+          :key="tag.key"
+          :tag-handler="tagHandler(tag)"
+          :is-delete="true"
+          @change-tag="deleteTag"
+        />
+      </div>
+      <div v-else-if="authenticated && systemTags.length">
+        <span class="title mr-2">Remove System Tags:</span>
+        <TagButtonOther
+          v-for="tag in systemTags"
           :key="tag.key"
           :tag-handler="tagHandler(tag)"
           :is-delete="true"

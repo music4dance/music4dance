@@ -363,6 +363,7 @@ onBeforeUnmount(() => {
           :editor="editor as SongEditor"
           :edit="edit"
           :context="TagContext.Song"
+          :system-tag-keys="(history as SongHistory)?.systemTagKeys"
           @edit="setEdit"
           @update-song="updateSong"
           @tag-clicked="showTagModal"
@@ -408,7 +409,9 @@ onBeforeUnmount(() => {
           :song="song as Song"
           :editing="editing"
           :is-creator="isCreator"
+          :user="model.userName"
           @update-field="updateField($event)"
+          @edit="setEdit"
         /><BButton
           v-if="hasUserChanges && !editing"
           variant="outline-primary"
@@ -482,7 +485,7 @@ onBeforeUnmount(() => {
         </div>
       </BCol>
       <BCol v-if="model.songHistory">
-        <SongHistoryViewer :history="history as SongHistory" />
+        <SongHistoryViewer :history="history as SongHistory" :authenticated="!!model.userName" />
       </BCol>
     </BRow>
     <DanceChooser

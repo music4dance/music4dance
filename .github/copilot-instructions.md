@@ -99,6 +99,11 @@ music4dance.net is a sophisticated web application designed to help dancers find
 - **Line Endings**: ALL files in `m4d/ClientApp/**` MUST use LF (Unix) line endings, not CRLF
   - This is enforced by `.gitattributes` for Vue.js/Node.js convention
   - When creating new files in ClientApp, ensure LF line endings
+- **MPA Reactivity**: This is a Multi-Page Application (MPA) — many components were written assuming they load once per page. When dynamic state is added to a page (e.g., a toggle that changes what a `v-for` displays), Vue reuses component instances via `:key="index"` rather than recreating them. Any value derived from `props` at setup time as a plain variable becomes **stale** when the prop changes.
+  - **When adding dynamic state to a page, review all components in the affected render tree for reactivity issues.**
+  - Derived values must be wrapped in `computed()`: `const foo = computed(() => props.bar.something);`
+  - Plain assignment at setup is only safe if the component is always destroyed and recreated (i.e., `:key` is a stable unique ID, not an index). See [Vue reactivity docs](https://vuejs.org/guide/essentials/computed.html).
+  - Components fixed for this: `SongPropertyViewer.vue`, `UserLink.vue`
 - **Functional Programming**: Prefer functional/method chaining style over imperative loops
   - Use `map()`, `filter()`, `reduce()`, `sort()` for array operations
   - Example: `items.map(x => x.value).filter(v => v > 0).sort()` instead of for-loops
