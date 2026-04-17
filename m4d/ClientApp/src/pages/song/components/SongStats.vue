@@ -3,8 +3,11 @@ import { Song } from "@/models/Song";
 import { PropertyType } from "@/models/SongProperty";
 import { computed } from "vue";
 import { formatDate } from "@/helpers/timeHelpers";
+import { getMenuContext } from "@/helpers/GetMenuContext";
 
 defineOptions({ inheritAttrs: false });
+
+const context = getMenuContext();
 
 const props = defineProps<{
   song: Song;
@@ -16,7 +19,7 @@ const props = defineProps<{
 const isSystemTempo = computed(
   () => !!props.song.tempo && !props.song.isUserModified(PropertyType.tempoField),
 );
-const canOverrideTempo = computed(() => !!props.user && isSystemTempo.value);
+const canOverrideTempo = computed(() => !!props.user && isSystemTempo.value && context.canTag);
 
 const modifiedFormatted = computed(() => formatDate(props.song.modified));
 const createdFormatted = computed(() => formatDate(props.song.created));
@@ -58,11 +61,13 @@ const formatEchoNest = (n: number): string => {
           :override-permission="canOverrideTempo"
           type="number"
           v-bind="$attrs" />
-        BPM<AlgoGeneratedIcon v-if="!editing" :song="song" /><BLink
+        BPM<AlgoGeneratedIcon v-if="!editing" :song="song" /><BButton
           v-if="canOverrideTempo && !editing"
-          href="#"
+          type="button"
+          variant="link"
+          class="ms-1 p-0 align-baseline"
           @click="emit('edit')"
-          ><IBiPencilFill class="ms-1" /></BLink
+          ><IBiPencilFill /></BButton
       ></BTd>
     </BTr>
     <BTr v-if="song.danceability">

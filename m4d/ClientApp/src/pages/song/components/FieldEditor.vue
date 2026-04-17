@@ -29,10 +29,12 @@ const internalValue = computed({
 const isNumber = computed(() => props.type === "number");
 const computedType = computed(() => props.type ?? "text");
 const hasEditPermission = computed(() => {
-  if (props.overridePermission) {
-    return true;
-  }
   const role = props.role;
+
+  if (props.overridePermission) {
+    return !!role && context.hasRole(role);
+  }
+
   return !!props.isCreator || (!!role && context.hasRole(role));
 });
 </script>
