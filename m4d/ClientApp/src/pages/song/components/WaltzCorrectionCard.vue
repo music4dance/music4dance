@@ -3,8 +3,10 @@ import { computed } from "vue";
 import { Song } from "@/models/Song";
 import { SongEditor } from "@/models/SongEditor";
 import { PropertyType } from "@/models/SongProperty";
+import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 
-const WALTZ_IDS = ["SWZ", "CSW", "VWZ", "TGV"] as const;
+const WALTZ_IDS: string[] =
+  safeDanceDatabase().groups.find((g) => g.id === "WLZ")?.danceIds ?? [];
 
 const props = defineProps<{
   song: Song;
@@ -18,7 +20,7 @@ const emit = defineEmits<{ edit: [] }>();
 
 const waltzRatings = computed(() =>
   (props.song.danceRatings ?? []).filter(
-    (dr) => (WALTZ_IDS as readonly string[]).includes(dr.danceId) && dr.weight > 0,
+    (dr) => WALTZ_IDS.includes(dr.danceId) && dr.weight > 0,
   ),
 );
 
@@ -59,6 +61,18 @@ const onBadMeterAndTempo = () => {
   props.editor!.modifyProperty(PropertyType.tempoField, correctedTempo.value!.toString());
   emit("edit");
 };
+
+const onCompoundTime = () => {
+  // Add 12/8 song-level meter tag only if not already present
+  if (!props.song.tags?.some((t) => t.key === "12/8:Tempo")) {
+    props.editor!.addProperty(PropertyType.addedTags, "12/8:Tempo");
+  }
+  // Mark each waltz dance rating as compound time
+  for (const dr of waltzRatings.value) {
+    props.editor!.addProperty(`${PropertyType.addedTags}:${dr.danceId}`, "Compound Time:Tempo");
+  }
+  emit("edit");
+};
 </script>
 
 <template>
@@ -81,6 +95,10 @@ const onBadMeterAndTempo = () => {
         <BButton v-if="correctedTempo" variant="outline-danger" @click="onBadMeterAndTempo">
           Meter + tempo wrong — correct 4/4 → 3/4 and adjust BPM ({{ song.tempo }} →
           {{ correctedTempo }})
+        </BButton>
+        <BButton variant="outline-info" @click="onCompoundTime">
+          Song has compound time — 4/4 feel (e.g. Foxtrot) with underlying waltz triple feel (adds
+          12/8 and marks waltz as Compound Time)
         </BButton>
       </div>
     </BCardBody>
