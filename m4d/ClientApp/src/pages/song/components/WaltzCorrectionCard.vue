@@ -9,7 +9,7 @@ const WALTZ_IDS: string[] = safeDanceDatabase().groups.find((g) => g.id === "WLZ
 
 const props = defineProps<{
   song: Song;
-  editor?: SongEditor;
+  editor: SongEditor;
   editing?: boolean;
   user?: string;
   canEdit?: boolean;
@@ -31,7 +31,7 @@ const showCard = computed(
 );
 
 const correctedTempo = computed(() =>
-  props.song.tempo ? Math.round((props.song.tempo * 3) / 4) : undefined,
+  props.song.tempo != null ? Math.round((props.song.tempo * 3) / 4) : undefined,
 );
 
 const applyMeterFix = () => {

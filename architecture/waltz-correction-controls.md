@@ -168,10 +168,11 @@ for (const dr of waltzRatings) {
 **Visibility computed:**
 
 ```typescript
-const waltzIds = ["SWZ", "CSW", "VWZ", "TGV"];
+const WALTZ_IDS: string[] =
+  safeDanceDatabase().groups.find((g) => g.id === "WLZ")?.danceIds ?? [];
 const waltzRatings = computed(() =>
   (props.song.danceRatings ?? []).filter(
-    (dr) => waltzIds.includes(dr.danceId) && dr.weight > 0,
+    (dr) => WALTZ_IDS.includes(dr.danceId) && dr.weight > 0,
   ),
 );
 const showCard = computed(
@@ -184,14 +185,15 @@ const showCard = computed(
 );
 ```
 
-**Template:** A `<BCard>` with `border-variant="warning"` and a brief explanatory paragraph, followed by three `<BButton>` elements (one per case). Each button calls its handler, then emits `'edit'`.
+**Template:** A `<BCard>` with `border-variant="warning"` and a brief explanatory paragraph, followed by four `<BButton>` elements (one per case). Each button calls its handler, then emits `'edit'`.
 
 **Button labels (suggested):**
 | Button | Label | Variant |
 |--------|-------|---------|
 | Case 1 | "Performer dances Waltz to 4/4 (Fake)" | `outline-secondary` |
 | Case 2 | "Meter tag wrong — correct 4/4 → 3/4" | `outline-warning` |
-| Case 3 | "Meter + tempo wrong — correct 4/4 → 3/4 and adjust BPM" | `outline-danger` || Case 4 | "Song has compound time — 4/4 feel with underlying waltz triple feel" | `outline-info` |
+| Case 3 | "Meter + tempo wrong — correct 4/4 → 3/4 and adjust BPM" | `outline-danger` |
+| Case 4 | "Song has compound time — 4/4 feel with underlying waltz triple feel" | `outline-info` |
 **Handler sketch:**
 
 ```typescript
