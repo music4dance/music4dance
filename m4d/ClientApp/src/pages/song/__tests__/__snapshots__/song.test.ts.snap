@@ -227,6 +227,7 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
             <form id="undoForm" action="/song/undoUserChanges" method="post" style="display: none;"><input type="hidden" name="__RequestVerificationToken"><input type="hidden" name="id" value="ee9680db-423e-47d2-851a-f08ddcbe9ff9"><input type="hidden" name="filter" value="v2-Index-----\\-me|h"></form>
           </div>
         </div>
+        <!--v-if-->
         <div class="row">
           <div class="col">
             <div class="card border-primary">

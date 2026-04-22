@@ -221,6 +221,11 @@ exports[`Song Merge > Renders the Merge Page 1`] = `
 </div>
 <div class="row">
   <div class="col">
+    <!--v-if-->
+  </div>
+</div>
+<div class="row">
+  <div class="col">
     <div class="card border-primary">
       <!---->
       <!---->
