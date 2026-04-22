@@ -5,8 +5,7 @@ import { SongEditor } from "@/models/SongEditor";
 import { PropertyType } from "@/models/SongProperty";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 
-const WALTZ_IDS: string[] =
-  safeDanceDatabase().groups.find((g) => g.id === "WLZ")?.danceIds ?? [];
+const WALTZ_IDS: string[] = safeDanceDatabase().groups.find((g) => g.id === "WLZ")?.danceIds ?? [];
 
 const props = defineProps<{
   song: Song;
@@ -19,9 +18,7 @@ const props = defineProps<{
 const emit = defineEmits<{ edit: [] }>();
 
 const waltzRatings = computed(() =>
-  (props.song.danceRatings ?? []).filter(
-    (dr) => WALTZ_IDS.includes(dr.danceId) && dr.weight > 0,
-  ),
+  (props.song.danceRatings ?? []).filter((dr) => WALTZ_IDS.includes(dr.danceId) && dr.weight > 0),
 );
 
 const showCard = computed(
