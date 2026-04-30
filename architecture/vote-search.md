@@ -57,13 +57,13 @@ public async Task<SearchResults> VoteSearch(SearchOptions options)
 
 ### Key Design Points
 
-| Aspect | Detail |
-|---|---|
-| Batch size | 500 (hard-coded) |
-| Pagination | Offset applied after in-memory filter; `Size` in the returned results uses the original `options.Size` (default 25) |
-| Vote direction | `IsUpVoted` → score `+1`; otherwise score `-1` (down-voted) |
-| User resolution | `IsIdentity` resolves to the currently logged-in user; otherwise uses the `UserName` from the query |
-| Error handling | Azure Search unavailability returns an empty `SearchResults` and marks service unhealthy via `ServiceHealth` |
+| Aspect          | Detail                                                                                                              |
+| --------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Batch size      | 500 (hard-coded)                                                                                                    |
+| Pagination      | Offset applied after in-memory filter; `Size` in the returned results uses the original `options.Size` (default 25) |
+| Vote direction  | `IsUpVoted` → score `+1`; otherwise score `-1` (down-voted)                                                         |
+| User resolution | `IsIdentity` resolves to the currently logged-in user; otherwise uses the `UserName` from the query                 |
+| Error handling  | Azure Search unavailability returns an empty `SearchResults` and marks service unhealthy via `ServiceHealth`        |
 
 ---
 
@@ -71,13 +71,13 @@ public async Task<SearchResults> VoteSearch(SearchOptions options)
 
 ### `UserQuery` vote modifiers (from `m4dModels/UserQuery.cs`)
 
-| Modifier | Meaning |
-|---|---|
-| `d` | Up-voted (IsUpVoted) |
-| `x` | Down-voted (IsDownVoted) |
-| `l` | Liked (IsLike) |
-| `h` | Disliked / blocked (IsHate) |
-| `a` | Any opinion (IsAny) |
+| Modifier | Meaning                     |
+| -------- | --------------------------- |
+| `d`      | Up-voted (IsUpVoted)        |
+| `x`      | Down-voted (IsDownVoted)    |
+| `l`      | Liked (IsLike)              |
+| `h`      | Disliked / blocked (IsHate) |
+| `a`      | Any opinion (IsAny)         |
 
 `IsVoted` is `true` when the modifier is `d` or `x`.
 
@@ -102,9 +102,9 @@ Returns `-1`, `0`, or `+1` based on the user's raw dance rating for the given so
 
 ## Related Code
 
-| File | Purpose |
-|---|---|
-| `m4d/Services/SongSearch.cs` | `VoteSearch` and `Search` entry point |
-| `m4dModels/UserQuery.cs` | Vote modifier parsing (`IsVoted`, `IsUpVoted`, `IsDownVoted`) |
-| `m4dModels/Song.cs` | `NormalizedUserDanceRating` |
-| `m4dModels/SongFilter.cs` | `UserQuery` property, `DanceQuery` property |
+| File                         | Purpose                                                       |
+| ---------------------------- | ------------------------------------------------------------- |
+| `m4d/Services/SongSearch.cs` | `VoteSearch` and `Search` entry point                         |
+| `m4dModels/UserQuery.cs`     | Vote modifier parsing (`IsVoted`, `IsUpVoted`, `IsDownVoted`) |
+| `m4dModels/Song.cs`          | `NormalizedUserDanceRating`                                   |
+| `m4dModels/SongFilter.cs`    | `UserQuery` property, `DanceQuery` property                   |
