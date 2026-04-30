@@ -22,7 +22,7 @@
     <PackageReference Include="Stripe.net" />
     <PackageReference Include="Vite.AspNetCore" />
     <PackageReference Include="X.PagedList.Mvc.Core" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" VersionOverride="10.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" />
     <PackageReference Include="Microsoft.Build.Tasks.Core" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" />
   </ItemGroup>

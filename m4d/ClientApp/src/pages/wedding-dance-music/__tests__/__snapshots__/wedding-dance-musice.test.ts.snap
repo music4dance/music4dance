@@ -6,8 +6,8 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
   <nav aria-label="breadcrumb">
     <nav aria-label="breadcrumb" style="padding: 0.25rem 0.5rem;">
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a class="" href="/">music4dance</a></li>
-        <li class="breadcrumb-item"><a class="" href="/dances">Dances</a></li>
+        <li class="breadcrumb-item"><a class="" href="/" to="" replace="false">music4dance</a></li>
+        <li class="breadcrumb-item"><a class="" href="/dances" to="" replace="false">Dances</a></li>
         <li class="breadcrumb-item active"><span aria-current="location">WeddingDanceMusic</span></li>
       </ol>
     </nav>
