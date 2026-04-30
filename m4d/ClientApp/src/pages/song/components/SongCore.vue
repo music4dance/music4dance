@@ -431,6 +431,18 @@ onBeforeUnmount(() => {
         </form>
       </BCol>
     </BRow>
+    <BRow v-if="editor && context.canEdit">
+      <BCol>
+        <WaltzCorrectionCard
+          :song="song as Song"
+          :editor="editor as SongEditor"
+          :editing="editing"
+          :user="model.userName"
+          :can-edit="context.canEdit"
+          @edit="setEdit"
+        />
+      </BCol>
+    </BRow>
     <BRow>
       <BCol v-if="song.albums"
         ><AlbumList
