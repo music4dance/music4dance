@@ -37,7 +37,7 @@ $ErrorActionPreference = "Stop"
 
 $ScriptDir  = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RepoRoot   = Split-Path -Parent $ScriptDir
-$ClientApp  = Join-Path $RepoRoot "m4d\ClientApp"
+$ClientApp  = Join-Path $RepoRoot "m4d" "ClientApp"
 
 $ModeLabel = if ($Mode -eq "minor") { "minor/patch only (no major version changes)" } else { "all versions including major bumps" }
 Write-Host ""
