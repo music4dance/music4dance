@@ -136,7 +136,7 @@ const sortOptions = computed(() => [
 ]);
 
 const sortInit = new SongSort(filter.sortOrder, filter.TextSearch);
-const sortId = ref(sortInit.id || null);
+const sortId = ref<SortOrder | null>((sortInit.id as SortOrder) || null);
 const sortDirection = ref(sortInit.direction);
 
 const danceNames = computed(() => {

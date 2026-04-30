@@ -50,6 +50,8 @@
     "peacock.color": "#1857a4",
     "chat.tools.terminal.autoApprove": {
       "ForEach-Object": true,
+      "yarn build": true,
+      "yarn vitest": true,
     },
   },
   "extensions": {

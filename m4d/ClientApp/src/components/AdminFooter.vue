@@ -52,7 +52,7 @@ const batchUrlBase = (name: string, count: number, additional?: string): string 
 };
 
 const onBulkEdit = (submit: HTMLInputElement | null): void => {
-  const button = submit as HTMLButtonElement;
+  const button = submit as unknown as HTMLButtonElement;
   button.click();
 };
 </script>

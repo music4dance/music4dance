@@ -43,7 +43,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
                     </svg> Choose Dances</button>
                   <!---->
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <ul id="BootstrapVueNext__ID__v-14__dropdown___-menu" style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto fade" aria-labelledby="BootstrapVueNext__ID__v-14__dropdown___" role="menu">
+                    <ul id="BootstrapVueNext__ID__v-14__dropdown___-menu" style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto b-floating-size fade" aria-labelledby="BootstrapVueNext__ID__v-14__dropdown___" role="menu">
                       <div>
                         <li role="presentation">
                           <form class="dropdown-item-text">
@@ -155,7 +155,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
                         </svg> Choose Tags to Include</button>
                       <!---->
                       <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                        <ul id="BootstrapVueNext__ID__v-37__dropdown___-menu" style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto fade" aria-labelledby="BootstrapVueNext__ID__v-37__dropdown___" role="menu">
+                        <ul id="BootstrapVueNext__ID__v-37__dropdown___-menu" style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto b-floating-size fade" aria-labelledby="BootstrapVueNext__ID__v-37__dropdown___" role="menu">
                           <div>
                             <li role="presentation">
                               <form class="dropdown-item-text">
@@ -199,7 +199,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
                         </svg> Choose Tags to Exclude</button>
                       <!---->
                       <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                        <ul id="BootstrapVueNext__ID__v-50__dropdown___-menu" style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto fade" aria-labelledby="BootstrapVueNext__ID__v-50__dropdown___" role="menu">
+                        <ul id="BootstrapVueNext__ID__v-50__dropdown___-menu" style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto b-floating-size fade" aria-labelledby="BootstrapVueNext__ID__v-50__dropdown___" role="menu">
                           <div>
                             <li role="presentation">
                               <form class="dropdown-item-text">
