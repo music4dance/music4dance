@@ -107,7 +107,6 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
         var vote = userQuery.IsUpVoted ? 1 : -1;
         var user = userQuery.IsIdentity ? UserName : userQuery.UserName;
         var songs = results.Songs.Where(s => Filter.DanceQuery.Dances.Any(d => s.NormalizedUserDanceRating(user, d.Id) == vote)).ToList();
-        var negated = results.Songs.Where(s => Filter.DanceQuery.Dances.All(d => s.NormalizedUserDanceRating(user, d.Id) != vote)).ToList();
 
         return new SearchResults(results, [.. songs.Skip(offset).Take(options.Size ?? 25)], songs.Count);
     }
