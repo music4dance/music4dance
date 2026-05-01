@@ -8,6 +8,7 @@ using m4d.Services.ServiceHealth;
 using m4d.Utilities;
 using m4d.ViewModels;
 
+using m4dModels;
 using m4dModels.Utilities;
 
 using Microsoft.AspNetCore.Authorization;
@@ -92,6 +93,29 @@ public class AdminController(
     public ActionResult Tags()
     {
         return View();
+    }
+
+    //
+    // GET: /Admin/AdminSearch
+    // GET: /Admin/AdminSearch?EditedBy.UserName=dwgray&EditedBy.From=2015-01-01&EditedBy.To=2015-12-31
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> AdminSearch(AdminSearchModel model)
+    {
+        ViewBag.Title = "Admin Search";
+        ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
+
+        if (model.EditedBy.HasSearch)
+        {
+            var results = await SongIndex.Search(SongFilter.Create(false), 2000, CruftFilter.AllCruft);
+            model.EditedBy.Results = results.Songs
+                .Where(s => s.WasEditedBy(
+                    model.EditedBy.UserName,
+                    model.EditedBy.From.Value,
+                    model.EditedBy.To.Value))
+                .ToList();
+        }
+
+        return View(model);
     }
 
 

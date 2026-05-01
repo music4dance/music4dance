@@ -52,6 +52,7 @@
       "ForEach-Object": true,
       "yarn build": true,
       "yarn vitest": true,
+      "Tee-Object": true,
     },
   },
   "extensions": {

@@ -2039,53 +2039,18 @@ public class Song : TaggableObject
 
         _ = await ExpandTags(database);
 
-        var props = FilteredProperties(songMod.ExcludeUsers).ToList();
-        foreach (var modifier in songMod.Properties)
+        // When a date range is specified, use block-level modification to avoid
+        // incorrectly matching identically-named properties in other time periods.
+        if (songMod.FromDate.HasValue || songMod.ToDate.HasValue)
         {
-            var modList = props.Where(
-                    p =>
-                        string.Equals(
-                            p.Name, modifier.Name, StringComparison.OrdinalIgnoreCase) &&
-                        (string.Equals(
-                                p.Value, modifier.Value, StringComparison.OrdinalIgnoreCase) ||
-                            p.Name == DanceRatingField && p.Value.StartsWith(
-                                modifier.Value, StringComparison.InvariantCultureIgnoreCase) ||
-                            p.Name.StartsWith("Tag") &&
-                            modifier.Action == PropertyAction.ReplaceName))
-                .ToList();
-
-            changed |= modList.Count > 0;
-            foreach (var prop in modList)
+            changed = AdminModifyBlocksInRange(songMod);
+        }
+        else
+        {
+            var props = FilteredProperties(songMod.ExcludeUsers).ToList();
+            foreach (var modifier in songMod.Properties)
             {
-                var index = SongProperties.FindIndex(p => p == prop);
-                if (modifier.Action is PropertyAction.Remove or
-                    PropertyAction.Replace)
-                {
-                    SongProperties.RemoveAt(index);
-                }
-
-                if (modifier.Action == PropertyAction.Append)
-                {
-                    index += 1;
-                }
-
-                if (modifier.Action is PropertyAction.Replace or
-                    PropertyAction.Append or
-                    PropertyAction.Prepend)
-                {
-                    SongProperties.InsertRange(index, modifier.Properties);
-                }
-                else if (modifier.Action == PropertyAction.ReplaceValue)
-                {
-                    SongProperties[index].Value = prop.Name == DanceRatingField &&
-                        modifier.Replace.Length == 3
-                            ? modifier.Replace + SongProperties[index].Value[3..]
-                            : modifier.Replace;
-                }
-                else if (modifier.Action == PropertyAction.ReplaceName)
-                {
-                    SongProperties[index].Name = modifier.Replace;
-                }
+                changed |= ApplyModifierToPropertyList(modifier, props, SongProperties);
             }
         }
 
@@ -2094,6 +2059,122 @@ public class Song : TaggableObject
         _ = await CollapseTags(database);
 
         return changed;
+    }
+
+    /// <summary>
+    /// Applies property modifiers only to edit/create blocks whose timestamp falls
+    /// within the date range specified by <paramref name="songMod"/>.
+    /// Works at the block level to avoid ambiguous in-place index lookups when
+    /// multiple blocks contain properties with the same Name+Value.
+    /// </summary>
+    private bool AdminModifyBlocksInRange(SongModifier songMod)
+    {
+        var blocks = SongPropertyBlockParser.ParseBlocks(SongProperties,
+            a => a == EditCommand || a == CreateCommand);
+
+        var changed = false;
+
+        foreach (var block in blocks)
+        {
+            if (songMod.FromDate.HasValue && (!block.Timestamp.HasValue || block.Timestamp.Value < songMod.FromDate.Value))
+                continue;
+            if (songMod.ToDate.HasValue && (!block.Timestamp.HasValue || block.Timestamp.Value > songMod.ToDate.Value))
+                continue;
+            if (songMod.ExcludeUsers != null && songMod.ExcludeUsers.Any(u =>
+                    string.Equals(u, block.User, StringComparison.OrdinalIgnoreCase)))
+                continue;
+
+            foreach (var modifier in songMod.Properties)
+            {
+                // Work on the block's own mutable property list
+                changed |= ApplyModifierToPropertyList(modifier, block.Properties, block.Properties);
+            }
+        }
+
+        if (changed)
+        {
+            // Rebuild the flat SongProperties list from the (now-mutated) blocks
+            SongProperties.Clear();
+            SongProperties.AddRange(SongPropertyBlockParser.FlattenBlocks(blocks));
+        }
+
+        return changed;
+    }
+
+    /// <summary>
+    /// Applies a single <see cref="PropertyModifier"/> to every matching property in
+    /// <paramref name="candidates"/>, mutating <paramref name="target"/> in place.
+    /// Returns true if any property was changed.
+    /// </summary>
+    private static bool ApplyModifierToPropertyList(
+        PropertyModifier modifier,
+        IList<SongProperty> candidates,
+        IList<SongProperty> target)
+    {
+        var modList = candidates.Where(
+                p =>
+                    string.Equals(p.Name, modifier.Name, StringComparison.OrdinalIgnoreCase) &&
+                    (string.Equals(p.Value, modifier.Value, StringComparison.OrdinalIgnoreCase) ||
+                        p.Name == DanceRatingField && p.Value.StartsWith(
+                            modifier.Value, StringComparison.InvariantCultureIgnoreCase) ||
+                        p.Name.StartsWith("Tag") &&
+                        modifier.Action == PropertyAction.ReplaceName))
+            .ToList();
+
+        if (modList.Count == 0)
+            return false;
+
+        foreach (var prop in modList)
+        {
+            var index = IndexOf(target, prop);
+            if (index < 0)
+                continue;
+
+            if (modifier.Action is PropertyAction.Remove or PropertyAction.Replace)
+            {
+                target.RemoveAt(index);
+            }
+
+            if (modifier.Action == PropertyAction.Append)
+            {
+                index += 1;
+            }
+
+            if (modifier.Action is PropertyAction.Replace or
+                PropertyAction.Append or
+                PropertyAction.Prepend)
+            {
+                foreach (var p in modifier.Properties.AsEnumerable().Reverse())
+                    target.Insert(index, p);
+            }
+            else if (modifier.Action == PropertyAction.ReplaceValue)
+            {
+                target[index].Value = prop.Name == DanceRatingField &&
+                    modifier.Replace.Length == 3
+                        ? modifier.Replace + target[index].Value[3..]
+                        : modifier.Replace;
+            }
+            else if (modifier.Action == PropertyAction.ReplaceName)
+            {
+                target[index].Name = modifier.Replace;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Finds the index of <paramref name="prop"/> in <paramref name="list"/> using
+    /// value equality, starting from 0.
+    /// </summary>
+    private static int IndexOf(IList<SongProperty> list, SongProperty prop)
+    {
+        for (var i = 0; i < list.Count; i++)
+        {
+            if (list[i] == prop)
+                return i;
+        }
+        return -1;
     }
 
     public async Task<bool> AdminAddUserProperties(string userName, IEnumerable<SongProperty> properties, DanceMusicCoreService database)
@@ -2495,7 +2576,7 @@ public class Song : TaggableObject
             }
         }
 
-        // If any other user 
+        // If any other user
         if (lastUser.UserName != user.UserName)
         {
             _ = CreateProperty(UserProxy, user.DecoratedName);
@@ -4035,6 +4116,22 @@ public class Song : TaggableObject
         return rating == 0 ? 0 : rating < 0 ? -1 : 1;
     }
 
+    /// <summary>
+    /// Returns true if this song contains at least one .Create or .Edit block that is
+    /// attributed to <paramref name="userName"/> and whose timestamp falls within
+    /// [<paramref name="from"/>, <paramref name="to"/>] (inclusive).
+    /// </summary>
+    public bool WasEditedBy(string userName, DateTime from, DateTime to)
+    {
+        var blocks = SongPropertyBlockParser.ParseBlocks(SongProperties,
+            a => a == EditCommand || a == CreateCommand);
+        return blocks.Any(b =>
+            string.Equals(b.User, userName, StringComparison.OrdinalIgnoreCase) &&
+            b.Timestamp.HasValue &&
+            b.Timestamp.Value >= from &&
+            b.Timestamp.Value <= to);
+    }
+
     public int UserDanceRating(string userName, string danceId)
     {
         var level = 0;
@@ -4189,7 +4286,7 @@ public class Song : TaggableObject
                 //  to explicity disallow having both the like and hate, but if we do it here we'll remove
                 //  things that don't need to be removed.
                 //removed = removed ?? new TagList();
-                //removed = dts.Tags.Aggregate(removed, 
+                //removed = dts.Tags.Aggregate(removed,
                 //    (current, tag) => current.Add(tag.StartsWith("!") ? tag.Substring(1) : "!" + tag));
             }
         }

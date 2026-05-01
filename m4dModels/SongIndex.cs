@@ -1080,7 +1080,7 @@ public class SongIndex
             filter.SearchString, AzureParmsFromFilter(filter, pageSize), cruft);
     }
 
-    public async Task<SearchResults> Search(
+    public virtual async Task<SearchResults> Search(
         string search, SearchOptions parameters, CruftFilter cruft = CruftFilter.NoCruft)
     {
         // Strip off the Lucene syntax indicator
@@ -1226,7 +1226,7 @@ public class SongIndex
 
             // Select only fields needed for merge candidates
             parameters.Select.AddRange([
-                SongIdField, ModifiedField, Song.TitleField, Song.ArtistField, 
+                SongIdField, ModifiedField, Song.TitleField, Song.ArtistField,
                 Song.LengthField, Song.TempoField
             ]);
 
@@ -1885,7 +1885,7 @@ public class SongIndex
 
         // Get base filter (may be null or have user filters)
         var baseFilter = filter.GetOdataFilter(DanceMusicService);
-        
+
         DateTimeOffset? lastModified = null;
         string lastId = null;
         bool hasMore = true;
@@ -1901,7 +1901,7 @@ public class SongIndex
                 Skip = null, // Key-set pagination doesn't use skip
                 IncludeTotalCount = false // Don't need count for streaming
             };
-            
+
             // Composite ordering: Modified desc, then SongId desc for deterministic ordering
             parameters.OrderBy.Add($"{ModifiedField} desc");
             parameters.OrderBy.Add($"{SongIdField} desc");
@@ -1913,7 +1913,7 @@ public class SongIndex
                 // Format: (Modified lt lastModified) or (Modified eq lastModified and SongId lt lastId)
                 var modifiedStr = lastModified.Value.ToString("o"); // ISO 8601 format
                 var compositeFilter = $"({ModifiedField} lt {modifiedStr}) or ({ModifiedField} eq {modifiedStr} and {SongIdField} lt '{lastId}')";
-                
+
                 parameters.Filter = string.IsNullOrEmpty(baseFilter)
                     ? compositeFilter
                     : $"({baseFilter}) and ({compositeFilter})";
@@ -1927,7 +1927,7 @@ public class SongIndex
 
             // Fetch next batch
             var response = await Client.SearchAsync<SearchDocument>(searchString, parameters, cancellationToken);
-            
+
             // Stream results from this batch
             var batchCount = 0;
             foreach (var result in response.Value.GetResults())
@@ -1935,7 +1935,7 @@ public class SongIndex
                 yield return Song.Serialize(
                     result.Document.GetString(SongIdField),
                     result.Document.GetString(PropertiesField));
-                
+
                 // Track last Modified and SongId for next iteration
                 lastModified = result.Document.GetDateTimeOffset(ModifiedField);
                 lastId = result.Document.GetString(SongIdField);

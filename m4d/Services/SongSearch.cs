@@ -80,15 +80,44 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
         }
     }
 
+    // Batch size for post-filter searches (client-side filtering after Azure fetch).
+    // Large enough to get a representative sample while limiting Azure Search load.
+    private const int PostSearchBatchSize = 5000;
+
     // TODO:
     //  - Think about how to handle additional filter - continue down the path
     //    of truncation or move towards infinite scrolling
     //  - Can we use facets to get user's pages to have links to dance lists (no)
     public async Task<SearchResults> VoteSearch(SearchOptions options)
     {
+        var userQuery = Filter.UserQuery;
+        var vote = userQuery.IsUpVoted ? 1 : -1;
+        var user = userQuery.IsIdentity ? UserName : userQuery.UserName;
+        return await PostSearch(options,
+            s => Filter.DanceQuery.Dances.Any(d => s.NormalizedUserDanceRating(user, d.Id) == vote));
+    }
+
+    /// <summary>
+    /// Returns songs where at least one edit block is attributed to <paramref name="editorUser"/>
+    /// and whose timestamp falls within [<paramref name="from"/>, <paramref name="to"/>].
+    /// Fetches up to <see cref="PostSearchBatchSize"/> songs from Azure Search and applies
+    /// the filter in memory.
+    /// </summary>
+    public async Task<SearchResults> EditedBySearch(SearchOptions options, string editorUser,
+        DateTime from, DateTime to)
+    {
+        return await PostSearch(options, s => s.WasEditedBy(editorUser, from, to));
+    }
+
+    /// <summary>
+    /// Fetches a batch of songs from Azure Search and applies <paramref name="predicate"/>
+    /// as an in-memory post-filter.  Pagination (offset) is re-applied after filtering.
+    /// </summary>
+    private async Task<SearchResults> PostSearch(SearchOptions options, Func<Song, bool> predicate)
+    {
         var offset = options.Skip ?? 0;
         options.Skip = 0;
-        options.Size = 500;
+        options.Size = PostSearchBatchSize;
 
         SearchResults results;
         try
@@ -103,12 +132,8 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
             return new SearchResults(Filter.SearchString ?? "", 0, 0, 1, PageSize ?? 25, [], new Dictionary<string, IList<Azure.Search.Documents.Models.FacetResult>>());
         }
 
-        var userQuery = Filter.UserQuery;
-        var vote = userQuery.IsUpVoted ? 1 : -1;
-        var user = userQuery.IsIdentity ? UserName : userQuery.UserName;
-        var songs = results.Songs.Where(s => Filter.DanceQuery.Dances.Any(d => s.NormalizedUserDanceRating(user, d.Id) == vote)).ToList();
-
-        return new SearchResults(results, [.. songs.Skip(offset).Take(options.Size ?? 25)], songs.Count);
+        var songs = results.Songs.Where(predicate).ToList();
+        return new SearchResults(results, [.. songs.Skip(offset).Take(PageSize ?? 25)], songs.Count);
     }
 
     public void Page()
