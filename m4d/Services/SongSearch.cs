@@ -112,6 +112,7 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
     private async Task<SearchResults> PostSearch(SearchOptions options, Func<Song, bool> predicate)
     {
         var offset = options.Skip ?? 0;
+        var pageSize = options.Size ?? PageSize ?? 25;
 
         var matched = new List<Song>();
         try
@@ -126,16 +127,16 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
                                                    ex.Message.Contains("Client registration requires a TokenCredential"))
         {
             ServiceHealth?.MarkUnavailable("SearchService", $"Client error: {ex.Message}");
-            return new SearchResults(Filter.SearchString ?? "", 0, 0, 1, PageSize ?? 25, [], new Dictionary<string, IList<Azure.Search.Documents.Models.FacetResult>>());
+            return new SearchResults(Filter.SearchString ?? "", 0, 0, 1, pageSize, [], new Dictionary<string, IList<Azure.Search.Documents.Models.FacetResult>>());
         }
 
-        var page = matched.Skip(offset).Take(PageSize ?? 25).ToList();
+        var page = matched.Skip(offset).Take(pageSize).ToList();
         return new SearchResults(
             Filter.SearchString ?? "",
             page.Count,
             matched.Count,
-            offset / (PageSize ?? 25) + 1,
-            PageSize ?? 25,
+            offset / pageSize + 1,
+            pageSize,
             page,
             new Dictionary<string, IList<Azure.Search.Documents.Models.FacetResult>>());
     }

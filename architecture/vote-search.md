@@ -65,15 +65,15 @@ private async Task<SearchResults> PostSearch(SearchOptions options, Func<Song, b
 
 ### Key Design Points
 
-| Aspect           | Detail                                                                                                       |
-| ---------------- | ------------------------------------------------------------------------------------------------------------ |
-| Result set       | Unbounded — all songs Azure returns for the given filter are inspected                                       |
-| Azure pre-filter | Dance filter is applied by Azure, so only songs for the requested dance(s) are fetched                       |
-| Peak memory      | One Azure page (1000 songs) at a time; only matched songs are retained via `StreamAll`                       |
-| Pagination       | Offset applied after in-memory filter; page size defaults to 25                                              |
-| Vote direction   | `IsUpVoted` → score `+1`; otherwise score `-1` (down-voted)                                                  |
-| User resolution  | `IsIdentity` resolves to the currently logged-in user; otherwise uses the `UserName` from the query          |
-| Error handling   | Azure Search unavailability returns an empty `SearchResults` and marks service unhealthy via `ServiceHealth` |
+| Aspect           | Detail                                                                                                                                                                                                                        |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Result set       | Unbounded — all songs Azure returns for the given filter are inspected                                                                                                                                                        |
+| Azure pre-filter | Dance filter is applied by Azure, so only songs for the requested dance(s) are fetched                                                                                                                                        |
+| Peak memory      | Non-matching songs are released page-by-page (one Azure page of 1000 in transit at a time); matched songs accumulate in a list for the duration of the call — peak memory scales with match count, not total Azure result set |
+| Pagination       | Offset applied after in-memory filter; page size from `options.Size`, falling back to `SongSearch.PageSize`, then 25                                                                                                          |
+| Vote direction   | `IsUpVoted` → score `+1`; otherwise score `-1` (down-voted)                                                                                                                                                                   |
+| User resolution  | `IsIdentity` resolves to the currently logged-in user; otherwise uses the `UserName` from the query                                                                                                                           |
+| Error handling   | Azure Search unavailability returns an empty `SearchResults` and marks service unhealthy via `ServiceHealth`                                                                                                                  |
 
 ---
 
@@ -88,20 +88,47 @@ public virtual async IAsyncEnumerable<Song> StreamAll(
     string search, SearchOptions parameters, CruftFilter cruft = CruftFilter.NoCruft)
 {
     const int azurePageSize = 1000;
+
+    // Preserve caller's options — DoSearch (via AddCruftInfo) mutates Filter,
+    // and IncludeTotalCount is unneeded for streaming.
+    var originalFilter = parameters.Filter;
+    var originalSize = parameters.Size;
+    var originalSkip = parameters.Skip;
+    var originalIncludeTotalCount = parameters.IncludeTotalCount;
+
     parameters.Size = azurePageSize;
+    parameters.IncludeTotalCount = false;
     var skip = 0;
-    while (true)
+
+    try
     {
-        parameters.Skip = skip;
-        var response = await DoSearch(search, parameters, cruft);
-        var page = await CreateSongs(response.GetResults());
-        if (page == null || page.Count == 0) yield break;
-        foreach (var song in page) yield return song;
-        if (page.Count < azurePageSize) yield break;
-        skip += azurePageSize;
+        while (true)
+        {
+            parameters.Filter = originalFilter;  // reset before each page so cruft isn't appended repeatedly
+            parameters.Skip = skip;
+            var response = await DoSearch(search, parameters, cruft);
+            var page = await CreateSongs(response.GetResults());
+            if (page == null || page.Count == 0) yield break;
+            foreach (var song in page) yield return song;
+            if (page.Count < azurePageSize) yield break;
+            skip += azurePageSize;
+        }
+    }
+    finally
+    {
+        parameters.Filter = originalFilter;
+        parameters.Size = originalSize;
+        parameters.Skip = originalSkip;
+        parameters.IncludeTotalCount = originalIncludeTotalCount;
     }
 }
 ```
+
+Key implementation notes:
+
+- `parameters.Filter` is reset before each page because `AddCruftInfo()` (called inside `DoSearch`) appends to the filter; without the reset, the cruft clause would compound across pages.
+- `IncludeTotalCount` is forced to `false` because Azure computes the total on every page request, and `StreamAll`/`PostSearch` never use it.
+- All mutated fields are restored in `finally`, so the caller's `SearchOptions` is unchanged after the call.
 
 `SearchAll` (used in admin bulk operations) is a simple wrapper over `StreamAll` that collects
 the full sequence into a `List<Song>`.

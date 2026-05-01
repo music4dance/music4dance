@@ -165,29 +165,39 @@ public class AdminController(
                     var userFilter = SongFilter.Create(false);
                     userFilter.User = new UserQuery(userName, include: true, modifier: 'a').Query;
                     var searchOptions = dms.SongIndex.AzureParmsFromFilter(userFilter);
-                    var allSongs = await dms.SongIndex.SearchAll(null, searchOptions, CruftFilter.AllCruft);
+                    var succeededSongIds = new List<Guid>();
+                    var failedCount = 0;
+                    var indexBatch = new List<Song>();
+                    const int updateBatchSize = 100;
 
-                    var songs = allSongs
-                        .Where(s => s.WasEditedBy(userName, capturedFrom, capturedTo))
-                        .ToList();
-
-                    var succeeded = new List<Song>();
-                    var failed = new List<Song>();
-
-                    foreach (var song in songs)
+                    async Task FlushBatchAsync()
                     {
-                        if (await dms.SongIndex.AdminModifySong(song, modifierJson))
-                            succeeded.Add(song);
-                        else
-                            failed.Add(song);
+                        if (indexBatch.Count == 0) return;
+                        await dms.SongIndex.UpdateAzureIndex(indexBatch, dms);
+                        indexBatch.Clear();
                     }
 
-                    await dms.SongIndex.UpdateAzureIndex(succeeded.Concat(failed), dms);
+                    await foreach (var song in dms.SongIndex.StreamAll(null, searchOptions, CruftFilter.AllCruft))
+                    {
+                        if (!song.WasEditedBy(userName, capturedFrom, capturedTo))
+                            continue;
+
+                        if (await dms.SongIndex.AdminModifySong(song, modifierJson))
+                            succeededSongIds.Add(song.SongId);
+                        else
+                            failedCount++;
+
+                        indexBatch.Add(song);
+                        if (indexBatch.Count >= updateBatchSize)
+                            await FlushBatchAsync();
+                    }
+
+                    await FlushBatchAsync();
 
                     AdminMonitor.CompleteTask(true,
-                        $"AdminModifyBySearch: Succeeded={succeeded.Count} " +
-                        $"({string.Join(",", succeeded.Select(s => s.SongId))}), " +
-                        $"Failed={failed.Count}");
+                        $"AdminModifyBySearch: Succeeded={succeededSongIds.Count} " +
+                        $"({string.Join(",", succeededSongIds)}), " +
+                        $"Failed={failedCount}");
                 }
                 catch (Exception e)
                 {

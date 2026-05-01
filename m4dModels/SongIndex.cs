@@ -1122,22 +1122,40 @@ public class SongIndex
     {
         const int azurePageSize = 1000;
         search = new KeywordQuery(search).Keywords;
+
+        var originalFilter = parameters.Filter;
+        var originalSize = parameters.Size;
+        var originalSkip = parameters.Skip;
+        var originalIncludeTotalCount = parameters.IncludeTotalCount;
+
         parameters.Size = azurePageSize;
+        parameters.IncludeTotalCount = false;
 
         var skip = 0;
 
-        while (true)
+        try
         {
-            parameters.Skip = skip;
-            var response = await DoSearch(search, parameters, cruft);
-            var page = await CreateSongs(response.GetResults());
-            if (page == null || page.Count == 0)
-                yield break;
-            foreach (var song in page)
-                yield return song;
-            if (page.Count < azurePageSize)
-                yield break;
-            skip += azurePageSize;
+            while (true)
+            {
+                parameters.Filter = originalFilter;
+                parameters.Skip = skip;
+                var response = await DoSearch(search, parameters, cruft);
+                var page = await CreateSongs(response.GetResults());
+                if (page == null || page.Count == 0)
+                    yield break;
+                foreach (var song in page)
+                    yield return song;
+                if (page.Count < azurePageSize)
+                    yield break;
+                skip += azurePageSize;
+            }
+        }
+        finally
+        {
+            parameters.Filter = originalFilter;
+            parameters.Size = originalSize;
+            parameters.Skip = originalSkip;
+            parameters.IncludeTotalCount = originalIncludeTotalCount;
         }
     }
 
