@@ -80,10 +80,6 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
         }
     }
 
-    // Batch size for post-filter searches (client-side filtering after Azure fetch).
-    // Large enough to get a representative sample while limiting Azure Search load.
-    private const int PostSearchBatchSize = 5000;
-
     // TODO:
     //  - Think about how to handle additional filter - continue down the path
     //    of truncation or move towards infinite scrolling
@@ -110,19 +106,18 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
     }
 
     /// <summary>
-    /// Fetches a batch of songs from Azure Search and applies <paramref name="predicate"/>
-    /// as an in-memory post-filter.  Pagination (offset) is re-applied after filtering.
+    /// Fetches ALL songs from Azure Search (paging through 1000-result batches) and applies
+    /// <paramref name="predicate"/> as an in-memory post-filter.
+    /// Pagination (offset) is re-applied after filtering.
     /// </summary>
     private async Task<SearchResults> PostSearch(SearchOptions options, Func<Song, bool> predicate)
     {
         var offset = options.Skip ?? 0;
-        options.Skip = 0;
-        options.Size = PostSearchBatchSize;
 
-        SearchResults results;
+        List<Song> allSongs;
         try
         {
-            results = await SongIndex.Search(
+            allSongs = await SongIndex.SearchAll(
                 Filter.SearchString, options, Filter.CruftFilter);
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable") ||
@@ -132,8 +127,16 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
             return new SearchResults(Filter.SearchString ?? "", 0, 0, 1, PageSize ?? 25, [], new Dictionary<string, IList<Azure.Search.Documents.Models.FacetResult>>());
         }
 
-        var songs = results.Songs.Where(predicate).ToList();
-        return new SearchResults(results, [.. songs.Skip(offset).Take(PageSize ?? 25)], songs.Count);
+        var matched = allSongs.Where(predicate).ToList();
+        var page = matched.Skip(offset).Take(PageSize ?? 25).ToList();
+        return new SearchResults(
+            Filter.SearchString ?? "",
+            page.Count,
+            matched.Count,
+            offset / (PageSize ?? 25) + 1,
+            PageSize ?? 25,
+            page,
+            new Dictionary<string, IList<Azure.Search.Documents.Models.FacetResult>>());
     }
 
     public void Page()

@@ -58,18 +58,13 @@ public class SongSearchPostSearchTests
         mockSongIndex.Setup(m => m.DanceMusicService).Returns(serviceForSongIndex);
 
         var songList = songsToReturn.ToList();
-        // Set up Search to return the provided songs as a SearchResults
+        // Set up SearchAll to return the provided songs (mirrors the virtual method PostSearch now uses)
         mockSongIndex
-            .Setup(m => m.Search(
+            .Setup(m => m.SearchAll(
                 It.IsAny<string>(),
                 It.IsAny<SearchOptions>(),
                 It.IsAny<CruftFilter>()))
-            .ReturnsAsync((string search, SearchOptions opts, CruftFilter _) =>
-                new SearchResults(
-                    search, songList.Count, songList.Count,
-                    1, opts.Size ?? 25,
-                    songList,
-                    new Dictionary<string, IList<Azure.Search.Documents.Models.FacetResult>>()));
+            .ReturnsAsync(songList);
 
         var queue = new TestBackgroundTaskQueue();
         return new SongSearch(

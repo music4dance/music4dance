@@ -4132,6 +4132,27 @@ public class Song : TaggableObject
             b.Timestamp.Value <= to);
     }
 
+    /// <summary>
+    /// Returns the most recent timestamp of a .Create or .Edit block attributed to
+    /// <paramref name="userName"/> within [<paramref name="from"/>, <paramref name="to"/>],
+    /// or null if no matching block exists.
+    /// </summary>
+    public DateTime? GetEditTimestamp(string userName, DateTime from, DateTime to)
+    {
+        var blocks = SongPropertyBlockParser.ParseBlocks(SongProperties,
+            a => a == EditCommand || a == CreateCommand);
+        return blocks
+            .Where(b =>
+                string.Equals(b.User, userName, StringComparison.OrdinalIgnoreCase) &&
+                b.Timestamp.HasValue &&
+                b.Timestamp.Value >= from &&
+                b.Timestamp.Value <= to)
+            .Select(b => b.Timestamp.Value)
+            .OrderByDescending(t => t)
+            .Cast<DateTime?>()
+            .FirstOrDefault();
+    }
+
     public int UserDanceRating(string userName, string danceId)
     {
         var level = 0;

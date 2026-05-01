@@ -1110,6 +1110,38 @@ public class SongIndex
         }
     }
 
+    /// <summary>
+    /// Fetches ALL songs matching <paramref name="search"/> and <paramref name="parameters"/>
+    /// by paging through Azure Search in batches of 1000 (the API maximum per request).
+    /// Suitable for admin/bulk operations where the full result set is needed for
+    /// in-memory filtering.
+    /// </summary>
+    public virtual async Task<List<Song>> SearchAll(
+        string search, SearchOptions parameters, CruftFilter cruft = CruftFilter.NoCruft)
+    {
+        const int azurePageSize = 1000;
+        search = new KeywordQuery(search).Keywords;
+        parameters.Size = azurePageSize;
+
+        var allSongs = new List<Song>();
+        var skip = 0;
+
+        while (true)
+        {
+            parameters.Skip = skip;
+            var response = await DoSearch(search, parameters, cruft);
+            var page = await CreateSongs(response.GetResults());
+            if (page == null || page.Count == 0)
+                break;
+            allSongs.AddRange(page);
+            if (page.Count < azurePageSize)
+                break;
+            skip += azurePageSize;
+        }
+
+        return allSongs;
+    }
+
     public async Task<SearchResults> List(
         IEnumerable<string> ids)
     {

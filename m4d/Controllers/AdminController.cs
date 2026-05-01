@@ -106,16 +106,105 @@ public class AdminController(
 
         if (model.EditedBy.HasSearch)
         {
-            var results = await SongIndex.Search(SongFilter.Create(false), 2000, CruftFilter.AllCruft);
-            model.EditedBy.Results = results.Songs
-                .Where(s => s.WasEditedBy(
+            var userFilter = SongFilter.Create(false);
+            userFilter.User = new UserQuery(model.EditedBy.UserName, include: true, modifier: 'a').Query;
+            var options = SongIndex.AzureParmsFromFilter(userFilter);
+            var allSongs = await SongIndex.SearchAll(null, options, CruftFilter.AllCruft);
+            model.EditedBy.Results = allSongs
+                .Select(s => (song: s, ts: s.GetEditTimestamp(
                     model.EditedBy.UserName,
                     model.EditedBy.From.Value,
-                    model.EditedBy.To.Value))
+                    model.EditedBy.To.Value)))
+                .Where(t => t.ts.HasValue)
+                .OrderByDescending(t => t.ts.Value)
+                .Select(t => new EditedBySongResult { Song = t.song, EditedAt = t.ts.Value })
                 .ToList();
         }
 
         return View(model);
+    }
+
+    //
+    // POST: /Admin/AdminModifyBySearch
+    // Executes a SongModifier JSON against all songs matched by the EditedBy criteria,
+    // using the same background-task infrastructure as BatchAdminModify.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public ActionResult AdminModifyBySearch(
+        string userName, DateTime? from, DateTime? to, string modifierJson)
+    {
+        if (string.IsNullOrWhiteSpace(userName) || !from.HasValue || !to.HasValue
+            || string.IsNullOrWhiteSpace(modifierJson))
+        {
+            return RedirectToAction("AdminSearch");
+        }
+
+        try
+        {
+            _ = SongModifier.Build(modifierJson); // validate JSON before starting the task
+        }
+        catch (Exception ex)
+        {
+            throw new ArgumentException("Invalid modifier JSON", nameof(modifierJson), ex);
+        }
+
+        try
+        {
+            StartAdminTask("AdminModifyBySearch");
+            AdminMonitor.UpdateTask("AdminModifyBySearch");
+
+            var dms = Database.GetTransientService();
+            var capturedFrom = from.Value;
+            var capturedTo = to.Value;
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    var userFilter = SongFilter.Create(false);
+                    userFilter.User = new UserQuery(userName, include: true, modifier: 'a').Query;
+                    var searchOptions = dms.SongIndex.AzureParmsFromFilter(userFilter);
+                    var allSongs = await dms.SongIndex.SearchAll(null, searchOptions, CruftFilter.AllCruft);
+
+                    var songs = allSongs
+                        .Where(s => s.WasEditedBy(userName, capturedFrom, capturedTo))
+                        .ToList();
+
+                    var succeeded = new List<Song>();
+                    var failed = new List<Song>();
+
+                    foreach (var song in songs)
+                    {
+                        if (await dms.SongIndex.AdminModifySong(song, modifierJson))
+                            succeeded.Add(song);
+                        else
+                            failed.Add(song);
+                    }
+
+                    await dms.SongIndex.UpdateAzureIndex(succeeded.Concat(failed), dms);
+
+                    AdminMonitor.CompleteTask(true,
+                        $"AdminModifyBySearch: Succeeded={succeeded.Count} " +
+                        $"({string.Join(",", succeeded.Select(s => s.SongId))}), " +
+                        $"Failed={failed.Count}");
+                }
+                catch (Exception e)
+                {
+                    AdminMonitor.CompleteTask(false, $"AdminModifyBySearch: Failed={e.Message}");
+                }
+                finally
+                {
+                    dms.Dispose();
+                }
+            });
+
+            return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
+        }
+        catch (Exception e)
+        {
+            return FailAdminTask($"AdminModifyBySearch: {e.Message}", e);
+        }
     }
 
 
