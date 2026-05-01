@@ -1111,19 +1111,19 @@ public class SongIndex
     }
 
     /// <summary>
-    /// Fetches ALL songs matching <paramref name="search"/> and <paramref name="parameters"/>
-    /// by paging through Azure Search in batches of 1000 (the API maximum per request).
-    /// Suitable for admin/bulk operations where the full result set is needed for
-    /// in-memory filtering.
+    /// Streams all songs matching <paramref name="search"/> and <paramref name="parameters"/>
+    /// as an async sequence, paging through Azure Search in batches of 1000 (the API maximum).
+    /// Peak memory is bounded to one Azure page at a time; only songs that pass the caller's
+    /// predicate need to be retained, making this more efficient than <see cref="SearchAll"/>
+    /// for selective in-memory post-filtering.
     /// </summary>
-    public virtual async Task<List<Song>> SearchAll(
+    public virtual async IAsyncEnumerable<Song> StreamAll(
         string search, SearchOptions parameters, CruftFilter cruft = CruftFilter.NoCruft)
     {
         const int azurePageSize = 1000;
         search = new KeywordQuery(search).Keywords;
         parameters.Size = azurePageSize;
 
-        var allSongs = new List<Song>();
         var skip = 0;
 
         while (true)
@@ -1132,13 +1132,28 @@ public class SongIndex
             var response = await DoSearch(search, parameters, cruft);
             var page = await CreateSongs(response.GetResults());
             if (page == null || page.Count == 0)
-                break;
-            allSongs.AddRange(page);
+                yield break;
+            foreach (var song in page)
+                yield return song;
             if (page.Count < azurePageSize)
-                break;
+                yield break;
             skip += azurePageSize;
         }
+    }
 
+    /// <summary>
+    /// Fetches ALL songs matching <paramref name="search"/> and <paramref name="parameters"/>
+    /// by paging through Azure Search in batches of 1000 (the API maximum per request).
+    /// Suitable for admin/bulk operations where the full result set is needed for
+    /// in-memory filtering. Prefer <see cref="StreamAll"/> when a predicate will discard
+    /// most results, to reduce peak memory usage.
+    /// </summary>
+    public virtual async Task<List<Song>> SearchAll(
+        string search, SearchOptions parameters, CruftFilter cruft = CruftFilter.NoCruft)
+    {
+        var allSongs = new List<Song>();
+        await foreach (var song in StreamAll(search, parameters, cruft))
+            allSongs.Add(song);
         return allSongs;
     }
 

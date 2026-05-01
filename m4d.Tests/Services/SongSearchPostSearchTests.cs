@@ -24,6 +24,15 @@ public class SongSearchPostSearchTests
         await DanceMusicTester.LoadDances();
     }
 
+    // ── Helper to yield a list as IAsyncEnumerable ──────────────────────────
+
+    private static async IAsyncEnumerable<Song> AsAsyncEnumerable(IEnumerable<Song> songs)
+    {
+        foreach (var song in songs)
+            yield return song;
+        await Task.CompletedTask; // satisfies compiler for async iterator
+    }
+
     // ── Helper to build a song with WasEditedBy support ─────────────────────
 
     private static Song MakeSong(string title, string userName, DateTime timestamp)
@@ -58,13 +67,14 @@ public class SongSearchPostSearchTests
         mockSongIndex.Setup(m => m.DanceMusicService).Returns(serviceForSongIndex);
 
         var songList = songsToReturn.ToList();
-        // Set up SearchAll to return the provided songs (mirrors the virtual method PostSearch now uses)
+        // Set up StreamAll to yield the provided songs one by one, mirroring the virtual method
+        // PostSearch now uses for memory-efficient paging.
         mockSongIndex
-            .Setup(m => m.SearchAll(
+            .Setup(m => m.StreamAll(
                 It.IsAny<string>(),
                 It.IsAny<SearchOptions>(),
                 It.IsAny<CruftFilter>()))
-            .ReturnsAsync(songList);
+            .Returns<string, SearchOptions, CruftFilter>((_, _, _) => AsAsyncEnumerable(songList));
 
         var queue = new TestBackgroundTaskQueue();
         return new SongSearch(

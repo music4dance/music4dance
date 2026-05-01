@@ -1,11 +1,15 @@
-# VoteSearch: Client-Side Post-Filter Search
+# VoteSearch: In-Memory Post-Filter Search
 
 ## Overview
 
 `VoteSearch` is a search strategy in `SongSearch` that supplements Azure AI Search's server-side
-filtering by fetching a large batch of songs and applying a custom filter predicate in application
-memory. It is used today to find songs a user has voted for (up or down) on specific dances, because
+filtering by streaming all matching songs and applying a custom filter predicate in application
+memory. It is used to find songs a user has voted for (up or down) on specific dances, because
 vote data embedded in song properties cannot be directly expressed as an Azure Search OData filter.
+
+`VoteSearch` is a specific use of the shared `PostSearch` helper, which also powers
+`EditedBySearch`. See [admin-search-bulk-modify.md](admin-search-bulk-modify.md) for the admin
+context.
 
 ---
 
@@ -32,38 +36,75 @@ if (userQuery.IsVoted && Filter.DanceQuery.Dances.Any())
 // m4d/Services/SongSearch.cs
 public async Task<SearchResults> VoteSearch(SearchOptions options)
 {
-    var offset = options.Skip ?? 0;
-    options.Skip = 0;
-    options.Size = 500;          // Fetch a large batch
-
-    // 1. Fetch up to 500 songs from Azure Search using the regular filter
-    var results = await SongIndex.Search(Filter.SearchString, options, Filter.CruftFilter);
-
-    // 2. Determine vote direction and user identity
     var userQuery = Filter.UserQuery;
     var vote = userQuery.IsUpVoted ? 1 : -1;
     var user = userQuery.IsIdentity ? UserName : userQuery.UserName;
+    return await PostSearch(options,
+        s => Filter.DanceQuery.Dances.Any(d => s.NormalizedUserDanceRating(user, d.Id) == vote));
+}
 
-    // 3. Apply the in-memory filter predicate
-    var songs = results.Songs
-        .Where(s => Filter.DanceQuery.Dances
-            .Any(d => s.NormalizedUserDanceRating(user, d.Id) == vote))
-        .ToList();
+// Shared post-filter helper:
+private async Task<SearchResults> PostSearch(SearchOptions options, Func<Song, bool> predicate)
+{
+    var offset = options.Skip ?? 0;
+    var matched = new List<Song>();
 
-    // 4. Re-apply pagination from the original offset
-    return new SearchResults(results, [.. songs.Skip(offset).Take(options.Size ?? 25)], songs.Count);
+    await foreach (var song in SongIndex.StreamAll(
+        Filter.SearchString, options, Filter.CruftFilter))
+    {
+        if (predicate(song)) matched.Add(song);
+    }
+
+    var page = matched.Skip(offset).Take(PageSize ?? 25).ToList();
+    return new SearchResults(
+        Filter.SearchString ?? "", page.Count, matched.Count,
+        offset / (PageSize ?? 25) + 1, PageSize ?? 25, page,
+        new Dictionary<string, IList<FacetResult>>());
 }
 ```
 
 ### Key Design Points
 
-| Aspect          | Detail                                                                                                              |
-| --------------- | ------------------------------------------------------------------------------------------------------------------- |
-| Batch size      | 500 (hard-coded)                                                                                                    |
-| Pagination      | Offset applied after in-memory filter; `Size` in the returned results uses the original `options.Size` (default 25) |
-| Vote direction  | `IsUpVoted` → score `+1`; otherwise score `-1` (down-voted)                                                         |
-| User resolution | `IsIdentity` resolves to the currently logged-in user; otherwise uses the `UserName` from the query                 |
-| Error handling  | Azure Search unavailability returns an empty `SearchResults` and marks service unhealthy via `ServiceHealth`        |
+| Aspect           | Detail                                                                                                       |
+| ---------------- | ------------------------------------------------------------------------------------------------------------ |
+| Result set       | Unbounded — all songs Azure returns for the given filter are inspected                                       |
+| Azure pre-filter | Dance filter is applied by Azure, so only songs for the requested dance(s) are fetched                       |
+| Peak memory      | One Azure page (1000 songs) at a time; only matched songs are retained via `StreamAll`                       |
+| Pagination       | Offset applied after in-memory filter; page size defaults to 25                                              |
+| Vote direction   | `IsUpVoted` → score `+1`; otherwise score `-1` (down-voted)                                                  |
+| User resolution  | `IsIdentity` resolves to the currently logged-in user; otherwise uses the `UserName` from the query          |
+| Error handling   | Azure Search unavailability returns an empty `SearchResults` and marks service unhealthy via `ServiceHealth` |
+
+---
+
+## `SongIndex.StreamAll`
+
+`StreamAll` is the paging primitive underlying `PostSearch`. It yields songs from Azure one
+page at a time (max 1000 per request, the Azure API limit):
+
+```csharp
+// m4dModels/SongIndex.cs
+public virtual async IAsyncEnumerable<Song> StreamAll(
+    string search, SearchOptions parameters, CruftFilter cruft = CruftFilter.NoCruft)
+{
+    const int azurePageSize = 1000;
+    parameters.Size = azurePageSize;
+    var skip = 0;
+    while (true)
+    {
+        parameters.Skip = skip;
+        var response = await DoSearch(search, parameters, cruft);
+        var page = await CreateSongs(response.GetResults());
+        if (page == null || page.Count == 0) yield break;
+        foreach (var song in page) yield return song;
+        if (page.Count < azurePageSize) yield break;
+        skip += azurePageSize;
+    }
+}
+```
+
+`SearchAll` (used in admin bulk operations) is a simple wrapper over `StreamAll` that collects
+the full sequence into a `List<Song>`.
 
 ---
 
@@ -87,16 +128,12 @@ Returns `-1`, `0`, or `+1` based on the user's raw dance rating for the given so
 
 ---
 
-## Limitations
+## Constraints
 
-1. **Maximum result set**: Only songs in the first 500 Azure Search results are eligible. Songs ranked
-   beyond position 500 are silently excluded even if they match the vote filter.
-2. **No total count**: The `songs.Count` passed to `SearchResults` is the post-filter count, but
-   Azure Search's `TotalCount` still reflects the unfiltered batch.
-3. **Single dance requirement**: `VoteSearch` is only triggered when at least one dance is specified.
+1. **Single dance requirement**: `VoteSearch` is only triggered when at least one dance is specified.
    Vote-only searches without a dance use the standard Azure path.
-4. **Pagination limit**: Because pagination is applied after the in-memory filter, deep pages may
-   be empty if the batch of 500 does not contain enough matching songs.
+2. **Total count**: `TotalCount` in `SearchResults` reflects the number of matched songs, not the
+   Azure total — consistent with how pagination is re-applied after the in-memory filter.
 
 ---
 
@@ -104,7 +141,8 @@ Returns `-1`, `0`, or `+1` based on the user's raw dance rating for the given so
 
 | File                         | Purpose                                                       |
 | ---------------------------- | ------------------------------------------------------------- |
-| `m4d/Services/SongSearch.cs` | `VoteSearch` and `Search` entry point                         |
+| `m4d/Services/SongSearch.cs` | `VoteSearch`, `PostSearch`, and `Search` entry point          |
+| `m4dModels/SongIndex.cs`     | `StreamAll` and `SearchAll`                                   |
 | `m4dModels/UserQuery.cs`     | Vote modifier parsing (`IsVoted`, `IsUpVoted`, `IsDownVoted`) |
 | `m4dModels/Song.cs`          | `NormalizedUserDanceRating`                                   |
 | `m4dModels/SongFilter.cs`    | `UserQuery` property, `DanceQuery` property                   |

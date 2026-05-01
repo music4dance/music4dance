@@ -121,6 +121,8 @@ public class SongModifier
 {
     public List<string> ExcludeUsers { get; set; }
     public List<PropertyModifier> Properties { get; set; }
+    public DateTime? FromDate { get; set; }   // Optional: restrict to edit blocks on/after this date
+    public DateTime? ToDate { get; set; }     // Optional: restrict to edit blocks on/before this date
 }
 ```
 
@@ -152,6 +154,35 @@ If specified, `FilteredProperties(ExcludeUsers)` on `Song` is called first, whic
 all `SongProperty` objects whose immediate preceding action block is attributed to one of the
 excluded users. This prevents algorithmic edits from inadvertently mutating data attributed to
 human editors.
+
+### `FromDate` / `ToDate`
+
+If either date field is set, `Song.AdminModify` restricts mutations to properties that belong to
+edit blocks whose `Time` header falls within the range (inclusive). Blocks outside the date range
+are completely skipped. This is used by `AdminModifyBySearch` to re-attribute only the edits in a
+specific time window without touching later human edits on the same songs.
+
+The `AdminSearch` page generates a `SuggestedModifierJson` that pre-populates these fields
+from the search date range. See [admin-search-bulk-modify.md](admin-search-bulk-modify.md).
+
+### Pseudo-user value (`batch|P`)
+
+When re-attributing edits to a bot identity, the `replace` value should include the `|P` suffix:
+
+```json
+{
+  "action": "ReplaceValue",
+  "name": "User",
+  "value": "dwgray",
+  "replace": "batch|P"
+}
+```
+
+The `|P` suffix marks the edit block as algorithmic. On the client, `ModifiedRecord.fromValue`
+parses this suffix into `isPseudo = true`, which prevents the property from being counted as a
+human edit. This in turn drives `isSystemTempo` (tempo set only by bots) and controls whether the
+pencil-icon tempo override is offered to `canTag` users. See
+[song-details-viewing-editing.md](song-details-viewing-editing.md#pseudo-user-suffix-p).
 
 ---
 

@@ -80,10 +80,6 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
         }
     }
 
-    // TODO:
-    //  - Think about how to handle additional filter - continue down the path
-    //    of truncation or move towards infinite scrolling
-    //  - Can we use facets to get user's pages to have links to dance lists (no)
     public async Task<SearchResults> VoteSearch(SearchOptions options)
     {
         var userQuery = Filter.UserQuery;
@@ -96,8 +92,8 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
     /// <summary>
     /// Returns songs where at least one edit block is attributed to <paramref name="editorUser"/>
     /// and whose timestamp falls within [<paramref name="from"/>, <paramref name="to"/>].
-    /// Fetches up to <see cref="PostSearchBatchSize"/> songs from Azure Search and applies
-    /// the filter in memory.
+    /// Uses <see cref="PostSearch"/> which streams all matching songs from Azure Search via
+    /// <see cref="SongIndex.StreamAll"/> and applies the filter in memory.
     /// </summary>
     public async Task<SearchResults> EditedBySearch(SearchOptions options, string editorUser,
         DateTime from, DateTime to)
@@ -106,19 +102,25 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
     }
 
     /// <summary>
-    /// Fetches ALL songs from Azure Search (paging through 1000-result batches) and applies
-    /// <paramref name="predicate"/> as an in-memory post-filter.
-    /// Pagination (offset) is re-applied after filtering.
+    /// Streams all songs from Azure Search via <see cref="SongIndex.StreamAll"/> and applies
+    /// <paramref name="predicate"/> as an in-memory post-filter. Non-matching songs are released
+    /// page-by-page (only one Azure page of 1000 songs transits memory at a time), but every song
+    /// that satisfies the predicate accumulates in a list for the duration of the call. Peak memory
+    /// scales with the number of matches, not the total Azure result set. Each page request
+    /// re-scans from the beginning; there is no server-side cursor between pages.
     /// </summary>
     private async Task<SearchResults> PostSearch(SearchOptions options, Func<Song, bool> predicate)
     {
         var offset = options.Skip ?? 0;
 
-        List<Song> allSongs;
+        var matched = new List<Song>();
         try
         {
-            allSongs = await SongIndex.SearchAll(
-                Filter.SearchString, options, Filter.CruftFilter);
+            await foreach (var song in SongIndex.StreamAll(
+                Filter.SearchString, options, Filter.CruftFilter))
+            {
+                if (predicate(song)) matched.Add(song);
+            }
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable") ||
                                                    ex.Message.Contains("Client registration requires a TokenCredential"))
@@ -127,7 +129,6 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
             return new SearchResults(Filter.SearchString ?? "", 0, 0, 1, PageSize ?? 25, [], new Dictionary<string, IList<Azure.Search.Documents.Models.FacetResult>>());
         }
 
-        var matched = allSongs.Where(predicate).ToList();
         var page = matched.Skip(offset).Take(PageSize ?? 25).ToList();
         return new SearchResults(
             Filter.SearchString ?? "",
