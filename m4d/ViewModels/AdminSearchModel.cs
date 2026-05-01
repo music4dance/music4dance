@@ -45,7 +45,7 @@ public class EditedBySearchRequest
                      "action": "ReplaceValue",
                      "name": "User",
                      "value": "{{UserName}}",
-                     "replace": "batch"
+                     "replace": "batch|P"
                    }
                  ]
                }
