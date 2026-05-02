@@ -9,6 +9,7 @@ music4dance.net is a sophisticated web application designed to help dancers find
 ## Documentation Guidelines
 
 **Architecture Documents:**
+
 - **ALWAYS place architecture documents in the `architecture/` directory**
 - **Prefer updating existing documents** over creating new ones when the content is related
 - Keep the number of architecture documents minimal and well-organized
@@ -16,6 +17,7 @@ music4dance.net is a sophisticated web application designed to help dancers find
 - Use clear, descriptive names that cover the full scope (e.g., `identity-endpoint-protection.md` not `rate-limiting.md`)
 
 **Temporary Working Documents:**
+
 - Can be placed in root for active development/PR work
 - Should be moved to `architecture/` or deleted after completion
 - Examples: implementation guides, PR summaries, task lists
@@ -150,6 +152,10 @@ music4dance.net is a sophisticated web application designed to help dancers find
 - **SelfCrawler**: Web crawling/integration tests, run manually only
 - **Unit Tests**: Focus on domain logic (Tempo, TempoRange, Dance models)
 - **Filter**: Use `--filter "FullyQualifiedName!~SelfCrawler"` for routine testing
+- **⚠️ IMPORTANT — `runTests` tool**: Calling `runTests` **without specifying `files`** uses the VS Code test explorer, which discovers **all** test projects including SelfCrawler and will produce spurious Selenium failures. Always do one of:
+  1. Specify explicit `.ts`/`.test.ts` file paths in the `files` parameter for client tests, **or**
+  2. Use the `run_task` tool with task `"Server: Test"` (already includes the SelfCrawler filter) for server tests, **or**
+  3. Use the `run_task` tool with task `"Test All"` for the full suite (server + client + lint, SelfCrawler excluded).
 
 ### Client Tests
 
@@ -648,4 +654,3 @@ This is a specialized domain where precision matters:
 - Social dancers have more flexibility than competitive dancers
 
 When suggesting code changes or new features, consider the impact on both competitive and social dancing communities, and ensure tempo/dance relationships remain accurate.
-

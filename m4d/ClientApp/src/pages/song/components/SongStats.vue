@@ -3,11 +3,8 @@ import { Song } from "@/models/Song";
 import { PropertyType } from "@/models/SongProperty";
 import { computed } from "vue";
 import { formatDate } from "@/helpers/timeHelpers";
-import { getMenuContext } from "@/helpers/GetMenuContext";
 
 defineOptions({ inheritAttrs: false });
-
-const context = getMenuContext();
 
 const props = defineProps<{
   song: Song;
@@ -19,7 +16,7 @@ const props = defineProps<{
 const isSystemTempo = computed(
   () => !!props.song.tempo && !props.song.isUserModified(PropertyType.tempoField),
 );
-const canOverrideTempo = computed(() => !!props.user && isSystemTempo.value && context.canTag);
+const canOverrideTempo = computed(() => !!props.user && isSystemTempo.value);
 
 const modifiedFormatted = computed(() => formatDate(props.song.modified));
 const createdFormatted = computed(() => formatDate(props.song.created));
