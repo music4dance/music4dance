@@ -80,36 +80,65 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
         }
     }
 
-    // TODO:
-    //  - Think about how to handle additional filter - continue down the path
-    //    of truncation or move towards infinite scrolling
-    //  - Can we use facets to get user's pages to have links to dance lists (no)
     public async Task<SearchResults> VoteSearch(SearchOptions options)
     {
-        var offset = options.Skip ?? 0;
-        options.Skip = 0;
-        options.Size = 500;
+        var userQuery = Filter.UserQuery;
+        var vote = userQuery.IsUpVoted ? 1 : -1;
+        var user = userQuery.IsIdentity ? UserName : userQuery.UserName;
+        return await PostSearch(options,
+            s => Filter.DanceQuery.Dances.Any(d => s.NormalizedUserDanceRating(user, d.Id) == vote));
+    }
 
-        SearchResults results;
+    /// <summary>
+    /// Returns songs where at least one edit block is attributed to <paramref name="editorUser"/>
+    /// and whose timestamp falls within [<paramref name="from"/>, <paramref name="to"/>].
+    /// Uses <see cref="PostSearch"/> which streams all matching songs from Azure Search via
+    /// <see cref="SongIndex.StreamAll"/> and applies the filter in memory.
+    /// </summary>
+    public async Task<SearchResults> EditedBySearch(SearchOptions options, string editorUser,
+        DateTime from, DateTime to)
+    {
+        return await PostSearch(options, s => s.WasEditedBy(editorUser, from, to));
+    }
+
+    /// <summary>
+    /// Streams all songs from Azure Search via <see cref="SongIndex.StreamAll"/> and applies
+    /// <paramref name="predicate"/> as an in-memory post-filter. Non-matching songs are released
+    /// page-by-page (only one Azure page of 1000 songs transits memory at a time), but every song
+    /// that satisfies the predicate accumulates in a list for the duration of the call. Peak memory
+    /// scales with the number of matches, not the total Azure result set. Each page request
+    /// re-scans from the beginning; there is no server-side cursor between pages.
+    /// </summary>
+    private async Task<SearchResults> PostSearch(SearchOptions options, Func<Song, bool> predicate)
+    {
+        var offset = options.Skip ?? 0;
+        var pageSize = options.Size ?? PageSize ?? 25;
+
+        var matched = new List<Song>();
         try
         {
-            results = await SongIndex.Search(
-                Filter.SearchString, options, Filter.CruftFilter);
+            await foreach (var song in SongIndex.StreamAll(
+                Filter.SearchString, options, Filter.CruftFilter))
+            {
+                if (predicate(song)) matched.Add(song);
+            }
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable") ||
                                                    ex.Message.Contains("Client registration requires a TokenCredential"))
         {
             ServiceHealth?.MarkUnavailable("SearchService", $"Client error: {ex.Message}");
-            return new SearchResults(Filter.SearchString ?? "", 0, 0, 1, PageSize ?? 25, [], new Dictionary<string, IList<Azure.Search.Documents.Models.FacetResult>>());
+            return new SearchResults(Filter.SearchString ?? "", 0, 0, 1, pageSize, [], new Dictionary<string, IList<Azure.Search.Documents.Models.FacetResult>>());
         }
 
-        var userQuery = Filter.UserQuery;
-        var vote = userQuery.IsUpVoted ? 1 : -1;
-        var user = userQuery.IsIdentity ? UserName : userQuery.UserName;
-        var songs = results.Songs.Where(s => Filter.DanceQuery.Dances.Any(d => s.NormalizedUserDanceRating(user, d.Id) == vote)).ToList();
-        var negated = results.Songs.Where(s => Filter.DanceQuery.Dances.All(d => s.NormalizedUserDanceRating(user, d.Id) != vote)).ToList();
-
-        return new SearchResults(results, [.. songs.Skip(offset).Take(options.Size ?? 25)], songs.Count);
+        var page = matched.Skip(offset).Take(pageSize).ToList();
+        return new SearchResults(
+            Filter.SearchString ?? "",
+            page.Count,
+            matched.Count,
+            offset / pageSize + 1,
+            pageSize,
+            page,
+            new Dictionary<string, IList<Azure.Search.Documents.Models.FacetResult>>());
     }
 
     public void Page()

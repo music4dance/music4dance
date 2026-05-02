@@ -74,9 +74,10 @@ const safeEditor = computed(() => {
   return editor.value;
 });
 const filter = computed(() => props.model.filter);
-const showSave = computed(
-  () => (modified.value && checkDances.value) || (context.isAdmin && edit.value),
-);
+const showSave = computed(() => {
+  const isAdminEditing = context.isAdmin && edit.value;
+  return (modified.value && (checkDances.value || edit.value)) || isAdminEditing;
+});
 const history = computed(() => (editor.value ? editor.value.history : props.model.songHistory));
 const modified = computed(() => {
   const value = editor.value?.modified ?? false;

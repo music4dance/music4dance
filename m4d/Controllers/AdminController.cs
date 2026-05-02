@@ -8,6 +8,7 @@ using m4d.Services.ServiceHealth;
 using m4d.Utilities;
 using m4d.ViewModels;
 
+using m4dModels;
 using m4dModels.Utilities;
 
 using Microsoft.AspNetCore.Authorization;
@@ -92,6 +93,128 @@ public class AdminController(
     public ActionResult Tags()
     {
         return View();
+    }
+
+    //
+    // GET: /Admin/AdminSearch
+    // GET: /Admin/AdminSearch?EditedBy.UserName=dwgray&EditedBy.From=2015-01-01&EditedBy.To=2015-12-31
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> AdminSearch(AdminSearchModel model)
+    {
+        ViewBag.Title = "Admin Search";
+        ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
+
+        if (model.EditedBy.HasSearch)
+        {
+            var userFilter = SongFilter.Create(false);
+            userFilter.User = new UserQuery(model.EditedBy.UserName, include: true, modifier: 'a').Query;
+            var options = SongIndex.AzureParmsFromFilter(userFilter);
+            var allSongs = await SongIndex.SearchAll(null, options, CruftFilter.AllCruft);
+            model.EditedBy.Results = allSongs
+                .Select(s => (song: s, ts: s.GetEditTimestamp(
+                    model.EditedBy.UserName,
+                    model.EditedBy.From.Value,
+                    model.EditedBy.To.Value)))
+                .Where(t => t.ts.HasValue)
+                .OrderByDescending(t => t.ts.Value)
+                .Select(t => new EditedBySongResult { Song = t.song, EditedAt = t.ts.Value })
+                .ToList();
+        }
+
+        return View(model);
+    }
+
+    //
+    // POST: /Admin/AdminModifyBySearch
+    // Executes a SongModifier JSON against all songs matched by the EditedBy criteria,
+    // using the same background-task infrastructure as BatchAdminModify.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public ActionResult AdminModifyBySearch(
+        string userName, DateTime? from, DateTime? to, string modifierJson)
+    {
+        if (string.IsNullOrWhiteSpace(userName) || !from.HasValue || !to.HasValue
+            || string.IsNullOrWhiteSpace(modifierJson))
+        {
+            return RedirectToAction("AdminSearch");
+        }
+
+        try
+        {
+            _ = SongModifier.Build(modifierJson); // validate JSON before starting the task
+        }
+        catch (Exception ex)
+        {
+            throw new ArgumentException("Invalid modifier JSON", nameof(modifierJson), ex);
+        }
+
+        try
+        {
+            StartAdminTask("AdminModifyBySearch");
+            AdminMonitor.UpdateTask("AdminModifyBySearch");
+
+            var dms = Database.GetTransientService();
+            var capturedFrom = from.Value;
+            var capturedTo = to.Value;
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    var userFilter = SongFilter.Create(false);
+                    userFilter.User = new UserQuery(userName, include: true, modifier: 'a').Query;
+                    var searchOptions = dms.SongIndex.AzureParmsFromFilter(userFilter);
+                    var succeededSongIds = new List<Guid>();
+                    var failedCount = 0;
+                    var indexBatch = new List<Song>();
+                    const int updateBatchSize = 100;
+
+                    async Task FlushBatchAsync()
+                    {
+                        if (indexBatch.Count == 0) return;
+                        await dms.SongIndex.UpdateAzureIndex(indexBatch, dms);
+                        indexBatch.Clear();
+                    }
+
+                    await foreach (var song in dms.SongIndex.StreamAll(null, searchOptions, CruftFilter.AllCruft))
+                    {
+                        if (!song.WasEditedBy(userName, capturedFrom, capturedTo))
+                            continue;
+
+                        if (await dms.SongIndex.AdminModifySong(song, modifierJson))
+                            succeededSongIds.Add(song.SongId);
+                        else
+                            failedCount++;
+
+                        indexBatch.Add(song);
+                        if (indexBatch.Count >= updateBatchSize)
+                            await FlushBatchAsync();
+                    }
+
+                    await FlushBatchAsync();
+
+                    AdminMonitor.CompleteTask(true,
+                        $"AdminModifyBySearch: Succeeded={succeededSongIds.Count} " +
+                        $"({string.Join(",", succeededSongIds)}), " +
+                        $"Failed={failedCount}");
+                }
+                catch (Exception e)
+                {
+                    AdminMonitor.CompleteTask(false, $"AdminModifyBySearch: Failed={e.Message}");
+                }
+                finally
+                {
+                    dms.Dispose();
+                }
+            });
+
+            return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
+        }
+        catch (Exception e)
+        {
+            return FailAdminTask($"AdminModifyBySearch: {e.Message}", e);
+        }
     }
 
 

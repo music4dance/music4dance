@@ -253,6 +253,80 @@ Role checks are resolved via `MenuContext` (injected from server into the page's
 
 ---
 
+## Pseudo-User Suffix (`|P`) {#pseudo-user-suffix-p}
+
+A `User` property value may carry the `|P` suffix to indicate that the edit block was produced
+by an automated process (a bot or algorithm) rather than a human. The suffix is stored verbatim
+in the `SongProperties` string and flows through the full rendering pipeline:
+
+### Server — property storage
+
+An edit block produced by an automated process stores `User=batch|P` (or any name followed by
+`|P`) instead of a plain username:
+
+```
+.Edit=
+User=batch|P
+Time=05/01/2025 10:00:00 AM
+Tempo=160.0
+```
+
+The `|P` suffix is what distinguishes algorithmic edits from human ones. Edits re-attributed from
+a personal account to a bot identity via `AdminModifyBySearch` use `"replace": "batch|P"` in the
+`SongModifier` JSON (see [admin-search-bulk-modify.md](admin-search-bulk-modify.md)).
+
+### Client — `ModifiedRecord.isPseudo`
+
+`ModifiedRecord.fromValue(value: string)` splits on `|` and sets `isPseudo = (parts[1] === "P")`:
+
+```typescript
+// src/models/ModifiedRecord.ts
+public static fromValue(value: string): ModifiedRecord {
+  const parts = value.split("|");
+  return new ModifiedRecord({
+    userName: parts[0],
+    isPseudo: parts.length > 1 && parts[1] === "P",
+  });
+}
+```
+
+### Client — `Song.isUserModified` and `isSystemTempo`
+
+During `Song.loadProperties`, if the current edit block's `ModifiedRecord.isPseudo` is `true`,
+any property set in that block is **not** added to `userModifiedProperties`. This means the tempo
+set by a bot is not considered a human-overridden value:
+
+```typescript
+// SongStats.vue
+const isSystemTempo = computed(
+  () =>
+    !!props.song.tempo && !props.song.isUserModified(PropertyType.tempoField),
+);
+```
+
+### Client — pencil icon (tempo override)
+
+`canOverrideTempo` gates the pencil icon that lets `canTag` users override a bot-set tempo:
+
+```typescript
+// SongStats.vue
+const canOverrideTempo = computed(
+  () => !!props.user && isSystemTempo.value && context.canTag,
+);
+```
+
+`isSystemTempo` is `true` only when `Tempo` is set and `isUserModified("Tempo")` is `false`,
+which is only possible when every edit block that set `Tempo` had `isPseudo = true`. If even one
+human edited the tempo, `isUserModified` returns `true` and the pencil is hidden.
+
+### Client — Song History Viewer filter
+
+Blocks where `user === "batch|P"` or `user.startsWith("batch-")` are treated as automated
+imports and excluded from the default (`userChanges`) view. They appear only when the
+"Include automated" toggle is on.
+
+---
+
 ## Related Files
 
 | File                                              | Purpose                                                                                      |
