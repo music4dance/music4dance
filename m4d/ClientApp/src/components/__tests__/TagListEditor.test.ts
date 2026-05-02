@@ -59,12 +59,12 @@ function makeSong(history: SongHistory, user = "testuser"): Song {
 
 function mountEditor(opts: {
   history: SongHistory;
-  user?: string;
+  user?: string | undefined;
   edit?: boolean;
   canEdit?: boolean;
   systemTagKeys?: Set<string>;
 }) {
-  const { history, user = "testuser", edit = true, canEdit = false, systemTagKeys } = opts;
+  const { history, user, edit = true, canEdit = false, systemTagKeys } = opts;
 
   // Configure the mock context
   mockMenuContext.roles = canEdit ? ["canEdit"] : [];
@@ -98,14 +98,14 @@ describe("TagListEditor.vue — system tag removal permissions", () => {
     it("sees 'Remove System Tags' section when systemTagKeys is non-empty and has matching tags", () => {
       const history = makeHistoryWithSystemTag("Pop:Music");
       const systemTagKeys = new Set(["Pop:Music"]);
-      const wrapper = mountEditor({ history, systemTagKeys, canEdit: false });
+      const wrapper = mountEditor({ history, user: "testuser", systemTagKeys, canEdit: false });
       expect(wrapper.html()).toContain("Remove System Tags");
     });
 
     it("does NOT see 'Remove Tags' section (that requires canEdit)", () => {
       const history = makeHistoryWithSystemTag("Pop:Music");
       const systemTagKeys = new Set(["Pop:Music"]);
-      const wrapper = mountEditor({ history, systemTagKeys, canEdit: false });
+      const wrapper = mountEditor({ history, user: "testuser", systemTagKeys, canEdit: false });
       // "Remove Tags:" (without "System") should not appear
       const html = wrapper.html();
       expect(html).not.toMatch(/Remove Tags:(?!.*System)/);
@@ -113,13 +113,23 @@ describe("TagListEditor.vue — system tag removal permissions", () => {
 
     it("does NOT see 'Remove System Tags' when systemTagKeys is empty", () => {
       const history = makeHistoryWithSystemTag("Pop:Music");
-      const wrapper = mountEditor({ history, systemTagKeys: new Set(), canEdit: false });
+      const wrapper = mountEditor({
+        history,
+        user: "testuser",
+        systemTagKeys: new Set(),
+        canEdit: false,
+      });
       expect(wrapper.html()).not.toContain("Remove System Tags");
     });
 
     it("does NOT see 'Remove System Tags' when systemTagKeys is undefined", () => {
       const history = makeHistoryWithSystemTag("Pop:Music");
-      const wrapper = mountEditor({ history, systemTagKeys: undefined, canEdit: false });
+      const wrapper = mountEditor({
+        history,
+        user: "testuser",
+        systemTagKeys: undefined,
+        canEdit: false,
+      });
       expect(wrapper.html()).not.toContain("Remove System Tags");
     });
 
@@ -128,6 +138,7 @@ describe("TagListEditor.vue — system tag removal permissions", () => {
       const history = makeHistoryWithHumanTag("Pop:Music");
       const wrapper = mountEditor({
         history,
+        user: "testuser",
         systemTagKeys: new Set(), // empty — no system tags
         canEdit: false,
       });
@@ -156,12 +167,13 @@ describe("TagListEditor.vue — system tag removal permissions", () => {
       const systemTagKeys = new Set(["Pop:Music"]);
       const wrapper = mountEditor({
         history,
-        user: undefined as unknown as string,
+        user: undefined, // explicitly anonymous — no user, no editor
         systemTagKeys,
         canEdit: false,
       });
       const html = wrapper.html();
-      expect(html).not.toContain("Remove Tags");
+      expect(html).not.toContain("Remove Tags:");
+      expect(html).not.toContain("Remove System Tags");
     });
   });
 });
