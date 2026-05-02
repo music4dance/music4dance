@@ -32,7 +32,7 @@ const hasEditPermission = computed(() => {
   const role = props.role;
 
   if (props.overridePermission) {
-    return !!role && context.hasRole(role);
+    return true;
   }
 
   return !!props.isCreator || (!!role && context.hasRole(role));
