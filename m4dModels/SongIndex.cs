@@ -1080,7 +1080,7 @@ public class SongIndex
             filter.SearchString, AzureParmsFromFilter(filter, pageSize), cruft);
     }
 
-    public async Task<SearchResults> Search(
+    public virtual async Task<SearchResults> Search(
         string search, SearchOptions parameters, CruftFilter cruft = CruftFilter.NoCruft)
     {
         // Strip off the Lucene syntax indicator
@@ -1108,6 +1108,71 @@ public class SongIndex
             return new SearchResults(
                 search, 0, -1, 0, 0, [], null);
         }
+    }
+
+    /// <summary>
+    /// Streams all songs matching <paramref name="search"/> and <paramref name="parameters"/>
+    /// as an async sequence, paging through Azure Search in batches of 1000 (the API maximum).
+    /// Peak memory is bounded to one Azure page at a time; only songs that pass the caller's
+    /// predicate need to be retained, making this more efficient than <see cref="SearchAll"/>
+    /// for selective in-memory post-filtering.
+    /// </summary>
+    public virtual async IAsyncEnumerable<Song> StreamAll(
+        string search, SearchOptions parameters, CruftFilter cruft = CruftFilter.NoCruft)
+    {
+        const int azurePageSize = 1000;
+        search = new KeywordQuery(search).Keywords;
+
+        var originalFilter = parameters.Filter;
+        var originalSize = parameters.Size;
+        var originalSkip = parameters.Skip;
+        var originalIncludeTotalCount = parameters.IncludeTotalCount;
+
+        parameters.Size = azurePageSize;
+        parameters.IncludeTotalCount = false;
+
+        var skip = 0;
+
+        try
+        {
+            while (true)
+            {
+                parameters.Filter = originalFilter;
+                parameters.Skip = skip;
+                var response = await DoSearch(search, parameters, cruft);
+                var page = await CreateSongs(response.GetResults());
+                if (page == null || page.Count == 0)
+                    yield break;
+                foreach (var song in page)
+                    yield return song;
+                if (page.Count < azurePageSize)
+                    yield break;
+                skip += azurePageSize;
+            }
+        }
+        finally
+        {
+            parameters.Filter = originalFilter;
+            parameters.Size = originalSize;
+            parameters.Skip = originalSkip;
+            parameters.IncludeTotalCount = originalIncludeTotalCount;
+        }
+    }
+
+    /// <summary>
+    /// Fetches ALL songs matching <paramref name="search"/> and <paramref name="parameters"/>
+    /// by paging through Azure Search in batches of 1000 (the API maximum per request).
+    /// Suitable for admin/bulk operations where the full result set is needed for
+    /// in-memory filtering. Prefer <see cref="StreamAll"/> when a predicate will discard
+    /// most results, to reduce peak memory usage.
+    /// </summary>
+    public virtual async Task<List<Song>> SearchAll(
+        string search, SearchOptions parameters, CruftFilter cruft = CruftFilter.NoCruft)
+    {
+        var allSongs = new List<Song>();
+        await foreach (var song in StreamAll(search, parameters, cruft))
+            allSongs.Add(song);
+        return allSongs;
     }
 
     public async Task<SearchResults> List(
@@ -1226,7 +1291,7 @@ public class SongIndex
 
             // Select only fields needed for merge candidates
             parameters.Select.AddRange([
-                SongIdField, ModifiedField, Song.TitleField, Song.ArtistField, 
+                SongIdField, ModifiedField, Song.TitleField, Song.ArtistField,
                 Song.LengthField, Song.TempoField
             ]);
 
@@ -1885,7 +1950,7 @@ public class SongIndex
 
         // Get base filter (may be null or have user filters)
         var baseFilter = filter.GetOdataFilter(DanceMusicService);
-        
+
         DateTimeOffset? lastModified = null;
         string lastId = null;
         bool hasMore = true;
@@ -1901,7 +1966,7 @@ public class SongIndex
                 Skip = null, // Key-set pagination doesn't use skip
                 IncludeTotalCount = false // Don't need count for streaming
             };
-            
+
             // Composite ordering: Modified desc, then SongId desc for deterministic ordering
             parameters.OrderBy.Add($"{ModifiedField} desc");
             parameters.OrderBy.Add($"{SongIdField} desc");
@@ -1913,7 +1978,7 @@ public class SongIndex
                 // Format: (Modified lt lastModified) or (Modified eq lastModified and SongId lt lastId)
                 var modifiedStr = lastModified.Value.ToString("o"); // ISO 8601 format
                 var compositeFilter = $"({ModifiedField} lt {modifiedStr}) or ({ModifiedField} eq {modifiedStr} and {SongIdField} lt '{lastId}')";
-                
+
                 parameters.Filter = string.IsNullOrEmpty(baseFilter)
                     ? compositeFilter
                     : $"({baseFilter}) and ({compositeFilter})";
@@ -1927,7 +1992,7 @@ public class SongIndex
 
             // Fetch next batch
             var response = await Client.SearchAsync<SearchDocument>(searchString, parameters, cancellationToken);
-            
+
             // Stream results from this batch
             var batchCount = 0;
             foreach (var result in response.Value.GetResults())
@@ -1935,7 +2000,7 @@ public class SongIndex
                 yield return Song.Serialize(
                     result.Document.GetString(SongIdField),
                     result.Document.GetString(PropertiesField));
-                
+
                 // Track last Modified and SongId for next iteration
                 lastModified = result.Document.GetDateTimeOffset(ModifiedField);
                 lastId = result.Document.GetString(SongIdField);
