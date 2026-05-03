@@ -408,7 +408,7 @@ export class Song extends TaggableObject {
 
             if (!pseudo) {
               this.userModifiedProperties.add(baseName);
-              this.propLastSetByMap.set(baseName, currentModified.userName);
+              this.propLastSetByMap.set(baseName, currentModified?.userName);
             }
           }
           break;

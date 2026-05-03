@@ -12,11 +12,12 @@ namespace m4d.Services;
 
 public class SongSearch(SongFilter filter, string userName, bool isPremium, SongIndex songIndex,
     UserManager<ApplicationUser> userManager, IBackgroundTaskQueue backgroundTaskQueue,
-    ServiceHealthManager serviceHealth = null, int? pageSize = null)
+    ServiceHealthManager serviceHealth = null, int? pageSize = null, bool isAdmin = false)
 {
     private SongFilter Filter { get; } = songIndex.DanceMusicService.SearchService.GetSongFilter(filter.ToString());
     private string UserName { get; } = userName;
     private bool IsPremium { get; } = isPremium;
+    private bool IsAdmin { get; } = isAdmin;
     private UserManager<ApplicationUser> UserManager { get; } = userManager;
     private SongIndex SongIndex { get; } = songIndex;
     private IBackgroundTaskQueue BackgroundTaskQueue { get; } = backgroundTaskQueue;
@@ -49,9 +50,14 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
             }
             else if (!string.Equals(currentUser, userQuery.UserName))
             {
-                // In this case we want to intentionally overwrite the incoming filter
-                var temp = await UserMapper.AnonymizeFilter(Filter, UserManager, ServiceHealth);
-                Filter.User = temp.User;
+                // In this case we want to intentionally overwrite the incoming filter,
+                // unless the requesting user is an admin — admins can view any user's songs
+                // regardless of that user's privacy setting.
+                if (!IsAdmin)
+                {
+                    var temp = await UserMapper.AnonymizeFilter(Filter, UserManager, ServiceHealth);
+                    Filter.User = temp.User;
+                }
             }
         }
 

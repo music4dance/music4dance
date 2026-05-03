@@ -217,7 +217,8 @@ public class SongController : ContentController
                 throw new RedirectException("BotFilter", Filter);
             }
 
-            var results = await new SongSearch(Filter, UserName, IsPremium(), SongIndex, UserManager, TaskQueue, ServiceHealth).Search();
+            var results = await new SongSearch(Filter, UserName, IsPremium(), SongIndex, UserManager, TaskQueue, ServiceHealth,
+                isAdmin: User.IsInRole(DanceMusicCoreService.DbaRole)).Search();
             return await FormatResults(results);
         }
         catch (InvalidOperationException ex) when (IsSearchServiceError(ex))

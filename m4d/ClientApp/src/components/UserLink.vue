@@ -4,7 +4,9 @@ import { UserQuery } from "@/models/UserQuery";
 
 const props = defineProps<{ user: string }>();
 const userQuery = computed(() => new UserQuery(props.user));
-const userLink = computed(() => `/users/info/${userQuery.value.userName}`);
+const userLink = computed(
+  () => `/users/info/${encodeURIComponent(userQuery.value.userName ?? "")}`,
+);
 const userClasses = computed(() => (userQuery.value.isPseudo ? ["pseudo"] : []));
 </script>
 
