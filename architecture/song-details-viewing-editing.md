@@ -243,6 +243,7 @@ All endpoints are in `m4d/APIControllers/SongController.cs`:
 | Remove other users' tags  | ❌        | ❌            | ❌       | ✅        | ❌      | ✅                |
 | Edit Tempo/Length         | ❌        | ❌            | ✅       | ✅        | ✅      | ✅                |
 | Edit algo-set Tempo ¹     | ❌        | ✅            | ✅       | ✅        | ✅      | ✅                |
+| Set initial tempo ³       | ❌        | ✅            | ✅       | ✅        | ✅      | ✅                |
 | Edit Title/Artist         | ❌        | ❌            | ❌       | ❌        | ✅      | ✅                |
 | Delete dances             | ❌        | ❌            | ❌       | ❌        | ❌      | ✅                |
 | Admin textarea edit       | ❌        | ❌            | ❌       | ❌        | ❌      | ✅                |
@@ -252,6 +253,8 @@ All endpoints are in `m4d/APIControllers/SongController.cs`:
 Role hierarchy (additive): `dbAdmin` implies all other roles. `canEdit` implies `canTag`-level capabilities. Roles are resolved via `MenuContext` (injected from server into the page's JS environment).
 
 ¹ **"Edit algo-set Tempo"**: Any authenticated user may edit the tempo when it has only ever been set by an algorithmic source (e.g., EchoNest `batch-e`, Tempo Bot) and has never been overridden by a human user. Detected via `Song.isUserModified(PropertyType.tempoField)`. Implemented in `SongStats.vue` via `isSystemTempo`/`canOverrideTempo` computed props and `FieldEditor`'s `overridePermission` prop.
+
+³ **"Set initial tempo"**: Any authenticated user may set the tempo when no tempo has ever been recorded for the song (`song.tempo` is undefined). Implemented in `SongStats.vue` via `canSetTempo = !!props.user && !props.song.tempo`. Once any user sets an initial tempo and saves, this path is closed; further edits require `canTag` or the algo-override path (footnote ¹).
 
 ² **"Remove system-only tags"**: Any authenticated user may remove a tag whose most recent modification was by a batch/algorithmic user (pseudo or batch user). Computed in `SongHistory.systemTagKeys` by replaying the property log and tracking which tags were last touched by a system user. Surfaced in `TagListEditor.vue` as the "Remove System Tags:" section (shown only to non-`canEdit` users; `canEdit` users get the full "Remove Tags:" section instead).
 
@@ -312,13 +315,11 @@ const isSystemTempo = computed(
 
 ### Client — pencil icon (tempo override)
 
-`canOverrideTempo` gates the pencil icon that lets `canTag` users override a bot-set tempo:
+`canOverrideTempo` gates the pencil icon that lets any authenticated user override a bot-set tempo:
 
 ```typescript
 // SongStats.vue
-const canOverrideTempo = computed(
-  () => !!props.user && isSystemTempo.value && context.canTag,
-);
+const canOverrideTempo = computed(() => !!props.user && isSystemTempo.value);
 ```
 
 `isSystemTempo` is `true` only when `Tempo` is set and `isUserModified("Tempo")` is `false`,

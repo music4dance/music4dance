@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { SongProperty } from "@/models/SongProperty";
 import { getMenuContext } from "@/helpers/GetMenuContext";
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 
 const context = getMenuContext();
 
@@ -19,12 +19,19 @@ const emit = defineEmits<{
   "update-field": [property: SongProperty];
 }>();
 
-const internalValue = computed({
-  get: () => props.value,
-  set: (value: string) => {
-    emit("update-field", new SongProperty({ name: props.name, value }));
+// Local value lets the user see real-time changes (including arrow-key increments)
+// without immediately calling modifyProperty. The value is only committed—and
+// update-field emitted—when the user explicitly blurs the field or presses Enter.
+const localValue = ref(props.value);
+watch(
+  () => props.value,
+  (newVal) => {
+    localValue.value = newVal;
   },
-});
+);
+const commitValue = () => {
+  emit("update-field", new SongProperty({ name: props.name, value: localValue.value }));
+};
 
 const isNumber = computed(() => props.type === "number");
 const computedType = computed(() => props.type ?? "text");
@@ -43,11 +50,13 @@ const hasEditPermission = computed(() => {
   <span>
     <input
       v-if="editing && hasEditPermission"
-      v-model="internalValue"
+      v-model="localValue"
       :type="computedType"
       class="form-control ml-2"
       style="display: inline"
       :class="{ number: isNumber, text: !isNumber }"
+      @blur="commitValue"
+      @keyup.enter="commitValue"
     />
     <span v-else
       ><slot>{{ value }}</slot></span
