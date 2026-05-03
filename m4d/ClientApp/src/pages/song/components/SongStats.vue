@@ -19,8 +19,12 @@ const isSystemTempo = computed(
   () => !!props.song.tempo && !props.song.isUserModified(PropertyType.tempoField),
 );
 const canOverrideTempo = computed(() => !!props.user && isSystemTempo.value);
-/** Any signed-in user can set the tempo when none has been recorded yet. */
-const canSetTempo = computed(() => !!props.user && !props.song.tempo);
+/** Any signed-in user can set tempo when none has been recorded yet, or re-edit it if they were the last human to set it (tracked via `Song.propLastSetBy`). */
+const canSetTempo = computed(
+  () =>
+    !!props.user &&
+    (!props.song.tempo || props.song.propLastSetBy(PropertyType.tempoField) === props.user),
+);
 /** Combined: user can interact with the tempo pencil (algo override or initial set). */
 const canEditTempo = computed(() => canOverrideTempo.value || canSetTempo.value);
 /** canTag users have elevated privileges and can edit tempo on any song. */

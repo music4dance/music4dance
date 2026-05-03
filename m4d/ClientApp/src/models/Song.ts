@@ -40,6 +40,8 @@ export class Song extends TaggableObject {
   @jsonArrayMember(AlbumDetails) public albums?: AlbumDetails[];
 
   private userModifiedProperties = new Set<string>();
+  /** Maps field baseName → username of the last non-pseudo editor of that field. */
+  private propLastSetByMap = new Map<string, string>();
 
   public constructor(init?: Partial<Song>) {
     super();
@@ -53,6 +55,15 @@ export class Song extends TaggableObject {
    */
   public isUserModified(field: string): boolean {
     return this.userModifiedProperties.has(field);
+  }
+
+  /**
+   * Returns the username of the last non-pseudo (human) user who set the given field,
+   * or undefined if the field has never been set by a human.
+   * @param field - Property field name (use PropertyType enum values)
+   */
+  public propLastSetBy(field: string): string | undefined {
+    return this.propLastSetByMap.get(field);
   }
 
   public compareToHistory(history: SongHistory, user?: string): boolean {
@@ -397,6 +408,7 @@ export class Song extends TaggableObject {
 
             if (!pseudo) {
               this.userModifiedProperties.add(baseName);
+              this.propLastSetByMap.set(baseName, currentModified.userName);
             }
           }
           break;
