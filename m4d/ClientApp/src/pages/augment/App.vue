@@ -23,6 +23,7 @@ const model = ref(TypedJSON.parse(model_, AugmentModel) ?? {});
 const phase = ref<AugmentPhase>(AugmentPhase.lookup);
 const songModel = ref<SongDetailsModel | null>(null);
 const lastSong = ref<Song | null>(null);
+const showThanks = ref(false);
 const created = ref(false);
 const propertiesString = ref("");
 const tabIndex = ref(0);
@@ -60,22 +61,22 @@ const reset = (saved: boolean): void => {
   if (saved) {
     lastSong.value = Song.fromHistory((songModel.value! as SongDetailsModel).songHistory);
     created.value = !!songModel.value!.created;
+    showThanks.value = true;
   }
   phase.value = AugmentPhase.lookup;
-  model.value.id = undefined;
+  model.value.id = undefined; // Clears computedId so AugmentLookup won't re-trigger on re-mount
   songModel.value = null;
-  tabIndex.value = 0; // Reset to "by Title" tab to prevent re-triggering lookup
 };
 
 // Exposed for testing
-defineExpose({ phase, songModel, lastSong, created, tabIndex, editSong, reset });
+defineExpose({ phase, songModel, lastSong, showThanks, created, tabIndex, editSong, reset });
 </script>
 
 <template>
   <PageFrame id="app">
     <BRow v-if="phase === 'lookup'">
       <BCol>
-        <BAlert v-if="lastSong" dismissible :model-value="1000">
+        <BAlert v-if="lastSong && showThanks" v-model="showThanks" dismissible>
           Thank you for {{ created ? "adding" : "editing" }} <i>{{ lastSong.title }}</i> by
           {{ lastSong.artist }}
         </BAlert>

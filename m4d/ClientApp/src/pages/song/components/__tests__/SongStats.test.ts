@@ -35,12 +35,12 @@ function makeAlgoTempoSong(tempo = "180"): Song {
  * Build a Song whose tempo was set by a real (non-pseudo) user.
  * isSystemTempo should be false: tempo exists AND isUserModified("Tempo") == true.
  */
-function makeHumanTempoSong(tempo = "180"): Song {
+function makeHumanTempoSong(tempo = "180", user = "dwgray"): Song {
   const history = new SongHistory({
     id: "test-song-id",
     properties: [
       new SongProperty({ name: ".Create", value: "" }),
-      new SongProperty({ name: "User", value: "dwgray" }),
+      new SongProperty({ name: "User", value: user }),
       new SongProperty({ name: "Time", value: "01/01/2020 12:00:00" }),
       new SongProperty({ name: "Title", value: "Test Song" }),
       new SongProperty({ name: "Tempo", value: tempo }),
@@ -106,7 +106,7 @@ describe("SongStats.vue — canOverrideTempo / algo tempo pencil button", () => 
     });
   });
 
-  describe("pencil edit button visibility (canOverrideTempo)", () => {
+  describe("pencil edit button visibility (canEditTempo)", () => {
     it("shows pencil button when user is authenticated AND tempo is algo-only", () => {
       const wrapper = mountStats(makeAlgoTempoSong(), "testuser");
       expect(wrapper.find("button").exists()).toBe(true);
@@ -118,14 +118,30 @@ describe("SongStats.vue — canOverrideTempo / algo tempo pencil button", () => 
       expect(wrapper.find("button").exists()).toBe(false);
     });
 
-    it("hides pencil button when tempo was set by a real user (human-modified)", () => {
-      const wrapper = mountStats(makeHumanTempoSong(), "testuser");
+    it("hides pencil button when tempo was set by a different real user", () => {
+      // "testuser" is viewing but "dwgray" set the tempo — no pencil for testuser
+      const wrapper = mountStats(makeHumanTempoSong("180", "dwgray"), "testuser");
       expect(wrapper.find("button").exists()).toBe(false);
     });
 
-    it("hides pencil button when there is no tempo", () => {
+    it("shows pencil button when the viewing user was the last human to set the tempo", () => {
+      const wrapper = mountStats(makeHumanTempoSong("180", "testuser"), "testuser");
+      expect(wrapper.find("button").exists()).toBe(true);
+    });
+
+    it("shows pencil button when there is no tempo AND user is authenticated", () => {
       const wrapper = mountStats(makeNoTempoSong(), "testuser");
-      expect(wrapper.find("button").exists()).toBe(false);
+      expect(wrapper.find("button").exists()).toBe(true);
+    });
+
+    it("hides tempo row entirely when there is no tempo AND user is anonymous", () => {
+      const wrapper = mountStats(makeNoTempoSong(), undefined);
+      expect(wrapper.html()).not.toContain("Tempo");
+    });
+
+    it('shows "???" placeholder when there is no tempo and user is authenticated', () => {
+      const wrapper = mountStats(makeNoTempoSong(), "testuser");
+      expect(wrapper.html()).toContain("???");
     });
   });
 
@@ -147,6 +163,14 @@ describe("SongStats.vue — canOverrideTempo / algo tempo pencil button", () => 
       expect(tempoEditor!.props("overridePermission")).toBe(true);
     });
 
+    it("passes override-permission=true to FieldEditor when there is no tempo (canSetTempo)", () => {
+      const wrapper = mountStats(makeNoTempoSong(), "testuser");
+      const fieldEditors = wrapper.findAllComponents({ name: "FieldEditor" });
+      const tempoEditor = fieldEditors.find((fe) => fe.props("name") === "Tempo");
+      expect(tempoEditor).toBeDefined();
+      expect(tempoEditor!.props("overridePermission")).toBe(true);
+    });
+
     it("passes override-permission=false to FieldEditor when user is anonymous", () => {
       const wrapper = mountStats(makeAlgoTempoSong(), undefined);
       const fieldEditors = wrapper.findAllComponents({ name: "FieldEditor" });
@@ -155,11 +179,30 @@ describe("SongStats.vue — canOverrideTempo / algo tempo pencil button", () => 
       expect(tempoEditor!.props("overridePermission")).toBe(false);
     });
 
-    it("passes override-permission=false to FieldEditor when tempo is human-modified", () => {
-      const wrapper = mountStats(makeHumanTempoSong(), "testuser");
+    it("passes override-permission=true to FieldEditor when user was the last human to set tempo", () => {
+      const wrapper = mountStats(makeHumanTempoSong("180", "testuser"), "testuser");
       const fieldEditors = wrapper.findAllComponents({ name: "FieldEditor" });
       const tempoEditor = fieldEditors.find((fe) => fe.props("name") === "Tempo");
       expect(tempoEditor).toBeDefined();
+      expect(tempoEditor!.props("overridePermission")).toBe(true);
+    });
+
+    it("passes override-permission=false to FieldEditor when tempo is human-modified by a different user", () => {
+      const wrapper = mountStats(makeHumanTempoSong("180", "dwgray"), "testuser");
+      const fieldEditors = wrapper.findAllComponents({ name: "FieldEditor" });
+      const tempoEditor = fieldEditors.find((fe) => fe.props("name") === "Tempo");
+      expect(tempoEditor).toBeDefined();
+      expect(tempoEditor!.props("overridePermission")).toBe(false);
+    });
+
+    it("does not override-permission when tempo is human-modified (plain user cannot edit via overridePermission)", () => {
+      // Simulates clicking the tag edit pencil: editing=true but no canEditTempo.
+      // A plain user (no canTag) cannot edit via role; overridePermission is false.
+      const wrapper = mountStats(makeHumanTempoSong(), "testuser", true);
+      const fieldEditors = wrapper.findAllComponents({ name: "FieldEditor" });
+      const tempoEditor = fieldEditors.find((fe) => fe.props("name") === "Tempo");
+      expect(tempoEditor).toBeDefined();
+      expect(tempoEditor!.props("role")).toBe("canTag");
       expect(tempoEditor!.props("overridePermission")).toBe(false);
     });
   });
