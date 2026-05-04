@@ -30,7 +30,9 @@ watch(
   },
 );
 const commitValue = () => {
-  emit("update-field", new SongProperty({ name: props.name, value: localValue.value }));
+  if (localValue.value !== props.value) {
+    emit("update-field", new SongProperty({ name: props.name, value: localValue.value }));
+  }
 };
 
 const isNumber = computed(() => props.type === "number");

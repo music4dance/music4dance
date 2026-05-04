@@ -41,7 +41,7 @@ export class Song extends TaggableObject {
 
   private userModifiedProperties = new Set<string>();
   /** Maps field baseName → username of the last non-pseudo editor of that field. */
-  private propLastSetByMap = new Map<string, string>();
+  private propLastSetByMap = new Map<string, string | undefined>();
 
   public constructor(init?: Partial<Song>) {
     super();
@@ -408,7 +408,9 @@ export class Song extends TaggableObject {
 
             if (!pseudo) {
               this.userModifiedProperties.add(baseName);
-              this.propLastSetByMap.set(baseName, currentModified?.userName);
+              if (currentModified?.userName) {
+                this.propLastSetByMap.set(baseName, currentModified.userName);
+              }
             }
           }
           break;
