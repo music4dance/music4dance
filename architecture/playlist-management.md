@@ -25,7 +25,7 @@ public class PlayList
     public string Data2 { get; set; }    // see type-specific aliases below
     public DateTime Created { get; set; }
     public DateTime? Updated { get; set; }
-    public bool Deleted { get; set; }    // soft-delete flag — present in model but NOT currently used by Delete action
+    public bool Deleted { get; set; }    // soft-delete flag
 }
 ```
 
@@ -37,6 +37,14 @@ public class PlayList
 | `Music4Dance`       | Reserved / not actively used                   |
 | `SongsFromSpotify`  | Songs are sourced from a Spotify playlist      |
 | `SpotifyFromSearch` | Playlist content driven by a m4d search filter |
+
+### `BulkCreateFlavor` enum
+
+| Value       | Description                        |
+| ----------- | ---------------------------------- |
+| `TopN`      | Top-N most popular songs per dance |
+| `Holiday`   | Holiday-themed songs per dance     |
+| `Halloween` | Halloween-themed songs per dance   |
 
 ### Type-specific field aliases (`[NotMapped]`)
 
@@ -55,7 +63,7 @@ public class PlayList
 | `PlaylistMetadata`                         | Lightweight info from Spotify (id, name, description, link, count)                    |
 | `PlaylistCreateInfo` / `SpotifyCreateInfo` | View models for user-facing playlist creation (with subscription gate on count > 100) |
 | `ExportInfo`                               | View model for exporting a search to a playlist                                       |
-| `PlayListIndex`                            | Index view model: type + list of playlists                                            |
+| `PlayListIndex`                            | Index view model: type, list of playlists, `ShowDeleted` flag                         |
 
 ---
 
@@ -65,28 +73,28 @@ All actions require `dbAdmin` role. The controller extends `DanceMusicController
 
 ### CRUD actions
 
-| Action            | Method   | Route                    | Description                                                                      |
-| ----------------- | -------- | ------------------------ | -------------------------------------------------------------------------------- |
-| `Index`           | GET      | `/PlayList`              | Lists playlists filtered by type (and optionally by user).                       |
-| `Details`         | GET      | `/PlayList/Details/{id}` | Shows full details using the `_playlistDetails` partial.                         |
-| `Create`          | GET/POST | `/PlayList/Create`       | Creates a new playlist record. Sets `Created = DateTime.Now`, `Deleted = false`. |
-| `Edit`            | GET/POST | `/PlayList/Edit/{id}`    | Edits Name, Description, and data fields.                                        |
-| `Delete`          | GET      | `/PlayList/Delete/{id}`  | Shows delete confirmation page.                                                  |
-| `DeleteConfirmed` | POST     | `/PlayList/Delete/{id}`  | **Hard-deletes** the row with `DbSet.Remove`. Does NOT set `Deleted = true`.     |
-
-> **Gap**: The `Deleted` field exists on the model and is displayed in the index table, but the `DeleteConfirmed` action performs a hard delete rather than a soft delete.
+| Action              | Method   | Route                     | Description                                                                                                       |
+| ------------------- | -------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `Index`             | GET      | `/PlayList`               | Lists playlists filtered by type, user, and `showDeleted` (default false). Active and deleted views are separate. |
+| `Details`           | GET      | `/PlayList/Details/{id}`  | Shows full details using the `_playlistDetails` partial.                                                          |
+| `Create`            | GET/POST | `/PlayList/Create`        | Creates a new playlist record. Sets `Created = DateTime.Now`, `Deleted = false`.                                  |
+| `Edit`              | GET/POST | `/PlayList/Edit/{id}`     | Edits Name, Description, and data fields.                                                                         |
+| `Delete`            | GET      | `/PlayList/Delete/{id}`   | Shows delete confirmation page.                                                                                   |
+| `DeleteConfirmed`   | POST     | `/PlayList/Delete/{id}`   | **Soft-deletes**: sets `Deleted = true`, `Updated = DateTime.Now`. Redirects to active index.                     |
+| `Undelete`          | GET      | `/PlayList/Undelete/{id}` | Shows undelete confirmation page.                                                                                 |
+| `UndeleteConfirmed` | POST     | `/PlayList/Undelete/{id}` | Restores a soft-deleted playlist: sets `Deleted = false`, `Updated = DateTime.Now`. Redirects to deleted index.   |
 
 ### Sync / update actions
 
-| Action        | Trigger                 | Description                                                                                |
-| ------------- | ----------------------- | ------------------------------------------------------------------------------------------ |
-| `Update`      | GET                     | Kicks off async update for a single playlist via `AdminMonitor`.                           |
-| `UpdateAll`   | GET                     | Kicks off async update for all playlists of a given type (admin UI).                       |
-| `UpdateBatch` | GET (anonymous + token) | Scheduled/automated entry point; uses `TokenRequirement.Authorize` for access control.     |
-| `BulkCreate`  | GET                     | Creates multiple `SpotifyFromSearch` playlists at once (TopN, Holiday, Halloween flavors). |
-| `Restore`     | GET                     | Re-populates `SongsFromSpotify` playlist `SongIds` from the live Spotify playlist.         |
-| `RestoreAll`  | GET                     | Restores all `SongsFromSpotify` playlists.                                                 |
-| `Statistics`  | GET                     | Shows live Spotify playlist metadata (calls Spotify API).                                  |
+| Action        | Trigger                 | Description                                                                                                 |
+| ------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `Update`      | GET                     | Kicks off async update for a single playlist via `AdminMonitor`. Skips deleted playlists.                   |
+| `UpdateAll`   | GET                     | Kicks off async update for all non-deleted playlists of a given type.                                       |
+| `UpdateBatch` | GET (anonymous + token) | Scheduled/automated entry point; uses `TokenRequirement.Authorize` for access control.                      |
+| `BulkCreate`  | GET                     | Creates multiple `SpotifyFromSearch` playlists at once (`BulkCreateFlavor` enum).                           |
+| `Restore`     | GET                     | Re-populates `SongsFromSpotify` playlist `SongIds` from the live Spotify playlist. Skips deleted playlists. |
+| `RestoreAll`  | GET                     | Restores all non-deleted `SongsFromSpotify` playlists.                                                      |
+| `Statistics`  | GET                     | Shows live Spotify playlist metadata (calls Spotify API).                                                   |
 
 ### Core private helpers
 
@@ -96,7 +104,7 @@ All actions require `dbAdmin` role. The controller extends `DanceMusicController
 - `GetTags(playlist)` — splits `Tags` on `"|||"` into dance tags and song tags.
 - `DoRestore` — relinks existing catalog songs to a playlist by Spotify track ID.
 - `SafeLoadPlaylist(id, dms)` — throws `ArgumentNullException` / `ArgumentOutOfRangeException` if not found.
-- `GetIndex` / `GetUserIndex` — build `PlayListIndex` from EF query.
+- `GetIndex(type, showDeleted)` / `GetUserIndex(type, user, showDeleted)` — build `PlayListIndex` from EF query, filtering by `Deleted == showDeleted`.
 - `UserEmail(playlists)` — builds a `userId → email` map (needed to authenticate Spotify calls).
 
 ---
@@ -121,15 +129,16 @@ Playlists participate in the tab-delimited backup/restore system used for index 
 
 All views are Razor (`.cshtml`), Bootstrap-styled, using `Html.ActionLink` / `Html.EditorFor` patterns.
 
-| View                      | Model                    | Notes                                                                                                                                                      |
-| ------------------------- | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Index.cshtml`            | `PlayListIndex`          | Table with Update/Edit/Details/Delete/Restore links per row. Shows `Deleted` column. Restore link only appears when `Updated` is set and `Data2` is empty. |
-| `Details.cshtml`          | `PlayList`               | Uses `_playlistDetails` partial.                                                                                                                           |
-| `_playlistDetails.cshtml` | `PlayList`               | Renders all fields in two-column rows.                                                                                                                     |
-| `Edit.cshtml`             | `PlayList`               | Full form (Id, User, Type, Data1, Data2, Name, Description).                                                                                               |
-| `Delete.cshtml`           | `PlayList`               | Confirmation page using `_playlistDetails`. Posts to `DeleteConfirmed`.                                                                                    |
-| `Create.cshtml`           | `PlayList`               | New playlist form.                                                                                                                                         |
-| `Statistics.cshtml`       | `List<PlaylistMetadata>` | Table of live Spotify playlist metadata.                                                                                                                   |
+| View                      | Model                    | Notes                                                                                                                                                                                 |
+| ------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Index.cshtml`            | `PlayListIndex`          | Active view: Update/Edit/Details/Delete/Restore links per row. Deleted view (`showDeleted=true`): rows highlighted in danger, Undelete link only. Toggle link switches between views. |
+| `Details.cshtml`          | `PlayList`               | Uses `_playlistDetails` partial.                                                                                                                                                      |
+| `_playlistDetails.cshtml` | `PlayList`               | Renders all fields in two-column rows.                                                                                                                                                |
+| `Edit.cshtml`             | `PlayList`               | Full form (Id, User, Type, Data1, Data2, Name, Description).                                                                                                                          |
+| `Delete.cshtml`           | `PlayList`               | Confirmation page using `_playlistDetails`. Posts to `DeleteConfirmed`.                                                                                                               |
+| `Undelete.cshtml`         | `PlayList`               | Confirmation page using `_playlistDetails`. Posts to `UndeleteConfirmed`. Back link returns to deleted index.                                                                         |
+| `Create.cshtml`           | `PlayList`               | New playlist form.                                                                                                                                                                    |
+| `Statistics.cshtml`       | `List<PlaylistMetadata>` | Table of live Spotify playlist metadata.                                                                                                                                              |
 
 ---
 
@@ -143,20 +152,7 @@ The `UpdateBatch` endpoint is the automated/scheduled entry point and is protect
 
 ## Known Gaps / Planned Improvements
 
-### 1. Soft-delete instead of hard-delete
-
-The `Deleted` field is defined, serialized, and displayed in the index table, but `DeleteConfirmed` currently does a hard `DbSet.Remove`. The fix is straightforward:
-
-```csharp
-// In DeleteConfirmed:
-playList.Deleted = true;
-playList.Updated = DateTime.Now;
-// Save changes (no Remove)
-```
-
-The index query in `GetIndex` should then be updated to filter out deleted playlists by default (with an option to show them), and the serialization/deserialization already handles the flag correctly.
-
-### 2. Vue UX migration
+### 1. Vue UX migration
 
 The playlist management views are traditional Razor MVC pages. Migrating to Vue would follow the existing MPA pattern used elsewhere in the app:
 
@@ -165,9 +161,3 @@ The playlist management views are traditional Razor MVC pages. Migrating to Vue 
 - Leverage existing Vue component patterns: `BTable`, `BButton`, `BModal` from bootstrap-vue-next
 - Reactive soft-delete: mark deleted in-place and re-filter the displayed list without a full page reload
 - Status feedback for long-running async operations (Update, Restore) using the existing `AdminMonitor` status polling pattern
-
-### 3. Other observations
-
-- **`GetIndex` does not filter `Deleted` playlists** — all rows are shown regardless of the `Deleted` flag.
-- **`BulkCreate` uses hard-coded flavor strings** (`"TopN"`, `"Holiday"`, `"Halloween"`) — an enum would be safer.
-- **`DeleteConfirmed` uses a string-interpolation format bug**: `$"Playlist ${id} not found."` should be `$"Playlist {id} not found."`.

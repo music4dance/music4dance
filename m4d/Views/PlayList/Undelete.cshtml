@@ -1,0 +1,25 @@
+@using m4d.ViewModels
+@model m4dModels.PlayList
+
+@{
+    ViewBag.Title = "Undelete";
+ViewBag.BreadCrumbs = BreadCrumbItem.BuildUsersTrail(ViewBag.Title);
+}
+
+<h1>@ViewBag.Title</h1>
+<hr/>
+
+<h3>Are you sure you want to restore this playlist?</h3>
+<div>
+    <partial name="_playlistDetails" model="@Model"/>
+
+    @using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-actions no-color">
+            <input type="submit" value="Undelete" class="btn btn-primary"/> |
+            @Html.ActionLink("Back to List", "Index", new { Model.Type, showDeleted = true })
+        </div>
+}
+</div>
