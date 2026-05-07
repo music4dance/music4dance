@@ -78,7 +78,7 @@ ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
         @if (Model.Type == PlayListType.SpotifyFromSearch)
     {
         <p>
-                @Html.ActionLink("Creat TopN", "BulkCreate", new
+                @Html.ActionLink("Create TopN", "BulkCreate", new
             {
                 Type = PlayListType.SpotifyFromSearch,
                 Flavor = BulkCreateFlavor.TopN

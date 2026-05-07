@@ -10,7 +10,7 @@ ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
 <h1>@ViewBag.Title</h1>
 <hr/>
 
-<h3>Are you sure you want to delete all @Model.PlayLists.Count playlist(s) for user <strong>@Model.FilteredUser</strong>?</h3>
+<h3>Are you sure you want to delete all @Model.PlayLists.Count <strong>@Model.Type</strong> playlist(s) for user <strong>@Model.FilteredUser</strong>?</h3>
 
 <table class="table" width="100%">
     <tr>

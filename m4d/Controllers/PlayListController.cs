@@ -28,7 +28,7 @@ public class PlayListController(
     [Authorize(Roles = "dbAdmin")]
     public IActionResult Index(PlayListType type = PlayListType.SongsFromSpotify, string user = null, bool showDeleted = false)
     {
-        return View(user == null ? GetIndex(type, showDeleted) : GetUserIndex(type, user, showDeleted));
+        return View(string.IsNullOrWhiteSpace(user) ? GetIndex(type, showDeleted) : GetUserIndex(type, user, showDeleted));
     }
 
     // GET: PlayLists/Details/5
@@ -108,12 +108,13 @@ public class PlayListController(
     public ActionResult Delete(string id, string user = null)
     {
         var result = GetPlaylist(id, out var playList);
-        ViewBag.FilteredUser = user;
-        if (HttpStatusCode.OK == result)
+        if (HttpStatusCode.OK != result)
         {
-            return View(playList);
+            ViewBag.errorMessage = $"Playlist {id} not found.";
+            return View("Error");
         }
 
+        ViewBag.FilteredUser = user;
         return View(playList);
     }
 
@@ -142,12 +143,13 @@ public class PlayListController(
     public ActionResult Undelete(string id, string user = null)
     {
         var result = GetPlaylist(id, out var playList);
-        ViewBag.FilteredUser = user;
-        if (HttpStatusCode.OK == result)
+        if (HttpStatusCode.OK != result)
         {
-            return View(playList);
+            ViewBag.errorMessage = $"Playlist {id} not found.";
+            return View("Error");
         }
 
+        ViewBag.FilteredUser = user;
         return View(playList);
     }
 
@@ -195,9 +197,9 @@ public class PlayListController(
             return RedirectToAction("Index", new { type });
         }
 
-        var playlists = Database.PlayLists
+        var playlists = await Database.PlayLists
             .Where(p => p.User == user && p.Type == type && !p.Deleted)
-            .ToList();
+            .ToListAsync();
 
         var now = DateTime.Now;
         foreach (var playlist in playlists)

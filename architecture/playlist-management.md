@@ -48,7 +48,7 @@ public class PlayList
 
 ### Type-specific field aliases (`[NotMapped]`)
 
-| Type                | `Data1` alias (→ `Tags`)                   | `Data2` alias (→ `SongIds`)        |
+| Type                | `Data1` alias                              | `Data2` alias                      |
 | ------------------- | ------------------------------------------ | ---------------------------------- | --- | --- | -------------------------------------------------------- |
 | `SongsFromSpotify`  | `Tags` — dance/song tag string split by `" |                                    |     | "`  | `SongIds` — pipe-delimited m4d song IDs already imported |
 | `SpotifyFromSearch` | `Search` — serialized search filter string | `Count` — target track count (int) |
