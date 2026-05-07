@@ -57,13 +57,13 @@ public class PlayList
 
 ### Supporting model classes
 
-| Class                                      | Purpose                                                                               |
-| ------------------------------------------ | ------------------------------------------------------------------------------------- |
-| `GenericPlaylist`                          | Transport object for a loaded service playlist with tracks                            |
-| `PlaylistMetadata`                         | Lightweight info from Spotify (id, name, description, link, count)                    |
-| `PlaylistCreateInfo` / `SpotifyCreateInfo` | View models for user-facing playlist creation (with subscription gate on count > 100) |
-| `ExportInfo`                               | View model for exporting a search to a playlist                                       |
-| `PlayListIndex`                            | Index view model: type, list of playlists, `ShowDeleted` flag                         |
+| Class                                      | Purpose                                                                                                   |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| `GenericPlaylist`                          | Transport object for a loaded service playlist with tracks                                                |
+| `PlaylistMetadata`                         | Lightweight info from Spotify (id, name, description, link, count)                                        |
+| `PlaylistCreateInfo` / `SpotifyCreateInfo` | View models for user-facing playlist creation (with subscription gate on count > 100)                     |
+| `ExportInfo`                               | View model for exporting a search to a playlist                                                           |
+| `PlayListIndex`                            | Index view model: type, list of playlists, `ShowDeleted` flag, optional `FilteredUser` (null = all users) |
 
 ---
 
@@ -73,16 +73,18 @@ All actions require `dbAdmin` role. The controller extends `DanceMusicController
 
 ### CRUD actions
 
-| Action              | Method   | Route                     | Description                                                                                                       |
-| ------------------- | -------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `Index`             | GET      | `/PlayList`               | Lists playlists filtered by type, user, and `showDeleted` (default false). Active and deleted views are separate. |
-| `Details`           | GET      | `/PlayList/Details/{id}`  | Shows full details using the `_playlistDetails` partial.                                                          |
-| `Create`            | GET/POST | `/PlayList/Create`        | Creates a new playlist record. Sets `Created = DateTime.Now`, `Deleted = false`.                                  |
-| `Edit`              | GET/POST | `/PlayList/Edit/{id}`     | Edits Name, Description, and data fields.                                                                         |
-| `Delete`            | GET      | `/PlayList/Delete/{id}`   | Shows delete confirmation page.                                                                                   |
-| `DeleteConfirmed`   | POST     | `/PlayList/Delete/{id}`   | **Soft-deletes**: sets `Deleted = true`, `Updated = DateTime.Now`. Redirects to active index.                     |
-| `Undelete`          | GET      | `/PlayList/Undelete/{id}` | Shows undelete confirmation page.                                                                                 |
-| `UndeleteConfirmed` | POST     | `/PlayList/Undelete/{id}` | Restores a soft-deleted playlist: sets `Deleted = false`, `Updated = DateTime.Now`. Redirects to deleted index.   |
+| Action               | Method   | Route                     | Description                                                                                                                                 |
+| -------------------- | -------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Index`              | GET      | `/PlayList`               | Lists playlists filtered by type, optional `user`, and `showDeleted` (default false). When `user` is set, header shows filter + clear link. |
+| `Details`            | GET      | `/PlayList/Details/{id}`  | Shows full details using the `_playlistDetails` partial.                                                                                    |
+| `Create`             | GET/POST | `/PlayList/Create`        | Creates a new playlist record. Sets `Created = DateTime.Now`, `Deleted = false`.                                                            |
+| `Edit`               | GET/POST | `/PlayList/Edit/{id}`     | Edits Name, Description, and data fields.                                                                                                   |
+| `Delete`             | GET      | `/PlayList/Delete/{id}`   | Shows delete confirmation page. Accepts optional `user` query param; threads it through the form and Back to List link.                     |
+| `DeleteConfirmed`    | POST     | `/PlayList/Delete/{id}`   | **Soft-deletes**: sets `Deleted = true`, `Updated = DateTime.Now`. Redirects to active index, preserving `user` filter.                     |
+| `Undelete`           | GET      | `/PlayList/Undelete/{id}` | Shows undelete confirmation page. Accepts optional `user` query param; threads it through the form and Back to List link.                   |
+| `UndeleteConfirmed`  | POST     | `/PlayList/Undelete/{id}` | Restores a soft-deleted playlist: sets `Deleted = false`, `Updated = DateTime.Now`. Redirects to deleted index, preserving `user` filter.   |
+| `DeleteAll`          | GET      | `/PlayList/DeleteAll`     | Shows confirmation page listing all active playlists for `user` + `type`. Requires non-empty `user`; redirects to Index if missing.         |
+| `DeleteAllConfirmed` | POST     | `/PlayList/DeleteAll`     | Soft-deletes all non-deleted playlists for the given `user` + `type`. Redirects to user-filtered active index.                              |
 
 ### Sync / update actions
 
@@ -129,16 +131,17 @@ Playlists participate in the tab-delimited backup/restore system used for index 
 
 All views are Razor (`.cshtml`), Bootstrap-styled, using `Html.ActionLink` / `Html.EditorFor` patterns.
 
-| View                      | Model                    | Notes                                                                                                                                                                                 |
-| ------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Index.cshtml`            | `PlayListIndex`          | Active view: Update/Edit/Details/Delete/Restore links per row. Deleted view (`showDeleted=true`): rows highlighted in danger, Undelete link only. Toggle link switches between views. |
-| `Details.cshtml`          | `PlayList`               | Uses `_playlistDetails` partial.                                                                                                                                                      |
-| `_playlistDetails.cshtml` | `PlayList`               | Renders all fields in two-column rows.                                                                                                                                                |
-| `Edit.cshtml`             | `PlayList`               | Full form (Id, User, Type, Data1, Data2, Name, Description).                                                                                                                          |
-| `Delete.cshtml`           | `PlayList`               | Confirmation page using `_playlistDetails`. Posts to `DeleteConfirmed`.                                                                                                               |
-| `Undelete.cshtml`         | `PlayList`               | Confirmation page using `_playlistDetails`. Posts to `UndeleteConfirmed`. Back link returns to deleted index.                                                                         |
-| `Create.cshtml`           | `PlayList`               | New playlist form.                                                                                                                                                                    |
-| `Statistics.cshtml`       | `List<PlaylistMetadata>` | Table of live Spotify playlist metadata.                                                                                                                                              |
+| View                      | Model                    | Notes                                                                                                                                                                                                                                                                                                                          |
+| ------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Index.cshtml`            | `PlayListIndex`          | Active view: Update/Edit/Details/Delete/Restore links per row. Deleted view (`showDeleted=true`): rows highlighted in danger, Undelete link only. Toggle and all sidebar links preserve user filter. When filtered, header shows user name and a "Clear filter" link. "Delete All" link appears in sidebar when user-filtered. |
+| `Details.cshtml`          | `PlayList`               | Uses `_playlistDetails` partial.                                                                                                                                                                                                                                                                                               |
+| `_playlistDetails.cshtml` | `PlayList`               | Renders all fields in two-column rows.                                                                                                                                                                                                                                                                                         |
+| `Edit.cshtml`             | `PlayList`               | Full form (Id, User, Type, Data1, Data2, Name, Description).                                                                                                                                                                                                                                                                   |
+| `Delete.cshtml`           | `PlayList`               | Confirmation page. Hidden `user` field carries filter through POST. Back link returns to user-filtered active index.                                                                                                                                                                                                           |
+| `Undelete.cshtml`         | `PlayList`               | Confirmation page. Hidden `user` field carries filter through POST. Back link returns to user-filtered deleted index.                                                                                                                                                                                                          |
+| `DeleteAll.cshtml`        | `PlayListIndex`          | Bulk-delete confirmation. Shows count and full list of playlists to be deleted. Hidden `user` and `type` fields. Cancel returns to user-filtered active index.                                                                                                                                                                 |
+| `Create.cshtml`           | `PlayList`               | New playlist form.                                                                                                                                                                                                                                                                                                             |
+| `Statistics.cshtml`       | `List<PlaylistMetadata>` | Table of live Spotify playlist metadata.                                                                                                                                                                                                                                                                                       |
 
 ---
 

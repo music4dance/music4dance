@@ -8,6 +8,14 @@ ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
 }
 
 <h1>@ViewBag.Title</h1>
+@if (!string.IsNullOrEmpty(Model.FilteredUser))
+{
+    <p class="lead">
+        Filtered to user: <strong>@Model.FilteredUser</strong>
+        <span> | </span>
+        @Html.ActionLink("Clear filter", "Index", new { Model.Type, Model.ShowDeleted })
+    </p>
+}
 
 <div class="row">
     <div class="col-sm-3">
