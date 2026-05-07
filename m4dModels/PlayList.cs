@@ -195,6 +195,7 @@ public class PlayListIndex
     public PlayListType Type;
     public List<PlayList> PlayLists;
     public bool ShowDeleted;
+    public string FilteredUser;
 
     public string Data1Name => PlayList.GetData1Name(Type);
     public string Data2Name => PlayList.GetData2Name(Type);

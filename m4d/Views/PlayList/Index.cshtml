@@ -32,13 +32,19 @@ ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
         <p>
             @if (Model.ShowDeleted)
         {
-            @Html.ActionLink("Show Active", "Index", new { Model.Type, showDeleted = false })
+            @Html.ActionLink("Show Active", "Index", new { Model.Type, showDeleted = false, user = Model.FilteredUser })
         }
         else
         {
-            @Html.ActionLink("Show Deleted", "Index", new { Model.Type, showDeleted = true })
+            @Html.ActionLink("Show Deleted", "Index", new { Model.Type, showDeleted = true, user = Model.FilteredUser })
         }
         </p>
+        @if (!string.IsNullOrEmpty(Model.FilteredUser) && !Model.ShowDeleted && Model.PlayLists.Count > 0)
+    {
+        <p>
+                @Html.ActionLink("Delete All", "DeleteAll", new { user = Model.FilteredUser, Model.Type }, new { @class = "text-danger" })
+            </p>
+    }
     </div>
     <div class="col-sm-3">
         @if (Model.Type != PlayListType.SongsFromSpotify)
@@ -166,7 +172,7 @@ ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
             <td>
                 @if (Model.ShowDeleted)
             {
-                @Html.ActionLink("Undelete", "Undelete", new { id = item.Id })
+                @Html.ActionLink("Undelete", "Undelete", new { id = item.Id, user = Model.FilteredUser })
             }
             else
             {
@@ -176,7 +182,7 @@ ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
                 <span> | </span>
                 @Html.ActionLink("Details", "Details", new { id = item.Id })
                 <span> | </span>
-                @Html.ActionLink("Delete", "Delete", new { id = item.Id })
+                @Html.ActionLink("Delete", "Delete", new { id = item.Id, user = Model.FilteredUser })
                 @if (item.Updated.HasValue && string.IsNullOrWhiteSpace(item.Data2))
                 {
                     <span> | </span>

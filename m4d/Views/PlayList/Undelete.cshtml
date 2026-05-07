@@ -4,6 +4,7 @@
 @{
     ViewBag.Title = "Undelete";
 ViewBag.BreadCrumbs = BreadCrumbItem.BuildUsersTrail(ViewBag.Title);
+var filteredUser = ViewBag.FilteredUser as string;
 }
 
 <h1>@ViewBag.Title</h1>
@@ -16,10 +17,11 @@ ViewBag.BreadCrumbs = BreadCrumbItem.BuildUsersTrail(ViewBag.Title);
     @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
+    @Html.Hidden("user", filteredUser)
 
     <div class="form-actions no-color">
             <input type="submit" value="Undelete" class="btn btn-primary"/> |
-            @Html.ActionLink("Back to List", "Index", new { Model.Type, showDeleted = true })
+            @Html.ActionLink("Back to List", "Index", new { Model.Type, user = filteredUser, showDeleted = true })
         </div>
 }
 </div>

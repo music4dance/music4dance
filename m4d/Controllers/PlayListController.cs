@@ -105,9 +105,10 @@ public class PlayListController(
 
     // GET: PlayLists/Delete/5
     [Authorize(Roles = "dbAdmin")]
-    public ActionResult Delete(string id)
+    public ActionResult Delete(string id, string user = null)
     {
         var result = GetPlaylist(id, out var playList);
+        ViewBag.FilteredUser = user;
         if (HttpStatusCode.OK == result)
         {
             return View(playList);
@@ -121,7 +122,7 @@ public class PlayListController(
     [ActionName("Delete")]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = "dbAdmin")]
-    public async Task<ActionResult> DeleteConfirmed(string id)
+    public async Task<ActionResult> DeleteConfirmed(string id, string user = null)
     {
         var playList = await Database.PlayLists.FindAsync(id);
         if (playList != null)
@@ -129,7 +130,7 @@ public class PlayListController(
             playList.Deleted = true;
             playList.Updated = DateTime.Now;
             _ = await Database.SaveChanges();
-            return RedirectToAction("Index", new { playList.Type });
+            return RedirectToAction("Index", new { playList.Type, user });
         }
 
         ViewBag.errorMessage = $"Playlist {id} not found.";
@@ -138,9 +139,10 @@ public class PlayListController(
 
     // GET: PlayLists/Undelete/5
     [Authorize(Roles = "dbAdmin")]
-    public ActionResult Undelete(string id)
+    public ActionResult Undelete(string id, string user = null)
     {
         var result = GetPlaylist(id, out var playList);
+        ViewBag.FilteredUser = user;
         if (HttpStatusCode.OK == result)
         {
             return View(playList);
@@ -154,7 +156,7 @@ public class PlayListController(
     [ActionName("Undelete")]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = "dbAdmin")]
-    public async Task<ActionResult> UndeleteConfirmed(string id)
+    public async Task<ActionResult> UndeleteConfirmed(string id, string user = null)
     {
         var playList = await Database.PlayLists.FindAsync(id);
         if (playList != null)
@@ -162,11 +164,50 @@ public class PlayListController(
             playList.Deleted = false;
             playList.Updated = DateTime.Now;
             _ = await Database.SaveChanges();
-            return RedirectToAction("Index", new { playList.Type, showDeleted = true });
+            return RedirectToAction("Index", new { playList.Type, user, showDeleted = true });
         }
 
         ViewBag.errorMessage = $"Playlist {id} not found.";
         return View("Error");
+    }
+
+    // GET: PlayLists/DeleteAll?user=...&type=...
+    [Authorize(Roles = "dbAdmin")]
+    public ActionResult DeleteAll(string user, PlayListType type = PlayListType.SongsFromSpotify)
+    {
+        if (string.IsNullOrWhiteSpace(user))
+        {
+            return RedirectToAction("Index", new { type });
+        }
+
+        return View(GetUserIndex(type, user));
+    }
+
+    // POST: PlayLists/DeleteAll
+    [HttpPost]
+    [ActionName("DeleteAll")]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> DeleteAllConfirmed(string user, PlayListType type = PlayListType.SongsFromSpotify)
+    {
+        if (string.IsNullOrWhiteSpace(user))
+        {
+            return RedirectToAction("Index", new { type });
+        }
+
+        var playlists = Database.PlayLists
+            .Where(p => p.User == user && p.Type == type && !p.Deleted)
+            .ToList();
+
+        var now = DateTime.Now;
+        foreach (var playlist in playlists)
+        {
+            playlist.Deleted = true;
+            playlist.Updated = now;
+        }
+
+        _ = await Database.SaveChanges();
+        return RedirectToAction("Index", new { type, user });
     }
 
     // GET: PlayLists
@@ -784,6 +825,7 @@ public class PlayListController(
         {
             Type = type,
             ShowDeleted = showDeleted,
+            FilteredUser = user,
             PlayLists = [.. Database.PlayLists.Where(p => p.Type == type && p.User == user && p.Deleted == showDeleted).OrderBy(p => p.Id)]
         };
     }
