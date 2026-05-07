@@ -1,0 +1,54 @@
+@using m4d.ViewModels
+@using m4dModels
+@model m4dModels.PlayListIndex
+
+@{
+    ViewBag.Title = "Delete All";
+ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
+}
+
+<h1>@ViewBag.Title</h1>
+<hr/>
+
+<h3>Are you sure you want to delete all @Model.PlayLists.Count <strong>@Model.Type</strong> playlist(s) for user <strong>@Model.FilteredUser</strong>?</h3>
+
+<table class="table" width="100%">
+    <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Description</th>
+        @if (Model.HasData1)
+    {
+        <th>@Model.Data1Name</th>
+    }
+        <th>Created</th>
+        <th>Updated</th>
+    </tr>
+
+    @foreach (var item in Model.PlayLists)
+{
+    <tr>
+            <td>@item.Id</td>
+            <td>@item.Name</td>
+            <td>@item.Description</td>
+            @if (Model.HasData1)
+        {
+            <td>@(string.IsNullOrEmpty(item.Data1) ? "" : item.Data1.Substring(0, Math.Min(item.Data1.Length, 50)))</td>
+        }
+            <td>@item.Created</td>
+            <td>@item.Updated</td>
+        </tr>
+}
+</table>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.Hidden("user", Model.FilteredUser)
+    @Html.Hidden("type", Model.Type)
+
+    <div class="form-actions no-color">
+        <input type="submit" value="Delete All" class="btn btn-danger"/> |
+        @Html.ActionLink("Cancel", "Index", new { Model.Type, user = Model.FilteredUser })
+    </div>
+}

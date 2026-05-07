@@ -8,6 +8,14 @@ ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
 }
 
 <h1>@ViewBag.Title</h1>
+@if (!string.IsNullOrEmpty(Model.FilteredUser))
+{
+    <p class="lead">
+        Filtered to user: <strong>@Model.FilteredUser</strong>
+        <span> | </span>
+        @Html.ActionLink("Clear filter", "Index", new { Model.Type, Model.ShowDeleted })
+    </p>
+}
 
 <div class="row">
     <div class="col-sm-3">
@@ -29,6 +37,22 @@ ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
         Model.Type
         })
         </p>
+        <p>
+            @if (Model.ShowDeleted)
+        {
+            @Html.ActionLink("Show Active", "Index", new { Model.Type, showDeleted = false, user = Model.FilteredUser })
+        }
+        else
+        {
+            @Html.ActionLink("Show Deleted", "Index", new { Model.Type, showDeleted = true, user = Model.FilteredUser })
+        }
+        </p>
+        @if (!string.IsNullOrEmpty(Model.FilteredUser) && !Model.ShowDeleted && Model.PlayLists.Count > 0)
+    {
+        <p>
+                @Html.ActionLink("Delete All", "DeleteAll", new { user = Model.FilteredUser, Model.Type }, new { @class = "text-danger" })
+            </p>
+    }
     </div>
     <div class="col-sm-3">
         @if (Model.Type != PlayListType.SongsFromSpotify)
@@ -54,29 +78,29 @@ ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
         @if (Model.Type == PlayListType.SpotifyFromSearch)
     {
         <p>
-                @Html.ActionLink("Creat TopN", "BulkCreate", new
+                @Html.ActionLink("Create TopN", "BulkCreate", new
             {
                 Type = PlayListType.SpotifyFromSearch,
-                Flavor = "TopN"
+                Flavor = BulkCreateFlavor.TopN
             })
             </p>
-            
+
         <p>
                 @Html.ActionLink("Create Holiday", "BulkCreate", new
             {
                 Type = PlayListType.SpotifyFromSearch,
-                Flavor = "Holiday"
+                Flavor = BulkCreateFlavor.Holiday
             })
             </p>
-            
+
         <p>
                 @Html.ActionLink("Create Halloween", "BulkCreate", new
             {
                 Type = PlayListType.SpotifyFromSearch,
-                Flavor = "Halloween"
+                Flavor = BulkCreateFlavor.Halloween
             })
             </p>
-            
+
         <p>
                 @Html.ActionLink("Statistics", "Statistics")
             </p>
@@ -101,13 +125,16 @@ ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
     }
         <th>Created</th>
         <th>Updated</th>
+        @if (Model.ShowDeleted)
+    {
         <th>Deleted</th>
+    }
         <th></th>
     </tr>
 
     @foreach (var item in Model.PlayLists)
 {
-    <tr>
+    <tr class="@(Model.ShowDeleted ? "table-danger" : "")">
             <td>
                 @Html.ActionLink(item.Id, "Details", new
         {
@@ -144,33 +171,31 @@ ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
             <td>
                 @Html.DisplayFor(modelItem => item.Updated)
             </td>
+            @if (Model.ShowDeleted)
+        {
             <td>
                 @Html.DisplayFor(modelItem => item.Deleted)
             </td>
+        }
             <td>
-                @Html.ActionLink("Update", "Update", new
-        {
-        id = item.Id
-        }) |
-                @Html.ActionLink("Edit", "Edit", new
-        {
-        id = item.Id
-        }) |
-                @Html.ActionLink("Details", "Details", new
-        {
-        id = item.Id
-        }) |
-                @Html.ActionLink("Delete", "Delete", new
-        {
-        id = item.Id
-        })
-                @if (item.Updated.HasValue && string.IsNullOrWhiteSpace(item.Data2))
+                @if (Model.ShowDeleted)
             {
+                @Html.ActionLink("Undelete", "Undelete", new { id = item.Id, user = Model.FilteredUser })
+            }
+            else
+            {
+                @Html.ActionLink("Update", "Update", new { id = item.Id })
                 <span> | </span>
-                @Html.ActionLink("Restore", "Restore", new
-        {
-        id = item.Id
-        })
+                @Html.ActionLink("Edit", "Edit", new { id = item.Id })
+                <span> | </span>
+                @Html.ActionLink("Details", "Details", new { id = item.Id })
+                <span> | </span>
+                @Html.ActionLink("Delete", "Delete", new { id = item.Id, user = Model.FilteredUser })
+                @if (item.Updated.HasValue && string.IsNullOrWhiteSpace(item.Data2))
+                {
+                    <span> | </span>
+                    @Html.ActionLink("Restore", "Restore", new { id = item.Id })
+                }
             }
             </td>
         </tr>

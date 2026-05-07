@@ -2,7 +2,7 @@
 @model m4dModels.PlayList
 
 @{
-    ViewBag.Title = "Delete";
+    ViewBag.Title = "Undelete";
 ViewBag.BreadCrumbs = BreadCrumbItem.BuildUsersTrail(ViewBag.Title);
 var filteredUser = ViewBag.FilteredUser as string;
 }
@@ -10,7 +10,7 @@ var filteredUser = ViewBag.FilteredUser as string;
 <h1>@ViewBag.Title</h1>
 <hr/>
 
-<h3>Are you sure you want to delete this playlist?</h3>
+<h3>Are you sure you want to restore this playlist?</h3>
 <div>
     <partial name="_playlistDetails" model="@Model"/>
 
@@ -20,8 +20,8 @@ var filteredUser = ViewBag.FilteredUser as string;
     @Html.Hidden("user", filteredUser)
 
     <div class="form-actions no-color">
-            <input type="submit" value="Delete" class="btn btn-primary"/> |
-            @Html.ActionLink("Back to List", "Index", new { Model.Type, user = filteredUser })
+            <input type="submit" value="Undelete" class="btn btn-primary"/> |
+            @Html.ActionLink("Back to List", "Index", new { Model.Type, user = filteredUser, showDeleted = true })
         </div>
 }
 </div>

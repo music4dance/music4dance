@@ -26,9 +26,9 @@ public class PlayListController(
 
     // GET: PlayLists
     [Authorize(Roles = "dbAdmin")]
-    public IActionResult Index(PlayListType type = PlayListType.SongsFromSpotify, string user = null)
+    public IActionResult Index(PlayListType type = PlayListType.SongsFromSpotify, string user = null, bool showDeleted = false)
     {
-        return View(user == null ? GetIndex(type) : GetUserIndex(type, user));
+        return View(string.IsNullOrWhiteSpace(user) ? GetIndex(type, showDeleted) : GetUserIndex(type, user, showDeleted));
     }
 
     // GET: PlayLists/Details/5
@@ -105,14 +105,16 @@ public class PlayListController(
 
     // GET: PlayLists/Delete/5
     [Authorize(Roles = "dbAdmin")]
-    public ActionResult Delete(string id)
+    public ActionResult Delete(string id, string user = null)
     {
         var result = GetPlaylist(id, out var playList);
-        if (HttpStatusCode.OK == result)
+        if (HttpStatusCode.OK != result)
         {
-            return View(playList);
+            ViewBag.errorMessage = $"Playlist {id} not found.";
+            return View("Error");
         }
 
+        ViewBag.FilteredUser = user;
         return View(playList);
     }
 
@@ -121,18 +123,93 @@ public class PlayListController(
     [ActionName("Delete")]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = "dbAdmin")]
-    public async Task<ActionResult> DeleteConfirmed(string id)
+    public async Task<ActionResult> DeleteConfirmed(string id, string user = null)
     {
         var playList = await Database.PlayLists.FindAsync(id);
         if (playList != null)
         {
-            _ = Database.PlayLists.Remove(playList);
+            playList.Deleted = true;
+            playList.Updated = DateTime.Now;
             _ = await Database.SaveChanges();
-            return RedirectToAction("Index", new { playList.Type });
+            return RedirectToAction("Index", new { playList.Type, user });
         }
 
-        ViewBag.errorMessage = $"Playlist ${id} not found.";
+        ViewBag.errorMessage = $"Playlist {id} not found.";
         return View("Error");
+    }
+
+    // GET: PlayLists/Undelete/5
+    [Authorize(Roles = "dbAdmin")]
+    public ActionResult Undelete(string id, string user = null)
+    {
+        var result = GetPlaylist(id, out var playList);
+        if (HttpStatusCode.OK != result)
+        {
+            ViewBag.errorMessage = $"Playlist {id} not found.";
+            return View("Error");
+        }
+
+        ViewBag.FilteredUser = user;
+        return View(playList);
+    }
+
+    // POST: PlayLists/Undelete/5
+    [HttpPost]
+    [ActionName("Undelete")]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> UndeleteConfirmed(string id, string user = null)
+    {
+        var playList = await Database.PlayLists.FindAsync(id);
+        if (playList != null)
+        {
+            playList.Deleted = false;
+            playList.Updated = DateTime.Now;
+            _ = await Database.SaveChanges();
+            return RedirectToAction("Index", new { playList.Type, user, showDeleted = true });
+        }
+
+        ViewBag.errorMessage = $"Playlist {id} not found.";
+        return View("Error");
+    }
+
+    // GET: PlayLists/DeleteAll?user=...&type=...
+    [Authorize(Roles = "dbAdmin")]
+    public ActionResult DeleteAll(string user, PlayListType type = PlayListType.SongsFromSpotify)
+    {
+        if (string.IsNullOrWhiteSpace(user))
+        {
+            return RedirectToAction("Index", new { type });
+        }
+
+        return View(GetUserIndex(type, user));
+    }
+
+    // POST: PlayLists/DeleteAll
+    [HttpPost]
+    [ActionName("DeleteAll")]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> DeleteAllConfirmed(string user, PlayListType type = PlayListType.SongsFromSpotify)
+    {
+        if (string.IsNullOrWhiteSpace(user))
+        {
+            return RedirectToAction("Index", new { type });
+        }
+
+        var playlists = await Database.PlayLists
+            .Where(p => p.User == user && p.Type == type && !p.Deleted)
+            .ToListAsync();
+
+        var now = DateTime.Now;
+        foreach (var playlist in playlists)
+        {
+            playlist.Deleted = true;
+            playlist.Updated = now;
+        }
+
+        _ = await Database.SaveChanges();
+        return RedirectToAction("Index", new { type, user });
     }
 
     // GET: PlayLists
@@ -163,6 +240,11 @@ public class PlayListController(
         var principal = User;
 
         var playlist = SafeLoadPlaylist(id, Database);
+        if (playlist.Deleted)
+        {
+            return RedirectToAction("Index", new { playlist.Type });
+        }
+
         var user = await Database.FindUser(playlist.User);
         var email = user.Email;
 
@@ -235,7 +317,7 @@ public class PlayListController(
     // GET: BulkCreate
     [Authorize(Roles = "dbAdmin")]
     public async Task<ActionResult> BulkCreate([FromServices] IFileProvider fileProvider,
-        string flavor = "TopN")
+        BulkCreateFlavor flavor = BulkCreateFlavor.TopN)
     {
         await SpotifyAuthorization();
 
@@ -248,12 +330,12 @@ public class PlayListController(
 
         switch (flavor)
         {
-            case "TopN":
+            case BulkCreateFlavor.TopN:
                 await BulkCreateTopN(oldS, oldM, fileProvider);
                 break;
-            case "Holiday":
-            case "Halloween":
-                await BulkCreateHoliday(oldS, oldM, fileProvider, flavor.ToLower());
+            case BulkCreateFlavor.Holiday:
+            case BulkCreateFlavor.Halloween:
+                await BulkCreateHoliday(oldS, oldM, fileProvider, flavor.ToString().ToLower());
                 break;
         }
 
@@ -264,7 +346,7 @@ public class PlayListController(
 
     private async Task UpdateAllBase(PlayListType type, IPrincipal user = null)
     {
-        var playlists = Database.PlayLists.Where(p => p.Type == type).ToList();
+        var playlists = Database.PlayLists.Where(p => p.Type == type && !p.Deleted).ToList();
         var emailMap = await UserEmail(playlists);
 
         var dms = Database.GetTransientService();
@@ -613,6 +695,11 @@ public class PlayListController(
         }
 
         var playlist = SafeLoadPlaylist(id, Database);
+        if (playlist.Deleted)
+        {
+            return RedirectToAction("Index", new { playlist.Type });
+        }
+
         var user = await Database.FindUser(playlist.User);
         var email = user.Email;
 
@@ -651,7 +738,7 @@ public class PlayListController(
 
         // TODO:  This code is identical to the code in updateallbase except for the actual DoUpdate/DoRestore call, should be able to do better..
         var playlists = Database.PlayLists
-            .Where(p => string.IsNullOrEmpty(p.Data2) && p.Updated != null).ToList();
+            .Where(p => string.IsNullOrEmpty(p.Data2) && p.Updated != null && !p.Deleted).ToList();
         var emailMap = await UserEmail(playlists);
 
         var dms = Database.GetTransientService();
@@ -724,21 +811,24 @@ public class PlayListController(
         return map;
     }
 
-    private PlayListIndex GetIndex(PlayListType type)
+    private PlayListIndex GetIndex(PlayListType type, bool showDeleted = false)
     {
         return new()
         {
             Type = type,
-            PlayLists = [.. Database.PlayLists.Where(p => p.Type == type).OrderBy(p => p.User)]
+            ShowDeleted = showDeleted,
+            PlayLists = [.. Database.PlayLists.Where(p => p.Type == type && p.Deleted == showDeleted).OrderBy(p => p.User)]
         };
     }
 
-    private PlayListIndex GetUserIndex(PlayListType type, string user)
+    private PlayListIndex GetUserIndex(PlayListType type, string user, bool showDeleted = false)
     {
         return new()
         {
             Type = type,
-            PlayLists = [.. Database.PlayLists.Where(p => p.Type == type && p.User == user).OrderBy(p => p.Id)]
+            ShowDeleted = showDeleted,
+            FilteredUser = user,
+            PlayLists = [.. Database.PlayLists.Where(p => p.Type == type && p.User == user && p.Deleted == showDeleted).OrderBy(p => p.Id)]
         };
     }
 
