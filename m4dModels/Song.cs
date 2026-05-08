@@ -1538,6 +1538,10 @@ public class Song : TaggableObject
 
         HashSet<string> isUserModified = [];
 
+        // Track each non-service user's net contribution per dance to enforce a ±1 cap.
+        // Batch and service accounts (batch*, tempo-bot) are exempt and may use any delta.
+        var userDanceContributions = new Dictionary<(string, string), int>();
+
         foreach (var prop in properties)
         {
             var bn = prop.BaseName;
@@ -1554,7 +1558,19 @@ public class Song : TaggableObject
                     break;
                 case DanceRatingField:
                     {
-                        var del = SoftUpdateDanceRating(prop.Value);
+                        var drd = new DanceRatingDelta(prop.Value);
+                        var isBatchUser = user == null || user.StartsWith("batch") || user == "tempo-bot";
+                        if (!isBatchUser)
+                        {
+                            var key = (user, drd.DanceId);
+                            userDanceContributions.TryGetValue(key, out var currentNet);
+                            var effectiveNet = Math.Clamp(currentNet + drd.Delta, -1, 1);
+                            var effectiveDelta = effectiveNet - currentNet;
+                            if (effectiveDelta == 0) break;
+                            userDanceContributions[key] = effectiveNet;
+                            drd = new DanceRatingDelta(drd.DanceId, effectiveDelta);
+                        }
+                        var del = SoftUpdateDanceRating(drd);
                         if (del != null)
                         {
                             drDelete.Add(del);

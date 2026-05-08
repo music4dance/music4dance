@@ -165,4 +165,170 @@ describe("Song", () => {
       expect(song.propLastSetBy(PropertyType.tempoField)).toBe("alice");
     });
   });
+
+  describe("dance rating per-user cap", () => {
+    function makeHistory(properties: SongProperty[]): SongHistory {
+      return new SongHistory({ id: "test", properties });
+    }
+
+    it("caps a pseudo user at +1 for the same dance (two votes)", () => {
+      const song = Song.fromHistory(
+        makeHistory([
+          new SongProperty({ name: ".Create", value: "" }),
+          new SongProperty({ name: "User", value: "ArthurMurrays|P" }),
+          new SongProperty({ name: "Time", value: "2024-01-01T00:00:00.000Z" }),
+          new SongProperty({ name: "Title", value: "Test Song" }),
+          new SongProperty({ name: "Artist", value: "Test Artist" }),
+          new SongProperty({ name: "DanceRating", value: "CHA+1" }),
+          new SongProperty({ name: "Tag+", value: "Cha Cha:Dance" }),
+          new SongProperty({ name: ".Edit", value: "" }),
+          new SongProperty({ name: "User", value: "ArthurMurrays|P" }),
+          new SongProperty({ name: "Time", value: "2024-02-01T00:00:00.000Z" }),
+          new SongProperty({ name: "DanceRating", value: "CHA+1" }),
+        ]),
+      );
+      expect(song.findDanceRatingById("CHA")?.weight).toBe(1);
+    });
+
+    it("caps a pseudo user at +1 for the same dance (three votes)", () => {
+      const song = Song.fromHistory(
+        makeHistory([
+          new SongProperty({ name: ".Create", value: "" }),
+          new SongProperty({ name: "User", value: "Studio|P" }),
+          new SongProperty({ name: "Time", value: "2024-01-01T00:00:00.000Z" }),
+          new SongProperty({ name: "Title", value: "Test Song" }),
+          new SongProperty({ name: "Artist", value: "Test Artist" }),
+          new SongProperty({ name: "DanceRating", value: "CHA+1" }),
+          new SongProperty({ name: "Tag+", value: "Cha Cha:Dance" }),
+          new SongProperty({ name: ".Edit", value: "" }),
+          new SongProperty({ name: "User", value: "Studio|P" }),
+          new SongProperty({ name: "Time", value: "2024-02-01T00:00:00.000Z" }),
+          new SongProperty({ name: "DanceRating", value: "CHA+1" }),
+          new SongProperty({ name: ".Edit", value: "" }),
+          new SongProperty({ name: "User", value: "Studio|P" }),
+          new SongProperty({ name: "Time", value: "2024-03-01T00:00:00.000Z" }),
+          new SongProperty({ name: "DanceRating", value: "CHA+1" }),
+        ]),
+      );
+      expect(song.findDanceRatingById("CHA")?.weight).toBe(1);
+    });
+
+    it("caps a real user at +1 for the same dance", () => {
+      const song = Song.fromHistory(
+        makeHistory([
+          new SongProperty({ name: ".Create", value: "" }),
+          new SongProperty({ name: "User", value: "alice" }),
+          new SongProperty({ name: "Time", value: "2024-01-01T00:00:00.000Z" }),
+          new SongProperty({ name: "Title", value: "Test Song" }),
+          new SongProperty({ name: "Artist", value: "Test Artist" }),
+          new SongProperty({ name: "DanceRating", value: "CHA+1" }),
+          new SongProperty({ name: "Tag+", value: "Cha Cha:Dance" }),
+          new SongProperty({ name: ".Edit", value: "" }),
+          new SongProperty({ name: "User", value: "alice" }),
+          new SongProperty({ name: "Time", value: "2024-02-01T00:00:00.000Z" }),
+          new SongProperty({ name: "DanceRating", value: "CHA+1" }),
+        ]),
+      );
+      expect(song.findDanceRatingById("CHA")?.weight).toBe(1);
+    });
+
+    it("allows two different users to each contribute +1", () => {
+      const song = Song.fromHistory(
+        makeHistory([
+          new SongProperty({ name: ".Create", value: "" }),
+          new SongProperty({ name: "User", value: "alice" }),
+          new SongProperty({ name: "Time", value: "2024-01-01T00:00:00.000Z" }),
+          new SongProperty({ name: "Title", value: "Test Song" }),
+          new SongProperty({ name: "Artist", value: "Test Artist" }),
+          new SongProperty({ name: "DanceRating", value: "CHA+1" }),
+          new SongProperty({ name: "Tag+", value: "Cha Cha:Dance" }),
+          new SongProperty({ name: ".Edit", value: "" }),
+          new SongProperty({ name: "User", value: "bob" }),
+          new SongProperty({ name: "Time", value: "2024-02-01T00:00:00.000Z" }),
+          new SongProperty({ name: "DanceRating", value: "CHA+1" }),
+        ]),
+      );
+      expect(song.findDanceRatingById("CHA")?.weight).toBe(2);
+    });
+
+    it("removes the dance when upvote is followed by downvote", () => {
+      const song = Song.fromHistory(
+        makeHistory([
+          new SongProperty({ name: ".Create", value: "" }),
+          new SongProperty({ name: "User", value: "alice" }),
+          new SongProperty({ name: "Time", value: "2024-01-01T00:00:00.000Z" }),
+          new SongProperty({ name: "Title", value: "Test Song" }),
+          new SongProperty({ name: "Artist", value: "Test Artist" }),
+          new SongProperty({ name: "DanceRating", value: "CHA+1" }),
+          new SongProperty({ name: "Tag+", value: "Cha Cha:Dance" }),
+          new SongProperty({ name: ".Edit", value: "" }),
+          new SongProperty({ name: "User", value: "alice" }),
+          new SongProperty({ name: "Time", value: "2024-02-01T00:00:00.000Z" }),
+          new SongProperty({ name: "DanceRating", value: "CHA-1" }),
+        ]),
+      );
+      expect(song.findDanceRatingById("CHA")).toBeUndefined();
+    });
+
+    it("allows up-down-up sequence resulting in net +1", () => {
+      const song = Song.fromHistory(
+        makeHistory([
+          new SongProperty({ name: ".Create", value: "" }),
+          new SongProperty({ name: "User", value: "alice" }),
+          new SongProperty({ name: "Time", value: "2024-01-01T00:00:00.000Z" }),
+          new SongProperty({ name: "Title", value: "Test Song" }),
+          new SongProperty({ name: "Artist", value: "Test Artist" }),
+          new SongProperty({ name: "DanceRating", value: "CHA+1" }),
+          new SongProperty({ name: "Tag+", value: "Cha Cha:Dance" }),
+          new SongProperty({ name: ".Edit", value: "" }),
+          new SongProperty({ name: "User", value: "alice" }),
+          new SongProperty({ name: "Time", value: "2024-02-01T00:00:00.000Z" }),
+          new SongProperty({ name: "DanceRating", value: "CHA-1" }),
+          new SongProperty({ name: ".Edit", value: "" }),
+          new SongProperty({ name: "User", value: "alice" }),
+          new SongProperty({ name: "Time", value: "2024-03-01T00:00:00.000Z" }),
+          new SongProperty({ name: "DanceRating", value: "CHA+1" }),
+          new SongProperty({ name: "Tag+", value: "Cha Cha:Dance" }),
+        ]),
+      );
+      expect(song.findDanceRatingById("CHA")?.weight).toBe(1);
+    });
+
+    it("does not cap batch user high-delta votes", () => {
+      const song = Song.fromHistory(
+        makeHistory([
+          new SongProperty({ name: ".Create", value: "" }),
+          new SongProperty({ name: "User", value: "batch" }),
+          new SongProperty({ name: "Time", value: "2024-01-01T00:00:00.000Z" }),
+          new SongProperty({ name: "Title", value: "Test Song" }),
+          new SongProperty({ name: "Artist", value: "Test Artist" }),
+          new SongProperty({ name: "DanceRating", value: "SFT+5" }),
+          new SongProperty({ name: "Tag+", value: "Slow Foxtrot:Dance" }),
+        ]),
+      );
+      expect(song.findDanceRatingById("SFT")?.weight).toBe(5);
+    });
+
+    it("applies cap per dance independently", () => {
+      const song = Song.fromHistory(
+        makeHistory([
+          new SongProperty({ name: ".Create", value: "" }),
+          new SongProperty({ name: "User", value: "Studio|P" }),
+          new SongProperty({ name: "Time", value: "2024-01-01T00:00:00.000Z" }),
+          new SongProperty({ name: "Title", value: "Test Song" }),
+          new SongProperty({ name: "Artist", value: "Test Artist" }),
+          new SongProperty({ name: "DanceRating", value: "CHA+1" }),
+          new SongProperty({ name: "DanceRating", value: "SLS+1" }),
+          new SongProperty({ name: "Tag+", value: "Cha Cha:Dance" }),
+          new SongProperty({ name: ".Edit", value: "" }),
+          new SongProperty({ name: "User", value: "Studio|P" }),
+          new SongProperty({ name: "Time", value: "2024-02-01T00:00:00.000Z" }),
+          new SongProperty({ name: "DanceRating", value: "CHA+1" }),
+          new SongProperty({ name: "DanceRating", value: "SLS+1" }),
+        ]),
+      );
+      expect(song.findDanceRatingById("CHA")?.weight).toBe(1);
+      expect(song.findDanceRatingById("SLS")?.weight).toBe(1);
+    });
+  });
 });
