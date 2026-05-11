@@ -330,5 +330,39 @@ describe("Song", () => {
       expect(song.findDanceRatingById("CHA")?.weight).toBe(1);
       expect(song.findDanceRatingById("SLS")?.weight).toBe(1);
     });
+
+    it("does not cap tempo-bot high-delta votes", () => {
+      const song = Song.fromHistory(
+        makeHistory([
+          new SongProperty({ name: ".Create", value: "" }),
+          new SongProperty({ name: "User", value: "tempo-bot" }),
+          new SongProperty({ name: "Time", value: "2024-01-01T00:00:00.000Z" }),
+          new SongProperty({ name: "Title", value: "Test Song" }),
+          new SongProperty({ name: "Artist", value: "Test Artist" }),
+          new SongProperty({ name: "DanceRating", value: "FXT+5" }),
+          new SongProperty({ name: "Tag+", value: "Slow Foxtrot:Dance" }),
+        ]),
+      );
+      expect(song.findDanceRatingById("FXT")?.weight).toBe(5);
+    });
+
+    it("does not cap tempo-bot repeated votes on the same dance", () => {
+      const song = Song.fromHistory(
+        makeHistory([
+          new SongProperty({ name: ".Create", value: "" }),
+          new SongProperty({ name: "User", value: "tempo-bot" }),
+          new SongProperty({ name: "Time", value: "2024-01-01T00:00:00.000Z" }),
+          new SongProperty({ name: "Title", value: "Test Song" }),
+          new SongProperty({ name: "Artist", value: "Test Artist" }),
+          new SongProperty({ name: "DanceRating", value: "FXT+3" }),
+          new SongProperty({ name: "Tag+", value: "Slow Foxtrot:Dance" }),
+          new SongProperty({ name: ".Edit", value: "" }),
+          new SongProperty({ name: "User", value: "tempo-bot" }),
+          new SongProperty({ name: "Time", value: "2024-02-01T00:00:00.000Z" }),
+          new SongProperty({ name: "DanceRating", value: "FXT+2" }),
+        ]),
+      );
+      expect(song.findDanceRatingById("FXT")?.weight).toBe(5);
+    });
   });
 });

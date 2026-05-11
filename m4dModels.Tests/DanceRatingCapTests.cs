@@ -136,4 +136,51 @@ public class DanceRatingCapTests
         Assert.AreEqual(1, chaRating.Weight, "CHA should be capped at 1");
         Assert.AreEqual(1, slsRating.Weight, "SLS should be capped at 1");
     }
+
+    [TestMethod]
+    public async Task TempoBot_HighDeltaVote_NotCapped()
+    {
+        // tempo-bot is a service account and must be exempt from the ±1 cap
+        var dms = await GetService("TempoBot");
+        var song = await Song.Create(
+            ".Create=\tUser=tempo-bot\tTime=01/01/2024 10:00:00 AM\tTitle=Test Song\tArtist=Test Artist\tDanceRating=FXT+5\tTag+=Slow Foxtrot:Dance",
+            dms);
+
+        var rating = song.FindRating("FXT");
+        Assert.IsNotNull(rating, "Dance rating should exist");
+        Assert.AreEqual(5, rating.Weight, "tempo-bot high-delta vote should not be capped");
+    }
+
+    [TestMethod]
+    public async Task TempoBot_RepeatedVotesSameDance_NotCapped()
+    {
+        // tempo-bot voting the same dance twice should accumulate freely
+        var dms = await GetService("TempoBotRepeat");
+        var song = await Song.Create(
+            ".Create=\tUser=tempo-bot\tTime=01/01/2024 10:00:00 AM\tTitle=Test Song\tArtist=Test Artist\tDanceRating=FXT+3\tTag+=Slow Foxtrot:Dance\t" +
+            ".Edit=\tUser=tempo-bot\tTime=02/01/2024 10:00:00 AM\tDanceRating=FXT+2",
+            dms);
+
+        var rating = song.FindRating("FXT");
+        Assert.IsNotNull(rating, "Dance rating should exist");
+        Assert.AreEqual(5, rating.Weight, "tempo-bot repeated votes should accumulate without cap");
+    }
+
+    [TestMethod]
+    public async Task SetRatingsFromProperties_EnforcesSameCap()
+    {
+        // SetRatingsFromProperties should apply the same ±1 cap as LoadProperties
+        var dms = await GetService("SetRatings");
+        var song = await Song.Create(
+            ".Create=\tUser=alice\tTime=01/01/2024 10:00:00 AM\tTitle=Test Song\tArtist=Test Artist\tDanceRating=CHA+1\tTag+=Cha Cha:Dance\t" +
+            ".Edit=\tUser=alice\tTime=02/01/2024 10:00:00 AM\tDanceRating=CHA+1",
+            dms);
+
+        // Simulate a recalculation (e.g. the dbAdmin UpdateRatings action)
+        song.SetRatingsFromProperties();
+
+        var rating = song.FindRating("CHA");
+        Assert.IsNotNull(rating, "Dance rating should exist after recalculation");
+        Assert.AreEqual(1, rating.Weight, "SetRatingsFromProperties should also cap at 1");
+    }
 }

@@ -1559,21 +1559,13 @@ public class Song : TaggableObject
                 case DanceRatingField:
                     {
                         var drd = new DanceRatingDelta(prop.Value);
-                        var isBatchUser = user == null || user.StartsWith("batch") || user == "tempo-bot";
-                        if (!isBatchUser)
+                        if (TryGetCappedDelta(drd, user, userDanceContributions, out var effective))
                         {
-                            var key = (user, drd.DanceId);
-                            userDanceContributions.TryGetValue(key, out var currentNet);
-                            var effectiveNet = Math.Clamp(currentNet + drd.Delta, -1, 1);
-                            var effectiveDelta = effectiveNet - currentNet;
-                            if (effectiveDelta == 0) break;
-                            userDanceContributions[key] = effectiveNet;
-                            drd = new DanceRatingDelta(drd.DanceId, effectiveDelta);
-                        }
-                        var del = SoftUpdateDanceRating(drd);
-                        if (del != null)
-                        {
-                            drDelete.Add(del);
+                            var del = SoftUpdateDanceRating(effective);
+                            if (del != null)
+                            {
+                                drDelete.Add(del);
+                            }
                         }
                     }
                     break;
@@ -4090,14 +4082,68 @@ public class Song : TaggableObject
             dr.Weight = 0;
         }
 
-        foreach (var prop in SongProperties.Where(p => p.Name == DanceRatingField))
+        // Replay the property log, tracking user context so the same ±1 per-user cap
+        // applied during LoadProperties is also enforced here.
+        var userDanceContributions = new Dictionary<(string, string), int>();
+        string user = null;
+
+        foreach (var prop in SongProperties)
         {
-            var rating = SoftUpdateDanceRating(prop.Value);
-            if (rating != null)
+            switch (prop.BaseName)
             {
-                _ = DanceRatings.Remove(rating);
+                case UserField:
+                case UserProxy:
+                    user = new ModifiedRecord(prop.Value).UserName;
+                    break;
+                case DanceRatingField:
+                {
+                    var drd = new DanceRatingDelta(prop.Value);
+                    if (TryGetCappedDelta(drd, user, userDanceContributions, out var effective))
+                    {
+                        var rating = SoftUpdateDanceRating(effective);
+                        if (rating != null)
+                        {
+                            _ = DanceRatings.Remove(rating);
+                        }
+                    }
+                    break;
+                }
             }
         }
+    }
+
+    /// <summary>
+    /// Applies the per-user ±1 vote cap for a dance rating delta.
+    /// Returns <c>false</c> (and sets <paramref name="effective"/> to <c>null</c>) when the
+    /// delta is entirely absorbed by the cap and should not be applied at all.
+    /// Batch and service accounts (<c>batch*</c>, <c>tempo-bot</c>) are exempt from the cap.
+    /// </summary>
+    private static bool TryGetCappedDelta(
+        DanceRatingDelta drd,
+        string user,
+        Dictionary<(string, string), int> contributions,
+        out DanceRatingDelta effective)
+    {
+        var isBatchUser = user == null || user.StartsWith("batch") || user == "tempo-bot";
+        if (isBatchUser)
+        {
+            effective = drd;
+            return true;
+        }
+
+        var key = (user, drd.DanceId);
+        contributions.TryGetValue(key, out var currentNet);
+        var effectiveNet = Math.Clamp(currentNet + drd.Delta, -1, 1);
+        var effectiveDelta = effectiveNet - currentNet;
+        if (effectiveDelta == 0)
+        {
+            effective = null;
+            return false;
+        }
+
+        contributions[key] = effectiveNet;
+        effective = new DanceRatingDelta(drd.DanceId, effectiveDelta);
+        return true;
     }
 
     public static string TagsFromDances(IEnumerable<string> dances)

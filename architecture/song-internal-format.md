@@ -138,9 +138,9 @@ object, not to the song's global tag list.
 
 ### 3.3 Dance Rating Fields
 
-| Name          | Value format | Meaning        |
-| ------------- | ------------ | -------------- | --------------------------------------------------- |
-| `DanceRating` | `{DanceId}{+ | -}{magnitude}` | Vote for/against a dance. Example: `CHA+1`, `FXT-1` |
+| Name          | Value format                 | Meaning                                             |
+| ------------- | ---------------------------- | --------------------------------------------------- |
+| `DanceRating` | `{DanceId}{+\|-}{magnitude}` | Vote for/against a dance. Example: `CHA+1`, `FXT-1` |
 
 Each `DanceRating` property is a **delta**: positive = vote for, negative = vote against. Deltas
 accumulate; the net `Weight` on the `DanceRating` computed object is their sum. A dance rating
@@ -361,9 +361,9 @@ Replaying the property log produces the `Song` object:
 `ModifiedRecord` accumulates per-user metadata across all edit blocks attributed to that user:
 
 | Field       | Set by                        | Meaning                                              |
-| ----------- | ----------------------------- | ---------------------------------------------------- | ---------------------------- |
+| ----------- | ----------------------------- | ---------------------------------------------------- |
 | `UserName`  | `User` property               | Canonical username                                   |
-| `IsPseudo`  | `                             | P` suffix                                            | Whether this is a proxy user |
+| `IsPseudo`  | `\|P` suffix on `User` value  | Whether this is a proxy/pseudo user                  |
 | `Owned`     | `OwnerHash` property          | Whether (and which) local file is owned by this user |
 | `Like`      | `Like` property               | The user's like/dislike flag                         |
 | `IsCreator` | Position in `ModifiedBy` list | `true` for the first entry (original creator)        |
@@ -406,15 +406,15 @@ groups properties into `SongChange` objects that represent one edit block each.
 
 ### 8.1 `SongChange`
 
-| Field           | Meaning                                                   |
-| --------------- | --------------------------------------------------------- | ------------------------------------ |
-| `action`        | The command name (without `.`), e.g. `"Create"`, `"Edit"` |
-| `user`          | Decorated username (with `                                | P` if pseudo)                        |
-| `date`          | Block timestamp                                           |
-| `properties`    | Payload properties (excludes command, user, time)         |
-| `isBatch`       | `user === "batch\|P"` or `user.startsWith("batch-")`      |
-| `isPseudo`      | `user` contains `                                         | [p]`in the`UserQuery` representation |
-| `isAlgorithmic` | `user` is one of the known service/bot names              |
+| Field           | Meaning                                                                     |
+| --------------- | --------------------------------------------------------------------------- |
+| `action`        | The command name (without `.`), e.g. `"Create"`, `"Edit"`                   |
+| `user`          | Decorated username (e.g. `"alice"` or `"ArthurMurrays\|P"` if pseudo)       |
+| `date`          | Block timestamp                                                             |
+| `properties`    | Payload properties (excludes command, user, time)                           |
+| `isBatch`       | `true` when `user === "batch\|P"` or `user.startsWith("batch-")`            |
+| `isPseudo`      | `true` when the user value contains `\|P` (pseudo/proxy account)            |
+| `isAlgorithmic` | `true` when `user` is one of the known service/bot names (`tempo-bot` etc.) |
 
 ### 8.2 History Filters
 
