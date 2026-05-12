@@ -223,9 +223,10 @@ Place it in the "Dances" dropdown alongside the existing entries (Ballroom, Swin
 
 ### Step 6 — Update test data (if writing tests for the new dance)
 
-Two test data files mirror the structure of `dances.json` and `dancegroups.json`:
+Three pairs of test data files mirror the production `dances.json` and `dancegroups.json`:
 
 - `DanceTests/TestData/test-dances.json`
+- `DanceTests/TestData/test-groups.json`
 - `m4dModels.Tests/TestData/test-dances.json`
 - `m4dModels.Tests/TestData/test-groups.json`
 

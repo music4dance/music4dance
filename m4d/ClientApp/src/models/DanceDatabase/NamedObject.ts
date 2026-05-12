@@ -20,7 +20,7 @@ export class NamedObject extends SerializableObject {
   }
 
   public get displayName(): string {
-    return this.hasSynonyms ? `${this.name} (${this.synonyms?.join(",")})` : this.name;
+    return this.hasSynonyms ? `${this.name} (${this.synonyms?.join(", ")})` : this.name;
   }
 
   @jsonMember(String) public description?: string;
