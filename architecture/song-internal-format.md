@@ -356,6 +356,27 @@ Replaying the property log produces the `Song` object:
 - Dance-scoped tags (`Tag+:CHA=International:Style`) are stored on the `DanceRating` object for
   `CHA`, not on the song-level `TagSummary`.
 
+#### Per-User ±1 Net Vote Cap
+
+When replaying the log, a **±1 net cap** is enforced per (user, dance) pair for all non-batch
+users — this includes both real users and pseudo (`|P`) users. The cap prevents any single user
+from contributing more than ±1 net to a dance's `Weight`.
+
+**Exempt from the cap** (may accumulate any magnitude):
+
+- Usernames starting with `batch` (bulk import accounts)
+- `tempo-bot` (algorithmic tempo service)
+- Null user (legacy/system records with no attributed author)
+
+**Effect on raw property values**: The raw `SongProperties` log stores deltas exactly as written
+(e.g., a raw value of `CHA+2` is possible if a user downvoted then upvoted the same dance,
+producing intermediate deltas of `-1, +1, +1` in the log). The cap applies only during
+computation of the in-memory `DanceRatings` list, not to the stored log entries.
+
+**Why this matters for serialization**: When two rows with the same title/artist are merged via
+`MergeRow`, the merge reads from the computed `DanceRatings` (cap-applied) rather than raw
+properties. Serialized output from a merged song therefore reflects capped values.
+
 ### 6.2 `ModifiedRecord` and Ownership
 
 `ModifiedRecord` accumulates per-user metadata across all edit blocks attributed to that user:
