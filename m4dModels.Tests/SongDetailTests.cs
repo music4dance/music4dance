@@ -96,7 +96,7 @@ public class SongDetailTests
     [
         @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=English:Other|Foxtrot:Dance|Pop:Music|Rock:Music	DanceRating=FXT+5	Title=Glam	Tempo=120.0	Length=200	Artist=Dimie Cat	Tag+:FXT=David:Other|Goliath:Other|Traditional:Style",
         @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Samba:Dance|Spanish:Other	DanceRating=SMB+3	Title=Drop It On Me (Ft Daddy Yankee)	Tempo=100.0	Length=234	Artist=Ricky Martin",
-        @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Cha Cha:Dance|Mambo:Dance|Salsa:Dance	DanceRating=MBO+4	DanceRating=SLS+4	Title=Bailemos Otra Vez	Tempo=195.0	Artist=Jose Alberto El Canario	Tag+:MBO=Traditional:Style	Tag+:SLS=Traditional:Style	Length=308	DanceRating=CHA+3"
+        @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Tag+=Cha Cha:Dance|Mambo:Dance|Salsa:Dance	DanceRating=MBO+4	DanceRating=SLS+4	Title=Bailemos Otra Vez	Tempo=195.0	Artist=Jose Alberto El Canario	Tag+:MBO=Traditional:Style	Tag+:SLS=Traditional:Style	Length=308	DanceRating=CHA+1"
     ];
 
     private static readonly string[] StarsRows =

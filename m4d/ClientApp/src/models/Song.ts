@@ -301,6 +301,10 @@ export class Song extends TaggableObject {
     let deleted = false;
     let pseudo = false;
 
+    // Track each non-service user's net contribution per dance to enforce a ±1 cap.
+    // Batch and service accounts (batch*, tempo-bot) are exempt and may use any delta.
+    const userDanceContributions = new Map<string, number>();
+
     properties.forEach((property) => {
       const baseName = property.baseName;
 
@@ -311,9 +315,24 @@ export class Song extends TaggableObject {
           currentModified = this.addModified(user, creator);
           pseudo = currentModified.isPseudo;
           break;
-        case PropertyType.danceRatingField:
-          this.addDanceRating(property.value);
+        case PropertyType.danceRatingField: {
+          const drd = DanceRatingDelta.fromString(property.value);
+          const userName = currentModified?.userName;
+          const isBatchUser = !userName || userName.startsWith("batch") || userName === "tempo-bot";
+          if (!isBatchUser) {
+            const key = `${userName}:${drd.danceId}`;
+            const currentNet = userDanceContributions.get(key) ?? 0;
+            const effectiveNet = Math.max(-1, Math.min(1, currentNet + drd.delta));
+            const effectiveDelta = effectiveNet - currentNet;
+            if (effectiveDelta !== 0) {
+              userDanceContributions.set(key, effectiveNet);
+              this.addDanceRating(effectiveDelta, drd.danceId);
+            }
+          } else {
+            this.addDanceRating(drd.delta, drd.danceId);
+          }
           break;
+        }
         case PropertyType.addedTags:
           {
             const toAdd = this.getTaggableObject(property);
@@ -438,20 +457,19 @@ export class Song extends TaggableObject {
     return record;
   }
 
-  private addDanceRating(value: string): void {
-    const drd = DanceRatingDelta.fromString(value);
+  private addDanceRating(delta: number, danceId: string): void {
     const ratings = this.danceRatings ?? [];
-    const idx = ratings.findIndex((r) => r.id === drd.danceId);
+    const idx = ratings.findIndex((r) => r.id === danceId);
     if (idx != -1) {
       const dr = ratings[idx];
       if (dr) {
-        dr.weight += drd.delta;
+        dr.weight += delta;
         if (dr.weight <= 0) {
           ratings.splice(idx, 1);
         }
       }
-    } else if (drd.delta > 0) {
-      const dr = new DanceRating({ danceId: drd.danceId, weight: drd.delta });
+    } else if (delta > 0) {
+      const dr = new DanceRating({ danceId, weight: delta });
       if (this.danceRatings) {
         this.danceRatings.push(dr);
       } else {
