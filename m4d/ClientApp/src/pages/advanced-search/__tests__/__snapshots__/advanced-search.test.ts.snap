@@ -105,6 +105,7 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Paso Doble</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Polka</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Performance</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Pattern (Line Dance,Choreographed Partner Dance,Sequence Dance)</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Quickstep</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Slow Foxtrot (Foxtrot)</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Salsa</button></li>
