@@ -356,11 +356,11 @@
       "denominator": 4
     },
     "blogTag": "cha-cha",
-    "searchonyms": [ "cha-cha", "cha cha cha" ],
+    "searchonyms": ["cha-cha", "cha cha cha"],
     "instances": [
       {
         "style": "American Rhythm",
-        "organizations": [ "DanceSport", "NDCA" ],
+        "organizations": ["DanceSport", "NDCA"],
         "tempoRange": {
           "min": 120.0,
           "max": 120.0
@@ -370,7 +370,7 @@
       },
       {
         "style": "International Latin",
-        "organizations": [ "DanceSport", "NDCA" ],
+        "organizations": ["DanceSport", "NDCA"],
         "tempoRange": {
           "min": 120.0,
           "max": 128.0
@@ -389,7 +389,7 @@
       },
       {
         "style": "Country",
-        "organizations": [ "UCWDC", "WORLDCDF", "ACDA" ],
+        "organizations": ["UCWDC", "WORLDCDF", "ACDA"],
         "tempoRange": {
           "min": 100.0,
           "max": 120.0
@@ -921,12 +921,12 @@
       "numerator": 4,
       "denominator": 4
     },
-    "searchonyms": [ "club two step" ],
-    "synonyms": [ "Night Club" ],
+    "searchonyms": ["club two step"],
+    "synonyms": ["Night Club"],
     "instances": [
       {
         "style": "American Rhythm",
-        "organizations": [ "NDCA" ],
+        "organizations": ["NDCA"],
         "tempoRange": {
           "min": 72.0,
           "max": 80.0
@@ -942,7 +942,7 @@
       },
       {
         "style": "Country",
-        "organizations": [ "UCWDC", "WORLDCDF", "ACDA" ],
+        "organizations": ["UCWDC", "WORLDCDF", "ACDA"],
         "tempoRange": {
           "min": 54.0,
           "max": 64.0
@@ -976,7 +976,7 @@
       "denominator": 4
     },
     "blogTag": "country-two-step",
-    "synonyms": [ "Two Step" ],
+    "synonyms": ["Two Step"],
     "instances": [
       {
         "style": "Social",
@@ -987,7 +987,7 @@
       },
       {
         "style": "Country",
-        "organizations": ["UCWDC", "WORLDCDF", "ACDA" ],
+        "organizations": ["UCWDC", "WORLDCDF", "ACDA"],
         "tempoRange": {
           "min": 85.0,
           "max": 192.0
@@ -1486,6 +1486,17 @@
         }
       }
     ]
+  },
+  {
+    "id": "PTN",
+    "name": "Pattern",
+    "meter": { "numerator": 1, "denominator": 1 },
+    "synonyms": ["Line Dance", "Choreographed Partner Dance", "Sequence Dance"],
+    "instances": [
+      {
+        "style": "Social",
+        "tempoRange": { "min": 1.0, "max": 500.0 }
+      }
+    ]
   }
 ]
-

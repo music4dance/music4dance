@@ -84,15 +84,15 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Cross-step Waltz</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Country</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Disco</button></li>
-                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">East Coast Swing (Triple Swing,East Coast)</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">East Coast Swing (Triple Swing, East Coast)</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Freestyle</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Foxtrot</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Hip-Hop</button></li>
-                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Hustle (Street Swing,Disco Fox)</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Hustle (Street Swing, Disco Fox)</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Jazz</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Jive</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Jump Swing</button></li>
-                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Lindy Hop (Swing,Jitterbug)</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Lindy Hop (Swing, Jitterbug)</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Latin</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Mambo</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Milonga</button></li>
@@ -105,11 +105,12 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Paso Doble</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Polka</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Performance</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Pattern (Line Dance, Choreographed Partner Dance, Sequence Dance)</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Quickstep</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Slow Foxtrot (Foxtrot)</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Salsa</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Samba</button></li>
-                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Single Swing (Single-time Swing,East Coast Single Swing,Jitterbug)</button></li>
+                          <li role="presentation"><button role="menu" type="button" class="dropdown-item">Single Swing (Single-time Swing, East Coast Single Swing, Jitterbug)</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Swing</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Slow Waltz (Waltz)</button></li>
                           <li role="presentation"><button role="menu" type="button" class="dropdown-item">Tap</button></li>
