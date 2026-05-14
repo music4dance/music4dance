@@ -434,11 +434,11 @@ public class DanceMusicController(
     {
         if (danceEnvironment)
         {
-            ViewData["DanceEnvironment"] = Database.DanceStats.GetJsonDanceEnvironment();
+            ViewData["DanceEnvironment"] = Database.DanceStats?.GetJsonDanceEnvironment();
         }
         if (tagDatabase)
         {
-            ViewData["TagDatabase"] = Database.DanceStats.GetJsonTagDatabse();
+            ViewData["TagDatabase"] = Database.DanceStats?.GetJsonTagDatabse();
         }
     }
 
@@ -446,22 +446,31 @@ public class DanceMusicController(
     {
         if (danceEnvironment)
         {
-            if (s_danceDatabaseCache == null)
+            string danceData = s_danceDatabaseCache;
+            if (danceData == null)
             {
+                var danceStats = Database.DanceStats;
                 var dancesJson = ReadJsonFile(fileProvider, "dances");
                 var groupsJson = ReadJsonFile(fileProvider, "danceGroups");
-                var metricsJson = JArray.FromObject(Database.DanceStats.GetMetrics().Values, CamelCaseSerializer);
+                var metricsJson = danceStats != null
+                    ? JArray.FromObject(danceStats.GetMetrics().Values, CamelCaseSerializer)
+                    : new JArray();
                 var library = new JObject(
                     new JProperty("dances", dancesJson),
                     new JProperty("groups", groupsJson),
                     new JProperty("metrics", metricsJson));
-                s_danceDatabaseCache = library.ToString();
+                danceData = library.ToString();
+                // Only cache when DanceStats is available; retry next request if degraded
+                if (danceStats != null)
+                {
+                    s_danceDatabaseCache = danceData;
+                }
             }
-            ViewData["DanceDatabase"] = s_danceDatabaseCache;
+            ViewData["DanceDatabase"] = danceData;
         }
         if (tagDatabase)
         {
-            s_tagDatabaseCache ??= Database.DanceStats.GetJsonTagDatabse();
+            s_tagDatabaseCache ??= Database.DanceStats?.GetJsonTagDatabse();
             ViewData["TagDatabase"] = s_tagDatabaseCache;
         }
     }
