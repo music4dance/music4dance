@@ -24,6 +24,8 @@ using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.FeatureManagement;
 
+using Microsoft.Data.SqlClient;
+
 using Newtonsoft.Json.Serialization;
 
 using Owl.reCAPTCHA;
@@ -457,6 +459,29 @@ services.ConfigureApplicationCookie(
         options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
         options.SlidingExpiration = true;
     });
+
+// Wrap SecurityStampValidator to prevent DB exceptions from crashing the error-handler pipeline.
+// When DB is unavailable, AuthenticationMiddleware hits the DB to validate the security stamp
+// on EVERY request including the /Error path - causing a double-fault that prevents the
+// "Database Unavailable" page from rendering. Skip stamp validation instead of throwing.
+services.PostConfigure<CookieAuthenticationOptions>(IdentityConstants.ApplicationScheme, options =>
+{
+    var originalHandler = options.Events.OnValidatePrincipal;
+    options.Events.OnValidatePrincipal = async context =>
+    {
+        if (originalHandler == null)
+            return;
+        try
+        {
+            await originalHandler(context);
+        }
+        catch (Exception ex) when (ex is SqlException || ex.InnerException is SqlException)
+        {
+            // DB unavailable: skip security stamp validation so the error page can render.
+            // The user stays authenticated until the DB recovers and validation succeeds.
+        }
+    };
+});
 
 services.Configure<PasswordHasherOptions>(
     option =>
