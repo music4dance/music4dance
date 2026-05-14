@@ -139,6 +139,28 @@ else if (builder.Configuration.GetValue<bool>("PROD_DB") && !builder.Environment
     Console.WriteLine("[Database] WARNING: PROD_DB is set but ignored outside Development environment");
 }
 
+// When TEST_DB is set in Development, override connection string from TestConnectionString
+// (stored in user secrets via: dotnet user-secrets set TestConnectionString "<connection-string>")
+var useTestDb = builder.Configuration.GetValue<bool>("TEST_DB") && builder.Environment.IsDevelopment();
+if (useTestDb)
+{
+    var testConnectionString = builder.Configuration["TestConnectionString"];
+    if (!string.IsNullOrEmpty(testConnectionString))
+    {
+        connectionString = testConnectionString;
+        Console.WriteLine("[Database] TEST_DB mode: Using TestConnectionString from user secrets");
+    }
+    else
+    {
+        Console.WriteLine("[Database] WARNING: TEST_DB is set but TestConnectionString is not configured");
+        Console.WriteLine("[Database] Set it via: dotnet user-secrets set TestConnectionString \"Server=<server>.database.windows.net,1433;Initial Catalog=<db>;Authentication=Active Directory Interactive;Encrypt=True;TrustServerCertificate=False\"");
+    }
+}
+else if (builder.Configuration.GetValue<bool>("TEST_DB") && !builder.Environment.IsDevelopment())
+{
+    Console.WriteLine("[Database] WARNING: TEST_DB is set but ignored outside Development environment");
+}
+
 var services = builder.Services;
 var environment = builder.Environment;
 var configuration = builder.Configuration;
@@ -846,6 +868,12 @@ _ = Task.Run(async () =>
     if (useProdDb)
     {
         Console.WriteLine("Skipping database migrations and seed data - PROD_DB is set");
+        return;
+    }
+
+    if (useTestDb)
+    {
+        Console.WriteLine("Skipping database migrations and seed data - TEST_DB is set");
         return;
     }
 

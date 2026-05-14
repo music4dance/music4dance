@@ -1731,8 +1731,16 @@ public class AdminController(
             _ = context.Database.EnsureDeleted();
         }
 
-        Logger.LogInformation($"Migrating to {targetMigration}");
-        migrator.Migrate(targetMigration);
+        var useCloudDb = Configuration.GetValue<bool>("PROD_DB") || Configuration.GetValue<bool>("TEST_DB");
+        if (useCloudDb)
+        {
+            Logger.LogInformation("Skipping migrations - PROD_DB or TEST_DB is set (schema managed by deployment pipeline)");
+        }
+        else
+        {
+            Logger.LogInformation($"Migrating to {targetMigration}");
+            migrator.Migrate(targetMigration);
+        }
 
         await ReseedDb(userManager, roleManager);
 

@@ -18,6 +18,8 @@ export interface MenuContextInterface {
   isLocal?: boolean;
   isTest?: boolean;
   isProduction?: boolean;
+  isTestDb?: boolean;
+  isProdDb?: boolean;
   searchHealthy?: boolean;
   databaseHealthy?: boolean;
   configurationHealthy?: boolean;
@@ -46,6 +48,8 @@ export class MenuContext implements MenuContextInterface {
   public customerReminder?: boolean;
   public marketingMessage?: string;
   public xsrfToken?: string;
+  public isTestDb?: boolean;
+  public isProdDb?: boolean;
   public searchHealthy?: boolean;
   public databaseHealthy?: boolean;
   public configurationHealthy?: boolean;

@@ -37,6 +37,8 @@
     var expiration = noWarnings ? null : userMetadata.Expiration;
     var started = userMetadata.Started;
     var searchIndex = _searchService.GetInfo().Abbr + (_searchService.NextVersion ? "n" : "");
+    var isTestDb = _configuration.GetValue<bool>("TEST_DB");
+    var isProdDb = _configuration.GetValue<bool>("PROD_DB");
     var hasIcons = ViewData.TryGetValue("HasIcons", out var hasIconsObj) && (hasIconsObj as bool?).Value;
     var styleModifier = hasIcons ? "wicons" : "";
     var styleSheet = ViewData.ContainsKey("NoSiteCss") ? null : $"/css/site{styleModifier}.css";
@@ -118,6 +120,8 @@
         userId: '@userId',
         roles: @Html.Raw(JsonConvert.SerializeObject(userMetadata.Roles)),
         indexId: '@searchIndex',
+        isTestDb: @(isTestDb.ToString().ToLower()),
+        isProdDb: @(isProdDb.ToString().ToLower()),
         expiration: @Html.Raw(string.IsNullOrWhiteSpace(expiration) ? "undefined" : $"new Date('{expiration}')"),
         started: @Html.Raw(string.IsNullOrWhiteSpace(started) ? "undefined" : $"new Date('{started}')"),
         hitCount: @userMetadata.HitCount,
