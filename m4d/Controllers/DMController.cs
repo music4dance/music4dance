@@ -438,7 +438,7 @@ public class DanceMusicController(
         }
         if (tagDatabase)
         {
-            ViewData["TagDatabase"] = Database.DanceStats?.GetJsonTagDatabse();
+            ViewData["TagDatabase"] = Database.DanceStats?.GetJsonTagDatabse() ?? "[]";
         }
     }
 
@@ -470,8 +470,18 @@ public class DanceMusicController(
         }
         if (tagDatabase)
         {
-            s_tagDatabaseCache ??= Database.DanceStats?.GetJsonTagDatabse();
-            ViewData["TagDatabase"] = s_tagDatabaseCache;
+            string tagData = s_tagDatabaseCache;
+            if (tagData == null)
+            {
+                var danceStatsForTags = Database.DanceStats;
+                tagData = danceStatsForTags?.GetJsonTagDatabse() ?? "[]";
+                // Only cache when DanceStats is available; retry next request if degraded
+                if (danceStatsForTags != null)
+                {
+                    s_tagDatabaseCache = tagData;
+                }
+            }
+            ViewData["TagDatabase"] = tagData;
         }
     }
 
