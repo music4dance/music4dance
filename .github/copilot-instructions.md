@@ -6,6 +6,16 @@ music4dance.net is a sophisticated web application designed to help dancers find
 
 **Core Mission**: Match music to dance styles based on meter, tempo, and competitive ballroom dance requirements established by World Dance Council and National Dance Council of America.
 
+## Local Working Directory
+
+A `local/` directory exists at the project root for ephemeral working files that should never be committed:
+
+- Customer-supplied files (e.g., spreadsheets, TSV imports)
+- PR descriptions and summaries in progress
+- Intermediate working documents, scratch notes, and analysis files
+
+The directory itself is tracked (via `local/.gitkeep`) but its contents are gitignored. **Default to placing any working or temporary files here** rather than in the project root or `architecture/`.
+
 ## Documentation Guidelines
 
 **Architecture Documents:**
