@@ -464,6 +464,13 @@ services.ConfigureApplicationCookie(
 // When DB is unavailable, AuthenticationMiddleware hits the DB to validate the security stamp
 // on EVERY request including the /Error path - causing a double-fault that prevents the
 // "Database Unavailable" page from rendering. Skip stamp validation instead of throwing.
+static bool ContainsSqlException(Exception ex)
+{
+    for (var e = ex; e != null; e = e.InnerException)
+        if (e is SqlException) return true;
+    return false;
+}
+
 services.PostConfigure<CookieAuthenticationOptions>(IdentityConstants.ApplicationScheme, options =>
 {
     var originalHandler = options.Events.OnValidatePrincipal;
@@ -475,7 +482,7 @@ services.PostConfigure<CookieAuthenticationOptions>(IdentityConstants.Applicatio
         {
             await originalHandler(context);
         }
-        catch (Exception ex) when (ex is SqlException || ex.InnerException is SqlException)
+        catch (Exception ex) when (ContainsSqlException(ex))
         {
             // DB unavailable: skip security stamp validation so the error page can render.
             // The user stays authenticated until the DB recovers and validation succeeds.
