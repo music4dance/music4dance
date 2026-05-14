@@ -115,7 +115,9 @@ const marketing = ref(!sessionStorage.getItem(marketingTag));
 
 const songIndex = computed(() => {
   const context = props.context;
-  return context.isAdmin && context.indexId ? ` (${context.indexId})` : "";
+  if (!context.isAdmin || !context.indexId) return "";
+  const dbSuffix = context.isProdDb ? " prd" : context.isTestDb ? " tst" : "";
+  return ` (${context.indexId}${dbSuffix})`;
 });
 
 const helpLink = computed(() => {
