@@ -141,20 +141,19 @@ else if (builder.Configuration.GetValue<bool>("PROD_DB") && !builder.Environment
 
 // When TEST_DB is set in Development, override connection string from TestConnectionString
 // (stored in user secrets via: dotnet user-secrets set TestConnectionString "<connection-string>")
-var useTestDb = builder.Configuration.GetValue<bool>("TEST_DB") && builder.Environment.IsDevelopment();
+var testDbRequested = builder.Configuration.GetValue<bool>("TEST_DB") && builder.Environment.IsDevelopment();
+var testConnectionString = builder.Configuration["TestConnectionString"];
+var useTestDb = testDbRequested && !string.IsNullOrEmpty(testConnectionString);
 if (useTestDb)
 {
-    var testConnectionString = builder.Configuration["TestConnectionString"];
-    if (!string.IsNullOrEmpty(testConnectionString))
-    {
-        connectionString = testConnectionString;
-        Console.WriteLine("[Database] TEST_DB mode: Using TestConnectionString from user secrets");
-    }
-    else
-    {
-        Console.WriteLine("[Database] WARNING: TEST_DB is set but TestConnectionString is not configured");
-        Console.WriteLine("[Database] Set it via: dotnet user-secrets set TestConnectionString \"Server=<server>.database.windows.net,1433;Initial Catalog=<db>;Authentication=Active Directory Interactive;Encrypt=True;TrustServerCertificate=False\"");
-    }
+    connectionString = testConnectionString;
+    Console.WriteLine("[Database] TEST_DB mode: Using TestConnectionString from user secrets");
+}
+else if (testDbRequested)
+{
+    Console.WriteLine("[Database] WARNING: TEST_DB is set but TestConnectionString is not configured");
+    Console.WriteLine("[Database] TEST_DB mode has been disabled; using the normal connection string instead");
+    Console.WriteLine("[Database] Set it via: dotnet user-secrets set TestConnectionString \"Server=<server>.database.windows.net,1433;Initial Catalog=<db>;Authentication=Active Directory Interactive;Encrypt=True;TrustServerCertificate=False\"");
 }
 else if (builder.Configuration.GetValue<bool>("TEST_DB") && !builder.Environment.IsDevelopment())
 {
