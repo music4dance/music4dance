@@ -54,6 +54,10 @@
       "yarn vitest": true,
       "Tee-Object": true,
       "New-Item": true,
+      "/^& C:\\\\Projects\\\\music4dance\\\\scripts\\\\prepare-line-dance-upload\\.ps1$/": {
+        "approve": true,
+        "matchCommandLine": true,
+      },
     },
   },
   "extensions": {
