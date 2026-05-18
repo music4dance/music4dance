@@ -17,4 +17,10 @@ public class LocalMerger
     public Song Right { get; set; }
     public bool Conflict { get; set; }
     public MatchType MatchType { get; set; }
+
+    /// <summary>
+    /// 1-based row number in the original upload file (1 = header, so data starts at 2).
+    /// Zero if not set.
+    /// </summary>
+    public int OriginalRow { get; set; }
 }

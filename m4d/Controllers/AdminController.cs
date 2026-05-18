@@ -1135,6 +1135,15 @@ public class AdminController(
 
         IList<string> lines = null;
 
+        var userExplicit = !string.IsNullOrWhiteSpace(user);
+        if (!userExplicit)
+        {
+            // No explicit user supplied — fall back to the currently logged-in admin.
+            // If the upload data contains a USER column, we'll override attribution
+            // below after parsing the songs.
+            user = User.Identity?.Name;
+        }
+
         if (string.IsNullOrWhiteSpace(user))
         {
             throw new ArgumentNullException(
@@ -1250,6 +1259,21 @@ public class AdminController(
             }
         }
 
+        // If the form's user field was blank, check whether the TSV specifies a user
+        // via a USER column. If so, prefer that user for attribution.
+        if (!userExplicit && newSongs.Count > 0)
+        {
+            var tsvUserValue = newSongs[0].FirstProperty(Song.UserField)?.Value;
+            if (!string.IsNullOrWhiteSpace(tsvUserValue))
+            {
+                var tsvAppUser = await Database.FindUser(tsvUserValue);
+                if (tsvAppUser != null)
+                {
+                    user = tsvUserValue;
+                }
+            }
+        }
+
         ViewBag.UserName = user;
         ViewBag.Dances = dances;
         ViewBag.Separator = separator;
@@ -1264,6 +1288,10 @@ public class AdminController(
         {
             var results =
                 await SongIndex.MatchSongs(newSongs, DanceMusicCoreService.MatchMethod.Merge);
+            for (var i = 0; i < results.Count; i++)
+            {
+                results[i].OriginalRow = i + 2; // row 1 = header, data starts at row 2
+            }
             var review = new Review { Merge = results };
             ViewBag.FileId = CacheReview(review);
             return View("ReviewBatch", review.Merge);
@@ -1296,12 +1324,16 @@ public class AdminController(
             userName = UserName;
         }
 
-        return View(
-            await CommitCatalog(
-                Database, initial,
-                await Database.FindUser(userName), danceIds) == 0
-                ? "Error"
-                : "UploadCatalog");
+        var count = await CommitCatalog(
+            Database, initial,
+            await Database.FindUser(userName), danceIds);
+
+        if (count == 0)
+        {
+            return View("Error");
+        }
+
+        return View("UploadCatalogResults", (IEnumerable<m4dModels.LocalMerger>)initial.Merge);
     }
 
     #endregion

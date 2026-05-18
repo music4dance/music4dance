@@ -2,6 +2,7 @@ using Microsoft.CSharp.RuntimeBinder;
 
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq.Expressions;
 
 namespace m4dModels;
 
@@ -85,7 +86,11 @@ internal class SpotifyService : MusicService
 
         var ret = new List<ServiceTrack>();
 
-        var items = FoldTracks(results).items;
+        dynamic items = FoldTracks(results).items;
+        if (items == null)
+        {
+            return ret;
+        }
 
         foreach (var track in items)
         {
@@ -139,68 +144,78 @@ internal class SpotifyService : MusicService
             return null;
         }
 
-        var artist = track.artists.Count > 0 ? track.artists[0] : null;
-        var album = track.album;
-
-        int trackNum = track.track_number;
-        if (track.disc_number > 1)
-        {
-            trackNum = new TrackNumber(trackNum, (int)track.disc_number, null);
-        }
-
-        bool? isPlayable = null;
         try
         {
-            isPlayable = track.is_playable;
-        }
-        catch (RuntimeBinderException)
-        {
-        }
+            dynamic artists = track.artists;
+            var artist = artists != null && artists.Count > 0 ? artists[0] : null;
+            var album = track.album;
 
-        string sample = null;
-        try
-        {
-            sample = track.preview_url;
-        }
-        catch (RuntimeBinderException)
-        {
-        }
-
-        string imageUrl = null;
-        if (album?.images != null)
-        {
-            var width = int.MaxValue;
-            foreach (var image in album.images)
+            int trackNum = track.track_number;
+            if (track.disc_number > 1)
             {
-                if (image.width >= width)
-                {
-                    continue;
-                }
-
-                imageUrl = image.url;
-                width = image.width;
+                trackNum = new TrackNumber(trackNum, (int)track.disc_number, null);
             }
+
+            bool? isPlayable = null;
+            try
+            {
+                isPlayable = track.is_playable;
+            }
+            catch (RuntimeBinderException)
+            {
+            }
+
+            string sample = null;
+            try
+            {
+                sample = track.preview_url;
+            }
+            catch (RuntimeBinderException)
+            {
+            }
+
+            string imageUrl = null;
+            if (album?.images != null)
+            {
+                var width = int.MaxValue;
+                foreach (var image in album.images)
+                {
+                    if (image.width >= width)
+                    {
+                        continue;
+                    }
+
+                    imageUrl = image.url;
+                    width = image.width;
+                }
+            }
+
+            var st = new ServiceTrack
+            {
+                Service = ServiceType.Spotify,
+                TrackId = track.id,
+                Name = track.name,
+                //AltId = altId,
+                Artist = artist?.name,
+                Album = album?.name,
+                CollectionId = album?.id,
+                ImageUrl = imageUrl,
+                //ReleaseDate = track.ReleaseDate,
+                Genres = await BuildGenres(track, getResult),
+                Duration = (track.duration_ms + 500) / 1000,
+                TrackNumber = trackNum,
+                IsPlayable = isPlayable,
+                SampleUrl = sample
+            };
+
+            return st;
+
         }
-
-        var st = new ServiceTrack
+        catch
         {
-            Service = ServiceType.Spotify,
-            TrackId = track.id,
-            Name = track.name,
-            //AltId = altId,
-            Artist = artist?.name,
-            Album = album?.name,
-            CollectionId = album?.id,
-            ImageUrl = imageUrl,
-            //ReleaseDate = track.ReleaseDate,
-            Genres = await BuildGenres(track, getResult),
-            Duration = (track.duration_ms + 500) / 1000,
-            TrackNumber = trackNum,
-            IsPlayable = isPlayable,
-            SampleUrl = sample
-        };
-
-        return st;
+            return null;
+        }
+    
     }
 
     public override string BuildPlayListLink(PlayList playList, string user, string email)
@@ -220,9 +235,10 @@ internal class SpotifyService : MusicService
 
         genres.UnionWith(await GenresFromReference(track.album, getResult));
 
-        if (track?.artists.Count > 0)
+        dynamic trackArtists = track?.artists;
+        if (trackArtists != null && trackArtists.Count > 0)
         {
-            foreach (var a in track.artists)
+            foreach (var a in trackArtists)
             {
                 genres.UnionWith(await GenresFromReference(a, getResult));
             }

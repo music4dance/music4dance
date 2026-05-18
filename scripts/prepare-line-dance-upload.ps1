@@ -16,6 +16,9 @@
 .PARAMETER SourceFile
     Path to the source TSV.  Defaults to <repo-root>/local/Line Dance Origins.tsv
 
+.PARAMETER Username
+    The m4d username to attribute the upload to.  Defaults to tzielund.
+
 .PARAMETER OutputDir
     Directory where the three output TSV files are written.
     Defaults to <repo-root>/local
@@ -23,21 +26,29 @@
 .EXAMPLE
     .\scripts\prepare-line-dance-upload.ps1
 
+.EXAMPLE
+    .\scripts\prepare-line-dance-upload.ps1 -Username dwgray
+
 .NOTES
     Companion planning doc: local/line-dance-import-plan.md
-    After running, upload files via Admin > Upload Catalog with Dances=PTN.
+    After running, upload files via Admin > Upload Catalog (no Dances or User form fields
+    needed - both are embedded in the file as DANCE and USER columns).
     Recommended order: A first (highest confidence), then B, then C (review manually).
+
+    Quoted cell values in the generated TSV are handled correctly by the server -
+    CreatePropertiesFromRow strips surrounding quotes before processing.
 
     New Song.cs fields required before the upload will work:
       SPOTIFY     -> Purchase:00:SS  (track ID extracted here; already matched by MergeFromPurchaseInfo)
       SONGID      -> SongIdOverride  (direct SongId lookup, bypasses title matching)
-      CHOREOGRAPHER -> Choreographer property (unindexed)
-      STEPSHEETURL  -> StepSheetUrl property (unindexed)
+      CHOREOGRAPHER -> Choreographer/PTN dance property (dance-level, like DanceComment)
+      STEPSHEETURL  -> StepSheetUrl/PTN dance property (dance-level, like DanceComment)
 #>
 
 [CmdletBinding()]
 param(
     [string]$SourceFile = (Join-Path $PSScriptRoot "..\local\Line Dance Origins.tsv"),
+    [string]$Username   = 'tzielund',
     [string]$OutputDir  = (Join-Path $PSScriptRoot "..\local")
 )
 
@@ -180,6 +191,8 @@ foreach ($row in $rows) {
 
     $uploadRow = [PSCustomObject]@{
         OriginalRow    = $rowNum
+        USER           = $Username
+        DANCE          = 'PTN'
         SONGID         = $songId
         TITLE          = $row.'Song name'.Trim()
         ARTIST         = $aa.Artist

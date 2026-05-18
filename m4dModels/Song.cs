@@ -271,6 +271,9 @@ public class Song : TaggableObject
     public const string SongComment = "SongComment";
     public const string SongYear = "SongYear";
     public const string DanceComment = "DanceComment";
+    public const string ChoreographerField = "Choreographer";
+    public const string StepSheetUrlField = "StepSheetUrl";
+    public const string SongIdOverride = "SongIdOverride";
 
     // Commands
     public const string CreateCommand = ".Create";
@@ -1113,12 +1116,34 @@ public class Song : TaggableObject
                     // TODO: Verify that this works
                     // TODO: Add SongComment and generalize DanceComment to allow for different
                     //  comments per dancer
-                    foreach (var r in ratings)
+                    if (!string.IsNullOrWhiteSpace(cell) && ratings != null)
                     {
-                        properties.Add(new SongProperty(baseName, cell, -1, r.DanceId));
+                        foreach (var r in ratings)
+                        {
+                            properties.Add(new SongProperty(baseName, cell, -1, r.DanceId));
+                        }
                     }
 
                     cell = null;
+                    break;
+                case ChoreographerField:
+                case StepSheetUrlField:
+                    if (!string.IsNullOrWhiteSpace(cell) && ratings != null)
+                    {
+                        foreach (var r in ratings)
+                        {
+                            properties.Add(new SongProperty(baseName, cell, -1, r.DanceId));
+                        }
+                    }
+
+                    cell = null;
+                    break;
+                case SongIdOverride:
+                    if (!Guid.TryParse(cell, out _))
+                    {
+                        cell = null;  // discard invalid GUIDs silently
+                    }
+
                     break;
                 case PlaylistField:
                     cell = string.IsNullOrWhiteSpace(cell) ? null : cell.Trim();
@@ -1232,7 +1257,7 @@ public class Song : TaggableObject
         var map = new List<string>();
         var headers = line.Split(separator);
 
-        foreach (var parts in headers.Select(t => t.Trim()).Select(header => header.Split(':')))
+        foreach (var parts in headers.Select(t => t.Trim().Trim('"')).Select(header => header.Split(':')))
         {
             // If this fails, we want to add a null to our list because
             // that indicates a column we don't care about
@@ -1282,7 +1307,11 @@ public class Song : TaggableObject
             { "YEAR", SongYear },
             { "MPM", MeasureTempo },
             { "MULTIDANCE", MultiDance },
-            { "DANCECOMMENT", DanceComment }
+            { "DANCECOMMENT", DanceComment },
+            { "SPOTIFY", SongProperty.FormatName(PurchaseField, null, "SS") },
+            { "CHOREOGRAPHER", ChoreographerField },
+            { "STEPSHEETURL", StepSheetUrlField },
+            { "SONGID", SongIdOverride }
         };
 
     public static async Task<IList<Song>> CreateFromRows(
