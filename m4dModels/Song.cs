@@ -256,6 +256,7 @@ public class Song : TaggableObject
 
     // Proxy Fields
     public const string UserProxy = "UserProxy";
+    public const string OriginalRowField = "OriginalRow";
 
     // Curator Fields
     public const string DeleteTagLabel = "DeleteTag";
@@ -737,7 +738,8 @@ public class Song : TaggableObject
         int weight = 1)
     {
         var properties = new List<SongProperty>();
-        var specifiedUser = false;
+        string specifiedUserName = null;
+        var specifiedUserField = UserField; // default; overwritten when TSV has USER/USERPROXY column
         var specifiedAction = false;
         SongProperty tagProperty = null;
         IList<string> tags = null;
@@ -924,7 +926,9 @@ public class Song : TaggableObject
                     break;
                 case UserField:
                 case UserProxy:
-                    specifiedUser = true;
+                    specifiedUserName = cell;
+                    specifiedUserField = baseName;
+                    cell = null; // will be inserted in header order at end, not here
                     break;
                 case AddedTags:
                     {
@@ -1197,21 +1201,25 @@ public class Song : TaggableObject
 
         const string sep = "|";
         Trace.WriteLineIf(
-            user == null && !specifiedUser,
+            user == null && specifiedUserName == null,
             $"Bad User for {string.Join(sep, cells)}");
 
         // ReSharper disable once InvertIf
         if (user != null)
         {
-            if (!specifiedUser)
+            // Always stamp the current time if no Time column was present in the source data.
+            if (properties.All(p => p.BaseName != TimeField))
             {
                 properties.Insert(
                     0,
                     new SongProperty(
                         TimeField,
                         DateTime.Now.ToString(CultureInfo.InvariantCulture)));
-                properties.Insert(0, new SongProperty(UserField, user.DecoratedName));
             }
+
+            // Insert User at position 0 so the final order after Command insert is [Command, User, Time, ...].
+            // Use the TSV-supplied value when the USER column was present, otherwise the logged-in user.
+            properties.Insert(0, new SongProperty(specifiedUserField, specifiedUserName ?? user.DecoratedName));
 
             if (!specifiedAction)
             {
@@ -1311,7 +1319,8 @@ public class Song : TaggableObject
             { "SPOTIFY", SongProperty.FormatName(PurchaseField, null, "SS") },
             { "CHOREOGRAPHER", ChoreographerField },
             { "STEPSHEETURL", StepSheetUrlField },
-            { "SONGID", SongIdOverride }
+            { "SONGID", SongIdOverride },
+            { "ORIGINALROW", OriginalRowField }
         };
 
     public static async Task<IList<Song>> CreateFromRows(
