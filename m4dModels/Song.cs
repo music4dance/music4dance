@@ -727,10 +727,13 @@ public class Song : TaggableObject
         ApplicationUser user, IList<string> fields, IList<string> cells,
         DanceMusicCoreService database, int weight = 1)
     {
-        return await Create(
-            Guid.NewGuid(),
-            CreatePropertiesFromRow(user, fields, cells, weight),
-            database);
+        var props = CreatePropertiesFromRow(user, fields, cells, weight);
+        if (props == null)
+        {
+            return null;
+        }
+
+        return await Create(Guid.NewGuid(), props, database);
     }
 
     private static List<SongProperty> CreatePropertiesFromRow(
