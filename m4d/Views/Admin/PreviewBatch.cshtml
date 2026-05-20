@@ -1,0 +1,37 @@
+@model IEnumerable<m4dModels.Song>
+
+@{
+    ViewBag.Title = ViewBag.Name ?? "Preview Batch";
+}
+
+<h1>@ViewBag.Title</h1>
+
+<p>
+    These are the song properties that will be written to the index when you commit.
+    No changes have been made yet.
+</p>
+
+@foreach (var song in Model)
+{
+    <div class="card mb-3">
+        <div class="card-header">
+            <strong>@song.Title</strong>
+            @if (!string.IsNullOrEmpty(song.Artist))
+            {
+                <span> &mdash; @song.Artist</span>
+            }
+            <span class="text-muted ms-2">(@song.SongId)</span>
+        </div>
+        <div class="card-body p-2">
+            <pre class="mb-0" style="font-size: 0.85em; white-space: pre-wrap; word-break: break-all;">@m4dModels.SongProperty.Serialize(song.SongProperties, null, "R")</pre>
+        </div>
+    </div>
+}
+
+@using (Html.BeginForm("CommitPreview", "Admin", new { fileId = ViewBag.FileId }))
+{
+    @Html.AntiForgeryToken()
+    <p>
+        <input type="submit" value="Commit" class="btn btn-default" />
+    </p>
+}
