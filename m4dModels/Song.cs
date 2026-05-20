@@ -256,7 +256,6 @@ public class Song : TaggableObject
 
     // Proxy Fields
     public const string UserProxy = "UserProxy";
-    public const string OriginalRowField = "OriginalRow";
 
     // Curator Fields
     public const string DeleteTagLabel = "DeleteTag";
@@ -271,9 +270,12 @@ public class Song : TaggableObject
     public const string MultiDance = "MultiDance";
     public const string SongComment = "SongComment";
     public const string SongYear = "SongYear";
-    public const string DanceComment = "DanceComment";
-    public const string ChoreographerField = "Choreographer";
-    public const string StepSheetUrlField = "StepSheetUrl";
+    // Dance-scoped metadata: add/remove pairs (stored as "Field+:DanceId" / "Field-:DanceId")
+    // AddCommentField / RemoveCommentField are already defined above ("Comment+" / "Comment-")
+    public const string AddChoreographerField = "Choreographer+";
+    public const string RemoveChoreographerField = "Choreographer-";
+    public const string AddStepSheetUrlField = "StepSheetUrl+";
+    public const string RemoveStepSheetUrlField = "StepSheetUrl-";
     public const string SongIdOverride = "SongIdOverride";
 
     // Commands
@@ -1119,10 +1121,8 @@ public class Song : TaggableObject
                     }
 
                     break;
-                case DanceComment:
-                    // TODO: Verify that this works
-                    // TODO: Add SongComment and generalize DanceComment to allow for different
-                    //  comments per dancer
+                case AddCommentField:
+                    // Stored as "Comment+:DanceId=value" (matches .Create= serialization format)
                     if (!string.IsNullOrWhiteSpace(cell) && ratings != null)
                     {
                         foreach (var r in ratings)
@@ -1133,8 +1133,8 @@ public class Song : TaggableObject
 
                     cell = null;
                     break;
-                case ChoreographerField:
-                case StepSheetUrlField:
+                case AddChoreographerField:
+                case AddStepSheetUrlField:
                     if (!string.IsNullOrWhiteSpace(cell) && ratings != null)
                     {
                         foreach (var r in ratings)
@@ -1318,12 +1318,11 @@ public class Song : TaggableObject
             { "YEAR", SongYear },
             { "MPM", MeasureTempo },
             { "MULTIDANCE", MultiDance },
-            { "DANCECOMMENT", DanceComment },
+            { "DANCECOMMENT", AddCommentField },
             { "SPOTIFY", SongProperty.FormatName(PurchaseField, null, "SS") },
-            { "CHOREOGRAPHER", ChoreographerField },
-            { "STEPSHEETURL", StepSheetUrlField },
+            { "CHOREOGRAPHER", AddChoreographerField },
+            { "STEPSHEETURL", AddStepSheetUrlField },
             { "SONGID", SongIdOverride },
-            { "ORIGINALROW", OriginalRowField }
         };
 
     public static async Task<IList<Song>> CreateFromRows(

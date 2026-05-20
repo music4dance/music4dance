@@ -10,9 +10,6 @@
       Pass B  (line-dance-upload-b-spotify.tsv)     — rows with Spotify but no m4d link
       Pass C  (line-dance-upload-c-title-only.tsv)  — rows with neither ID
 
-    All output files include an OriginalRow column (1-based) so results can be
-    merged back into the customer's spreadsheet after the upload is committed.
-
 .PARAMETER SourceFile
     Path to the source TSV.  Defaults to <repo-root>/local/Line Dance Origins.tsv
 
@@ -87,6 +84,24 @@ function Split-ArtistAlbum {
         return @{ Artist = $Matches[1].Trim(); Album = $Matches[2].Trim() }
     }
     return @{ Artist = $artistCell.Trim(); Album = '' }
+}
+
+function Get-CleanChoreographerName {
+    <#
+    Strips the country code and month/year suffix from choreographer strings.
+    Input:  "Rachael McEnaney (USA) - April 2025"
+    Output: "Rachael McEnaney"
+    Handles multiple choreographers: "Alice (USA) & Bob (UK) - June 2025" -> "Alice & Bob"
+    Passes through plain names like "Mary Zielund" unchanged.
+    #>
+    param([string]$raw)
+    $clean = $raw.Trim()
+    # Remove " - Month Year" suffix
+    $clean = $clean -replace '\s*-\s+\w+ \d{4}\s*$', ''
+    # Remove country codes in parens, e.g. "(USA)", "(UK)", "(CAN)"
+    $clean = $clean -replace '\s*\([A-Z]{2,4}\)\s*', ' '
+    # Normalize whitespace
+    return ($clean -replace '\s+', ' ').Trim()
 }
 
 function Get-NormalizedDifficultyTag {
@@ -190,7 +205,6 @@ foreach ($row in $rows) {
     }
 
     $uploadRow = [PSCustomObject]@{
-        OriginalRow    = $rowNum
         USER           = $Username
         DANCE          = 'PTN'
         SONGID         = $songId
@@ -199,7 +213,7 @@ foreach ($row in $rows) {
         ALBUM          = $aa.Album
         SPOTIFY        = $spotifyId
         DANCECOMMENT   = $row.'Dance Name'.Trim()
-        CHOREOGRAPHER  = $row.'Choreographer'.Trim()
+        CHOREOGRAPHER  = Get-CleanChoreographerName ($row.'Choreographer')
         STEPSHEETURL   = $row.'Copperknob Link'.Trim()
         DANCETAGS      = $diffTag
     }
@@ -258,13 +272,13 @@ if ($unknownDifficulties.Count -gt 0) {
 
 if ($passC.Count -gt 0) {
     Write-Host "=== Pass C rows (no IDs - review before uploading) ==="
-    Write-Host "  OriginalRow  Choreography Name                Title                     Artist"
-    Write-Host "  -----------  --------------------------------  ------------------------  --------"
+    Write-Host "  Choreography Name                Title                     Artist"
+    Write-Host "  --------------------------------  ------------------------  --------"
     foreach ($r in $passC) {
         $chName  = $r.DANCECOMMENT.PadRight(32).Substring(0, 32)
         $title   = $r.TITLE.PadRight(24).Substring(0, 24)
         $artist  = $r.ARTIST
-        Write-Host "  $($r.OriginalRow.ToString().PadLeft(11))  $chName  $title  $artist"
+        Write-Host "  $chName  $title  $artist"
     }
     Write-Host ""
 }

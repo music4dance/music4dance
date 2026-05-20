@@ -610,12 +610,12 @@ public class CreateFromRowTests
     public async Task DanceComment_AppliedToPriorDanceRating()
     {
         var song = await Row(
-            [Song.TitleField, Song.DanceRatingField, Song.DanceComment],
+            [Song.TitleField, Song.DanceRatingField, Song.AddCommentField],
             ["Title", "CHA", "Great cha cha rhythm"]);
 
         Assert.IsNotNull(song);
         var commentProp = song.SongProperties.FirstOrDefault(p =>
-            p.BaseName == Song.DanceComment && p.DanceQualifier == "CHA");
+            p.BaseName == Song.AddCommentField && p.DanceQualifier == "CHA");
         Assert.IsNotNull(commentProp, "DanceComment should be stored with dance qualifier");
         Assert.AreEqual("Great cha cha rhythm", commentProp.Value);
     }
@@ -624,11 +624,11 @@ public class CreateFromRowTests
     public async Task DanceComment_WithoutPriorRating_NotStored()
     {
         var song = await Row(
-            [Song.TitleField, Song.DanceComment],
+            [Song.TitleField, Song.AddCommentField],
             ["Title", "Some comment"]);
 
         Assert.IsNotNull(song);
-        var commentProp = Prop(song, Song.DanceComment);
+        var commentProp = Prop(song, Song.AddCommentField);
         Assert.IsNull(commentProp, "DanceComment without a prior dance rating should be dropped");
     }
 
@@ -636,12 +636,12 @@ public class CreateFromRowTests
     public async Task Choreographer_AppliedToPriorDanceRating()
     {
         var song = await Row(
-            [Song.TitleField, Song.DanceRatingField, Song.ChoreographerField],
+            [Song.TitleField, Song.DanceRatingField, Song.AddChoreographerField],
             ["Title", "CHA", "Jane Smith"]);
 
         Assert.IsNotNull(song);
         var choreoProp = song.SongProperties.FirstOrDefault(p =>
-            p.BaseName == Song.ChoreographerField && p.DanceQualifier == "CHA");
+            p.BaseName == Song.AddChoreographerField && p.DanceQualifier == "CHA");
         Assert.IsNotNull(choreoProp, "Choreographer should be stored with dance qualifier");
         Assert.AreEqual("Jane Smith", choreoProp.Value);
     }
@@ -651,12 +651,12 @@ public class CreateFromRowTests
     {
         const string url = "https://example.com/stepsheet";
         var song = await Row(
-            [Song.TitleField, Song.DanceRatingField, Song.StepSheetUrlField],
+            [Song.TitleField, Song.DanceRatingField, Song.AddStepSheetUrlField],
             ["Title", "CHA", url]);
 
         Assert.IsNotNull(song);
         var sheetProp = song.SongProperties.FirstOrDefault(p =>
-            p.BaseName == Song.StepSheetUrlField && p.DanceQualifier == "CHA");
+            p.BaseName == Song.AddStepSheetUrlField && p.DanceQualifier == "CHA");
         Assert.IsNotNull(sheetProp, "StepSheetUrl should be stored with dance qualifier");
         Assert.AreEqual(url, sheetProp.Value);
     }
@@ -761,34 +761,6 @@ public class CreateFromRowTests
         Assert.IsNotNull(song);
         var idProp = Prop(song, Song.SongIdOverride);
         Assert.IsNull(idProp, "Invalid GUID should be silently discarded");
-    }
-
-    // ─── OriginalRow ──────────────────────────────────────────────────────────
-
-    [TestMethod]
-    public async Task OriginalRow_IntegerValue_StoredAsProperty()
-    {
-        var song = await Row(
-            [Song.TitleField, Song.OriginalRowField],
-            ["Title", "42"]);
-
-        Assert.IsNotNull(song);
-        var rowProp = Prop(song, Song.OriginalRowField);
-        Assert.IsNotNull(rowProp, "OriginalRow should be stored as a property");
-        Assert.AreEqual("42", rowProp.Value);
-    }
-
-    [TestMethod]
-    public async Task OriginalRow_MapsFromTsvHeader()
-    {
-        // ORIGINALROW → OriginalRowField via PropertyMap
-        var fields = Song.BuildHeaderMap("TITLE\tORIGINALROW");
-        var song = await Song.CreateFromRow(AdminUser, fields, ["Title", "7"], _service);
-
-        Assert.IsNotNull(song);
-        var rowProp = Prop(song, Song.OriginalRowField);
-        Assert.IsNotNull(rowProp);
-        Assert.AreEqual("7", rowProp.Value);
     }
 
     // ─── OwnerHash (PATH column) ──────────────────────────────────────────────
@@ -914,11 +886,10 @@ public class CreateFromRowTests
             ("YEAR",                Song.SongYear),
             ("MPM",                 Song.MeasureTempo),
             ("MULTIDANCE",          Song.MultiDance),
-            ("DANCECOMMENT",        Song.DanceComment),
-            ("CHOREOGRAPHER",       Song.ChoreographerField),
-            ("STEPSHEETURL",        Song.StepSheetUrlField),
+            ("DANCECOMMENT",        Song.AddCommentField),
+            ("CHOREOGRAPHER",       Song.AddChoreographerField),
+            ("STEPSHEETURL",        Song.AddStepSheetUrlField),
             ("SONGID",              Song.SongIdOverride),
-            ("ORIGINALROW",         Song.OriginalRowField),
         };
 
         foreach (var (header, expected) in knownHeaders)

@@ -43,7 +43,6 @@ var conflicts = 0;
 
 <table class="table table-striped">
     <tr>
-        <th>Row</th>
         <th>
             @Html.DisplayNameFor(model => model.Left.SongId)
         </th>
@@ -70,14 +69,6 @@ var conflicts = 0;
     @foreach (var item in Model)
 {
     <tr>
-            @if (item.OriginalRow > 0)
-        {
-            <td rowspan="2">@item.OriginalRow</td>
-        }
-        else
-        {
-            <td rowspan="2">&nbsp;</td>
-        }
             <td>
             @{
             string color;

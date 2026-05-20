@@ -1288,14 +1288,6 @@ public class AdminController(
         {
             var results =
                 await SongIndex.MatchSongs(newSongs, DanceMusicCoreService.MatchMethod.Merge);
-            for (var i = 0; i < results.Count; i++)
-            {
-                var rowProp = results[i].Left.FirstProperty(Song.OriginalRowField);
-                results[i].OriginalRow = rowProp != null && int.TryParse(rowProp.Value, out var rowNum)
-                    ? rowNum
-                    : -1; // show that we don't have an original row
-                results[i].Left.SongProperties.RemoveAll(p => p.Name == Song.OriginalRowField);
-            }
             var review = new Review { Merge = results };
             ViewBag.FileId = CacheReview(review);
             return View("ReviewBatch", review.Merge);

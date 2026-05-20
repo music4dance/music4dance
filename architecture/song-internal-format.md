@@ -68,25 +68,28 @@ after `=`) or simply `.CommandName` if no `=` was present during load.
 BaseName[:index[:qualifier]][:danceId]
 ```
 
-| Segment      | Meaning                                                                                            |
-| ------------ | -------------------------------------------------------------------------------------------------- |
-| `BaseName`   | Field identity (e.g. `Title`, `Tag+`, `DanceRating`)                                               |
-| `:index`     | Zero-based, 2-digit decimal index for multi-valued fields (albums, purchases). `-1` = single-value |
-| `:qualifier` | Optional per-field qualifier — currently used for purchase type (e.g. `AS`, `IS`)                  |
-| `:danceId`   | On `Tag+`/`Tag-`, the 3-letter dance ID this tag applies to (dance-scoped tag)                     |
+| Segment      | Meaning                                                                                                                                                      |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `BaseName`   | Field identity (e.g. `Title`, `Tag+`, `DanceRating`)                                                                                                         |
+| `:index`     | Zero-based, 2-digit decimal index for multi-valued fields (albums, purchases). `-1` = single-value                                                           |
+| `:qualifier` | Optional per-field qualifier — currently used for purchase type (e.g. `AS`, `IS`)                                                                            |
+| `:danceId`   | On `Tag+`/`Tag-`, `Comment+`/`Comment-`, `Choreographer+`/`Choreographer-`, and `StepSheetUrl+`/`StepSheetUrl-`: are the properties that dance ID applies to |
 
 Examples:
 
-| Name             | Meaning                                  |
-| ---------------- | ---------------------------------------- |
-| `Title`          | Song title (simple scalar)               |
-| `Album:00`       | First album name                         |
-| `Album:01`       | Second album name                        |
-| `Purchase:00:AS` | Amazon album purchase ID for first album |
-| `Purchase:00:IS` | iTunes purchase ID for first album       |
-| `Tag+`           | Song-level tag addition                  |
-| `Tag+:CHA`       | Cha Cha–scoped tag addition              |
-| `.Create`        | Action command (no index / qualifier)    |
+| Name                 | Meaning                                  |
+| -------------------- | ---------------------------------------- |
+| `Title`              | Song title (simple scalar)               |
+| `Album:00`           | First album name                         |
+| `Album:01`           | Second album name                        |
+| `Purchase:00:AS`     | Amazon album purchase ID for first album |
+| `Purchase:00:IS`     | iTunes purchase ID for first album       |
+| `Tag+`               | Song-level tag addition                  |
+| `Tag+:CHA`           | Cha Cha–scoped tag addition              |
+| `Comment+:CHA`       | Cha Cha–scoped comment addition          |
+| `Choreographer+:PTN` | Pattern dance choreographer name         |
+| `StepSheetUrl+:PTN`  | Pattern dance step sheet URL             |
+| `.Create`            | Action command (no index / qualifier)    |
 
 ---
 
@@ -111,7 +114,25 @@ These fields hold a single value; later writes by non-pseudo users win.
 silently ignored if the same field was already set by a real (non-pseudo) user. This means human
 edits always take precedence over service-imported metadata.
 
-### 3.2 Tag Fields
+### 3.2 Add/Remove Fields and the `+`/`-` Convention
+
+Several field families use a `+` suffix to add a value and a `-` suffix to remove it. All such
+fields support an optional `:danceId` qualifier that scopes the operation to a specific dance
+rating rather than the song as a whole.
+
+Field families that follow this pattern:
+
+| Family         | Add field        | Remove field     | Extra behaviors                          |
+| -------------- | ---------------- | ---------------- | ---------------------------------------- |
+| Tags           | `Tag+`           | `Tag-`           | Categorized, pipe-delimited, `DeleteTag` |
+| Comments       | `Comment+`       | `Comment-`       | —                                        |
+| Choreographer  | `Choreographer+` | `Choreographer-` | Dance-scoped only                        |
+| Step sheet URL | `StepSheetUrl+`  | `StepSheetUrl-`  | Dance-scoped only                        |
+
+Comments, Choreographer, and StepSheetUrl are covered in detail in §3.4. Tag-specific
+behaviors are described below.
+
+#### Tag Fields
 
 Tags are key-value pairs stored as `value:Category`.
 
@@ -155,12 +176,33 @@ Standard delta magnitudes:
 | `DanceRatingIncrement` | 1     | Upvote                          |
 | `DanceRatingDecrement` | -1    | Downvote                        |
 
-### 3.4 Comment Fields
+### 3.4 Comment and Dance-Scoped Metadata Fields
 
-| Name       | Meaning                                                   |
-| ---------- | --------------------------------------------------------- |
-| `Comment+` | Add a comment text to the song (or dance, with qualifier) |
-| `Comment-` | Remove the most recent comment by the current user        |
+These fields follow the same `+`/`-` add/remove convention introduced in §3.2. Like tags, all
+support a `:danceId` qualifier. Unlike tags: each field is a single plain string value (not
+pipe-delimited or categorized), and there is no `Delete*` hard-delete variant.
+
+| Name             | C# constant                | Meaning                                                            |
+| ---------------- | -------------------------- | ------------------------------------------------------------------ |
+| `Comment+`       | `AddCommentField`          | Add a comment to the song, or to a specific dance (with qualifier) |
+| `Comment-`       | `RemoveCommentField`       | Remove the most recent comment by the current user                 |
+| `Choreographer+` | `AddChoreographerField`    | Add a choreographer name to a dance                                |
+| `Choreographer-` | `RemoveChoreographerField` | Remove the choreographer from a dance                              |
+| `StepSheetUrl+`  | `AddStepSheetUrlField`     | Add a step sheet URL to a dance                                    |
+| `StepSheetUrl-`  | `RemoveStepSheetUrlField`  | Remove the step sheet URL from a dance                             |
+
+**Example** (line dance song with PTN dance rating):
+
+```
+DanceRating=PTN+1
+Tag+=Pattern:Dance
+Comment+:PTN=Boots on the Ground
+Choreographer+:PTN=Tre Little (USA) - January 2025
+StepSheetUrl+:PTN=https://www.copperknob.co.uk/stepsheets/4GPM8ZG/boots-on-the-ground-with-clacker-fan
+```
+
+The upload import (`DANCECOMMENT`, `CHOREOGRAPHER`, `STEPSHEETURL` CSV headers) always uses the
+`+` form. The `-` form is available for future UX that removes or replaces these values.
 
 ### 3.5 User & Session Fields
 
@@ -450,26 +492,30 @@ groups properties into `SongChange` objects that represent one edit block each.
 TypeScript uses camelCase (`PropertyType` enum), C# uses PascalCase constants (`Song.UserField`).
 They map to the same string values:
 
-| TypeScript `PropertyType` | C# `Song.*` constant | String value    |
-| ------------------------- | -------------------- | --------------- |
-| `userField`               | `UserField`          | `"User"`        |
-| `timeField`               | `TimeField`          | `"Time"`        |
-| `titleField`              | `TitleField`         | `"Title"`       |
-| `artistField`             | `ArtistField`        | `"Artist"`      |
-| `tempoField`              | `TempoField`         | `"Tempo"`       |
-| `lengthField`             | `LengthField`        | `"Length"`      |
-| `addedTags`               | `AddedTags`          | `"Tag+"`        |
-| `removedTags`             | `RemovedTags`        | `"Tag-"`        |
-| `danceRatingField`        | `DanceRatingField`   | `"DanceRating"` |
-| `likeTag`                 | `LikeTag`            | `"Like"`        |
-| `userProxy`               | `UserProxy`          | `"UserProxy"`   |
-| `createCommand`           | `CreateCommand`      | `".Create"`     |
-| `editCommand`             | `EditCommand`        | `".Edit"`       |
-| `deleteCommand`           | `DeleteCommand`      | `".Delete"`     |
-| `mergeCommand`            | `MergeCommand`       | `".Merge"`      |
-| `addCommentField`         | `AddCommentField`    | `"Comment+"`    |
-| `removeCommentField`      | `RemoveCommentField` | `"Comment-"`    |
-| `ownerHash`               | `OwnerHash`          | `"OwnerHash"`   |
+| TypeScript `PropertyType` | C# `Song.*` constant       | String value       |
+| ------------------------- | -------------------------- | ------------------ |
+| `userField`               | `UserField`                | `"User"`           |
+| `timeField`               | `TimeField`                | `"Time"`           |
+| `titleField`              | `TitleField`               | `"Title"`          |
+| `artistField`             | `ArtistField`              | `"Artist"`         |
+| `tempoField`              | `TempoField`               | `"Tempo"`          |
+| `lengthField`             | `LengthField`              | `"Length"`         |
+| `addedTags`               | `AddedTags`                | `"Tag+"`           |
+| `removedTags`             | `RemovedTags`              | `"Tag-"`           |
+| `danceRatingField`        | `DanceRatingField`         | `"DanceRating"`    |
+| `likeTag`                 | `LikeTag`                  | `"Like"`           |
+| `userProxy`               | `UserProxy`                | `"UserProxy"`      |
+| `createCommand`           | `CreateCommand`            | `".Create"`        |
+| `editCommand`             | `EditCommand`              | `".Edit"`          |
+| `deleteCommand`           | `DeleteCommand`            | `".Delete"`        |
+| `mergeCommand`            | `MergeCommand`             | `".Merge"`         |
+| `addCommentField`         | `AddCommentField`          | `"Comment+"`       |
+| `removeCommentField`      | `RemoveCommentField`       | `"Comment-"`       |
+| —                         | `AddChoreographerField`    | `"Choreographer+"` |
+| —                         | `RemoveChoreographerField` | `"Choreographer-"` |
+| —                         | `AddStepSheetUrlField`     | `"StepSheetUrl+"`  |
+| —                         | `RemoveStepSheetUrlField`  | `"StepSheetUrl-"`  |
+| `ownerHash`               | `OwnerHash`                | `"OwnerHash"`      |
 
 ---
 
