@@ -2,7 +2,6 @@ using Microsoft.CSharp.RuntimeBinder;
 
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq.Expressions;
 
 namespace m4dModels;
 
@@ -86,7 +85,13 @@ internal class SpotifyService : MusicService
 
         var ret = new List<ServiceTrack>();
 
-        dynamic items = FoldTracks(results).items;
+        var folded = FoldTracks(results);
+        if (folded == null)
+        {
+            return ret;
+        }
+
+        dynamic items = folded.items;
         if (items == null)
         {
             return ret;
@@ -211,11 +216,12 @@ internal class SpotifyService : MusicService
             return st;
 
         }
-        catch
+        catch (RuntimeBinderException e)
         {
+            Trace.WriteLine($"SpotifyService.ParseTrackResults failed: {e.Message}");
             return null;
         }
-    
+
     }
 
     public override string BuildPlayListLink(PlayList playList, string user, string email)

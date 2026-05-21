@@ -308,22 +308,12 @@ public class DanceMusicController(
 
         var modified = dms.SongIndex.MergeCatalog(user, review.Merge, dances).ToList();
 
-        // Existing songs that were merged (Right side) already have service data — skip re-enrichment.
-        // Only newly created songs (MatchType.None, Left side) should be sent through service lookup.
-        var existingSongIds = new HashSet<Guid>(
-            review.Merge
-                .Where(m => m.MatchType != m4dModels.MatchType.None && m.Right != null)
-                .Select(m => m.Right.SongId));
-
         var i = 0;
 
         foreach (var song in modified)
         {
             AdminMonitor.UpdateTask("UpdateService", i);
-            if (!existingSongIds.Contains(song.SongId))
-            {
-                _ = await MusicServiceManager.ConditionalUpdateSongAndServices(dms, song);
-            }
+            _ = await MusicServiceManager.ConditionalUpdateSongAndServices(dms, song);
             _ = await song.CleanupProperties(dms, "HYE");
             i += 1;
         }

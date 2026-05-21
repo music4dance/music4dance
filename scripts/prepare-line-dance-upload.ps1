@@ -59,7 +59,7 @@ $ErrorActionPreference = 'Stop'
 function Get-SongId {
     <# Extract the GUID from a music4dance song detail URL, or return '' #>
     param([string]$m4dLink)
-    if ($m4dLink -match '/song/details/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})') {
+    if ($m4dLink -match '(?i)/song/details/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})') {
         return $Matches[1]
     }
     return ''
@@ -158,6 +158,11 @@ Write-Host "Reading: $SourceFile"
 $rows = Import-Csv -Path $SourceFile -Delimiter "`t"
 Write-Host "  $($rows.Count) data rows found."
 
+if ($rows.Count -eq 0) {
+    Write-Warning "Source file contains no data rows. Exiting."
+    exit 1
+}
+
 # ---------------------------------------------------------------------------
 # Column header discovery  — warn if expected columns are missing
 # ---------------------------------------------------------------------------
@@ -197,10 +202,9 @@ foreach ($row in $rows) {
         $artistsWithAlbum.Add("Row $rowNum`: $($row.'Artist')")
     }
 
-    # Track any difficulty values that hit the default pass-through
+    # Track raw difficulty values that could not be normalised (Get-NormalizedDifficultyTag returned '')
     $rawDiff = ($row.'Difficulty' -replace '/.*$', '').Trim()
-    if ($rawDiff -ne '' -and $diffTag -ne '' -and
-        $diffTag -notmatch '^(Absolute Beginner|High Beginner|Beginner|High Improver|Improver|Low Intermediate|High Intermediate|Intermediate|Advanced):Other$') {
+    if ($rawDiff -ne '' -and $diffTag -eq '') {
         $unknownDifficulties.Add($rawDiff) | Out-Null
     }
 

@@ -270,12 +270,11 @@ public class Song : TaggableObject
     public const string MultiDance = "MultiDance";
     public const string SongComment = "SongComment";
     public const string SongYear = "SongYear";
-    // Dance-scoped metadata: add/remove pairs (stored as "Field+:DanceId" / "Field-:DanceId")
+    // Dance-scoped metadata add fields (stored as "Field+:DanceId").
+    // Remove variants (Choreographer-, StepSheetUrl-) are not yet supported in the UX.
     // AddCommentField / RemoveCommentField are already defined above ("Comment+" / "Comment-")
     public const string AddChoreographerField = "Choreographer+";
-    public const string RemoveChoreographerField = "Choreographer-";
     public const string AddStepSheetUrlField = "StepSheetUrl+";
-    public const string RemoveStepSheetUrlField = "StepSheetUrl-";
     public const string SongIdOverride = "SongIdOverride";
 
     // Commands

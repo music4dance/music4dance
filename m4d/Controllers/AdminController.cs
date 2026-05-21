@@ -33,8 +33,13 @@ public class Review
     public string PlayList { get; set; }
     public IList<LocalMerger> Merge { get; set; }
     /// <summary>
+    /// The username attributed to this upload (from the TSV USER column or the logged-in admin).
+    /// Stored here so CommitPreview can set ViewBag.UserName without needing it as a form parameter.
+    /// </summary>
+    public string UserName { get; set; }
+    /// <summary>
     /// Populated by PreviewUploadCatalog: the fully-merged songs ready to save.
-    /// CommitPreview calls SaveSongs on this list directly.
+    /// CommitPreview calls SaveSongs on this list directly, then clears it to free memory.
     /// </summary>
     public IList<Song> Songs { get; set; }
 }
@@ -1337,6 +1342,7 @@ public class AdminController(
             return View("Error");
         }
 
+        ViewBag.UserName = userName;
         return View("UploadCatalogResults", (IEnumerable<m4dModels.LocalMerger>)initial.Merge);
     }
 
@@ -1371,6 +1377,7 @@ public class AdminController(
         }
 
         review.Songs = songs;
+        review.UserName = userName;
 
         return View("PreviewBatch", songs);
     }
@@ -1391,8 +1398,11 @@ public class AdminController(
         }
 
         await Database.SongIndex.SaveSongs(review.Songs);
+        var mergeResults = review.Merge;
+        review.Songs = null;  // free memory — songs are now in the index
 
-        return View("UploadCatalogResults", (IEnumerable<m4dModels.LocalMerger>)review.Merge);
+        ViewBag.UserName = review.UserName;
+        return View("UploadCatalogResults", (IEnumerable<m4dModels.LocalMerger>)mergeResults);
     }
 
     #endregion
