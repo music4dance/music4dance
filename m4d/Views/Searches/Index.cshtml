@@ -9,13 +9,9 @@ SongFilter filter = ViewData.ContainsKey("SongFilter") ?
 var admin = User.IsInRole("showDiagnostics");
 var showDetails = ViewData.ContainsKey("ShowDetails") ? ViewBag.ShowDetails : false;
 var sort = ViewData.ContainsKey("Sort") ? ViewBag.Sort : "";
-var recentActive = "disabled btn-primary";
-var popularActive = string.Empty;
-if (string.Equals(sort, "recent"))
-{
-    recentActive = string.Empty;
-    popularActive = "disabled btn-primary";
-}
+var spotifyOnly = ViewData.ContainsKey("SpotifyOnly") ? ViewBag.SpotifyOnly : false;
+var popularClass = !string.Equals(sort, "recent") ? "btn btn-primary" : "btn btn-outline-primary";
+var recentClass = string.Equals(sort, "recent") ? "btn btn-primary" : "btn btn-outline-primary";
 var userName = ViewBag.User;
 
 ViewData["BreadCrumbs"] = new List<BreadCrumbItem>
@@ -62,24 +58,37 @@ ViewData["BreadCrumbs"] = new List<BreadCrumbItem>
         @Html.ActionLink("Most Popular", "Index", "Searches", new
     {
         showDetails,
+        spotifyOnly,
         user = userName,
         filter
     }, new
     {
         role = "button",
-        @class = "btn btn-default " + recentActive
+        @class = popularClass
     })
         @Html.ActionLink("Most Recent", "Index", "Searches", new
     {
         showDetails,
+        spotifyOnly,
         user = userName,
         sort = "recent",
         filter
     }, new
     {
         role = "button",
-        @class = "btn btn-default " + popularActive
+        @class = recentClass
     })
+    </div>
+</div>
+
+<div class="row" style="margin-bottom: 10px">
+    <div class="col-sm">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="spotifyOnlySwitch"
+                @(spotifyOnly ? "checked" : "")
+                onchange="window.location.href='@Url.Action("Index", "Searches", new { showDetails, spotifyOnly = !spotifyOnly, user = userName, sort, filter })'">
+            <label class="form-check-label" for="spotifyOnlySwitch">Spotify Only</label>
+        </div>
     </div>
 </div>
 
@@ -92,7 +101,24 @@ ViewData["BreadCrumbs"] = new List<BreadCrumbItem>
     @Html.ActionLink("Toggle Details", "Index", "Searches", new
 {
     showDetails = !showDetails,
+    spotifyOnly,
     user = userName,
     sort
 }, null)
+}
+@if (userName != "all")
+{
+<div class="row mt-2">
+    <div class="col-sm">
+        @Html.ActionLink("Clear My Search History", "DeleteAll", "Searches", new
+    {
+        sort,
+        showDetails,
+        spotifyOnly
+    }, new
+    {
+        @class = "btn btn-outline-danger btn-sm"
+    })
+    </div>
+</div>
 }

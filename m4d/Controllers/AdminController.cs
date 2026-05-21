@@ -8,6 +8,7 @@ using m4d.Services.ServiceHealth;
 using m4d.Utilities;
 using m4d.ViewModels;
 
+using m4dModels;
 using m4dModels.Utilities;
 
 using Microsoft.AspNetCore.Authorization;
@@ -31,6 +32,16 @@ public class Review
 {
     public string PlayList { get; set; }
     public IList<LocalMerger> Merge { get; set; }
+    /// <summary>
+    /// The username attributed to this upload (from the TSV USER column or the logged-in admin).
+    /// Stored here so CommitPreview can set ViewBag.UserName without needing it as a form parameter.
+    /// </summary>
+    public string UserName { get; set; }
+    /// <summary>
+    /// Populated by PreviewUploadCatalog: the fully-merged songs ready to save.
+    /// CommitPreview calls SaveSongs on this list directly, then clears it to free memory.
+    /// </summary>
+    public IList<Song> Songs { get; set; }
 }
 
 public class SetupDiagnosticsAttribute : ActionFilterAttribute
@@ -92,6 +103,128 @@ public class AdminController(
     public ActionResult Tags()
     {
         return View();
+    }
+
+    //
+    // GET: /Admin/AdminSearch
+    // GET: /Admin/AdminSearch?EditedBy.UserName=dwgray&EditedBy.From=2015-01-01&EditedBy.To=2015-12-31
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> AdminSearch(AdminSearchModel model)
+    {
+        ViewBag.Title = "Admin Search";
+        ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
+
+        if (model.EditedBy.HasSearch)
+        {
+            var userFilter = SongFilter.Create(false);
+            userFilter.User = new UserQuery(model.EditedBy.UserName, include: true, modifier: 'a').Query;
+            var options = SongIndex.AzureParmsFromFilter(userFilter);
+            var allSongs = await SongIndex.SearchAll(null, options, CruftFilter.AllCruft);
+            model.EditedBy.Results = allSongs
+                .Select(s => (song: s, ts: s.GetEditTimestamp(
+                    model.EditedBy.UserName,
+                    model.EditedBy.From.Value,
+                    model.EditedBy.To.Value)))
+                .Where(t => t.ts.HasValue)
+                .OrderByDescending(t => t.ts.Value)
+                .Select(t => new EditedBySongResult { Song = t.song, EditedAt = t.ts.Value })
+                .ToList();
+        }
+
+        return View(model);
+    }
+
+    //
+    // POST: /Admin/AdminModifyBySearch
+    // Executes a SongModifier JSON against all songs matched by the EditedBy criteria,
+    // using the same background-task infrastructure as BatchAdminModify.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public ActionResult AdminModifyBySearch(
+        string userName, DateTime? from, DateTime? to, string modifierJson)
+    {
+        if (string.IsNullOrWhiteSpace(userName) || !from.HasValue || !to.HasValue
+            || string.IsNullOrWhiteSpace(modifierJson))
+        {
+            return RedirectToAction("AdminSearch");
+        }
+
+        try
+        {
+            _ = SongModifier.Build(modifierJson); // validate JSON before starting the task
+        }
+        catch (Exception ex)
+        {
+            throw new ArgumentException("Invalid modifier JSON", nameof(modifierJson), ex);
+        }
+
+        try
+        {
+            StartAdminTask("AdminModifyBySearch");
+            AdminMonitor.UpdateTask("AdminModifyBySearch");
+
+            var dms = Database.GetTransientService();
+            var capturedFrom = from.Value;
+            var capturedTo = to.Value;
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    var userFilter = SongFilter.Create(false);
+                    userFilter.User = new UserQuery(userName, include: true, modifier: 'a').Query;
+                    var searchOptions = dms.SongIndex.AzureParmsFromFilter(userFilter);
+                    var succeededSongIds = new List<Guid>();
+                    var failedCount = 0;
+                    var indexBatch = new List<Song>();
+                    const int updateBatchSize = 100;
+
+                    async Task FlushBatchAsync()
+                    {
+                        if (indexBatch.Count == 0) return;
+                        await dms.SongIndex.UpdateAzureIndex(indexBatch, dms);
+                        indexBatch.Clear();
+                    }
+
+                    await foreach (var song in dms.SongIndex.StreamAll(null, searchOptions, CruftFilter.AllCruft))
+                    {
+                        if (!song.WasEditedBy(userName, capturedFrom, capturedTo))
+                            continue;
+
+                        if (await dms.SongIndex.AdminModifySong(song, modifierJson))
+                            succeededSongIds.Add(song.SongId);
+                        else
+                            failedCount++;
+
+                        indexBatch.Add(song);
+                        if (indexBatch.Count >= updateBatchSize)
+                            await FlushBatchAsync();
+                    }
+
+                    await FlushBatchAsync();
+
+                    AdminMonitor.CompleteTask(true,
+                        $"AdminModifyBySearch: Succeeded={succeededSongIds.Count} " +
+                        $"({string.Join(",", succeededSongIds)}), " +
+                        $"Failed={failedCount}");
+                }
+                catch (Exception e)
+                {
+                    AdminMonitor.CompleteTask(false, $"AdminModifyBySearch: Failed={e.Message}");
+                }
+                finally
+                {
+                    dms.Dispose();
+                }
+            });
+
+            return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
+        }
+        catch (Exception e)
+        {
+            return FailAdminTask($"AdminModifyBySearch: {e.Message}", e);
+        }
     }
 
 
@@ -1014,6 +1147,14 @@ public class AdminController(
 
         if (string.IsNullOrWhiteSpace(user))
         {
+            // No explicit user supplied — fall back to the currently logged-in admin.
+            // If the upload data contains a USER column, we'll override attribution
+            // below after parsing the songs.
+            user = User.Identity?.Name;
+        }
+
+        if (string.IsNullOrWhiteSpace(user))
+        {
             throw new ArgumentNullException(
                 nameof(user), "You must specify a user");
         }
@@ -1127,6 +1268,20 @@ public class AdminController(
             }
         }
 
+        // If the TSV specifies a USER column, prefer that value for attribution.
+        // This takes priority over the form's user field (unless the form user was
+        // explicitly provided and the TSV has no USER column).
+        // NOTE: We do not require the user to exist in the current DB — a virtual
+        // ApplicationUser is created at commit time if needed.
+        if (newSongs.Count > 0)
+        {
+            var tsvUserValue = newSongs[0].FirstProperty(Song.UserField)?.Value;
+            if (!string.IsNullOrWhiteSpace(tsvUserValue))
+            {
+                user = tsvUserValue;
+            }
+        }
+
         ViewBag.UserName = user;
         ViewBag.Dances = dances;
         ViewBag.Separator = separator;
@@ -1173,12 +1328,81 @@ public class AdminController(
             userName = UserName;
         }
 
-        return View(
-            await CommitCatalog(
-                Database, initial,
-                await Database.FindUser(userName), danceIds) == 0
-                ? "Error"
-                : "UploadCatalog");
+        // FindUser returns null when the attributed user (e.g. from a TSV USER column)
+        // doesn't exist in the current environment's database.  Fall back to a virtual
+        // ApplicationUser so the commit is still attributed to the correct name.
+        var commitUser = await Database.FindUser(userName) ?? new ApplicationUser(userName);
+
+        var count = await CommitCatalog(
+            Database, initial,
+            commitUser, danceIds);
+
+        if (count == 0)
+        {
+            return View("Error");
+        }
+
+        ViewBag.UserName = userName;
+        return View("UploadCatalogResults", (IEnumerable<m4dModels.LocalMerger>)initial.Merge);
+    }
+
+    //
+    // Post: //PreviewUploadCatalog
+    // Runs the full merge + service enrichment pipeline but stops before SaveSongs.
+    // The resulting songs are cached in the Review so CommitPreview can save them directly.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> PreviewUploadCatalog(int fileId, string userName,
+        string danceIds,
+        string headers, string separator)
+    {
+        var review = GetReviewById(fileId);
+
+        ViewBag.Name = "Preview Catalog";
+        ViewBag.FileId = fileId;
+
+        if (string.IsNullOrEmpty(userName))
+        {
+            userName = UserName;
+        }
+
+        var commitUser = await Database.FindUser(userName) ?? new ApplicationUser(userName);
+
+        var songs = await PreviewCatalog(Database, review, commitUser, danceIds);
+
+        if (songs.Count == 0)
+        {
+            return View("Error");
+        }
+
+        review.Songs = songs;
+        review.UserName = userName;
+
+        return View("PreviewBatch", songs);
+    }
+
+    //
+    // Post: //CommitPreview
+    // Saves the pre-merged songs that were produced by PreviewUploadCatalog.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> CommitPreview(int fileId)
+    {
+        var review = GetReviewById(fileId);
+
+        if (review.Songs == null || review.Songs.Count == 0)
+        {
+            return View("Error");
+        }
+
+        await Database.SongIndex.SaveSongs(review.Songs);
+        var mergeResults = review.Merge;
+        review.Songs = null;  // free memory — songs are now in the index
+
+        ViewBag.UserName = review.UserName;
+        return View("UploadCatalogResults", (IEnumerable<m4dModels.LocalMerger>)mergeResults);
     }
 
     #endregion
@@ -1608,8 +1832,16 @@ public class AdminController(
             _ = context.Database.EnsureDeleted();
         }
 
-        Logger.LogInformation($"Migrating to {targetMigration}");
-        migrator.Migrate(targetMigration);
+        var useCloudDb = Configuration.GetValue<bool>("PROD_DB") || Configuration.GetValue<bool>("TEST_DB");
+        if (useCloudDb)
+        {
+            Logger.LogInformation("Skipping migrations - PROD_DB or TEST_DB is set (schema managed by deployment pipeline)");
+        }
+        else
+        {
+            Logger.LogInformation($"Migrating to {targetMigration}");
+            migrator.Migrate(targetMigration);
+        }
 
         await ReseedDb(userManager, roleManager);
 

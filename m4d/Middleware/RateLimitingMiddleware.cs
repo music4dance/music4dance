@@ -52,18 +52,18 @@ public class RateLimitingMiddleware
             return;
         }
 
-        // Short-circuit known Meta/Facebook crawlers on identity pages.
+        // Short-circuit known crawlers on identity pages.
         // These crawlers get stuck in a redirect loop when a shared URL requires auth
         // (302 → /login → retry → 302 → ...). Return a clean 200 with OpenGraph metadata
         // instead of letting them enter the rate-limiting / anti-forgery pipeline.
         // This does NOT affect Facebook Login OAuth — those use POST callbacks to /signin-facebook.
-        if (IsMetaCrawler(context))
+        if (IsKnownCrawler(context))
         {
             var userAgent = context.Request.Headers.UserAgent.ToString();
             GlobalState.MetaCrawlerStats.Record(userAgent);
 
             _logger.LogInformation(
-                "MetaCrawler: Returning static response for {UserAgent} on {Path} from {ClientId}",
+                "KnownCrawler: Returning static response for {UserAgent} on {Path} from {ClientId}",
                 userAgent, path, AnonymizeIp(GetClientIdentifier(context)));
 
             await ReturnCrawlerResponse(context, path);
@@ -306,20 +306,33 @@ public class RateLimitingMiddleware
     }
 
     /// <summary>
-    /// Known Meta/Facebook crawler user-agent fragments.
-    /// These are dedicated crawler identifiers (used for link previews), not generic app names.
+    /// Known crawler user-agent fragments — bots that should never need to authenticate.
+    /// Returns a clean 200 HTML response instead of a redirect loop on identity pages.
     /// Note: "whatsapp" and "instagram" are intentionally excluded — those tokens appear in
     /// in-app browser UAs for real users, and we don't want to short-circuit their Identity flow.
     /// </summary>
-    private static readonly string[] MetaCrawlerFragments =
+    private static readonly string[] KnownCrawlerFragments =
     [
+        // Meta / Facebook
         "facebookexternalhit",
         "facebot",
         "meta-externalagent",
-        "meta-externalfetcher"
+        "meta-externalfetcher",
+        // Google
+        "googlebot",
+        // OpenAI
+        "gptbot",
+        // Moz
+        "dotbot",
+        // Sogou
+        "sogou",
+        // Huawei / Petal Search
+        "petalbot",
+        // NewsAI
+        "newsai"
     ];
 
-    private static bool IsMetaCrawler(HttpContext context)
+    private static bool IsKnownCrawler(HttpContext context)
     {
         // Only intercept GET requests — OAuth callbacks are POST
         if (context.Request.Method != "GET")
@@ -330,7 +343,7 @@ public class RateLimitingMiddleware
             return false;
 
         var uaLower = ua.ToLowerInvariant();
-        return MetaCrawlerFragments.Any(fragment => uaLower.Contains(fragment));
+        return KnownCrawlerFragments.Any(fragment => uaLower.Contains(fragment));
     }
 
     private static async Task ReturnCrawlerResponse(HttpContext context, string path)

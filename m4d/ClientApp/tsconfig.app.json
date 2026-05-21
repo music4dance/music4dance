@@ -17,7 +17,6 @@
     "emitDecoratorMetadata": true,
     "allowSyntheticDefaultImports": true,
     "composite": true,
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     },

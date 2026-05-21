@@ -40,6 +40,8 @@ export class Song extends TaggableObject {
   @jsonArrayMember(AlbumDetails) public albums?: AlbumDetails[];
 
   private userModifiedProperties = new Set<string>();
+  /** Maps field baseName → username of the last non-pseudo editor of that field. */
+  private propLastSetByMap = new Map<string, string | undefined>();
 
   public constructor(init?: Partial<Song>) {
     super();
@@ -53,6 +55,15 @@ export class Song extends TaggableObject {
    */
   public isUserModified(field: string): boolean {
     return this.userModifiedProperties.has(field);
+  }
+
+  /**
+   * Returns the username of the last non-pseudo (human) user who set the given field,
+   * or undefined if the field has never been set by a human.
+   * @param field - Property field name (use PropertyType enum values)
+   */
+  public propLastSetBy(field: string): string | undefined {
+    return this.propLastSetByMap.get(field);
   }
 
   public compareToHistory(history: SongHistory, user?: string): boolean {
@@ -290,6 +301,10 @@ export class Song extends TaggableObject {
     let deleted = false;
     let pseudo = false;
 
+    // Track each non-service user's net contribution per dance to enforce a ±1 cap.
+    // Batch and service accounts (batch*, tempo-bot) are exempt and may use any delta.
+    const userDanceContributions = new Map<string, number>();
+
     properties.forEach((property) => {
       const baseName = property.baseName;
 
@@ -300,9 +315,24 @@ export class Song extends TaggableObject {
           currentModified = this.addModified(user, creator);
           pseudo = currentModified.isPseudo;
           break;
-        case PropertyType.danceRatingField:
-          this.addDanceRating(property.value);
+        case PropertyType.danceRatingField: {
+          const drd = DanceRatingDelta.fromString(property.value);
+          const userName = currentModified?.userName;
+          const isBatchUser = !userName || userName.startsWith("batch") || userName === "tempo-bot";
+          if (!isBatchUser) {
+            const key = `${userName}:${drd.danceId}`;
+            const currentNet = userDanceContributions.get(key) ?? 0;
+            const effectiveNet = Math.max(-1, Math.min(1, currentNet + drd.delta));
+            const effectiveDelta = effectiveNet - currentNet;
+            if (effectiveDelta !== 0) {
+              userDanceContributions.set(key, effectiveNet);
+              this.addDanceRating(effectiveDelta, drd.danceId);
+            }
+          } else {
+            this.addDanceRating(drd.delta, drd.danceId);
+          }
           break;
+        }
         case PropertyType.addedTags:
           {
             const toAdd = this.getTaggableObject(property);
@@ -397,6 +427,9 @@ export class Song extends TaggableObject {
 
             if (!pseudo) {
               this.userModifiedProperties.add(baseName);
+              if (currentModified?.userName) {
+                this.propLastSetByMap.set(baseName, currentModified.userName);
+              }
             }
           }
           break;
@@ -424,20 +457,19 @@ export class Song extends TaggableObject {
     return record;
   }
 
-  private addDanceRating(value: string): void {
-    const drd = DanceRatingDelta.fromString(value);
+  private addDanceRating(delta: number, danceId: string): void {
     const ratings = this.danceRatings ?? [];
-    const idx = ratings.findIndex((r) => r.id === drd.danceId);
+    const idx = ratings.findIndex((r) => r.id === danceId);
     if (idx != -1) {
       const dr = ratings[idx];
       if (dr) {
-        dr.weight += drd.delta;
+        dr.weight += delta;
         if (dr.weight <= 0) {
           ratings.splice(idx, 1);
         }
       }
-    } else if (drd.delta > 0) {
-      const dr = new DanceRating({ danceId: drd.danceId, weight: drd.delta });
+    } else if (delta > 0) {
+      const dr = new DanceRating({ danceId, weight: delta });
       if (this.danceRatings) {
         this.danceRatings.push(dr);
       } else {

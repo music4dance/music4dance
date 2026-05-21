@@ -83,6 +83,7 @@ onClickOutside(
 );
 
 const searchString = ref<string>("");
+const signInModalVisible = ref(false);
 
 const reminderAcknowledged = () => {
   const ack = sessionStorage.getItem(customerReminder);
@@ -114,7 +115,9 @@ const marketing = ref(!sessionStorage.getItem(marketingTag));
 
 const songIndex = computed(() => {
   const context = props.context;
-  return context.isAdmin && context.indexId ? ` (${context.indexId})` : "";
+  if (!context.isAdmin || !context.indexId) return "";
+  const dbSuffix = context.isProdDb ? " prd" : context.isTestDb ? " tst" : "";
+  return ` (${context.indexId}${dbSuffix})`;
 });
 
 const helpLink = computed(() => {
@@ -158,8 +161,7 @@ const isTest = computed(() => {
 });
 
 function accountLink(type: string): string {
-  const url = window.location.pathname + window.location.search;
-  return `/identity/account/${type}?returnUrl=${url}`;
+  return props.context.getAccountLink(type);
 }
 
 function onDismissed(target: string): void {
@@ -235,6 +237,16 @@ function search(s?: string): void {
             <BDropdownItem href="/home/counter">Tempo Counter</BDropdownItem>
             <BDropdownItem href="/home/tempi">Tempi (Tempos)</BDropdownItem>
             <BDropdownItem href="/song/advancedsearchform">Advanced Search</BDropdownItem>
+            <BDropdownItem
+              :href="context.userName ? '/Searches/Resume' : undefined"
+              @click="!context.userName && (signInModalVisible = true)"
+              >Resume Search</BDropdownItem
+            >
+            <BDropdownItem
+              :href="context.userName ? '/Searches' : undefined"
+              @click="!context.userName && (signInModalVisible = true)"
+              >Search History</BDropdownItem
+            >
             <BDropdownItem v-if="context.isBeta || context.isAdmin" href="/home/spotifyexplorer"
               >Spotify Explorer (BETA)</BDropdownItem
             >
@@ -264,6 +276,7 @@ function search(s?: string): void {
             <BDropdownItem href="/playlist">PlayLists</BDropdownItem>
             <BDropdownItem href="/Searches?showDetails=True&user=all">Searches</BDropdownItem>
             <BDropdownItem href="/song/rawsearchform">Raw Search</BDropdownItem>
+            <BDropdownItem href="/admin/adminsearch">Admin Search</BDropdownItem>
             <BDropdownItem href="/admin/uploadbackup">Uploads and Backups</BDropdownItem>
           </BNavItemDropdown>
         </BNavbarNav>
@@ -358,5 +371,13 @@ function search(s?: string): void {
       <input type="hidden" name="returnUrl" value="/" />
       <button id="logout" type="submit" class="btn btn-link" />
     </form>
+    <BModal v-model="signInModalVisible" title="Sign In Required">
+      <p>Sign in to use Search History and Resume Search.</p>
+      <template #footer>
+        <BButton :href="accountLink('register')" variant="primary">Register</BButton>
+        <BButton :href="accountLink('login')" variant="secondary">Log In</BButton>
+        <BButton variant="outline-secondary" @click="signInModalVisible = false">Cancel</BButton>
+      </template>
+    </BModal>
   </div>
 </template>

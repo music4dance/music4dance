@@ -47,6 +47,32 @@ public class MusicServiceManager(IConfiguration configuration)
         return changed;
     }
 
+    /// <summary>
+    /// Like <see cref="UpdateSongAndServices"/> but skips any service for which the song
+    /// has already been tried (has a purchase ID or a recorded failure). Suitable for
+    /// bulk-commit paths where existing songs should not be re-queried against the service.
+    /// Audio data gaps (tempo, sample URL) are still filled if missing.
+    /// </summary>
+    public async Task<bool> ConditionalUpdateSongAndServices(DanceMusicCoreService dms, Song sd)
+    {
+        var changed = false;
+        foreach (var service in MusicService.GetSearchableServices())
+        {
+            if (await ConditionalUpdateSongAndService(dms, sd, service))
+            {
+                _ = await UpdateAudioData(dms, service, sd);
+                changed = true;
+            }
+            else if (sd.ServiceTried(service))
+            {
+                // Service already tried — skip full enrichment but still fill audio data gaps
+                changed |= await UpdateAudioData(dms, service, sd);
+            }
+        }
+
+        return changed;
+    }
+
     public async Task<bool> UpdateAudioData(DanceMusicCoreService dms, MusicService service, Song sd)
     {
         var changed = false;
@@ -168,15 +194,25 @@ public class MusicServiceManager(IConfiguration configuration)
             }
         }
 
-        // Add back in any existing tracks for this service
+        // Add back in any existing tracks for this service.
+        // Reconstruct from local album data to avoid an unnecessary API round-trip —
+        // the song already has this data from prior enrichment, so there is no need
+        // to re-validate the IDs against the service.
         var existingIds = sd.GetPurchaseIds(service);
-        foreach (var track in existingIds.Where(id => found.All(f => f.TrackId != id)))
+        foreach (var id in existingIds.Where(id => found.All(f => f.TrackId != id)))
         {
-            var t = await GetMusicServiceTrack(track, service);
-            if (t != null)
+            var existingAlbum = sd.Albums.FirstOrDefault(
+                a => a.GetPurchaseIdentifier(service.Id, PurchaseType.Song) == id);
+            found.Add(new ServiceTrack
             {
-                found.Add(t);
-            }
+                Service = service.Id,
+                TrackId = id,
+                Name = sd.Title,
+                Artist = sd.Artist,
+                Album = existingAlbum?.Name,
+                TrackNumber = existingAlbum?.Track,
+                CollectionId = existingAlbum?.GetPurchaseIdentifier(service.Id, PurchaseType.Album)
+            });
         }
 
         return found;

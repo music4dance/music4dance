@@ -694,27 +694,23 @@ If you see errors, proceed to Phase 6 (Troubleshooting).
 1. **Browse to**: `https://m4d-<environment>.azurewebsites.net`
 
 2. **Verify Home Page**:
-
    - ✅ Page loads without errors
    - ✅ Navigation menu appears
    - ✅ No error messages
    - Tests: Azure Search, App Configuration
 
 3. **Verify Search**:
-
    - Click "Songs" or search for a dance/song
    - ✅ Search results appear
    - Tests: Azure Search indexes
 
 4. **Verify User Registration/Login**:
-
    - Click "Register" or "Log In"
    - ✅ Form appears
    - ✅ Can create account or sign in
    - Tests: SQL Database connection
 
 5. **Verify OAuth Providers** (if enabled):
-
    - Click "Log in with Google" (or Facebook, Spotify)
    - ✅ Redirect to provider
    - ✅ Can authenticate
@@ -1071,6 +1067,86 @@ This allows Azure health probes to pass quickly (typically < 10 seconds) instead
 
 **Background Initialization**: `StartupInitializationService` hosted service performs any post-startup validation tasks asynchronously without blocking the request pipeline.
 
+## Local Development: Access Production Database via Azure AD
+
+Enable local development access to the production Azure SQL database using your Microsoft Entra ID (Azure AD) credentials. No passwords are stored — authentication flows through `Microsoft.Data.SqlClient`'s `Active Directory Interactive` mode, which prompts a browser login with MFA support.
+
+### Prerequisites
+
+- Azure CLI installed (`az --version`) — needed for managing firewall rules
+- Your Microsoft account is configured as the Azure AD admin on SQL Server `n8a541qjnq` (see [Phase 2.4](#24-azure-sql-server---verify-azure-ad-admin-one-time))
+
+### Step 1: Add Dev Machine IP to SQL Server Firewall
+
+1. Azure Portal → **SQL Server** (`n8a541qjnq`)
+2. **Security** → **Networking** → **Firewall rules**
+3. Click **+ Add your client IPv4 address** (or add manually):
+   - **Rule name**: `dev-machine`
+   - **Start IP**: `<your-public-IP>`
+   - **End IP**: `<your-public-IP>`
+4. Click **Save**
+
+**Note**: If your IP changes frequently, you'll need to update this rule. A static IP or VPN is ideal.
+
+### Step 2: Store Production Connection String in User Secrets
+
+The production connection string is stored in [user secrets](https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets) — never in source control.
+
+```bash
+cd m4d
+dotnet user-secrets set ProdConnectionString "Server=n8a541qjnq.database.windows.net,1433;Initial Catalog=music4dance_db;Authentication=Active Directory Interactive;Encrypt=True;TrustServerCertificate=False"
+```
+
+`Active Directory Interactive` prompts a browser login with MFA support on first connection. This is both secure and serves as a visible reminder that you're running against production.
+
+**Note**: `az login` is **not** required for database access — `Active Directory Interactive` handles authentication directly. You only need `az login` for Azure CLI management tasks (e.g., updating firewall rules).
+
+### Step 3: Launch with Production Database Profile
+
+The `m4d-prod-db` launch profile in `Properties/launchSettings.json` is pre-configured with:
+
+- `PROD_DB=true` — signals `Program.cs` to load `ProdConnectionString` from user secrets
+- `SEARCHINDEX=SongIndexProd` — uses the production search index
+
+Migrations are **automatically skipped** when `PROD_DB` is set — no separate opt-in flag needed.
+
+```bash
+dotnet run --launch-profile m4d-prod-db --project m4d
+```
+
+Or launch via VS Code / Visual Studio using the **m4d-prod-db** profile.
+
+**Why user secrets + PROD_DB flag?** User secrets keep the production connection string out of source control. The `PROD_DB` flag ensures the production connection string is only loaded for this specific profile — all other profiles continue using LocalDB from `appsettings.json`.
+
+### Step 4: Verify
+
+On launch, a browser window will open for Azure AD authentication (with MFA). After signing in, check the console output for:
+
+```txt
+[Database] PROD_DB mode: Using ProdConnectionString from user secrets
+Skipping database migrations and seed data - PROD_DB is set
+```
+
+Browse to `https://localhost:5001` and verify production song data loads.
+
+If you see `PROD_DB is set but ProdConnectionString is not configured`, run the `dotnet user-secrets set` command from Step 2.
+
+### Switching Back to LocalDB
+
+Simply use any other launch profile (e.g., `m4d-vite`, `m4d-build`). The production connection string is scoped to `m4d-prod-db` only — no cleanup needed.
+
+### Security Considerations
+
+- **No passwords stored**: Authentication uses your Azure AD identity via interactive browser login
+- **Visible reminder**: The interactive login prompt on each launch makes it unmistakable that you're connected to production
+- **Auditable**: All database access is logged under your Azure AD identity
+- **Automatic migration guard**: Migrations are automatically skipped when `PROD_DB` is set — no separate flag to forget
+- **Development-only**: `PROD_DB` is ignored outside the Development environment, so it can't accidentally change the DB in staging/production
+- **Connection string not in source control**: Stored in user secrets, loaded only when `PROD_DB=true`
+- **Firewall scoped**: Only your specific IP address can connect (not open to all)
+- **Profile-scoped**: `PROD_DB=true` only applies when using the `m4d-prod-db` profile — other profiles use LocalDB
+- **No deployment risk**: `launchSettings.json` is a local development file, not deployed to Azure
+
 ## Related Documentation
 
 - [Managed Identity Self-Contained Plan](managed-identity-self-contained-plan.md) - Overall migration strategy and troubleshooting log
@@ -1079,7 +1155,8 @@ This allows Azure health probes to pass quickly (typically < 10 seconds) instead
 
 ## Change Log
 
-| Date       | Change                                              | Author                               |
-| ---------- | --------------------------------------------------- | ------------------------------------ |
-| 2026-01-06 | Added performance optimization section              | Startup timeout troubleshooting      |
-| 2025-12-31 | Initial version based on troubleshooting experience | Extracted from managed-identity plan |
+| Date       | Change                                                 | Author                                               |
+| ---------- | ------------------------------------------------------ | ---------------------------------------------------- |
+| 2026-04-08 | Local dev prod DB: user secrets + auto migration guard | PROD_DB flag, no connection string in source control |
+| 2026-01-06 | Added performance optimization section                 | Startup timeout troubleshooting                      |
+| 2025-12-31 | Initial version based on troubleshooting experience    | Extracted from managed-identity plan                 |

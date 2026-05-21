@@ -6,9 +6,20 @@ music4dance.net is a sophisticated web application designed to help dancers find
 
 **Core Mission**: Match music to dance styles based on meter, tempo, and competitive ballroom dance requirements established by World Dance Council and National Dance Council of America.
 
+## Local Working Directory
+
+A `local/` directory exists at the project root for ephemeral working files that should never be committed:
+
+- Customer-supplied files (e.g., spreadsheets, TSV imports)
+- PR descriptions and summaries in progress
+- Intermediate working documents, scratch notes, and analysis files
+
+The directory itself is tracked (via `local/.gitkeep`) but its contents are gitignored. **Default to placing any working or temporary files here** rather than in the project root or `architecture/`.
+
 ## Documentation Guidelines
 
 **Architecture Documents:**
+
 - **ALWAYS place architecture documents in the `architecture/` directory**
 - **Prefer updating existing documents** over creating new ones when the content is related
 - Keep the number of architecture documents minimal and well-organized
@@ -16,6 +27,7 @@ music4dance.net is a sophisticated web application designed to help dancers find
 - Use clear, descriptive names that cover the full scope (e.g., `identity-endpoint-protection.md` not `rate-limiting.md`)
 
 **Temporary Working Documents:**
+
 - Can be placed in root for active development/PR work
 - Should be moved to `architecture/` or deleted after completion
 - Examples: implementation guides, PR summaries, task lists
@@ -99,6 +111,11 @@ music4dance.net is a sophisticated web application designed to help dancers find
 - **Line Endings**: ALL files in `m4d/ClientApp/**` MUST use LF (Unix) line endings, not CRLF
   - This is enforced by `.gitattributes` for Vue.js/Node.js convention
   - When creating new files in ClientApp, ensure LF line endings
+- **MPA Reactivity**: This is a Multi-Page Application (MPA) — many components were written assuming they load once per page. When dynamic state is added to a page (e.g., a toggle that changes what a `v-for` displays), Vue reuses component instances via `:key="index"` rather than recreating them. Any value derived from `props` at setup time as a plain variable becomes **stale** when the prop changes.
+  - **When adding dynamic state to a page, review all components in the affected render tree for reactivity issues.**
+  - Derived values must be wrapped in `computed()`: `const foo = computed(() => props.bar.something);`
+  - Plain assignment at setup is only safe if the component is always destroyed and recreated (i.e., `:key` is a stable unique ID, not an index). See [Vue reactivity docs](https://vuejs.org/guide/essentials/computed.html).
+  - Components fixed for this: `SongPropertyViewer.vue`, `UserLink.vue`
 - **Functional Programming**: Prefer functional/method chaining style over imperative loops
   - Use `map()`, `filter()`, `reduce()`, `sort()` for array operations
   - Example: `items.map(x => x.value).filter(v => v > 0).sort()` instead of for-loops
@@ -145,6 +162,10 @@ music4dance.net is a sophisticated web application designed to help dancers find
 - **SelfCrawler**: Web crawling/integration tests, run manually only
 - **Unit Tests**: Focus on domain logic (Tempo, TempoRange, Dance models)
 - **Filter**: Use `--filter "FullyQualifiedName!~SelfCrawler"` for routine testing
+- **⚠️ IMPORTANT — `runTests` tool**: Calling `runTests` **without specifying `files`** uses the VS Code test explorer, which discovers **all** test projects including SelfCrawler and will produce spurious Selenium failures. Always do one of:
+  1. Specify explicit `.ts`/`.test.ts` file paths in the `files` parameter for client tests, **or**
+  2. Use the `run_task` tool with task `"Server: Test"` (already includes the SelfCrawler filter) for server tests, **or**
+  3. Use the `run_task` tool with task `"Test All"` for the full suite (server + client + lint, SelfCrawler excluded).
 
 ### Client Tests
 
@@ -643,4 +664,3 @@ This is a specialized domain where precision matters:
 - Social dancers have more flexibility than competitive dancers
 
 When suggesting code changes or new features, consider the impact on both competitive and social dancing communities, and ensure tempo/dance relationships remain accurate.
-

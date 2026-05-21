@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 
 using Azure.Search.Documents.Models;
 
@@ -270,7 +270,12 @@ public class Song : TaggableObject
     public const string MultiDance = "MultiDance";
     public const string SongComment = "SongComment";
     public const string SongYear = "SongYear";
-    public const string DanceComment = "DanceComment";
+    // Dance-scoped metadata add fields (stored as "Field+:DanceId").
+    // Remove variants (Choreographer-, StepSheetUrl-) are not yet supported in the UX.
+    // AddCommentField / RemoveCommentField are already defined above ("Comment+" / "Comment-")
+    public const string AddChoreographerField = "Choreographer+";
+    public const string AddStepSheetUrlField = "StepSheetUrl+";
+    public const string SongIdOverride = "SongIdOverride";
 
     // Commands
     public const string CreateCommand = ".Create";
@@ -278,6 +283,7 @@ public class Song : TaggableObject
     public const string DeleteCommand = ".Delete";
     public const string UndoCommand = ".Undo";
     public const string MergeCommand = ".Merge";
+    public const string NoMergeCommand = ".NoMerge";
     public const string FailedLookup = ".FailedLookup";
     public const string NoSongId = ".NoSongId"; // Pseudo action for serialization
 
@@ -722,10 +728,13 @@ public class Song : TaggableObject
         ApplicationUser user, IList<string> fields, IList<string> cells,
         DanceMusicCoreService database, int weight = 1)
     {
-        return await Create(
-            Guid.NewGuid(),
-            CreatePropertiesFromRow(user, fields, cells, weight),
-            database);
+        var props = CreatePropertiesFromRow(user, fields, cells, weight);
+        if (props == null)
+        {
+            return null;
+        }
+
+        return await Create(Guid.NewGuid(), props, database);
     }
 
     private static List<SongProperty> CreatePropertiesFromRow(
@@ -733,7 +742,8 @@ public class Song : TaggableObject
         int weight = 1)
     {
         var properties = new List<SongProperty>();
-        var specifiedUser = false;
+        string specifiedUserName = null;
+        var specifiedUserField = UserField; // default; overwritten when TSV has USER/USERPROXY column
         var specifiedAction = false;
         SongProperty tagProperty = null;
         IList<string> tags = null;
@@ -920,7 +930,9 @@ public class Song : TaggableObject
                     break;
                 case UserField:
                 case UserProxy:
-                    specifiedUser = true;
+                    specifiedUserName = cell;
+                    specifiedUserField = baseName;
+                    cell = null; // will be inserted in header order at end, not here
                     break;
                 case AddedTags:
                     {
@@ -1108,16 +1120,36 @@ public class Song : TaggableObject
                     }
 
                     break;
-                case DanceComment:
-                    // TODO: Verify that this works
-                    // TODO: Add SongComment and generalize DanceComment to allow for different
-                    //  comments per dancer
-                    foreach (var r in ratings)
+                case AddCommentField:
+                    // Stored as "Comment+:DanceId=value" (matches .Create= serialization format)
+                    if (!string.IsNullOrWhiteSpace(cell) && ratings != null)
                     {
-                        properties.Add(new SongProperty(baseName, cell, -1, r.DanceId));
+                        foreach (var r in ratings)
+                        {
+                            properties.Add(new SongProperty(baseName, cell, -1, r.DanceId));
+                        }
                     }
 
                     cell = null;
+                    break;
+                case AddChoreographerField:
+                case AddStepSheetUrlField:
+                    if (!string.IsNullOrWhiteSpace(cell) && ratings != null)
+                    {
+                        foreach (var r in ratings)
+                        {
+                            properties.Add(new SongProperty(baseName, cell, -1, r.DanceId));
+                        }
+                    }
+
+                    cell = null;
+                    break;
+                case SongIdOverride:
+                    if (!Guid.TryParse(cell, out _))
+                    {
+                        cell = null;  // discard invalid GUIDs silently
+                    }
+
                     break;
                 case PlaylistField:
                     cell = string.IsNullOrWhiteSpace(cell) ? null : cell.Trim();
@@ -1171,21 +1203,25 @@ public class Song : TaggableObject
 
         const string sep = "|";
         Trace.WriteLineIf(
-            user == null && !specifiedUser,
+            user == null && specifiedUserName == null,
             $"Bad User for {string.Join(sep, cells)}");
 
         // ReSharper disable once InvertIf
         if (user != null)
         {
-            if (!specifiedUser)
+            // Always stamp the current time if no Time column was present in the source data.
+            if (properties.All(p => p.BaseName != TimeField))
             {
                 properties.Insert(
                     0,
                     new SongProperty(
                         TimeField,
                         DateTime.Now.ToString(CultureInfo.InvariantCulture)));
-                properties.Insert(0, new SongProperty(UserField, user.DecoratedName));
             }
+
+            // Insert User at position 0 so the final order after Command insert is [Command, User, Time, ...].
+            // Use the TSV-supplied value when the USER column was present, otherwise the logged-in user.
+            properties.Insert(0, new SongProperty(specifiedUserField, specifiedUserName ?? user.DecoratedName));
 
             if (!specifiedAction)
             {
@@ -1231,7 +1267,7 @@ public class Song : TaggableObject
         var map = new List<string>();
         var headers = line.Split(separator);
 
-        foreach (var parts in headers.Select(t => t.Trim()).Select(header => header.Split(':')))
+        foreach (var parts in headers.Select(t => t.Trim().Trim('"')).Select(header => header.Split(':')))
         {
             // If this fails, we want to add a null to our list because
             // that indicates a column we don't care about
@@ -1281,7 +1317,11 @@ public class Song : TaggableObject
             { "YEAR", SongYear },
             { "MPM", MeasureTempo },
             { "MULTIDANCE", MultiDance },
-            { "DANCECOMMENT", DanceComment }
+            { "DANCECOMMENT", AddCommentField },
+            { "SPOTIFY", SongProperty.FormatName(PurchaseField, null, "SS") },
+            { "CHOREOGRAPHER", AddChoreographerField },
+            { "STEPSHEETURL", AddStepSheetUrlField },
+            { "SONGID", SongIdOverride },
         };
 
     public static async Task<IList<Song>> CreateFromRows(
@@ -1537,6 +1577,10 @@ public class Song : TaggableObject
 
         HashSet<string> isUserModified = [];
 
+        // Track each non-service user's net contribution per dance to enforce a ±1 cap.
+        // Batch and service accounts (batch*, tempo-bot) are exempt and may use any delta.
+        var userDanceContributions = new Dictionary<(string, string), int>();
+
         foreach (var prop in properties)
         {
             var bn = prop.BaseName;
@@ -1553,10 +1597,14 @@ public class Song : TaggableObject
                     break;
                 case DanceRatingField:
                     {
-                        var del = SoftUpdateDanceRating(prop.Value);
-                        if (del != null)
+                        var drd = new DanceRatingDelta(prop.Value);
+                        if (TryGetCappedDelta(drd, user, userDanceContributions, out var effective))
                         {
-                            drDelete.Add(del);
+                            var del = SoftUpdateDanceRating(effective);
+                            if (del != null)
+                            {
+                                drDelete.Add(del);
+                            }
                         }
                     }
                     break;
@@ -1613,6 +1661,12 @@ public class Song : TaggableObject
                         RemoveObjectComment(prop.DanceQualifier, user);
                     }
 
+                    break;
+                case AddChoreographerField:
+                    AddObjectChoreographer(prop.DanceQualifier, prop.Value);
+                    break;
+                case AddStepSheetUrlField:
+                    AddObjectStepSheetUrl(prop.DanceQualifier, prop.Value);
                     break;
                 case DeleteTagLabel:
                     ForceDeleteTag(prop.DanceQualifier, prop.Value, stats);
@@ -2038,53 +2092,18 @@ public class Song : TaggableObject
 
         _ = await ExpandTags(database);
 
-        var props = FilteredProperties(songMod.ExcludeUsers).ToList();
-        foreach (var modifier in songMod.Properties)
+        // When a date range is specified, use block-level modification to avoid
+        // incorrectly matching identically-named properties in other time periods.
+        if (songMod.FromDate.HasValue || songMod.ToDate.HasValue)
         {
-            var modList = props.Where(
-                    p =>
-                        string.Equals(
-                            p.Name, modifier.Name, StringComparison.OrdinalIgnoreCase) &&
-                        (string.Equals(
-                                p.Value, modifier.Value, StringComparison.OrdinalIgnoreCase) ||
-                            p.Name == DanceRatingField && p.Value.StartsWith(
-                                modifier.Value, StringComparison.InvariantCultureIgnoreCase) ||
-                            p.Name.StartsWith("Tag") &&
-                            modifier.Action == PropertyAction.ReplaceName))
-                .ToList();
-
-            changed |= modList.Count > 0;
-            foreach (var prop in modList)
+            changed = AdminModifyBlocksInRange(songMod);
+        }
+        else
+        {
+            var props = FilteredProperties(songMod.ExcludeUsers).ToList();
+            foreach (var modifier in songMod.Properties)
             {
-                var index = SongProperties.FindIndex(p => p == prop);
-                if (modifier.Action is PropertyAction.Remove or
-                    PropertyAction.Replace)
-                {
-                    SongProperties.RemoveAt(index);
-                }
-
-                if (modifier.Action == PropertyAction.Append)
-                {
-                    index += 1;
-                }
-
-                if (modifier.Action is PropertyAction.Replace or
-                    PropertyAction.Append or
-                    PropertyAction.Prepend)
-                {
-                    SongProperties.InsertRange(index, modifier.Properties);
-                }
-                else if (modifier.Action == PropertyAction.ReplaceValue)
-                {
-                    SongProperties[index].Value = prop.Name == DanceRatingField &&
-                        modifier.Replace.Length == 3
-                            ? modifier.Replace + SongProperties[index].Value[3..]
-                            : modifier.Replace;
-                }
-                else if (modifier.Action == PropertyAction.ReplaceName)
-                {
-                    SongProperties[index].Name = modifier.Replace;
-                }
+                changed |= ApplyModifierToPropertyList(modifier, props, SongProperties);
             }
         }
 
@@ -2093,6 +2112,122 @@ public class Song : TaggableObject
         _ = await CollapseTags(database);
 
         return changed;
+    }
+
+    /// <summary>
+    /// Applies property modifiers only to edit/create blocks whose timestamp falls
+    /// within the date range specified by <paramref name="songMod"/>.
+    /// Works at the block level to avoid ambiguous in-place index lookups when
+    /// multiple blocks contain properties with the same Name+Value.
+    /// </summary>
+    private bool AdminModifyBlocksInRange(SongModifier songMod)
+    {
+        var blocks = SongPropertyBlockParser.ParseBlocks(SongProperties,
+            a => a == EditCommand || a == CreateCommand);
+
+        var changed = false;
+
+        foreach (var block in blocks)
+        {
+            if (songMod.FromDate.HasValue && (!block.Timestamp.HasValue || block.Timestamp.Value < songMod.FromDate.Value))
+                continue;
+            if (songMod.ToDate.HasValue && (!block.Timestamp.HasValue || block.Timestamp.Value > songMod.ToDate.Value))
+                continue;
+            if (songMod.ExcludeUsers != null && songMod.ExcludeUsers.Any(u =>
+                    string.Equals(u, block.User, StringComparison.OrdinalIgnoreCase)))
+                continue;
+
+            foreach (var modifier in songMod.Properties)
+            {
+                // Work on the block's own mutable property list
+                changed |= ApplyModifierToPropertyList(modifier, block.Properties, block.Properties);
+            }
+        }
+
+        if (changed)
+        {
+            // Rebuild the flat SongProperties list from the (now-mutated) blocks
+            SongProperties.Clear();
+            SongProperties.AddRange(SongPropertyBlockParser.FlattenBlocks(blocks));
+        }
+
+        return changed;
+    }
+
+    /// <summary>
+    /// Applies a single <see cref="PropertyModifier"/> to every matching property in
+    /// <paramref name="candidates"/>, mutating <paramref name="target"/> in place.
+    /// Returns true if any property was changed.
+    /// </summary>
+    private static bool ApplyModifierToPropertyList(
+        PropertyModifier modifier,
+        IList<SongProperty> candidates,
+        IList<SongProperty> target)
+    {
+        var modList = candidates.Where(
+                p =>
+                    string.Equals(p.Name, modifier.Name, StringComparison.OrdinalIgnoreCase) &&
+                    (string.Equals(p.Value, modifier.Value, StringComparison.OrdinalIgnoreCase) ||
+                        p.Name == DanceRatingField && p.Value.StartsWith(
+                            modifier.Value, StringComparison.InvariantCultureIgnoreCase) ||
+                        p.Name.StartsWith("Tag") &&
+                        modifier.Action == PropertyAction.ReplaceName))
+            .ToList();
+
+        if (modList.Count == 0)
+            return false;
+
+        foreach (var prop in modList)
+        {
+            var index = IndexOf(target, prop);
+            if (index < 0)
+                continue;
+
+            if (modifier.Action is PropertyAction.Remove or PropertyAction.Replace)
+            {
+                target.RemoveAt(index);
+            }
+
+            if (modifier.Action == PropertyAction.Append)
+            {
+                index += 1;
+            }
+
+            if (modifier.Action is PropertyAction.Replace or
+                PropertyAction.Append or
+                PropertyAction.Prepend)
+            {
+                foreach (var p in modifier.Properties.AsEnumerable().Reverse())
+                    target.Insert(index, p);
+            }
+            else if (modifier.Action == PropertyAction.ReplaceValue)
+            {
+                target[index].Value = prop.Name == DanceRatingField &&
+                    modifier.Replace.Length == 3
+                        ? modifier.Replace + target[index].Value[3..]
+                        : modifier.Replace;
+            }
+            else if (modifier.Action == PropertyAction.ReplaceName)
+            {
+                target[index].Name = modifier.Replace;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Finds the index of <paramref name="prop"/> in <paramref name="list"/> using
+    /// value equality, starting from 0.
+    /// </summary>
+    private static int IndexOf(IList<SongProperty> list, SongProperty prop)
+    {
+        for (var i = 0; i < list.Count; i++)
+        {
+            if (list[i] == prop)
+                return i;
+        }
+        return -1;
     }
 
     public async Task<bool> AdminAddUserProperties(string userName, IEnumerable<SongProperty> properties, DanceMusicCoreService database)
@@ -2325,6 +2460,9 @@ public class Song : TaggableObject
 
             modified |=
                 DanceTagsFromProperties(user.UserName, edit.SongProperties, stats, this);
+
+            // Handle Comment+, Choreographer+, StepSheetUrl+ for dance ratings
+            modified |= ActionFieldsFromProperties(user.UserName, edit.SongProperties);
         }
 
         modified |= UpdatePurchaseInfo(edit, true);
@@ -2494,7 +2632,7 @@ public class Song : TaggableObject
             }
         }
 
-        // If any other user 
+        // If any other user
         if (lastUser.UserName != user.UserName)
         {
             _ = CreateProperty(UserProxy, user.DecoratedName);
@@ -2821,6 +2959,60 @@ public class Song : TaggableObject
     {
         // Clear out cached user tags
         return BaseTagsFromProperties(userName, properties, stats, data, true);
+    }
+
+    // TODO(future): AdditiveMerge explicitly handles each action-field type. A cleaner
+    //   approach would be to directly append action SongProperties from the incoming edit
+    //   to the existing song's property log (same as the log-replay model), eliminating
+    //   the need to extend this method every time a new '+' field type is added. Blocked
+    //   by: AdditiveMerge also handles scalar/album/dance-rating deduplication that doesn't
+    //   map cleanly to pure append; and callers expect in-memory objects updated in place.
+    private bool ActionFieldsFromProperties(string userName, IEnumerable<SongProperty> properties)
+    {
+        var modified = false;
+        foreach (var prop in properties)
+        {
+            switch (prop.BaseName)
+            {
+                case AddCommentField:
+                    if (prop.DanceQualifier != null && !string.IsNullOrWhiteSpace(prop.Value))
+                    {
+                        var rating = FindRating(prop.DanceQualifier);
+                        if (rating != null)
+                        {
+                            _ = CreateProperty(prop.Name, prop.Value);
+                            rating.AddComment(prop.Value, userName);
+                            modified = true;
+                        }
+                    }
+                    break;
+                case AddChoreographerField:
+                    if (prop.DanceQualifier != null && !string.IsNullOrWhiteSpace(prop.Value))
+                    {
+                        var rating = FindRating(prop.DanceQualifier);
+                        if (rating != null)
+                        {
+                            _ = CreateProperty(prop.Name, prop.Value);
+                            rating.Choreographer = prop.Value;
+                            modified = true;
+                        }
+                    }
+                    break;
+                case AddStepSheetUrlField:
+                    if (prop.DanceQualifier != null && !string.IsNullOrWhiteSpace(prop.Value))
+                    {
+                        var rating = FindRating(prop.DanceQualifier);
+                        if (rating != null)
+                        {
+                            _ = CreateProperty(prop.Name, prop.Value);
+                            rating.StepSheetUrl = prop.Value;
+                            modified = true;
+                        }
+                    }
+                    break;
+            }
+        }
+        return modified;
     }
 
     public void Delete(ApplicationUser user)
@@ -3992,14 +4184,68 @@ public class Song : TaggableObject
             dr.Weight = 0;
         }
 
-        foreach (var prop in SongProperties.Where(p => p.Name == DanceRatingField))
+        // Replay the property log, tracking user context so the same ±1 per-user cap
+        // applied during LoadProperties is also enforced here.
+        var userDanceContributions = new Dictionary<(string, string), int>();
+        string user = null;
+
+        foreach (var prop in SongProperties)
         {
-            var rating = SoftUpdateDanceRating(prop.Value);
-            if (rating != null)
+            switch (prop.BaseName)
             {
-                _ = DanceRatings.Remove(rating);
+                case UserField:
+                case UserProxy:
+                    user = new ModifiedRecord(prop.Value).UserName;
+                    break;
+                case DanceRatingField:
+                {
+                    var drd = new DanceRatingDelta(prop.Value);
+                    if (TryGetCappedDelta(drd, user, userDanceContributions, out var effective))
+                    {
+                        var rating = SoftUpdateDanceRating(effective);
+                        if (rating != null)
+                        {
+                            _ = DanceRatings.Remove(rating);
+                        }
+                    }
+                    break;
+                }
             }
         }
+    }
+
+    /// <summary>
+    /// Applies the per-user ±1 vote cap for a dance rating delta.
+    /// Returns <c>false</c> (and sets <paramref name="effective"/> to <c>null</c>) when the
+    /// delta is entirely absorbed by the cap and should not be applied at all.
+    /// Batch and service accounts (<c>batch*</c>, <c>tempo-bot</c>) are exempt from the cap.
+    /// </summary>
+    private static bool TryGetCappedDelta(
+        DanceRatingDelta drd,
+        string user,
+        Dictionary<(string, string), int> contributions,
+        out DanceRatingDelta effective)
+    {
+        var isBatchUser = user == null || user.StartsWith("batch") || user == "tempo-bot";
+        if (isBatchUser)
+        {
+            effective = drd;
+            return true;
+        }
+
+        var key = (user, drd.DanceId);
+        contributions.TryGetValue(key, out var currentNet);
+        var effectiveNet = Math.Clamp(currentNet + drd.Delta, -1, 1);
+        var effectiveDelta = effectiveNet - currentNet;
+        if (effectiveDelta == 0)
+        {
+            effective = null;
+            return false;
+        }
+
+        contributions[key] = effectiveNet;
+        effective = new DanceRatingDelta(drd.DanceId, effectiveDelta);
+        return true;
     }
 
     public static string TagsFromDances(IEnumerable<string> dances)
@@ -4032,6 +4278,43 @@ public class Song : TaggableObject
     {
         var rating = UserDanceRating(userName, danceId);
         return rating == 0 ? 0 : rating < 0 ? -1 : 1;
+    }
+
+    /// <summary>
+    /// Returns true if this song contains at least one .Create or .Edit block that is
+    /// attributed to <paramref name="userName"/> and whose timestamp falls within
+    /// [<paramref name="from"/>, <paramref name="to"/>] (inclusive).
+    /// </summary>
+    public bool WasEditedBy(string userName, DateTime from, DateTime to)
+    {
+        var blocks = SongPropertyBlockParser.ParseBlocks(SongProperties,
+            a => a == EditCommand || a == CreateCommand);
+        return blocks.Any(b =>
+            string.Equals(b.User, userName, StringComparison.OrdinalIgnoreCase) &&
+            b.Timestamp.HasValue &&
+            b.Timestamp.Value >= from &&
+            b.Timestamp.Value <= to);
+    }
+
+    /// <summary>
+    /// Returns the most recent timestamp of a .Create or .Edit block attributed to
+    /// <paramref name="userName"/> within [<paramref name="from"/>, <paramref name="to"/>],
+    /// or null if no matching block exists.
+    /// </summary>
+    public DateTime? GetEditTimestamp(string userName, DateTime from, DateTime to)
+    {
+        var blocks = SongPropertyBlockParser.ParseBlocks(SongProperties,
+            a => a == EditCommand || a == CreateCommand);
+        return blocks
+            .Where(b =>
+                string.Equals(b.User, userName, StringComparison.OrdinalIgnoreCase) &&
+                b.Timestamp.HasValue &&
+                b.Timestamp.Value >= from &&
+                b.Timestamp.Value <= to)
+            .Select(b => b.Timestamp.Value)
+            .OrderByDescending(t => t)
+            .Cast<DateTime?>()
+            .FirstOrDefault();
     }
 
     public int UserDanceRating(string userName, string danceId)
@@ -4188,7 +4471,7 @@ public class Song : TaggableObject
                 //  to explicity disallow having both the like and hate, but if we do it here we'll remove
                 //  things that don't need to be removed.
                 //removed = removed ?? new TagList();
-                //removed = dts.Tags.Aggregate(removed, 
+                //removed = dts.Tags.Aggregate(removed,
                 //    (current, tag) => current.Add(tag.StartsWith("!") ? tag.Substring(1) : "!" + tag));
             }
         }
@@ -4257,6 +4540,30 @@ public class Song : TaggableObject
         }
 
         tobj.AddComment(comment, userName);
+    }
+
+    public void AddObjectChoreographer(string qualifier, string value)
+    {
+        if (string.IsNullOrWhiteSpace(qualifier)) return;
+        var rating = FindRating(qualifier);
+        if (rating == null)
+        {
+            Trace.WriteLine($"Bad choreographer on {Title} by {Artist}");
+            return;
+        }
+        rating.Choreographer = value;
+    }
+
+    public void AddObjectStepSheetUrl(string qualifier, string value)
+    {
+        if (string.IsNullOrWhiteSpace(qualifier)) return;
+        var rating = FindRating(qualifier);
+        if (rating == null)
+        {
+            Trace.WriteLine($"Bad step sheet URL on {Title} by {Artist}");
+            return;
+        }
+        rating.StepSheetUrl = value;
     }
 
     public void RemoveObjectComment(string qualifier, string userName)
@@ -5089,7 +5396,94 @@ public class Song : TaggableObject
         AlbumOrder
     ];
 
-    // TOOD: This should really end up in a utility class as some point
+    /// <summary>
+    /// Common dance names that appear in remix titles.
+    /// Used to detect dance-specific remixes that should not be merged with originals.
+    /// </summary>
+    private static readonly HashSet<string> CommonDanceNames =
+    [
+        "SALSA", "WALTZ", "TANGO", "FOXTROT", "QUICKSTEP", "SAMBA", "RUMBA",
+        "CHA CHA", "CHACHA", "JIVE", "PASO DOBLE", "VIENNESE WALTZ",
+        "SWING", "BOLERO", "MAMBO", "MERENGUE", "BACHATA", "HUSTLE",
+        "LINDY HOP", "WEST COAST SWING", "EAST COAST SWING",
+        "TWO STEP", "COUNTRY TWO STEP", "POLKA", "NIGHT CLUB"
+    ];
+
+    /// <summary>
+    /// Parenthetical words that indicate different versions and should prevent merging.
+    /// Examples: "Song (Instrumental)", "Song (Vocal)", "Song (A Cappella)"
+    /// These indicate distinct versions that should remain separate.
+    /// </summary>
+    private static readonly HashSet<string> ExclusionWords =
+    [
+        "INSTRUMENTAL", "VOCAL", "VOCALS", "A CAPPELLA", "ACAPPELLA",
+        "KARAOKE", "ACOUSTIC", "LIVE", "RADIO EDIT", "EXTENDED",
+        "UNPLUGGED", "ORCHESTRAL", "REPRISE", "REMIX"
+    ];
+
+    /// <summary>
+    /// Regex pattern for detecting numeric BPM markers (e.g., "128 BPM", "130BPM").
+    /// Compiled for performance during merge scans.
+    /// </summary>
+    private static readonly Regex BpmPattern = new(@"\d+\s*BPM", RegexOptions.Compiled);
+
+    /// <summary>
+    /// Detects if parenthetical content contains dance-specific indicators or exclusion words.
+    /// Returns true if the content contains:
+    /// 1. Numeric BPM marker (e.g., "128 BPM", "130 BPM")
+    /// 2. Dance name or synonym (e.g., "Salsa", "Bachata", "Waltz")
+    /// 3. Exclusion words (e.g., "Instrumental", "Vocal", "Live")
+    /// These indicate different versions that should NOT be merged with originals.
+    /// </summary>
+    private static bool ContainsDanceRemixIndicators(string parenContent)
+    {
+        if (string.IsNullOrWhiteSpace(parenContent))
+        {
+            return false;
+        }
+
+        // Normalize to remove accents (e.g., "Versión" → "Version")
+        var normalized = parenContent.Normalize(NormalizationForm.FormD);
+        var sb = new StringBuilder();
+        foreach (var c in normalized)
+        {
+            var uc = GetUnicodeCategory(c);
+            if (uc != UnicodeCategory.NonSpacingMark)
+            {
+                _ = sb.Append(c);
+            }
+        }
+        var upper = sb.ToString().ToUpperInvariant();
+
+        // Check for numeric BPM marker (e.g., "128 BPM", "130 BPM", "128BPM")
+        // Pattern: digit(s) + optional space(s) + "BPM"
+        if (BpmPattern.IsMatch(upper))
+        {
+            return true;
+        }
+
+        // Check for exclusion words (e.g., "Instrumental", "Vocal", "Live")
+        if (ExclusionWords.Any(word => upper.Contains(word)))
+        {
+            return true;
+        }
+
+        // Check if any dance words (names, synonyms, or fragments) appear
+        // Get dance names and synonyms from the actual dance library
+        var danceLibrary = DanceLibrary.Dances.Instance;
+        if (danceLibrary == null)
+        {
+            // Fallback: use CommonDanceNames when library isn't loaded yet
+            // This is conservative - better to preserve potential dance versions
+            return CommonDanceNames.Any(danceWord => upper.Contains(danceWord));
+        }
+
+        // Check if any dance words (names, synonyms, or fragments) appear in the parenthetical content
+        var allDanceWords = danceLibrary.GetAllDanceWordsUpper();
+        return allDanceWords.Any(danceWord => upper.Contains(danceWord));
+    }
+
+    // TODO: This should really end up in a utility class at some point
     public static string MungeString(string s, bool normalize,
         IEnumerable<string> extraIgnore = null)
     {
@@ -5109,6 +5503,7 @@ public class Song : TaggableObject
         var wordBreak = 0;
 
         var paren = false;
+        var parenStart = -1;
         var bracket = false;
         var space = false;
         var lastC = ' ';
@@ -5130,6 +5525,15 @@ public class Song : TaggableObject
             {
                 if (c == ')')
                 {
+                    // Check if parenthetical content contains dance remix indicators
+                    // Extract from norm (not s) since we're iterating through norm and lengths may differ
+                    var parenContent = norm.Substring(parenStart, i - parenStart);
+                    if (normalize && ContainsDanceRemixIndicators(parenContent))
+                    {
+                        // This is a dance remix - preserve the parenthetical content
+                        var normalizedParen = NormalizeAlbumString(parenContent, keepWhitespace: false);
+                        _ = sb.Append(normalizedParen);
+                    }
                     paren = false;
                 }
             }
@@ -5181,6 +5585,7 @@ public class Song : TaggableObject
                     {
                         case '(':
                             paren = true;
+                            parenStart = i + 1; // Track where parenthetical content starts
                             break;
                         case '[':
                             bracket = true;
@@ -5282,11 +5687,8 @@ public class Song : TaggableObject
         "IN",
         "OF",
         "OR",
-        "THE",
-        "THAT",
-        "THIS"
+        "THE"
     ];
-
     private static readonly string[] ArtIgnore =
         ["BAND", "FEAT", "FEATURING", "HIS", "HER", "ORCHESTRA", "WITH"];
 

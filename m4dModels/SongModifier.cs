@@ -7,6 +7,16 @@ public class SongModifier
     public List<string> ExcludeUsers { get; set; }
     public List<PropertyModifier> Properties { get; set; }
 
+    /// <summary>
+    /// When set, limits property mutations to blocks whose timestamp is on or after this date.
+    /// </summary>
+    public DateTime? FromDate { get; set; }
+
+    /// <summary>
+    /// When set, limits property mutations to blocks whose timestamp is on or before this date.
+    /// </summary>
+    public DateTime? ToDate { get; set; }
+
     public static SongModifier Build(string modInfo)
     {
         var modifier = JsonConvert.DeserializeObject<SongModifier>(modInfo) ?? throw new ArgumentNullException(modInfo);
@@ -22,7 +32,9 @@ public class SongModifier
         return new SongModifier
         {
             ExcludeUsers = modifier.ExcludeUsers,
-            Properties = [.. modifier.Properties, .. ratingTags]
+            Properties = [.. modifier.Properties, .. ratingTags],
+            FromDate = modifier.FromDate,
+            ToDate = modifier.ToDate,
         };
     }
 

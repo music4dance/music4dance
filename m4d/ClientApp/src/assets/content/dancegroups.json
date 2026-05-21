@@ -31,7 +31,7 @@
   {
     "name": "Other",
     "id": "MSC",
-    "danceIds": ["BLU", "C2S", "MWT", "NC2", "PLK"]
+    "danceIds": ["BLU", "C2S", "MWT", "NC2", "PLK", "PTN"]
   },
   {
     "name": "Performance",

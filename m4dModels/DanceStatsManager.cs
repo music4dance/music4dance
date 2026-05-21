@@ -52,9 +52,9 @@ public class DanceStatsManager : IDanceStatsManager
         Instance = await LoadFromAppData(dms, serviceHealthManager) ?? await LoadFromAzure(dms, "default", serviceHealthManager);
     }
 
-    public IList<DanceStats> Dances => Instance.Dances;
+    public IList<DanceStats> Dances => Instance?.Dances ?? [];
 
-    public IList<DanceStats> Groups => Instance.Groups;
+    public IList<DanceStats> Groups => Instance?.Groups ?? [];
 
     #endregion
 

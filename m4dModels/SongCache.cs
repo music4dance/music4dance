@@ -52,6 +52,11 @@ public class SongCache
         return _songs.GetValueOrDefault(songId);
     }
 
+    public IEnumerable<Song> GetAllSongs()
+    {
+        return _songs.Values.Where(s => !s.IsNull);
+    }
+
     public List<string> Serialize()
     {
         return [.. _songs.Select(s => s.Value.ToString())];

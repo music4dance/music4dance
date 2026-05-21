@@ -1,0 +1,126 @@
+@using m4d.ViewModels
+@using m4dModels
+@model m4d.ViewModels.AdminSearchModel
+
+@{
+    ViewBag.Title = "Admin Search";
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
+}
+
+<h1>@ViewBag.Title</h1>
+
+<p class="text-muted">
+    Admin search tools for finding and inspecting songs that cannot be found through the normal search UI.
+    Each section below provides a different search type.
+</p>
+
+@* ─── Edited By User ─────────────────────────────────────────────────────── *@
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Edited By User in Date Range</h5>
+    </div>
+    <div class="card-body">
+        <p class="text-muted small">
+            Returns songs that have at least one .Create or .Edit block attributed to the specified user
+            whose timestamp falls within the given date range.
+        </p>
+
+        @using (Html.BeginForm("AdminSearch", "Admin", FormMethod.Get, new { @class = "row g-3 align-items-end" }))
+        {
+            <div class="col-md-4">
+                <label for="editedByUserName" class="form-label">User Name</label>
+                <input type="text" class="form-control" id="editedByUserName" name="EditedBy.UserName"
+                       value="@Model.EditedBy.UserName" placeholder="e.g. dwgray" />
+            </div>
+            <div class="col-md-3">
+                <label for="editedByFrom" class="form-label">From</label>
+                <input type="datetime-local" class="form-control" id="editedByFrom" name="EditedBy.From"
+                       value="@(Model.EditedBy.From?.ToString("yyyy-MM-ddTHH:mm"))" />
+            </div>
+            <div class="col-md-3">
+                <label for="editedByTo" class="form-label">To</label>
+                <input type="datetime-local" class="form-control" id="editedByTo" name="EditedBy.To"
+                       value="@(Model.EditedBy.To?.ToString("yyyy-MM-ddTHH:mm"))" />
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Search</button>
+            </div>
+        }
+
+        @if (Model.EditedBy.HasResults)
+        {
+            var results = Model.EditedBy.Results;
+            <hr class="mt-4" />
+            <h6>Found @results.Count song(s)</h6>
+
+            @if (results.Count > 0)
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>Edit Date</th>
+                                <th>Title</th>
+                                <th>Artist</th>
+                                <th>Tempo</th>
+                                <th>Song ID</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var result in results)
+                            {
+                                <tr>
+                                    <td>@result.EditedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                                    <td>
+                                        <a href="/song/details/@result.Song.SongId" target="_blank" rel="noopener noreferrer">@result.Song.Title</a>
+                                    </td>
+                                    <td>@result.Song.Artist</td>
+                                    <td>@result.Song.Tempo</td>
+                                    <td><code>@result.Song.SongId</code></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                @* ── Execute AdminModify on these results ────────────────────── *@
+                <div class="card mt-4 border-warning">
+                    <div class="card-header bg-warning bg-opacity-25">
+                        <h6 class="mb-0">Execute Bulk Admin Modify on Results</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted small">
+                            Runs the modifier JSON against all <strong>@results.Count</strong> songs above.
+                            The modifier is pre-filled with the suggested re-attribution below — edit as needed
+                            before submitting.  This runs as a background task; you will be redirected to
+                            the Admin Status page.
+                        </p>
+
+                        @using (Html.BeginForm("AdminModifyBySearch", "Admin", FormMethod.Post, new { @class = "mb-0" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="userName" value="@Model.EditedBy.UserName" />
+                            <input type="hidden" name="from"     value="@(Model.EditedBy.From?.ToString("o"))" />
+                            <input type="hidden" name="to"       value="@(Model.EditedBy.To?.ToString("o"))" />
+
+                            <div class="mb-3">
+                                <label for="modifierJson" class="form-label fw-semibold">Song Modifier JSON</label>
+                                <textarea class="form-control font-monospace" id="modifierJson" name="modifierJson"
+                                          rows="10">@Model.EditedBy.SuggestedModifierJson</textarea>
+                            </div>
+                            <button type="submit" class="btn btn-warning"
+                                    onclick="return confirm('Apply this modifier to @results.Count songs?')">
+                                Execute Modify
+                            </button>
+                        }
+                    </div>
+                </div>
+            }
+        }
+        else if (Model.EditedBy.HasSearch)
+        {
+            <hr class="mt-4" />
+            <p class="text-muted">No songs found matching those criteria.</p>
+        }
+    </div>
+</div>

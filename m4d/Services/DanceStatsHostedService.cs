@@ -1,9 +1,10 @@
 ﻿using m4d.Services.ServiceHealth;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 
 namespace m4d.Services;
 
-public class DanceStatsHostedService(IServiceProvider serviceProvider) : IHostedService
+public class DanceStatsHostedService(IServiceProvider serviceProvider, ILogger<DanceStatsHostedService> logger) : IHostedService
 {
     public async Task StartAsync(CancellationToken cancellationToken)
     {
@@ -20,7 +21,15 @@ public class DanceStatsHostedService(IServiceProvider serviceProvider) : IHosted
         var dms = new DanceMusicService(context, userManager, searchService, stats);
 
         // https://andrewlock.net/running-async-tasks-on-app-startup-in-asp-net-core-3/
-        await stats.Initialize(dms, serviceHealth);
+        try
+        {
+            await stats.Initialize(dms, serviceHealth);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "DanceStats initialization failed - starting in degraded mode");
+            serviceHealth.MarkUnavailable("Database", ex.Message);
+        }
     }
 
     // noop

@@ -28,6 +28,10 @@ export class SongChange {
     return this.userQuery.displayName;
   }
 
+  public get isAlgorithmic(): boolean {
+    return this.userQuery.isAlgorithmic;
+  }
+
   public get like(): boolean | undefined {
     const likes = this.properties.filter((p) => p.baseName === PropertyType.likeTag);
     return likes.length ? (likes.pop()?.valueTyped as boolean) : undefined;

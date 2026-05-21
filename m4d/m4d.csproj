@@ -68,6 +68,13 @@
   <ItemGroup>
     <WCFMetadata Include="Connected Services" />
   </ItemGroup>
+  <!-- Tell the SDK fast up-to-date check about client asset files so that editing
+       dances.json (or any other asset) triggers a rebuild and re-copy to wwwroot. -->
+  <ItemGroup>
+    <UpToDateCheckInput Include=".\ClientApp\src\assets\**\*.*" Set="Assets" />
+    <UpToDateCheckInput Include=".\ClientApp\styles\**\*.*" Set="Assets" />
+  </ItemGroup>
+
   <Target Name="assets" BeforeTargets="Build">
     <ItemGroup>
       <BootstrapIcons Include=".\ClientApp\node_modules\bootstrap-icons\font\fonts\bootstrap-icons.*" />

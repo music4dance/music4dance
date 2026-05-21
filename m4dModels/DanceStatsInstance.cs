@@ -74,6 +74,11 @@ public class DanceStatsInstance
         return _cache.FindSongDetails(songId);
     }
 
+    public IEnumerable<Song> GetAllSongs()
+    {
+        return _cache.GetAllSongs();
+    }
+
     public static async Task<DanceStatsInstance> BuildInstance(
         DanceMusicCoreService dms, string source, object serviceHealthManager = null)
     {

@@ -70,7 +70,7 @@ public class SongIndex
 
     #region Lookup
 
-    public async Task<Song> FindSong(Guid id)
+    public virtual async Task<Song> FindSong(Guid id)
     {
         try
         {
@@ -521,6 +521,65 @@ public class SongIndex
             MergeAlbums(songs, defAlbums, keys, artist));
     }
 
+    /// <summary>
+    /// Simple merge: concatenates all song properties, annotates .Create/.Edit with original song GUID,
+    /// and sorts by timestamp. Preserves all information for potential unmerging.
+    /// </summary>
+    public async Task<Song> SimpleMergeSongs(ApplicationUser user, List<Song> songs)
+    {
+        var songIds = songs.Select(s => s.SongId).ToList();
+        var stringIds = string.Join(";", songIds.Select(id => id.ToString()));
+
+        // Always reload by ID to ensure full song properties are available
+        songs = [.. (await DanceMusicService.SongIndex.FindSongs(songIds))];
+
+        // Parse all songs into blocks and annotate .Create/.Edit blocks with source song GUID.
+        // All action types (including .Merge, .Delete, .NoMerge) are parsed and sorted so that
+        // audit history is preserved in chronological order regardless of action type.
+        var allBlocks = new List<SongPropertyBlock>();
+
+        foreach (var song in songs)
+        {
+            var blocks = SongPropertyBlockParser.ParseBlocks(song.SongProperties);
+
+            foreach (var block in blocks)
+            {
+                // Only stamp .Create and .Edit blocks with the source GUID; other action types
+                // (e.g. .Merge, .Delete, .NoMerge) keep their original value.
+                if (block.ActionCommand == Song.CreateCommand || block.ActionCommand == Song.EditCommand)
+                {
+                    block.ActionValue = song.SongId.ToString();
+                }
+                allBlocks.Add(block);
+            }
+        }
+
+        // Sort all blocks chronologically
+        var sortedBlocks = allBlocks.OrderBy(b => b.Timestamp ?? DateTime.MinValue).ToList();
+
+        // Flatten blocks back to properties
+        var sortedProperties = SongPropertyBlockParser.FlattenBlocks(sortedBlocks);
+
+        // Add merge command at the end
+        sortedProperties.Add(new SongProperty(Song.MergeCommand, stringIds));
+        sortedProperties.Add(new SongProperty(Song.UserField, user.DecoratedName));
+        sortedProperties.Add(new SongProperty(Song.TimeField, DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss tt")));
+
+        // Create the merged song
+        var mergedSongId = Guid.NewGuid();
+        var mergedSong = await Song.Create(mergedSongId, sortedProperties, DanceMusicService);
+
+        // Delete the source songs
+        foreach (var song in songs)
+        {
+            await DeleteSong(user, song);
+        }
+
+        await SaveSong(mergedSong);
+
+        return mergedSong;
+    }
+
 
     public IEnumerable<Song> MergeCatalog(ApplicationUser user, IList<LocalMerger> merges,
         IEnumerable<string> dances = null)
@@ -565,7 +624,8 @@ public class SongIndex
 
         foreach (var song in newSongs)
         {
-            var m = await MergeFromPurchaseInfo(song)
+            var m = await MergeFromSongId(song)
+                ?? await MergeFromPurchaseInfo(song)
                 ?? await MergeFromTitle(song);
 
             switch (method)
@@ -666,6 +726,23 @@ public class SongIndex
 
         return new LocalMerger
         { Left = song, Right = match, MatchType = type, Conflict = false };
+    }
+
+    private async Task<LocalMerger> MergeFromSongId(Song song)
+    {
+        var overrideProp = song.FirstProperty(Song.SongIdOverride);
+        if (overrideProp == null || !Guid.TryParse(overrideProp.Value, out var id))
+        {
+            return null;
+        }
+
+        var match = await FindSong(id);
+        if (match == null)
+        {
+            return null;
+        }
+
+        return new LocalMerger { Left = song, Right = match, MatchType = MatchType.Exact, Conflict = false };
     }
 
     private async Task<LocalMerger> MergeFromPurchaseInfo(Song song)
@@ -798,12 +875,12 @@ public class SongIndex
     #endregion
 
     #region Index Update
-    public async Task SaveSong(Song song, string id = "default")
+    public virtual async Task SaveSong(Song song, string id = "default")
     {
         await SaveSongs([song], id);
     }
 
-    public async Task SaveSongs(IEnumerable<Song> songs, string id = "default")
+    public virtual async Task SaveSongs(IEnumerable<Song> songs, string id = "default")
     {
         if (songs == null || !songs.Any())
         {
@@ -1021,7 +1098,7 @@ public class SongIndex
             filter.SearchString, AzureParmsFromFilter(filter, pageSize), cruft);
     }
 
-    public async Task<SearchResults> Search(
+    public virtual async Task<SearchResults> Search(
         string search, SearchOptions parameters, CruftFilter cruft = CruftFilter.NoCruft)
     {
         // Strip off the Lucene syntax indicator
@@ -1049,6 +1126,71 @@ public class SongIndex
             return new SearchResults(
                 search, 0, -1, 0, 0, [], null);
         }
+    }
+
+    /// <summary>
+    /// Streams all songs matching <paramref name="search"/> and <paramref name="parameters"/>
+    /// as an async sequence, paging through Azure Search in batches of 1000 (the API maximum).
+    /// Peak memory is bounded to one Azure page at a time; only songs that pass the caller's
+    /// predicate need to be retained, making this more efficient than <see cref="SearchAll"/>
+    /// for selective in-memory post-filtering.
+    /// </summary>
+    public virtual async IAsyncEnumerable<Song> StreamAll(
+        string search, SearchOptions parameters, CruftFilter cruft = CruftFilter.NoCruft)
+    {
+        const int azurePageSize = 1000;
+        search = new KeywordQuery(search).Keywords;
+
+        var originalFilter = parameters.Filter;
+        var originalSize = parameters.Size;
+        var originalSkip = parameters.Skip;
+        var originalIncludeTotalCount = parameters.IncludeTotalCount;
+
+        parameters.Size = azurePageSize;
+        parameters.IncludeTotalCount = false;
+
+        var skip = 0;
+
+        try
+        {
+            while (true)
+            {
+                parameters.Filter = originalFilter;
+                parameters.Skip = skip;
+                var response = await DoSearch(search, parameters, cruft);
+                var page = await CreateSongs(response.GetResults());
+                if (page == null || page.Count == 0)
+                    yield break;
+                foreach (var song in page)
+                    yield return song;
+                if (page.Count < azurePageSize)
+                    yield break;
+                skip += azurePageSize;
+            }
+        }
+        finally
+        {
+            parameters.Filter = originalFilter;
+            parameters.Size = originalSize;
+            parameters.Skip = originalSkip;
+            parameters.IncludeTotalCount = originalIncludeTotalCount;
+        }
+    }
+
+    /// <summary>
+    /// Fetches ALL songs matching <paramref name="search"/> and <paramref name="parameters"/>
+    /// by paging through Azure Search in batches of 1000 (the API maximum per request).
+    /// Suitable for admin/bulk operations where the full result set is needed for
+    /// in-memory filtering. Prefer <see cref="StreamAll"/> when a predicate will discard
+    /// most results, to reduce peak memory usage.
+    /// </summary>
+    public virtual async Task<List<Song>> SearchAll(
+        string search, SearchOptions parameters, CruftFilter cruft = CruftFilter.NoCruft)
+    {
+        var allSongs = new List<Song>();
+        await foreach (var song in StreamAll(search, parameters, cruft))
+            allSongs.Add(song);
+        return allSongs;
     }
 
     public async Task<SearchResults> List(
@@ -1136,35 +1278,84 @@ public class SongIndex
         return await CreateSongs(response.GetResults());
     }
 
-    public async Task<IEnumerable<Song>> LoadLightSongs()
+    /// <summary>
+    /// Streams lightweight song data using composite key-set pagination (Modified desc, SongId desc).
+    /// This avoids the 100K limit on $skip by filtering on the last seen Modified/SongId pair.
+    /// Loads only essential fields: SongId, Title, Artist, Length, Tempo for merge candidate analysis.
+    /// Virtual to allow test implementations to provide in-memory light songs.
+    /// </summary>
+    public virtual async IAsyncEnumerable<Song> LoadLightSongsStreamingAsync(
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var parameters = new SearchOptions
+        DateTimeOffset? lastModified = null;
+        string lastId = null;
+        bool hasMore = true;
+
+        while (hasMore)
         {
-            QueryType = SearchQueryType.Simple,
-            Size = int.MaxValue,
-        };
-        parameters.Select.AddRange(
-            [
-                SongIdField, Song.TitleField, Song.ArtistField, Song.LengthField,
-                Song.TempoField
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var parameters = new SearchOptions
+            {
+                QueryType = SearchQueryType.Simple,
+                Size = 1000, // Batch size per request
+                Skip = null, // Key-set pagination doesn't use skip
+                IncludeTotalCount = false
+            };
+
+            // Composite ordering: Modified desc, then SongId desc for deterministic ordering
+            parameters.OrderBy.Add($"{ModifiedField} desc");
+            parameters.OrderBy.Add($"{SongIdField} desc");
+
+            // Select only fields needed for merge candidates
+            parameters.Select.AddRange([
+                SongIdField, ModifiedField, Song.TitleField, Song.ArtistField,
+                Song.LengthField, Song.TempoField
             ]);
 
-        var results = new List<Song>();
-        var response = await Client.SearchAsync<SearchDocument>("", parameters);
-
-        // ReSharper disable once LoopCanBeConvertedToQuery
-        foreach (var res in response.Value.GetResults())
-        {
-            var doc = res.Document;
-            var title = doc[Song.TitleField] as string;
-            if (string.IsNullOrEmpty(title))
+            // Build composite filter for key-set pagination
+            if (lastModified != null && lastId != null)
             {
-                continue;
+                var modifiedStr = lastModified.Value.ToString("o");
+                parameters.Filter = $"({ModifiedField} lt {modifiedStr}) or ({ModifiedField} eq {modifiedStr} and {SongIdField} lt '{lastId}')";
             }
 
-            results.Add(Song.CreateLightSong(doc));
-        }
+            var response = await Client.SearchAsync<SearchDocument>("*", parameters, cancellationToken);
 
+            var batchCount = 0;
+            foreach (var res in response.Value.GetResults())
+            {
+                var doc = res.Document;
+                var title = doc[Song.TitleField] as string;
+                if (string.IsNullOrEmpty(title))
+                {
+                    continue;
+                }
+
+                yield return Song.CreateLightSong(doc);
+
+                // Track last Modified and SongId for next iteration
+                lastModified = res.Document.GetDateTimeOffset(ModifiedField);
+                lastId = res.Document.GetString(SongIdField);
+                batchCount++;
+            }
+
+            // If we got fewer than Size results, we're done
+            if (batchCount < 1000)
+            {
+                hasMore = false;
+            }
+        }
+    }
+
+    [Obsolete("Use LoadLightSongsStreamingAsync for large datasets. This method tries to load all songs at once and will fail with >100K songs.")]
+    public async Task<IEnumerable<Song>> LoadLightSongs()
+    {
+        var results = new List<Song>();
+        await foreach (var song in LoadLightSongsStreamingAsync())
+        {
+            results.Add(song);
+        }
         return results;
     }
 
@@ -1777,7 +1968,7 @@ public class SongIndex
 
         // Get base filter (may be null or have user filters)
         var baseFilter = filter.GetOdataFilter(DanceMusicService);
-        
+
         DateTimeOffset? lastModified = null;
         string lastId = null;
         bool hasMore = true;
@@ -1793,7 +1984,7 @@ public class SongIndex
                 Skip = null, // Key-set pagination doesn't use skip
                 IncludeTotalCount = false // Don't need count for streaming
             };
-            
+
             // Composite ordering: Modified desc, then SongId desc for deterministic ordering
             parameters.OrderBy.Add($"{ModifiedField} desc");
             parameters.OrderBy.Add($"{SongIdField} desc");
@@ -1805,7 +1996,7 @@ public class SongIndex
                 // Format: (Modified lt lastModified) or (Modified eq lastModified and SongId lt lastId)
                 var modifiedStr = lastModified.Value.ToString("o"); // ISO 8601 format
                 var compositeFilter = $"({ModifiedField} lt {modifiedStr}) or ({ModifiedField} eq {modifiedStr} and {SongIdField} lt '{lastId}')";
-                
+
                 parameters.Filter = string.IsNullOrEmpty(baseFilter)
                     ? compositeFilter
                     : $"({baseFilter}) and ({compositeFilter})";
@@ -1819,7 +2010,7 @@ public class SongIndex
 
             // Fetch next batch
             var response = await Client.SearchAsync<SearchDocument>(searchString, parameters, cancellationToken);
-            
+
             // Stream results from this batch
             var batchCount = 0;
             foreach (var result in response.Value.GetResults())
@@ -1827,7 +2018,7 @@ public class SongIndex
                 yield return Song.Serialize(
                     result.Document.GetString(SongIdField),
                     result.Document.GetString(PropertiesField));
-                
+
                 // Track last Modified and SongId for next iteration
                 lastModified = result.Document.GetDateTimeOffset(ModifiedField);
                 lastId = result.Document.GetString(SongIdField);

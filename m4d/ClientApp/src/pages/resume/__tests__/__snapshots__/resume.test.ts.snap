@@ -6,9 +6,9 @@ exports[`Resume > Renders Resume Page 1`] = `
   <nav aria-label="breadcrumb">
     <nav aria-label="breadcrumb" style="padding: 0.25rem 0.5rem;">
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a class="" href="/">music4dance</a></li>
-        <li class="breadcrumb-item"><a class="" href="/home/info">Info</a></li>
-        <li class="breadcrumb-item"><a class="" href="/home/about">About</a></li>
+        <li class="breadcrumb-item"><a class="" href="/" to="" replace="false">music4dance</a></li>
+        <li class="breadcrumb-item"><a class="" href="/home/info" to="" replace="false">Info</a></li>
+        <li class="breadcrumb-item"><a class="" href="/home/about" to="" replace="false">About</a></li>
         <li class="breadcrumb-item active"><span aria-current="location">Resume</span></li>
       </ol>
     </nav>

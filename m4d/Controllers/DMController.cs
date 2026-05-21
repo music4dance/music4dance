@@ -260,15 +260,50 @@ public class DanceMusicController(
     protected async Task<int> CommitCatalog(DanceMusicCoreService dms, Review review,
         ApplicationUser user, string danceIds = null)
     {
+        var modified = await MergeCatalogPipeline(dms, review, user, danceIds);
+
+        if (modified == null)
+        {
+            return 0;
+        }
+
+        await dms.SongIndex.SaveSongs(modified);
+
+        if (!string.IsNullOrEmpty(review.PlayList))
+        {
+            await dms.UpdatePlayList(review.PlayList, review.Merge.Select(m => m.Left));
+        }
+
+        return modified.Count;
+    }
+
+    /// <summary>
+    /// Runs the same pipeline as CommitCatalog (merge, service enrichment, cleanup)
+    /// but stops before SaveSongs.  Returns the fully-merged song list so the caller
+    /// can cache it and display the resulting SongProperties before committing.
+    /// </summary>
+    protected async Task<List<Song>> PreviewCatalog(DanceMusicCoreService dms, Review review,
+        ApplicationUser user, string danceIds = null)
+    {
+        return await MergeCatalogPipeline(dms, review, user, danceIds) ?? [];
+    }
+
+    /// <summary>
+    /// Shared pipeline: parse danceIds, run MergeCatalog, enrich new songs via service
+    /// lookup, and clean up properties.  Returns null when there is nothing to process.
+    /// </summary>
+    private async Task<List<Song>> MergeCatalogPipeline(DanceMusicCoreService dms, Review review,
+        ApplicationUser user, string danceIds)
+    {
+        if (review.Merge.Count <= 0)
+        {
+            return null;
+        }
+
         List<string> dances = null;
         if (!string.IsNullOrWhiteSpace(danceIds))
         {
             dances = [.. danceIds.Split(';')];
-        }
-
-        if (review.Merge.Count <= 0)
-        {
-            return 0;
         }
 
         var modified = dms.SongIndex.MergeCatalog(user, review.Merge, dances).ToList();
@@ -278,20 +313,12 @@ public class DanceMusicController(
         foreach (var song in modified)
         {
             AdminMonitor.UpdateTask("UpdateService", i);
-            _ = await MusicServiceManager.UpdateSongAndServices(dms, song);
+            _ = await MusicServiceManager.ConditionalUpdateSongAndServices(dms, song);
             _ = await song.CleanupProperties(dms, "HYE");
             i += 1;
         }
 
-        var saved = modified.Count;
-        await dms.SongIndex.SaveSongs(modified);
-
-        if (!string.IsNullOrEmpty(review.PlayList))
-        {
-            await dms.UpdatePlayList(review.PlayList, review.Merge.Select(m => m.Left));
-        }
-
-        return saved;
+        return modified;
     }
 
     protected async Task<string> SpotifyFromFilter(SongFilter filter, string userName)
@@ -434,11 +461,11 @@ public class DanceMusicController(
     {
         if (danceEnvironment)
         {
-            ViewData["DanceEnvironment"] = Database.DanceStats.GetJsonDanceEnvironment();
+            ViewData["DanceEnvironment"] = Database.DanceStats?.GetJsonDanceEnvironment();
         }
         if (tagDatabase)
         {
-            ViewData["TagDatabase"] = Database.DanceStats.GetJsonTagDatabse();
+            ViewData["TagDatabase"] = Database.DanceStats?.GetJsonTagDatabse() ?? "[]";
         }
     }
 
@@ -446,23 +473,42 @@ public class DanceMusicController(
     {
         if (danceEnvironment)
         {
-            if (s_danceDatabaseCache == null)
+            string danceData = s_danceDatabaseCache;
+            if (danceData == null)
             {
+                var danceStats = Database.DanceStats;
                 var dancesJson = ReadJsonFile(fileProvider, "dances");
                 var groupsJson = ReadJsonFile(fileProvider, "danceGroups");
-                var metricsJson = JArray.FromObject(Database.DanceStats.GetMetrics().Values, CamelCaseSerializer);
+                var metricsJson = danceStats != null
+                    ? JArray.FromObject(danceStats.GetMetrics().Values, CamelCaseSerializer)
+                    : new JArray();
                 var library = new JObject(
                     new JProperty("dances", dancesJson),
                     new JProperty("groups", groupsJson),
                     new JProperty("metrics", metricsJson));
-                s_danceDatabaseCache = library.ToString();
+                danceData = library.ToString();
+                // Only cache when DanceStats is available; retry next request if degraded
+                if (danceStats != null)
+                {
+                    s_danceDatabaseCache = danceData;
+                }
             }
-            ViewData["DanceDatabase"] = s_danceDatabaseCache;
+            ViewData["DanceDatabase"] = danceData;
         }
         if (tagDatabase)
         {
-            s_tagDatabaseCache ??= Database.DanceStats.GetJsonTagDatabse();
-            ViewData["TagDatabase"] = s_tagDatabaseCache;
+            string tagData = s_tagDatabaseCache;
+            if (tagData == null)
+            {
+                var danceStatsForTags = Database.DanceStats;
+                tagData = danceStatsForTags?.GetJsonTagDatabse() ?? "[]";
+                // Only cache when DanceStats is available; retry next request if degraded
+                if (danceStatsForTags != null)
+                {
+                    s_tagDatabaseCache = tagData;
+                }
+            }
+            ViewData["TagDatabase"] = tagData;
         }
     }
 

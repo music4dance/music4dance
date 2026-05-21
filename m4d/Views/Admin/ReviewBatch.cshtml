@@ -177,3 +177,18 @@ separator = ViewBag.Separator
         <input type="submit" value="Commit" class="btn btn-default"/>
     </p>
 }
+
+@using (Html.BeginForm("PreviewUploadCatalog", "Admin", new
+{
+fileId = ViewBag.FileId,
+danceIds = ViewBag.Dances,
+userName = ViewBag.UserName,
+headers = ViewBag.Headers,
+separator = ViewBag.Separator
+}))
+{
+    @Html.AntiForgeryToken()
+    <p>
+        <input type="submit" value="Preview Properties" class="btn btn-secondary"/>
+    </p>
+}

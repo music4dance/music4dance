@@ -6,7 +6,7 @@ public sealed class Search
 {
     public void Update(ApplicationUser user, string name, string query, bool favorite,
         int count, DateTime created,
-        DateTime modified)
+        DateTime modified, int? mostRecentPage = null)
     {
         ApplicationUser = user;
         Name = name;
@@ -15,6 +15,7 @@ public sealed class Search
         Count = count;
         Created = created;
         Modified = modified;
+        MostRecentPage = mostRecentPage;
     }
 
     public long Id { get; set; }
@@ -27,6 +28,7 @@ public sealed class Search
     public int Count { get; set; }
     public DateTime Created { get; set; }
     public DateTime Modified { get; set; }
+    public int? MostRecentPage { get; set; }
 
     [NotMapped]
     public SongFilter Filter => SongFilter.Create(false, Query);

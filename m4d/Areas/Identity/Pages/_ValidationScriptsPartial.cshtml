@@ -1,4 +1,5 @@
 <script src="/vendor/jquery/jquery.js"></script>
+<script>/* jQuery 4 removed $.parseJSON; polyfill for jquery-validation-unobtrusive */if (window.jQuery) { window.jQuery.parseJSON = JSON.parse; }</script>
 <environment include="Development">
     <script src="/vendor/jquery-validation/jquery.validate.js"></script>
     <script src="/vendor/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>

@@ -1,6 +1,6 @@
 import { fileURLToPath, URL } from "node:url";
 
-import { defineConfig, normalizePath, Plugin, UserConfig } from "vite";
+import { defineConfig, normalizePath, UserConfig } from "vite";
 import { dirname, resolve } from "path";
 import vue from "@vitejs/plugin-vue";
 import mkcert from "vite-plugin-mkcert";
@@ -58,11 +58,13 @@ export default defineConfig({
     cssCodeSplit: false,
     rollupOptions: {
       output: {
-        experimentalMinChunkSize: 2048,
-        manualChunks: {
-          vue: ["vue"],
-          showdown: ["vue-showdown"],
-          bsvn: ["bootstrap-vue-next"],
+        manualChunks(id) {
+          const normalizedId = normalizePath(id);
+          if (normalizedId.includes("node_modules")) {
+            if (normalizedId.includes("bootstrap-vue-next")) return "bsvn";
+            if (normalizedId.includes("vue-showdown") || normalizedId.includes("showdown")) return "showdown";
+            if (normalizedId.includes("/vue/") || normalizedId.includes("/vue-demi/") || normalizedId.includes("/@vue/")) return "vue";
+          }
         },
       },
     },
@@ -84,7 +86,7 @@ export default defineConfig({
 // This plugin will find all files matching the pattern src/pages/*/App.vue
 //  and make endpoints with the 'name' being the replacement for the *. and the
 //  path being src/pages/*/main.ts - then return a template for the main.ts file
-function AutoEndpoints(config: VuePluginMap): Plugin {
+function AutoEndpoints(config: VuePluginMap) {
   const main = `import 'vite/modulepreload-polyfill'
 
 import { createApp, h } from 'vue'

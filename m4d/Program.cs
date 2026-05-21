@@ -24,6 +24,8 @@ using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.FeatureManagement;
 
+using Microsoft.Data.SqlClient;
+
 using Newtonsoft.Json.Serialization;
 
 using Owl.reCAPTCHA;
@@ -114,7 +116,50 @@ if (!string.IsNullOrEmpty(connectionString))
 else
 {
     Console.WriteLine("[Database] WARNING: No connection string found - database will be unavailable");
-    Console.WriteLine("[Database] Expected 'AZURE_SQL_CONNECTIONSTRING' (Azure Service Connector) or 'DanceMusicContextConnection' (local)");
+    Console.WriteLine("[Database] Expected 'AZURE_SQL_CONNECTIONSTRING' (Azure Service Connector), 'DanceMusicContextConnection' (local), or PROD_DB + ProdConnectionString (user secrets)");
+}
+
+// When PROD_DB is set in Development, override connection string from ProdConnectionString
+// (stored in user secrets via: dotnet user-secrets set ProdConnectionString "<connection-string>")
+var useProdDb = builder.Configuration.GetValue<bool>("PROD_DB") && builder.Environment.IsDevelopment();
+if (useProdDb)
+{
+    var prodConnectionString = builder.Configuration["ProdConnectionString"];
+    if (!string.IsNullOrEmpty(prodConnectionString))
+    {
+        connectionString = prodConnectionString;
+        Console.WriteLine("[Database] PROD_DB mode: Using ProdConnectionString from user secrets");
+    }
+    else
+    {
+        Console.WriteLine("[Database] WARNING: PROD_DB is set but ProdConnectionString is not configured");
+        Console.WriteLine("[Database] Set it via: dotnet user-secrets set ProdConnectionString \"Server=<server>.database.windows.net,1433;Initial Catalog=<db>;Authentication=Active Directory Interactive;Encrypt=True;TrustServerCertificate=False\"");
+    }
+}
+else if (builder.Configuration.GetValue<bool>("PROD_DB") && !builder.Environment.IsDevelopment())
+{
+    Console.WriteLine("[Database] WARNING: PROD_DB is set but ignored outside Development environment");
+}
+
+// When TEST_DB is set in Development, override connection string from TestConnectionString
+// (stored in user secrets via: dotnet user-secrets set TestConnectionString "<connection-string>")
+var testDbRequested = builder.Configuration.GetValue<bool>("TEST_DB") && builder.Environment.IsDevelopment();
+var testConnectionString = builder.Configuration["TestConnectionString"];
+var useTestDb = testDbRequested && !string.IsNullOrEmpty(testConnectionString);
+if (useTestDb)
+{
+    connectionString = testConnectionString;
+    Console.WriteLine("[Database] TEST_DB mode: Using TestConnectionString from user secrets");
+}
+else if (testDbRequested)
+{
+    Console.WriteLine("[Database] WARNING: TEST_DB is set but TestConnectionString is not configured");
+    Console.WriteLine("[Database] TEST_DB mode has been disabled; using the normal connection string instead");
+    Console.WriteLine("[Database] Set it via: dotnet user-secrets set TestConnectionString \"Server=<server>.database.windows.net,1433;Initial Catalog=<db>;Authentication=Active Directory Interactive;Encrypt=True;TrustServerCertificate=False\"");
+}
+else if (builder.Configuration.GetValue<bool>("TEST_DB") && !builder.Environment.IsDevelopment())
+{
+    Console.WriteLine("[Database] WARNING: TEST_DB is set but ignored outside Development environment");
 }
 
 var services = builder.Services;
@@ -414,6 +459,36 @@ services.ConfigureApplicationCookie(
         options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
         options.SlidingExpiration = true;
     });
+
+// Wrap SecurityStampValidator to prevent DB exceptions from crashing the error-handler pipeline.
+// When DB is unavailable, AuthenticationMiddleware hits the DB to validate the security stamp
+// on EVERY request including the /Error path - causing a double-fault that prevents the
+// "Database Unavailable" page from rendering. Skip stamp validation instead of throwing.
+static bool ContainsSqlException(Exception ex)
+{
+    for (var e = ex; e != null; e = e.InnerException)
+        if (e is SqlException) return true;
+    return false;
+}
+
+services.PostConfigure<CookieAuthenticationOptions>(IdentityConstants.ApplicationScheme, options =>
+{
+    var originalHandler = options.Events.OnValidatePrincipal;
+    options.Events.OnValidatePrincipal = async context =>
+    {
+        if (originalHandler == null)
+            return;
+        try
+        {
+            await originalHandler(context);
+        }
+        catch (Exception ex) when (ContainsSqlException(ex))
+        {
+            // DB unavailable: skip security stamp validation so the error page can render.
+            // The user stays authenticated until the DB recovers and validation succeeds.
+        }
+    };
+});
 
 services.Configure<PasswordHasherOptions>(
     option =>
@@ -818,6 +893,18 @@ _ = Task.Run(async () =>
     if (!serviceHealth.IsServiceAvailable("Database"))
     {
         Console.WriteLine("Skipping database migrations - database service is unavailable");
+        return;
+    }
+
+    if (useProdDb)
+    {
+        Console.WriteLine("Skipping database migrations and seed data - PROD_DB is set");
+        return;
+    }
+
+    if (useTestDb)
+    {
+        Console.WriteLine("Skipping database migrations and seed data - TEST_DB is set");
         return;
     }
 

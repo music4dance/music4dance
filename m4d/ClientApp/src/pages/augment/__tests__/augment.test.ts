@@ -7,7 +7,6 @@ import { SongHistory } from "@/models/SongHistory";
 
 // Mock the global model_ variable
 declare global {
-  // eslint-disable-next-line no-var
   var model_: string;
 }
 
@@ -143,7 +142,8 @@ describe("Augment Page", () => {
       expect(wrapper.vm.lastSong).not.toBeNull();
       expect(wrapper.vm.lastSong?.title).toBe("Test Song");
       expect(wrapper.vm.created).toBe(true);
-      expect(wrapper.vm.tabIndex).toBe(0); // Should reset to first tab
+      expect(wrapper.vm.showThanks).toBe(true); // Should show the thank-you alert
+      expect(wrapper.vm.tabIndex).toBe(1); // Tab should be preserved after save
     });
 
     test("reset with saved=false - should return to lookup without setting lastSong", async () => {
@@ -168,7 +168,8 @@ describe("Augment Page", () => {
       expect(wrapper.vm.phase).toBe("lookup");
       expect(wrapper.vm.songModel).toBeNull();
       expect(wrapper.vm.lastSong).toBeNull(); // Should NOT set lastSong when cancelled
-      expect(wrapper.vm.tabIndex).toBe(0); // Should still reset tab
+      expect(wrapper.vm.showThanks).toBe(false); // Should not show thank-you when cancelled
+      expect(wrapper.vm.tabIndex).toBe(1); // Tab should be preserved after cancel
     });
 
     test("Initial load with ID - should set tabIndex to 1", async () => {

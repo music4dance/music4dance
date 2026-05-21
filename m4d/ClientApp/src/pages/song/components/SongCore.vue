@@ -74,9 +74,10 @@ const safeEditor = computed(() => {
   return editor.value;
 });
 const filter = computed(() => props.model.filter);
-const showSave = computed(
-  () => (modified.value && checkDances.value) || (context.isAdmin && edit.value),
-);
+const showSave = computed(() => {
+  const isAdminEditing = context.isAdmin && edit.value;
+  return (modified.value && (checkDances.value || edit.value)) || isAdminEditing;
+});
 const history = computed(() => (editor.value ? editor.value.history : props.model.songHistory));
 const modified = computed(() => {
   const value = editor.value?.modified ?? false;
@@ -363,6 +364,7 @@ onBeforeUnmount(() => {
           :editor="editor as SongEditor"
           :edit="edit"
           :context="TagContext.Song"
+          :system-tag-keys="(history as SongHistory)?.systemTagKeys"
           @edit="setEdit"
           @update-song="updateSong"
           @tag-clicked="showTagModal"
@@ -408,7 +410,9 @@ onBeforeUnmount(() => {
           :song="song as Song"
           :editing="editing"
           :is-creator="isCreator"
+          :user="model.userName"
           @update-field="updateField($event)"
+          @edit="setEdit"
         /><BButton
           v-if="hasUserChanges && !editing"
           variant="outline-primary"
@@ -426,6 +430,18 @@ onBeforeUnmount(() => {
           <input type="hidden" name="id" :value="song.songId" />
           <input type="hidden" name="filter" :value="model.filter.query" />
         </form>
+      </BCol>
+    </BRow>
+    <BRow v-if="editor && context.canEdit">
+      <BCol>
+        <WaltzCorrectionCard
+          :song="song as Song"
+          :editor="editor as SongEditor"
+          :editing="editing"
+          :user="model.userName"
+          :can-edit="context.canEdit"
+          @edit="setEdit"
+        />
       </BCol>
     </BRow>
     <BRow>
@@ -482,7 +498,7 @@ onBeforeUnmount(() => {
         </div>
       </BCol>
       <BCol v-if="model.songHistory">
-        <SongHistoryViewer :history="history as SongHistory" />
+        <SongHistoryViewer :history="history as SongHistory" :authenticated="!!model.userName" />
       </BCol>
     </BRow>
     <DanceChooser
